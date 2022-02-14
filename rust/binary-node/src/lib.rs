@@ -1,10 +1,10 @@
-pub use binary::BinaryTrait;
 use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, Result},
-    semver_versions_matching, Binary,
+    semver_versions_matching,
 };
+pub use binary::{Binary, BinaryTrait};
 
 pub struct NodeBinary;
 

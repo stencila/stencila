@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     env, fs,
     path::{Path, PathBuf},
 };
@@ -8,8 +9,11 @@ use eyre::{bail, Result};
 pub use fs_utils;
 pub use libcnb;
 use libcnb::{
-    data::build_plan::{BuildPlan as CnblibBuildPlan, BuildPlanBuilder},
-    libcnb_runtime_build, libcnb_runtime_detect, BuildArgs, DetectArgs,
+    data::{
+        build_plan::{Provide, Require},
+        buildpack::BuildpackId,
+    },
+    libcnb_runtime_build, libcnb_runtime_detect, BuildArgs, DetectArgs, Platform,
 };
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -23,8 +27,13 @@ pub use tracing;
 const CNB_STACK_ID: &str = "stencila.stacks.focal";
 
 /// Test whether the current CNB platform is Stencila
-pub fn platform_is_stencila(platform_dir: &Path) -> bool {
+pub fn platform_dir_is_stencila(platform_dir: &Path) -> bool {
     platform_dir.join("env").join("STENCILA_VERSION").exists()
+}
+
+/// Test whether the current CNB platform is Stencila
+pub fn platform_is_stencila(platform: &impl Platform) -> bool {
+    platform.env().contains_key("STENCILA_VERSION")
 }
 
 /// A local trait for buildpacks that extends `libcnb::Buildpack`
@@ -37,20 +46,16 @@ pub trait BuildpackTrait: libcnb::Buildpack {
     fn toml() -> &'static str;
 
     /// Get the buildpack's spec (a.k.a. descriptor) from the `buildpack.toml`
-    fn spec() -> BuildpackToml {
+    fn spec() -> Result<BuildpackToml> {
         let toml = Self::toml();
-        match toml::from_str::<BuildpackToml>(toml) {
-            Ok(toml) => toml,
-            Err(error) => {
-                tracing::error!("While parsing buildpack.toml: {}", error);
-                BuildpackToml::default()
-            }
-        }
+        let spec = toml::from_str::<BuildpackToml>(toml)?;
+        Ok(spec)
     }
 
-    /// Get the buildpack's id from its descriptor
-    fn id() -> String {
-        Self::spec().buildpack.id
+    /// Get the buildpack's `id` from the `buildpack.toml`
+    fn id(&self) -> Result<BuildpackId> {
+        let spec = Self::spec()?;
+        Ok(spec.buildpack.id)
     }
 
     /// Ensure the buildpack's runtime directory exists and return its path
@@ -58,7 +63,8 @@ pub trait BuildpackTrait: libcnb::Buildpack {
     /// Both the `detect` and `build` methods require that `buildpack.toml`
     /// be available on disk.
     fn ensure_dir(&self) -> Result<String> {
-        let dir = buildpacks_dir()?.join(Self::id());
+        let id = self.id()?;
+        let dir = buildpacks_dir()?.join(id.to_string());
         fs::create_dir_all(&dir)?;
 
         // Write the `buildpack.toml` to the directory
@@ -71,7 +77,7 @@ pub trait BuildpackTrait: libcnb::Buildpack {
     /// Test whether any of the files exists in the working directory
     ///
     /// A convenience method for use in `detect`.
-    fn any_exist(&self, paths: &[&str]) -> bool {
+    fn any_exist(paths: &[&str]) -> bool {
         for path in paths {
             if PathBuf::from(path).exists() {
                 return true;
@@ -83,23 +89,73 @@ pub trait BuildpackTrait: libcnb::Buildpack {
     /// Test whether a file contains a string
     ///
     /// A convenience method for use in `detect`.
-    fn file_contains(&self, file: &str, string: &str) -> bool {
+    fn file_contains(file: &str, string: &str) -> bool {
         fs::read_to_string(file)
             .map(|content| content.contains(string))
             .unwrap_or(false)
     }
 
-    /// Generate a `libcnb` build plan from a list of dependency names
+    /// Parses a `.tool-versions` file (if any)
     ///
-    /// A convenience method for use in `detect` which ensures that each
-    /// dependency is added as a `requires` and `provides`. If both of these
-    /// are absent from the plan then `Pack` will fail `detect` for this buildpack.
-    fn build_plan(&self, dependencies: &[&str]) -> CnblibBuildPlan {
-        let mut builder = BuildPlanBuilder::new();
-        for dependency in dependencies {
-            builder = builder.requires(dependency).provides(dependency)
+    /// A convenience method for use in `detect`. If there is no such file, then
+    /// the returned map will be empty.
+    ///
+    /// Note that each line of `.tool-versions` can have multiple versions, but
+    /// that this takes the first.
+    fn tool_versions() -> HashMap<String, String> {
+        match fs::read_to_string(".tool-versions") {
+            Ok(content) => content
+                .lines()
+                .filter_map(|line| {
+                    let mut parts = line.split_whitespace();
+                    let name = match parts.next() {
+                        Some(name) => name.to_string(),
+                        None => return None,
+                    };
+                    let version = parts.next().unwrap_or("*").to_string();
+                    Some((name, version))
+                })
+                .collect(),
+            Err(..) => HashMap::new(),
         }
-        builder.build()
+    }
+
+    /// Generate `Require` (with metadata) and `Provide` objects
+    ///
+    /// A convenience method for use in `build` method.
+    fn require_and_provide(
+        name: impl AsRef<str>,
+        source: impl AsRef<str>,
+        desc: impl AsRef<str>,
+    ) -> (Require, Provide) {
+        let mut require = Require::new(name.as_ref());
+        if !source.as_ref().is_empty() {
+            require.metadata.insert(
+                "source".to_string(),
+                toml::Value::String(source.as_ref().to_string()),
+            );
+        }
+        if !desc.as_ref().is_empty() {
+            require.metadata.insert(
+                "description".to_string(),
+                toml::Value::String(desc.as_ref().to_string()),
+            );
+        }
+
+        let provide = Provide::new(name.as_ref());
+
+        (require, provide)
+    }
+
+    /// Split the `name` of a buildpack plan into two parts
+    ///
+    /// A convenience method for used in `build`.
+    fn split_entry_name(name: &str) -> (String, Vec<String>) {
+        let mut parts = name.split(' ');
+        (
+            parts.next().unwrap_or_default().to_string(),
+            parts.map(String::from).collect::<Vec<String>>(),
+        )
     }
 
     /// Run the buildpack's `detect` method
@@ -122,7 +178,7 @@ pub trait BuildpackTrait: libcnb::Buildpack {
             Ok(code) => Ok(code),
             Err(error) => bail!(
                 "While running `detect` for buildpack `{}`: {}",
-                Self::id(),
+                self.id()?,
                 error
             ),
         }
@@ -154,7 +210,7 @@ pub trait BuildpackTrait: libcnb::Buildpack {
             Ok(code) => Ok(code),
             Err(error) => bail!(
                 "While running `build` for buildpack `{}`: {}",
-                Self::id(),
+                self.id()?,
                 error
             ),
         }
@@ -191,16 +247,16 @@ pub fn tag_for_path(path: &Path) -> String {
 
 // The `libcnb` crate provides similar structs to those below, often with stronger typing,
 // but those do not implement `Serialize` or `Clone` and so for our purposes
-// it was easier to reimplement them here.
+// it was easier to reimplement them here. This decision should be revisited at some time.
 
-/// A `struct` representing a `buildpack.toml` file
+/// A Buildpack Descriptor (`buildpack.toml`)
 ///
 /// Used primarily to read in and display the spec for a buildpack for
-/// use in commands such a `stencila buildpacks show`.
+/// use in commands such a `stencila buildpacks show <label>`.
 ///
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#buildpacktoml-toml
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct BuildpackToml {
     pub api: String,
     pub buildpack: Buildpack,
@@ -209,20 +265,10 @@ pub struct BuildpackToml {
     pub metadata: Option<serde_json::Value>,
 }
 
-impl BuildpackToml {
-    pub fn id(&self) -> &str {
-        self.buildpack.id.as_str()
-    }
-
-    pub fn label(&self) -> Option<&str> {
-        self.buildpack.id.split('/').last()
-    }
-}
-
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Buildpack {
-    pub id: String,
+    pub id: BuildpackId,
     pub version: String,
     pub name: String,
     pub clear_env: Option<bool>,
@@ -256,7 +302,9 @@ pub struct BuildpackGroup {
     pub optional: bool,
 }
 
-/// A `struct` representing a Build Plan (TOML)
+/// A Build Plan
+///
+/// Generated by the `detect` method of a buildpack (if it matches against a folder).
 ///
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#build-plan-toml
 #[skip_serializing_none]
@@ -286,7 +334,9 @@ pub struct BuildPlanOr {
     pub requires: Option<BuildPlanRequires>,
 }
 
-/// A `struct` representing a Buildpack Plan (TOML)
+/// A Buildpack Plan
+///
+/// Passed to the `build` method of each buildpack involved in the build.
 ///
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#buildpack-plan-toml
 #[derive(Debug, Default, Deserialize, Serialize)]
