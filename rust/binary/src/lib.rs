@@ -20,7 +20,6 @@ use std::{
 /// Re-exports for the convenience of crates implementing `BinaryTrait`
 pub use ::async_trait;
 pub use ::eyre;
-pub use ::semver;
 
 /// Get the directory where binaries are stored
 pub fn binaries_dir() -> PathBuf {
@@ -29,6 +28,33 @@ pub fn binaries_dir() -> PathBuf {
         "macos" | "windows" => user_data_dir.join("Stencila").join("Binaries"),
         _ => user_data_dir.join("stencila").join("binaries"),
     }
+}
+
+/// Parse a string as a semantic version
+pub fn semver_version(string: impl AsRef<str>) -> Result<semver::Version> {
+    Ok(semver::Version::parse(string.as_ref())?)
+}
+
+/// Parse a string as a semantic version requirement
+///
+/// If the string has no operator prefix (e.g. "="), that is, it is a version, not a requirement,
+/// then a semver operator is added as follows:
+///
+/// - `x.y.z` => `=x.y.z`
+/// - `x.y` =>  `~x.y`
+/// - `x` =>  `^x`
+pub fn semver_requirement(string: impl AsRef<str>) -> Result<semver::VersionReq> {
+    let string = string.as_ref();
+    let op = string.chars().next().unwrap_or(' ');
+    let string = match "=^~><*".matches(op).count() {
+        0 => match string.matches('.').count() {
+            2 => ["=", string].concat(),
+            1 => ["~", string].concat(),
+            _ => ["^", string].concat(),
+        },
+        _ => string.to_string(),
+    };
+    Ok(semver::VersionReq::parse(&string)?)
 }
 
 /// A specification for a binary
@@ -116,8 +142,7 @@ impl Binary {
 
     /// Get the version of the binary at a path
     ///
-    /// Parses the output of the command and adds a `0` patch semver part if
-    /// necessary.
+    /// Parses the output of the command and adds a `0` patch part if necessary.
     fn version(&self, path: &Path) -> Option<String> {
         let output = std::process::Command::new(path)
             .args(&self.version_args)
@@ -235,35 +260,35 @@ pub trait BinaryTrait: Send + Sync {
         Vec::new()
     }
 
-    /// Require a version of the binary
-    async fn require(&self, version: Option<String>, install: bool) -> Result<BinaryInstallation> {
-        match self.installed(version.clone())? {
+    /// Require a binary
+    async fn require(&self, requirement: Option<String>, install: bool) -> Result<BinaryInstallation> {
+        match self.installed(requirement.clone())? {
             Some(installation) => Ok(installation),
             None => {
                 let spec = self.spec();
                 if install {
-                    self.install(version.clone(), None, None).await?;
-                    match self.installed(version)? {
+                    self.install(requirement.clone(), None, None).await?;
+                    match self.installed(requirement.clone())? {
                         Some(installation) => Ok(installation),
                         None => bail!("Failed to automatically install `{}`", spec.name),
                     }
                 } else {
                     bail!(
-                        "`{}` {} is not installed",
+                        "Binary `{}` with version requirement `{}` is not installed",
                         spec.name,
-                        version.unwrap_or_default()
+                        requirement.unwrap_or_default()
                     )
                 }
             }
         }
     }
 
-    /// Require a version of the binary (synchronously)
-    fn require_sync(&self, version: Option<String>, install: bool) -> Result<BinaryInstallation> {
+    /// Require a binary (synchronously)
+    fn require_sync(&self, requirement: Option<String>, install: bool) -> Result<BinaryInstallation> {
         let clone = self.clone_box();
         let (sender, receiver) = std::sync::mpsc::channel();
         tokio::spawn(async move {
-            let result = clone.require(version, install).await;
+            let result = clone.require(requirement, install).await;
             sender.send(result)
         });
         receiver.recv()?
@@ -379,8 +404,8 @@ pub trait BinaryTrait: Send + Sync {
         // the most recent version (meeting semver requirements) is returned by `installation()`.
         installs.sort_by(|a, b| match (&a.version, &b.version) {
             (Some(a), Some(b)) => {
-                let a = semver::Version::parse(a).unwrap();
-                let b = semver::Version::parse(b).unwrap();
+                let a = semver_version(a).unwrap();
+                let b = semver_version(b).unwrap();
                 a.partial_cmp(&b).unwrap_or(Ordering::Equal)
             }
             (Some(..), None) => Ordering::Greater,
@@ -393,14 +418,20 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Are any versions installed that match the semver requirement (if specified)?
-    fn installed(&self, semver: Option<String>) -> Result<Option<BinaryInstallation>> {
+    fn installed(&self, requirement: Option<String>) -> Result<Option<BinaryInstallation>> {
+        tracing::debug!(
+            "Checking if `{}` with requirement `{:?}` is installed",
+            self.spec().name,
+            requirement.clone().unwrap_or_else(|| "*".to_string())
+        );
+
         let installations = self.installations();
-        if let Some(semver) = semver {
-            let semver = semver::VersionReq::parse(&semver)?;
+        if let Some(requirement) = requirement {
+            let requirement = semver_requirement(requirement)?;
             for install in installations {
                 if let Some(version) = &install.version {
-                    let version = semver::Version::parse(version)?;
-                    if semver.matches(&version) {
+                    let version = semver_version(version)?;
+                    if requirement.matches(&version) {
                         return Ok(Some(install.clone()));
                     }
                 }
@@ -415,16 +446,11 @@ pub trait BinaryTrait: Send + Sync {
 
     /// Install the most recent version of the binary (meeting optional semver, OS, and arch requirements).
     ///
-    /// If a `semver` is not supplied then the latest version is installed. If `semver` is
-    /// supplied then the latest version meeting its requirement is installed. if the `semver`
-    /// has no operator prefix e.g. "=" then a semver prefix is added as follows:
-    ///
-    /// - `x.y.z` => `=x.y.z`
-    /// - `x.y` =>  `~x.y`
-    /// - `x` =>  `^x`
+    /// If a `requirement` is not supplied then the latest version is installed. If `requirement` is
+    /// supplied then the latest version meeting its requirement is installed.
     async fn install(
         &self,
-        semver: Option<String>,
+        requirement: Option<String>,
         os: Option<String>,
         arch: Option<String>,
     ) -> Result<()> {
@@ -434,8 +460,8 @@ pub trait BinaryTrait: Send + Sync {
 
         let versions = self.versions(&os).await?;
 
-        let semver = if let Some(semver) = semver {
-            semver
+        let requirement = if let Some(requirement) = requirement {
+            requirement
         } else {
             match versions.first() {
                 Some(version) => version.to_string(),
@@ -445,23 +471,11 @@ pub trait BinaryTrait: Send + Sync {
                 ),
             }
         };
-
-        let op = semver.chars().next().unwrap_or(' ');
-        let semver = match "=^~><*".matches(op).count() {
-            0 => match semver.matches('.').count() {
-                2 => ["=", &semver].concat(),
-                1 => ["~", &semver].concat(),
-                _ => ["^", &semver].concat(),
-            },
-            _ => semver.to_string(),
-        };
-
-        let semver = semver::VersionReq::parse(&semver)?;
+        let requirement = semver_requirement(&requirement)?;
 
         // Get the latest version matching semver requirements
         if let Some(version) = versions.iter().find_map(|version| {
-            match semver
-                .matches(&semver::Version::parse(version).expect("Version to always be valid"))
+            match requirement.matches(&semver_version(version).expect("Version to always be valid"))
             {
                 true => Some(version),
                 false => None,
@@ -473,9 +487,9 @@ pub trait BinaryTrait: Send + Sync {
             self.install_version(version, &os, &arch).await?;
         } else {
             bail!(
-                "Sorry, I don't know how to install `{}` version `{}`. See `stencila binaries versions {}` or perhaps install it manually?",
+                "Sorry, I don't know how to install `{}` with requirement `{}`. See `stencila binaries versions {}` or perhaps install it manually?",
                 name,
-                semver,
+                requirement,
                 name
             )
         }
@@ -699,7 +713,7 @@ pub fn semver_versions_sorted(versions: Vec<String>) -> Vec<String> {
     let mut versions: Vec<semver::Version> = versions
         .iter()
         .filter_map(|version| {
-            // Parse a `VersionRe` because that allows for incomplete versions e.g. 2.15
+            // Parse a `VersionReq` rather than a `Version` because that allows for incomplete versions e.g. 2.15
             semver::VersionReq::parse(version)
                 .ok()
                 .and_then(|version_req| {
@@ -728,17 +742,17 @@ pub fn semver_versions_sorted(versions: Vec<String>) -> Vec<String> {
 }
 
 // Filter out versions that are not valid semver versions and do not meet a semver requirement
-pub fn semver_versions_matching(versions: Vec<String>, semver: &str) -> Vec<String> {
+pub fn semver_versions_matching(versions: Vec<String>, requirement: &str) -> Vec<String> {
     let versions = semver_versions_sorted(versions);
 
-    let req = match semver::VersionReq::parse(semver) {
-        Ok(req) => req,
+    let requirement = match semver_requirement(requirement) {
+        Ok(requirement) => requirement,
         Err(..) => return versions,
     };
     versions
         .iter()
-        .filter_map(|version| match semver::Version::parse(version) {
-            Ok(ver) => match req.matches(&ver) {
+        .filter_map(|version| match semver_version(version) {
+            Ok(ver) => match requirement.matches(&ver) {
                 true => Some(version.to_string()),
                 false => None,
             },
@@ -788,6 +802,45 @@ impl BinaryInstallation {
             version,
             env: env_vars,
         }
+    }
+
+    // Get the parent of the install path
+    pub fn parent(&self) -> Result<PathBuf> {
+        self.path
+            .parent()
+            .map(|path| path.to_path_buf())
+            .ok_or_else(|| {
+                eyre!(
+                    "Path for binary `{}` has no parent: {}",
+                    self.name,
+                    self.path.display()
+                )
+            })
+    }
+
+    // Get the grandparent of the install path
+    pub fn grandparent(&self) -> Result<PathBuf> {
+        self.parent()?
+            .parent()
+            .map(|path| path.to_path_buf())
+            .ok_or_else(|| {
+                eyre!(
+                    "Path for binary `{}` has no parent: {}",
+                    self.name,
+                    self.path.display()
+                )
+            })
+    }
+
+    // Was this installed by Stencila?
+    pub fn is_stencila_install(&self) -> bool {
+        self.path.strip_prefix(binaries_dir()).is_ok()
+    }
+
+    pub fn version(&self) -> Result<&str> {
+        self.version
+            .as_deref()
+            .ok_or_else(|| eyre!("Installation for `{}` does not have a version", self.name))
     }
 
     /// Get the command for the binary
