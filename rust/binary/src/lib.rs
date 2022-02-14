@@ -253,12 +253,12 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Get the environment variables that should be set when the binary is installed
-    fn install_env(&self, _version: Option<String>) -> Vec<(String, OsString)> {
+    fn install_env(&self, _version: Option<String>) -> Vec<(OsString, OsString)> {
         Vec::new()
     }
 
     /// Get the environment variables that should be set when the binary is run
-    fn run_env(&self, _version: Option<String>) -> Vec<(String, OsString)> {
+    fn run_env(&self, _version: Option<String>) -> Vec<(OsString, OsString)> {
         Vec::new()
     }
 
@@ -795,7 +795,7 @@ pub struct BinaryInstallation {
     pub version: Option<String>,
 
     /// The environment variables to set before the binary is executed
-    pub env: Vec<(String, OsString)>,
+    pub env: Vec<(OsString, OsString)>,
 }
 
 impl BinaryInstallation {
@@ -804,7 +804,7 @@ impl BinaryInstallation {
         name: String,
         path: PathBuf,
         version: Option<String>,
-        env_vars: Vec<(String, OsString)>,
+        env_vars: Vec<(OsString, OsString)>,
     ) -> BinaryInstallation {
         BinaryInstallation {
             name,
@@ -864,35 +864,13 @@ impl BinaryInstallation {
     }
 
     /// Set the runtime environment for the binary
-    pub fn set_env(&mut self, vars: &[(impl AsRef<str>, impl AsRef<OsStr>)]) {
+    ///
+    /// Has the same effect as `Command::envs` when the binary is run.
+    pub fn envs(&mut self, vars: &[(impl AsRef<OsStr>, impl AsRef<OsStr>)]) {
         self.env = vars
             .iter()
             .map(|var| (var.0.as_ref().to_owned(), var.1.as_ref().to_owned()))
             .collect();
-    }
-
-    /// Use the environment variables for this binary
-    ///
-    /// Private method used in run related methods below to temporarily set env vars.
-    fn apply_env(&self) -> Vec<(String, String)> {
-        let mut prev_env = Vec::with_capacity(self.env.len());
-        for (key, value) in &self.env {
-            if let Ok(prev) = env::var(key) {
-                prev_env.push((key.clone(), prev));
-            }
-            env::set_var(key, value);
-        }
-        prev_env
-    }
-
-    /// Restore environment variables that this binary may have overridden
-    ///
-    /// Private method used in run related methods below to remove this installations
-    /// env vars and restore others.
-    fn restore_env(&self, env: Vec<(String, String)>) {
-        for (key, value) in env {
-            env::set_var(key, value);
-        }
     }
 
     /// Run the binary
@@ -901,15 +879,14 @@ impl BinaryInstallation {
     pub async fn run(&self, args: &[&str]) -> Result<Output> {
         tracing::trace!("Running binary installation {:?}", self);
 
-        let prev_env = self.apply_env();
         let result = self
             .command()
+            .envs(self.env.clone())
             .args(args)
             // TODO: instead of inheriting, forward to log INFO entries
             .stderr(Stdio::inherit())
             .output()
             .await;
-        self.restore_env(prev_env);
 
         Ok(result?)
     }
@@ -920,14 +897,13 @@ impl BinaryInstallation {
     pub fn run_sync(&self, args: &[&str]) -> Result<String> {
         tracing::trace!("Running binary installation {:?}", self);
 
-        let prev_env = self.apply_env();
         let result = self
             .command_sync()
+            .envs(self.env.clone())
             .args(args)
             // TODO: instead of inheriting, forward to log INFO entries
             .stderr(Stdio::inherit())
             .output();
-        self.restore_env(prev_env);
 
         match result {
             Ok(output) => match output.status.success() {
@@ -951,15 +927,14 @@ impl BinaryInstallation {
     pub fn interact(&self, args: &[&str]) -> Result<tokio::process::Child> {
         tracing::trace!("Interacting with binary installation {:?}", self);
 
-        let prev_env = self.apply_env();
         let result = self
             .command()
+            .envs(self.env.clone())
             .args(args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn();
-        self.restore_env(prev_env);
 
         Ok(result?)
     }

@@ -29,7 +29,7 @@ impl BinaryTrait for AsdfBinary {
             .map(semver_versions_sorted)
     }
 
-    fn run_env(&self, version: Option<String>) -> Vec<(String, OsString)> {
+    fn run_env(&self, version: Option<String>) -> Vec<(OsString, OsString)> {
         if let Ok(dir) = self.dir(version, false) {
             let binaries_dir = binaries_dir();
             if let Ok(..) = dir.strip_prefix(&binaries_dir) {
@@ -39,10 +39,10 @@ impl BinaryTrait for AsdfBinary {
                 let path = OsString::from(env::var("PATH").unwrap_or_default());
                 let path = env::join_paths(&[asdf_dir.clone(), path.clone()]).unwrap_or(path);
                 return vec![
-                    ("ASDF_CONFIG_FILE".to_string(), asdf_config_file),
-                    ("ASDF_DIR".to_string(), asdf_dir),
-                    ("ASDF_DATA_DIR".to_string(), asdf_data_dir),
-                    ("PATH".to_string(), path),
+                    ("ASDF_CONFIG_FILE".into(), asdf_config_file),
+                    ("ASDF_DIR".into(), asdf_dir),
+                    ("ASDF_DATA_DIR".into(), asdf_data_dir),
+                    ("PATH".into(), path),
                 ];
             }
         }

@@ -261,7 +261,7 @@ impl Layer for PoetryLayer {
         // If this is not a local build then make the layer the Poetry cache
         if !platform_is_stencila(&context.platform) {
             let cache_dir = layer_path.canonicalize()?;
-            poetry.set_env(&[("POETRY_CACHE_DIR", cache_dir.as_os_str())]);
+            poetry.envs(&[("POETRY_CACHE_DIR", cache_dir.as_os_str())]);
         }
 
         // Do the install

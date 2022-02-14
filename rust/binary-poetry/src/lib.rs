@@ -38,13 +38,12 @@ impl BinaryTrait for PoetryBinary {
         let mut python = PythonBinary {}
             .require(Some(">=3.6".to_string()), true)
             .await?;
-        python.set_env(&[
+        python.envs(&[
             ("POETRY_HOME", home.into_os_string()),
             ("POETRY_VERSION", OsString::from(version)),
             ("POETRY_ACCEPT", OsString::from("yes")),
         ]);
-        let output = python.run(&[&script.display().to_string()]).await?;
-        println!("{:#?}", output);
+        let _output = python.run(&[&script.display().to_string()]).await?;
 
         Ok(())
     }

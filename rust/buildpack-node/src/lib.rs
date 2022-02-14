@@ -255,7 +255,7 @@ impl Layer for NpmLayer {
 
         // If this is not a local build then make the layer the NPM cache
         if !platform_is_stencila(&context.platform) {
-            npm.set_env(&[("NPM_CONFIG_CACHE", layer_path.canonicalize()?.as_os_str())]);
+            npm.envs(&[("NPM_CONFIG_CACHE", layer_path.canonicalize()?.as_os_str())]);
         }
 
         // Do the install
