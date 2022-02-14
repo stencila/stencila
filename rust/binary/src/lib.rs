@@ -782,7 +782,7 @@ impl BinaryTrait for Binary {
     }
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct BinaryInstallation {
     /// The name of the binary
     #[serde(skip)]

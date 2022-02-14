@@ -4,7 +4,7 @@ use binary::{
     eyre::{bail, Result},
     semver_versions_matching,
 };
-pub use binary::{Binary, BinaryTrait};
+pub use binary::{Binary, BinaryInstallation, BinaryTrait};
 use binary_asdf::AsdfBinary;
 
 mod versions;

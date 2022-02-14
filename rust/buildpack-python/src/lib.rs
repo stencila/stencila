@@ -5,7 +5,7 @@ use std::{
 };
 
 use binary_poetry::PoetryBinary;
-use binary_python::{BinaryTrait, PythonBinary};
+use binary_python::{BinaryInstallation, BinaryTrait, PythonBinary};
 use buildpack::{
     eyre::{self, bail},
     fs_utils::{copy_dir_all, symlink_dir, symlink_file},
@@ -34,9 +34,6 @@ const PYPROJECT_TOML: &str = "pyproject.toml";
 const REQUIREMENTS_TXT: &str = "requirements.txt";
 const RUNTIME_TXT: &str = "runtime.txt";
 const TOOL_VERSIONS: &str = ".tool-versions";
-
-const POETRY_INSTALL: &str = "install";
-const POETRY_ADDREQ: &str = "addreq";
 
 impl Buildpack for PythonBuildpack {
     type Platform = GenericPlatform;
@@ -110,21 +107,21 @@ impl Buildpack for PythonBuildpack {
         // Determine how PyPI packages are to be installed
         if pyproject_toml.is_some() || poetry_lock.exists() {
             let (require, provide) = Self::require_and_provide(
-                ["poetry ", POETRY_INSTALL].concat(),
+                "poetry install",
                 if poetry_lock.exists() {
                     POETRY_LOCK
                 } else {
                     PYPROJECT_TOML
                 },
-                "Install PyPI packages using `poetry install`",
+                "Install PyPI packages using Poetry",
             );
             requires.push(require);
             provides.push(provide);
         } else if requirements_txt.exists() {
             let (require, provide) = Self::require_and_provide(
-                ["poetry ", POETRY_ADDREQ].concat(),
+                "pip install",
                 REQUIREMENTS_TXT,
-                "Install PyPI packages using `poetry add`",
+                "Install PyPI packages using Pip",
             );
             requires.push(require);
             provides.push(provide);
@@ -151,7 +148,10 @@ impl Buildpack for PythonBuildpack {
                     context.handle_layer(layer_name!("python"), PythonLayer::new(args))?;
                 }
                 "poetry" => {
-                    context.handle_layer(layer_name!("poetry"), PoetryLayer::new(args))?;
+                    context.handle_layer(layer_name!("poetry"), PoetryLayer)?;
+                }
+                "pip" => {
+                    context.handle_layer(layer_name!("pip"), PipLayer)?;
                 }
                 _ => (),
             };
@@ -224,17 +224,7 @@ impl Layer for PythonLayer {
     }
 }
 
-struct PoetryLayer {
-    arg: String,
-}
-
-impl PoetryLayer {
-    fn new(args: Vec<String>) -> Self {
-        PoetryLayer {
-            arg: args.first().cloned().unwrap_or_default(),
-        }
-    }
-}
+struct PoetryLayer;
 
 impl Layer for PoetryLayer {
     type Buildpack = PythonBuildpack;
@@ -256,8 +246,7 @@ impl Layer for PoetryLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<Self::Metadata>, eyre::Report> {
-        // Require Poetry
-        let mut poetry = PoetryBinary {}.require_sync(Some(">=1".to_string()), true)?;
+        let mut poetry = PoetryBinary {}.require_sync(Some(">=1,<2".to_string()), true)?;
 
         // If this is not a local build then ensure that a `.venv` folder in the working directory
         // is used (instead of a system level one) and make the layer the Poetry cache (instead of a system level one)
@@ -268,44 +257,68 @@ impl Layer for PoetryLayer {
             ]);
         }
 
-        // Do the install
-        match self.arg.as_str() {
-            POETRY_INSTALL => {
-                poetry.run_sync(&["install"])?;
-            }
-            POETRY_ADDREQ => {
-                // Poetry requires that `pyproject.toml` file exists for `add` to work
-                // so we create one as minimal as possible. A relatively high lower bound
-                // for Python is chosen because some packages will fail to install if they
-                // require something higher.
-                // TODO: Make the version, the version that is installed by this buildpack
-                let pyproject_toml = PathBuf::from(PYPROJECT_TOML);
-                if !pyproject_toml.exists() {
-                    let name = context
-                        .app_dir
-                        .file_name()
-                        .map(|name| name.to_string_lossy().to_string())
-                        .unwrap_or_else(|| "temp".to_string());
-                    let toml = format!(
-                        r#"[tool.poetry]
-name = "{}"
-description = ""
-version = "0.1.0"
-authors = []
+        poetry.run_sync(&["install"])?;
 
-[tool.poetry.dependencies]
-python = ">=3.8"
-"#,
-                        name
-                    );
-                    fs::write(pyproject_toml, toml)?;
-                }
-                for line in fs::read_to_string(REQUIREMENTS_TXT)?.lines() {
-                    poetry.run_sync(&["add", line])?;
-                }
-            }
-            _ => bail!("Unhandled arg: {}", self.arg),
+        LayerResultBuilder::new(GenericMetadata::default()).build()
+    }
+}
+
+struct PipLayer;
+
+impl Layer for PipLayer {
+    type Buildpack = PythonBuildpack;
+    type Metadata = GenericMetadata;
+
+    fn types(&self) -> LayerTypes {
+        // Layer is available at build time and is cached but is not needed for
+        // launch time because packages are installed into the `venv` of the
+        // working directory
+        LayerTypes {
+            build: true,
+            launch: false,
+            cache: true,
         }
+    }
+
+    fn create(
+        &self,
+        context: &BuildContext<Self::Buildpack>,
+        layer_path: &Path,
+    ) -> Result<LayerResult<Self::Metadata>, eyre::Report> {
+        // Reuse or create a virtualenv.
+        // The name `.venv` is most commonly used for this (e.g. Poetry uses that) but
+        // we also look for `venv` and `env`.
+        const VENV: &str = ".venv";
+        let mut virtualenv = PathBuf::from(VENV);
+        if !virtualenv.exists() {
+            let venv = PathBuf::from("venv");
+            let env = PathBuf::from("env");
+            if venv.join("bin").join("python").exists() {
+                virtualenv = venv;
+            } else if env.join("bin").join("python").exists() {
+                virtualenv = env;
+            } else {
+                // Require Python >=3.4 because that is when `ensurepip` was added (although we don't
+                // need to run that module explicitly)
+                let python = PythonBinary {}.require_sync(Some(">=3.4,<4".to_string()), true)?;
+                python.run_sync(&["-m", "venv", "--clear", VENV])?;
+            }
+        }
+        let virtualenv = virtualenv.canonicalize()?;
+
+        // Use the Python in the virtualenv, assume it is `python3` it has `pip`
+        let mut python = BinaryInstallation {
+            name: "python3".into(),
+            path: virtualenv.join("bin").join("python3"),
+            ..Default::default()
+        };
+
+        // Make the layer the Poetry cache (instead of a system level one)
+        if !platform_is_stencila(&context.platform) {
+            python.envs(&[("PIP_CACHE_DIR", layer_path.as_os_str())]);
+        }
+
+        python.run_sync(&["-m", "pip", "install", "-r", REQUIREMENTS_TXT])?;
 
         LayerResultBuilder::new(GenericMetadata::default()).build()
     }
