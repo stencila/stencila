@@ -89,6 +89,7 @@ default = [
   "binaries/binary-pack",
   "binaries/binary-pandoc",
   "binaries/binary-podman",
+  "binaries/binary-poetry",
   "binaries/binary-python",
   "binaries/binary-r",
 
