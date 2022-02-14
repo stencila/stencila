@@ -27,6 +27,11 @@ impl BuildpackTrait for NodeBuildpack {
     }
 }
 
+const NVMRC: &str = ".nvmrc";
+const PACKAGE_JSON: &str = "package.json";
+const PACKAGE_LOCK: &str = "package-lock.json";
+const TOOL_VERSIONS: &str = ".tool-versions";
+
 impl Buildpack for NodeBuildpack {
     type Platform = GenericPlatform;
     type Metadata = GenericMetadata;
@@ -34,23 +39,19 @@ impl Buildpack for NodeBuildpack {
 
     fn detect(&self, _context: DetectContext<Self>) -> libcnb::Result<DetectResult, Self::Error> {
         // Read `.tool-versions` for Node.js version
-        const TOOL_VERSIONS: &str = ".tool-versions";
         let tool_versions = Self::tool_versions();
 
         // Read `.nvmrc` for Node.js version
-        const NVMRC: &str = ".nvmrc";
         let nvmrc = fs::read_to_string(NVMRC)
             .map(|content| content.trim().to_string())
             .ok();
 
         // Read `package.json` for Node.js version
-        const PACKAGE_JSON: &str = "package.json";
         let package_json = fs::read_to_string(PACKAGE_JSON)
             .ok()
             .and_then(|json| serde_json::from_str::<serde_json::Value>(&json).ok());
 
         // Detect `package-lock.json`
-        const PACKAGE_LOCK: &str = "package-lock.json";
         let package_lock = PathBuf::from(PACKAGE_LOCK);
 
         // Fail early
@@ -82,14 +83,14 @@ impl Buildpack for NodeBuildpack {
         }) {
             (semver, PACKAGE_JSON)
         } else {
-            (String::new(), "")
+            ("".to_string(), "")
         };
 
         // Require and provide Node.js
         let (require, provide) = Self::require_and_provide(
-            format!("node {}", version),
+            format!("node {}", version).trim(),
             source,
-            format!("Install Node.js {}", version),
+            format!("Install Node.js {}", version).trim(),
         );
         requires.push(require);
         provides.push(provide);

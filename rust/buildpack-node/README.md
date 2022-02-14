@@ -4,18 +4,17 @@
 
 Matches against a project that has:
 
-  - a `.tool-versions` file with a `nodejs` or `node` entry
+  - a `.tool-versions` file with a `nodejs` or `node` entry, or
 
-  - any of `main.js`, `index.js`, `package.json`, `package-lock.json`, or
-  `.nvmrc` in its root folder, or
+  - any of `package.json`, `package-lock.json`, `.nvmrc`, `main.js`, or `index.js` in its root folder
 
 ## Node.js version
 
 The version of Node.js to be installed is determined from the following files (in descending order of precedence):
 
-  - the `nodejs` or `node` entry of any `.tool-versions` file
+  - the `nodejs` or `node` entry of any `.tool-versions` file,
 
-  - the content of any `.nvmrc` file
+  - the content of any `.nvmrc` file,
 
   - the `engines.node` property of any `package.json`
 
