@@ -2,12 +2,13 @@ use binary_pack::{BinaryTrait, PackBinary};
 use buildpack::{
     buildpacks_dir,
     eyre::{bail, Result},
-    platform_is_stencila, tag_for_path, toml, tracing, BuildPlan, BuildpackPlan, BuildpackToml,
+    libcnb::data::{buildpack::BuildpackId, buildpack_id},
+    platform_dir_is_stencila, tag_for_path, toml, tracing, BuildPlan, BuildpackPlan, BuildpackToml,
     BuildpackTrait,
 };
 use once_cell::sync::Lazy;
+use regex::Regex;
 use std::{
-    collections::BTreeMap,
     env::{current_dir, set_current_dir},
     fs,
     path::{Path, PathBuf},
@@ -30,13 +31,13 @@ macro_rules! dispatch_builtins {
     ($label:expr, $method:ident $(,$arg:expr)*) => {
         match $label {
             #[cfg(feature = "buildpack-dockerfile")]
-            "dockerfile" => buildpack_dockerfile::DockerfileBuildpack{}.$method($($arg),*),
+            "stencila/dockerfile" => buildpack_dockerfile::DockerfileBuildpack{}.$method($($arg),*),
             #[cfg(feature = "buildpack-node")]
-            "node" => buildpack_node::NodeBuildpack{}.$method($($arg),*),
+            "stencila/node" => buildpack_node::NodeBuildpack{}.$method($($arg),*),
             #[cfg(feature = "buildpack-python")]
-            "python" => buildpack_python::PythonBuildpack{}.$method($($arg),*),
+            "stencila/python" => buildpack_python::PythonBuildpack{}.$method($($arg),*),
             #[cfg(feature = "buildpack-r")]
-            "r" => buildpack_r::RBuildpack{}.$method($($arg),*),
+            "stencila/r" => buildpack_r::RBuildpack{}.$method($($arg),*),
             _ => bail!("No buildpack with label `{}`", $label)
         }
     };
@@ -46,16 +47,19 @@ impl Buildpacks {
     /// Create a new buildpack registry
     pub fn new() -> Self {
         Self {
-            inner: vec![
+            inner: [
                 #[cfg(feature = "buildpack-dockerfile")]
-                buildpack_dockerfile::DockerfileBuildpack::spec(),
+                buildpack_dockerfile::DockerfileBuildpack::spec().ok(),
                 #[cfg(feature = "buildpack-node")]
-                buildpack_node::NodeBuildpack::spec(),
+                buildpack_node::NodeBuildpack::spec().ok(),
                 #[cfg(feature = "buildpack-python")]
-                buildpack_python::PythonBuildpack::spec(),
+                buildpack_python::PythonBuildpack::spec().ok(),
                 #[cfg(feature = "buildpack-r")]
-                buildpack_r::RBuildpack::spec(),
-            ],
+                buildpack_r::RBuildpack::spec().ok(),
+            ]
+            .into_iter()
+            .flatten()
+            .collect(),
         }
     }
 
@@ -64,12 +68,11 @@ impl Buildpacks {
         &self.inner
     }
 
-    /// Generate a Markdown table of the available buildpacks
-    fn table(&self) -> String {
-        let cols = "|-----|--|----|-------|--------|";
-        let head = "|Label|Id|Name|Version|Keywords|";
-        let body = self
-            .inner
+    /// Generate a Markdown table of the list of available buildpacks
+    fn list_as_markdown(list: &[BuildpackToml]) -> String {
+        let cols = "|--|----|-------|--------|";
+        let head = "|Id|Name|Version|Keywords|";
+        let body = list
             .iter()
             .map(|buildpack_toml| {
                 let buildpack = &buildpack_toml.buildpack;
@@ -96,12 +99,24 @@ impl Buildpacks {
         )
     }
 
+    /// Find the `id` of the first buildbpack matching the label
+    fn find(&self, label: &str) -> Result<&BuildpackId> {
+        let label_lower = label.to_ascii_lowercase();
+        for buildpack_toml in &self.inner {
+            let id = buildpack_toml.buildpack.id.to_string();
+            if id == label_lower || id.split('/').last() == Some(&label_lower) {
+                return Ok(&buildpack_toml.buildpack.id);
+            }
+        }
+        bail!("No buildpack with id or label `{}`", label)
+    }
+
     /// Get the buildpack with the given label or id
     fn get(&self, label: &str) -> Result<&BuildpackToml> {
-        let label_lower = label.to_ascii_lowercase();
-        for buildpack in &self.inner {
-            if buildpack.id() == label_lower || buildpack.label() == Some(label) {
-                return Ok(buildpack);
+        let buildpack_id = self.find(label)?;
+        for buildpack_toml in &self.inner {
+            if buildpack_toml.buildpack.id == *buildpack_id {
+                return Ok(buildpack_toml);
             }
         }
         bail!("No buildpack with id or label `{}`", label)
@@ -126,51 +141,67 @@ impl Buildpacks {
         Ok(dir)
     }
 
+    /// Slugify a `BuildpackId` for use within a path
+    ///
+    /// Converts non-alphanumeric characters to underscores as seems
+    /// to be the convention used by Pack
+    fn slugify_buildpack_id(buildpack_id: &BuildpackId) -> String {
+        static REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new("[^A-Za-z0-9 ]").expect("Unable to create regex"));
+
+        REGEX.replace(buildpack_id.as_str(), "_").to_string()
+    }
+
     /// Create a CNB layers directory for a buildpack
     ///
     /// Used in `build` when the `layers_dir` argument is not supplied.
-    fn layers_dir_default(buildpack_label: &str) -> Result<PathBuf> {
+    fn layers_dir_default(buildpack_id: &BuildpackId) -> Result<PathBuf> {
         let dir = PathBuf::from(".stencila")
             .join("layers")
-            .join(buildpack_label);
+            .join(Self::slugify_buildpack_id(buildpack_id));
         fs::create_dir_all(&dir)?;
 
         Ok(dir)
     }
 
-    /// Create a CNB Build Plan file (if it does not yet exist) for a buildpack
+    /// Create a `.stencila/build/<buildpack>` directory in a working directory
     ///
-    /// Used in `detect` when the `build_plan` argument is not supplied.
-    /// Rather than generate this path in a temporary directory (as Pack does) we generate
-    /// it within the `.stencila` directory for transparency and easier debugging.
-    ///
-    /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#build-plan-toml
-    fn build_plan_default(buildpack_label: &str) -> Result<PathBuf> {
-        let dir = PathBuf::from(".stencila")
+    /// Rather than generate a temporary directory (as Pack does) we generate
+    /// it within the `.stencila` directory for transparency and easier debugging and
+    /// to be able to display the build plan to users.
+    fn build_dir_default(working_dir: &Path, buildpack_id: &BuildpackId) -> Result<PathBuf> {
+        let dir = working_dir
+            .join(".stencila")
             .join("build")
-            .join(buildpack_label);
+            .join(Self::slugify_buildpack_id(buildpack_id));
         fs::create_dir_all(&dir)?;
 
-        let file = dir.join("build-plan.toml");
-        if !file.exists() {
-            fs::File::create(&file)?;
-        }
-
-        Ok(file)
+        Ok(dir)
     }
 
-    /// Create a CNB Buildpack Plan file (if it does not yet exist) for a buildpack
+    /// Create a CNB Build Plan file for a buildpack in a working directory
+    ///
+    /// Used in `detect` when the `build_plan` argument is not supplied.
+    ///
+    /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#build-plan-toml
+    fn build_plan_default(working_dir: &Path, buildpack_id: &BuildpackId) -> Result<PathBuf> {
+        let dir = Self::build_dir_default(working_dir, buildpack_id)?;
+
+        let build_plan_path = dir.join("build-plan.toml");
+        if !build_plan_path.exists() {
+            fs::File::create(&build_plan_path)?;
+        }
+
+        Ok(build_plan_path)
+    }
+
+    /// Create a CNB Buildpack Plan file for a buildpack in a working directory
     ///
     /// Used in `build` when the `buildpack_plan` argument is not supplied.
-    /// Rather than generate this path in a temporary directory (as Pack does) we generate
-    /// it within the `.stencila` directory for transparency and easier debugging.
     ///
     /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#buildpack-plan-toml
-    fn buildpack_plan_default(buildpack_label: &str) -> Result<PathBuf> {
-        let dir = PathBuf::from(".stencila")
-            .join("build")
-            .join(buildpack_label);
-        fs::create_dir_all(&dir)?;
+    fn buildpack_plan_default(working_dir: &Path, buildpack_id: &BuildpackId) -> Result<PathBuf> {
+        let dir = Self::build_dir_default(working_dir, buildpack_id)?;
 
         // Get the `build-plan.toml`
         let build_plan_path = dir.join("build-plan.toml");
@@ -207,15 +238,13 @@ impl Buildpacks {
     ///                 defaults to `.stencila/build/<buildpack_label>/build-plan.toml` in the working directory.
     fn detect(
         &self,
-        buildpack_label: &str,
+        buildpack_id: &BuildpackId,
         working_dir: Option<&Path>,
         platform_dir: Option<&Path>,
         build_plan: Option<&Path>,
     ) -> Result<i32> {
         let current_dir = current_dir()?;
-        if let Some(working_dir) = working_dir {
-            set_current_dir(working_dir)?;
-        }
+        let working_dir = working_dir.unwrap_or(&current_dir).canonicalize()?;
 
         let platform_dir = match platform_dir {
             Some(dir) => dir.to_owned(),
@@ -224,13 +253,109 @@ impl Buildpacks {
 
         let build_plan = match build_plan {
             Some(path) => path.to_owned(),
-            None => Self::build_plan_default(buildpack_label)?,
+            None => Self::build_plan_default(&working_dir, buildpack_id)?,
         };
 
-        let result = dispatch_builtins!(buildpack_label, detect_with, &platform_dir, &build_plan);
-
+        set_current_dir(working_dir)?;
+        let result = dispatch_builtins!(
+            buildpack_id.as_str(),
+            detect_with,
+            &platform_dir,
+            &build_plan
+        );
         set_current_dir(current_dir)?;
+
+        if let Ok(code) = result {
+            if platform_dir_is_stencila(&platform_dir) && code != 0 {
+                build_plan.parent().map(|dir| fs::remove_dir_all(dir).ok());
+            }
+        }
+
         result
+    }
+
+    /// Run `detect` for all buildpacks and return a map of the results
+    fn detect_all(&self, working_dir: Option<&Path>) -> Result<Vec<(BuildpackId, bool)>> {
+        let mut matched = Vec::new();
+
+        for buildpack_toml in &self.inner {
+            let buildpack_id = buildpack_toml.buildpack.id.clone();
+            let result = self.detect(&buildpack_id, working_dir, None, None)?;
+            matched.push((buildpack_id, result == 0));
+        }
+
+        Ok(matched)
+    }
+
+    /// Run `detect` for all buildpacks and compile the resulting `build-plan`.toml files into a
+    /// map of `BuildPlan`s.
+    ///
+    /// The primary use for this method is to display to users what the build plan for their project
+    /// is so that they can make changes (e.g. to `.tool-versions` or `requirements.txt` files).
+    fn plan_all(
+        &self,
+        working_dir: Option<&Path>,
+    ) -> Result<Vec<(BuildpackId, Option<BuildPlan>)>> {
+        let working_dir = match working_dir {
+            Some(dir) => dir.to_owned(),
+            None => current_dir()?,
+        };
+
+        let matched = self.detect_all(Some(&working_dir))?;
+
+        let build_plans = matched
+            .into_iter()
+            .map(|(buildpack_id, matched)| {
+                let build_plan = match matched {
+                    true => Self::build_plan_default(&working_dir, &buildpack_id)
+                        .ok()
+                        .and_then(|path| fs::read_to_string(path).ok())
+                        .and_then(|toml| toml::from_str(&toml).ok()),
+                    false => None,
+                };
+                (buildpack_id, build_plan)
+            })
+            .collect();
+
+        Ok(build_plans)
+    }
+
+    /// Generate a Markdown document of a set of build plans
+    fn plan_as_markdown(plans: &[(BuildpackId, Option<BuildPlan>)]) -> String {
+        plans
+            .iter()
+            .map(|(id, plan)| {
+                let plan = match plan {
+                    Some(plan) => plan
+                        .requires
+                        .iter()
+                        .flatten()
+                        .map(|require| {
+                            let mut md = format!("- `{:18}`", require.name);
+                            if let Some(metadata) = &require.metadata {
+                                if let Some(desc) = metadata.get("description") {
+                                    md.push_str(&format!(
+                                        "  *{}*",
+                                        desc.as_str().unwrap_or_default()
+                                    ))
+                                }
+                                if let Some(source) = metadata.get("source") {
+                                    md.push_str(&format!(
+                                        " (`{}`)",
+                                        source.as_str().unwrap_or_default()
+                                    ))
+                                }
+                            }
+                            md
+                        })
+                        .collect::<Vec<String>>()
+                        .join("\n"),
+                    None => "*Nothing*".to_string(),
+                };
+                format!("## Buildpack '{}'\n\n{}\n", id, plan)
+            })
+            .collect::<Vec<String>>()
+            .join("\n")
     }
 
     /// Build image layers for a working directory using a buildpack
@@ -252,30 +377,24 @@ impl Buildpacks {
     ///                      defaults to `.stencila/build/<buildpack_label>/buildpack-plan.toml` in the working directory.
     fn build(
         &self,
-        buildpack_label: &str,
+        buildpack_id: &BuildpackId,
         working_dir: Option<&Path>,
         layers_dir: Option<&Path>,
         platform_dir: Option<&Path>,
         buildpack_plan: Option<&Path>,
     ) -> Result<i32> {
         let current_dir = current_dir()?;
-        let working_dir = match working_dir {
-            Some(dir) => {
-                set_current_dir(dir)?;
-                dir.to_owned()
-            }
-            None => current_dir.clone(),
-        };
+        let working_dir = working_dir.unwrap_or(&current_dir).canonicalize()?;
 
         tracing::info!(
             "Building `{}` with buildpack `{}`",
             working_dir.display(),
-            buildpack_label
+            buildpack_id
         );
 
         let layers_dir = match layers_dir {
             Some(dir) => dir.to_owned(),
-            None => Self::layers_dir_default(buildpack_label)?,
+            None => Self::layers_dir_default(buildpack_id)?,
         };
 
         let platform_dir = match platform_dir {
@@ -285,33 +404,55 @@ impl Buildpacks {
 
         let buildpack_plan = match buildpack_plan {
             Some(path) => path.to_owned(),
-            None => Self::buildpack_plan_default(buildpack_label)?,
+            None => Self::buildpack_plan_default(&working_dir, buildpack_id)?,
         };
 
-        if platform_is_stencila(&platform_dir) {
+        if platform_dir_is_stencila(&platform_dir) {
             tracing::debug!("Buildpack platform is Stencila");
 
-            let code = self.detect(buildpack_label, None, Some(&platform_dir), None)?;
+            let code = self.detect(buildpack_id, Some(&working_dir), Some(&platform_dir), None)?;
             if code != 0 {
                 tracing::warn!(
                     "Directory `{}` does not match buildpack `{}` so will not be built",
                     working_dir.display(),
-                    buildpack_label
+                    buildpack_id
                 );
                 return Ok(100);
             }
         }
 
+        set_current_dir(working_dir)?;
         let result = dispatch_builtins!(
-            buildpack_label,
+            buildpack_id.as_str(),
             build_with,
             &layers_dir,
             &platform_dir,
             &buildpack_plan
         );
-
         set_current_dir(current_dir)?;
+
         result
+    }
+
+    /// Run `detect` for all buildpacks, run `build` for those that match, and return
+    /// a map of the detection results.
+    ///
+    /// If the directory matches the `dockerfile` buildpack, no other buildpacks will
+    /// be built for the directory.
+    fn build_all(&self, working_dir: Option<&Path>) -> Result<Vec<(BuildpackId, bool)>> {
+        let matches = self.detect_all(working_dir)?;
+
+        let dockerfile_buildpack_id = buildpack_id!("stencila/dockerfile");
+        for (buildpack_id, matched) in &matches {
+            if *matched {
+                self.build(buildpack_id, working_dir, None, None, None)?;
+                if *buildpack_id == dockerfile_buildpack_id {
+                    break;
+                }
+            }
+        }
+
+        Ok(matches)
     }
 
     /// Build a container image for a project folder
@@ -321,11 +462,12 @@ impl Buildpacks {
     async fn pack(&self, working_dir: Option<&Path>) -> Result<()> {
         const CNB_BUILDER: &str = "stencila/buildpacks:focal";
 
+        let dockerfile_buildpack_id = buildpack_id!("stencila/dockerfile");
         let code = self
-            .detect("dockerfile", working_dir, None, None)
+            .detect(&dockerfile_buildpack_id, working_dir, None, None)
             .unwrap_or(100);
         if code == 0 {
-            self.build("dockerfile", working_dir, None, None, None)?;
+            self.build(&dockerfile_buildpack_id, working_dir, None, None, None)?;
             return Ok(());
         }
 
@@ -386,44 +528,6 @@ impl Buildpacks {
 
         Ok(())
     }
-
-    /// Run `detect` for all buildpacks and return a map of the results
-    fn detect_all(&self, working_dir: Option<&Path>) -> Result<BTreeMap<String, bool>> {
-        let mut matched = BTreeMap::new();
-
-        for buildpack in &self.inner {
-            let id = buildpack.id();
-            let label = match buildpack.label() {
-                Some(label) => label,
-                None => bail!("Unable to determine label for buildpack `{}`", id),
-            };
-
-            let result = self.detect(label, working_dir, None, None)?;
-            matched.insert(label.to_string(), result == 0);
-        }
-
-        Ok(matched)
-    }
-
-    /// Run `detect` for all buildpacks, run `build` for those that match, and return
-    /// a map of the detection results.
-    ///
-    /// If the directory matches the `dockerfile` buildpack, no other buildpacks will
-    /// be built for the directory.
-    fn build_all(&self, working_dir: Option<&Path>) -> Result<BTreeMap<String, bool>> {
-        let matched = self.detect_all(working_dir)?;
-
-        for (label, build) in &matched {
-            if *build {
-                self.build(label, working_dir, None, None, None)?;
-                if label == "dockerfile" {
-                    break;
-                }
-            }
-        }
-
-        Ok(matched)
-    }
 }
 
 impl Default for Buildpacks {
@@ -455,6 +559,7 @@ pub mod commands {
         List(List),
         Show(Show),
         Detect(Detect),
+        Plan(Plan),
         Build(Build),
         Pack(Pack),
         Clean(Clean),
@@ -467,6 +572,7 @@ pub mod commands {
                 Command::List(cmd) => cmd.run().await,
                 Command::Show(cmd) => cmd.run().await,
                 Command::Detect(cmd) => cmd.run().await,
+                Command::Plan(cmd) => cmd.run().await,
                 Command::Build(cmd) => cmd.run().await,
                 Command::Pack(cmd) => cmd.run().await,
                 Command::Clean(cmd) => cmd.run().await,
@@ -488,8 +594,8 @@ pub mod commands {
     impl Run for List {
         async fn run(&self) -> Result {
             let list = PACKS.list();
-            let table = PACKS.table();
-            result::new("md", &table, &list)
+            let md = Buildpacks::list_as_markdown(list);
+            result::new("md", &md, &list)
         }
     }
 
@@ -515,9 +621,16 @@ pub mod commands {
 
     /// Detect whether a buildpack should build the working directory
     ///
-    /// The `platform` and `plan` arguments of this command correspond
-    /// to the same named arguments in the Cloud Native Buildpacks API for `detect`
-    /// executables. See https://github.com/buildpacks/spec/blob/main/buildpack.md#detect.
+    /// This command is designed to be able to be used in a Cloud Native Buildpack (CNB)
+    /// `bin/detect` script e.g
+    ///
+    ///    #!/usr/bin/env bash
+    ///    set -eo pipefail
+    ///    
+    ///    stencila buildpacks detect . python <platform> <plan>
+    ///
+    /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#detection
+    /// further details.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
@@ -526,12 +639,12 @@ pub mod commands {
         /// The working directory (defaults to the current directory)
         working: Option<PathBuf>,
 
-        /// The label of the buildpack to detect with
+        /// The id or label of the buildpack to detect with
         ///
         /// If not supplied, or "all", all buildpacks will be tested against the working directory
         /// and a map of the results returned.
         ///
-        /// To get the list of buildpack labels use `stencila buildpacks list`.
+        /// To get the list of buildpacks available use `stencila buildpacks list`.
         label: Option<String>,
 
         /// A directory containing platform provided configuration, such as environment variables
@@ -553,8 +666,9 @@ pub mod commands {
                 return result::value(results);
             }
 
+            let buildpack_id = PACKS.find(&label)?;
             let result = PACKS.detect(
-                &label,
+                buildpack_id,
                 self.working.as_deref(),
                 self.platform.as_deref(),
                 self.plan.as_deref(),
@@ -595,11 +709,37 @@ pub mod commands {
         }
     }
 
+    /// Show the build plan for a working directory
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Plan {
+        /// The working directory (defaults to the current directory)
+        path: Option<PathBuf>,
+    }
+
+    #[async_trait]
+    impl Run for Plan {
+        async fn run(&self) -> Result {
+            let plans = PACKS.plan_all(self.path.as_deref())?;
+            let md = Buildpacks::plan_as_markdown(&plans);
+            result::new("md", &md, plans)
+        }
+    }
+
     /// Build image layers for the working directory using a buildpack
     ///
-    /// The `layers`, `platform` and `plan` arguments of this command correspond
-    /// to the same named arguments in the Cloud Native Buildpacks API for `build`
-    /// executables. See https://github.com/buildpacks/spec/blob/main/buildpack.md#build.
+    /// This command is designed to be able to be used in a Cloud Native Buildpack (CNB)
+    /// `bin/build` script e.g
+    ///
+    ///    #!/usr/bin/env bash
+    ///    set -eo pipefail
+    ///    
+    ///    stencila buildpacks build . python <layers> <platform> <plan>
+    ///
+    /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#build for
+    /// further details.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
@@ -608,12 +748,12 @@ pub mod commands {
         /// The working directory (defaults to the current directory)
         working: Option<PathBuf>,
 
-        /// The label of the buildpack to build
+        /// The id or label of the buildpack to build
         ///
         /// If not supplied, or "all", all buildpacks will be tested against the working directory
         /// and those that match will be built.
         ///
-        /// To get the list of buildpack labels use `stencila buildpacks list`.
+        /// To get the list of buildpacks available use `stencila buildpacks list`.
         label: Option<String>,
 
         /// A directory that may contain subdirectories representing each layer created by the
@@ -639,8 +779,9 @@ pub mod commands {
                 return result::value(results);
             }
 
+            let buildpack_id = PACKS.find(&label)?;
             let result = PACKS.build(
-                &label,
+                buildpack_id,
                 self.working.as_deref(),
                 self.layers.as_deref(),
                 self.platform.as_deref(),
@@ -680,7 +821,7 @@ pub mod commands {
         }
     }
 
-    ///
+    /// Create a container image for a working directory
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
