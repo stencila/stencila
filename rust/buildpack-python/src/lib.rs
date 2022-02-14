@@ -1,4 +1,5 @@
 use std::{
+    ffi::OsString,
     fs,
     path::{Path, PathBuf},
 };
@@ -258,10 +259,13 @@ impl Layer for PoetryLayer {
         // Require Poetry
         let mut poetry = PoetryBinary {}.require_sync(Some(">=1".to_string()), true)?;
 
-        // If this is not a local build then make the layer the Poetry cache
+        // If this is not a local build then ensure that a `.venv` folder in the working directory
+        // is used (instead of a system level one) and make the layer the Poetry cache (instead of a system level one)
         if !platform_is_stencila(&context.platform) {
-            let cache_dir = layer_path.canonicalize()?;
-            poetry.envs(&[("POETRY_CACHE_DIR", cache_dir.as_os_str())]);
+            poetry.envs(&[
+                ("POETRY_VIRTUALENVS_IN_PROJECT", OsString::from("true")),
+                ("POETRY_CACHE_DIR", layer_path.canonicalize()?.into()),
+            ]);
         }
 
         // Do the install
