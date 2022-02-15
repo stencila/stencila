@@ -5,15 +5,14 @@
 // in the `schema` directory and run `npm run build:ts` to regenerate it.
 
 type Integer = number
-type ObjectType = Record<string | number, unknown>
-type Primitives =
+type Primitive =
   | undefined
   | null
   | boolean
   | number
   | string
-  | Array<unknown>
-  | ObjectType
+  | Array<Primitive>
+  | { [key: string]: Primitive }
 
 // Remove properties from an Object if their value is undefined
 const compact = <O extends object>(o: O): O =>
@@ -91,7 +90,7 @@ export interface Types {
   Null: null
   Number: number
   NumberValidator: NumberValidator
-  Object: ObjectType
+  Object: Record<string, unknown>
   Organization: Organization
   Paragraph: Paragraph
   Parameter: Parameter
@@ -214,7 +213,7 @@ export type Entity = {
     | 'VideoObject'
     | 'VolumeMount'
   id?: string
-  meta?: ObjectType
+  meta?: Record<string, unknown>
 }
 
 /**
@@ -2281,7 +2280,7 @@ export type Node =
   | Integer
   | number
   | string
-  | ObjectType
+  | Record<string, unknown>
   | Array<unknown>
 
 /**
@@ -2802,13 +2801,13 @@ export enum CitationIntentEnumeration {
 export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }
 
 export const codeExecutableTypes: TypeMap<
-  Exclude<CodeExecutableTypes, Primitives>
+  Exclude<CodeExecutableTypes, Primitive>
 > = {
   CodeExecutable: 'CodeExecutable',
   CodeChunk: 'CodeChunk',
   CodeExpression: 'CodeExpression',
 }
-export const codeTypes: TypeMap<Exclude<CodeTypes, Primitives>> = {
+export const codeTypes: TypeMap<Exclude<CodeTypes, Primitive>> = {
   Code: 'Code',
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
@@ -2816,35 +2815,33 @@ export const codeTypes: TypeMap<Exclude<CodeTypes, Primitives>> = {
   CodeExpression: 'CodeExpression',
   CodeFragment: 'CodeFragment',
 }
-export const contactPointTypes: TypeMap<
-  Exclude<ContactPointTypes, Primitives>
-> = {
-  ContactPoint: 'ContactPoint',
-  PostalAddress: 'PostalAddress',
-}
-export const creativeWorkTypes: TypeMap<
-  Exclude<CreativeWorkTypes, Primitives>
-> = {
-  CreativeWork: 'CreativeWork',
-  Article: 'Article',
-  AudioObject: 'AudioObject',
-  Claim: 'Claim',
-  Collection: 'Collection',
-  Comment: 'Comment',
-  Datatable: 'Datatable',
-  Figure: 'Figure',
-  ImageObject: 'ImageObject',
-  MediaObject: 'MediaObject',
-  Periodical: 'Periodical',
-  PublicationIssue: 'PublicationIssue',
-  PublicationVolume: 'PublicationVolume',
-  Review: 'Review',
-  SoftwareApplication: 'SoftwareApplication',
-  SoftwareSourceCode: 'SoftwareSourceCode',
-  Table: 'Table',
-  VideoObject: 'VideoObject',
-}
-export const entityTypes: TypeMap<Exclude<EntityTypes, Primitives>> = {
+export const contactPointTypes: TypeMap<Exclude<ContactPointTypes, Primitive>> =
+  {
+    ContactPoint: 'ContactPoint',
+    PostalAddress: 'PostalAddress',
+  }
+export const creativeWorkTypes: TypeMap<Exclude<CreativeWorkTypes, Primitive>> =
+  {
+    CreativeWork: 'CreativeWork',
+    Article: 'Article',
+    AudioObject: 'AudioObject',
+    Claim: 'Claim',
+    Collection: 'Collection',
+    Comment: 'Comment',
+    Datatable: 'Datatable',
+    Figure: 'Figure',
+    ImageObject: 'ImageObject',
+    MediaObject: 'MediaObject',
+    Periodical: 'Periodical',
+    PublicationIssue: 'PublicationIssue',
+    PublicationVolume: 'PublicationVolume',
+    Review: 'Review',
+    SoftwareApplication: 'SoftwareApplication',
+    SoftwareSourceCode: 'SoftwareSourceCode',
+    Table: 'Table',
+    VideoObject: 'VideoObject',
+  }
+export const entityTypes: TypeMap<Exclude<EntityTypes, Primitive>> = {
   Entity: 'Entity',
   ArrayValidator: 'ArrayValidator',
   Article: 'Article',
@@ -2926,16 +2923,15 @@ export const entityTypes: TypeMap<Exclude<EntityTypes, Primitives>> = {
   VideoObject: 'VideoObject',
   VolumeMount: 'VolumeMount',
 }
-export const enumerationTypes: TypeMap<Exclude<EnumerationTypes, Primitives>> =
-  {
-    Enumeration: 'Enumeration',
-    CitationIntentEnumeration: 'CitationIntentEnumeration',
-  }
-export const grantTypes: TypeMap<Exclude<GrantTypes, Primitives>> = {
+export const enumerationTypes: TypeMap<Exclude<EnumerationTypes, Primitive>> = {
+  Enumeration: 'Enumeration',
+  CitationIntentEnumeration: 'CitationIntentEnumeration',
+}
+export const grantTypes: TypeMap<Exclude<GrantTypes, Primitive>> = {
   Grant: 'Grant',
   MonetaryGrant: 'MonetaryGrant',
 }
-export const markTypes: TypeMap<Exclude<MarkTypes, Primitives>> = {
+export const markTypes: TypeMap<Exclude<MarkTypes, Primitive>> = {
   Mark: 'Mark',
   Delete: 'Delete',
   Emphasis: 'Emphasis',
@@ -2945,19 +2941,18 @@ export const markTypes: TypeMap<Exclude<MarkTypes, Primitives>> = {
   Subscript: 'Subscript',
   Superscript: 'Superscript',
 }
-export const mathTypes: TypeMap<Exclude<MathTypes, Primitives>> = {
+export const mathTypes: TypeMap<Exclude<MathTypes, Primitive>> = {
   Math: 'Math',
   MathBlock: 'MathBlock',
   MathFragment: 'MathFragment',
 }
-export const mediaObjectTypes: TypeMap<Exclude<MediaObjectTypes, Primitives>> =
-  {
-    MediaObject: 'MediaObject',
-    AudioObject: 'AudioObject',
-    ImageObject: 'ImageObject',
-    VideoObject: 'VideoObject',
-  }
-export const thingTypes: TypeMap<Exclude<ThingTypes, Primitives>> = {
+export const mediaObjectTypes: TypeMap<Exclude<MediaObjectTypes, Primitive>> = {
+  MediaObject: 'MediaObject',
+  AudioObject: 'AudioObject',
+  ImageObject: 'ImageObject',
+  VideoObject: 'VideoObject',
+}
+export const thingTypes: TypeMap<Exclude<ThingTypes, Primitive>> = {
   Thing: 'Thing',
   Article: 'Article',
   AudioObject: 'AudioObject',
@@ -2995,7 +2990,7 @@ export const thingTypes: TypeMap<Exclude<ThingTypes, Primitives>> = {
   VideoObject: 'VideoObject',
   VolumeMount: 'VolumeMount',
 }
-export const validatorTypes: TypeMap<Exclude<ValidatorTypes, Primitives>> = {
+export const validatorTypes: TypeMap<Exclude<ValidatorTypes, Primitive>> = {
   Validator: 'Validator',
   ArrayValidator: 'ArrayValidator',
   BooleanValidator: 'BooleanValidator',
@@ -3006,7 +3001,7 @@ export const validatorTypes: TypeMap<Exclude<ValidatorTypes, Primitives>> = {
   StringValidator: 'StringValidator',
   TupleValidator: 'TupleValidator',
 }
-export const blockContentTypes: TypeMap<Exclude<BlockContent, Primitives>> = {
+export const blockContentTypes: TypeMap<Exclude<BlockContent, Primitive>> = {
   Claim: 'Claim',
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
@@ -3021,7 +3016,7 @@ export const blockContentTypes: TypeMap<Exclude<BlockContent, Primitives>> = {
   Table: 'Table',
   ThematicBreak: 'ThematicBreak',
 }
-export const inlineContentTypes: TypeMap<Exclude<InlineContent, Primitives>> = {
+export const inlineContentTypes: TypeMap<Exclude<InlineContent, Primitive>> = {
   AudioObject: 'AudioObject',
   Cite: 'Cite',
   CiteGroup: 'CiteGroup',
