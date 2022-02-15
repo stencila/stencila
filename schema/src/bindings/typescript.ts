@@ -123,8 +123,8 @@ export const interfaceGenerator = (schema: JsonSchema): string => {
 
   // Interface
   code += docComment(description)
-  code += `export interface ${title} ${
-    parent !== undefined ? `extends ${parent}` : ''
+  code += `export type ${title} = ${
+    parent !== undefined ? `${parent} &` : ''
   } {\n`
   code += `  type: ${type}\n`
   code += own
