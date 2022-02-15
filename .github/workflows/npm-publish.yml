@@ -13,30 +13,25 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16
-      - run: npm ci
-      - run: cd ${{ github.event.inputs.packageDir }}
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run test
-      - run: npm run build
-
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: codfish/semantic-release-action@v1
-        name: Semantic Release Action
-        with:
-          branches: |
-            ['master', 'main']
-    env:
-      GIT_AUTHOR_NAME: ${{ secrets.GIT_AUTHOR_NAME }}
-      GIT_AUTHOR_EMAIL: ${{ secrets.GIT_AUTHOR_EMAIL }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - uses: actions/setup-node@v2
+          with:
+            node-version: 16
+        - run: npm ci
+        - run: cd ${{ github.event.inputs.packageDir }}
+        - run: npm ci
+        - run: npm run lint
+        - run: npm run test
+        - run: npm run build
+        - uses: codfish/semantic-release-action@v1
+          name: Semantic Release Action
+          with:
+            branches: |
+              ['master', 'main']
+          env:
+            GIT_AUTHOR_NAME: ${{ secrets.GIT_AUTHOR_NAME }}
+            GIT_AUTHOR_EMAIL: ${{ secrets.GIT_AUTHOR_EMAIL }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
