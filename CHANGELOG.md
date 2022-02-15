@@ -1,3 +1,12 @@
+## [1.0.5](https://github.com/stencila/stencila/compare/v1.0.4...v1.0.5) (2022-02-15)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @codemirror/view to ^0.19.42 ([26bb6f7](https://github.com/stencila/stencila/commit/26bb6f757a00de60db548ace4edb0622f2dd366d))
+* **dependencies:** update dependency @reduxjs/toolkit to v1.7.2 ([afdcf3f](https://github.com/stencila/stencila/commit/afdcf3f2be1275d4aa29ea16dc6586da2cdc6216))
+* **dependencies:** update dependency electron-log to v4.4.6 ([f6c7b36](https://github.com/stencila/stencila/commit/f6c7b36ac0b4d5157c4c2a34f83de3b38b718b0b))
+
 ## [1.0.4](https://github.com/stencila/stencila/compare/v1.0.3...v1.0.4) (2022-02-02)
 
 
