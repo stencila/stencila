@@ -19,10 +19,11 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 16
+      - run: npm ci
       - run: cd ${{ github.event.inputs.packageDir }}
       - run: npm ci
-      - run: npm runt lint
-      - run: npm run test:cover
+      - run: npm run lint
+      - run: npm run test
       - run: npm run build
 
   publish-npm:
