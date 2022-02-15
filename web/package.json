@@ -81,7 +81,7 @@
   },
   "dependencies": {
     "@codemirror/state": "^0.19.6",
-    "@codemirror/view": "^0.19.40",
+    "@codemirror/view": "^0.19.42",
     "@stencila/components": "^0.50.3",
     "@stencila/stencila": "file:../node",
     "fast-array-diff": "^1.0.1",
