@@ -101,15 +101,17 @@ export function isComment(node: Node | null | undefined): node is Comment {
   return node?.nodeType === Node.COMMENT_NODE
 }
 
+export type JsonObject = { [property: string | number]: JsonValue }
+
 export type JsonValue =
   | string
   | number
   | boolean
   | null
+  | JsonObject
   | JsonValue[]
-  | { [key: string]: JsonValue }
+
 export type JsonArray = JsonValue[]
-export type JsonObject = { [key: string]: JsonValue }
 
 /**
  * Assert that a JSON value is defined.
