@@ -8,6 +8,7 @@ import { ProjectId } from './types'
 
 export type { Document, Session } from '@stencila/stencila'
 export * as documents from './documents'
+export * as patches from './patches'
 
 export const main = (
   clientId: ClientId,
