@@ -16,7 +16,7 @@
  * Excludes `*Citation` and `Shares*` since these are related to citation "distance", not citation
  * intent. See https://github.com/stencila/schema/pull/260#pullrequestreview-636331806.
  *
- * Run using `npx ts-node ts/imports/cito.ts`.
+ * Run using `npx ts-node src/imports/cito.ts`.
  */
 
 import got from 'got'

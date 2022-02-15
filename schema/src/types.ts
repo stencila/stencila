@@ -4,20 +4,14 @@
 // Do not modify it by hand. Instead, modify the source `.schema.yaml` files
 // in the `schema` directory and run `npm run build:ts` to regenerate it.
 
-type Null = null
-type Boolean = boolean
 type Integer = number
-type Number = number
-type String = string
-type Object = Record<string, unknown>
-type Primitives =
-  | undefined
+type Primitive =
   | null
   | boolean
   | number
   | string
-  | Array<unknown>
-  | Object
+  | Array<Primitive>
+  | { [key: string]: Primitive }
 
 // Remove properties from an Object if their value is undefined
 const compact = <O extends object>(o: O): O =>
@@ -33,7 +27,7 @@ export interface Types {
   Article: Article
   AudioObject: AudioObject
   BlockContent: BlockContent
-  Boolean: Boolean
+  Boolean: boolean
   BooleanValidator: BooleanValidator
   Brand: Brand
   CitationIntentEnumeration: CitationIntentEnumeration
@@ -92,10 +86,10 @@ export interface Types {
   Node: Node
   NontextualAnnotation: NontextualAnnotation
   Note: Note
-  Null: Null
-  Number: Number
+  Null: null
+  Number: number
   NumberValidator: NumberValidator
-  Object: Object
+  Object: Record<string, unknown>
   Organization: Organization
   Paragraph: Paragraph
   Parameter: Parameter
@@ -113,7 +107,7 @@ export interface Types {
   SoftwareEnvironment: SoftwareEnvironment
   SoftwareSession: SoftwareSession
   SoftwareSourceCode: SoftwareSourceCode
-  String: String
+  String: string
   StringValidator: StringValidator
   Strong: Strong
   Subscript: Subscript
@@ -135,7 +129,7 @@ export interface Types {
 /**
  * The most simple compound (ie. non-atomic like `number`, `string` etc) type.
  */
-export interface Entity {
+export type Entity = {
   type:
     | 'Entity'
     | 'ArrayValidator'
@@ -217,8 +211,8 @@ export interface Entity {
     | 'Variable'
     | 'VideoObject'
     | 'VolumeMount'
-  id?: String
-  meta?: Object
+  id?: string
+  meta?: Record<string, unknown>
 }
 
 /**
@@ -234,9 +228,9 @@ export const entity = (props: Omit<Entity, 'type'> = {}): Entity => ({
 /**
  * A reference to a CreativeWork that is cited in another CreativeWork.
  */
-export interface Cite extends Entity {
+export type Cite = Entity & {
   type: 'Cite'
-  target: String
+  target: string
   citationIntent?: Array<CitationIntentEnumeration>
   citationMode?:
     | 'Parenthetical'
@@ -245,12 +239,12 @@ export interface Cite extends Entity {
     | 'NarrativeYear'
     | 'normal'
     | 'suppressAuthor'
-  citationPrefix?: String
-  citationSuffix?: String
+  citationPrefix?: string
+  citationSuffix?: string
   content?: Array<InlineContent>
-  pageEnd?: Integer | String
-  pageStart?: Integer | String
-  pagination?: String
+  pageEnd?: Integer | string
+  pageStart?: Integer | string
+  pagination?: string
 }
 
 /**
@@ -266,7 +260,7 @@ export const cite = (props: Omit<Cite, 'type'>): Cite => ({
 /**
  * A group of Cite nodes.
  */
-export interface CiteGroup extends Entity {
+export type CiteGroup = Entity & {
   type: 'CiteGroup'
   items: Array<Cite>
 }
@@ -284,7 +278,7 @@ export const citeGroup = (props: Omit<CiteGroup, 'type'>): CiteGroup => ({
 /**
  * Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
  */
-export interface Code extends Entity {
+export type Code = Entity & {
   type:
     | 'Code'
     | 'CodeBlock'
@@ -292,9 +286,9 @@ export interface Code extends Entity {
     | 'CodeExecutable'
     | 'CodeExpression'
     | 'CodeFragment'
-  text: String
-  mediaType?: String
-  programmingLanguage?: String
+  text: string
+  mediaType?: string
+  programmingLanguage?: string
 }
 
 /**
@@ -310,7 +304,7 @@ export const code = (props: Omit<Code, 'type'>): Code => ({
 /**
  * A code block.
  */
-export interface CodeBlock extends Code {
+export type CodeBlock = Code & {
   type: 'CodeBlock'
 }
 
@@ -327,16 +321,16 @@ export const codeBlock = (props: Omit<CodeBlock, 'type'>): CodeBlock => ({
 /**
  * Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
  */
-export interface CodeExecutable extends Code {
+export type CodeExecutable = Code & {
   type: 'CodeExecutable' | 'CodeChunk' | 'CodeExpression'
-  programmingLanguage: String
+  programmingLanguage: string
   codeDependencies?: Array<CodeChunk | Parameter>
   codeDependents?: Array<CodeChunk | CodeExpression>
-  compileDigest?: String
+  compileDigest?: string
   errors?: Array<CodeError>
   executeCount?: Integer
-  executeDigest?: String
-  executeDuration?: Number
+  executeDigest?: string
+  executeDuration?: number
   executeEnded?: Date
   executeRequired?:
     | 'No'
@@ -369,13 +363,13 @@ export const codeExecutable = (
 /**
  * A executable chunk of code.
  */
-export interface CodeChunk extends CodeExecutable {
+export type CodeChunk = CodeExecutable & {
   type: 'CodeChunk'
-  programmingLanguage: String
-  caption?: Array<BlockContent> | String
+  programmingLanguage: string
+  caption?: Array<BlockContent> | string
   executeAuto?: 'Never' | 'Needed' | 'Always'
-  executePure?: Boolean
-  label?: String
+  executePure?: boolean
+  label?: string
   outputs?: Array<Node>
 }
 
@@ -392,9 +386,9 @@ export const codeChunk = (props: Omit<CodeChunk, 'type'>): CodeChunk => ({
 /**
  * An executable programming code expression.
  */
-export interface CodeExpression extends CodeExecutable {
+export type CodeExpression = CodeExecutable & {
   type: 'CodeExpression'
-  programmingLanguage: String
+  programmingLanguage: string
   output?: Node
 }
 
@@ -413,7 +407,7 @@ export const codeExpression = (
 /**
  * Inline code.
  */
-export interface CodeFragment extends Code {
+export type CodeFragment = Code & {
   type: 'CodeFragment'
 }
 
@@ -432,11 +426,11 @@ export const codeFragment = (
 /**
  * An error that occurred when parsing, compiling or executing a Code node.
  */
-export interface CodeError extends Entity {
+export type CodeError = Entity & {
   type: 'CodeError'
-  errorMessage: String
-  errorType?: String
-  stackTrace?: String
+  errorMessage: string
+  errorType?: string
+  stackTrace?: string
 }
 
 /**
@@ -452,9 +446,9 @@ export const codeError = (props: Omit<CodeError, 'type'>): CodeError => ({
 /**
  * A date encoded as a ISO 8601 string.
  */
-export interface Date extends Entity {
+export type Date = Entity & {
   type: 'Date'
-  value: String
+  value: string
 }
 
 /**
@@ -471,7 +465,7 @@ export const date = (props: Omit<Date, 'type'>): Date => ({
  * A base class for nodes that mark some other inline content
  * in some way (e.g. as being emphasised, or quoted).
  */
-export interface Mark extends Entity {
+export type Mark = Entity & {
   type:
     | 'Mark'
     | 'Delete'
@@ -497,7 +491,7 @@ export const mark = (props: Omit<Mark, 'type'>): Mark => ({
 /**
  * Content that is marked for deletion
  */
-export interface Delete extends Mark {
+export type Delete = Mark & {
   type: 'Delete'
 }
 
@@ -514,7 +508,7 @@ export const del = (props: Omit<Delete, 'type'>): Delete => ({
 /**
  * Emphasised content.
  */
-export interface Emphasis extends Mark {
+export type Emphasis = Mark & {
   type: 'Emphasis'
 }
 
@@ -531,7 +525,7 @@ export const emphasis = (props: Omit<Emphasis, 'type'>): Emphasis => ({
 /**
  * The most generic type of item.
  */
-export interface Thing extends Entity {
+export type Thing = Entity & {
   type:
     | 'Thing'
     | 'Article'
@@ -569,12 +563,12 @@ export interface Thing extends Entity {
     | 'Table'
     | 'VideoObject'
     | 'VolumeMount'
-  alternateNames?: Array<String>
-  description?: Array<BlockContent> | Array<InlineContent> | String
-  identifiers?: Array<PropertyValue | String>
-  images?: Array<ImageObject | String>
-  name?: String
-  url?: String
+  alternateNames?: Array<string>
+  description?: Array<BlockContent> | Array<InlineContent> | string
+  identifiers?: Array<PropertyValue | string>
+  images?: Array<ImageObject | string>
+  name?: string
+  url?: string
 }
 
 /**
@@ -591,11 +585,11 @@ export const thing = (props: Omit<Thing, 'type'> = {}): Thing => ({
  * A brand used by an organization or person for labeling a product,
  * product group, or similar.
  */
-export interface Brand extends Thing {
+export type Brand = Thing & {
   type: 'Brand'
-  name: String
-  logo?: ImageObject | String
-  reviews?: Array<String>
+  name: string
+  logo?: ImageObject | string
+  reviews?: Array<string>
 }
 
 /**
@@ -611,11 +605,11 @@ export const brand = (props: Omit<Brand, 'type'>): Brand => ({
 /**
  * A contact point, usually within an organization.
  */
-export interface ContactPoint extends Thing {
+export type ContactPoint = Thing & {
   type: 'ContactPoint' | 'PostalAddress'
-  availableLanguages?: Array<String>
-  emails?: Array<String>
-  telephoneNumbers?: Array<String>
+  availableLanguages?: Array<string>
+  emails?: Array<string>
+  telephoneNumbers?: Array<string>
 }
 
 /**
@@ -633,7 +627,7 @@ export const contactPoint = (
 /**
  * A creative work, including books, movies, photographs, software programs, etc.
  */
-export interface CreativeWork extends Thing {
+export type CreativeWork = Thing & {
   type:
     | 'CreativeWork'
     | 'Article'
@@ -656,7 +650,7 @@ export interface CreativeWork extends Thing {
   about?: Array<ThingTypes>
   authors?: Array<Person | Organization>
   comments?: Array<Comment>
-  content?: Array<Node> | String
+  content?: Array<Node> | string
   dateAccepted?: Date
   dateCreated?: Date
   dateModified?: Date
@@ -665,17 +659,17 @@ export interface CreativeWork extends Thing {
   editors?: Array<Person>
   fundedBy?: Array<Grant | MonetaryGrant>
   funders?: Array<Person | Organization>
-  genre?: Array<String>
+  genre?: Array<string>
   isPartOf?: CreativeWorkTypes
-  keywords?: Array<String>
-  licenses?: Array<CreativeWorkTypes | String>
+  keywords?: Array<string>
+  licenses?: Array<CreativeWorkTypes | string>
   maintainers?: Array<Person | Organization>
   parts?: Array<CreativeWorkTypes>
   publisher?: Person | Organization
-  references?: Array<CreativeWorkTypes | String>
-  text?: String
-  title?: Array<InlineContent> | String
-  version?: String | Number
+  references?: Array<CreativeWorkTypes | string>
+  text?: string
+  title?: Array<InlineContent> | string
+  version?: string | number
 }
 
 /**
@@ -693,12 +687,12 @@ export const creativeWork = (
 /**
  * An article, including news and scholarly articles.
  */
-export interface Article extends CreativeWork {
+export type Article = CreativeWork & {
   type: 'Article'
   content?: Array<BlockContent>
-  pageEnd?: Integer | String
-  pageStart?: Integer | String
-  pagination?: String
+  pageEnd?: Integer | string
+  pageStart?: Integer | string
+  pagination?: string
 }
 
 /**
@@ -714,7 +708,7 @@ export const article = (props: Omit<Article, 'type'> = {}): Article => ({
 /**
  * A claim represents specific reviewable facts or statements.
  */
-export interface Claim extends CreativeWork {
+export type Claim = CreativeWork & {
   type: 'Claim'
   content: Array<BlockContent>
   claimType?:
@@ -726,7 +720,7 @@ export interface Claim extends CreativeWork {
     | 'Hypothesis'
     | 'Proposition'
     | 'Corollary'
-  label?: String
+  label?: string
 }
 
 /**
@@ -742,7 +736,7 @@ export const claim = (props: Omit<Claim, 'type'>): Claim => ({
 /**
  * A collection of CreativeWorks or other artifacts.
  */
-export interface Collection extends CreativeWork {
+export type Collection = CreativeWork & {
   type: 'Collection'
   parts: Array<CreativeWorkTypes>
 }
@@ -760,9 +754,9 @@ export const collection = (props: Omit<Collection, 'type'>): Collection => ({
 /**
  * A comment on an item, e.g on a Article, or SoftwareSourceCode.
  */
-export interface Comment extends CreativeWork {
+export type Comment = CreativeWork & {
   type: 'Comment'
-  commentAspect?: String
+  commentAspect?: string
   parentItem?: Comment
 }
 
@@ -779,7 +773,7 @@ export const comment = (props: Omit<Comment, 'type'> = {}): Comment => ({
 /**
  * A table of data.
  */
-export interface Datatable extends CreativeWork {
+export type Datatable = CreativeWork & {
   type: 'Datatable'
   columns: Array<DatatableColumn>
 }
@@ -798,13 +792,13 @@ export const datatable = (props: Omit<Datatable, 'type'>): Datatable => ({
  * A media object, such as an image, video, or audio object embedded in a web page or a
  * downloadable dataset.
  */
-export interface MediaObject extends CreativeWork {
+export type MediaObject = CreativeWork & {
   type: 'MediaObject' | 'AudioObject' | 'ImageObject' | 'VideoObject'
-  contentUrl: String
-  bitrate?: Number
-  contentSize?: Number
-  embedUrl?: String
-  mediaType?: String
+  contentUrl: string
+  bitrate?: number
+  contentSize?: number
+  embedUrl?: string
+  mediaType?: string
 }
 
 /**
@@ -820,10 +814,10 @@ export const mediaObject = (props: Omit<MediaObject, 'type'>): MediaObject => ({
 /**
  * An audio file
  */
-export interface AudioObject extends MediaObject {
+export type AudioObject = MediaObject & {
   type: 'AudioObject'
-  caption?: String
-  transcript?: String
+  caption?: string
+  transcript?: string
 }
 
 /**
@@ -839,9 +833,9 @@ export const audioObject = (props: Omit<AudioObject, 'type'>): AudioObject => ({
 /**
  * A column of data within a Datatable.
  */
-export interface DatatableColumn extends Thing {
+export type DatatableColumn = Thing & {
   type: 'DatatableColumn'
-  name: String
+  name: string
   values: Array<Node>
   validator?: ArrayValidator
 }
@@ -861,10 +855,10 @@ export const datatableColumn = (
 /**
  * A word, name, acronym, phrase, etc. with a formal definition.
  */
-export interface DefinedTerm extends Thing {
+export type DefinedTerm = Thing & {
   type: 'DefinedTerm'
-  name: String
-  termCode?: String
+  name: string
+  termCode?: string
 }
 
 /**
@@ -880,7 +874,7 @@ export const definedTerm = (props: Omit<DefinedTerm, 'type'>): DefinedTerm => ({
 /**
  * A base for all validator types.
  */
-export interface Validator extends Entity {
+export type Validator = Entity & {
   type:
     | 'Validator'
     | 'ArrayValidator'
@@ -906,13 +900,13 @@ export const validator = (props: Omit<Validator, 'type'> = {}): Validator => ({
 /**
  * A validator specifying constraints on an array node.
  */
-export interface ArrayValidator extends Validator {
+export type ArrayValidator = Validator & {
   type: 'ArrayValidator'
   contains?: ValidatorTypes
   itemsValidator?: ValidatorTypes
   maxItems?: Integer
   minItems?: Integer
-  uniqueItems?: Boolean
+  uniqueItems?: boolean
 }
 
 /**
@@ -930,7 +924,7 @@ export const arrayValidator = (
 /**
  * A schema specifying that a node must be a boolean value.
  */
-export interface BooleanValidator extends Validator {
+export type BooleanValidator = Validator & {
   type: 'BooleanValidator'
 }
 
@@ -949,7 +943,7 @@ export const booleanValidator = (
 /**
  * A validator specifying a constant value that a node must have.
  */
-export interface ConstantValidator extends Validator {
+export type ConstantValidator = Validator & {
   type: 'ConstantValidator'
   value?: Node
 }
@@ -969,7 +963,7 @@ export const constantValidator = (
 /**
  * A schema specifying that a node must be one of several values.
  */
-export interface EnumValidator extends Validator {
+export type EnumValidator = Validator & {
   type: 'EnumValidator'
   values?: Array<Node>
 }
@@ -989,7 +983,7 @@ export const enumValidator = (
 /**
  * Lists or enumerations, for example, a list of cuisines or music genres, etc.
  */
-export interface Enumeration extends Thing {
+export type Enumeration = Thing & {
   type: 'Enumeration' | 'CitationIntentEnumeration'
 }
 
@@ -1008,10 +1002,10 @@ export const enumeration = (
 /**
  * Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
  */
-export interface Figure extends CreativeWork {
+export type Figure = CreativeWork & {
   type: 'Figure'
-  caption?: Array<BlockContent> | String
-  label?: String
+  caption?: Array<BlockContent> | string
+  label?: string
 }
 
 /**
@@ -1027,9 +1021,9 @@ export const figure = (props: Omit<Figure, 'type'> = {}): Figure => ({
 /**
  * A function with a name, which might take Parameters and return a value of a certain type.
  */
-export interface Function extends Entity {
+export type Function = Entity & {
   type: 'Function'
-  name?: String
+  name?: string
   parameters?: Array<Parameter>
   returns?: ValidatorTypes
 }
@@ -1047,7 +1041,7 @@ export const function_ = (props: Omit<Function, 'type'> = {}): Function => ({
 /**
  * A grant, typically financial or otherwise quantifiable, of resources.
  */
-export interface Grant extends Thing {
+export type Grant = Thing & {
   type: 'Grant' | 'MonetaryGrant'
   fundedItems?: Array<Thing>
   sponsors?: Array<Person | Organization>
@@ -1066,7 +1060,7 @@ export const grant = (props: Omit<Grant, 'type'> = {}): Grant => ({
 /**
  * A heading.
  */
-export interface Heading extends Entity {
+export type Heading = Entity & {
   type: 'Heading'
   content: Array<InlineContent>
   depth?: Integer
@@ -1085,9 +1079,9 @@ export const heading = (props: Omit<Heading, 'type'>): Heading => ({
 /**
  * An image file.
  */
-export interface ImageObject extends MediaObject {
+export type ImageObject = MediaObject & {
   type: 'ImageObject'
-  caption?: String
+  caption?: string
   thumbnail?: ImageObject
 }
 
@@ -1104,12 +1098,12 @@ export const imageObject = (props: Omit<ImageObject, 'type'>): ImageObject => ({
 /**
  * Include content from an external source (e.g. file, URL).
  */
-export interface Include extends Entity {
+export type Include = Entity & {
   type: 'Include'
-  source: String
-  buildDigest?: String
+  source: string
+  buildDigest?: string
   content?: Array<BlockContent>
-  mediaType?: String
+  mediaType?: string
 }
 
 /**
@@ -1125,7 +1119,7 @@ export const include = (props: Omit<Include, 'type'>): Include => ({
 /**
  * A validator specifying the constraints on an integer node.
  */
-export interface IntegerValidator extends Validator {
+export type IntegerValidator = Validator & {
   type: 'IntegerValidator'
 }
 
@@ -1144,14 +1138,14 @@ export const integerValidator = (
 /**
  * A hyperlink to other pages, sections within the same document, resources, or any URL.
  */
-export interface Link extends Entity {
+export type Link = Entity & {
   type: 'Link'
   content: Array<InlineContent>
-  target: String
-  exportFrom?: String
-  importTo?: String
-  relation?: String
-  title?: String
+  target: string
+  exportFrom?: string
+  importTo?: string
+  relation?: string
+  title?: string
 }
 
 /**
@@ -1167,7 +1161,7 @@ export const link = (props: Omit<Link, 'type'>): Link => ({
 /**
  * A list of items.
  */
-export interface List extends Entity {
+export type List = Entity & {
   type: 'List'
   items: Array<ListItem>
   order?: 'Ascending' | 'Descending' | 'Unordered'
@@ -1186,10 +1180,10 @@ export const list = (props: Omit<List, 'type'>): List => ({
 /**
  * A single item in a list.
  */
-export interface ListItem extends Thing {
+export type ListItem = Thing & {
   type: 'ListItem'
   content?: Array<BlockContent> | Array<InlineContent>
-  isChecked?: Boolean
+  isChecked?: boolean
   item?: Node
   position?: Integer
 }
@@ -1207,11 +1201,11 @@ export const listItem = (props: Omit<ListItem, 'type'> = {}): ListItem => ({
 /**
  * A mathematical variable or equation.
  */
-export interface Math extends Entity {
+export type Math = Entity & {
   type: 'Math' | 'MathBlock' | 'MathFragment'
-  text: String
-  errors?: Array<String>
-  mathLanguage?: String
+  text: string
+  errors?: Array<string>
+  mathLanguage?: string
 }
 
 /**
@@ -1227,9 +1221,9 @@ export const math = (props: Omit<Math, 'type'>): Math => ({
 /**
  * A block of math, e.g an equation, to be treated as block content.
  */
-export interface MathBlock extends Math {
+export type MathBlock = Math & {
   type: 'MathBlock'
-  label?: String
+  label?: string
 }
 
 /**
@@ -1245,7 +1239,7 @@ export const mathBlock = (props: Omit<MathBlock, 'type'>): MathBlock => ({
 /**
  * A fragment of math, e.g a variable name, to be treated as inline content.
  */
-export interface MathFragment extends Math {
+export type MathFragment = Math & {
   type: 'MathFragment'
 }
 
@@ -1264,9 +1258,9 @@ export const mathFragment = (
 /**
  * A monetary grant.
  */
-export interface MonetaryGrant extends Grant {
+export type MonetaryGrant = Grant & {
   type: 'MonetaryGrant'
-  amounts?: Number
+  amounts?: number
   funders?: Array<Person | Organization>
 }
 
@@ -1285,7 +1279,7 @@ export const monetaryGrant = (
 /**
  * Inline text that has a non-textual annotation.
  */
-export interface NontextualAnnotation extends Mark {
+export type NontextualAnnotation = Mark & {
   type: 'NontextualAnnotation'
 }
 
@@ -1304,7 +1298,7 @@ export const nontextualAnnotation = (
 /**
  * Additional content which is not part of the main content of a document.
  */
-export interface Note extends Entity {
+export type Note = Entity & {
   type: 'Note'
   content: Array<BlockContent>
   noteType?: 'Footnote' | 'Endnote' | 'Sidenote'
@@ -1323,13 +1317,13 @@ export const note = (props: Omit<Note, 'type'>): Note => ({
 /**
  * A validator specifying the constraints on a numeric node.
  */
-export interface NumberValidator extends Validator {
+export type NumberValidator = Validator & {
   type: 'NumberValidator'
-  exclusiveMaximum?: Number
-  exclusiveMinimum?: Number
-  maximum?: Number
-  minimum?: Number
-  multipleOf?: Number
+  exclusiveMaximum?: number
+  exclusiveMinimum?: number
+  maximum?: number
+  minimum?: number
+  multipleOf?: number
 }
 
 /**
@@ -1347,15 +1341,15 @@ export const numberValidator = (
 /**
  * An organization such as a school, NGO, corporation, club, etc.
  */
-export interface Organization extends Thing {
+export type Organization = Thing & {
   type: 'Organization'
-  address?: PostalAddress | String
+  address?: PostalAddress | string
   brands?: Array<Brand>
   contactPoints?: Array<ContactPoint>
   departments?: Array<Organization>
   funders?: Array<Organization | Person>
-  legalName?: String
-  logo?: ImageObject | String
+  legalName?: string
+  logo?: ImageObject | string
   members?: Array<Organization | Person>
   parentOrganization?: Organization
 }
@@ -1375,7 +1369,7 @@ export const organization = (
 /**
  * Paragraph
  */
-export interface Paragraph extends Entity {
+export type Paragraph = Entity & {
   type: 'Paragraph'
   content: Array<InlineContent>
 }
@@ -1393,14 +1387,14 @@ export const paragraph = (props: Omit<Paragraph, 'type'>): Paragraph => ({
 /**
  * A parameter of a document or function.
  */
-export interface Parameter extends Entity {
+export type Parameter = Entity & {
   type: 'Parameter'
-  name: String
+  name: string
   default?: Node
-  executeDigest?: String
-  isExtensible?: Boolean
-  isRequired?: Boolean
-  isVariadic?: Boolean
+  executeDigest?: string
+  isExtensible?: boolean
+  isRequired?: boolean
+  isVariadic?: boolean
   validator?: ValidatorTypes
   value?: Node
 }
@@ -1418,11 +1412,11 @@ export const parameter = (props: Omit<Parameter, 'type'>): Parameter => ({
 /**
  * A periodical publication.
  */
-export interface Periodical extends CreativeWork {
+export type Periodical = CreativeWork & {
   type: 'Periodical'
   dateEnd?: Date
   dateStart?: Date
-  issns?: Array<String>
+  issns?: Array<string>
 }
 
 /**
@@ -1440,19 +1434,19 @@ export const periodical = (
 /**
  * A person (alive, dead, undead, or fictional).
  */
-export interface Person extends Thing {
+export type Person = Thing & {
   type: 'Person'
-  address?: PostalAddress | String
+  address?: PostalAddress | string
   affiliations?: Array<Organization>
-  emails?: Array<String>
-  familyNames?: Array<String>
+  emails?: Array<string>
+  familyNames?: Array<string>
   funders?: Array<Organization | Person>
-  givenNames?: Array<String>
-  honorificPrefix?: String
-  honorificSuffix?: String
-  jobTitle?: String
+  givenNames?: Array<string>
+  honorificPrefix?: string
+  honorificSuffix?: string
+  jobTitle?: string
   memberOf?: Array<Organization>
-  telephoneNumbers?: Array<String>
+  telephoneNumbers?: Array<string>
 }
 
 /**
@@ -1468,14 +1462,14 @@ export const person = (props: Omit<Person, 'type'> = {}): Person => ({
 /**
  * A physical mailing address.
  */
-export interface PostalAddress extends ContactPoint {
+export type PostalAddress = ContactPoint & {
   type: 'PostalAddress'
-  addressCountry?: String
-  addressLocality?: String
-  addressRegion?: String
-  postOfficeBoxNumber?: String
-  postalCode?: String
-  streetAddress?: String
+  addressCountry?: string
+  addressLocality?: string
+  addressRegion?: string
+  postOfficeBoxNumber?: string
+  postalCode?: string
+  streetAddress?: string
 }
 
 /**
@@ -1494,11 +1488,11 @@ export const postalAddress = (
  * Any offered product or service. For example, a pair of shoes;
  * a haircut; or an episode of a TV show streamed online.
  */
-export interface Product extends Thing {
+export type Product = Thing & {
   type: 'Product'
   brands?: Array<Brand>
-  logo?: ImageObject | String
-  productID?: String
+  logo?: ImageObject | string
+  productID?: string
 }
 
 /**
@@ -1514,10 +1508,10 @@ export const product = (props: Omit<Product, 'type'> = {}): Product => ({
 /**
  * A property-value pair.
  */
-export interface PropertyValue extends Thing {
+export type PropertyValue = Thing & {
   type: 'PropertyValue'
-  value: Boolean | Integer | Number | String
-  propertyID?: String
+  value: boolean | Integer | number | string
+  propertyID?: string
 }
 
 /**
@@ -1536,12 +1530,12 @@ export const propertyValue = (
  * A part of a successively published publication such as a periodical or publication
  * volume, often numbered.
  */
-export interface PublicationIssue extends CreativeWork {
+export type PublicationIssue = CreativeWork & {
   type: 'PublicationIssue'
-  issueNumber?: Integer | String
-  pageEnd?: Integer | String
-  pageStart?: Integer | String
-  pagination?: String
+  issueNumber?: Integer | string
+  pageEnd?: Integer | string
+  pageStart?: Integer | string
+  pagination?: string
 }
 
 /**
@@ -1559,12 +1553,12 @@ export const publicationIssue = (
 /**
  * A part of a successively published publication such as a periodical or multi-volume work.
  */
-export interface PublicationVolume extends CreativeWork {
+export type PublicationVolume = CreativeWork & {
   type: 'PublicationVolume'
-  pageEnd?: Integer | String
-  pageStart?: Integer | String
-  pagination?: String
-  volumeNumber?: Integer | String
+  pageEnd?: Integer | string
+  pageStart?: Integer | string
+  pagination?: string
+  volumeNumber?: Integer | string
 }
 
 /**
@@ -1582,9 +1576,9 @@ export const publicationVolume = (
 /**
  * Inline, quoted content.
  */
-export interface Quote extends Mark {
+export type Quote = Mark & {
   type: 'Quote'
-  cite?: Cite | String
+  cite?: Cite | string
 }
 
 /**
@@ -1600,10 +1594,10 @@ export const quote = (props: Omit<Quote, 'type'>): Quote => ({
 /**
  * A section quoted from somewhere else.
  */
-export interface QuoteBlock extends Entity {
+export type QuoteBlock = Entity & {
   type: 'QuoteBlock'
   content: Array<BlockContent>
-  cite?: Cite | String
+  cite?: Cite | string
 }
 
 /**
@@ -1619,10 +1613,10 @@ export const quoteBlock = (props: Omit<QuoteBlock, 'type'>): QuoteBlock => ({
 /**
  * A review of an item, e.g of an Article, or SoftwareSourceCode.
  */
-export interface Review extends CreativeWork {
+export type Review = CreativeWork & {
   type: 'Review'
   itemReviewed?: Thing
-  reviewAspect?: String
+  reviewAspect?: string
 }
 
 /**
@@ -1638,10 +1632,10 @@ export const review = (props: Omit<Review, 'type'> = {}): Review => ({
 /**
  * A software application.
  */
-export interface SoftwareApplication extends CreativeWork {
+export type SoftwareApplication = CreativeWork & {
   type: 'SoftwareApplication'
   softwareRequirements?: Array<SoftwareApplication>
-  softwareVersion?: String
+  softwareVersion?: string
 }
 
 /**
@@ -1659,9 +1653,9 @@ export const softwareApplication = (
 /**
  * A computational environment.
  */
-export interface SoftwareEnvironment extends Thing {
+export type SoftwareEnvironment = Thing & {
   type: 'SoftwareEnvironment'
-  name: String
+  name: string
   adds?: Array<SoftwareSourceCode>
   extends?: Array<SoftwareEnvironment>
   removes?: Array<SoftwareSourceCode>
@@ -1683,21 +1677,21 @@ export const softwareEnvironment = (
  * Definition of a compute session, including its software and compute resource
  * requirements and status.
  */
-export interface SoftwareSession extends Thing {
+export type SoftwareSession = Thing & {
   type: 'SoftwareSession'
-  clientsLimit?: Number
-  clientsRequest?: Number
-  cpuLimit?: Number
-  cpuRequest?: Number
+  clientsLimit?: number
+  clientsRequest?: number
+  cpuLimit?: number
+  cpuRequest?: number
   dateEnd?: Date
   dateStart?: Date
-  durationLimit?: Number
-  durationRequest?: Number
+  durationLimit?: number
+  durationRequest?: number
   environment?: SoftwareEnvironment
-  memoryLimit?: Number
-  memoryRequest?: Number
-  networkTransferLimit?: Number
-  networkTransferRequest?: Number
+  memoryLimit?: number
+  memoryRequest?: number
+  networkTransferLimit?: number
+  networkTransferRequest?: number
   status?:
     | 'Unknown'
     | 'Starting'
@@ -1705,8 +1699,8 @@ export interface SoftwareSession extends Thing {
     | 'Stopping'
     | 'Stopped'
     | 'Failed'
-  timeoutLimit?: Number
-  timeoutRequest?: Number
+  timeoutLimit?: number
+  timeoutRequest?: number
   volumeMounts?: Array<VolumeMount>
 }
 
@@ -1725,14 +1719,14 @@ export const softwareSession = (
 /**
  * Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
  */
-export interface SoftwareSourceCode extends CreativeWork {
+export type SoftwareSourceCode = CreativeWork & {
   type: 'SoftwareSourceCode'
-  codeRepository?: String
-  codeSampleType?: String
-  programmingLanguage?: String
-  runtimePlatform?: Array<String>
+  codeRepository?: string
+  codeSampleType?: string
+  programmingLanguage?: string
+  runtimePlatform?: Array<string>
   softwareRequirements?: Array<
-    SoftwareSourceCode | SoftwareApplication | String
+    SoftwareSourceCode | SoftwareApplication | string
   >
   targetProducts?: Array<SoftwareApplication>
 }
@@ -1752,11 +1746,11 @@ export const softwareSourceCode = (
 /**
  * A schema specifying constraints on a string node.
  */
-export interface StringValidator extends Validator {
+export type StringValidator = Validator & {
   type: 'StringValidator'
   maxLength?: Integer
   minLength?: Integer
-  pattern?: String
+  pattern?: string
 }
 
 /**
@@ -1774,7 +1768,7 @@ export const stringValidator = (
 /**
  * Strongly emphasised content.
  */
-export interface Strong extends Mark {
+export type Strong = Mark & {
   type: 'Strong'
 }
 
@@ -1791,7 +1785,7 @@ export const strong = (props: Omit<Strong, 'type'>): Strong => ({
 /**
  * Subscripted content.
  */
-export interface Subscript extends Mark {
+export type Subscript = Mark & {
   type: 'Subscript'
 }
 
@@ -1808,7 +1802,7 @@ export const subscript = (props: Omit<Subscript, 'type'>): Subscript => ({
 /**
  * Superscripted content.
  */
-export interface Superscript extends Mark {
+export type Superscript = Mark & {
   type: 'Superscript'
 }
 
@@ -1825,11 +1819,11 @@ export const superscript = (props: Omit<Superscript, 'type'>): Superscript => ({
 /**
  * A table.
  */
-export interface Table extends CreativeWork {
+export type Table = CreativeWork & {
   type: 'Table'
   rows: Array<TableRow>
-  caption?: Array<BlockContent> | String
-  label?: String
+  caption?: Array<BlockContent> | string
+  label?: string
 }
 
 /**
@@ -1845,12 +1839,12 @@ export const table = (props: Omit<Table, 'type'>): Table => ({
 /**
  * A cell within a `Table`.
  */
-export interface TableCell extends Entity {
+export type TableCell = Entity & {
   type: 'TableCell'
   cellType?: 'Data' | 'Header'
   colspan?: Integer
   content?: Array<BlockContent> | Array<InlineContent>
-  name?: String
+  name?: string
   rowspan?: Integer
 }
 
@@ -1867,7 +1861,7 @@ export const tableCell = (props: Omit<TableCell, 'type'> = {}): TableCell => ({
 /**
  * A row within a Table.
  */
-export interface TableRow extends Entity {
+export type TableRow = Entity & {
   type: 'TableRow'
   cells: Array<TableCell>
   rowType?: 'Header' | 'Footer'
@@ -1886,7 +1880,7 @@ export const tableRow = (props: Omit<TableRow, 'type'>): TableRow => ({
 /**
  * A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
  */
-export interface ThematicBreak extends Entity {
+export type ThematicBreak = Entity & {
   type: 'ThematicBreak'
 }
 
@@ -1905,7 +1899,7 @@ export const thematicBreak = (
 /**
  * A validator specifying constraints on an array of heterogeneous items.
  */
-export interface TupleValidator extends Validator {
+export type TupleValidator = Validator & {
   type: 'TupleValidator'
   items?: Array<ValidatorTypes>
 }
@@ -1925,10 +1919,10 @@ export const tupleValidator = (
 /**
  * A variable representing a name / value pair.
  */
-export interface Variable extends Entity {
+export type Variable = Entity & {
   type: 'Variable'
-  name: String
-  isReadonly?: Boolean
+  name: string
+  isReadonly?: boolean
   validator?: ValidatorTypes
   value?: Node
 }
@@ -1946,11 +1940,11 @@ export const variable = (props: Omit<Variable, 'type'>): Variable => ({
 /**
  * A video file.
  */
-export interface VideoObject extends MediaObject {
+export type VideoObject = MediaObject & {
   type: 'VideoObject'
-  caption?: String
+  caption?: string
   thumbnail?: ImageObject
-  transcript?: String
+  transcript?: string
 }
 
 /**
@@ -1966,12 +1960,12 @@ export const videoObject = (props: Omit<VideoObject, 'type'>): VideoObject => ({
 /**
  * Describes a volume mount from a host to container.
  */
-export interface VolumeMount extends Thing {
+export type VolumeMount = Thing & {
   type: 'VolumeMount'
-  mountDestination: String
-  mountOptions?: Array<String>
-  mountSource?: String
-  mountType?: String
+  mountDestination: string
+  mountOptions?: Array<string>
+  mountSource?: string
+  mountType?: string
 }
 
 /**
@@ -2163,11 +2157,11 @@ export type InlineContent =
   | Subscript
   | Superscript
   | VideoObject
-  | Null
-  | Boolean
+  | null
+  | boolean
   | Integer
-  | Number
-  | String
+  | number
+  | string
 
 /**
  * All type schemas that are derived from Mark
@@ -2280,12 +2274,12 @@ export type Node =
   | Variable
   | VideoObject
   | VolumeMount
-  | Null
-  | Boolean
+  | null
+  | boolean
   | Integer
-  | Number
-  | String
-  | Object
+  | number
+  | string
+  | Record<string, unknown>
   | Array<unknown>
 
 /**
@@ -2806,13 +2800,13 @@ export enum CitationIntentEnumeration {
 export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }
 
 export const codeExecutableTypes: TypeMap<
-  Exclude<CodeExecutableTypes, Primitives>
+  Exclude<CodeExecutableTypes, Primitive>
 > = {
   CodeExecutable: 'CodeExecutable',
   CodeChunk: 'CodeChunk',
   CodeExpression: 'CodeExpression',
 }
-export const codeTypes: TypeMap<Exclude<CodeTypes, Primitives>> = {
+export const codeTypes: TypeMap<Exclude<CodeTypes, Primitive>> = {
   Code: 'Code',
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
@@ -2820,35 +2814,33 @@ export const codeTypes: TypeMap<Exclude<CodeTypes, Primitives>> = {
   CodeExpression: 'CodeExpression',
   CodeFragment: 'CodeFragment',
 }
-export const contactPointTypes: TypeMap<
-  Exclude<ContactPointTypes, Primitives>
-> = {
-  ContactPoint: 'ContactPoint',
-  PostalAddress: 'PostalAddress',
-}
-export const creativeWorkTypes: TypeMap<
-  Exclude<CreativeWorkTypes, Primitives>
-> = {
-  CreativeWork: 'CreativeWork',
-  Article: 'Article',
-  AudioObject: 'AudioObject',
-  Claim: 'Claim',
-  Collection: 'Collection',
-  Comment: 'Comment',
-  Datatable: 'Datatable',
-  Figure: 'Figure',
-  ImageObject: 'ImageObject',
-  MediaObject: 'MediaObject',
-  Periodical: 'Periodical',
-  PublicationIssue: 'PublicationIssue',
-  PublicationVolume: 'PublicationVolume',
-  Review: 'Review',
-  SoftwareApplication: 'SoftwareApplication',
-  SoftwareSourceCode: 'SoftwareSourceCode',
-  Table: 'Table',
-  VideoObject: 'VideoObject',
-}
-export const entityTypes: TypeMap<Exclude<EntityTypes, Primitives>> = {
+export const contactPointTypes: TypeMap<Exclude<ContactPointTypes, Primitive>> =
+  {
+    ContactPoint: 'ContactPoint',
+    PostalAddress: 'PostalAddress',
+  }
+export const creativeWorkTypes: TypeMap<Exclude<CreativeWorkTypes, Primitive>> =
+  {
+    CreativeWork: 'CreativeWork',
+    Article: 'Article',
+    AudioObject: 'AudioObject',
+    Claim: 'Claim',
+    Collection: 'Collection',
+    Comment: 'Comment',
+    Datatable: 'Datatable',
+    Figure: 'Figure',
+    ImageObject: 'ImageObject',
+    MediaObject: 'MediaObject',
+    Periodical: 'Periodical',
+    PublicationIssue: 'PublicationIssue',
+    PublicationVolume: 'PublicationVolume',
+    Review: 'Review',
+    SoftwareApplication: 'SoftwareApplication',
+    SoftwareSourceCode: 'SoftwareSourceCode',
+    Table: 'Table',
+    VideoObject: 'VideoObject',
+  }
+export const entityTypes: TypeMap<Exclude<EntityTypes, Primitive>> = {
   Entity: 'Entity',
   ArrayValidator: 'ArrayValidator',
   Article: 'Article',
@@ -2930,16 +2922,15 @@ export const entityTypes: TypeMap<Exclude<EntityTypes, Primitives>> = {
   VideoObject: 'VideoObject',
   VolumeMount: 'VolumeMount',
 }
-export const enumerationTypes: TypeMap<Exclude<EnumerationTypes, Primitives>> =
-  {
-    Enumeration: 'Enumeration',
-    CitationIntentEnumeration: 'CitationIntentEnumeration',
-  }
-export const grantTypes: TypeMap<Exclude<GrantTypes, Primitives>> = {
+export const enumerationTypes: TypeMap<Exclude<EnumerationTypes, Primitive>> = {
+  Enumeration: 'Enumeration',
+  CitationIntentEnumeration: 'CitationIntentEnumeration',
+}
+export const grantTypes: TypeMap<Exclude<GrantTypes, Primitive>> = {
   Grant: 'Grant',
   MonetaryGrant: 'MonetaryGrant',
 }
-export const markTypes: TypeMap<Exclude<MarkTypes, Primitives>> = {
+export const markTypes: TypeMap<Exclude<MarkTypes, Primitive>> = {
   Mark: 'Mark',
   Delete: 'Delete',
   Emphasis: 'Emphasis',
@@ -2949,19 +2940,18 @@ export const markTypes: TypeMap<Exclude<MarkTypes, Primitives>> = {
   Subscript: 'Subscript',
   Superscript: 'Superscript',
 }
-export const mathTypes: TypeMap<Exclude<MathTypes, Primitives>> = {
+export const mathTypes: TypeMap<Exclude<MathTypes, Primitive>> = {
   Math: 'Math',
   MathBlock: 'MathBlock',
   MathFragment: 'MathFragment',
 }
-export const mediaObjectTypes: TypeMap<Exclude<MediaObjectTypes, Primitives>> =
-  {
-    MediaObject: 'MediaObject',
-    AudioObject: 'AudioObject',
-    ImageObject: 'ImageObject',
-    VideoObject: 'VideoObject',
-  }
-export const thingTypes: TypeMap<Exclude<ThingTypes, Primitives>> = {
+export const mediaObjectTypes: TypeMap<Exclude<MediaObjectTypes, Primitive>> = {
+  MediaObject: 'MediaObject',
+  AudioObject: 'AudioObject',
+  ImageObject: 'ImageObject',
+  VideoObject: 'VideoObject',
+}
+export const thingTypes: TypeMap<Exclude<ThingTypes, Primitive>> = {
   Thing: 'Thing',
   Article: 'Article',
   AudioObject: 'AudioObject',
@@ -2999,7 +2989,7 @@ export const thingTypes: TypeMap<Exclude<ThingTypes, Primitives>> = {
   VideoObject: 'VideoObject',
   VolumeMount: 'VolumeMount',
 }
-export const validatorTypes: TypeMap<Exclude<ValidatorTypes, Primitives>> = {
+export const validatorTypes: TypeMap<Exclude<ValidatorTypes, Primitive>> = {
   Validator: 'Validator',
   ArrayValidator: 'ArrayValidator',
   BooleanValidator: 'BooleanValidator',
@@ -3010,7 +3000,7 @@ export const validatorTypes: TypeMap<Exclude<ValidatorTypes, Primitives>> = {
   StringValidator: 'StringValidator',
   TupleValidator: 'TupleValidator',
 }
-export const blockContentTypes: TypeMap<Exclude<BlockContent, Primitives>> = {
+export const blockContentTypes: TypeMap<Exclude<BlockContent, Primitive>> = {
   Claim: 'Claim',
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
@@ -3025,7 +3015,7 @@ export const blockContentTypes: TypeMap<Exclude<BlockContent, Primitives>> = {
   Table: 'Table',
   ThematicBreak: 'ThematicBreak',
 }
-export const inlineContentTypes: TypeMap<Exclude<InlineContent, Primitives>> = {
+export const inlineContentTypes: TypeMap<Exclude<InlineContent, Primitive>> = {
   AudioObject: 'AudioObject',
   Cite: 'Cite',
   CiteGroup: 'CiteGroup',
