@@ -125,10 +125,20 @@ export function diff(a: JsonValue, b: JsonValue, address: Address = []): Patch {
 /**
  * Apply a `Patch` to a JSON value.
  */
-export function applyPatch(value: JsonValue, patch: Patch): void {
+export function applyPatch<V extends JsonValue>(value: V, patch: Patch): V {
   for (const op of patch.ops) {
-    applyOp(value, op)
+    if (op.type === 'Move') {
+      // TODO: should `op.from/to` be prefixed with `patch.address`?
+      applyOp(value, op)
+    } else {
+      applyOp(value, {
+        ...op,
+        address: [...(patch.address ?? []), ...op.address],
+      })
+    }
   }
+
+  return value
 }
 
 /**
@@ -166,6 +176,7 @@ export function resolveAddress(
   for (let index = 0; index < address.length - 1; index++) {
     parent = target
     const slot = address[index]
+
     if (isArray(parent)) {
       assertIndex(slot)
       const child = parent[slot]
