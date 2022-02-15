@@ -14,7 +14,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: ${{ github.event.inputs.packageDir }}
+    working-directory: "${{ github.event.inputs.packageDir }}"
 
 jobs:
   build:
