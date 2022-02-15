@@ -4,12 +4,8 @@
 // Do not modify it by hand. Instead, modify the source `.schema.yaml` files
 // in the `schema` directory and run `npm run build:ts` to regenerate it.
 
-type Null = null
-type Boolean = boolean
 type Integer = number
-type Number = number
-type String = string
-type Object = Record<string, unknown>
+type ObjectType = Record<string | number, unknown>
 type Primitives =
   | undefined
   | null
@@ -17,7 +13,7 @@ type Primitives =
   | number
   | string
   | Array<unknown>
-  | Object
+  | ObjectType
 
 // Remove properties from an Object if their value is undefined
 const compact = <O extends object>(o: O): O =>
@@ -33,7 +29,7 @@ export interface Types {
   Article: Article
   AudioObject: AudioObject
   BlockContent: BlockContent
-  Boolean: Boolean
+  Boolean: boolean
   BooleanValidator: BooleanValidator
   Brand: Brand
   CitationIntentEnumeration: CitationIntentEnumeration
@@ -92,10 +88,10 @@ export interface Types {
   Node: Node
   NontextualAnnotation: NontextualAnnotation
   Note: Note
-  Null: Null
-  Number: Number
+  Null: null
+  Number: number
   NumberValidator: NumberValidator
-  Object: Object
+  Object: ObjectType
   Organization: Organization
   Paragraph: Paragraph
   Parameter: Parameter
@@ -113,7 +109,7 @@ export interface Types {
   SoftwareEnvironment: SoftwareEnvironment
   SoftwareSession: SoftwareSession
   SoftwareSourceCode: SoftwareSourceCode
-  String: String
+  String: string
   StringValidator: StringValidator
   Strong: Strong
   Subscript: Subscript
@@ -217,8 +213,8 @@ export type Entity = {
     | 'Variable'
     | 'VideoObject'
     | 'VolumeMount'
-  id?: String
-  meta?: Object
+  id?: string
+  meta?: ObjectType
 }
 
 /**
@@ -236,7 +232,7 @@ export const entity = (props: Omit<Entity, 'type'> = {}): Entity => ({
  */
 export type Cite = Entity & {
   type: 'Cite'
-  target: String
+  target: string
   citationIntent?: Array<CitationIntentEnumeration>
   citationMode?:
     | 'Parenthetical'
@@ -245,12 +241,12 @@ export type Cite = Entity & {
     | 'NarrativeYear'
     | 'normal'
     | 'suppressAuthor'
-  citationPrefix?: String
-  citationSuffix?: String
+  citationPrefix?: string
+  citationSuffix?: string
   content?: Array<InlineContent>
-  pageEnd?: Integer | String
-  pageStart?: Integer | String
-  pagination?: String
+  pageEnd?: Integer | string
+  pageStart?: Integer | string
+  pagination?: string
 }
 
 /**
@@ -292,9 +288,9 @@ export type Code = Entity & {
     | 'CodeExecutable'
     | 'CodeExpression'
     | 'CodeFragment'
-  text: String
-  mediaType?: String
-  programmingLanguage?: String
+  text: string
+  mediaType?: string
+  programmingLanguage?: string
 }
 
 /**
@@ -329,14 +325,14 @@ export const codeBlock = (props: Omit<CodeBlock, 'type'>): CodeBlock => ({
  */
 export type CodeExecutable = Code & {
   type: 'CodeExecutable' | 'CodeChunk' | 'CodeExpression'
-  programmingLanguage: String
+  programmingLanguage: string
   codeDependencies?: Array<CodeChunk | Parameter>
   codeDependents?: Array<CodeChunk | CodeExpression>
-  compileDigest?: String
+  compileDigest?: string
   errors?: Array<CodeError>
   executeCount?: Integer
-  executeDigest?: String
-  executeDuration?: Number
+  executeDigest?: string
+  executeDuration?: number
   executeEnded?: Date
   executeRequired?:
     | 'No'
@@ -371,11 +367,11 @@ export const codeExecutable = (
  */
 export type CodeChunk = CodeExecutable & {
   type: 'CodeChunk'
-  programmingLanguage: String
-  caption?: Array<BlockContent> | String
+  programmingLanguage: string
+  caption?: Array<BlockContent> | string
   executeAuto?: 'Never' | 'Needed' | 'Always'
-  executePure?: Boolean
-  label?: String
+  executePure?: boolean
+  label?: string
   outputs?: Array<Node>
 }
 
@@ -394,7 +390,7 @@ export const codeChunk = (props: Omit<CodeChunk, 'type'>): CodeChunk => ({
  */
 export type CodeExpression = CodeExecutable & {
   type: 'CodeExpression'
-  programmingLanguage: String
+  programmingLanguage: string
   output?: Node
 }
 
@@ -434,9 +430,9 @@ export const codeFragment = (
  */
 export type CodeError = Entity & {
   type: 'CodeError'
-  errorMessage: String
-  errorType?: String
-  stackTrace?: String
+  errorMessage: string
+  errorType?: string
+  stackTrace?: string
 }
 
 /**
@@ -454,7 +450,7 @@ export const codeError = (props: Omit<CodeError, 'type'>): CodeError => ({
  */
 export type Date = Entity & {
   type: 'Date'
-  value: String
+  value: string
 }
 
 /**
@@ -569,12 +565,12 @@ export type Thing = Entity & {
     | 'Table'
     | 'VideoObject'
     | 'VolumeMount'
-  alternateNames?: Array<String>
-  description?: Array<BlockContent> | Array<InlineContent> | String
-  identifiers?: Array<PropertyValue | String>
-  images?: Array<ImageObject | String>
-  name?: String
-  url?: String
+  alternateNames?: Array<string>
+  description?: Array<BlockContent> | Array<InlineContent> | string
+  identifiers?: Array<PropertyValue | string>
+  images?: Array<ImageObject | string>
+  name?: string
+  url?: string
 }
 
 /**
@@ -593,9 +589,9 @@ export const thing = (props: Omit<Thing, 'type'> = {}): Thing => ({
  */
 export type Brand = Thing & {
   type: 'Brand'
-  name: String
-  logo?: ImageObject | String
-  reviews?: Array<String>
+  name: string
+  logo?: ImageObject | string
+  reviews?: Array<string>
 }
 
 /**
@@ -613,9 +609,9 @@ export const brand = (props: Omit<Brand, 'type'>): Brand => ({
  */
 export type ContactPoint = Thing & {
   type: 'ContactPoint' | 'PostalAddress'
-  availableLanguages?: Array<String>
-  emails?: Array<String>
-  telephoneNumbers?: Array<String>
+  availableLanguages?: Array<string>
+  emails?: Array<string>
+  telephoneNumbers?: Array<string>
 }
 
 /**
@@ -656,7 +652,7 @@ export type CreativeWork = Thing & {
   about?: Array<ThingTypes>
   authors?: Array<Person | Organization>
   comments?: Array<Comment>
-  content?: Array<Node> | String
+  content?: Array<Node> | string
   dateAccepted?: Date
   dateCreated?: Date
   dateModified?: Date
@@ -665,17 +661,17 @@ export type CreativeWork = Thing & {
   editors?: Array<Person>
   fundedBy?: Array<Grant | MonetaryGrant>
   funders?: Array<Person | Organization>
-  genre?: Array<String>
+  genre?: Array<string>
   isPartOf?: CreativeWorkTypes
-  keywords?: Array<String>
-  licenses?: Array<CreativeWorkTypes | String>
+  keywords?: Array<string>
+  licenses?: Array<CreativeWorkTypes | string>
   maintainers?: Array<Person | Organization>
   parts?: Array<CreativeWorkTypes>
   publisher?: Person | Organization
-  references?: Array<CreativeWorkTypes | String>
-  text?: String
-  title?: Array<InlineContent> | String
-  version?: String | Number
+  references?: Array<CreativeWorkTypes | string>
+  text?: string
+  title?: Array<InlineContent> | string
+  version?: string | number
 }
 
 /**
@@ -696,9 +692,9 @@ export const creativeWork = (
 export type Article = CreativeWork & {
   type: 'Article'
   content?: Array<BlockContent>
-  pageEnd?: Integer | String
-  pageStart?: Integer | String
-  pagination?: String
+  pageEnd?: Integer | string
+  pageStart?: Integer | string
+  pagination?: string
 }
 
 /**
@@ -726,7 +722,7 @@ export type Claim = CreativeWork & {
     | 'Hypothesis'
     | 'Proposition'
     | 'Corollary'
-  label?: String
+  label?: string
 }
 
 /**
@@ -762,7 +758,7 @@ export const collection = (props: Omit<Collection, 'type'>): Collection => ({
  */
 export type Comment = CreativeWork & {
   type: 'Comment'
-  commentAspect?: String
+  commentAspect?: string
   parentItem?: Comment
 }
 
@@ -800,11 +796,11 @@ export const datatable = (props: Omit<Datatable, 'type'>): Datatable => ({
  */
 export type MediaObject = CreativeWork & {
   type: 'MediaObject' | 'AudioObject' | 'ImageObject' | 'VideoObject'
-  contentUrl: String
-  bitrate?: Number
-  contentSize?: Number
-  embedUrl?: String
-  mediaType?: String
+  contentUrl: string
+  bitrate?: number
+  contentSize?: number
+  embedUrl?: string
+  mediaType?: string
 }
 
 /**
@@ -822,8 +818,8 @@ export const mediaObject = (props: Omit<MediaObject, 'type'>): MediaObject => ({
  */
 export type AudioObject = MediaObject & {
   type: 'AudioObject'
-  caption?: String
-  transcript?: String
+  caption?: string
+  transcript?: string
 }
 
 /**
@@ -841,7 +837,7 @@ export const audioObject = (props: Omit<AudioObject, 'type'>): AudioObject => ({
  */
 export type DatatableColumn = Thing & {
   type: 'DatatableColumn'
-  name: String
+  name: string
   values: Array<Node>
   validator?: ArrayValidator
 }
@@ -863,8 +859,8 @@ export const datatableColumn = (
  */
 export type DefinedTerm = Thing & {
   type: 'DefinedTerm'
-  name: String
-  termCode?: String
+  name: string
+  termCode?: string
 }
 
 /**
@@ -912,7 +908,7 @@ export type ArrayValidator = Validator & {
   itemsValidator?: ValidatorTypes
   maxItems?: Integer
   minItems?: Integer
-  uniqueItems?: Boolean
+  uniqueItems?: boolean
 }
 
 /**
@@ -1010,8 +1006,8 @@ export const enumeration = (
  */
 export type Figure = CreativeWork & {
   type: 'Figure'
-  caption?: Array<BlockContent> | String
-  label?: String
+  caption?: Array<BlockContent> | string
+  label?: string
 }
 
 /**
@@ -1029,7 +1025,7 @@ export const figure = (props: Omit<Figure, 'type'> = {}): Figure => ({
  */
 export type Function = Entity & {
   type: 'Function'
-  name?: String
+  name?: string
   parameters?: Array<Parameter>
   returns?: ValidatorTypes
 }
@@ -1087,7 +1083,7 @@ export const heading = (props: Omit<Heading, 'type'>): Heading => ({
  */
 export type ImageObject = MediaObject & {
   type: 'ImageObject'
-  caption?: String
+  caption?: string
   thumbnail?: ImageObject
 }
 
@@ -1106,10 +1102,10 @@ export const imageObject = (props: Omit<ImageObject, 'type'>): ImageObject => ({
  */
 export type Include = Entity & {
   type: 'Include'
-  source: String
-  buildDigest?: String
+  source: string
+  buildDigest?: string
   content?: Array<BlockContent>
-  mediaType?: String
+  mediaType?: string
 }
 
 /**
@@ -1147,11 +1143,11 @@ export const integerValidator = (
 export type Link = Entity & {
   type: 'Link'
   content: Array<InlineContent>
-  target: String
-  exportFrom?: String
-  importTo?: String
-  relation?: String
-  title?: String
+  target: string
+  exportFrom?: string
+  importTo?: string
+  relation?: string
+  title?: string
 }
 
 /**
@@ -1189,7 +1185,7 @@ export const list = (props: Omit<List, 'type'>): List => ({
 export type ListItem = Thing & {
   type: 'ListItem'
   content?: Array<BlockContent> | Array<InlineContent>
-  isChecked?: Boolean
+  isChecked?: boolean
   item?: Node
   position?: Integer
 }
@@ -1209,9 +1205,9 @@ export const listItem = (props: Omit<ListItem, 'type'> = {}): ListItem => ({
  */
 export type Math = Entity & {
   type: 'Math' | 'MathBlock' | 'MathFragment'
-  text: String
-  errors?: Array<String>
-  mathLanguage?: String
+  text: string
+  errors?: Array<string>
+  mathLanguage?: string
 }
 
 /**
@@ -1229,7 +1225,7 @@ export const math = (props: Omit<Math, 'type'>): Math => ({
  */
 export type MathBlock = Math & {
   type: 'MathBlock'
-  label?: String
+  label?: string
 }
 
 /**
@@ -1266,7 +1262,7 @@ export const mathFragment = (
  */
 export type MonetaryGrant = Grant & {
   type: 'MonetaryGrant'
-  amounts?: Number
+  amounts?: number
   funders?: Array<Person | Organization>
 }
 
@@ -1325,11 +1321,11 @@ export const note = (props: Omit<Note, 'type'>): Note => ({
  */
 export type NumberValidator = Validator & {
   type: 'NumberValidator'
-  exclusiveMaximum?: Number
-  exclusiveMinimum?: Number
-  maximum?: Number
-  minimum?: Number
-  multipleOf?: Number
+  exclusiveMaximum?: number
+  exclusiveMinimum?: number
+  maximum?: number
+  minimum?: number
+  multipleOf?: number
 }
 
 /**
@@ -1349,13 +1345,13 @@ export const numberValidator = (
  */
 export type Organization = Thing & {
   type: 'Organization'
-  address?: PostalAddress | String
+  address?: PostalAddress | string
   brands?: Array<Brand>
   contactPoints?: Array<ContactPoint>
   departments?: Array<Organization>
   funders?: Array<Organization | Person>
-  legalName?: String
-  logo?: ImageObject | String
+  legalName?: string
+  logo?: ImageObject | string
   members?: Array<Organization | Person>
   parentOrganization?: Organization
 }
@@ -1395,12 +1391,12 @@ export const paragraph = (props: Omit<Paragraph, 'type'>): Paragraph => ({
  */
 export type Parameter = Entity & {
   type: 'Parameter'
-  name: String
+  name: string
   default?: Node
-  executeDigest?: String
-  isExtensible?: Boolean
-  isRequired?: Boolean
-  isVariadic?: Boolean
+  executeDigest?: string
+  isExtensible?: boolean
+  isRequired?: boolean
+  isVariadic?: boolean
   validator?: ValidatorTypes
   value?: Node
 }
@@ -1422,7 +1418,7 @@ export type Periodical = CreativeWork & {
   type: 'Periodical'
   dateEnd?: Date
   dateStart?: Date
-  issns?: Array<String>
+  issns?: Array<string>
 }
 
 /**
@@ -1442,17 +1438,17 @@ export const periodical = (
  */
 export type Person = Thing & {
   type: 'Person'
-  address?: PostalAddress | String
+  address?: PostalAddress | string
   affiliations?: Array<Organization>
-  emails?: Array<String>
-  familyNames?: Array<String>
+  emails?: Array<string>
+  familyNames?: Array<string>
   funders?: Array<Organization | Person>
-  givenNames?: Array<String>
-  honorificPrefix?: String
-  honorificSuffix?: String
-  jobTitle?: String
+  givenNames?: Array<string>
+  honorificPrefix?: string
+  honorificSuffix?: string
+  jobTitle?: string
   memberOf?: Array<Organization>
-  telephoneNumbers?: Array<String>
+  telephoneNumbers?: Array<string>
 }
 
 /**
@@ -1470,12 +1466,12 @@ export const person = (props: Omit<Person, 'type'> = {}): Person => ({
  */
 export type PostalAddress = ContactPoint & {
   type: 'PostalAddress'
-  addressCountry?: String
-  addressLocality?: String
-  addressRegion?: String
-  postOfficeBoxNumber?: String
-  postalCode?: String
-  streetAddress?: String
+  addressCountry?: string
+  addressLocality?: string
+  addressRegion?: string
+  postOfficeBoxNumber?: string
+  postalCode?: string
+  streetAddress?: string
 }
 
 /**
@@ -1497,8 +1493,8 @@ export const postalAddress = (
 export type Product = Thing & {
   type: 'Product'
   brands?: Array<Brand>
-  logo?: ImageObject | String
-  productID?: String
+  logo?: ImageObject | string
+  productID?: string
 }
 
 /**
@@ -1516,8 +1512,8 @@ export const product = (props: Omit<Product, 'type'> = {}): Product => ({
  */
 export type PropertyValue = Thing & {
   type: 'PropertyValue'
-  value: Boolean | Integer | Number | String
-  propertyID?: String
+  value: boolean | Integer | number | string
+  propertyID?: string
 }
 
 /**
@@ -1538,10 +1534,10 @@ export const propertyValue = (
  */
 export type PublicationIssue = CreativeWork & {
   type: 'PublicationIssue'
-  issueNumber?: Integer | String
-  pageEnd?: Integer | String
-  pageStart?: Integer | String
-  pagination?: String
+  issueNumber?: Integer | string
+  pageEnd?: Integer | string
+  pageStart?: Integer | string
+  pagination?: string
 }
 
 /**
@@ -1561,10 +1557,10 @@ export const publicationIssue = (
  */
 export type PublicationVolume = CreativeWork & {
   type: 'PublicationVolume'
-  pageEnd?: Integer | String
-  pageStart?: Integer | String
-  pagination?: String
-  volumeNumber?: Integer | String
+  pageEnd?: Integer | string
+  pageStart?: Integer | string
+  pagination?: string
+  volumeNumber?: Integer | string
 }
 
 /**
@@ -1584,7 +1580,7 @@ export const publicationVolume = (
  */
 export type Quote = Mark & {
   type: 'Quote'
-  cite?: Cite | String
+  cite?: Cite | string
 }
 
 /**
@@ -1603,7 +1599,7 @@ export const quote = (props: Omit<Quote, 'type'>): Quote => ({
 export type QuoteBlock = Entity & {
   type: 'QuoteBlock'
   content: Array<BlockContent>
-  cite?: Cite | String
+  cite?: Cite | string
 }
 
 /**
@@ -1622,7 +1618,7 @@ export const quoteBlock = (props: Omit<QuoteBlock, 'type'>): QuoteBlock => ({
 export type Review = CreativeWork & {
   type: 'Review'
   itemReviewed?: Thing
-  reviewAspect?: String
+  reviewAspect?: string
 }
 
 /**
@@ -1641,7 +1637,7 @@ export const review = (props: Omit<Review, 'type'> = {}): Review => ({
 export type SoftwareApplication = CreativeWork & {
   type: 'SoftwareApplication'
   softwareRequirements?: Array<SoftwareApplication>
-  softwareVersion?: String
+  softwareVersion?: string
 }
 
 /**
@@ -1661,7 +1657,7 @@ export const softwareApplication = (
  */
 export type SoftwareEnvironment = Thing & {
   type: 'SoftwareEnvironment'
-  name: String
+  name: string
   adds?: Array<SoftwareSourceCode>
   extends?: Array<SoftwareEnvironment>
   removes?: Array<SoftwareSourceCode>
@@ -1685,19 +1681,19 @@ export const softwareEnvironment = (
  */
 export type SoftwareSession = Thing & {
   type: 'SoftwareSession'
-  clientsLimit?: Number
-  clientsRequest?: Number
-  cpuLimit?: Number
-  cpuRequest?: Number
+  clientsLimit?: number
+  clientsRequest?: number
+  cpuLimit?: number
+  cpuRequest?: number
   dateEnd?: Date
   dateStart?: Date
-  durationLimit?: Number
-  durationRequest?: Number
+  durationLimit?: number
+  durationRequest?: number
   environment?: SoftwareEnvironment
-  memoryLimit?: Number
-  memoryRequest?: Number
-  networkTransferLimit?: Number
-  networkTransferRequest?: Number
+  memoryLimit?: number
+  memoryRequest?: number
+  networkTransferLimit?: number
+  networkTransferRequest?: number
   status?:
     | 'Unknown'
     | 'Starting'
@@ -1705,8 +1701,8 @@ export type SoftwareSession = Thing & {
     | 'Stopping'
     | 'Stopped'
     | 'Failed'
-  timeoutLimit?: Number
-  timeoutRequest?: Number
+  timeoutLimit?: number
+  timeoutRequest?: number
   volumeMounts?: Array<VolumeMount>
 }
 
@@ -1727,12 +1723,12 @@ export const softwareSession = (
  */
 export type SoftwareSourceCode = CreativeWork & {
   type: 'SoftwareSourceCode'
-  codeRepository?: String
-  codeSampleType?: String
-  programmingLanguage?: String
-  runtimePlatform?: Array<String>
+  codeRepository?: string
+  codeSampleType?: string
+  programmingLanguage?: string
+  runtimePlatform?: Array<string>
   softwareRequirements?: Array<
-    SoftwareSourceCode | SoftwareApplication | String
+    SoftwareSourceCode | SoftwareApplication | string
   >
   targetProducts?: Array<SoftwareApplication>
 }
@@ -1756,7 +1752,7 @@ export type StringValidator = Validator & {
   type: 'StringValidator'
   maxLength?: Integer
   minLength?: Integer
-  pattern?: String
+  pattern?: string
 }
 
 /**
@@ -1828,8 +1824,8 @@ export const superscript = (props: Omit<Superscript, 'type'>): Superscript => ({
 export type Table = CreativeWork & {
   type: 'Table'
   rows: Array<TableRow>
-  caption?: Array<BlockContent> | String
-  label?: String
+  caption?: Array<BlockContent> | string
+  label?: string
 }
 
 /**
@@ -1850,7 +1846,7 @@ export type TableCell = Entity & {
   cellType?: 'Data' | 'Header'
   colspan?: Integer
   content?: Array<BlockContent> | Array<InlineContent>
-  name?: String
+  name?: string
   rowspan?: Integer
 }
 
@@ -1927,8 +1923,8 @@ export const tupleValidator = (
  */
 export type Variable = Entity & {
   type: 'Variable'
-  name: String
-  isReadonly?: Boolean
+  name: string
+  isReadonly?: boolean
   validator?: ValidatorTypes
   value?: Node
 }
@@ -1948,9 +1944,9 @@ export const variable = (props: Omit<Variable, 'type'>): Variable => ({
  */
 export type VideoObject = MediaObject & {
   type: 'VideoObject'
-  caption?: String
+  caption?: string
   thumbnail?: ImageObject
-  transcript?: String
+  transcript?: string
 }
 
 /**
@@ -1968,10 +1964,10 @@ export const videoObject = (props: Omit<VideoObject, 'type'>): VideoObject => ({
  */
 export type VolumeMount = Thing & {
   type: 'VolumeMount'
-  mountDestination: String
-  mountOptions?: Array<String>
-  mountSource?: String
-  mountType?: String
+  mountDestination: string
+  mountOptions?: Array<string>
+  mountSource?: string
+  mountType?: string
 }
 
 /**
@@ -2163,11 +2159,11 @@ export type InlineContent =
   | Subscript
   | Superscript
   | VideoObject
-  | Null
-  | Boolean
+  | null
+  | boolean
   | Integer
-  | Number
-  | String
+  | number
+  | string
 
 /**
  * All type schemas that are derived from Mark
@@ -2280,12 +2276,12 @@ export type Node =
   | Variable
   | VideoObject
   | VolumeMount
-  | Null
-  | Boolean
+  | null
+  | boolean
   | Integer
-  | Number
-  | String
-  | Object
+  | number
+  | string
+  | ObjectType
   | Array<unknown>
 
 /**
