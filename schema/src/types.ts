@@ -6,7 +6,6 @@
 
 type Integer = number
 type Primitive =
-  | undefined
   | null
   | boolean
   | number
