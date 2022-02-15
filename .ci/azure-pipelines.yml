@@ -50,6 +50,7 @@ jobs:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
     condition: |
       or(
+        contains(variables.changed, 'schema'),
         contains(variables.changed, 'rust'),
         contains(variables.changed, 'node'),
         contains(variables.changed, 'desktop'),
@@ -102,6 +103,12 @@ jobs:
           python3 -m pip install ipykernel
           python3 -m ipykernel install --user
         displayName: 'Install: Jupyter kernels'
+
+      # Schema is tested and built (including language bindings which other modules use)
+      # if there are changes in the `schema` folder.
+      - script: make -C schema setup test build
+        condition: contains(variables.changed, 'schema')
+        displayName: 'Schema: Test & Build'
 
       # Rust crate is linted if there are changes in the `rust` folder.
       - script: make -C rust lint
