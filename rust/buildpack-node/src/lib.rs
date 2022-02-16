@@ -17,7 +17,7 @@ use buildpack::{
         Buildpack,
         Error::BuildpackError,
     },
-    platform_is_stencila, tracing, BuildpackTrait,
+    platform_is_stencila, tracing, BuildpackTrait, SYSTEM_INSTALLED,
 };
 
 pub struct NodeBuildpack;
@@ -28,7 +28,6 @@ impl BuildpackTrait for NodeBuildpack {
     }
 }
 
-const INSTALLED: &str = "<installed>";
 const NVMRC: &str = ".nvmrc";
 const PACKAGE_JSON: &str = "package.json";
 const PACKAGE_LOCK: &str = "package-lock.json";
@@ -85,7 +84,7 @@ impl Buildpack for NodeBuildpack {
         }) {
             (semver, PACKAGE_JSON)
         } else if let Some(version) = (NodeBinary {}).installed_version(None) {
-            (version, INSTALLED)
+            (version, SYSTEM_INSTALLED)
         } else {
             ("".to_string(), "")
         };

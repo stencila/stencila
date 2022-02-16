@@ -19,7 +19,7 @@ use buildpack::{
         Buildpack,
         Error::BuildpackError,
     },
-    platform_is_stencila, toml, tracing, BuildpackTrait,
+    platform_is_stencila, toml, tracing, BuildpackTrait, SYSTEM_INSTALLED,
 };
 
 pub struct PythonBuildpack;
@@ -30,7 +30,6 @@ impl BuildpackTrait for PythonBuildpack {
     }
 }
 
-const INSTALLED: &str = "<installed>";
 const POETRY_LOCK: &str = "poetry.lock";
 const PYPROJECT_TOML: &str = "pyproject.toml";
 const REQUIREMENTS_TXT: &str = "requirements.txt";
@@ -95,7 +94,7 @@ impl Buildpack for PythonBuildpack {
         }) {
             (version, RUNTIME_TXT)
         } else if let Some(version) = (PythonBinary {}).installed_version(None) {
-            (version, INSTALLED)
+            (version, SYSTEM_INSTALLED)
         } else {
             ("".to_string(), "")
         };

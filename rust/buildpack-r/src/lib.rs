@@ -17,7 +17,7 @@ use buildpack::{
         Buildpack,
         Error::BuildpackError,
     },
-    platform_is_stencila, tracing, BuildpackTrait,
+    platform_is_stencila, tracing, BuildpackTrait, SYSTEM_INSTALLED,
 };
 
 pub struct RBuildpack;
@@ -28,7 +28,6 @@ impl BuildpackTrait for RBuildpack {
     }
 }
 
-const INSTALLED: &str = "<installed>";
 const DESCRIPTION: &str = "DESCRIPTION";
 const INSTALL_R: &str = "install.R";
 const RENV: &str = "renv";
@@ -79,7 +78,7 @@ impl Buildpack for RBuildpack {
         }) {
             (version, RENV_LOCK)
         } else if let Some(version) = (RBinary {}).installed_version(None) {
-            (version, INSTALLED)
+            (version, SYSTEM_INSTALLED)
         } else {
             ("".to_string(), "")
         };
