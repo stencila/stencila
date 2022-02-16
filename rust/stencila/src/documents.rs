@@ -12,6 +12,7 @@ use node_execute::{
     ExecuteRequest, ExecuteResponse, PatchRequest, PatchResponse, RequestId,
 };
 use node_patch::{apply, diff, merge, Patch};
+use node_pointer::resolve;
 use node_reshape::reshape;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
@@ -644,7 +645,7 @@ impl Document {
         let content_to_write = if let Some(input_format) = format.as_ref() {
             let input_format = formats::match_path(&input_format).spec();
             if input_format != self.format {
-                self.dump(None).await?
+                self.dump(None, None).await?
             } else {
                 self.content.clone()
             }
@@ -708,15 +709,24 @@ impl Document {
     ///
     /// - `format`: the format to dump the content as; if not supplied assumed to be
     ///    the document's existing format.
+    ///
+    /// - `node_id`: the id of the node within the document to dump
     #[tracing::instrument(skip(self))]
-    pub async fn dump(&self, format: Option<String>) -> Result<String> {
+    pub async fn dump(&self, format: Option<String>, node_id: Option<String>) -> Result<String> {
         let format = match format {
             Some(format) => format,
             None => return Ok(self.content.clone()),
         };
 
         let root = &*self.root.read().await;
-        codecs::to_string(root, &format, None).await
+        if let Some(node_id) = node_id {
+            let address = self.addresses.read().await.get(&node_id).cloned();
+            let pointer = resolve(root, address, Some(node_id))?;
+            let node = pointer.to_node()?;
+            codecs::to_string(&node, &format, None).await
+        } else {
+            codecs::to_string(root, &format, None).await
+        }
     }
 
     /// Load content into the document
@@ -2326,7 +2336,7 @@ pub mod commands {
                 let out = output.display().to_string();
                 if out == "-" {
                     let format = self.to.clone().unwrap_or_else(|| "json".to_string());
-                    let content = document.dump(Some(format.clone())).await?;
+                    let content = document.dump(Some(format.clone()), None).await?;
                     return result::content(&format, &content);
                 } else {
                     document
@@ -2421,7 +2431,7 @@ pub mod commands {
                     None => "json".to_string(),
                     Some(format) => format.clone(),
                 };
-                let content = document.dump(Some(format.clone())).await?;
+                let content = document.dump(Some(format.clone()), None).await?;
                 result::content(&format, &content)
             } else {
                 document

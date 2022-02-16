@@ -1100,7 +1100,7 @@ async fn get_handler(
             Ok(document) => {
                 let document = DOCUMENTS.get(&document.id).await.unwrap();
                 let document = document.lock().await;
-                let content = match document.dump(Some(format.clone())).await {
+                let content = match document.dump(Some(format.clone()), None).await {
                     Ok(content) => content,
                     Err(error) => {
                         return error_response(

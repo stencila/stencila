@@ -129,7 +129,7 @@ pub fn dump(mut cx: FunctionContext) -> JsResult<JsString> {
 
     let result = RUNTIME.block_on(async {
         match DOCUMENTS.get(id).await {
-            Ok(document) => document.lock().await.dump(format).await,
+            Ok(document) => document.lock().await.dump(format, None).await,
             Err(error) => Err(error),
         }
     });

@@ -14,7 +14,7 @@ export async function start(
   projectId: ProjectId
 ): Promise<Session> {
   return client.call('sessions.start', {
-    projectId
+    projectId,
   }) as Promise<Session>
 }
 

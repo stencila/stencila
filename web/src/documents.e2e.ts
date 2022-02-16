@@ -1,7 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { article, creativeWork } from '@stencila/schema'
 import { Document, DocumentEvent } from '@stencila/stencila'
 import { Client, connect, disconnect } from './client'
-import { close, open, subscribe, unsubscribe } from './documents'
+import {
+  close,
+  create,
+  dump,
+  load,
+  open,
+  subscribe,
+  unsubscribe,
+} from './documents'
 
 jest.setTimeout(10000)
 
@@ -54,4 +63,47 @@ test('basic', async () => {
 
   // Close the document
   await close(client, document.id)
+})
+
+test('create', async () => {
+  let document = await create(client)
+  let json = await dump(client, document.id, 'json')
+  expect(json).toMatch(/^{"type":"Article"/)
+
+  document = await create(client, creativeWork({ content: ['Beep!'] }))
+  let md = await dump(client, document.id, 'md')
+  expect(md).toMatch(/^Beep!/)
+
+  document = await create(client, 'Boop!', 'md')
+  json = await dump(client, document.id, 'json')
+  expect(json).toMatch(/"content":\["Boop!"\]/)
+})
+
+test('load', async () => {
+  let document = await create(client)
+
+  let ok = await load(client, document.id, article({ content: [] }))
+  expect(ok).toBeTruthy()
+  let json = await dump(client, document.id, 'json')
+  expect(json).toMatch(/^{"type":"Article"/)
+
+  ok = await load(client, document.id, 'Hello *world*!', 'md')
+  expect(ok).toBeTruthy()
+  json = await dump(client, document.id, 'html')
+  expect(json).toMatch(
+    '<em itemtype="http://schema.stenci.la/Emphasis" itemscope><span>world</span>'
+  )
+})
+
+test('dump', async () => {
+  let document = await open(client, 'fixtures/nodes/creative-work.json')
+
+  let json = await dump(client, document.id, 'json')
+  expect(json).toMatch(/^{"type":"CreativeWork"/)
+
+  let md = await dump(client, document.id, 'md')
+  expect(md).toMatch(/^A fixture that is a creative work/)
+
+  let rpng = await dump(client, document.id, 'rpng', 'cc-1')
+  expect(rpng).toMatch(/^data:image\/png/)
 })

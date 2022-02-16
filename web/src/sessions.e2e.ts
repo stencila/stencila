@@ -29,7 +29,6 @@ test('basic', async () => {
     expect.objectContaining({
       id: expect.stringMatching(/^se-[0-9a-zA-Z]{20}/),
       project: 'projectId',
-      snapshot: 'snapshotId',
       status: 'Started',
     })
   )
