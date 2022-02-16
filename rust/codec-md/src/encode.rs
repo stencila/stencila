@@ -12,6 +12,55 @@ pub trait ToMd {
     fn to_md(&self) -> String;
 }
 
+macro_rules! primitive_to_md {
+    ($type:ty) => {
+        impl ToMd for $type {
+            fn to_md(&self) -> String {
+                self.to_string()
+            }
+        }
+    };
+}
+
+primitive_to_md!(Null);
+primitive_to_md!(Boolean);
+primitive_to_md!(Integer);
+primitive_to_md!(Number);
+primitive_to_md!(String);
+
+impl<Type> ToMd for Option<Type>
+where
+    Type: ToMd,
+{
+    fn to_md(&self) -> String {
+        match self {
+            Some(value) => value.to_md(),
+            None => "".to_string(),
+        }
+    }
+}
+
+impl<Type> ToMd for Box<Type>
+where
+    Type: ToMd,
+{
+    fn to_md(&self) -> String {
+        self.as_ref().to_md()
+    }
+}
+
+impl<Type> ToMd for Vec<Type>
+where
+    Type: ToMd,
+{
+    fn to_md(&self) -> String {
+        self.iter()
+            .map(|item| item.to_md())
+            .collect::<Vec<String>>()
+            .concat()
+    }
+}
+
 macro_rules! slice_to_md {
     ($type:ty) => {
         impl ToMd for $type {
@@ -299,42 +348,55 @@ impl ToMd for ThematicBreak {
     }
 }
 
-impl ToMd for Article {
+macro_rules! content_to_md {
+    ($type:ty) => {
+        impl ToMd for $type {
+            fn to_md(&self) -> String {
+                self.content.to_md()
+            }
+        }
+    };
+}
+
+content_to_md!(Article);
+content_to_md!(CreativeWork);
+
+impl ToMd for CreativeWorkContent {
     fn to_md(&self) -> String {
-        match &self.content {
-            Some(content) => content.to_md(),
-            None => "".to_string(),
+        match self {
+            CreativeWorkContent::String(node) => node.to_md(),
+            CreativeWorkContent::VecNode(nodes) => nodes.to_md(),
         }
     }
 }
 
-/// Encode a `Node` to plain text
 impl ToMd for Node {
     fn to_md(&self) -> String {
         match self {
             Node::Article(node) => node.to_md(),
-            Node::Boolean(node) => node.to_string(),
+            Node::Boolean(node) => node.to_md(),
             //Node::Cite(node) => node.to_md(),
             Node::CodeBlock(node) => node.to_md(),
             Node::CodeFragment(node) => node.to_md(),
+            Node::CreativeWork(node) => node.to_md(),
             Node::Delete(node) => node.to_md(),
             Node::Emphasis(node) => node.to_md(),
             Node::Heading(node) => node.to_md(),
-            Node::Integer(node) => node.to_string(),
+            Node::Integer(node) => node.to_md(),
             Node::Link(node) => node.to_md(),
             Node::List(node) => node.to_md(),
             Node::NontextualAnnotation(node) => node.to_md(),
             //Node::Note(node) => node.to_md(),
-            Node::Null(node) => node.to_string(),
-            Node::Number(node) => node.to_string(),
+            Node::Null(node) => node.to_md(),
+            Node::Number(node) => node.to_md(),
             Node::Paragraph(node) => node.to_md(),
             Node::Quote(node) => node.to_md(),
             Node::QuoteBlock(node) => node.to_md(),
-            Node::String(node) => node.to_string(),
+            Node::String(node) => node.to_md(),
             Node::Strong(node) => node.to_md(),
             Node::Subscript(node) => node.to_md(),
             Node::Superscript(node) => node.to_md(),
-            _ => "".to_string(),
+            _ => "<!-- unsupported type -->".to_string(),
         }
     }
 }
@@ -343,27 +405,27 @@ impl ToMd for InlineContent {
     fn to_md(&self) -> String {
         match self {
             InlineContent::AudioObject(node) => node.to_md(),
-            InlineContent::Boolean(node) => node.to_string(),
+            InlineContent::Boolean(node) => node.to_md(),
             //InlineContent::Cite(node) => node.to_md(),
             InlineContent::CodeExpression(node) => node.to_md(),
             InlineContent::CodeFragment(node) => node.to_md(),
             InlineContent::Delete(node) => node.to_md(),
             InlineContent::Emphasis(node) => node.to_md(),
             InlineContent::ImageObject(node) => node.to_md(),
-            InlineContent::Integer(node) => node.to_string(),
+            InlineContent::Integer(node) => node.to_md(),
             InlineContent::Link(node) => node.to_md(),
             InlineContent::NontextualAnnotation(node) => node.to_md(),
             //InlineContent::Note(node) => node.to_md(),
-            InlineContent::Null(node) => node.to_string(),
-            InlineContent::Number(node) => node.to_string(),
+            InlineContent::Null(node) => node.to_md(),
+            InlineContent::Number(node) => node.to_md(),
             InlineContent::MathFragment(node) => node.to_md(),
             InlineContent::Quote(node) => node.to_md(),
-            InlineContent::String(node) => node.to_string(),
+            InlineContent::String(node) => node.to_md(),
             InlineContent::Strong(node) => node.to_md(),
             InlineContent::Subscript(node) => node.to_md(),
             InlineContent::Superscript(node) => node.to_md(),
             InlineContent::VideoObject(node) => node.to_md(),
-            _ => "".to_string(),
+            _ => "<!-- unsupported type -->".to_string(),
         }
     }
 }
@@ -381,7 +443,7 @@ impl ToMd for BlockContent {
             BlockContent::QuoteBlock(node) => node.to_md(),
             BlockContent::Table(node) => node.to_md(),
             BlockContent::ThematicBreak(node) => node.to_md(),
-            _ => "".to_string(),
+            _ => "<!-- unsupported type -->".to_string(),
         }
     }
 }
