@@ -5,7 +5,7 @@ use std::{
 
 use binary_node::{BinaryInstallation, BinaryTrait, NodeBinary};
 use buildpack::{
-    eyre::{self, bail},
+    eyre::{self, bail, eyre},
     fs_utils::{clear_dir_all, copy_dir_all, symlink_dir, symlink_file},
     libcnb::{
         self,
@@ -15,6 +15,7 @@ use buildpack::{
         generic::{GenericMetadata, GenericPlatform},
         layer::{Layer, LayerResult, LayerResultBuilder},
         Buildpack,
+        Error::BuildpackError,
     },
     platform_is_stencila, tracing, BuildpackTrait,
 };
@@ -120,15 +121,8 @@ impl Buildpack for NodeBuildpack {
     }
 
     fn build(&self, context: BuildContext<Self>) -> libcnb::Result<BuildResult, Self::Error> {
-        let entries: Vec<String> = context
-            .buildpack_plan
-            .entries
-            .iter()
-            .map(|entry| entry.name.clone())
-            .collect();
-
-        for entry in entries {
-            let (name, args) = Self::split_entry_name(&entry);
+        for entry in &context.buildpack_plan.entries {
+            let (name, args) = Self::split_entry_name(&entry.name);
             match name.as_str() {
                 "node" => {
                     context.handle_layer(layer_name!("node"), NodeLayer::new(args))?;
@@ -136,7 +130,12 @@ impl Buildpack for NodeBuildpack {
                 "npm" => {
                     context.handle_layer(layer_name!("npm"), NpmLayer)?;
                 }
-                _ => (),
+                _ => {
+                    return Err(BuildpackError(eyre!(
+                        "Unhandled buildpack plan entry: {}",
+                        name
+                    )))
+                }
             };
         }
 
