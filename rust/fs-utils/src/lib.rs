@@ -43,6 +43,13 @@ pub fn symlink_dir<Original: AsRef<Path>, Link: AsRef<Path>>(
     Ok(())
 }
 
+/// Clear a directory
+pub fn clear_dir_all(dir: impl AsRef<Path>) -> Result<()> {
+    fs::remove_dir_all(&dir)?;
+    fs::create_dir_all(&dir)?;
+    Ok(())
+}
+
 /// Recursively copy a directory to another
 pub fn copy_dir_all(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> Result<()> {
     fs::create_dir_all(&dest)?;

@@ -8,7 +8,7 @@ use binary_poetry::PoetryBinary;
 use binary_python::{BinaryInstallation, BinaryTrait, PythonBinary};
 use buildpack::{
     eyre::{self, bail},
-    fs_utils::{copy_dir_all, symlink_dir, symlink_file},
+    fs_utils::{clear_dir_all, copy_dir_all, symlink_dir, symlink_file},
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
@@ -29,6 +29,7 @@ impl BuildpackTrait for PythonBuildpack {
     }
 }
 
+const INSTALLED: &str = "<installed>";
 const POETRY_LOCK: &str = "poetry.lock";
 const PYPROJECT_TOML: &str = "pyproject.toml";
 const REQUIREMENTS_TXT: &str = "requirements.txt";
@@ -91,6 +92,8 @@ impl Buildpack for PythonBuildpack {
                 .map(|version| version.to_string())
         }) {
             (version, RUNTIME_TXT)
+        } else if let Some(version) = (PythonBinary {}).installed_version(None) {
+            (version, INSTALLED)
         } else {
             ("".to_string(), "")
         };
@@ -183,7 +186,7 @@ impl Layer for PythonLayer {
         LayerTypes {
             build: true,
             launch: true,
-            cache: true,
+            cache: false,
         }
     }
 
@@ -201,22 +204,28 @@ impl Layer for PythonLayer {
         let python = PythonBinary {}.require_sync(requirement, true)?;
 
         // Symlink/copy the installation into the layer
-        let dest = layer_path.join(python.version()?);
         if platform_is_stencila(&context.platform) {
             if python.is_stencila_install() {
+                clear_dir_all(&layer_path)?;
                 let source = python.grandparent()?;
-                symlink_dir(source, &dest)?;
+                let dest = layer_path;
+                symlink_dir(source.join("bin"), &dest.join("bin"))?;
+                symlink_dir(source.join("lib"), &dest.join("lib"))?;
             } else {
+                clear_dir_all(&layer_path)?;
+                let dest = layer_path.join("bin");
                 fs::create_dir_all(&dest)?;
                 symlink_file(python.path, dest.join(python.name))?;
             }
         } else {
             #[allow(clippy::collapsible_else_if)]
             if python.is_stencila_install() {
+                clear_dir_all(&layer_path)?;
                 let source = python.grandparent()?;
+                let dest = layer_path;
                 copy_dir_all(source, &dest)?;
             } else {
-                bail!("Only able to build `python` layer if it has been installed by Stencila")
+                bail!("Only able to build `python` layer if Python has been installed by Stencila")
             }
         }
 
@@ -231,9 +240,6 @@ impl Layer for PoetryLayer {
     type Metadata = GenericMetadata;
 
     fn types(&self) -> LayerTypes {
-        // Layer is available at build time and is cached but is not needed for
-        // launch time because packages are installed into the `venv` of the
-        // working directory
         LayerTypes {
             build: true,
             launch: false,
@@ -270,9 +276,6 @@ impl Layer for PipLayer {
     type Metadata = GenericMetadata;
 
     fn types(&self) -> LayerTypes {
-        // Layer is available at build time and is cached but is not needed for
-        // launch time because packages are installed into the `venv` of the
-        // working directory
         LayerTypes {
             build: true,
             launch: false,

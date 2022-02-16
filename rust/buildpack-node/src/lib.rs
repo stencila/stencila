@@ -6,7 +6,7 @@ use std::{
 use binary_node::{Binary, BinaryTrait, NodeBinary};
 use buildpack::{
     eyre::{self, bail},
-    fs_utils::{copy_dir_all, symlink_dir, symlink_file},
+    fs_utils::{clear_dir_all, copy_dir_all, symlink_dir, symlink_file},
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
@@ -27,6 +27,7 @@ impl BuildpackTrait for NodeBuildpack {
     }
 }
 
+const INSTALLED: &str = "<installed>";
 const NVMRC: &str = ".nvmrc";
 const PACKAGE_JSON: &str = "package.json";
 const PACKAGE_LOCK: &str = "package-lock.json";
@@ -68,7 +69,7 @@ impl Buildpack for NodeBuildpack {
         let mut requires = Vec::new();
         let mut provides = Vec::new();
 
-        // Resolve Node.js version from `.tool-versions`, `.nvmrc` or `package.json`
+        // Resolve Node.js version from `.tool-versions`, `.nvmrc`, `package.json`, or installed `node` version
         let (version, source) = if let Some(version) = tool_versions
             .get("nodejs")
             .or_else(|| tool_versions.get("node"))
@@ -82,6 +83,8 @@ impl Buildpack for NodeBuildpack {
                 .and_then(|semver| semver.as_str().map(|semver| semver.to_string()))
         }) {
             (semver, PACKAGE_JSON)
+        } else if let Some(version) = (NodeBinary {}).installed_version(None) {
+            (version, INSTALLED)
         } else {
             ("".to_string(), "")
         };
@@ -167,7 +170,7 @@ impl Layer for NodeLayer {
         LayerTypes {
             build: true,
             launch: true,
-            cache: true,
+            cache: false,
         }
     }
 
@@ -194,13 +197,17 @@ impl Layer for NodeLayer {
         let node = NodeBinary {}.require_sync(Some(requirement), true)?;
 
         // Symlink/copy the installation into the layer
-        let dest = layer_path.join(node.version()?);
         if platform_is_stencila(&context.platform) {
             if node.is_stencila_install() {
+                clear_dir_all(&layer_path)?;
                 let source = node.grandparent()?;
-                symlink_dir(source, &dest)?;
+                let dest = layer_path;
+                symlink_dir(source.join("bin"), &dest.join("bin"))?;
+                symlink_dir(source.join("lib"), &dest.join("lib"))?;
             } else {
+                clear_dir_all(&layer_path)?;
                 let source = node.parent()?;
+                let dest = layer_path.join("bin");
                 fs::create_dir_all(&dest)?;
                 symlink_file(node.path, dest.join(node.name))?;
                 symlink_file(source.join("npm"), dest.join("npm"))?;
@@ -209,10 +216,12 @@ impl Layer for NodeLayer {
         } else {
             #[allow(clippy::collapsible_else_if)]
             if node.is_stencila_install() {
+                clear_dir_all(&layer_path)?;
                 let source = node.grandparent()?;
+                let dest = layer_path;
                 copy_dir_all(source, &dest)?;
             } else {
-                bail!("Only able to build `node` layer if it has been installed by Stencila")
+                bail!("Only able to build `node` layer if Node has been installed by Stencila")
             }
         }
 
@@ -233,9 +242,6 @@ impl Layer for NpmLayer {
     type Metadata = GenericMetadata;
 
     fn types(&self) -> LayerTypes {
-        // Layer is available at build time and is cached but is not needed for
-        // launch time because packages are installed into the `node_modules` of the
-        // working directory
         LayerTypes {
             build: true,
             launch: false,
