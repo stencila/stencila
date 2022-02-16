@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use binary_node::{Binary, BinaryTrait, NodeBinary};
+use binary_node::{BinaryInstallation, BinaryTrait, NodeBinary};
 use buildpack::{
     eyre::{self, bail},
     fs_utils::{clear_dir_all, copy_dir_all, symlink_dir, symlink_file},
@@ -16,7 +16,7 @@ use buildpack::{
         layer::{Layer, LayerResult, LayerResultBuilder},
         Buildpack,
     },
-    platform_is_stencila, BuildpackTrait,
+    platform_is_stencila, tracing, BuildpackTrait,
 };
 
 pub struct NodeBuildpack;
@@ -134,7 +134,7 @@ impl Buildpack for NodeBuildpack {
                     context.handle_layer(layer_name!("node"), NodeLayer::new(args))?;
                 }
                 "npm" => {
-                    context.handle_layer(layer_name!("npm"), NpmLayer::new(args))?;
+                    context.handle_layer(layer_name!("npm"), NpmLayer)?;
                 }
                 _ => (),
             };
@@ -195,16 +195,19 @@ impl Layer for NodeLayer {
 
         // Ensure a version meeting the semver is installed
         let node = NodeBinary {}.require_sync(Some(requirement), true)?;
+        let version = node.version()?;
 
         // Symlink/copy the installation into the layer
         if platform_is_stencila(&context.platform) {
             if node.is_stencila_install() {
+                tracing::info!("Linking to Node.js {} installed by Stencila", version);
                 clear_dir_all(&layer_path)?;
                 let source = node.grandparent()?;
                 let dest = layer_path;
                 symlink_dir(source.join("bin"), &dest.join("bin"))?;
                 symlink_dir(source.join("lib"), &dest.join("lib"))?;
             } else {
+                tracing::info!("Linking to Node.js {} installed on system", version);
                 clear_dir_all(&layer_path)?;
                 let source = node.parent()?;
                 let dest = layer_path.join("bin");
@@ -216,6 +219,7 @@ impl Layer for NodeLayer {
         } else {
             #[allow(clippy::collapsible_else_if)]
             if node.is_stencila_install() {
+                tracing::info!("Using Node.js {} installed by Stencila", version);
                 clear_dir_all(&layer_path)?;
                 let source = node.grandparent()?;
                 let dest = layer_path;
@@ -230,12 +234,6 @@ impl Layer for NodeLayer {
 }
 
 struct NpmLayer;
-
-impl NpmLayer {
-    fn new(_args: Vec<String>) -> Self {
-        NpmLayer
-    }
-}
 
 impl Layer for NpmLayer {
     type Buildpack = NodeBuildpack;
@@ -254,10 +252,20 @@ impl Layer for NpmLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<Self::Metadata>, eyre::Report> {
-        // Require npm
-        // TODO: Should we use a specific version of npm? The version installed by this pack?
-        // Or one with expected behavior wrt to package-lock.json, peerDependencies etc.
-        let mut npm = Binary::unregistered("npm").require_sync(None, false)?;
+        tracing::info!("Installing packages using NPM");
+
+        // Get `npm` installed in `NodeLayer`
+        let mut npm = BinaryInstallation {
+            name: "npm".into(),
+            path: layer_path
+                .canonicalize()?
+                .parent()
+                .expect("Should have parent")
+                .join("node")
+                .join("bin")
+                .join("npm"),
+            ..Default::default()
+        };
 
         // If this is not a local build then make the layer the NPM cache
         if !platform_is_stencila(&context.platform) {
