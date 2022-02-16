@@ -18,6 +18,7 @@ impl ToHtml for CreativeWorkTypes {
             CreativeWorkTypes::AudioObject(node) => node.to_html(context),
             CreativeWorkTypes::Claim(node) => node.to_html(context),
             CreativeWorkTypes::Collection(node) => node.to_html(context),
+            CreativeWorkTypes::CreativeWork(node) => node.to_html(context),
             CreativeWorkTypes::Figure(node) => node.to_html(context),
             CreativeWorkTypes::ImageObject(node) => node.to_html(context),
             CreativeWorkTypes::Table(node) => node.to_html(context),
@@ -33,6 +34,16 @@ impl ToHtml for CreativeWorkContent {
             CreativeWorkContent::String(node) => node.to_html(context),
             CreativeWorkContent::VecNode(nodes) => nodes.to_html(context),
         }
+    }
+}
+
+impl ToHtml for CreativeWork {
+    fn to_html(&self, context: &EncodeContext) -> String {
+        elem(
+            "article",
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &self.content.to_html(context),
+        )
     }
 }
 
@@ -305,7 +316,6 @@ to_content_html!(MediaObject, Node::MediaObject, to_inline);
 to_content_html!(VideoObject, Node::VideoObject, to_inline);
 
 // Not yet implemented
-impl ToHtml for CreativeWork {}
 impl ToHtml for Periodical {}
 impl ToHtml for PublicationIssue {}
 impl ToHtml for PublicationVolume {}
