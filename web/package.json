@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Web client for interacting with Stencila document server",
   "scripts": {
-    "build": "npm run build:js && npm run build:browser",
-    "build:browser": "parcel build . --no-autoinstall --target read,view,exec,edit",
+    "build": "npm run build:js && npm run build:browser && npm run build:ts",
+    "build:browser": "parcel build . --no-autoinstall --target read --target view --target exec --target edit",
     "build:js": "microbundle",
     "build:ts": "tsc --emitDeclarationOnly",
     "build:watch": "parcel watch",
