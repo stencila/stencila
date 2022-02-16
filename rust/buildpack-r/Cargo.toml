@@ -7,3 +7,4 @@ edition = "2021"
 [dependencies]
 binary-r = { path = "../binary-r", version = "0.0.0" }
 buildpack = { path = "../buildpack", version = "0.0.0" }
+serde_json = "1.0.75"

@@ -567,6 +567,7 @@ version = "0.0.0"
 dependencies = [
  "binary-r",
  "buildpack",
+ "serde_json",
 ]
 
 [[package]]
