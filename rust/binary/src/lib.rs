@@ -454,6 +454,22 @@ pub trait BinaryTrait: Send + Sync {
         }
     }
 
+    /// Get the highest installed version that matches a semver requirement (if specified)
+    ///
+    /// This is a convenience function that ignores errors in the semver requirement string
+    /// and obtaining the version and will return `None` in both cases!
+    fn installed_version(&self, requirement: Option<String>) -> Option<String> {
+        self.installed(requirement)
+            .ok()
+            .flatten()
+            .and_then(|installation| {
+                installation
+                    .version()
+                    .ok()
+                    .map(|version| version.to_string())
+            })
+    }
+
     /// Install the most recent version of the binary (meeting optional semver, OS, and arch requirements).
     ///
     /// If a `requirement` is not supplied then the latest version is installed. If `requirement` is
@@ -917,7 +933,12 @@ impl BinaryInstallation {
                     String::from_utf8_lossy(&output.stdout)
                 ),
             },
-            Err(error) => bail!("When running `{}`: {}", self.name, error),
+            Err(error) => bail!(
+                "When running `{}` at `{}`: {}",
+                self.name,
+                self.path.display(),
+                error
+            ),
         }
     }
 
