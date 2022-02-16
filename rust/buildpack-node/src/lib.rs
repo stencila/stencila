@@ -107,7 +107,7 @@ impl Buildpack for NodeBuildpack {
                 } else {
                     PACKAGE_JSON
                 },
-                "Install NPM packages using `npm install`",
+                "Install NPM packages",
             );
             requires.push(require);
             provides.push(provide);
@@ -267,7 +267,7 @@ impl Layer for NpmLayer {
             ..Default::default()
         };
 
-        // If this is not a local build then make the layer the NPM cache
+        // If Stencila is not the platform use the layer as the NPM cache
         if !platform_is_stencila(&context.platform) {
             npm.envs(&[("NPM_CONFIG_CACHE", layer_path.canonicalize()?.as_os_str())]);
         }
