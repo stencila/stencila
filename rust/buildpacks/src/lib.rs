@@ -322,7 +322,7 @@ impl Buildpacks {
 
     /// Generate a Markdown document of a set of build plans
     fn plan_as_markdown(plans: &[(BuildpackId, Option<BuildPlan>)], show_all: bool) -> String {
-        plans
+        let plans = plans
             .iter()
             .map(|(id, plan)| {
                 let md = match plan {
@@ -359,7 +359,8 @@ impl Buildpacks {
                 }
             })
             .collect::<Vec<String>>()
-            .concat()
+            .concat();
+        ["# Build plan\n\n", &plans].concat()
     }
 
     /// Build image layers for a working directory using a buildpack
@@ -543,7 +544,7 @@ impl Default for Buildpacks {
 #[cfg(feature = "cli")]
 pub mod commands {
     use super::*;
-    use cli_utils::{async_trait::async_trait, result, Result, Run};
+    use cli_utils::{async_trait::async_trait, result, stdout_isatty, Result, Run};
     use std::{path::PathBuf, process};
     use structopt::StructOpt;
 
@@ -783,8 +784,19 @@ pub mod commands {
             let label = self.label.clone().unwrap_or_else(|| "all".to_string());
 
             if label == "all" {
+                let tty = stdout_isatty();
+                if tty {
+                    let plans = PACKS.plan_all(self.working.as_deref())?;
+                    let md = Buildpacks::plan_as_markdown(&plans, false);
+                    result::print::markdown(&md)?;
+                }
+
                 let results = PACKS.build_all(self.working.as_deref())?;
-                return result::value(results);
+                return if tty {
+                    result::nothing()
+                } else {
+                    result::value(results)
+                };
             }
 
             let buildpack_id = PACKS.find(&label)?;
