@@ -9,10 +9,8 @@ $comment: |
   Array should come last to avoid single items (e.g. a single string)
   being coerced into an array.
 anyOf:
-  - $ref: 'Null'
-  - $ref: Boolean
-  - $ref: Integer
-  - $ref: Number
-  - $ref: String
+  - $ref: Primitive
   - $ref: Object
-  - $ref: Array
+  - type: array
+    items:
+      $ref: Primitive

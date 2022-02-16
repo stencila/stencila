@@ -5361,13 +5361,20 @@ pub enum Node {
     Variable(Variable),
     VideoObject(VideoObject),
     VolumeMount(VolumeMount),
+    Primitive(Primitive),
+    Object(Object),
+    Vec<Primitive>(Vec<Primitive>),
+}
+
+/// Union type for all primitives values
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Primitive {
     Null(Null),
     Boolean(Boolean),
     Integer(Integer),
     Number(Number),
     String(String),
-    Object(Object),
-    Array(Array),
 }
 
 /// All type schemas that are derived from Thing

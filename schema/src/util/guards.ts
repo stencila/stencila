@@ -10,7 +10,9 @@ import {
 } from '../types'
 
 export type TypeMapGeneric<
-  T extends { type: string } & Record<string, unknown> = { type: string }
+  T extends { type: Entity['type'] } & Record<string, Node> = {
+    type: Entity['type']
+  }
 > = { [key in T['type']]: key }
 
 type ExtractGeneric<Type> = Type extends TypeMap<infer X>
@@ -28,7 +30,7 @@ type ExtractGeneric<Type> = Type extends TypeMap<infer X>
  */
 export const isInTypeMap =
   <T extends Partial<TypeMap | TypeMapGeneric>>(typeMap: T) =>
-  (node?: Node): node is ExtractGeneric<T> =>
+  (node?: unknown): node is ExtractGeneric<T> =>
     isEntity(node) ? Object.keys(typeMap).includes(node.type) : false
 
 /**
@@ -36,7 +38,7 @@ export const isInTypeMap =
  * (i.e. not an `Entity`).
  */
 export const isPrimitive = (
-  node?: Node
+  node?: unknown
 ): node is null | boolean | number | string => {
   const type = typeof node
   if (node === null) return true
@@ -52,7 +54,7 @@ export const isPrimitive = (
 /**
  * Type guard to determine whether a node is an `Entity`
  */
-export const isEntity = (node?: Node): node is Entity => {
+export const isEntity = (node?: unknown): node is Entity => {
   if (node === null || node === undefined) return false
   return Object.prototype.hasOwnProperty.call(node, 'type')
 }
@@ -64,7 +66,7 @@ export const isEntity = (node?: Node): node is Entity => {
  */
 export const isA = <K extends keyof Types>(
   type: K,
-  node: Node | undefined
+  node: unknown
 ): node is Types[K] => isEntity(node) && node.type === type
 
 /**
@@ -75,7 +77,7 @@ export const isA = <K extends keyof Types>(
  */
 export const isType =
   <K extends keyof Types>(type: K) =>
-  (node?: Node): node is Types[K] =>
+  (node?: unknown): node is Types[K] =>
     isA(type, node)
 
 /**
@@ -85,7 +87,7 @@ export const isType =
  */
 export const isIn = <K extends keyof Unions>(
   union: K,
-  node: Node | undefined
+  node: unknown
 ): node is Unions[K] => isEntity(node) && node.type in unions[union]
 
 /**
@@ -95,7 +97,7 @@ export const isIn = <K extends keyof Unions>(
  */
 export const isMember =
   <K extends keyof Unions>(type: K) =>
-  (node?: Node): node is Unions[K] =>
+  (node?: unknown): node is Unions[K] =>
     isIn(type, node)
 
 /**
@@ -103,7 +105,7 @@ export const isMember =
  *
  * e.g. `nodes.filter(isInlineContent)`
  */
-export const isInlineContent = (node?: Node): node is InlineContent =>
+export const isInlineContent = (node?: unknown): node is InlineContent =>
   isPrimitive(node) || isIn('InlineContent', node)
 
 /**
@@ -111,5 +113,5 @@ export const isInlineContent = (node?: Node): node is InlineContent =>
  *
  * e.g. `nodes.filter(isBlockContent)`
  */
-export const isBlockContent = (node?: Node): node is BlockContent =>
+export const isBlockContent = (node?: unknown): node is BlockContent =>
   isIn('BlockContent', node)

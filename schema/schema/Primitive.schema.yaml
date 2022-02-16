@@ -1,0 +1,14 @@
+title: Primitive
+category: other
+status: unstable
+description: Union type for all primitives values
+$comment: |
+  The entity types in this union are automatically inserted during the build.
+  The order of these types is important because it determines the
+  order of attempted coercion (ie. parsing and reshaping to arrays).
+anyOf:
+  - $ref: 'Null'
+  - $ref: Boolean
+  - $ref: Integer
+  - $ref: Number
+  - $ref: String

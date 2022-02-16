@@ -5,13 +5,14 @@
 // in the `schema` directory and run `npm run build:ts` to regenerate it.
 
 type Integer = number
-type Primitive =
-  | null
-  | boolean
-  | number
+
+type Json =
   | string
-  | Array<Primitive>
-  | { [key: string]: Primitive }
+  | number
+  | boolean
+  | null
+  | { [property: string]: Json }
+  | Json[]
 
 // Remove properties from an Object if their value is undefined
 const compact = <O extends object>(o: O): O =>
@@ -22,7 +23,7 @@ const compact = <O extends object>(o: O): O =>
   )
 
 export interface Types {
-  Array: Array<unknown>
+  Array: Array<Primitive>
   ArrayValidator: ArrayValidator
   Article: Article
   AudioObject: AudioObject
@@ -89,13 +90,14 @@ export interface Types {
   Null: null
   Number: number
   NumberValidator: NumberValidator
-  Object: Record<string, unknown>
+  Object: { [property: string]: Json }
   Organization: Organization
   Paragraph: Paragraph
   Parameter: Parameter
   Periodical: Periodical
   Person: Person
   PostalAddress: PostalAddress
+  Primitive: Primitive
   Product: Product
   PropertyValue: PropertyValue
   PublicationIssue: PublicationIssue
@@ -212,7 +214,7 @@ export type Entity = {
     | 'VideoObject'
     | 'VolumeMount'
   id?: string
-  meta?: Record<string, unknown>
+  meta?: { [property: string]: Json }
 }
 
 /**
@@ -2274,13 +2276,14 @@ export type Node =
   | Variable
   | VideoObject
   | VolumeMount
-  | null
-  | boolean
-  | Integer
-  | number
-  | string
-  | Record<string, unknown>
-  | Array<unknown>
+  | Primitive
+  | { [property: string]: Json }
+  | Array<Primitive>
+
+/**
+ * Union type for all primitives values
+ */
+export type Primitive = null | boolean | Integer | number | string
 
 /**
  * All type schemas that are derived from Thing
