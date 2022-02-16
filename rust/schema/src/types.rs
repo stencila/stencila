@@ -5362,8 +5362,6 @@ pub enum Node {
     VideoObject(VideoObject),
     VolumeMount(VolumeMount),
     Primitive(Primitive),
-    Object(Object),
-    Vec<Primitive>(Vec<Primitive>),
 }
 
 /// Union type for all primitives values
@@ -5375,6 +5373,8 @@ pub enum Primitive {
     Integer(Integer),
     Number(Number),
     String(String),
+    Object(Object),
+    Vec<Primitive>(Vec<Primitive>),
 }
 
 /// All type schemas that are derived from Thing

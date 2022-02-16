@@ -10,7 +10,3 @@ $comment: |
   being coerced into an array.
 anyOf:
   - $ref: Primitive
-  - $ref: Object
-  - type: array
-    items:
-      $ref: Primitive

@@ -6,14 +6,6 @@
 
 type Integer = number
 
-type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [property: string]: Json }
-  | Json[]
-
 // Remove properties from an Object if their value is undefined
 const compact = <O extends object>(o: O): O =>
   Object.entries(o).reduce(
@@ -90,7 +82,7 @@ export interface Types {
   Null: null
   Number: number
   NumberValidator: NumberValidator
-  Object: { [property: string]: Json }
+  Object: { [property: string]: Primitive }
   Organization: Organization
   Paragraph: Paragraph
   Parameter: Parameter
@@ -214,7 +206,7 @@ export type Entity = {
     | 'VideoObject'
     | 'VolumeMount'
   id?: string
-  meta?: { [property: string]: Json }
+  meta?: { [property: string]: Primitive }
 }
 
 /**
@@ -2277,13 +2269,18 @@ export type Node =
   | VideoObject
   | VolumeMount
   | Primitive
-  | { [property: string]: Json }
-  | Array<Primitive>
 
 /**
  * Union type for all primitives values
  */
-export type Primitive = null | boolean | Integer | number | string
+export type Primitive =
+  | null
+  | boolean
+  | Integer
+  | number
+  | string
+  | { [property: string]: Primitive }
+  | Array<Primitive>
 
 /**
  * All type schemas that are derived from Thing

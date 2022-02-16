@@ -12,3 +12,7 @@ anyOf:
   - $ref: Integer
   - $ref: Number
   - $ref: String
+  - $ref: Object
+  - type: array
+    items:
+      $ref: Primitive
