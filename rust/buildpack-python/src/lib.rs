@@ -18,7 +18,7 @@ use buildpack::{
         layer::{Layer, LayerResult, LayerResultBuilder},
         Buildpack,
     },
-    platform_is_stencila, toml, BuildpackTrait,
+    platform_is_stencila, toml, tracing, BuildpackTrait,
 };
 
 pub struct PythonBuildpack;
@@ -35,6 +35,7 @@ const PYPROJECT_TOML: &str = "pyproject.toml";
 const REQUIREMENTS_TXT: &str = "requirements.txt";
 const RUNTIME_TXT: &str = "runtime.txt";
 const TOOL_VERSIONS: &str = ".tool-versions";
+const VENV: &str = ".venv";
 
 impl Buildpack for PythonBuildpack {
     type Platform = GenericPlatform;
@@ -202,16 +203,19 @@ impl Layer for PythonLayer {
             Some(self.requirement.clone())
         };
         let python = PythonBinary {}.require_sync(requirement, true)?;
+        let version = python.version()?;
 
         // Symlink/copy the installation into the layer
         if platform_is_stencila(&context.platform) {
             if python.is_stencila_install() {
+                tracing::info!("Linking to Python {} installed by Stencila", version);
                 clear_dir_all(&layer_path)?;
                 let source = python.grandparent()?;
                 let dest = layer_path;
                 symlink_dir(source.join("bin"), &dest.join("bin"))?;
                 symlink_dir(source.join("lib"), &dest.join("lib"))?;
             } else {
+                tracing::info!("Linking to Python {} installed on system", version);
                 clear_dir_all(&layer_path)?;
                 let dest = layer_path.join("bin");
                 fs::create_dir_all(&dest)?;
@@ -220,6 +224,7 @@ impl Layer for PythonLayer {
         } else {
             #[allow(clippy::collapsible_else_if)]
             if python.is_stencila_install() {
+                tracing::info!("Using Python {} installed by Stencila", version);
                 clear_dir_all(&layer_path)?;
                 let source = python.grandparent()?;
                 let dest = layer_path;
@@ -252,16 +257,29 @@ impl Layer for PoetryLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<Self::Metadata>, eyre::Report> {
+        // Although the `POETRY_VIRTUALENVS_IN_PROJECT = true` setting below should make
+        // Potry create a `.vevn` if one does not exist - it doesn't. So do it here.
+        if !PathBuf::from(VENV).exists() {
+            tracing::info!("Creating virtual environment '{}'", VENV);
+            create_venv(layer_path)?;
+        }
+
+        tracing::info!("Installing packages using Poetry");
+
         let mut poetry = PoetryBinary {}.require_sync(Some(">=1,<2".to_string()), true)?;
 
-        // If this is not a local build then ensure that a `.venv` folder in the working directory
-        // is used (instead of a system level one) and make the layer the Poetry cache (instead of a system level one)
+        // Ensure that a `.venv` folder in the working directory is used (instead of a system level one)
+        let mut envs: Vec<(OsString, OsString)> =
+            vec![("POETRY_VIRTUALENVS_IN_PROJECT".into(), "true".into())];
+
+        // If Stencila is not the platform make use the layer as the Poetry cache
         if !platform_is_stencila(&context.platform) {
-            poetry.envs(&[
-                ("POETRY_VIRTUALENVS_IN_PROJECT", OsString::from("true")),
-                ("POETRY_CACHE_DIR", layer_path.canonicalize()?.into()),
-            ]);
+            envs.push(("POETRY_CACHE_DIR".into(), layer_path.canonicalize()?.into()));
         }
+
+        // Protip: use `println!("{}", poetry.run_sync(&["config", "--list"])?);` to check
+        // config set by env vars
+        poetry.envs(&envs);
 
         poetry.run_sync(&["install"])?;
 
@@ -291,7 +309,6 @@ impl Layer for PipLayer {
         // Reuse or create a virtualenv.
         // The name `.venv` is most commonly used for this (e.g. Poetry uses that) but
         // we also look for `venv` and `env`.
-        const VENV: &str = ".venv";
         let mut virtualenv = PathBuf::from(VENV);
         if !virtualenv.exists() {
             let venv = PathBuf::from("venv");
@@ -301,23 +318,22 @@ impl Layer for PipLayer {
             } else if env.join("bin").join("python").exists() {
                 virtualenv = env;
             } else {
-                // Require Python >=3.4 because that is when `ensurepip` was added (although we don't
-                // need to run that module explicitly)
-                // TODO: the version of Python that is created should be the one installed by the `PythonLayer`.
-                let python = PythonBinary {}.require_sync(Some(">=3.4,<4".to_string()), true)?;
-                python.run_sync(&["-m", "venv", "--clear", VENV])?;
+                tracing::info!("Creating virtual environment '{}'", VENV);
+                create_venv(layer_path)?;
             }
         }
         let virtualenv = virtualenv.canonicalize()?;
 
-        // Use the Python in the virtualenv, assume it is `python3` it has `pip`
+        tracing::info!("Installing packages using Pip");
+
+        // Use the Python in the virtualenv, assume it is `python3` and has `pip`
         let mut python = BinaryInstallation {
             name: "python3".into(),
             path: virtualenv.join("bin").join("python3"),
             ..Default::default()
         };
 
-        // Make the layer the Poetry cache (instead of a system level one)
+        // If Stencila is not the platform use the layer as the Pip cache
         if !platform_is_stencila(&context.platform) {
             python.envs(&[("PIP_CACHE_DIR", layer_path.as_os_str())]);
         }
@@ -326,4 +342,25 @@ impl Layer for PipLayer {
 
         LayerResultBuilder::new(GenericMetadata::default()).build()
     }
+}
+
+/// Create a `.venv` virtual environment using the installed version of Python
+fn create_venv(layer_path: &Path) -> Result<(), eyre::Report> {
+    // Get the `python` installed by `PythonLayer`.
+    // This is important because if affects the binary in the `venv`
+    let python = BinaryInstallation {
+        name: "python".into(),
+        path: layer_path
+            .canonicalize()?
+            .parent()
+            .expect("Should have parent")
+            .join("python")
+            .join("bin")
+            .join("python"),
+        ..Default::default()
+    };
+
+    python.run_sync(&["-m", "venv", "--clear", VENV])?;
+
+    Ok(())
 }
