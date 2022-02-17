@@ -12,3 +12,6 @@ type = "Apache-2.0"
 
 [[stacks]]
 id = "stencila.stacks.focal"
+
+[[stacks]]
+id = "heroku-20"

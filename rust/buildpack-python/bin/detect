@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-set -eo pipefail
-stencila buildpacks detect . python $1 $2

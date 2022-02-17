@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-set -eo pipefail
-stencila buildpacks build . node $1 $2 $3
