@@ -1,6 +1,8 @@
 use std::{
     collections::HashMap,
-    env, fs,
+    env,
+    ffi::OsString,
+    fs,
     path::{Path, PathBuf},
 };
 
@@ -17,8 +19,8 @@ use libcnb::{
 };
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-pub use toml;
 pub use tokio;
+pub use toml;
 pub use tracing;
 
 /// The stack id
@@ -98,6 +100,17 @@ pub trait BuildpackTrait: libcnb::Buildpack {
         fs::read_to_string(file)
             .map(|content| content.contains(string))
             .unwrap_or(false)
+    }
+
+    /// Prepend a path to the `PATH` env var
+    fn prepend_path(first: &Path) -> Result<OsString> {
+        if let Some(path) = env::var_os("PATH") {
+            let mut paths = vec![first.into()];
+            paths.append(&mut env::split_paths(&path).collect::<Vec<_>>());
+            Ok(env::join_paths(paths)?)
+        } else {
+            Ok(first.into())
+        }
     }
 
     /// Parses a `.tool-versions` file (if any)
@@ -351,7 +364,7 @@ pub struct BuildpackPlan {
 }
 
 /// Runtime entry point function
-/// 
+///
 /// Just sets up logging and calls `libcnb::libcnb_runtime`
 /// to do the actual work.
 pub fn runtime<B: libcnb::Buildpack>(buildpack: &B) {
