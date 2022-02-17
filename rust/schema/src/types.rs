@@ -5281,6 +5281,7 @@ pub enum MediaObjectTypes {
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Node {
+    Entity(Entity),
     ArrayValidator(ArrayValidator),
     Article(Article),
     AudioObject(AudioObject),
@@ -5360,7 +5361,6 @@ pub enum Node {
     Variable(Variable),
     VideoObject(VideoObject),
     VolumeMount(VolumeMount),
-    Entity(Entity),
     Null(Null),
     Boolean(Boolean),
     Integer(Integer),

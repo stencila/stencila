@@ -719,9 +719,11 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
         .into_iter()
         .map(|output| -> Node {
             match serde_json::from_str(&output) {
+                // A plain JSON object (ie.. not matching matching any of the entity types)
+                // will be deserialized to a plain `Entity` (with all properties get dropped)
+                // by `serde`. However, we want it to be an `Object` (wil properties retained)
+                // so catch that case.
                 Ok(Node::Entity(..)) => {
-                    // An `Entity` will get matched before an `Object` but is less useful (all
-                    // the properties get dropped) so catch this and parse as an object.
                     let object =
                         serde_json::from_str::<Object>(&output).unwrap_or_else(|_| Object::new());
                     Node::Object(object)
