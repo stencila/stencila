@@ -18,6 +18,7 @@ use libcnb::{
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 pub use toml;
+pub use tokio;
 pub use tracing;
 
 /// The stack id
