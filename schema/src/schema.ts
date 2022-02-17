@@ -444,21 +444,26 @@ const parentSchema = (
 }
 
 /**
- * Add all entity types to the `Node` union schema.
+ * Add all entity and primitive types to the `Node` union schema.
+ *
+ * The order of the types is important as it influences the
+ * order of attempted de-serialization and coercion (in Rust and possibly other 
+ * languages). Furthermore, some code may rely on the order. So test before
+ * changing.
  */
 const updateNodeSchema = (schemas: Map<string, JsonSchema>): void => {
   const entitySchema = schemas.get('Entity') as JsonSchema
-  const entityRefs = [
+  const primitiveSchema = schemas.get('Primitive') as JsonSchema
+  const nodeSchema = schemas.get('Node') as JsonSchema
+  nodeSchema.anyOf = [
     {
       $ref: `Entity.schema.json`,
     },
     ...(entitySchema.descendants ?? []).map((descendant) => ({
       $ref: `${descendant}.schema.json`,
     })),
+    ...(primitiveSchema.anyOf ?? []),
   ]
-
-  const nodeSchema = schemas.get('Node') as JsonSchema
-  nodeSchema.anyOf = [...(entityRefs ?? []), ...(nodeSchema.anyOf ?? [])]
   schemas.set('Node', nodeSchema)
 }
 

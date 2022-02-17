@@ -1,18 +1,7 @@
 title: Node
 category: other
-status: unstable
-description: Union type for all schema nodes, including primitives and entities
-$comment: |
-  The entity types in this union are automatically inserted during the build.
-  The order of these types is important because it determines the
-  order of attempted coercion (ie. parsing and reshaping to arrays).
-  Array should come last to avoid single items (e.g. a single string)
-  being coerced into an array.
-anyOf:
-  - $ref: 'Null'
-  - $ref: Boolean
-  - $ref: Integer
-  - $ref: Number
-  - $ref: String
-  - $ref: Object
-  - $ref: Array
+status: stable
+description: Union type for all types of nodes in this schema, including primitives and entities
+
+# All the individual entity and primitive types are added to the `anyOf` property of this
+# schema during the build to JSON Schema. This file just serves as a stub for status, description etc

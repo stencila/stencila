@@ -1,0 +1,12 @@
+title: Primitive
+category: data
+status: stable
+description: Union type for all primitives values
+anyOf:
+  - $ref: 'Null'
+  - $ref: Boolean
+  - $ref: Integer
+  - $ref: Number
+  - $ref: String
+  - $ref: Object
+  - $ref: Array

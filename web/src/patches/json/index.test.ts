@@ -1,4 +1,5 @@
 import { applyAdd, applyRemove, applyReplace, diff } from '.'
+import { codeChunk } from '@stencila/schema'
 
 test('diff:array', () => {
   const arraySimple = [1, 2, 3]
@@ -45,6 +46,23 @@ test('diff:object', () => {
     { type: 'Remove', address: ['b'], items: 1 },
     { type: 'Add', address: ['c'], value: 42, length: 1 },
   ])
+})
+
+test('diff:schema node', () => {
+  const obj = { a: 'foo', b: [1, 2, 3] }
+  expect(
+    diff(obj, codeChunk({ programmingLanguage: 'rust', text: '2+2' }))
+  ).toEqual({
+    ops: [
+      {
+        address: [],
+        items: 1,
+        length: 1,
+        type: 'Replace',
+        value: { programmingLanguage: 'rust', text: '2+2', type: 'CodeChunk' },
+      },
+    ],
+  })
 })
 
 test('applyAdd', () => {
