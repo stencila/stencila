@@ -168,7 +168,7 @@ impl Layer for NodeLayer {
         LayerTypes {
             build: true,
             launch: true,
-            cache: false,
+            cache: true,
         }
     }
 
@@ -191,39 +191,63 @@ impl Layer for NodeLayer {
             requirement = "*".to_string();
         }
 
-        // Ensure a version meeting the semver is installed
-        let node = NodeBinary {}.require_sync(Some(requirement), true)?;
-        let version = node.version()?;
+        // First check if there is already a `node` binary meeting the semver requirement
+        // in the expected place
+        let installed = NodeBinary {}.installed_at(
+            &layer_path.join("bin").join("node"),
+            Some(requirement.clone()),
+        )?;
 
-        // Symlink/copy the installation into the layer
-        if platform_is_stencila(&context.platform) {
-            if node.is_stencila_install() {
-                tracing::info!("Linking to Node.js {} installed by Stencila", version);
-                clear_dir_all(&layer_path)?;
-                let source = node.grandparent()?;
-                let dest = layer_path;
-                symlink_dir(source.join("bin"), &dest.join("bin"))?;
-                symlink_dir(source.join("lib"), &dest.join("lib"))?;
-            } else {
-                tracing::info!("Linking to Node.js {} installed on system", version);
-                clear_dir_all(&layer_path)?;
-                let source = node.parent()?;
-                let dest = layer_path.join("bin");
-                fs::create_dir_all(&dest)?;
-                symlink_file(node.path, dest.join(node.name))?;
-                symlink_file(source.join("npm"), dest.join("npm"))?;
-                symlink_file(source.join("npx"), dest.join("npx"))?;
-            }
+        if installed {
+            tracing::info!("Node.js {} already installed", requirement);
         } else {
-            #[allow(clippy::collapsible_else_if)]
-            if node.is_stencila_install() {
-                tracing::info!("Using Node.js {} installed by Stencila", version);
-                clear_dir_all(&layer_path)?;
-                let source = node.grandparent()?;
-                let dest = layer_path;
-                copy_dir_all(source, &dest)?;
+            tracing::info!(
+                "No version of Node.js meeting requirement `{}` yet installed",
+                requirement
+            );
+
+            // Ensure a version meeting the semver requirement is installed on the builder
+            let node = NodeBinary {}.require_sync(Some(requirement), true)?;
+            let version = node.version()?;
+
+            // Symlink/copy the installation into the layer
+            if platform_is_stencila(&context.platform) {
+                if node.is_stencila_install() {
+                    tracing::info!("Linking to Node.js {} installed by Stencila", version);
+                    clear_dir_all(&layer_path)?;
+                    let source = node.grandparent()?;
+
+                    symlink_dir(source.join("bin"), &layer_path.join("bin"))?;
+                    symlink_dir(source.join("lib"), &layer_path.join("lib"))?;
+                } else {
+                    tracing::info!("Linking to Node.js {} installed on system", version);
+                    clear_dir_all(&layer_path)?;
+                    let source = node.parent()?;
+
+                    let bin_path = layer_path.join("bin");
+                    fs::create_dir_all(&bin_path)?;
+                    symlink_file(node.path, bin_path.join(node.name))?;
+                    symlink_file(source.join("npm"), bin_path.join("npm"))?;
+                    symlink_file(source.join("npx"), bin_path.join("npx"))?;
+
+                    let lib_path = layer_path.join("lib");
+                    fs::create_dir_all(&lib_path)?;
+                    symlink_dir(
+                        source.join("..").join("lib").join("node_modules"),
+                        lib_path.join("node_modules"),
+                    )?;
+                }
             } else {
-                bail!("Only able to build `node` layer if Node has been installed by Stencila")
+                #[allow(clippy::collapsible_else_if)]
+                if node.is_stencila_install() {
+                    tracing::info!("Using Node.js {} installed by Stencila", version);
+                    clear_dir_all(&layer_path)?;
+                    let source = node.grandparent()?;
+
+                    copy_dir_all(source, &layer_path)?;
+                } else {
+                    bail!("Only able to build `node` layer if Node has been installed by Stencila")
+                }
             }
         }
 
@@ -252,26 +276,39 @@ impl Layer for NpmLayer {
     ) -> Result<LayerResult<Self::Metadata>, eyre::Report> {
         tracing::info!("Installing packages using NPM");
 
-        // Get `npm` installed in `NodeLayer`
-        let mut npm = BinaryInstallation {
-            name: "npm".into(),
-            path: layer_path
-                .canonicalize()?
-                .parent()
-                .expect("Should have parent")
-                .join("node")
-                .join("bin")
-                .join("npm"),
+        // Use `node` from the previous layer
+        let node_layer = layer_path
+            .canonicalize()?
+            .parent()
+            .expect("Should have parent")
+            .join("node");
+        let mut node = BinaryInstallation {
+            name: "node".into(),
+            path: node_layer.join("bin").join("node"),
             ..Default::default()
         };
 
+        // Use the `npm-cli.js` script from the previous layer
+        // This is done because the `npm` script in `bin` has a
+        // `/usr/bin/env node` shebang and so needs the right `node` in $PATH.
+        // Even if that is done, there are issues with node `require`
+        // module resolution when doing so. But this works...
+        let npm = node_layer
+            .join("lib")
+            .join("node_modules")
+            .join("npm")
+            .join("bin")
+            .join("npm-cli.js")
+            .display()
+            .to_string();
+
         // If Stencila is not the platform use the layer as the NPM cache
         if !platform_is_stencila(&context.platform) {
-            npm.envs(&[("NPM_CONFIG_CACHE", layer_path.canonicalize()?.as_os_str())]);
+            node.envs(&[("NPM_CONFIG_CACHE", layer_path.canonicalize()?)]);
         }
 
         // Do the install
-        npm.run_sync(&["install"])?;
+        node.run_sync(&[&npm, "install"])?;
 
         LayerResultBuilder::new(GenericMetadata::default()).build()
     }
