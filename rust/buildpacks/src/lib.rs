@@ -460,13 +460,8 @@ impl Buildpacks {
         Ok(matches)
     }
 
-    /// Build a container image for a project folder
-    ///
-    /// If the folder has a Dockerfile (or Containerfile) that will be used.
-    /// Otherwise, buildpacks will be applied using the `pack` tool.
+    /// Build a container image for a working directory
     async fn pack(&self, working_dir: Option<&Path>) -> Result<()> {
-        const CNB_BUILDER: &str = "stencila/buildpacks:focal";
-
         let dockerfile_buildpack_id = buildpack_id!("stencila/dockerfile");
         let code = self
             .detect(&dockerfile_buildpack_id, working_dir, None, None)
@@ -488,6 +483,8 @@ impl Buildpacks {
             tag,
             working_dir.display()
         );
+
+        const CNB_BUILDER: &str = "stencila/buildpacks:focal";
 
         let pack = PackBinary {}.require(None, true).await?;
         let output = pack
@@ -842,6 +839,11 @@ pub mod commands {
     }
 
     /// Create a container image for a working directory
+    ///
+    /// If the directory has a `Dockerfile` (or `Containerfile`) then the image will be
+    /// built directly from that. Otherwise, the image will be built using
+    /// using [`pack`](https://buildpacks.io/docs/tools/pack/) and the Stencila buildpacks
+    /// (available from `stencila buildpacks list`).
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
