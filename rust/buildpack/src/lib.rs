@@ -349,3 +349,23 @@ pub struct BuildPlanOr {
 pub struct BuildpackPlan {
     pub entries: Vec<BuildPlanRequires>,
 }
+
+/// Runtime entry point function
+/// 
+/// Just sets up logging and calls `libcnb::libcnb_runtime`
+/// to do the actual work.
+pub fn runtime<B: libcnb::Buildpack>(buildpack: &B) {
+    tracing_subscriber::fmt().init();
+    libcnb::libcnb_runtime(buildpack);
+}
+
+/// Generate a `main` function for a buildpack
+#[macro_export]
+macro_rules! buildpack_main {
+    ($buildpack:ident) => {
+        #[tokio::main]
+        async fn main() {
+            buildpack::runtime(&$buildpack);
+        }
+    };
+}

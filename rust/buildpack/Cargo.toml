@@ -16,3 +16,4 @@ serde_with = "1.11.0"
 toml = "0.5.8"
 tokio = { version = "1.13.0", features = ["macros", "rt", "rt-multi-thread"] }
 tracing = "0.1.29"
+tracing-subscriber = "0.3.6"
