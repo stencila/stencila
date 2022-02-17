@@ -1,5 +1,3 @@
-//! A buildpack for Dockerfiles
-
 use binary_podman::{BinaryTrait, PodmanBinary};
 use buildpack::{
     eyre::Report,
@@ -14,18 +12,6 @@ use buildpack::{
 
 pub struct DockerfileBuildpack;
 
-/// A buildpack for projects containing a `Dockerfile` (or `Containerfile`)
-///
-/// Uses `podman`, rather than `docker`, to build the image because the former runs in
-/// userspace and is thus more secure.
-///
-/// This is not a Cloud Native Buildpack (e.g. it lacks a `detect` or `build` binary).
-/// However, it uses the same API (e.g. has a `buildpack.toml`) so that, for example, it
-/// appears in the list at `stencila buildpacks list`.
-///
-/// We never point an external CNB platform, such as Pack, at this buildpack.
-/// Instead ,in the buildpacks` crate, we run its `detect` method before any other buildpacks and build an
-/// image from the Dockerfile if it passes.
 impl Buildpack for DockerfileBuildpack {
     type Platform = GenericPlatform;
     type Metadata = GenericMetadata;
