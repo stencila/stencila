@@ -6,7 +6,9 @@ import { languages } from './kernels'
 import * as sessions from './sessions'
 import { ProjectId } from './types'
 
-export type { Document, Session } from '@stencila/stencila'
+export type { Document, Patch, Session } from '@stencila/stencila'
+export * as client from './client'
+export type { Client } from './client'
 export * as documents from './documents'
 export * as patches from './patches'
 
