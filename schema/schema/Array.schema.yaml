@@ -2,5 +2,10 @@ title: Array
 '@id': stencila:Array
 category: data
 status: stable
-description: A value comprised of several other values.
+description: A value comprised of other primitive nodes
+$comment: |
+  Note that the items in the array are restricted to primitive node
+  types including `Array` (ie. an `Array` as an item of another `Array`) and `Object`.
 type: array
+items:
+  $ref: Primitive

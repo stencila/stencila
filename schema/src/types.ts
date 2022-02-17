@@ -2185,10 +2185,9 @@ export type MediaObjectTypes =
   | VideoObject
 
 /**
- * Union type for all schema nodes, including primitives and entities
+ * Union type for all types of nodes in this schema, including primitives and entities
  */
 export type Node =
-  | Entity
   | ArrayValidator
   | Article
   | AudioObject
@@ -2268,7 +2267,14 @@ export type Node =
   | Variable
   | VideoObject
   | VolumeMount
-  | Primitive
+  | Entity
+  | null
+  | boolean
+  | Integer
+  | number
+  | string
+  | { [property: string]: Primitive }
+  | Array<Primitive>
 
 /**
  * Union type for all primitives values
