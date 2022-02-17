@@ -470,6 +470,19 @@ pub trait BinaryTrait: Send + Sync {
             })
     }
 
+    /// Is a binary installed at a path and meeting semver requirement?
+    fn installed_at(&self, path: &Path, requirement: Option<String>) -> Result<bool> {
+        Ok(match self.version(path) {
+            Some(version) => match requirement {
+                Some(requirement) => {
+                    semver_requirement(requirement)?.matches(&semver_version(version)?)
+                }
+                None => false,
+            },
+            None => false,
+        })
+    }
+
     /// Install the most recent version of the binary (meeting optional semver, OS, and arch requirements).
     ///
     /// If a `requirement` is not supplied then the latest version is installed. If `requirement` is
