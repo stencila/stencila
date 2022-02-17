@@ -71,7 +71,7 @@ test('create', async () => {
   expect(json).toMatch(/^{"type":"Article"/)
 
   document = await create(client, creativeWork({ content: ['Beep!'] }))
-  let md = await dump(client, document.id, 'md')
+  const md = await dump(client, document.id, 'md')
   expect(md).toMatch(/^Beep!/)
 
   document = await create(client, 'Boop!', 'md')
@@ -80,7 +80,7 @@ test('create', async () => {
 })
 
 test('load', async () => {
-  let document = await create(client)
+  const document = await create(client)
 
   let ok = await load(client, document.id, article({ content: [] }))
   expect(ok).toBeTruthy()
@@ -96,14 +96,14 @@ test('load', async () => {
 })
 
 test('dump', async () => {
-  let document = await open(client, 'fixtures/nodes/creative-work.json')
+  const document = await open(client, 'fixtures/nodes/creative-work.json')
 
-  let json = await dump(client, document.id, 'json')
+  const json = await dump(client, document.id, 'json')
   expect(json).toMatch(/^{"type":"CreativeWork"/)
 
-  let md = await dump(client, document.id, 'md')
+  const md = await dump(client, document.id, 'md')
   expect(md).toMatch(/^A fixture that is a creative work/)
 
-  let rpng = await dump(client, document.id, 'rpng', 'cc-1')
+  const rpng = await dump(client, document.id, 'rpng', 'cc-1')
   expect(rpng).toMatch(/^data:image\/png/)
 })
