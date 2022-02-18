@@ -9,8 +9,10 @@ use std::{
 pub use eyre;
 use eyre::{bail, Result};
 pub use fs_utils;
+pub use hash_utils;
 pub use libcnb;
 use libcnb::{
+    build::BuildContext,
     data::{
         build_plan::{Provide, Require},
         buildpack::BuildpackId,
@@ -37,6 +39,16 @@ pub fn platform_dir_is_stencila(platform_dir: &Path) -> bool {
 /// Test whether the current CNB platform is Stencila
 pub fn platform_is_stencila(platform: &impl Platform) -> bool {
     platform.env().contains_key("STENCILA_VERSION")
+}
+
+/// Is this a local build (ie. using Stencila, not Pack as platform)
+pub fn is_local_build<B: libcnb::Buildpack>(context: &BuildContext<B>) -> bool {
+    platform_is_stencila(&context.platform)
+}
+
+/// Is this a CNB build (e.g. using Pack as the platform)
+pub fn is_cnb_build<B: libcnb::Buildpack>(context: &BuildContext<B>) -> bool {
+    !is_local_build(context)
 }
 
 /// String used by buildpacks to indicate that a tool version
