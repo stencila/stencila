@@ -4,7 +4,7 @@ use binary::{
     async_trait::async_trait,
     binaries_dir, binary_clone_box,
     eyre::{bail, Result},
-    semver_versions_sorted, Binary, BinaryTrait,
+    Binary, BinaryTrait,
 };
 
 /// A `BinaryTrait` for `asdf`
@@ -26,7 +26,7 @@ impl BinaryTrait for AsdfBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         self.versions_github_releases("asdf-vm", "asdf")
             .await
-            .map(semver_versions_sorted)
+            .map(|versions| self.semver_versions_sorted(versions))
     }
 
     fn run_env(&self, version: Option<String>) -> Vec<(OsString, OsString)> {
