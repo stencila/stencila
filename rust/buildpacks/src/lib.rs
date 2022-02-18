@@ -444,13 +444,17 @@ impl Buildpacks {
     ///
     /// If the directory matches the `dockerfile` buildpack, no other buildpacks will
     /// be built for the directory.
-    fn build_all(&self, working_dir: Option<&Path>) -> Result<Vec<(BuildpackId, bool)>> {
+    fn build_all(
+        &self,
+        working_dir: Option<&Path>,
+        platform_dir: Option<&Path>,
+    ) -> Result<Vec<(BuildpackId, bool)>> {
         let matches = self.detect_all(working_dir)?;
 
         let dockerfile_buildpack_id = buildpack_id!("stencila/dockerfile");
         for (buildpack_id, matched) in &matches {
             if *matched {
-                self.build(buildpack_id, working_dir, None, None, None)?;
+                self.build(buildpack_id, working_dir, None, platform_dir, None)?;
                 if *buildpack_id == dockerfile_buildpack_id {
                     break;
                 }
@@ -504,7 +508,7 @@ impl Buildpacks {
     }
 
     /// Clean build directories for one, or all, buildpacks
-    fn clean(&self, label: Option<&str>, working_dir: Option<&Path>) -> Result<()> {
+    fn clean(&self, working_dir: Option<&Path>, buildpack: Option<&str>) -> Result<()> {
         let working_dir = match working_dir {
             Some(dir) => dir.to_owned(),
             None => current_dir()?,
@@ -514,10 +518,10 @@ impl Buildpacks {
         let mut build_dir = stencila_dir.join("build");
         let mut layers_dir = stencila_dir.join("layers");
 
-        if let Some(label) = label {
-            if label != "all" {
-                build_dir.push(label);
-                layers_dir.push(label);
+        if let Some(buildpack) = buildpack {
+            if buildpack != "all" {
+                build_dir.push(["stencila_", buildpack].concat());
+                layers_dir.push(["stencila_", buildpack].concat());
             }
         }
 
@@ -773,12 +777,36 @@ pub mod commands {
         ///
         /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#buildpack-plan-toml
         build: Option<PathBuf>,
+
+        /// Simulate building on a CNB platform such as Pack
+        ///
+        /// This is useful to buildpack developers for local debugging.
+        /// For example, in another terminal, run `watch tree ...` on a project,
+        ///
+        ///   watch tree -a -L 6 fixtures/projects/node/package-json/
+        ///
+        /// and then run build that project with the `--cnb` flag,
+        ///
+        ///   cargo run --bin stencila -- buildpacks build --cnb fixtures/projects/node/package-json/
+        ///
+        /// Equivalent to using `/tmp/cnb` as `platform` directory (so won't work on
+        /// platforms without `/tmp`).
+        #[structopt(long)]
+        cnb: bool,
     }
 
     #[async_trait]
     impl Run for Build {
         async fn run(&self) -> Result {
             let label = self.label.clone().unwrap_or_else(|| "all".to_string());
+
+            let platform_dir = self.platform.as_ref().cloned().or_else(|| {
+                if self.cnb {
+                    Some(PathBuf::from("/tmp/cnb"))
+                } else {
+                    None
+                }
+            });
 
             if label == "all" {
                 let tty = stdout_isatty();
@@ -788,7 +816,7 @@ pub mod commands {
                     result::print::markdown(&md)?;
                 }
 
-                let results = PACKS.build_all(self.working.as_deref())?;
+                let results = PACKS.build_all(self.working.as_deref(), platform_dir.as_deref())?;
                 return if tty {
                     result::nothing()
                 } else {
@@ -801,7 +829,7 @@ pub mod commands {
                 buildpack_id,
                 self.working.as_deref(),
                 self.layers.as_deref(),
-                self.platform.as_deref(),
+                platform_dir.as_deref(),
                 self.build.as_deref(),
             );
 
@@ -862,24 +890,27 @@ pub mod commands {
     }
 
     /// Remove buildpack related directories from the `.stencila` folder or a working directory
+    ///
+    /// At present the buildpack related directories are `.stencila/build` and `.stencila/layers`.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Clean {
-        /// The label of the buildpack
-        ///
-        /// If not supplied, or "all", will perform clean for all buildpacks
-        label: Option<String>,
-
         /// The working directory (defaults to the current directory)
         working: Option<PathBuf>,
+
+        /// The label of the Stencila buildpack to clean
+        ///
+        /// If not supplied, or "all", will perform clean for all buildpacks
+        #[structopt(short, long)]
+        buildpack: Option<String>,
     }
 
     #[async_trait]
     impl Run for Clean {
         async fn run(&self) -> Result {
-            PACKS.clean(self.label.as_deref(), self.working.as_deref())?;
+            PACKS.clean(self.working.as_deref(), self.buildpack.as_deref())?;
             result::nothing()
         }
     }
