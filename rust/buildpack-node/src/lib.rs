@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     ffi::OsString,
     fs::{self, remove_dir_all},
     path::{Path, PathBuf},
@@ -6,7 +7,7 @@ use std::{
 
 use binary_node::{BinaryInstallation, BinaryTrait, NodeBinary};
 use buildpack::{
-    eyre::{self, bail, eyre},
+    eyre,
     fs_utils::{copy_dir_all, symlink_dir, symlink_file},
     hash_utils::file_sha256_hex,
     is_cnb_build, is_local_build,
@@ -19,7 +20,6 @@ use buildpack::{
         layer::{ExistingLayerStrategy, Layer, LayerResult, LayerResultBuilder},
         layer_env::{LayerEnv, ModificationBehavior, Scope},
         Buildpack,
-        Error::BuildpackError,
     },
     tracing, BuildpackTrait, SYSTEM_INSTALLED,
 };
@@ -33,6 +33,7 @@ impl BuildpackTrait for NodeBuildpack {
     }
 }
 
+const NODE_MODULES: &str = "node_modules";
 const NVMRC: &str = ".nvmrc";
 const PACKAGE_JSON: &str = "package.json";
 const PACKAGE_LOCK: &str = "package-lock.json";
@@ -106,13 +107,13 @@ impl Buildpack for NodeBuildpack {
         // Determine how NPM packages are to be installed
         if package_lock.exists() || package_json.is_some() {
             let (require, provide) = Self::require_and_provide(
-                "npm install",
+                "node_modules",
                 if package_lock.exists() {
                     PACKAGE_LOCK
                 } else {
                     PACKAGE_JSON
                 },
-                "Install NPM packages",
+                "Install Node.js packages into `node_modules`",
             );
             requires.push(require);
             provides.push(provide);
@@ -125,22 +126,19 @@ impl Buildpack for NodeBuildpack {
     }
 
     fn build(&self, context: BuildContext<Self>) -> libcnb::Result<BuildResult, Self::Error> {
-        for entry in &context.buildpack_plan.entries {
-            let (name, args) = Self::split_entry_name(&entry.name);
-            match name.as_str() {
-                "node" => {
-                    context.handle_layer(layer_name!("node"), NodeLayer::new(args))?;
-                }
-                "npm" => {
-                    context.handle_layer(layer_name!("npm"), NpmLayer)?;
-                }
-                _ => {
-                    return Err(BuildpackError(eyre!(
-                        "Unhandled buildpack plan entry: {}",
-                        name
-                    )))
-                }
-            };
+        let entries: HashMap<_, _> = context
+            .buildpack_plan
+            .entries
+            .iter()
+            .map(|entry| Self::split_entry_name(&entry.name))
+            .collect();
+
+        if let Some(args) = entries.get("node") {
+            context.handle_layer(layer_name!("node"), NodeLayer::new(args.clone()))?;
+        }
+
+        if entries.contains_key("node_modules") {
+            context.handle_layer(layer_name!("node_modules"), NodeModulesLayer)?;
         }
 
         BuildResultBuilder::new().build()
@@ -160,7 +158,7 @@ impl NodeLayer {
 
         // Determine the semver requirement from versionish which could be a well formed semantic version (e.g 14.0.1),
         // a semver requirement (e.g. ^14.0), or an alias (e.g. `lts`)
-        let mut requirement = if let Some(version) = versionish.strip_prefix('v') {
+        let requirement = if let Some(version) = versionish.strip_prefix('v') {
             version.to_string()
         } else if versionish == "lts" {
             // TODO: Determine LTS without doing a fetch, perhaps based on date
@@ -169,9 +167,6 @@ impl NodeLayer {
         } else {
             versionish.clone()
         };
-        if requirement.is_empty() {
-            requirement = "*".to_string();
-        }
 
         NodeLayer { requirement }
     }
@@ -200,13 +195,13 @@ impl Layer for NodeLayer {
         )?;
         let strategy = if installed {
             tracing::info!(
-                "Existing `node` layer has `./bin/node` matching semver `{}`; will keep",
+                "Existing `node` layer has `./bin/node` matching semver requirement `{}`; will keep",
                 self.requirement
             );
             ExistingLayerStrategy::Keep
         } else {
             tracing::info!(
-                "Existing `node` layer does not have `./bin/node` matching semver `{}`; will recreate",
+                "Existing `node` layer does not have `./bin/node` matching semver requirement `{}`; will recreate",
                 self.requirement
             );
             ExistingLayerStrategy::Recreate
@@ -219,7 +214,10 @@ impl Layer for NodeLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<Self::Metadata>, eyre::Report> {
-        tracing::info!("Creating `node` layer with semver `{}`", self.requirement);
+        tracing::info!(
+            "Creating `node` layer with semver requirement `{}`",
+            self.requirement
+        );
 
         let node = NodeBinary {}.require_sync(Some(self.requirement.clone()), true)?;
         let version = node.version()?;
@@ -245,8 +243,8 @@ impl Layer for NodeLayer {
                 let lib_path = layer_path.join("lib");
                 fs::create_dir_all(&lib_path)?;
                 symlink_dir(
-                    source.join("..").join("lib").join("node_modules"),
-                    lib_path.join("node_modules"),
+                    source.join("..").join("lib").join(NODE_MODULES),
+                    lib_path.join(NODE_MODULES),
                 )?;
             }
         } else {
@@ -257,7 +255,7 @@ impl Layer for NodeLayer {
 
                 copy_dir_all(source, layer_path)?;
             } else {
-                bail!("Only able to build `node` layer if Node has been installed by Stencila")
+                tracing::info!("Using `node {}` installed on stack image", version);
             }
         }
 
@@ -265,29 +263,29 @@ impl Layer for NodeLayer {
     }
 }
 
-struct NpmLayer;
+struct NodeModulesLayer;
 
 #[derive(Clone, Serialize, Deserialize)]
-struct NpmLayerMetadata {
+struct NodeModulesLayerMetadata {
     package_hash: String,
 }
 
-impl NpmLayerMetadata {
-    /// Generate `package_hash` string from a project directory
+impl NodeModulesLayerMetadata {
+    /// Generate `package_hash` string for an app directory
     ///
     /// If the directory has a `package-lock.json` that will be used. If not
     /// `package.json` will be used. This means that if the user removes
     /// or updates `package-lock.json` the layer will be updated. If there is no lock file
     /// then the layer will only be updated if there are changes in `package.json`.
     fn generate_package_hash(app_dir: &Path) -> Result<String, eyre::Report> {
-        file_sha256_hex(app_dir.join("package-lock.json"))
-            .or_else(|_| file_sha256_hex(app_dir.join("package.json")))
+        file_sha256_hex(app_dir.join(PACKAGE_LOCK))
+            .or_else(|_| file_sha256_hex(app_dir.join(PACKAGE_JSON)))
     }
 }
 
-impl Layer for NpmLayer {
+impl Layer for NodeModulesLayer {
     type Buildpack = NodeBuildpack;
-    type Metadata = NpmLayerMetadata;
+    type Metadata = NodeModulesLayerMetadata;
 
     fn types(&self) -> LayerTypes {
         LayerTypes {
@@ -302,13 +300,13 @@ impl Layer for NpmLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
-        let package_lock_hash =
-            NpmLayerMetadata::generate_package_hash(&context.app_dir).unwrap_or_default();
-        let strategy = if package_lock_hash == layer_data.content_metadata.metadata.package_hash {
-            tracing::info!("Existing `npm` layer has same package hash; will keep",);
+        let package_hash =
+            NodeModulesLayerMetadata::generate_package_hash(&context.app_dir).unwrap_or_default();
+        let strategy = if package_hash == layer_data.content_metadata.metadata.package_hash {
+            tracing::info!("Existing `node_modules` layer has same package hash; will keep",);
             ExistingLayerStrategy::Keep
         } else {
-            tracing::info!("Existing `npm` layer has different package hash; will update");
+            tracing::info!("Existing `node_modules` layer has different package hash; will update");
             ExistingLayerStrategy::Update
         };
         Ok(strategy)
@@ -319,7 +317,7 @@ impl Layer for NpmLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<Self::Metadata>, eyre::Report> {
-        tracing::info!("Creating `npm` layer");
+        tracing::info!("Creating `node_modules` layer");
         self.install(context, layer_path)
     }
 
@@ -328,17 +326,17 @@ impl Layer for NpmLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<LayerResult<Self::Metadata>, <Self::Buildpack as Buildpack>::Error> {
-        tracing::info!("Updating `npm` layer");
+        tracing::info!("Updating `node_modules` layer");
         self.install(context, &layer_data.path)
     }
 }
 
-impl NpmLayer {
+impl NodeModulesLayer {
     fn install(
         &self,
         context: &BuildContext<NodeBuildpack>,
         layer_path: &Path,
-    ) -> Result<LayerResult<NpmLayerMetadata>, eyre::Report> {
+    ) -> Result<LayerResult<NodeModulesLayerMetadata>, eyre::Report> {
         // Use `node` and `npm` installed in the `node` layer
         let node_layer = layer_path
             .canonicalize()?
@@ -353,8 +351,8 @@ impl NpmLayer {
             NodeBuildpack::prepend_path(&node_layer.join("bin"))?,
         )];
 
-        // If not a local build use `layer_path/cache` as the NPM cache
-        if !is_local_build(context) {
+        // If this is a CNB build use `layer_path/cache` as the NPM cache
+        if is_cnb_build(context) {
             envs.push(("NPM_CONFIG_CACHE".into(), layer_path.join("cache").into()));
         }
 
@@ -369,7 +367,7 @@ impl NpmLayer {
         };
         let npm = node_layer
             .join("lib")
-            .join("node_modules")
+            .join(NODE_MODULES)
             .join("npm")
             .join("bin")
             .join("npm-cli.js")
@@ -378,8 +376,8 @@ impl NpmLayer {
 
         // Read any `package-lock.json` so that we can restore it, or remove the new one that
         // install creates. This needs to be done to avoid affecting the `package_hash` generated at the end
-        // of this function (and because we should leave app_dir as unaffected a possible)
-        let package_lock_path = context.app_dir.join("package-lock.json");
+        // of this function (and because we should leave app_dir untouched)
+        let package_lock_path = context.app_dir.join(PACKAGE_LOCK);
         let package_lock_contents = fs::read_to_string(&package_lock_path).ok();
 
         // Do the install
@@ -388,25 +386,29 @@ impl NpmLayer {
         // Remove or restore `package-lock.json`
         match package_lock_contents {
             Some(contents) => fs::write(&package_lock_path, contents)?,
-            None => fs::remove_file(&package_lock_path)?,
+            None => {
+                if package_lock_path.exists() {
+                    fs::remove_file(&package_lock_path)?
+                }
+            }
         }
 
         // Generate a 'package hash' to be able to tell if layer is stale in `existing_layer_strategy`
-        let package_hash = NpmLayerMetadata::generate_package_hash(&context.app_dir)?;
+        let package_hash = NodeModulesLayerMetadata::generate_package_hash(&context.app_dir)?;
 
         let mut layer_env = LayerEnv::new();
 
-        // If a CNB build move `node_module` to `layer_path/node_modules` because
+        // If this is a CNB build move `node_modules` to `layer_path/node_modules` because
         // "Implementations MUST NOT write to any other location than layer_path".
         //
         // It feels like there should be other ways to do this, but using `--prefix` flag or
         // setting `NPM_CONFIG_PREFIX` or `NODE_PATH` didn't work. At least one other buildpack does it this way too:
         // https://github.com/paketo-buildpacks/npm-install/blob/83ebc22dde31d3f7423a215c8eb7549a180bbf35/install_build_process.go#L60-L76
         //
-        // Instead of create a symlink to `node_module` in the app_dir, this prepends NODE_PATH.
+        // Instead of creating a symlink to `node_modules` in the app_dir, add it to NODE_PATH.
         if is_cnb_build(context) {
-            let app_node_modules = context.app_dir.join("node_modules");
-            let layer_node_modules = layer_path.join("node_modules");
+            let app_node_modules = context.app_dir.join(NODE_MODULES);
+            let layer_node_modules = layer_path.join(NODE_MODULES);
             copy_dir_all(&app_node_modules, &layer_node_modules)?;
             remove_dir_all(&app_node_modules)?;
             layer_env.insert(
@@ -417,7 +419,7 @@ impl NpmLayer {
             );
         }
 
-        LayerResultBuilder::new(NpmLayerMetadata { package_hash })
+        LayerResultBuilder::new(NodeModulesLayerMetadata { package_hash })
             .env(layer_env)
             .build()
     }
