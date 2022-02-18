@@ -76,6 +76,7 @@
     "@stencila/encoda": "0.119.0",
     "@stencila/eslint-config": "3.0.1",
     "@stencila/schema": "file:../schema",
+    "@syngrisi/syngrisi-wdio-screenshot": "^1.0.6",
     "@types/chromedriver": "81.0.1",
     "@types/jest": "27.4.0",
     "@types/jsdoc-to-markdown": "7.0.3",
@@ -129,9 +130,8 @@
     "ts-node": "10.4.0",
     "typescript": "4.5.5",
     "wdio-chromedriver-service": "7.2.2",
-    "wdio-geckodriver-service": "2.0.3",
+    "wdio-geckodriver-service": "2.1.0",
     "wdio-novus-visual-regression-service": "1.2.5",
-    "wdio-screenshot-v5": "1.0.0",
     "webdriverio": "7.16.3"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
