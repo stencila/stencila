@@ -6,7 +6,7 @@
 
 # The recommended way to serve JSON-LD is with "Cool URIs"
 # and content negotiation. eg. this is how schema.org does it:
-#   curl http://schema.org/Person -H "Accept:application/ld+json" -i
+#   curl https://schema.org/Person -H "Accept:application/ld+json" -i
 # Netlify does not support content negotiation
 # (i.e. redirects based on the Accept header)
 # Therefore, to provide a URL that fits with

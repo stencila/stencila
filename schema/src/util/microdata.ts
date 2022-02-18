@@ -15,7 +15,7 @@ import { isPrimitive } from './guards'
  * JSON-LD context.
  */
 export function microdataUrl(type = ''): string {
-  return `http://schema.stenci.la/${type}`
+  return `https://schema.stenci.la/${type}`
 }
 
 /**
@@ -27,7 +27,6 @@ export function microdataUrl(type = ''): string {
 export interface MicrodataItem {
   itemscope?: ''
   itemtype?: string
-  'data-itemtype'?: string
   itemid?: string
 }
 
@@ -37,7 +36,7 @@ export interface MicrodataItem {
  * Does not create the `itemscope` and `itemtype` attributes for nodes that
  * are primitive (and therefore which do not represent a "scope" having
  * `itemprop`s nested within it). Instead, for primitive nodes, other than `Text`
- * add the `data-itemtype` attribute, do they can be styled if so desired.
+ * add the `itemtype` attribute, do they can be styled if so desired.
  *
  * @param node The node to create Microdata attributes for
  * @param id Id of the Microdata item. Used to link to this node using the `itemref` property.
@@ -53,7 +52,7 @@ export function microdataItem(node: Node, id?: string): MicrodataItem {
     }
   else if (typeof node !== 'string')
     return {
-      'data-itemtype': itemtype,
+      'itemtype': itemtype,
       ...itemidAttr,
     }
   else return itemidAttr
@@ -82,13 +81,13 @@ export function microdataType(itemtype: string): keyof Types | undefined {
 /**
  * Attributes for Microdata ["properties"](https://www.w3.org/TR/microdata/#names:-the-itemprop-attribute)
  *
- * The `data-itemprop` attribute is not part of the Microdata standard.
+ * The `data-prop` attribute is not part of the Microdata standard.
  * It is used for properties that are not defined in schema.org and which validators
  * like Google Structured Data Testing Tool throw errors about.
  */
 export interface MicrodataProperty {
   itemprop?: string
-  'data-itemprop'?: string
+  'data-prop'?: string
   itemref?: string
 }
 
@@ -108,7 +107,7 @@ export function microdataProperty(
   id?: string
 ): MicrodataProperty {
   const [prefix, name = ''] = microdataItemprop(property, role)
-  const key = prefix === 'schema' ? 'itemprop' : 'data-itemprop'
+  const key = prefix === 'schema' ? 'itemprop' : 'data-prop'
   const itemrefAttr = id !== undefined ? { itemref: id } : {}
   return { [key]: name, ...itemrefAttr }
 }
@@ -178,16 +177,16 @@ export function microdata(
 }
 
 /**
- * Get the 'pseudo' HTML Microdata attribute for the root element.
+ * Get the HTML attribute for the root element.
  *
  * This attribute name / value pair is used to scope CSS variables to
- * the root Stencila node in an HML document. It is used by Encoda when
+ * the root Stencila node in an HTML document. It is used by Encoda when
  * encoding to HTML, it is in Thema to scope CSS variable thereby
  * avoiding variable name clashes from using the CSS `:root` pseudo-class.
  *
- * Although not directly related to Microdata, given it is used in both
- * of those projects, this appears to be the best place for it.
+ * Although not directly related to Microdata, given it is used in potentially
+ * more than one project, this appears to be the best place for it.
  */
-export function microdataRoot(): { 'data-itemscope': 'root' } {
-  return { 'data-itemscope': 'root' }
+export function microdataRoot(): { 'data-root': '' } {
+  return { 'data-root': '' }
 }

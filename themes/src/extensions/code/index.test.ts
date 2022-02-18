@@ -2,7 +2,7 @@ import { attr, first, whenReady } from '../../util/index'
 
 test('Syntax highlighting of CodeBlocks', async () => {
   document.body.innerHTML = `
-    <pre itemscope="" itemtype="http://schema.stenci.la/CodeBlock">
+    <pre itemscope="" itemtype="https://schema.stenci.la/CodeBlock">
       <code></code>
     </pre>
   `

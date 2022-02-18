@@ -142,7 +142,7 @@ export function select(...args: (string | Document | Element)[]): Element[] {
  * @example <caption>Create a <figure> with id, class and itemtype attributes</caption>
  *
  * create('figure #fig1 .fig :--Figure')
- * // <figure id="fig1" class="fig" itemscope="" itemtype="http://schema.stenci.la/Figure">
+ * // <figure id="fig1" class="fig" itemscope="" itemtype="https://schema.stenci.la/Figure">
  * // </figure>
  *
  * @example <caption>As above but using an object to specify attributes</caption>
@@ -157,7 +157,7 @@ export function select(...args: (string | Document | Element)[]): Element[] {
  * @example <caption>Create a Person with a name property</caption>
  *
  * create(':--Person', create('span :--name', 'John Doe'))
- * // <div itemscope="" itemtype="http://schema.org/Person">
+ * // <div itemscope="" itemtype="https://schema.org/Person">
  * //   <span itemprop="name">John Doe</span>
  * // </div>
  *

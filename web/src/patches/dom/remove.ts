@@ -89,13 +89,13 @@ export function applyRemoveStruct(
   }
 
   // If the property is represented as a child element then clear it's content
-  // and its attributes, other than `data-itemprop` etc (so that it remains
+  // and its attributes, other than `data-prop` etc (so that it remains
   // a placeholder if the property is added again later).
   const child = struct.querySelector(slotSelector(name))
   if (child) {
     child.innerHTML = ''
     for (const attr of child.getAttributeNames()) {
-      if (attr !== 'data-itemprop' && attr !== 'itemprop' && attr !== 'slot')
+      if (attr !== 'data-prop' && attr !== 'itemprop' && attr !== 'slot')
         child.removeAttribute(attr)
     }
     return

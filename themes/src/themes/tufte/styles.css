@@ -9,47 +9,43 @@
 :--root {
   --font-family-body: et-book, palatino, 'Palatino Linotype', 'Palatino LT STD',
     'Book Antiqua', georgia, serif;
-  --font-family-display: var(--font-family-display);
+  --font-family-display: var(--font-family-body);
   --font-size-body: 13pt;
+  --font-size-inline-code: 0.825rem;
   --font-size-80: 80%;
   --font-size-90: 90%;
   --font-size-110: 110%;
   --spacer-md: 1em;
   --spacer-lg: 3em;
-  --max-width: 55em;
+  --max-width: 55%;
+  --max-width-media: 90%;
 
   /*
    * Color for font. Added as a variable for customization.
    * Default value is that in Tufte CSS
    */
   --color-key: #111;
+  --color-stock: #fffff8;
+  --color-stock-pure: #fff;
 
   /*
    * Color variables based off the hue used by Tufte CSS for background
-   * (which is `--color-neutral-100`).
    */
-  --color-neutral-100: hsl(60deg 100% 99% / 1);
-  --color-neutral-200: hsl(60deg 100% 97% / 1);
-  --color-neutral-300: hsl(60deg 100% 95% / 1);
-  --color-neutral-400: hsl(60deg 100% 90% / 1);
+  --color-neutral-50: var(--color-stock);
+  --color-neutral-100: #e3e3dd;
+  --color-neutral-200: #e3e3dd;
+  --color-neutral-300: #9a9a96;
+  --color-neutral-400: #4e4e4c;
+  --color-neutral-500: #78786d;
 
-  background-color: var(--color-neutral-100);
+  background-color: var(--color-stock);
   font-size: var(--font-size-body);
   font-family: var(--font-family-body);
   color: var(--color-key);
 
-  /* On larger screens use padding so that edge between
-   * white and background color is not close to text */
-  @media screen and (min-width: 720px) {
-    padding: 10%;
-  }
-
-  max-width: var(--max-width);
-  margin-left: auto;
-  margin-right: auto;
-
   > :--authors {
     padding-left: 0;
+    max-width: var(--max-width);
 
     :--author,
     :--Organization {
@@ -75,6 +71,42 @@
   > :--authors :--author :--affiliations :--affiliation {
     font-size: var(--font-size-80);
   }
+}
+
+button {
+  font-weight: normal;
+}
+
+stencila-toolbar {
+  --background: var(--color-stock);
+
+  border-bottom: 1px solid var(--color-neutral-300);
+}
+
+:--CodeChunk {
+  --background: var(--color-stock-pure);
+}
+
+:--title {
+  max-width: var(--max-width);
+}
+
+:--content {
+  > * {
+    max-width: var(--max-width-media);
+  }
+
+  > :not(:--MediaTypes) {
+    max-width: var(--max-width);
+  }
+
+  > :--Heading {
+    margin-top: 5rem;
+
+    & + :--Heading {
+      margin-top: 0;
+    }
+  }
 
   > :--datePublished {
     display: block;
@@ -97,7 +129,7 @@
 
   :--Figure,
   :--Table {
-    margin: var(--spacer-lg) auto;
+    margin: var(--spacer-lg) auto 0 0;
     max-width: 90%;
 
     :--ImageObject {
@@ -120,10 +152,28 @@
     }
   }
 
+  figure {
+    [slot='label'],
+    figcaption {
+      padding: 0 var(--spacer-md);
+      max-width: var(--max-width);
+    }
+  }
+
   > :--references {
     :--reference {
       margin-top: var(--spacer-md);
     }
+  }
+
+  code,
+  :--CodeExpression,
+  output,
+  :--CodeExpression > output {
+    font-size: var(--font-size-inline-code) !important;
+    line-height: 1 !important;
+    vertical-align: middle;
+    vertical-align: text-bottom;
   }
 
   /*
@@ -144,7 +194,7 @@
 
   figure,
   figcaption {
-    max-width: inherit;
+    max-width: 100%;
     float: none;
   }
 }

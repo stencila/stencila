@@ -52,24 +52,24 @@ describe('ready', () => {
 describe('translate', () => {
   it('works for types', () => {
     expect(translate(':--Article')).toEqual(
-      "[itemtype~='http://schema.org/Article']"
+      "[itemtype~='https://schema.org/Article']"
     )
     expect(translate(':--CodeChunk')).toEqual(
-      "[itemtype~='http://schema.stenci.la/CodeChunk']"
+      "[itemtype~='https://schema.stenci.la/CodeChunk']"
     )
   })
 
   it('works for properties', () => {
     expect(translate(':--author')).toEqual("[itemprop~='author']")
-    expect(translate(':--content')).toEqual("[data-itemprop~='content']")
+    expect(translate(':--content')).toEqual("[data-prop~='content']")
   })
 
   it('works for compound selectors', () => {
     expect(translate(':--Article :--author')).toEqual(
-      "[itemtype~='http://schema.org/Article'] [itemprop~='author']"
+      "[itemtype~='https://schema.org/Article'] [itemprop~='author']"
     )
     expect(translate(':--Article > :--author:--Person')).toEqual(
-      "[itemtype~='http://schema.org/Article'] > [itemprop~='author'][itemtype~='http://schema.org/Person']"
+      "[itemtype~='https://schema.org/Article'] > [itemprop~='author'][itemtype~='https://schema.org/Person']"
     )
   })
 
@@ -88,11 +88,11 @@ describe('translate', () => {
 describe('first & select', () => {
   beforeAll(() => {
     body.innerHTML = `
-      <div id="div1" itemscope="" itemtype="http://schema.org/Article">
+      <div id="div1" itemscope="" itemtype="https://schema.org/Article">
         <span itemprop="author">Jane</span>
         <span itemprop="author">Joe</span>
       </div>
-      <div id="div2" itemscope="" itemtype="http://schema.stenci.la/CodeChunk">
+      <div id="div2" itemscope="" itemtype="https://schema.stenci.la/CodeChunk">
         <span itemprop="text">x * y</span>
       </div>
     `
@@ -194,11 +194,9 @@ describe('create', () => {
   it('works with semantic selectors', () => {
     expect(create(':--Article').getAttribute('itemscope')).toEqual('')
     expect(create(':--Article').getAttribute('itemtype')).toEqual(
-      'http://schema.org/Article'
+      'https://schema.org/Article'
     )
-    expect(create(':--authors').getAttribute('data-itemprop')).toEqual(
-      'authors'
-    )
+    expect(create(':--authors').getAttribute('data-prop')).toEqual('authors')
     expect(create(':--author').getAttribute('itemprop')).toEqual('author')
   })
 
@@ -430,7 +428,7 @@ test('examples in docs do not error; print outputs', () => {
     id: 'fig1',
     class: 'fig',
     itemscope: '',
-    itemtype: 'http://schema.stenci.la/Figure',
+    itemtype: 'https://schema.stenci.la/Figure',
   })
   expect(alt1.outerHTML).toBe(alt2.outerHTML)
   console.log(alt1.outerHTML)

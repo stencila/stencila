@@ -1,77 +1,77 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 442
+assertion_line: 455
 expression: encoded
 input_file: fixtures/fragments/html/table.html
 
 ---
-<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+<article data-root itemtype="https://schema.org/Article" itemscope>
   <stencila-document-toolbar>
   </stencila-document-toolbar>
-  <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+  <div data-prop="content">
+    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
       <span>Example based on how a Pandas dat a frame is encoded to HTML in a Jupyter notebook:</span>
     </p>
-    <table itemtype="http://schema.stenci.la/Table" itemscope>
+    <table itemtype="https://schema.org/Table" itemscope>
       <caption>
-        <span data-itemprop="label">
+        <span data-prop="label">
         </span>
-        <div data-itemprop="caption">
+        <div data-prop="caption">
         </div>
       </caption>
-      <tbody data-itemprop="rows">
-        <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
-          <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+      <tbody data-prop="rows">
+        <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
+          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
           </th>
-          <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>a</span>
           </th>
-          <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>b</span>
           </th>
-          <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>c</span>
           </th>
         </tr>
-        <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
-          <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+        <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
+          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>0</span>
           </th>
-          <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>1</span>
           </td>
-          <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>2</span>
           </td>
-          <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>3</span>
           </td>
         </tr>
-        <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
-          <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+        <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
+          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>1</span>
           </th>
-          <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>4</span>
           </td>
-          <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>5</span>
           </td>
-          <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>6</span>
           </td>
         </tr>
-        <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
-          <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+        <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
+          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>2</span>
           </th>
-          <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>7</span>
           </td>
-          <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>8</span>
           </td>
-          <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
             <span>9</span>
           </td>
         </tr>

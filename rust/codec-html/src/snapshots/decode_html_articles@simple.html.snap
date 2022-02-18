@@ -1,6 +1,7 @@
 ---
-source: rust/src/methods/decode/html.rs
-expression: "decode(&content, false).expect(\"Unable to decode HTML\")"
+source: rust/codec-html/src/decode.rs
+assertion_line: 625
+expression: "decode(content, None).expect(\"Unable to decode HTML\")"
 input_file: fixtures/articles/simple.html
 
 ---

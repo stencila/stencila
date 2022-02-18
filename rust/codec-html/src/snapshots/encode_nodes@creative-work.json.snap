@@ -1,35 +1,35 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 425
+assertion_line: 438
 expression: html
 input_file: fixtures/nodes/creative-work.json
 
 ---
-<article data-itemscope="root" itemtype="http://schema.stenci.la/CreativeWork" itemscope>
-  <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+<article data-root itemtype="https://schema.org/CreativeWork" itemscope>
+  <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
     <span>A fixture that is a creative work containing code nodes.</span>
     <span>Why? Because in some circumstances, instead of nested, structured content (e.g. an `Article`),</span>
     <span>we want to use a flat array of nodes.</span>
   </p>
-  <stencila-code-chunk itemtype="http://schema.stenci.la/CodeChunk" itemscope id="cc-1" programming-language="">
+  <stencila-code-chunk itemtype="https://schema.stenci.la/CodeChunk" itemscope id="cc-1" programming-language="">
     <meta itemprop="programmingLanguage" content=""/>
-    <pre data-itemprop="text" slot="text"># Some code</pre>
+    <pre data-prop="text" slot="text"># Some code</pre>
     <stencila-code-dependencies slot="code-dependencies">
-      <div data-itemprop="codeDependencies">
+      <div data-prop="codeDependencies">
       </div>
     </stencila-code-dependencies>
     <stencila-code-dependencies slot="code-dependents">
-      <div data-itemprop="codeDependents">
+      <div data-prop="codeDependents">
       </div>
     </stencila-code-dependencies>
-    <div data-itemprop="outputs" slot="outputs">
-      <img itemtype="http://schema.org/ImageObject" itemscope  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYvhfz0AEYBxVSF+FAA/eDwup9bzCAAAAAElFTkw"/>
+    <div data-prop="outputs" slot="outputs">
+      <img itemtype="https://schema.org/ImageObject" itemscope  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYvhfz0AEYBxVSF+FAA/eDwup9bzCAAAAAElFTkw"/>
     </div>
-    <div data-itemprop="errors" slot="errors">
+    <div data-prop="errors" slot="errors">
     </div>
-    <span data-itemprop="label" slot="label">
+    <span data-prop="label" slot="label">
     </span>
-    <figcaption data-itemprop="caption" slot="caption">
+    <figcaption data-prop="caption" slot="caption">
     </figcaption>
   </stencila-code-chunk>
 </article>

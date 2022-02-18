@@ -7,7 +7,7 @@ import {
 } from './jsonld'
 
 test('jsonLdUrl', () => {
-  const expectedBase = `http://schema.stenci.la/v${
+  const expectedBase = `https://schema.stenci.la/v${
     pkg.version.split('.')[0]
   }/jsonld/`
 
@@ -26,8 +26,8 @@ test('jsonLdTermUrl', () => {
   expect(jsonLdTermUrl('CodeChunk')).toEqual(stencilaUrl + 'CodeChunk')
   expect(jsonLdTermUrl('outputs')).toEqual(stencilaUrl + 'outputs')
 
-  expect(jsonLdTermUrl('Article')).toEqual('http://schema.org/Article')
-  expect(jsonLdTermUrl('authors')).toEqual('http://schema.org/author')
+  expect(jsonLdTermUrl('Article')).toEqual('https://schema.org/Article')
+  expect(jsonLdTermUrl('authors')).toEqual('https://schema.org/author')
 
   expect(jsonLdTermUrl('foo')).toBeUndefined()
 })
@@ -37,6 +37,6 @@ test('jsonLdTermName', () => {
   expect(jsonLdTermName(stencilaUrl + 'CodeChunk')).toEqual('CodeChunk')
   expect(jsonLdTermName(stencilaUrl + 'outputs')).toEqual('outputs')
 
-  expect(jsonLdTermName('http://schema.org/Article')).toEqual('Article')
-  expect(jsonLdTermName('http://schema.org/author')).toEqual('authors')
+  expect(jsonLdTermName('https://schema.org/Article')).toEqual('Article')
+  expect(jsonLdTermName('https://schema.org/author')).toEqual('authors')
 })

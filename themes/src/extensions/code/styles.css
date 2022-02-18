@@ -7,7 +7,7 @@
  */
 
 /* prettier-ignore */
-@custom-selector :--CodeFragment [itemtype~='http://schema.stenci.la/CodeFragment'], [itemtype~='http://schema.stenci.la/CodeFragment'][class*=language-];
+@custom-selector :--CodeFragment [itemtype~='https://schema.stenci.la/CodeFragment'], [itemtype~='https://schema.stenci.la/CodeFragment'][class*=language-];
 
 /* prettier-ignore */
-@custom-selector :--CodeBlock [itemtype~='http://schema.stenci.la/CodeBlock'], [itemtype~='http://schema.stenci.la/CodeBlock'][class*=language-];
+@custom-selector :--CodeBlock [itemtype~='https://schema.stenci.la/CodeBlock'], [itemtype~='https://schema.stenci.la/CodeBlock'][class*=language-];

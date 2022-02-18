@@ -1,83 +1,83 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 442
+assertion_line: 455
 expression: encoded
 input_file: fixtures/fragments/html/list.html
 
 ---
-<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+<article data-root itemtype="https://schema.org/Article" itemscope>
   <stencila-document-toolbar>
   </stencila-document-toolbar>
-  <div data-itemprop="content">
-    <ul itemtype="http://schema.stenci.la/List" itemscope>
-      <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+  <div data-prop="content">
+    <ul itemtype="https://schema.org/ItemList" itemscope>
+      <li itemtype="https://schema.org/ListItem" itemscope>
+        <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
           <span>apple</span>
         </p>
       </li>
-      <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <li itemtype="https://schema.org/ListItem" itemscope>
+        <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
           <span>pear</span>
         </p>
       </li>
-      <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <li itemtype="https://schema.org/ListItem" itemscope>
+        <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
           <span>orange</span>
         </p>
       </li>
     </ul>
-    <ol itemtype="http://schema.stenci.la/List" itemscope>
-      <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+    <ol itemtype="https://schema.org/ItemList" itemscope>
+      <li itemtype="https://schema.org/ListItem" itemscope>
+        <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
           <span>first</span>
         </p>
       </li>
-      <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <li itemtype="https://schema.org/ListItem" itemscope>
+        <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
           <span>second</span>
         </p>
       </li>
-      <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <li itemtype="https://schema.org/ListItem" itemscope>
+        <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
           <span>third</span>
         </p>
       </li>
     </ol>
-    <ul itemtype="http://schema.stenci.la/List" itemscope>
-      <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+    <ul itemtype="https://schema.org/ItemList" itemscope>
+      <li itemtype="https://schema.org/ListItem" itemscope>
+        <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
           <span>nested</span>
         </p>
-        <ul itemtype="http://schema.stenci.la/List" itemscope>
-          <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-            <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+        <ul itemtype="https://schema.org/ItemList" itemscope>
+          <li itemtype="https://schema.org/ListItem" itemscope>
+            <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
               <span>2a</span>
             </p>
-            <ul itemtype="http://schema.stenci.la/List" itemscope>
-              <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-                <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+            <ul itemtype="https://schema.org/ItemList" itemscope>
+              <li itemtype="https://schema.org/ListItem" itemscope>
+                <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
                   <span>3a</span>
                 </p>
               </li>
             </ul>
           </li>
-          <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-            <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+          <li itemtype="https://schema.org/ListItem" itemscope>
+            <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
               <span>2b</span>
             </p>
           </li>
-          <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-            <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+          <li itemtype="https://schema.org/ListItem" itemscope>
+            <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
               <span>2c</span>
             </p>
-            <ul itemtype="http://schema.stenci.la/List" itemscope>
-              <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-                <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+            <ul itemtype="https://schema.org/ItemList" itemscope>
+              <li itemtype="https://schema.org/ListItem" itemscope>
+                <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
                   <span>3b</span>
                 </p>
-                <ul itemtype="http://schema.stenci.la/List" itemscope>
-                  <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-                    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+                <ul itemtype="https://schema.org/ItemList" itemscope>
+                  <li itemtype="https://schema.org/ListItem" itemscope>
+                    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
                       <span>4a</span>
                     </p>
                   </li>
@@ -88,9 +88,9 @@ input_file: fixtures/fragments/html/list.html
         </ul>
       </li>
     </ul>
-    <ol itemtype="http://schema.stenci.la/List" itemscope>
-      <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <em itemtype="http://schema.stenci.la/Emphasis" itemscope>
+    <ol itemtype="https://schema.org/ItemList" itemscope>
+      <li itemtype="https://schema.org/ListItem" itemscope>
+        <em itemtype="https://schema.stenci.la/Emphasis" itemscope>
           <span>solo inline</span>
         </em>
       </li>

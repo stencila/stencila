@@ -28,10 +28,10 @@ ready(() => {
     (code: { element: Element; language: string }) => {
       const { element } = code
       const itemtype = element.getAttribute('itemtype')
-      if (itemtype === 'http://schema.stenci.la/CodeFragment') return false
+      if (itemtype === 'https://schema.stenci.la/CodeFragment') return false
       if (
         element.parentElement?.getAttribute('itemtype') ===
-        'http://schema.stenci.la/CodeBlock'
+        'https://schema.stenci.la/CodeBlock'
       )
         return false
       return true

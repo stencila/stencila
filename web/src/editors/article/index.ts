@@ -79,7 +79,7 @@ export class ArticleEditor {
   constructor() {
     // Get the source <article> element and hide it
     const sourceElem = document.querySelector<HTMLElement>(
-      '[itemtype="http://schema.org/Article"]'
+      '[itemtype="https://schema.org/Article"]'
     )
     if (sourceElem === null) {
       console.warn('Did not find an article on the page')
@@ -120,8 +120,8 @@ export class ArticleEditor {
 
     // Create the editor <article> element
     const editorElem = document.createElement('article')
-    editorElem.setAttribute('data-itemscope', 'root')
-    editorElem.setAttribute('itemtype', 'http://schema.org/Article')
+    editorElem.setAttribute('data-root', '')
+    editorElem.setAttribute('itemtype', 'https://schema.org/Article')
     editorElem.setAttribute('itemscope', '')
     sourceElem.parentElement?.appendChild(editorElem)
     // Remove the original elements to avoid duplicate element IDs on the page

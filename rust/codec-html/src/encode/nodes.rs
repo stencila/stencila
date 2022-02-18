@@ -29,7 +29,7 @@ impl ToHtml for Node {
         if let Node::String(string) = self {
             return elem(
                 "span",
-                &[attr_itemtype_str("Text")],
+                &[attr_itemtype_str("String")],
                 &string.to_html(context),
             );
         }

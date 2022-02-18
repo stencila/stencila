@@ -31,10 +31,7 @@ export function resolveTarget(target?: ElementId): Element {
       )
     return elem
   } else {
-    // It is proposed that `data-root` replace `data-itemscope`. This allows for both
-    const root = document.body.querySelector(
-      '[data-root], [data-itemscope="root"]'
-    )
+    const root = document.body.querySelector('[data-root]')
     if (root === null) {
       console.warn('Unable to resolve root node; using first node of <body>')
       const first = document.body.firstElementChild
@@ -57,12 +54,11 @@ export function resolveTarget(target?: ElementId): Element {
  *   elements or attributes
  *
  * - `slot` is used because, even though one of the other attributes may be present
- *   in the original encoding, a Web Component may replace it; specifying `slot` here avoids this
- *
- * - `data-prop` may replace `data-itemprop` in the future
+ *   in the original encoding, a Web Component may replace it; specifying `slot`
+ *   here avoids this
  */
 export function slotSelector(name: string): string {
-  return `[data-itemprop="${name}"], :not(meta)[itemprop="${name}"], [slot="${name}"]`
+  return `[data-prop="${name}"], :not(meta)[itemprop="${name}"], [slot="${name}"]`
 }
 
 /**
@@ -305,7 +301,7 @@ export function isArrayElement(elem: Element): boolean {
 export function isDatatableColumns(elem: Element): boolean {
   return (
     elem.parentElement?.tagName === 'STENCILA-DATATABLE' &&
-    elem.getAttribute('data-itemprop') === 'columns'
+    elem.getAttribute('data-prop') === 'columns'
   )
 }
 

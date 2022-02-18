@@ -15,39 +15,39 @@ test('microdata', () => {
   // A Stencila type
   expect(microdata(codeChunk({ text: '', programmingLanguage: '' }))).toEqual({
     itemscope: '',
-    itemtype: 'http://schema.stenci.la/CodeChunk',
+    itemtype: 'https://schema.stenci.la/CodeChunk',
   })
 
   // A schema.org type
   expect(microdata(article())).toEqual({
     itemscope: '',
-    itemtype: 'http://schema.org/Article',
+    itemtype: 'https://schema.org/Article',
   })
 
   // A schema.org type as a Stencila property
   // which is an alias for a schema.org term
   expect(microdata(person(), 'authors')).toEqual({
     itemscope: '',
-    itemtype: 'http://schema.org/Person',
+    itemtype: 'https://schema.org/Person',
     itemprop: 'author',
   })
 
   // A schema.org type as a Stencila custom property
   expect(microdata(2, 'depth')).toEqual({
-    'data-itemtype': 'http://schema.org/Number',
-    'data-itemprop': 'depth',
+    'itemtype': 'https://schema.org/Number',
+    'data-prop': 'depth',
   })
 
   // Use case: generating a list of authors.
   const authors = [person()]
-  // <ol data-itemprop="authors">
+  // <ol data-prop="authors">
   expect(microdata(authors, 'authors', 'array')).toEqual({
-    'data-itemprop': 'authors',
+    'data-prop': 'authors',
   })
-  // <li itemscope itemtype="http://schema.org/Person" itemprop="author">
+  // <li itemscope itemtype="https://schema.org/Person" itemprop="author">
   expect(microdata(authors[0], 'authors', 'item')).toEqual({
     itemscope: '',
-    itemtype: 'http://schema.org/Person',
+    itemtype: 'https://schema.org/Person',
     itemprop: 'author',
   })
 
@@ -55,17 +55,17 @@ test('microdata', () => {
   // for an author where each org is a free-standing element.
   const orgs = [organization()]
   expect(microdata(orgs, 'affiliations', 'array')).toEqual({
-    'data-itemprop': 'affiliations',
+    'data-prop': 'affiliations',
   })
   expect(microdata(orgs[0], 'affiliations', 'item', 'org1')).toEqual({
     itemscope: '',
-    itemtype: 'http://schema.org/Organization',
+    itemtype: 'https://schema.org/Organization',
     itemprop: 'affiliation',
     itemref: 'org1',
   })
   expect(microdata(orgs[0], undefined, undefined, 'org1')).toEqual({
     itemscope: '',
-    itemtype: 'http://schema.org/Organization',
+    itemtype: 'https://schema.org/Organization',
     itemid: '#org1',
   })
 })
@@ -73,7 +73,7 @@ test('microdata', () => {
 test('microdataItem', () => {
   expect(microdataItem(organization(), 'org1')).toEqual({
     itemscope: '',
-    itemtype: 'http://schema.org/Organization',
+    itemtype: 'https://schema.org/Organization',
     itemid: '#org1',
   })
 })
@@ -81,7 +81,7 @@ test('microdataItem', () => {
 test('microdataProperty', () => {
   // A root element for the `affiliations` property e.g. <ol>
   expect(microdataProperty('affiliations', 'array')).toEqual({
-    'data-itemprop': 'affiliations',
+    'data-prop': 'affiliations',
   })
 
   // A child element for an item in the `affiliations` property e.g. <li>
@@ -105,19 +105,19 @@ test('microdataProperty', () => {
 
 test('microdataItemtype', () => {
   expect(microdataItemtype('CodeChunk')).toMatch(
-    'http://schema.stenci.la/CodeChunk'
+    'https://schema.stenci.la/CodeChunk'
   )
-  expect(microdataItemtype('Article')).toMatch('http://schema.org/Article')
+  expect(microdataItemtype('Article')).toMatch('https://schema.org/Article')
   // @ts-ignore that Foo is not a type
   expect(microdataItemtype('Foo')).toBeUndefined()
 })
 
 test('microdataType', () => {
-  expect(microdataType('http://schema.stenci.la/CodeChunk')).toMatch(
+  expect(microdataType('https://schema.stenci.la/CodeChunk')).toMatch(
     'CodeChunk'
   )
-  expect('http://schema.org/Article').toMatch('Article')
-  expect(microdataType('http://example.com')).toBeUndefined()
+  expect('https://schema.org/Article').toMatch('Article')
+  expect(microdataType('https://example.com')).toBeUndefined()
 })
 
 test('microdataItemprop', () => {
@@ -130,5 +130,5 @@ test('microdataItemprop', () => {
 })
 
 test('microdataRoot', () => {
-  expect(microdataRoot()).toEqual({ 'data-itemscope': 'root' })
+  expect(microdataRoot()).toEqual({ 'data-root': '' })
 })

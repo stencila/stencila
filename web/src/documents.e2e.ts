@@ -90,8 +90,8 @@ test('load', async () => {
   ok = await load(client, document.id, 'Hello *world*!', 'md')
   expect(ok).toBeTruthy()
   json = await dump(client, document.id, 'html')
-  expect(json).toMatch(
-    '<em itemtype="http://schema.stenci.la/Emphasis" itemscope><span>world</span>'
+  expect(json).toContain(
+    '<em itemtype="https://schema.stenci.la/Emphasis" itemscope><span>world</span>'
   )
 })
 

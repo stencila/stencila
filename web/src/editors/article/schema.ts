@@ -16,7 +16,7 @@ import { codeChunk } from './components/codeChunk/codeChunk'
  *
  * - Properties of Stencila nodes are represented as ProseMirror `NodeSpec`s with
  *   a lowercase name (e.g. `title`, `abstract`) and `toDOM` and `parseDOM` rules
- *   which use the corresponding `data-itemprop` selector (e.g. [data-itemprop=title]).
+ *   which use the corresponding `data-prop` selector (e.g. [data-prop=title]).
  *   The `prop` function is a shortcut for creating these node specs.
  *
  * - Stencila node types are represented as ProseMirror node types with title
@@ -112,9 +112,9 @@ function prop(
     content,
     marks,
     defining: true,
-    parseDOM: [{ tag: `${tag}[data-itemprop=${name}]` }],
+    parseDOM: [{ tag: `${tag}[data-prop=${name}]` }],
     toDOM(_node) {
-      return [tag, { 'data-itemprop': name }, 0]
+      return [tag, { 'data-prop': name }, 0]
     },
   }
 }
@@ -143,7 +143,7 @@ function block(
     toDOM(_node) {
       return [
         tag,
-        { itemtype: `http://schema.stenci.la/${name}`, itemscope: '' },
+        { itemtype: `https://schema.stenci.la/${name}`, itemscope: '' },
         0,
       ]
     },
@@ -175,7 +175,7 @@ function heading(): NodeSpec {
     toDOM(node) {
       return [
         `h${(node.attrs.depth as number) + 1}`,
-        { itemtype: 'http://schema.stenci.la/Heading', itemscope: '' },
+        { itemtype: 'https://schema.stenci.la/Heading', itemscope: '' },
         0,
       ]
     },
@@ -201,7 +201,7 @@ function list(): NodeSpec {
     toDOM(node) {
       return [
         node.attrs.order === 'Unordered' ? 'ul' : 'ol',
-        { itemtype: 'http://schema.org/ItemList', itemscope: '' },
+        { itemtype: 'https://schema.org/ItemList', itemscope: '' },
         0,
       ]
     },
@@ -222,7 +222,7 @@ function listItem(): NodeSpec {
     toDOM(_node) {
       return [
         'li',
-        { itemtype: 'http://schema.org/ListItem', itemscope: '' },
+        { itemtype: 'https://schema.org/ListItem', itemscope: '' },
         0,
       ]
     },
@@ -249,7 +249,7 @@ function codeFragment(): NodeSpec {
     toDOM(_node) {
       return [
         'code',
-        { itemtype: 'http://schema.stenci.la/CodeFragment', itemscope: '' },
+        { itemtype: 'https://schema.stenci.la/CodeFragment', itemscope: '' },
         0,
       ]
     },
@@ -275,7 +275,7 @@ function table(): NodeSpec {
     toDOM(_node) {
       return [
         'table',
-        { itemtype: 'http://schema.org/Table', itemscope: '' },
+        { itemtype: 'https://schema.org/Table', itemscope: '' },
         ['tbody', 0],
       ]
     },
@@ -294,7 +294,7 @@ function tableRow(): NodeSpec {
     toDOM(_node) {
       return [
         'tr',
-        { itemtype: 'http://schema.stenci.la/TableRow', itemscope: '' },
+        { itemtype: 'https://schema.stenci.la/TableRow', itemscope: '' },
         0,
       ]
     },
@@ -334,7 +334,7 @@ function tableCellAttrsGet(dom: HTMLElement): Record<string, unknown> {
  */
 function tableCellAttrsSet(node: Node): Record<string, string | number> {
   const attrs: Record<string, string | number> = {
-    itemtype: 'http://schema.stenci.la/TableCell',
+    itemtype: 'https://schema.stenci.la/TableCell',
     itemscope: '',
   }
 
@@ -400,7 +400,7 @@ function thematicBreak(): NodeSpec {
     toDOM(_node) {
       return [
         'hr',
-        { itemtype: 'http://schema.stenci.la/ThematicBreak', itemscope: '' },
+        { itemtype: 'https://schema.stenci.la/ThematicBreak', itemscope: '' },
       ]
     },
   }
@@ -424,7 +424,7 @@ function _inline(
     toDOM(_node) {
       return [
         tag,
-        { itemtype: `http://schema.stenci.la/${name}`, itemscope: '' },
+        { itemtype: `https://schema.stenci.la/${name}`, itemscope: '' },
         0,
       ]
     },

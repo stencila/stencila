@@ -39,7 +39,8 @@
   line-height: 1.5em;
 
   :--title,
-  [data-itemtype~='http://schema.stenci.la/Heading'],
+  /* TODO: Review need for this selector */
+  [data-itemtype~='https://schema.stenci.la/Heading'],
   :--Heading {
     font-family: var(--font-family-title);
     margin-bottom: 0;

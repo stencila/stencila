@@ -63,7 +63,7 @@ givenNames:
   items: string
 ```
 
-By declaring the `@id` of that property as `schema:givenName` we are saying "within this vocabulary, when we use the term 'givenNames', we mean the same as http://schema.org/givenName".
+By declaring the `@id` of that property as `schema:givenName` we are saying "within this vocabulary, when we use the term 'givenNames', we mean the same as https://schema.org/givenName".
 
 Sometimes, a property name is not represented in another vocabulary. In these casese, define the property name as a new term within the Stencila vocabulary i.e. `'@id': stencila:<property>`
 

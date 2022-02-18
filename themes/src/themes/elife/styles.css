@@ -79,34 +79,46 @@
 
   .content-header__icon--cc,
   .content-header__icon--cc:hover {
-    background-image: url('@elifesciences/pattern-library/source/assets/img/icons/cc.svg');
+    background-image: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/cc.svg');
   }
 
   .content-header__icon--oa,
   .content-header__icon--oa:hover {
-    background-image: url('@elifesciences/pattern-library/source/assets/img/icons/oa.svg');
+    background-image: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/oa.svg');
   }
 
   & :--authors {
     @extend .content-header__author_list;
 
+    margin-bottom: 0;
+
     :--Person {
       @extend .content-header__author_list_item;
 
-      font-size: var(--TEXT-SIZE-MEDIUM-REM);
+      display: inline;
 
-      :--familyName::after {
+      &::after {
         content: ', ';
       }
 
       &:last-child {
-        :--familyName::after {
+        &::after {
           content: '';
         }
       }
 
-      :--emails::after {
-        content: url('@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+      :--emails {
+        padding-left: 4px;
+      }
+
+      :--email {
+        span {
+          display: none;
+        }
+
+        &::after {
+          content: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+        }
       }
     }
 
@@ -125,8 +137,14 @@
         }
       }
 
-      :--emails::after {
-        content: url('@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+      :--email {
+        span {
+          display: none;
+        }
+
+        &::after {
+          content: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+        }
       }
     }
 
@@ -143,12 +161,10 @@
     margin-bottom: var(--BASELINE-MEASURE-REM);
 
     :--Organization {
-      display: inline;
+      @extend .content-header__institution_list_item;
 
-      :--name,
-      :--address {
-        @extend .content-header__institution_list_item;
-      }
+      display: inline;
+      font-size: var(--TEXT-SIZE-MEDIUM-REM);
 
       & :--parentOrganization::before {
         content: ', ';
@@ -266,11 +282,11 @@
     & > .download-link {
       flex: 0 0 var(--download-icon-block-size);
       height: var(--download-icon-block-size);
-      background: url('@elifesciences/pattern-library/source/assets/img/icons/download.svg')
+      background: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/download.svg')
         transparent no-repeat;
 
       @media only screen and (--medium-viewport) {
-        background-image: url('@elifesciences/pattern-library/source/assets/img/icons/download-full.svg');
+        background-image: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/download-full.svg');
       }
 
       & > .download-link-text {
@@ -379,7 +395,22 @@
   }
 
   :--Figure {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
     margin: 1em 0;
+
+    :--label {
+      order: 1;
+    }
+
+    :--content {
+      order: 2;
+    }
+
+    :--caption {
+      order: 3;
+    }
 
     img {
       outline: 1px solid #e0e0e0;

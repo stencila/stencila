@@ -7,18 +7,14 @@ import {
 
 test('applyReplaceStruct', () => {
   const elem = document.createElement('div')
-  elem.innerHTML = '<p data-itemprop="property">One</p>'
-  expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
-    'One'
-  )
+  elem.innerHTML = '<p data-prop="property">One</p>'
+  expect(elem.querySelector('[data-prop="property"]')?.innerHTML).toEqual('One')
 
   applyReplaceStruct(elem, 'property', 1, 'Two', 'Two')
-  expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
-    'Two'
-  )
+  expect(elem.querySelector('[data-prop="property"]')?.innerHTML).toEqual('Two')
 
   applyReplaceStruct(elem, 'property', 1, 'Three', 'Three')
-  expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
+  expect(elem.querySelector('[data-prop="property"]')?.innerHTML).toEqual(
     'Three'
   )
 
@@ -84,7 +80,7 @@ test('applyReplaceText', () => {
 test('applyReplace', () => {
   // Start with `Article` with one paragraph with some content
   document.body.innerHTML =
-    '<article data-itemscope="root"><div data-itemprop="content"><p>' +
+    '<article data-itemscope="root"><div data-prop="content"><p>' +
     'One <strong>two</strong> three.' +
     '</p></div></article>'
 
@@ -103,7 +99,7 @@ test('applyReplace', () => {
     data-itemscope="root"
   >
     <div
-      data-itemprop="content"
+      data-prop="content"
     >
       <p>
         One 
@@ -132,7 +128,7 @@ test('applyReplace', () => {
     data-itemscope="root"
   >
     <div
-      data-itemprop="content"
+      data-prop="content"
     >
       <p>
         one, two
@@ -158,7 +154,7 @@ test('applyReplace', () => {
     data-itemscope="root"
   >
     <div
-      data-itemprop="content"
+      data-prop="content"
     >
       <p>
         Hello

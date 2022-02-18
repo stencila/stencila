@@ -26,9 +26,9 @@ const tsPath = path.join(__dirname, '..', 'selectors.ts')
  * using the `itemtype` attribute eg.
  *
  * ```css
- * :--Article [itemtype~="http://schema.org/Article]
- * :--List [itemtype~="http://schema.org/ItemList]
- * :--CodeChunk [itemtype~="http://schema.stenci.la/CodeChunk]
+ * :--Article [itemtype~="https://schema.org/Article]
+ * :--List [itemtype~="https://schema.org/ItemList]
+ * :--CodeChunk [itemtype~="https://schema.stenci.la/CodeChunk]
  * ```
  *
  * For array properties, there are two selectors, for different
@@ -38,25 +38,25 @@ const tsPath = path.join(__dirname, '..', 'selectors.ts')
  * Selector for the property's root element (usually a <ol>)
  *
  * ```css
- * :--authors [data-itemprop~="authors"]
+ * :--authors [data-prop~="authors"]
  * ```
  *
  * Selector for the property's item elements (usually <li>s)
  *
  * ```css
- * :--author [itemprop~="author"]
+ * :--author [prop~="author"]
  * ```
  *
  * For other properties, there is just one selector, e.g.
  *
  * ```css
- * :--text [itemprop~="text"]
+ * :--text [prop~="text"]
  * ```
  */
 const generateSelectors = async (): Promise<void> => {
-  const [attrRoot, valueRoot] = Object.entries(microdataRoot())[0]
-  const rootSelectorCss = `@custom-selector :--root [${attrRoot}='${valueRoot}'];`
-  const rootSelectorJs = `case ":--root": return "[${attrRoot}='${valueRoot}']"`
+  const [attrRoot, _valueRoot] = Object.entries(microdataRoot())[0]
+  const rootSelectorCss = `@custom-selector :--root [${attrRoot}];`
+  const rootSelectorJs = `case ":--root": return "[${attrRoot}]"`
 
   const types = await jsonSchemaTypes()
 
@@ -202,8 +202,8 @@ ${propSelectorsCss.join('\n')}
  * Translate a custom semantic selector to the equivalent Microdata
  * attribute selector.
  *
- * e.g. :--Article -> [itemtype~='http://schema.org/Article']
- * e.g. :--author -> [itemprop~='http://schema.org/author']
+ * e.g. :--Article -> [itemtype~='https://schema.org/Article']
+ * e.g. :--author -> [prop~='author']
  *
  * This does the inverse of the mapping defined in \`./selectors.css\`.
  */

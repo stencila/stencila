@@ -9,15 +9,14 @@
 [![Netlify](https://img.shields.io/netlify/b0e0d714-29f1-4ad1-8a7d-1af7799fb85b)](https://app.netlify.com/sites/stencila-schema/deploys)
 [![Community](https://img.shields.io/badge/join-community-green.svg)](https://discord.gg/uFtQtk9)
 
-
-|  |||
-|--|-------|-------------|
-JSON-LD | [![Context](https://img.shields.io/badge/json--ld-%40context-success)](https://schema.stenci.la/stencila.jsonld) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://schema.stenci.la)
-JSON Schema | [![Schema](https://img.shields.io/badge/json%20schema-v1-success)](https://unpkg.com/browse/@stencila/schema@1/dist/) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://schema.stenci.la)
-TypeScript/JavaScript | [![NPM](https://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/ts/docs) |
-Python | [![PyPI](https://img.shields.io/pypi/v/stencila-schema.svg)](https://pypi.org/project/stencila-schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/python/docs) |
-R | [![CRAN](https://www.r-pkg.org/badges/version/stencilaschema)](https://cran.r-project.org/web/packages/stencilaschema/) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/r/docs) |
-Rust | [![Crates.io](https://img.shields.io/crates/v/stencila-schema)](https://crates.io/crates/stencila-schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.rs/stencila-schema/latest/stencila_schema/)
+|                       |                                                                                                                         |                                                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| JSON-LD               | [![Context](https://img.shields.io/badge/json--ld-%40context-success)](https://schema.stenci.la/stencila.jsonld)        | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://schema.stenci.la)                                |
+| JSON Schema           | [![Schema](https://img.shields.io/badge/json%20schema-v1-success)](https://unpkg.com/browse/@stencila/schema@1/dist/)   | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://schema.stenci.la)                                |
+| TypeScript/JavaScript | [![NPM](https://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema)  | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/ts/docs)               |
+| Python                | [![PyPI](https://img.shields.io/pypi/v/stencila-schema.svg)](https://pypi.org/project/stencila-schema)                  | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/python/docs)           |
+| R                     | [![CRAN](https://www.r-pkg.org/badges/version/stencilaschema)](https://cran.r-project.org/web/packages/stencilaschema/) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/r/docs)                |
+| Rust                  | [![Crates.io](https://img.shields.io/crates/v/stencila-schema)](https://crates.io/crates/stencila-schema)               | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.rs/stencila-schema/latest/stencila_schema/) |
 
 <br>
 
@@ -76,7 +75,7 @@ as JSON-LD,
 
 ```json
 {
-  "@context": "http://schema.stenci.la/v1/jsonld/",
+  "@context": "https://schema.stenci.la/v1/jsonld/",
   "type": "Article",
   "content": [
     {
@@ -90,8 +89,8 @@ as JSON-LD,
 or as HTML with Microdata,
 
 ```html
-<article itemscope="" itemtype="http://schema.org/Article">
-  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Hello world!</p>
+<article itemscope="" itemtype="https://schema.org/Article">
+  <p itemscope="" itemtype="https://schema.stenci.la/Paragraph">Hello world!</p>
 </article>
 ```
 

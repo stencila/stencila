@@ -194,7 +194,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
 
     let given_names = match &person.given_names {
         Some(names) => [
-            "<span data-itemprop=\"givenNames\">",
+            "<span data-prop=\"givenNames\">",
             &concat(names, |name| {
                 ["<span itemprop=\"givenName\">", name, "</span>"].concat()
             }),
@@ -206,7 +206,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
 
     let family_names = match &person.family_names {
         Some(names) => [
-            "<span data-itemprop=\"familyNames\">",
+            "<span data-prop=\"familyNames\">",
             &concat(names, |name| {
                 ["<span itemprop=\"familyName\">", name, "</span>"].concat()
             }),
@@ -221,11 +221,13 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
         {
             #[cfg_attr(rustfmt, rustfmt_skip)]
             [
-                "<span data-itemprop=\"emails\">",
+                "<span data-prop=\"emails\">",
                 &concat(emails, |email| {
                     [
                         "<a itemprop=\"email\"", &attr("href", &["mailto:", email].concat()), ">",
-                            email,
+                            "<span>",
+                                email,
+                            "</span>",
                         "</a>",
                     ].concat()
                 }),
@@ -239,7 +241,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
     let affiliations = if let (Some(affiliations), Some(orgs)) = (&person.affiliations, orgs) {
         #[cfg_attr(rustfmt, rustfmt_skip)]
         [
-            "<span data-itemprop=\"affiliations\">",
+            "<span data-prop=\"affiliations\">",
             &concat(affiliations, |affiliation| {
                 if let Some((index,..)) = orgs.iter().find_position(|org| {
                     org.name == affiliation.name
@@ -262,7 +264,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
 
     #[cfg_attr(rustfmt, rustfmt_skip)]
     [
-        "<li itemprop=\"author\" itemtype=\"http://schema.org/Person\" itemscope>",
+        "<li itemprop=\"author\" itemtype=\"https://schema.org/Person\" itemscope>",
             &name,
             &given_names,
             &family_names,
@@ -275,7 +277,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
 
 fn author_org_to_html(_org: &Organization) -> String {
     [
-        "<li itemprop=\"author\" itemtype=\"http://schema.org/Organization\" itemscope>",
+        "<li itemprop=\"author\" itemtype=\"https://schema.org/Organization\" itemscope>",
         // TODO
         "</li>",
     ]
@@ -288,7 +290,11 @@ fn affiliation_org_to_html(org: &Organization) -> String {
         .name
         .as_ref()
         .map_or("".to_string(), |boxed| *boxed.clone());
-    ["<li>", &name, "</li>"].concat()
+    [
+        "<li itemtype=\"https://schema.org/Organization\" itemscope>",
+        &name,
+        "</li>"
+    ].concat()
 }
 
 /// Generate HTML from the `BlockContent` analogue (e.g. `TableSimple`) or `InlineContent`

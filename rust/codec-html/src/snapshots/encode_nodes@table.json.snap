@@ -1,40 +1,41 @@
 ---
 source: rust/codec-html/src/encode.rs
+assertion_line: 438
 expression: html
 input_file: fixtures/nodes/table.json
 
 ---
-<table data-itemscope="root" itemtype="http://schema.stenci.la/Table" itemscope>
+<table data-root itemtype="https://schema.org/Table" itemscope>
   <caption>
-    <span data-itemprop="label">Table 1</span>
-    <div data-itemprop="caption">A table caption</div>
+    <span data-prop="label">Table 1</span>
+    <div data-prop="caption">A table caption</div>
   </caption>
-  <tbody data-itemprop="rows">
-    <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
-      <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+  <tbody data-prop="rows">
+    <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
+      <th itemtype="https://schema.stenci.la/TableCell" itemscope>
         <span>A</span>
       </th>
-      <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+      <th itemtype="https://schema.stenci.la/TableCell" itemscope>
         <span>B</span>
       </th>
-      <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+      <th itemtype="https://schema.stenci.la/TableCell" itemscope>
         <span>C</span>
       </th>
     </tr>
-    <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
-      <td itemtype="http://schema.stenci.la/TableCell" itemscope rowspan="2">
-        <span itemtype="http://schema.stenci.la/Integer" itemscope>1</span>
+    <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
+      <td itemtype="https://schema.stenci.la/TableCell" itemscope rowspan="2">
+        <span itemtype="https://schema.org/Integer" itemscope>1</span>
       </td>
-      <td itemtype="http://schema.stenci.la/TableCell" itemscope>
-        <span itemtype="http://schema.stenci.la/Integer" itemscope>2</span>
+      <td itemtype="https://schema.stenci.la/TableCell" itemscope>
+        <span itemtype="https://schema.org/Integer" itemscope>2</span>
       </td>
-      <td itemtype="http://schema.stenci.la/TableCell" itemscope>
-        <span itemtype="http://schema.stenci.la/Integer" itemscope>3</span>
+      <td itemtype="https://schema.stenci.la/TableCell" itemscope>
+        <span itemtype="https://schema.org/Integer" itemscope>3</span>
       </td>
     </tr>
-    <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
-      <td itemtype="http://schema.stenci.la/TableCell" itemscope colspan="2">
-        <span itemtype="http://schema.stenci.la/Integer" itemscope>5</span>
+    <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
+      <td itemtype="https://schema.stenci.la/TableCell" itemscope colspan="2">
+        <span itemtype="https://schema.org/Integer" itemscope>5</span>
       </td>
     </tr>
   </tbody>

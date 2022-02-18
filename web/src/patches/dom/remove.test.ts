@@ -7,10 +7,10 @@ import {
 
 test('applyRemoveStruct', () => {
   const elem = document.createElement('div')
-  elem.innerHTML = '<p data-itemprop="property" data-some-attr="">some text</p>'
+  elem.innerHTML = '<p data-prop="property" data-some-attr="">some text</p>'
 
   applyRemoveStruct(elem, 'property', 1)
-  expect(elem.innerHTML).toEqual('<p data-itemprop="property"></p>')
+  expect(elem.innerHTML).toEqual('<p data-prop="property"></p>')
 
   expect(() => applyRemoveStruct(elem, 42, 1)).toThrow(/Expected string slot/)
   expect(() => applyRemoveStruct(elem, 'property', 42)).toThrow(
@@ -74,7 +74,7 @@ test('applyRemoveText', () => {
 test('applyRemove', () => {
   // Start with `Article` with one paragraph with some content
   document.body.innerHTML =
-    '<article data-itemscope="root"><div data-itemprop="content"><p>' +
+    '<article data-itemscope="root"><div data-prop="content"><p>' +
     'One <strong>two</strong> three.' +
     '</p></div></article>'
 
@@ -90,7 +90,7 @@ test('applyRemove', () => {
     data-itemscope="root"
   >
     <div
-      data-itemprop="content"
+      data-prop="content"
     >
       <p>
         One 
@@ -116,7 +116,7 @@ test('applyRemove', () => {
     data-itemscope="root"
   >
     <div
-      data-itemprop="content"
+      data-prop="content"
     >
       <p>
         One 
@@ -138,7 +138,7 @@ test('applyRemove', () => {
     data-itemscope="root"
   >
     <div
-      data-itemprop="content"
+      data-prop="content"
     />
   </article>
 </body>

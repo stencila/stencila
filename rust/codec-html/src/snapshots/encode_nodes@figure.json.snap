@@ -1,19 +1,20 @@
 ---
 source: rust/codec-html/src/encode.rs
+assertion_line: 438
 expression: html
 input_file: fixtures/nodes/figure.json
 
 ---
-<figure data-itemscope="root" itemtype="http://schema.stenci.la/Figure" itemscope>
-  <div data-itemprop="content">
-    <img itemtype="http://schema.org/ImageObject" itemscope  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYvhfz0AEYBxVSF+FAA/eDwup9bzCAAAAAElFTkw"/>
+<figure data-root itemtype="https://schema.stenci.la/Figure" itemscope>
+  <div data-prop="content">
+    <img itemtype="https://schema.org/ImageObject" itemscope  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYvhfz0AEYBxVSF+FAA/eDwup9bzCAAAAAElFTkw"/>
   </div>
-  <span data-itemprop="label">Figure 1</span>
-  <figcaption data-itemprop="caption">
-    <h3 itemtype="http://schema.stenci.la/Heading" itemscope>
+  <span data-prop="label">Figure 1</span>
+  <figcaption data-prop="caption">
+    <h3 itemtype="https://schema.stenci.la/Heading" itemscope>
       <span>The caption title</span>
     </h3>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
       <span>The caption paragraph</span>
     </p>
   </figcaption>

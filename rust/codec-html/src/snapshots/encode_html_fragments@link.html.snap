@@ -1,31 +1,31 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 442
+assertion_line: 455
 expression: encoded
 input_file: fixtures/fragments/html/link.html
 
 ---
-<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+<article data-root itemtype="https://schema.org/Article" itemscope>
   <stencila-document-toolbar>
   </stencila-document-toolbar>
-  <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+  <div data-prop="content">
+    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
       <span>A</span>
-      <a itemtype="http://schema.stenci.la/Link" itemscope href="https://stenci.la">
+      <a itemtype="https://schema.stenci.la/Link" itemscope href="https://stenci.la">
         <span>link</span>
       </a>
       <span>.</span>
     </p>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
       <span>A</span>
-      <a itemtype="http://schema.stenci.la/Link" itemscope href="">
+      <a itemtype="https://schema.stenci.la/Link" itemscope href="">
         <span>link</span>
       </a>
       <span>with no target or title.</span>
     </p>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
       <span>A</span>
-      <a itemtype="http://schema.stenci.la/Link" itemscope href="https://stenci.la">
+      <a itemtype="https://schema.stenci.la/Link" itemscope href="https://stenci.la">
         <span>link</span>
       </a>
       <span>with no title.</span>

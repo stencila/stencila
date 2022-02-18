@@ -1,19 +1,19 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 425
+assertion_line: 438
 expression: html
 input_file: fixtures/nodes/heading.json
 
 ---
-<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+<article data-root itemtype="https://schema.org/Article" itemscope>
   <stencila-document-toolbar>
   </stencila-document-toolbar>
   <h1 itemprop="headline">Some headings</h1>
-  <div data-itemprop="content">
-    <h2 itemtype="http://schema.stenci.la/Heading" itemscope>
+  <div data-prop="content">
+    <h2 itemtype="https://schema.stenci.la/Heading" itemscope>
       <span>The heading one content</span>
     </h2>
-    <h3 itemtype="http://schema.stenci.la/Heading" itemscope>
+    <h3 itemtype="https://schema.stenci.la/Heading" itemscope>
       <span>The heading two content</span>
     </h3>
   </div>

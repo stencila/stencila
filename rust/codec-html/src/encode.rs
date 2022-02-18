@@ -1,7 +1,8 @@
 use codec::{eyre::Result, EncodeOptions};
 use html_escape::{encode_double_quoted_attribute, encode_safe};
 use inflector::cases::{camelcase::to_camel_case, kebabcase::to_kebab_case};
-use std::any::type_name;
+use once_cell::sync::Lazy;
+use std::{any::type_name, collections::HashMap};
 use stencila_schema::*;
 
 /// Encode a `Node` to a HTML document
@@ -34,11 +35,11 @@ pub fn encode_root(node: &Node, options: Option<EncodeOptions>) -> String {
     let context = EncodeContext { root: node, bundle };
     let html = node.to_html(&context);
 
-    // Add the `data-itemscope="root"` attribute.
+    // Add the `data-root` attribute.
     // This is currently used in `themes` (for CSS scope) and in `web` (for address resolution).
     // This is a bit hacky and there may be a better approach. Or we may find
     // a way of avoid this entirely.
-    let html = html.replacen(" ", " data-itemscope=\"root\" ", 1);
+    let html = html.replacen(" ", " data-root ", 1);
 
     if compact {
         html
@@ -267,25 +268,33 @@ fn attr_prop(name: &str) -> String {
     if name.is_empty() {
         "".to_string()
     } else {
-        attr("data-itemprop", &to_camel_case(name))
+        attr("data-prop", &to_camel_case(name))
     }
 }
+
+/// A mapping of type and property names to their `itemtype` or `itemprop` values
+static IDS: Lazy<HashMap<String, String>> = Lazy::new(|| {
+    stencila_schema::IDS
+        .iter()
+        .map(|(name, id)| (name.to_string(), id.to_string()))
+        .collect()
+});
 
 /// Encode the "itemtype" attribute of an HTML element
 ///
 /// Prefer to use `attr_itemtype::<Type>` but use this when the
 /// itemtype should differ from the Rust type name.
 /// Note: there should always be a sibling "itemscope" attribute on the
-/// element so that is added.
+/// element so that is always added.
 fn attr_itemtype_str(name: &str) -> String {
-    let itemtype = match name {
-        // TODO: complete list of schema.org types
-        "Article" | "AudioObject" | "ImageObject" | "VideoObject" | "Text" => {
-            ["http://schema.org/", name].concat()
-        }
-        _ => ["http://schema.stenci.la/", name].concat(),
+    if name.is_empty() {
+        return "".to_string();
+    }
+    let itemtype = match IDS.get(name) {
+        Some(url) => url,
+        _ => name,
     };
-    [&attr("itemtype", &itemtype), " itemscope"].concat()
+    [&attr("itemtype", itemtype), " itemscope"].concat()
 }
 
 /// Encode the "itemtype" attribute of an HTML element using the type of node
@@ -302,13 +311,17 @@ fn attr_itemtype<Type>() -> String {
 
 /// Encode a "itemprop" attribute of an HTML element
 ///
-/// Will ensure that the itemprop is camelCased.
+/// Will ensure that the itemprop value is (a) translated to a valid itemprop
+/// based on the schema (b) is camelCased.
 fn attr_itemprop(itemprop: &str) -> String {
     if itemprop.is_empty() {
-        "".to_string()
-    } else {
-        attr("itemprop", &to_camel_case(itemprop))
+        return "".to_string();
     }
+    let itemprop = IDS
+        .get(itemprop)
+        .map_or_else(|| itemprop, |itemprop| itemprop);
+    let itemprop = to_camel_case(itemprop);
+    attr("itemprop", &itemprop)
 }
 
 /// Encode a node `id` as the "id" attribute of an HTML element

@@ -43,7 +43,7 @@ export function codeChunk(): NodeSpec {
     },
     parseDOM: [
       {
-        tag: '[itemtype="http://schema.stenci.la/CodeChunk"]',
+        tag: '[itemtype="https://schema.stenci.la/CodeChunk"]',
         preserveWhitespace: 'full',
         contentElement: 'code',
         getAttrs(dom) {

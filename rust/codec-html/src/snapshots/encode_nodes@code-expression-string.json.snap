@@ -1,20 +1,20 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 425
+assertion_line: 438
 expression: html
 input_file: fixtures/nodes/code-expression-string.json
 
 ---
-<stencila-code-expression data-itemscope="root" itemtype="http://schema.stenci.la/CodeExpression" itemscope programming-language="r">
+<stencila-code-expression data-root itemtype="https://schema.stenci.la/CodeExpression" itemscope programming-language="r">
   <meta itemprop="programmingLanguage" content="r"/>
-  <code data-itemprop="text" slot="text">print(&#x27;foo&#x27;)</code>
+  <code data-prop="text" slot="text">print(&#x27;foo&#x27;)</code>
   <stencila-code-dependencies slot="code-dependencies">
-    <span data-itemprop="codeDependencies">
+    <span data-prop="codeDependencies">
     </span>
   </stencila-code-dependencies>
-  <output data-itemprop="output" slot="output">
-    <span itemtype="http://schema.org/Text" itemscope>foo</span>
+  <output data-prop="output" slot="output">
+    <span itemtype="https://schema.org/Text" itemscope>foo</span>
   </output>
-  <span data-itemprop="errors" slot="errors">
+  <span data-prop="errors" slot="errors">
   </span>
 </stencila-code-expression>

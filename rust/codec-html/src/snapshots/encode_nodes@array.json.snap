@@ -1,38 +1,39 @@
 ---
 source: rust/codec-html/src/encode.rs
+assertion_line: 438
 expression: html
 input_file: fixtures/nodes/array.json
 
 ---
-<stencila-array data-itemscope="root" itemtype="http://schema.stenci.la/Array" itemscope>
+<stencila-array data-root itemtype="https://schema.stenci.la/Array" itemscope>
   <ol slot="items">
     <li>
-      <span itemtype="http://schema.stenci.la/Null" itemscope>null</span>
+      <span itemtype="https://schema.stenci.la/Null" itemscope>null</span>
     </li>
     <li>
-      <span itemtype="http://schema.stenci.la/Boolean" itemscope>true</span>
+      <span itemtype="https://schema.org/Boolean" itemscope>true</span>
     </li>
     <li>
-      <span itemtype="http://schema.stenci.la/Boolean" itemscope>false</span>
+      <span itemtype="https://schema.org/Boolean" itemscope>false</span>
     </li>
     <li>
-      <span itemtype="http://schema.stenci.la/Integer" itemscope>1</span>
+      <span itemtype="https://schema.org/Integer" itemscope>1</span>
     </li>
     <li>
-      <span itemtype="http://schema.stenci.la/Number" itemscope>1.23</span>
+      <span itemtype="https://schema.org/Number" itemscope>1.23</span>
     </li>
     <li>
-      <span itemtype="http://schema.stenci.la/Number" itemscope>1000000</span>
+      <span itemtype="https://schema.org/Number" itemscope>1000000</span>
     </li>
     <li>a</li>
     <li>
-      <stencila-array itemtype="http://schema.stenci.la/Array" itemscope>
+      <stencila-array itemtype="https://schema.stenci.la/Array" itemscope>
         <ol slot="items">
           <li>
-            <span itemtype="http://schema.stenci.la/Integer" itemscope>1</span>
+            <span itemtype="https://schema.org/Integer" itemscope>1</span>
           </li>
           <li>
-            <stencila-array itemtype="http://schema.stenci.la/Array" itemscope>
+            <stencila-array itemtype="https://schema.stenci.la/Array" itemscope>
               <ol slot="items">
               </ol>
             </stencila-array>
@@ -41,11 +42,11 @@ input_file: fixtures/nodes/array.json
       </stencila-array>
     </li>
     <li>
-      <stencila-object itemtype="http://schema.stenci.la/Object" itemscope>
+      <stencila-object itemtype="https://schema.stenci.la/Object" itemscope>
         <dl slot="pairs">
           <dt>a</dt>
           <dd>
-            <span itemtype="http://schema.stenci.la/Integer" itemscope>1</span>
+            <span itemtype="https://schema.org/Integer" itemscope>1</span>
           </dd>
           <dt>b</dt>
           <dd>b</dd>

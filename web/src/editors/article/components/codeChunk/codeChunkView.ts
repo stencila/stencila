@@ -37,7 +37,7 @@ export class CodeChunkView implements NodeView {
     this.incomingChanges = false
 
     this.dom = document.createElement('stencila-code-chunk')
-    this.dom.setAttribute('itemtype', 'http://schema.stenci.la/CodeChunk')
+    this.dom.setAttribute('itemtype', 'https://schema.stenci.la/CodeChunk')
 
     if (typeof node.attrs.id === 'string' && node.attrs.id !== '') {
       this.dom.setAttribute('id', node.attrs.id)

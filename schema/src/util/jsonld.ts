@@ -33,14 +33,14 @@ function initMaps(): void {
  *
  * The `@context`'s URL needs to have a trailing slash because
  * it gets prefixed to all keys during JSON-LD expansion.
- * e.g. the term `CodeChunk` gets expanded to `http://schema.stenci.la/v0/jsonld/CodeChunk`
+ * e.g. the term `CodeChunk` gets expanded to `https://schema.stenci.la/v0/jsonld/CodeChunk`
  * (which in gets redirected to `https://unpkg.com/@stencila/schema@0.32.1/dist/CodeChunk.jsonld`)
  *
  * @param term The Stencila term (type or property) to generate the
  *             URL for. Defaults to empty string i.e. the context.
  */
 export function jsonLdUrl(term = ''): string {
-  return `http://schema.stenci.la/v${versionMajor}/jsonld/${term}`
+  return `https://schema.stenci.la/v${versionMajor}/jsonld/${term}`
 }
 
 /**
@@ -72,7 +72,7 @@ export function jsonLdContext(): typeof CONTEXT {
  * to those used in other schemas (e.g. Schema.org, Bioschemas).
  * The [compact IRIs](https://www.w3.org/TR/json-ld11/#compact-iris)
  * in the `@context` e.g. `schema:Person` are expanded to a URL
- * e.g. `http://schema.org/Person` suitable for the `itemtype` attribute.
+ * e.g. `https://schema.org/Person` suitable for the `itemtype` attribute.
  *
  * @param term A term in the JSON-LD `@context`. May, or may not be in
  *             the `stencila` namespace
