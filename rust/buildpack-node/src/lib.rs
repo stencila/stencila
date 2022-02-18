@@ -21,9 +21,8 @@ use buildpack::{
         layer_env::{LayerEnv, ModificationBehavior, Scope},
         Buildpack,
     },
-    tracing, BuildpackTrait, SYSTEM_INSTALLED,
+    tracing, BuildpackTrait, LayerHashMetadata, LayerVersionMetadata, SYSTEM_INSTALLED,
 };
-use serde::{Deserialize, Serialize};
 
 pub struct NodeBuildpack;
 
@@ -146,7 +145,7 @@ impl Buildpack for NodeBuildpack {
 }
 
 struct NodeLayer {
-    // The semantic version requirement for the Node.js binary
+    /// The semantic version requirement for the `node` binary
     requirement: String,
 }
 
@@ -174,7 +173,7 @@ impl NodeLayer {
 
 impl Layer for NodeLayer {
     type Buildpack = NodeBuildpack;
-    type Metadata = GenericMetadata;
+    type Metadata = LayerVersionMetadata;
 
     fn types(&self) -> LayerTypes {
         LayerTypes {
@@ -189,10 +188,11 @@ impl Layer for NodeLayer {
         _context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
-        let installed = NodeBinary {}.installed_at(
-            &layer_data.path.join("bin").join("node"),
-            Some(self.requirement.clone()),
+        let installed = NodeBinary {}.semver_version_matches(
+            &layer_data.content_metadata.metadata.version,
+            &self.requirement,
         )?;
+
         let strategy = if installed {
             tracing::info!(
                 "Existing `node` layer has `./bin/node` matching semver requirement `{}`; will keep",
@@ -220,7 +220,7 @@ impl Layer for NodeLayer {
         );
 
         let node = NodeBinary {}.require_sync(Some(self.requirement.clone()), true)?;
-        let version = node.version()?;
+        let version = node.version()?.to_string();
 
         if is_local_build(context) {
             if node.is_stencila_install() {
@@ -250,42 +250,40 @@ impl Layer for NodeLayer {
         } else {
             #[allow(clippy::collapsible_else_if)]
             if node.is_stencila_install() {
-                tracing::info!("Using `node {}` installed by Stencila", version);
+                tracing::info!("Moving `node {}` installed by Stencila", version);
                 let source = node.grandparent()?;
 
-                copy_dir_all(source, layer_path)?;
+                copy_dir_all(&source, layer_path)?;
+                remove_dir_all(source)?;
             } else {
-                tracing::info!("Using `node {}` installed on stack image", version);
+                tracing::info!("Linking to `node {}` installed on stack image", version);
+                let source = node.grandparent()?;
+
+                symlink_dir(source.join("bin"), &layer_path.join("bin"))?;
+                symlink_dir(source.join("lib"), &layer_path.join("lib"))?;
             }
         }
 
-        LayerResultBuilder::new(GenericMetadata::default()).build()
+        LayerResultBuilder::new(LayerVersionMetadata { version }).build()
     }
 }
 
 struct NodeModulesLayer;
 
-#[derive(Clone, Serialize, Deserialize)]
-struct NodeModulesLayerMetadata {
-    package_hash: String,
-}
-
-impl NodeModulesLayerMetadata {
-    /// Generate `package_hash` string for an app directory
-    ///
-    /// If the directory has a `package-lock.json` that will be used. If not
-    /// `package.json` will be used. This means that if the user removes
-    /// or updates `package-lock.json` the layer will be updated. If there is no lock file
-    /// then the layer will only be updated if there are changes in `package.json`.
-    fn generate_package_hash(app_dir: &Path) -> Result<String, eyre::Report> {
-        file_sha256_hex(app_dir.join(PACKAGE_LOCK))
-            .or_else(|_| file_sha256_hex(app_dir.join(PACKAGE_JSON)))
-    }
+/// Generate `package_hash` string for an app directory
+///
+/// If the directory has a `package-lock.json` that will be used. If not
+/// `package.json` will be used. This means that if the user removes
+/// or updates `package-lock.json` the layer will be updated. If there is no lock file
+/// then the layer will only be updated if there are changes in `package.json`.
+fn generate_package_hash(app_dir: &Path) -> Result<String, eyre::Report> {
+    file_sha256_hex(app_dir.join(PACKAGE_LOCK))
+        .or_else(|_| file_sha256_hex(app_dir.join(PACKAGE_JSON)))
 }
 
 impl Layer for NodeModulesLayer {
     type Buildpack = NodeBuildpack;
-    type Metadata = NodeModulesLayerMetadata;
+    type Metadata = LayerHashMetadata;
 
     fn types(&self) -> LayerTypes {
         LayerTypes {
@@ -300,9 +298,8 @@ impl Layer for NodeModulesLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
-        let package_hash =
-            NodeModulesLayerMetadata::generate_package_hash(&context.app_dir).unwrap_or_default();
-        let strategy = if package_hash == layer_data.content_metadata.metadata.package_hash {
+        let package_hash = generate_package_hash(&context.app_dir).unwrap_or_default();
+        let strategy = if package_hash == layer_data.content_metadata.metadata.hash {
             tracing::info!("Existing `node_modules` layer has same package hash; will keep",);
             ExistingLayerStrategy::Keep
         } else {
@@ -336,7 +333,7 @@ impl NodeModulesLayer {
         &self,
         context: &BuildContext<NodeBuildpack>,
         layer_path: &Path,
-    ) -> Result<LayerResult<NodeModulesLayerMetadata>, eyre::Report> {
+    ) -> Result<LayerResult<LayerHashMetadata>, eyre::Report> {
         // Use `node` and `npm` installed in the `node` layer
         let node_layer = layer_path
             .canonicalize()?
@@ -359,12 +356,12 @@ impl NodeModulesLayer {
         // Call the `npm-cli.js` script installed in the `node` layer
         // This is done, rather than executing `bin/npm` directly there are issues with node `require`
         // module resolution when the latter is used.
-        let node = BinaryInstallation {
-            name: "node".into(),
-            path: node_layer.join("bin").join("node"),
-            env: envs,
-            ..Default::default()
-        };
+        let node = BinaryInstallation::new(
+            "node".into(),
+            node_layer.join("bin").join("node"),
+            None,
+            envs,
+        );
         let npm = node_layer
             .join("lib")
             .join(NODE_MODULES)
@@ -394,7 +391,7 @@ impl NodeModulesLayer {
         }
 
         // Generate a 'package hash' to be able to tell if layer is stale in `existing_layer_strategy`
-        let package_hash = NodeModulesLayerMetadata::generate_package_hash(&context.app_dir)?;
+        let hash = generate_package_hash(&context.app_dir)?;
 
         let mut layer_env = LayerEnv::new();
 
@@ -419,7 +416,7 @@ impl NodeModulesLayer {
             );
         }
 
-        LayerResultBuilder::new(NodeModulesLayerMetadata { package_hash })
+        LayerResultBuilder::new(LayerHashMetadata { hash })
             .env(layer_env)
             .build()
     }
