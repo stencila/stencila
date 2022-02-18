@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use binary::{
     async_trait::async_trait,
     binary_clone_box,
@@ -21,7 +23,13 @@ impl BinaryTrait for PandocBinary {
             .map(|versions| semver_versions_matching(versions, ">=2.14"))
     }
 
-    async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
+    async fn install_version(
+        &self,
+        version: &str,
+        os: &str,
+        arch: &str,
+        dest: &Path,
+    ) -> Result<()> {
         // Map standard semver triples to Pandoc's version numbers (if they differ).
         // See https://github.com/jgm/pandoc/releases for mappings.
         let version = match version {
@@ -47,9 +55,8 @@ impl BinaryTrait for PandocBinary {
         };
         let archive = self.download(&url, None, None).await?;
 
-        let dest = self.dir(Some(version.into()), true)?;
-        self.extract(&archive, 1, &dest)?;
-        self.executables(&dest, &["bin/pandoc", "pandoc.exe"])?;
+        self.extract(&archive, 1, dest)?;
+        self.executables(dest, &["bin/pandoc", "pandoc.exe"])?;
 
         Ok(())
     }

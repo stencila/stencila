@@ -57,7 +57,13 @@ impl BinaryTrait for ChromeBinary {
         spec.version(path)
     }
 
-    async fn install_version(&self, version: &str, os: &str, _arch: &str) -> Result<()> {
+    async fn install_version(
+        &self,
+        version: &str,
+        os: &str,
+        _arch: &str,
+        dest: &Path,
+    ) -> Result<()> {
         // Chrome uses a peculiar version system with the build number
         // at the third position and not every build for every OS. So, use minor version
         // for mapping
@@ -83,9 +89,8 @@ impl BinaryTrait for ChromeBinary {
         let filename = format!("chrome-v{version}-{os}.zip", version = version, os = os);
         let archive = self.download(&url, Some(filename), None).await?;
 
-        let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 1, &self.dir(Some(version.into()), true)?)?;
-        self.executables(&dest, &["chrome", "chrome.exe"])?;
+        self.executables(dest, &["chrome", "chrome.exe"])?;
 
         Ok(())
     }

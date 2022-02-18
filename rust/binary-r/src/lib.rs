@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use binary::{
     async_trait::async_trait,
     binary_clone_box,
@@ -32,7 +34,13 @@ impl BinaryTrait for RBinary {
         Ok(versions)
     }
 
-    async fn install_version(&self, version: &str, os: &str, _arch: &str) -> Result<()> {
+    async fn install_version(
+        &self,
+        version: &str,
+        os: &str,
+        _arch: &str,
+        _dest: &Path,
+    ) -> Result<()> {
         if os == "linux" || os == "macos" {
             let asdf = AsdfBinary {}.require(None, true).await?;
             asdf.run(&["plugin", "add", "R"]).await?;

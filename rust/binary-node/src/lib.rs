@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use binary::{
     async_trait::async_trait,
     binary_clone_box,
@@ -27,7 +29,13 @@ impl BinaryTrait for NodeBinary {
             .map(|versions| semver_versions_matching(versions, ">=10"))
     }
 
-    async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
+    async fn install_version(
+        &self,
+        version: &str,
+        os: &str,
+        arch: &str,
+        dest: &Path,
+    ) -> Result<()> {
         let url = format!(
             "https://nodejs.org/dist/v{version}/node-v{version}-",
             version = version
@@ -48,10 +56,9 @@ impl BinaryTrait for NodeBinary {
         };
         let archive = self.download(&url, None, None).await?;
 
-        let dest = self.dir(Some(version.into()), true)?;
-        self.extract(&archive, 1, &dest)?;
+        self.extract(&archive, 1, dest)?;
         self.executables(
-            &dest,
+            dest,
             &["bin/node", "bin/npm", "bin/npx", "node.exe", "npm", "npx"],
         )?;
 

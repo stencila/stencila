@@ -121,7 +121,7 @@ pub async fn install(name: &str, semver: &str) -> Result<BinaryInstallation> {
         Some(binary) => binary,
         None => bail!("Unable to automatically install binary `{}`", name),
     };
-    binary.install(semver.clone(), None, None).await?;
+    binary.install(semver.clone(), None, None, None).await?;
 
     if let Some(installation) = binary.installed(semver)? {
         let mut installations = INSTALLATIONS.write().await;
@@ -354,7 +354,12 @@ pub mod commands {
             match registered(&self.name) {
                 Some(binary) => {
                     binary
-                        .install(self.semver.clone(), self.os.clone(), self.arch.clone())
+                        .install(
+                            self.semver.clone(),
+                            self.os.clone(),
+                            self.arch.clone(),
+                            None,
+                        )
                         .await?;
                 }
                 None => {

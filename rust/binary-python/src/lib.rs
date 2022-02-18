@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use binary::{
     async_trait::async_trait,
     binary_clone_box,
@@ -31,11 +33,17 @@ impl BinaryTrait for PythonBinary {
         Ok(versions)
     }
 
-    async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
+    async fn install_version(
+        &self,
+        version: &str,
+        os: &str,
+        arch: &str,
+        dest: &Path,
+    ) -> Result<()> {
         // On Linux or Mac use `asdf` to install
         if os == "linux" || os == "macos" {
             AsdfBinary::install("python", version).await
-        } else {
+        } else if os == "windows" {
             // On Windows uses Python's "embeddable" distributions intended for this purpose.
             let url = format!(
                 "https://www.python.org/ftp/python/{version}/python-{version}-embed-",
@@ -47,9 +55,13 @@ impl BinaryTrait for PythonBinary {
             };
             let archive = self.download(&url, None, None).await?;
 
-            let dest = self.dir(Some(version.into()), true)?;
-            self.extract(&archive, 0, &dest)?;
-            self.executables(&dest, &["bin/python3", "python3.exe"])
+            self.extract(&archive, 0, dest)?;
+            self.executables(dest, &["bin/python3", "python3.exe"])
+        } else {
+            bail!(
+                "Installation of `python` for operating system `{}` is not supported",
+                os
+            );
         }
     }
 }

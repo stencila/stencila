@@ -1,3 +1,5 @@
+use std::path::Path;
+
 pub use binary::BinaryTrait;
 use binary::{
     async_trait::async_trait,
@@ -22,7 +24,13 @@ impl BinaryTrait for PackBinary {
             .map(|versions| semver_versions_matching(versions, ">=0.20"))
     }
 
-    async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
+    async fn install_version(
+        &self,
+        version: &str,
+        os: &str,
+        arch: &str,
+        dest: &Path,
+    ) -> Result<()> {
         let url = format!(
             "https://github.com/buildpacks/pack/releases/download/v{version}/pack-v{version}-",
             version = version
@@ -40,9 +48,8 @@ impl BinaryTrait for PackBinary {
         };
         let archive = self.download(&url, None, None).await?;
 
-        let dest = self.dir(Some(version.into()), true)?;
-        self.extract(&archive, 0, &dest)?;
-        self.executables(&dest, &["pack"])?;
+        self.extract(&archive, 0, dest)?;
+        self.executables(dest, &["pack"])?;
 
         Ok(())
     }

@@ -1,4 +1,4 @@
-use std::{env, ffi::OsString, fs};
+use std::{env, ffi::OsString, fs, path::Path};
 
 use binary::{
     async_trait::async_trait,
@@ -49,7 +49,13 @@ impl BinaryTrait for AsdfBinary {
         Vec::new()
     }
 
-    async fn install_version(&self, version: &str, os: &str, _arch: &str) -> Result<()> {
+    async fn install_version(
+        &self,
+        version: &str,
+        os: &str,
+        _arch: &str,
+        dest: &Path,
+    ) -> Result<()> {
         if os == "windows" {
             bail!("`asdf` can not be install on Windows")
         }
@@ -61,9 +67,8 @@ impl BinaryTrait for AsdfBinary {
         let filename = format!("asdf-v{version}.tar.gz", version = version);
         let archive = self.download(&url, Some(filename), None).await?;
 
-        let dest = self.dir(Some(version.into()), true)?;
-        self.extract(&archive, 1, &dest)?;
-        self.executables(&dest, &["bin/asdf"])?;
+        self.extract(&archive, 1, dest)?;
+        self.executables(dest, &["bin/asdf"])?;
 
         // TODO: use a setting to determine the keep downloads policy for both Stencila and asdf
         fs::write(dest.join(".asdfrc"), "always_keep_download = yes\n")?;
@@ -73,11 +78,11 @@ impl BinaryTrait for AsdfBinary {
 }
 
 impl AsdfBinary {
-    /// List all versions for an `asdf` plugin
-    pub async fn list_all(plugin: &str) -> Result<Vec<String>> {
+    /// List all versions for an `asdf` package
+    pub async fn list_all(package: &str) -> Result<Vec<String>> {
         let asdf = AsdfBinary {}.require(None, true).await?;
-        asdf.run(&["plugin", "add", plugin]).await?;
-        let output = asdf.run(&["list", "all", plugin]).await?;
+        asdf.run(&["plugin", "add", package]).await?;
+        let output = asdf.run(&["list", "all", package]).await?;
 
         let versions: Vec<String> = std::str::from_utf8(&output.stdout)?
             .lines()
@@ -87,11 +92,15 @@ impl AsdfBinary {
         Ok(versions)
     }
 
-    /// Install a version for an `asdf` plugin
-    pub async fn install(plugin: &str, version: &str) -> Result<()> {
+    /// Install a version for an `asdf` package
+    ///
+    /// Calls `uninstall` first because even with an empty directory it
+    /// will consider it is already installed and do nothing.
+    pub async fn install(package: &str, version: &str) -> Result<()> {
         let asdf = AsdfBinary {}.require(None, true).await?;
-        asdf.run(&["plugin", "add", plugin]).await?;
-        asdf.run(&["install", plugin, version]).await?;
+        asdf.run(&["plugin", "add", package]).await?;
+        asdf.run(&["uninstall", package, version]).await?;
+        asdf.run(&["install", package, version]).await?;
         Ok(())
     }
 }

@@ -4,7 +4,6 @@ use eyre::{bail, eyre, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
-use std::ffi::{OsStr, OsString};
 #[allow(unused_imports)]
 use std::{
     cmp::Ordering,
@@ -16,6 +15,10 @@ use std::{
     path::{Path, PathBuf},
     process::{Output, Stdio},
     str::FromStr,
+};
+use std::{
+    collections::HashMap,
+    ffi::{OsStr, OsString},
 };
 
 /// Re-exports for the convenience of crates implementing `BinaryTrait`
@@ -39,6 +42,8 @@ pub fn semver_version(string: impl AsRef<str>) -> Result<semver::Version> {
 
 /// Parse a string as a semantic version requirement
 ///
+/// If the string is blank then semver `*` is assumed.
+///
 /// If the string has no operator prefix (e.g. "="), that is, it is a version, not a requirement,
 /// then a semver operator is added as follows:
 ///
@@ -47,15 +52,21 @@ pub fn semver_version(string: impl AsRef<str>) -> Result<semver::Version> {
 /// - `x` =>  `^x`
 pub fn semver_requirement(string: impl AsRef<str>) -> Result<semver::VersionReq> {
     let string = string.as_ref();
-    let op = string.chars().next().unwrap_or(' ');
-    let string = match "=^~><*".matches(op).count() {
-        0 => match string.matches('.').count() {
-            2 => ["=", string].concat(),
-            1 => ["~", string].concat(),
-            _ => ["^", string].concat(),
-        },
-        _ => string.to_string(),
+
+    let string = if string.trim().is_empty() {
+        "*".to_string()
+    } else {
+        let op = string.chars().next().unwrap_or(' ');
+        match "=^~><*".matches(op).count() {
+            0 => match string.matches('.').count() {
+                2 => ["=", string].concat(),
+                1 => ["~", string].concat(),
+                _ => ["^", string].concat(),
+            },
+            _ => string.to_string(),
+        }
     };
+
     Ok(semver::VersionReq::parse(&string)?)
 }
 
@@ -126,7 +137,7 @@ impl Binary {
         Binary::new(name, &[], &[])
     }
 
-    /// Get the directory where versions of a binary are installed
+    /// Get the directory where versions of a binary are installed by default
     fn dir(&self, version: Option<String>, ensure: bool) -> Result<PathBuf> {
         let dir = binaries_dir().join("installs").join(&self.name);
         let dir = if let Some(version) = version {
@@ -273,10 +284,10 @@ pub trait BinaryTrait: Send + Sync {
             None => {
                 let spec = self.spec();
                 if install {
-                    self.install(requirement.clone(), None, None).await?;
+                    self.install(requirement.clone(), None, None, None).await?;
                     match self.installed(requirement.clone())? {
                         Some(installation) => Ok(installation),
-                        None => bail!("Failed to automatically install `{}`", spec.name),
+                        None => bail!("Failed to get new installation `{}`", spec.name),
                     }
                 } else {
                     bail!(
@@ -498,6 +509,7 @@ pub trait BinaryTrait: Send + Sync {
         requirement: Option<String>,
         os: Option<String>,
         arch: Option<String>,
+        dest: Option<PathBuf>,
     ) -> Result<()> {
         let os = os.unwrap_or_else(|| OS.to_string());
         let arch = arch.unwrap_or_else(|| ARCH.to_string());
@@ -526,10 +538,23 @@ pub trait BinaryTrait: Send + Sync {
                 false => None,
             }
         }) {
+            // Set install time env vars
             for (name, value) in self.install_env(Some(version.to_string())) {
                 env::set_var(name, value)
             }
-            self.install_version(version, &os, &arch).await?;
+
+            // Ensure that the destination directory to exists
+            let default_dest = self.dir(Some(version.to_string()), false)?;
+            let dest = dest.unwrap_or(default_dest);
+            fs::create_dir_all(&dest)?;
+            let dest = dest.canonicalize()?;
+
+            // Call the implementation
+            self.install_version(version, &os, &arch, &dest).await?;
+
+            tracing::info!("Installed `{} {}` to `{}`", name, version, dest.display());
+
+            Ok(())
         } else {
             bail!(
                 "Sorry, I don't know how to install `{}` with version requirement `{}`. See `stencila binaries versions {}` or perhaps install it manually?",
@@ -538,16 +563,35 @@ pub trait BinaryTrait: Send + Sync {
                 name
             )
         }
+    }
 
-        tracing::info!("Installed `{}`", name);
-
-        Ok(())
+    /// Require a binary (synchronously)
+    fn install_sync(
+        &self,
+        requirement: Option<String>,
+        os: Option<String>,
+        arch: Option<String>,
+        dest: Option<PathBuf>,
+    ) -> Result<()> {
+        let clone = self.clone_box();
+        let (sender, receiver) = std::sync::mpsc::channel();
+        tokio::spawn(async move {
+            let result = clone.install(requirement, os, arch, dest).await;
+            sender.send(result)
+        });
+        receiver.recv()?
     }
 
     /// Install a specific version of the binary
     ///
     /// Implementations of this trait will usually override this method.
-    async fn install_version(&self, _version: &str, _os: &str, _arch: &str) -> Result<()> {
+    async fn install_version(
+        &self,
+        _version: &str,
+        _os: &str,
+        _arch: &str,
+        _dest: &Path,
+    ) -> Result<()> {
         let spec = self.spec();
         bail!(
             "Installation of binary `{}` has not been implemented",
@@ -830,7 +874,25 @@ pub struct BinaryInstallation {
     pub version: Option<String>,
 
     /// The environment variables to set before the binary is executed
+    #[serde(serialize_with = "serialize_env")]
     pub env: Vec<(OsString, OsString)>,
+}
+
+/// Serialize the `env` property because `OSString` serialization is not human readable.
+fn serialize_env<S>(env: &[(OsString, OsString)], serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let env: HashMap<String, String> = env
+        .iter()
+        .map(|(key, value)| {
+            (
+                key.to_string_lossy().to_string(),
+                value.to_string_lossy().to_string(),
+            )
+        })
+        .collect();
+    env.serialize(serializer)
 }
 
 impl BinaryInstallation {

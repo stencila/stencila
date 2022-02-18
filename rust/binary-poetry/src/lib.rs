@@ -1,4 +1,5 @@
 use std::ffi::OsString;
+use std::path::Path;
 
 use binary::{
     async_trait::async_trait, binary_clone_box, eyre::Result, semver_versions_matching, tracing,
@@ -24,7 +25,13 @@ impl BinaryTrait for PoetryBinary {
             .map(|versions| semver_versions_matching(versions, ">=0.12"))
     }
 
-    async fn install_version(&self, version: &str, _os: &str, _arch: &str) -> Result<()> {
+    async fn install_version(
+        &self,
+        version: &str,
+        _os: &str,
+        _arch: &str,
+        dest: &Path,
+    ) -> Result<()> {
         let script = self
             .download(
                 "https://install.python-poetry.org",
@@ -32,18 +39,21 @@ impl BinaryTrait for PoetryBinary {
                 None,
             )
             .await?;
-        let home = self.dir(Some(version.to_string()), true)?;
 
-        tracing::info!("Running install-poetry.py");
+        tracing::info!(
+            "Running `install-poetry.py` to install Poetry `{}` to `{}`",
+            version,
+            dest.display()
+        );
         let mut python = PythonBinary {}
             .require(Some(">=3.6".to_string()), true)
             .await?;
         python.envs(&[
-            ("POETRY_HOME", home.into_os_string()),
+            ("POETRY_HOME", dest.into()),
             ("POETRY_VERSION", OsString::from(version)),
             ("POETRY_ACCEPT", OsString::from("yes")),
         ]);
-        let _output = python.run(&[&script.display().to_string()]).await?;
+        python.run(&[&script.display().to_string()]).await?;
 
         Ok(())
     }

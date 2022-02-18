@@ -1,3 +1,5 @@
+use std::path::Path;
+
 pub use binary::BinaryTrait;
 use binary::{
     async_trait::async_trait,
@@ -22,7 +24,13 @@ impl BinaryTrait for PodmanBinary {
             .map(|versions| semver_versions_matching(versions, ">=3"))
     }
 
-    async fn install_version(&self, version: &str, os: &str, _arch: &str) -> Result<()> {
+    async fn install_version(
+        &self,
+        version: &str,
+        os: &str,
+        _arch: &str,
+        dest: &Path,
+    ) -> Result<()> {
         let suffix = match os {
             "linux" => "static.tar.gz",
             "macos" => "release-darwin.zip",
@@ -39,9 +47,8 @@ impl BinaryTrait for PodmanBinary {
         let filename = ["podman-remote-", version, "-", suffix].concat();
         let archive = self.download(&url, Some(filename), None).await?;
 
-        let dest = self.dir(Some(version.into()), true)?;
-        self.extract(&archive, 0, &dest)?;
-        self.executables(&dest, &["podman"])?;
+        self.extract(&archive, 0, dest)?;
+        self.executables(dest, &["podman"])?;
 
         Ok(())
     }
