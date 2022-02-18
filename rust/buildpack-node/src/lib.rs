@@ -1,24 +1,29 @@
 use std::{
-    fs,
+    ffi::OsString,
+    fs::{self, remove_dir_all},
     path::{Path, PathBuf},
 };
 
 use binary_node::{BinaryInstallation, BinaryTrait, NodeBinary};
 use buildpack::{
     eyre::{self, bail, eyre},
-    fs_utils::{clear_dir_all, copy_dir_all, symlink_dir, symlink_file},
+    fs_utils::{copy_dir_all, symlink_dir, symlink_file},
+    hash_utils::file_sha256_hex,
+    is_cnb_build, is_local_build,
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
         data::{build_plan::BuildPlan, layer_content_metadata::LayerTypes, layer_name},
         detect::{DetectContext, DetectResult, DetectResultBuilder},
         generic::{GenericMetadata, GenericPlatform},
-        layer::{Layer, LayerResult, LayerResultBuilder},
+        layer::{ExistingLayerStrategy, Layer, LayerResult, LayerResultBuilder},
+        layer_env::{LayerEnv, ModificationBehavior, Scope},
         Buildpack,
         Error::BuildpackError,
     },
-    platform_is_stencila, tracing, BuildpackTrait, SYSTEM_INSTALLED,
+    tracing, BuildpackTrait, SYSTEM_INSTALLED,
 };
+use serde::{Deserialize, Serialize};
 
 pub struct NodeBuildpack;
 
@@ -143,20 +148,32 @@ impl Buildpack for NodeBuildpack {
 }
 
 struct NodeLayer {
-    /// A string describing the version, of Node.js to install
-    ///
-    /// This could be a well formed semantic version (e.g 14.0.1),
-    /// a semver requirement (e.g. ^14.0), or an alias (e.g. `lts`).
-    /// The `create` method aim to convert them all to a semver requirement.
-    versionish: String,
+    // The semantic version requirement for the Node.js binary
+    requirement: String,
 }
 
 impl NodeLayer {
     fn new(args: Vec<String>) -> Self {
-        NodeLayer {
-            // Join args with commas because semver requirement parser expects it to be so
-            versionish: args.join(","),
+        // Join args with commas because semver requirement parser expects that is
+        // how parts of a requirement are separated
+        let versionish = args.join(",");
+
+        // Determine the semver requirement from versionish which could be a well formed semantic version (e.g 14.0.1),
+        // a semver requirement (e.g. ^14.0), or an alias (e.g. `lts`)
+        let mut requirement = if let Some(version) = versionish.strip_prefix('v') {
+            version.to_string()
+        } else if versionish == "lts" {
+            // TODO: Determine LTS without doing a fetch, perhaps based on date
+            // https://nodejs.org/en/about/releases/
+            "^16".to_string()
+        } else {
+            versionish.clone()
+        };
+        if requirement.is_empty() {
+            requirement = "*".to_string();
         }
+
+        NodeLayer { requirement }
     }
 }
 
@@ -172,82 +189,75 @@ impl Layer for NodeLayer {
         }
     }
 
+    fn existing_layer_strategy(
+        &self,
+        _context: &BuildContext<Self::Buildpack>,
+        layer_data: &libcnb::layer::LayerData<Self::Metadata>,
+    ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
+        let installed = NodeBinary {}.installed_at(
+            &layer_data.path.join("bin").join("node"),
+            Some(self.requirement.clone()),
+        )?;
+        let strategy = if installed {
+            tracing::info!(
+                "Existing `node` layer has `./bin/node` matching semver `{}`; will keep",
+                self.requirement
+            );
+            ExistingLayerStrategy::Keep
+        } else {
+            tracing::info!(
+                "Existing `node` layer does not have `./bin/node` matching semver `{}`; will recreate",
+                self.requirement
+            );
+            ExistingLayerStrategy::Recreate
+        };
+        Ok(strategy)
+    }
+
     fn create(
         &self,
         context: &BuildContext<Self::Buildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<Self::Metadata>, eyre::Report> {
-        // Determine the semver requirement
-        let mut requirement = if let Some(version) = self.versionish.strip_prefix('v') {
-            version.to_string()
-        } else if self.versionish == "lts" {
-            // TODO: Determine LTS without doing a fetch, perhaps based on date
-            // https://nodejs.org/en/about/releases/
-            "^16".to_string()
-        } else {
-            self.versionish.clone()
-        };
-        if requirement.is_empty() {
-            requirement = "*".to_string();
-        }
+        tracing::info!("Creating `node` layer with semver `{}`", self.requirement);
 
-        // First check if there is already a `node` binary meeting the semver requirement
-        // in the expected place
-        let installed = NodeBinary {}.installed_at(
-            &layer_path.join("bin").join("node"),
-            Some(requirement.clone()),
-        )?;
+        let node = NodeBinary {}.require_sync(Some(self.requirement.clone()), true)?;
+        let version = node.version()?;
 
-        if installed {
-            tracing::info!("Node.js {} already installed", requirement);
-        } else {
-            tracing::info!(
-                "No version of Node.js meeting requirement `{}` yet installed",
-                requirement
-            );
+        if is_local_build(context) {
+            if node.is_stencila_install() {
+                tracing::info!("Linking to `node {}` installed by Stencila", version);
+                let source = node.grandparent()?;
 
-            // Ensure a version meeting the semver requirement is installed on the builder
-            let node = NodeBinary {}.require_sync(Some(requirement), true)?;
-            let version = node.version()?;
-
-            // Symlink/copy the installation into the layer
-            if platform_is_stencila(&context.platform) {
-                if node.is_stencila_install() {
-                    tracing::info!("Linking to Node.js {} installed by Stencila", version);
-                    clear_dir_all(&layer_path)?;
-                    let source = node.grandparent()?;
-
-                    symlink_dir(source.join("bin"), &layer_path.join("bin"))?;
-                    symlink_dir(source.join("lib"), &layer_path.join("lib"))?;
-                } else {
-                    tracing::info!("Linking to Node.js {} installed on system", version);
-                    clear_dir_all(&layer_path)?;
-                    let source = node.parent()?;
-
-                    let bin_path = layer_path.join("bin");
-                    fs::create_dir_all(&bin_path)?;
-                    symlink_file(node.path, bin_path.join(node.name))?;
-                    symlink_file(source.join("npm"), bin_path.join("npm"))?;
-                    symlink_file(source.join("npx"), bin_path.join("npx"))?;
-
-                    let lib_path = layer_path.join("lib");
-                    fs::create_dir_all(&lib_path)?;
-                    symlink_dir(
-                        source.join("..").join("lib").join("node_modules"),
-                        lib_path.join("node_modules"),
-                    )?;
-                }
+                symlink_dir(source.join("bin"), &layer_path.join("bin"))?;
+                symlink_dir(source.join("lib"), &layer_path.join("lib"))?;
             } else {
-                #[allow(clippy::collapsible_else_if)]
-                if node.is_stencila_install() {
-                    tracing::info!("Using Node.js {} installed by Stencila", version);
-                    clear_dir_all(&layer_path)?;
-                    let source = node.grandparent()?;
+                tracing::info!("Linking to `node {}` installed on system", version);
+                let source = node.parent()?;
 
-                    copy_dir_all(source, &layer_path)?;
-                } else {
-                    bail!("Only able to build `node` layer if Node has been installed by Stencila")
-                }
+                let bin_path = layer_path.join("bin");
+                fs::create_dir_all(&bin_path)?;
+                symlink_file(node.path, bin_path.join(node.name))?;
+                symlink_file(source.join("corepack"), bin_path.join("corepack"))?;
+                symlink_file(source.join("npm"), bin_path.join("npm"))?;
+                symlink_file(source.join("npx"), bin_path.join("npx"))?;
+
+                let lib_path = layer_path.join("lib");
+                fs::create_dir_all(&lib_path)?;
+                symlink_dir(
+                    source.join("..").join("lib").join("node_modules"),
+                    lib_path.join("node_modules"),
+                )?;
+            }
+        } else {
+            #[allow(clippy::collapsible_else_if)]
+            if node.is_stencila_install() {
+                tracing::info!("Using `node {}` installed by Stencila", version);
+                let source = node.grandparent()?;
+
+                copy_dir_all(source, layer_path)?;
+            } else {
+                bail!("Only able to build `node` layer if Node has been installed by Stencila")
             }
         }
 
@@ -257,16 +267,51 @@ impl Layer for NodeLayer {
 
 struct NpmLayer;
 
+#[derive(Clone, Serialize, Deserialize)]
+struct NpmLayerMetadata {
+    package_hash: String,
+}
+
+impl NpmLayerMetadata {
+    /// Generate `package_hash` string from a project directory
+    ///
+    /// If the directory has a `package-lock.json` that will be used. If not
+    /// `package.json` will be used. This means that if the user removes
+    /// or updates `package-lock.json` the layer will be updated. If there is no lock file
+    /// then the layer will only be updated if there are changes in `package.json`.
+    fn generate_package_hash(app_dir: &Path) -> Result<String, eyre::Report> {
+        file_sha256_hex(app_dir.join("package-lock.json"))
+            .or_else(|_| file_sha256_hex(app_dir.join("package.json")))
+    }
+}
+
 impl Layer for NpmLayer {
     type Buildpack = NodeBuildpack;
-    type Metadata = GenericMetadata;
+    type Metadata = NpmLayerMetadata;
 
     fn types(&self) -> LayerTypes {
         LayerTypes {
             build: true,
-            launch: false,
+            launch: true,
             cache: true,
         }
+    }
+
+    fn existing_layer_strategy(
+        &self,
+        context: &BuildContext<Self::Buildpack>,
+        layer_data: &libcnb::layer::LayerData<Self::Metadata>,
+    ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
+        let package_lock_hash =
+            NpmLayerMetadata::generate_package_hash(&context.app_dir).unwrap_or_default();
+        let strategy = if package_lock_hash == layer_data.content_metadata.metadata.package_hash {
+            tracing::info!("Existing `npm` layer has same package hash; will keep",);
+            ExistingLayerStrategy::Keep
+        } else {
+            tracing::info!("Existing `npm` layer has different package hash; will update");
+            ExistingLayerStrategy::Update
+        };
+        Ok(strategy)
     }
 
     fn create(
@@ -274,25 +319,54 @@ impl Layer for NpmLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<Self::Metadata>, eyre::Report> {
-        tracing::info!("Installing packages using NPM");
+        tracing::info!("Creating `npm` layer");
+        self.install(context, layer_path)
+    }
 
-        // Use `node` from the previous layer
+    fn update(
+        &self,
+        context: &BuildContext<Self::Buildpack>,
+        layer_data: &libcnb::layer::LayerData<Self::Metadata>,
+    ) -> Result<LayerResult<Self::Metadata>, <Self::Buildpack as Buildpack>::Error> {
+        tracing::info!("Updating `npm` layer");
+        self.install(context, &layer_data.path)
+    }
+}
+
+impl NpmLayer {
+    fn install(
+        &self,
+        context: &BuildContext<NodeBuildpack>,
+        layer_path: &Path,
+    ) -> Result<LayerResult<NpmLayerMetadata>, eyre::Report> {
+        // Use `node` and `npm` installed in the `node` layer
         let node_layer = layer_path
             .canonicalize()?
             .parent()
             .expect("Should have parent")
             .join("node");
-        let mut node = BinaryInstallation {
+
+        // Prepend to the PATH because some package install scripts
+        // use `/usr/bin/env node` which looks for `node` on PATH
+        let mut envs: Vec<(OsString, OsString)> = vec![(
+            "PATH".into(),
+            NodeBuildpack::prepend_path(&node_layer.join("bin"))?,
+        )];
+
+        // If not a local build use `layer_path/cache` as the NPM cache
+        if !is_local_build(context) {
+            envs.push(("NPM_CONFIG_CACHE".into(), layer_path.join("cache").into()));
+        }
+
+        // Call the `npm-cli.js` script installed in the `node` layer
+        // This is done, rather than executing `bin/npm` directly there are issues with node `require`
+        // module resolution when the latter is used.
+        let node = BinaryInstallation {
             name: "node".into(),
             path: node_layer.join("bin").join("node"),
+            env: envs,
             ..Default::default()
         };
-
-        // Use the `npm-cli.js` script from the previous layer
-        // This is done because the `npm` script in `bin` has a
-        // `/usr/bin/env node` shebang and so needs the right `node` in $PATH.
-        // Even if that is done, there are issues with node `require`
-        // module resolution when doing so. But this works...
         let npm = node_layer
             .join("lib")
             .join("node_modules")
@@ -302,14 +376,49 @@ impl Layer for NpmLayer {
             .display()
             .to_string();
 
-        // If Stencila is not the platform use the layer as the NPM cache
-        if !platform_is_stencila(&context.platform) {
-            node.envs(&[("NPM_CONFIG_CACHE", layer_path.canonicalize()?)]);
-        }
+        // Read any `package-lock.json` so that we can restore it, or remove the new one that
+        // install creates. This needs to be done to avoid affecting the `package_hash` generated at the end
+        // of this function (and because we should leave app_dir as unaffected a possible)
+        let package_lock_path = context.app_dir.join("package-lock.json");
+        let package_lock_contents = fs::read_to_string(&package_lock_path).ok();
 
         // Do the install
         node.run_sync(&[&npm, "install"])?;
 
-        LayerResultBuilder::new(GenericMetadata::default()).build()
+        // Remove or restore `package-lock.json`
+        match package_lock_contents {
+            Some(contents) => fs::write(&package_lock_path, contents)?,
+            None => fs::remove_file(&package_lock_path)?,
+        }
+
+        // Generate a 'package hash' to be able to tell if layer is stale in `existing_layer_strategy`
+        let package_hash = NpmLayerMetadata::generate_package_hash(&context.app_dir)?;
+
+        let mut layer_env = LayerEnv::new();
+
+        // If a CNB build move `node_module` to `layer_path/node_modules` because
+        // "Implementations MUST NOT write to any other location than layer_path".
+        //
+        // It feels like there should be other ways to do this, but using `--prefix` flag or
+        // setting `NPM_CONFIG_PREFIX` or `NODE_PATH` didn't work. At least one other buildpack does it this way too:
+        // https://github.com/paketo-buildpacks/npm-install/blob/83ebc22dde31d3f7423a215c8eb7549a180bbf35/install_build_process.go#L60-L76
+        //
+        // Instead of create a symlink to `node_module` in the app_dir, this prepends NODE_PATH.
+        if is_cnb_build(context) {
+            let app_node_modules = context.app_dir.join("node_modules");
+            let layer_node_modules = layer_path.join("node_modules");
+            copy_dir_all(&app_node_modules, &layer_node_modules)?;
+            remove_dir_all(&app_node_modules)?;
+            layer_env.insert(
+                Scope::All,
+                ModificationBehavior::Prepend,
+                "NODE_PATH",
+                layer_node_modules,
+            );
+        }
+
+        LayerResultBuilder::new(NpmLayerMetadata { package_hash })
+            .env(layer_env)
+            .build()
     }
 }

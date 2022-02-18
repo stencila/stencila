@@ -14,4 +14,7 @@ type = "Apache-2.0"
 id = "stencila.stacks.focal"
 
 [[stacks]]
+id = "io.buildpacks.stacks.bionic"
+
+[[stacks]]
 id = "heroku-20"
