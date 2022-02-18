@@ -24,12 +24,11 @@ test('basic', async () => {
   let session: Session
 
   // Start the session
-  session = await start(client, 'projectId', 'snapshotId')
+  session = await start(client, 'projectId')
   expect(session).toEqual(
     expect.objectContaining({
       id: expect.stringMatching(/^se-[0-9a-zA-Z]{20}/),
       project: 'projectId',
-      snapshot: 'snapshotId',
       status: 'Started',
     })
   )

@@ -4,13 +4,18 @@ import * as documents from './documents'
 import { onDiscoverExecutableLanguages } from './events/kernels'
 import { languages } from './kernels'
 import * as sessions from './sessions'
-import { ProjectId, SnapshotId } from './types'
+import { ProjectId } from './types'
+
+export type { Document, Patch, Session } from '@stencila/stencila'
+export * as client from './client'
+export type { Client } from './client'
+export * as documents from './documents'
+export * as patches from './patches'
 
 export const main = (
   clientId: ClientId,
   projectId: ProjectId,
-  snapshotId: SnapshotId,
-  documentPath: documents.DocumentPath,
+  documentPath?: documents.DocumentPath,
   origin?: string | null,
   token?: string | null
 ): (() => Promise<[Client, Document, Session]>) => {
@@ -34,7 +39,7 @@ export const main = (
     }
 
     if (session === undefined) {
-      session = await sessions.start(client, projectId, snapshotId)
+      session = await sessions.start(client, projectId)
       sessions.subscribe(client, session.id, 'updated').catch((err) => {
         console.warn(`Couldn't subscribe to session updates`, err)
       })
@@ -53,7 +58,7 @@ export const main = (
       // }
     }
 
-    if (document === undefined) {
+    if (documentPath !== undefined && document === undefined) {
       document = await documents.open(client, documentPath)
       documents
         .subscribe(client, document.id, 'patched', (event) =>
@@ -64,8 +69,12 @@ export const main = (
         })
     }
 
-    documents.listen(client, clientId, document.id)
+    if (document !== undefined) {
+      documents.listen(client, clientId, document.id)
+    }
 
+    // TODO: Remove this after refactoring the entries points for this module
+    // @ts-expect-error because `document` may still be undefined
     return [client, document, session]
   }
 

@@ -5277,7 +5277,7 @@ pub enum MediaObjectTypes {
     VideoObject(VideoObject),
 }
 
-/// Union type for all schema nodes, including primitives and entities
+/// Union type for all types of nodes in this schema, including primitives and entities
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Node {
@@ -5361,6 +5361,19 @@ pub enum Node {
     Variable(Variable),
     VideoObject(VideoObject),
     VolumeMount(VolumeMount),
+    Null(Null),
+    Boolean(Boolean),
+    Integer(Integer),
+    Number(Number),
+    String(String),
+    Object(Object),
+    Array(Array),
+}
+
+/// Union type for all primitives values
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Primitive {
     Null(Null),
     Boolean(Boolean),
     Integer(Integer),

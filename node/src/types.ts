@@ -215,7 +215,12 @@ export type Address = Slot[]
  *
  * Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode characters not bytes.
  */
-export type Operation = OperationAdd | OperationRemove | OperationReplace | OperationMove | OperationTransform
+export type Operation =
+  | OperationAdd
+  | OperationRemove
+  | OperationReplace
+  | OperationMove
+  | OperationTransform
 
 /**
  * A set of [`Operation`]s
@@ -233,6 +238,7 @@ export interface Patch {
    * The id of the actor that generated this patch e.g. a web browser client, or file watcher
    */
   actor?: string
+  address?: Slot[]
 }
 /**
  * Add a value
@@ -842,7 +848,13 @@ export interface Plugin {
  *
  * Which method to use to install a plugin.
  */
-export type PluginInstallation = 'docker' | 'binary' | 'javascript' | 'python' | 'r' | 'link'
+export type PluginInstallation =
+  | 'docker'
+  | 'binary'
+  | 'javascript'
+  | 'python'
+  | 'r'
+  | 'link'
 
 export interface Config {
   /**
@@ -1125,235 +1137,240 @@ export type Error =
 /**
  * An enumeration of all methods
  */
-export type Method = 'import' | 'export' | 'decode' | 'encode' | 'coerce' | 'reshape' | 'compile' | 'build' | 'execute'
+export type Method =
+  | 'import'
+  | 'export'
+  | 'decode'
+  | 'encode'
+  | 'coerce'
+  | 'reshape'
+  | 'compile'
+  | 'build'
+  | 'execute'
 
 export const FORMATS: Record<string, Format> = {
-  "3gp": {
-    "known": true,
-    "name": "3gp",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  '3gp': {
+    known: true,
+    name: '3gp',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "dir": {
-    "known": true,
-    "name": "dir",
-    "binary": true,
-    "preview": false,
-    "extensions": []
+  dir: {
+    known: true,
+    name: 'dir',
+    binary: true,
+    preview: false,
+    extensions: [],
   },
-  "dockerfile": {
-    "known": true,
-    "name": "dockerfile",
-    "binary": false,
-    "preview": false,
-    "extensions": []
+  dockerfile: {
+    known: true,
+    name: 'dockerfile',
+    binary: false,
+    preview: false,
+    extensions: [],
   },
-  "docx": {
-    "known": true,
-    "name": "docx",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  docx: {
+    known: true,
+    name: 'docx',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "flac": {
-    "known": true,
-    "name": "flac",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  flac: {
+    known: true,
+    name: 'flac',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "gif": {
-    "known": true,
-    "name": "gif",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  gif: {
+    known: true,
+    name: 'gif',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "html": {
-    "known": true,
-    "name": "html",
-    "binary": false,
-    "preview": true,
-    "extensions": []
+  html: {
+    known: true,
+    name: 'html',
+    binary: false,
+    preview: true,
+    extensions: [],
   },
-  "ipynb": {
-    "known": true,
-    "name": "ipynb",
-    "binary": false,
-    "preview": true,
-    "extensions": []
+  ipynb: {
+    known: true,
+    name: 'ipynb',
+    binary: false,
+    preview: true,
+    extensions: [],
   },
-  "jpg": {
-    "known": true,
-    "name": "jpg",
-    "binary": true,
-    "preview": true,
-    "extensions": [
-      "jpeg"
-    ]
+  jpg: {
+    known: true,
+    name: 'jpg',
+    binary: true,
+    preview: true,
+    extensions: ['jpeg'],
   },
-  "js": {
-    "known": true,
-    "name": "js",
-    "binary": false,
-    "preview": false,
-    "extensions": []
+  js: {
+    known: true,
+    name: 'js',
+    binary: false,
+    preview: false,
+    extensions: [],
   },
-  "json": {
-    "known": true,
-    "name": "json",
-    "binary": false,
-    "preview": true,
-    "extensions": []
+  json: {
+    known: true,
+    name: 'json',
+    binary: false,
+    preview: true,
+    extensions: [],
   },
-  "json5": {
-    "known": true,
-    "name": "json5",
-    "binary": false,
-    "preview": true,
-    "extensions": []
+  json5: {
+    known: true,
+    name: 'json5',
+    binary: false,
+    preview: true,
+    extensions: [],
   },
-  "latex": {
-    "known": true,
-    "name": "latex",
-    "binary": false,
-    "preview": true,
-    "extensions": [
-      "tex"
-    ]
+  latex: {
+    known: true,
+    name: 'latex',
+    binary: false,
+    preview: true,
+    extensions: ['tex'],
   },
-  "makefile": {
-    "known": true,
-    "name": "makefile",
-    "binary": false,
-    "preview": false,
-    "extensions": []
+  makefile: {
+    known: true,
+    name: 'makefile',
+    binary: false,
+    preview: false,
+    extensions: [],
   },
-  "md": {
-    "known": true,
-    "name": "md",
-    "binary": false,
-    "preview": true,
-    "extensions": []
+  md: {
+    known: true,
+    name: 'md',
+    binary: false,
+    preview: true,
+    extensions: [],
   },
-  "mp3": {
-    "known": true,
-    "name": "mp3",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  mp3: {
+    known: true,
+    name: 'mp3',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "mp4": {
-    "known": true,
-    "name": "mp4",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  mp4: {
+    known: true,
+    name: 'mp4',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "odt": {
-    "known": true,
-    "name": "odt",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  odt: {
+    known: true,
+    name: 'odt',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "ogg": {
-    "known": true,
-    "name": "ogg",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  ogg: {
+    known: true,
+    name: 'ogg',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "ogv": {
-    "known": true,
-    "name": "ogv",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  ogv: {
+    known: true,
+    name: 'ogv',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "png": {
-    "known": true,
-    "name": "png",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  png: {
+    known: true,
+    name: 'png',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "py": {
-    "known": true,
-    "name": "py",
-    "binary": false,
-    "preview": false,
-    "extensions": []
+  py: {
+    known: true,
+    name: 'py',
+    binary: false,
+    preview: false,
+    extensions: [],
   },
-  "r": {
-    "known": true,
-    "name": "r",
-    "binary": false,
-    "preview": false,
-    "extensions": []
+  r: {
+    known: true,
+    name: 'r',
+    binary: false,
+    preview: false,
+    extensions: [],
   },
-  "rmd": {
-    "known": true,
-    "name": "rmd",
-    "binary": false,
-    "preview": true,
-    "extensions": []
+  rmd: {
+    known: true,
+    name: 'rmd',
+    binary: false,
+    preview: true,
+    extensions: [],
   },
-  "rpng": {
-    "known": true,
-    "name": "rpng",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  rpng: {
+    known: true,
+    name: 'rpng',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "sh": {
-    "known": true,
-    "name": "sh",
-    "binary": false,
-    "preview": false,
-    "extensions": []
+  sh: {
+    known: true,
+    name: 'sh',
+    binary: false,
+    preview: false,
+    extensions: [],
   },
-  "toml": {
-    "known": true,
-    "name": "toml",
-    "binary": false,
-    "preview": true,
-    "extensions": []
+  toml: {
+    known: true,
+    name: 'toml',
+    binary: false,
+    preview: true,
+    extensions: [],
   },
-  "ts": {
-    "known": true,
-    "name": "ts",
-    "binary": false,
-    "preview": false,
-    "extensions": []
+  ts: {
+    known: true,
+    name: 'ts',
+    binary: false,
+    preview: false,
+    extensions: [],
   },
-  "txt": {
-    "known": true,
-    "name": "txt",
-    "binary": false,
-    "preview": false,
-    "extensions": []
+  txt: {
+    known: true,
+    name: 'txt',
+    binary: false,
+    preview: false,
+    extensions: [],
   },
-  "webm": {
-    "known": true,
-    "name": "webm",
-    "binary": true,
-    "preview": true,
-    "extensions": []
+  webm: {
+    known: true,
+    name: 'webm',
+    binary: true,
+    preview: true,
+    extensions: [],
   },
-  "xml": {
-    "known": true,
-    "name": "xml",
-    "binary": false,
-    "preview": true,
-    "extensions": []
+  xml: {
+    known: true,
+    name: 'xml',
+    binary: false,
+    preview: true,
+    extensions: [],
   },
-  "yaml": {
-    "known": true,
-    "name": "yaml",
-    "binary": false,
-    "preview": true,
-    "extensions": []
-  }
+  yaml: {
+    known: true,
+    name: 'yaml',
+    binary: false,
+    preview: true,
+    extensions: [],
+  },
 }

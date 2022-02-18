@@ -358,6 +358,7 @@ function tableCell(): NodeSpec {
     parseDOM: [
       { tag: 'td', getAttrs: (dom) => tableCellAttrsGet(dom as HTMLElement) },
     ],
+    // @ts-expect-error
     toDOM(node) {
       return ['td', tableCellAttrsSet(node), 0]
     },
@@ -382,6 +383,7 @@ function tableHeader(): NodeSpec {
     parseDOM: [
       { tag: 'th', getAttrs: (dom) => tableCellAttrsGet(dom as HTMLElement) },
     ],
+    // @ts-expect-error
     toDOM(node) {
       return ['th', tableCellAttrsSet(node), 0]
     },

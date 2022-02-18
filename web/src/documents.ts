@@ -65,6 +65,32 @@ export interface ContentChangeEvent extends CustomEvent {
 }
 
 /**
+ * Create a new document
+ *
+ * Optionally pass the content for the new document.
+ * If `content` is not a string and format is 'json' of undefined,
+ * then `content` will be stringify to JSON.
+ */
+export async function create(
+  client: Client,
+  content?: unknown,
+  format?: string
+): Promise<Document> {
+  if (
+    content !== undefined &&
+    typeof content !== 'string' &&
+    (format === 'json' || format === undefined)
+  ) {
+    content = JSON.stringify(content)
+    format = 'json'
+  }
+  return client.call('documents.create', {
+    content,
+    format,
+  }) as Promise<Document>
+}
+
+/**
  * Open a document
  *
  * Loads the document into memory on the server and returns a document object
@@ -88,6 +114,53 @@ export async function close(
 ): Promise<Document> {
   return client.call('documents.close', {
     documentId,
+  }) as Promise<Document>
+}
+
+/**
+ * Load content into a document
+ *
+ * If `format` is not supplied, the content will be assumed to be the current
+ * format of the document e.g. `md`. If `content` is not a string and format
+ * is 'json' of undefined, then `content` will be stringify to JSON.
+ */
+export async function load(
+  client: Client,
+  documentId: DocumentId,
+  content: unknown,
+  format?: string
+): Promise<Document> {
+  if (
+    typeof content !== 'string' &&
+    (format === 'json' || format === undefined)
+  ) {
+    content = JSON.stringify(content)
+    format = 'json'
+  }
+  return client.call('documents.load', {
+    documentId,
+    content,
+    format,
+  }) as Promise<Document>
+}
+
+/**
+ * Dump all, or part, of a document to a string
+ *
+ * If `format` is not supplied, the content will be assumed to be the current
+ * format of the document e.g. `md`. If `nodeId` is supplied then only that
+ * node will be dumped.
+ */
+export async function dump(
+  client: Client,
+  documentId: DocumentId,
+  format?: string,
+  nodeId?: NodeId
+): Promise<Document> {
+  return client.call('documents.dump', {
+    documentId,
+    format,
+    nodeId,
   }) as Promise<Document>
 }
 

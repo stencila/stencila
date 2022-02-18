@@ -54,8 +54,11 @@ impl Request {
             "sessions.subscribe" => sessions_subscribe(&self.params, client).await,
             "sessions.unsubscribe" => sessions_unsubscribe(&self.params, client).await,
             "kernels.languages" => kernels_languages(&self.params).await,
+            "documents.create" => documents_create(&self.params).await,
             "documents.open" => documents_open(&self.params).await,
             "documents.close" => documents_close(&self.params).await,
+            "documents.load" => documents_load(&self.params).await,
+            "documents.dump" => documents_dump(&self.params).await,
             "documents.patch" => documents_patch(&self.params).await,
             "documents.execute" => documents_execute(&self.params).await,
             "documents.cancel" => documents_cancel(&self.params).await,
@@ -239,9 +242,8 @@ impl Error {
 
 async fn sessions_start(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let project = required_string(params, "projectId")?;
-    let snapshot = required_string(params, "snapshotId")?;
 
-    let session = SESSIONS.start(&project, &snapshot).await?;
+    let session = SESSIONS.start(&project).await?;
     Ok((json!(session), Subscription::None))
 }
 
@@ -282,6 +284,15 @@ async fn kernels_languages(params: &Params) -> Result<(serde_json::Value, Subscr
     Ok((json!(kernels), Subscription::None))
 }
 
+async fn documents_create(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let path = optional_string(params, "path")?;
+    let content = optional_string(params, "content")?;
+    let format = optional_string(params, "format")?;
+
+    let document = DOCUMENTS.create(path, content, format).await?;
+    Ok((json!(document), Subscription::None))
+}
+
 async fn documents_open(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let path = required_string(params, "path")?;
 
@@ -294,6 +305,36 @@ async fn documents_close(params: &Params) -> Result<(serde_json::Value, Subscrip
 
     let document = DOCUMENTS.close(&id).await?;
     Ok((json!(document), Subscription::None))
+}
+
+async fn documents_load(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let document_id = required_string(params, "documentId")?;
+    let content = required_string(params, "content")?;
+    let format = optional_string(params, "format")?;
+
+    DOCUMENTS
+        .get(&document_id)
+        .await?
+        .lock()
+        .await
+        .load(content, format)
+        .await?;
+    Ok((json!(true), Subscription::None))
+}
+
+async fn documents_dump(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let document_id = required_string(params, "documentId")?;
+    let format = optional_string(params, "format")?;
+    let node_id = optional_string(params, "nodeId")?;
+
+    let content = DOCUMENTS
+        .get(&document_id)
+        .await?
+        .lock()
+        .await
+        .dump(format, node_id)
+        .await?;
+    Ok((json!(content), Subscription::None))
 }
 
 async fn documents_subscribe(
@@ -333,7 +374,7 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
         .await
         .patch(patch, true, execute)
         .await?;
-    Ok((serde_json::Value::Null, Subscription::None))
+    Ok((json!(true), Subscription::None))
 }
 
 async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
@@ -351,7 +392,7 @@ async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscr
         .await
         .execute(node_id, ordering)
         .await?;
-    Ok((serde_json::Value::Null, Subscription::None))
+    Ok((json!(true), Subscription::None))
 }
 
 async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscription)> {
@@ -369,7 +410,7 @@ async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscri
         .await
         .cancel(node_id, scope)
         .await?;
-    Ok((serde_json::Value::Null, Subscription::None))
+    Ok((json!(true), Subscription::None))
 }
 
 async fn documents_restart(params: &Params) -> Result<(serde_json::Value, Subscription)> {
@@ -383,7 +424,7 @@ async fn documents_restart(params: &Params) -> Result<(serde_json::Value, Subscr
         .await
         .restart(kernel_id)
         .await?;
-    Ok((serde_json::Value::Null, Subscription::None))
+    Ok((json!(true), Subscription::None))
 }
 
 async fn documents_kernels(params: &Params) -> Result<(serde_json::Value, Subscription)> {
