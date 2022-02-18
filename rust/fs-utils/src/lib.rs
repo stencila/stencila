@@ -1,7 +1,7 @@
 ///! File system utilities, particularly functionality that requires
 ///! alternative implementations for alternative operating systems.
-use eyre::Result;
-use std::{fs, os, path::Path};
+use eyre::{eyre, Result};
+use std::{fs, io, os, path::Path};
 
 /// Set permissions on a file
 #[allow(unused_variables)]
@@ -57,8 +57,11 @@ pub fn copy_dir_all(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> Result<()>
         let entry = entry?;
         if entry.file_type()?.is_dir() {
             copy_dir_all(entry.path(), dest.as_ref().join(entry.file_name()))?;
-        } else {
-            fs::copy(entry.path(), dest.as_ref().join(entry.file_name()))?;
+        } else if let Err(error) = fs::copy(entry.path(), dest.as_ref().join(entry.file_name())) {
+            // Ignore "the source path is neither a regular file nor a symlink to a regular file" errors
+            if !matches!(error.kind(), io::ErrorKind::InvalidInput) {
+                return Err(eyre!(error));
+            }
         }
     }
     Ok(())
