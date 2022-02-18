@@ -27,7 +27,7 @@ pub use tracing;
 
 /// The stack id
 ///
-/// Currently a constants (cause there's only one :) but in the
+/// Currently a constant (cause there's only one :) but in the
 /// future there may be more e.g. `stencila.stacks.jammy`
 const CNB_STACK_ID: &str = "stencila.stacks.focal";
 
@@ -245,6 +245,18 @@ pub trait BuildpackTrait: libcnb::Buildpack {
             ),
         }
     }
+}
+
+/// Metadata for a layer that uses a hash to determine existing layer strategy
+#[derive(Clone, Deserialize, Serialize)]
+pub struct LayerHashMetadata {
+    pub hash: String,
+}
+
+/// Metadata for a layer that uses a version to determine existing layer strategy
+#[derive(Clone, Deserialize, Serialize)]
+pub struct LayerVersionMetadata {
+    pub version: String,
 }
 
 /// Get the path of the directory where buildpacks stored on the users machine
