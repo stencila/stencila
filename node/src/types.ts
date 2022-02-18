@@ -238,7 +238,7 @@ export interface Patch {
    * The id of the actor that generated this patch e.g. a web browser client, or file watcher
    */
   actor?: string
-  address: Slot[]
+  address?: Slot[]
 }
 /**
  * Add a value
