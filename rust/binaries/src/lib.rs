@@ -83,7 +83,7 @@ pub async fn installation(name: &str, semver: &str) -> Result<BinaryInstallation
         return Ok(installation.clone());
     }
 
-    let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(name));
+    let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::named(name));
     let binary = registered(name).unwrap_or(&unregistered);
 
     let semver = if semver == "*" {
@@ -121,7 +121,7 @@ pub async fn install(name: &str, semver: &str) -> Result<BinaryInstallation> {
         Some(binary) => binary,
         None => bail!("Unable to automatically install binary `{}`", name),
     };
-    binary.install(semver.clone(), None, None, None).await?;
+    binary.install(semver.clone()).await?;
 
     if let Some(installation) = binary.installed(semver)? {
         let mut installations = INSTALLATIONS.write().await;
@@ -181,6 +181,8 @@ pub async fn require_any(binaries: &[(&str, &str)]) -> Result<BinaryInstallation
 
 #[cfg(feature = "cli")]
 pub mod commands {
+    use std::path::PathBuf;
+
     use super::*;
     use cli_utils::structopt::StructOpt;
     use cli_utils::{async_trait::async_trait, result, Result, Run};
@@ -272,7 +274,7 @@ pub mod commands {
         async fn run(&self) -> Result {
             // Try to get registered binary (because has potential aliases and extracting versions) but fall
             // back to unregistered for others
-            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
+            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::named(&self.name));
             let binary = registered(&self.name).unwrap_or(&unregistered);
             if self.semver.is_some() {
                 if let Ok(installation) = binary.installed(self.semver.clone()) {
@@ -308,7 +310,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Versions {
         async fn run(&self) -> Result {
-            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
+            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::named(&self.name));
             let binary = registered(&self.name).unwrap_or(&unregistered);
             let os = match &self.os {
                 Some(os) => os,
@@ -320,10 +322,6 @@ pub mod commands {
     }
 
     /// Install a binary
-    ///
-    /// Installs the latest version of the binary, that also meets any
-    /// semantic version requirement supplied, into the Stencila "binaries"
-    /// folder.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
@@ -333,8 +331,13 @@ pub mod commands {
         /// The name of the binary (must be a registered binary name)
         pub name: String,
 
-        /// The semantic version requirement (the most recent matching version will be installed)
+        /// The semantic version requirement (the most latest version meeting the
+        /// requirement will be installed; defaults to the latest version)
         pub semver: Option<String>,
+
+        /// The directory to install in (defaults to the Stencila `binaries` folder)
+        #[structopt(short, long)]
+        pub dest: Option<PathBuf>,
 
         /// The operating system to install for (defaults to the current)
         #[structopt(short, long, possible_values = &OS_VALUES )]
@@ -354,11 +357,11 @@ pub mod commands {
             match registered(&self.name) {
                 Some(binary) => {
                     binary
-                        .install(
+                        .install_in_for(
                             self.semver.clone(),
+                            self.dest.clone(),
                             self.os.clone(),
                             self.arch.clone(),
-                            None,
                         )
                         .await?;
                 }
@@ -396,7 +399,7 @@ pub mod commands {
     impl Run for Uninstall {
         async fn run(&self) -> Result {
             // Fallback to unregistered since that is sufficient for uninstall
-            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
+            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::named(&self.name));
             let binary = registered(&self.name).unwrap_or(&unregistered);
             binary.uninstall(self.version.clone()).await?;
             result::nothing()
@@ -475,6 +478,7 @@ mod tests {
             Install {
                 name: name.clone(),
                 semver: None,
+                dest: None,
                 os: None,
                 arch: None,
             }

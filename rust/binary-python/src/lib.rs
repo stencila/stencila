@@ -4,7 +4,6 @@ use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, Result},
-    semver_versions_matching,
 };
 pub use binary::{Binary, BinaryInstallation, BinaryTrait};
 use binary_asdf::AsdfBinary;
@@ -23,7 +22,7 @@ impl BinaryTrait for PythonBinary {
     async fn versions(&self, os: &str) -> Result<Vec<String>> {
         let versions = if os == "linux" || os == "macos" {
             let versions = AsdfBinary::list_all("python").await?;
-            semver_versions_matching(versions, "*")
+            self.semver_versions_matching(versions, "*")
         } else {
             versions::VERSIONS
                 .iter()
@@ -36,9 +35,9 @@ impl BinaryTrait for PythonBinary {
     async fn install_version(
         &self,
         version: &str,
+        dest: &Path,
         os: &str,
         arch: &str,
-        dest: &Path,
     ) -> Result<()> {
         // On Linux or Mac use `asdf` to install
         if os == "linux" || os == "macos" {

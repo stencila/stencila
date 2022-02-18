@@ -35,41 +35,6 @@ pub fn binaries_dir() -> PathBuf {
     }
 }
 
-/// Parse a string as a semantic version
-pub fn semver_version(string: impl AsRef<str>) -> Result<semver::Version> {
-    Ok(semver::Version::parse(string.as_ref())?)
-}
-
-/// Parse a string as a semantic version requirement
-///
-/// If the string is blank then semver `*` is assumed.
-///
-/// If the string has no operator prefix (e.g. "="), that is, it is a version, not a requirement,
-/// then a semver operator is added as follows:
-///
-/// - `x.y.z` => `=x.y.z`
-/// - `x.y` =>  `~x.y`
-/// - `x` =>  `^x`
-pub fn semver_requirement(string: impl AsRef<str>) -> Result<semver::VersionReq> {
-    let string = string.as_ref();
-
-    let string = if string.trim().is_empty() {
-        "*".to_string()
-    } else {
-        let op = string.chars().next().unwrap_or(' ');
-        match "=^~><*".matches(op).count() {
-            0 => match string.matches('.').count() {
-                2 => ["=", string].concat(),
-                1 => ["~", string].concat(),
-                _ => ["^", string].concat(),
-            },
-            _ => string.to_string(),
-        }
-    };
-
-    Ok(semver::VersionReq::parse(&string)?)
-}
-
 /// A specification for a binary
 ///
 /// Contains fields `name` and `aliases` for searching for existing installations
@@ -133,7 +98,7 @@ impl Binary {
     ///
     /// Used when we only know the name of the binary that the user is searching for
     /// and no nothing about aliases, path globs or how to install it.
-    pub fn unregistered(name: &str) -> Binary {
+    pub fn named(name: &str) -> Binary {
         Binary::new(name, &[], &[])
     }
 
@@ -273,6 +238,144 @@ pub trait BinaryTrait: Send + Sync {
         Vec::new()
     }
 
+    /// Parse a string as a semantic version
+    fn semver_version(&self, string: &str) -> Result<semver::Version> {
+        Ok(semver::Version::parse(string)?)
+    }
+
+    /// Parse a string as a semantic version requirement
+    ///
+    /// If the string is blank then semver `*` is assumed.
+    ///
+    /// If the string has no operator prefix (e.g. "="), that is, it is a version, not a requirement,
+    /// then a semver operator is added as follows:
+    ///
+    /// - `x.y.z` => `=x.y.z`
+    /// - `x.y` =>  `~x.y`
+    /// - `x` =>  `^x`
+    fn semver_requirement(&self, string: &str) -> Result<semver::VersionReq> {
+        let string = if string.trim().is_empty() {
+            "*".to_string()
+        } else {
+            let op = string.chars().next().unwrap_or(' ');
+            match "=^~><*".matches(op).count() {
+                0 => match string.matches('.').count() {
+                    2 => ["=", string].concat(),
+                    1 => ["~", string].concat(),
+                    _ => ["^", string].concat(),
+                },
+                _ => string.to_string(),
+            }
+        };
+
+        Ok(semver::VersionReq::parse(&string)?)
+    }
+
+    /// Does a version match a requirement?
+    fn semver_version_matches(&self, version: &str, requirement: &str) -> Result<bool> {
+        let requirement = self.semver_requirement(requirement)?;
+        let version = self.semver_version(version)?;
+        Ok(requirement.matches(&version))
+    }
+
+    // Filter out versions that are not valid semver versions and do not meet a semver requirement
+    fn semver_versions_matching(&self, versions: Vec<String>, requirement: &str) -> Vec<String> {
+        let versions = self.semver_versions_sorted(versions);
+
+        let requirement = match self.semver_requirement(requirement) {
+            Ok(requirement) => requirement,
+            Err(..) => return versions,
+        };
+        versions
+            .iter()
+            .filter_map(|version| match self.semver_version(version) {
+                Ok(ver) => match requirement.matches(&ver) {
+                    true => Some(version.to_string()),
+                    false => None,
+                },
+                Err(..) => None,
+            })
+            .collect()
+    }
+
+    /// Filter out any versions that are not valid semver versions.
+    /// Also sorts in descending **semver** order
+    fn semver_versions_sorted(&self, versions: Vec<String>) -> Vec<String> {
+        let mut versions: Vec<semver::Version> = versions
+            .iter()
+            .filter_map(|version| {
+                // Parse a `VersionReq` rather than a `Version` because that allows for incomplete versions e.g. 2.15
+                semver::VersionReq::parse(version)
+                    .ok()
+                    .and_then(|version_req| {
+                        version_req.comparators.first().and_then(|comparator| {
+                            // Ignore pre-releases
+                            if comparator.pre.is_empty() {
+                                Some(semver::Version::new(
+                                    comparator.major,
+                                    comparator.minor.unwrap_or(0),
+                                    comparator.patch.unwrap_or(0),
+                                ))
+                            } else {
+                                None
+                            }
+                        })
+                    })
+            })
+            .collect();
+        versions.dedup();
+        versions.sort();
+        versions.reverse();
+        versions
+            .iter()
+            .map(|version| format!("{}.{}.{}", version.major, version.minor, version.patch))
+            .collect()
+    }
+
+    /// Find the first installation of the binary on the `PATH`
+    fn find(&self) -> Result<BinaryInstallation> {
+        self.find_version_in(None, None)
+    }
+
+    /// Find the first installation of the binary on paths
+    fn find_in(&self, paths: &OsStr) -> Result<BinaryInstallation> {
+        self.find_version_in(None, Some(paths.into()))
+    }
+
+    /// Find the first installation of the binary, that matches semver requirement, on `PATH`
+    fn find_version(&self, requirement: &str) -> Result<BinaryInstallation> {
+        self.find_version_in(Some(requirement.into()), None)
+    }
+
+    /// Find the first installation of the binary, that matches semver requirement, on paths
+    fn find_version_in(
+        &self,
+        requirement: Option<String>,
+        paths: Option<OsString>,
+    ) -> Result<BinaryInstallation> {
+        let name = self.spec().name;
+        let cwd = std::env::current_dir().unwrap();
+        for path in which::which_in_all(name.clone(), paths, cwd)? {
+            let version = self.version(&path);
+            let env = self.run_env(version.clone());
+            let installation = BinaryInstallation::new(name.clone(), path, version.clone(), env);
+            if let Some(requirement) = &requirement {
+                if let Some(version) = &version {
+                    if self.semver_version_matches(version, requirement)? {
+                        return Ok(installation);
+                    }
+                }
+            } else {
+                return Ok(installation);
+            }
+        }
+        bail!(
+            "No installation for binary `{}` matching semver requirement `{}` found",
+            name,
+            requirement.unwrap_or_else(|| "*".to_string())
+        )
+    }
+
     /// Require a binary
     async fn require(
         &self,
@@ -284,7 +387,7 @@ pub trait BinaryTrait: Send + Sync {
             None => {
                 let spec = self.spec();
                 if install {
-                    self.install(requirement.clone(), None, None, None).await?;
+                    self.install(requirement.clone()).await?;
                     match self.installed(requirement.clone())? {
                         Some(installation) => Ok(installation),
                         None => bail!("Failed to get new installation `{}`", spec.name),
@@ -301,6 +404,8 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Require a binary (synchronously)
+    ///
+    /// This is just the synchronous version of `Self::require`
     fn require_sync(
         &self,
         requirement: Option<String>,
@@ -404,7 +509,7 @@ pub trait BinaryTrait: Send + Sync {
                 match which::which_in_all(name, dirs.clone(), std::env::current_dir().unwrap()) {
                     Ok(paths) => paths.collect(),
                     Err(error) => {
-                        tracing::warn!("While searching for executables for {}: {}", name, error);
+                        tracing::warn!("While searching for binary {}: {}", name, error);
                         Vec::new()
                     }
                 }
@@ -425,8 +530,8 @@ pub trait BinaryTrait: Send + Sync {
         // the most recent version (meeting semver requirements) is returned by `installation()`.
         installs.sort_by(|a, b| match (&a.version, &b.version) {
             (Some(a), Some(b)) => {
-                let a = semver_version(a).unwrap();
-                let b = semver_version(b).unwrap();
+                let a = self.semver_version(a).unwrap();
+                let b = self.semver_version(b).unwrap();
                 a.partial_cmp(&b).unwrap_or(Ordering::Equal)
             }
             (Some(..), None) => Ordering::Greater,
@@ -448,10 +553,10 @@ pub trait BinaryTrait: Send + Sync {
 
         let installations = self.installations();
         if let Some(requirement) = requirement {
-            let requirement = semver_requirement(requirement)?;
+            let requirement = self.semver_requirement(&requirement)?;
             for install in installations {
                 if let Some(version) = &install.version {
-                    let version = semver_version(version)?;
+                    let version = self.semver_version(version)?;
                     if requirement.matches(&version) {
                         return Ok(Some(install.clone()));
                     }
@@ -481,36 +586,48 @@ pub trait BinaryTrait: Send + Sync {
             })
     }
 
-    /// Is a binary installed at a path and meeting semver requirement?
-    fn installed_at(&self, path: &Path, requirement: Option<String>) -> Result<bool> {
-        if !path.exists() {
-            return Ok(false);
-        }
-
-        let version = self.version(path);
-        let meets = match version {
-            Some(version) => match requirement {
-                Some(requirement) => {
-                    semver_requirement(requirement)?.matches(&semver_version(version)?)
-                }
-                None => true,
-            },
-            None => false,
-        };
-        Ok(meets)
+    /// Install the binary in the default location
+    async fn install(&self, requirement: Option<String>) -> Result<String> {
+        self.install_in(requirement, None).await
     }
 
-    /// Install the most recent version of the binary (meeting optional semver, OS, and arch requirements).
+    /// Install the binary in a specific directory
+    async fn install_in(
+        &self,
+        requirement: Option<String>,
+        dest: Option<PathBuf>,
+    ) -> Result<String> {
+        self.install_in_for(requirement, dest, None, None).await
+    }
+
+    /// Install the binary in a specific directory (synchronously)
+    ///
+    /// This is just the synchronous version of `Self::install_in`
+    fn install_in_sync(
+        &self,
+        requirement: Option<String>,
+        dest: Option<PathBuf>,
+    ) -> Result<String> {
+        let clone = self.clone_box();
+        let (sender, receiver) = std::sync::mpsc::channel();
+        tokio::spawn(async move {
+            let result = clone.install_in(requirement, dest).await;
+            sender.send(result)
+        });
+        receiver.recv()?
+    }
+
+    /// Install the binary in a specific directory for a specific OS and architecture
     ///
     /// If a `requirement` is not supplied then the latest version is installed. If `requirement` is
     /// supplied then the latest version meeting its requirement is installed.
-    async fn install(
+    async fn install_in_for(
         &self,
         requirement: Option<String>,
+        dest: Option<PathBuf>,
         os: Option<String>,
         arch: Option<String>,
-        dest: Option<PathBuf>,
-    ) -> Result<()> {
+    ) -> Result<String> {
         let os = os.unwrap_or_else(|| OS.to_string());
         let arch = arch.unwrap_or_else(|| ARCH.to_string());
         let Binary { name, .. } = self.spec();
@@ -528,12 +645,15 @@ pub trait BinaryTrait: Send + Sync {
                 ),
             }
         };
-        let requirement = semver_requirement(&requirement)?;
+        let requirement = self.semver_requirement(&requirement)?;
 
         // Get the latest version matching semver requirements
         if let Some(version) = versions.iter().find_map(|version| {
-            match requirement.matches(&semver_version(version).expect("Version to always be valid"))
-            {
+            match requirement.matches(
+                &self
+                    .semver_version(version)
+                    .expect("Version to always be valid"),
+            ) {
                 true => Some(version),
                 false => None,
             }
@@ -550,11 +670,11 @@ pub trait BinaryTrait: Send + Sync {
             let dest = dest.canonicalize()?;
 
             // Call the implementation
-            self.install_version(version, &os, &arch, &dest).await?;
+            self.install_version(version, &dest, &os, &arch).await?;
 
             tracing::info!("Installed `{} {}` to `{}`", name, version, dest.display());
 
-            Ok(())
+            Ok(version.to_string())
         } else {
             bail!(
                 "Sorry, I don't know how to install `{}` with version requirement `{}`. See `stencila binaries versions {}` or perhaps install it manually?",
@@ -565,32 +685,15 @@ pub trait BinaryTrait: Send + Sync {
         }
     }
 
-    /// Require a binary (synchronously)
-    fn install_sync(
-        &self,
-        requirement: Option<String>,
-        os: Option<String>,
-        arch: Option<String>,
-        dest: Option<PathBuf>,
-    ) -> Result<()> {
-        let clone = self.clone_box();
-        let (sender, receiver) = std::sync::mpsc::channel();
-        tokio::spawn(async move {
-            let result = clone.install(requirement, os, arch, dest).await;
-            sender.send(result)
-        });
-        receiver.recv()?
-    }
-
     /// Install a specific version of the binary
     ///
     /// Implementations of this trait will usually override this method.
     async fn install_version(
         &self,
         _version: &str,
+        _dest: &Path,
         _os: &str,
         _arch: &str,
-        _dest: &Path,
     ) -> Result<()> {
         let spec = self.spec();
         bail!(
@@ -796,60 +899,6 @@ macro_rules! binary_clone_box {
     };
 }
 
-/// Filter out any versions that are not valid semver versions.
-/// Also sorts in descending **semver** order
-pub fn semver_versions_sorted(versions: Vec<String>) -> Vec<String> {
-    let mut versions: Vec<semver::Version> = versions
-        .iter()
-        .filter_map(|version| {
-            // Parse a `VersionReq` rather than a `Version` because that allows for incomplete versions e.g. 2.15
-            semver::VersionReq::parse(version)
-                .ok()
-                .and_then(|version_req| {
-                    version_req.comparators.first().and_then(|comparator| {
-                        // Ignore pre-releases
-                        if comparator.pre.is_empty() {
-                            Some(semver::Version::new(
-                                comparator.major,
-                                comparator.minor.unwrap_or(0),
-                                comparator.patch.unwrap_or(0),
-                            ))
-                        } else {
-                            None
-                        }
-                    })
-                })
-        })
-        .collect();
-    versions.dedup();
-    versions.sort();
-    versions.reverse();
-    versions
-        .iter()
-        .map(|version| format!("{}.{}.{}", version.major, version.minor, version.patch))
-        .collect()
-}
-
-// Filter out versions that are not valid semver versions and do not meet a semver requirement
-pub fn semver_versions_matching(versions: Vec<String>, requirement: &str) -> Vec<String> {
-    let versions = semver_versions_sorted(versions);
-
-    let requirement = match semver_requirement(requirement) {
-        Ok(requirement) => requirement,
-        Err(..) => return versions,
-    };
-    versions
-        .iter()
-        .filter_map(|version| match semver_version(version) {
-            Ok(ver) => match requirement.matches(&ver) {
-                true => Some(version.to_string()),
-                false => None,
-            },
-            Err(..) => None,
-        })
-        .collect()
-}
-
 #[async_trait]
 impl BinaryTrait for Binary {
     fn spec(&self) -> Binary {
@@ -875,11 +924,11 @@ pub struct BinaryInstallation {
 
     /// The environment variables to set before the binary is executed
     #[serde(serialize_with = "serialize_env")]
-    pub env: Vec<(OsString, OsString)>,
+    pub env: HashMap<OsString, OsString>,
 }
 
 /// Serialize the `env` property because `OSString` serialization is not human readable.
-fn serialize_env<S>(env: &[(OsString, OsString)], serializer: S) -> Result<S::Ok, S::Error>
+fn serialize_env<S>(env: &HashMap<OsString, OsString>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {
@@ -901,13 +950,13 @@ impl BinaryInstallation {
         name: String,
         path: PathBuf,
         version: Option<String>,
-        env_vars: Vec<(OsString, OsString)>,
+        env_list: Vec<(OsString, OsString)>,
     ) -> BinaryInstallation {
         BinaryInstallation {
             name,
             path,
             version,
-            env: env_vars,
+            env: env_list.into_iter().collect(),
         }
     }
 
@@ -963,7 +1012,14 @@ impl BinaryInstallation {
     /// Set the runtime environment for the binary
     ///
     /// Has the same effect as `Command::envs` when the binary is run.
-    pub fn envs(&mut self, vars: &[(impl AsRef<OsStr>, impl AsRef<OsStr>)]) {
+    pub fn env_map(&mut self, vars: std::collections::hash_map::Iter<'_, OsString, OsString>) {
+        self.env = vars.map(|(k, v)| (k.clone(), v.clone())).collect();
+    }
+
+    /// Set the runtime environment for the binary
+    ///
+    /// Has the same effect as `Command::envs` when the binary is run.
+    pub fn env_list(&mut self, vars: &[(impl AsRef<OsStr>, impl AsRef<OsStr>)]) {
         self.env = vars
             .iter()
             .map(|var| (var.0.as_ref().to_owned(), var.1.as_ref().to_owned()))
@@ -978,7 +1034,7 @@ impl BinaryInstallation {
 
         let result = self
             .command()
-            .envs(self.env.clone())
+            .envs(&self.env)
             .args(args)
             // TODO: instead of inheriting, forward to log INFO entries
             .stderr(Stdio::inherit())
@@ -996,7 +1052,7 @@ impl BinaryInstallation {
 
         let result = self
             .command_sync()
-            .envs(self.env.clone())
+            .envs(&self.env)
             .args(args)
             // TODO: instead of inheriting, forward to log INFO entries
             .stderr(Stdio::inherit())

@@ -52,9 +52,9 @@ impl BinaryTrait for AsdfBinary {
     async fn install_version(
         &self,
         version: &str,
+        dest: &Path,
         os: &str,
         _arch: &str,
-        dest: &Path,
     ) -> Result<()> {
         if os == "windows" {
             bail!("`asdf` can not be install on Windows")

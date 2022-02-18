@@ -60,9 +60,9 @@ impl BinaryTrait for ChromeBinary {
     async fn install_version(
         &self,
         version: &str,
+        dest: &Path,
         os: &str,
         _arch: &str,
-        dest: &Path,
     ) -> Result<()> {
         // Chrome uses a peculiar version system with the build number
         // at the third position and not every build for every OS. So, use minor version

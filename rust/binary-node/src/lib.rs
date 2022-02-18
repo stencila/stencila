@@ -4,7 +4,6 @@ use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, Result},
-    semver_versions_matching,
 };
 pub use binary::{Binary, BinaryInstallation, BinaryTrait};
 
@@ -26,15 +25,15 @@ impl BinaryTrait for NodeBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         self.versions_github_releases("nodejs", "node")
             .await
-            .map(|versions| semver_versions_matching(versions, ">=10"))
+            .map(|versions| self.semver_versions_matching(versions, ">=10"))
     }
 
     async fn install_version(
         &self,
         version: &str,
+        dest: &Path,
         os: &str,
         arch: &str,
-        dest: &Path,
     ) -> Result<()> {
         let url = format!(
             "https://nodejs.org/dist/v{version}/node-v{version}-",

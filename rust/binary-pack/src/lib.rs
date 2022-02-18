@@ -5,7 +5,7 @@ use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, Result},
-    semver_versions_matching, Binary,
+    Binary,
 };
 
 pub struct PackBinary;
@@ -21,15 +21,15 @@ impl BinaryTrait for PackBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         self.versions_github_releases("buildpacks", "pack")
             .await
-            .map(|versions| semver_versions_matching(versions, ">=0.20"))
+            .map(|versions| self.semver_versions_matching(versions, ">=0.20"))
     }
 
     async fn install_version(
         &self,
         version: &str,
+        dest: &Path,
         os: &str,
         arch: &str,
-        dest: &Path,
     ) -> Result<()> {
         let url = format!(
             "https://github.com/buildpacks/pack/releases/download/v{version}/pack-v{version}-",

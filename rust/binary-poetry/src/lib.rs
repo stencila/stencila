@@ -2,8 +2,7 @@ use std::ffi::OsString;
 use std::path::Path;
 
 use binary::{
-    async_trait::async_trait, binary_clone_box, eyre::Result, semver_versions_matching, tracing,
-    Binary, BinaryTrait,
+    async_trait::async_trait, binary_clone_box, eyre::Result, tracing, Binary, BinaryTrait,
 };
 use binary_python::PythonBinary;
 
@@ -22,15 +21,15 @@ impl BinaryTrait for PoetryBinary {
         self.versions_github_releases("python-poetry", "poetry")
             .await
             // "installer does not support Poetry releases < 0.12.0"
-            .map(|versions| semver_versions_matching(versions, ">=0.12"))
+            .map(|versions| self.semver_versions_matching(versions, ">=0.12"))
     }
 
     async fn install_version(
         &self,
         version: &str,
+        dest: &Path,
         _os: &str,
         _arch: &str,
-        dest: &Path,
     ) -> Result<()> {
         let script = self
             .download(
@@ -48,7 +47,7 @@ impl BinaryTrait for PoetryBinary {
         let mut python = PythonBinary {}
             .require(Some(">=3.6".to_string()), true)
             .await?;
-        python.envs(&[
+        python.env_list(&[
             ("POETRY_HOME", dest.into()),
             ("POETRY_VERSION", OsString::from(version)),
             ("POETRY_ACCEPT", OsString::from("yes")),

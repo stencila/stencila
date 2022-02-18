@@ -5,7 +5,7 @@ use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, Result},
-    semver_versions_matching, Binary,
+    Binary,
 };
 
 pub struct PodmanBinary;
@@ -21,15 +21,15 @@ impl BinaryTrait for PodmanBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         self.versions_github_releases("containers", "podman")
             .await
-            .map(|versions| semver_versions_matching(versions, ">=3"))
+            .map(|versions| self.semver_versions_matching(versions, ">=3"))
     }
 
     async fn install_version(
         &self,
         version: &str,
+        dest: &Path,
         os: &str,
         _arch: &str,
-        dest: &Path,
     ) -> Result<()> {
         let suffix = match os {
             "linux" => "static.tar.gz",

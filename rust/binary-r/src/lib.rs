@@ -4,7 +4,7 @@ use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, Result},
-    semver_versions_matching, Binary,
+    Binary,
 };
 pub use binary::{BinaryInstallation, BinaryTrait};
 use binary_asdf::AsdfBinary;
@@ -24,7 +24,7 @@ impl BinaryTrait for RBinary {
     async fn versions(&self, os: &str) -> Result<Vec<String>> {
         let versions = if os == "linux" || os == "macos" {
             let versions = AsdfBinary::list_all("R").await?;
-            semver_versions_matching(versions, "*")
+            self.semver_versions_matching(versions, "*")
         } else {
             versions::VERSIONS
                 .iter()
@@ -37,9 +37,9 @@ impl BinaryTrait for RBinary {
     async fn install_version(
         &self,
         version: &str,
+        _dest: &Path,
         os: &str,
         _arch: &str,
-        _dest: &Path,
     ) -> Result<()> {
         if os == "linux" || os == "macos" {
             let asdf = AsdfBinary {}.require(None, true).await?;

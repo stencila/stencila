@@ -4,7 +4,7 @@ use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, Result},
-    semver_versions_matching, Binary, BinaryTrait,
+    Binary, BinaryTrait,
 };
 
 pub struct PandocBinary;
@@ -20,15 +20,15 @@ impl BinaryTrait for PandocBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         self.versions_github_releases("jgm", "pandoc")
             .await
-            .map(|versions| semver_versions_matching(versions, ">=2.14"))
+            .map(|versions| self.semver_versions_matching(versions, ">=2.14"))
     }
 
     async fn install_version(
         &self,
         version: &str,
+        dest: &Path,
         os: &str,
         arch: &str,
-        dest: &Path,
     ) -> Result<()> {
         // Map standard semver triples to Pandoc's version numbers (if they differ).
         // See https://github.com/jgm/pandoc/releases for mappings.
