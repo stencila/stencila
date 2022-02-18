@@ -44,13 +44,13 @@ const tsPath = path.join(__dirname, '..', 'selectors.ts')
  * Selector for the property's item elements (usually <li>s)
  *
  * ```css
- * :--author [itemprop~="author"]
+ * :--author [prop~="author"]
  * ```
  *
  * For other properties, there is just one selector, e.g.
  *
  * ```css
- * :--text [itemprop~="text"]
+ * :--text [prop~="text"]
  * ```
  */
 const generateSelectors = async (): Promise<void> => {
@@ -203,7 +203,7 @@ ${propSelectorsCss.join('\n')}
  * attribute selector.
  *
  * e.g. :--Article -> [itemtype~='https://schema.org/Article']
- * e.g. :--author -> [itemprop~='author']
+ * e.g. :--author -> [prop~='author']
  *
  * This does the inverse of the mapping defined in \`./selectors.css\`.
  */
