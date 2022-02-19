@@ -45,7 +45,7 @@ impl BinaryTrait for PoetryBinary {
             dest.display()
         );
         let mut python = PythonBinary {}
-            .require(Some(">=3.6".to_string()), true)
+            .require(Some(">=3.7".to_string()), true)
             .await?;
         python.env_list(&[
             ("POETRY_HOME", dest.into()),
