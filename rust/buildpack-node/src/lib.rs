@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     ffi::OsString,
-    fs::{create_dir_all, read_to_string},
+    fs::{create_dir_all, read_to_string, remove_file},
     path::{Path, PathBuf},
 };
 
@@ -192,7 +192,6 @@ impl Layer for NodeLayer {
             &layer_data.content_metadata.metadata.version,
             &self.requirement,
         )?;
-
         let strategy = if installed {
             tracing::info!(
                 "Existing `node` layer has `./bin/node` matching semver requirement `{}`; will keep",
@@ -335,7 +334,8 @@ impl NodeModulesLayer {
         context: &BuildContext<NodeBuildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<LayerHashMetadata>, eyre::Report> {
-        let app_path = &context.app_dir;
+        let app_path = &context.app_dir.canonicalize()?;
+        let layer_path = &layer_path.canonicalize()?;
 
         // Use the `node` and `npm` binaries installed in the `node` layer
         let node_layer = layer_path
@@ -358,12 +358,7 @@ impl NodeModulesLayer {
         // Call the `npm-cli.js` script installed in the `node` layer
         // This is done, rather than executing `bin/npm` directly, there are issues with node `require`
         // module resolution when the latter is done.
-        let node = BinaryInstallation::new(
-            "node".into(),
-            node_layer.join("bin").join("node"),
-            None,
-            envs,
-        );
+        let node = BinaryInstallation::new("node", node_layer.join("bin").join("node"), None, envs);
         let npm = node_layer
             .join("lib")
             .join(NODE_MODULES)
@@ -372,10 +367,9 @@ impl NodeModulesLayer {
             .join("npm-cli.js")
             .into_os_string();
 
-        let mut layer_env = LayerEnv::new();
         if is_local_build(context) {
             // Do the install in the app directory as normal
-            node.run_sync(&[npm, "install".into()])?;
+            node.run_sync([npm, "install".into()])?;
         } else {
             // Do the install in the layer.
             // Alternative, more complicated approaches to this e.g. doing a local install and then copying
@@ -386,16 +380,20 @@ impl NodeModulesLayer {
             copy_if_exists(app_path.join(PACKAGE_JSON), layer_path.join(PACKAGE_JSON))?;
             copy_if_exists(app_path.join(PACKAGE_LOCK), layer_path.join(PACKAGE_LOCK))?;
 
-            node.run_sync(&[npm, "install".into(), "--prefix".into(), layer_path.into()])?;
+            node.run_sync([npm, "install".into(), "--prefix".into(), layer_path.into()])?;
 
-            // Set the `NODE_PATH` so that the `node_modules` can be found
-            layer_env.insert(
-                Scope::All,
-                ModificationBehavior::Prepend,
-                "NODE_PATH",
-                layer_path.join(NODE_MODULES),
-            );
+            // Remove the files, so they are not there next time
+            remove_file(layer_path.join(PACKAGE_JSON)).ok();
+            remove_file(layer_path.join(PACKAGE_LOCK)).ok();
         }
+
+        // Set the `NODE_PATH` so that the `node_modules` can be found
+        let layer_env = LayerEnv::new().chainable_insert(
+            Scope::All,
+            ModificationBehavior::Prepend,
+            "NODE_PATH",
+            layer_path.join(NODE_MODULES),
+        );
 
         // Generate a 'package hash' to detect if layer is stale in `existing_layer_strategy()`
         let metadata = LayerHashMetadata {
