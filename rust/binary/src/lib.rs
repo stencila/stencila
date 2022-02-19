@@ -20,6 +20,7 @@ use std::{
     collections::HashMap,
     ffi::{OsStr, OsString},
 };
+use tokio::io::{AsyncBufReadExt, BufReader};
 
 /// Re-exports for the convenience of crates implementing `BinaryTrait`
 pub use ::async_trait;
@@ -993,32 +994,25 @@ impl BinaryInstallation {
         self.path.strip_prefix(binaries_dir()).is_ok()
     }
 
+    /// Get the version of this binary installation
     pub fn version(&self) -> Result<&str> {
         self.version
             .as_deref()
             .ok_or_else(|| eyre!("Installation for `{}` does not have a version", self.name))
     }
 
-    /// Get the command for the binary
-    pub fn command(&self) -> tokio::process::Command {
-        tokio::process::Command::new(&self.path)
-    }
-
-    /// Get the synchronous command for the binary
-    pub fn command_sync(&self) -> std::process::Command {
-        std::process::Command::new(&self.path)
-    }
-
-    /// Set the runtime environment for the binary
+    /// Set the runtime environment for the binary using a map
     ///
-    /// Has the same effect as `Command::envs` when the binary is run.
+    /// Sets the environment variables on the `Command` instance returned from
+    /// `commmand` or `command_sync`.
     pub fn env_map(&mut self, vars: std::collections::hash_map::Iter<'_, OsString, OsString>) {
         self.env = vars.map(|(k, v)| (k.clone(), v.clone())).collect();
     }
 
-    /// Set the runtime environment for the binary
+    /// Set the runtime environment for the binary using a list of tuples
     ///
-    /// Has the same effect as `Command::envs` when the binary is run.
+    /// Sets the environment variables on the `Command` instance returned from
+    /// `commmand` or `command_sync`.
     pub fn env_list(&mut self, vars: &[(impl AsRef<OsStr>, impl AsRef<OsStr>)]) {
         self.env = vars
             .iter()
@@ -1026,68 +1020,125 @@ impl BinaryInstallation {
             .collect();
     }
 
-    /// Run the binary
-    ///
-    /// Returns the output of the command
-    pub async fn run(&self, args: &[&str]) -> Result<Output> {
-        tracing::trace!("Running binary installation {:?}", self);
-
-        let result = self
-            .command()
-            .envs(&self.env)
-            .args(args)
-            // TODO: instead of inheriting, forward to log INFO entries
-            .stderr(Stdio::inherit())
-            .output()
-            .await;
-
-        Ok(result?)
+    /// Get the command for the binary
+    pub fn command(&self) -> tokio::process::Command {
+        let mut command = tokio::process::Command::new(&self.path);
+        command.envs(&self.env);
+        command
     }
 
-    /// Run the binary synchronously
-    ///
-    /// The sync version of `run`. Returns the output of the command
-    pub fn run_sync(&self, args: &[&str]) -> Result<String> {
+    /// Get the synchronous command for the binary
+    pub fn command_sync(&self) -> std::process::Command {
+        let mut command = std::process::Command::new(&self.path);
+        command.envs(&self.env);
+        command
+    }
+
+    /// Run the binary, log any outputs on stdout and stderr, and fail if
+    /// exit code is not 0.
+    pub async fn run<I, S>(&self, args: I) -> Result<()>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<OsStr>,
+    {
+        self.run_with(args, None, None).await
+    }
+
+    /// Run the binary, log any outputs on stdout and stderr, and fail if
+    /// exit code is not 0.
+    pub async fn run_with<I, S>(
+        &self,
+        args: I,
+        stdout_log_level: Option<tracing::Level>,
+        stderr_log_level: Option<tracing::Level>,
+    ) -> Result<()>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<OsStr>,
+    {
         tracing::trace!("Running binary installation {:?}", self);
 
-        let result = self
-            .command_sync()
-            .envs(&self.env)
+        let mut child = self
+            .command()
             .args(args)
-            // TODO: instead of inheriting, forward to log INFO entries
-            .stderr(Stdio::inherit())
-            .output();
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()?;
 
-        match result {
-            Ok(output) => match output.status.success() {
-                true => Ok(String::from_utf8_lossy(&output.stdout).to_string()),
-                false => bail!(
-                    "When running `{} {}` exit status was `{}`: {} {}",
-                    self.name,
-                    args.join(" "),
-                    output.status.code().unwrap_or_default(),
-                    String::from_utf8_lossy(&output.stderr),
-                    String::from_utf8_lossy(&output.stdout)
-                ),
-            },
-            Err(error) => bail!(
-                "When running `{}` at `{}`: {}",
+        if let Some(level) = stdout_log_level {
+            let stdout = child.stdout.take().expect("stdout is piped");
+            let mut stdout_reader = BufReader::new(stdout).lines();
+            let name = self.name.clone();
+            tokio::spawn(async move {
+                while let Ok(Some(line)) = stdout_reader.next_line().await {
+                    match level {
+                        tracing::Level::ERROR => tracing::error!("({}) {}", name, line),
+                        tracing::Level::WARN => tracing::warn!("({}) {}", name, line),
+                        tracing::Level::INFO => tracing::info!("({}) {}", name, line),
+                        tracing::Level::DEBUG => tracing::info!("({}) {}", name, line),
+                        _ => tracing::trace!("({}) {}", name, line),
+                    }
+                }
+            });
+        }
+
+        if let Some(level) = stderr_log_level {
+            let stderr = child.stderr.take().expect("stderr is piped");
+            let mut stderr_reader = BufReader::new(stderr).lines();
+            let name = self.name.clone();
+            tokio::spawn(async move {
+                while let Ok(Some(line)) = stderr_reader.next_line().await {
+                    match level {
+                        tracing::Level::ERROR => tracing::error!("({}) {}", name, line),
+                        tracing::Level::WARN => tracing::warn!("({}) {}", name, line),
+                        tracing::Level::INFO => tracing::info!("({}) {}", name, line),
+                        tracing::Level::DEBUG => tracing::debug!("({}) {}", name, line),
+                        _ => tracing::trace!("({}) {}", name, line),
+                    }
+                }
+            });
+        }
+
+        let exit_status = child.wait().await?;
+        match exit_status.success() {
+            true => Ok(()),
+            false => bail!(
+                "Binary `{}` ({}) exited with {}",
                 self.name,
                 self.path.display(),
-                error
+                exit_status
             ),
         }
     }
 
-    /// Run the binary and connect to stdin, stdout and stderr streams
+    /// Run the binary synchronously, log any outputs on stdout and stderr, and fail if
+    /// exit code is not 0.
     ///
-    /// Returns a `Child` process whose
+    /// The sync version of `run`.
+    pub fn run_sync<I, S>(&self, args: I) -> Result<()>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<OsStr>,
+    {
+        let clone = self.clone();
+        let args = args
+            .into_iter()
+            .map(|arg| arg.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        let (sender, receiver) = std::sync::mpsc::channel();
+        tokio::spawn(async move {
+            let result = clone.run(args).await;
+            sender.send(result)
+        });
+        receiver.recv()?
+    }
+
+    /// Run the binary and connect to stdin, stdout and stderr streams
     pub fn interact(&self, args: &[&str]) -> Result<tokio::process::Child> {
         tracing::trace!("Interacting with binary installation {:?}", self);
 
         let result = self
             .command()
-            .envs(self.env.clone())
             .args(args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())

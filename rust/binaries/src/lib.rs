@@ -435,9 +435,7 @@ pub mod commands {
             )
             .await?;
 
-            let args: Vec<&str> = self.args.iter().map(|arg| arg.as_str()).collect();
-
-            let output = installation.run(&args).await?;
+            let output = installation.command().args(&self.args).output().await?;
 
             use std::io::Write;
             std::io::stdout().write_all(output.stdout.as_ref())?;

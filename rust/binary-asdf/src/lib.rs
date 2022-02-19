@@ -4,7 +4,7 @@ use binary::{
     async_trait::async_trait,
     binaries_dir, binary_clone_box,
     eyre::{bail, Result},
-    Binary, BinaryTrait,
+    tracing, Binary, BinaryTrait,
 };
 
 /// A `BinaryTrait` for `asdf`
@@ -81,9 +81,16 @@ impl AsdfBinary {
     /// List all versions for an `asdf` package
     pub async fn list_all(package: &str) -> Result<Vec<String>> {
         let asdf = AsdfBinary {}.require(None, true).await?;
-        asdf.run(&["plugin", "add", package]).await?;
-        let output = asdf.run(&["list", "all", package]).await?;
 
+        asdf.run_with(&["plugin", "add", package], None, None)
+            .await
+            .ok();
+
+        let output = asdf
+            .command()
+            .args(&["list", "all", package])
+            .output()
+            .await?;
         let versions: Vec<String> = std::str::from_utf8(&output.stdout)?
             .lines()
             .map(String::from)
@@ -98,9 +105,20 @@ impl AsdfBinary {
     /// will consider it is already installed and do nothing.
     pub async fn install(package: &str, version: &str) -> Result<()> {
         let asdf = AsdfBinary {}.require(None, true).await?;
-        asdf.run(&["plugin", "add", package]).await?;
-        asdf.run(&["uninstall", package, version]).await?;
-        asdf.run(&["install", package, version]).await?;
+
+        asdf.run_with(&["plugin", "add", package], None, None)
+            .await
+            .ok();
+        asdf.run_with(&["uninstall", package, version], None, None)
+            .await
+            .ok();
+        asdf.run_with(
+            &["install", package, version],
+            Some(tracing::Level::INFO),
+            Some(tracing::Level::INFO),
+        )
+        .await?;
+
         Ok(())
     }
 }
