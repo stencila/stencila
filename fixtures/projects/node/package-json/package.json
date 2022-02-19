@@ -3,6 +3,6 @@
         "node": ">=10.3 <17"
     },
     "dependencies": {
-        "dataframe-js": "1.4.3"
+        "smallest": "1.0.0"
     }
 }

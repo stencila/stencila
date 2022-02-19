@@ -1,15 +1,15 @@
 use std::{
     collections::HashMap,
     ffi::OsString,
-    fs::{self, remove_dir_all},
+    fs::{create_dir_all, read_to_string},
     path::{Path, PathBuf},
 };
 
 use binary_node::{BinaryInstallation, BinaryTrait, NodeBinary};
 use buildpack::{
     eyre,
-    fs_utils::{copy_dir_all, symlink_dir, symlink_file},
-    hash_utils::file_sha256_hex,
+    fs_utils::{copy_if_exists, move_dir_all, symlink_dir, symlink_file},
+    hash_utils::str_sha256_hex,
     is_cnb_build, is_local_build,
     libcnb::{
         self,
@@ -48,12 +48,12 @@ impl Buildpack for NodeBuildpack {
         let tool_versions = Self::tool_versions();
 
         // Read `.nvmrc` for Node.js version
-        let nvmrc = fs::read_to_string(NVMRC)
+        let nvmrc = read_to_string(NVMRC)
             .map(|content| content.trim().to_string())
             .ok();
 
         // Read `package.json` for Node.js version
-        let package_json = fs::read_to_string(PACKAGE_JSON)
+        let package_json = read_to_string(PACKAGE_JSON)
             .ok()
             .and_then(|json| serde_json::from_str::<serde_json::Value>(&json).ok());
 
@@ -234,14 +234,14 @@ impl Layer for NodeLayer {
                 let source = node.parent()?;
 
                 let bin_path = layer_path.join("bin");
-                fs::create_dir_all(&bin_path)?;
+                create_dir_all(&bin_path)?;
                 symlink_file(node.path, bin_path.join(node.name))?;
                 symlink_file(source.join("corepack"), bin_path.join("corepack"))?;
                 symlink_file(source.join("npm"), bin_path.join("npm"))?;
                 symlink_file(source.join("npx"), bin_path.join("npx"))?;
 
                 let lib_path = layer_path.join("lib");
-                fs::create_dir_all(&lib_path)?;
+                create_dir_all(&lib_path)?;
                 symlink_dir(
                     source.join("..").join("lib").join(NODE_MODULES),
                     lib_path.join(NODE_MODULES),
@@ -253,8 +253,7 @@ impl Layer for NodeLayer {
                 tracing::info!("Moving `node {}` installed by Stencila", version);
                 let source = node.grandparent()?;
 
-                copy_dir_all(&source, layer_path)?;
-                remove_dir_all(source)?;
+                move_dir_all(&source, layer_path)?;
             } else {
                 tracing::info!("Linking to `node {}` installed on stack image", version);
                 let source = node.grandparent()?;
@@ -272,13 +271,15 @@ struct NodeModulesLayer;
 
 /// Generate `package_hash` string for an app directory
 ///
-/// If the directory has a `package-lock.json` that will be used. If not
-/// `package.json` will be used. This means that if the user removes
-/// or updates `package-lock.json` the layer will be updated. If there is no lock file
-/// then the layer will only be updated if there are changes in `package.json`.
-fn generate_package_hash(app_dir: &Path) -> Result<String, eyre::Report> {
-    file_sha256_hex(app_dir.join(PACKAGE_LOCK))
-        .or_else(|_| file_sha256_hex(app_dir.join(PACKAGE_JSON)))
+/// The hash is of the combined contens of `package-lock.json` and `package.json`.
+/// This means that if either one is changed or removed that the hash will change.
+fn generate_package_hash(app_dir: &Path) -> String {
+    let content = [
+        read_to_string(app_dir.join(PACKAGE_LOCK)).unwrap_or_default(),
+        read_to_string(app_dir.join(PACKAGE_JSON)).unwrap_or_default(),
+    ]
+    .concat();
+    str_sha256_hex(&content)
 }
 
 impl Layer for NodeModulesLayer {
@@ -298,7 +299,7 @@ impl Layer for NodeModulesLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
-        let package_hash = generate_package_hash(&context.app_dir).unwrap_or_default();
+        let package_hash = generate_package_hash(&context.app_dir);
         let strategy = if package_hash == layer_data.content_metadata.metadata.hash {
             tracing::info!("Existing `node_modules` layer has same package hash; will keep",);
             ExistingLayerStrategy::Keep
@@ -334,9 +335,10 @@ impl NodeModulesLayer {
         context: &BuildContext<NodeBuildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<LayerHashMetadata>, eyre::Report> {
-        // Use `node` and `npm` installed in the `node` layer
+        let app_path = &context.app_dir;
+
+        // Use the `node` and `npm` binaries installed in the `node` layer
         let node_layer = layer_path
-            .canonicalize()?
             .parent()
             .expect("Should have parent")
             .join("node");
@@ -354,8 +356,8 @@ impl NodeModulesLayer {
         }
 
         // Call the `npm-cli.js` script installed in the `node` layer
-        // This is done, rather than executing `bin/npm` directly there are issues with node `require`
-        // module resolution when the latter is used.
+        // This is done, rather than executing `bin/npm` directly, there are issues with node `require`
+        // module resolution when the latter is done.
         let node = BinaryInstallation::new(
             "node".into(),
             node_layer.join("bin").join("node"),
@@ -371,53 +373,41 @@ impl NodeModulesLayer {
             .display()
             .to_string();
 
-        // Read any `package-lock.json` so that we can restore it, or remove the new one that
-        // install creates. This needs to be done to avoid affecting the `package_hash` generated at the end
-        // of this function (and because we should leave app_dir untouched)
-        let package_lock_path = context.app_dir.join(PACKAGE_LOCK);
-        let package_lock_contents = fs::read_to_string(&package_lock_path).ok();
-
-        // Do the install
-        node.run_sync(&[&npm, "install"])?;
-
-        // Remove or restore `package-lock.json`
-        match package_lock_contents {
-            Some(contents) => fs::write(&package_lock_path, contents)?,
-            None => {
-                if package_lock_path.exists() {
-                    fs::remove_file(&package_lock_path)?
-                }
-            }
-        }
-
-        // Generate a 'package hash' to be able to tell if layer is stale in `existing_layer_strategy`
-        let hash = generate_package_hash(&context.app_dir)?;
-
         let mut layer_env = LayerEnv::new();
+        if is_local_build(context) {
+            // Do the install in the app directory as normal
+            node.run_sync(&[&npm, "install"])?;
+        } else {
+            // Do the install in the layer.
+            // Alternative, more complicated approaches to this e.g. doing a local install and then copying
+            // over to layers and/or symlinking are problematic.
 
-        // If this is a CNB build move `node_modules` to `layer_path/node_modules` because
-        // "Implementations MUST NOT write to any other location than layer_path".
-        //
-        // It feels like there should be other ways to do this, but using `--prefix` flag or
-        // setting `NPM_CONFIG_PREFIX` or `NODE_PATH` didn't work. At least one other buildpack does it this way too:
-        // https://github.com/paketo-buildpacks/npm-install/blob/83ebc22dde31d3f7423a215c8eb7549a180bbf35/install_build_process.go#L60-L76
-        //
-        // Instead of creating a symlink to `node_modules` in the app_dir, add it to NODE_PATH.
-        if is_cnb_build(context) {
-            let app_node_modules = context.app_dir.join(NODE_MODULES);
-            let layer_node_modules = layer_path.join(NODE_MODULES);
-            copy_dir_all(&app_node_modules, &layer_node_modules)?;
-            remove_dir_all(&app_node_modules)?;
+            // Despite some confusion online it seems that at present it is necessary to copy over these
+            // files when using `--prefix`
+            copy_if_exists(app_path.join(PACKAGE_JSON), layer_path.join(PACKAGE_JSON))?;
+            copy_if_exists(app_path.join(PACKAGE_LOCK), layer_path.join(PACKAGE_LOCK))?;
+
+            node.run_sync(&[
+                &npm,
+                "install",
+                "--prefix",
+                &layer_path.display().to_string(),
+            ])?;
+
+            // Set the `NODE_PATH` so that the `node_modules` can be found
             layer_env.insert(
                 Scope::All,
                 ModificationBehavior::Prepend,
                 "NODE_PATH",
-                layer_node_modules,
+                layer_path.join(NODE_MODULES),
             );
         }
 
-        LayerResultBuilder::new(LayerHashMetadata { hash })
-            .env(layer_env)
-            .build()
+        // Generate a 'package hash' to detect if layer is stale in `existing_layer_strategy()`
+        let metadata = LayerHashMetadata {
+            hash: generate_package_hash(app_path),
+        };
+
+        LayerResultBuilder::new(metadata).env(layer_env).build()
     }
 }
