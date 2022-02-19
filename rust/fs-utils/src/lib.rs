@@ -43,6 +43,19 @@ pub fn symlink_dir<Original: AsRef<Path>, Link: AsRef<Path>>(
     Ok(())
 }
 
+/// Copy a file or directory if it exists
+pub fn copy_if_exists(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> Result<()> {
+    let src = src.as_ref();
+    if src.exists() {
+        if src.is_dir() {
+            copy_dir_all(src, dest)?;
+        } else {
+            fs::copy(src, dest)?;
+        }
+    }
+    Ok(())
+}
+
 /// Clear a directory
 pub fn clear_dir_all(dir: impl AsRef<Path>) -> Result<()> {
     fs::remove_dir_all(&dir)?;
@@ -64,5 +77,14 @@ pub fn copy_dir_all(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> Result<()>
             }
         }
     }
+    Ok(())
+}
+
+/// Move a directory
+///
+/// This is a lot less efficient than `std::fs::rename` but will work across mounts
+pub fn move_dir_all(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> Result<()> {
+    copy_dir_all(&src, &dest)?;
+    fs::remove_dir_all(&src)?;
     Ok(())
 }
