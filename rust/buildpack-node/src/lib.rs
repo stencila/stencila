@@ -1,16 +1,14 @@
 use std::{
-    collections::HashMap,
-    ffi::OsString,
     fs::{create_dir_all, read_to_string, remove_file},
     path::{Path, PathBuf},
 };
 
-use binary_node::{BinaryInstallation, BinaryTrait, NodeBinary};
+use binary_node::{BinaryTrait, NodeBinary};
 use buildpack::{
     eyre,
     fs_utils::{copy_if_exists, move_dir_all, symlink_dir, symlink_file},
     hash_utils::str_sha256_hex,
-    is_cnb_build, is_local_build,
+    is_local_build,
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
@@ -125,21 +123,21 @@ impl Buildpack for NodeBuildpack {
     }
 
     fn build(&self, context: BuildContext<Self>) -> libcnb::Result<BuildResult, Self::Error> {
-        let entries: HashMap<_, _> = context
-            .buildpack_plan
-            .entries
-            .iter()
-            .map(|entry| Self::split_entry_name(&entry.name))
-            .collect();
+        let env_vars = self.get_env_vars();
+
+        let entries = self.buildpack_plan_entries(&context.buildpack_plan);
 
         if let Some(args) = entries.get("node") {
-            context.handle_layer(layer_name!("node"), NodeLayer::new(args.clone()))?;
+            let layer_data =
+                context.handle_layer(layer_name!("node"), NodeLayer::new(args.clone()))?;
+            self.set_layer_env_vars(&layer_data.env);
         }
 
         if entries.contains_key("node_modules") {
             context.handle_layer(layer_name!("node_modules"), NodeModulesLayer)?;
         }
 
+        self.restore_env_vars(env_vars);
         BuildResultBuilder::new().build()
     }
 }
@@ -218,7 +216,7 @@ impl Layer for NodeLayer {
             self.requirement
         );
 
-        let node = NodeBinary {}.require_sync(Some(self.requirement.clone()), true)?;
+        let node = NodeBinary {}.ensure_version_sync(&self.requirement)?;
         let version = node.version()?.to_string();
 
         if is_local_build(context) {
@@ -262,15 +260,26 @@ impl Layer for NodeLayer {
             }
         }
 
-        LayerResultBuilder::new(LayerVersionMetadata { version }).build()
+        // Store version in metadata to detect if layer is stale in `existing_layer_strategy()`
+        let metadata = LayerVersionMetadata { version };
+
+        // Set the `NODE_PATH` so that the `lib/node_modules` (which has `npm` for example) can be found
+        let layer_env = LayerEnv::new().chainable_insert(
+            Scope::All,
+            ModificationBehavior::Prepend,
+            "NODE_PATH",
+            layer_path.join("lib").join(NODE_MODULES),
+        );
+
+        LayerResultBuilder::new(metadata).env(layer_env).build()
     }
 }
 
 struct NodeModulesLayer;
 
-/// Generate `package_hash` string for an app directory
+/// Generate a 'package hash' string for an app directory
 ///
-/// The hash is of the combined contens of `package-lock.json` and `package.json`.
+/// The hash is of the combined contents of `package-lock.json` and `package.json`.
 /// This means that if either one is changed or removed that the hash will change.
 fn generate_package_hash(app_dir: &Path) -> String {
     let content = [
@@ -337,29 +346,14 @@ impl NodeModulesLayer {
         let app_path = &context.app_dir.canonicalize()?;
         let layer_path = &layer_path.canonicalize()?;
 
-        // Use the `node` and `npm` binaries installed in the `node` layer
-        let node_layer = layer_path
-            .parent()
-            .expect("Should have parent")
-            .join("node");
-
-        // Prepend to the PATH because some package install scripts
-        // use `/usr/bin/env node` which looks for `node` on PATH
-        let mut envs: Vec<(OsString, OsString)> = vec![(
-            "PATH".into(),
-            NodeBuildpack::prepend_path(&node_layer.join("bin"))?,
-        )];
-
-        // If this is a CNB build use `layer_path/cache` as the NPM cache
-        if is_cnb_build(context) {
-            envs.push(("NPM_CONFIG_CACHE".into(), layer_path.join("cache").into()));
-        }
-
         // Call the `npm-cli.js` script installed in the `node` layer
         // This is done, rather than executing `bin/npm` directly, there are issues with node `require`
         // module resolution when the latter is done.
-        let node = BinaryInstallation::new("node", node_layer.join("bin").join("node"), None, envs);
-        let npm = node_layer
+        let mut node = NodeBinary {}.require_sync()?;
+        let npm = layer_path
+            .parent()
+            .expect("Should have parent")
+            .join("node")
             .join("lib")
             .join(NODE_MODULES)
             .join("npm")
@@ -380,12 +374,23 @@ impl NodeModulesLayer {
             copy_if_exists(app_path.join(PACKAGE_JSON), layer_path.join(PACKAGE_JSON))?;
             copy_if_exists(app_path.join(PACKAGE_LOCK), layer_path.join(PACKAGE_LOCK))?;
 
+            // Use `layer_path/cache` as the NPM cache
+            node.env_list(&[(
+                "NPM_CONFIG_CACHE",
+                layer_path.join("cache").into_os_string(),
+            )]);
+
             node.run_sync([npm, "install".into(), "--prefix".into(), layer_path.into()])?;
 
             // Remove the files, so they are not there next time
             remove_file(layer_path.join(PACKAGE_JSON)).ok();
             remove_file(layer_path.join(PACKAGE_LOCK)).ok();
         }
+
+        // Generate a 'package hash' to detect if layer is stale in `existing_layer_strategy()`
+        let metadata = LayerHashMetadata {
+            hash: generate_package_hash(app_path),
+        };
 
         // Set the `NODE_PATH` so that the `node_modules` can be found
         let layer_env = LayerEnv::new().chainable_insert(
@@ -394,11 +399,6 @@ impl NodeModulesLayer {
             "NODE_PATH",
             layer_path.join(NODE_MODULES),
         );
-
-        // Generate a 'package hash' to detect if layer is stale in `existing_layer_strategy()`
-        let metadata = LayerHashMetadata {
-            hash: generate_package_hash(app_path),
-        };
 
         LayerResultBuilder::new(metadata).env(layer_env).build()
     }

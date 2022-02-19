@@ -17,7 +17,8 @@ use libcnb::{
         build_plan::{Provide, Require},
         buildpack::BuildpackId,
     },
-    libcnb_runtime_build, libcnb_runtime_detect, BuildArgs, DetectArgs, Platform,
+    layer_env::{LayerEnv, Scope},
+    libcnb_runtime_build, libcnb_runtime_detect, BuildArgs, DetectArgs, Env, Platform,
 };
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -177,15 +178,67 @@ pub trait BuildpackTrait: libcnb::Buildpack {
         (require, provide)
     }
 
-    /// Split the `name` of a buildpack plan into two parts
+    /// Get all the environment variables of the process
     ///
-    /// A convenience method for used in `build`.
-    fn split_entry_name(name: &str) -> (String, Vec<String>) {
-        let mut parts = name.split(' ');
-        (
-            parts.next().unwrap_or_default().to_string(),
-            parts.map(String::from).collect::<Vec<String>>(),
-        )
+    /// Used at the start of `build` to save the current state of the environment
+    /// (so it can be restored later).
+    fn get_env_vars(&self) -> HashMap<OsString, OsString> {
+        env::vars_os().collect()
+    }
+
+    /// Set the environment variables defined in a buildpack layer
+    /// 
+    /// This simulates what the CNB platform does during the build phase
+    /// between buildpacks, but does it between layers. This is useful because some layers might
+    /// be dependent upon things installed in the previous layer. By setting
+    /// env vars like `PATH` we avoid all sorts on shenanigans in the subsequent layers
+    /// for referring to the previous ones (e.g. `node_modules` layer needing `node` installed
+    /// in `node` layer).
+    ///
+    /// Currently only sets the layer env vars that have [`Scope::Build`] and does
+    /// not remove existing env vars.
+    fn set_layer_env_vars(&self, layer_env: &LayerEnv) {
+        let env = layer_env.apply(Scope::Build, &Env::from_current());
+        for (key, value) in env.iter() {
+            env::set_var(key, value)
+        }
+    }
+
+    /// Restore environment variables of the process
+    ///
+    /// Used at the end of `build` to restore environment variables previously
+    /// saved using `get_env_vars`.
+    ///
+    /// In many use cases, restoring the env vars will not be necessary
+    /// (e.g. when running an individual buildpack as part of a CNB build) but to avoid potential
+    /// conflicts is encouraged as part of the `build()` method.
+    fn restore_env_vars(&self, vars: HashMap<OsString, OsString>) {
+        for (key, ..) in env::vars_os() {
+            env::remove_var(key);
+        }
+        for (key, value) in vars {
+            env::set_var(key, value)
+        }
+    }
+
+    /// Parse the `entries` of a buildpack plan into layers name and arguments
+    ///
+    /// A convenience method for use in `build`.
+    fn buildpack_plan_entries(
+        &self,
+        buildpack_plan: &libcnb::data::buildpack_plan::BuildpackPlan,
+    ) -> HashMap<String, Vec<String>> {
+        buildpack_plan
+            .entries
+            .iter()
+            .map(|entry| {
+                let mut parts = entry.name.split(' ');
+                (
+                    parts.next().unwrap_or_default().to_string(),
+                    parts.map(String::from).collect::<Vec<String>>(),
+                )
+            })
+            .collect()
     }
 
     /// Run the buildpack's `detect` method
