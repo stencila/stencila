@@ -370,13 +370,12 @@ impl NodeModulesLayer {
             .join("npm")
             .join("bin")
             .join("npm-cli.js")
-            .display()
-            .to_string();
+            .into_os_string();
 
         let mut layer_env = LayerEnv::new();
         if is_local_build(context) {
             // Do the install in the app directory as normal
-            node.run_sync(&[&npm, "install"])?;
+            node.run_sync(&[npm, "install".into()])?;
         } else {
             // Do the install in the layer.
             // Alternative, more complicated approaches to this e.g. doing a local install and then copying
@@ -387,12 +386,7 @@ impl NodeModulesLayer {
             copy_if_exists(app_path.join(PACKAGE_JSON), layer_path.join(PACKAGE_JSON))?;
             copy_if_exists(app_path.join(PACKAGE_LOCK), layer_path.join(PACKAGE_LOCK))?;
 
-            node.run_sync(&[
-                &npm,
-                "install",
-                "--prefix",
-                &layer_path.display().to_string(),
-            ])?;
+            node.run_sync(&[npm, "install".into(), "--prefix".into(), layer_path.into()])?;
 
             // Set the `NODE_PATH` so that the `node_modules` can be found
             layer_env.insert(
