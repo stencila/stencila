@@ -42,7 +42,7 @@ impl BinaryTrait for RBinary {
         _arch: &str,
     ) -> Result<()> {
         if os == "linux" || os == "macos" {
-            let asdf = AsdfBinary {}.require(None, true).await?;
+            let asdf = AsdfBinary {}.ensure().await?;
             asdf.run(&["plugin", "add", "R"]).await?;
             asdf.run(&["install", "R", version]).await?;
             Ok(())

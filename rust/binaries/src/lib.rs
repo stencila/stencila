@@ -137,7 +137,7 @@ pub async fn install(name: &str, semver: &str) -> Result<BinaryInstallation> {
 /// If the binary is already available, or automatic installs are configured, returns
 /// a `BinaryInstallation` that can be used to run commands. Otherwise, errors
 /// with a message that the required binary is not yet installed, or failed to install.
-pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
+pub async fn ensure(name: &str, semver: &str) -> Result<BinaryInstallation> {
     if let Ok(installation) = installation(name, semver).await {
         return Ok(installation);
     }
@@ -157,7 +157,7 @@ pub fn require_sync(name: &str, semver: &str) -> Result<BinaryInstallation> {
     let semver = semver.to_string();
     let (sender, receiver) = std::sync::mpsc::channel();
     tokio::spawn(async move {
-        let result = require(&name, &semver).await;
+        let result = ensure(&name, &semver).await;
         sender.send(result)
     });
     receiver.recv()?
@@ -174,7 +174,7 @@ pub async fn require_any(binaries: &[(&str, &str)]) -> Result<BinaryInstallation
         }
     }
     match binaries.get(0) {
-        Some((name, semver)) => require(name, semver).await,
+        Some((name, semver)) => ensure(name, semver).await,
         None => bail!("No name/semver pairs provided"),
     }
 }
@@ -429,7 +429,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Run_ {
         async fn run(&self) -> Result {
-            let installation = require(
+            let installation = ensure(
                 &self.name,
                 &self.semver.clone().unwrap_or_else(|| "*".to_string()),
             )
@@ -455,7 +455,7 @@ mod tests {
     // tests of installation of each binary. These tests are
     // tagged with #[ignore] because they are slow, so in development
     // you don't want to run them, and because if they are run in
-    // parallel with other tests that use `require()` they can cause deadlocks
+    // parallel with other tests that use `ensure()` they can cause deadlocks
     // and other on-disk conflicts.
 
     // Run this test at the start of CI tests using

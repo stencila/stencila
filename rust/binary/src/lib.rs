@@ -377,45 +377,83 @@ pub trait BinaryTrait: Send + Sync {
         )
     }
 
-    /// Require a binary
-    async fn require(
-        &self,
-        requirement: Option<String>,
-        install: bool,
-    ) -> Result<BinaryInstallation> {
+    /// Ensure the binary is installed
+    async fn ensure(&self) -> Result<BinaryInstallation> {
+        self.ensure_version("*").await
+    }
+
+    /// Ensure a version of the binary that meets a semver requirement is installed
+    async fn ensure_version(&self, requirement: &str) -> Result<BinaryInstallation> {
+        let requirement = Some(requirement.to_string());
         match self.installed(requirement.clone())? {
             Some(installation) => Ok(installation),
             None => {
-                let spec = self.spec();
-                if install {
-                    self.install(requirement.clone()).await?;
-                    match self.installed(requirement.clone())? {
-                        Some(installation) => Ok(installation),
-                        None => bail!("Failed to get new installation `{}`", spec.name),
-                    }
-                } else {
-                    bail!(
-                        "Binary `{}` with version requirement `{}` is not installed",
-                        spec.name,
-                        requirement.unwrap_or_default()
-                    )
+                self.install(requirement.clone()).await?;
+                match self.installed(requirement.clone())? {
+                    Some(installation) => Ok(installation),
+                    None => bail!(
+                        "Failed to ensure new installation of `{}`",
+                        self.spec().name
+                    ),
                 }
             }
         }
     }
 
-    /// Require a binary (synchronously)
+    /// Ensure a version of the binary that meets a semver requirement is installed (synchronously)
     ///
-    /// This is just the synchronous version of `Self::require`
-    fn require_sync(
-        &self,
-        requirement: Option<String>,
-        install: bool,
-    ) -> Result<BinaryInstallation> {
+    /// This is just the synchronous version of [`Self::require`]
+    fn ensure_version_sync(&self, requirement: &str) -> Result<BinaryInstallation> {
+        let clone = self.clone_box();
+        let requirement = requirement.to_string();
+        let (sender, receiver) = std::sync::mpsc::channel();
+        tokio::spawn(async move {
+            let result = clone.ensure_version(&requirement).await;
+            sender.send(result)
+        });
+        receiver.recv()?
+    }
+
+    /// Require the binary
+    async fn require(&self) -> Result<BinaryInstallation> {
+        self.installed(None)?
+            .ok_or_else(|| eyre!("No install of `{}` could be found", self.spec().name))
+    }
+
+    /// Require the binary (synchronously)
+    ///
+    /// This is just the synchronous version of [`Self::require`]
+    fn require_sync(&self) -> Result<BinaryInstallation> {
         let clone = self.clone_box();
         let (sender, receiver) = std::sync::mpsc::channel();
         tokio::spawn(async move {
-            let result = clone.require(requirement, install).await;
+            let result = clone.require().await;
+            sender.send(result)
+        });
+        receiver.recv()?
+    }
+
+    /// Require a version of the binary that meets a semver requirement
+    async fn require_version(&self, requirement: &str) -> Result<BinaryInstallation> {
+        self.installed(Some(requirement.to_string()))?
+            .ok_or_else(|| {
+                eyre!(
+                    "No version of `{}` meeting requirement `{}` could be found",
+                    self.spec().name,
+                    requirement
+                )
+            })
+    }
+
+    /// Require a version of the binary (synchronously)
+    ///
+    /// This is just the synchronous version of [`Self::require_version`]
+    fn require_version_sync(&self, requirement: &str) -> Result<BinaryInstallation> {
+        let clone = self.clone_box();
+        let requirement = requirement.to_string();
+        let (sender, receiver) = std::sync::mpsc::channel();
+        tokio::spawn(async move {
+            let result = clone.require_version(&requirement).await;
             sender.send(result)
         });
         receiver.recv()?

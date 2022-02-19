@@ -44,12 +44,10 @@ impl BinaryTrait for PoetryBinary {
             version,
             dest.display()
         );
-        let mut python = PythonBinary {}
-            .require(Some(">=3.7".to_string()), true)
-            .await?;
+        let mut python = PythonBinary {}.ensure_version(">=3.7").await?;
         python.env_list(&[
             ("POETRY_HOME", dest.into()),
-            ("POETRY_VERSION", OsString::from(version)),
+            ("POETRY_VERSION", version.into()),
             ("POETRY_ACCEPT", OsString::from("yes")),
         ]);
         python.run(&[&script.display().to_string()]).await?;

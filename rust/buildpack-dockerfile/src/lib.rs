@@ -29,7 +29,7 @@ impl Buildpack for DockerfileBuildpack {
         let tag = tag_for_path(&context.app_dir);
 
         PodmanBinary {}
-            .require_sync(None, true)
+            .ensure_version_sync(">=1")
             .map_err(Error::BuildpackError)?
             .run_sync(&["build", "--tag", &tag, "."])
             .map_err(Error::BuildpackError)?;

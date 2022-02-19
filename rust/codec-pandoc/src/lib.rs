@@ -87,7 +87,7 @@ pub async fn from_pandoc(
     let json = if format == "pandoc" {
         input.to_string()
     } else {
-        let binary = binaries::require("pandoc", PANDOC_SEMVER).await?;
+        let binary = binaries::ensure("pandoc", PANDOC_SEMVER).await?;
 
         let mut command = binary.command();
         command.args(["--from", format, "--to", "json"]);
@@ -126,7 +126,7 @@ pub async fn to_pandoc(
     if format == "pandoc" {
         Ok(json)
     } else {
-        let binary = binaries::require("pandoc", PANDOC_SEMVER).await?;
+        let binary = binaries::ensure("pandoc", PANDOC_SEMVER).await?;
 
         let mut command = binary.command();
         command.args(["--from", "json", "--to", format]);

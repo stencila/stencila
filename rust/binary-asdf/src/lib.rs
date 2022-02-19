@@ -80,7 +80,7 @@ impl BinaryTrait for AsdfBinary {
 impl AsdfBinary {
     /// List all versions for an `asdf` package
     pub async fn list_all(package: &str) -> Result<Vec<String>> {
-        let asdf = AsdfBinary {}.require(None, true).await?;
+        let asdf = AsdfBinary {}.ensure().await?;
 
         asdf.run_with(&["plugin", "add", package], None, None)
             .await
@@ -104,7 +104,7 @@ impl AsdfBinary {
     /// Calls `uninstall` first because even with an empty directory it
     /// will consider it is already installed and do nothing.
     pub async fn install(package: &str, version: &str) -> Result<()> {
-        let asdf = AsdfBinary {}.require(None, true).await?;
+        let asdf = AsdfBinary {}.ensure().await?;
 
         asdf.run_with(&["plugin", "add", package], None, None)
             .await
