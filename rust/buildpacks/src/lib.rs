@@ -490,7 +490,7 @@ impl Buildpacks {
 
         const CNB_BUILDER: &str = "stencila/buildpacks:focal";
 
-        let pack = PackBinary {}.require(None, true).await?;
+        let pack = PackBinary {}.ensure().await?;
         let output = pack
             .run(&[
                 "build",

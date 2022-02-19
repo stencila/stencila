@@ -124,7 +124,6 @@ impl Buildpack for NodeBuildpack {
 
     fn build(&self, context: BuildContext<Self>) -> libcnb::Result<BuildResult, Self::Error> {
         let env_vars = self.get_env_vars();
-
         let entries = self.buildpack_plan_entries(&context.buildpack_plan);
 
         if let Some(args) = entries.get("node") {

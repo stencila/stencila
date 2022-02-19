@@ -187,7 +187,7 @@ pub trait BuildpackTrait: libcnb::Buildpack {
     }
 
     /// Set the environment variables defined in a buildpack layer
-    /// 
+    ///
     /// This simulates what the CNB platform does during the build phase
     /// between buildpacks, but does it between layers. This is useful because some layers might
     /// be dependent upon things installed in the previous layer. By setting

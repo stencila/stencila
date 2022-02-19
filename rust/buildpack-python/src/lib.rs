@@ -1,6 +1,5 @@
 use std::{
-    collections::HashMap,
-    env::{self, current_dir, set_current_dir},
+    env::{current_dir, set_current_dir},
     ffi::OsString,
     fs::{create_dir_all, read_to_string, remove_file},
     path::{Path, PathBuf},
@@ -148,25 +147,25 @@ impl Buildpack for PythonBuildpack {
     }
 
     fn build(&self, context: BuildContext<Self>) -> libcnb::Result<BuildResult, Self::Error> {
-        let entries: HashMap<_, _> = context
-            .buildpack_plan
-            .entries
-            .iter()
-            .map(|entry| Self::split_entry_name(&entry.name))
-            .collect();
+        let env_vars = self.get_env_vars();
+        let entries = self.buildpack_plan_entries(&context.buildpack_plan);
 
         if let Some(args) = entries.get("python") {
-            context.handle_layer(layer_name!("python"), PythonLayer::new(args.clone()))?;
+            let layer_data =
+                context.handle_layer(layer_name!("python"), PythonLayer::new(args.clone()))?;
+            self.set_layer_env_vars(&layer_data.env);
         }
 
         if entries.contains_key("poetry") {
-            context.handle_layer(layer_name!("poetry"), PoetryLayer::new())?;
+            let layer_data = context.handle_layer(layer_name!("poetry"), PoetryLayer::new())?;
+            self.set_layer_env_vars(&layer_data.env);
         }
 
         if let Some(args) = entries.get("venv") {
             context.handle_layer(layer_name!("venv"), VenvLayer::new(args.clone()))?;
         }
 
+        self.restore_env_vars(env_vars);
         BuildResultBuilder::new().build()
     }
 }
@@ -232,10 +231,8 @@ impl Layer for PythonLayer {
             self.requirement
         );
 
-        let python = PythonBinary {}.require_sync(Some(self.requirement.clone()), true)?;
+        let python = PythonBinary {}.ensure_version_sync(&self.requirement)?;
         let version = python.version()?.to_string();
-
-        let mut layer_env = LayerEnv::new();
 
         if is_local_build(context) {
             if python.is_stencila_install() {
@@ -258,12 +255,6 @@ impl Layer for PythonLayer {
                 let source = python.grandparent()?;
 
                 move_dir_all(source, &layer_path)?;
-                layer_env.insert(
-                    Scope::All,
-                    ModificationBehavior::Override,
-                    "PYTHONHOME",
-                    layer_path,
-                );
             } else {
                 tracing::info!("Linking to `python {}` installed on stack image", version);
 
@@ -273,9 +264,18 @@ impl Layer for PythonLayer {
             }
         }
 
-        LayerResultBuilder::new(LayerVersionMetadata { version })
-            .env(layer_env)
-            .build()
+        // Store version in metadata to detect if layer is stale in `existing_layer_strategy()`
+        let metadata = LayerVersionMetadata { version };
+
+        // Set the `PYTHONHOME` (is this necessary?)
+        let layer_env = LayerEnv::new().chainable_insert(
+            Scope::All,
+            ModificationBehavior::Prepend,
+            "PYTHONHOME",
+            layer_path,
+        );
+
+        LayerResultBuilder::new(metadata).env(layer_env).build()
     }
 }
 
@@ -340,7 +340,7 @@ impl Layer for PoetryLayer {
         );
 
         let version = if is_local_build(context) {
-            let poetry = PoetryBinary {}.require_sync(Some(self.requirement.clone()), true)?;
+            let poetry = PoetryBinary {}.ensure_version_sync(&self.requirement)?;
             let version = poetry.version()?.to_string();
 
             if poetry.is_stencila_install() {
@@ -372,18 +372,8 @@ impl Layer for PoetryLayer {
                 );
 
                 // Because of how Poetry installs itself, we need to install directly into the
-                // layer, rather than copy it from somewhere else. Install may fail if we don't
-                // use a recent enough version of Python with `ensurepip` module.
-                // So prepend `PATH` with the version installed in sibling layer which
-                // the `PoetryBinary::install_version` should pick up and use.
-                let python_layer_bin = layer_path
-                    .canonicalize()?
-                    .parent()
-                    .expect("Should have parent")
-                    .join("python")
-                    .join("bin");
-                env::set_var("PATH", PythonBuildpack::prepend_path(&python_layer_bin)?);
-
+                // layer, rather than copy it from somewhere else. Install may fail if a
+                // recent enough version of Python with `ensurepip` module is not available.
                 PoetryBinary {}.install_in_sync(
                     Some(self.requirement.clone()),
                     Some(layer_path.to_path_buf()),
@@ -535,7 +525,7 @@ impl VenvLayer {
                 vec![],
             );
 
-            // If Stencila is not the platform use the layer as the Pip cache
+            // If a CNB build use the layer as the Pip cache
             if is_cnb_build(context) {
                 python.env_list(&[("PIP_CACHE_DIR", layer_path.as_os_str())]);
             }
@@ -548,37 +538,15 @@ impl VenvLayer {
                 venv_path.display()
             );
 
+            let mut poetry = PoetryBinary {}.require_version_sync(">=1")?;
             let mut envs: Vec<(OsString, OsString)> = vec![
-                // Set env vars to keep Poetry happy
-                (
-                    "PATH".into(),
-                    PythonBuildpack::prepend_path(&python_layer_path.join("bin"))?,
-                ),
-                ("PYTHONHOME".into(), python_layer_path.into()),
                 // Ensure that a `.venv` folder in the working directory is used (instead of a system level one)
                 ("POETRY_VIRTUALENVS_IN_PROJECT".into(), "true".into()),
             ];
 
-            // If a CNB build use the `layer_path/cache` as the Poetry cache
-            if is_cnb_build(context) {
-                envs.push(("POETRY_CACHE_DIR".into(), layer_path.join("cache").into()));
-            }
-
-            // Use `poetry` installed in the sibling `poetry` layer
-            let poetry = BinaryInstallation::new(
-                "poetry",
-                layer_path
-                    .parent()
-                    .expect("Should have parent")
-                    .join("poetry")
-                    .join("bin")
-                    .join("poetry"),
-                None,
-                envs,
-            );
-
             if is_local_build(context) {
                 // Do the install in the app directory as normal
+                poetry.env_list(&envs);
                 poetry.run_sync(["install"])?;
             } else {
                 // Do the install in the layer.
@@ -592,6 +560,10 @@ impl VenvLayer {
                     layer_path.join(PYPROJECT_TOML),
                 )?;
 
+                // Use the `layer_path/cache` as the Poetry cache
+                envs.push(("POETRY_CACHE_DIR".into(), layer_path.join("cache").into()));
+                poetry.env_list(&envs);
+
                 let current_dir = current_dir()?;
                 set_current_dir(layer_path)?;
                 let result = poetry.run_sync(["install"]);
@@ -603,6 +575,11 @@ impl VenvLayer {
 
                 result?;
             }
+        };
+
+        // Generate a 'packages hash' to detect if layer is stale in `existing_layer_strategy()`
+        let metadata = LayerHashMetadata {
+            hash: generate_packages_hash(app_path),
         };
 
         // Add the virtual env packages to the PYTHONPATH
@@ -620,11 +597,6 @@ impl VenvLayer {
             "PYTHONPATH",
             lib_dir.join(python_minor).join("site-packages"),
         );
-
-        // Generate a 'packages hash' to detect if layer is stale in `existing_layer_strategy()`
-        let metadata = LayerHashMetadata {
-            hash: generate_packages_hash(app_path),
-        };
 
         LayerResultBuilder::new(metadata).env(layer_env).build()
     }
