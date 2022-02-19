@@ -1033,7 +1033,8 @@ impl BinaryInstallation {
         I: IntoIterator<Item = S>,
         S: AsRef<OsStr>,
     {
-        self.run_with(args, None, None).await
+        self.run_with(args, Some(tracing::Level::INFO), Some(tracing::Level::INFO))
+            .await
     }
 
     /// Run the binary, log any outputs on stdout and stderr, and fail if
