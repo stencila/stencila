@@ -85,7 +85,8 @@ impl Buildpack for RBuildpack {
 
         // Require and provide R
         let (require, provide) = Self::require_and_provide(
-            format!("r {}", version).trim(),
+            "r",
+            &version,
             source,
             format!("Install R {}", version).trim(),
         );
@@ -95,7 +96,8 @@ impl Buildpack for RBuildpack {
         // Determine how packages are to be installed
         if renv_lock.is_some() {
             let (require, provide) = Self::require_and_provide(
-                "renv restore",
+                "renv",
+                "restore",
                 RENV_LOCK,
                 "Restore project from a lockfile using `renv`",
             );
@@ -103,7 +105,8 @@ impl Buildpack for RBuildpack {
             provides.push(provide);
         } else if Self::any_exist(&[INSTALL_R, &INSTALL_R.to_lowercase()]) {
             let (require, provide) = Self::require_and_provide(
-                "rscript install",
+                "rscript",
+                "install",
                 INSTALL_R,
                 "Install packages using RScript",
             );
@@ -111,7 +114,8 @@ impl Buildpack for RBuildpack {
             provides.push(provide);
         } else {
             let (require, provide) = Self::require_and_provide(
-                "renv snapshot",
+                "renv",
+                "snapshot",
                 RENV_LOCK,
                 "Generate and install a project lockfile using `renv`",
             );
@@ -126,15 +130,16 @@ impl Buildpack for RBuildpack {
     }
 
     fn build(&self, context: BuildContext<Self>) -> libcnb::Result<BuildResult, Self::Error> {
-        for entry in &context.buildpack_plan.entries {
-            let (name, args) = Self::split_entry_name(&entry.name);
+        let entries = self.buildpack_plan_entries(&context.buildpack_plan);
+
+        for (name, arg) in entries {
             match name.as_str() {
                 "r" => {
-                    let layer = RLayer::new(args.first().cloned());
+                    let layer = RLayer::new(&arg);
                     context.handle_layer(layer_name!("r"), layer)?;
                 }
                 "renv" => {
-                    let layer = RenvLayer::new(args.first().cloned());
+                    let layer = RenvLayer::new(&arg);
                     context.handle_layer(layer_name!("renv"), layer)?;
                 }
                 "rscript" => {
@@ -155,12 +160,14 @@ impl Buildpack for RBuildpack {
 
 struct RLayer {
     /// The version of R to install
-    version: Option<String>,
+    requirement: String,
 }
 
 impl RLayer {
-    fn new(version: Option<String>) -> Self {
-        RLayer { version }
+    fn new(requirement: &str) -> Self {
+        RLayer {
+            requirement: requirement.into(),
+        }
     }
 }
 
@@ -182,7 +189,7 @@ impl Layer for RLayer {
         layer_path: &Path,
     ) -> Result<LayerResult<Self::Metadata>, eyre::Report> {
         // Install the specified version of R
-        let r = RBinary {}.require_sync(self.version.clone(), true)?;
+        let r = RBinary {}.ensure_version_sync(&self.requirement)?;
         let version = r.version()?;
 
         // Symlink/copy the installation into the layer
@@ -226,9 +233,9 @@ struct RenvLayer {
 }
 
 impl RenvLayer {
-    fn new(method: Option<String>) -> Self {
+    fn new(method: &str) -> Self {
         RenvLayer {
-            method: method.unwrap_or_else(|| "snapshot".to_string()),
+            method: method.into(),
         }
     }
 }
@@ -258,7 +265,7 @@ impl Layer for RenvLayer {
 
         // If Stencila is not the platform use the layer as the renv cache
         if !platform_is_stencila(&context.platform) {
-            rscript.envs(&[("RENV_PATHS_CACHE", layer_path.canonicalize()?.as_os_str())]);
+            rscript.env_list(&[("RENV_PATHS_CACHE", layer_path.canonicalize()?.as_os_str())]);
         }
 
         // Run a script that does the install including installing if necessary,

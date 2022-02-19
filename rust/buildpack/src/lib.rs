@@ -153,13 +153,21 @@ pub trait BuildpackTrait: libcnb::Buildpack {
 
     /// Generate `Require` (with metadata) and `Provide` objects
     ///
-    /// A convenience method for use in `build` method.
+    /// Used in `detect` to specify what layers the buildpack must build
+    /// and with what options.
     fn require_and_provide(
         name: impl AsRef<str>,
+        arg: impl AsRef<str>,
         source: impl AsRef<str>,
         desc: impl AsRef<str>,
     ) -> (Require, Provide) {
         let mut require = Require::new(name.as_ref());
+        if !arg.as_ref().is_empty() {
+            require.metadata.insert(
+                "arg".to_string(),
+                toml::Value::String(arg.as_ref().to_string()),
+            );
+        }
         if !source.as_ref().is_empty() {
             require.metadata.insert(
                 "source".to_string(),
@@ -227,16 +235,17 @@ pub trait BuildpackTrait: libcnb::Buildpack {
     fn buildpack_plan_entries(
         &self,
         buildpack_plan: &libcnb::data::buildpack_plan::BuildpackPlan,
-    ) -> HashMap<String, Vec<String>> {
+    ) -> HashMap<String, String> {
         buildpack_plan
             .entries
             .iter()
             .map(|entry| {
-                let mut parts = entry.name.split(' ');
-                (
-                    parts.next().unwrap_or_default().to_string(),
-                    parts.map(String::from).collect::<Vec<String>>(),
-                )
+                let name = entry.name.clone();
+                let arg = entry.metadata.get("arg").map_or_else(
+                    || "".to_string(),
+                    |arg| arg.as_str().map(|str| str.to_string()).unwrap_or_default(),
+                );
+                (name, arg)
             })
             .collect()
     }

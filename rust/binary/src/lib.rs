@@ -255,6 +255,7 @@ pub trait BinaryTrait: Send + Sync {
     /// - `x.y` =>  `~x.y`
     /// - `x` =>  `^x`
     fn semver_requirement(&self, string: &str) -> Result<semver::VersionReq> {
+        let string = string.strip_prefix('v').unwrap_or(string);
         let string = if string.trim().is_empty() {
             "*".to_string()
         } else {
@@ -269,7 +270,18 @@ pub trait BinaryTrait: Send + Sync {
             }
         };
 
-        Ok(semver::VersionReq::parse(&string)?)
+        match semver::VersionReq::parse(&string) {
+            Ok(req) => Ok(req),
+            Err(error) => {
+                if error.to_string().contains("expected comma after") {
+                    // Reattempt assuming user used a space instead of a comma (e.g. >=10.3 <17)
+                    let joined = string.split(' ').collect::<Vec<_>>().join(",");
+                    Ok(semver::VersionReq::parse(&joined)?)
+                } else {
+                    bail!(error)
+                }
+            }
+        }
     }
 
     /// Does a version match a requirement?

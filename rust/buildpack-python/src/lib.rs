@@ -104,7 +104,8 @@ impl Buildpack for PythonBuildpack {
 
         // Require and provide Python
         let (require, provide) = Self::require_and_provide(
-            format!("python {}", version).trim(),
+            "python",
+            &version,
             source,
             format!("Install Python {}", version).trim(),
         );
@@ -119,12 +120,14 @@ impl Buildpack for PythonBuildpack {
                 PYPROJECT_TOML
             };
 
-            let (require, provide) = Self::require_and_provide("poetry", source, "Install Poetry");
+            let (require, provide) =
+                Self::require_and_provide("poetry", "", source, "Install Poetry");
             requires.push(require);
             provides.push(provide);
 
             let (require, provide) = Self::require_and_provide(
-                "venv poetry",
+                "venv",
+                "poetry",
                 source,
                 "Install Python packages into virtual environment using Poetry",
             );
@@ -132,7 +135,8 @@ impl Buildpack for PythonBuildpack {
             provides.push(provide);
         } else if requirements_txt.exists() {
             let (require, provide) = Self::require_and_provide(
-                "venv pip",
+                "venv",
+                "pip",
                 REQUIREMENTS_TXT,
                 "Install Python packages into virtual environment using Pip",
             );
@@ -150,9 +154,9 @@ impl Buildpack for PythonBuildpack {
         let env_vars = self.get_env_vars();
         let entries = self.buildpack_plan_entries(&context.buildpack_plan);
 
-        if let Some(args) = entries.get("python") {
+        if let Some(version) = entries.get("python") {
             let layer_data =
-                context.handle_layer(layer_name!("python"), PythonLayer::new(args.clone()))?;
+                context.handle_layer(layer_name!("python"), PythonLayer::new(version))?;
             self.set_layer_env_vars(&layer_data.env);
         }
 
@@ -161,8 +165,8 @@ impl Buildpack for PythonBuildpack {
             self.set_layer_env_vars(&layer_data.env);
         }
 
-        if let Some(args) = entries.get("venv") {
-            context.handle_layer(layer_name!("venv"), VenvLayer::new(args.clone()))?;
+        if let Some(package_manager) = entries.get("venv") {
+            context.handle_layer(layer_name!("venv"), VenvLayer::new(package_manager))?;
         }
 
         self.restore_env_vars(env_vars);
@@ -176,11 +180,10 @@ struct PythonLayer {
 }
 
 impl PythonLayer {
-    fn new(args: Vec<String>) -> Self {
-        // Join args with commas because semver requirement parser expects that is
-        // how parts of a requirement are separated
-        let requirement = args.join(",");
-        PythonLayer { requirement }
+    fn new(requirement: &str) -> Self {
+        PythonLayer {
+            requirement: requirement.into(),
+        }
     }
 }
 
@@ -386,14 +389,17 @@ impl Layer for PoetryLayer {
 }
 
 struct VenvLayer {
-    /// The tool used to do the installation of packages ("pip" or "poetry")
-    tool: String,
+    /// The package manager used to do the installation of packages
+    ///
+    /// Currently can be "pip" or "poetry"
+    package_manager: String,
 }
 
 impl VenvLayer {
-    fn new(args: Vec<String>) -> Self {
-        let tool = args.first().cloned().unwrap_or_else(|| "pip".to_string());
-        VenvLayer { tool }
+    fn new(package_manager: &str) -> Self {
+        VenvLayer {
+            package_manager: package_manager.into(),
+        }
     }
 }
 
@@ -511,7 +517,7 @@ impl VenvLayer {
             ])?;
         }
 
-        if self.tool == "pip" {
+        if self.package_manager == "pip" {
             tracing::info!(
                 "Installing packages into `{}` using Pip",
                 venv_path.display()

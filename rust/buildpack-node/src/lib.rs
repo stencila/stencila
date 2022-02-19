@@ -94,7 +94,8 @@ impl Buildpack for NodeBuildpack {
 
         // Require and provide Node.js
         let (require, provide) = Self::require_and_provide(
-            format!("node {}", version).trim(),
+            "node",
+            &version,
             source,
             format!("Install Node.js {}", version).trim(),
         );
@@ -105,6 +106,7 @@ impl Buildpack for NodeBuildpack {
         if package_lock.exists() || package_json.is_some() {
             let (require, provide) = Self::require_and_provide(
                 "node_modules",
+                "",
                 if package_lock.exists() {
                     PACKAGE_LOCK
                 } else {
@@ -126,9 +128,8 @@ impl Buildpack for NodeBuildpack {
         let env_vars = self.get_env_vars();
         let entries = self.buildpack_plan_entries(&context.buildpack_plan);
 
-        if let Some(args) = entries.get("node") {
-            let layer_data =
-                context.handle_layer(layer_name!("node"), NodeLayer::new(args.clone()))?;
+        if let Some(version) = entries.get("node") {
+            let layer_data = context.handle_layer(layer_name!("node"), NodeLayer::new(version))?;
             self.set_layer_env_vars(&layer_data.env);
         }
 
@@ -147,21 +148,13 @@ struct NodeLayer {
 }
 
 impl NodeLayer {
-    fn new(args: Vec<String>) -> Self {
-        // Join args with commas because semver requirement parser expects that is
-        // how parts of a requirement are separated
-        let versionish = args.join(",");
-
-        // Determine the semver requirement from versionish which could be a well formed semantic version (e.g 14.0.1),
-        // a semver requirement (e.g. ^14.0), or an alias (e.g. `lts`)
-        let requirement = if let Some(version) = versionish.strip_prefix('v') {
-            version.to_string()
-        } else if versionish == "lts" {
+    fn new(versionish: &str) -> Self {
+        let requirement = if versionish == "lts" {
             // TODO: Determine LTS without doing a fetch, perhaps based on date
             // https://nodejs.org/en/about/releases/
             "^16".to_string()
         } else {
-            versionish.clone()
+            versionish.into()
         };
 
         NodeLayer { requirement }
