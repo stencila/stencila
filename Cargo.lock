@@ -327,7 +327,6 @@ dependencies = [
  "eyre",
  "flate2",
  "glob",
- "once_cell",
  "regex",
  "reqwest",
  "semver 1.0.6",
@@ -551,7 +550,6 @@ version = "0.0.0"
 dependencies = [
  "binary-node",
  "buildpack",
- "serde",
  "serde_json",
 ]
 
