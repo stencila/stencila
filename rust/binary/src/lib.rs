@@ -1,7 +1,6 @@
 use async_trait::async_trait;
 use defaults::Defaults;
 use eyre::{bail, eyre, Result};
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
 #[allow(unused_imports)]
@@ -25,6 +24,7 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 /// Re-exports for the convenience of crates implementing `BinaryTrait`
 pub use ::async_trait;
 pub use ::eyre;
+pub use ::tokio;
 pub use ::tracing;
 
 /// Get the directory where binaries are stored
@@ -476,30 +476,22 @@ pub trait BinaryTrait: Send + Sync {
             dirs.append(&mut globbed)
         }
 
-        // Add the system PATH
-        // Cache the parsed PATH for efficiency
-        static PATH: Lazy<Vec<PathBuf>> = Lazy::new(|| {
-            if let Some(path) = env::var_os("PATH") {
-                tracing::trace!("Found $PATH: {:?}", path);
-                env::split_paths(&path).collect()
-            } else {
-                tracing::trace!("No $PATH env var found");
-                Vec::new()
-            }
-        });
-        dirs.append(&mut PATH.clone());
+        // Add the PATH var
+        if let Some(path) = env::var_os("PATH") {
+            tracing::trace!("Found $PATH: {:?}", path);
+            let mut paths = env::split_paths(&path).collect();
+            dirs.append(&mut paths);
+        } else {
+            tracing::trace!("No $PATH env var found");
+        }
 
         // Join all the dirs together in a PATH style string to pass to `which_in_all`
-        let dirs = if !dirs.is_empty() {
-            match env::join_paths(dirs) {
-                Ok(joined) => Some(joined),
-                Err(error) => {
-                    tracing::warn!("While joining paths: {}", error);
-                    None
-                }
+        let dirs = match env::join_paths(dirs) {
+            Ok(joined) => Some(joined),
+            Err(error) => {
+                tracing::warn!("While joining paths: {}", error);
+                None
             }
-        } else {
-            None
         };
 
         // Search for executables with name or one of aliases
@@ -948,16 +940,16 @@ where
 impl BinaryInstallation {
     /// Create an instance
     pub fn new(
-        name: String,
-        path: PathBuf,
+        name: impl AsRef<str>,
+        path: impl AsRef<Path>,
         version: Option<String>,
-        env_list: Vec<(OsString, OsString)>,
+        env: Vec<(OsString, OsString)>,
     ) -> BinaryInstallation {
         BinaryInstallation {
-            name,
-            path,
+            name: name.as_ref().into(),
+            path: path.as_ref().into(),
             version,
-            env: env_list.into_iter().collect(),
+            env: env.into_iter().collect(),
         }
     }
 
