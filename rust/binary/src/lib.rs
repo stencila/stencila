@@ -1103,11 +1103,11 @@ impl BinaryInstallation {
             tokio::spawn(async move {
                 while let Ok(Some(line)) = stdout_reader.next_line().await {
                     match level {
-                        tracing::Level::ERROR => tracing::error!("({}) {}", name, line),
-                        tracing::Level::WARN => tracing::warn!("({}) {}", name, line),
-                        tracing::Level::INFO => tracing::info!("({}) {}", name, line),
-                        tracing::Level::DEBUG => tracing::info!("({}) {}", name, line),
-                        _ => tracing::trace!("({}) {}", name, line),
+                        tracing::Level::ERROR => tracing::error!("[{}] {}", name, line),
+                        tracing::Level::WARN => tracing::warn!("[{}] {}", name, line),
+                        tracing::Level::INFO => tracing::info!("[{}] {}", name, line),
+                        tracing::Level::DEBUG => tracing::info!("[{}] {}", name, line),
+                        _ => tracing::trace!("[{}] {}", name, line),
                     }
                 }
             });
@@ -1120,11 +1120,11 @@ impl BinaryInstallation {
             tokio::spawn(async move {
                 while let Ok(Some(line)) = stderr_reader.next_line().await {
                     match level {
-                        tracing::Level::ERROR => tracing::error!("({}) {}", name, line),
-                        tracing::Level::WARN => tracing::warn!("({}) {}", name, line),
-                        tracing::Level::INFO => tracing::info!("({}) {}", name, line),
-                        tracing::Level::DEBUG => tracing::debug!("({}) {}", name, line),
-                        _ => tracing::trace!("({}) {}", name, line),
+                        tracing::Level::ERROR => tracing::error!("[{}] {}", name, line),
+                        tracing::Level::WARN => tracing::warn!("[{}] {}", name, line),
+                        tracing::Level::INFO => tracing::info!("[{}] {}", name, line),
+                        tracing::Level::DEBUG => tracing::debug!("[{}] {}", name, line),
+                        _ => tracing::trace!("[{}] {}", name, line),
                     }
                 }
             });
