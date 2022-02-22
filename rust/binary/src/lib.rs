@@ -25,6 +25,7 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 pub use ::async_trait;
 pub use ::eyre;
 pub use ::http_utils;
+pub use ::serde_json;
 pub use ::tokio;
 pub use ::tracing;
 
