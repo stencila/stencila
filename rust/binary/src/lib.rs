@@ -24,6 +24,7 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 /// Re-exports for the convenience of crates implementing `BinaryTrait`
 pub use ::async_trait;
 pub use ::eyre;
+pub use ::http_utils;
 pub use ::tokio;
 pub use ::tracing;
 
@@ -194,21 +195,11 @@ pub trait BinaryTrait: Send + Sync {
             repo
         );
 
-        let url = format!(
+        let releases = http_utils::get_json(&format!(
             "https://api.github.com/repos/{}/{}/releases?per_page=100",
             org, repo
-        );
-        let client = reqwest::Client::new();
-        let response = client
-            .get(url)
-            .header(
-                "User-Agent",
-                "Stencila (https://github.com/stencila/stencila/)",
-            )
-            .send()
-            .await?
-            .error_for_status()?;
-        let releases: serde_json::Value = response.json().await?;
+        ))
+        .await?;
 
         let versions = releases
             .as_array()
@@ -677,9 +668,8 @@ pub trait BinaryTrait: Send + Sync {
 
         let versions = self.versions(&os).await?;
 
-        let requirement = if let Some(requirement) = requirement {
-            requirement
-        } else {
+        let requirement = requirement.unwrap_or_default().trim().to_string();
+        let requirement = if requirement.is_empty() || requirement == "*" {
             match versions.first() {
                 Some(version) => version.to_string(),
                 None => bail!(
@@ -687,7 +677,10 @@ pub trait BinaryTrait: Send + Sync {
                     name
                 ),
             }
+        } else {
+            requirement
         };
+
         let requirement = self.semver_requirement(&requirement)?;
 
         // Get the latest version matching semver requirements
@@ -777,10 +770,7 @@ pub trait BinaryTrait: Send + Sync {
         }
 
         tracing::info!("Downloading `{}` to `{}`", url, path.display());
-        let response = reqwest::get(url).await?.error_for_status()?;
-        let bytes = response.bytes().await?;
-        let mut file = fs::File::create(&path)?;
-        io::copy(&mut bytes.as_ref(), &mut file)?;
+        http_utils::download_file(url, &path).await?;
 
         Ok(path)
     }

@@ -5,7 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [features]
-download = ["reqwest", "url"]
+download = ["http-utils", "url"]
 download-zip = ["download", "zip"]
 download-tar = ["download", "tar"]
 download-tar-gz = ["download-tar", "flate2"]
@@ -21,16 +21,14 @@ regex = "1.5.4"
 semver = "1.0.4"
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0.75"
-tokio = { version = "1.13.0", features = ["macros", "process"] }
+tokio = { version = "1.13.0", features = ["macros", "process", "io-util"] }
 tracing = "0.1.29"
 which = "4.2.2"
 
+http-utils = { path = "../http-utils", version = "0.0.0", optional = true }
+
 flate2 = { version = "1.0.22", optional = true }
-reqwest = { version = "0.11.9", features = [
-    "json",
-    "native-tls-vendored",
-], optional = true }
 tar = { version = "0.4.37", optional = true }
-url = { version = "2.2.2", optional = true }
 xz2 = { version = "0.1.6", optional = true }
 zip = { version = "0.5.13", optional = true }
+url = { version = "2.2.2", optional = true }
