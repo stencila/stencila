@@ -30,6 +30,8 @@ struct Buildpacks {
 macro_rules! dispatch_builtins {
     ($label:expr, $method:ident $(,$arg:expr)*) => {
         match $label {
+            #[cfg(feature = "buildpack-apt")]
+            "stencila/apt" => buildpack_apt::AptBuildpack{}.$method($($arg),*),
             #[cfg(feature = "buildpack-dockerfile")]
             "stencila/dockerfile" => buildpack_dockerfile::DockerfileBuildpack{}.$method($($arg),*),
             #[cfg(feature = "buildpack-node")]
@@ -48,6 +50,8 @@ impl Buildpacks {
     pub fn new() -> Self {
         Self {
             inner: [
+                #[cfg(feature = "buildpack-apt")]
+                buildpack_apt::AptBuildpack::spec().ok(),
                 #[cfg(feature = "buildpack-dockerfile")]
                 buildpack_dockerfile::DockerfileBuildpack::spec().ok(),
                 #[cfg(feature = "buildpack-node")]
@@ -275,12 +279,16 @@ impl Buildpacks {
     }
 
     /// Run `detect` for all buildpacks and return a map of the results
-    fn detect_all(&self, working_dir: Option<&Path>) -> Result<Vec<(BuildpackId, bool)>> {
+    fn detect_all(
+        &self,
+        working_dir: Option<&Path>,
+        platform_dir: Option<&Path>,
+    ) -> Result<Vec<(BuildpackId, bool)>> {
         let mut matched = Vec::new();
 
         for buildpack_toml in &self.inner {
             let buildpack_id = buildpack_toml.buildpack.id.clone();
-            let result = self.detect(&buildpack_id, working_dir, None, None)?;
+            let result = self.detect(&buildpack_id, working_dir, platform_dir, None)?;
             matched.push((buildpack_id, result == 0));
         }
 
@@ -295,13 +303,14 @@ impl Buildpacks {
     fn plan_all(
         &self,
         working_dir: Option<&Path>,
+        platform_dir: Option<&Path>,
     ) -> Result<Vec<(BuildpackId, Option<BuildPlan>)>> {
         let working_dir = match working_dir {
             Some(dir) => dir.to_owned(),
             None => current_dir()?,
         };
 
-        let matched = self.detect_all(Some(&working_dir))?;
+        let matched = self.detect_all(Some(&working_dir), platform_dir)?;
 
         let build_plans = matched
             .into_iter()
@@ -449,7 +458,7 @@ impl Buildpacks {
         working_dir: Option<&Path>,
         platform_dir: Option<&Path>,
     ) -> Result<Vec<(BuildpackId, bool)>> {
-        let matches = self.detect_all(working_dir)?;
+        let matches = self.detect_all(working_dir, platform_dir)?;
 
         let dockerfile_buildpack_id = buildpack_id!("stencila/dockerfile");
         for (buildpack_id, matched) in &matches {
@@ -660,6 +669,10 @@ pub mod commands {
         ///
         /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#build-plan-toml
         plan: Option<PathBuf>,
+
+        /// Simulate detection on a CNB platform such as Pack
+        #[structopt(long)]
+        cnb: bool,
     }
 
     #[async_trait]
@@ -667,8 +680,16 @@ pub mod commands {
         async fn run(&self) -> Result {
             let label = self.label.clone().unwrap_or_else(|| "all".to_string());
 
+            let platform_dir = self.platform.as_ref().cloned().or_else(|| {
+                if self.cnb {
+                    Some(PathBuf::from("/tmp/cnb"))
+                } else {
+                    None
+                }
+            });
+
             if label == "all" {
-                let results = PACKS.detect_all(self.working.as_deref())?;
+                let results = PACKS.detect_all(self.working.as_deref(), platform_dir.as_deref())?;
                 return result::value(results);
             }
 
@@ -676,7 +697,7 @@ pub mod commands {
             let result = PACKS.detect(
                 buildpack_id,
                 self.working.as_deref(),
-                self.platform.as_deref(),
+                platform_dir.as_deref(),
                 self.plan.as_deref(),
             );
 
@@ -727,12 +748,22 @@ pub mod commands {
         /// Show all buildpacks, including those that failed to match against the working directory
         #[structopt(short, long)]
         all: bool,
+
+        /// Simulate plan on a CNB platform such as Pack
+        #[structopt(long)]
+        cnb: bool,
     }
 
     #[async_trait]
     impl Run for Plan {
         async fn run(&self) -> Result {
-            let plans = PACKS.plan_all(self.path.as_deref())?;
+            let platform_dir = if self.cnb {
+                Some(PathBuf::from("/tmp/cnb"))
+            } else {
+                None
+            };
+
+            let plans = PACKS.plan_all(self.path.as_deref(), platform_dir.as_deref())?;
             let md = Buildpacks::plan_as_markdown(&plans, self.all);
             result::new("md", &md, plans)
         }
@@ -811,7 +842,7 @@ pub mod commands {
             if label == "all" {
                 let tty = stdout_isatty();
                 if tty {
-                    let plans = PACKS.plan_all(self.working.as_deref())?;
+                    let plans = PACKS.plan_all(self.working.as_deref(), platform_dir.as_deref())?;
                     let md = Buildpacks::plan_as_markdown(&plans, false);
                     result::print::markdown(&md)?;
                 }

@@ -198,8 +198,7 @@ pub trait BuildpackTrait: libcnb::Buildpack {
 
     /// Generate `Require` and `Provide` objects
     ///
-    /// Used in `detect` to specify what layers the buildpack must build
-    /// and with what options.
+    /// Used in `detect` to specify which layers the buildpack must build.
     fn require_and_provide(
         name: impl AsRef<str>,
         source: impl AsRef<str>,
