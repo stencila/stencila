@@ -11,10 +11,4 @@ homepage = "https://github.com/stencila/stencila/tree/HEAD/rust/buildpack-node"
 type = "Apache-2.0"
 
 [[stacks]]
-id = "stencila.stacks.focal"
-
-[[stacks]]
 id = "io.buildpacks.stacks.bionic"
-
-[[stacks]]
-id = "heroku-20"
