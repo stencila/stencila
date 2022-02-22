@@ -12,7 +12,6 @@ pub use fs_utils;
 pub use hash_utils;
 pub use libcnb;
 use libcnb::{
-    build::BuildContext,
     data::{
         build_plan::{Provide, Require},
         buildpack::BuildpackId,
@@ -20,6 +19,7 @@ use libcnb::{
     layer_env::{LayerEnv, Scope},
     libcnb_runtime_build, libcnb_runtime_detect, BuildArgs, DetectArgs, Env, Platform,
 };
+pub use maplit;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 pub use tokio;
@@ -42,14 +42,26 @@ pub fn platform_is_stencila(platform: &impl Platform) -> bool {
     platform.env().contains_key("STENCILA_VERSION")
 }
 
-/// Is this a local build (ie. using Stencila, not Pack as platform)
-pub fn is_local_build<B: libcnb::Buildpack>(context: &BuildContext<B>) -> bool {
-    platform_is_stencila(&context.platform)
+pub trait BuildpackContext {
+    /// Is this a local build (ie. using Stencila, not Pack as platform)
+    fn is_local(&self) -> bool;
+
+    /// Is this a CNB build (e.g. using Pack as the platform)
+    fn is_cnb(&self) -> bool {
+        !self.is_local()
+    }
 }
 
-/// Is this a CNB build (e.g. using Pack as the platform)
-pub fn is_cnb_build<B: libcnb::Buildpack>(context: &BuildContext<B>) -> bool {
-    !is_local_build(context)
+impl<B: libcnb::Buildpack> BuildpackContext for libcnb::detect::DetectContext<B> {
+    fn is_local(&self) -> bool {
+        platform_is_stencila(&self.platform)
+    }
+}
+
+impl<B: libcnb::Buildpack> BuildpackContext for libcnb::build::BuildContext<B> {
+    fn is_local(&self) -> bool {
+        platform_is_stencila(&self.platform)
+    }
 }
 
 /// String used by buildpacks to indicate that a tool version
@@ -151,23 +163,16 @@ pub trait BuildpackTrait: libcnb::Buildpack {
         }
     }
 
-    /// Generate `Require` (with metadata) and `Provide` objects
+    /// Generate `Require` with source, description, and options
     ///
-    /// Used in `detect` to specify what layers the buildpack must build
-    /// and with what options.
-    fn require_and_provide(
+    /// Used in `detect` to specify which layers the buildpack requires
+    fn require(
         name: impl AsRef<str>,
-        arg: impl AsRef<str>,
         source: impl AsRef<str>,
         desc: impl AsRef<str>,
-    ) -> (Require, Provide) {
+        options: Option<HashMap<&str, String>>,
+    ) -> Require {
         let mut require = Require::new(name.as_ref());
-        if !arg.as_ref().is_empty() {
-            require.metadata.insert(
-                "arg".to_string(),
-                toml::Value::String(arg.as_ref().to_string()),
-            );
-        }
         if !source.as_ref().is_empty() {
             require.metadata.insert(
                 "source".to_string(),
@@ -180,10 +185,31 @@ pub trait BuildpackTrait: libcnb::Buildpack {
                 toml::Value::String(desc.as_ref().to_string()),
             );
         }
+        if let Some(options) = options {
+            for (key, value) in options {
+                require
+                    .metadata
+                    .insert(key.to_string(), toml::Value::String(value));
+            }
+        }
 
-        let provide = Provide::new(name.as_ref());
+        require
+    }
 
-        (require, provide)
+    /// Generate `Require` and `Provide` objects
+    ///
+    /// Used in `detect` to specify what layers the buildpack must build
+    /// and with what options.
+    fn require_and_provide(
+        name: impl AsRef<str>,
+        source: impl AsRef<str>,
+        desc: impl AsRef<str>,
+        options: Option<HashMap<&str, String>>,
+    ) -> (Require, Provide) {
+        (
+            Self::require(&name, source, desc, options),
+            Provide::new(name.as_ref()),
+        )
     }
 
     /// Get all the environment variables of the process
@@ -229,23 +255,26 @@ pub trait BuildpackTrait: libcnb::Buildpack {
         }
     }
 
-    /// Parse the `entries` of a buildpack plan into layers name and arguments
+    /// Parse the `entries` of a buildpack plan into layer name and associated metadata
     ///
     /// A convenience method for use in `build`.
     fn buildpack_plan_entries(
         &self,
         buildpack_plan: &libcnb::data::buildpack_plan::BuildpackPlan,
-    ) -> HashMap<String, String> {
+    ) -> HashMap<String, LayerOptions> {
         buildpack_plan
             .entries
             .iter()
             .map(|entry| {
                 let name = entry.name.clone();
-                let arg = entry.metadata.get("arg").map_or_else(
-                    || "".to_string(),
-                    |arg| arg.as_str().map(|str| str.to_string()).unwrap_or_default(),
-                );
-                (name, arg)
+                let options: HashMap<String, String> = entry
+                    .metadata
+                    .iter()
+                    .map(|(key, value)| {
+                        (key.clone(), value.as_str().unwrap_or_default().to_string())
+                    })
+                    .collect();
+                (name, options)
             })
             .collect()
     }
@@ -308,6 +337,9 @@ pub trait BuildpackTrait: libcnb::Buildpack {
         }
     }
 }
+
+/// Type for `requires.metadata`
+pub type LayerOptions = HashMap<String, String>;
 
 /// Metadata for a layer that uses a hash to determine existing layer strategy
 #[derive(Clone, Deserialize, Serialize)]

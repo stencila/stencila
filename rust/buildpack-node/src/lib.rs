@@ -8,7 +8,6 @@ use buildpack::{
     eyre,
     fs_utils::{copy_if_exists, move_dir_all, symlink_dir, symlink_file},
     hash_utils::str_sha256_hex,
-    is_local_build,
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
@@ -19,7 +18,9 @@ use buildpack::{
         layer_env::{LayerEnv, ModificationBehavior, Scope},
         Buildpack,
     },
-    tracing, BuildpackTrait, LayerHashMetadata, LayerVersionMetadata, SYSTEM_INSTALLED,
+    maplit::hashmap,
+    tracing, BuildpackContext, BuildpackTrait, LayerHashMetadata, LayerOptions,
+    LayerVersionMetadata, SYSTEM_INSTALLED,
 };
 
 pub struct NodeBuildpack;
@@ -89,15 +90,17 @@ impl Buildpack for NodeBuildpack {
         } else if let Some(version) = (NodeBinary {}).installed_version(None) {
             (version, SYSTEM_INSTALLED)
         } else {
-            ("".to_string(), "")
+            ("lts".to_string(), "")
         };
 
         // Require and provide Node.js
         let (require, provide) = Self::require_and_provide(
             "node",
-            &version,
             source,
             format!("Install Node.js {}", version).trim(),
+            Some(hashmap! {
+                "version" => version
+            }),
         );
         requires.push(require);
         provides.push(provide);
@@ -106,13 +109,13 @@ impl Buildpack for NodeBuildpack {
         if package_lock.exists() || package_json.is_some() {
             let (require, provide) = Self::require_and_provide(
                 "node_modules",
-                "",
                 if package_lock.exists() {
                     PACKAGE_LOCK
                 } else {
                     PACKAGE_JSON
                 },
                 "Install Node.js packages into `node_modules`",
+                None,
             );
             requires.push(require);
             provides.push(provide);
@@ -128,8 +131,8 @@ impl Buildpack for NodeBuildpack {
         let env_vars = self.get_env_vars();
         let entries = self.buildpack_plan_entries(&context.buildpack_plan);
 
-        if let Some(version) = entries.get("node") {
-            let layer_data = context.handle_layer(layer_name!("node"), NodeLayer::new(version))?;
+        if let Some(options) = entries.get("node") {
+            let layer_data = context.handle_layer(layer_name!("node"), NodeLayer::new(options))?;
             self.set_layer_env_vars(&layer_data.env);
         }
 
@@ -148,16 +151,21 @@ struct NodeLayer {
 }
 
 impl NodeLayer {
-    fn new(versionish: &str) -> Self {
-        let requirement = if versionish == "lts" {
+    fn new(options: &LayerOptions) -> Self {
+        let requirement = options
+            .get("version")
+            .cloned()
+            .unwrap_or_else(|| "lts".to_string());
+
+        let requirement = if requirement == "lts" {
             // TODO: Determine LTS without doing a fetch, perhaps based on date
             // https://nodejs.org/en/about/releases/
             "^16".to_string()
         } else {
-            versionish.into()
+            requirement
         };
 
-        NodeLayer { requirement }
+        Self { requirement }
     }
 }
 
@@ -211,7 +219,7 @@ impl Layer for NodeLayer {
         let node = NodeBinary {}.ensure_version_sync(&self.requirement)?;
         let version = node.version()?.to_string();
 
-        if is_local_build(context) {
+        if context.is_local() {
             if node.is_stencila_install() {
                 tracing::info!("Linking to `node {}` installed by Stencila", version);
                 let source = node.grandparent()?;
@@ -255,7 +263,7 @@ impl Layer for NodeLayer {
         // Store version in metadata to detect if layer is stale in `existing_layer_strategy()`
         let metadata = LayerVersionMetadata { version };
 
-        // Set the `NODE_PATH` so that the `lib/node_modules` (which has `npm` for example) can be found
+        // Set `NODE_PATH` so that the `lib/node_modules` (which has `npm` for example) can be found
         let layer_env = LayerEnv::new().chainable_insert(
             Scope::All,
             ModificationBehavior::Prepend,
@@ -269,17 +277,19 @@ impl Layer for NodeLayer {
 
 struct NodeModulesLayer;
 
-/// Generate a 'package hash' string for an app directory
-///
-/// The hash is of the combined contents of `package-lock.json` and `package.json`.
-/// This means that if either one is changed or removed that the hash will change.
-fn generate_package_hash(app_dir: &Path) -> String {
-    let content = [
-        read_to_string(app_dir.join(PACKAGE_LOCK)).unwrap_or_default(),
-        read_to_string(app_dir.join(PACKAGE_JSON)).unwrap_or_default(),
-    ]
-    .concat();
-    str_sha256_hex(&content)
+impl NodeModulesLayer {
+    /// Generate hash of files that affect which packages are installed into `node_modules`
+    ///
+    /// The hash is the combined contents of `package-lock.json` and `package.json`.
+    /// This means that if either one is changed or removed that the hash will change.
+    fn generate_packages_hash(&self, app_dir: &Path) -> String {
+        let content = [
+            read_to_string(app_dir.join(PACKAGE_LOCK)).unwrap_or_default(),
+            read_to_string(app_dir.join(PACKAGE_JSON)).unwrap_or_default(),
+        ]
+        .concat();
+        str_sha256_hex(&content)
+    }
 }
 
 impl Layer for NodeModulesLayer {
@@ -299,12 +309,14 @@ impl Layer for NodeModulesLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
-        let package_hash = generate_package_hash(&context.app_dir);
+        let package_hash = self.generate_packages_hash(&context.app_dir);
         let strategy = if package_hash == layer_data.content_metadata.metadata.hash {
-            tracing::info!("Existing `node_modules` layer has same package hash; will keep",);
+            tracing::info!("Existing `node_modules` layer has same packages hash; will keep",);
             ExistingLayerStrategy::Keep
         } else {
-            tracing::info!("Existing `node_modules` layer has different package hash; will update");
+            tracing::info!(
+                "Existing `node_modules` layer has different packages hash; will update"
+            );
             ExistingLayerStrategy::Update
         };
         Ok(strategy)
@@ -353,7 +365,7 @@ impl NodeModulesLayer {
             .join("npm-cli.js")
             .into_os_string();
 
-        if is_local_build(context) {
+        if context.is_local() {
             // Do the install in the app directory as normal
             node.run_sync([npm, "install".into()])?;
         } else {
@@ -379,9 +391,9 @@ impl NodeModulesLayer {
             remove_file(layer_path.join(PACKAGE_LOCK)).ok();
         }
 
-        // Generate a 'package hash' to detect if layer is stale in `existing_layer_strategy()`
+        // Generate packages hash to detect if layer is stale in `existing_layer_strategy()`
         let metadata = LayerHashMetadata {
-            hash: generate_package_hash(app_path),
+            hash: self.generate_packages_hash(app_path),
         };
 
         // Set the `NODE_PATH` so that the `node_modules` can be found

@@ -11,7 +11,6 @@ use buildpack::{
     eyre::{self, bail},
     fs_utils::{copy_if_exists, move_dir_all, symlink_dir, symlink_file},
     hash_utils::str_sha256_hex,
-    is_cnb_build, is_local_build,
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
@@ -22,7 +21,9 @@ use buildpack::{
         layer_env::{LayerEnv, ModificationBehavior, Scope},
         Buildpack,
     },
-    toml, tracing, BuildpackTrait, LayerHashMetadata, LayerVersionMetadata, SYSTEM_INSTALLED,
+    maplit::hashmap,
+    toml, tracing, BuildpackContext, BuildpackTrait, LayerHashMetadata, LayerOptions,
+    LayerVersionMetadata, SYSTEM_INSTALLED,
 };
 
 pub struct PythonBuildpack;
@@ -99,15 +100,17 @@ impl Buildpack for PythonBuildpack {
         } else if let Some(version) = (PythonBinary {}).installed_version(None) {
             (version, SYSTEM_INSTALLED)
         } else {
-            ("".to_string(), "")
+            ("*".to_string(), "")
         };
 
         // Require and provide Python
         let (require, provide) = Self::require_and_provide(
             "python",
-            &version,
             source,
             format!("Install Python {}", version).trim(),
+            Some(hashmap! {
+                "version" => version
+            }),
         );
         requires.push(require);
         provides.push(provide);
@@ -121,24 +124,28 @@ impl Buildpack for PythonBuildpack {
             };
 
             let (require, provide) =
-                Self::require_and_provide("poetry", "", source, "Install Poetry");
+                Self::require_and_provide("poetry", source, "Install Poetry", None);
             requires.push(require);
             provides.push(provide);
 
             let (require, provide) = Self::require_and_provide(
                 "venv",
-                "poetry",
                 source,
                 "Install Python packages into virtual environment using Poetry",
+                Some(hashmap! {
+                    "package_manager" => "poetry".to_string()
+                }),
             );
             requires.push(require);
             provides.push(provide);
         } else if requirements_txt.exists() {
             let (require, provide) = Self::require_and_provide(
                 "venv",
-                "pip",
                 REQUIREMENTS_TXT,
                 "Install Python packages into virtual environment using Pip",
+                Some(hashmap! {
+                    "package_manager" => "pip".to_string()
+                }),
             );
             requires.push(require);
             provides.push(provide);
@@ -154,9 +161,9 @@ impl Buildpack for PythonBuildpack {
         let env_vars = self.get_env_vars();
         let entries = self.buildpack_plan_entries(&context.buildpack_plan);
 
-        if let Some(version) = entries.get("python") {
+        if let Some(options) = entries.get("python") {
             let layer_data =
-                context.handle_layer(layer_name!("python"), PythonLayer::new(version))?;
+                context.handle_layer(layer_name!("python"), PythonLayer::new(options))?;
             self.set_layer_env_vars(&layer_data.env);
         }
 
@@ -165,8 +172,8 @@ impl Buildpack for PythonBuildpack {
             self.set_layer_env_vars(&layer_data.env);
         }
 
-        if let Some(package_manager) = entries.get("venv") {
-            context.handle_layer(layer_name!("venv"), VenvLayer::new(package_manager))?;
+        if let Some(options) = entries.get("venv") {
+            context.handle_layer(layer_name!("venv"), VenvLayer::new(options))?;
         }
 
         self.restore_env_vars(env_vars);
@@ -180,10 +187,13 @@ struct PythonLayer {
 }
 
 impl PythonLayer {
-    fn new(requirement: &str) -> Self {
-        PythonLayer {
-            requirement: requirement.into(),
-        }
+    fn new(options: &LayerOptions) -> Self {
+        let requirement = options
+            .get("version")
+            .cloned()
+            .unwrap_or_else(|| "*".to_string());
+
+        PythonLayer { requirement }
     }
 }
 
@@ -237,7 +247,7 @@ impl Layer for PythonLayer {
         let python = PythonBinary {}.ensure_version_sync(&self.requirement)?;
         let version = python.version()?.to_string();
 
-        if is_local_build(context) {
+        if context.is_local() {
             if python.is_stencila_install() {
                 tracing::info!("Linking to `python {}` installed by Stencila", version);
                 let source = python.grandparent()?;
@@ -270,10 +280,12 @@ impl Layer for PythonLayer {
         // Store version in metadata to detect if layer is stale in `existing_layer_strategy()`
         let metadata = LayerVersionMetadata { version };
 
-        // Set the `PYTHONHOME` (is this necessary?)
+        // Set `PYTHONHOME` so that the standard library modules can be found
+        // See https://docs.python.org/3/using/cmdline.html#environment-variables for
+        // other environment variables that may need to be set.
         let layer_env = LayerEnv::new().chainable_insert(
             Scope::All,
-            ModificationBehavior::Prepend,
+            ModificationBehavior::Override,
             "PYTHONHOME",
             layer_path,
         );
@@ -342,7 +354,7 @@ impl Layer for PoetryLayer {
             self.requirement
         );
 
-        let version = if is_local_build(context) {
+        let version = if context.is_local() {
             let poetry = PoetryBinary {}.ensure_version_sync(&self.requirement)?;
             let version = poetry.version()?.to_string();
 
@@ -396,25 +408,28 @@ struct VenvLayer {
 }
 
 impl VenvLayer {
-    fn new(package_manager: &str) -> Self {
-        VenvLayer {
-            package_manager: package_manager.into(),
-        }
-    }
-}
+    fn new(options: &LayerOptions) -> Self {
+        let package_manager = options
+            .get("package_manager")
+            .cloned()
+            .unwrap_or_else(|| "pip".to_string());
 
-/// Generate hash for Poetry & Pip related files in an app directory
-///
-/// The hash is of the combined contents of `poetry.lock`, `pyproject.toml`, `requirements.txt`.
-/// This means that if any one is changed or removed that the hash will change.
-fn generate_packages_hash(app_dir: &Path) -> String {
-    let content = [
-        read_to_string(app_dir.join(POETRY_LOCK)).unwrap_or_default(),
-        read_to_string(app_dir.join(PYPROJECT_TOML)).unwrap_or_default(),
-        read_to_string(app_dir.join(REQUIREMENTS_TXT)).unwrap_or_default(),
-    ]
-    .concat();
-    str_sha256_hex(&content)
+        VenvLayer { package_manager }
+    }
+
+    /// Generate hash for Poetry & Pip related files in an app directory
+    ///
+    /// The hash is the combined contents of `poetry.lock`, `pyproject.toml`, `requirements.txt`.
+    /// This means that if any one is changed or removed that the hash will change.
+    fn generate_packages_hash(&self, app_dir: &Path) -> String {
+        let content = [
+            read_to_string(app_dir.join(POETRY_LOCK)).unwrap_or_default(),
+            read_to_string(app_dir.join(PYPROJECT_TOML)).unwrap_or_default(),
+            read_to_string(app_dir.join(REQUIREMENTS_TXT)).unwrap_or_default(),
+        ]
+        .concat();
+        str_sha256_hex(&content)
+    }
 }
 
 impl Layer for VenvLayer {
@@ -434,7 +449,7 @@ impl Layer for VenvLayer {
         context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
-        let package_hash = generate_packages_hash(&context.app_dir);
+        let package_hash = self.generate_packages_hash(&context.app_dir);
         let strategy = if package_hash == layer_data.content_metadata.metadata.hash {
             tracing::info!("Existing `venv` layer has same packages hash; will keep",);
             ExistingLayerStrategy::Keep
@@ -473,7 +488,7 @@ impl VenvLayer {
         let app_path = &context.app_dir.canonicalize()?;
         let layer_path = &layer_path.canonicalize()?;
 
-        let venv_path = if is_local_build(context) {
+        let venv_path = if context.is_local() {
             // Attempt to use an existing virtual environment
             // The name `.venv` is most commonly used (e.g. Poetry uses that) but
             // we also look for `venv` and `env`.
@@ -532,7 +547,7 @@ impl VenvLayer {
             );
 
             // If a CNB build use the layer as the Pip cache
-            if is_cnb_build(context) {
+            if context.is_cnb() {
                 python.env_list(&[("PIP_CACHE_DIR", layer_path.as_os_str())]);
             }
 
@@ -550,7 +565,7 @@ impl VenvLayer {
                 ("POETRY_VIRTUALENVS_IN_PROJECT".into(), "true".into()),
             ];
 
-            if is_local_build(context) {
+            if context.is_local() {
                 // Do the install in the app directory as normal
                 poetry.env_list(&envs);
                 poetry.run_sync(["install"])?;
@@ -583,9 +598,9 @@ impl VenvLayer {
             }
         };
 
-        // Generate a 'packages hash' to detect if layer is stale in `existing_layer_strategy()`
+        // Generate packages hash to detect if layer is stale in `existing_layer_strategy()`
         let metadata = LayerHashMetadata {
-            hash: generate_packages_hash(app_path),
+            hash: self.generate_packages_hash(app_path),
         };
 
         // Add the virtual env packages to the PYTHONPATH
