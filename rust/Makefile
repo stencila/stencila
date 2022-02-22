@@ -10,7 +10,9 @@ setup:
 		cargo-strip \
 		cargo-tarpaulin \
 		cargo-udeps \
-		cargo-watch
+		cargo-watch \
+		cargo-insta \
+		libcnb-cargo
 	# Nightly is required to run `cargo udeps`
 	rustup toolchain install nightly
 
@@ -51,6 +53,11 @@ build-musl:
 
 install:
 	cargo install --path stencila
+
+
+buildpack-%: FORCE
+	cd $@ && cargo build --release
+FORCE:
 
 docs:
 	cargo doc
