@@ -9,11 +9,16 @@ use std::{
 use binary::{http_utils::download_file_sync, Binary, BinaryTrait};
 use buildpack::{
     eyre,
+    fs_utils::clear_dir_all,
     hash_utils::str_sha256_hex,
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
-        data::{build_plan::BuildPlan, layer_content_metadata::LayerTypes, layer_name},
+        data::{
+            build_plan::{BuildPlan, Provide},
+            layer_content_metadata::LayerTypes,
+            layer_name,
+        },
         detect::{DetectContext, DetectResult, DetectResultBuilder},
         generic::{GenericMetadata, GenericPlatform},
         layer::{ExistingLayerStrategy, Layer, LayerResult, LayerResultBuilder},
@@ -34,7 +39,11 @@ impl BuildpackTrait for AptBuildpack {
     }
 }
 
-const APTFILE: &str = "Aptfile";
+// The name of the file that is detected in the app dir
+const APT_FILE: &str = "Aptfile";
+
+// The name of the layer that the buildpack creates
+const APT_PACKAGES: &str = "apt_packages";
 
 impl Buildpack for AptBuildpack {
     type Platform = GenericPlatform;
@@ -43,56 +52,55 @@ impl Buildpack for AptBuildpack {
 
     fn detect(&self, _context: DetectContext<Self>) -> libcnb::Result<DetectResult, Self::Error> {
         // Detect `Aptfile`
-        let aptfile = PathBuf::from(APTFILE);
+        let aptfile = PathBuf::from(APT_FILE);
 
         // Get the Linux release for reuse below
         let linux_flavour = sys_info::linux_os_release().ok();
 
-        // Fail if no `Aptfile` or not on Ubuntu Linux
-        let pass = if !aptfile.exists() {
-            false
-        } else if env::consts::OS != "linux" {
-            tracing::warn!("Aptfile detected but will be ignored because not on Linux");
-            false
-        } else if linux_flavour
-            .as_ref()
-            .map_or_else(|| "".to_string(), |rel| rel.id().to_string())
-            != "ubuntu"
+        // Fail if not on Ubuntu Linux
+        if env::consts::OS != "linux"
+            || linux_flavour
+                .as_ref()
+                .map_or_else(|| "".to_string(), |rel| rel.id().to_string())
+                != "ubuntu"
         {
-            tracing::warn!("Aptfile detected but will be ignored because not on Ubuntu Linux");
-            false
-        } else {
-            true
-        };
-        if !pass {
-            //return DetectResultBuilder::fail().build();
+            if aptfile.exists() {
+                tracing::warn!("Aptfile detected but will be ignored because not on Ubuntu Linux");
+            }
+            return DetectResultBuilder::fail().build();
         }
 
-        let version = linux_flavour
-            .expect("Should have returned by now if not on Linux")
-            .version_codename
-            .expect("Should have an Ubuntu version codename");
-
-        let (require, provide) = Self::require_and_provide(
-            "apt_packages",
-            APTFILE,
-            format!("Install `apt` packages for Ubuntu '{}'", version).trim(),
-            Some(hashmap! {
-                "version" => version,
-                "file" => APTFILE.to_string()
-            }),
-        );
-
         let mut build_plan = BuildPlan::new();
-        build_plan.requires = vec![require];
-        build_plan.provides = vec![provide];
+
+        // Because this buildpack may be used by others, always indicates that is provides
+        // `apt_packages`
+        build_plan.provides.push(Provide::new(APT_PACKAGES));
+
+        // Require `apt_packages` layer if there is an `Aptfile`
+        if aptfile.exists() {
+            let version = linux_flavour
+                .expect("Should have returned by now if not on Linux")
+                .version_codename
+                .expect("Should have an Ubuntu version codename");
+
+            build_plan.requires.push(Self::require(
+                APT_PACKAGES,
+                APT_FILE,
+                format!("Install `apt` packages for Ubuntu '{}'", version).trim(),
+                Some(hashmap! {
+                    "version" => version,
+                    "file" => APT_FILE.to_string()
+                }),
+            ))
+        }
+
         DetectResultBuilder::pass().build_plan(build_plan).build()
     }
 
     fn build(&self, context: BuildContext<Self>) -> libcnb::Result<BuildResult, Self::Error> {
         let entries = self.buildpack_plan_entries(&context.buildpack_plan);
 
-        if let Some(options) = entries.get("apt_packages") {
+        if let Some(options) = entries.get(APT_PACKAGES) {
             context.handle_layer(
                 layer_name!("apt_packages"),
                 AptPackagesLayer::new(options, &context.app_dir),
@@ -194,16 +202,27 @@ impl Layer for AptPackagesLayer {
         let metadata = &layer_data.content_metadata.metadata;
         let strategy = if self.version != metadata.version {
             tracing::info!(
-                "Existing `apt_packages` layer is for different Ubuntu version; will recreate",
+                "Existing `apt_packages` layer is for different Ubuntu version (`{}` => `{}`); will recreate",
+                metadata.version,
+                self.version,
             );
             ExistingLayerStrategy::Recreate
-        } else if self.packages != metadata.packages || self.repos != metadata.repos {
+        } else if self.repos != metadata.repos {
             tracing::info!(
-                "Existing `apt_packages` layer has different packages and/or repos; will update"
+                "Existing `apt_packages` layer has different repos (`{}` => `{}`); will recreate",
+                metadata.repos.join(","),
+                self.repos.join(","),
             );
-            ExistingLayerStrategy::Update
+            ExistingLayerStrategy::Recreate
+        } else if self.packages != metadata.packages {
+            tracing::info!(
+                "Existing `apt_packages` layer has different packages (`{}` => `{}`); will recreate",
+                metadata.packages.join(","),
+                self.packages.join(",")
+            );
+            ExistingLayerStrategy::Recreate
         } else {
-            tracing::info!("Existing `apt_packages` layer has no changes; will keep",);
+            tracing::info!("Existing `apt_packages` layer meets requirements; will keep",);
             ExistingLayerStrategy::Keep
         };
         Ok(strategy)
@@ -274,6 +293,23 @@ impl AptPackagesLayer {
             }
         }
 
+        // WARN: This function has logic for updating an existing layer (with the view to making updates
+        // related to changes in the list of packages faster). However, that seems to be unreliable and
+        // so for now at least, the layer is recreated on any detected changes
+
+        // Remove everything in the layer's `state`, `usr` and `etc` dirs so we don't have artifacts
+        // of packages that were previous installed but have been removed from the list
+        tracing::info!("Removing previous installs");
+        clear_dir_all(&apt_state_dir)?;
+        let layer_usr_dir = layer_path.join("usr");
+        if layer_usr_dir.exists() {
+            remove_dir_all(layer_usr_dir)?;
+        }
+        let layer_etc_dir = layer_path.join("etc");
+        if layer_etc_dir.exists() {
+            remove_dir_all(layer_etc_dir)?;
+        }
+
         let apt = Binary::named("apt-get").require_sync()?;
         let apt_options: Vec<String> = vec![
             "debug::nolocking=true",
@@ -288,14 +324,6 @@ impl AptPackagesLayer {
 
         tracing::info!("Updating apt caches");
         apt.run_sync([apt_options.clone(), vec_string!["update"]].concat())?;
-
-        // Remove everything in  the layers `usr` dir (😱) because we don't want artifacts
-        // of packages that were previous installed but have been removed from the list
-        tracing::info!("Removing previous installs");
-        let layer_usr_dir = layer_path.join("usr");
-        if layer_usr_dir.exists() {
-            remove_dir_all(layer_usr_dir)?;
-        }
 
         let dpkg = Binary::named("dpkg").require_sync()?;
 
