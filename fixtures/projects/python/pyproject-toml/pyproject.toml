@@ -6,7 +6,7 @@ authors = ["Nokome Bentley <nokome@stenci.la>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-numpy = "1.22.1"
+wr = "0.2.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
