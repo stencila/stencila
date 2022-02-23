@@ -177,6 +177,20 @@ pub trait BinaryTrait: Send + Sync {
         Ok(Vec::new())
     }
 
+    /// Get the versions of the binary (synchronously)
+    ///
+    /// This is just the synchronous version of [`Self::versions`]
+    fn versions_sync(&self, os: &str) -> Result<Vec<String>> {
+        let os = os.to_string();
+        let clone = self.clone_box();
+        let (sender, receiver) = std::sync::mpsc::channel();
+        tokio::spawn(async move {
+            let result = clone.versions(&os).await;
+            sender.send(result)
+        });
+        receiver.recv()?
+    }
+
     /// Get the versions of the binary from GitHub REST API
     ///
     /// This will usually be followed by a call to `semver_versions_sorted` or
@@ -304,7 +318,7 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Filter out any versions that are not valid semver versions.
-    /// Also sorts in descending **semver** order
+    /// Also sorts in **descending** semver order.
     fn semver_versions_sorted(&self, versions: Vec<String>) -> Vec<String> {
         let mut versions: Vec<semver::Version> = versions
             .iter()
