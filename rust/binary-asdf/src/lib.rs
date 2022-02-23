@@ -1,10 +1,15 @@
-use std::{env, ffi::OsString, fs, path::Path};
+use std::{
+    env,
+    ffi::{OsStr, OsString},
+    fs,
+    path::Path,
+};
 
 use binary::{
     async_trait::async_trait,
     binaries_dir, binary_clone_box,
     eyre::{bail, Result},
-    tracing, Binary, BinaryTrait,
+    Binary, BinaryTrait,
 };
 
 /// A `BinaryTrait` for `asdf`
@@ -78,6 +83,19 @@ impl BinaryTrait for AsdfBinary {
 }
 
 impl AsdfBinary {
+    /// Add an `asdf` plugin
+    pub async fn add_plugin(plugin: &str, repo: Option<&str>) -> Result<()> {
+        let asdf = AsdfBinary {}.ensure().await?;
+
+        let mut args = vec!["plugin", "add", plugin];
+        if let Some(repo) = repo {
+            args.push(repo);
+        }
+        asdf.run(&args).await?;
+
+        Ok(())
+    }
+
     /// List all versions for an `asdf` package
     pub async fn list_all(package: &str) -> Result<Vec<String>> {
         let asdf = AsdfBinary {}.ensure().await?;
@@ -112,12 +130,21 @@ impl AsdfBinary {
         asdf.run_with(&["uninstall", package, version], None, None)
             .await
             .ok();
-        asdf.run_with(
-            &["install", package, version],
-            Some(tracing::Level::INFO),
-            Some(tracing::Level::INFO),
-        )
-        .await?;
+        asdf.run(&["install", package, version]).await?;
+
+        Ok(())
+    }
+
+    /// Install a version for an `asdf` package with env vars
+    pub async fn install_with(
+        package: &str,
+        version: &str,
+        vars: &[(impl AsRef<OsStr>, impl AsRef<OsStr>)],
+    ) -> Result<()> {
+        let mut asdf = AsdfBinary {}.ensure().await?;
+
+        asdf.env_list(vars);
+        asdf.run(&["install", package, version]).await?;
 
         Ok(())
     }
