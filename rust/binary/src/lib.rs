@@ -1043,9 +1043,13 @@ impl BinaryInstallation {
 
     /// Get the version of this binary installation
     pub fn version(&self) -> Result<&str> {
-        self.version
-            .as_deref()
-            .ok_or_else(|| eyre!("Installation for `{}` does not have a version", self.name))
+        self.version.as_deref().ok_or_else(|| {
+            eyre!(
+                "Installation for `{}` at `{}` does not have a version",
+                self.name,
+                self.path.display()
+            )
+        })
     }
 
     /// Set the runtime environment for the binary using a map
