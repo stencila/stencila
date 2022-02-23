@@ -43,6 +43,19 @@ pub fn symlink_dir<Original: AsRef<Path>, Link: AsRef<Path>>(
     Ok(())
 }
 
+/// Remove a file or directory if it exists
+pub fn remove_if_exists(path: impl AsRef<Path>) -> Result<()> {
+    let path = path.as_ref();
+    if path.exists() {
+        if path.is_dir() {
+            fs::remove_dir_all(path)?;
+        } else {
+            fs::remove_file(path)?;
+        }
+    }
+    Ok(())
+}
+
 /// Copy a file or directory if it exists
 pub fn copy_if_exists(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> Result<()> {
     let src = src.as_ref();
