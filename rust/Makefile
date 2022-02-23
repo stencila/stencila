@@ -54,9 +54,11 @@ build-musl:
 install:
 	cargo install --path stencila
 
+buildpack-%-debug:
+	cd $@ && cargo libcnb package
 
 buildpack-%: FORCE
-	cd $@ && cargo build --release
+	cd $@ && cargo libcnb package --release
 FORCE:
 
 docs:
