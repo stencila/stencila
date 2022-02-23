@@ -21,5 +21,8 @@ another
 https://downloads.example.com/example.deb
 
 # Add custom apt repos (only required if using packages outside of the standard Ubuntu APT repositories)
-:repo:deb https://apt.example.com/ focal main
+:repo: deb https://apt.example.com/ bionic main
+
+# If necessary, you can add options for the repo e.g.
+:repo: deb [trusted=yes] https://apt.example.com/ bionic main
 ```
