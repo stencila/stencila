@@ -459,6 +459,9 @@ impl AptPackagesLayer {
             "usr/lib/x86_64-linux-gnu",
             "usr/lib/i386-linux-gnu",
             "usr/lib",
+            "lib/x86_64-linux-gnu",
+            "lib/i386-linux-gnu",
+            "lib",
         ])?;
         for var in ["LD_LIBRARY_PATH", "LIBRARY_PATH"] {
             layer_env.insert(
