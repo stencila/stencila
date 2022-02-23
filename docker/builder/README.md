@@ -1,17 +1,41 @@
-# 🐳 `stencila/builder`
+# 📚 Cloud Native Buildpack (CNB) Stacks
 
-**A Docker image for building the Stencila command line tool**
+**A set of CNB stacks for building and running custom containers using Stencila**
 
 ## Purpose
 
-This image builds the `stencila` command line tool within containers so that the binary can be copied to other containers using the same base image (e.g. `ubuntu:focal`) without bloating them with build dependencies while maintaining version compatibility with shared libraries such as `libc` and `libssl`.
+For authors of CNB `buildpacks` who want to use Stencila in builder or application images. 
 
-This image should not be confused with the [`stencila/build`](../stacks/) image (which is part of the Stencila's Cloud Native Buildpack ['stack'](https://buildpacks.io/docs/concepts/components/stack/)).
+A CNB [_stack_](https://buildpacks.io/docs/concepts/components/stack/) is composed of two container images that are intended to work together:
+
+- The `build` image of a stack provides the base image from which the build environment is constructed. The build environment is the containerized environment in which `buildpacks` are executed.
+
+- The `run` image of a stack provides the base image from which application images are built.
+
+The `Dockerfile` for each stack in this folder will build both the `build` and `run` image.
+
+## Installation
+
+```sh
+docker pull stencila/build
+docker pull stencila/run
+```
 
 ## Usage
 
-This image is built for each release of the `stencila` CLI. It is built before other images that depend upon it such as, [`stencila/stencila`](../stencila/) and [`stencila/buildpacks`](../buildpacks/).
+When [creating a builder](https://buildpacks.io/docs/operator-guide/create-a-builder/), specify the stack in your `builder.toml`:
 
-## Building
+```toml
+[stack]
+id = "stencila.stacks.focal"
+run-image = "stencila/run:focal"
+build-image = "stencila/build:focal"
+```
 
-The build `ARG` `STENCILA_VERSION` can be a tag, branch or commit id.
+When creating a buildpack, add the stack to `[[stacks]]` in your `buildpack.toml`:
+
+
+```toml
+[[stacks]]
+id = "stencila.stacks.focal"
+```

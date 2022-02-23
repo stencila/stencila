@@ -460,12 +460,12 @@ jobs:
         displayName: Determine version
 
       - task: Docker@2
-        displayName: Build stencila/builder
+        displayName: Build stencila/maker
         inputs:
           command: build
-          dockerfile: docker/builder/focal/Dockerfile
+          dockerfile: docker/maker/focal/Dockerfile
           arguments: --build-arg STENCILA_VERSION=$(Build.SourceVersion)
-          repository: stencila/builder
+          repository: stencila/maker
           tags: |
             focal
             focal-$(GitVersion.SemVer)
@@ -482,37 +482,13 @@ jobs:
             focal-$(GitVersion.SemVer)
             latest
 
-      - task: Docker@2
-        displayName: Build stencila/build
-        inputs:
-          command: build
-          dockerfile: docker/buildpacks/focal/Dockerfile
-          arguments: --target=build
-          repository: stencila/build
-          tags: |
-            focal
-            focal-$(GitVersion.SemVer)
-            latest
-
-      - task: Docker@2
-        displayName: Build stencila/run
-        inputs:
-          command: build
-          dockerfile: docker/buildpacks/focal/Dockerfile
-          arguments: --target=run
-          repository: stencila/run
-          tags: |
-            focal
-            focal-$(GitVersion.SemVer)
-            latest
-
-      # Build `buildpacks` image if the above image builds succeeded
+      # Build `stencila/builder` image if the above image builds succeeded
 
       - script: |
           set -e
           curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.24.0/pack-v0.24.0-linux.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack
-          pack builder create stencila/buildpacks:focal --config docker/buildpacks/focal/builder.toml 
-        displayName: Build stencila/buildpacks
+          pack builder create stencila/builder:bionic --config docker/builder/bionic/builder.toml 
+        displayName: Build stencila/builder
         condition: succeeded()
 
       # Push images if on a tag
@@ -532,36 +508,12 @@ jobs:
             latest
 
       - task: Docker@2
-        displayName: Push stencila/build
+        displayName: Push stencila/builder
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         inputs:
           command: push
           containerRegistry: DockerHub
-          repository: stencila/build
-          tags: |
-            focal
-            focal-$(GitVersion.SemVer)
-            latest
-
-      - task: Docker@2
-        displayName: Push stencila/run
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        inputs:
-          command: push
-          containerRegistry: DockerHub
-          repository: stencila/run
-          tags: |
-            focal
-            focal-$(GitVersion.SemVer)
-            latest
-
-      - task: Docker@2
-        displayName: Push stencila/buildpacks
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        inputs:
-          command: push
-          containerRegistry: DockerHub
-          repository: stencila/buildpacks
+          repository: stencila/builder
           tags: |
             focal
             focal-$(GitVersion.SemVer)

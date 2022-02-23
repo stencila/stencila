@@ -20,7 +20,7 @@ The image uses `stencila` as it's `ENTRYPOINT` so just pass Stencila commands an
 docker run -it --rm stencila/stencila --help
 ```
 
-The image has `/workspace` as its working directory and a default `guest` user. You can mount your local directory to `/workspace` and make yourself the user using Docker's `-v` and `-u` options e.g.
+The image has `/workspace` as its working directory and a default `stencila` user. You can mount your local directory to `/workspace` and make yourself the user using Docker's `-v` and `-u` options e.g.
 
 ```sh
 docker run -it --rm -p 9000 -v $PWD:/workspace -u $(id -u):$(id -g) stencila/stencila

@@ -1,4 +1,4 @@
-# Builds the `stencila` binary from source
+# Builds the `stencila` CLI binary from source
 
 FROM ubuntu:focal
 
@@ -26,4 +26,5 @@ RUN mkdir stencila \
 WORKDIR stencila
 
 RUN cargo install cargo-strip
+
 RUN make -C rust build
