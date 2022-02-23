@@ -1,12 +1,13 @@
 use std::{
     env,
-    fs::{create_dir_all, read_to_string, remove_file, write},
+    fs::{self, create_dir_all, read_to_string, remove_file, write},
+    io::Write,
     path::{Path, PathBuf},
 };
 
 use binary_r::{Binary, BinaryTrait, RBinary};
 use buildpack::{
-    eyre::{self, eyre},
+    eyre,
     fs_utils::{symlink_dir, symlink_file},
     hash_utils::str_sha256_hex,
     libcnb::{
@@ -127,9 +128,9 @@ impl Buildpack for RBuildpack {
                 "".to_string()
             };
 
-            // Installing `r-base` alone appears to cause version conflicts (for some versions)
-            // so specify `r-base-core` and `r-recommended` separately
-            let packages = ["r-base-core"]; //, "r-recommended"];
+            // Installing `r-base` alone appears to cause version conflicts (for some versions
+            // at least?) so specify `r-base-core`.
+            let packages = ["r-base-core"];
             let packages = packages
                 .iter()
                 .map(|pkg| format!("{}={}-*", pkg, version))
@@ -284,6 +285,8 @@ impl Layer for RLayer {
             self.requirement
         );
 
+        let mut layer_env = LayerEnv::new();
+
         let version = if context.is_local() {
             let r = RBinary {}.ensure_version_sync(&self.requirement)?;
             let version = r.version()?.to_string();
@@ -342,18 +345,71 @@ impl Layer for RLayer {
             remove_file(to.join("Renviron"))?;
             symlink_file(to.join("Renviron.orig"), to.join("Renviron"))?;
 
-            // The R installation should now work, verify and get the version
+            // Rscript will fail with the error "Rscript execution error: No such file or directory"
+            // because the install path of R is hardcoded into it. So replace Rscript with a new bash script
+            // that uses `R --slave...`
+            // See https://stackoverflow.com/questions/39832110/rscript-execution-error-no-such-file-or-directory
+            let rscript_path = apt_packages.join("usr").join("bin").join("Rscript");
+            #[cfg(target_family = "unix")]
+            let mut file = {
+                use std::os::unix::fs::OpenOptionsExt;
+                fs::OpenOptions::new()
+                    .create(true)
+                    .write(true)
+                    .truncate(true)
+                    .mode(0o775)
+                    .open(rscript_path)?
+            };
+            #[cfg(not(target_family = "unix"))]
+            let file = {
+                fs::OpenOptions::new()
+                    .create(true)
+                    .write(true)
+                    .truncate(true)
+                    .open(rscript_path)?
+            };
+            file.write_all("#!/usr/bin/env bash\n\nR --slave --no-restore --file=$1\n".as_bytes())?;
+
+            // Additional library paths needed by R at launch-time and when we check the version below
+            const LD_LIBRARY_PATH: &str = "LD_LIBRARY_PATH";
+            let ld_library_path = format!(
+                "{}:", // Need to end with a colon to delimit from rest of path
+                env::join_paths([
+                    apt_packages.join("usr/lib/x86_64-linux-gnu/blas"),
+                    apt_packages.join("usr/lib/x86_64-linux-gnu/lapack"),
+                ])?
+                .to_string_lossy()
+            );
+            layer_env.insert(
+                Scope::All,
+                ModificationBehavior::Prepend,
+                LD_LIBRARY_PATH,
+                ld_library_path.clone(),
+            );
+            env::set_var(
+                LD_LIBRARY_PATH,
+                ld_library_path
+                    + &env::var_os(LD_LIBRARY_PATH)
+                        .unwrap_or_default()
+                        .to_string_lossy(),
+            );
+
+            // The R installation should now work, verify that is does and get the version
             let r = Binary::named("R").find_in(apt_packages.join("usr").join("bin").as_os_str())?;
-            r.version()?.to_string()
+            match r.version() {
+                Ok(version) => version,
+                Err(error) => {
+                    tracing::warn!("Unable to get version of R: {}", error);
+                    // Return a version-ish string so that the image can at least be built
+                    // and run for debugging purposes
+                    "0.0.0"
+                }
+            }
+            .to_string()
         };
 
         // Store version in metadata to detect if layer is stale in `existing_layer_strategy()`
         let metadata = LayerVersionMetadata { version };
-
-        // A present not setting any env vars. This is just a placeholder in case we need to.
-        // See https://stat.ethz.ch/R-manual/R-devel/library/base/html/Startup.html for more
-        // on which env vars are used by R
-        let layer_env = LayerEnv::new();
 
         LayerResultBuilder::new(metadata).env(layer_env).build()
     }
