@@ -316,15 +316,22 @@ impl Layer for PythonLayer {
             tracing::info!("Patching `python` installed by `apt`");
 
             // Symlink from the installed binary to both `python` and `python3`
-            let bin_dir = layer_path.join("usr").join("bin");
-            for entry in bin_dir.read_dir()?.flatten() {
+            // For compatibility with expectation that layers have `/bin/<exec>`, also
+            // create symlinks there (e.g. the `PoetryLayer` assumes this)
+            let layer_bin = layer_path.join("bin");
+            create_dir_all(&layer_bin)?;
+            let layer_usr_bin = layer_path.join("usr").join("bin");
+            for entry in layer_usr_bin.read_dir()?.flatten() {
                 let path = entry.path();
                 let is_python = path
                     .file_name()
                     .map_or(false, |name| name.to_string_lossy().starts_with("python3"));
                 if is_python {
-                    symlink_file(bin_dir.join(&path), bin_dir.join("python"))?;
-                    symlink_file(bin_dir.join(path), bin_dir.join("python3"))?;
+                    let from = layer_usr_bin.join(path);
+                    symlink_file(&from, layer_bin.join("python"))?;
+                    symlink_file(&from, layer_bin.join("python3"))?;
+                    symlink_file(&from, layer_usr_bin.join("python"))?;
+                    symlink_file(from, layer_usr_bin.join("python3"))?;
                     break;
                 }
             }
