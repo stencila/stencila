@@ -9,4 +9,4 @@ buildpacks: buildpack-apt buildpack-node buildpack-python buildpack-r buildpack-
 
 # Create the builder
 create: buildpacks
-	pack builder create stencila/builder --config ./builder.toml
+	pack builder create stencila/builder:bionic --config ./builder.toml

@@ -487,7 +487,7 @@ jobs:
       - script: |
           set -e
           curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.24.0/pack-v0.24.0-linux.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack
-          pack builder create stencila/builder:bionic --config docker/builder/bionic/builder.toml 
+          make -C docker/builder/bionic 
         displayName: Build stencila/builder
         condition: succeeded()
 
@@ -515,8 +515,8 @@ jobs:
           containerRegistry: DockerHub
           repository: stencila/builder
           tags: |
-            focal
-            focal-$(GitVersion.SemVer)
+            bionic
+            bionic-$(GitVersion.SemVer)
             latest
 
   # Themes are only built if there are changes in the `themes` folder
