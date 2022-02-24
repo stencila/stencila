@@ -175,6 +175,7 @@ jobs:
           set -e
           cargo run --manifest-path rust/stencila/Cargo.toml -- server start --url :9000 --insecure &
           make -C node build-ts
+          make -C schema setup build
           npm install --prefix web
           npm run lint --prefix web
           while ! echo exit | nc 127.0.0.1 9000; do sleep 5; done
@@ -488,6 +489,8 @@ jobs:
             npm | "$(Agent.OS)"
           path: $(npm_config_cache)
         displayName: Cache npm
+
+      - script: make -C schema setup build
 
       - script: npm ci
         displayName: Install dependencies
