@@ -230,7 +230,11 @@ export async function sendPatch(
 // Handles a 'patched' event by either sending it to the relevant WebComponent
 // so that it can make the necessary changes to the DOM, or by calling `applyPatch` which
 // makes changes to the DOM directly.
-export function receivePatch(clientId: ClientId, event: DocumentEvent): void {
+export function receivePatch(
+  clientId: ClientId,
+  event: DocumentEvent,
+  callback: (patch: Patch) => void = applyPatch
+): void {
   let patch
   if (event.type === 'patched') {
     patch = event.patch as Patch
@@ -252,7 +256,7 @@ export function receivePatch(clientId: ClientId, event: DocumentEvent): void {
     for (const op of ops) console.log('  ', JSON.stringify(op))
   }
 
-  applyPatch(patch)
+  callback(patch)
 }
 
 /**
