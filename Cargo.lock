@@ -323,6 +323,7 @@ dependencies = [
  "binary-poetry",
  "binary-python",
  "binary-r",
+ "binary-stencila",
  "cli-utils",
  "once_cell",
  "serde_json",
@@ -428,6 +429,13 @@ version = "0.0.0"
 dependencies = [
  "binary",
  "binary-asdf",
+]
+
+[[package]]
+name = "binary-stencila"
+version = "0.0.0"
+dependencies = [
+ "binary",
 ]
 
 [[package]]
@@ -588,6 +596,7 @@ dependencies = [
  "binary-poetry",
  "binary-python",
  "buildpack",
+ "sys-info",
 ]
 
 [[package]]
@@ -597,6 +606,15 @@ dependencies = [
  "binary-r",
  "buildpack",
  "serde_json",
+ "sys-info",
+]
+
+[[package]]
+name = "buildpack-stencila"
+version = "0.0.0"
+dependencies = [
+ "binary-stencila",
+ "buildpack",
 ]
 
 [[package]]
@@ -610,6 +628,7 @@ dependencies = [
  "buildpack-node",
  "buildpack-python",
  "buildpack-r",
+ "buildpack-stencila",
  "cli-utils",
  "once_cell",
  "regex",

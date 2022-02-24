@@ -1,0 +1,9 @@
+[package]
+name = "buildpack-stencila"
+description = "A Cloud Native Buildpack for Stencila CLI"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binary-stencila = { path = "../binary-stencila", version = "0.0.0" }
+buildpack = { path = "../buildpack", version = "0.0.0" }

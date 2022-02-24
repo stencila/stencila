@@ -17,6 +17,9 @@ uri = "../../../target/buildpack/release/stencila_python"
 [[buildpacks]]
 uri = "../../../target/buildpack/release/stencila_r"
 
+[[buildpacks]]
+uri = "../../../target/buildpack/release/stencila_stencila"
+
 # The order in which groups of buildpacks will be tested during detection
 #
 # Order is important. In particlar, a buildpack which `provides` dependencies
@@ -43,6 +46,9 @@ optional = true
 [[order.group]]
 id = "stencila/r"
 optional = true
+
+[[order.group]]
+id = "stencila/stencila"
 
 # The stack to use for the builder
 

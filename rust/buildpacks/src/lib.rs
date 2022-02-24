@@ -40,6 +40,8 @@ macro_rules! dispatch_builtins {
             "stencila/python" => buildpack_python::PythonBuildpack{}.$method($($arg),*),
             #[cfg(feature = "buildpack-r")]
             "stencila/r" => buildpack_r::RBuildpack{}.$method($($arg),*),
+            #[cfg(feature = "buildpack-stencila")]
+            "stencila/stencila" => buildpack_stencila::StencilaBuildpack{}.$method($($arg),*),
             _ => bail!("No buildpack with label `{}`", $label)
         }
     };
@@ -60,6 +62,8 @@ impl Buildpacks {
                 buildpack_python::PythonBuildpack::spec().ok(),
                 #[cfg(feature = "buildpack-r")]
                 buildpack_r::RBuildpack::spec().ok(),
+                #[cfg(feature = "buildpack-stencila")]
+                buildpack_stencila::StencilaBuildpack::spec().ok(),
             ]
             .into_iter()
             .flatten()
