@@ -1,6 +1,6 @@
 [package]
 name = "binary-podman"
-description = "A binary specification for Podman (https://github.com/containters/podman)"
+description = "A binary specification for Podman (https://github.com/containers/podman)"
 version = "0.0.0"
 edition = "2021"
 
