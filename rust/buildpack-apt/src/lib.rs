@@ -72,10 +72,6 @@ impl Buildpack for AptBuildpack {
 
         let mut build_plan = BuildPlan::new();
 
-        // Because this buildpack may be used by others, always indicates that is provides
-        // `apt_packages`
-        build_plan.provides.push(Provide::new(APT_PACKAGES));
-
         // Require `apt_packages` layer if there is an `Aptfile`
         if aptfile.exists() {
             let version = linux_flavour
@@ -83,7 +79,7 @@ impl Buildpack for AptBuildpack {
                 .version_codename
                 .expect("Should have an Ubuntu version codename");
 
-            build_plan.requires.push(Self::require(
+            let (require, provide) = Self::require_and_provide(
                 APT_PACKAGES,
                 APT_FILE,
                 format!("Install `apt` packages for Ubuntu '{}'", version).trim(),
@@ -91,7 +87,9 @@ impl Buildpack for AptBuildpack {
                     "version" => version,
                     "file" => APT_FILE.to_string()
                 }),
-            ))
+            );
+            build_plan.requires.push(require);
+            build_plan.provides.push(provide);
         }
 
         DetectResultBuilder::pass().build_plan(build_plan).build()
@@ -103,7 +101,7 @@ impl Buildpack for AptBuildpack {
         if let Some(options) = entries.get(APT_PACKAGES) {
             context.handle_layer(
                 layer_name!("apt_packages"),
-                AptPackagesLayer::new(options, &context.app_dir),
+                AptPackagesLayer::new(options, Some(&context.app_dir)),
             )?;
         }
 
@@ -112,7 +110,7 @@ impl Buildpack for AptBuildpack {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-struct AptPackagesLayer {
+pub struct AptPackagesLayer {
     /// The version of Ubuntu that packages will be installed for e.g `bionic`, `focal`
     version: String,
 
@@ -131,7 +129,7 @@ struct AptPackagesLayer {
 }
 
 impl AptPackagesLayer {
-    fn new(options: &LayerOptions, app_path: &Path) -> Self {
+    pub fn new(options: &LayerOptions, app_path: Option<&Path>) -> Self {
         let version = match options.get("version") {
             Some(version) => version.to_string(),
             None => sys_info::linux_os_release()
@@ -144,8 +142,8 @@ impl AptPackagesLayer {
 
         // Split `Aptfile` into  packages and repos
         let mut repos = Vec::new();
-        let mut packages = match &file {
-            Some(file) => read_to_string(app_path.join(file))
+        let mut packages = match (&file, &app_path) {
+            (Some(file), Some(path)) => read_to_string(path.join(file))
                 .unwrap_or_default()
                 .lines()
                 .filter_map(|line| {
@@ -160,7 +158,7 @@ impl AptPackagesLayer {
                     }
                 })
                 .collect(),
-            None => Vec::new(),
+            _ => Vec::new(),
         };
 
         // Add any other packages
@@ -230,27 +228,26 @@ impl Layer for AptPackagesLayer {
 
     fn create(
         &self,
-        context: &BuildContext<Self::Buildpack>,
+        _context: &BuildContext<Self::Buildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<Self::Metadata>, eyre::Report> {
         tracing::info!("Creating `apt_packages` layer");
-        self.install(context, layer_path)
+        self.install(layer_path)
     }
 
     fn update(
         &self,
-        context: &BuildContext<Self::Buildpack>,
+        _context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<LayerResult<Self::Metadata>, <Self::Buildpack as Buildpack>::Error> {
         tracing::info!("Updating `apt_packages` layer");
-        self.install(context, &layer_data.path)
+        self.install(&layer_data.path)
     }
 }
 
 impl AptPackagesLayer {
-    fn install(
+    pub fn install(
         &self,
-        _context: &BuildContext<AptBuildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<AptPackagesLayer>, eyre::Report> {
         let layer_path = &layer_path.canonicalize()?;

@@ -596,6 +596,7 @@ dependencies = [
  "binary-poetry",
  "binary-python",
  "buildpack",
+ "buildpack-apt",
  "sys-info",
 ]
 

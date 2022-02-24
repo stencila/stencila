@@ -8,7 +8,7 @@ use std::{
 use binary_poetry::PoetryBinary;
 use binary_python::{Binary, BinaryInstallation, BinaryTrait, PythonBinary};
 use buildpack::{
-    eyre::{self, bail},
+    eyre::{self, bail, eyre},
     fs_utils::{copy_if_exists, symlink_dir, symlink_file},
     hash_utils::str_sha256_hex,
     libcnb::{
@@ -25,6 +25,7 @@ use buildpack::{
     toml, tracing, BuildpackContext, BuildpackTrait, LayerHashMetadata, LayerOptions,
     LayerVersionMetadata,
 };
+use buildpack_apt::AptPackagesLayer;
 
 pub struct PythonBuildpack;
 
@@ -46,7 +47,7 @@ impl Buildpack for PythonBuildpack {
     type Metadata = GenericMetadata;
     type Error = eyre::Report;
 
-    fn detect(&self, context: DetectContext<Self>) -> libcnb::Result<DetectResult, Self::Error> {
+    fn detect(&self, _context: DetectContext<Self>) -> libcnb::Result<DetectResult, Self::Error> {
         // Read `.tool-versions` for Python version
         let tool_versions = Self::tool_versions();
 
@@ -100,65 +101,6 @@ impl Buildpack for PythonBuildpack {
         } else {
             ("*".to_string(), "")
         };
-
-        if context.is_cnb() {
-            // Ensure `version` is a valid version and not a semver requirement so that we can
-            // specify the `apt` package versions to install. Log errors and have fallbacks rather than returning
-            // `Err` because the latter can cause silent detect fails
-            let fallback_version = "3.10.2".to_string();
-            let python_binary = PythonBinary {};
-            let versions = match python_binary.versions_sync(env::consts::OS) {
-                Ok(versions) => versions,
-                Err(error) => {
-                    tracing::warn!("While getting Python versions: {}", error);
-                    vec![fallback_version.clone()]
-                }
-            };
-            let (version, minor_version) = match python_binary
-                .semver_versions_matching(versions.clone(), &version)
-                .first()
-            {
-                Some(version) => (
-                    version.to_string(),
-                    python_binary
-                        .semver_version_minor(version)
-                        .unwrap_or_default(),
-                ),
-                None => {
-                    tracing::warn!("Unable to find version of Python meeting semver requirement `{}`; will use latest", version);
-                    let version = versions.first().unwrap_or(&fallback_version).to_string();
-                    let version_minor = python_binary
-                        .semver_version_minor(&version)
-                        .unwrap_or_default();
-                    (version, version_minor)
-                }
-            };
-
-            let release = sys_info::linux_os_release()
-                .ok()
-                .and_then(|info| info.version_codename)
-                .unwrap_or_default();
-            let repos = format!(
-                "deb [trusted=yes] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu {} main",
-                release
-            );
-
-            let packages = [
-                format!("python{}={}-*", minor_version, version),
-                format!("python{}-venv={}-*", minor_version, version),
-            ]
-            .join(",");
-
-            requires.push(Self::require(
-                "apt_packages",
-                "",
-                "Install `apt` packages required for Python",
-                Some(hashmap! {
-                    "repos" => repos,
-                    "packages" => packages
-                }),
-            ));
-        }
 
         // Require and provide Python
         let (require, provide) = Self::require_and_provide(
@@ -301,7 +243,7 @@ impl Layer for PythonLayer {
             self.requirement
         );
 
-        let layer_env = LayerEnv::new();
+        let mut layer_env = LayerEnv::new();
 
         let version = if context.is_local() {
             let python = PythonBinary {}.ensure_version_sync(&self.requirement)?;
@@ -323,17 +265,58 @@ impl Layer for PythonLayer {
 
             version
         } else {
-            tracing::info!("Patching `python` installed by `apt` buildpack");
+            tracing::info!("Installing `python` using `apt`");
 
-            let apt_packages = layer_path
-                .join("..")
-                .join("..")
-                .join("stencila_apt")
-                .join("apt_packages")
-                .canonicalize()?;
+            // Determine the highest version meeting semver requirement
+            let python = PythonBinary {};
+            let versions = python.versions_sync(env::consts::OS)?;
+            let version = match python
+                .semver_versions_matching(&versions, &self.requirement)
+                .first()
+            {
+                Some(version) => version.clone(),
+                None => {
+                    tracing::warn!("Unable to find version of Python meeting semver requirement `{}`; will use latest", self.requirement);
+                    versions
+                        .first()
+                        .cloned()
+                        .ok_or_else(|| eyre!("No versions available for Python"))?
+                }
+            };
+            let minor_version = python.semver_version_minor(&version)?;
+
+            // Determine apt repository to use
+            let release = sys_info::linux_os_release()
+                .ok()
+                .and_then(|info| info.version_codename)
+                .unwrap_or_default();
+            let repos = format!(
+                "deb [trusted=yes] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu {} main",
+                release
+            );
+
+            // Packages to install
+            let packages = [
+                format!("python{}={}-*", minor_version, version),
+                format!("python{}-venv={}-*", minor_version, version),
+            ]
+            .join(",");
+
+            // Do install
+            let options: LayerOptions = hashmap! {
+                "repos".to_string() => repos,
+                "packages".to_string() => packages
+            };
+            let apt_layer = AptPackagesLayer::new(&options, None);
+            let build_result = apt_layer.install(layer_path)?;
+            if let Some(env) = build_result.env {
+                layer_env = env;
+            }
+
+            tracing::info!("Patching `python` installed by `apt`");
 
             // Symlink from the installed binary to both `python` and `python3`
-            let bin_dir = apt_packages.join("usr").join("bin");
+            let bin_dir = layer_path.join("usr").join("bin");
             for entry in bin_dir.read_dir()?.flatten() {
                 let path = entry.path();
                 let is_python = path
@@ -347,8 +330,8 @@ impl Layer for PythonLayer {
             }
 
             // The Python installation should now work, verify that is does and get the version
-            let python = Binary::named("python")
-                .find_in(apt_packages.join("usr").join("bin").as_os_str())?;
+            let python =
+                Binary::named("python").find_in(layer_path.join("usr").join("bin").as_os_str())?;
             let version = match python.version() {
                 Ok(version) => version,
                 Err(error) => {
