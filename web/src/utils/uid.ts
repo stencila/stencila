@@ -72,7 +72,9 @@ export function parse(id: string):
   const [_, family, t, rand] =
     /^([a-z]{2})\.([0-9a-f]{8})\.([0-9A-Za-z]{20})$/.exec(id) ?? []
 
-  if (!family || !t || !rand) return
+  if (family === undefined || t === undefined || rand === undefined) {
+    return
+  }
 
   let seconds
   try {
