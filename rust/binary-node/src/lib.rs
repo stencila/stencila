@@ -25,7 +25,7 @@ impl BinaryTrait for NodeBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         self.versions_github_releases("nodejs", "node")
             .await
-            .map(|versions| self.semver_versions_matching(versions, ">=10"))
+            .map(|versions| self.semver_versions_matching(&versions, ">=10"))
     }
 
     async fn install_version(

@@ -310,7 +310,7 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     // Filter out versions that are not valid semver versions and do not meet a semver requirement
-    fn semver_versions_matching(&self, versions: Vec<String>, requirement: &str) -> Vec<String> {
+    fn semver_versions_matching(&self, versions: &[String], requirement: &str) -> Vec<String> {
         let versions = self.semver_versions_sorted(versions);
 
         let requirement = match self.semver_requirement(requirement) {
@@ -331,7 +331,7 @@ pub trait BinaryTrait: Send + Sync {
 
     /// Filter out any versions that are not valid semver versions.
     /// Also sorts in **descending** semver order.
-    fn semver_versions_sorted(&self, versions: Vec<String>) -> Vec<String> {
+    fn semver_versions_sorted(&self, versions: &[String]) -> Vec<String> {
         let mut versions: Vec<semver::Version> = versions
             .iter()
             .filter_map(|version| {

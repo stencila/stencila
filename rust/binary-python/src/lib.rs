@@ -22,7 +22,7 @@ impl BinaryTrait for PythonBinary {
     async fn versions(&self, os: &str) -> Result<Vec<String>> {
         let versions = if os == "linux" || os == "macos" {
             let versions = AsdfBinary::list_all("python").await?;
-            self.semver_versions_matching(versions, "*")
+            self.semver_versions_matching(&versions, "*")
         } else {
             versions::VERSIONS
                 .iter()

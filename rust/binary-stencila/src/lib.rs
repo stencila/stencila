@@ -21,7 +21,7 @@ impl BinaryTrait for StencilaBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         self.versions_github_releases("stencila", "stencila")
             .await
-            .map(|versions| self.semver_versions_matching(versions, ">=1"))
+            .map(|versions| self.semver_versions_matching(&versions, ">=1"))
     }
 
     async fn install_version(

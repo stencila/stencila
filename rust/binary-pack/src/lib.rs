@@ -21,7 +21,7 @@ impl BinaryTrait for PackBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         self.versions_github_releases("buildpacks", "pack")
             .await
-            .map(|versions| self.semver_versions_matching(versions, ">=0.20"))
+            .map(|versions| self.semver_versions_matching(&versions, ">=0.20"))
     }
 
     async fn install_version(

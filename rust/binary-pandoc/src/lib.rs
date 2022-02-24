@@ -20,7 +20,7 @@ impl BinaryTrait for PandocBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         self.versions_github_releases("jgm", "pandoc")
             .await
-            .map(|versions| self.semver_versions_matching(versions, ">=2.14"))
+            .map(|versions| self.semver_versions_matching(&versions, ">=2.14"))
     }
 
     async fn install_version(

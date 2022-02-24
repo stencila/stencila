@@ -30,7 +30,7 @@ impl BinaryTrait for RBinary {
             .cloned()
             .ok_or_else(|| eyre!("Expected object with `r_versions` property"))?;
         let versions: Vec<String> = serde_json::from_value(versions)?;
-        let versions = self.semver_versions_matching(versions, "*");
+        let versions = self.semver_versions_matching(&versions, "*");
         Ok(versions)
     }
 

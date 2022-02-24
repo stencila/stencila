@@ -21,7 +21,7 @@ impl BinaryTrait for PoetryBinary {
         self.versions_github_releases("python-poetry", "poetry")
             .await
             // "installer does not support Poetry releases < 0.12.0"
-            .map(|versions| self.semver_versions_matching(versions, ">=0.12"))
+            .map(|versions| self.semver_versions_matching(&versions, ">=0.12"))
     }
 
     async fn install_version(

@@ -21,7 +21,7 @@ impl BinaryTrait for PodmanBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         self.versions_github_releases("containers", "podman")
             .await
-            .map(|versions| self.semver_versions_matching(versions, ">=3"))
+            .map(|versions| self.semver_versions_matching(&versions, ">=3"))
     }
 
     async fn install_version(

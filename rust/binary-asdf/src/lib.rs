@@ -31,7 +31,7 @@ impl BinaryTrait for AsdfBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         self.versions_github_releases("asdf-vm", "asdf")
             .await
-            .map(|versions| self.semver_versions_sorted(versions))
+            .map(|versions| self.semver_versions_sorted(&versions))
     }
 
     fn run_env(&self, version: Option<String>) -> Vec<(OsString, OsString)> {
