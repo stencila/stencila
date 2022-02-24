@@ -11,6 +11,7 @@ export * as client from './client'
 export type { Client } from './client'
 export * as documents from './documents'
 export * as patches from './patches'
+export * as utils from './utils'
 
 export const main = (
   clientId: ClientId,
