@@ -438,7 +438,7 @@ impl AptPackagesLayer {
             Scope::All,
             ModificationBehavior::Prepend,
             "PATH",
-            prefix_paths(&["usr/bin"])?,
+            prefix_paths(&["usr/bin", "usr/local/bin"])?,
         );
 
         let include_path_prepend = prefix_paths(&[

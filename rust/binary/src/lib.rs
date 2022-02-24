@@ -250,6 +250,18 @@ pub trait BinaryTrait: Send + Sync {
         Ok(semver::Version::parse(string)?)
     }
 
+    /// Parse a string as a semantic version and return the major version e.g. "3.10.2" => "3"
+    fn semver_version_major(&self, string: &str) -> Result<String> {
+        self.semver_version(string)
+            .map(|version| version.major.to_string())
+    }
+
+    /// Parse a string as a semantic version and return the minor version e.g. "3.10.2" => "3.10"
+    fn semver_version_minor(&self, string: &str) -> Result<String> {
+        self.semver_version(string)
+            .map(|version| format!("{}.{}", version.major, version.minor))
+    }
+
     /// Parse a string as a semantic version requirement
     ///
     /// If the string is blank then semver `*` is assumed.
