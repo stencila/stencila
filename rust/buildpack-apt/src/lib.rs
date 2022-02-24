@@ -14,11 +14,7 @@ use buildpack::{
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
-        data::{
-            build_plan::{BuildPlan, Provide},
-            layer_content_metadata::LayerTypes,
-            layer_name,
-        },
+        data::{build_plan::BuildPlan, layer_content_metadata::LayerTypes, layer_name},
         detect::{DetectContext, DetectResult, DetectResultBuilder},
         generic::{GenericMetadata, GenericPlatform},
         layer::{ExistingLayerStrategy, Layer, LayerResult, LayerResultBuilder},

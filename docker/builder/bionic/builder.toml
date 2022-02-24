@@ -22,8 +22,7 @@ uri = "../../../target/buildpack/release/stencila_stencila"
 
 # The order in which groups of buildpacks will be tested during detection
 #
-# Order is important. In particlar, a buildpack which `provides` dependencies
-# for other buildpacks (e.g. stencila/apt) should go earlier.
+# Order can be important.
 # See https://github.com/buildpacks/spec/blob/main/buildpack.md#phase-1-detection
 #
 # All buildpacks are optional, so they can potentially all be applied to the

@@ -7,7 +7,7 @@ use std::{
 
 use binary_r::{Binary, BinaryTrait, RBinary};
 use buildpack::{
-    eyre,
+    eyre::{self, eyre},
     fs_utils::{symlink_dir, symlink_file},
     hash_utils::str_sha256_hex,
     libcnb::{
@@ -24,6 +24,7 @@ use buildpack::{
     tracing, BuildpackContext, BuildpackTrait, LayerHashMetadata, LayerOptions,
     LayerVersionMetadata,
 };
+use buildpack_apt::AptPackagesLayer;
 
 pub struct RBuildpack;
 
@@ -44,7 +45,7 @@ impl Buildpack for RBuildpack {
     type Metadata = GenericMetadata;
     type Error = eyre::Report;
 
-    fn detect(&self, context: DetectContext<Self>) -> libcnb::Result<DetectResult, Self::Error> {
+    fn detect(&self, _context: DetectContext<Self>) -> libcnb::Result<DetectResult, Self::Error> {
         // Read `.tool-versions` for R version
         let tool_versions = Self::tool_versions();
 
@@ -90,63 +91,6 @@ impl Buildpack for RBuildpack {
             } else {
                 ("*".to_string(), "")
             };
-
-        if context.is_cnb() {
-            // Ensure `version` is a valid version and not a semver requirement so that we can
-            // specify the `apt` package versions to install. Log errors and have fallbacks rather than returning
-            // `Err` because the latter can cause silent detect fails
-            let fallback_version = "4.1.2".to_string();
-            let r_binary = RBinary {};
-            let versions = match r_binary.versions_sync(env::consts::OS) {
-                Ok(versions) => versions,
-                Err(error) => {
-                    tracing::warn!("While getting R versions: {}", error);
-                    vec![fallback_version.clone()]
-                }
-            };
-            let version = match r_binary
-                .semver_versions_matching(versions.clone(), &version)
-                .first()
-            {
-                Some(version) => version.to_string(),
-                None => {
-                    tracing::warn!("Unable to find version of R meeting semver requirement `{}`; will use latest", version);
-                    versions.first().unwrap_or(&fallback_version).to_string()
-                }
-            };
-
-            let repos = if version.starts_with('4') {
-                let release = sys_info::linux_os_release()
-                    .ok()
-                    .and_then(|info| info.version_codename)
-                    .unwrap_or_default();
-                format!(
-                    "deb [trusted=yes] https://cloud.r-project.org/bin/linux/ubuntu {}-cran40/",
-                    release
-                )
-            } else {
-                "".to_string()
-            };
-
-            // Installing `r-base` alone appears to cause version conflicts (for some versions
-            // at least?) so specify `r-base-core`.
-            let packages = ["r-base-core"];
-            let packages = packages
-                .iter()
-                .map(|pkg| format!("{}={}-*", pkg, version))
-                .collect::<Vec<String>>()
-                .join(",");
-
-            requires.push(Self::require(
-                "apt_packages",
-                "",
-                "Install `apt` packages required for R",
-                Some(hashmap! {
-                    "repos" => repos,
-                    "packages" => packages
-                }),
-            ));
-        }
 
         // Require and provide R
         let (require, provide) = Self::require_and_provide(
@@ -309,18 +253,60 @@ impl Layer for RLayer {
 
             version
         } else {
+            tracing::info!("Installing `R` using `apt`");
+
+            // Determine the highest version meeting semver requirement
+            let r = RBinary {};
+            let versions = r.versions_sync(env::consts::OS)?;
+            let version = match r
+                .semver_versions_matching(&versions, &self.requirement)
+                .first()
+            {
+                Some(version) => version.clone(),
+                None => {
+                    tracing::warn!("Unable to find version of R meeting semver requirement `{}`; will use latest", self.requirement);
+                    versions
+                        .first()
+                        .cloned()
+                        .ok_or_else(|| eyre!("No versions available for R"))?
+                }
+            };
+
+            // Determine apt repository to use
+            let repos = if version.starts_with('4') {
+                let release = sys_info::linux_os_release()
+                    .ok()
+                    .and_then(|info| info.version_codename)
+                    .unwrap_or_default();
+                format!(
+                    "deb [trusted=yes] https://cloud.r-project.org/bin/linux/ubuntu {}-cran40/",
+                    release
+                )
+            } else {
+                "".to_string()
+            };
+
+            // Packages to install
+            // Installing `r-base` alone appears to cause version conflicts (for some versions
+            // at least?) so specify `r-base-core`.
+            let packages = format!("r-base-core={}-*", version);
+
+            // Do install
+            let options: LayerOptions = hashmap! {
+                "repos".to_string() => repos,
+                "packages".to_string() => packages
+            };
+            let apt_layer = AptPackagesLayer::new(&options, None);
+            let build_result = apt_layer.install(layer_path)?;
+            if let Some(env) = build_result.env {
+                layer_env = env;
+            }
+
             tracing::info!("Patching `R` installed by `apt` buildpack");
 
-            let apt_packages = layer_path
-                .join("..")
-                .join("..")
-                .join("stencila_apt")
-                .join("apt_packages")
-                .canonicalize()?;
-
             // Patch the R_HOME_DIR variable in the R startup script
-            let r_path = apt_packages.join("usr").join("bin").join("R");
-            let r_home_dir = apt_packages.join("usr").join("lib").join("R");
+            let r_path = layer_path.join("usr").join("bin").join("R");
+            let r_home_dir = layer_path.join("usr").join("lib").join("R");
             let mut r_script = read_to_string(&r_path)?;
             r_script = r_script.replace(
                 "R_HOME_DIR=/usr/lib/R",
@@ -329,7 +315,7 @@ impl Layer for RLayer {
             write(&r_path, r_script)?;
 
             // Replace broken symlinks
-            let from = apt_packages.join("etc").join("R");
+            let from = layer_path.join("etc").join("R");
             let to = r_home_dir.join("etc");
             for file in [
                 "Makeconf",
@@ -349,7 +335,7 @@ impl Layer for RLayer {
             // because the install path of R is hardcoded into it. So replace Rscript with a new bash script
             // that uses `R --slave...`
             // See https://stackoverflow.com/questions/39832110/rscript-execution-error-no-such-file-or-directory
-            let rscript_path = apt_packages.join("usr").join("bin").join("Rscript");
+            let rscript_path = layer_path.join("usr").join("bin").join("Rscript");
             #[cfg(target_family = "unix")]
             let mut file = {
                 use std::os::unix::fs::OpenOptionsExt;
@@ -371,12 +357,18 @@ impl Layer for RLayer {
             file.write_all("#!/usr/bin/env bash\n\nR --slave --no-restore --file=$1\n".as_bytes())?;
 
             // Additional library paths needed by R at launch-time and when we check the version below
+            // This overrides the `LD_LIBRARY_PATH` prepend defined by the apt layer above (thats why it
+            // repeats the paths prepended there).
             const LD_LIBRARY_PATH: &str = "LD_LIBRARY_PATH";
             let ld_library_path = format!(
                 "{}:", // Need to end with a colon to delimit from rest of path
                 env::join_paths([
-                    apt_packages.join("usr/lib/x86_64-linux-gnu/blas"),
-                    apt_packages.join("usr/lib/x86_64-linux-gnu/lapack"),
+                    layer_path.join("lib"),
+                    layer_path.join("lib/x86_64-linux-gnu"),
+                    layer_path.join("usr/lib"),
+                    layer_path.join("usr/lib/x86_64-linux-gnu"),
+                    layer_path.join("usr/lib/x86_64-linux-gnu/blas"),
+                    layer_path.join("usr/lib/x86_64-linux-gnu/lapack"),
                 ])?
                 .to_string_lossy()
             );
@@ -395,7 +387,7 @@ impl Layer for RLayer {
             );
 
             // The R installation should now work, verify that is does and get the version
-            let r = Binary::named("R").find_in(apt_packages.join("usr").join("bin").as_os_str())?;
+            let r = Binary::named("R").find_in(layer_path.join("usr").join("bin").as_os_str())?;
             match r.version() {
                 Ok(version) => version,
                 Err(error) => {

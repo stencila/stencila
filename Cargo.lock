@@ -606,6 +606,7 @@ version = "0.0.0"
 dependencies = [
  "binary-r",
  "buildpack",
+ "buildpack-apt",
  "serde_json",
  "sys-info",
 ]
