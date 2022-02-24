@@ -354,7 +354,7 @@ impl Layer for RLayer {
                     .truncate(true)
                     .open(rscript_path)?
             };
-            file.write_all("#!/usr/bin/env bash\n\nR --slave --no-restore --file=$1\n".as_bytes())?;
+            file.write_all(include_str!("Rscript.sh").as_bytes())?;
 
             // Additional library paths needed by R at launch-time and when we check the version below
             // This overrides the `LD_LIBRARY_PATH` prepend defined by the apt layer above (thats why it
