@@ -70,7 +70,7 @@
     "@types/prosemirror-transform": "1.1.4",
     "@types/prosemirror-view": "1.19.1",
     "jest": "27.1.0",
-    "microbundle": "^0.14.2",
+    "microbundle": "0.14.2",
     "parcel": "^2.0.0-nightly.991",
     "ts-jest": "27.0.5",
     "typescript": "4.4.2"
