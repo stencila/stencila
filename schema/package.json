@@ -143,42 +143,5 @@
     "docs",
     "__file_snapshots__"
   ],
-  "prettier": "@stencila/dev-config/prettier-config.json",
-  "release": {
-    "extends": "@stencila/semantic-release-config",
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      "@semantic-release/changelog",
-      [
-        "@semantic-release/exec",
-        {
-          "prepareCmd": "./.ci/prepare-release.sh ${nextRelease.version}"
-        }
-      ],
-      "@semantic-release/npm",
-      [
-        "@semantic-release/git",
-        {
-          "assets": [
-            "CHANGELOG.md",
-            "package.json",
-            "package-lock.json",
-            "src/types.ts",
-            ".vscode/settings.json"
-          ]
-        }
-      ],
-      [
-        "@semantic-release/github",
-        {
-          "assets": [
-            {
-              "path": "docs.tar.gz"
-            }
-          ]
-        }
-      ]
-    ]
-  }
+  "prettier": "@stencila/dev-config/prettier-config.json"
 }
