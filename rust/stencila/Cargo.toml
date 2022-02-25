@@ -67,7 +67,6 @@ default = [
   "parsers/parser-js",
   "parsers/parser-py",
   "parsers/parser-r",
-  "parsers/parser-rust",
   "parsers/parser-ts",
 
   # Kernels
@@ -75,7 +74,6 @@ default = [
   "kernels/kernel-bash",
   "kernels/kernel-calc",
   "kernels/kernel-deno",
-  "kernels/kernel-jupyter",
   "kernels/kernel-node",
   "kernels/kernel-python",
   "kernels/kernel-r",

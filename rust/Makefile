@@ -35,13 +35,17 @@ audit:
 
 build:
 	# Build / install embedded static assets
+	cd ../schema && npm install && npm run build
+	cd ../node && npm install && npm run build:ts
 	cd ../web && npm install && npm run build
 	cd ../themes && npm install && npm run build
 	cd stencila && npm install
 	# Build and strip binary
 	cargo build --bin stencila --release
 	cd .. && cargo strip
-
+	# Build and strip `musl` binaries
+	cargo build --bin stencila --release --target x86_64-unknown-linux-musl
+	cd .. && cargo strip --target x86_64-unknown-linux-musl
 install:
 	cargo install --path stencila
 

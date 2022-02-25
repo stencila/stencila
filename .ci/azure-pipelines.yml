@@ -191,9 +191,11 @@ jobs:
       # CLI is built and published on tags
       - script: |
           set -e
+          rustup target add x86_64-unknown-linux-musl
           cargo list | grep --quiet strip || cargo install cargo-strip
           make -C rust build
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
+          bash .ci/upload-release.sh target/x86_64-unknown-linux-musl/release/stencila stencila x86_64-unknown-linux-musl.tar.gz
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
         env:
