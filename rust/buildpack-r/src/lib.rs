@@ -229,6 +229,14 @@ impl Layer for RLayer {
             self.requirement
         );
 
+        let layer_path = &layer_path.canonicalize()?;
+
+        // WARNING: It is not always clear what env vars should be set for R and which are set by
+        // R on startup (see those "Set by R" in `EnvVar.html`) and thus ignored if you try to set them.
+        // Generally it seems best to set R-specific variables in `Renviron.site` (see below)
+        //   https://stat.ethz.ch/R-manual/R-devel/library/base/html/Startup.html
+        //   https://stat.ethz.ch/R-manual/R-devel/library/base/html/EnvVar.html
+        //   https://stat.ethz.ch/R-manual/R-devel/library/base/html/Rhome.html
         let mut layer_env = LayerEnv::new();
 
         let version = if context.is_local() {
@@ -253,7 +261,12 @@ impl Layer for RLayer {
 
             version
         } else {
-            tracing::info!("Installing `R` using `apt`");
+            let release = sys_info::linux_os_release()
+                .ok()
+                .and_then(|info| info.version_codename)
+                .unwrap_or_default();
+
+            tracing::info!("Installing `R` using `apt` repositories for `{}`", release);
 
             // Determine the highest version meeting semver requirement
             let r = RBinary {};
@@ -274,10 +287,6 @@ impl Layer for RLayer {
 
             // Determine apt repository to use
             let repos = if version.starts_with('4') {
-                let release = sys_info::linux_os_release()
-                    .ok()
-                    .and_then(|info| info.version_codename)
-                    .unwrap_or_default();
                 format!(
                     "deb [trusted=yes] https://cloud.r-project.org/bin/linux/ubuntu {}-cran40/",
                     release
@@ -304,38 +313,20 @@ impl Layer for RLayer {
 
             tracing::info!("Patching `R` installed by `apt` buildpack");
 
-            // Patch the R_HOME_DIR variable in the R startup script
-            let r_path = layer_path.join("usr").join("bin").join("R");
             let r_home_dir = layer_path.join("usr").join("lib").join("R");
-            let mut r_script = read_to_string(&r_path)?;
-            r_script = r_script.replace(
+
+            // Patch the R_HOME_DIR variable in the R startup script
+            let r_path = r_home_dir.join("bin").join("R");
+            let content = read_to_string(&r_path)?.replace(
                 "R_HOME_DIR=/usr/lib/R",
                 &format!("R_HOME_DIR={}", r_home_dir.display()),
             );
-            write(&r_path, r_script)?;
+            write(&r_path, content)?;
 
-            // Replace broken symlinks
-            let from = layer_path.join("etc").join("R");
-            let to = r_home_dir.join("etc");
-            for file in [
-                "Makeconf",
-                "Renviron.site",
-                "Rprofile.site",
-                "ldpaths",
-                "repositories",
-            ] {
-                let target = to.join(file);
-                remove_file(&target)?;
-                symlink_file(from.join(file), target)?;
-            }
-            remove_file(to.join("Renviron"))?;
-            symlink_file(to.join("Renviron.orig"), to.join("Renviron"))?;
-
-            // Rscript will fail with the error "Rscript execution error: No such file or directory"
-            // because the install path of R is hardcoded into it. So replace Rscript with a new bash script
-            // that uses `R --slave...`
+            // Replace Rscript otherwise it will fail with the error "Rscript execution error: No such file or directory"
+            // because the install path of R is hardcoded into it.
             // See https://stackoverflow.com/questions/39832110/rscript-execution-error-no-such-file-or-directory
-            let rscript_path = layer_path.join("usr").join("bin").join("Rscript");
+            let rscript_path = r_home_dir.join("bin").join("Rscript");
             #[cfg(target_family = "unix")]
             let mut file = {
                 use std::os::unix::fs::OpenOptionsExt;
@@ -355,6 +346,62 @@ impl Layer for RLayer {
                     .open(rscript_path)?
             };
             file.write_all(include_str!("Rscript.sh").as_bytes())?;
+
+            // Replace executables in `layer_path/usr/bin` with symlinks to patched/replaced
+            // files in `layer_path/usr/lib/R/bin`
+            let to = layer_path.join("usr").join("bin");
+            for file in ["R", "Rscript"] {
+                let target = to.join(file);
+                remove_file(&target)?;
+                symlink_file(r_home_dir.join("bin").join(file), target)?;
+            }
+
+            // Modify `Renviron.site` as needed (the preferred way to set environment variables at R startup)
+            // https://stat.ethz.ch/R-manual/R-devel/library/base/html/Startup.html
+            let r_environ = layer_path.join("etc").join("R").join("Renviron.site");
+            let layer_usr_share_r = layer_path.join("usr").join("share").join("R");
+            let mut content = read_to_string(&r_environ)?;
+            content.push_str(&format!(
+                r#"
+R_SHARE_DIR={}
+R_INCLUDE_DIR={}
+"#,
+                layer_usr_share_r.join("share").display(),
+                layer_usr_share_r.join("include").display()
+            ));
+            write(&r_environ, content)?;
+
+            // Create a `Rprofile.site` file to use the RStudio package manager as repo
+            let r_profile = layer_path.join("etc").join("R").join("Rprofile.site");
+            write(
+                r_profile,
+                format!(
+                    r#"
+options(
+    repos = c(RSTUDIO_PACKAGE_MANAGER = "https://packagemanager.rstudio.com/all/__linux__/{release}/latest"),
+    HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version["platform"], R.version["arch"], R.version["os"]))
+)
+"#,
+                    release = "bionic"
+                ),
+            )?;
+
+            // Replace broken symlinks
+            let from = layer_path.join("etc").join("R");
+            let to = r_home_dir.join("etc");
+            for file in [
+                "Makeconf",
+                "Renviron.site",
+                "Rprofile.site",
+                "ldpaths",
+                "repositories",
+            ] {
+                let target = to.join(file);
+                remove_file(&target)?;
+                symlink_file(from.join(file), target)?;
+            }
+            remove_file(to.join("Renviron"))?;
+            symlink_file(to.join("Renviron.orig"), to.join("Renviron"))?;
 
             // Additional library paths needed by R at launch-time and when we check the version below
             // This overrides the `LD_LIBRARY_PATH` prepend defined by the apt layer above (thats why it
@@ -445,7 +492,6 @@ impl Layer for RenvLayer {
     type Metadata = LayerHashMetadata;
 
     fn types(&self) -> LayerTypes {
-        // Because renv symlinks to its cache both launch and cache must be true
         LayerTypes {
             build: true,
             launch: true,
@@ -510,6 +556,9 @@ impl RenvLayer {
         }
         .join("renv")
         .join("library");
+        if !library_path.exists() {
+            create_dir_all(&library_path)?;
+        }
 
         if self.method == "rscript" {
             // Determine which file to run
@@ -525,22 +574,14 @@ impl RenvLayer {
                 file
             );
 
-            // Run a script that monkey patches `install.packages` so that `renv/library`
-            // is the lib and using the RStudio package manager (for pre-built packages)
+            // Run a script that monkey patches `install.packages` so that `renv/library` is the lib
             let script = format!(
                 r#"
-install.packages <- function(pkgs, lib = NULL, repos = NULL, ...) {{
-    utils::install.packages(
-        pkgs, 
-        lib = "{}", 
-        repos = c(CRAN = "https://packagemanager.rstudio.com/all/latest", repos),
-        ...
-    )
-}}
-source("{}")
+install.packages <- function(pkgs, lib = NULL, repos = NULL, ...) {{ utils::install.packages(pkgs, lib = "{lib_path}", ...) }}
+source("{install_script}")
             "#,
-                library_path.display(),
-                file
+                lib_path = library_path.display(),
+                install_script = file
             );
             rscript.run_sync(&["-e", &script])?;
         } else {
@@ -554,19 +595,15 @@ source("{}")
                 rscript.env_list(&[("RENV_PATHS_CACHE", layer_path.canonicalize()?.as_os_str())]);
             }
 
-            // Run a script that does the install including installing if necessary,
-            // options for non-interactive use and using the RStudio package manager (for pre-built packages)
+            // Run a script that does the install including installing if necessary and options for non-interactive use
             let script = format!(
                 r#"
-options(
-    renv.consent = TRUE,
-    repos = c(CRAN = "https://packagemanager.rstudio.com/all/latest")
-)
+options(renv.consent = TRUE)
 if (!require(renv, quietly=TRUE)) install.packages("renv")
-{}
+{snapshot}
 renv::activate()
 renv::restore(prompt = FALSE)"#,
-                if self.method == "snapshot" {
+                snapshot = if self.method == "snapshot" {
                     "renv::snapshot()"
                 } else {
                     ""
