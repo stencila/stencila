@@ -64,10 +64,6 @@ impl<B: libcnb::Buildpack> BuildpackContext for libcnb::build::BuildContext<B> {
     }
 }
 
-/// String used by buildpacks to indicate that a tool version
-/// was determined from the (highest) version found on the system
-pub const SYSTEM_INSTALLED: &str = "<system>";
-
 /// A local trait for buildpacks that extends `libcnb::Buildpack`
 ///
 /// Why? To provide some additional introspection and the ability

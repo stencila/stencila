@@ -20,7 +20,7 @@ use buildpack::{
     },
     maplit::hashmap,
     tracing, BuildpackContext, BuildpackTrait, LayerHashMetadata, LayerOptions,
-    LayerVersionMetadata, SYSTEM_INSTALLED,
+    LayerVersionMetadata,
 };
 
 pub struct NodeBuildpack;
@@ -87,8 +87,6 @@ impl Buildpack for NodeBuildpack {
                 .and_then(|semver| semver.as_str().map(|semver| semver.to_string()))
         }) {
             (semver, PACKAGE_JSON)
-        } else if let Some(version) = (NodeBinary {}).installed_version(None) {
-            (version, SYSTEM_INSTALLED)
         } else {
             ("lts".to_string(), "")
         };
