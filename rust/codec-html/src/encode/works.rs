@@ -293,8 +293,9 @@ fn affiliation_org_to_html(org: &Organization) -> String {
     [
         "<li itemtype=\"https://schema.org/Organization\" itemscope>",
         &name,
-        "</li>"
-    ].concat()
+        "</li>",
+    ]
+    .concat()
 }
 
 /// Generate HTML from the `BlockContent` analogue (e.g. `TableSimple`) or `InlineContent`

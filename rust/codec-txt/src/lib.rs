@@ -111,7 +111,7 @@ mod tests {
         assert!(matches!(TxtCodec::from_str("1", None)?, Node::Integer(1)));
         match TxtCodec::from_str("1.23", None)? {
             Node::Number(value) => assert_eq!(value, 1.23),
-            _ => bail!("Wrong type {:?}",),
+            _ => bail!("Wrong type"),
         }
         Ok(())
     }
@@ -135,7 +135,7 @@ mod tests {
     fn strings() -> Result<()> {
         match TxtCodec::from_str("not valid json", None)? {
             Node::String(value) => assert_eq!(value, "not valid json"),
-            _ => bail!("Wrong type {:?}",),
+            _ => bail!("Wrong type"),
         }
         Ok(())
     }
