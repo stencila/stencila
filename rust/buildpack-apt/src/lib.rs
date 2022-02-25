@@ -53,16 +53,16 @@ impl Buildpack for AptBuildpack {
         // Get the Linux release for reuse below
         let linux_flavour = sys_info::linux_os_release().ok();
 
-        // Fail if not on Ubuntu Linux
-        if env::consts::OS != "linux"
+        // Fail if no Aptfile, or Aptfile exists but not on Ubuntu Linux
+        if !aptfile.exists() {
+            return DetectResultBuilder::fail().build();
+        } else if env::consts::OS != "linux"
             || linux_flavour
                 .as_ref()
                 .map_or_else(|| "".to_string(), |rel| rel.id().to_string())
                 != "ubuntu"
         {
-            if aptfile.exists() {
-                tracing::warn!("Aptfile detected but will be ignored because not on Ubuntu Linux");
-            }
+            tracing::warn!("Aptfile detected but will be ignored because not on Ubuntu Linux");
             return DetectResultBuilder::fail().build();
         }
 
