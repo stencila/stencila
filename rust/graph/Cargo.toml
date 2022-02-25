@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 derivative = "2.2.0"
 events = { path = "../events", version = "0.0.0" }
-eyre = "0.6.5"
+eyre = "0.6.6"
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
 hash-utils = { path = "../hash-utils", version = "0.0.0" }
 kernels = { path = "../kernels", version = "0.0.0" }

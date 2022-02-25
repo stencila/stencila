@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 base64 = "0.13.0"
 derivative = "2.2.0"
-eyre = "0.6.5"
+eyre = "0.6.6"
 hash-utils = { path = "../hash-utils", version = "0.0.0" }
 path-slash = "0.1.4"
 schemars = { version = "0.8.8", features = ["preserve_order"] }

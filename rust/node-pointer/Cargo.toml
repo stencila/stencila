@@ -5,7 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-eyre = "0.6.5"
+eyre = "0.6.6"
 node-address = { path = "../node-address", version = "0.0.0" }
 node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
 node-transform = { path = "../node-transform", version = "0.0.0" }

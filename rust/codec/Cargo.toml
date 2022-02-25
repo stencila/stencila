@@ -6,7 +6,7 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1.52"
-eyre = "0.6.5"
+eyre = "0.6.6"
 serde = { version = "1.0.130", features = ["derive"] }
 stencila-schema = { path = "../schema" }
 tokio = { version = "1.13.0", features = ["fs", "io-util"] }

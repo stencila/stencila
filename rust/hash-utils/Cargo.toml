@@ -5,6 +5,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-eyre = "0.6.5"
+eyre = "0.6.6"
 sha2 = "0.10.0"
 
