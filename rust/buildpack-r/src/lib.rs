@@ -338,7 +338,7 @@ impl Layer for RLayer {
                     .open(rscript_path)?
             };
             #[cfg(not(target_family = "unix"))]
-            let file = {
+            let mut file = {
                 fs::OpenOptions::new()
                     .create(true)
                     .write(true)
