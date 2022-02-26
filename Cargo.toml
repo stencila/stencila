@@ -4,7 +4,13 @@
 members = ["rust/*", "node"]
 
 # Exclude crates that are alpha (needing work before they will compile and/or pass tests)
-exclude = ["rust/plugins"]
+#
+# Exclude `parser-bash` because it fails to compile on Windows CI with an error
+# related to the file name being too long:
+#     invalid path for filesystem 'D:/a/1/s/rust_cache/.cargo/git/checkouts/tree-sitter-bash-227d81f630f2cac5/e31399d/.git/objects/pack/PaxHeader/PaxHeader/PaxHeader/PaxHeader/PaxHeader/PaxHeader/PaxHeader/PaxHeader/PaxHeader/PaxHeader/PaxHeader/pack-5907fb20ccd89e3962294ffdaaf36a938767758b.idx': The filename or extension is too long.
+# Hopefully this is resolved when this PR is merged https://github.com/tree-sitter/tree-sitter-bash/pull/117/files and we can go
+# back to using crates.io instead of a git repository.
+exclude = ["rust/plugins", "rust/parser-bash"]
 
 [profile.release]
 # Settings that help reduce the binary size based on https://github.com/johnthagen/min-sized-rust

@@ -62,7 +62,8 @@ default = [
 
   # Parsers
   "parsers-cli",
-  "parsers/parser-bash",
+  # See note in root Cargo.toml for why this is excluded for now
+  # "parsers/parser-bash",
   "parsers/parser-calc",
   "parsers/parser-js",
   "parsers/parser-py",

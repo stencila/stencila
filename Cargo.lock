@@ -3534,8 +3534,6 @@ version = "0.0.0"
 dependencies = [
  "once_cell",
  "parser-treesitter",
- "test-snaps",
- "test-utils",
  "tree-sitter-bash",
 ]
 
