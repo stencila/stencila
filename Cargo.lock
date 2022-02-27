@@ -3563,6 +3563,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "parser-bash"
+version = "0.0.0"
+dependencies = [
+ "once_cell",
+ "parser-treesitter",
+ "test-snaps",
+ "test-utils",
+ "tree-sitter-bash",
+]
+
+[[package]]
 name = "parser-calc"
 version = "0.0.0"
 dependencies = [
@@ -3649,6 +3660,7 @@ dependencies = [
  "formats",
  "once_cell",
  "parser",
+ "parser-bash",
  "parser-calc",
  "parser-js",
  "parser-py",
@@ -5535,6 +5547,15 @@ checksum = "4e34327f8eac545e3f037382471b2b19367725a242bba7bc45edb9efb49fe39a"
 dependencies = [
  "cc",
  "regex",
+]
+
+[[package]]
+name = "tree-sitter-bash"
+version = "0.19.0"
+source = "git+https://github.com/nokome/tree-sitter-bash?rev=e31399d15473bd2bbb6007e092fe2309e74c94f9#e31399d15473bd2bbb6007e092fe2309e74c94f9"
+dependencies = [
+ "cc",
+ "tree-sitter",
 ]
 
 [[package]]

@@ -317,7 +317,11 @@ jobs:
   - job: Windows
     timeoutInMinutes: 180
     pool:
-      vmImage: windows-latest
+      # The migration to Windows 2022 (https://github.com/actions/virtual-environments/issues/4856)
+      # may have resulted in "The filename or extension is too long" bug (e.g. https://dev.azure.com/stencila/stencila/_build/results?buildId=18062&view=logs&j=2d2b3007-3c5c-5840-9bb0-2b1ea49925f3&t=3f67303d-caa6-535b-2055-750b67f1a4bf&l=55)
+      # affecting git based cargo dependencies.
+      # So, for now, fixing to windows-2019.
+      vmImage: windows-2019
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
