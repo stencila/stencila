@@ -163,8 +163,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "./.ci/prepare-release.sh ${nextRelease.version}",
-          "publishCmd": "./.ci/publish-release.sh ${nextRelease.version}"
+          "prepareCmd": "./.ci/prepare-release.sh ${nextRelease.version}"
         }
       ],
       [
