@@ -504,14 +504,20 @@ mod tests {
             .body(html)
             .send()
             .await?;
-        let response = match response.error_for_status() {
-            Ok(response) => response,
-            Err(error) => bail!(error),
-        };
-        let json = response.text().await?;
 
-        // Parse the result so it's easier to read any messages
-        let result: serde_json::Value = serde_json::from_str(&json)?;
+        // If the response is a server error (e.g. 503 Service Unavailable) then warn but do not fail
+        let is_server_error = response.status().is_server_error();
+        let result = match response.error_for_status() {
+            Ok(response) => response.json().await?,
+            Err(error) => {
+                if is_server_error {
+                    eprintln!("https://validator.w3.org/nu/ server error: {:}", error.to_string())
+                } else {
+                    bail!(error)
+                }
+            }
+        };
+
         assert_json_eq!(result, json!({"messages": []}));
 
         Ok(())
