@@ -421,7 +421,7 @@ mod tests {
     use test_snaps::{
         insta::assert_display_snapshot, snapshot_fixtures_content, snapshot_fixtures_nodes,
     };
-    use test_utils::{assert_json_eq, home, skip_ci_os, skip_slow};
+    use test_utils::{assert_json_eq, home, skip_ci, skip_ci_os, skip_slow};
 
     /// Encode the node fixtures
     #[test]
@@ -467,7 +467,7 @@ mod tests {
     /// for more on the API.
     #[tokio::test]
     async fn nu_validate() -> Result<()> {
-        if skip_slow() || skip_ci_os("windows", "Failed with error: The filename, directory name, or volume label syntax is incorrect. (os error 123)") {
+        if skip_slow() || skip_ci("The https://validator.w3.org/nu/ service can be offline causing CI to fail") || skip_ci_os("windows", "Failed with error: The filename, directory name, or volume label syntax is incorrect. (os error 123)") {
             return Ok(());
         }
 
@@ -511,7 +511,10 @@ mod tests {
             Ok(response) => response.json().await?,
             Err(error) => {
                 if is_server_error {
-                    eprintln!("https://validator.w3.org/nu/ server error: {:}", error.to_string())
+                    eprintln!(
+                        "https://validator.w3.org/nu/ server error: {:}",
+                        error.to_string()
+                    )
                 } else {
                     bail!(error)
                 }
