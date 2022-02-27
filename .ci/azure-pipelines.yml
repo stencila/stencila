@@ -195,6 +195,7 @@ jobs:
           cargo list | grep --quiet strip || cargo install cargo-strip
           make -C rust build
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
+          make -C rust build-musl
           bash .ci/upload-release.sh target/x86_64-unknown-linux-musl/release/stencila stencila x86_64-unknown-linux-musl.tar.gz
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
