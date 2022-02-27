@@ -319,14 +319,19 @@ jobs:
   - job: Windows
     timeoutInMinutes: 180
     pool:
-      vmImage: windows-2022
+      vmImage: windows-latest
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
+    # Skip Windows builds until we are able to resolve issue with filenames of Cargo `git = ...` crates
+    # having too long filenames e.g. https://dev.azure.com/stencila/stencila/_build/results?buildId=18068&view=logs&j=2d2b3007-3c5c-5840-9bb0-2b1ea49925f3&t=be5e7cb1-b8ca-569b-a02f-a5442c8a3f8a&l=27
     condition: |
-      or(
-        contains(variables.changed, 'rust'),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      and(
+        false,
+        or(
+          contains(variables.changed, 'rust'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        )
       )
     steps:
       - task: Cache@2
