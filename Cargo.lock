@@ -3915,9 +3915,9 @@ dependencies = [
 
 [[package]]
 name = "png"
-version = "0.17.3"
+version = "0.17.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e8f1882177b17c98ec33a51f5910ecbf4db92ca0def706781a1f8d0c661f393"
+checksum = "02cd7d51cea7e2fa6bbcb8af5fbcad15b871451bfc2d20ed72dff2f4ae072a84"
 dependencies = [
  "bitflags",
  "crc32fast",

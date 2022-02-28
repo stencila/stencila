@@ -1,3 +1,47 @@
+# [1.1.0](https://github.com/stencila/stencila/compare/v1.0.5...v1.1.0) (2022-02-27)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate eyre to v0.6.6 ([d92f606](https://github.com/stencila/stencila/commit/d92f606f4823d8d281a646c2a8ea9277cb2eeb5a))
+* **dependencies:** update rust crate handlebars to 4.2.1 ([c95a51b](https://github.com/stencila/stencila/commit/c95a51b5b27b81e454aed7ac3cd2abca61a7604e))
+* **dependencies:** update rust crate human_name to 1.0.3 ([e41597b](https://github.com/stencila/stencila/commit/e41597bf7250cbbb1eb7b7c29e04e6db564629ce))
+* **ELife:** Adjust small font size to match brand styles ([51b8feb](https://github.com/stencila/stencila/commit/51b8feb1de9e9345b3e971052b19177a00372cfe))
+* **Elife:** Refine theme styles and update for new encoding ([45d0994](https://github.com/stencila/stencila/commit/45d0994cbbd6bb60c43aa08b2e504249841cb94d))
+* **HTML encoding:** Add support for encoding `CreativeWork` ([0d1217d](https://github.com/stencila/stencila/commit/0d1217d267de97b98fa0a95a6b01d4750f538b98))
+* **HTML Microdata:** Add itemtype attribute when encoding Organizations ([39e7f34](https://github.com/stencila/stencila/commit/39e7f34b5841da67228d165d8e926e9c1ab42201))
+* **HTML:** Ensure email icons act as links ([ccbc61a](https://github.com/stencila/stencila/commit/ccbc61a81250a2bb96e2e6c04de717d795ec210b))
+* **Markdown encoding:** Add support for encoding `CreativeWork` ([4013bea](https://github.com/stencila/stencila/commit/4013bea84e5e6ad1efa90e2f8d1ac20b0f8b0a4d))
+* **Node execution:** Do not panic if `node_info` is not available ([c9929c2](https://github.com/stencila/stencila/commit/c9929c25d15deec95cdba23d759ac75dabc873b5))
+* **Node pointers:** Add `content` a pointeable field of `CreativeWork` ([0d92ab3](https://github.com/stencila/stencila/commit/0d92ab3abcce3ba6f4ee732ec11e56c66b90287f))
+* **Node:** Add address property to Slot type definition ([2804b3a](https://github.com/stencila/stencila/commit/2804b3ad9f694aa81cb806b991402fc432d16c6d))
+* **Patch:** Prefix JSON patches with parent slot address ([844963b](https://github.com/stencila/stencila/commit/844963bfec0a2a8759d2c212216b9106ae170c9a))
+* **Patch:** Update type definition to match behaviour ([50d2713](https://github.com/stencila/stencila/commit/50d271347cb425fd04461faf15985486019aaf23))
+* **Primitive:** Remove undefined from list of primitives ([c17c0c3](https://github.com/stencila/stencila/commit/c17c0c37c9ff169f5c20c6d72620ccc31ebe5ec8))
+* **Schema:** Fix use of `$ref`s so Rust bindings are correct; insert primitive types into `Node` at build time ([67a2800](https://github.com/stencila/stencila/commit/67a2800e5e58bd2fc6aabbb3168233bab7d6b4b0))
+* **Schema:** Move `Entity` back to top of `Node` list ([67080da](https://github.com/stencila/stencila/commit/67080daed63971956c858384642b8ef4bd5cadf7))
+* **Schema:** Update URLs and property names in `microdata` and `jsonld` modules ([2f4fc17](https://github.com/stencila/stencila/commit/2f4fc17adec1d7946e2cb63aa831bad1e64865b2))
+* **Schema:** Use `type` instead of `interface` for schema types ([63d3f7c](https://github.com/stencila/stencila/commit/63d3f7c5aa124479a9cbe95d8afd114cd9345f89))
+* **Stencila:** Refine theme styles and update for new encoding ([eb46981](https://github.com/stencila/stencila/commit/eb46981205bd35de614a32d6f63a656da1a1a742))
+* **Themes:** Re-add missing PostCSS plugin ([73ad903](https://github.com/stencila/stencila/commit/73ad9036ee0e06286d34817c7de54ff1a624a852))
+* **Themes:** Update Microdata URLs and property names ([294f511](https://github.com/stencila/stencila/commit/294f511a5e7df44c4de56c0e1e773c2927d8c4ec))
+* **Tufte:** Refine theme styles and update for new encoding ([0a74aa2](https://github.com/stencila/stencila/commit/0a74aa2996448d7539f81af01a60f4d61b85904b))
+* **Web:** Fix build:browser command ([ff5d96e](https://github.com/stencila/stencila/commit/ff5d96e0d9cc775a2f7a07643bbc50c12402cfeb))
+* **Web:** Fix consumption of library from other projects ([b877c85](https://github.com/stencila/stencila/commit/b877c85eed1b526ccfdf4334a025ce7be92d57fe))
+* **Web:** Update Microdata URLs ([89f261a](https://github.com/stencila/stencila/commit/89f261a20029e01b06c7179c83689b2f523f2b25))
+* **Wilmore:** Refine theme styles and update for new encoding ([6110970](https://github.com/stencila/stencila/commit/6110970cc0e3cf9ac2d5146e2c45dda7d6811c78))
+
+
+### Features
+
+* **Patch:** Allow passing a custom patch handler ([db6ea87](https://github.com/stencila/stencila/commit/db6ea877888b5f8ccd6ad082a7e150c102a51a62))
+* **Patch:** Export patch functions and type definitions ([c72b569](https://github.com/stencila/stencila/commit/c72b56931c1845abfc723d96b3229e468f030a2a))
+* **Schema:** Introduce Primitive type ([7514a16](https://github.com/stencila/stencila/commit/7514a16f3a9e95fad3343e41082e253b361ddaf8))
+* **Web client:** Expose `load` and `dump` functions for documents ([cacbb15](https://github.com/stencila/stencila/commit/cacbb1515d448b7e0c9e327297c6e6aeda598249))
+* **Web:** Export Patch and Client TypeScript types ([f543832](https://github.com/stencila/stencila/commit/f543832578aecdcd98f1e6e27401ccff85abe127))
+* **Web:** Expose `Document::create` to `web` client ([79d4821](https://github.com/stencila/stencila/commit/79d4821deb4399fa6fc79613b7a40f437d6eaf0e))
+* **Web:** Expose helper for generating node identifiers ([6752a01](https://github.com/stencila/stencila/commit/6752a0185eaf96da56b05ef60daeac337ed221e3))
+
 # [1.1.0](https://github.com/stencila/stencila/compare/v1.0.5...v1.1.0) (2022-02-26)
 
 
