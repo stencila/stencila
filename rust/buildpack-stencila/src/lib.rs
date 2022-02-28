@@ -10,7 +10,12 @@ use buildpack::{
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
-        data::{build_plan::BuildPlan, layer_content_metadata::LayerTypes, layer_name},
+        data::{
+            build_plan::BuildPlan,
+            launch::{Launch, ProcessBuilder},
+            layer_content_metadata::LayerTypes,
+            layer_name, process_type,
+        },
         detect::{DetectContext, DetectResult, DetectResultBuilder},
         generic::{GenericMetadata, GenericPlatform},
         layer::{ExistingLayerStrategy, Layer, LayerResult, LayerResultBuilder},
@@ -43,7 +48,9 @@ impl Buildpack for StencilaBuildpack {
         let (version, source) = if let Some(version) = tool_versions.get("stencila") {
             (version.to_string(), TOOL_VERSIONS)
         } else {
-            ("*".to_string(), "")
+            // Default to at least 1.1.0 which is the first version with a `musl` binary suitable for
+            // use in a CNB container
+            (">=1.1.0".to_string(), "")
         };
 
         // Require and provide Stencila
@@ -69,7 +76,15 @@ impl Buildpack for StencilaBuildpack {
             context.handle_layer(layer_name!("stencila"), StencilaLayer::new(options))?;
         }
 
-        BuildResultBuilder::new().build()
+        let launch = Launch::new().process(
+            ProcessBuilder::new(process_type!("server"), "stencila")
+                .args(["server", "start"])
+                .direct(true)
+                .default(true)
+                .build(),
+        );
+
+        BuildResultBuilder::new().launch(launch).build()
     }
 }
 

@@ -32,7 +32,7 @@ impl BinaryTrait for StencilaBinary {
         _arch: &str,
     ) -> Result<()> {
         let suffix = match os {
-            "linux" => "x86_64-unknown-linux-gnu.tar.gz",
+            "linux" => "x86_64-unknown-linux-musl.tar.gz",
             "macos" => "x86_64-apple-darwin.tar.gz",
             "windows" => "x86_64-pc-windows-msvc.zip",
             _ => bail!(
