@@ -486,6 +486,7 @@ jobs:
 
       - script: |
           set -e
+          cargo install libcnb-cargo
           curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.24.0/pack-v0.24.0-linux.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack
           make -C docker/builder/bionic 
         displayName: Build stencila/builder
