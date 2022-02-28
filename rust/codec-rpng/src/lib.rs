@@ -92,10 +92,10 @@ fn bytes_to_node(bytes: &[u8], options: Option<DecodeOptions>) -> Result<Node> {
         .find_map(|chunk| match chunk.keyword == "json" {
             true => {
                 let mut chunk = chunk.clone();
-                if chunk.decompress_text().is_err() {
-                    return None;
-                }
-                chunk.get_text().ok()
+                chunk
+                    .decompress_text()
+                    .ok()
+                    .and_then(|_| chunk.get_text().ok())
             }
             false => None,
         });

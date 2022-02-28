@@ -265,10 +265,6 @@ impl Run for ListCommand {
 pub struct OpenCommand {
     /// The file or folder to open
     path: Option<PathBuf>,
-
-    /// The theme to use to view the document
-    #[structopt(short, long)]
-    theme: Option<String>,
 }
 #[async_trait]
 impl Run for OpenCommand {

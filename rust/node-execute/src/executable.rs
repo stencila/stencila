@@ -5,14 +5,14 @@ use graph_triples::{
     relations,
     relations::NULL_RANGE,
     resources::{self, ResourceDigest},
-    Relation, ResourceId, ResourceInfo,
+    Relation, ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, AddressMap, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
 use path_utils::merge;
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::HashMap,
     path::{Path, PathBuf},
 };
 use stencila_schema::*;
@@ -66,12 +66,6 @@ impl CompileContext {
             .or_insert(1);
         [prefix, "-", &count.to_string()].concat()
     }
-}
-
-#[derive(Debug, Default)]
-pub struct ExecuteContext {
-    /// Parse results from parsing code during compilation
-    pub(crate) resource_info: BTreeMap<ResourceId, ResourceInfo>,
 }
 
 /// Trait for executable document nodes

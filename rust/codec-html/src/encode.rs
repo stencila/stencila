@@ -511,10 +511,7 @@ mod tests {
             Ok(response) => response.json().await?,
             Err(error) => {
                 if is_server_error {
-                    eprintln!(
-                        "https://validator.w3.org/nu/ server error: {:}",
-                        error.to_string()
-                    )
+                    eprintln!("https://validator.w3.org/nu/ server error: {:}", error)
                 } else {
                     bail!(error)
                 }
