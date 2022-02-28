@@ -191,12 +191,11 @@ pub trait BinaryTrait: Send + Sync {
         receiver.recv()?
     }
 
-    /// Get the versions of the binary from GitHub REST API
+    /// Get the versions of the binary from GitHub REST API for repo releases
     ///
     /// This will usually be followed by a call to `semver_versions_sorted` or
     /// `semver_versions_matching`.
     ///
-    /// Fetches the most recent thirty releases.
     /// At present this does not do authorization, so potentially runs foul of 60 req/s rate limiting.
     /// In the future, we may add authorization and/or caching to avoid hitting
     /// rate limit.
@@ -226,6 +225,41 @@ pub trait BinaryTrait: Send + Sync {
                     .map(|tag| tag.strip_prefix('v').unwrap_or(tag).to_string())
             })
             .collect();
+
+        Ok(versions)
+    }
+
+    /// Get the versions of the binary from GitHub REST API for repo tags
+    ///
+    /// Only includes tags that start with "v" and which are a valid version
+    ///
+    /// See https://docs.github.com/en/rest/reference/repos#list-repository-tags.
+    #[cfg(feature = "download")]
+    async fn versions_github_tags(&self, org: &str, repo: &str) -> Result<Vec<String>> {
+        tracing::info!(
+            "Getting list of tags for https://github.com/{}/{}",
+            org,
+            repo
+        );
+
+        let releases = http_utils::get_json(&format!(
+            "https://api.github.com/repos/{}/{}/tags?per_page=100",
+            org, repo
+        ))
+        .await?;
+
+        let versions: Vec<String> = releases
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|release| {
+                release["name"]
+                    .as_str()
+                    .map(|tag| tag.strip_prefix('v').unwrap_or(tag).to_string())
+            })
+            .collect();
+
+        let versions = self.semver_versions_sorted(&versions);
 
         Ok(versions)
     }

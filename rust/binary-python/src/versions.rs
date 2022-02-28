@@ -1,8 +1,7 @@
-/// A list of versions, generated using `stencila binaries versions python` on Linux
-/// for use on Windows (where `asdf` is not available). In the future, this should be
-/// generated in a build script or release script.
+/// A list of versions, generated using `AsdfBinary::list_all("python").await?;` on Linux.
+/// This list is augments with a list of tags fetched from GitHub API.
 /// 
-/// Not all of these releases have a Window binary available so will fail to install!
+/// Not all of these releases have a Window binary available so may fail to install!
 #[rustfmt::skip]
 pub const VERSIONS: &[&str] = &[
     "3.10.2",

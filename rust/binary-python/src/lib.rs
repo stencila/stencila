@@ -9,6 +9,7 @@ pub use binary::{Binary, BinaryInstallation, BinaryTrait};
 use binary_asdf::AsdfBinary;
 
 mod versions;
+
 pub struct PythonBinary;
 
 #[async_trait]
@@ -19,16 +20,22 @@ impl BinaryTrait for PythonBinary {
 
     binary_clone_box!();
 
-    async fn versions(&self, os: &str) -> Result<Vec<String>> {
-        let versions = if os == "linux" || os == "macos" {
-            let versions = AsdfBinary::list_all("python").await?;
-            self.semver_versions_matching(&versions, "*")
-        } else {
-            versions::VERSIONS
-                .iter()
-                .map(|str| str.to_string())
-                .collect()
+    async fn versions(&self, _os: &str) -> Result<Vec<String>> {
+        let mut versions: Vec<String> = versions::VERSIONS
+            .iter()
+            .map(|str| str.to_string())
+            .collect();
+
+        if let Ok(latest) = self.versions_github_tags("python", "cpython").await {
+            for version in latest {
+                if !versions.contains(&version) {
+                    versions.push(version)
+                }
+            }
         };
+
+        let versions = self.semver_versions_sorted(&versions);
+
         Ok(versions)
     }
 
