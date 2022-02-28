@@ -442,6 +442,7 @@ jobs:
   # Docker images are built on tags (i.e. after a Release job) or if there is a
   # change in the `docker` folder.
   - job: Docker
+    timeoutInMinutes: 180
     dependsOn: [Changes]
     condition: |
       or(
@@ -486,8 +487,14 @@ jobs:
 
       - script: |
           set -e
+          
+          sudo apt-get update
+          sudo apt-get install musl-tools
+          rustup target add x86_64-unknown-linux-musl
           cargo install libcnb-cargo
+          
           curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.24.0/pack-v0.24.0-linux.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack
+          
           make -C docker/builder/bionic 
         displayName: Build stencila/builder
         condition: succeeded()
