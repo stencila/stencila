@@ -1,0 +1,5 @@
+# An example of an `Aptfile` specifying repositories
+
+:repo: deb [trusted=yes] https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/
+
+r-base-core=4.1.1-*

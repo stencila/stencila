@@ -1,0 +1,9 @@
+[package]
+name = "binary-r"
+description = "A binary specification for R"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binary = { path = "../binary", version = "0.0.0" }
+binary-asdf = { path = "../binary-asdf", version = "0.0.0" }

@@ -1,0 +1,14 @@
+api = "0.6"
+
+[buildpack]
+id = "stencila/python"
+version = "0.1.0"
+name = "Stencila Python Buildpack"
+keywords = ["python"]
+homepage = "https://github.com/stencila/stencila/tree/HEAD/rust/buildpack-python"
+
+[[buildpack.licenses]]
+type = "Apache-2.0"
+
+[[stacks]]
+id = "io.buildpacks.stacks.bionic"

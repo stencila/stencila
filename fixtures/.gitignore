@@ -1,0 +1,4 @@
+.stencila
+.venv
+node_modules
+renv

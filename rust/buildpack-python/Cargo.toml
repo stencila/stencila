@@ -1,0 +1,13 @@
+[package]
+name = "buildpack-python"
+description = "A Cloud Native Buildpack for Python"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binary-poetry = { path = "../binary-poetry", version = "0.0.0" }
+binary-python = { path = "../binary-python", version = "0.0.0" }
+buildpack = { path = "../buildpack", version = "0.0.0" }
+buildpack-apt = { path = "../buildpack-apt", version = "0.0.0" }
+serde = "1.0.130"
+sys-info = "0.9.1"

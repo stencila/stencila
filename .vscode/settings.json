@@ -37,6 +37,8 @@
   "workbench.editor.highlightModifiedTabs": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "cSpell.words": [
+    "buildpack",
+    "buildpacks",
     "builtins",
     "canonicalize",
     "concat",

@@ -199,8 +199,7 @@ impl ResourceDigest {
     /// but not necessarily, the output of a hashing function.
     pub fn from_bytes(content_bytes: &[u8], semantic_bytes: Option<&[u8]>) -> Self {
         let content_digest = Self::base64_encode(content_bytes);
-        let semantic_digest =
-            semantic_bytes.map_or_else(String::default, |bytes| Self::base64_encode(bytes));
+        let semantic_digest = semantic_bytes.map_or_else(String::default, Self::base64_encode);
         Self {
             content_digest,
             semantic_digest,

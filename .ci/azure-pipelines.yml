@@ -440,17 +440,14 @@ jobs:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
   # Docker images are built on tags (i.e. after a Release job) or if there is a
-  # change in the `docker` folder. It depends on Linux job to ensure that the latest
-  # Linux `stencila` binary is available to install into the image.
+  # change in the `docker` folder.
   - job: Docker
-    dependsOn: [Changes, Linux]
+    timeoutInMinutes: 180
+    dependsOn: [Changes]
     condition: |
-      and(
-        in(dependencies.Linux.result, 'Succeeded', 'Skipped'),
-        or(
-          startsWith(variables['Build.SourceBranch'], 'refs/tags/'),
-          contains(dependencies.Changes.outputs['folders.changed'], 'docker')
-        )
+      or(
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/'),
+        contains(dependencies.Changes.outputs['folders.changed'], 'docker')
       )
     pool:
       vmImage: ubuntu-latest
@@ -464,15 +461,70 @@ jobs:
         displayName: Determine version
 
       - task: Docker@2
-        displayName: Build and push stencila/stencila
+        displayName: Build stencila/maker
         inputs:
-          command: buildAndPush
-          dockerfile: docker/stencila/Dockerfile
+          command: build
+          dockerfile: docker/maker/focal/Dockerfile
+          arguments: --build-arg STENCILA_VERSION=$(Build.SourceVersion)
+          repository: stencila/maker
+          tags: |
+            focal
+            focal-$(GitVersion.SemVer)
+            latest
+
+      - task: Docker@2
+        displayName: Build stencila/stencila
+        inputs:
+          command: build
+          dockerfile: docker/stencila/focal/Dockerfile
+          repository: stencila/stencila
+          tags: |
+            focal
+            focal-$(GitVersion.SemVer)
+            latest
+
+      # Build `stencila/builder` image if the above image builds succeeded
+
+      - script: |
+          set -e
+          
+          sudo apt-get update
+          sudo apt-get install musl-tools
+          rustup target add x86_64-unknown-linux-musl
+          cargo install libcnb-cargo
+          
+          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.24.0/pack-v0.24.0-linux.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack
+          
+          make -C docker/builder/bionic 
+        displayName: Build stencila/builder
+        condition: succeeded()
+
+      # Push images if on a tag
+      # Note that if a image was built successfully it will be pushed, regardless of whether
+      # any of the other images failed to build or not.
+
+      - task: Docker@2
+        displayName: Push stencila/stencila
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        inputs:
+          command: push
           containerRegistry: DockerHub
           repository: stencila/stencila
           tags: |
-            $(Build.BuildNumber)
-            $(GitVersion.SemVer)
+            focal
+            focal-$(GitVersion.SemVer)
+            latest
+
+      - task: Docker@2
+        displayName: Push stencila/builder
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        inputs:
+          command: push
+          containerRegistry: DockerHub
+          repository: stencila/builder
+          tags: |
+            bionic
+            bionic-$(GitVersion.SemVer)
             latest
 
   # Themes are only built if there are changes in the `themes` folder

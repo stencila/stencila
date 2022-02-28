@@ -185,7 +185,7 @@ impl FileEvent {
             "projects:{}:files:{}:{}",
             project.display(),
             path.display(),
-            type_.to_string()
+            type_
         );
         let event = FileEvent {
             project: project.into(),

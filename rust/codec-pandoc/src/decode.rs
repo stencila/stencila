@@ -132,7 +132,7 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
             // For some formats e.g. DOCX, LaTeX. Pandoc automatically adds an `id` to headings based
             // on its content. That is useful, but redundant when it is decoded back. So, if the id
             // is a slug of the content then ignore it.
-            let id = if let Some(id) = get_id(attrs) {
+            let id = if let Some(id) = get_id(attrs).map(Box::new) {
                 let slug = slugify(content.to_txt());
                 if *id == slug {
                     None
@@ -172,7 +172,7 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
         }
 
         pandoc::Block::CodeBlock(attrs, text) => {
-            let id = get_id(attrs);
+            let id = get_id(attrs).map(Box::new);
             let programming_language = get_attr(attrs, "classes").map(Box::new);
             vec![BlockContent::CodeBlock(CodeBlock {
                 id,
@@ -239,7 +239,7 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
         }
 
         pandoc::Block::Table(attrs, caption, _column_specs, head, bodies, foot) => {
-            let id = get_id(attrs);
+            let id = get_id(attrs).map(Box::new);
 
             let caption = translate_blocks(&caption.1, context);
             let caption = match caption.is_empty() {
@@ -442,7 +442,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
         })],
 
         pandoc::Inline::Code(attrs, text) => {
-            let id = get_id(attrs);
+            let id = get_id(attrs).map(Box::new);
             vec![InlineContent::CodeFragment(CodeFragment {
                 id,
                 text: text.clone(),
@@ -457,15 +457,15 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
         pandoc::Inline::Link(attrs, inlines, target) => {
             let pandoc::Target(url, title) = target;
             vec![InlineContent::Link(Link {
-                id: get_id(attrs),
+                id: get_id(attrs).map(Box::new),
                 target: url.clone(),
-                title: get_string_prop(title),
+                title: get_string_prop(title).map(Box::new),
                 content: translate_inlines(inlines, context),
                 ..Default::default()
             })]
         }
         pandoc::Inline::Image(attrs, inlines, target) => {
-            let id = get_id(attrs);
+            let id = get_id(attrs).map(Box::new);
 
             let caption = translate_inlines(inlines, context).to_txt();
             let caption = match caption.is_empty() {
@@ -590,15 +590,15 @@ fn get_attr(attrs: &pandoc::Attr, name: &str) -> Option<String> {
 
 /// Get an optional string property from a string
 /// If the string is empty, then will be `None`
-fn get_string_prop(value: &str) -> Option<Box<String>> {
+fn get_string_prop(value: &str) -> Option<String> {
     match value.is_empty() {
         true => None,
-        false => Some(Box::new(value.to_string())),
+        false => Some(value.to_string()),
     }
 }
 
 // Get the `id` property of a `Entity` from a  Pandoc `Attr` tuple struct
-fn get_id(attrs: &pandoc::Attr) -> Option<Box<String>> {
+fn get_id(attrs: &pandoc::Attr) -> Option<String> {
     get_attr(attrs, "id").and_then(|value| get_string_prop(&value))
 }
 

@@ -280,7 +280,11 @@ impl Server {
         let home = self.home.clone();
         let traversal = self.traversal;
 
-        let mut url = format!("http://{}:{}", self.address, self.port);
+        let mut url = format!(
+            "http://{}:{}",
+            self.address.replace("0.0.0.0", "127.0.0.1"),
+            self.port
+        );
         if let Some(key) = &self.key {
             // Check the key is not too long
             if key.len() > 64 {
@@ -1269,7 +1273,7 @@ pub fn html_rewrite(
         client = uuids::generate("cl"),
         token = token,
         project = project,
-        document = document.as_display().to_string()
+        document = document.as_display()
     );
 
     // Head elements for web components
@@ -1609,16 +1613,16 @@ pub mod commands {
 
         /// The URL to serve on
         ///
-        /// Defaults to the `STENCILA_URL` environment variable, the value set in config
+        /// Defaults to the `STENCILA_SERVER_URL` environment variable, the value set in config
         /// or otherwise `http://127.0.0.1:9000`.
-        #[structopt(short, long, env = "STENCILA_URL")]
+        #[structopt(short, long, env = "STENCILA_SERVER_URL")]
         url: Option<String>,
 
         /// Secret key to use for signing and verifying JSON Web Tokens
         ///
-        /// Defaults to the `STENCILA_KEY` environment variable, the value set in config
+        /// Defaults to the `STENCILA_SERVER_KEY` environment variable, the value set in config
         /// or otherwise a randomly generated value.
-        #[structopt(short, long, env = "STENCILA_KEY")]
+        #[structopt(short, long, env = "STENCILA_SERVER_KEY")]
         key: Option<String>,
 
         /// Do not require a JSON Web Token to access the server

@@ -5,7 +5,7 @@ use binary::{
 };
 use std::{fs::read_dir, path::Path};
 
-pub struct ChromeBinary {}
+pub struct ChromeBinary;
 
 #[async_trait]
 impl BinaryTrait for ChromeBinary {
@@ -17,13 +17,20 @@ impl BinaryTrait for ChromeBinary {
                 "/Applications/Google Chrome.app/Contents/MacOS",
                 "C:\\Program Files\\Google\\Chrome\\Application",
             ],
-            // Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history.
-            // Rather than support installing multiple versions, we normally only support the
-            // most recent version in the stable channel.
-            // Note: Use triples ending in `.0` here and make sure there is a mapping in the
-            // `install_version` method.
-            &["96.0.0"],
         )
+    }
+
+    fn clone_box(&self) -> Box<dyn BinaryTrait> {
+        Box::new(Self {})
+    }
+
+    async fn versions(&self, _os: &str) -> Result<Vec<String>> {
+        // Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history.
+        // Rather than support installing multiple versions, we normally only support the
+        // most recent version in the stable channel.
+        // Note: Use triples ending in `.0` here and make sure there is a mapping in the
+        // `install_version` method.
+        Ok(vec!["96.0.0".to_string()])
     }
 
     /// Get the version of the Chrome binary
@@ -50,7 +57,13 @@ impl BinaryTrait for ChromeBinary {
         spec.version(path)
     }
 
-    async fn install_version(&self, version: &str, os: &str, _arch: &str) -> Result<()> {
+    async fn install_version(
+        &self,
+        version: &str,
+        dest: &Path,
+        os: &str,
+        _arch: &str,
+    ) -> Result<()> {
         // Chrome uses a peculiar version system with the build number
         // at the third position and not every build for every OS. So, use minor version
         // for mapping
@@ -73,11 +86,11 @@ impl BinaryTrait for ChromeBinary {
             "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/{suffix}?alt=media",
             suffix = suffix.replace("/", "%2F")
         );
+        let filename = format!("chrome-v{version}-{os}.zip", version = version, os = os);
+        let archive = self.download(&url, Some(filename), None).await?;
 
-        let archive = self.download(&url).await?;
-        let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 1, &self.dir(Some(version.into()), true)?)?;
-        self.executable(&dest, &["chrome", "chrome.exe"])?;
+        self.executables(dest, &["chrome", "chrome.exe"])?;
 
         Ok(())
     }

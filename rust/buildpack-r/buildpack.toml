@@ -1,0 +1,14 @@
+api = "0.6"
+
+[buildpack]
+id = "stencila/r"
+version = "0.1.0"
+name = "Stencila R Buildpack"
+keywords = ["r", "rscript"]
+homepage = "https://github.com/stencila/stencila/tree/HEAD/rust/buildpack-r"
+
+[[buildpack.licenses]]
+type = "Apache-2.0"
+
+[[stacks]]
+id = "io.buildpacks.stacks.bionic"

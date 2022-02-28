@@ -1,0 +1,57 @@
+# Configuration for CNB builder
+# See https://buildpacks.io/docs/reference/config/builder-config/
+
+description = "Stencila CNB builder based on Ubuntu Bionic Beaver (18.04)"
+
+# The buildpacks to include in the builder
+
+[[buildpacks]]
+uri = "../../../target/buildpack/release/stencila_apt"
+
+[[buildpacks]]
+uri = "../../../target/buildpack/release/stencila_node"
+
+[[buildpacks]]
+uri = "../../../target/buildpack/release/stencila_python"
+
+[[buildpacks]]
+uri = "../../../target/buildpack/release/stencila_r"
+
+[[buildpacks]]
+uri = "../../../target/buildpack/release/stencila_stencila"
+
+# The order in which groups of buildpacks will be tested during detection
+#
+# Order can be important.
+# See https://github.com/buildpacks/spec/blob/main/buildpack.md#phase-1-detection
+#
+# All buildpacks are optional, so they can potentially all be applied to the
+# same project.
+
+[[order]]
+
+[[order.group]]
+id = "stencila/apt"
+optional = true
+
+[[order.group]]
+id = "stencila/node"
+optional = true
+
+[[order.group]]
+id = "stencila/python"
+optional = true
+
+[[order.group]]
+id = "stencila/r"
+optional = true
+
+[[order.group]]
+id = "stencila/stencila"
+
+# The stack to use for the builder
+
+[stack]
+id = "io.buildpacks.stacks.bionic"
+run-image = "cnbs/run:bionic"
+build-image = "cnbs/build:bionic"

@@ -6,12 +6,10 @@ all: format lint cover audit build docs
 
 format:
 	make -C rust format
-	make -C cli format
 	make -C node format
 
 lint:
 	make -C rust lint
-	make -C cli lint
 	make -C node lint
 
 test:
@@ -37,7 +35,6 @@ audit:
 
 build:
 	make -C rust build
-	make -C cli build
 	make -C node build
 
 docs:

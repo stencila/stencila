@@ -321,6 +321,7 @@ impl KernelTrait for MicroKernel {
                 _ => arg.to_string(),
             })
             .collect();
+        let args: Vec<&str> = args.iter().map(|arg| arg.as_str()).collect();
 
         // Start child process
         let (name, semver) = &self.runtime;

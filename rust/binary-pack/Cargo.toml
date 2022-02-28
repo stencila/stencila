@@ -1,0 +1,11 @@
+[package]
+name = "binary-pack"
+description = "A binary specification for Pack (https://github.com/buildpacks/pack)"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binary = { path = "../binary", version = "0.0.0", features = [
+    "download-zip",
+    "download-tar-gz"
+] }

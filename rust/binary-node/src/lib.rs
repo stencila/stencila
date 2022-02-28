@@ -1,10 +1,13 @@
+use std::path::Path;
+
 use binary::{
     async_trait::async_trait,
+    binary_clone_box,
     eyre::{bail, Result},
-    Binary, BinaryTrait,
 };
+pub use binary::{Binary, BinaryInstallation, BinaryTrait};
 
-pub struct NodeBinary {}
+pub struct NodeBinary;
 
 #[async_trait]
 impl BinaryTrait for NodeBinary {
@@ -13,24 +16,25 @@ impl BinaryTrait for NodeBinary {
         Binary::new(
             "node",
             &[],
-            &["C:\\Program Files\\nodejs"],
-            // Release list at https://nodejs.org/en/download/releases/
-            // Current strategy is to support the latest patch version of each minor version.
-            // Support for older minor versions may be progressively  dropped if there are no
-            // plugins relying on them.
-            &[
-                "16.10.0",
-                "16.11.1",
-                "16.12.0",
-                "16.13.1",
-                "17.0.1",
-                "17.1.0",
-                "17.2.0"
-            ],
+            &["C:\\Program Files\\nodejs"]
         )
     }
 
-    async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
+    binary_clone_box!();
+
+    async fn versions(&self, _os: &str) -> Result<Vec<String>> {
+        self.versions_github_releases("nodejs", "node")
+            .await
+            .map(|versions| self.semver_versions_matching(&versions, ">=10"))
+    }
+
+    async fn install_version(
+        &self,
+        version: &str,
+        dest: &Path,
+        os: &str,
+        arch: &str,
+    ) -> Result<()> {
         let url = format!(
             "https://nodejs.org/dist/v{version}/node-v{version}-",
             version = version
@@ -49,11 +53,13 @@ impl BinaryTrait for NodeBinary {
             },
             _ => bail!("Unable to determine Node download URL"),
         };
+        let archive = self.download(&url, None, None).await?;
 
-        let archive = self.download(&url).await?;
-        let dest = self.dir(Some(version.into()), true)?;
-        self.extract(&archive, 1, &dest)?;
-        self.executable(&dest, &["bin/node", "bin/npm", "node.exe", "npm"])?;
+        self.extract(&archive, 1, dest)?;
+        self.executables(
+            dest,
+            &["bin/node", "bin/npm", "bin/npx", "node.exe", "npm", "npx"],
+        )?;
 
         Ok(())
     }

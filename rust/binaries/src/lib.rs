@@ -1,5 +1,9 @@
-//! Utilities for managing and calling external binaries
-
+///! A module for locating, running and installing third party binaries.
+///!
+///! Binaries may be used as runtimes for plugins (e.g. Node.js, Python) or
+///! as helpers by sibling crates (e.g Pandoc by the `codec-pandoc` crate).
+///! Although we use the term `binaries`, they do not need to be compiled binaries
+///! and can be executable shell scripts for example.
 use binary::{
     eyre::{bail, Result},
     Binary, BinaryInstallation, BinaryTrait,
@@ -8,16 +12,12 @@ use once_cell::sync::Lazy;
 use std::collections::{BTreeMap, HashMap};
 use tokio::sync::RwLock;
 
-///! A module for locating, running and installing third party binaries.
-///!
-///! Binaries may be used as runtimes for plugins (e.g. Node.js, Python) or
-///! are used in created (e.g Pandoc by the `codec-pandoc` crate).
-
 /// A global store of binaries
 ///
 /// This is an immutable, lazily initialized list of "registered" binaries
-/// that Stencila knows how to install, get the version for etc. However,
-/// the functions below can be used for any other binary as well.
+/// that Stencila knows how to install, get the version for etc. However, many of
+/// the functions below can be used for any other binary that may be installed
+/// on the system as well.
 #[allow(unused_mut)]
 static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
     let mut map: BTreeMap<String, Box<dyn BinaryTrait>> = BTreeMap::new();
@@ -31,12 +31,17 @@ static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
         };
     }
 
+    binary_new!("binary-asdf", binary_asdf::AsdfBinary {});
     binary_new!("binary-chrome", binary_chrome::ChromeBinary {});
     binary_new!("binary-chromium", binary_chromium::ChromiumBinary {});
     binary_new!("binary-node", binary_node::NodeBinary {});
+    binary_new!("binary-pack", binary_pack::PackBinary {});
     binary_new!("binary-pandoc", binary_pandoc::PandocBinary {});
+    binary_new!("binary-podman", binary_podman::PodmanBinary {});
+    binary_new!("binary-poetry", binary_poetry::PoetryBinary {});
     binary_new!("binary-python", binary_python::PythonBinary {});
-    binary_new!("binary-rscript", binary_rscript::RscriptBinary {});
+    binary_new!("binary-r", binary_r::RBinary {});
+    binary_new!("binary-stencila", binary_stencila::StencilaBinary {});
 
     map
 });
@@ -79,7 +84,7 @@ pub async fn installation(name: &str, semver: &str) -> Result<BinaryInstallation
         return Ok(installation.clone());
     }
 
-    let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(name));
+    let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::named(name));
     let binary = registered(name).unwrap_or(&unregistered);
 
     let semver = if semver == "*" {
@@ -117,7 +122,7 @@ pub async fn install(name: &str, semver: &str) -> Result<BinaryInstallation> {
         Some(binary) => binary,
         None => bail!("Unable to automatically install binary `{}`", name),
     };
-    binary.install(semver.clone(), None, None).await?;
+    binary.install(semver.clone()).await?;
 
     if let Some(installation) = binary.installed(semver)? {
         let mut installations = INSTALLATIONS.write().await;
@@ -133,7 +138,7 @@ pub async fn install(name: &str, semver: &str) -> Result<BinaryInstallation> {
 /// If the binary is already available, or automatic installs are configured, returns
 /// a `BinaryInstallation` that can be used to run commands. Otherwise, errors
 /// with a message that the required binary is not yet installed, or failed to install.
-pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
+pub async fn ensure(name: &str, semver: &str) -> Result<BinaryInstallation> {
     if let Ok(installation) = installation(name, semver).await {
         return Ok(installation);
     }
@@ -147,6 +152,18 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
     }
 }
 
+/// Synchronous version of `require`
+pub fn require_sync(name: &str, semver: &str) -> Result<BinaryInstallation> {
+    let name = name.to_string();
+    let semver = semver.to_string();
+    let (sender, receiver) = std::sync::mpsc::channel();
+    tokio::spawn(async move {
+        let result = ensure(&name, &semver).await;
+        sender.send(result)
+    });
+    receiver.recv()?
+}
+
 /// Get a binary installation meeting one of the semantic versioning requirements.
 ///
 /// If none are installed, will install the first in the list (assuming auto-install
@@ -158,13 +175,15 @@ pub async fn require_any(binaries: &[(&str, &str)]) -> Result<BinaryInstallation
         }
     }
     match binaries.get(0) {
-        Some((name, semver)) => require(name, semver).await,
+        Some((name, semver)) => ensure(name, semver).await,
         None => bail!("No name/semver pairs provided"),
     }
 }
 
 #[cfg(feature = "cli")]
 pub mod commands {
+    use std::path::PathBuf;
+
     use super::*;
     use cli_utils::structopt::StructOpt;
     use cli_utils::{async_trait::async_trait, result, Result, Run};
@@ -172,21 +191,15 @@ pub mod commands {
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Manage helper binaries",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]
-    pub struct Command {
-        #[structopt(subcommand)]
-        pub action: Action,
-    }
-
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
-    pub enum Action {
+    pub enum Command {
+        #[structopt(alias = "installable")]
+        List(List),
         Show(Show),
-        Installable(Installable),
+        Versions(Versions),
         Install(Install),
         Uninstall(Uninstall),
         Run(Run_),
@@ -195,14 +208,41 @@ pub mod commands {
     #[async_trait]
     impl Run for Command {
         async fn run(&self) -> Result {
-            let Self { action } = self;
-            match action {
-                Action::Show(action) => action.run().await,
-                Action::Installable(action) => action.run().await,
-                Action::Install(action) => action.run().await,
-                Action::Uninstall(action) => action.run().await,
-                Action::Run(action) => action.run().await,
+            match self {
+                Command::List(cmd) => cmd.run().await,
+                Command::Show(cmd) => cmd.run().await,
+                Command::Versions(cmd) => cmd.run().await,
+                Command::Install(cmd) => cmd.run().await,
+                Command::Uninstall(cmd) => cmd.run().await,
+                Command::Run(cmd) => cmd.run().await,
             }
+        }
+    }
+
+    /// List binaries that can be installed using Stencila
+    ///
+    /// The returned list is a list of the binaries/versions that Stencila knows how to install.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct List {}
+
+    #[async_trait]
+    impl Run for List {
+        async fn run(&self) -> Result {
+            let list: Vec<serde_json::Value> = BINARIES
+                .values()
+                .map(|binary| {
+                    let spec = binary.spec();
+                    serde_json::json!({
+                        "name": spec.name,
+                        "aliases": spec.aliases
+                    })
+                })
+                .collect();
+            result::value(list)
         }
     }
 
@@ -235,7 +275,7 @@ pub mod commands {
         async fn run(&self) -> Result {
             // Try to get registered binary (because has potential aliases and extracting versions) but fall
             // back to unregistered for others
-            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
+            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::named(&self.name));
             let binary = registered(&self.name).unwrap_or(&unregistered);
             if self.semver.is_some() {
                 if let Ok(installation) = binary.installed(self.semver.clone()) {
@@ -253,38 +293,36 @@ pub mod commands {
         }
     }
 
-    /// List binaries (and their versions) that can be installed using Stencila
-    ///
-    /// The returned list is a list of the binaries/versions that Stencila knows how to install.
+    /// List the versions that can be installed for a binary
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Installable {}
+    pub struct Versions {
+        /// The name of the binary e.g. pandoc
+        pub name: String,
+
+        /// The operating system to list versions for (defaults to the current)
+        #[structopt(short, long, possible_values = &OS_VALUES )]
+        pub os: Option<String>,
+    }
 
     #[async_trait]
-    impl Run for Installable {
+    impl Run for Versions {
         async fn run(&self) -> Result {
-            let list: Vec<serde_json::Value> = BINARIES
-                .values()
-                .map(|binary| {
-                    let spec = binary.spec();
-                    serde_json::json!({
-                        "name": spec.name,
-                        "versions": spec.installable
-                    })
-                })
-                .collect();
-            result::value(list)
+            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::named(&self.name));
+            let binary = registered(&self.name).unwrap_or(&unregistered);
+            let os = match &self.os {
+                Some(os) => os,
+                None => std::env::consts::OS,
+            };
+            let versions = binary.versions(os).await?;
+            result::value(versions)
         }
     }
 
     /// Install a binary
-    ///
-    /// Installs the latest version of the binary, that also meets any
-    /// semantic version requirement supplied, into the Stencila "binaries"
-    /// folder.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
@@ -294,8 +332,13 @@ pub mod commands {
         /// The name of the binary (must be a registered binary name)
         pub name: String,
 
-        /// The semantic version requirement (the most recent matching version will be installed)
+        /// The semantic version requirement (the most latest version meeting the
+        /// requirement will be installed; defaults to the latest version)
         pub semver: Option<String>,
+
+        /// The directory to install in (defaults to the Stencila `binaries` folder)
+        #[structopt(short, long)]
+        pub dest: Option<PathBuf>,
 
         /// The operating system to install for (defaults to the current)
         #[structopt(short, long, possible_values = &OS_VALUES )]
@@ -315,12 +358,19 @@ pub mod commands {
             match registered(&self.name) {
                 Some(binary) => {
                     binary
-                        .install(self.semver.clone(), self.os.clone(), self.arch.clone())
+                        .install_in_for(
+                            self.semver.clone(),
+                            self.dest.clone(),
+                            self.os.clone(),
+                            self.arch.clone(),
+                        )
                         .await?;
-                    tracing::info!("📦 Installed {}", self.name);
                 }
                 None => {
-                    tracing::error!("Stencila is unable to install `{}`", self.name);
+                    tracing::error!(
+                        "Sorry, I don't know how to install `{}`, perhaps install it manually?",
+                        self.name
+                    );
                 }
             }
             result::nothing()
@@ -350,11 +400,9 @@ pub mod commands {
     impl Run for Uninstall {
         async fn run(&self) -> Result {
             // Fallback to unregistered since that is sufficient for uninstall
-            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
+            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::named(&self.name));
             let binary = registered(&self.name).unwrap_or(&unregistered);
             binary.uninstall(self.version.clone()).await?;
-
-            tracing::info!("🗑️ Uninstalled {}", self.name);
             result::nothing()
         }
     }
@@ -382,12 +430,13 @@ pub mod commands {
     #[async_trait]
     impl Run for Run_ {
         async fn run(&self) -> Result {
-            let installation = require(
+            let installation = ensure(
                 &self.name,
                 &self.semver.clone().unwrap_or_else(|| "*".to_string()),
             )
             .await?;
-            let output = installation.run(&self.args).await?;
+
+            let output = installation.command().args(&self.args).output().await?;
 
             use std::io::Write;
             std::io::stdout().write_all(output.stdout.as_ref())?;
@@ -407,7 +456,7 @@ mod tests {
     // tests of installation of each binary. These tests are
     // tagged with #[ignore] because they are slow, so in development
     // you don't want to run them, and because if they are run in
-    // parallel with other tests that use `require()` they can cause deadlocks
+    // parallel with other tests that use `ensure()` they can cause deadlocks
     // and other on-disk conflicts.
 
     // Run this test at the start of CI tests using
@@ -416,11 +465,11 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn install() -> Result<()> {
-        use super::commands::{Install, Installable, Show};
+        use super::commands::{Install, List, Show};
         use cli_utils::Run;
         use test_utils::assert_json_eq;
 
-        Installable {}.run().await?;
+        List {}.run().await?;
 
         for name in BINARIES.keys() {
             eprintln!("Testing {}", name);
@@ -428,6 +477,7 @@ mod tests {
             Install {
                 name: name.clone(),
                 semver: None,
+                dest: None,
                 os: None,
                 arch: None,
             }

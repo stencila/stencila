@@ -7,7 +7,7 @@
 ///!   are identifying
 ///! - have an extremely low probability of collision
 ///!
-///! Generated identifiers have a fixed length of 32 characters made up
+///! By default, generated identifiers have a fixed length of 23 characters made up
 ///! of two parts separated by a hyphen:
 ///!
 ///! - 2 characters in the range `[a-z]` that identifying the "family" of
@@ -19,9 +19,8 @@
 ///! For project identifiers (those starting with 'pr') only lowercase
 ///! letters are used for compatibility with Docker image naming rules.
 ///!
-///! The total size of the generated ids is 23 bytes which allows it to fit
-///! inside a [`SmartString`](https://lib.rs/crates/smartstring) for better
-///! performance that a plain old `String`.
+///! The default size of 23 bytes allows ids to fit inside a [`SmartString`](https://lib.rs/crates/smartstring)
+///! for better performance (particularly for `HashMap` lookups) than a plain old `String`.
 ///!
 ///! See
 ///!  - https://segment.com/blog/a-brief-history-of-the-uuid/

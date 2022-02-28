@@ -1,6 +1,6 @@
 [package]
 name = "hash-utils"
-description = "Utitlity functions and macros for working with hashing algorithms"
+description = "Utility functions and macros for working with hashing algorithms"
 version = "0.0.0"
 edition = "2021"
 
