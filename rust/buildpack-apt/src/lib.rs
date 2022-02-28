@@ -193,25 +193,25 @@ impl Layer for AptPackagesLayer {
         _context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
-        let metadata = &layer_data.content_metadata.metadata;
-        let strategy = if self.version != metadata.version {
+        let existing = &layer_data.content_metadata.metadata;
+        let strategy = if self.version != existing.version {
             tracing::info!(
                 "Existing `apt_packages` layer is for different Ubuntu version (`{}` => `{}`); will recreate",
-                metadata.version,
+                existing.version,
                 self.version,
             );
             ExistingLayerStrategy::Recreate
-        } else if self.repos != metadata.repos {
+        } else if self.repos != existing.repos {
             tracing::info!(
                 "Existing `apt_packages` layer has different repos (`{}` => `{}`); will recreate",
-                metadata.repos.join(","),
+                existing.repos.join(","),
                 self.repos.join(","),
             );
             ExistingLayerStrategy::Recreate
-        } else if self.packages != metadata.packages {
+        } else if self.packages != existing.packages {
             tracing::info!(
                 "Existing `apt_packages` layer has different packages (`{}` => `{}`); will recreate",
-                metadata.packages.join(","),
+                existing.packages.join(","),
                 self.packages.join(",")
             );
             ExistingLayerStrategy::Recreate

@@ -21,10 +21,10 @@ use buildpack::{
         Buildpack,
     },
     maplit::hashmap,
-    tracing, BuildpackContext, BuildpackTrait, LayerHashMetadata, LayerOptions,
-    LayerVersionMetadata,
+    tracing, BuildpackContext, BuildpackTrait, LayerOptions, LayerVersionMetadata,
 };
 use buildpack_apt::AptPackagesLayer;
+use serde::{Deserialize, Serialize};
 
 pub struct RBuildpack;
 
@@ -156,7 +156,10 @@ impl Buildpack for RBuildpack {
         }
 
         if let Some(options) = entries.get("renv") {
-            context.handle_layer(layer_name!("renv"), RenvLayer::new(options))?;
+            context.handle_layer(
+                layer_name!("renv"),
+                RenvLayer::new(options, &context.app_dir),
+            )?;
         }
 
         self.restore_env_vars(env_vars);
@@ -454,6 +457,7 @@ options(
     }
 }
 
+#[derive(Clone, Deserialize, Serialize)]
 struct RenvLayer {
     /// The package manager used to do the installation of packages
     ///
@@ -461,35 +465,51 @@ struct RenvLayer {
     /// - "snapshot": restore from a `renv.lock` file
     /// - "rscript": run an R script (usually `install.R`)
     method: String,
+
+    /// The minor version of R to install packages for e.g. `4.0`
+    ///
+    /// Used to bust cached `renv` if the R minor version changes.
+    minor_version: String,
+
+    // Hash of files that affect which packages/versions are installed into `renv`
+    //
+    // The hash is the combined contents of `renv.lock` and `install.R`.
+    // This means that if any one is changed or removed that the hash will change.
+    packages_hash: String,
 }
 
 impl RenvLayer {
-    fn new(options: &LayerOptions) -> Self {
+    fn new(options: &LayerOptions, app_path: &Path) -> Self {
         let method = options
             .get("method")
             .cloned()
             .unwrap_or_else(|| "snapshot".to_string());
 
-        RenvLayer { method }
-    }
-}
+        let minor_version = RBinary {}
+            .require_sync()
+            .and_then(|r| r.version().map(|v| v.to_string()))
+            .and_then(|version| RBinary {}.semver_version_minor(&version))
+            .unwrap_or_default();
 
-/// Generate hash of files that affect which packages are installed into `renv`
-///
-/// The hash is the combined contents of `renv.lock` and `install.R`.
-/// This means that if any one is changed or removed that the hash will change.
-fn generate_packages_hash(app_dir: &Path) -> String {
-    let content = [
-        read_to_string(app_dir.join(RENV_LOCK)).unwrap_or_default(),
-        read_to_string(app_dir.join(INSTALL_R)).unwrap_or_default(),
-    ]
-    .concat();
-    str_sha256_hex(&content)
+        let packages_hash = str_sha256_hex(
+            &[
+                read_to_string(app_path.join(RENV_LOCK)).unwrap_or_default(),
+                read_to_string(app_path.join(INSTALL_R)).unwrap_or_default(),
+            ]
+            .concat(),
+        );
+
+        RenvLayer {
+            method,
+            minor_version,
+            packages_hash,
+        }
+    }
 }
 
 impl Layer for RenvLayer {
     type Buildpack = RBuildpack;
-    type Metadata = LayerHashMetadata;
+    type Metadata = RenvLayer;
 
     fn types(&self) -> LayerTypes {
         LayerTypes {
@@ -501,16 +521,23 @@ impl Layer for RenvLayer {
 
     fn existing_layer_strategy(
         &self,
-        context: &BuildContext<Self::Buildpack>,
+        _context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
-        let package_hash = generate_packages_hash(&context.app_dir);
-        let strategy = if package_hash == layer_data.content_metadata.metadata.hash {
-            tracing::info!("Existing `renv` layer has same packages hash; will keep",);
-            ExistingLayerStrategy::Keep
-        } else {
-            tracing::info!("Existing `renv` layer has different packages hash; will update");
+        let existing = &layer_data.content_metadata.metadata;
+        let strategy = if self.minor_version != existing.minor_version {
+            tracing::info!(
+                "Existing `renv` layer is for different R minor version (`{}` => `{}`); will recreate",
+                existing.minor_version,
+                self.minor_version,
+            );
+            ExistingLayerStrategy::Recreate
+        } else if self.packages_hash != existing.packages_hash {
+            tracing::info!("Existing `renv` layer has different packages hash; will update",);
             ExistingLayerStrategy::Update
+        } else {
+            tracing::info!("Existing `renv` layer meets requirements; will keep",);
+            ExistingLayerStrategy::Keep
         };
         Ok(strategy)
     }
@@ -539,11 +566,11 @@ impl RenvLayer {
         &self,
         context: &BuildContext<RBuildpack>,
         layer_path: &Path,
-    ) -> Result<LayerResult<LayerHashMetadata>, eyre::Report> {
+    ) -> Result<LayerResult<RenvLayer>, eyre::Report> {
         let app_path = &context.app_dir.canonicalize()?;
         let layer_path = &layer_path.canonicalize()?;
 
-        tracing::info!("Installing packages using `renv::{}`", self.method);
+        tracing::info!("Installing R packages into `renv` layer");
 
         // Get `Rscript` (should have been installed in `RLayer`)
         let mut rscript = Binary::named("Rscript").require_sync()?;
@@ -612,11 +639,6 @@ renv::restore(prompt = FALSE)"#,
             rscript.run_sync(&["-e", &script])?;
         }
 
-        // Generate packages hash to detect if layer is stale in `existing_layer_strategy()`
-        let metadata = LayerHashMetadata {
-            hash: generate_packages_hash(app_path),
-        };
-
         // Add `renv/library` to the R_LIBS_USER
         // See https://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html for more
         // on R library paths
@@ -627,6 +649,6 @@ renv::restore(prompt = FALSE)"#,
             library_path,
         );
 
-        LayerResultBuilder::new(metadata).env(layer_env).build()
+        LayerResultBuilder::new(self.clone()).env(layer_env).build()
     }
 }

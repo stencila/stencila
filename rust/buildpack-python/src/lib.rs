@@ -22,10 +22,10 @@ use buildpack::{
         Buildpack,
     },
     maplit::hashmap,
-    toml, tracing, BuildpackContext, BuildpackTrait, LayerHashMetadata, LayerOptions,
-    LayerVersionMetadata,
+    toml, tracing, BuildpackContext, BuildpackTrait, LayerOptions, LayerVersionMetadata,
 };
 use buildpack_apt::AptPackagesLayer;
+use serde::{Deserialize, Serialize};
 
 pub struct PythonBuildpack;
 
@@ -172,7 +172,10 @@ impl Buildpack for PythonBuildpack {
         }
 
         if let Some(options) = entries.get("venv") {
-            context.handle_layer(layer_name!("venv"), VenvLayer::new(options))?;
+            context.handle_layer(
+                layer_name!("venv"),
+                VenvLayer::new(options, &context.app_dir),
+            )?;
         }
 
         self.restore_env_vars(env_vars);
@@ -469,41 +472,58 @@ impl Layer for PoetryLayer {
     }
 }
 
+#[derive(Clone, Deserialize, Serialize)]
 struct VenvLayer {
     /// The package manager used to do the installation of packages
     ///
     /// Currently can be "pip" or "poetry"
     package_manager: String,
+
+    /// The minor version of Python to install packages for e.g. `3.10`
+    ///
+    /// Used to bust cached `venv` if the Python minor version changes.
+    minor_version: String,
+
+    /// A hash of Poetry & Pip related files in an app directory
+    ///
+    /// The hash is the combined contents of `poetry.lock`, `pyproject.toml`, `requirements.txt`.
+    /// This means that if any one is changed or removed that the hash will change.
+    packages_hash: String,
 }
 
 impl VenvLayer {
-    fn new(options: &LayerOptions) -> Self {
+    fn new(options: &LayerOptions, app_path: &Path) -> Self {
         let package_manager = options
             .get("package_manager")
             .cloned()
             .unwrap_or_else(|| "pip".to_string());
 
-        VenvLayer { package_manager }
-    }
+        let minor_version = PythonBinary {}
+            .require_sync()
+            .and_then(|python| python.version().map(|v| v.to_string()))
+            .and_then(|version| PythonBinary {}.semver_version_minor(&version))
+            .unwrap_or_default();
 
-    /// Generate hash for Poetry & Pip related files in an app directory
-    ///
-    /// The hash is the combined contents of `poetry.lock`, `pyproject.toml`, `requirements.txt`.
-    /// This means that if any one is changed or removed that the hash will change.
-    fn generate_packages_hash(&self, app_dir: &Path) -> String {
-        let content = [
-            read_to_string(app_dir.join(POETRY_LOCK)).unwrap_or_default(),
-            read_to_string(app_dir.join(PYPROJECT_TOML)).unwrap_or_default(),
-            read_to_string(app_dir.join(REQUIREMENTS_TXT)).unwrap_or_default(),
-        ]
-        .concat();
-        str_sha256_hex(&content)
+        let packages_hash = str_sha256_hex(
+            &[
+                read_to_string(app_path.join(POETRY_LOCK)).unwrap_or_default(),
+                read_to_string(app_path.join(PYPROJECT_TOML)).unwrap_or_default(),
+                read_to_string(app_path.join(REQUIREMENTS_TXT)).unwrap_or_default(),
+            ]
+            .concat(),
+        );
+
+        VenvLayer {
+            package_manager,
+            minor_version,
+            packages_hash,
+        }
     }
 }
 
 impl Layer for VenvLayer {
     type Buildpack = PythonBuildpack;
-    type Metadata = LayerHashMetadata;
+    type Metadata = VenvLayer;
 
     fn types(&self) -> LayerTypes {
         LayerTypes {
@@ -515,16 +535,23 @@ impl Layer for VenvLayer {
 
     fn existing_layer_strategy(
         &self,
-        context: &BuildContext<Self::Buildpack>,
+        _context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
-        let package_hash = self.generate_packages_hash(&context.app_dir);
-        let strategy = if package_hash == layer_data.content_metadata.metadata.hash {
-            tracing::info!("Existing `venv` layer has same packages hash; will keep",);
-            ExistingLayerStrategy::Keep
-        } else {
-            tracing::info!("Existing `venv` layer has different packages hash; will update");
+        let existing = &layer_data.content_metadata.metadata;
+        let strategy = if self.minor_version != existing.minor_version {
+            tracing::info!(
+                "Existing `venv` layer is for different Python minor version (`{}` => `{}`); will recreate",
+                existing.minor_version,
+                self.minor_version,
+            );
+            ExistingLayerStrategy::Recreate
+        } else if self.packages_hash != existing.packages_hash {
+            tracing::info!("Existing `venv` layer has different packages hash; will update",);
             ExistingLayerStrategy::Update
+        } else {
+            tracing::info!("Existing `venv` layer meets requirements; will keep",);
+            ExistingLayerStrategy::Keep
         };
         Ok(strategy)
     }
@@ -553,7 +580,7 @@ impl VenvLayer {
         &self,
         context: &BuildContext<PythonBuildpack>,
         layer_path: &Path,
-    ) -> Result<LayerResult<LayerHashMetadata>, eyre::Report> {
+    ) -> Result<LayerResult<VenvLayer>, eyre::Report> {
         let app_path = &context.app_dir.canonicalize()?;
         let layer_path = &layer_path.canonicalize()?;
 
@@ -667,11 +694,6 @@ impl VenvLayer {
             }
         };
 
-        // Generate packages hash to detect if layer is stale in `existing_layer_strategy()`
-        let metadata = LayerHashMetadata {
-            hash: self.generate_packages_hash(app_path),
-        };
-
         // Add the virtual env packages to the PYTHONPATH
         let lib_dir = venv_path.join("lib");
         let python_minor = match lib_dir
@@ -688,6 +710,6 @@ impl VenvLayer {
             lib_dir.join(python_minor).join("site-packages"),
         );
 
-        LayerResultBuilder::new(metadata).env(layer_env).build()
+        LayerResultBuilder::new(self.clone()).env(layer_env).build()
     }
 }

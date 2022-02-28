@@ -19,9 +19,9 @@ use buildpack::{
         Buildpack,
     },
     maplit::hashmap,
-    tracing, BuildpackContext, BuildpackTrait, LayerHashMetadata, LayerOptions,
-    LayerVersionMetadata,
+    tracing, BuildpackContext, BuildpackTrait, LayerOptions, LayerVersionMetadata,
 };
+use serde::{Deserialize, Serialize};
 
 pub struct NodeBuildpack;
 
@@ -135,7 +135,10 @@ impl Buildpack for NodeBuildpack {
         }
 
         if entries.contains_key("node_modules") {
-            context.handle_layer(layer_name!("node_modules"), NodeModulesLayer)?;
+            context.handle_layer(
+                layer_name!("node_modules"),
+                NodeModulesLayer::new(&context.app_dir),
+            )?;
         }
 
         self.restore_env_vars(env_vars);
@@ -273,26 +276,46 @@ impl Layer for NodeLayer {
     }
 }
 
-struct NodeModulesLayer;
+#[derive(Clone, Deserialize, Serialize)]
+struct NodeModulesLayer {
+    /// The major version of Node.js to install packages for e.g. `16`
+    ///
+    /// Used to bust cached `node_modules` if the Node.js major version changes.
+    major_version: String,
 
-impl NodeModulesLayer {
-    /// Generate hash of files that affect which packages are installed into `node_modules`
+    /// A hash of files that affect which packages are installed into `node_modules`
     ///
     /// The hash is the combined contents of `package-lock.json` and `package.json`.
     /// This means that if either one is changed or removed that the hash will change.
-    fn generate_packages_hash(&self, app_dir: &Path) -> String {
-        let content = [
-            read_to_string(app_dir.join(PACKAGE_LOCK)).unwrap_or_default(),
-            read_to_string(app_dir.join(PACKAGE_JSON)).unwrap_or_default(),
-        ]
-        .concat();
-        str_sha256_hex(&content)
+    packages_hash: String,
+}
+
+impl NodeModulesLayer {
+    fn new(app_path: &Path) -> Self {
+        let major_version = NodeBinary {}
+            .require_sync()
+            .and_then(|node| node.version().map(|v| v.to_string()))
+            .and_then(|version| NodeBinary {}.semver_version_major(&version))
+            .unwrap_or_default();
+
+        let packages_hash = str_sha256_hex(
+            &[
+                read_to_string(app_path.join(PACKAGE_LOCK)).unwrap_or_default(),
+                read_to_string(app_path.join(PACKAGE_JSON)).unwrap_or_default(),
+            ]
+            .concat(),
+        );
+
+        NodeModulesLayer {
+            major_version,
+            packages_hash,
+        }
     }
 }
 
 impl Layer for NodeModulesLayer {
     type Buildpack = NodeBuildpack;
-    type Metadata = LayerHashMetadata;
+    type Metadata = NodeModulesLayer;
 
     fn types(&self) -> LayerTypes {
         LayerTypes {
@@ -304,18 +327,25 @@ impl Layer for NodeModulesLayer {
 
     fn existing_layer_strategy(
         &self,
-        context: &BuildContext<Self::Buildpack>,
+        _context: &BuildContext<Self::Buildpack>,
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
-        let package_hash = self.generate_packages_hash(&context.app_dir);
-        let strategy = if package_hash == layer_data.content_metadata.metadata.hash {
-            tracing::info!("Existing `node_modules` layer has same packages hash; will keep",);
-            ExistingLayerStrategy::Keep
-        } else {
+        let existing = &layer_data.content_metadata.metadata;
+        let strategy = if self.major_version != existing.major_version {
             tracing::info!(
-                "Existing `node_modules` layer has different packages hash; will update"
+                "Existing `node_modules` layer is for different Node.js major version (`{}` => `{}`); will recreate",
+                existing.major_version,
+                self.major_version,
+            );
+            ExistingLayerStrategy::Recreate
+        } else if self.packages_hash != existing.packages_hash {
+            tracing::info!(
+                "Existing `node_modules` layer has different packages hash; will update",
             );
             ExistingLayerStrategy::Update
+        } else {
+            tracing::info!("Existing `node_modules` layer meets requirements; will keep",);
+            ExistingLayerStrategy::Keep
         };
         Ok(strategy)
     }
@@ -344,7 +374,7 @@ impl NodeModulesLayer {
         &self,
         context: &BuildContext<NodeBuildpack>,
         layer_path: &Path,
-    ) -> Result<LayerResult<LayerHashMetadata>, eyre::Report> {
+    ) -> Result<LayerResult<NodeModulesLayer>, eyre::Report> {
         let app_path = &context.app_dir.canonicalize()?;
         let layer_path = &layer_path.canonicalize()?;
 
@@ -389,11 +419,6 @@ impl NodeModulesLayer {
             remove_file(layer_path.join(PACKAGE_LOCK)).ok();
         }
 
-        // Generate packages hash to detect if layer is stale in `existing_layer_strategy()`
-        let metadata = LayerHashMetadata {
-            hash: self.generate_packages_hash(app_path),
-        };
-
         // Set the `NODE_PATH` so that the `node_modules` can be found
         let layer_env = LayerEnv::new().chainable_insert(
             Scope::All,
@@ -402,6 +427,6 @@ impl NodeModulesLayer {
             layer_path.join(NODE_MODULES),
         );
 
-        LayerResultBuilder::new(metadata).env(layer_env).build()
+        LayerResultBuilder::new(self.clone()).env(layer_env).build()
     }
 }

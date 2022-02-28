@@ -585,6 +585,7 @@ version = "0.0.0"
 dependencies = [
  "binary-node",
  "buildpack",
+ "serde",
  "serde_json",
 ]
 
@@ -596,6 +597,7 @@ dependencies = [
  "binary-python",
  "buildpack",
  "buildpack-apt",
+ "serde",
  "sys-info",
 ]
 
@@ -606,6 +608,7 @@ dependencies = [
  "binary-r",
  "buildpack",
  "buildpack-apt",
+ "serde",
  "serde_json",
  "sys-info",
 ]
