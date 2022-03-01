@@ -1,13 +1,18 @@
+use async_trait::async_trait;
 use eyre::{bail, Result};
+use node_address::Address;
+use node_pointer::{walk, Visitor};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use stencila_schema::Node;
+use stencila_schema::{InlineContent, Node};
 
 // Export and re-export for the convenience of crates that implement a provider
-pub use async_trait::async_trait;
-pub use eyre;
-pub use node_address::Address;
-pub use stencila_schema;
+pub use ::async_trait;
+pub use ::eyre;
+pub use ::http_utils;
+pub use ::once_cell;
+pub use ::regex;
+pub use ::stencila_schema;
 
 /// A specification for providers
 ///
@@ -22,6 +27,14 @@ pub struct Provider {
     pub name: String,
 }
 
+impl Provider {
+    pub fn new(name: impl AsRef<str>) -> Self {
+        Self {
+            name: name.as_ref().to_string(),
+        }
+    }
+}
+
 /// A trait for providers
 ///
 /// This trait can be used by Rust implementations of providers, allowing them to
@@ -31,14 +44,21 @@ pub trait ProviderTrait {
     /// Get the [`Provider`] specification
     fn spec() -> Provider;
 
+    /// Parse a string into a node
+    fn parse(_string: &str) -> Vec<ProviderParsing> {
+        Vec::new()
+    }
+
     /// Detect nodes within a root node that the provider may be able to identify and enrich.
     ///
     /// Returns a vector of [`Detection`].
-    async fn detect(_root: &Node) -> Result<Vec<ProviderDetection>> {
-        bail!(
-            "Detection is not implemented for provider `{}`",
-            Self::spec().name
-        )
+    async fn detect(root: &Node) -> Result<Vec<ProviderDetection>> {
+        let name = Self::spec().name;
+        let parse = Box::new(|string: &str| Self::parse(string));
+
+        let mut detector = ProviderDetector::new(name, parse);
+        walk(root, &mut detector);
+        Ok(detector.detections)
     }
 
     /// Identify a node
@@ -77,6 +97,18 @@ pub trait ProviderTrait {
 }
 
 #[derive(Debug, Serialize)]
+pub struct ProviderParsing {
+    /// The start position in the string that the node was parsed from
+    pub begin: usize,
+
+    /// The end position in the string that the node was parsed from
+    pub end: usize,
+
+    /// The parsed [`Node`] usually with some properties populated
+    pub node: Node,
+}
+
+#[derive(Debug, Serialize)]
 pub struct ProviderDetection {
     /// The name of the provider that detected the node
     pub provider: String,
@@ -93,4 +125,60 @@ pub struct ProviderDetection {
     /// The detected [`Node`] usually with some properties populated (i.e. those
     /// properties that were used to detect it)
     pub node: Node,
+}
+
+pub struct ProviderDetector {
+    /// The name of the provider that this dector is for
+    provider: String,
+
+    /// The function used to attempt to parse a string into a node
+    parse: Box<dyn Fn(&str) -> Vec<ProviderParsing>>,
+
+    /// The list of detected nodes and their location
+    detections: Vec<ProviderDetection>,
+}
+
+impl ProviderDetector {
+    fn new(provider: String, parse: Box<dyn Fn(&str) -> Vec<ProviderParsing>>) -> Self {
+        Self {
+            provider,
+            parse,
+            detections: Vec::new(),
+        }
+    }
+
+    fn visit_string(&mut self, address: &Address, string: &str) {
+        let nodes = (self.parse)(string);
+        let mut detections = nodes
+            .into_iter()
+            .map(|ProviderParsing { begin, end, node }| ProviderDetection {
+                provider: self.provider.clone(),
+                confidence: 100,
+                begin: address.add_index(begin),
+                end: address.add_index(end),
+                node,
+            })
+            .collect();
+        self.detections.append(&mut detections);
+    }
+}
+
+impl Visitor for ProviderDetector {
+    fn visit_node(&mut self, address: &Address, node: &Node) -> bool {
+        if let Node::String(string) = node {
+            self.visit_string(address, string);
+            false
+        } else {
+            true
+        }
+    }
+
+    fn visit_inline(&mut self, address: &Address, node: &InlineContent) -> bool {
+        if let InlineContent::String(string) = node {
+            self.visit_string(address, string);
+            false
+        } else {
+            true
+        }
+    }
 }

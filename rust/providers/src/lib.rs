@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use provider::{
-    eyre::{bail, Result},
+    eyre::{bail, eyre, Result},
     stencila_schema::Node,
     ProviderTrait,
 };
@@ -26,8 +26,6 @@ struct Providers {
 }
 
 /// A macro to dispatch methods to builtin providers
-///
-/// This avoids having to do a search over the providers's specs for matching `languages`.
 macro_rules! dispatch_builtins {
     ($var:expr, $method:ident $(,$arg:expr)*) => {
         match $var.as_str() {
@@ -69,19 +67,22 @@ impl Providers {
             .collect::<Vec<String>>()
     }
 
-    /// Get a provider by label
-    fn get(&self, label: &str) -> Result<Provider> {
-        match self.inner.get(label) {
+    /// Get a provider by name
+    fn get(&self, name: &str) -> Result<Provider> {
+        match self.inner.get(&name.to_lowercase()) {
             Some(provider) => Ok(provider.clone()),
-            None => bail!("No provider with label `{}`", label),
+            None => bail!("No provider with name `{}`", name),
         }
     }
 
-    /// Decode a document node from a string
+    /// Detect nodes within a node
+    ///
+    /// The detect method of each registered provider is called on the node and the result
+    /// is a list of detections across all providers.
     async fn detect(&self, node: &Node) -> Result<Vec<ProviderDetection>> {
         let mut detected = Vec::new();
-        for provider in self.list() {
-            if let Some(future) = dispatch_builtins!(provider, detect, node) {
+        for (name, ..) in &self.inner {
+            if let Some(future) = dispatch_builtins!(name, detect, node) {
                 let mut result = future.await?;
                 detected.append(&mut result);
             }
@@ -98,6 +99,8 @@ impl Default for Providers {
 
 #[cfg(feature = "cli")]
 pub mod commands {
+    use std::path::PathBuf;
+
     use super::*;
     use cli_utils::{async_trait::async_trait, result, Result, Run};
     use structopt::StructOpt;
@@ -106,29 +109,22 @@ pub mod commands {
     #[structopt(
         about = "Manage providers",
         setting = structopt::clap::AppSettings::ColoredHelp,
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]
-    pub struct Command {
-        #[structopt(subcommand)]
-        pub action: Action,
-    }
-
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
-    pub enum Action {
+    pub enum Command {
         List(List),
         Show(Show),
+        Detect(Detect),
     }
 
     #[async_trait]
     impl Run for Command {
         async fn run(&self) -> Result {
-            let Self { action } = self;
-            match action {
-                Action::List(action) => action.run().await,
-                Action::Show(action) => action.run().await,
+            match self {
+                Command::List(action) => action.run().await,
+                Command::Show(action) => action.run().await,
+                Command::Detect(action) => action.run().await,
             }
         }
     }
@@ -156,16 +152,50 @@ pub mod commands {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Show {
-        /// The label of the provider
+        /// The name of the provider
         ///
-        /// To get the list of provider labels use `stencila providers list`.
-        label: String,
+        /// To get the list of provider names using `stencila providers list`.
+        name: String,
     }
     #[async_trait]
     impl Run for Show {
         async fn run(&self) -> Result {
-            let provider = PROVIDERS.get(&self.label)?;
+            let provider = PROVIDERS.get(&self.name)?;
             result::value(provider)
+        }
+    }
+
+    /// Detect nodes within a file or text
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Detect {
+        /// The path to the file (or the string value if the `--string` flag is used)
+        path: PathBuf,
+
+        /// The format of the file; defaults to the file extension
+        format: Option<String>,
+
+        /// If the argument should be treated as text, rather than a file path
+        #[structopt(short, long)]
+        string: bool,
+    }
+    #[async_trait]
+    impl Run for Detect {
+        async fn run(&self) -> Result {
+            let node = if self.string {
+                let string = self
+                    .path
+                    .to_str()
+                    .ok_or_else(|| eyre!("Value is not valid Unicode"))?
+                    .into();
+                Node::String(string)
+            } else {
+                codecs::from_path(&self.path, self.format.as_deref(), None).await?
+            };
+            let detections = detect(&node).await?;
+            result::value(detections)
         }
     }
 }

@@ -1,13 +1,13 @@
-use codec_csl::{CodecTrait, CslCodec};
-use node_pointer::{eyre::bail, walk, Address, Visitor};
-use once_cell::sync::Lazy;
+use codec_csl::CslCodec;
 use provider::{
-    async_trait,
-    eyre::{eyre, Result},
+    async_trait::async_trait,
+    eyre::{bail, eyre, Result},
+    http_utils::{get_json_with, headers},
+    once_cell::sync::Lazy,
+    regex::Regex,
     stencila_schema::*,
-    Provider, ProviderDetection, ProviderTrait,
+    Provider, ProviderParsing, ProviderTrait,
 };
-use regex::Regex;
 
 /// A provider that identifies and enriches `Article` and other `CreativeWork` nodes
 ///
@@ -16,21 +16,17 @@ use regex::Regex;
 #[derive(Debug, Default)]
 pub struct DoiProvider {}
 
-const PROVIDER_NAME: &str = "doi";
-
 const DOI_URL: &str = "https://doi.org/";
 
 #[async_trait]
 impl ProviderTrait for DoiProvider {
     fn spec() -> Provider {
-        Provider {
-            name: PROVIDER_NAME.to_string(),
-        }
+        Provider::new("doi")
     }
 
-    /// Detect [`CreativeWork`] nodes in a root node by searching for DOIs
+    /// Parse a [`CreativeWork`] nodes from a string
     ///
-    /// Examples of DOI strings that this provider attempts to detect:
+    /// Examples of DOI strings that this methods attempts to parse:
     ///
     /// - 10.5334/jors.182
     /// - DOI: 10.5334/jors.182
@@ -39,10 +35,29 @@ impl ProviderTrait for DoiProvider {
     ///
     /// See https://www.crossref.org/blog/dois-and-matching-regular-expressions/
     /// for notes on DOI matching.
-    async fn detect(root: &Node) -> Result<Vec<ProviderDetection>> {
-        let mut detector = DoiDetector::default();
-        walk(root, &mut detector);
-        Ok(detector.detected)
+    fn parse(string: &str) -> Vec<ProviderParsing> {
+        static REGEX: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r"\b(10.\d{4,9}/[-._;()/:a-zA-Z0-9]+)\b").expect("Unable to create regex")
+        });
+
+        REGEX
+            .captures_iter(string)
+            .into_iter()
+            .map(|captures| {
+                let capture = captures.get(0).unwrap();
+
+                let begin = capture.start();
+                let end = capture.end();
+                let node = Node::CreativeWork(CreativeWork {
+                    identifiers: Some(vec![ThingIdentifiers::String(
+                        [DOI_URL, capture.as_str()].concat(),
+                    )]),
+                    ..Default::default()
+                });
+
+                ProviderParsing { begin, end, node }
+            })
+            .collect()
     }
 
     /// Identify a [`CreativeWork`] node
@@ -104,93 +119,9 @@ impl ProviderTrait for DoiProvider {
         }
         .ok_or_else(|| eyre!("Node does not have DOI URL"))?;
 
-        let client = reqwest::Client::new();
-        let response = client
-            .get(url)
-            .header(
-                "Accept",
-                "application/vnd.schemaorg.ld+json;q=1,application/vnd.citationstyles.csl+json;q=0.5",
-            )
-            .header(
-                "User-Agent",
-                "Stencila (https://github.com/stencila/stencila/)",
-            )
-            .send()
-            .await?;
+        let data = get_json_with(&url, &[(headers::ACCEPT,"application/vnd.schemaorg.ld+json;q=1,application/vnd.citationstyles.csl+json;q=0.5")]).await?;
 
-        let _content_type = response.headers().get("Content-Type").map(|value| {
-            value
-                .to_str()
-                .expect("Unable to extract header")
-                .to_string()
-        });
-        let content = response.text().await?;
-
-        let node = CslCodec::from_str(&content, None)?;
-        Ok(node)
-    }
-}
-
-/// A [`Visitor`] that walks a node tree and detects DOIs representing
-/// `CreativeWork` nodes.
-#[derive(Debug, Default)]
-pub struct DoiDetector {
-    /// The detected nodes
-    detected: Vec<ProviderDetection>,
-}
-
-impl DoiDetector {
-    /// Visit a string and attempt to detect DOIs within it
-    fn visit_string(&mut self, address: &Address, string: &str) {
-        static REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"\b(10.\d{4,9}/[-._;()/:a-zA-Z0-9]+)\b").expect("Unable to create regex")
-        });
-
-        let mut detected = REGEX
-            .captures_iter(string)
-            .into_iter()
-            .map(|captures| {
-                let capture = captures.get(0).unwrap();
-
-                let begin = address.add_index(capture.start());
-                let end = address.add_index(capture.end());
-                let node = Node::CreativeWork(CreativeWork {
-                    identifiers: Some(vec![ThingIdentifiers::String(
-                        ["https://doi.org/", capture.as_str()].concat(),
-                    )]),
-                    ..Default::default()
-                });
-
-                ProviderDetection {
-                    provider: PROVIDER_NAME.to_string(),
-                    confidence: 100,
-                    begin,
-                    end,
-                    node,
-                }
-            })
-            .collect();
-        self.detected.append(&mut detected);
-    }
-}
-
-impl Visitor for DoiDetector {
-    fn visit_node(&mut self, address: &Address, node: &Node) -> bool {
-        if let Node::String(string) = node {
-            self.visit_string(address, string);
-            false
-        } else {
-            true
-        }
-    }
-
-    fn visit_inline(&mut self, address: &Address, node: &InlineContent) -> bool {
-        if let InlineContent::String(string) = node {
-            self.visit_string(address, string);
-            false
-        } else {
-            true
-        }
+        CslCodec::from_json(data)
     }
 }
 
