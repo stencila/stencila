@@ -410,35 +410,6 @@ jobs:
         continueOnError: true
         displayName: 'Rust: Clean cache'
 
-  # Releases are only made if all three platform builds have succeeded and on the `master` branch.
-  - job: Release
-    dependsOn: [Linux, MacOS, Windows]
-    condition: |
-      and(
-        in(dependencies.Linux.result, 'Succeeded', 'Skipped'),
-        in(dependencies.MacOS.result, 'Succeeded', 'Skipped'),
-        in(dependencies.Windows.result, 'Succeeded', 'Skipped'),
-        or(
-          eq(variables['Build.SourceBranch'], 'refs/heads/master'),
-          contains(dependencies.Changes.outputs['folders.changed'], 'docker')
-        )
-      )
-    pool:
-      vmImage: ubuntu-latest
-    variables:
-      HUSKY: 0
-    steps:
-      - script: |
-          npm ci
-          npx semantic-release
-        displayName: Create a release (if necessary)
-        env:
-          GIT_AUTHOR_NAME: Stencila CI Bot
-          GIT_AUTHOR_EMAIL: ci@stenci.la
-          GIT_COMMITTER_NAME: Stencila CI Bot
-          GIT_COMMITTER_EMAIL: ci@stenci.la
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-
   # Docker images are built on tags (i.e. after a Release job) or if there is a
   # change in the `docker` folder.
   - job: Docker
@@ -650,4 +621,33 @@ jobs:
         condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
         displayName: Publish
         env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  # Releases are only made if all three platform builds have succeeded and on the `master` branch.
+  - job: Release
+    dependsOn: [Linux, MacOS, Windows]
+    condition: |
+      and(
+        in(dependencies.Linux.result, 'Succeeded', 'Skipped'),
+        in(dependencies.MacOS.result, 'Succeeded', 'Skipped'),
+        in(dependencies.Windows.result, 'Succeeded', 'Skipped'),
+        or(
+          eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+          contains(dependencies.Changes.outputs['folders.changed'], 'docker')
+        )
+      )
+    pool:
+      vmImage: ubuntu-latest
+    variables:
+      HUSKY: 0
+    steps:
+      - script: |
+          npm ci
+          npx semantic-release
+        displayName: Create a release (if necessary)
+        env:
+          GIT_AUTHOR_NAME: Stencila CI Bot
+          GIT_AUTHOR_EMAIL: ci@stenci.la
+          GIT_COMMITTER_NAME: Stencila CI Bot
+          GIT_COMMITTER_EMAIL: ci@stenci.la
           GITHUB_TOKEN: $(GITHUB_TOKEN)
