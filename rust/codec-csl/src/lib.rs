@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-
+pub use codec::CodecTrait;
 use codec::{
     eyre::{bail, eyre, Result},
     stencila_schema::{
@@ -9,7 +8,7 @@ use codec::{
         ThingIdentifiers,
     },
     utils::vec_string,
-    Codec, CodecTrait, DecodeOptions,
+    Codec, DecodeOptions,
 };
 
 /// A codec for Citation Style Language (CSL) JSON
@@ -25,20 +24,10 @@ use codec::{
 ///
 /// but it was found to be quite strict (e.g did not handle `"type": "journal-article"`)
 /// and the parsed `Reference` still needed to be translated to a Stencila node.
-pub struct CslCodec {}
+pub struct CslCodec;
 
-impl CodecTrait for CslCodec {
-    fn spec() -> Codec {
-        Codec {
-            formats: vec_string!["csl", "csl-json"],
-            root_types: vec_string!["Article"],
-            ..Default::default()
-        }
-    }
-
-    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        let data: HashMap<String, serde_json::Value> = serde_json::from_str(str)?;
-
+impl CslCodec {
+    pub fn from_json(data: serde_json::Value) -> Result<Node> {
         let mut article = Article::default();
 
         if let Some(title) = data.get("title") {
@@ -123,6 +112,21 @@ impl CodecTrait for CslCodec {
         }
 
         Ok(Node::Article(article))
+    }
+}
+
+impl CodecTrait for CslCodec {
+    fn spec() -> Codec {
+        Codec {
+            formats: vec_string!["csl", "csl-json"],
+            root_types: vec_string!["Article"],
+            ..Default::default()
+        }
+    }
+
+    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
+        let data = serde_json::from_str(str)?;
+        Self::from_json(data)
     }
 }
 
