@@ -5,5 +5,5 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-binary = { path = "../binary", version = "0.0.0" }
+binary = { path = "../binary", version = "0.0.0", features = ["download"] }
 binary-asdf = { path = "../binary-asdf", version = "0.0.0" }

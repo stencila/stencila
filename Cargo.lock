@@ -2492,7 +2492,7 @@ version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5617e92fc2f2501c3e2bc6ce547cad841adba2bae5b921c7e52510beca6d084c"
 dependencies = [
- "base64 0.12.3",
+ "base64 0.13.0",
  "bytes",
  "http",
  "httpdate",
@@ -3766,9 +3766,9 @@ dependencies = [
 
 [[package]]
 name = "octocrab"
-version = "0.13.0"
+version = "0.15.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ca3f6196ea8b13d348f78bc216c8bb3a3d60b36bfa7e2d18125de4f6676ec2e"
+checksum = "afcfecea7633fbd11141b7ce1cc4e49e01566570dd5d995ee1edb497dd340082"
 dependencies = [
  "arc-swap",
  "async-trait",
@@ -4456,7 +4456,11 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "eyre",
+ "http-utils",
  "node-address",
+ "node-pointer",
+ "once_cell",
+ "regex",
  "serde",
  "stencila-schema",
 ]
@@ -4466,10 +4470,7 @@ name = "provider-doi"
 version = "0.0.0"
 dependencies = [
  "codec-csl",
- "node-pointer",
- "once_cell",
  "provider",
- "regex",
  "reqwest",
  "serde_json",
  "test-utils",
@@ -4489,6 +4490,7 @@ version = "0.0.0"
 dependencies = [
  "octocrab",
  "provider",
+ "tokio",
 ]
 
 [[package]]
@@ -4496,6 +4498,7 @@ name = "providers"
 version = "0.0.0"
 dependencies = [
  "cli-utils",
+ "codecs",
  "once_cell",
  "provider",
  "provider-doi",
@@ -4503,6 +4506,7 @@ dependencies = [
  "provider-github",
  "structopt",
  "test-utils",
+ "tokio",
 ]
 
 [[package]]
@@ -5382,9 +5386,9 @@ dependencies = [
 
 [[package]]
 name = "snafu"
-version = "0.6.10"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eab12d3c261b2308b0d80c26fffb58d17eba81a4be97890101f416b478c79ca7"
+checksum = "2eba135d2c579aa65364522eb78590cdf703176ef71ad4c32b00f58f7afb2df5"
 dependencies = [
  "backtrace",
  "doc-comment",
@@ -5393,10 +5397,11 @@ dependencies = [
 
 [[package]]
 name = "snafu-derive"
-version = "0.6.10"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1508efa03c362e23817f96cde18abed596a25219a8b2c66e8db33c03543d315b"
+checksum = "7a7fe9b0669ef117c5cabc5549638528f36771f058ff977d7689deb517833a75"
 dependencies = [
+ "heck",
  "proc-macro2",
  "quote",
  "syn",

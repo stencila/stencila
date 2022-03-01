@@ -5,6 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [features]
+default = ["download"]
 download = ["http-utils", "url"]
 download-zip = ["download", "zip"]
 download-tar = ["download", "tar"]
