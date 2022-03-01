@@ -1,5 +1,5 @@
 use codec::{
-    eyre::{bail, Result},
+    eyre::{bail, eyre, Result},
     stencila_schema::Node,
     Codec, CodecTrait,
 };
@@ -21,7 +21,11 @@ pub async fn from_str(content: &str, format: &str, options: Option<DecodeOptions
 }
 
 /// Decode a document node from a file system path
-pub async fn from_path(path: &Path, format: &str, options: Option<DecodeOptions>) -> Result<Node> {
+pub async fn from_path(
+    path: &Path,
+    format: Option<&str>,
+    options: Option<DecodeOptions>,
+) -> Result<Node> {
     CODECS.from_path(path, format, options).await
 }
 
@@ -38,7 +42,7 @@ pub async fn to_string(
 pub async fn to_path(
     node: &Node,
     path: &Path,
-    format: &str,
+    format: Option<&str>,
     options: Option<EncodeOptions>,
 ) -> Result<()> {
     CODECS.to_path(node, path, format, options).await
@@ -231,10 +235,17 @@ impl Codecs {
     async fn from_path(
         &self,
         path: &Path,
-        format: &str,
+        format: Option<&str>,
         options: Option<DecodeOptions>,
     ) -> Result<Node> {
-        let format = match_name(format);
+        let format = format
+            .map(|str| str.to_string())
+            .or_else(|| {
+                path.extension()
+                    .map(|os_str| os_str.to_string_lossy().into())
+            })
+            .ok_or_else(|| eyre!("No format supplied and path has no extension"))?;
+        let format = match_name(&format);
         let format_spec = format.spec();
 
         let options = Some(DecodeOptions {
@@ -283,10 +294,17 @@ impl Codecs {
         &self,
         node: &Node,
         path: &Path,
-        format: &str,
+        format: Option<&str>,
         options: Option<EncodeOptions>,
     ) -> Result<()> {
-        let format = match_name(format);
+        let format = format
+            .map(|str| str.to_string())
+            .or_else(|| {
+                path.extension()
+                    .map(|os_str| os_str.to_string_lossy().into())
+            })
+            .ok_or_else(|| eyre!("No format supplied and path has no extension"))?;
+        let format = match_name(&format);
         let format_spec = format.spec();
 
         let options = Some(EncodeOptions {
