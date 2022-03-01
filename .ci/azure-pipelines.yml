@@ -452,6 +452,18 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
+      - task: Cache@2
+        displayName: Cache task
+        inputs:
+          key: 'Docker | "$(Agent.OS)" | Cache'
+          path: $(Pipeline.Workspace)/docker
+          cacheHitVar: CACHE_RESTORED
+
+      - script: |
+          docker load -i $(Pipeline.Workspace)/docker/cache.tar
+        displayName: Load from cache
+        condition: and(not(canceled()), eq(variables.CACHE_RESTORED, 'true'))
+
       - task: gitversion/setup@0
         displayName: Install GitVersion
         inputs:
@@ -526,6 +538,12 @@ jobs:
             bionic
             bionic-$(GitVersion.SemVer)
             latest
+
+      - script: |
+          mkdir -p $(Pipeline.Workspace)/docker
+          docker save -o $(Pipeline.Workspace)/docker/cache.tar cache
+        displayName: Save to cache
+        condition: and(not(canceled()), or(failed(), ne(variables.CACHE_RESTORED, 'true')))
 
   # Themes are only built if there are changes in the `themes` folder
   # then only published once changes land on the `master` branch
