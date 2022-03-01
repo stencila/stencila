@@ -11,7 +11,10 @@ use std::{env, fs::File, io, path::Path};
 use eyre::Result;
 use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
 use once_cell::sync::Lazy;
+use reqwest::header::{HeaderMap, HeaderName};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
+
+pub use reqwest::header as headers;
 
 static USER_AGENT: &str = concat!("stencila/", env!("CARGO_PKG_VERSION"),);
 
@@ -44,6 +47,25 @@ pub async fn get_json(url: &str) -> Result<serde_json::Value> {
     let response = CLIENT
         .get(url)
         .header("accept", "application/json")
+        .send()
+        .await?
+        .error_for_status()?;
+
+    let json = response.json().await?;
+
+    Ok(json)
+}
+
+// Get JSON from a URL with additional request headers
+pub async fn get_json_with(url: &str, headers: &[(HeaderName, &str)]) -> Result<serde_json::Value> {
+    let mut header_map = HeaderMap::new();
+    for (key, value) in headers {
+        header_map.insert(key, value.parse()?);
+    }
+
+    let response = CLIENT
+        .get(url)
+        .headers(header_map)
         .send()
         .await?
         .error_for_status()?;
