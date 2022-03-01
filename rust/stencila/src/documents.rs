@@ -698,7 +698,7 @@ impl Document {
         }
 
         let root = &*self.root.read().await;
-        codecs::to_path(root, path, &format, Some(options)).await?;
+        codecs::to_path(root, path, Some(&format), Some(options)).await?;
 
         Ok(())
     }
@@ -1320,7 +1320,7 @@ impl Document {
         let mut root = if self.format.binary {
             if self.path.exists() {
                 tracing::debug!("Decoding document root from path");
-                codecs::from_path(&self.path, format, None).await?
+                codecs::from_path(&self.path, Some(format), None).await?
             } else {
                 self.root.read().await.clone()
             }
