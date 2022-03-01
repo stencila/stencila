@@ -1,12 +1,11 @@
 use octocrab::{models::User, OctocrabBuilder};
 use provider::{eyre::Result, Provider, ProviderTrait};
 
-/// A provider for GitHub
-struct GitHubProvider {}
+pub struct GithubProvider;
 
-impl ProviderTrait for GitHubProvider {
+impl ProviderTrait for GithubProvider {
     fn spec() -> Provider {
-        Provider {}
+        Provider::new("github")
     }
 }
 
@@ -17,9 +16,7 @@ mod tests {
     #[ignore]
     #[tokio::test]
     async fn repos() -> Result<()> {
-        let client = OctocrabBuilder::new()
-            .personal_token("...".to_string())
-            .build()?;
+        let client = OctocrabBuilder::new().build()?;
 
         let repos = vec![("stencila", "stencila")];
         for (owner, name) in repos {
@@ -27,13 +24,18 @@ mod tests {
 
             let repo = repo.get().await?;
 
-            let contributors: Vec<User> = client
-                .get(repo.contributors_url.path(), None::<&()>)
-                .await?;
-            let contributors: Vec<(String, String)> = contributors
-                .into_iter()
-                .map(|user| (user.login, user.url.path().to_string()))
-                .collect();
+            let contributors: Vec<(String, String)> =
+                if let Some(contributors_url) = repo.contributors_url {
+                    let contributors: Vec<User> =
+                        client.get(contributors_url.path(), None::<&()>).await?;
+                    contributors
+                        .into_iter()
+                        .map(|user| (user.login, user.url.path().to_string()))
+                        .collect()
+                } else {
+                    Vec::new()
+                };
+
             // TODO: Have a cache of users and fetch user data from URL if necessary
             // TODO: Filter out users with [bot] in their login
 
@@ -59,6 +61,7 @@ mod tests {
                     .join(",")
             );
         }
+
         Ok(())
     }
 }
