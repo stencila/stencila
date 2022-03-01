@@ -8,6 +8,8 @@ use binary::{
     Binary,
 };
 
+mod versions;
+
 pub struct PodmanBinary;
 
 #[async_trait]
@@ -19,9 +21,11 @@ impl BinaryTrait for PodmanBinary {
     binary_clone_box!();
 
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
-        self.versions_github_releases("containers", "podman")
-            .await
-            .map(|versions| self.semver_versions_matching(&versions, ">=3"))
+        let versions = self.versions_update_maybe(
+            versions::VERSIONS,
+            self.versions_github_releases("containers", "podman").await,
+        );
+        Ok(self.semver_versions_matching(&versions, ">=3"))
     }
 
     async fn install_version(

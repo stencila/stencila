@@ -8,6 +8,8 @@ use binary::{
     Binary,
 };
 
+mod versions;
+
 pub struct StencilaBinary;
 
 #[async_trait]
@@ -19,9 +21,11 @@ impl BinaryTrait for StencilaBinary {
     binary_clone_box!();
 
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
-        self.versions_github_releases("stencila", "stencila")
-            .await
-            .map(|versions| self.semver_versions_matching(&versions, ">=1"))
+        let versions = self.versions_update_maybe(
+            versions::VERSIONS,
+            self.versions_github_releases("stencila", "stencila").await,
+        );
+        Ok(self.semver_versions_matching(&versions, ">=1"))
     }
 
     async fn install_version(

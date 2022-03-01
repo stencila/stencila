@@ -9,6 +9,8 @@ use binary::{
 pub use binary::{Binary, BinaryInstallation, BinaryTrait};
 use binary_asdf::AsdfBinary;
 
+mod versions;
+
 pub struct RBinary;
 
 #[async_trait]
@@ -20,18 +22,20 @@ impl BinaryTrait for RBinary {
     binary_clone_box!();
 
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
-        // Previously we used `AsdfBinary::list_all("R").await?;` to get a list of
-        // versions (and embedded a static copy of that list for Windows). This approach
-        // has the advantage of not needing to `asdf` to be installed and being dynamically
-        // updatable on Windows.
-        let versions = http_utils::get_json("https://cdn.rstudio.com/r/versions.json").await?;
-        let versions = versions
-            .get("r_versions")
-            .cloned()
-            .ok_or_else(|| eyre!("Expected object with `r_versions` property"))?;
-        let versions: Vec<String> = serde_json::from_value(versions)?;
-        let versions = self.semver_versions_matching(&versions, "*");
-        Ok(versions)
+        async fn more() -> Result<Vec<String>> {
+            // Previously we used `AsdfBinary::list_all("R").await?;` to get a list of
+            // versions (and embedded a static copy of that list for Windows). This approach
+            // has the advantage of not needing to `asdf` to be installed and being dynamically
+            // updatable on Windows.
+            let versions = http_utils::get_json("https://cdn.rstudio.com/r/versions.json").await?;
+            let versions = versions
+                .get("r_versions")
+                .cloned()
+                .ok_or_else(|| eyre!("Expected object with `r_versions` property"))?;
+            let versions: Vec<String> = serde_json::from_value(versions)?;
+            Ok(versions)
+        }
+        Ok(self.versions_update_maybe(versions::VERSIONS, more().await))
     }
 
     async fn install_version(

@@ -12,6 +12,8 @@ use binary::{
     Binary, BinaryTrait,
 };
 
+mod versions;
+
 /// A `BinaryTrait` for `asdf`
 ///
 /// This sets the `$ASDF_DATA_DIR` to be the same as the Stencila `binaries` directory.
@@ -29,9 +31,10 @@ impl BinaryTrait for AsdfBinary {
     binary_clone_box!();
 
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
-        self.versions_github_releases("asdf-vm", "asdf")
-            .await
-            .map(|versions| self.semver_versions_sorted(&versions))
+        Ok(self.versions_update_maybe(
+            versions::VERSIONS,
+            self.versions_github_releases("asdf-vm", "asdf").await,
+        ))
     }
 
     fn run_env(&self, version: Option<String>) -> Vec<(OsString, OsString)> {

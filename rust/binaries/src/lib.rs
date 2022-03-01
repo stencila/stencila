@@ -182,6 +182,8 @@ pub async fn require_any(binaries: &[(&str, &str)]) -> Result<BinaryInstallation
 
 #[cfg(feature = "cli")]
 pub mod commands {
+    use std::fs::File;
+    use std::io::Write;
     use std::path::PathBuf;
 
     use super::*;
@@ -306,6 +308,13 @@ pub mod commands {
         /// The operating system to list versions for (defaults to the current)
         #[structopt(short, long, possible_values = &OS_VALUES )]
         pub os: Option<String>,
+
+        /// The Rust file to write the the versions to
+        ///
+        /// This option is usually only used by developers of Stencila to update the
+        /// static list of versions for a binary.
+        #[structopt(long)]
+        pub write: Option<PathBuf>,
     }
 
     #[async_trait]
@@ -318,7 +327,34 @@ pub mod commands {
                 None => std::env::consts::OS,
             };
             let versions = binary.versions(os).await?;
-            result::value(versions)
+
+            match &self.write {
+                Some(path) => {
+                    let mut file = File::create(&path)?;
+                    write!(
+                        &mut file,
+                        "// Generated using `stencila binaries versions {} --write <file>`
+
+#[rustfmt::skip]
+pub const VERSIONS: &[&str] = &[
+{}];
+",
+                        self.name,
+                        versions
+                            .iter()
+                            .map(|version| format!("  \"{}\",\n", version))
+                            .collect::<Vec<String>>()
+                            .concat()
+                    )?;
+                    tracing::info!(
+                        "Versions for binary `{}` written to `{}`",
+                        self.name,
+                        path.display()
+                    );
+                    result::nothing()
+                }
+                None => result::value(versions),
+            }
         }
     }
 

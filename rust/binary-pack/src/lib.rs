@@ -8,6 +8,8 @@ use binary::{
     Binary,
 };
 
+mod versions;
+
 pub struct PackBinary;
 
 #[async_trait]
@@ -19,9 +21,11 @@ impl BinaryTrait for PackBinary {
     binary_clone_box!();
 
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
-        self.versions_github_releases("buildpacks", "pack")
-            .await
-            .map(|versions| self.semver_versions_matching(&versions, ">=0.20"))
+        let versions = self.versions_update_maybe(
+            versions::VERSIONS,
+            self.versions_github_releases("buildpacks", "pack").await,
+        );
+        Ok(self.semver_versions_matching(&versions, ">=0.20"))
     }
 
     async fn install_version(

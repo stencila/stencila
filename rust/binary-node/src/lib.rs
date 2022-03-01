@@ -7,6 +7,8 @@ use binary::{
 };
 pub use binary::{Binary, BinaryInstallation, BinaryTrait};
 
+mod versions;
+
 pub struct NodeBinary;
 
 #[async_trait]
@@ -23,9 +25,10 @@ impl BinaryTrait for NodeBinary {
     binary_clone_box!();
 
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
-        self.versions_github_releases("nodejs", "node")
-            .await
-            .map(|versions| self.semver_versions_matching(&versions, ">=10"))
+        Ok(self.versions_update_maybe(
+            versions::VERSIONS,
+            self.versions_github_releases("nodejs", "node").await,
+        ))
     }
 
     async fn install_version(

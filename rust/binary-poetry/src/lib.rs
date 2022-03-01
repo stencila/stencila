@@ -6,7 +6,8 @@ use binary::{
 };
 use binary_python::PythonBinary;
 
-/// A `BinaryTrait` for `poetry`
+mod versions;
+
 pub struct PoetryBinary;
 
 #[async_trait]
@@ -18,10 +19,13 @@ impl BinaryTrait for PoetryBinary {
     binary_clone_box!();
 
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
-        self.versions_github_releases("python-poetry", "poetry")
-            .await
-            // "installer does not support Poetry releases < 0.12.0"
-            .map(|versions| self.semver_versions_matching(&versions, ">=0.12"))
+        let versions = self.versions_update_maybe(
+            versions::VERSIONS,
+            self.versions_github_releases("python-poetry", "poetry")
+                .await,
+        );
+        // "installer does not support Poetry releases < 0.12.0"
+        Ok(self.semver_versions_matching(&versions, ">=0.12"))
     }
 
     async fn install_version(

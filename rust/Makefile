@@ -54,11 +54,22 @@ build-musl:
 install:
 	cargo install --path stencila
 
-buildpack-%-debug:
-	cd $@ && cargo libcnb package
+# Update the `versions.rs` file for a binary
+binary-%-versions:
+	cargo run --bin binaries --all-features -- versions $* --write binary-$*/src/versions.rs
 
+# Update the `version.rs` files for all binaries that have one
+binaries-versions: binary-asdf-versions binary-node-versions binary-pack-versions \
+                   binary-pandoc-versions binary-podman-versions binary-poetry-versions \
+				   binary-python-versions binary-r-versions binary-stencila-versions
+
+# Package a buildpack
+buildpack-%-debug:
+	cd buildpack-$* && cargo libcnb package
+
+# Package a buildpack release
 buildpack-%: FORCE
-	cd $@ && cargo libcnb package --release
+	cd buildpack-$* && cargo libcnb package --release
 FORCE:
 
 docs:

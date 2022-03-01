@@ -191,6 +191,24 @@ pub trait BinaryTrait: Send + Sync {
         receiver.recv()?
     }
 
+    /// Update a list of versions with the result of a function (usually involving a remote request) which may fail
+    ///
+    /// This should be used in implementations of `versions` so that a re static list of versions can be augmented
+    /// with the latest versions at runtime but not be dependent upon a network connection (or API rate limiting).
+    fn versions_update_maybe(&self, versions: &[&str], more: Result<Vec<String>>) -> Vec<String> {
+        let mut versions: Vec<String> = versions.iter().map(|str| str.to_string()).collect();
+
+        if let Ok(more) = more {
+            for version in more {
+                if !versions.contains(&version) {
+                    versions.push(version)
+                }
+            }
+        };
+
+        self.semver_versions_sorted(&versions)
+    }
+
     /// Get the versions of the binary from GitHub REST API for repo releases
     ///
     /// This will usually be followed by a call to `semver_versions_sorted` or
@@ -258,8 +276,6 @@ pub trait BinaryTrait: Send + Sync {
                     .map(|tag| tag.strip_prefix('v').unwrap_or(tag).to_string())
             })
             .collect();
-
-        let versions = self.semver_versions_sorted(&versions);
 
         Ok(versions)
     }

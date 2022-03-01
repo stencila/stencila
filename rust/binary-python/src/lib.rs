@@ -21,22 +21,10 @@ impl BinaryTrait for PythonBinary {
     binary_clone_box!();
 
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
-        let mut versions: Vec<String> = versions::VERSIONS
-            .iter()
-            .map(|str| str.to_string())
-            .collect();
-
-        if let Ok(latest) = self.versions_github_tags("python", "cpython").await {
-            for version in latest {
-                if !versions.contains(&version) {
-                    versions.push(version)
-                }
-            }
-        };
-
-        let versions = self.semver_versions_sorted(&versions);
-
-        Ok(versions)
+        Ok(self.versions_update_maybe(
+            versions::VERSIONS,
+            self.versions_github_tags("python", "cpython").await,
+        ))
     }
 
     async fn install_version(

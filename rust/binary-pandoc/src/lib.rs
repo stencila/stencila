@@ -7,6 +7,8 @@ use binary::{
     Binary, BinaryTrait,
 };
 
+mod versions;
+
 pub struct PandocBinary;
 
 #[async_trait]
@@ -18,9 +20,11 @@ impl BinaryTrait for PandocBinary {
     binary_clone_box!();
 
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
-        self.versions_github_releases("jgm", "pandoc")
-            .await
-            .map(|versions| self.semver_versions_matching(&versions, ">=2.14"))
+        let versions = self.versions_update_maybe(
+            versions::VERSIONS,
+            self.versions_github_releases("jgm", "pandoc").await,
+        );
+        Ok(self.semver_versions_matching(&versions, ">=2.14"))
     }
 
     async fn install_version(
