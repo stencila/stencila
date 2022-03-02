@@ -1,11 +1,13 @@
 use once_cell::sync::Lazy;
 use provider::{
+    codecs,
     eyre::{bail, eyre, Result},
     stencila_schema::Node,
     ProviderTrait,
+    tracing
 };
-use std::collections::BTreeMap;
 use std::sync::Arc;
+use std::{collections::BTreeMap, path::Path};
 
 pub use provider::{Provider, ProviderDetection};
 
@@ -19,6 +21,10 @@ pub async fn detect(node: &Node) -> Result<Vec<ProviderDetection>> {
 
 pub async fn enrich(node: Node) -> Result<Node> {
     PROVIDERS.enrich(node).await
+}
+
+pub async fn import(node: &Node, dest: &Path, token: Option<String>) -> Result<bool> {
+    PROVIDERS.import(node, dest, token).await
 }
 
 /// The set of registered providers in the current process
@@ -106,6 +112,22 @@ impl Providers {
         }
         Ok(node)
     }
+
+    /// Import a node
+    ///
+    /// The `import` method of each registered provider is called until the first that returns `true` (indicating that
+    /// the node was imported).
+    async fn import(&self, node: &Node, dest: &Path, token: Option<String>) -> Result<bool> {
+        for (name, ..) in &self.inner {
+            if let Some(future) = dispatch_builtins!(name, import, node, dest, token.clone()) {
+                let imported = future.await?;
+                if imported {
+                    return Ok(true);
+                }
+            }
+        }
+        Ok(false)
+    }
 }
 
 impl Default for Providers {
@@ -134,6 +156,7 @@ pub mod commands {
         Show(Show),
         Detect(Detect),
         Enrich(Enrich),
+        Import(Import),
     }
 
     #[async_trait]
@@ -144,6 +167,7 @@ pub mod commands {
                 Command::Show(action) => action.run().await,
                 Command::Detect(action) => action.run().await,
                 Command::Enrich(action) => action.run().await,
+                Command::Import(action) => action.run().await,
             }
         }
     }
@@ -258,6 +282,43 @@ pub mod commands {
             }
 
             result::value(nodes)
+        }
+    }
+
+    /// Import files from a node
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Import {
+        /// The source identifier e.g. github:org/name@v1.2.0
+        source: String,
+
+        /// The destination to import the source to
+        #[structopt(default_value = ".")]
+        destination: PathBuf,
+    }
+    #[async_trait]
+    impl Run for Import {
+        async fn run(&self) -> Result {
+            let identifier = Node::String(self.source.clone());
+
+            let detections = detect(&identifier).await?;
+            let detection = match detections.len() {
+                0 => bail!("No source detected"),
+                1 => &detections[0],
+                _ => {
+                    tracing::warn!("More that one source detected; will only use first");
+                    &detections[0]
+                }
+            };
+
+            let imported = import(&detection.node, &self.destination, None).await?;
+            if !imported {
+                tracing::warn!("Unable to import node: {:?}", detection.node);
+            }
+
+            result::nothing()
         }
     }
 }

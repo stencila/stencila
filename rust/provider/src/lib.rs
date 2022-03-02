@@ -1,18 +1,20 @@
 use async_trait::async_trait;
-use eyre::{bail, Result};
+use eyre::Result;
 use node_address::Address;
 use node_pointer::{walk, Visitor};
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::Path;
 use stencila_schema::{InlineContent, Node};
 
 // Export and re-export for the convenience of crates that implement a provider
 pub use ::async_trait;
+pub use ::codecs;
 pub use ::eyre;
 pub use ::http_utils;
 pub use ::once_cell;
 pub use ::regex;
 pub use ::stencila_schema;
+pub use ::tracing;
 
 /// A specification for providers
 ///
@@ -69,7 +71,7 @@ pub trait ProviderTrait {
     /// properties populated (e.g. the `GithubProvider` might populate the `codeRepository` property
     /// of a `SofwareSourceCode` node).
     async fn identify(node: Node) -> Result<Node> {
-        return Ok(node)
+        Ok(node)
     }
 
     /// Enrich a node
@@ -78,15 +80,12 @@ pub trait ProviderTrait {
     /// will be used to fetch enrichment data, otherwise `identify` will be called.
     /// Then, the provider will return a opy of the node with properties that are missing.
     async fn enrich(node: Node) -> Result<Node> {
-        return Ok(node)
+        Ok(node)
     }
 
     /// Import files associated with a node, from the provider, into a project
-    async fn import(_node: &Node) -> Result<Vec<PathBuf>> {
-        bail!(
-            "Import is not implemented for provider `{}`",
-            Self::spec().name
-        )
+    async fn import(_node: &Node, _dest: &Path, _token: Option<String>) -> Result<bool> {
+        Ok(false)
     }
 }
 
@@ -122,7 +121,7 @@ pub struct ProviderDetection {
 }
 
 pub struct ProviderDetector {
-    /// The name of the provider that this dector is for
+    /// The name of the provider that this detector is for
     provider: String,
 
     /// The function used to attempt to parse a string into a node

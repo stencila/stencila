@@ -48,6 +48,18 @@ pub async fn to_path(
     CODECS.to_path(node, path, format, options).await
 }
 
+/// Convert a string in one format to a string in another
+pub async fn str_to_string(content: &str, from: &str, to: &str) -> Result<String> {
+    let node = from_str(content, from, None).await?;
+    to_string(&node, to, None).await
+}
+
+/// Convert a string in one format to a file in another
+pub async fn str_to_path(content: &str, from: &str, path: &Path, to: Option<&str>) -> Result<()> {
+    let node = from_str(content, from, None).await?;
+    to_path(&node, path, to, None).await
+}
+
 /// The set of registered codecs in the current process
 static CODECS: Lazy<Arc<Codecs>> = Lazy::new(|| Arc::new(Codecs::new()));
 
