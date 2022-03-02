@@ -17,6 +17,10 @@ pub async fn detect(node: &Node) -> Result<Vec<ProviderDetection>> {
     PROVIDERS.detect(node).await
 }
 
+pub async fn enrich(node: Node) -> Result<Node> {
+    PROVIDERS.enrich(node).await
+}
+
 /// The set of registered providers in the current process
 static PROVIDERS: Lazy<Arc<Providers>> = Lazy::new(|| Arc::new(Providers::new()));
 
@@ -77,7 +81,7 @@ impl Providers {
 
     /// Detect nodes within a node
     ///
-    /// The detect method of each registered provider is called on the node and the result
+    /// The `detect` method of each registered provider is called on the node and the result
     /// is a list of detections across all providers.
     async fn detect(&self, node: &Node) -> Result<Vec<ProviderDetection>> {
         let mut detected = Vec::new();
@@ -88,6 +92,19 @@ impl Providers {
             }
         }
         Ok(detected)
+    }
+
+    /// Enrich a node
+    ///
+    /// The `enrich` method of each registered provider is called on the node possibly mutating it with new
+    /// and/or different values for fields.
+    async fn enrich(&self, mut node: Node) -> Result<Node> {
+        for (name, ..) in &self.inner {
+            if let Some(future) = dispatch_builtins!(name, enrich, node.clone()) {
+                node = future.await?;
+            }
+        }
+        Ok(node)
     }
 }
 
@@ -116,6 +133,7 @@ pub mod commands {
         List(List),
         Show(Show),
         Detect(Detect),
+        Enrich(Enrich),
     }
 
     #[async_trait]
@@ -125,6 +143,7 @@ pub mod commands {
                 Command::List(action) => action.run().await,
                 Command::Show(action) => action.run().await,
                 Command::Detect(action) => action.run().await,
+                Command::Enrich(action) => action.run().await,
             }
         }
     }
@@ -165,7 +184,7 @@ pub mod commands {
         }
     }
 
-    /// Detect nodes within a file or text
+    /// Detect nodes within a file or string
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
@@ -177,7 +196,7 @@ pub mod commands {
         /// The format of the file; defaults to the file extension
         format: Option<String>,
 
-        /// If the argument should be treated as text, rather than a file path
+        /// If the argument should be treated as a string, rather than a file path
         #[structopt(short, long)]
         string: bool,
     }
@@ -194,8 +213,51 @@ pub mod commands {
             } else {
                 codecs::from_path(&self.path, self.format.as_deref(), None).await?
             };
+
             let detections = detect(&node).await?;
             result::value(detections)
+        }
+    }
+
+    /// Enrich nodes within a file or string
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Enrich {
+        /// The path to the file (or the string value if the `--string` flag is used)
+        path: PathBuf,
+
+        /// The format of the file; defaults to the file extension
+        format: Option<String>,
+
+        /// If the argument should be treated as a string, rather than a file path
+        #[structopt(short, long)]
+        string: bool,
+    }
+    #[async_trait]
+    impl Run for Enrich {
+        async fn run(&self) -> Result {
+            let node = if self.string {
+                let string = self
+                    .path
+                    .to_str()
+                    .ok_or_else(|| eyre!("Value is not valid Unicode"))?
+                    .into();
+                Node::String(string)
+            } else {
+                codecs::from_path(&self.path, self.format.as_deref(), None).await?
+            };
+
+            let detections = detect(&node).await?;
+
+            let mut nodes: Vec<Node> = Vec::with_capacity(detections.len());
+            for detection in detections.into_iter() {
+                let node = enrich(detection.node).await?;
+                nodes.push(node);
+            }
+
+            result::value(nodes)
         }
     }
 }

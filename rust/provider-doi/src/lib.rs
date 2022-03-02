@@ -64,8 +64,8 @@ impl ProviderTrait for DoiProvider {
     ///
     /// Currently just checks that the work has an identifier that is a DOI
     /// (`detect()` already identifies by extracting a DOI).
-    async fn identify(node: &Node) -> Result<Node> {
-        match node {
+    async fn identify(node: Node) -> Result<Node> {
+        match &node {
             Node::CreativeWork(CreativeWork { identifiers, .. })
             | Node::Article(Article { identifiers, .. }) => {
                 let found = identifiers.iter().flatten().any(|id| match id {
@@ -76,7 +76,7 @@ impl ProviderTrait for DoiProvider {
                     },
                 });
                 if found {
-                    Ok(node.clone())
+                    Ok(node)
                 } else {
                     bail!("Node does not appear to have a DOI")
                 }
@@ -89,7 +89,7 @@ impl ProviderTrait for DoiProvider {
     ///
     /// Uses DOI content negotiation protocol to fetch schema.org JSON-LD or CSL JSON
     /// and properties of the node.
-    async fn enrich(node: &Node) -> Result<Node> {
+    async fn enrich(node: Node) -> Result<Node> {
         let node = Self::identify(node).await?;
 
         let url = match node {

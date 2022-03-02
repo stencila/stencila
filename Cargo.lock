@@ -4482,6 +4482,8 @@ name = "provider-elife"
 version = "0.0.0"
 dependencies = [
  "provider",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]

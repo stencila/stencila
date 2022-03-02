@@ -68,11 +68,8 @@ pub trait ProviderTrait {
     /// and if it was able to do so, returns a copy of the node with one or more identifying
     /// properties populated (e.g. the `GithubProvider` might populate the `codeRepository` property
     /// of a `SofwareSourceCode` node).
-    async fn identify(_node: &Node) -> Result<Node> {
-        bail!(
-            "Identification is not implemented for provider `{}`",
-            Self::spec().name
-        )
+    async fn identify(node: Node) -> Result<Node> {
+        return Ok(node)
     }
 
     /// Enrich a node
@@ -80,11 +77,8 @@ pub trait ProviderTrait {
     /// If the provider had previously identified the node, then the relevant identifiers
     /// will be used to fetch enrichment data, otherwise `identify` will be called.
     /// Then, the provider will return a opy of the node with properties that are missing.
-    async fn enrich(_node: &Node) -> Result<Node> {
-        bail!(
-            "Enrichment is not implemented for provider `{}`",
-            Self::spec().name
-        )
+    async fn enrich(node: Node) -> Result<Node> {
+        return Ok(node)
     }
 
     /// Import files associated with a node, from the provider, into a project
