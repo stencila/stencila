@@ -41,7 +41,6 @@ pub trait SourceTrait {
 pub enum Source {
     /// A null variant that exists only so that we can define a default source
     Null(Null),
-    Elife(Elife),
 }
 
 /// Resolve a source from an identifier
@@ -145,40 +144,6 @@ impl SourceTrait for Null {
 
     fn default_name(&self) -> String {
         "null".to_string()
-    }
-}
-
-#[skip_serializing_none]
-#[derive(PartialEq, Clone, Debug, Defaults, JsonSchema, Deserialize, Serialize)]
-#[schemars(deny_unknown_fields)]
-pub struct Elife {
-    /// Number of the article
-    pub article: u32,
-}
-
-impl SourceTrait for Elife {
-    fn resolve(&self, id: &str) -> Option<Source> {
-        static SIMPLE_REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"^elife:(?://)?(\d+)").expect("Unable to create regex"));
-
-        static URL_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"^(?:https?://)?elifesciences\.org/articles/(\d+).*$")
-                .expect("Unable to create regex")
-        });
-
-        let article = if let Some(captures) = SIMPLE_REGEX.captures(id) {
-            Some(captures[1].parse().unwrap_or_default())
-        } else {
-            URL_REGEX
-                .captures(id)
-                .map(|captures| captures[1].parse().unwrap_or_default())
-        };
-
-        article.map(|article| Source::Elife(Elife { article }))
-    }
-
-    fn default_name(&self) -> String {
-        format!("elife-{}", self.article)
     }
 }
 
@@ -333,36 +298,5 @@ pub mod commands {
             let schema = schemas()?;
             result::value(schema)
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use test_utils::pretty_assertions::assert_eq;
-
-    #[test]
-    fn elife_resolve() -> Result<()> {
-        assert_eq!(
-            resolve("elife:52258")?,
-            Source::Elife(Elife { article: 52258 })
-        );
-
-        assert_eq!(
-            resolve("elife://52258")?,
-            Source::Elife(Elife { article: 52258 })
-        );
-
-        assert_eq!(
-            resolve("https://elifesciences.org/articles/52258")?,
-            Source::Elife(Elife { article: 52258 })
-        );
-
-        assert_eq!(
-            resolve("elifesciences.org/articles/52258")?,
-            Source::Elife(Elife { article: 52258 })
-        );
-
-        Ok(())
     }
 }
