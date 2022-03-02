@@ -5,8 +5,12 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+archive-utils = { path = "../archive-utils", version = "0.0.0", features = [
+    "tar-gz",
+] }
 octocrab = "0.15.4"
 provider = { path = "../provider", version = "0.0.0" }
+tempfile = "3.2.0"
 
 [dev-dependencies]
 test-utils = { path = "../test-utils", version = "0.0.0" }
