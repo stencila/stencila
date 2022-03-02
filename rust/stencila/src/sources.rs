@@ -42,7 +42,6 @@ pub enum Source {
     /// A null variant that exists only so that we can define a default source
     Null(Null),
     Elife(Elife),
-    GitHub(GitHub),
 }
 
 /// Resolve a source from an identifier
@@ -180,54 +179,6 @@ impl SourceTrait for Elife {
 
     fn default_name(&self) -> String {
         format!("elife-{}", self.article)
-    }
-}
-
-#[skip_serializing_none]
-#[derive(PartialEq, Clone, Debug, Defaults, JsonSchema, Deserialize, Serialize)]
-#[schemars(deny_unknown_fields)]
-pub struct GitHub {
-    /// Owner of the repository
-    pub owner: String,
-
-    /// Name of the repository
-    pub name: String,
-
-    /// Path within the repository
-    pub path: Option<String>,
-}
-
-impl SourceTrait for GitHub {
-    fn resolve(&self, id: &str) -> Option<Source> {
-        static SIMPLE_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"^github:(?://)?([a-z0-9\-]+)/([a-z0-9\-_]+)(?:/(.+))?$")
-                .expect("Unable to create regex")
-        });
-
-        static URL_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"^(?:https?://)?github\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:(?:tree|blob)/(?:[^/]+)/(.+))?$")
-                .expect("Unable to create regex")
-        });
-
-        if let Some(captures) = SIMPLE_REGEX.captures(id) {
-            Some(Source::GitHub(GitHub {
-                owner: captures[1].to_string(),
-                name: captures[2].to_string(),
-                path: captures.get(3).map(|group| group.as_str().to_string()),
-            }))
-        } else {
-            URL_REGEX.captures(id).map(|captures| {
-                Source::GitHub(GitHub {
-                    owner: captures[1].to_string(),
-                    name: captures[2].to_string(),
-                    path: captures.get(3).map(|group| group.as_str().to_string()),
-                })
-            })
-        }
-    }
-
-    fn default_name(&self) -> String {
-        format!("github-{}-{}", self.owner, self.name)
     }
 }
 
@@ -410,56 +361,6 @@ mod tests {
         assert_eq!(
             resolve("elifesciences.org/articles/52258")?,
             Source::Elife(Elife { article: 52258 })
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn github_resolve() -> Result<()> {
-        assert_eq!(
-            resolve("github:owner/name")?,
-            Source::GitHub(GitHub {
-                owner: "owner".to_string(),
-                name: "name".to_string(),
-                path: None
-            })
-        );
-
-        assert_eq!(
-            resolve("github:owner/name/some/path/in/repo.md")?,
-            Source::GitHub(GitHub {
-                owner: "owner".to_string(),
-                name: "name".to_string(),
-                path: Some("some/path/in/repo.md".to_string())
-            })
-        );
-
-        assert_eq!(
-            resolve("https://github.com/owner/name/")?,
-            Source::GitHub(GitHub {
-                owner: "owner".to_string(),
-                name: "name".to_string(),
-                path: None
-            })
-        );
-
-        assert_eq!(
-            resolve("https://github.com/owner/name/tree/master/some/path/in/repo.md")?,
-            Source::GitHub(GitHub {
-                owner: "owner".to_string(),
-                name: "name".to_string(),
-                path: Some("some/path/in/repo.md".to_string())
-            })
-        );
-
-        assert_eq!(
-            resolve("https://github.com/owner/name/blob/master/some/path/in/repo.md")?,
-            Source::GitHub(GitHub {
-                owner: "owner".to_string(),
-                name: "name".to_string(),
-                path: Some("some/path/in/repo.md".to_string())
-            })
         );
 
         Ok(())

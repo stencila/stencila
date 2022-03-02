@@ -9,4 +9,5 @@ octocrab = "0.15.4"
 provider = { path = "../provider", version = "0.0.0" }
 
 [dev-dependencies]
+test-utils = { path = "../test-utils", version = "0.0.0" }
 tokio = { version = "1.13.0", features = ["macros"] }
