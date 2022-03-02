@@ -361,20 +361,16 @@ dependencies = [
  "defaults",
  "dirs",
  "eyre",
- "flate2",
  "glob",
  "http-utils",
  "regex",
  "semver 1.0.6",
  "serde",
  "serde_json",
- "tar",
  "tokio",
  "tracing",
  "url",
  "which",
- "xz2",
- "zip",
 ]
 
 [[package]]

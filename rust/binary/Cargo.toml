@@ -26,6 +26,6 @@ tokio = { version = "1.13.0", features = ["macros", "process", "io-util"] }
 tracing = "0.1.29"
 which = "4.2.2"
 
-http-utils = { path = "../http-utils", version = "0.0.0", optional = true }
 archive-utils = { path = "../archive-utils", version = "0.0.0", optional = true }
-
+http-utils = { path = "../http-utils", version = "0.0.0", optional = true }
+url = { version = "2.2.2", optional = true }
