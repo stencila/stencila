@@ -88,6 +88,9 @@ jobs:
           chmod +x $(CARGO_HOME)/bin/sccache
           echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
+          echo "##vso[task.setvariable variable=SCCACHE_DIR]$(Pipeline.Workspace)/sccache"
+          echo "##vso[task.setvariable variable=SCCACHE_CACHE_SIZE]5G"
+
           cargo list | grep --quiet cache || cargo install cargo-cache
           echo "##vso[task.setvariable variable=RUST_CACHING]true"
 
@@ -431,7 +434,9 @@ jobs:
           cacheHitVar: CACHE_RESTORED
 
       - script: |
-          docker load -i $(Pipeline.Workspace)/docker/cache.tar
+          docker load -i $(Pipeline.Workspace)/docker/stencila-maker.tar
+          docker load -i $(Pipeline.Workspace)/docker/stencila-stencila.tar
+          docker load -i $(Pipeline.Workspace)/docker/stencila-builder.tar
         displayName: Load from cache
         condition: and(not(canceled()), eq(variables.CACHE_RESTORED, 'true'))
 
@@ -512,7 +517,9 @@ jobs:
 
       - script: |
           mkdir -p $(Pipeline.Workspace)/docker
-          docker save -o $(Pipeline.Workspace)/docker/cache.tar cache
+          docker save -o $(Pipeline.Workspace)/docker/stencila-maker.tar stencila/maker
+          docker save -o $(Pipeline.Workspace)/docker/stencila-stencila.tar stencila/stencila
+          docker save -o $(Pipeline.Workspace)/docker/stencila-builder.tar stencila/builder
         displayName: Save to cache
         condition: and(not(canceled()), or(failed(), ne(variables.CACHE_RESTORED, 'true')))
 
