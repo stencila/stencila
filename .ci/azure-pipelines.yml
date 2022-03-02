@@ -63,14 +63,16 @@ jobs:
       # a build fails if it is broken into several steps)
 
       # Use caches
-      - task: Cache@2
-        inputs:
-          path: $(RUST_CACHE)
-          key: 'Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock | $(Build.SourceVersion)'
-          restoreKeys: |
-            Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock
-            Rust | $(Agent.OS) | ./Cargo.toml
-            Rust | $(Agent.OS)
+      # Currently turned off due to persistent error in "Post-job: Cache"
+      # https://dev.azure.com/stencila/stencila/_build/results?buildId=18087&view=logs&j=0da5d1d9-276d-5173-c4c4-9d4d4ed14fdb&t=452b6f04-c7b9-47ba-8224-3e6792d8d761&l=22
+      #- task: Cache@2
+      #  inputs:
+      #    path: $(RUST_CACHE)
+      #    key: 'Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock | $(Build.SourceVersion)'
+      #    restoreKeys: |
+      #      Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock
+      #      Rust | $(Agent.OS) | ./Cargo.toml
+      #      Rust | $(Agent.OS)
 
       # Install core Rust build tools if there are changes any folder using Rust.
       # Additional build tools e.g. `tarpaulin` are installed just-in-time given
