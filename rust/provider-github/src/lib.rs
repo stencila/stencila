@@ -21,6 +21,16 @@ use std::{
 pub struct GithubProvider;
 
 impl GithubProvider {
+    /// Create an API client
+    fn client(token: Option<String>) -> Result<Octocrab> {
+        let mut builder = Octocrab::builder();
+        if let Some(token) = token {
+            builder = builder.personal_token(token);
+        }
+        let client = builder.build()?;
+        Ok(client)
+    }
+
     /// Extract the GitHub repository owner and name from a [`SoftwareSourceCode`] node (if any)
     fn owner_name(ssc: &SoftwareSourceCode) -> Option<(&str, &str)> {
         if let Some(repo) = &ssc.code_repository {
@@ -142,7 +152,7 @@ impl ProviderTrait for GithubProvider {
         let subpath = GithubProvider::path(ssc);
         let version = GithubProvider::version(ssc);
 
-        let client = Octocrab::builder().build()?;
+        let client = GithubProvider::client(token)?;
         let repo = client.repos(owner, name);
 
         // Fetch the contents at the path / version
@@ -208,13 +218,7 @@ impl ProviderTrait for GithubProvider {
         let archive = file.path();
 
         create_dir_all(destination)?;
-        extract_tar(
-            "gz",
-            archive,
-            destination,
-            1,
-            subpath,
-        )?;
+        extract_tar("gz", archive, destination, 1, subpath)?;
 
         Ok(true)
     }
