@@ -73,6 +73,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c5d78ce20460b82d3fa150275ed9d55e21064fc7951177baacf86a145c4a4b1f"
 
 [[package]]
+name = "archive-utils"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "flate2",
+ "path-utils",
+ "tar",
+ "tracing",
+ "xz2",
+ "zip",
+]
+
+[[package]]
 name = "arrayvec"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -343,6 +356,7 @@ dependencies = [
 name = "binary"
 version = "0.0.0"
 dependencies = [
+ "archive-utils",
  "async-trait",
  "defaults",
  "dirs",
@@ -4455,6 +4469,7 @@ name = "provider"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "codecs",
  "eyre",
  "http-utils",
  "node-address",
@@ -4463,6 +4478,7 @@ dependencies = [
  "regex",
  "serde",
  "stencila-schema",
+ "tracing",
 ]
 
 [[package]]
@@ -4490,8 +4506,10 @@ dependencies = [
 name = "provider-github"
 version = "0.0.0"
 dependencies = [
+ "archive-utils",
  "octocrab",
  "provider",
+ "tempfile",
  "test-utils",
  "tokio",
 ]
@@ -4501,7 +4519,6 @@ name = "providers"
 version = "0.0.0"
 dependencies = [
  "cli-utils",
- "codecs",
  "once_cell",
  "provider",
  "provider-doi",

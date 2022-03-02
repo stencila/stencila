@@ -1,0 +1,19 @@
+[package]
+name = "archive-utils"
+description = "Utilities for working with file archives"
+version = "0.0.0"
+edition = "2021"
+
+[features]
+tar-gz = ["tar", "flate2"]
+tar-xz = ["tar", "xz2"]
+
+[dependencies]
+eyre = "0.6.6"
+path-utils = { path = "../path-utils", version = "0.0.0" }
+tracing = "0.1.29"
+
+flate2 = { version = "1.0.22", optional = true }
+tar = { version = "0.4.37", optional = true }
+xz2 = { version = "0.1.6", optional = true }
+zip = { version = "0.5.13", optional = true }

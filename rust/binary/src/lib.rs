@@ -16,7 +16,7 @@ use std::{
     str::FromStr,
 };
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     ffi::{OsStr, OsString},
 };
 use tokio::io::{AsyncBufReadExt, BufReader};
@@ -613,23 +613,28 @@ pub trait BinaryTrait: Send + Sync {
         };
 
         // Search for executables with name or one of aliases
+        // 1. Canonicalize paths so that any symlinks are resolved to target.
+        // 2. Collects into a `HashSet` to make the list of paths unique.
+        // Combined, (1) & (2) mean the we don't get duplicates like `/usr/bin/R` and `/bin/R` pointing to same binary
         let names = [vec![name.clone()], aliases].concat();
-        let paths = names
+        let paths: HashSet<PathBuf> = names
             .iter()
             .map(|name| {
                 match which::which_in_all(name, dirs.clone(), std::env::current_dir().unwrap()) {
-                    Ok(paths) => paths.collect(),
+                    Ok(paths) => paths.filter_map(|path| path.canonicalize().ok()).collect(),
                     Err(error) => {
                         tracing::warn!("While searching for binary {}: {}", name, error);
                         Vec::new()
                     }
                 }
             })
-            .flatten();
+            .flatten()
+            .collect();
 
         // Get version of each executable found
         // tracing::debug!("Getting versions for paths {:?}", paths);
         let mut installs: Vec<BinaryInstallation> = paths
+            .into_iter()
             .map(|path| {
                 let version = self.version(&path);
                 let env = self.run_env(version.clone());
@@ -637,8 +642,7 @@ pub trait BinaryTrait: Send + Sync {
             })
             .collect();
 
-        // Sort the installations by descending order of version so that
-        // the most recent version (meeting semver requirements) is returned by `installation()`.
+        // Sort the installations by descending order of semver
         installs.sort_by(|a, b| match (&a.version, &b.version) {
             (Some(a), Some(b)) => {
                 let a = self.semver_version(a).unwrap();
@@ -855,101 +859,8 @@ pub trait BinaryTrait: Send + Sync {
     /// Extract an archive to a destination
     #[allow(unused_variables)]
     #[cfg(any(feature = "download-tar", feature = "download-zip"))]
-    fn extract(&self, path: &Path, strip: usize, dest: &Path) -> Result<()> {
-        tracing::info!("Extracting `{}` to `{}`", path.display(), dest.display());
-
-        let ext = path
-            .extension()
-            .expect("Always has an extension")
-            .to_str()
-            .expect("Always convertible to str");
-
-        match ext {
-            #[cfg(feature = "download-zip")]
-            "zip" => self.extract_zip(path, strip, dest),
-            #[cfg(feature = "download-tar")]
-            _ => self.extract_tar(ext, path, strip, dest),
-            #[cfg(not(feature = "download-tar"))]
-            _ => bail!("Downloading of archives has not been enabled"),
-        }
-    }
-
-    /// Extract a tar archive
-    #[cfg(feature = "download-tar")]
-    fn extract_tar(&self, ext: &str, file: &Path, strip: usize, dest: &Path) -> Result<()> {
-        let file = fs::File::open(&file)?;
-        let mut archive = tar::Archive::new(match ext {
-            "tar" => Box::new(file) as Box<dyn io::Read>,
-            #[cfg(feature = "download-tar-gz")]
-            "gz" | "tgz" => Box::new(flate2::read::GzDecoder::new(file)),
-            #[cfg(feature = "download-tar-xz")]
-            "xz" => Box::new(xz2::read::XzDecoder::new(file)),
-            _ => bail!("Unhandled archive extension {}", ext),
-        });
-
-        let count = archive
-            .entries()?
-            .filter_map(|entry| entry.ok())
-            .map(|mut entry| -> Result<()> {
-                let mut path = entry.path()?.display().to_string();
-                if strip > 0 {
-                    let mut components: Vec<String> = path.split('/').map(String::from).collect();
-                    components.drain(0..strip);
-                    path = components.join("/")
-                }
-
-                let out_path = dest.join(&path);
-                entry.unpack(&out_path).expect("Unable to unpack");
-
-                Ok(())
-            })
-            .filter_map(|result| result.ok())
-            .count();
-
-        tracing::debug!("Extracted {} entries", count);
-
-        Ok(())
-    }
-
-    /// Extract a zip archive
-    #[cfg(feature = "download-zip")]
-    fn extract_zip(&self, file: &Path, strip: usize, dest: &Path) -> Result<()> {
-        let file = fs::File::open(&file)?;
-        let mut archive = zip::ZipArchive::new(file)?;
-
-        let mut count = 0;
-        for index in 0..archive.len() {
-            let mut entry = archive.by_index(index)?;
-            let mut path = entry
-                .enclosed_name()
-                .expect("Always has an enclosed name")
-                .display()
-                .to_string();
-
-            if strip > 0 {
-                let mut components: Vec<String> = path.split('/').map(String::from).collect();
-                components.drain(0..strip);
-                path = components.join("/")
-            }
-
-            let out_path = dest.join(&path);
-            if let Some(parent) = out_path.parent() {
-                if let Err(error) = fs::create_dir_all(parent) {
-                    if error.kind() != io::ErrorKind::AlreadyExists {
-                        bail!(error)
-                    }
-                }
-            }
-
-            if entry.is_file() {
-                let mut out_file = fs::File::create(out_path)?;
-                std::io::copy(&mut entry, &mut out_file)?;
-                count += 1;
-            }
-        }
-
-        tracing::debug!("Extracted {} entries", count);
-        Ok(())
+    fn extract(&self, archive: &Path, dest: &Path, strip: usize) -> Result<()> {
+        archive_utils::extract(archive, dest, strip, None)
     }
 
     /// Make extracted files executable (if they exists)

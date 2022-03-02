@@ -51,7 +51,7 @@ impl BinaryTrait for PodmanBinary {
         let filename = ["podman-remote-", version, "-", suffix].concat();
         let archive = self.download(&url, Some(filename), None).await?;
 
-        self.extract(&archive, 0, dest)?;
+        self.extract(&archive, dest, 1)?;
         self.executables(dest, &["podman"])?;
 
         Ok(())
