@@ -9,8 +9,8 @@ default = ["download"]
 download = ["http-utils", "url"]
 download-zip = ["download", "archive-utils/zip"]
 download-tar = ["download", "archive-utils/tar"]
-download-tar-gz = ["download", "archive-utils/tar-gz"]
-download-tar-xz = ["download", "archive-utils/tar-xz"]
+download-tar-gz = ["download-tar", "archive-utils/tar-gz"]
+download-tar-xz = ["download-tar", "archive-utils/tar-xz"]
 
 [dependencies]
 async-trait = "0.1.52"

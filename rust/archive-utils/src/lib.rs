@@ -1,5 +1,6 @@
 use std::{fs, io, path::Path};
 
+#[allow(unused_imports)]
 use eyre::{bail, eyre, Result};
 use path_utils::lexiclean::Lexiclean;
 

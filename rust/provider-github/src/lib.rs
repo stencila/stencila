@@ -1,5 +1,5 @@
 use archive_utils::extract_tar;
-use octocrab::{models::User, params::repos::Commitish, Octocrab, OctocrabBuilder};
+use octocrab::{models::User, params::repos::Commitish, Octocrab};
 use provider::{
     async_trait::async_trait,
     codecs,
@@ -166,8 +166,7 @@ impl ProviderTrait for GithubProvider {
         // TODO: Have a cache of users and fetch user data from URL if necessary
         let authors = match repo.contributors_url {
             Some(url) => {
-                let contributors: Vec<User> =
-                    client.get(url.path(), None::<&()>).await?;
+                let contributors: Vec<User> = client.get(url.path(), None::<&()>).await?;
                 let authors = contributors
                     .into_iter()
                     .filter_map(|user| {

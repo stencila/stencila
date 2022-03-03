@@ -1,7 +1,7 @@
 use codec_csl::CslCodec;
 use provider::{
     async_trait::async_trait,
-    eyre::{bail, Result},
+    eyre::Result,
     http_utils::{get_json_with, headers},
     once_cell::sync::Lazy,
     regex::Regex,
@@ -108,9 +108,9 @@ impl ProviderTrait for DoiProvider {
 
 #[cfg(test)]
 mod tests {
-    use test_utils::assert_json_is;
-
     use super::*;
+    use provider::eyre::bail;
+    use test_utils::assert_json_is;
 
     #[tokio::test]
     async fn detect() -> Result<()> {

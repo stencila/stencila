@@ -3,8 +3,7 @@ use provider::{
     codecs,
     eyre::{bail, eyre, Result},
     stencila_schema::Node,
-    ProviderTrait,
-    tracing
+    tracing, ProviderTrait,
 };
 use std::sync::Arc;
 use std::{collections::BTreeMap, path::Path};
