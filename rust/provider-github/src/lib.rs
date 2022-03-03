@@ -7,8 +7,8 @@ use provider::{
     once_cell::sync::Lazy,
     regex::Regex,
     stencila_schema::{
-        CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Node, Organization,
-        SoftwareSourceCode,
+        CreativeWorkAuthors, CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date,
+        Node, Organization, Person, SoftwareSourceCode, ThingDescription,
     },
     tracing, Provider, ProviderParsing, ProviderTrait,
 };
@@ -138,6 +138,74 @@ impl ProviderTrait for GithubProvider {
                 },
             )
             .collect()
+    }
+
+    async fn enrich(node: Node) -> Result<Node> {
+        let ssc = match &node {
+            Node::SoftwareSourceCode(ssc) => ssc,
+            _ => return Ok(node),
+        };
+        let (owner, name) = match GithubProvider::owner_name(ssc) {
+            Some(owner_name) => owner_name,
+            None => return Ok(node),
+        };
+
+        let client = GithubProvider::client(None)?;
+        let repo = client.repos(owner, name);
+        let repo = repo.get().await?;
+
+        let description = repo
+            .description
+            .map(|desc| Box::new(ThingDescription::String(desc)));
+
+        let keywords = repo.topics;
+
+        let date_created = repo.created_at.map(|date| Box::new(Date::from(date)));
+        let date_modified = repo.pushed_at.map(|date| Box::new(Date::from(date)));
+
+        // TODO: Have a cache of users and fetch user data from URL if necessary
+        let authors = match repo.contributors_url {
+            Some(url) => {
+                let contributors: Vec<User> =
+                    client.get(url.path(), None::<&()>).await?;
+                let authors = contributors
+                    .into_iter()
+                    .filter_map(|user| {
+                        if user.login.contains("[bot]") {
+                            None
+                        } else {
+                            Some(CreativeWorkAuthors::Person(Person {
+                                name: Some(Box::new(user.login)),
+                                ..Default::default()
+                            }))
+                        }
+                    })
+                    .collect::<Vec<CreativeWorkAuthors>>();
+                Some(authors)
+            }
+            None => None,
+        };
+
+        // TODO: Implement transforming these to ssc fields
+        /*
+        repo.license.map_or_else(|| "".to_string(), |l| l.name);
+        repo.language
+            .map_or_else(|| "".to_string(), |v| v.as_str().unwrap().to_string());
+        repo.forks_count.unwrap_or(0);       // "Forks"
+        repo.stargazers_count.unwrap_or(0);  // "Stars"
+        repo.subscribers_count.unwrap_or(0); // "Watchers"
+        */
+
+        let ssc = SoftwareSourceCode {
+            description,
+            keywords,
+            date_created,
+            date_modified,
+            authors,
+            ..ssc.clone()
+        };
+
+        Ok(Node::SoftwareSourceCode(ssc))
     }
 
     async fn import(node: &Node, destination: &Path, token: Option<String>) -> Result<bool> {
@@ -340,57 +408,5 @@ mod tests {
                 }
             );
         }
-    }
-
-    #[ignore]
-    #[tokio::test]
-    async fn repos() -> Result<()> {
-        let client = OctocrabBuilder::new().build()?;
-
-        let repos = vec![("stencila", "stencila")];
-        for (owner, name) in repos {
-            let repo = client.repos(owner, name);
-
-            let repo = repo.get().await?;
-
-            let contributors: Vec<(String, String)> =
-                if let Some(contributors_url) = repo.contributors_url {
-                    let contributors: Vec<User> =
-                        client.get(contributors_url.path(), None::<&()>).await?;
-                    contributors
-                        .into_iter()
-                        .map(|user| (user.login, user.url.path().to_string()))
-                        .collect()
-                } else {
-                    Vec::new()
-                };
-
-            // TODO: Have a cache of users and fetch user data from URL if necessary
-            // TODO: Filter out users with [bot] in their login
-
-            println!(
-                "{},{},\"{}\",\"{}\",{},{},{},{},{},{},{},{},\"{}\"",
-                owner,
-                name,
-                repo.description.unwrap_or_default(),
-                repo.topics.unwrap_or_default().join(","),
-                repo.license.map_or_else(|| "".to_string(), |l| l.name),
-                repo.language
-                    .map_or_else(|| "".to_string(), |v| v.as_str().unwrap().to_string()),
-                repo.forks_count.unwrap_or(0),       // "Forks"
-                repo.stargazers_count.unwrap_or(0),  // "Stars"
-                repo.subscribers_count.unwrap_or(0), // "Watchers"
-                repo.created_at.unwrap(),
-                repo.pushed_at.unwrap(),
-                repo.updated_at.unwrap(),
-                contributors
-                    .iter()
-                    .map(|pair| pair.0.clone())
-                    .collect::<Vec<String>>()
-                    .join(",")
-            );
-        }
-
-        Ok(())
     }
 }
