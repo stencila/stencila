@@ -1,7 +1,7 @@
 use codec_csl::CslCodec;
 use provider::{
     async_trait::async_trait,
-    eyre::Result,
+    eyre::{bail, Result},
     http_utils::{get_json_with, headers},
     once_cell::sync::Lazy,
     regex::Regex,
