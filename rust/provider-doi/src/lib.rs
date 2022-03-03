@@ -1,7 +1,7 @@
 use codec_csl::CslCodec;
 use provider::{
     async_trait::async_trait,
-    eyre::{bail, eyre, Result},
+    eyre::Result,
     http_utils::{get_json_with, headers},
     once_cell::sync::Lazy,
     regex::Regex,
@@ -60,39 +60,12 @@ impl ProviderTrait for DoiProvider {
             .collect()
     }
 
-    /// Identify a [`CreativeWork`] node
-    ///
-    /// Currently just checks that the work has an identifier that is a DOI
-    /// (`detect()` already identifies by extracting a DOI).
-    async fn identify(node: Node) -> Result<Node> {
-        match &node {
-            Node::CreativeWork(CreativeWork { identifiers, .. })
-            | Node::Article(Article { identifiers, .. }) => {
-                let found = identifiers.iter().flatten().any(|id| match id {
-                    ThingIdentifiers::String(id) => id.starts_with(DOI_URL),
-                    ThingIdentifiers::PropertyValue(PropertyValue { value, .. }) => match value {
-                        PropertyValueValue::String(value) => value.starts_with(DOI_URL),
-                        _ => false,
-                    },
-                });
-                if found {
-                    Ok(node)
-                } else {
-                    bail!("Node does not appear to have a DOI")
-                }
-            }
-            _ => bail!("Unexpected type of node"),
-        }
-    }
-
     /// Enrich a [`CreativeWork`] node using it's DOI
     ///
-    /// Uses DOI content negotiation protocol to fetch schema.org JSON-LD or CSL JSON
-    /// and properties of the node.
+    /// If the node is a `CreativeWork` type with a DOI, then uses DOI content negotiation
+    /// protocol to fetch CSL JSON to enrich properties of the node.
     async fn enrich(node: Node) -> Result<Node> {
-        let node = Self::identify(node).await?;
-
-        let url = match node {
+        let url = match &node {
             Node::CreativeWork(CreativeWork { identifiers, .. })
             | Node::Article(Article { identifiers, .. }) => {
                 identifiers.iter().flatten().find_map(|id| match id {
@@ -116,10 +89,18 @@ impl ProviderTrait for DoiProvider {
                 })
             }
             _ => None,
-        }
-        .ok_or_else(|| eyre!("Node does not have DOI URL"))?;
+        };
 
-        let data = get_json_with(&url, &[(headers::ACCEPT,"application/vnd.schemaorg.ld+json;q=1,application/vnd.citationstyles.csl+json;q=0.5")]).await?;
+        let url = match url {
+            Some(url) => url,
+            None => return Ok(node),
+        };
+
+        let data = get_json_with(
+            &url,
+            &[(headers::ACCEPT, "application/vnd.citationstyles.csl+json")],
+        )
+        .await?;
 
         CslCodec::from_json(data)
     }
