@@ -16,7 +16,7 @@ use node_pointer::resolve;
 use node_reshape::reshape;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
-use providers::ProviderDetection;
+use providers::DetectItem;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -1379,7 +1379,7 @@ impl Document {
     }
 
     /// Detect entities within the document
-    pub async fn detect(&self) -> Result<Vec<ProviderDetection>> {
+    pub async fn detect(&self) -> Result<Vec<DetectItem>> {
         let root = &*self.root.read().await;
         providers::detect(root).await
     }

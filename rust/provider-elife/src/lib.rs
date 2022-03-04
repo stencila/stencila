@@ -2,7 +2,7 @@ use provider::{
     once_cell::sync::Lazy,
     regex::Regex,
     stencila_schema::{Article, CreativeWorkPublisher, Node, Organization, ThingIdentifiers},
-    Provider, ProviderParsing, ProviderTrait,
+    Provider, ParseItem, ProviderTrait,
 };
 
 pub struct ElifeProvider;
@@ -12,7 +12,7 @@ impl ProviderTrait for ElifeProvider {
         Provider::new("elife")
     }
 
-    fn parse(string: &str) -> Vec<ProviderParsing> {
+    fn parse(string: &str) -> Vec<ParseItem> {
         // Regex targeting short identifiers e.g. elife:12345
         static SIMPLE_REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new(r"^elife:(?://)?(\d+)").expect("Unable to create regex"));
@@ -34,7 +34,7 @@ impl ProviderTrait for ElifeProvider {
                 let capture = captures.get(0).unwrap();
                 (capture.start(), capture.end(), captures[1].to_string())
             }))
-            .map(|(begin, end, id)| ProviderParsing {
+            .map(|(begin, end, id)| ParseItem {
                 begin,
                 end,
                 node: Node::Article(Article {

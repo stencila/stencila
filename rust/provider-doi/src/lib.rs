@@ -2,11 +2,11 @@ use codec_csl::CslCodec;
 use provider::{
     async_trait::async_trait,
     eyre::Result,
-    http_utils::{get_json_with, headers},
+    http_utils::{get_with, headers},
     once_cell::sync::Lazy,
     regex::Regex,
     stencila_schema::*,
-    Provider, ProviderParsing, ProviderTrait,
+    ParseItem, Provider, ProviderTrait, EnrichOptions,
 };
 
 /// A provider that identifies and enriches `Article` and other `CreativeWork` nodes
@@ -35,7 +35,7 @@ impl ProviderTrait for DoiProvider {
     ///
     /// See https://www.crossref.org/blog/dois-and-matching-regular-expressions/
     /// for notes on DOI matching.
-    fn parse(string: &str) -> Vec<ProviderParsing> {
+    fn parse(string: &str) -> Vec<ParseItem> {
         static REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"\b(10.\d{4,9}/[-._;()/:a-zA-Z0-9]+)\b").expect("Unable to create regex")
         });
@@ -55,7 +55,7 @@ impl ProviderTrait for DoiProvider {
                     ..Default::default()
                 });
 
-                ProviderParsing { begin, end, node }
+                ParseItem { begin, end, node }
             })
             .collect()
     }
@@ -64,7 +64,7 @@ impl ProviderTrait for DoiProvider {
     ///
     /// If the node is a `CreativeWork` type with a DOI, then uses DOI content negotiation
     /// protocol to fetch CSL JSON to enrich properties of the node.
-    async fn enrich(node: Node) -> Result<Node> {
+    async fn enrich(node: Node, _options: Option<EnrichOptions>) -> Result<Node> {
         let url = match &node {
             Node::CreativeWork(CreativeWork { identifiers, .. })
             | Node::Article(Article { identifiers, .. }) => {

@@ -3,27 +3,44 @@ use provider::{
     codecs,
     eyre::{bail, eyre, Result},
     stencila_schema::Node,
-    tracing, ProviderTrait,
+    tracing, EnrichOptions, ImportOptions, ProviderTrait, WatchOptions,
 };
 use std::sync::Arc;
 use std::{collections::BTreeMap, path::Path};
 
-pub use provider::{Provider, ProviderDetection};
+pub use provider::{DetectItem, Provider};
 
 // The following high level functions hide the implementation
 // detail of having a static list of providers. They are intended as the
 // only public interface for this crate.
 
-pub async fn detect(node: &Node) -> Result<Vec<ProviderDetection>> {
+pub async fn detect(node: &Node) -> Result<Vec<DetectItem>> {
     PROVIDERS.detect(node).await
 }
 
-pub async fn enrich(node: Node) -> Result<Node> {
-    PROVIDERS.enrich(node).await
+pub async fn find(node: &Node) -> Result<Node> {
+    let detections = detect(node).await?;
+    let detection = match detections.len() {
+        0 => bail!("No node detected"),
+        1 => &detections[0],
+        _ => {
+            tracing::warn!("More that one node detected; will only use first");
+            &detections[0]
+        }
+    };
+    Ok(detection.node.clone())
 }
 
-pub async fn import(node: &Node, dest: &Path, token: Option<String>) -> Result<bool> {
-    PROVIDERS.import(node, dest, token).await
+pub async fn enrich(node: Node, options: Option<EnrichOptions>) -> Result<Node> {
+    PROVIDERS.enrich(node, options).await
+}
+
+pub async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) -> Result<bool> {
+    PROVIDERS.import(node, dest, options).await
+}
+
+pub async fn watch(node: &Node, options: Option<WatchOptions>) -> Result<bool> {
+    PROVIDERS.watch(node, options).await
 }
 
 /// The set of registered providers in the current process
@@ -88,7 +105,7 @@ impl Providers {
     ///
     /// The `detect` method of each registered provider is called on the node and the result
     /// is a list of detections across all providers.
-    async fn detect(&self, node: &Node) -> Result<Vec<ProviderDetection>> {
+    async fn detect(&self, node: &Node) -> Result<Vec<DetectItem>> {
         let mut detected = Vec::new();
         for (name, ..) in &self.inner {
             if let Some(future) = dispatch_builtins!(name, detect, node) {
@@ -103,9 +120,9 @@ impl Providers {
     ///
     /// The `enrich` method of each registered provider is called on the node possibly mutating it with new
     /// and/or different values for fields.
-    async fn enrich(&self, mut node: Node) -> Result<Node> {
+    async fn enrich(&self, mut node: Node, options: Option<EnrichOptions>) -> Result<Node> {
         for (name, ..) in &self.inner {
-            if let Some(future) = dispatch_builtins!(name, enrich, node.clone()) {
+            if let Some(future) = dispatch_builtins!(name, enrich, node.clone(), options.clone()) {
                 node = future.await?;
             }
         }
@@ -116,11 +133,29 @@ impl Providers {
     ///
     /// The `import` method of each registered provider is called until the first that returns `true` (indicating that
     /// the node was imported).
-    async fn import(&self, node: &Node, dest: &Path, token: Option<String>) -> Result<bool> {
+    async fn import(
+        &self,
+        node: &Node,
+        dest: &Path,
+        options: Option<ImportOptions>,
+    ) -> Result<bool> {
         for (name, ..) in &self.inner {
-            if let Some(future) = dispatch_builtins!(name, import, node, dest, token.clone()) {
+            if let Some(future) = dispatch_builtins!(name, import, node, dest, options.clone()) {
                 let imported = future.await?;
                 if imported {
+                    return Ok(true);
+                }
+            }
+        }
+        Ok(false)
+    }
+
+    /// Watch a node
+    async fn watch(&self, node: &Node, options: Option<WatchOptions>) -> Result<bool> {
+        for (name, ..) in &self.inner {
+            if let Some(future) = dispatch_builtins!(name, watch, node, options.clone()) {
+                let watched = future.await?;
+                if watched {
                     return Ok(true);
                 }
             }
@@ -156,6 +191,7 @@ pub mod commands {
         Detect(Detect),
         Enrich(Enrich),
         Import(Import),
+        Watch(Watch),
     }
 
     #[async_trait]
@@ -167,6 +203,7 @@ pub mod commands {
                 Command::Detect(action) => action.run().await,
                 Command::Enrich(action) => action.run().await,
                 Command::Import(action) => action.run().await,
+                Command::Watch(action) => action.run().await,
             }
         }
     }
@@ -276,7 +313,7 @@ pub mod commands {
 
             let mut nodes: Vec<Node> = Vec::with_capacity(detections.len());
             for detection in detections.into_iter() {
-                let node = enrich(detection.node).await?;
+                let node = enrich(detection.node, None).await?;
                 nodes.push(node);
             }
 
@@ -301,20 +338,44 @@ pub mod commands {
     impl Run for Import {
         async fn run(&self) -> Result {
             let identifier = Node::String(self.source.clone());
+            let node = find(&identifier).await?;
 
-            let detections = detect(&identifier).await?;
-            let detection = match detections.len() {
-                0 => bail!("No source detected"),
-                1 => &detections[0],
-                _ => {
-                    tracing::warn!("More that one source detected; will only use first");
-                    &detections[0]
-                }
-            };
-
-            let imported = import(&detection.node, &self.destination, None).await?;
+            let imported = import(&node, &self.destination, None).await?;
             if !imported {
-                tracing::warn!("Unable to import node: {:?}", detection.node);
+                tracing::warn!("Unable to import node: {:?}", node);
+            }
+
+            result::nothing()
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt()]
+    pub struct Watch {
+        /// The source identifier e.g. github:org/name
+        source: String,
+
+        /// An access token required to setup the watch (usually to create a Webhook with provider)
+        #[structopt(long, short)]
+        token: Option<String>,
+
+        /// The URL to listen on
+        #[structopt(long, short)]
+        url: Option<String>,
+    }
+    #[async_trait]
+    impl Run for Watch {
+        async fn run(&self) -> Result {
+            let identifier = Node::String(self.source.clone());
+            let node = find(&identifier).await?;
+
+            let options = WatchOptions {
+                token: self.token.clone(),
+                url: self.url.clone(),
+            };
+            let watching = watch(&node, Some(options)).await?;
+            if !watching {
+                tracing::warn!("Unable to watch node: {:?}", node);
             }
 
             result::nothing()

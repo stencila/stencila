@@ -47,18 +47,18 @@ pub trait ProviderTrait {
     fn spec() -> Provider;
 
     /// Parse a string into a node
-    fn parse(_string: &str) -> Vec<ProviderParsing> {
+    fn parse(_string: &str) -> Vec<ParseItem> {
         Vec::new()
     }
 
     /// Detect nodes within a root node that the provider may be able to identify and enrich.
     ///
     /// Returns a vector of [`Detection`].
-    async fn detect(root: &Node) -> Result<Vec<ProviderDetection>> {
+    async fn detect(root: &Node) -> Result<Vec<DetectItem>> {
         let name = Self::spec().name;
         let parse = Box::new(|string: &str| Self::parse(string));
 
-        let mut detector = ProviderDetector::new(name, parse);
+        let mut detector = Detector::new(name, parse);
         walk(root, &mut detector);
         Ok(detector.detections)
     }
@@ -79,18 +79,41 @@ pub trait ProviderTrait {
     /// If the provider had previously identified the node, then the relevant identifiers
     /// will be used to fetch enrichment data, otherwise `identify` will be called.
     /// Then, the provider will return a opy of the node with properties that are missing.
-    async fn enrich(node: Node) -> Result<Node> {
+    async fn enrich(node: Node, _options: Option<EnrichOptions>) -> Result<Node> {
         Ok(node)
     }
 
-    /// Import files associated with a node, from the provider, into a project
-    async fn import(_node: &Node, _dest: &Path, _token: Option<String>) -> Result<bool> {
+    /// Import files associated with a resource, from the provider, into a project
+    async fn import(_node: &Node, _dest: &Path, _options: Option<ImportOptions>) -> Result<bool> {
+        Ok(false)
+    }
+
+    /// Watch a resource and import files associated with it they change
+    async fn watch(_node: &Node, _options: Option<WatchOptions>) -> Result<bool> {
         Ok(false)
     }
 }
 
+#[derive(Debug, Default, Clone)]
+pub struct EnrichOptions {
+    pub token: Option<String>
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ImportOptions {
+    pub token: Option<String>
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct WatchOptions {
+    pub token: Option<String>,
+
+    /// The URL to listen on
+    pub url: Option<String>
+}
+
 #[derive(Debug, Serialize)]
-pub struct ProviderParsing {
+pub struct ParseItem {
     /// The start position in the string that the node was parsed from
     pub begin: usize,
 
@@ -102,7 +125,7 @@ pub struct ProviderParsing {
 }
 
 #[derive(Debug, Serialize)]
-pub struct ProviderDetection {
+pub struct DetectItem {
     /// The name of the provider that detected the node
     pub provider: String,
 
@@ -120,19 +143,19 @@ pub struct ProviderDetection {
     pub node: Node,
 }
 
-pub struct ProviderDetector {
+pub struct Detector {
     /// The name of the provider that this detector is for
     provider: String,
 
     /// The function used to attempt to parse a string into a node
-    parse: Box<dyn Fn(&str) -> Vec<ProviderParsing>>,
+    parse: Box<dyn Fn(&str) -> Vec<ParseItem>>,
 
     /// The list of detected nodes and their location
-    detections: Vec<ProviderDetection>,
+    detections: Vec<DetectItem>,
 }
 
-impl ProviderDetector {
-    fn new(provider: String, parse: Box<dyn Fn(&str) -> Vec<ProviderParsing>>) -> Self {
+impl Detector {
+    fn new(provider: String, parse: Box<dyn Fn(&str) -> Vec<ParseItem>>) -> Self {
         Self {
             provider,
             parse,
@@ -144,7 +167,7 @@ impl ProviderDetector {
         let nodes = (self.parse)(string);
         let mut detections = nodes
             .into_iter()
-            .map(|ProviderParsing { begin, end, node }| ProviderDetection {
+            .map(|ParseItem { begin, end, node }| DetectItem {
                 provider: self.provider.clone(),
                 confidence: 100,
                 begin: address.add_index(begin),
@@ -156,7 +179,7 @@ impl ProviderDetector {
     }
 }
 
-impl Visitor for ProviderDetector {
+impl Visitor for Detector {
     fn visit_node(&mut self, address: &Address, node: &Node) -> bool {
         if let Node::String(string) = node {
             self.visit_string(address, string);
