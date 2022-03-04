@@ -65,6 +65,8 @@ macro_rules! dispatch_builtins {
             "elife" => Some(provider_elife::ElifeProvider::$method($($arg),*)),
             #[cfg(feature = "provider-github")]
             "github" => Some(provider_github::GithubProvider::$method($($arg),*)),
+            #[cfg(feature = "provider-gitlab")]
+            "gitlab" => Some(provider_gitlab::GitlabProvider::$method($($arg),*)),
             _ => None
         }
     };
@@ -80,6 +82,8 @@ impl Providers {
             ("elife", provider_elife::ElifeProvider::spec()),
             #[cfg(feature = "provider-github")]
             ("github", provider_github::GithubProvider::spec()),
+            #[cfg(feature = "provider-gitlab")]
+            ("gitlab", provider_gitlab::GitlabProvider::spec()),
         ]
         .into_iter()
         .map(|(label, provider): (&str, Provider)| (label.to_string(), provider))
@@ -316,6 +320,10 @@ pub mod commands {
         /// If the argument should be treated as a string, rather than a file path
         #[structopt(short, long)]
         string: bool,
+
+        /// Any access token required by the source provider
+        #[structopt(long, short)]
+        token: Option<String>,
     }
     #[async_trait]
     impl Run for Enrich {
@@ -334,8 +342,11 @@ pub mod commands {
             let detections = detect(&node).await?;
 
             let mut nodes: Vec<Node> = Vec::with_capacity(detections.len());
+            let options = EnrichOptions {
+                token: self.token.clone(),
+            };
             for detection in detections.into_iter() {
-                let node = enrich(detection.node, None).await?;
+                let node = enrich(detection.node, Some(options.clone())).await?;
                 nodes.push(node);
             }
 

@@ -100,6 +100,15 @@ impl From<DateTime<Utc>> for crate::Date {
     }
 }
 
+impl From<String> for crate::Date {
+    fn from(string: String) -> Self {
+        Self {
+            value: string,
+            ..Default::default()
+        }
+    }
+}
+
 impl crate::Date {
     pub fn now() -> Self {
         Self {
