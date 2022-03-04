@@ -89,19 +89,19 @@ pub trait ProviderTrait {
     }
 
     /// Watch a resource and import files associated with it they change
-    async fn watch(_node: &Node, _options: Option<WatchOptions>) -> Result<bool> {
+    async fn watch(_node: &Node, _dest: &Path, _options: Option<WatchOptions>) -> Result<bool> {
         Ok(false)
     }
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct EnrichOptions {
-    pub token: Option<String>
+    pub token: Option<String>,
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct ImportOptions {
-    pub token: Option<String>
+    pub token: Option<String>,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -109,7 +109,7 @@ pub struct WatchOptions {
     pub token: Option<String>,
 
     /// The URL to listen on
-    pub url: Option<String>
+    pub url: Option<String>,
 }
 
 #[derive(Debug, Serialize)]

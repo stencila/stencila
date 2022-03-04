@@ -6,21 +6,6 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1.51"
-codecs = { path = "../codecs", version = "0.0.0", features = [
-    "codec-docx",
-    "codec-html",
-    "codec-ipynb",
-    "codec-json",
-    "codec-json5",
-    "codec-latex",
-    "codec-md",
-    "codec-pandoc",
-    "codec-pdf",
-    "codec-rmd",
-    "codec-toml",
-    "codec-txt",
-    "codec-yaml",
-] }
 eyre = "0.6.5"
 http-utils = { path = "../http-utils", version = "0.0.0" }
 node-address = { path = "../node-address", version = "0.0.0" }
@@ -30,3 +15,12 @@ regex = "1.5.4"
 serde = { version = "1.0.130", features = ["derive"] }
 stencila-schema = { path = "../schema" }
 tracing = "0.1.29"
+
+# To keep build times down, only enable a limited number of lightweight codecs
+# here for testing using the mini-CLI in `providers/src/main.rs`. In the main
+# `stencila` binary, all codecs are included.
+codecs = { path = "../codecs", version = "0.0.0", features = [
+    "codec-json",
+    "codec-txt",
+    "codec-yaml",
+] }

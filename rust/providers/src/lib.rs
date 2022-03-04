@@ -39,8 +39,8 @@ pub async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) ->
     PROVIDERS.import(node, dest, options).await
 }
 
-pub async fn watch(node: &Node, options: Option<WatchOptions>) -> Result<bool> {
-    PROVIDERS.watch(node, options).await
+pub async fn watch(node: &Node, dest: &Path, options: Option<WatchOptions>) -> Result<bool> {
+    PROVIDERS.watch(node, dest, options).await
 }
 
 /// The set of registered providers in the current process
@@ -151,9 +151,9 @@ impl Providers {
     }
 
     /// Watch a node
-    async fn watch(&self, node: &Node, options: Option<WatchOptions>) -> Result<bool> {
+    async fn watch(&self, node: &Node, dest: &Path, options: Option<WatchOptions>) -> Result<bool> {
         for (name, ..) in &self.inner {
-            if let Some(future) = dispatch_builtins!(name, watch, node, options.clone()) {
+            if let Some(future) = dispatch_builtins!(name, watch, node, dest, options.clone()) {
                 let watched = future.await?;
                 if watched {
                     return Ok(true);
@@ -355,6 +355,10 @@ pub mod commands {
         /// The source identifier e.g. github:org/name
         source: String,
 
+        /// The destination to synchronize the source to
+        #[structopt(default_value = ".")]
+        destination: PathBuf,
+
         /// An access token required to setup the watch (usually to create a Webhook with provider)
         #[structopt(long, short)]
         token: Option<String>,
@@ -373,7 +377,7 @@ pub mod commands {
                 token: self.token.clone(),
                 url: self.url.clone(),
             };
-            let watching = watch(&node, Some(options)).await?;
+            let watching = watch(&node, &self.destination, Some(options)).await?;
             if !watching {
                 tracing::warn!("Unable to watch node: {:?}", node);
             }

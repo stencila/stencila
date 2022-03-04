@@ -6,7 +6,7 @@ use provider::{
     once_cell::sync::Lazy,
     regex::Regex,
     stencila_schema::*,
-    ParseItem, Provider, ProviderTrait, EnrichOptions,
+    EnrichOptions, ParseItem, Provider, ProviderTrait,
 };
 
 /// A provider that identifies and enriches `Article` and other `CreativeWork` nodes
@@ -96,9 +96,12 @@ impl ProviderTrait for DoiProvider {
             None => return Ok(node),
         };
 
-        let data = get_json_with(
+        let data = get_with(
             &url,
-            &[(headers::ACCEPT, "application/vnd.citationstyles.csl+json")],
+            &[(
+                headers::ACCEPT,
+                "application/vnd.citationstyles.csl+json".into(),
+            )],
         )
         .await?;
 
