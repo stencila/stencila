@@ -551,7 +551,12 @@ async fn webhook_event(
                     .ok_or_else(|| eyre!("Expected path to be a string {}", path))?;
 
                 let dest_path = match PathBuf::from(event_path).strip_prefix(path) {
-                    Ok(path) => dest.join(path),
+                    // Only join stripped path if it has content. This avoids a trailing slash
+                    // when the dest is a file
+                    Ok(path) => match path == PathBuf::from("") {
+                        true => dest.to_path_buf(),
+                        false => dest.join(path),
+                    },
                     Err(..) => {
                         tracing::trace!(
                             "Ignored webhook event with excluded path: `{}` is not in `{}`",
