@@ -7,7 +7,7 @@ use std::{
 
 use archive_utils::extract_tar;
 use hash_utils::bytes_hmac_sha256_hex;
-use http_utils::url;
+use http_utils::{download_temp_with, headers, url};
 use octorust::{
     auth::Credentials,
     types::{
@@ -239,16 +239,16 @@ impl ProviderTrait for GithubProvider {
             Node::SoftwareSourceCode(ssc) => ssc,
             _ => return Ok(false),
         };
-        let (owner, repo) = match GithubProvider::owner_repo(ssc) {
+        let (owner, repo) = match Self::owner_repo(ssc) {
             Some(owner_repo) => owner_repo,
             None => return Ok(false),
         };
 
-        let ref_ = GithubProvider::version(ssc);
-        let path = GithubProvider::path(ssc);
+        let ref_ = Self::version(ssc);
+        let path = Self::path(ssc);
         let options = options.unwrap_or_default();
 
-        let client = GithubProvider::client(options.token.clone());
+        let client = Self::client(options.token.clone());
 
         let content = client
             .repos()
@@ -278,27 +278,22 @@ impl ProviderTrait for GithubProvider {
                     codecs::str_to_path(&content_file.content, &source_ext, dest, None).await?;
                 }
             } else {
-                // Destination has no extension so treat it as a directory
-                // and write the file there
-                create_dir_all(dest)?;
+                // Destination has no extension so treat it as a directory and write the file into it
                 write_content_file(content_file, &dest.join(name))?;
             }
         } else if let ReposGetContentResponseOneOf::EntriesVector(entries) = content {
             if !entries.is_empty() {
                 // Content is a directory so fetch the whole repo as a tarball and extract the directory
                 // (getting the whole rpo as a tarball is more efficient than making lots of small requests
-                // for each file's content -for most repos)
+                // for each file's content - for most repos)
 
                 // The octrorust's  `download_tarball_archive` function returns a void so
                 // use `http_utils::download_temp_with` instead and "manually" add auth header
                 let headers = match options.token {
-                    Some(token) => vec![(
-                        http_utils::headers::AUTHORIZATION,
-                        format!("Token {}", token),
-                    )],
+                    Some(token) => vec![(headers::AUTHORIZATION, format!("Token {}", token))],
                     None => Vec::new(),
                 };
-                let archive = http_utils::download_temp_with(
+                let archive = download_temp_with(
                     &format!(
                         "{host}/repos/{owner}/{repo}/tarball/{ref_}",
                         host = octorust::DEFAULT_HOST,
@@ -324,16 +319,16 @@ impl ProviderTrait for GithubProvider {
             Node::SoftwareSourceCode(ssc) => ssc,
             _ => return Ok(false),
         };
-        let (owner, repo) = match GithubProvider::owner_repo(ssc) {
+        let (owner, repo) = match Self::owner_repo(ssc) {
             Some(owner_repo) => owner_repo,
             None => return Ok(false),
         };
 
-        let version = GithubProvider::version(ssc);
-        let path = GithubProvider::path(ssc);
+        let version = Self::version(ssc);
+        let path = Self::path(ssc);
         let options = options.unwrap_or_default();
 
-        let client = GithubProvider::client(options.token);
+        let client = Self::client(options.token);
 
         // Get a local URL
         let url = options.url.unwrap_or_default();
@@ -451,6 +446,9 @@ impl ProviderTrait for GithubProvider {
 ///
 /// Weirdly, there are newlines in the Base64 encoding so this removes them first.
 fn write_content_file(content_file: ContentFile, path: &Path) -> Result<()> {
+    if let Some(parent) = path.parent() {
+        create_dir_all(parent)?
+    }
     let mut file = File::create(path)?;
     let content = content_file.content.replace("\n", "");
     file.write_all(&base64::decode(content)?)?;
@@ -578,9 +576,6 @@ async fn webhook_event(
                         .get_content_file(owner, repo, event_path, event_ref)
                         .await
                         .map_err(to_eyre)?;
-                    if let Some(parent) = local_path.parent() {
-                        create_dir_all(parent)?
-                    }
                     write_content_file(content_file, &local_path)?;
                 } else {
                     // Remove the file, if it exists
