@@ -39,9 +39,8 @@ use server_utils::{
 };
 pub struct GithubProvider;
 
-/// Default port for the webhook server
-/// (the first 4 digits of "github" a1z26 encoded)
-const WATCH_SERVER_PORT: u16 = 7920;
+/// Default port for the webhook server (it's useful to have a fixed port for testing)
+const WATCH_SERVER_PORT: u16 = 1667; // python3 -c "print(1024 + sum([ord(c) for c in 'github']))"
 
 impl GithubProvider {
     /// Create an API client
@@ -54,7 +53,7 @@ impl GithubProvider {
         )
     }
 
-    /// Extract the GitHub repository owner and name from a [`SoftwareSourceCode`] node (if any)
+    /// Extract the GitHub repository owner and name from a [`SoftwareSourceCode`] node
     fn owner_repo(ssc: &SoftwareSourceCode) -> Option<(&str, &str)> {
         if let Some(repo) = &ssc.code_repository {
             if let Some(repo) = repo.strip_prefix("https://github.com/") {
@@ -102,13 +101,13 @@ impl ProviderTrait for GithubProvider {
     fn parse(string: &str) -> Vec<ParseItem> {
         // Regex targeting short identifiers e.g. github:org/name
         static SIMPLE_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"^github:(?://)?([a-z0-9\-]+)/([a-z0-9\-_]+)(?:/([^@]+))?(?:@(.+))?$")
+            Regex::new(r"^github:([a-z0-9\-]+)/([a-z0-9\-_]+)(?:/([^@]+))?(?:@(.+))?$")
                 .expect("Unable to create regex")
         });
 
         // Regex targeting URL copied from the browser address bar
         static URL_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"^(?:https?://)?github\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:(?:tree|blob))?/?([^/]+)?/?(.+)?$")
+            Regex::new(r"^https?://github\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:(?:tree|blob))?/?([^/]+)?/?(.+)?$")
                 .expect("Unable to create regex")
         });
 
@@ -620,7 +619,6 @@ mod tests {
         // No path or version
         for string in [
             "github:owner/name",
-            "github://owner/name",
             "http://github.com/owner/name",
             "https://github.com/owner/name",
             "https://github.com/owner/name/",
@@ -644,7 +642,6 @@ mod tests {
         // Version, no path
         for string in [
             "github:owner/name@version",
-            "github://owner/name@version",
             "https://github.com/owner/name/tree/version",
             "https://github.com/owner/name/tree/version/",
         ] {
@@ -666,7 +663,6 @@ mod tests {
         // Folder path and version
         for string in [
             "github:owner/name/sub/folder@version",
-            "github://owner/name/sub/folder@version",
             "https://github.com/owner/name/tree/version/sub/folder",
         ] {
             assert_json_is!(
@@ -688,7 +684,6 @@ mod tests {
         // File path and version
         for string in [
             "github:owner/name/sub/folder/file.ext@version",
-            "github://owner/name/sub/folder/file.ext@version",
             "https://github.com/owner/name/blob/version/sub/folder/file.ext",
         ] {
             assert_json_is!(
@@ -708,10 +703,7 @@ mod tests {
         }
 
         // File path, no version
-        for string in [
-            "github:owner/name/sub/folder/file.ext",
-            "github://owner/name/sub/folder/file.ext",
-        ] {
+        for string in ["github:owner/name/sub/folder/file.ext"] {
             assert_json_is!(
                 GithubProvider::parse(string)[0].node,
                 {
