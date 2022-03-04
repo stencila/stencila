@@ -244,9 +244,9 @@ impl ProviderTrait for GithubProvider {
             Some(owner_repo) => owner_repo,
             None => return Ok(false),
         };
+
         let ref_ = GithubProvider::version(ssc);
         let path = GithubProvider::path(ssc);
-
         let options = options.unwrap_or_default();
 
         let client = GithubProvider::client(options.token.clone());
@@ -323,9 +323,9 @@ impl ProviderTrait for GithubProvider {
             Some(owner_repo) => owner_repo,
             None => return Ok(false),
         };
+
         let version = GithubProvider::version(ssc);
         let path = GithubProvider::path(ssc);
-
         let options = options.unwrap_or_default();
 
         let client = GithubProvider::client(options.token);
@@ -443,7 +443,7 @@ impl ProviderTrait for GithubProvider {
 }
 
 /// Write a GitHub content file to disk
-/// 
+///
 /// Weirdly, there are newlines in the Base64 encoding so this removes them first.
 fn write_content_file(content_file: ContentFile, path: &Path) -> Result<()> {
     let mut file = File::create(path)?;
@@ -544,10 +544,10 @@ async fn webhook_event(
                     .as_str()
                     .ok_or_else(|| eyre!("Expected path to be a string {}", path))?;
 
-                let sub_path = match event_path.strip_prefix(path) {
-                    Some(path) => path,
-                    None => {
-                        tracing::warn!(
+                let dest_path = match PathBuf::from(event_path).strip_prefix(path) {
+                    Ok(path) => dest.join(path),
+                    Err(..) => {
+                        tracing::trace!(
                             "Ignored webhook event with excluded path: `{}` is not in `{}`",
                             event_path,
                             path
@@ -558,25 +558,28 @@ async fn webhook_event(
 
                 if action == ADDED || action == MODIFIED {
                     // Fetch the content of the file and write to disk
+                    tracing::trace!(
+                        "Fetching content of `{}` to write to `{}`",
+                        event_path,
+                        dest_path.display()
+                    );
                     let content_file = client
                         .repos()
                         .get_content_file(owner, repo, event_path, event_ref)
                         .await
                         .map_err(to_eyre)?;
-                    let path = dest.join(sub_path);
-                    if let Some(parent) = path.parent() {
+                    if let Some(parent) = dest_path.parent() {
                         create_dir_all(parent)?
                     }
-                    write_content_file(content_file, &path)?;
+                    write_content_file(content_file, &dest_path)?;
                 } else {
                     // Remove the file, if it exists
-                    let path = dest.join(sub_path);
-                    if path.exists() {
-                        remove_file(path)?;
+                    if dest_path.exists() {
+                        remove_file(dest_path)?;
                     } else {
                         tracing::warn!(
                             "Ignored webhook event to remove non-existent file `{}`",
-                            path.display()
+                            dest_path.display()
                         );
                     }
                 }
