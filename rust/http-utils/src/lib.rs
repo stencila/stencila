@@ -20,6 +20,7 @@ use tempfile::NamedTempFile;
 pub use reqwest;
 pub use reqwest::header as headers;
 pub use tempfile;
+pub use url;
 
 pub static USER_AGENT: &str = concat!("stencila/", env!("CARGO_PKG_VERSION"),);
 
@@ -53,11 +54,15 @@ pub async fn get(url: &str) -> Result<serde_json::Value> {
 }
 
 /// Get JSON from a URL with additional request headers
-pub async fn get_with(url: &str, headers: &[(HeaderName, &str)]) -> Result<serde_json::Value> {
+pub async fn get_with(url: &str, headers: &[(HeaderName, String)]) -> Result<serde_json::Value> {
     let response = CLIENT
         .get(url)
         .headers(headers_to_map(
-            &[&[(headers::ACCEPT, "application/json")], headers].concat(),
+            &[
+                vec![(headers::ACCEPT, "application/json".to_string())],
+                headers.to_vec(),
+            ]
+            .concat(),
         )?)
         .send()
         .await?
@@ -74,7 +79,7 @@ pub async fn download(url: &str, path: &Path) -> Result<()> {
 }
 
 /// Download a file from a URL to a path with additional request headers
-pub async fn download_with(url: &str, path: &Path, headers: &[(HeaderName, &str)]) -> Result<()> {
+pub async fn download_with(url: &str, path: &Path, headers: &[(HeaderName, String)]) -> Result<()> {
     let response = CLIENT
         .get(url)
         .headers(headers_to_map(headers)?)
@@ -96,19 +101,12 @@ pub fn download_sync(url: &str, path: &Path) -> Result<()> {
 }
 
 /// Download a file from a URL to a path synchronously with additional request headers
-pub fn download_with_sync(url: &str, path: &Path, headers: &[(HeaderName, &str)]) -> Result<()> {
+pub fn download_with_sync(url: &str, path: &Path, headers: &[(HeaderName, String)]) -> Result<()> {
     let url = url.to_owned();
     let path = path.to_owned();
-    let headers: Vec<(HeaderName, String)> = headers
-        .iter()
-        .map(|(header, value)| (header.clone(), value.to_string()))
-        .collect();
+    let headers = headers.to_vec();
     let (sender, receiver) = std::sync::mpsc::channel();
     tokio::spawn(async move {
-        let headers: Vec<(HeaderName, &str)> = headers
-            .iter()
-            .map(|(header, value)| (header.clone(), value.as_str()))
-            .collect();
         let result = download_with(&url, &path, &headers).await;
         sender.send(result)
     });
@@ -116,18 +114,26 @@ pub fn download_with_sync(url: &str, path: &Path, headers: &[(HeaderName, &str)]
 }
 
 /// Download a file from a URL to a temporary file
+pub async fn download_temp(url: &str) -> Result<NamedTempFile> {
+    download_temp_with(url, &[]).await
+}
+
+/// Download a file from a URL to a temporary file with additional request headers
 ///
 /// Returns a `NamedTempFile` which will remove the temporary file when it
 /// is dropped. Be aware of that and the security implications of long-lived temp files:
 /// https://docs.rs/tempfile/latest/tempfile/struct.NamedTempFile.html
-pub async fn download_temp(url: &str) -> Result<NamedTempFile> {
+pub async fn download_temp_with(
+    url: &str,
+    headers: &[(HeaderName, String)],
+) -> Result<NamedTempFile> {
     let temp = NamedTempFile::new()?;
-    download(url, temp.path()).await?;
+    download_with(url, temp.path(), headers).await?;
     Ok(temp)
 }
 
 /// Convert an array of tuples to a `reqwest::HeaderMap`
-fn headers_to_map(headers: &[(HeaderName, &str)]) -> Result<HeaderMap> {
+fn headers_to_map(headers: &[(HeaderName, String)]) -> Result<HeaderMap> {
     let mut header_map = HeaderMap::new();
     for (key, value) in headers {
         header_map.insert(key, value.parse()?);

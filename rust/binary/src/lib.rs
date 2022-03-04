@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use defaults::Defaults;
 use eyre::{bail, eyre, Result};
+use http_utils::url;
 use regex::Regex;
 use serde::Serialize;
 #[allow(unused_imports)]
