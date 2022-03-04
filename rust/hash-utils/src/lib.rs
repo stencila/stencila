@@ -1,8 +1,10 @@
 use eyre::Result;
+use hmac::{Hmac, Mac};
 use sha2::{digest::Output, Digest, Sha256};
 use std::{convert::TryInto, fs::File, io, path::Path};
 
-// Re-exports
+// Re-exports for consumers of this crate
+pub use hmac;
 pub use sha2;
 
 /// Get a SHA-256 digest of a string as a hex string
@@ -42,4 +44,12 @@ pub fn file_sha256<P: AsRef<Path>>(path: P) -> Result<Output<Sha256>> {
     let mut sha256 = Sha256::new();
     io::copy(&mut file, &mut sha256)?;
     Ok(sha256.finalize())
+}
+
+/// Get a HMAC-SHA256 digest of bytes as a hex string
+pub fn bytes_hmac_sha256_hex(key: &str, bytes: &[u8]) -> Result<String> {
+    let mut mac = Hmac::<Sha256>::new_from_slice(key.as_bytes())?;
+    mac.update(bytes);
+    let result = mac.finalize();
+    Ok(format!("{:x}", result.into_bytes()))
 }
