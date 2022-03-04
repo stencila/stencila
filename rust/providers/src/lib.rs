@@ -3,7 +3,7 @@ use provider::{
     codecs,
     eyre::{bail, eyre, Result},
     stencila_schema::Node,
-    tracing, EnrichOptions, ImportOptions, ProviderTrait, WatchOptions,
+    tracing, EnrichOptions, ExportOptions, ImportOptions, ProviderTrait, SyncOptions,
 };
 use std::sync::Arc;
 use std::{collections::BTreeMap, path::Path};
@@ -35,12 +35,16 @@ pub async fn enrich(node: Node, options: Option<EnrichOptions>) -> Result<Node> 
     PROVIDERS.enrich(node, options).await
 }
 
-pub async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) -> Result<bool> {
-    PROVIDERS.import(node, dest, options).await
+pub async fn import(node: &Node, path: &Path, options: Option<ImportOptions>) -> Result<bool> {
+    PROVIDERS.import(node, path, options).await
 }
 
-pub async fn watch(node: &Node, dest: &Path, options: Option<WatchOptions>) -> Result<bool> {
-    PROVIDERS.watch(node, dest, options).await
+pub async fn export(node: &Node, path: &Path, options: Option<ExportOptions>) -> Result<bool> {
+    PROVIDERS.export(node, path, options).await
+}
+
+pub async fn sync(node: &Node, dest: &Path, options: Option<SyncOptions>) -> Result<bool> {
+    PROVIDERS.sync(node, dest, options).await
 }
 
 /// The set of registered providers in the current process
@@ -103,7 +107,7 @@ impl Providers {
 
     /// Detect nodes within a node
     ///
-    /// The `detect` method of each registered provider is called on the node and the result
+    /// The `detect` method of each provider is called on the node and the result
     /// is a list of detections across all providers.
     async fn detect(&self, node: &Node) -> Result<Vec<DetectItem>> {
         let mut detected = Vec::new();
@@ -118,7 +122,7 @@ impl Providers {
 
     /// Enrich a node
     ///
-    /// The `enrich` method of each registered provider is called on the node possibly mutating it with new
+    /// The `enrich` method of each provider is called on the node possibly mutating it with new
     /// and/or different values for fields.
     async fn enrich(&self, mut node: Node, options: Option<EnrichOptions>) -> Result<Node> {
         for (name, ..) in &self.inner {
@@ -129,18 +133,18 @@ impl Providers {
         Ok(node)
     }
 
-    /// Import a node
+    /// Import content from a remote [`Node`] to a local path
     ///
-    /// The `import` method of each registered provider is called until the first that returns `true` (indicating that
-    /// the node was imported).
+    /// The `import` method of each provider is called until one returns `true` (indicating that the node was imported).
+    /// If no providers are able to import the node returns `Ok(false)`.
     async fn import(
         &self,
         node: &Node,
-        dest: &Path,
+        path: &Path,
         options: Option<ImportOptions>,
     ) -> Result<bool> {
         for (name, ..) in &self.inner {
-            if let Some(future) = dispatch_builtins!(name, import, node, dest, options.clone()) {
+            if let Some(future) = dispatch_builtins!(name, import, node, path, options.clone()) {
                 let imported = future.await?;
                 if imported {
                     return Ok(true);
@@ -150,12 +154,36 @@ impl Providers {
         Ok(false)
     }
 
-    /// Watch a node
-    async fn watch(&self, node: &Node, dest: &Path, options: Option<WatchOptions>) -> Result<bool> {
+    /// Export content from a local path to a remote [`Node`]
+    ///
+    /// The `export` method of each provider is called until one returns `true` (indicating that the node was exported).
+    /// If no providers are able to export the node returns `Ok(false)`.
+    async fn export(
+        &self,
+        node: &Node,
+        path: &Path,
+        options: Option<ExportOptions>,
+    ) -> Result<bool> {
         for (name, ..) in &self.inner {
-            if let Some(future) = dispatch_builtins!(name, watch, node, dest, options.clone()) {
-                let watched = future.await?;
-                if watched {
+            if let Some(future) = dispatch_builtins!(name, export, node, path, options.clone()) {
+                let exported = future.await?;
+                if exported {
+                    return Ok(true);
+                }
+            }
+        }
+        Ok(false)
+    }
+
+    /// Synchronize changes between a remote [`Node`] and a local path
+    ///
+    /// The `sync` method of each provider is called until one returns `true` (indicating that the node was synced).
+    /// Ino providers are able to sync the node returns `Ok(false)`.
+    async fn sync(&self, node: &Node, path: &Path, options: Option<SyncOptions>) -> Result<bool> {
+        for (name, ..) in &self.inner {
+            if let Some(future) = dispatch_builtins!(name, sync, node, path, options.clone()) {
+                let syncing = future.await?;
+                if syncing {
                     return Ok(true);
                 }
             }
@@ -178,7 +206,7 @@ pub mod commands {
     use cli_utils::{async_trait::async_trait, result, Result, Run};
     use structopt::StructOpt;
 
-    #[derive(Debug, StructOpt)]
+    #[derive(StructOpt)]
     #[structopt(
         about = "Manage providers",
         setting = structopt::clap::AppSettings::ColoredHelp,
@@ -191,7 +219,8 @@ pub mod commands {
         Detect(Detect),
         Enrich(Enrich),
         Import(Import),
-        Watch(Watch),
+        Export(Export),
+        Sync(Sync),
     }
 
     #[async_trait]
@@ -203,7 +232,8 @@ pub mod commands {
                 Command::Detect(action) => action.run().await,
                 Command::Enrich(action) => action.run().await,
                 Command::Import(action) => action.run().await,
-                Command::Watch(action) => action.run().await,
+                Command::Export(action) => action.run().await,
+                Command::Sync(action) => action.run().await,
             }
         }
     }
@@ -212,10 +242,8 @@ pub mod commands {
     ///
     /// The list of available providers includes those that are built into the Stencila
     /// binary as well as those provided by plugins.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(StructOpt)]
+    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct List {}
     #[async_trait]
     impl Run for List {
@@ -226,10 +254,8 @@ pub mod commands {
     }
 
     /// Show the specifications of a provider
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(StructOpt)]
+    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct Show {
         /// The name of the provider
         ///
@@ -245,10 +271,8 @@ pub mod commands {
     }
 
     /// Detect nodes within a file or string
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(StructOpt)]
+    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct Detect {
         /// The path to the file (or the string value if the `--string` flag is used)
         path: PathBuf,
@@ -280,10 +304,8 @@ pub mod commands {
     }
 
     /// Enrich nodes within a file or string
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(StructOpt)]
+    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct Enrich {
         /// The path to the file (or the string value if the `--string` flag is used)
         path: PathBuf,
@@ -321,18 +343,20 @@ pub mod commands {
         }
     }
 
-    /// Import files from a node
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Import content from a remote source to a local path
+    #[derive(StructOpt)]
+    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct Import {
-        /// The source identifier e.g. github:org/name@v1.2.0
+        /// The source identifier e.g. `github:org/name@v1.2.0`
         source: String,
 
-        /// The destination to import the source to
+        /// The local path to import file/s to e.g. `data`
         #[structopt(default_value = ".")]
-        destination: PathBuf,
+        path: PathBuf,
+
+        /// Any access token required by the source provider
+        #[structopt(long, short)]
+        token: Option<String>,
     }
     #[async_trait]
     impl Run for Import {
@@ -340,46 +364,83 @@ pub mod commands {
             let identifier = Node::String(self.source.clone());
             let node = find(&identifier).await?;
 
-            let imported = import(&node, &self.destination, None).await?;
+            let options = ImportOptions {
+                token: self.token.clone(),
+            };
+            let imported = import(&node, &self.path, Some(options)).await?;
             if !imported {
-                tracing::warn!("Unable to import node: {:?}", node);
+                tracing::error!("Unable to import from source `{}`", self.source);
             }
 
             result::nothing()
         }
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt()]
-    pub struct Watch {
-        /// The source identifier e.g. github:org/name
+    /// Export content from a local path to a remote source
+    #[derive(StructOpt)]
+    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    pub struct Export {
+        /// The source identifier e.g. `github:org/name@v1.2.0`
         source: String,
 
-        /// The destination to synchronize the source to
+        /// The local path to export file/s from e.g. `report.md`
         #[structopt(default_value = ".")]
-        destination: PathBuf,
+        path: PathBuf,
 
-        /// An access token required to setup the watch (usually to create a Webhook with provider)
+        /// Any access token required by the source provider
         #[structopt(long, short)]
         token: Option<String>,
-
-        /// The URL to listen on
-        #[structopt(long, short)]
-        url: Option<String>,
     }
     #[async_trait]
-    impl Run for Watch {
+    impl Run for Export {
         async fn run(&self) -> Result {
             let identifier = Node::String(self.source.clone());
             let node = find(&identifier).await?;
 
-            let options = WatchOptions {
+            let options = ExportOptions {
+                token: self.token.clone(),
+            };
+            let exported = export(&node, &self.path, Some(options)).await?;
+            if !exported {
+                tracing::error!("Unable to export to source `{}`", self.source);
+            }
+
+            result::nothing()
+        }
+    }
+
+    /// Synchronize changes between a remote source and a local path
+    #[derive(StructOpt)]
+    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    pub struct Sync {
+        /// The source identifier e.g. `github:org/name`
+        source: String,
+
+        /// The local path to synchronize with the source
+        #[structopt(default_value = ".")]
+        path: PathBuf,
+
+        /// Any access token required by the source provider
+        #[structopt(long, short)]
+        token: Option<String>,
+
+        /// The URL to listen on for events from the source provider
+        #[structopt(long, short)]
+        url: Option<String>,
+    }
+    #[async_trait]
+    impl Run for Sync {
+        async fn run(&self) -> Result {
+            let identifier = Node::String(self.source.clone());
+            let node = find(&identifier).await?;
+
+            let options = SyncOptions {
                 token: self.token.clone(),
                 url: self.url.clone(),
             };
-            let watching = watch(&node, &self.destination, Some(options)).await?;
-            if !watching {
-                tracing::warn!("Unable to watch node: {:?}", node);
+            let syncing = sync(&node, &self.path, Some(options)).await?;
+            if !syncing {
+                tracing::error!("Unable to synchronize with source `{}`", self.source);
             }
 
             result::nothing()

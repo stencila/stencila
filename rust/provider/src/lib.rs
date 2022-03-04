@@ -83,13 +83,18 @@ pub trait ProviderTrait {
         Ok(node)
     }
 
-    /// Import files associated with a resource, from the provider, into a project
-    async fn import(_node: &Node, _dest: &Path, _options: Option<ImportOptions>) -> Result<bool> {
+    /// Import content from a remote [`Node`] (e.g. an `Article` or `SoftwareSourceCode` repository) to a local path
+    async fn import(_node: &Node, _path: &Path, _options: Option<ImportOptions>) -> Result<bool> {
         Ok(false)
     }
 
-    /// Watch a resource and import files associated with it they change
-    async fn watch(_node: &Node, _dest: &Path, _options: Option<WatchOptions>) -> Result<bool> {
+    /// Export content from a local path to a remote [`Node`] (e.g. an `Article` or `SoftwareSourceCode` repository)
+    async fn export(_node: &Node, _path: &Path, _options: Option<ExportOptions>) -> Result<bool> {
+        Ok(false)
+    }
+
+    /// Synchronize changes between a remote [`Node`] (e.g. a `SoftwareSourceCode` repository) and a local path (a file or directory)
+    async fn sync(_node: &Node, _path: &Path, _options: Option<SyncOptions>) -> Result<bool> {
         Ok(false)
     }
 }
@@ -105,7 +110,12 @@ pub struct ImportOptions {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct WatchOptions {
+pub struct ExportOptions {
+    pub token: Option<String>,
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct SyncOptions {
     pub token: Option<String>,
 
     /// The URL to listen on

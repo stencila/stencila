@@ -26,7 +26,7 @@ use provider::{
         CreativeWorkAuthors, CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date,
         Node, Organization, Person, SoftwareSourceCode, ThingDescription,
     },
-    tracing, EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, WatchOptions,
+    tracing, EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
 };
 use server_utils::{
     axum::{
@@ -320,7 +320,7 @@ impl ProviderTrait for GithubProvider {
         Ok(true)
     }
 
-    async fn watch(node: &Node, dest: &Path, options: Option<WatchOptions>) -> Result<bool> {
+    async fn sync(node: &Node, local: &Path, options: Option<SyncOptions>) -> Result<bool> {
         let ssc = match node {
             Node::SoftwareSourceCode(ssc) => ssc,
             _ => return Ok(false),
@@ -380,7 +380,7 @@ impl ProviderTrait for GithubProvider {
                 env::consts::OS
             ),
         )]);
-        let dest_clone = dest.to_path_buf();
+        let local_clone = local.to_path_buf();
         let client_clone = client.clone();
         let owner_clone = owner.to_string();
         let repo_clone = repo.to_string();
@@ -409,7 +409,7 @@ impl ProviderTrait for GithubProvider {
                         request_headers,
                         payload,
                         event,
-                        &dest_clone,
+                        &local_clone,
                         &client_clone,
                         &secret,
                         &owner_clone,
@@ -471,7 +471,7 @@ async fn webhook_event(
     headers: HeaderMap,
     payload: Bytes,
     event: serde_json::Value,
-    dest: &Path,
+    local: &Path,
     client: &Client,
     secret: &str,
     owner: &str,
@@ -550,12 +550,12 @@ async fn webhook_event(
                     .as_str()
                     .ok_or_else(|| eyre!("Expected path to be a string {}", path))?;
 
-                let dest_path = match PathBuf::from(event_path).strip_prefix(path) {
+                let local_path = match PathBuf::from(event_path).strip_prefix(path) {
                     // Only join stripped path if it has content. This avoids a trailing slash
-                    // when the dest is a file
+                    // when the local path is a file
                     Ok(path) => match path == PathBuf::from("") {
-                        true => dest.to_path_buf(),
-                        false => dest.join(path),
+                        true => local.to_path_buf(),
+                        false => local.join(path),
                     },
                     Err(..) => {
                         tracing::trace!(
@@ -572,25 +572,25 @@ async fn webhook_event(
                     tracing::trace!(
                         "Fetching content of `{}` to write to `{}`",
                         event_path,
-                        dest_path.display()
+                        local_path.display()
                     );
                     let content_file = client
                         .repos()
                         .get_content_file(owner, repo, event_path, event_ref)
                         .await
                         .map_err(to_eyre)?;
-                    if let Some(parent) = dest_path.parent() {
+                    if let Some(parent) = local_path.parent() {
                         create_dir_all(parent)?
                     }
-                    write_content_file(content_file, &dest_path)?;
+                    write_content_file(content_file, &local_path)?;
                 } else {
                     // Remove the file, if it exists
-                    if dest_path.exists() {
-                        remove_file(dest_path)?;
+                    if local_path.exists() {
+                        remove_file(local_path)?;
                     } else {
                         tracing::warn!(
                             "Ignored webhook event to remove non-existent file `{}`",
-                            dest_path.display()
+                            local_path.display()
                         );
                     }
                 }
