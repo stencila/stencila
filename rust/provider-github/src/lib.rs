@@ -300,7 +300,13 @@ impl ProviderTrait for GithubProvider {
                     None => Vec::new(),
                 };
                 let archive = http_utils::download_temp_with(
-                    &format!("/repos/{owner}/{repo}/hooks", owner = owner, repo = repo),
+                    &format!(
+                        "{host}/repos/{owner}/{repo}/tarball/{ref_}",
+                        host = octorust::DEFAULT_HOST,
+                        owner = owner,
+                        repo = repo,
+                        ref_ = ref_.unwrap_or_default()
+                    ),
                     &headers,
                 )
                 .await?;
@@ -369,7 +375,7 @@ impl ProviderTrait for GithubProvider {
         let response_headers = Headers(vec![(
             "Server",
             format!(
-                "Stencila GitHub Provider/{} ({})",
+                "Stencila-GitHub-Provider/{} ({})",
                 env!("CARGO_PKG_VERSION"),
                 env::consts::OS
             ),
