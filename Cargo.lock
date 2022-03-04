@@ -2468,6 +2468,7 @@ dependencies = [
  "once_cell",
  "reqwest",
  "reqwest-middleware",
+ "serde",
  "serde_json",
  "tempfile",
  "tokio",
@@ -4592,7 +4593,18 @@ dependencies = [
  "provider",
  "server-utils",
  "test-utils",
- "tokio",
+]
+
+[[package]]
+name = "provider-gitlab"
+version = "0.0.0"
+dependencies = [
+ "archive-utils",
+ "base64 0.13.0",
+ "http-utils",
+ "provider",
+ "test-utils",
+ "urlencoding",
 ]
 
 [[package]]
@@ -4605,6 +4617,7 @@ dependencies = [
  "provider-doi",
  "provider-elife",
  "provider-github",
+ "provider-gitlab",
  "structopt",
  "test-utils",
  "tokio",

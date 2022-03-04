@@ -14,11 +14,15 @@ use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
 use once_cell::sync::Lazy;
 use reqwest::header::{HeaderMap, HeaderName};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
+use serde::de::DeserializeOwned;
 use tempfile::NamedTempFile;
 
 // Re-exports for consumers of this crate
 pub use reqwest;
 pub use reqwest::header as headers;
+pub use reqwest_middleware;
+pub use serde;
+pub use serde_json;
 pub use tempfile;
 pub use url;
 
@@ -49,12 +53,15 @@ pub static CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
 });
 
 /// Get JSON from a URL
-pub async fn get(url: &str) -> Result<serde_json::Value> {
+pub async fn get<T: DeserializeOwned>(url: &str) -> Result<T> {
     get_with(url, &[]).await
 }
 
 /// Get JSON from a URL with additional request headers
-pub async fn get_with(url: &str, headers: &[(HeaderName, String)]) -> Result<serde_json::Value> {
+pub async fn get_with<T: DeserializeOwned>(
+    url: &str,
+    headers: &[(HeaderName, String)],
+) -> Result<T> {
     let response = CLIENT
         .get(url)
         .headers(headers_to_map(
