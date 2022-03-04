@@ -227,7 +227,7 @@ pub trait BinaryTrait: Send + Sync {
             repo
         );
 
-        let releases = http_utils::get_json(&format!(
+        let releases = http_utils::get(&format!(
             "https://api.github.com/repos/{}/{}/releases?per_page=100",
             org, repo
         ))
@@ -260,7 +260,7 @@ pub trait BinaryTrait: Send + Sync {
             repo
         );
 
-        let releases = http_utils::get_json(&format!(
+        let releases = http_utils::get(&format!(
             "https://api.github.com/repos/{}/{}/tags?per_page=100",
             org, repo
         ))
@@ -851,7 +851,7 @@ pub trait BinaryTrait: Send + Sync {
         }
 
         tracing::info!("Downloading `{}` to `{}`", url, path.display());
-        http_utils::download_file(url, &path).await?;
+        http_utils::download(url, &path).await?;
 
         Ok(path)
     }

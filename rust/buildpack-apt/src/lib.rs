@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use binary::{http_utils::download_file_sync, Binary, BinaryTrait};
+use binary::{http_utils::download_sync, Binary, BinaryTrait};
 use buildpack::{
     eyre,
     fs_utils::clear_dir_all,
@@ -363,7 +363,7 @@ impl AptPackagesLayer {
                     tracing::info!("Downloading `{}`", package);
 
                     let path = apt_archives_dir.join(format!("{}.deb", package_id));
-                    download_file_sync(package, &path)?;
+                    download_sync(package, &path)?;
                 } else {
                     tracing::info!("Fetching deb files for package `{}`", package);
 

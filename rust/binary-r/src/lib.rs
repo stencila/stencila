@@ -27,7 +27,7 @@ impl BinaryTrait for RBinary {
             // versions (and embedded a static copy of that list for Windows). This approach
             // has the advantage of not needing to `asdf` to be installed and being dynamically
             // updatable on Windows.
-            let versions = http_utils::get_json("https://cdn.rstudio.com/r/versions.json").await?;
+            let versions = http_utils::get("https://cdn.rstudio.com/r/versions.json").await?;
             let versions = versions
                 .get("r_versions")
                 .cloned()
