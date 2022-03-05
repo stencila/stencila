@@ -10,7 +10,9 @@ archive-utils = { path = "../archive-utils", version = "0.0.0", features = [
 ] }
 base64 = "0.13.0"
 http-utils = { path = "../http-utils", version = "0.0.0" }
+key-utils = { path = "../key-utils", version = "0.0.0" }
 provider = { path = "../provider", version = "0.0.0" }
+server-utils = { path = "../server-utils", version = "0.0.0" }
 urlencoding = "2.1.0"
 
 [dev-dependencies]
