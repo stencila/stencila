@@ -460,8 +460,8 @@ fn write_content_file(content_file: ContentFile, path: &Path) -> Result<()> {
 /// Validates payloads using HMAC signatures.
 /// See https://docs.github.com/en/developers/webhooks-and-events/webhooks/securing-your-webhooks.
 ///
-/// For debugging purposes this function logs events and returns meaningful status codes
-/// and messages for recording in the "Deliveries" responses on GtHub.
+/// For debugging purposes this function both logs events and returns meaningful status codes
+/// and messages for recording in the "Deliveries" log on GitHub.
 /// See https://docs.github.com/en/developers/webhooks-and-events/webhooks/testing-webhooks
 #[allow(clippy::too_many_arguments)]
 async fn webhook_event(
@@ -476,22 +476,22 @@ async fn webhook_event(
     ref_: &str,
     path: &str,
 ) -> Result<(StatusCode, String)> {
-    // Ignore events with a nonexistent or invalid HMAC signature
+    // Reject events with a nonexistent or invalid HMAC signature
     let signature = match headers.get("X-Hub-Signature-256") {
         Some(value) => value.to_str()?,
         None => {
-            let msg = "Ignoring a webhook event without signature";
+            let msg = "Rejected webhook event without signature";
             tracing::warn!("{}", msg);
             return Ok((StatusCode::BAD_REQUEST, msg.into()));
         }
     };
     if signature != ["sha256=", &bytes_hmac_sha256_hex(secret, payload.as_ref())?].concat() {
-        let msg = "Invalid webhook event signature";
+        let msg = "Rejected webhook event with invalid signature";
         tracing::warn!("{}", msg);
         return Ok((StatusCode::BAD_REQUEST, msg.into()));
     }
 
-    // Ignore events not associated with repo (should not happen but in case it does warn about it)
+    // Reject events not associated with repo (should not happen but in case it does warn about it)
     let event_repo = event
         .pointer("/repository/full_name")
         .and_then(|action| action.as_str())
@@ -499,7 +499,7 @@ async fn webhook_event(
     let full_name = [owner, "/", repo].concat();
     if event_repo != full_name {
         let msg = format!(
-            "Ignoring webhook event for a different repo `{} != {}`",
+            "Rejected webhook event for a different repo `{} != {}`",
             event_repo, full_name
         );
         tracing::warn!("{}", msg);
