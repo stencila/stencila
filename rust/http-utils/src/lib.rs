@@ -12,9 +12,10 @@ use std::{env, fs::File, io, path::Path};
 use eyre::Result;
 use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
 use once_cell::sync::Lazy;
-use reqwest::header::{HeaderMap, HeaderName};
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use tempfile::NamedTempFile;
 
 // Re-exports for consumers of this crate
@@ -52,25 +53,29 @@ pub static CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
     ClientBuilder::new(client).with(caching_middleware).build()
 });
 
-/// Get JSON from a URL
+/// Convert an array of tuples to a `reqwest::HeaderMap`
+fn header_map(headers: &[(HeaderName, String)]) -> Result<HeaderMap> {
+    let mut header_map = HeaderMap::new();
+    header_map.insert(headers::ACCEPT, HeaderValue::from_str("application/json")?);
+    for (key, value) in headers {
+        header_map.insert(key, value.parse()?);
+    }
+    Ok(header_map)
+}
+
+/// Send a GET request
 pub async fn get<T: DeserializeOwned>(url: &str) -> Result<T> {
     get_with(url, &[]).await
 }
 
-/// Get JSON from a URL with additional request headers
+/// Send a GET request with additional request headers
 pub async fn get_with<T: DeserializeOwned>(
     url: &str,
     headers: &[(HeaderName, String)],
 ) -> Result<T> {
     let response = CLIENT
         .get(url)
-        .headers(headers_to_map(
-            &[
-                vec![(headers::ACCEPT, "application/json".to_string())],
-                headers.to_vec(),
-            ]
-            .concat(),
-        )?)
+        .headers(header_map(headers)?)
         .send()
         .await?
         .error_for_status()?;
@@ -80,16 +85,56 @@ pub async fn get_with<T: DeserializeOwned>(
     Ok(json)
 }
 
-/// Download a file from a URL to a path
+/// Send a POST request
+pub async fn post<B: Serialize, T: DeserializeOwned>(url: &str, body: B) -> Result<T> {
+    post_with(url, body, &[]).await
+}
+
+/// Send a POST request with additional request headers
+pub async fn post_with<B: Serialize, T: DeserializeOwned>(
+    url: &str,
+    body: B,
+    headers: &[(HeaderName, String)],
+) -> Result<T> {
+    let response = CLIENT
+        .post(url)
+        .json(&body)
+        .headers(header_map(headers)?)
+        .send()
+        .await?
+        .error_for_status()?;
+
+    let json = response.json().await?;
+
+    Ok(json)
+}
+
+/// Send a DELETE request
+pub async fn delete(url: &str) -> Result<()> {
+    delete_with(url, &[]).await
+}
+
+/// Send a DELETE request with additional request headers
+pub async fn delete_with(url: &str, headers: &[(HeaderName, String)]) -> Result<()> {
+    CLIENT
+        .delete(url)
+        .headers(header_map(headers)?)
+        .send()
+        .await?
+        .error_for_status()?;
+    Ok(())
+}
+
+/// Download a file from to a path
 pub async fn download(url: &str, path: &Path) -> Result<()> {
     download_with(url, path, &[]).await
 }
 
-/// Download a file from a URL to a path with additional request headers
+/// Download a file from to a path with additional request headers
 pub async fn download_with(url: &str, path: &Path, headers: &[(HeaderName, String)]) -> Result<()> {
     let response = CLIENT
         .get(url)
-        .headers(headers_to_map(headers)?)
+        .headers(header_map(headers)?)
         .send()
         .await?
         .error_for_status()?;
@@ -102,12 +147,12 @@ pub async fn download_with(url: &str, path: &Path, headers: &[(HeaderName, Strin
     Ok(())
 }
 
-/// Download a file from a URL to a path synchronously
+/// Download a file from to a path synchronously
 pub fn download_sync(url: &str, path: &Path) -> Result<()> {
     download_with_sync(url, path, &[])
 }
 
-/// Download a file from a URL to a path synchronously with additional request headers
+/// Download a file from to a path synchronously with additional request headers
 pub fn download_with_sync(url: &str, path: &Path, headers: &[(HeaderName, String)]) -> Result<()> {
     let url = url.to_owned();
     let path = path.to_owned();
@@ -120,12 +165,12 @@ pub fn download_with_sync(url: &str, path: &Path, headers: &[(HeaderName, String
     receiver.recv()?
 }
 
-/// Download a file from a URL to a temporary file
+/// Download a file from to a temporary file
 pub async fn download_temp(url: &str) -> Result<NamedTempFile> {
     download_temp_with(url, &[]).await
 }
 
-/// Download a file from a URL to a temporary file with additional request headers
+/// Download a file from to a temporary file with additional request headers
 ///
 /// Returns a `NamedTempFile` which will remove the temporary file when it
 /// is dropped. Be aware of that and the security implications of long-lived temp files:
@@ -137,13 +182,4 @@ pub async fn download_temp_with(
     let temp = NamedTempFile::new()?;
     download_with(url, temp.path(), headers).await?;
     Ok(temp)
-}
-
-/// Convert an array of tuples to a `reqwest::HeaderMap`
-fn headers_to_map(headers: &[(HeaderName, String)]) -> Result<HeaderMap> {
-    let mut header_map = HeaderMap::new();
-    for (key, value) in headers {
-        header_map.insert(key, value.parse()?);
-    }
-    Ok(header_map)
 }
