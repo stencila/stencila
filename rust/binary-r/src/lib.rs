@@ -1,10 +1,10 @@
-use std::path::Path;
+use std::{collections::HashMap, path::Path};
 
 use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, eyre, Result},
-    http_utils, serde_json,
+    http_utils,
 };
 pub use binary::{Binary, BinaryInstallation, BinaryTrait};
 use binary_asdf::AsdfBinary;
@@ -27,12 +27,12 @@ impl BinaryTrait for RBinary {
             // versions (and embedded a static copy of that list for Windows). This approach
             // has the advantage of not needing to `asdf` to be installed and being dynamically
             // updatable on Windows.
-            let versions = http_utils::get("https://cdn.rstudio.com/r/versions.json").await?;
+            let versions: HashMap<String, Vec<String>> =
+                http_utils::get("https://cdn.rstudio.com/r/versions.json").await?;
             let versions = versions
                 .get("r_versions")
                 .cloned()
                 .ok_or_else(|| eyre!("Expected object with `r_versions` property"))?;
-            let versions: Vec<String> = serde_json::from_value(versions)?;
             Ok(versions)
         }
         Ok(self.versions_update_maybe(versions::VERSIONS, more().await))

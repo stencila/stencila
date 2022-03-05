@@ -228,16 +228,14 @@ pub trait BinaryTrait: Send + Sync {
             repo
         );
 
-        let releases = http_utils::get(&format!(
+        let releases: Vec<serde_json::Value> = http_utils::get(&format!(
             "https://api.github.com/repos/{}/{}/releases?per_page=100",
             org, repo
         ))
         .await?;
 
-        let versions = releases
-            .as_array()
+        let versions: Vec<String> = releases
             .into_iter()
-            .flatten()
             .filter_map(|release| {
                 release["tag_name"]
                     .as_str()
@@ -261,16 +259,14 @@ pub trait BinaryTrait: Send + Sync {
             repo
         );
 
-        let releases = http_utils::get(&format!(
+        let releases: Vec<serde_json::Value> = http_utils::get(&format!(
             "https://api.github.com/repos/{}/{}/tags?per_page=100",
             org, repo
         ))
         .await?;
 
         let versions: Vec<String> = releases
-            .as_array()
             .into_iter()
-            .flatten()
             .filter_map(|release| {
                 release["name"]
                     .as_str()
