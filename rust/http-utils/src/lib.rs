@@ -6,6 +6,7 @@
 //! the number of network requests for the client, several APIs ask clients
 //! to implement caching to reduce load on their servers.
 
+use std::fs::create_dir_all;
 use std::io::Write;
 use std::{env, fs::File, io, path::Path};
 
@@ -139,6 +140,10 @@ pub async fn download_with(url: &str, path: &Path, headers: &[(HeaderName, Strin
         .await?
         .error_for_status()?;
 
+    if let Some(parent) = path.parent() {
+        create_dir_all(parent)?
+    }
+
     let bytes = response.bytes().await?;
     let mut file = File::create(&path)?;
     io::copy(&mut bytes.as_ref(), &mut file)?;
@@ -166,8 +171,8 @@ pub fn download_with_sync(url: &str, path: &Path, headers: &[(HeaderName, String
 }
 
 /// Download a file from to a temporary file
-pub async fn download_temp(url: &str) -> Result<NamedTempFile> {
-    download_temp_with(url, &[]).await
+pub async fn download_temp(url: &str, ext: Option<&str>) -> Result<NamedTempFile> {
+    download_temp_with(url, ext, &[]).await
 }
 
 /// Download a file from to a temporary file with additional request headers
@@ -177,9 +182,11 @@ pub async fn download_temp(url: &str) -> Result<NamedTempFile> {
 /// https://docs.rs/tempfile/latest/tempfile/struct.NamedTempFile.html
 pub async fn download_temp_with(
     url: &str,
+    ext: Option<&str>,
     headers: &[(HeaderName, String)],
 ) -> Result<NamedTempFile> {
-    let temp = NamedTempFile::new()?;
+    let suffix = ext.map_or_else(String::new, |ext| [".", ext].concat());
+    let temp = tempfile::Builder::new().suffix(&suffix).tempfile()?;
     download_with(url, temp.path(), headers).await?;
     Ok(temp)
 }

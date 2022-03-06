@@ -78,7 +78,7 @@ impl GitlabClient {
     }
 
     async fn download_temp(&self, path: &str) -> Result<NamedTempFile> {
-        download_temp_with(&[&self.base_url, path].concat(), &self.headers).await
+        download_temp_with(&[&self.base_url, path].concat(), None, &self.headers).await
     }
 }
 
@@ -383,7 +383,6 @@ impl ProviderTrait for GitlabProvider {
                         &project_clone,
                         &ref_,
                         &path_clone,
-                        &path_id,
                     )
                     .await
                     {
@@ -509,7 +508,6 @@ async fn webhook_event(
     project_id: &str,
     ref_: &str,
     path: &str,
-    path_id: &str,
 ) -> Result<(StatusCode, String)> {
     // Reject events with a nonexistent or invalid token
     match headers.get("X-Gitlab-Token") {
@@ -553,7 +551,7 @@ async fn webhook_event(
                 ADDED => &commit.added,
                 MODIFIED => &commit.modified,
                 REMOVED => &commit.removed,
-                _ => unreachable!()
+                _ => unreachable!(),
             };
             for event_path in paths {
                 let local_path = match PathBuf::from(event_path).strip_prefix(path) {
