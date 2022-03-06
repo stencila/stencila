@@ -24,6 +24,7 @@ provider-doi = { path = "../provider-doi", version = "0.0.0", optional = true }
 provider-elife = { path = "../provider-elife", version = "0.0.0", optional = true }
 provider-github = { path = "../provider-github", version = "0.0.0", optional = true }
 provider-gitlab = { path = "../provider-gitlab", version = "0.0.0", optional = true }
+provider-http = { path = "../provider-http", version = "0.0.0", optional = true }
 
 [dev-dependencies]
 test-utils = { path = "../test-utils", version = "0.0.0" }

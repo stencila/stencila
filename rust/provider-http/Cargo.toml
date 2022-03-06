@@ -1,0 +1,18 @@
+[package]
+name = "provider-http"
+description = " A provider for HTTP resources"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+archive-utils = { path = "../archive-utils", version = "0.0.0", features = [
+    "tar",
+    "tar-gz",
+    "tar-xz",
+    "zip",
+] }
+http-utils = { path = "../http-utils", version = "0.0.0" }
+provider = { path = "../provider", version = "0.0.0" }
+
+[dev-dependencies]
+test-utils = { path = "../test-utils", version = "0.0.0" }

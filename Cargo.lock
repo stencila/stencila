@@ -4610,6 +4610,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "provider-http"
+version = "0.0.0"
+dependencies = [
+ "archive-utils",
+ "http-utils",
+ "provider",
+ "test-utils",
+]
+
+[[package]]
 name = "providers"
 version = "0.0.0"
 dependencies = [
@@ -4620,6 +4630,7 @@ dependencies = [
  "provider-elife",
  "provider-github",
  "provider-gitlab",
+ "provider-http",
  "structopt",
  "test-utils",
  "tokio",

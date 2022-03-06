@@ -5,8 +5,8 @@ use provider::{
     stencila_schema::Node,
     tracing, EnrichOptions, ExportOptions, ImportOptions, ProviderTrait, SyncOptions,
 };
+use std::path::Path;
 use std::sync::Arc;
-use std::{collections::BTreeMap, path::Path};
 
 pub use provider::{DetectItem, Provider};
 
@@ -52,7 +52,7 @@ static PROVIDERS: Lazy<Arc<Providers>> = Lazy::new(|| Arc::new(Providers::new())
 
 /// A set of registered providers, either built-in, or provided by plugins
 struct Providers {
-    inner: BTreeMap<String, Provider>,
+    inner: Vec<Provider>,
 }
 
 /// A macro to dispatch methods to builtin providers
@@ -67,6 +67,8 @@ macro_rules! dispatch_builtins {
             "github" => Some(provider_github::GithubProvider::$method($($arg),*)),
             #[cfg(feature = "provider-gitlab")]
             "gitlab" => Some(provider_gitlab::GitlabProvider::$method($($arg),*)),
+            #[cfg(feature = "provider-http")]
+            "http" => Some(provider_http::HttpProvider::$method($($arg),*)),
             _ => None
         }
     };
@@ -74,39 +76,42 @@ macro_rules! dispatch_builtins {
 
 impl Providers {
     /// Create a set of providers
+    ///
+    /// Ordering is important because detection is done in order and often
+    /// when there are multiple detections for the same location (e.g. a GitHub
+    /// url and a generic HTTP/S url) the first is used.
     pub fn new() -> Self {
         let inner = vec![
             #[cfg(feature = "provider-doi")]
-            ("doi", provider_doi::DoiProvider::spec()),
+            provider_doi::DoiProvider::spec(),
             #[cfg(feature = "provider-elife")]
-            ("elife", provider_elife::ElifeProvider::spec()),
+            provider_elife::ElifeProvider::spec(),
             #[cfg(feature = "provider-github")]
-            ("github", provider_github::GithubProvider::spec()),
+            provider_github::GithubProvider::spec(),
             #[cfg(feature = "provider-gitlab")]
-            ("gitlab", provider_gitlab::GitlabProvider::spec()),
-        ]
-        .into_iter()
-        .map(|(label, provider): (&str, Provider)| (label.to_string(), provider))
-        .collect();
-
+            provider_gitlab::GitlabProvider::spec(),
+            #[cfg(feature = "provider-http")]
+            provider_http::HttpProvider::spec(),
+        ];
         Self { inner }
     }
 
     /// List the available providers
     fn list(&self) -> Vec<String> {
         self.inner
-            .keys()
-            .into_iter()
-            .cloned()
-            .collect::<Vec<String>>()
+            .iter()
+            .map(|provider| provider.name.clone())
+            .collect()
     }
 
     /// Get a provider by name
     fn get(&self, name: &str) -> Result<Provider> {
-        match self.inner.get(&name.to_lowercase()) {
-            Some(provider) => Ok(provider.clone()),
-            None => bail!("No provider with name `{}`", name),
+        for provider in &self.inner {
+            if provider.name == name {
+                return Ok(provider.clone());
+            }
         }
+        bail!("No provider with name `{}`", name)
     }
 
     /// Detect nodes within a node
@@ -115,8 +120,8 @@ impl Providers {
     /// is a list of detections across all providers.
     async fn detect(&self, node: &Node) -> Result<Vec<DetectItem>> {
         let mut detected = Vec::new();
-        for (name, ..) in &self.inner {
-            if let Some(future) = dispatch_builtins!(name, detect, node) {
+        for provider in &self.inner {
+            if let Some(future) = dispatch_builtins!(provider.name, detect, node) {
                 let mut result = future.await?;
                 detected.append(&mut result);
             }
@@ -129,8 +134,10 @@ impl Providers {
     /// The `enrich` method of each provider is called on the node possibly mutating it with new
     /// and/or different values for fields.
     async fn enrich(&self, mut node: Node, options: Option<EnrichOptions>) -> Result<Node> {
-        for (name, ..) in &self.inner {
-            if let Some(future) = dispatch_builtins!(name, enrich, node.clone(), options.clone()) {
+        for provider in &self.inner {
+            if let Some(future) =
+                dispatch_builtins!(provider.name, enrich, node.clone(), options.clone())
+            {
                 node = future.await?;
             }
         }
@@ -147,8 +154,10 @@ impl Providers {
         path: &Path,
         options: Option<ImportOptions>,
     ) -> Result<bool> {
-        for (name, ..) in &self.inner {
-            if let Some(future) = dispatch_builtins!(name, import, node, path, options.clone()) {
+        for provider in &self.inner {
+            if let Some(future) =
+                dispatch_builtins!(provider.name, import, node, path, options.clone())
+            {
                 let imported = future.await?;
                 if imported {
                     return Ok(true);
@@ -168,8 +177,10 @@ impl Providers {
         path: &Path,
         options: Option<ExportOptions>,
     ) -> Result<bool> {
-        for (name, ..) in &self.inner {
-            if let Some(future) = dispatch_builtins!(name, export, node, path, options.clone()) {
+        for provider in &self.inner {
+            if let Some(future) =
+                dispatch_builtins!(provider.name, export, node, path, options.clone())
+            {
                 let exported = future.await?;
                 if exported {
                     return Ok(true);
@@ -184,8 +195,10 @@ impl Providers {
     /// The `sync` method of each provider is called until one returns `true` (indicating that the node was synced).
     /// Ino providers are able to sync the node returns `Ok(false)`.
     async fn sync(&self, node: &Node, path: &Path, options: Option<SyncOptions>) -> Result<bool> {
-        for (name, ..) in &self.inner {
-            if let Some(future) = dispatch_builtins!(name, sync, node, path, options.clone()) {
+        for provider in &self.inner {
+            if let Some(future) =
+                dispatch_builtins!(provider.name, sync, node, path, options.clone())
+            {
                 let syncing = future.await?;
                 if syncing {
                     return Ok(true);
