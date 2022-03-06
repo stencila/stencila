@@ -101,13 +101,13 @@ impl ProviderTrait for GithubProvider {
     fn parse(string: &str) -> Vec<ParseItem> {
         // Regex targeting short identifiers e.g. github:org/name
         static SIMPLE_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"^github:([a-z0-9\-]+)/([a-z0-9\-_]+)(?:/([^@]+))?(?:@(.+))?$")
+            Regex::new(r"github:([a-z0-9\-]+)/([a-z0-9\-_]+)(?:/([^@\s]+))?(?:@([^\s]+))?")
                 .expect("Unable to create regex")
         });
 
         // Regex targeting URL copied from the browser address bar
         static URL_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"^https?://github\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:(?:tree|blob))?/?([^/]+)?/?(.+)?$")
+            Regex::new(r"https?://github\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:(?:tree|blob)/([^/\s]+)?/?([^\s]+))?(?:$|\s)")
                 .expect("Unable to create regex")
         });
 
@@ -301,6 +301,7 @@ impl ProviderTrait for GithubProvider {
                         repo = repo,
                         ref_ = ref_.unwrap_or_default()
                     ),
+                    None,
                     &headers,
                 )
                 .await?;
@@ -617,8 +618,6 @@ mod tests {
             "http://github.com/owner/name",
             "https://github.com/owner/name",
             "https://github.com/owner/name/",
-            "https://github.com/owner/name/tree",
-            "https://github.com/owner/name/blob/",
         ] {
             assert_json_is!(
                 GithubProvider::parse(string)[0].node,
@@ -635,11 +634,7 @@ mod tests {
         }
 
         // Version, no path
-        for string in [
-            "github:owner/name@version",
-            "https://github.com/owner/name/tree/version",
-            "https://github.com/owner/name/tree/version/",
-        ] {
+        for string in ["github:owner/name@version"] {
             assert_json_is!(
                 GithubProvider::parse(string)[0].node,
                 {
@@ -712,6 +707,43 @@ mod tests {
                     "content": "sub/folder/file.ext"
                 }
             );
+        }
+
+        // Multiple items in a string
+        let parse_items = GithubProvider::parse(
+            "
+            https://github.com/owner/name som word to be ignored
+            and then another url github:owner/name
+        ",
+        );
+        assert_eq!(parse_items.len(), 2);
+        assert_json_is!(parse_items[0].node, {
+            "type": "SoftwareSourceCode",
+            "codeRepository": "https://github.com/owner/name",
+            "publisher": {
+                "type": "Organization",
+                "name": "owner"
+            },
+            "name": "name"
+        });
+        assert_json_is!(parse_items[1].node, {
+            "type": "SoftwareSourceCode",
+            "codeRepository": "https://github.com/owner/name",
+            "publisher": {
+                "type": "Organization",
+                "name": "owner"
+            },
+            "name": "name"
+        });
+
+        // GitHub URLs that should not get parsed because usually you just want to download the content
+        // using the `HttpProvider`.
+        for string in [
+            "https://github.com/stencila/test/archive/refs/heads/master.zip",
+            "https://github.com/stencila/test/releases/download/v0.0.0/archive.tar.gz",
+        ] {
+            let parse_items = GithubProvider::parse(string);
+            assert!(parse_items.is_empty());
         }
     }
 }

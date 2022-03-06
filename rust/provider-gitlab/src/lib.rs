@@ -143,14 +143,14 @@ impl ProviderTrait for GitlabProvider {
     fn parse(string: &str) -> Vec<ParseItem> {
         // Regex targeting short identifiers e.g. gitlab:org/name
         static SHORT_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"^gitlab:([a-z0-9\-]+)/([a-z0-9\-_]+)(?:/([^@]+))?(?:@(.+))?$")
+            Regex::new(r"gitlab:([a-z0-9\-]+)/([a-z0-9\-_]+)(?:/([^@\s]+))?(?:@([^\s]+))?")
                 .expect("Unable to create regex")
         });
 
         // Regex targeting URL copied from the browser address bar
         // Note that compared to the equivalent Gitlab URLs, these have an additional `-/` before `tree` or `blob`
         static URL_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"^https?://gitlab\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:-/tree|-/blob)?/?([^/]+)?/?(.+)?$")
+            Regex::new(r"https?://gitlab\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:-/(?:tree|blob)/([^/\s]+)?/?([^\s]+))?(?:$|\s)")
                 .expect("Unable to create regex")
         });
 
@@ -328,7 +328,6 @@ impl ProviderTrait for GitlabProvider {
 
         let version = Self::version(ssc);
         let path = Self::path(ssc);
-        let path_id = Self::path_id(ssc).unwrap_or_default();
 
         let options = options.unwrap_or_default();
         let client = GitlabClient::new(options.token)?;
@@ -620,8 +619,6 @@ mod tests {
             "http://gitlab.com/owner/name",
             "https://gitlab.com/owner/name",
             "https://gitlab.com/owner/name/",
-            "https://gitlab.com/owner/name/-/tree",
-            "https://gitlab.com/owner/name/-/blob/",
         ] {
             assert_json_is!(
                 GitlabProvider::parse(string)[0].node,
@@ -638,10 +635,7 @@ mod tests {
         }
 
         // Version, no path
-        for string in [
-            "gitlab:owner/name@version",
-            "https://gitlab.com/owner/name/-/tree/version/",
-        ] {
+        for string in ["gitlab:owner/name@version"] {
             assert_json_is!(
                 GitlabProvider::parse(string)[0].node,
                 {
@@ -714,6 +708,43 @@ mod tests {
                     "content": "sub/folder/file.ext"
                 }
             );
+        }
+
+        // Multiple items in a string
+        let parse_items = GitlabProvider::parse(
+            "
+            https://gitlab.com/owner/name som word to be ignored
+            and then another url gitlab:owner/name
+        ",
+        );
+        assert_eq!(parse_items.len(), 2);
+        assert_json_is!(parse_items[0].node, {
+            "type": "SoftwareSourceCode",
+            "codeRepository": "https://gitlab.com/owner/name",
+            "publisher": {
+                "type": "Organization",
+                "name": "owner"
+            },
+            "name": "name"
+        });
+        assert_json_is!(parse_items[1].node, {
+            "type": "SoftwareSourceCode",
+            "codeRepository": "https://gitlab.com/owner/name",
+            "publisher": {
+                "type": "Organization",
+                "name": "owner"
+            },
+            "name": "name"
+        });
+
+        // Gitlab URLs that should not get parsed because usually you just want to download the content
+        // using the `HttpProvider`.
+        for string in [
+            "https://gitlab.com/stencila/test/archive/refs/heads/master.zip",
+            "https://gitlab.com/stencila/test/releases/download/v0.0.0/archive.tar.gz",
+        ] {
+            let parse_items = GitlabProvider::parse(string);
+            assert!(parse_items.is_empty());
         }
     }
 }
