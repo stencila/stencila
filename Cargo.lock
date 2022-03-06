@@ -1105,7 +1105,7 @@ dependencies = [
  "json5",
  "node-coerce",
  "node-transform",
- "nom",
+ "nom 7.1.0",
  "once_cell",
  "pulldown-cmark",
  "regex",
@@ -1362,6 +1362,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b540bd8bc810d3885c6ea91e2018302f68baba2129ab3e88f32389ee9370880d"
 dependencies = [
  "cfg-if 1.0.0",
+]
+
+[[package]]
+name = "cron"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e009ed0b762cf7a967a34dfdc67d5967d3f828f12901d37081432c3dd1668f8f"
+dependencies = [
+ "chrono",
+ "nom 4.1.1",
+ "once_cell",
+]
+
+[[package]]
+name = "cron-lingo"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73ab05f54109f5a931d63f1215537998940e4415843ba0058a456d00620f11c9"
+dependencies = [
+ "time 0.3.7",
 ]
 
 [[package]]
@@ -3686,6 +3706,15 @@ checksum = "72ef4a56884ca558e5ddb05a1d1e7e1bfd9a68d9ed024c21704cc98872dae1bb"
 
 [[package]]
 name = "nom"
+version = "4.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c349f68f25f596b9f44cf0e7c69752a5c633b0550c3ff849518bfba0233774a"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
+name = "nom"
 version = "7.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b1d11e1ef389c76fe5b81bcaf2ea32cf88b62bc494e19f493d0b30e7a930109"
@@ -4547,7 +4576,11 @@ name = "provider"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "chrono",
  "codecs",
+ "cron",
+ "cron-lingo",
+ "events",
  "eyre",
  "http-utils",
  "node-address",
@@ -4556,6 +4589,7 @@ dependencies = [
  "regex",
  "serde",
  "stencila-schema",
+ "tokio",
  "tracing",
 ]
 
@@ -6053,7 +6087,14 @@ dependencies = [
  "itoa 1.0.1",
  "libc",
  "num_threads",
+ "time-macros",
 ]
+
+[[package]]
+name = "time-macros"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25eb0ca3468fc0acc11828786797f6ef9aa1555e4a211a60d64cc8e4d1be47d6"
 
 [[package]]
 name = "tinyvec"

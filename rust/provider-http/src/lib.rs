@@ -7,11 +7,13 @@ use archive_utils::extract;
 use http_utils::{download, download_temp, url};
 use provider::{
     async_trait::async_trait,
-    eyre::Result,
+    eyre::{bail, Result},
     once_cell::sync::Lazy,
     regex::Regex,
+    run_schedule,
     stencila_schema::{Node, Thing},
-    ImportOptions, ParseItem, Provider, ProviderTrait,
+    tokio::{self, sync::mpsc},
+    tracing, ImportOptions, ParseItem, Provider, ProviderTrait, IMPORT,
 };
 
 pub struct HttpProvider;
@@ -71,6 +73,7 @@ impl ProviderTrait for HttpProvider {
                 .map_or_else(String::new, |ext| ext.to_string_lossy().to_string())
         };
 
+        tracing::info!("Downloading `{url}` to `{dest}`", dest = dest.display());
         if !dest_ext.is_empty() {
             // If the destination appears to be a file: just download it
             download(url, dest).await?
@@ -92,6 +95,36 @@ impl ProviderTrait for HttpProvider {
             // Otherwise, just download to the destination (event though it appears to be a folder)
             download(url, dest).await?;
         }
+
+        Ok(true)
+    }
+
+    async fn schedule(action: &str, schedule: &str, node: &Node, path: &Path) -> Result<bool> {
+        let thing = match node {
+            Node::Thing(thing) => thing,
+            _ => return Ok(false),
+        };
+        let url = match &thing.url {
+            Some(url) => url.as_ref(),
+            None => return Ok(false),
+        }
+        .to_owned();
+
+        if action != IMPORT {
+            bail!("Only the import action is supported for `http` resources")
+        }
+
+        let (sender, mut receiver) = mpsc::channel(1);
+        let node = node.to_owned();
+        let path = path.to_owned();
+        tokio::spawn(async move {
+            while let Some(..) = receiver.recv().await {
+                if let Err(error) = Self::import(&node, &path, None).await {
+                    tracing::error!("While importing from `{}`: {}", url, error);
+                }
+            }
+        });
+        run_schedule(schedule, sender).await?;
 
         Ok(true)
     }

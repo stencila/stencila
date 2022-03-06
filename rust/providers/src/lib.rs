@@ -47,6 +47,10 @@ pub async fn sync(node: &Node, dest: &Path, options: Option<SyncOptions>) -> Res
     PROVIDERS.sync(node, dest, options).await
 }
 
+pub async fn schedule(action: &str, schedule: &str, node: &Node, dest: &Path) -> Result<bool> {
+    PROVIDERS.schedule(action, schedule, node, dest).await
+}
+
 /// The set of registered providers in the current process
 static PROVIDERS: Lazy<Arc<Providers>> = Lazy::new(|| Arc::new(Providers::new()));
 
@@ -207,6 +211,27 @@ impl Providers {
         }
         Ok(false)
     }
+
+    /// Schedule import and/or export to/from a remove [`Node`] and a local path
+    async fn schedule(
+        &self,
+        action: &str,
+        schedule: &str,
+        node: &Node,
+        path: &Path,
+    ) -> Result<bool> {
+        for provider in &self.inner {
+            if let Some(future) =
+                dispatch_builtins!(provider.name, schedule, action, schedule, node, path)
+            {
+                let scheduleing = future.await?;
+                if scheduleing {
+                    return Ok(true);
+                }
+            }
+        }
+        Ok(false)
+    }
 }
 
 impl Default for Providers {
@@ -238,6 +263,7 @@ pub mod commands {
         Import(Import),
         Export(Export),
         Sync(Sync),
+        Schedule(Schedule),
     }
 
     #[async_trait]
@@ -251,6 +277,7 @@ pub mod commands {
                 Command::Import(action) => action.run().await,
                 Command::Export(action) => action.run().await,
                 Command::Sync(action) => action.run().await,
+                Command::Schedule(action) => action.run().await,
             }
         }
     }
@@ -465,6 +492,43 @@ pub mod commands {
             let syncing = sync(&node, &self.path, Some(options)).await?;
             if !syncing {
                 tracing::error!("Unable to synchronize with source `{}`", self.source);
+            }
+
+            result::nothing()
+        }
+    }
+
+    /// Schedule changes between a remote source and a local path
+    #[derive(StructOpt)]
+    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    pub struct Schedule {
+        /// The action to take at the scheduled time
+        #[structopt(possible_values=provider::ACTIONS)]
+        action: String,
+
+        /// The schedule on which to perform the action
+        schedule: String,
+
+        /// The source identifier e.g. `github:org/name`
+        source: String,
+
+        /// The local path to synchronize with the source
+        #[structopt(default_value = ".")]
+        path: PathBuf,
+    }
+    #[async_trait]
+    impl Run for Schedule {
+        async fn run(&self) -> Result {
+            let identifier = Node::String(self.source.clone());
+            let node = find(&identifier).await?;
+
+            let scheduling = schedule(&self.action, &self.schedule, &node, &self.path).await?;
+            if !scheduling {
+                tracing::error!(
+                    "Unable to schedule `{}` of source `{}`",
+                    self.action,
+                    self.source
+                );
             }
 
             result::nothing()
