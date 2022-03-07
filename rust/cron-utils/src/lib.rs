@@ -239,16 +239,22 @@ fn every(input: &str) -> IResult<&str, Cron> {
                 }
             } else if unit.starts_with('m') {
                 Cron {
+                    seconds: "0".to_string(),
                     minutes: ["*/", num].concat(),
                     ..Default::default()
                 }
             } else if unit.starts_with('h') {
                 Cron {
+                    seconds: "0".to_string(),
+                    minutes: "0".to_string(),
                     hours: ["*/", num].concat(),
                     ..Default::default()
                 }
             } else if unit.starts_with('d') {
                 Cron {
+                    seconds: "0".to_string(),
+                    minutes: "0".to_string(),
+                    hours: "0".to_string(),
                     days_of_month: ["*/", num].concat(),
                     ..Default::default()
                 }
@@ -364,10 +370,10 @@ fn timezone(input: &str) -> IResult<&str, Tz> {
     fail(input)
 }
 
-pub fn next(schedules: Vec<Schedule>, tz: Tz) -> Option<DateTime<Utc>> {
+pub fn next(schedules: &[Schedule], tz: &Tz) -> Option<DateTime<Utc>> {
     let mut times = schedules
         .iter()
-        .filter_map(|schedule| schedule.upcoming(tz).next())
+        .filter_map(|schedule| schedule.upcoming(*tz).next())
         .collect::<Vec<_>>();
     times.sort();
     times.first().map(|time| time.with_timezone(&Utc))
@@ -488,15 +494,15 @@ mod tests {
         );
         assert_eq!(
             parse("every 30 mins")?.0[0],
-            Schedule::from_str("* */30 * * * *")?
+            Schedule::from_str("0 */30 * * * *")?
         );
         assert_eq!(
             parse("every 2 hrs")?.0[0],
-            Schedule::from_str("* * */2 * * *")?
+            Schedule::from_str("0 0 */2 * * *")?
         );
         assert_eq!(
             parse("every 2 days")?.0[0],
-            Schedule::from_str("* * * */2 * *")?
+            Schedule::from_str("0 0 0 */2 * *")?
         );
 
         Ok(())
@@ -549,7 +555,7 @@ mod tests {
     #[test]
     fn iterate() -> Result<()> {
         let (schedules, timezone) = parse("every minute and every day")?;
-        let time = next(schedules, timezone);
+        let time = next(&schedules, &timezone);
         //println!("{:?}", time);
         assert!(time.is_some());
 
