@@ -4685,6 +4685,7 @@ dependencies = [
  "archive-utils",
  "http-utils",
  "provider",
+ "slug",
  "test-utils",
 ]
 

@@ -13,6 +13,7 @@ archive-utils = { path = "../archive-utils", version = "0.0.0", features = [
 ] }
 http-utils = { path = "../http-utils", version = "0.0.0" }
 provider = { path = "../provider", version = "0.0.0" }
+slug = "0.1.4"
 
 [dev-dependencies]
 test-utils = { path = "../test-utils", version = "0.0.0" }

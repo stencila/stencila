@@ -91,8 +91,12 @@ impl ProviderTrait for HttpProvider {
             // If the destination appears to be a folder and the source has a filename:
             // download it into the folder using the filename
             download(url, &dest.join(filename)).await?;
+        } else if dest_ext.is_empty() {
+            // If the destination appears to be a folder and the source has no filename:
+            // download it to a slugified name
+            download(url, &dest.join(slug::slugify(url))).await?;
         } else {
-            // Otherwise, just download to the destination (event though it appears to be a folder)
+            // Otherwise, just download to the destination (even though it has no extension e.g. `Makefile`)
             download(url, dest).await?;
         }
 
