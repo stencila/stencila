@@ -21,7 +21,7 @@ use nom::{
 mod tz_abbreviations;
 
 /// A cron schdule
-/// 
+///
 /// See https://en.wikipedia.org/wiki/Cron for syntax (including extensions).
 /// This has additional `seconds` fields for compatability with `cron` crate.
 #[derive(Debug, PartialEq, Eq)]
@@ -259,10 +259,32 @@ fn time(input: &str) -> IResult<&str, Cron> {
     let minute = take_while_m_n(2, 2, |c: char| is_digit(c as u8));
     let second = take_while_m_n(2, 2, |c: char| is_digit(c as u8));
     map(
-        tuple((hour, tag(":"), minute, opt(preceded(tag(":"), second)))),
-        |(hour, _sep, minute, second): (&str, &str, &str, Option<&str>)| -> Cron {
+        tuple((
+            hour,
+            tag(":"),
+            minute,
+            opt(preceded(tag(":"), second)),
+            opt(alt((tag_no_case("am"), tag_no_case("pm"),))),
+        )),
+        |(hour, _sep, minute, second, ampm): (&str, &str, &str, Option<&str>, Option<&str>)| -> Cron {
+            let hours = match ampm {
+                Some(value) => {
+                    if value.to_lowercase() == "pm" {
+                        let hour:u8 = hour.parse().unwrap_or(12);
+                        let hour = if hour < 12 {
+                            hour + 12
+                        } else {
+                            hour
+                        };
+                        format!("{}", hour)
+                    } else {
+                        hour.to_string()
+                    }
+                },
+                _ => hour.to_string()
+            };
             Cron {
-                hours: hour.to_string(),
+                hours,
                 minutes: minute.to_string(),
                 seconds: second.map_or_else(|| "00".to_string(), String::from),
                 ..Default::default()
@@ -426,6 +448,17 @@ mod tests {
     #[test]
     fn time() -> Result<()> {
         assert_eq!(parse("1:23:45")?.0[0], Schedule::from_str("45 23 1 * * *")?);
+        assert_eq!(
+            parse("1:23:45pm")?.0[0],
+            Schedule::from_str("45 23 13 * * *")?
+        );
+        assert_eq!(parse("1:23am")?.0[0], Schedule::from_str("00 23 1 * * *")?);
+        assert_eq!(parse("1:23pm")?.0[0], Schedule::from_str("00 23 13 * * *")?);
+        assert_eq!(
+            parse("13:23pm")?.0[0],
+            Schedule::from_str("00 23 13 * * *")?
+        );
+        assert_eq!(parse("1:23PM")?.0[0], Schedule::from_str("00 23 13 * * *")?);
         Ok(())
     }
 
