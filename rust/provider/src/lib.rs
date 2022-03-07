@@ -1,14 +1,13 @@
 use async_trait::async_trait;
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::Utc;
 use events::{subscribe, Subscriber};
-use eyre::{bail, Result};
+use eyre::Result;
 use node_address::Address;
 use node_pointer::{walk, Visitor};
-use once_cell::sync::Lazy;
-use regex::{Captures, Regex};
+
 use serde::{Deserialize, Serialize};
 use std::path::Path;
-use std::str::FromStr;
+
 use stencila_schema::{InlineContent, Node};
 use tokio::{
     sync::mpsc,
