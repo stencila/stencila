@@ -20,6 +20,10 @@ use nom::{
 
 mod tz_abbreviations;
 
+/// A cron schdule
+/// 
+/// See https://en.wikipedia.org/wiki/Cron for syntax (including extensions).
+/// This has additional `seconds` fields for compatability with `cron` crate.
 #[derive(Debug, PartialEq, Eq)]
 struct Cron {
     seconds: String,
@@ -46,66 +50,6 @@ impl Default for Cron {
 }
 
 impl Cron {
-    fn union(crons: Vec<Self>) -> Self {
-        let mut dow: HashSet<String> = HashSet::new();
-
-        for cron in crons {
-            for day in cron.days_of_week.split(',') {
-                dow.insert(day.to_string());
-            }
-        }
-
-        let days_of_week = match dow.is_empty() {
-            true => "*".to_string(),
-            false => {
-                let mut dow = dow.into_iter().collect::<Vec<String>>();
-                dow.sort_by(|a, b| Cron::dtoi(a).cmp(&Cron::dtoi(b)));
-                dow.join(",")
-            }
-        };
-
-        Self {
-            days_of_week,
-            ..Default::default()
-        }
-    }
-
-    fn intersection(crons: Vec<Self>) -> Self {
-        let mut base = Self::default();
-        for cron in crons {
-            if cron.seconds != "*" {
-                base.seconds = cron.seconds;
-            }
-            if cron.minutes != "*" {
-                base.minutes = cron.minutes;
-            }
-            if cron.hours != "*" {
-                base.hours = cron.hours;
-            }
-            if cron.days_of_month != "*" {
-                base.days_of_month = cron.days_of_month;
-            }
-            if cron.months != "*" {
-                base.months = cron.months;
-            }
-            if cron.days_of_week != "*" {
-                base.days_of_week = cron.days_of_week;
-            }
-        }
-
-        if base.days_of_week != "*" && base.hours == "*" {
-            base.hours = "0".to_string();
-        }
-        if base.hours != "*" && base.minutes == "*" {
-            base.minutes = "0".to_string();
-        }
-        if base.minutes != "*" && base.seconds == "*" {
-            base.seconds = "0".to_string();
-        }
-
-        base
-    }
-
     fn from_cron(cron: &str) -> Self {
         let parts: Vec<String> = cron
             .split_whitespace()
@@ -142,21 +86,8 @@ impl Cron {
         .trim()
         .to_string()
     }
-
-    fn dtoi(day: &str) -> u8 {
-        match day {
-            "sun" => 0,
-            "mon" => 1,
-            "tue" => 2,
-            "wed" => 3,
-            "thu" => 4,
-            "fri" => 5,
-            "sat" => 6,
-            _ => 7,
-        }
-    }
 }
-
+/// Parse a string into a list of cron schedules in a specific timezone
 pub fn parse(input: &str) -> Result<(Vec<Schedule>, Tz)> {
     let (crons, tz) = main(input)?;
     let mut schedules = Vec::new();
@@ -171,10 +102,11 @@ pub fn parse(input: &str) -> Result<(Vec<Schedule>, Tz)> {
     Ok((schedules, tz))
 }
 
+/// Parse a list of cron phrases or expressions and optional timezone
 fn main(input: &str) -> Result<(Vec<Cron>, Tz)> {
     match tuple((
         separated_list1(
-            delimited(multispace1, alt((tag("and"), tag("&"))), multispace1),
+            delimited(multispace1, tag("and"), multispace1),
             alt((cron, phrase)),
         ),
         opt(preceded(multispace1, timezone)),
@@ -185,13 +117,49 @@ fn main(input: &str) -> Result<(Vec<Cron>, Tz)> {
     }
 }
 
+/// Parse a phrase describing a cron schedule
 fn phrase(input: &str) -> IResult<&str, Cron> {
     map(
-        separated_list1(multispace1, alt((time, days_of_week, every, at, on))),
-        Cron::intersection,
+        separated_list1(multispace1, alt((every, at, time, on, dow_range, dow_list))),
+        |crons| {
+            let mut merged = Cron::default();
+            for cron in crons {
+                if cron.seconds != "*" {
+                    merged.seconds = cron.seconds;
+                }
+                if cron.minutes != "*" {
+                    merged.minutes = cron.minutes;
+                }
+                if cron.hours != "*" {
+                    merged.hours = cron.hours;
+                }
+                if cron.days_of_month != "*" {
+                    merged.days_of_month = cron.days_of_month;
+                }
+                if cron.months != "*" {
+                    merged.months = cron.months;
+                }
+                if cron.days_of_week != "*" {
+                    merged.days_of_week = cron.days_of_week;
+                }
+            }
+
+            if merged.days_of_week != "*" && merged.hours == "*" {
+                merged.hours = "0".to_string();
+            }
+            if merged.hours != "*" && merged.minutes == "*" {
+                merged.minutes = "0".to_string();
+            }
+            if merged.minutes != "*" && merged.seconds == "*" {
+                merged.seconds = "0".to_string();
+            }
+
+            merged
+        },
     )(input)
 }
 
+/// Parse an "every" statement
 fn every(input: &str) -> IResult<&str, Cron> {
     let minute = map(alt((tag_no_case("minute"), tag_no_case("min"))), |_| Cron {
         seconds: "0".to_string(),
@@ -280,10 +248,12 @@ fn every(input: &str) -> IResult<&str, Cron> {
     )(input)
 }
 
+/// Parse an "at" time-of-day statement
 fn at(input: &str) -> IResult<&str, Cron> {
     preceded(tuple((tag_no_case("at"), multispace1)), time)(input)
 }
 
+/// Parse a time-of-day
 fn time(input: &str) -> IResult<&str, Cron> {
     let hour = take_while_m_n(1, 2, |c: char| is_digit(c as u8));
     let minute = take_while_m_n(2, 2, |c: char| is_digit(c as u8));
@@ -301,18 +271,69 @@ fn time(input: &str) -> IResult<&str, Cron> {
     )(input)
 }
 
+/// Parse a "on" day-of-week statement
 fn on(input: &str) -> IResult<&str, Cron> {
-    preceded(tuple((tag_no_case("on"), multispace1)), days_of_week)(input)
-}
-
-fn days_of_week(input: &str) -> IResult<&str, Cron> {
-    map(
-        separated_list1(delimited(multispace0, tag(","), multispace0), day_of_week),
-        Cron::union,
+    preceded(
+        tuple((tag_no_case("on"), multispace1)),
+        alt((dow_range, dow_list)),
     )(input)
 }
 
-fn day_of_week(input: &str) -> IResult<&str, Cron> {
+/// Parse a day-of-week list
+fn dow_list(input: &str) -> IResult<&str, Cron> {
+    map(
+        separated_list1(delimited(multispace0, tag(","), multispace0), dow),
+        |crons| {
+            // Collect into hash set first to ensure uniqueness
+            let days: HashSet<String> = crons.into_iter().map(|cron| cron.days_of_week).collect();
+            let mut days: Vec<String> = days.into_iter().collect();
+            days.sort_by_key(|day| dow_order(day));
+            Cron {
+                days_of_week: days.join(","),
+                ..Default::default()
+            }
+        },
+    )(input)
+}
+
+/// Parse a day-of-week range
+fn dow_range(input: &str) -> IResult<&str, Cron> {
+    map(
+        tuple((
+            dow,
+            alt((
+                delimited(multispace0, tag("-"), multispace0),
+                delimited(multispace1, alt((tag("to"), tag("through"))), multispace1),
+            )),
+            dow,
+        )),
+        |(begin, _delim, end)| {
+            let begin = begin.days_of_week;
+            let end = end.days_of_week;
+            Cron {
+                days_of_week: [&begin, "-", &end].concat(),
+                ..Default::default()
+            }
+        },
+    )(input)
+}
+
+/// Get the cron order of the day of the week
+fn dow_order(day: &str) -> u8 {
+    match day {
+        "sun" => 0,
+        "mon" => 1,
+        "tue" => 2,
+        "wed" => 3,
+        "thu" => 4,
+        "fri" => 5,
+        "sat" => 6,
+        _ => 7,
+    }
+}
+
+/// Parse a day of week
+fn dow(input: &str) -> IResult<&str, Cron> {
     let sun = map(alt((tag_no_case("sunday"), tag_no_case("sun"))), |_| "sun");
     let mon = map(alt((tag_no_case("monday"), tag_no_case("mon"))), |_| "mon");
     let tue = map(
@@ -356,6 +377,7 @@ fn day_of_week(input: &str) -> IResult<&str, Cron> {
     )(input)
 }
 
+/// Parse a cron expression
 fn cron(input: &str) -> IResult<&str, Cron> {
     match Schedule::from_str(input) {
         Ok(schedule) => {
@@ -367,6 +389,7 @@ fn cron(input: &str) -> IResult<&str, Cron> {
     }
 }
 
+/// Parse a timezone
 fn timezone(input: &str) -> IResult<&str, Tz> {
     let name = match tz_abbreviations::LIST.get(input) {
         Some(name) => name,
@@ -380,6 +403,7 @@ fn timezone(input: &str) -> IResult<&str, Tz> {
     fail(input)
 }
 
+/// Get the next time (in UTC) from amongst a list of schedules in a specific timezone
 pub fn next(schedules: &[Schedule], tz: &Tz) -> Option<DateTime<Utc>> {
     let mut times = schedules
         .iter()
@@ -400,74 +424,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn cron() -> Result<()> {
-        for exp in [
-            "* * * * * *",
-            "* 0 * * * *",
-            "* * * * * sun",
-            "* * * * * * 2030",                             // with optional year
-            "0 30 9,12,15 1,15 May-Aug Mon,Wed,Fri 2018/2", // from `cron` crate README
-        ] {
-            assert_eq!(parse(exp)?.0[0], Schedule::from_str(exp)?);
-        }
-        Ok(())
-    }
-
-    #[test]
     fn time() -> Result<()> {
         assert_eq!(parse("1:23:45")?.0[0], Schedule::from_str("45 23 1 * * *")?);
-        Ok(())
-    }
-
-    #[test]
-    fn day_of_week() -> Result<()> {
-        for day in [
-            "sun",
-            "sunday",
-            "Sun",
-            "Sunday",
-            "mon",
-            "monday",
-            "tue",
-            "tues",
-            "tuesday",
-            "wed",
-            "wednesday",
-            "thu",
-            "thur",
-            "thurs",
-            "thursday",
-            "fri",
-            "friday",
-            "sat",
-            "saturday",
-        ] {
-            assert_eq!(
-                parse(day)?.0[0],
-                Schedule::from_str(&["0 0 0 * * ", &day[0..3].to_lowercase()].concat())?
-            );
-        }
-        Ok(())
-    }
-
-    #[test]
-    fn days_of_week() -> Result<()> {
-        let target = Schedule::from_str("0 0 0 * * sun,mon")?;
-        for exp in [
-            "sun,mon",
-            "sun, mon",
-            "sunday, mon",
-            "mon, sun",
-            "sun, monday",
-        ] {
-            assert_eq!(parse(exp)?.0[0], target);
-        }
-
-        let target = Schedule::from_str("0 0 0 * * tue,thu,fri")?;
-        for exp in ["tue,thu,fri", "friday, thu, tuesday"] {
-            assert_eq!(parse(exp)?.0[0], target);
-        }
-
         Ok(())
     }
 
@@ -519,6 +477,74 @@ mod tests {
     }
 
     #[test]
+    fn day_of_week() -> Result<()> {
+        for day in [
+            "sun",
+            "sunday",
+            "Sun",
+            "Sunday",
+            "mon",
+            "monday",
+            "tue",
+            "tues",
+            "tuesday",
+            "wed",
+            "wednesday",
+            "thu",
+            "thur",
+            "thurs",
+            "thursday",
+            "fri",
+            "friday",
+            "sat",
+            "saturday",
+        ] {
+            assert_eq!(
+                parse(day)?.0[0],
+                Schedule::from_str(&["0 0 0 * * ", &day[0..3].to_lowercase()].concat())?
+            );
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn day_of_week_list() -> Result<()> {
+        let target = Schedule::from_str("0 0 0 * * sun,mon")?;
+        for exp in [
+            "sun,mon",
+            "sun, mon",
+            "sunday, mon",
+            "mon, sun",
+            "sun, monday",
+            "mon,sun,mon, sunday,monday",
+        ] {
+            assert_eq!(parse(exp)?.0[0], target);
+        }
+
+        let target = Schedule::from_str("0 0 0 * * tue,thu,fri")?;
+        for exp in ["tue,thu,fri", "friday, thu, tuesday"] {
+            assert_eq!(parse(exp)?.0[0], target);
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn day_of_week_range() -> Result<()> {
+        let target = Schedule::from_str("0 0 0 * * mon-fri")?;
+        for exp in [
+            //"mon-fri",
+            //"mon - fri",
+            "mon to fri",
+            //"monday through friday",
+        ] {
+            assert_eq!(parse(exp)?.0[0], target);
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn phrase() -> Result<()> {
         let target = Schedule::from_str("00 23 1 * * mon")?;
         for exp in [
@@ -532,6 +558,20 @@ mod tests {
             assert_eq!(parse(exp)?.0[0], target);
         }
 
+        Ok(())
+    }
+
+    #[test]
+    fn cron() -> Result<()> {
+        for exp in [
+            "* * * * * *",
+            "* 0 * * * *",
+            "* * * * * sun",
+            "* * * * * * 2030",                             // with optional year
+            "0 30 9,12,15 1,15 May-Aug Mon,Wed,Fri 2018/2", // from `cron` crate README
+        ] {
+            assert_eq!(parse(exp)?.0[0], Schedule::from_str(exp)?);
+        }
         Ok(())
     }
 
