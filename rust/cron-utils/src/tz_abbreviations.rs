@@ -6,7 +6,7 @@ use std::collections::HashMap;
 /// There is already another crate for this but it was found
 /// to be very hard to translate its values into a `cron_tz::Tz`
 /// timezone object.
-pub static LIST: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+pub static TZ_ABBREVIATIONS: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
     [
         ("ABST", "Asia/Kuwait"),
         ("ACST", "Australia/Darwin"),
@@ -66,7 +66,7 @@ pub static LIST: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
         ("MYST", "Asia/Rangoon"),
         ("NCAST", "Asia/Almaty"),
         ("NMST", "Asia/Jerusalem"),
-        ("NPT", "Asia/Katmandu"),
+        ("NPT", "Asia/Kathmandu"),
         ("NST", "Canada/Newfoundland"),
         ("NZST", "Pacific/Auckland"),
         ("PETT", "Asia/Kamchatka"),

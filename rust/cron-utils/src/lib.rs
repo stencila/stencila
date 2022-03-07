@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
-use chrono_tz::{Tz, UTC};
+use chrono_tz::{Tz, TZ_VARIANTS, UTC};
 use cron::Schedule;
 use eyre::{bail, Result};
 use nom::{
@@ -19,6 +19,7 @@ use nom::{
 };
 
 mod tz_abbreviations;
+use tz_abbreviations::TZ_ABBREVIATIONS;
 
 /// A cron schedule
 ///
@@ -120,7 +121,12 @@ fn main(input: &str) -> Result<(Vec<Cron>, Tz)> {
 /// Parse a phrase describing a cron schedule
 fn phrase(input: &str) -> IResult<&str, Cron> {
     map(
-        separated_list1(multispace1, alt((every, at, time, on, dow_range, dow_list))),
+        separated_list1(
+            multispace1,
+            alt((
+                every, at, time, hour_range, hour_list, on, dow_range, dow_list,
+            )),
+        ),
         |crons| {
             let mut merged = Cron::default();
             for cron in crons {
@@ -250,7 +256,39 @@ fn every(input: &str) -> IResult<&str, Cron> {
 
 /// Parse an "at" time-of-day statement
 fn at(input: &str) -> IResult<&str, Cron> {
-    preceded(tuple((tag_no_case("at"), multispace1)), time)(input)
+    preceded(
+        tuple((tag_no_case("at"), multispace1)),
+        alt((time, hour_list)),
+    )(input)
+}
+
+/// Parse an "am/pm" string
+fn am_pm(input: &str) -> IResult<&str, String> {
+    map(
+        alt((tag_no_case("am"), tag_no_case("pm"))),
+        |am_pm: &str| am_pm.to_lowercase(),
+    )(input)
+}
+
+/// Apply an "am/pm" modifier to hours string
+fn am_pm_apply(hour: &str, am_pm: Option<String>) -> String {
+    let hour = match am_pm {
+        Some(am_pm) => {
+            if am_pm == "pm" {
+                let hour: u8 = hour.parse().unwrap_or(12);
+                let hour = if hour < 12 { hour + 12 } else { hour };
+                format!("{}", hour)
+            } else {
+                hour.to_string()
+            }
+        }
+        _ => hour.to_string(),
+    };
+    if hour == "00" {
+        "0".to_string()
+    } else {
+        hour
+    }
 }
 
 /// Parse a time-of-day
@@ -264,29 +302,83 @@ fn time(input: &str) -> IResult<&str, Cron> {
             tag(":"),
             minute,
             opt(preceded(tag(":"), second)),
-            opt(alt((tag_no_case("am"), tag_no_case("pm"),))),
+            opt(am_pm),
         )),
-        |(hour, _sep, minute, second, am_pm): (&str, &str, &str, Option<&str>, Option<&str>)| -> Cron {
-            let hours = match am_pm {
-                Some(value) => {
-                    if value.to_lowercase() == "pm" {
-                        let hour:u8 = hour.parse().unwrap_or(12);
-                        let hour = if hour < 12 {
-                            hour + 12
-                        } else {
-                            hour
-                        };
-                        format!("{}", hour)
-                    } else {
-                        hour.to_string()
-                    }
-                },
-                _ => hour.to_string()
-            };
+        |(hour, _sep, minute, second, am_pm): (&str, &str, &str, Option<&str>, Option<String>)| -> Cron {
             Cron {
-                hours,
-                minutes: minute.to_string(),
-                seconds: second.map_or_else(|| "00".to_string(), String::from),
+                hours: am_pm_apply(hour, am_pm),
+                minutes: (if minute == "00" {"0"} else {minute}).to_string(),
+                seconds: second.map_or_else(|| "0", |second| if second == "00" {"0"} else {second}).to_string(),
+                ..Default::default()
+            }
+        },
+    )(input)
+}
+
+/// Parse an hour-of-day
+fn hour(input: &str) -> IResult<&str, Cron> {
+    map(
+        tuple((
+            take_while_m_n(1, 2, |c: char| is_digit(c as u8)),
+            opt(am_pm),
+        )),
+        |(hour, am_pm)| Cron {
+            hours: am_pm_apply(hour, am_pm),
+            ..Default::default()
+        },
+    )(input)
+}
+
+/// Parse a hour-of-day list
+fn hour_list(input: &str) -> IResult<&str, Cron> {
+    map(
+        separated_list1(delimited(multispace0, tag(","), multispace0), hour),
+        |crons| {
+            // Collect into hash set to ensure uniqueness
+            let hours: HashSet<String> = crons.into_iter().map(|cron| cron.hours).collect();
+            let mut hours: Vec<String> = hours.into_iter().collect();
+            hours.sort_by_key(|hour| hour.parse::<u8>().unwrap_or_default());
+            Cron {
+                hours: hours.join(","),
+                ..Default::default()
+            }
+        },
+    )(input)
+}
+
+/// Parse a hour-of-day range
+fn hour_range(input: &str) -> IResult<&str, Cron> {
+    map(
+        alt((
+            preceded(
+                opt(tuple((tag_no_case("from"), multispace1))),
+                tuple((
+                    hour,
+                    alt((
+                        delimited(multispace0, tag("-"), multispace0),
+                        delimited(
+                            multispace1,
+                            alt((tag_no_case("to"), tag_no_case("through"))),
+                            multispace1,
+                        ),
+                    )),
+                    hour,
+                )),
+            ),
+            preceded(
+                opt(tuple((tag_no_case("between"), multispace1))),
+                tuple((
+                    hour,
+                    delimited(multispace0, tag_no_case("and"), multispace0),
+                    hour,
+                )),
+            ),
+        )),
+        |(begin, _delim, end)| {
+            let begin = begin.hours;
+            let end = end.hours;
+            Cron {
+                hours: [&begin, "-", &end].concat(),
                 ..Default::default()
             }
         },
@@ -419,14 +511,29 @@ fn cron(input: &str) -> IResult<&str, Cron> {
 }
 
 /// Parse a timezone
+///
+/// Ignores any trailing "time" e.g. "Auckland time" and then search using
+/// abbreviations, the full, two-part, name, or the second (city) part, of the timezone
 fn timezone(input: &str) -> IResult<&str, Tz> {
-    let name = match tz_abbreviations::LIST.get(input) {
+    let name = match input.trim().strip_suffix("time") {
         Some(name) => name,
         None => input,
+    }
+    .trim();
+
+    let name = match TZ_ABBREVIATIONS.get(name.to_uppercase().as_str()) {
+        Some(name) => name,
+        None => name,
     };
 
     if let Ok(tz) = Tz::from_str(name) {
         return Ok((input, tz));
+    }
+
+    for tz in TZ_VARIANTS {
+        if tz.to_string().ends_with(name) {
+            return Ok((input, tz));
+        }
     }
 
     fail(input)
@@ -445,6 +552,7 @@ pub fn next(schedules: &[Schedule], tz: &Tz) -> Option<DateTime<Utc>> {
 #[cfg(test)]
 mod tests {
     use chrono_tz::{
+        Asia::Kathmandu,
         Europe::Madrid,
         Pacific::Auckland,
         US::{Central, Eastern},
@@ -459,13 +567,48 @@ mod tests {
             parse("1:23:45pm")?.0[0],
             Schedule::from_str("45 23 13 * * *")?
         );
-        assert_eq!(parse("1:23am")?.0[0], Schedule::from_str("00 23 1 * * *")?);
-        assert_eq!(parse("1:23pm")?.0[0], Schedule::from_str("00 23 13 * * *")?);
+        assert_eq!(parse("1:23am")?.0[0], Schedule::from_str("0 23 1 * * *")?);
+        assert_eq!(parse("1:23pm")?.0[0], Schedule::from_str("0 23 13 * * *")?);
+        assert_eq!(parse("13:23pm")?.0[0], Schedule::from_str("0 23 13 * * *")?);
+        assert_eq!(parse("1:23PM")?.0[0], Schedule::from_str("0 23 13 * * *")?);
+        Ok(())
+    }
+
+    #[test]
+    fn hour() -> Result<()> {
+        assert_eq!(parse("1")?.0[0], Schedule::from_str("0 0 1 * * *")?);
+        assert_eq!(parse("1am")?.0[0], Schedule::from_str("0 0 1 * * *")?);
+        assert_eq!(parse("1pm")?.0[0], Schedule::from_str("0 0 13 * * *")?);
+        assert_eq!(parse("22pm")?.0[0], Schedule::from_str("0 0 22 * * *")?);
+
+        Ok(())
+    }
+
+    #[test]
+    fn hour_list() -> Result<()> {
+        assert_eq!(parse("1,2,3")?.0[0], Schedule::from_str("0 0 1,2,3 * * *")?);
         assert_eq!(
-            parse("13:23pm")?.0[0],
-            Schedule::from_str("00 23 13 * * *")?
+            parse("1am, 1pm, 20")?.0[0],
+            Schedule::from_str("0 0 1,13,20 * * *")?
         );
-        assert_eq!(parse("1:23PM")?.0[0], Schedule::from_str("00 23 13 * * *")?);
+
+        Ok(())
+    }
+
+    #[test]
+    fn hour_range() -> Result<()> {
+        let target = Schedule::from_str("0 0 2-14 * * *")?;
+        for exp in [
+            "2-14",
+            "2am-14",
+            "2am - 2pm",
+            "2 to 14",
+            "from 2am to 2pm",
+            "between 2 and 14",
+        ] {
+            assert_eq!(parse(exp)?.0[0], target);
+        }
+
         Ok(())
     }
 
@@ -473,11 +616,16 @@ mod tests {
     fn at() -> Result<()> {
         assert_eq!(
             parse("at 00:00:00")?.0[0],
-            Schedule::from_str("00 00 00 * * *")?
+            Schedule::from_str("0 0 0 * * *")?
         );
         assert_eq!(
             parse("at 01:02")?.0[0],
-            Schedule::from_str("00 02 01 * * *")?
+            Schedule::from_str("0 02 01 * * *")?
+        );
+        assert_eq!(parse("at 1am")?.0[0], Schedule::from_str("0 0 1 * * *")?);
+        assert_eq!(
+            parse("at 1, 2, 10")?.0[0],
+            Schedule::from_str("0 0 1,2,10 * * *")?
         );
 
         Ok(())
@@ -588,14 +736,26 @@ mod tests {
 
     #[test]
     fn phrase() -> Result<()> {
-        let target = Schedule::from_str("00 23 1 * * mon")?;
+        let target = Schedule::from_str("0 23 1 * * mon")?;
         for exp in [
             "1:23 mon",
+            "mon 1:23",
             "at 1:23 mon",
+            "mon at 1:23",
             "at 1:23 on monday",
             "on monday at 1:23",
-            "mon at 1:23",
-            "mon 1:23:00",
+            "monday at 1:23am",
+        ] {
+            assert_eq!(parse(exp)?.0[0], target);
+        }
+
+        let target = Schedule::from_str("0 */5 9-17 * * mon-fri")?;
+        for exp in [
+            "Every 5 minutes between 9AM and 5PM Monday to Friday",
+            "Between 9AM and 5PM every 5mins Mon-Fri",
+            "every 5mins 9-17 mon-fri",
+            "mon-fri 9-17 every 5mins",
+            "0 */5 9-17 * * mon-fri",
         ] {
             assert_eq!(parse(exp)?.0[0], target);
         }
@@ -620,26 +780,52 @@ mod tests {
     #[test]
     fn timezones() -> Result<()> {
         assert_eq!(timezone("UTC")?.1, UTC);
+
+        assert_eq!(timezone("Madrid")?.1, Madrid);
         assert_eq!(timezone("Europe/Madrid")?.1, Madrid);
+        assert_eq!(timezone("  Europe/Madrid    time ")?.1, Madrid);
+
+        assert_eq!(timezone("npt")?.1, Kathmandu);
+        assert_eq!(timezone("npt time")?.1, Kathmandu);
+        assert_eq!(timezone("Kathmandu")?.1, Kathmandu);
+        assert_eq!(timezone("Asia/Kathmandu")?.1, Kathmandu);
+
+        assert_eq!(timezone("Auckland")?.1, Auckland);
+        assert_eq!(timezone("Auckland time")?.1, Auckland);
         assert_eq!(timezone("Pacific/Auckland")?.1, Auckland);
+
         assert_eq!(timezone("ET")?.1, Eastern);
+        assert_eq!(timezone("US/Eastern")?.1, Eastern);
+
         Ok(())
     }
 
     #[test]
     fn multiple() -> Result<()> {
         let target = vec![
-            Schedule::from_str("00 34 12 * * tue")?,
+            Schedule::from_str("0 0 13 * * tue")?,
             Schedule::from_str("01 12 09 * * fri")?,
         ];
 
-        let (schedules, tz) = parse("tue at 12:34 and at 09:12:01 on fri")?;
+        let (schedules, tz) = parse("on tue at 1pm and at 09:12:01 on fri")?;
         assert_eq!(schedules, target);
         assert_eq!(tz, UTC);
 
-        let (schedules, tz) = parse("tue at 12:34 and fri at 09:12:01 CT")?;
+        let (schedules, tz) = parse("tue at 13 and fri at 09:12:01 ct")?;
         assert_eq!(schedules, target);
         assert_eq!(tz, Central);
+
+        let (schedules, tz) = parse("13:00 tue and 09:12:01 fri NPT")?;
+        assert_eq!(schedules, target);
+        assert_eq!(tz, Kathmandu);
+
+        let (schedules, tz) = parse("At 1pm Tuesday and on Friday at 09:12:01 Kathmandu")?;
+        assert_eq!(schedules, target);
+        assert_eq!(tz, Kathmandu);
+
+        let (schedules, tz) = parse("1pm Tuesday and 09:12:01 Friday Auckland time")?;
+        assert_eq!(schedules, target);
+        assert_eq!(tz, Auckland);
 
         Ok(())
     }
