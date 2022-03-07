@@ -20,10 +20,10 @@ use nom::{
 
 mod tz_abbreviations;
 
-/// A cron schdule
+/// A cron schedule
 ///
 /// See https://en.wikipedia.org/wiki/Cron for syntax (including extensions).
-/// This has additional `seconds` fields for compatability with `cron` crate.
+/// This has additional `seconds` fields for compatibility with `cron` crate.
 #[derive(Debug, PartialEq, Eq)]
 struct Cron {
     seconds: String,
@@ -266,8 +266,8 @@ fn time(input: &str) -> IResult<&str, Cron> {
             opt(preceded(tag(":"), second)),
             opt(alt((tag_no_case("am"), tag_no_case("pm"),))),
         )),
-        |(hour, _sep, minute, second, ampm): (&str, &str, &str, Option<&str>, Option<&str>)| -> Cron {
-            let hours = match ampm {
+        |(hour, _sep, minute, second, am_pm): (&str, &str, &str, Option<&str>, Option<&str>)| -> Cron {
+            let hours = match am_pm {
                 Some(value) => {
                     if value.to_lowercase() == "pm" {
                         let hour:u8 = hour.parse().unwrap_or(12);
@@ -321,14 +321,21 @@ fn dow_list(input: &str) -> IResult<&str, Cron> {
 /// Parse a day-of-week range
 fn dow_range(input: &str) -> IResult<&str, Cron> {
     map(
-        tuple((
-            dow,
-            alt((
-                delimited(multispace0, tag("-"), multispace0),
-                delimited(multispace1, alt((tag("to"), tag("through"))), multispace1),
+        preceded(
+            opt(tuple((tag_no_case("from"), multispace1))),
+            tuple((
+                dow,
+                alt((
+                    delimited(multispace0, tag("-"), multispace0),
+                    delimited(
+                        multispace1,
+                        alt((tag_no_case("to"), tag_no_case("through"))),
+                        multispace1,
+                    ),
+                )),
+                dow,
             )),
-            dow,
-        )),
+        ),
         |(begin, _delim, end)| {
             let begin = begin.days_of_week;
             let end = end.days_of_week;
@@ -566,10 +573,12 @@ mod tests {
     fn day_of_week_range() -> Result<()> {
         let target = Schedule::from_str("0 0 0 * * mon-fri")?;
         for exp in [
-            //"mon-fri",
-            //"mon - fri",
+            "mon-fri",
+            "mon - fri",
             "mon to fri",
-            //"monday through friday",
+            "monday through friday",
+            "from mon to fri",
+            "from     monday -   friday",
         ] {
             assert_eq!(parse(exp)?.0[0], target);
         }
