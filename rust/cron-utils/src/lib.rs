@@ -93,6 +93,16 @@ impl Cron {
             }
         }
 
+        if base.days_of_week != "*" && base.hours == "*" {
+            base.hours = "0".to_string();
+        }
+        if base.hours != "*" && base.minutes == "*" {
+            base.minutes = "0".to_string();
+        }
+        if base.minutes != "*" && base.seconds == "*" {
+            base.seconds = "0".to_string();
+        }
+
         base
     }
 
@@ -434,7 +444,7 @@ mod tests {
         ] {
             assert_eq!(
                 parse(day)?.0[0],
-                Schedule::from_str(&["* * * * * ", &day[0..3].to_lowercase()].concat())?
+                Schedule::from_str(&["0 0 0 * * ", &day[0..3].to_lowercase()].concat())?
             );
         }
         Ok(())
@@ -442,7 +452,7 @@ mod tests {
 
     #[test]
     fn days_of_week() -> Result<()> {
-        let target = Schedule::from_str("* * * * * sun,mon")?;
+        let target = Schedule::from_str("0 0 0 * * sun,mon")?;
         for exp in [
             "sun,mon",
             "sun, mon",
@@ -453,7 +463,7 @@ mod tests {
             assert_eq!(parse(exp)?.0[0], target);
         }
 
-        let target = Schedule::from_str("* * * * * tue,thu,fri")?;
+        let target = Schedule::from_str("0 0 0 * * tue,thu,fri")?;
         for exp in ["tue,thu,fri", "friday, thu, tuesday"] {
             assert_eq!(parse(exp)?.0[0], target);
         }
