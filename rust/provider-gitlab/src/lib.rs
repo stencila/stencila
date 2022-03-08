@@ -150,7 +150,7 @@ impl ProviderTrait for GitlabProvider {
         // Regex targeting URL copied from the browser address bar
         // Note that compared to the equivalent Gitlab URLs, these have an additional `-/` before `tree` or `blob`
         static URL_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"https?://gitlab\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:-/(?:tree|blob)/([^/\s]+)?/?([^\s]+))?(?:$|\s)")
+            Regex::new(r"(?:https?://)?gitlab\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:-/(?:tree|blob)/([^/\s]+)?/?([^\s]+))?(?:$|\s)")
                 .expect("Unable to create regex")
         });
 
@@ -616,6 +616,7 @@ mod tests {
         // No path or version
         for string in [
             "gitlab:owner/name",
+            "gitlab.com/owner/name",
             "http://gitlab.com/owner/name",
             "https://gitlab.com/owner/name",
             "https://gitlab.com/owner/name/",

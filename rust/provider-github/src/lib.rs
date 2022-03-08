@@ -107,7 +107,7 @@ impl ProviderTrait for GithubProvider {
 
         // Regex targeting URL copied from the browser address bar
         static URL_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"https?://github\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:(?:tree|blob)/([^/\s]+)?/?([^\s]+))?(?:$|\s)")
+            Regex::new(r"(?:https?://)?github\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:(?:tree|blob)/([^/\s]+)?/?([^\s]+))?(?:$|\s)")
                 .expect("Unable to create regex")
         });
 
@@ -615,6 +615,7 @@ mod tests {
         // No path or version
         for string in [
             "github:owner/name",
+            "github.com/owner/name/",
             "http://github.com/owner/name",
             "https://github.com/owner/name",
             "https://github.com/owner/name/",
