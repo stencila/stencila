@@ -83,9 +83,18 @@
       }
     }
     </script>
+    <style>
+      body {
+        font-family: Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
+        color: #444;
+        max-width: 80%;
+        margin: 10px auto;
+      }
+    </style>
   </head>
   <body>
-    <h1>Helper for getting OAuth access token and giving permission to access individual files during testing</h1>
+    <h1 style="font-size:1rem">Helper for getting OAuth access token and giving permission to access individual files during testing</h1>
+    
     <p>
       Run <code>npx http-server -p 8000</code> (or similar local static server) in the parent directory and
       then visit <a href="http://localhost:8000/src/picker.html">http://localhost:8000/src/picker.html</a>".
@@ -94,11 +103,11 @@
     </p>
 
     <p>
-      Google Drive access token: <code id="token"></code>
+      Google Drive access token: <code id="token" style="color:darkblue"></code>
     </p>
 
     <p>
-      Google Drive file/folder picked: <code id="id"></code>
+      Google Drive file/folder picked: <code id="id" style="color:darkblue"></code>
     </p>
 
     <!-- The Google API Loader script. -->
