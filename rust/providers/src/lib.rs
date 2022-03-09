@@ -3,6 +3,7 @@ use provider::{
     codecs,
     eyre::{bail, eyre, Result},
     stencila_schema::Node,
+    strum::VariantNames,
     tracing, EnrichOptions, ExportOptions, ImportOptions, ProviderTrait, SyncOptions,
 };
 use std::path::Path;
@@ -24,7 +25,7 @@ pub async fn find(node: &Node) -> Result<Node> {
         0 => bail!("No node detected"),
         1 => &detections[0],
         _ => {
-            tracing::warn!("More that one node detected; will only use first");
+            tracing::warn!("More than one node detected; will only use first");
             &detections[0]
         }
     };
@@ -67,6 +68,8 @@ macro_rules! dispatch_builtins {
             "doi" => Some(provider_doi::DoiProvider::$method($($arg),*)),
             #[cfg(feature = "provider-elife")]
             "elife" => Some(provider_elife::ElifeProvider::$method($($arg),*)),
+            #[cfg(feature = "provider-gdrive")]
+            "gdrive" => Some(provider_gdrive::GoogleDriveProvider::$method($($arg),*)),
             #[cfg(feature = "provider-github")]
             "github" => Some(provider_github::GithubProvider::$method($($arg),*)),
             #[cfg(feature = "provider-gitlab")]
@@ -90,6 +93,8 @@ impl Providers {
             provider_doi::DoiProvider::spec(),
             #[cfg(feature = "provider-elife")]
             provider_elife::ElifeProvider::spec(),
+            #[cfg(feature = "provider-gdrive")]
+            provider_gdrive::GoogleDriveProvider::spec(),
             #[cfg(feature = "provider-github")]
             provider_github::GithubProvider::spec(),
             #[cfg(feature = "provider-gitlab")]
@@ -246,6 +251,7 @@ pub mod commands {
 
     use super::*;
     use cli_utils::{async_trait::async_trait, result, Result, Run};
+    use provider::SyncMode;
     use structopt::StructOpt;
 
     #[derive(StructOpt)]
@@ -471,6 +477,10 @@ pub mod commands {
         #[structopt(default_value = ".")]
         path: PathBuf,
 
+        /// The synchronization mode
+        #[structopt(long, short, possible_values = &SyncMode::VARIANTS)]
+        mode: Option<SyncMode>,
+
         /// Any access token required by the source provider
         #[structopt(long, short)]
         token: Option<String>,
@@ -486,6 +496,7 @@ pub mod commands {
             let node = find(&identifier).await?;
 
             let options = SyncOptions {
+                mode: self.mode.clone(),
                 token: self.token.clone(),
                 url: self.url.clone(),
             };

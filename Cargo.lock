@@ -4685,6 +4685,7 @@ dependencies = [
  "regex",
  "serde",
  "stencila-schema",
+ "strum",
  "tokio",
  "tracing",
 ]
@@ -4715,9 +4716,11 @@ name = "provider-gdrive"
 version = "0.0.0"
 dependencies = [
  "google-drive",
+ "key-utils",
  "provider",
  "server-utils",
  "test-utils",
+ "uuids",
 ]
 
 [[package]]
@@ -4769,6 +4772,7 @@ dependencies = [
  "provider",
  "provider-doi",
  "provider-elife",
+ "provider-gdrive",
  "provider-github",
  "provider-gitlab",
  "provider-http",

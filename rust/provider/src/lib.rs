@@ -1,12 +1,13 @@
+use std::path::Path;
+
 use async_trait::async_trait;
 use chrono::Utc;
 use events::{subscribe, Subscriber};
 use eyre::Result;
 use node_address::Address;
 use node_pointer::{walk, Visitor};
-
 use serde::{Deserialize, Serialize};
-use std::path::Path;
+use strum::{AsRefStr, EnumString, EnumVariantNames};
 
 use stencila_schema::{InlineContent, Node};
 use tokio::{
@@ -16,12 +17,14 @@ use tokio::{
 
 // Export and re-export for the convenience of crates that implement a provider
 pub use ::async_trait;
+pub use ::chrono;
 pub use ::codecs;
 pub use ::eyre;
 pub use ::http_utils;
 pub use ::once_cell;
 pub use ::regex;
 pub use ::stencila_schema;
+pub use ::strum;
 pub use ::tokio;
 pub use ::tracing;
 
@@ -125,20 +128,49 @@ pub struct EnrichOptions {
 
 #[derive(Debug, Default, Clone)]
 pub struct ImportOptions {
+    /// The token needed to access the resource
+    ///
+    /// The token can either be an access token or an access token and refresh token
+    /// combined (separated by a forward slash) depending upon the provider.
     pub token: Option<String>,
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct ExportOptions {
+    /// The token needed to access the resource
+    ///
+    /// See note for this same field in [`ImportOptions`].
     pub token: Option<String>,
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct SyncOptions {
+    /// The synchronization mode
+    pub mode: Option<SyncMode>,
+
+    /// The token needed to access the resource
+    ///
+    /// See note for this same field in [`ImportOptions`].
     pub token: Option<String>,
 
-    /// The URL to listen on
+    /// The URL to listen on for notifications of changes
     pub url: Option<String>,
+}
+
+#[derive(Debug, Clone, AsRefStr, EnumString, EnumVariantNames)]
+#[strum(serialize_all = "lowercase")]
+pub enum SyncMode {
+    /// Synchronize the resource whenever changes are made
+    Live,
+
+    /// Synchronize the resource whenever it is tagged e.g. a git tag is added, or a Google file has a revision made
+    Tagged,
+}
+
+impl Default for SyncMode {
+    fn default() -> Self {
+        SyncMode::Live
+    }
 }
 
 #[derive(Debug, Serialize)]
