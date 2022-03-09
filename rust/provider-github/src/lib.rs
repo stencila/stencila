@@ -37,10 +37,15 @@ use server_utils::{
     },
     serde_json, serve_gracefully,
 };
-pub struct GithubProvider;
 
-/// Default port for the webhook server (it's useful to have a fixed port for testing)
-const WATCH_SERVER_PORT: u16 = 1667; // python3 -c "print(1024 + sum([ord(c) for c in 'github']))"
+/// Port for the webhook server
+/// 
+/// This should not clash with any other port numbers for other providers.
+/// Changes should be avoided as network configurations, such as firewall
+/// rules, may assume this number.
+const WEBHOOK_PORT: u16 = 10002;
+
+pub struct GithubProvider;
 
 impl GithubProvider {
     /// Create an API client
@@ -427,7 +432,7 @@ impl ProviderTrait for GithubProvider {
                 },
             ),
         );
-        serve_gracefully([0, 0, 0, 0], WATCH_SERVER_PORT, router).await?;
+        serve_gracefully([0, 0, 0, 0], WEBHOOK_PORT, router).await?;
 
         // Delete the webhook
         match client.repos().delete_webhook(owner, repo, hook.id).await {

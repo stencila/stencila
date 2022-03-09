@@ -30,6 +30,13 @@ use server_utils::{
     serve_gracefully,
 };
 
+/// Port for the webhook server
+/// 
+/// This should not clash with any other port numbers for other providers.
+/// Changes should be avoided as network configurations, such as firewall
+/// rules, may assume this number.
+const WEBHOOK_PORT: u16 = 10001;
+
 // Regex targeting short identifiers
 static SIMPLE_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"gdrive:(folder|file|doc|sheet)/([a-zA-Z0-9-_]+)").expect("Unable to create regex")
@@ -59,9 +66,6 @@ enum FileKind {
     #[strum(serialize = "sheet", serialize = "spreadsheets")]
     Sheet,
 }
-
-/// Default port for the webhook server (it's useful to have a fixed port for testing)
-const WATCH_SERVER_PORT: u16 = 1665; // python3 -c "print(1024 + sum([ord(c) for c in 'gdrive']))"
 
 #[derive(Clone)]
 struct GoogleDriveClient {
@@ -307,7 +311,7 @@ impl ProviderTrait for GoogleDriveProvider {
                 }
             }),
         );
-        serve_gracefully([0, 0, 0, 0], WATCH_SERVER_PORT, router).await?;
+        serve_gracefully([0, 0, 0, 0], WEBHOOK_PORT, router).await?;
 
         // Stop the channel
         match client.inner.channels().stop(&channel).await {
