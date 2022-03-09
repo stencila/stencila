@@ -14,6 +14,7 @@ use eyre::Result;
 use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
 use once_cell::sync::Lazy;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
+use reqwest::Response;
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -97,6 +98,17 @@ pub async fn post_with<B: Serialize, T: DeserializeOwned>(
     body: B,
     headers: &[(HeaderName, String)],
 ) -> Result<T> {
+    let response = post_response(url, body, headers).await?;
+    let json = response.json().await?;
+    Ok(json)
+}
+
+/// Send a POST request with additional request headers and return response
+pub async fn post_response<B: Serialize>(
+    url: &str,
+    body: B,
+    headers: &[(HeaderName, String)],
+) -> Result<Response> {
     let response = CLIENT
         .post(url)
         .json(&body)
@@ -104,10 +116,7 @@ pub async fn post_with<B: Serialize, T: DeserializeOwned>(
         .send()
         .await?
         .error_for_status()?;
-
-    let json = response.json().await?;
-
-    Ok(json)
+    Ok(response)
 }
 
 /// Send a DELETE request
