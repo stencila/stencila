@@ -154,7 +154,7 @@ pub struct SyncOptions {
     pub token: Option<String>,
 
     /// The URL to listen on for notifications of changes
-    pub url: Option<String>,
+    pub host: Option<String>,
 }
 
 #[derive(Debug, Clone, AsRefStr, EnumString, EnumVariantNames)]

@@ -485,9 +485,14 @@ pub mod commands {
         #[structopt(long, short)]
         token: Option<String>,
 
-        /// The URL to listen on for events from the source provider
+        /// The host to listen on for events from the source provider
+        /// 
+        /// This option is usually only used for testing during development
+        /// with a tool such as ngrok to forward a public host to localhost.
+        /// The value should exclude the protocol e.g. "https://" but may include
+        /// a port number.
         #[structopt(long, short)]
-        url: Option<String>,
+        host: Option<String>,
     }
     #[async_trait]
     impl Run for Sync {
@@ -498,7 +503,7 @@ pub mod commands {
             let options = SyncOptions {
                 mode: self.mode.clone(),
                 token: self.token.clone(),
-                url: self.url.clone(),
+                host: self.host.clone(),
             };
             let syncing = sync(&node, &self.path, Some(options)).await?;
             if !syncing {

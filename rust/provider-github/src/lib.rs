@@ -35,11 +35,11 @@ use server_utils::{
         response::Headers,
         routing, Router,
     },
-    serde_json, serve_gracefully,
+    hostname, serde_json, serve_gracefully,
 };
 
 /// Port for the webhook server
-/// 
+///
 /// This should not clash with any other port numbers for other providers.
 /// Changes should be avoided as network configurations, such as firewall
 /// rules, may assume this number.
@@ -336,16 +336,26 @@ impl ProviderTrait for GithubProvider {
 
         let client = Self::client(options.token);
 
-        // Get a local URL
-        let url = options.url.unwrap_or_default();
-        let url = url::Url::parse(&url)?;
+        // Generate the unique id for the webhook
+        let webhook_id = uuids::generate_num("wh", 36).to_string();
+
+        // Create a URL for the webhook
+        let webhook_host = match options.host {
+            Some(host) => host,
+            None => format!(
+                "{hostname}:{port}",
+                hostname = hostname().await,
+                port = WEBHOOK_PORT
+            ),
+        };
+        let webhook_url = url::Url::parse(&format!("https://{webhook_host}/{webhook_id}"))?;
 
         // Generate the secret key used for signing/validating event payloads
         let secret = key_utils::generate();
 
         // Create the webhook
         let config = ReposCreateWebhookRequestConfig {
-            url: Some(url),
+            url: Some(webhook_url),
             content_type: "json".to_string(),
             secret: secret.clone(),
             // Default values for properties that octorust does not provide defaults for
@@ -389,7 +399,7 @@ impl ProviderTrait for GithubProvider {
             .unwrap_or_else(|| "refs/heads/main".to_string());
         let path_clone = path.map(|path| path.to_string()).unwrap_or_default();
         let router = Router::new().route(
-            "/",
+            &format!("/{}", webhook_id),
             routing::post(
                 // Note that the order of extractors is important and some may not be able to be mixed
                 // which is why we extract raw payload and then parse, rather than using the axum `Json` extractor.

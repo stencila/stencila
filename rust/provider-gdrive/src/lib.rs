@@ -27,11 +27,11 @@ use server_utils::{
         response::Headers,
         routing, Router,
     },
-    serve_gracefully,
+    hostname, serve_gracefully,
 };
 
 /// Port for the webhook server
-/// 
+///
 /// This should not clash with any other port numbers for other providers.
 /// Changes should be avoided as network configurations, such as firewall
 /// rules, may assume this number.
@@ -230,11 +230,19 @@ impl ProviderTrait for GoogleDriveProvider {
 
         // See https://developers.google.com/drive/api/v3/push for docs related to this
 
-        // Get a local URL
-        let channel_url = options.url.unwrap_or_default();
+        // Generate the unique id for the webhook channel
+        let channel_id = uuids::generate_num("wh", 36).to_string();
 
-        // Generate the unique id for the channel
-        let channel_id = uuids::generate_num("ch", 36).to_string();
+        // Create a URL for the channel
+        let channel_host = match options.host {
+            Some(host) => host,
+            None => format!(
+                "{hostname}:{port}",
+                hostname = hostname().await,
+                port = WEBHOOK_PORT
+            ),
+        };
+        let channel_url = format!("https://{channel_host}/{channel_id}");
 
         // Generate the token used for validating notifications for this channel
         let channel_token = key_utils::generate();
@@ -284,7 +292,7 @@ impl ProviderTrait for GoogleDriveProvider {
         let client_clone = client.clone();
         let mut last_revision_time = Utc::now();
         let router = Router::new().route(
-            "/",
+            &format!("/{}", channel_id),
             routing::post(move |request_headers: HeaderMap| async move {
                 match webhook_event(
                     request_headers,

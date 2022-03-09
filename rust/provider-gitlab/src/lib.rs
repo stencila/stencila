@@ -30,17 +30,15 @@ use server_utils::{
         response::Headers,
         routing, Json, Router,
     },
-    serve_gracefully,
+    hostname, serve_gracefully,
 };
 
 /// Port for the webhook server
-/// 
+///
 /// This should not clash with any other port numbers for other providers.
 /// Changes should be avoided as network configurations, such as firewall
 /// rules, may assume this number.
 const WEBHOOK_PORT: u16 = 10003;
-
-pub struct GitlabProvider;
 
 /// A client for the Gitlab REST API
 ///
@@ -85,6 +83,8 @@ impl GitlabClient {
         download_temp_with(&[&self.base_url, path].concat(), None, &self.headers).await
     }
 }
+
+pub struct GitlabProvider;
 
 impl GitlabProvider {
     /// Extract the Gitlab org and project name from a [`SoftwareSourceCode`] node
@@ -336,8 +336,19 @@ impl ProviderTrait for GitlabProvider {
         let options = options.unwrap_or_default();
         let client = GitlabClient::new(options.token)?;
 
-        // Get a local URL
-        let url = options.url.unwrap_or_default();
+        // Generate the unique id for the webhook
+        let webhook_id = uuids::generate_num("wh", 36).to_string();
+
+        // Create a URL for the webhook
+        let webhook_host = match options.host {
+            Some(host) => host,
+            None => format!(
+                "{hostname}:{port}",
+                hostname = hostname().await,
+                port = WEBHOOK_PORT
+            ),
+        };
+        let webhook_url = format!("https://{webhook_host}/{webhook_id}");
 
         // Generate a token for validating event payloads
         let token = key_utils::generate().to_string();
@@ -347,7 +358,7 @@ impl ProviderTrait for GitlabProvider {
             .post(
                 &format!("projects/{id}/hooks", id = project_id),
                 json!({
-                    "url": url,
+                    "url": webhook_url,
                     "token": token,
                     "push_events": true
                 }),
@@ -372,7 +383,7 @@ impl ProviderTrait for GitlabProvider {
             .unwrap_or_else(|| "refs/heads/main".to_string());
         let path_clone = path.map(|path| path.to_string()).unwrap_or_default();
         let router = Router::new().route(
-            "/",
+            &format!("/{}", webhook_id),
             routing::post(
                 // Note that the order of extractors is important and some may not be able to be mixed.
                 // See https://docs.rs/axum/latest/axum/extract/index.html#applying-multiple-extractors
