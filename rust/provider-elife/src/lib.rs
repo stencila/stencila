@@ -2,7 +2,7 @@ use provider::{
     once_cell::sync::Lazy,
     regex::Regex,
     stencila_schema::{Article, CreativeWorkPublisher, Node, Organization, ThingIdentifiers},
-    Provider, ParseItem, ProviderTrait,
+    ParseItem, Provider, ProviderTrait,
 };
 
 pub struct ElifeProvider;
@@ -73,13 +73,16 @@ mod tests {
             assert_json_is!(
                 ElifeProvider::parse(string)[0].node,
                 {
-                    "type": "SoftwareSourceCode",
-                    "codeRepository": "https://github.com/owner/name",
+                    "type": "Article",
                     "publisher": {
                         "type": "Organization",
-                        "name": "owner"
+                        "name": "eLife Sciences Publications, Ltd"
                     },
-                    "name": "name",
+                    "url": "https://elifesciences.org/articles/52258",
+                    "identifiers": [
+                        "https://doi.org/10.7554/eLife.52258",
+                    ],
+
                 }
             );
         }
