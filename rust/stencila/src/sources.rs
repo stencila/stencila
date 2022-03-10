@@ -8,7 +8,6 @@ use graph_triples::{
     resources, Triple,
 };
 
-
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;

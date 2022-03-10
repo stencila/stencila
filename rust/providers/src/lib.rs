@@ -486,7 +486,7 @@ pub mod commands {
         token: Option<String>,
 
         /// The host to listen on for events from the source provider
-        /// 
+        ///
         /// This option is usually only used for testing during development
         /// with a tool such as ngrok to forward a public host to localhost.
         /// The value should exclude the protocol e.g. "https://" but may include

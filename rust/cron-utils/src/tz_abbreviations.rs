@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use std::collections::HashMap;
 
 /// A list of common timezone abbreviations
-/// 
+///
 /// There is already another crate for this but it was found
 /// to be very hard to translate its values into a `cron_tz::Tz`
 /// timezone object.

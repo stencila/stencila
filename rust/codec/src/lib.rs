@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use eyre::{bail, Result};
 use serde::{Deserialize, Serialize};
-use std::{path::Path, fs::create_dir_all};
+use std::{fs::create_dir_all, path::Path};
 use stencila_schema::Node;
 use tokio::{
     fs::File,
