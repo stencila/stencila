@@ -18,8 +18,8 @@ codecs-cli = ["codecs/cli"]
 parsers-cli = ["parsers/cli"]
 kernels-cli = ["kernels/cli"]
 binaries-cli = ["binaries/cli"]
-buildpacks-cli = ["buildpacks/cli"]
 providers-cli = ["providers/cli"]
+buildpacks-cli = ["buildpacks/cli"]
 
 server = [
   "jsonwebtoken",
@@ -97,6 +97,10 @@ default = [
   # Providers
   "providers-cli",
   "providers/provider-doi",
+  "providers/provider-elife",
+  "providers/provider-gdrive",
+  "providers/provider-github",
+  "providers/provider-gitlab",
 
   # Buildpacks
   "buildpacks-cli",

@@ -254,7 +254,7 @@ pub mod commands {
     use provider::SyncMode;
     use structopt::StructOpt;
 
-    #[derive(StructOpt)]
+    #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Manage providers",
         setting = structopt::clap::AppSettings::ColoredHelp,
@@ -292,7 +292,7 @@ pub mod commands {
     ///
     /// The list of available providers includes those that are built into the Stencila
     /// binary as well as those provided by plugins.
-    #[derive(StructOpt)]
+    #[derive(Debug, StructOpt)]
     #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct List {}
     #[async_trait]
@@ -304,7 +304,7 @@ pub mod commands {
     }
 
     /// Show the specifications of a provider
-    #[derive(StructOpt)]
+    #[derive(Debug, StructOpt)]
     #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct Show {
         /// The name of the provider
@@ -321,7 +321,7 @@ pub mod commands {
     }
 
     /// Detect nodes within a file or string
-    #[derive(StructOpt)]
+    #[derive(Debug, StructOpt)]
     #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct Detect {
         /// The path to the file (or the string value if the `--string` flag is used)
@@ -354,7 +354,7 @@ pub mod commands {
     }
 
     /// Enrich nodes within a file or string
-    #[derive(StructOpt)]
+    #[derive(Debug, StructOpt)]
     #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct Enrich {
         /// The path to the file (or the string value if the `--string` flag is used)
@@ -401,7 +401,7 @@ pub mod commands {
     }
 
     /// Import content from a remote source to a local path
-    #[derive(StructOpt)]
+    #[derive(Debug, StructOpt)]
     #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct Import {
         /// The source identifier e.g. `github:org/name@v1.2.0`
@@ -434,7 +434,7 @@ pub mod commands {
     }
 
     /// Export content from a local path to a remote source
-    #[derive(StructOpt)]
+    #[derive(Debug, StructOpt)]
     #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct Export {
         /// The source identifier e.g. `github:org/name@v1.2.0`
@@ -467,7 +467,7 @@ pub mod commands {
     }
 
     /// Synchronize changes between a remote source and a local path
-    #[derive(StructOpt)]
+    #[derive(Debug, StructOpt)]
     #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct Sync {
         /// The source identifier e.g. `github:org/name`
@@ -515,7 +515,7 @@ pub mod commands {
     }
 
     /// Schedule changes between a remote source and a local path
-    #[derive(StructOpt)]
+    #[derive(Debug, StructOpt)]
     #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
     pub struct Schedule {
         /// The action to take at the scheduled time

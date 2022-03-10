@@ -123,6 +123,10 @@ pub enum Command {
     #[structopt(aliases = &["binary"])]
     Binaries(binaries::commands::Command),
 
+    #[cfg(feature = "providers-cli")]
+    #[structopt(aliases = &["provider"])]
+    Providers(providers::commands::Command),
+
     #[cfg(feature = "buildpacks-cli")]
     #[structopt(aliases = &["buildpack"])]
     Buildpacks(buildpacks::commands::Command),
@@ -169,6 +173,9 @@ impl Run for Command {
 
             #[cfg(feature = "binaries-cli")]
             Command::Binaries(command) => command.run().await,
+
+            #[cfg(feature = "providers-cli")]
+            Command::Providers(command) => command.run().await,
 
             #[cfg(feature = "buildpacks-cli")]
             Command::Buildpacks(command) => command.run().await,
