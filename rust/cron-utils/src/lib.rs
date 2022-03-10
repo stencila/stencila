@@ -150,14 +150,23 @@ fn phrase(input: &str) -> IResult<&str, Cron> {
                 }
             }
 
-            if merged.days_of_week != "*" && merged.hours == "*" {
-                merged.hours = "0".to_string();
+            if merged.days_of_week != "*"
+                && merged.hours == "*"
+                && merged.minutes == "*"
+                && merged.seconds == "*"
+            {
+                merged.hours = "0".into();
+                merged.minutes = "0".into();
+                merged.seconds = "0".into();
             }
-            if merged.hours != "*" && merged.minutes == "*" {
-                merged.minutes = "0".to_string();
+
+            if merged.hours != "*" && merged.minutes == "*" && merged.seconds == "*" {
+                merged.minutes = "0".into();
+                merged.seconds = "0".into();
             }
+
             if merged.minutes != "*" && merged.seconds == "*" {
-                merged.seconds = "0".to_string();
+                merged.seconds = "0".into();
             }
 
             merged
@@ -659,6 +668,19 @@ mod tests {
         assert_eq!(
             parse("every 2 days")?.0[0],
             Schedule::from_str("0 0 0 */2 * *")?
+        );
+
+        assert_eq!(
+            parse("every 2 hours monday to friday")?.0[0],
+            Schedule::from_str("0 0 */2 * * mon-fri")?
+        );
+        assert_eq!(
+            parse("every 30 mins tue,wed")?.0[0],
+            Schedule::from_str("0 */30 * * * tue,wed")?
+        );
+        assert_eq!(
+            parse("every 5s from sun to thur")?.0[0],
+            Schedule::from_str("*/5 * * * * sun-thu")?
         );
 
         Ok(())
