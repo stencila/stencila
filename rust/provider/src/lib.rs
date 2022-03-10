@@ -116,17 +116,17 @@ pub trait ProviderTrait {
     }
 
     /// Schedule import and/or export to/from a remove [`Node`] and a local path
-    async fn schedule(_action: &str, _schedule: &str, _node: &Node, _path: &Path) -> Result<bool> {
+    async fn cron(_action: &str, _schedule: &str, _node: &Node, _path: &Path) -> Result<bool> {
         Ok(false)
     }
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct EnrichOptions {
     pub token: Option<String>,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ImportOptions {
     /// The token needed to access the resource
     ///
@@ -135,7 +135,7 @@ pub struct ImportOptions {
     pub token: Option<String>,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ExportOptions {
     /// The token needed to access the resource
     ///
@@ -143,7 +143,7 @@ pub struct ExportOptions {
     pub token: Option<String>,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct SyncOptions {
     /// The synchronization mode
     pub mode: Option<SyncMode>,
@@ -157,7 +157,7 @@ pub struct SyncOptions {
     pub host: Option<String>,
 }
 
-#[derive(Debug, Clone, AsRefStr, EnumString, EnumVariantNames)]
+#[derive(Debug, Clone, AsRefStr, EnumString, EnumVariantNames, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
 pub enum SyncMode {
     /// Synchronize the resource whenever changes are made
@@ -263,6 +263,15 @@ impl Visitor for Detector {
 /// Schedule import and/or export to/from a remove [`Node`] and a local path
 pub async fn run_schedule(schedule: &str, sender: mpsc::Sender<()>) -> Result<()> {
     let (schedules, timezone) = cron_utils::parse(schedule)?;
+    tracing::info!(
+        "Running cron schedule `{}` in timezone `{}`",
+        schedules
+            .iter()
+            .map(|schedule| schedule.to_string())
+            .collect::<Vec<String>>()
+            .join("; "),
+        timezone
+    );
 
     let (interrupt_sender, mut interrupt_receiver) = mpsc::unbounded_channel();
     subscribe("interrupt", Subscriber::Sender(interrupt_sender))?;
@@ -271,8 +280,9 @@ pub async fn run_schedule(schedule: &str, sender: mpsc::Sender<()>) -> Result<()
         let interval = Duration::from_secs(1);
         let mut next = cron_utils::next(&schedules, &timezone);
         if let Some(time) = next {
-            tracing::debug!("First action scheduled for {}", time);
+            tracing::info!("First action scheduled for {}", time);
         }
+
         loop {
             if let Err(..) = timeout(interval, interrupt_receiver.recv()).await {
                 match next {

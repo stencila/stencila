@@ -103,7 +103,7 @@ impl ProviderTrait for HttpProvider {
         Ok(true)
     }
 
-    async fn schedule(action: &str, schedule: &str, node: &Node, path: &Path) -> Result<bool> {
+    async fn cron(action: &str, schedule: &str, node: &Node, path: &Path) -> Result<bool> {
         let thing = match node {
             Node::Thing(thing) => thing,
             _ => return Ok(false),

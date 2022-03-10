@@ -11,6 +11,9 @@ use std::sync::Arc;
 
 pub use provider::{DetectItem, Provider};
 
+// Re-exports for consumers of this crate
+pub use ::provider;
+
 // The following high level functions hide the implementation
 // detail of having a static list of providers. They are intended as the
 // only public interface for this crate.
@@ -19,17 +22,13 @@ pub async fn detect(node: &Node) -> Result<Vec<DetectItem>> {
     PROVIDERS.detect(node).await
 }
 
-pub async fn find(node: &Node) -> Result<Node> {
-    let detections = detect(node).await?;
-    let detection = match detections.len() {
-        0 => bail!("No node detected"),
-        1 => &detections[0],
-        _ => {
-            tracing::warn!("More than one node detected; will only use first");
-            &detections[0]
-        }
-    };
-    Ok(detection.node.clone())
+pub async fn resolve(identifier: &str) -> Result<Node> {
+    let root = Node::String(identifier.to_string());
+    let detections = detect(&root).await?;
+    match detections.first() {
+        Some(detection) => Ok(detection.node.clone()),
+        None => bail!("Unable to resolve identifier `{}`", identifier),
+    }
 }
 
 pub async fn enrich(node: Node, options: Option<EnrichOptions>) -> Result<Node> {
@@ -48,8 +47,8 @@ pub async fn sync(node: &Node, dest: &Path, options: Option<SyncOptions>) -> Res
     PROVIDERS.sync(node, dest, options).await
 }
 
-pub async fn schedule(action: &str, schedule: &str, node: &Node, dest: &Path) -> Result<bool> {
-    PROVIDERS.schedule(action, schedule, node, dest).await
+pub async fn cron(action: &str, schedule: &str, node: &Node, dest: &Path) -> Result<bool> {
+    PROVIDERS.cron(action, schedule, node, dest).await
 }
 
 /// The set of registered providers in the current process
@@ -218,7 +217,7 @@ impl Providers {
     }
 
     /// Schedule import and/or export to/from a remove [`Node`] and a local path
-    async fn schedule(
+    async fn cron(
         &self,
         action: &str,
         schedule: &str,
@@ -227,7 +226,7 @@ impl Providers {
     ) -> Result<bool> {
         for provider in &self.inner {
             if let Some(future) =
-                dispatch_builtins!(provider.name, schedule, action, schedule, node, path)
+                dispatch_builtins!(provider.name, cron, action, schedule, node, path)
             {
                 let scheduleing = future.await?;
                 if scheduleing {
@@ -269,7 +268,7 @@ pub mod commands {
         Import(Import),
         Export(Export),
         Sync(Sync),
-        Schedule(Schedule),
+        Cron(Cron),
     }
 
     #[async_trait]
@@ -283,7 +282,7 @@ pub mod commands {
                 Command::Import(action) => action.run().await,
                 Command::Export(action) => action.run().await,
                 Command::Sync(action) => action.run().await,
-                Command::Schedule(action) => action.run().await,
+                Command::Cron(action) => action.run().await,
             }
         }
     }
@@ -418,8 +417,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Import {
         async fn run(&self) -> Result {
-            let identifier = Node::String(self.source.clone());
-            let node = find(&identifier).await?;
+            let node = resolve(&self.source).await?;
 
             let options = ImportOptions {
                 token: self.token.clone(),
@@ -451,8 +449,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Export {
         async fn run(&self) -> Result {
-            let identifier = Node::String(self.source.clone());
-            let node = find(&identifier).await?;
+            let node = resolve(&self.source).await?;
 
             let options = ExportOptions {
                 token: self.token.clone(),
@@ -497,8 +494,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Sync {
         async fn run(&self) -> Result {
-            let identifier = Node::String(self.source.clone());
-            let node = find(&identifier).await?;
+            let node = resolve(&self.source).await?;
 
             let options = SyncOptions {
                 mode: self.mode.clone(),
@@ -514,10 +510,10 @@ pub mod commands {
         }
     }
 
-    /// Schedule changes between a remote source and a local path
+    /// Schedule import and/or export between remote source and a local path
     #[derive(Debug, StructOpt)]
     #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-    pub struct Schedule {
+    pub struct Cron {
         /// The action to take at the scheduled time
         #[structopt(possible_values=provider::ACTIONS)]
         action: String,
@@ -533,12 +529,11 @@ pub mod commands {
         path: PathBuf,
     }
     #[async_trait]
-    impl Run for Schedule {
+    impl Run for Cron {
         async fn run(&self) -> Result {
-            let identifier = Node::String(self.source.clone());
-            let node = find(&identifier).await?;
+            let node = resolve(&self.source).await?;
 
-            let scheduling = schedule(&self.action, &self.schedule, &node, &self.path).await?;
+            let scheduling = cron(&self.action, &self.schedule, &node, &self.path).await?;
             if !scheduling {
                 tracing::error!(
                     "Unable to schedule `{}` of source `{}`",
