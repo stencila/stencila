@@ -5688,6 +5688,7 @@ name = "server-utils"
 version = "0.0.0"
 dependencies = [
  "axum",
+ "events",
  "eyre",
  "portpicker",
  "public-ip",

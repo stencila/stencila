@@ -1,7 +1,9 @@
 use std::{env, net::SocketAddr};
 
 use axum::{Router, Server};
+use events::{subscribe, Subscriber};
 use eyre::Result;
+use tokio::sync::mpsc;
 
 // Re-exports for consumers of this crate
 pub use ::axum;
@@ -40,11 +42,16 @@ pub async fn serve_gracefully(ip: [u8; 4], port: u16, router: Router) -> Result<
     Ok(())
 }
 
-/// Wait until the Ctrl+C signal is sent
+/// Wait until the interrupt event is received
+///
+/// Previously this used `tokio::signal::ctrl_c`, but to support having multiple servers
+/// (and other tasks) that can be gracefully shutdown uses the "interrupt" event topic instead
+/// (because for signals, the last registered handler wins)
 async fn shutdown_signal() {
-    tokio::signal::ctrl_c()
-        .await
-        .expect("Failed to install Ctrl+C signal handler");
+    let (interrupt_sender, mut interrupt_receiver) = mpsc::unbounded_channel();
+    subscribe("interrupt", Subscriber::Sender(interrupt_sender))
+        .expect("Unable to subscribe to interrupt event");
+    interrupt_receiver.recv().await;
 }
 
 #[cfg(test)]
