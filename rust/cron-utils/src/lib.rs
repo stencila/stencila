@@ -539,8 +539,15 @@ fn timezone(input: &str) -> IResult<&str, Tz> {
         return Ok((input, tz));
     }
 
+    let name = name.to_lowercase();
     for tz in TZ_VARIANTS {
-        if tz.to_string().ends_with(name) {
+        let city = tz
+            .to_string()
+            .split('/')
+            .last()
+            .unwrap_or_default()
+            .to_lowercase();
+        if city == name {
             return Ok((input, tz));
         }
     }
@@ -812,6 +819,7 @@ mod tests {
         assert_eq!(timezone("Kathmandu")?.1, Kathmandu);
         assert_eq!(timezone("Asia/Kathmandu")?.1, Kathmandu);
 
+        assert_eq!(timezone("auckland")?.1, Auckland);
         assert_eq!(timezone("Auckland")?.1, Auckland);
         assert_eq!(timezone("Auckland time")?.1, Auckland);
         assert_eq!(timezone("Pacific/Auckland")?.1, Auckland);
@@ -846,6 +854,10 @@ mod tests {
         assert_eq!(tz, Kathmandu);
 
         let (schedules, tz) = parse("1pm Tuesday and 09:12:01 Friday Auckland time")?;
+        assert_eq!(schedules, target);
+        assert_eq!(tz, Auckland);
+
+        let (schedules, tz) = parse("tue at 13:00 and fri at 09:12:01 auckland time")?;
         assert_eq!(schedules, target);
         assert_eq!(tz, Auckland);
 
