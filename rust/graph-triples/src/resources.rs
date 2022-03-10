@@ -29,9 +29,6 @@ pub enum Resource {
     /// A file within the project
     File(File),
 
-    /// A declared project `Source`
-    Source(Source),
-
     /// A programming language module, usually part of an external package
     Module(Module),
 
@@ -56,7 +53,6 @@ impl Resource {
                 ["node://", &path.to_slash_lossy(), "#", id].concat()
             }
             Resource::File(File { path, .. }) => ["file://", &path.to_slash_lossy()].concat(),
-            Resource::Source(Source { name, .. }) => ["source://", name].concat(),
             Resource::Module(Module { language, name, .. }) => {
                 ["module://", language, "#", name].concat()
             }
@@ -585,18 +581,6 @@ pub fn file(path: &Path) -> Resource {
     Resource::File(File {
         path: path.to_path_buf(),
     })
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
-#[schemars(deny_unknown_fields)]
-pub struct Source {
-    /// The name of the project source
-    pub name: String,
-}
-
-/// Create a new `Source` resource
-pub fn source(name: &str) -> Resource {
-    Resource::Source(Source { name: name.into() })
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
