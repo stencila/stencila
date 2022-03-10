@@ -101,6 +101,7 @@ default = [
   "providers/provider-gdrive",
   "providers/provider-github",
   "providers/provider-gitlab",
+  "providers/provider-http",
 
   # Buildpacks
   "buildpacks-cli",
