@@ -18,6 +18,21 @@ use provider::{
 
 pub struct HttpProvider;
 
+impl HttpProvider {
+    fn get_url(node: &Node) -> Result<String> {
+        let thing = match node {
+            Node::Thing(thing) => thing,
+            _ => bail!("Unrecognized node type"),
+        };
+        let url = match &thing.url {
+            Some(url) => url.as_ref(),
+            None => bail!("Node has no `url` property"),
+        }
+        .to_owned();
+        Ok(url)
+    }
+}
+
 #[async_trait]
 impl ProviderTrait for HttpProvider {
     fn spec() -> Provider {
@@ -45,22 +60,19 @@ impl ProviderTrait for HttpProvider {
             .collect()
     }
 
-    async fn import(node: &Node, dest: &Path, _options: Option<ImportOptions>) -> Result<bool> {
-        let thing = match node {
-            Node::Thing(thing) => thing,
-            _ => return Ok(false),
-        };
-        let url = match &thing.url {
-            Some(url) => url.as_ref(),
-            None => return Ok(false),
-        };
+    fn recognize(node: &Node) -> bool {
+        Self::get_url(node).is_ok()
+    }
+
+    async fn import(node: &Node, dest: &Path, _options: Option<ImportOptions>) -> Result<()> {
+        let url = Self::get_url(node)?;
 
         let dest_ext = dest
             .extension()
             .map_or_else(OsString::new, |ext| ext.to_owned());
         let dest_ext = dest_ext.as_os_str();
 
-        let src_url = url::Url::parse(url)?;
+        let src_url = url::Url::parse(&url)?;
         let src_path = PathBuf::from(src_url.path());
         let src_filename = src_path.file_name();
         let src_ext = if src_path.ends_with("tar.gz") {
@@ -76,7 +88,7 @@ impl ProviderTrait for HttpProvider {
         tracing::info!("Downloading `{url}` to `{dest}`", dest = dest.display());
         if !dest_ext.is_empty() {
             // If the destination appears to be a file: just download it
-            download(url, dest).await?
+            download(&url, dest).await?
         } else if src_ext == "tar"
             || src_ext == "tgz"
             || src_ext == "tar.gz"
@@ -85,34 +97,32 @@ impl ProviderTrait for HttpProvider {
         {
             // If the destination appears to be a folder and the source is an archive:
             // extract it into the folder
-            let archive = download_temp(url, Some(&src_ext)).await?;
+            let archive = download_temp(&url, Some(&src_ext)).await?;
             extract(archive.path(), dest, 0, None)?;
         } else if let Some(filename) = src_filename {
             // If the destination appears to be a folder and the source has a filename:
             // download it into the folder using the filename
-            download(url, &dest.join(filename)).await?;
+            download(&url, &dest.join(filename)).await?;
         } else if dest_ext.is_empty() {
             // If the destination appears to be a folder and the source has no filename:
             // download it to a slugified name
-            download(url, &dest.join(slug::slugify(url))).await?;
+            download(&url, &dest.join(slug::slugify(&url))).await?;
         } else {
             // Otherwise, just download to the destination (even though it has no extension e.g. `Makefile`)
-            download(url, dest).await?;
+            download(&url, dest).await?;
         }
 
-        Ok(true)
+        Ok(())
     }
 
-    async fn cron(action: &str, schedule: &str, node: &Node, path: &Path) -> Result<bool> {
-        let thing = match node {
-            Node::Thing(thing) => thing,
-            _ => return Ok(false),
-        };
-        let url = match &thing.url {
-            Some(url) => url.as_ref(),
-            None => return Ok(false),
-        }
-        .to_owned();
+    async fn cron(
+        action: &str,
+        schedule: &str,
+        node: &Node,
+        path: &Path,
+        canceller: mpsc::Receiver<()>,
+    ) -> Result<()> {
+        let url = Self::get_url(node)?;
 
         if !action.is_empty() && action != IMPORT {
             bail!("Only the import action is supported for `http` resources")
@@ -128,9 +138,9 @@ impl ProviderTrait for HttpProvider {
                 }
             }
         });
-        run_schedule(schedule, sender).await?;
+        run_schedule(schedule, sender, canceller).await?;
 
-        Ok(true)
+        Ok(())
     }
 }
 

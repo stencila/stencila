@@ -22,6 +22,7 @@ use provider::{
         CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date, Node, Organization,
         SoftwareSourceCode, ThingDescription,
     },
+    tokio::sync::mpsc,
     tracing, EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
 };
 use server_utils::{
@@ -88,27 +89,22 @@ pub struct GitlabProvider;
 
 impl GitlabProvider {
     /// Extract the Gitlab org and project name from a [`SoftwareSourceCode`] node
-    fn org_name(ssc: &SoftwareSourceCode) -> Option<(&str, &str)> {
+    fn org_name(ssc: &SoftwareSourceCode) -> Result<(&str, &str)> {
         if let Some(repo) = &ssc.code_repository {
             if let Some(repo) = repo.strip_prefix("https://gitlab.com/") {
                 let parts: Vec<&str> = repo.split('/').collect();
                 if parts.len() >= 2 {
-                    Some((parts[0], parts[1]))
-                } else {
-                    None
+                    return Ok((parts[0], parts[1]));
                 }
-            } else {
-                None
             }
-        } else {
-            None
         }
+        bail!("Unable to resolve Gitlab repository from `code_repository` property")
     }
 
     /// Extract the Gitlab project from a [`SoftwareSourceCode`] node as a URL encoded path
     ///
     /// See https://docs.gitlab.com/ee/api/index.html#namespaced-path-encoding
-    fn project_id(ssc: &SoftwareSourceCode) -> Option<String> {
+    fn project_id(ssc: &SoftwareSourceCode) -> Result<String> {
         Self::org_name(ssc).map(|(org, name)| format!("{}%2F{}", org, name))
     }
 
@@ -203,14 +199,21 @@ impl ProviderTrait for GitlabProvider {
             .collect()
     }
 
+    fn recognize(node: &Node) -> bool {
+        match node {
+            Node::SoftwareSourceCode(ssc) => Self::project_id(ssc).is_ok(),
+            _ => false
+        }
+    }
+
     async fn enrich(node: Node, options: Option<EnrichOptions>) -> Result<Node> {
         let ssc = match &node {
             Node::SoftwareSourceCode(ssc) => ssc,
             _ => return Ok(node),
         };
         let project_id = match Self::project_id(ssc) {
-            Some(project_id) => project_id,
-            None => return Ok(node),
+            Ok(project_id) => project_id,
+            Err(..) => return Ok(node),
         };
 
         let options = options.unwrap_or_default();
@@ -234,15 +237,12 @@ impl ProviderTrait for GitlabProvider {
         Ok(Node::SoftwareSourceCode(ssc))
     }
 
-    async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) -> Result<bool> {
+    async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) -> Result<()> {
         let ssc = match node {
             Node::SoftwareSourceCode(ssc) => ssc,
-            _ => return Ok(false),
+            _ => bail!("Unrecognized node type"),
         };
-        let project_id = match Self::project_id(ssc) {
-            Some(project_id) => project_id,
-            None => return Ok(false),
-        };
+        let project_id = Self::project_id(ssc)?;
 
         let options = options.unwrap_or_default();
         let client = GitlabClient::new(options.token)?;
@@ -317,19 +317,20 @@ impl ProviderTrait for GitlabProvider {
             )?;
         }
 
-        Ok(true)
+        Ok(())
     }
 
-    async fn sync(node: &Node, local: &Path, options: Option<SyncOptions>) -> Result<bool> {
+    async fn sync(
+        node: &Node,
+        local: &Path,
+        _canceller: mpsc::Receiver<()>,
+        options: Option<SyncOptions>,
+    ) -> Result<()> {
         let ssc = match node {
             Node::SoftwareSourceCode(ssc) => ssc,
-            _ => return Ok(false),
+            _ => bail!("Unrecognized node type"),
         };
-        let project_id = match Self::project_id(ssc) {
-            Some(project_id) => project_id,
-            None => return Ok(false),
-        };
-
+        let project_id = Self::project_id(ssc)?;
         let version = Self::version(ssc);
         let path = Self::path(ssc);
 
@@ -432,7 +433,7 @@ impl ProviderTrait for GitlabProvider {
             }
         }
 
-        Ok(true)
+        Ok(())
     }
 }
 

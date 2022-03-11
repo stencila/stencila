@@ -19,6 +19,7 @@ use provider::{
     regex::Regex,
     stencila_schema::{CreativeWork, Node},
     strum::{AsRefStr, EnumString},
+    tokio::sync::mpsc,
     tracing, ImportOptions, ParseItem, Provider, ProviderTrait, SyncMode, SyncOptions,
 };
 use server_utils::{
@@ -155,12 +156,15 @@ impl GoogleDriveProvider {
     }
 
     /// Extract the kind and id of a Google Drive resource from the URL of a [`CreativeWork`]
-    fn file_kind_id(node: &Node) -> Option<(FileKind, String)> {
+    fn file_kind_id(node: &Node) -> Result<(FileKind, String)> {
         let work = match node {
             Node::CreativeWork(work) => work,
-            _ => return None,
+            _ => bail!("Unrecognized node type"),
         };
-        work.url.as_ref().and_then(|url| Self::parse_url(url).ok())
+        match &work.url {
+            Some(url) => Self::parse_url(url),
+            None => bail!("Creative work has no `url` property"),
+        }
     }
 }
 
@@ -203,26 +207,27 @@ impl ProviderTrait for GoogleDriveProvider {
             .collect()
     }
 
-    async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) -> Result<bool> {
-        let (file_kind, file_id) = match Self::file_kind_id(node) {
-            Some(kind_id) => kind_id,
-            None => return Ok(false),
-        };
+    fn recognize(node: &Node) -> bool {
+        Self::file_kind_id(node).is_ok()
+    }
+
+    async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) -> Result<()> {
+        let (file_kind, file_id) = Self::file_kind_id(node)?;
 
         let options = options.unwrap_or_default();
         let client = GoogleDriveClient::new(options.token)?;
 
         tracing::info!("Downloading {}", Self::create_url(&file_kind, &file_id));
-        client.download(&file_kind, &file_id, dest).await?;
-
-        Ok(true)
+        client.download(&file_kind, &file_id, dest).await
     }
 
-    async fn sync(node: &Node, dest: &Path, options: Option<SyncOptions>) -> Result<bool> {
-        let (file_kind, file_id) = match Self::file_kind_id(node) {
-            Some(kind_id) => kind_id,
-            None => return Ok(false),
-        };
+    async fn sync(
+        node: &Node,
+        dest: &Path,
+        _canceller: mpsc::Receiver<()>,
+        options: Option<SyncOptions>,
+    ) -> Result<()> {
+        let (file_kind, file_id) = Self::file_kind_id(node)?;
         let file_url = Self::create_url(&file_kind, &file_id);
 
         let options = options.unwrap_or_default();
@@ -331,7 +336,7 @@ impl ProviderTrait for GoogleDriveProvider {
             }
         }
 
-        Ok(true)
+        Ok(())
     }
 }
 

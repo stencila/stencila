@@ -17,6 +17,7 @@ use graph_triples::{
 use providers::provider::{SyncMode, SyncOptions};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use tokio::sync::mpsc;
 
 /// A source-destination combination
 ///
@@ -278,10 +279,10 @@ impl Sources {
                 let schedule = cron.schedule.clone();
                 let node = node.clone();
                 let dest = dest.clone();
-                let future =
-                    tokio::spawn(
-                        async move { providers::cron(&action, &schedule, &node, &dest).await },
-                    );
+                let (_cancel_sender, cancel_receiver) = mpsc::channel(1);
+                let future = tokio::spawn(async move {
+                    providers::cron(&action, &schedule, &node, &dest, cancel_receiver).await
+                });
                 futures.push(future);
             }
 
@@ -291,8 +292,10 @@ impl Sources {
                     mode: sync.mode.clone(),
                     ..Default::default()
                 };
-                let future =
-                    tokio::spawn(async move { providers::sync(&node, &dest, Some(options)).await });
+                let (_cancel_sender, cancel_receiver) = mpsc::channel(1);
+                let future = tokio::spawn(async move {
+                    providers::sync(&node, &dest, cancel_receiver, Some(options)).await
+                });
                 futures.push(future);
             }
         }

@@ -2,14 +2,12 @@ use std::path::Path;
 
 use async_trait::async_trait;
 use chrono::Utc;
-use events::{subscribe, Subscriber};
 use eyre::Result;
 use node_address::Address;
 use node_pointer::{walk, Visitor};
 use serde::{Deserialize, Serialize};
-use strum::{AsRefStr, EnumString, EnumVariantNames};
-
 use stencila_schema::{InlineContent, Node};
+use strum::{AsRefStr, EnumString, EnumVariantNames};
 use tokio::{
     sync::mpsc,
     time::{timeout, Duration},
@@ -80,6 +78,11 @@ pub trait ProviderTrait {
         Ok(detector.detections)
     }
 
+    /// Does the provider recognize a node?
+    fn recognize(_node: &Node) -> bool {
+        false
+    }
+
     /// Identify a node
     ///
     /// The node is supplied to the provider, with one or more properties populated.
@@ -101,23 +104,34 @@ pub trait ProviderTrait {
     }
 
     /// Import content from a remote [`Node`] (e.g. an `Article` or `SoftwareSourceCode` repository) to a local path
-    async fn import(_node: &Node, _path: &Path, _options: Option<ImportOptions>) -> Result<bool> {
-        Ok(false)
+    async fn import(_node: &Node, _path: &Path, _options: Option<ImportOptions>) -> Result<()> {
+        Ok(())
     }
 
     /// Export content from a local path to a remote [`Node`] (e.g. an `Article` or `SoftwareSourceCode` repository)
-    async fn export(_node: &Node, _path: &Path, _options: Option<ExportOptions>) -> Result<bool> {
-        Ok(false)
+    async fn export(_node: &Node, _path: &Path, _options: Option<ExportOptions>) -> Result<()> {
+        Ok(())
     }
 
     /// Synchronize changes between a remote [`Node`] (e.g. a `SoftwareSourceCode` repository) and a local path (a file or directory)
-    async fn sync(_node: &Node, _path: &Path, _options: Option<SyncOptions>) -> Result<bool> {
-        Ok(false)
+    async fn sync(
+        _node: &Node,
+        _path: &Path,
+        _canceller: mpsc::Receiver<()>,
+        _options: Option<SyncOptions>,
+    ) -> Result<()> {
+        Ok(())
     }
 
     /// Schedule import and/or export to/from a remove [`Node`] and a local path
-    async fn cron(_action: &str, _schedule: &str, _node: &Node, _path: &Path) -> Result<bool> {
-        Ok(false)
+    async fn cron(
+        _action: &str,
+        _schedule: &str,
+        _node: &Node,
+        _path: &Path,
+        _canceller: mpsc::Receiver<()>,
+    ) -> Result<()> {
+        Ok(())
     }
 }
 
@@ -261,7 +275,11 @@ impl Visitor for Detector {
 }
 
 /// Schedule import and/or export to/from a remove [`Node`] and a local path
-pub async fn run_schedule(schedule: &str, sender: mpsc::Sender<()>) -> Result<()> {
+pub async fn run_schedule(
+    schedule: &str,
+    sender: mpsc::Sender<()>,
+    mut canceller: mpsc::Receiver<()>,
+) -> Result<()> {
     let (schedules, timezone) = cron_utils::parse(schedule)?;
     tracing::info!(
         "Running cron schedule `{}` in timezone `{}`",
@@ -273,9 +291,6 @@ pub async fn run_schedule(schedule: &str, sender: mpsc::Sender<()>) -> Result<()
         timezone
     );
 
-    let (interrupt_sender, mut interrupt_receiver) = mpsc::unbounded_channel();
-    subscribe("interrupt", Subscriber::Sender(interrupt_sender))?;
-
     tokio::spawn(async move {
         let interval = Duration::from_secs(1);
         let mut next = cron_utils::next(&schedules, &timezone);
@@ -284,7 +299,7 @@ pub async fn run_schedule(schedule: &str, sender: mpsc::Sender<()>) -> Result<()
         }
 
         loop {
-            if let Err(..) = timeout(interval, interrupt_receiver.recv()).await {
+            if let Err(..) = timeout(interval, canceller.recv()).await {
                 match next {
                     Some(time) => {
                         if Utc::now() >= time {

@@ -8,6 +8,7 @@ edition = "2021"
 cli = ["cli-utils", "structopt", "tokio"]
 
 [dependencies]
+events = { path = "../events", version = "0.0.0" }
 provider = { path = "../provider", version = "0.0.0" }
 once_cell = "1.8.0"
 

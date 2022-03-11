@@ -1,13 +1,14 @@
+use std::{path::Path, sync::Arc};
+
 use once_cell::sync::Lazy;
 use provider::{
     codecs,
     eyre::{bail, eyre, Result},
     stencila_schema::Node,
     strum::VariantNames,
-    tracing, EnrichOptions, ExportOptions, ImportOptions, ProviderTrait, SyncOptions,
+    EnrichOptions, ExportOptions, ImportOptions, ProviderTrait, SyncOptions,
 };
-use std::path::Path;
-use std::sync::Arc;
+use tokio::sync::mpsc;
 
 pub use provider::{DetectItem, Provider};
 
@@ -35,20 +36,33 @@ pub async fn enrich(node: Node, options: Option<EnrichOptions>) -> Result<Node> 
     PROVIDERS.enrich(node, options).await
 }
 
-pub async fn import(node: &Node, path: &Path, options: Option<ImportOptions>) -> Result<bool> {
+pub async fn import(node: &Node, path: &Path, options: Option<ImportOptions>) -> Result<()> {
     PROVIDERS.import(node, path, options).await
 }
 
-pub async fn export(node: &Node, path: &Path, options: Option<ExportOptions>) -> Result<bool> {
+pub async fn export(node: &Node, path: &Path, options: Option<ExportOptions>) -> Result<()> {
     PROVIDERS.export(node, path, options).await
 }
 
-pub async fn sync(node: &Node, dest: &Path, options: Option<SyncOptions>) -> Result<bool> {
-    PROVIDERS.sync(node, dest, options).await
+pub async fn sync(
+    node: &Node,
+    dest: &Path,
+    canceller: mpsc::Receiver<()>,
+    options: Option<SyncOptions>,
+) -> Result<()> {
+    PROVIDERS.sync(node, dest, canceller, options).await
 }
 
-pub async fn cron(action: &str, schedule: &str, node: &Node, dest: &Path) -> Result<bool> {
-    PROVIDERS.cron(action, schedule, node, dest).await
+pub async fn cron(
+    action: &str,
+    schedule: &str,
+    node: &Node,
+    dest: &Path,
+    canceller: mpsc::Receiver<()>,
+) -> Result<()> {
+    PROVIDERS
+        .cron(action, schedule, node, dest, canceller)
+        .await
 }
 
 /// The set of registered providers in the current process
@@ -64,18 +78,18 @@ macro_rules! dispatch_builtins {
     ($var:expr, $method:ident $(,$arg:expr)*) => {
         match $var.as_str() {
             #[cfg(feature = "provider-doi")]
-            "doi" => Some(provider_doi::DoiProvider::$method($($arg),*)),
+            "doi" => provider_doi::DoiProvider::$method($($arg),*),
             #[cfg(feature = "provider-elife")]
-            "elife" => Some(provider_elife::ElifeProvider::$method($($arg),*)),
+            "elife" => provider_elife::ElifeProvider::$method($($arg),*),
             #[cfg(feature = "provider-gdrive")]
-            "gdrive" => Some(provider_gdrive::GoogleDriveProvider::$method($($arg),*)),
+            "gdrive" => provider_gdrive::GoogleDriveProvider::$method($($arg),*),
             #[cfg(feature = "provider-github")]
-            "github" => Some(provider_github::GithubProvider::$method($($arg),*)),
+            "github" => provider_github::GithubProvider::$method($($arg),*),
             #[cfg(feature = "provider-gitlab")]
-            "gitlab" => Some(provider_gitlab::GitlabProvider::$method($($arg),*)),
+            "gitlab" => provider_gitlab::GitlabProvider::$method($($arg),*),
             #[cfg(feature = "provider-http")]
-            "http" => Some(provider_http::HttpProvider::$method($($arg),*)),
-            _ => None
+            "http" => provider_http::HttpProvider::$method($($arg),*),
+            _ => bail!("Unable to dispatch to provider `{}`", $var)
         }
     };
 }
@@ -122,6 +136,16 @@ impl Providers {
         bail!("No provider with name `{}`", name)
     }
 
+    /// Find the provider which recognizes a node
+    fn provider_for(&self, node: &Node) -> Result<Provider> {
+        for provider in &self.inner {
+            if dispatch_builtins!(provider.name, recognize, node) {
+                return Ok(provider.clone());
+            }
+        }
+        bail!("None of the registered providers recognize this node")
+    }
+
     /// Detect nodes within a node
     ///
     /// The `detect` method of each provider is called on the node and the result
@@ -129,10 +153,8 @@ impl Providers {
     async fn detect(&self, node: &Node) -> Result<Vec<DetectItem>> {
         let mut detected = Vec::new();
         for provider in &self.inner {
-            if let Some(future) = dispatch_builtins!(provider.name, detect, node) {
-                let mut result = future.await?;
-                detected.append(&mut result);
-            }
+            let mut result = dispatch_builtins!(provider.name, detect, node).await?;
+            detected.append(&mut result);
         }
         Ok(detected)
     }
@@ -143,77 +165,33 @@ impl Providers {
     /// and/or different values for fields.
     async fn enrich(&self, mut node: Node, options: Option<EnrichOptions>) -> Result<Node> {
         for provider in &self.inner {
-            if let Some(future) =
-                dispatch_builtins!(provider.name, enrich, node.clone(), options.clone())
-            {
-                node = future.await?;
-            }
+            node = dispatch_builtins!(provider.name, enrich, node, options.clone()).await?;
         }
         Ok(node)
     }
 
     /// Import content from a remote [`Node`] to a local path
-    ///
-    /// The `import` method of each provider is called until one returns `true` (indicating that the node was imported).
-    /// If no providers are able to import the node returns `Ok(false)`.
-    async fn import(
-        &self,
-        node: &Node,
-        path: &Path,
-        options: Option<ImportOptions>,
-    ) -> Result<bool> {
-        for provider in &self.inner {
-            if let Some(future) =
-                dispatch_builtins!(provider.name, import, node, path, options.clone())
-            {
-                let imported = future.await?;
-                if imported {
-                    return Ok(true);
-                }
-            }
-        }
-        Ok(false)
+    async fn import(&self, node: &Node, path: &Path, options: Option<ImportOptions>) -> Result<()> {
+        let provider = self.provider_for(node)?;
+        dispatch_builtins!(provider.name, import, node, path, options.clone()).await
     }
 
     /// Export content from a local path to a remote [`Node`]
-    ///
-    /// The `export` method of each provider is called until one returns `true` (indicating that the node was exported).
-    /// If no providers are able to export the node returns `Ok(false)`.
-    async fn export(
-        &self,
-        node: &Node,
-        path: &Path,
-        options: Option<ExportOptions>,
-    ) -> Result<bool> {
-        for provider in &self.inner {
-            if let Some(future) =
-                dispatch_builtins!(provider.name, export, node, path, options.clone())
-            {
-                let exported = future.await?;
-                if exported {
-                    return Ok(true);
-                }
-            }
-        }
-        Ok(false)
+    async fn export(&self, node: &Node, path: &Path, options: Option<ExportOptions>) -> Result<()> {
+        let provider = self.provider_for(node)?;
+        dispatch_builtins!(provider.name, export, node, path, options.clone()).await
     }
 
     /// Synchronize changes between a remote [`Node`] and a local path
-    ///
-    /// The `sync` method of each provider is called until one returns `true` (indicating that the node was synced).
-    /// Ino providers are able to sync the node returns `Ok(false)`.
-    async fn sync(&self, node: &Node, path: &Path, options: Option<SyncOptions>) -> Result<bool> {
-        for provider in &self.inner {
-            if let Some(future) =
-                dispatch_builtins!(provider.name, sync, node, path, options.clone())
-            {
-                let syncing = future.await?;
-                if syncing {
-                    return Ok(true);
-                }
-            }
-        }
-        Ok(false)
+    async fn sync(
+        &self,
+        node: &Node,
+        path: &Path,
+        canceller: mpsc::Receiver<()>,
+        options: Option<SyncOptions>,
+    ) -> Result<()> {
+        let provider = self.provider_for(node)?;
+        dispatch_builtins!(provider.name, sync, node, path, canceller, options).await
     }
 
     /// Schedule import and/or export to/from a remove [`Node`] and a local path
@@ -223,18 +201,10 @@ impl Providers {
         schedule: &str,
         node: &Node,
         path: &Path,
-    ) -> Result<bool> {
-        for provider in &self.inner {
-            if let Some(future) =
-                dispatch_builtins!(provider.name, cron, action, schedule, node, path)
-            {
-                let scheduleing = future.await?;
-                if scheduleing {
-                    return Ok(true);
-                }
-            }
-        }
-        Ok(false)
+        canceller: mpsc::Receiver<()>,
+    ) -> Result<()> {
+        let provider = self.provider_for(node)?;
+        dispatch_builtins!(provider.name, cron, action, schedule, node, path, canceller).await
     }
 }
 
@@ -422,10 +392,7 @@ pub mod commands {
             let options = ImportOptions {
                 token: self.token.clone(),
             };
-            let imported = import(&node, &self.path, Some(options)).await?;
-            if !imported {
-                tracing::error!("Unable to import from source `{}`", self.source);
-            }
+            import(&node, &self.path, Some(options)).await?;
 
             result::nothing()
         }
@@ -454,10 +421,7 @@ pub mod commands {
             let options = ExportOptions {
                 token: self.token.clone(),
             };
-            let exported = export(&node, &self.path, Some(options)).await?;
-            if !exported {
-                tracing::error!("Unable to export to source `{}`", self.source);
-            }
+            export(&node, &self.path, Some(options)).await?;
 
             result::nothing()
         }
@@ -496,15 +460,15 @@ pub mod commands {
         async fn run(&self) -> Result {
             let node = resolve(&self.source).await?;
 
+            let (subscriber, canceller) = mpsc::channel(1);
+            events::subscribe_to_interrupt(subscriber).await;
+
             let options = SyncOptions {
                 mode: self.mode.clone(),
                 token: self.token.clone(),
                 host: self.host.clone(),
             };
-            let syncing = sync(&node, &self.path, Some(options)).await?;
-            if !syncing {
-                tracing::error!("Unable to synchronize with source `{}`", self.source);
-            }
+            sync(&node, &self.path, canceller, Some(options)).await?;
 
             result::nothing()
         }
@@ -533,14 +497,10 @@ pub mod commands {
         async fn run(&self) -> Result {
             let node = resolve(&self.source).await?;
 
-            let scheduling = cron(&self.action, &self.schedule, &node, &self.path).await?;
-            if !scheduling {
-                tracing::error!(
-                    "Unable to schedule `{}` of source `{}`",
-                    self.action,
-                    self.source
-                );
-            }
+            let (subscriber, canceller) = mpsc::channel(1);
+            events::subscribe_to_interrupt(subscriber).await;
+
+            cron(&self.action, &self.schedule, &node, &self.path, canceller).await?;
 
             result::nothing()
         }

@@ -19,13 +19,14 @@ use octorust::{
 use provider::{
     async_trait::async_trait,
     codecs,
-    eyre::{self, eyre, Result},
+    eyre::{self, bail, eyre, Result},
     once_cell::sync::Lazy,
     regex::Regex,
     stencila_schema::{
         CreativeWorkAuthors, CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date,
         Node, Organization, Person, SoftwareSourceCode, ThingDescription,
     },
+    tokio::sync::mpsc,
     tracing, EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
 };
 use server_utils::{
@@ -59,21 +60,16 @@ impl GithubProvider {
     }
 
     /// Extract the GitHub repository owner and name from a [`SoftwareSourceCode`] node
-    fn owner_repo(ssc: &SoftwareSourceCode) -> Option<(&str, &str)> {
+    fn owner_repo(ssc: &SoftwareSourceCode) -> Result<(&str, &str)> {
         if let Some(repo) = &ssc.code_repository {
             if let Some(repo) = repo.strip_prefix("https://github.com/") {
                 let parts: Vec<&str> = repo.split('/').collect();
                 if parts.len() >= 2 {
-                    Some((parts[0], parts[1]))
-                } else {
-                    None
+                    return Ok((parts[0], parts[1]));
                 }
-            } else {
-                None
             }
-        } else {
-            None
         }
+        bail!("Unable to resolve GitHub repo from `code_repository` property")
     }
 
     /// Extract the sub-path from a [`SoftwareSourceCode`] node (if any)
@@ -161,14 +157,21 @@ impl ProviderTrait for GithubProvider {
             .collect()
     }
 
+    fn recognize(node: &Node) -> bool {
+        match node {
+            Node::SoftwareSourceCode(ssc) => Self::owner_repo(ssc).is_ok(),
+            _ => false,
+        }
+    }
+
     async fn enrich(node: Node, options: Option<EnrichOptions>) -> Result<Node> {
         let ssc = match &node {
             Node::SoftwareSourceCode(ssc) => ssc,
             _ => return Ok(node),
         };
         let (owner, repo) = match GithubProvider::owner_repo(ssc) {
-            Some(owner_repo) => owner_repo,
-            None => return Ok(node),
+            Ok(owner_repo) => owner_repo,
+            Err(..) => return Ok(node),
         };
 
         let options = options.unwrap_or_default();
@@ -239,20 +242,16 @@ impl ProviderTrait for GithubProvider {
         Ok(Node::SoftwareSourceCode(ssc))
     }
 
-    async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) -> Result<bool> {
+    async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) -> Result<()> {
         let ssc = match node {
             Node::SoftwareSourceCode(ssc) => ssc,
-            _ => return Ok(false),
+            _ => bail!("Unrecognized node type"),
         };
-        let (owner, repo) = match Self::owner_repo(ssc) {
-            Some(owner_repo) => owner_repo,
-            None => return Ok(false),
-        };
-
+        let (owner, repo) = Self::owner_repo(ssc)?;
         let ref_ = Self::version(ssc);
         let path = Self::path(ssc);
-        let options = options.unwrap_or_default();
 
+        let options = options.unwrap_or_default();
         let client = Self::client(options.token.clone());
 
         let content = client
@@ -317,23 +316,24 @@ impl ProviderTrait for GithubProvider {
             }
         }
 
-        Ok(true)
+        Ok(())
     }
 
-    async fn sync(node: &Node, local: &Path, options: Option<SyncOptions>) -> Result<bool> {
+    async fn sync(
+        node: &Node,
+        local: &Path,
+        _canceller: mpsc::Receiver<()>,
+        options: Option<SyncOptions>,
+    ) -> Result<()> {
         let ssc = match node {
             Node::SoftwareSourceCode(ssc) => ssc,
-            _ => return Ok(false),
+            _ => bail!("Unrecognized node type"),
         };
-        let (owner, repo) = match Self::owner_repo(ssc) {
-            Some(owner_repo) => owner_repo,
-            None => return Ok(false),
-        };
-
+        let (owner, repo) = Self::owner_repo(ssc)?;
         let version = Self::version(ssc);
         let path = Self::path(ssc);
-        let options = options.unwrap_or_default();
 
+        let options = options.unwrap_or_default();
         let client = Self::client(options.token);
 
         // Generate the unique id for the webhook
@@ -454,7 +454,7 @@ impl ProviderTrait for GithubProvider {
             }
         }
 
-        Ok(true)
+        Ok(())
     }
 }
 

@@ -4786,7 +4786,6 @@ dependencies = [
  "chrono",
  "codecs",
  "cron-utils",
- "events",
  "eyre",
  "http-utils",
  "node-address",
@@ -4880,6 +4879,7 @@ name = "providers"
 version = "0.0.0"
 dependencies = [
  "cli-utils",
+ "events",
  "once_cell",
  "provider",
  "provider-doi",
