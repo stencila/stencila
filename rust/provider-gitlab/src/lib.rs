@@ -34,6 +34,12 @@ use server_utils::{
     hostname, serve_gracefully,
 };
 
+/// The base URL for API requests
+const BASE_URL: &str = "https://gitlab.com/api/v4/";
+
+/// The default name for the secret used to authenticate with the API
+const SECRET_NAME: &str = "GITLAB_TOKEN";
+
 /// Port for the webhook server
 ///
 /// This should not clash with any other port numbers for other providers.
@@ -46,42 +52,53 @@ const WEBHOOK_PORT: u16 = 10003;
 /// Although there is an existing Rust client for the Gitlab REST API there
 /// were several difficulties with using it:
 ///  - it is blocking and thus needs workarounds for use withing async functions
-///  - it requires an access token event though the API allows some routes to be used without
+///  - it requires an access token event though the API allows some routes to be used without one
 ///  - it does not define many types for returned payloads (so they need to be coded up anyway)
-/// Also by using out existing HTTP client we benefit from caching.
+///
+/// Also, by using our existing HTTP client we benefit from caching.
+///
+/// This takes a just-in-time approach and gets the API token from the environment (if any) for
+/// each request. This allows the token to be added or changed without a restart.
 #[derive(Clone)]
 struct GitlabClient {
-    /// The base URL
-    base_url: String,
-
-    /// Headers to include in each request
-    headers: Vec<(headers::HeaderName, String)>,
+    /// The name of the secret containing the access token
+    secret_name: String,
 }
 
 impl GitlabClient {
-    fn new(token: Option<String>) -> Result<Self> {
-        let base_url = "https://gitlab.com/api/v4/".to_string();
-        let headers = match token {
+    /// Create a new Gitlab API client
+    fn new(secret_name: Option<String>) -> Self {
+        let secret_name = secret_name.unwrap_or_else(|| SECRET_NAME.to_string());
+        Self { secret_name }
+    }
+
+    /// Get the API token from the environment (if any)
+    fn token(&self) -> Option<String> {
+        env::var(&self.secret_name).ok()
+    }
+
+    /// Get additional headers required for a request
+    fn headers(&self) -> Result<Vec<(headers::HeaderName, String)>> {
+        Ok(match self.token() {
             Some(token) => vec![(headers::AUTHORIZATION, ["Bearer ", &token].concat())],
-            None => vec![],
-        };
-        Ok(Self { base_url, headers })
+            None => Vec::new(),
+        })
     }
 
     async fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T> {
-        get_with(&[&self.base_url, path].concat(), &self.headers).await
+        get_with(&[BASE_URL, path].concat(), &self.headers()?).await
     }
 
     async fn post<B: Serialize, T: DeserializeOwned>(&self, path: &str, body: B) -> Result<T> {
-        post_with(&[&self.base_url, path].concat(), body, &self.headers).await
+        post_with(&[BASE_URL, path].concat(), body, &self.headers()?).await
     }
 
     async fn delete(&self, path: &str) -> Result<()> {
-        delete_with(&[&self.base_url, path].concat(), &self.headers).await
+        delete_with(&[BASE_URL, path].concat(), &self.headers()?).await
     }
 
     async fn download_temp(&self, path: &str) -> Result<NamedTempFile> {
-        download_temp_with(&[&self.base_url, path].concat(), None, &self.headers).await
+        download_temp_with(&[BASE_URL, path].concat(), None, &self.headers()?).await
     }
 }
 
@@ -202,7 +219,7 @@ impl ProviderTrait for GitlabProvider {
     fn recognize(node: &Node) -> bool {
         match node {
             Node::SoftwareSourceCode(ssc) => Self::project_id(ssc).is_ok(),
-            _ => false
+            _ => false,
         }
     }
 
@@ -218,7 +235,7 @@ impl ProviderTrait for GitlabProvider {
 
         let options = options.unwrap_or_default();
 
-        let client = GitlabClient::new(options.token)?;
+        let client = GitlabClient::new(options.secret_name);
         let project: Project = client.get(&format!("projects/{}", project_id)).await?;
 
         let description = match !project.description.is_empty() {
@@ -245,7 +262,7 @@ impl ProviderTrait for GitlabProvider {
         let project_id = Self::project_id(ssc)?;
 
         let options = options.unwrap_or_default();
-        let client = GitlabClient::new(options.token)?;
+        let client = GitlabClient::new(options.secret_name);
 
         let ref_ = Self::version(ssc).unwrap_or("HEAD").to_string();
         let path = Self::path(ssc).unwrap_or_default();
@@ -335,7 +352,7 @@ impl ProviderTrait for GitlabProvider {
         let path = Self::path(ssc);
 
         let options = options.unwrap_or_default();
-        let client = GitlabClient::new(options.token)?;
+        let client = GitlabClient::new(options.secret_name);
 
         // Generate the unique id for the webhook
         let webhook_id = uuids::generate_num("wh", 36).to_string();

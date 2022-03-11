@@ -46,8 +46,14 @@ pub struct Source {
     /// Synchronize the source
     pub sync: Option<SourceSync>,
 
-    /// A token required to access the source
-    pub token: Option<String>,
+    /// The name of the secret required to access the source
+    /// 
+    /// To improve the security of API access tokens, secrets are only ever read from
+    /// environment variables. Source providers usually have a default secret name
+    /// e.g. `GITHUB_TOKEN`. However, this field allows setting of custom secret names
+    /// which may be necessary, for example, if a project uses two sources from the
+    /// same provider, requiring different secrets.
+    pub secret_name: Option<String>,
 
     /// A list of file paths currently associated with the source (relative to the project root)
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -288,8 +294,8 @@ impl Sources {
 
             if let Some(sync) = &source.sync {
                 let options = SyncOptions {
-                    token: source.token.clone(),
                     mode: sync.mode.clone(),
+                    secret_name: source.secret_name.clone(),
                     ..Default::default()
                 };
                 let (_cancel_sender, cancel_receiver) = mpsc::channel(1);

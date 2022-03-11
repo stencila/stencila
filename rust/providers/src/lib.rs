@@ -336,9 +336,12 @@ pub mod commands {
         #[structopt(short, long)]
         string: bool,
 
-        /// Any access token required by the source provider
-        #[structopt(long, short)]
-        token: Option<String>,
+        /// The name of a secret environment variable required to access the resource
+        ///
+        /// Only necessary if authentication is required for the resource and the name
+        /// of the secret is different to the default for the corresponding provider.
+        #[structopt(long)]
+        secret: Option<String>,
     }
     #[async_trait]
     impl Run for Enrich {
@@ -358,7 +361,7 @@ pub mod commands {
 
             let mut nodes: Vec<Node> = Vec::with_capacity(detections.len());
             let options = EnrichOptions {
-                token: self.token.clone(),
+                secret_name: self.secret.clone(),
             };
             for detection in detections.into_iter() {
                 let node = enrich(detection.node, Some(options.clone())).await?;
@@ -380,9 +383,12 @@ pub mod commands {
         #[structopt(default_value = ".")]
         path: PathBuf,
 
-        /// Any access token required by the source provider
-        #[structopt(long, short)]
-        token: Option<String>,
+        /// The name of a secret environment variable required to access the resource
+        ///
+        /// Only necessary if authentication is required for the resource and the name
+        /// of the secret is different to the default for the corresponding provider.
+        #[structopt(long)]
+        secret: Option<String>,
     }
     #[async_trait]
     impl Run for Import {
@@ -390,7 +396,7 @@ pub mod commands {
             let node = resolve(&self.source).await?;
 
             let options = ImportOptions {
-                token: self.token.clone(),
+                secret_name: self.secret.clone(),
             };
             import(&node, &self.path, Some(options)).await?;
 
@@ -409,9 +415,12 @@ pub mod commands {
         #[structopt(default_value = ".")]
         path: PathBuf,
 
-        /// Any access token required by the source provider
-        #[structopt(long, short)]
-        token: Option<String>,
+        /// The name of a secret environment variable required to access the resource
+        ///
+        /// Only necessary if authentication is required for the resource and the name
+        /// of the secret is different to the default for the corresponding provider.
+        #[structopt(long)]
+        secret: Option<String>,
     }
     #[async_trait]
     impl Run for Export {
@@ -419,7 +428,7 @@ pub mod commands {
             let node = resolve(&self.source).await?;
 
             let options = ExportOptions {
-                token: self.token.clone(),
+                secret_name: self.secret.clone(),
             };
             export(&node, &self.path, Some(options)).await?;
 
@@ -442,9 +451,12 @@ pub mod commands {
         #[structopt(long, short, possible_values = &SyncMode::VARIANTS)]
         mode: Option<SyncMode>,
 
-        /// Any access token required by the source provider
-        #[structopt(long, short)]
-        token: Option<String>,
+        /// The name of a secret environment variable required to access the resource
+        ///
+        /// Only necessary if authentication is required for the resource and the name
+        /// of the secret is different to the default for the corresponding provider.
+        #[structopt(long)]
+        secret: Option<String>,
 
         /// The host to listen on for events from the source provider
         ///
@@ -452,7 +464,7 @@ pub mod commands {
         /// with a tool such as ngrok to forward a public host to localhost.
         /// The value should exclude the protocol e.g. "https://" but may include
         /// a port number.
-        #[structopt(long, short)]
+        #[structopt(long)]
         host: Option<String>,
     }
     #[async_trait]
@@ -465,7 +477,7 @@ pub mod commands {
 
             let options = SyncOptions {
                 mode: self.mode.clone(),
-                token: self.token.clone(),
+                secret_name: self.secret.clone(),
                 host: self.host.clone(),
             };
             sync(&node, &self.path, canceller, Some(options)).await?;

@@ -7,14 +7,10 @@ use std::{
 
 use archive_utils::extract_tar;
 use hash_utils::bytes_hmac_sha256_hex;
-use http_utils::{download_temp_with, headers, url};
-use octorust::{
-    auth::Credentials,
-    types::{
-        ContentFile, ReposCreateWebhookRequest, ReposCreateWebhookRequestConfig,
-        ReposGetContentResponseOneOf,
-    },
-    Client,
+use http_utils::{download_temp_with, headers, tempfile::NamedTempFile, url};
+use octorust::types::{
+    ContentFile, ReposCreateWebhookRequest, ReposCreateWebhookRequestConfig,
+    ReposGetContentResponseOneOf,
 };
 use provider::{
     async_trait::async_trait,
@@ -46,19 +42,67 @@ use server_utils::{
 /// rules, may assume this number.
 const WEBHOOK_PORT: u16 = 10002;
 
+/// The default name for the secret used to authenticate with the API
+const SECRET_NAME: &str = "GITHUB_TOKEN";
+
+/// A client for the Github REST API
+///
+/// This takes a just-in-time approach and gets the API token from the environment (if any)
+/// and constucts an `octorust::Client` for each request (see the `api` method).
+/// This is somewhat inefficient but allows the token to be added or changed without a restart.
+#[derive(Clone)]
+struct GithubClient {
+    /// The name of the secret containing the access token
+    secret_name: String,
+}
+
+impl GithubClient {
+    /// Create a new Github API client
+    fn new(secret_name: Option<String>) -> Self {
+        let secret_name = secret_name.unwrap_or_else(|| SECRET_NAME.to_string());
+        Self { secret_name }
+    }
+
+    /// Get the API token from the environment (if any)
+    fn token(&self) -> Option<String> {
+        env::var(&self.secret_name).ok()
+    }
+
+    /// Get an `octorust` API client
+    fn api(&self) -> Result<octorust::Client> {
+        let token = self.token().map(octorust::auth::Credentials::Token);
+        Ok(octorust::Client::custom(
+            octorust::DEFAULT_HOST,
+            http_utils::USER_AGENT,
+            token,
+            http_utils::CLIENT.clone(),
+        ))
+    }
+
+    /// Get additional headers required for a request
+    ///
+    /// Currenty only used for `download_temp`.
+    fn headers(&self) -> Result<Vec<(headers::HeaderName, String)>> {
+        Ok(match self.token() {
+            Some(token) => vec![(headers::AUTHORIZATION, ["Token ", &token].concat())],
+            None => Vec::new(),
+        })
+    }
+
+    /// Download the tarball for a repo
+    ///
+    /// octrorust's `download_tarball_archive` function returns a void so
+    /// use `http_utils::download_temp_with` instead and "manually" add auth header
+    async fn download_temp(&self, path: &str) -> Result<NamedTempFile> {
+        let url = [octorust::DEFAULT_HOST, path].concat();
+        let headers = self.headers()?;
+        download_temp_with(&url, None, &headers).await
+    }
+}
+
 pub struct GithubProvider;
 
 impl GithubProvider {
-    /// Create an API client
-    fn client(token: Option<String>) -> Client {
-        Client::custom(
-            octorust::DEFAULT_HOST,
-            http_utils::USER_AGENT,
-            token.map(Credentials::Token),
-            http_utils::CLIENT.clone(),
-        )
-    }
-
     /// Extract the GitHub repository owner and name from a [`SoftwareSourceCode`] node
     fn owner_repo(ssc: &SoftwareSourceCode) -> Result<(&str, &str)> {
         if let Some(repo) = &ssc.code_repository {
@@ -176,9 +220,14 @@ impl ProviderTrait for GithubProvider {
 
         let options = options.unwrap_or_default();
 
-        let client = GithubProvider::client(options.token);
+        let client = GithubClient::new(options.secret_name);
 
-        let repo_details = client.repos().get(owner, repo).await.map_err(to_eyre)?;
+        let repo_details = client
+            .api()?
+            .repos()
+            .get(owner, repo)
+            .await
+            .map_err(to_eyre)?;
 
         let description = match !repo_details.description.is_empty() {
             true => Some(Box::new(ThingDescription::String(repo_details.description))),
@@ -199,6 +248,7 @@ impl ProviderTrait for GithubProvider {
             .map(|date| Box::new(Date::from(date)));
 
         let authors = client
+            .api()?
             .repos()
             .list_all_contributors(owner, repo, "false")
             .await
@@ -252,9 +302,10 @@ impl ProviderTrait for GithubProvider {
         let path = Self::path(ssc);
 
         let options = options.unwrap_or_default();
-        let client = Self::client(options.token.clone());
+        let client = GithubClient::new(options.secret_name.clone());
 
         let content = client
+            .api()?
             .repos()
             .get_content(
                 owner,
@@ -290,27 +341,14 @@ impl ProviderTrait for GithubProvider {
                 // Content is a directory so fetch the whole repo as a tarball and extract the directory
                 // (getting the whole rpo as a tarball is more efficient than making lots of small requests
                 // for each file's content - for most repos)
-
-                // The octrorust's  `download_tarball_archive` function returns a void so
-                // use `http_utils::download_temp_with` instead and "manually" add auth header
-                let headers = match options.token {
-                    Some(token) => vec![(headers::AUTHORIZATION, format!("Token {}", token))],
-                    None => Vec::new(),
-                };
-                let archive = download_temp_with(
-                    &format!(
-                        "{host}/repos/{owner}/{repo}/tarball/{ref_}",
-                        host = octorust::DEFAULT_HOST,
+                let archive = client
+                    .download_temp(&format!(
+                        "/repos/{owner}/{repo}/tarball/{ref_}",
                         owner = owner,
                         repo = repo,
                         ref_ = ref_.unwrap_or_default()
-                    ),
-                    None,
-                    &headers,
-                )
-                .await?;
-
-                // Extract the part of the archive we want
+                    ))
+                    .await?;
                 create_dir_all(dest)?;
                 extract_tar("gz", archive.path(), dest, 1, path)?;
             }
@@ -334,7 +372,7 @@ impl ProviderTrait for GithubProvider {
         let path = Self::path(ssc);
 
         let options = options.unwrap_or_default();
-        let client = Self::client(options.token);
+        let client = GithubClient::new(options.secret_name);
 
         // Generate the unique id for the webhook
         let webhook_id = uuids::generate_num("wh", 36).to_string();
@@ -364,6 +402,7 @@ impl ProviderTrait for GithubProvider {
             digest: "".to_string(),
         };
         let hook = client
+            .api()?
             .repos()
             .create_webhook(
                 owner,
@@ -445,7 +484,12 @@ impl ProviderTrait for GithubProvider {
         serve_gracefully([0, 0, 0, 0], WEBHOOK_PORT, router).await?;
 
         // Delete the webhook
-        match client.repos().delete_webhook(owner, repo, hook.id).await {
+        match client
+            .api()?
+            .repos()
+            .delete_webhook(owner, repo, hook.id)
+            .await
+        {
             Ok(..) => {
                 tracing::info!("Deleted GitHub webhook `{}`", hook.id);
             }
@@ -485,7 +529,7 @@ async fn webhook_event(
     payload: Bytes,
     event: serde_json::Value,
     local: &Path,
-    client: &Client,
+    client: &GithubClient,
     secret: &str,
     owner: &str,
     repo: &str,
@@ -588,6 +632,7 @@ async fn webhook_event(
                         local_path.display()
                     );
                     let content_file = client
+                        .api()?
                         .repos()
                         .get_content_file(owner, repo, event_path, event_ref)
                         .await

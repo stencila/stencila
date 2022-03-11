@@ -137,24 +137,19 @@ pub trait ProviderTrait {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct EnrichOptions {
-    pub token: Option<String>,
+    pub secret_name: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ImportOptions {
-    /// The token needed to access the resource
-    ///
-    /// The token can either be an access token or an access token and refresh token
-    /// combined (separated by a forward slash) depending upon the provider.
-    pub token: Option<String>,
+    /// The name of the secret needed to access the resource
+    pub secret_name: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ExportOptions {
-    /// The token needed to access the resource
-    ///
-    /// See note for this same field in [`ImportOptions`].
-    pub token: Option<String>,
+    /// The name of the secret needed to access the resource
+    pub secret_name: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -162,12 +157,10 @@ pub struct SyncOptions {
     /// The synchronization mode
     pub mode: Option<SyncMode>,
 
-    /// The token needed to access the resource
-    ///
-    /// See note for this same field in [`ImportOptions`].
-    pub token: Option<String>,
+    /// The name of the secret needed to access the resource
+    pub secret_name: Option<String>,
 
-    /// The URL to listen on for notifications of changes
+    /// The host address (optionally including port number) to listen on for notifications of changes
     pub host: Option<String>,
 }
 
