@@ -114,7 +114,7 @@ impl ProviderTrait for HttpProvider {
         }
         .to_owned();
 
-        if action != IMPORT {
+        if !action.is_empty() && action != IMPORT {
             bail!("Only the import action is supported for `http` resources")
         }
 
