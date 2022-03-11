@@ -280,7 +280,7 @@ pub async fn run_schedule(schedule: &str, sender: mpsc::Sender<()>) -> Result<()
         let interval = Duration::from_secs(1);
         let mut next = cron_utils::next(&schedules, &timezone);
         if let Some(time) = next {
-            tracing::info!("First action scheduled for {}", time);
+            tracing::debug!("First action scheduled for {}", time);
         }
 
         loop {
