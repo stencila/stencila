@@ -3,12 +3,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use derive_more::{AsMut, AsRef, Deref};
+use defaults::Defaults;
+use derive_more::{AsMut, AsRef, Deref, DerefMut};
 use eyre::{bail, Result};
-use futures::{
-    future,
-    stream::{FuturesUnordered, StreamExt},
-};
+use futures::future;
 use graph_triples::{
     relations::{self, NULL_RANGE},
     resources, Resource, Triple,
@@ -26,7 +24,7 @@ use tokio::sync::mpsc;
 /// destinations within a project and for multiple sources to used the same
 /// destination (e.g. the root directory of the project).
 #[skip_serializing_none]
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Defaults, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Source {
     /// The name of the source
@@ -58,6 +56,16 @@ pub struct Source {
     /// A list of file paths currently associated with the source (relative to the project root)
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub files: Vec<PathBuf>,
+
+    /// A running cron task
+    #[serde(skip)]
+    #[def = "None"]
+    cron_task: Option<SourceTask>,
+
+    /// A running sync task
+    #[serde(skip)]
+    #[def = "None"]
+    sync_task: Option<SourceTask>,
 }
 
 #[skip_serializing_none]
@@ -77,6 +85,16 @@ pub struct SourceCron {
 pub struct SourceSync {
     /// The synchronization mode
     mode: Option<SyncMode>,
+}
+
+#[derive(Debug, Clone)]
+struct SourceTask {
+    /// The channel sender used to cancel the source task
+    ///
+    /// Note that if the source is dropped (ie. removed from a list of sources) with a running task
+    /// then this canceller will be dropped and so the task will also end (an explicit `.send()`
+    /// is not required).
+    canceller: mpsc::Sender<()>,
 }
 
 impl Source {
@@ -174,10 +192,82 @@ impl Source {
 
         Ok(())
     }
+
+    /// Start cron and sync tasks (as applicable and as needed) for the source
+    pub async fn start(&mut self, dest: &Path) -> Result<()> {
+        self.cron_task_start(dest).await?;
+        self.sync_task_start(dest).await?;
+
+        Ok(())
+    }
+
+    /// Start a background cron task for the source
+    ///
+    /// A task has a `cron` spec and there is no tasks currently running for it.
+    pub async fn cron_task_start(&mut self, dest: &Path) -> Result<()> {
+        let cron = match (&self.cron, &self.cron_task) {
+            (Some(cron), None) => cron,
+            _ => return Ok(()),
+        };
+
+        tracing::info!("Starting cron task for source `{}`", self.label());
+        let action = cron.action.clone().unwrap_or_default();
+        let schedule = cron.schedule.clone();
+        let node = providers::resolve(&self.url).await?;
+        let dest = dest.to_path_buf();
+        let (canceller, cancellee) = mpsc::channel(1);
+        tokio::spawn(
+            async move { providers::cron(&action, &schedule, &node, &dest, cancellee).await },
+        );
+        self.cron_task = Some(SourceTask { canceller });
+
+        Ok(())
+    }
+
+    /// Start a background sync task for the source
+    ///
+    /// A task has a `sync` spec and there is no tasks currently running for it.
+    pub async fn sync_task_start(&mut self, dest: &Path) -> Result<()> {
+        let sync = match (&self.sync, &self.sync_task) {
+            (Some(sync), None) => sync,
+            _ => return Ok(()),
+        };
+
+        tracing::info!("Starting sync task for source `{}`", self.label());
+        let node = providers::resolve(&self.url).await?;
+        let dest = dest.to_path_buf();
+        let (canceller, cancellee) = mpsc::channel(1);
+        let options = SyncOptions {
+            token: self.token.clone(),
+            mode: sync.mode.clone(),
+            ..Default::default()
+        };
+        tokio::spawn(async move { providers::sync(&node, &dest, cancellee, Some(options)).await });
+        self.sync_task = Some(SourceTask { canceller });
+
+        Ok(())
+    }
+
+    /// Start cron and sync tasks (if started) for the source
+    pub async fn stop(&mut self) -> Result<()> {
+        if let Some(task) = &self.cron_task {
+            tracing::info!("Stopping cron task for source `{}`", self.label());
+            task.canceller.send(()).await?
+        }
+        self.cron_task = None;
+
+        if let Some(task) = &self.sync_task {
+            tracing::info!("Stopping sync task for source `{}`", self.label());
+            task.canceller.send(()).await?
+        }
+        self.sync_task = None;
+
+        Ok(())
+    }
 }
 
 /// A set of sources, usually associated with a
-#[derive(Clone, Debug, Default, Deserialize, Serialize, AsRef, AsMut, Deref)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, AsRef, AsMut, Deref, DerefMut)]
 pub struct Sources(Vec<Source>);
 
 impl Sources {
@@ -269,53 +359,23 @@ impl Sources {
         Ok(())
     }
 
-    /// Start cron and/or sync tasks for each sources
-    pub async fn start(&self, path: &Path) -> Result<()> {
-        // Collect tasks as futures
-        let mut futures = FuturesUnordered::new();
-        for source in self.iter() {
-            let node = providers::resolve(&source.url).await?;
+    /// Start cron and/or sync tasks for each source
+    pub async fn start(&mut self, path: &Path) -> Result<()> {
+        for source in self.iter_mut() {
             let dest = match &source.dest {
                 Some(dest) => path.join(dest),
                 None => path.to_path_buf(),
             };
-
-            if let Some(cron) = &source.cron {
-                let action = cron.action.clone().unwrap_or_default();
-                let schedule = cron.schedule.clone();
-                let node = node.clone();
-                let dest = dest.clone();
-                let (_cancel_sender, cancel_receiver) = mpsc::channel(1);
-                let future = tokio::spawn(async move {
-                    providers::cron(&action, &schedule, &node, &dest, cancel_receiver).await
-                });
-                futures.push(future);
-            }
-
-            if let Some(sync) = &source.sync {
-                let options = SyncOptions {
-                    mode: sync.mode.clone(),
-                    secret_name: source.secret_name.clone(),
-                    ..Default::default()
-                };
-                let (_cancel_sender, cancel_receiver) = mpsc::channel(1);
-                let future = tokio::spawn(async move {
-                    providers::sync(&node, &dest, cancel_receiver, Some(options)).await
-                });
-                futures.push(future);
-            }
+            source.start(&dest).await?;
         }
 
-        // Run futures and log any errors as they finish
-        while let Some(result) = futures.next().await {
-            match result {
-                Err(error) => tracing::error!("While joining source task: {}", error),
-                Ok(result) => {
-                    if let Err(error) = result {
-                        tracing::error!("While running source task: {}", error);
-                    }
-                }
-            }
+        Ok(())
+    }
+
+    /// Stop any cron or sync tasks for each source
+    pub async fn stop(&mut self) -> Result<()> {
+        for source in self.iter_mut() {
+            source.stop().await?;
         }
 
         Ok(())
@@ -343,6 +403,8 @@ pub mod commands {
         Remove(Remove),
         Import(Import),
         Start(Start),
+        Stop(Stop),
+        Run(Run_),
     }
 
     #[async_trait]
@@ -355,6 +417,8 @@ pub mod commands {
                 Command::Remove(cmd) => cmd.run().await,
                 Command::Import(cmd) => cmd.run().await,
                 Command::Start(cmd) => cmd.run().await,
+                Command::Stop(cmd) => cmd.run().await,
+                Command::Run(cmd) => cmd.run().await,
             }
         }
     }
@@ -424,7 +488,10 @@ pub mod commands {
     #[async_trait]
     impl Run for Add {
         async fn run(&self) -> Result {
-            let mut project = PROJECTS.open(self.project.clone(), false).await?;
+            let project = PROJECTS.open(self.project.clone(), false).await?;
+            let project = PROJECTS.get(project.path).await?;
+            let mut project = project.lock().await;
+
             let source = Source {
                 name: self.name.clone(),
                 url: self.url.clone(),
@@ -458,7 +525,10 @@ pub mod commands {
     #[async_trait]
     impl Run for Remove {
         async fn run(&self) -> Result {
-            let mut project = PROJECTS.open(self.project.clone(), false).await?;
+            let project = PROJECTS.open(self.project.clone(), false).await?;
+            let project = PROJECTS.get(project.path).await?;
+            let mut project = project.lock().await;
+
             let source = project.sources.remove(&self.source)?;
             project.write().await?;
 
@@ -502,6 +572,9 @@ pub mod commands {
     }
 
     /// Start cron and sync tasks for a project's sources
+    ///
+    /// This command is only useful in interactive mode because otherwise the
+    /// process will exit straight away.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
@@ -516,7 +589,72 @@ pub mod commands {
     impl Run for Start {
         async fn run(&self) -> Result {
             let project = PROJECTS.open(self.project.clone(), false).await?;
-            project.sources.start(&project.path).await?;
+            let path = project.path.clone();
+            let project = PROJECTS.get(&path).await?;
+            let mut project = project.lock().await;
+
+            project.sources.start(&path).await?;
+
+            result::nothing()
+        }
+    }
+
+    /// Stop any cron and sync tasks for a project's sources
+    ///
+    /// This command is only useful in interactive mode. Use it to stop source tasks
+    /// previously started using the `start` command.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Stop {
+        /// The project to start tasks for (defaults to the current project)
+        project: Option<PathBuf>,
+    }
+
+    #[async_trait]
+    impl Run for Stop {
+        async fn run(&self) -> Result {
+            let project = PROJECTS.open(self.project.clone(), false).await?;
+            let project = PROJECTS.get(project.path).await?;
+            let mut project = project.lock().await;
+
+            project.sources.stop().await?;
+
+            result::nothing()
+        }
+    }
+
+    /// Run cron and sync tasks for a project's sources
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Run_ {
+        /// The project to run tasks for (defaults to the current project)
+        project: Option<PathBuf>,
+    }
+
+    #[async_trait]
+    impl Run for Run_ {
+        async fn run(&self) -> Result {
+            let project = PROJECTS.open(self.project.clone(), false).await?;
+            let path = project.path.clone();
+            let project = PROJECTS.get(&path).await?;
+            let mut project = project.lock().await;
+
+            // Start the sources
+            project.sources.start(&path).await?;
+
+            // Wait for interrupt signal
+            let (subscriber, mut receiver) = mpsc::channel(1);
+            events::subscribe_to_interrupt(subscriber).await;
+            receiver.recv().await;
+
+            // Stop the sources
+            project.sources.stop().await?;
 
             result::nothing()
         }
