@@ -10,7 +10,7 @@ use graph_triples::{
     relations::{self, NULL_RANGE},
     resources, Resource, Triple,
 };
-use providers::provider::{SyncMode, SyncOptions};
+use providers::provider::{ImportOptions, SyncMode, SyncOptions};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use strum::VariantNames;
@@ -44,7 +44,7 @@ pub struct Source {
     pub sync: Option<SourceSync>,
 
     /// The name of the secret required to access the source
-    /// 
+    ///
     /// To improve the security of API access tokens, secrets are only ever read from
     /// environment variables. Source providers usually have a default secret name
     /// e.g. `GITHUB_TOKEN`. However, this field allows setting of custom secret names
@@ -187,7 +187,11 @@ impl Source {
             Some(dest) => path.join(dest),
             None => path.to_path_buf(),
         };
-        providers::import(&node, &dest, None).await?;
+        let options = ImportOptions {
+            secret_name: self.secret_name.clone(),
+            ..Default::default()
+        };
+        providers::import(&node, &dest, options).await?;
 
         Ok(())
     }
@@ -237,8 +241,8 @@ impl Source {
         let dest = dest.to_path_buf();
         let (canceller, cancellee) = mpsc::channel(1);
         let options = SyncOptions {
-            token: self.token.clone(),
             mode: sync.mode.clone(),
+            secret_name: self.secret_name.clone(),
             ..Default::default()
         };
         tokio::spawn(async move { providers::sync(&node, &dest, cancellee, Some(options)).await });
