@@ -12,6 +12,13 @@
       "cron": {
         "schedule": "every 30 minutes mon-fri"
       }
+    },
+    {
+      "url": "http://worldtimeapi.org/api/timezone/Pacific/Chatham",
+      "dest": "time.json",
+      "cron": {
+        "schedule": "every 2 hours chatham time"
+      }
     }
   ]
 }
