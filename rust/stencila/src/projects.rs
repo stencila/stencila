@@ -1,8 +1,7 @@
 use crate::config::CONFIG;
-use crate::conversions::Conversion;
 use crate::documents::DOCUMENTS;
 use crate::files::{File, FileEvent, Files};
-use crate::sources::{self, Source, SourceDestination, SourceTrait};
+use crate::sources::Sources;
 use crate::utils::schemas;
 use events::publish;
 use eyre::{bail, Result};
@@ -14,7 +13,6 @@ use regex::Regex;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use slug::slugify;
 use std::sync::Arc;
 use std::time::Duration;
 use std::{
@@ -102,11 +100,8 @@ pub struct Project {
     theme: Option<String>,
 
     /// A list of project sources and their destination within the project
-    #[schemars(schema_with = "Project::schema_sources")]
-    pub sources: Option<HashMap<String, SourceDestination>>,
-
-    /// A list of file conversions
-    conversions: Option<Vec<Conversion>>,
+    #[schemars(skip)]
+    pub sources: Sources,
 
     /// Glob patterns for paths to be excluded from file watching
     ///
@@ -122,7 +117,7 @@ pub struct Project {
     /// The filesystem path of the project folder
     #[serde(skip_deserializing)]
     #[schemars(schema_with = "Project::schema_path")]
-    path: PathBuf,
+    pub path: PathBuf,
 
     /// The resolved path of the project's image file
     #[serde(skip_deserializing)]
@@ -150,11 +145,6 @@ impl Project {
         schemas::typescript("string", true)
     }
 
-    /// Generate the JSON Schema for the `source` property to avoid duplicated types
-    fn schema_sources(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("SourceDestination[]", false)
-    }
-
     /// Generate the JSON Schema for the `file` property to avoid duplicated
     /// inline type and optionality due to `skip_deserializing`
     fn schema_files(_generator: &mut SchemaGenerator) -> Schema {
@@ -167,21 +157,11 @@ impl Project {
         schemas::typescript("Graph", true)
     }
 
-    /// The name of a project's manifest file, within the project directory
+    /// The name of a project's manifest file
     const FILE_NAME: &'static str = "project.json";
 
-    /// Get the path to a project's manifest file
-    fn file<P: AsRef<Path>>(path: P) -> PathBuf {
-        path.as_ref().join(Project::FILE_NAME)
-    }
-
-    /// The name of a project's storage directory, within the project directory
+    /// The name of a project's storage directory
     const STORAGE_DIR: &'static str = ".stencila";
-
-    /// Get the path to a project's storage directory
-    fn storage<P: AsRef<Path>>(path: P) -> PathBuf {
-        path.as_ref().join(Project::STORAGE_DIR)
-    }
 
     /// Load a project's from its manifest file and storage directory
     ///
@@ -194,8 +174,8 @@ impl Project {
         }
         let path = path.canonicalize()?;
 
-        // Deserialize the project from the project.json file (if any)
-        let file = Project::file(&path);
+        // Deserialize `.stencila/project.json` file (if any)
+        let file = path.join(Project::STORAGE_DIR).join(Project::FILE_NAME);
         let mut project = if file.exists() {
             let json = fs::read_to_string(file)?;
             serde_json::from_str(&json)?
@@ -203,19 +183,22 @@ impl Project {
             Project::default()
         };
 
-        // Deserialize details kept in storage, rather than in project.json
-        if let Some(sources) = &mut project.sources {
-            for (name, source) in sources.iter_mut() {
-                let source_file = Project::storage(&path)
-                    .join("sources")
-                    .join([name, ".json"].concat());
-                if source_file.exists() {
-                    source.read(source_file)?
-                }
-            }
+        // Override settings `project.json` file (if any)
+        let file = path.join(Project::FILE_NAME);
+        if file.exists() {
+            let json = fs::read_to_string(file)?;
+            let overrides: Project = serde_json::from_str(&json)?;
+            project.name = overrides.name;
+            project.description = overrides.description;
+            project.image = overrides.image;
+            project.main = overrides.main;
+            project.theme = overrides.theme;
+            project.sources = overrides.sources;
+            project.watch_exclude_patterns = overrides.watch_exclude_patterns;
         }
 
         project.path = path;
+
         Ok(project)
     }
 
@@ -250,7 +233,7 @@ impl Project {
     /// If the project has already been initialized (i.e. has a manifest file)
     /// then this function will do nothing.
     pub async fn init<P: AsRef<Path>>(path: P) -> Result<()> {
-        if Project::file(&path).exists() {
+        if path.as_ref().join(Project::FILE_NAME).exists() {
             return Ok(());
         }
 
@@ -259,7 +242,7 @@ impl Project {
         }
 
         let mut project = Project::open(path).await?;
-        project.write(None).await?;
+        project.write().await?;
 
         Ok(())
     }
@@ -275,48 +258,49 @@ impl Project {
         Ok(())
     }
 
-    /// Write to a project's manifest file and storage directory.
+    /// Write to a project's manifest file and storage directory
+    pub async fn write(&mut self) -> Result<()> {
+        self.write_with(None).await
+    }
+
+    /// Write to a project's manifest file and storage directory with updates
     ///
     /// If the project folder does not exist yet then it will be created.
-    /// Removes derived fields from the project to avoid polluting the project.json file
-    /// and instead writes them to the project storage directory.
-    pub async fn write(&mut self, updates: Option<Project>) -> Result<()> {
+    /// Stores the complete project as `./.stencila/project.json` and a trimmed down
+    /// version with derived fields removed (e.g. `sources.files`) in `./project.json`.
+    pub async fn write_with(&mut self, updates: Option<Project>) -> Result<()> {
         if updates.is_some() {
             self.update(updates).await
         }
 
-        fs::create_dir_all(&self.path)?;
-
         let mut project = serde_json::to_value(&self)?;
-        let project = project.as_object_mut().expect("Should always be an object");
 
-        if let Some(sources) = project.get_mut("sources") {
-            let dir = Project::storage(&self.path).join("sources");
-            fs::create_dir_all(&dir)?;
+        // Write the complete project to the storage directory
+        let storage = self.path.join(Project::STORAGE_DIR);
+        fs::create_dir_all(&storage)?;
+        fs::write(
+            storage.join(Project::FILE_NAME),
+            serde_json::to_string_pretty(&project)?,
+        )?;
 
-            let sources = sources.as_object_mut().expect("Should always be an object");
-            for (name, source) in sources.iter_mut() {
-                let source = source.as_object_mut().expect("Should always be an object");
-                // Write the whole source to storage
-                let file = dir.join([name, ".json"].concat());
-                let json = serde_json::to_string_pretty(source)?;
-                fs::write(file, json)?;
-
-                // Remove details
-                source.remove("files");
-            }
-        }
-
-        // Remove derived fields
+        // Trim derived fields
+        let project = project.as_object_mut().expect("Expected an object");
         project.remove("path");
         project.remove("imagePath");
         project.remove("mainPath");
         project.remove("files");
         project.remove("graph");
+        if let Some(sources) = project.get_mut("sources") {
+            let sources = sources.as_array_mut().expect("Expected an array");
+            for source in sources.iter_mut() {
+                let source = source.as_object_mut().expect("Expected an object");
+                source.remove("files");
+            }
+        }
 
-        let json = serde_json::to_string_pretty(project)?;
-        let file = Project::file(&self.path);
-        fs::write(file, json)?;
+        // Write the trimmed project to `./project.json`
+        let json = serde_json::to_string_pretty(&project)?;
+        fs::write(self.path.join(Project::FILE_NAME), json)?;
 
         Ok(())
     }
@@ -335,6 +319,7 @@ impl Project {
             self.main = updates.main;
             self.image = updates.image;
             self.theme = updates.theme;
+            self.sources = updates.sources;
             self.watch_exclude_patterns = updates.watch_exclude_patterns;
         }
 
@@ -440,18 +425,9 @@ impl Project {
         }
 
         // Add sources and relations with associated files
-        if let Some(sources) = self.sources.as_ref() {
-            for (name, source) in sources {
-                graph.add_resource(resources::source(name), None);
-                graph.add_triples(source.triples(name, &self.path))
-            }
-        }
-
-        // Add relation for each conversion
-        if let Some(conversions) = self.conversions.as_ref() {
-            for conversion in conversions {
-                graph.add_triple(conversion.triple(&self.path))
-            }
+        for source in self.sources.iter() {
+            graph.add_resource(source.resource(), None);
+            graph.add_triples(source.triples(&self.path))
         }
 
         // Publish a "graph updated" event
@@ -480,121 +456,6 @@ impl Project {
         let hb = Handlebars::new();
         let md = hb.render_template(template.trim(), self)?;
         Ok(md)
-    }
-
-    /// Add a source to the project
-    pub async fn add_source(
-        &mut self,
-        source: &str,
-        destination: Option<String>,
-        name: Option<String>,
-    ) -> Result<Source> {
-        // Resolve the source
-        let source = sources::resolve(source)?;
-
-        // Ensure that the name is unique
-        let name = if let Some(name) = name {
-            if let Some(sources) = &self.sources {
-                if sources.contains_key(&name) {
-                    bail!("A source with with name already exists; please use a different name")
-                }
-            }
-            name
-        } else {
-            let mut name = source.default_name();
-            if let Some(sources) = &self.sources {
-                if sources.contains_key(&name) {
-                    if let Some(destination) = destination.as_ref() {
-                        name = [name, "-".to_string(), slugify(destination)].concat();
-                    }
-                }
-                while sources.contains_key(&name) {
-                    name += "-"
-                }
-            }
-            name
-        };
-
-        // Add the source (if not already a source in the project)
-        if let Some(sources) = &mut self.sources {
-            for (name, source_dest) in sources.iter() {
-                if source == source_dest.source && destination == source_dest.destination {
-                    bail!(
-                        "The source/destination combination already exists ('{}'); perhaps remove it or use a different destination?",
-                        name
-                    )
-                }
-            }
-            sources.insert(name, SourceDestination::new(source.clone(), destination));
-        } else {
-            let mut sources = HashMap::new();
-            sources.insert(name, SourceDestination::new(source.clone(), destination));
-            self.sources = Some(sources)
-        };
-        self.write(None).await?;
-
-        Ok(source)
-    }
-
-    /// Remove a source from the project
-    pub async fn remove_source(&mut self, name: &str) -> Result<()> {
-        if let Some(sources) = &mut self.sources {
-            let len = sources.len();
-            sources.remove(name);
-            if sources.len() == len {
-                tracing::warn!("Project has no sources with name '{}'", name)
-            } else {
-                self.write(None).await?;
-            }
-        } else {
-            tracing::warn!("Project has no sources")
-        }
-
-        Ok(())
-    }
-
-    /// Import a source into the project
-    pub async fn import_source(
-        &mut self,
-        name_or_identifier: &str,
-        destination: Option<String>,
-    ) -> Result<Vec<File>> {
-        // Attempt to find a source with matching name
-        let mut source = if let Some(sources) = &self.sources {
-            sources
-                .get(name_or_identifier)
-                .map(|source_dest| source_dest.source.clone())
-        } else {
-            None
-        };
-
-        // Attempt to find an existing entry with matching source/destination combination
-        if source.is_none() {
-            if let Some(sources) = &self.sources {
-                let source_from = sources::resolve(name_or_identifier)?;
-                for source_dest in sources.values() {
-                    if source_dest.source == source_from || source_dest.destination == destination {
-                        source = Some(source_from);
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Add the source if necessary
-        let _source = if let Some(source) = source {
-            source
-        } else {
-            self.add_source(name_or_identifier, destination.clone(), None)
-                .await?
-        };
-
-        // Import the source
-        // TODO: Re-enable this
-        // let files = import(&self.path, &source, destination).await?;
-        let files = vec![];
-
-        Ok(files)
     }
 }
 
