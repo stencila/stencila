@@ -49,7 +49,7 @@ pub async fn serve_gracefully(ip: [u8; 4], port: u16, router: Router) -> Result<
 /// (because for signals, the last registered handler wins)
 async fn shutdown_signal() {
     let (interrupt_sender, mut interrupt_receiver) = mpsc::unbounded_channel();
-    subscribe("interrupt", Subscriber::Sender(interrupt_sender))
+    subscribe("interrupt", Subscriber::UnboundedSender(interrupt_sender))
         .expect("Unable to subscribe to interrupt event");
     interrupt_receiver.recv().await;
 }
