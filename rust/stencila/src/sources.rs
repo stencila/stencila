@@ -4,17 +4,16 @@ use std::{
 };
 
 use defaults::Defaults;
-use derive_more::{AsMut, AsRef, Deref, DerefMut};
 use eyre::{bail, Result};
 use futures::future;
 use graph_triples::{
     relations::{self, NULL_RANGE},
     resources, Resource, Triple,
 };
-
 use providers::provider::{SyncMode, SyncOptions};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use strum::VariantNames;
 use tokio::sync::mpsc;
 
 /// A source-destination combination
@@ -266,14 +265,25 @@ impl Source {
     }
 }
 
-/// A set of sources, usually associated with a
-#[derive(Debug, Default, Clone, Deserialize, Serialize, AsRef, AsMut, Deref, DerefMut)]
-pub struct Sources(Vec<Source>);
+/// A set of sources, usually associated with a project
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[serde(transparent)]
+pub struct Sources {
+    /// The list of sources
+    pub(crate) inner: Vec<Source>,
+
+    /// If in a running state, the path that cron and sync tasks were started with
+    ///
+    /// If tasks are running then any new sources that are added will have
+    /// tasks automatically started for them.
+    #[serde(skip)]
+    running: Option<PathBuf>,
+}
 
 impl Sources {
     /// Return a list of sources
     pub fn list(&self) -> Vec<String> {
-        self.iter().map(|source| source.label()).collect()
+        self.inner.iter().map(|source| source.label()).collect()
     }
 
     /// Find a source
@@ -284,7 +294,7 @@ impl Sources {
     ///
     /// The first source that matches the identifier is returned. Will error if no match is found.
     pub fn find(&self, identifier: &str) -> Result<&Source> {
-        if let Some(source) = self.iter().find(|source| source.matches(identifier)) {
+        if let Some(source) = self.inner.iter().find(|source| source.matches(identifier)) {
             return Ok(source);
         }
 
@@ -299,9 +309,12 @@ impl Sources {
     ///
     /// Warns if there is already a source with the same `url`.
     /// Errors if there is already a source with the same `name` or the same `url` and `dest`.
-    pub fn add(&mut self, source: Source) -> Result<()> {
+    ///
+    /// If the `start` method has been called previously then the sources are in a "running"
+    /// state and the `start` will be called on the source.
+    pub async fn add(&mut self, mut source: Source) -> Result<()> {
         let source_dest = source.dest.clone().unwrap_or_else(|| PathBuf::from("."));
-        for existing in self.iter() {
+        for existing in self.inner.iter() {
             if let (Some(existing_name), Some(source_name)) = (&existing.name, &source.name) {
                 if existing_name == source_name {
                     bail!("There is already a source with the name `{}`", source_name);
@@ -319,7 +332,10 @@ impl Sources {
                 tracing::warn!("There is already a source with the URL `{}`", source.url);
             }
         }
-        self.as_mut().push(source);
+        if let Some(path) = &self.running {
+            source.start(path).await?;
+        }
+        self.inner.push(source);
 
         Ok(())
     }
@@ -330,11 +346,18 @@ impl Sources {
     ///
     /// - `identifier`: An identifier for a source.
     ///
+    /// Any running tasks for the source will be stopped.
+    ///
     /// The first source that matches the identifier is removed. See [`Source::matches`] for
     /// details. Will error if no match is found.
-    pub fn remove(&mut self, identifier: &str) -> Result<Source> {
-        if let Some(index) = self.iter().position(|source| source.matches(identifier)) {
-            let removed = self.as_mut().remove(index);
+    pub async fn remove(&mut self, identifier: &str) -> Result<Source> {
+        if let Some(index) = self
+            .inner
+            .iter()
+            .position(|source| source.matches(identifier))
+        {
+            let mut removed = self.inner.remove(index);
+            removed.stop().await?;
             return Ok(removed);
         }
 
@@ -349,7 +372,7 @@ impl Sources {
     ///
     /// Imports sources in parallel.
     pub async fn import(&self, path: &Path) -> Result<()> {
-        let futures = self.iter().map(|source| {
+        let futures = self.inner.iter().map(|source| {
             let source = source.clone();
             let path = path.to_path_buf();
             tokio::spawn(async move { source.import(&path).await })
@@ -361,22 +384,24 @@ impl Sources {
 
     /// Start cron and/or sync tasks for each source
     pub async fn start(&mut self, path: &Path) -> Result<()> {
-        for source in self.iter_mut() {
+        for source in self.inner.iter_mut() {
             let dest = match &source.dest {
                 Some(dest) => path.join(dest),
                 None => path.to_path_buf(),
             };
             source.start(&dest).await?;
         }
+        self.running = Some(path.to_path_buf());
 
         Ok(())
     }
 
     /// Stop any cron or sync tasks for each source
     pub async fn stop(&mut self) -> Result<()> {
-        for source in self.iter_mut() {
+        for source in self.inner.iter_mut() {
             source.stop().await?;
         }
+        self.running = None;
 
         Ok(())
     }
@@ -483,6 +508,14 @@ pub mod commands {
         /// The name to give the source
         #[structopt(long, short)]
         name: Option<String>,
+
+        /// A cron schedule for the source
+        #[structopt(long, short)]
+        cron: Option<String>,
+
+        /// A sync mode for the source
+        #[structopt(long, short, possible_values = SyncMode::VARIANTS)]
+        sync: Option<SyncMode>,
     }
 
     #[async_trait]
@@ -492,13 +525,22 @@ pub mod commands {
             let project = PROJECTS.get(project.path).await?;
             let mut project = project.lock().await;
 
+            let cron = self.cron.as_ref().map(|schedule| SourceCron {
+                schedule: schedule.clone(),
+                action: None,
+            });
+            let sync = self.sync.as_ref().map(|mode| SourceSync {
+                mode: Some(mode.clone()),
+            });
             let source = Source {
                 name: self.name.clone(),
                 url: self.url.clone(),
                 dest: self.dest.clone(),
+                cron,
+                sync,
                 ..Default::default()
             };
-            project.sources.add(source.clone())?;
+            project.sources.add(source.clone()).await?;
             project.write().await?;
 
             tracing::info!("Added source");
@@ -529,7 +571,7 @@ pub mod commands {
             let project = PROJECTS.get(project.path).await?;
             let mut project = project.lock().await;
 
-            let source = project.sources.remove(&self.source)?;
+            let source = project.sources.remove(&self.source).await?;
             project.write().await?;
 
             tracing::info!("Removed source");

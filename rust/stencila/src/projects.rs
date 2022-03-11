@@ -425,7 +425,7 @@ impl Project {
         }
 
         // Add sources and relations with associated files
-        for source in self.sources.iter() {
+        for source in self.sources.inner.iter() {
             graph.add_resource(source.resource(), None);
             graph.add_triples(source.triples(&self.path))
         }
