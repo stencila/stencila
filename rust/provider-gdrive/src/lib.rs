@@ -16,6 +16,7 @@ use provider::{
     regex::Regex,
     stencila_schema::{CreativeWork, Node},
     strum::{AsRefStr, EnumString},
+    tokens::token_for_provider,
     tokio::sync::mpsc,
     tracing, ImportOptions, ParseItem, Provider, ProviderTrait, SyncMode, SyncOptions,
 };
@@ -70,72 +71,41 @@ enum FileKind {
 
 #[derive(Clone)]
 struct GoogleDriveClient {
-    /// The name of the secret containing the access_token/refresh_token
+    /// The name of the secret containing the access token
     secret_name: String,
-
-    /// The current access token (may expire and be refreshed)
-    access_token: String,
-
-    /// The refresh token (used to refresh the access token and client)
-    refresh_token: String,
-
-    /// The current instance of the `google_drive::Client` (may be replaced with a
-    /// new client with refreshed token).
-    inner: google_drive::Client,
 }
 
 impl GoogleDriveClient {
     /// Create a new Goole Drive API client
-    fn new(secret_name: Option<String>) -> Result<Self> {
+    fn new(secret_name: Option<String>) -> Self {
         let secret_name = secret_name.unwrap_or_else(|| SECRET_NAME.to_string());
-        let mut client = Self {
-            secret_name,
-            // These get populated in the initial call to "refresh"
-            access_token: String::new(),
-            refresh_token: String::new(),
-            inner: google_drive::Client::new(
-                String::new(),
-                String::new(),
-                String::new(),
-                String::new(),
-                String::new(),
-            ),
-        };
-        client.refresh()?;
-        Ok(client)
+        Self { secret_name }
     }
 
-    /// Refresh access token
-    ///
-    /// An API token is always required to access the Google Drive API.
-    /// This gets the secret from the environment and splits it into two parts separated by a forward slash:
-    /// an access token and a refresh token. It is OK to just pass the access token but
-    /// passing a refresh token allows the access token to be updated when it expires (usually an hour)
-    fn refresh(&mut self) -> Result<()> {
-        let token = env::var(&self.secret_name)
-            .map_err(|_| eyre!("The secret `{}` is not defined", self.secret_name))?;
+    /// Get an API token from the environment or Stencila API
+    async fn token(&self) -> Result<String> {
+        match env::var(&self.secret_name) {
+            Ok(token) => Ok(token),
+            Err(..) => token_for_provider("google").await,
+        }
+    }
 
-        let mut parts = token.split('/');
-        self.access_token = parts.next().map_or_else(String::new, String::from);
-        self.refresh_token = parts.next().map_or_else(String::new, String::from);
-
-        self.inner = google_drive::Client::new(
+    /// Get a `google_drive` API client
+    async fn api(&self) -> Result<google_drive::Client> {
+        let token = self.token().await?;
+        Ok(google_drive::Client::new(
             String::new(),
             String::new(),
             String::new(),
-            self.access_token.clone(),
+            token,
             String::new(),
-        );
-
-        Ok(())
+        ))
     }
 
     /// Get additional headers required for a request
-    fn headers(&self) -> Vec<(headers::HeaderName, String)> {
-        vec![(
-            headers::AUTHORIZATION,
-            ["Bearer ", &self.access_token].concat(),
-        )]
+    async fn headers(&self) -> Result<Vec<(headers::HeaderName, String)>> {
+        let token = self.token().await?;
+        Ok(vec![(headers::AUTHORIZATION, ["Bearer ", &token].concat())])
     }
 
     /// Download a Google Drive file
@@ -153,7 +123,7 @@ impl GoogleDriveClient {
         };
 
         let url = format!("{DEFAULT_HOST}/files/{file_id}/export?mimeType={mime_type}");
-        let headers = self.headers();
+        let headers = self.headers().await?;
         download_with(&url, dest, &headers).await
     }
 }
@@ -242,7 +212,7 @@ impl ProviderTrait for GoogleDriveProvider {
         let (file_kind, file_id) = Self::file_kind_id(node)?;
 
         let options = options.unwrap_or_default();
-        let client = GoogleDriveClient::new(options.secret_name)?;
+        let client = GoogleDriveClient::new(options.secret_name);
 
         tracing::info!("Downloading {}", Self::create_url(&file_kind, &file_id));
         client.download(&file_kind, &file_id, dest).await
@@ -258,7 +228,7 @@ impl ProviderTrait for GoogleDriveProvider {
         let file_url = Self::create_url(&file_kind, &file_id);
 
         let options = options.unwrap_or_default();
-        let client = GoogleDriveClient::new(options.secret_name)?;
+        let client = GoogleDriveClient::new(options.secret_name);
 
         // See https://developers.google.com/drive/api/v3/push for docs related to this
 
@@ -285,7 +255,8 @@ impl ProviderTrait for GoogleDriveProvider {
 
         tracing::info!("Creating Google Drive webhook for {}", file_url);
         let channel = client
-            .inner
+            .api()
+            .await?
             .files()
             .watch(
                 &file_id,
@@ -354,7 +325,7 @@ impl ProviderTrait for GoogleDriveProvider {
         serve_gracefully([0, 0, 0, 0], WEBHOOK_PORT, router).await?;
 
         // Stop the channel
-        match client.inner.channels().stop(&channel).await {
+        match client.api().await?.channels().stop(&channel).await {
             Ok(..) => {
                 tracing::info!("Deleted Google Drive webhook for {}", file_url);
             }
@@ -452,7 +423,8 @@ async fn webhook_event(
                     SyncMode::Tagged => {
                         // See if there is a new revision
                         if let Some(revision) = client
-                            .inner
+                            .api()
+                            .await?
                             .revisions()
                             .list_all(file_id)
                             .await

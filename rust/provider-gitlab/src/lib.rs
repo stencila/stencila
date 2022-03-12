@@ -22,6 +22,7 @@ use provider::{
         CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date, Node, Organization,
         SoftwareSourceCode, ThingDescription,
     },
+    tokens::token_for_provider,
     tokio::sync::mpsc,
     tracing, EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
 };
@@ -72,33 +73,40 @@ impl GitlabClient {
         Self { secret_name }
     }
 
-    /// Get the API token from the environment (if any)
-    fn token(&self) -> Option<String> {
-        env::var(&self.secret_name).ok()
+    /// Get an API token from the environment or Stencila API
+    async fn token(&self) -> Option<String> {
+        match env::var(&self.secret_name) {
+            Ok(token) => Some(token),
+            Err(..) => token_for_provider("gitlab").await.ok(),
+        }
     }
 
     /// Get additional headers required for a request
-    fn headers(&self) -> Result<Vec<(headers::HeaderName, String)>> {
-        Ok(match self.token() {
+    async fn headers(&self) -> Result<Vec<(headers::HeaderName, String)>> {
+        Ok(match self.token().await {
             Some(token) => vec![(headers::AUTHORIZATION, ["Bearer ", &token].concat())],
             None => Vec::new(),
         })
     }
 
     async fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T> {
-        get_with(&[BASE_URL, path].concat(), &self.headers()?).await
+        let headers = self.headers().await?;
+        get_with(&[BASE_URL, path].concat(), &headers).await
     }
 
     async fn post<B: Serialize, T: DeserializeOwned>(&self, path: &str, body: B) -> Result<T> {
-        post_with(&[BASE_URL, path].concat(), body, &self.headers()?).await
+        let headers = self.headers().await?;
+        post_with(&[BASE_URL, path].concat(), body, &headers).await
     }
 
     async fn delete(&self, path: &str) -> Result<()> {
-        delete_with(&[BASE_URL, path].concat(), &self.headers()?).await
+        let headers = self.headers().await?;
+        delete_with(&[BASE_URL, path].concat(), &headers).await
     }
 
     async fn download_temp(&self, path: &str) -> Result<NamedTempFile> {
-        download_temp_with(&[BASE_URL, path].concat(), None, &self.headers()?).await
+        let headers = self.headers().await?;
+        download_temp_with(&[BASE_URL, path].concat(), None, &headers).await
     }
 }
 

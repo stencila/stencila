@@ -22,6 +22,7 @@ use provider::{
         CreativeWorkAuthors, CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date,
         Node, Organization, Person, SoftwareSourceCode, ThingDescription,
     },
+    tokens::token_for_provider,
     tokio::sync::mpsc,
     tracing, EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
 };
@@ -63,14 +64,17 @@ impl GithubClient {
         Self { secret_name }
     }
 
-    /// Get the API token from the environment (if any)
-    fn token(&self) -> Option<String> {
-        env::var(&self.secret_name).ok()
+    /// Get an API token from the environment or Stencila API
+    async fn token(&self) -> Option<String> {
+        match env::var(&self.secret_name) {
+            Ok(token) => Some(token),
+            Err(..) => token_for_provider("github").await.ok(),
+        }
     }
 
     /// Get an `octorust` API client
-    fn api(&self) -> Result<octorust::Client> {
-        let token = self.token().map(octorust::auth::Credentials::Token);
+    async fn api(&self) -> Result<octorust::Client> {
+        let token = self.token().await.map(octorust::auth::Credentials::Token);
         Ok(octorust::Client::custom(
             octorust::DEFAULT_HOST,
             http_utils::USER_AGENT,
@@ -82,8 +86,8 @@ impl GithubClient {
     /// Get additional headers required for a request
     ///
     /// Currenty only used for `download_temp`.
-    fn headers(&self) -> Result<Vec<(headers::HeaderName, String)>> {
-        Ok(match self.token() {
+    async fn headers(&self) -> Result<Vec<(headers::HeaderName, String)>> {
+        Ok(match self.token().await {
             Some(token) => vec![(headers::AUTHORIZATION, ["Token ", &token].concat())],
             None => Vec::new(),
         })
@@ -95,7 +99,7 @@ impl GithubClient {
     /// use `http_utils::download_temp_with` instead and "manually" add auth header
     async fn download_temp(&self, path: &str) -> Result<NamedTempFile> {
         let url = [octorust::DEFAULT_HOST, path].concat();
-        let headers = self.headers()?;
+        let headers = self.headers().await?;
         download_temp_with(&url, None, &headers).await
     }
 }
@@ -223,7 +227,8 @@ impl ProviderTrait for GithubProvider {
         let client = GithubClient::new(options.secret_name);
 
         let repo_details = client
-            .api()?
+            .api()
+            .await?
             .repos()
             .get(owner, repo)
             .await
@@ -248,7 +253,8 @@ impl ProviderTrait for GithubProvider {
             .map(|date| Box::new(Date::from(date)));
 
         let authors = client
-            .api()?
+            .api()
+            .await?
             .repos()
             .list_all_contributors(owner, repo, "false")
             .await
@@ -305,7 +311,8 @@ impl ProviderTrait for GithubProvider {
         let client = GithubClient::new(options.secret_name.clone());
 
         let content = client
-            .api()?
+            .api()
+            .await?
             .repos()
             .get_content(
                 owner,
@@ -402,7 +409,8 @@ impl ProviderTrait for GithubProvider {
             digest: "".to_string(),
         };
         let hook = client
-            .api()?
+            .api()
+            .await?
             .repos()
             .create_webhook(
                 owner,
@@ -485,7 +493,8 @@ impl ProviderTrait for GithubProvider {
 
         // Delete the webhook
         match client
-            .api()?
+            .api()
+            .await?
             .repos()
             .delete_webhook(owner, repo, hook.id)
             .await
@@ -632,7 +641,8 @@ async fn webhook_event(
                         local_path.display()
                     );
                     let content_file = client
-                        .api()?
+                        .api()
+                        .await?
                         .repos()
                         .get_content_file(owner, repo, event_path, event_ref)
                         .await
