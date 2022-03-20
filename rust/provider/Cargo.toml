@@ -9,6 +9,7 @@ async-trait = "0.1.51"
 chrono = "0.4.19"
 cron-utils = { path = "../cron-utils", version = "0.0.0" }
 eyre = "0.6.5"
+futures = "0.3.19"
 http-utils = { path = "../http-utils", version = "0.0.0" }
 node-address = { path = "../node-address", version = "0.0.0" }
 node-pointer = { path = "../node-pointer", version = "0.0.0" }
