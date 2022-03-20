@@ -18,6 +18,7 @@ pub use ::async_trait;
 pub use ::chrono;
 pub use ::codecs;
 pub use ::eyre;
+pub use ::futures;
 pub use ::http_utils;
 pub use ::once_cell;
 pub use ::regex;

@@ -4787,6 +4787,7 @@ dependencies = [
  "codecs",
  "cron-utils",
  "eyre",
+ "futures",
  "http-utils",
  "node-address",
  "node-pointer",
