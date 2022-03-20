@@ -75,16 +75,17 @@ pub async fn get_with<T: DeserializeOwned>(
     url: &str,
     headers: &[(HeaderName, String)],
 ) -> Result<T> {
-    let response = CLIENT
-        .get(url)
-        .headers(header_map(headers)?)
-        .send()
-        .await?
-        .error_for_status()?;
-
-    let json = response.json().await?;
-
+    let response = get_response(url, headers).await?;
+    let json = response.error_for_status()?.json().await?;
     Ok(json)
+}
+
+/// Send a GET request with additional request headers and return response
+///
+/// Use this when you want to handle response errors or content yourself.
+pub async fn get_response(url: &str, headers: &[(HeaderName, String)]) -> Result<Response> {
+    let response = CLIENT.get(url).headers(header_map(headers)?).send().await?;
+    Ok(response)
 }
 
 /// Send a POST request
@@ -99,7 +100,7 @@ pub async fn post_with<B: Serialize, T: DeserializeOwned>(
     headers: &[(HeaderName, String)],
 ) -> Result<T> {
     let response = post_response(url, body, headers).await?;
-    let json = response.json().await?;
+    let json = response.error_for_status()?.json().await?;
     Ok(json)
 }
 
@@ -114,8 +115,7 @@ pub async fn post_response<B: Serialize>(
         .json(&body)
         .headers(header_map(headers)?)
         .send()
-        .await?
-        .error_for_status()?;
+        .await?;
     Ok(response)
 }
 
