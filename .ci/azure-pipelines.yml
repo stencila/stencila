@@ -157,23 +157,23 @@ jobs:
 
       # Desktop is tested if there are changes in the `rust`, `node`, or `desktop` folders.
       # Includes build of UI to check that compiles
-      - script: |
-          set -e
-          make -C node build-debug build-ts
-          make -C desktop lint
-          make -C desktop test
-          npm run ui:build --prefix desktop
-        env:
-          # Increase maximum for non-garbage collected memory to 6Gb
-          NODE_OPTIONS: --max_old_space_size=6144
-          TSESTREE_SINGLE_RUN: true
-        condition: |
-          or(
-            contains(variables.changed, 'rust'),
-            contains(variables.changed, 'node'),
-            contains(variables.changed, 'desktop')
-          )
-        displayName: 'Desktop: Test'
+      # - script: |
+      #    set -e
+      #    make -C node build-debug build-ts
+      #    make -C desktop lint
+      #    make -C desktop test
+      #    npm run ui:build --prefix desktop
+      #  env:
+      #    # Increase maximum for non-garbage collected memory to 6Gb
+      #    NODE_OPTIONS: --max_old_space_size=6144
+      #    TSESTREE_SINGLE_RUN: true
+      #  condition: |
+      #    or(
+      #      contains(variables.changed, 'rust'),
+      #      contains(variables.changed, 'node'),
+      #      contains(variables.changed, 'desktop')
+      #    )
+      #  displayName: 'Desktop: Test'
 
       # Web client is tested if there are changes in the `web`, or `rust` folders
       # because it includes end-to-end tests of integrations with the Rust server.
@@ -212,16 +212,16 @@ jobs:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
       # Desktop is built and published on tags
-      - script: |
-          set -e
-          make -C node build
-          sudo apt-get install rpm
-          make -C desktop publish
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        displayName: 'Desktop: Build and publish'
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-          SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
+      #- script: |
+      #    set -e
+      #    make -C node build
+      #    sudo apt-get install rpm
+      #    make -C desktop publish
+      #  condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      #  displayName: 'Desktop: Build and publish'
+      #  env:
+      #    GITHUB_TOKEN: $(GITHUB_TOKEN)
+      #    SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
 
       # Reduce the size of the Rust cache (and print summary) before storing it.
       - script: |
@@ -302,17 +302,17 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-      - script: |
-          set -e
-          make -C node build
-          make -C desktop publish
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        displayName: 'Desktop: Build and publish'
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-          SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
-          APPLE_ID: $(APPLE_ID)
-          APPLE_ID_PASSWORD: $(APPLE_ID_PASSWORD)
+      #- script: |
+      #    set -e
+      #    make -C node build
+      #    make -C desktop publish
+      #  condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      #  displayName: 'Desktop: Build and publish'
+      #  env:
+      #    GITHUB_TOKEN: $(GITHUB_TOKEN)
+      #    SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
+      #    APPLE_ID: $(APPLE_ID)
+      #    APPLE_ID_PASSWORD: $(APPLE_ID_PASSWORD)
 
       - script: |
           sccache --stop-server
@@ -398,16 +398,16 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-      - script: |
-          make -C node build
-          make -C desktop publish
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        displayName: 'Desktop: Build and publish'
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-          SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
-          WINDOWS_CODESIGN_FILE: $(certificate.secureFilePath)
-          WINDOWS_CODESIGN_PASSWORD: $(WINDOWS_CODESIGN_PASSWORD)
+    #  - script: |
+    #      make -C node build
+    #      make -C desktop publish
+    #    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    #    displayName: 'Desktop: Build and publish'
+    #    env:
+    #      GITHUB_TOKEN: $(GITHUB_TOKEN)
+    #      SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
+    #      WINDOWS_CODESIGN_FILE: $(certificate.secureFilePath)
+    #      WINDOWS_CODESIGN_PASSWORD: $(WINDOWS_CODESIGN_PASSWORD)
 
       - script: |
           sccache --stop-server
