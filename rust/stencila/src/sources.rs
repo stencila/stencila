@@ -189,9 +189,8 @@ impl Source {
         };
         let options = ImportOptions {
             secret_name: self.secret_name.clone(),
-            ..Default::default()
         };
-        providers::import(&node, &dest, options).await?;
+        providers::import(&node, &dest, Some(options)).await?;
 
         Ok(())
     }

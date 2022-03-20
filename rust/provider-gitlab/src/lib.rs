@@ -74,16 +74,16 @@ impl GitlabClient {
     }
 
     /// Get an API token from the environment or Stencila API
-    async fn token(&self) -> Option<String> {
+    async fn token(&self) -> Result<Option<String>> {
         match env::var(&self.secret_name) {
-            Ok(token) => Some(token),
-            Err(..) => token_for_provider("gitlab").await.ok(),
+            Ok(token) => Ok(Some(token)),
+            Err(..) => token_for_provider("gitlab").await,
         }
     }
 
     /// Get additional headers required for a request
     async fn headers(&self) -> Result<Vec<(headers::HeaderName, String)>> {
-        Ok(match self.token().await {
+        Ok(match self.token().await? {
             Some(token) => vec![(headers::AUTHORIZATION, ["Bearer ", &token].concat())],
             None => Vec::new(),
         })

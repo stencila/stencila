@@ -15,19 +15,20 @@
 use std::{collections::HashMap, env};
 
 use chrono::{DateTime, Duration, Utc};
-use eyre::{eyre, Result};
-use http_utils::{headers, post_with, serde_json::json};
+use eyre::{bail, eyre, Result};
+use http_utils::{get_response, headers, serde_json};
 use once_cell::sync::Lazy;
 use serde::Deserialize;
 use tokio::sync::RwLock;
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct Token {
     /// An access token for the provider
     access_token: String,
 
     /// The time that the access token expires
-    expires_at: DateTime<Utc>,
+    expires_at: Option<DateTime<Utc>>,
 }
 
 /// A global store of provider tokens
@@ -39,28 +40,35 @@ static TOKENS: Lazy<RwLock<HashMap<String, Token>>> = Lazy::new(|| RwLock::new(H
 ///
 /// - `provider`: The name of the provider (e.g. "github", "google")
 ///
-/// Checks first for the enviroment variable `<PROVIDER>_TOKEN`.
-/// Otherwise, checks for a token in `TOKENS`. If none is present, or if
-/// the token is expired, then makes a request to the Stencila API for
-/// a new access token.
-pub async fn token_for_provider(provider: &str) -> Result<String> {
+/// Checks first for the environment variable `<PROVIDER>_TOKEN`.
+/// If none is available, checks for a token in `TOKENS` (we don't do this first
+/// because we want to allow changing of the env var if necessary).
+/// If none is present in `TOKENS`, or if the token is expired, then makes a request
+/// to the Stencila API for a fresh access token.
+/// If the user has not authenticated with Stencila using the provider will return `Ok(None)`.
+///
+/// Will error if there is a problem connecting to the Stencila API.
+pub async fn token_for_provider(provider: &str) -> Result<Option<String>> {
     // Is the token available in the environment?
     if let Some(access_token) = token_from_environment(provider) {
-        return Ok(access_token);
+        return Ok(Some(access_token));
     }
 
     // Is the token available in the store and unexpired?
     if let Some(access_token) = token_from_store(provider).await {
-        return Ok(access_token);
+        return Ok(Some(access_token));
     }
 
     // Get a new token from Stencila and write it to the store
-    let token = token_from_stencila(provider).await?;
-    TOKENS
-        .write()
-        .await
-        .insert(provider.to_lowercase(), token.clone());
-    Ok(token.access_token)
+    if let Some(token) = token_from_stencila(provider).await? {
+        TOKENS
+            .write()
+            .await
+            .insert(provider.to_lowercase(), token.clone());
+        return Ok(Some(token.access_token));
+    }
+
+    Ok(None)
 }
 
 /// Get an access token for a provider from the enviroment
@@ -86,9 +94,12 @@ fn token_from_environment(provider: &str) -> Option<String> {
 async fn token_from_store(provider: &str) -> Option<String> {
     if let Some(token) = TOKENS.read().await.get(&provider.to_lowercase()) {
         let expiry_leeway = Duration::seconds(60);
-        if (Utc::now() + expiry_leeway) < token.expires_at {
-            return Some(token.access_token.clone());
+        if let Some(expires_at) = token.expires_at {
+            if Utc::now() > (expires_at - expiry_leeway) {
+                return None;
+            }
         }
+        return Some(token.access_token.clone());
     }
     None
 }
@@ -99,21 +110,41 @@ async fn token_from_store(provider: &str) -> Option<String> {
 ///
 /// - `provider`: The name of the provider (e.g. "github", "google")
 ///
-/// Errors if necessary enviroment variables are not present or there
-/// was an error making the HTTP request.
-async fn token_from_stencila(provider: &str) -> Result<Token> {
-    let stencila_token = token_from_environment("stencila").ok_or_else(|| {
-        eyre!("A STENCILA_TOKEN enviroment variable is required to get and refresh provider tokens")
-    })?;
-
+/// Errors if necessary environment variables are not present or there
+/// was an error making the HTTP request. Returns `Ok(None)` if a token is
+/// not available for the provider from Stencila i.e. that the user has not
+/// authenticated with the provider.
+async fn token_from_stencila(provider: &str) -> Result<Option<Token>> {
     let base_url =
         env::var("STENCILA_API_URL").unwrap_or_else(|_| "https://stenci.la/api/v1".to_string());
 
-    let token: Token = post_with(
-        &[&base_url, "/oauth/access_token"].concat(),
-        json!({ "provider": provider.to_lowercase() }),
-        &[(headers::AUTHORIZATION, stencila_token)],
+    let stencila_token = token_from_environment("stencila").ok_or_else(|| {
+        eyre!("The STENCILA_TOKEN environment variable is required to obtain an access token for `{}`", provider)
+    })?;
+
+    let response = get_response(
+        &[
+            &base_url,
+            "/oauth/token?provider=",
+            &provider.to_lowercase(),
+        ]
+        .concat(),
+        &[(headers::AUTHORIZATION, format!("Token {}", stencila_token))],
     )
     .await?;
-    Ok(token)
+
+    let payload: serde_json::Value = response.json().await?;
+    if let Some(error) = payload.get("error") {
+        bail!(
+            "While fetching token for `{}` from Stencila: {}",
+            provider,
+            error
+                .get("message")
+                .and_then(|msg| msg.as_str())
+                .unwrap_or_default()
+        )
+    }
+
+    let token: Token = serde_json::from_value(payload)?;
+    Ok(Some(token))
 }

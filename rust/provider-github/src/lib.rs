@@ -65,20 +65,21 @@ impl GithubClient {
     }
 
     /// Get an API token from the environment or Stencila API
-    async fn token(&self) -> Option<String> {
+    async fn token(&self) -> Result<Option<String>> {
         match env::var(&self.secret_name) {
-            Ok(token) => Some(token),
-            Err(..) => token_for_provider("github").await.ok(),
+            Ok(token) => Ok(Some(token)),
+            Err(..) => token_for_provider("github").await,
         }
     }
 
     /// Get an `octorust` API client
     async fn api(&self) -> Result<octorust::Client> {
-        let token = self.token().await.map(octorust::auth::Credentials::Token);
+        let token = self.token().await?;
+        let credentials = token.map(octorust::auth::Credentials::Token);
         Ok(octorust::Client::custom(
             octorust::DEFAULT_HOST,
             http_utils::USER_AGENT,
-            token,
+            credentials,
             http_utils::CLIENT.clone(),
         ))
     }
@@ -87,7 +88,7 @@ impl GithubClient {
     ///
     /// Currenty only used for `download_temp`.
     async fn headers(&self) -> Result<Vec<(headers::HeaderName, String)>> {
-        Ok(match self.token().await {
+        Ok(match self.token().await? {
             Some(token) => vec![(headers::AUTHORIZATION, ["Token ", &token].concat())],
             None => Vec::new(),
         })

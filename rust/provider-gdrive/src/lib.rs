@@ -86,7 +86,10 @@ impl GoogleDriveClient {
     async fn token(&self) -> Result<String> {
         match env::var(&self.secret_name) {
             Ok(token) => Ok(token),
-            Err(..) => token_for_provider("google").await,
+            Err(..) => match token_for_provider("google").await? {
+                Some(token) => Ok(token),
+                None => bail!("An access token is required to access the Google Drive API"),
+            },
         }
     }
 
