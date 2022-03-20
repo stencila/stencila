@@ -1,0 +1,16 @@
+[package]
+name = "server-utils"
+description = "Shared dependencies and utilities for servers"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.4.8"
+events = { path = "../events", version = "0.0.0" }
+eyre = "0.6.6"
+portpicker = "0.1.1"
+public-ip = "0.2.2"
+serde_json = "1.0.75"
+tokio = { version = "1.13.0", features = ["macros", "sync"] }
+tracing = "0.1.29"
+url = "2.2.2"

@@ -258,6 +258,7 @@ pub mod commands {
     /// (i.e. including those not in the `stencila binaries installable` list).
     #[derive(Debug, StructOpt)]
     #[structopt(
+        alias = "which",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]

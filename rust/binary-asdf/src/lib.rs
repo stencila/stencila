@@ -75,7 +75,7 @@ impl BinaryTrait for AsdfBinary {
         let filename = format!("asdf-v{version}.tar.gz", version = version);
         let archive = self.download(&url, Some(filename), None).await?;
 
-        self.extract(&archive, 1, dest)?;
+        self.extract(&archive, dest, 1)?;
         self.executables(dest, &["bin/asdf"])?;
 
         // TODO: use a setting to determine the keep downloads policy for both Stencila and asdf

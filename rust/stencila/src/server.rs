@@ -544,7 +544,7 @@ impl Clients {
                     occupied.get_mut().1 += 1;
                 }
                 Entry::Vacant(vacant) => {
-                    match subscribe(topic, Subscriber::Sender(self.sender.clone())) {
+                    match subscribe(topic, Subscriber::UnboundedSender(self.sender.clone())) {
                         Ok(subscription_id) => {
                             vacant.insert((subscription_id, 1));
                         }

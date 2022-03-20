@@ -1,0 +1,21 @@
+[package]
+name = "provider-github"
+description = " A provider for GitHub"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+archive-utils = { path = "../archive-utils", version = "0.0.0", features = [
+    "tar-gz",
+] }
+base64 = "0.13.0"
+hash-utils = { path = "../hash-utils", version = "0.0.0" }
+key-utils = { path = "../key-utils", version = "0.0.0" }
+http-utils = { path = "../http-utils", version = "0.0.0" }
+octorust = "0.1.34"
+provider = { path = "../provider", version = "0.0.0" }
+server-utils = { path = "../server-utils", version = "0.0.0" }
+uuids = { path = "../uuids", version = "0.0.0" }
+
+[dev-dependencies]
+test-utils = { path = "../test-utils", version = "0.0.0" }

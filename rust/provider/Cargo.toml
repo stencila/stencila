@@ -1,0 +1,30 @@
+[package]
+name = "provider"
+description = "A trait and specification for third-party providers of data"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+async-trait = "0.1.51"
+chrono = "0.4.19"
+cron-utils = { path = "../cron-utils", version = "0.0.0" }
+eyre = "0.6.5"
+http-utils = { path = "../http-utils", version = "0.0.0" }
+node-address = { path = "../node-address", version = "0.0.0" }
+node-pointer = { path = "../node-pointer", version = "0.0.0" }
+once_cell = "1.8.0"
+regex = "1.5.4"
+serde = { version = "1.0.130", features = ["derive"] }
+stencila-schema = { path = "../schema" }
+strum = { version = "0.23.0", features = ["derive"] }
+tokio = { version = "1.13.0", features = ["sync"] }
+tracing = "0.1.29"
+
+# To keep build times down, only enable a limited number of lightweight codecs
+# here for testing using the mini-CLI in `providers/src/main.rs`. In the main
+# `stencila` binary, all codecs are included.
+codecs = { path = "../codecs", version = "0.0.0", features = [
+    "codec-json",
+    "codec-txt",
+    "codec-yaml",
+] }

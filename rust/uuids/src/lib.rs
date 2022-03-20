@@ -138,6 +138,12 @@ pub fn generate_lower(prefix: &str) -> Uuid {
     [prefix, SEPARATOR, &chars].concat().into()
 }
 
+// Generate a universally unique identifier with a specific number of random characters
+pub fn generate_num(prefix: &str, num: usize) -> Uuid {
+    let chars = nanoid!(num, &CHARACTERS);
+    [prefix, SEPARATOR, &chars].concat().into()
+}
+
 // Test whether a string is an identifier for a particular prefix
 pub fn matches(prefix: &str, id: &str) -> bool {
     let re = ["^", prefix, SEPARATOR, "[0-9a-zA-Z]{20}$"].concat();

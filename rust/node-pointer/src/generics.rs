@@ -1,4 +1,4 @@
-use crate::{Pointable, Pointer, PointerMut};
+use crate::{Pointable, Pointer, PointerMut, Visitor, VisitorMut};
 use eyre::{bail, Result};
 use node_address::{invalid_slot_index, invalid_slot_variant, Address, Slot};
 use std::ops::{Deref, DerefMut};
@@ -77,6 +77,22 @@ macro_rules! pointable_struct {
 
                 PointerMut::None
             }
+
+            /// Walk over a node with a [`Visitor`]
+            ///
+            /// Walk over child fields, adding to the address for each
+            #[allow(unused_variables)]
+            fn walk(&self, address: Address, visitor: &mut impl Visitor) {
+                $(
+                    self.$field.walk(address.add_name(stringify!($field)), visitor);
+                )*
+            }
+            #[allow(unused_variables)]
+            fn walk_mut(&mut self, address: Address, visitor: &mut impl VisitorMut) {
+                $(
+                    self.$field.walk_mut(address.add_name(stringify!($field)), visitor);
+                )*
+            }
         }
     };
 }
@@ -122,6 +138,25 @@ macro_rules! pointable_variants {
                     _ => PointerMut::None
                 }
             }
+
+            fn walk(&self, address: Address, visitor: &mut impl Visitor) {
+                match self {
+                    $(
+                        $variant(me) => me.walk(address, visitor),
+                    )*
+                    #[allow(unreachable_patterns)]
+                    _ => ()
+                }
+            }
+            fn walk_mut(&mut self, address: Address, visitor: &mut impl VisitorMut) {
+                match self {
+                    $(
+                        $variant(me) => me.walk_mut(address, visitor),
+                    )*
+                    #[allow(unreachable_patterns)]
+                    _ => ()
+                }
+            }
         }
     };
 }
@@ -158,6 +193,22 @@ impl<Type: Pointable> Pointable for Option<Type> {
             None => PointerMut::None,
         }
     }
+
+    /// Walk over a node with a [`Visitor`]
+    ///
+    /// Delegate to value, if any.
+    fn walk(&self, address: Address, visitor: &mut impl Visitor) {
+        match self {
+            Some(me) => me.walk(address, visitor),
+            None => (),
+        }
+    }
+    fn walk_mut(&mut self, address: Address, visitor: &mut impl VisitorMut) {
+        match self {
+            Some(me) => me.walk_mut(address, visitor),
+            None => (),
+        }
+    }
 }
 
 impl<Type: Pointable> Pointable for Box<Type> {
@@ -179,6 +230,16 @@ impl<Type: Pointable> Pointable for Box<Type> {
     }
     fn find_mut(&mut self, id: &str) -> PointerMut {
         self.deref_mut().find_mut(id)
+    }
+
+    /// Walk over a node with a [`Visitor`]
+    ///
+    /// Delegate to boxed value.
+    fn walk(&self, address: Address, visitor: &mut impl Visitor) {
+        self.deref().walk(address, visitor)
+    }
+    fn walk_mut(&mut self, address: Address, visitor: &mut impl VisitorMut) {
+        self.deref_mut().walk_mut(address, visitor)
     }
 }
 
@@ -235,5 +296,19 @@ impl<Type: Pointable> Pointable for Vec<Type> {
             }
         }
         PointerMut::None
+    }
+
+    /// Walk over a node with a [`Visitor`]
+    ///
+    /// Delegate to child items, adding an index slot to the address for each
+    fn walk(&self, address: Address, visitor: &mut impl Visitor) {
+        for (index, item) in self.iter().enumerate() {
+            item.walk(address.add_index(index), visitor);
+        }
+    }
+    fn walk_mut(&mut self, address: Address, visitor: &mut impl VisitorMut) {
+        for (index, item) in self.iter_mut().enumerate() {
+            item.walk_mut(address.add_index(index), visitor);
+        }
     }
 }

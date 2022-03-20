@@ -964,7 +964,6 @@ impl Graph {
                         ("box", "#efe0b8", label)
                     }
                     Resource::File(..) => ("note", "#d1efb8", path.clone()),
-                    Resource::Source(source) => ("house", "#efb8d4", source.name.clone()),
                     Resource::Module(module) => ("invhouse", "#b8efed", module.name.clone()),
                     Resource::Url(url) => ("box", "#cab8ef", url.url.clone()),
                 };

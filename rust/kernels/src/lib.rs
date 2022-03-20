@@ -1482,7 +1482,8 @@ impl KernelSpace {
                         }
                     });
 
-                    let subscription_id = subscribe("interrupt", Subscriber::Sender(sender))?;
+                    let subscription_id =
+                        subscribe("interrupt", Subscriber::UnboundedSender(sender))?;
                     Some(subscription_id)
                 } else {
                     None

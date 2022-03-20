@@ -5,7 +5,10 @@ use std::{
     collections::HashMap,
     sync::{Mutex, MutexGuard},
 };
-use tokio::{signal, sync::mpsc};
+use tokio::{
+    signal,
+    sync::{mpsc, Mutex as AsyncMutex},
+};
 use uuids::uuid_family;
 
 /// An event updating progress of some task
@@ -36,7 +39,8 @@ uuid_family!(SubscriptionId, "su");
 
 pub enum Subscriber {
     Function(fn(topic: String, event: serde_json::Value) -> ()),
-    Sender(mpsc::UnboundedSender<Message>),
+    Sender(mpsc::Sender<Message>),
+    UnboundedSender(mpsc::UnboundedSender<Message>),
 }
 
 struct Subscription {
@@ -65,15 +69,7 @@ fn obtain() -> Result<MutexGuard<'static, HashMap<SubscriptionId, Subscription>>
 pub fn subscribe(topic: &str, subscriber: Subscriber) -> Result<SubscriptionId> {
     tracing::trace!("Subscribing to topic `{}`", topic);
 
-    // If the subscription is for the user "interrupt" topic then lazily start
-    // the Ctrl-C listener.
-    static INTERRUPT_LISTENER: Lazy<()> = Lazy::new(|| {
-        tokio::spawn(async move {
-            if let Ok(..) = signal::ctrl_c().await {
-                publish("interrupt", true)
-            }
-        });
-    });
+    // Ensure the interrupt listener is started
     if topic == "interrupt" {
         let _ = *INTERRUPT_LISTENER;
     }
@@ -137,8 +133,23 @@ where
                             function(topic.into(), value);
                         }
                         Subscriber::Sender(sender) => {
+                            let sender = sender.clone();
+                            let topic = topic.to_string();
+                            tokio::spawn(async move {
+                                if let Err(error) = sender.send((topic, value)).await {
+                                    tracing::error!(
+                                        "Error sending event on bounded channel: {}",
+                                        error
+                                    );
+                                }
+                            });
+                        }
+                        Subscriber::UnboundedSender(sender) => {
                             if let Err(error) = sender.send((topic.into(), value)) {
-                                tracing::error!("Error sending event: {}", error);
+                                tracing::error!(
+                                    "Error sending event on unbounded channel: {}",
+                                    error
+                                );
                             }
                         }
                     }
@@ -152,4 +163,39 @@ where
             }
         }
     }
+}
+
+/// The list of subscribers to the interrupt topic
+static INTERRUPT_SUBSCRIBERS: Lazy<AsyncMutex<Vec<mpsc::Sender<()>>>> =
+    Lazy::new(|| AsyncMutex::new(Vec::new()));
+
+/// A lazily started Ctrl-C listener.
+static INTERRUPT_LISTENER: Lazy<()> = Lazy::new(|| {
+    tokio::spawn(async move {
+        if let Ok(..) = signal::ctrl_c().await {
+            publish("interrupt", true);
+
+            let subscribers = INTERRUPT_SUBSCRIBERS.lock().await;
+            for subscriber in subscribers.iter() {
+                if let Err(..) = subscriber.send(()).await {
+                    // Ignore error (in the case that receiver has already closed)
+                }
+            }
+        }
+    });
+});
+
+/// Subscribe to the interrupt topic with a subscribing bounded channel sender
+///
+/// This is an alternative to using `subscribe("interrupt")` that is more convenient
+/// when you want to be able to swap the interrupt channel for some other cancellation
+/// channel that is bounded and without a message type (ie. `mpsc::Sender<()>` rather than `mpsc::Sender<Message>`)
+/// and you don't need to unsubscribe.
+pub async fn subscribe_to_interrupt(subscriber: mpsc::Sender<()>) {
+    // Ensure the interrupt listener is started
+    let _ = *INTERRUPT_LISTENER;
+
+    // Add the subscriber
+    let mut subscribers = INTERRUPT_SUBSCRIBERS.lock().await;
+    subscribers.push(subscriber);
 }

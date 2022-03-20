@@ -1,0 +1,12 @@
+[package]
+name = "provider-elife"
+description = " A provider for eLife"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+provider = { path = "../provider", version = "0.0.0" }
+
+[dev-dependencies]
+test-utils = { path = "../test-utils", version = "0.0.0" }
+tokio = { version = "1.13.0", features = ["macros"] }

@@ -132,15 +132,29 @@ impl Address {
     }
 
     /// Prepend an address with another
-    pub fn prepend(&mut self, other: &Address) {
+    pub fn prepend(&mut self, other: &Self) {
         *self = other.concat(self)
     }
 
-    /// Concatenate an address with another into a new address
-    pub fn concat(&self, other: &Address) -> Self {
+    /// Concatenate an address with another
+    pub fn concat(&self, other: &Self) -> Self {
         let mut concat = self.clone();
         concat.append(&mut other.clone());
         concat
+    }
+
+    /// Add a name slot to an address
+    pub fn add_name(&self, name: &str) -> Self {
+        let mut added = self.clone();
+        added.push_back(Slot::Name(name.to_string()));
+        added
+    }
+
+    /// Add an index slot to an address
+    pub fn add_index(&self, index: usize) -> Self {
+        let mut added = self.clone();
+        added.push_back(Slot::Index(index));
+        added
     }
 }
 

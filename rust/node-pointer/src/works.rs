@@ -1,4 +1,4 @@
-use crate::{Pointable, Pointer, PointerMut};
+use crate::{Pointable, Pointer, PointerMut, Visitor, VisitorMut};
 use eyre::{bail, Result};
 use node_address::Address;
 use node_dispatch::dispatch_work;
@@ -35,6 +35,23 @@ impl Pointable for CreativeWorkTypes {
         match dispatch_work!(self, find_mut, id) {
             PointerMut::Some => PointerMut::Work(self),
             _ => PointerMut::None,
+        }
+    }
+
+    /// Walk over a node with a [`Visitor`]
+    ///
+    /// `CreativeWorkTypes` is one of the visited types so call `visit_work` and,
+    /// if it returns `true`, continue walk over variant.
+    fn walk(&self, address: Address, visitor: &mut impl Visitor) {
+        let cont = visitor.visit_work(&address, self);
+        if cont {
+            dispatch_work!(self, walk, address, visitor)
+        }
+    }
+    fn walk_mut(&mut self, address: Address, visitor: &mut impl VisitorMut) {
+        let cont = visitor.visit_work_mut(&address, self);
+        if cont {
+            dispatch_work!(self, walk_mut, address, visitor)
         }
     }
 }

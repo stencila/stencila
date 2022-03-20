@@ -50,7 +50,7 @@ impl BinaryTrait for StencilaBinary {
         ) + suffix;
         let archive = self.download(&url, None, None).await?;
 
-        self.extract(&archive, 0, dest)?;
+        self.extract(&archive, dest, 0)?;
         self.executables(dest, &["stencila"])?;
 
         Ok(())

@@ -16,6 +16,7 @@ use node_pointer::resolve;
 use node_reshape::reshape;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
+use providers::DetectItem;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -697,7 +698,7 @@ impl Document {
         }
 
         let root = &*self.root.read().await;
-        codecs::to_path(root, path, &format, Some(options)).await?;
+        codecs::to_path(root, path, Some(&format), Some(options)).await?;
 
         Ok(())
     }
@@ -1319,7 +1320,7 @@ impl Document {
         let mut root = if self.format.binary {
             if self.path.exists() {
                 tracing::debug!("Decoding document root from path");
-                codecs::from_path(&self.path, format, None).await?
+                codecs::from_path(&self.path, Some(format), None).await?
             } else {
                 self.root.read().await.clone()
             }
@@ -1375,6 +1376,12 @@ impl Document {
         }
 
         Ok(())
+    }
+
+    /// Detect entities within the document
+    pub async fn detect(&self) -> Result<Vec<DetectItem>> {
+        let root = &*self.root.read().await;
+        providers::detect(root).await
     }
 
     /// Generate a topic string for the document
@@ -1895,6 +1902,7 @@ pub mod commands {
         Convert(Convert),
         Diff(Diff),
         Merge(Merge),
+        Detect(Detect),
         Schemas(Schemas),
     }
 
@@ -1929,6 +1937,7 @@ pub mod commands {
                 Action::Convert(action) => action.run().await,
                 Action::Diff(action) => action.run().await,
                 Action::Merge(action) => action.run().await,
+                Action::Detect(action) => action.run().await,
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -2551,11 +2560,30 @@ pub mod commands {
 
     #[derive(Debug, StructOpt)]
     #[structopt(
+        about = "Detect entities within a document",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Detect {
+        /// The path of the document file
+        pub file: String,
+    }
+    #[async_trait]
+    impl Run for Detect {
+        async fn run(&self) -> Result {
+            let mut document = DOCUMENTS.open(&self.file, None).await?;
+            document.read(true).await?;
+            let nodes = document.detect().await?;
+            result::value(nodes)
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
         about = "Get JSON Schemas for documents and associated types",
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Schemas {}
-
     impl Schemas {
         pub fn run(&self) -> Result {
             let schema = schemas()?;

@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use eyre::{bail, Result};
 use serde::{Deserialize, Serialize};
-use std::path::Path;
+use std::{fs::create_dir_all, path::Path};
 use stencila_schema::Node;
 use tokio::{
     fs::File,
@@ -166,6 +166,9 @@ pub trait CodecTrait {
 
     /// Encode a document node to a file system path
     async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
+        if let Some(parent) = path.parent() {
+            create_dir_all(parent)?
+        }
         let mut file = File::create(path).await?;
         Self::to_file(node, &mut file, options).await
     }
@@ -175,19 +178,13 @@ pub trait CodecTrait {
 ///
 /// Decoding functions (including those in plugins) are encouraged to respect these options
 /// but are not required to.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct DecodeOptions {
     /// The format of the input to be decoded
     ///
     /// Most codecs only decode one format. However, for those that handle multiple
     /// format it may be necessary to specify this option.
     pub format: Option<String>,
-}
-
-impl Default for DecodeOptions {
-    fn default() -> Self {
-        Self { format: None }
-    }
 }
 
 /// Encoding options
