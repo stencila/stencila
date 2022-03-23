@@ -56,7 +56,7 @@
     "csp-html-webpack-plugin": "5.1.0",
     "css-loader": "6.4.0",
     "dotenv-webpack": "7.0.3",
-    "electron": "16.0.5",
+    "electron": "16.0.6",
     "electron-devtools-installer": "github:rwwagner90/electron-devtools-installer",
     "fork-ts-checker-webpack-plugin": "6.5.0",
     "html-insert-tag-webpack-plugin": "0.0.1",
