@@ -25,7 +25,7 @@
     "@commitlint/config-conventional": "15.0.0",
     "@semantic-release/exec": "6.0.1",
     "@stencila/dev-config": "3.0.2",
-    "@stencila/semantic-release-config": "2.0.2",
+    "@stencila/semantic-release-config": "2.0.8",
     "commitlint": "15.0.0",
     "husky": "7.0.0",
     "prettier": "2.5.0",
