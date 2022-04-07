@@ -3,7 +3,6 @@ source: rust/parser-ts/src/lib.rs
 assertion_line: 136
 expression: resource_info
 input_file: fixtures/fragments/js/imports.js
-
 ---
 {
   "resource": {
@@ -140,6 +139,22 @@ input_file: fixtures/fragments/js/imports.js
         "type": "Module",
         "language": "javascript",
         "name": "module-8"
+      }
+    ],
+    [
+      {
+        "type": "Import",
+        "range": [
+          10,
+          7,
+          10,
+          17
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-9"
       }
     ],
     [
