@@ -1,3 +1,20 @@
+# [1.3.0](https://github.com/stencila/stencila/compare/v1.2.0...v1.3.0) (2022-04-07)
+
+
+### Bug Fixes
+
+* **Cron utilities:** Allow for "every DOW" and "on DOWs" phrases ([3444e9f](https://github.com/stencila/stencila/commit/3444e9ffd16614a9173e9e3595fcb96a38709000))
+* **Cron utils:** Handle time zones and cron expressions properly ([931859f](https://github.com/stencila/stencila/commit/931859f0094fe41b71b6f12c5eae21df989b6525))
+* **GitHub provider:** Fixes for changes in `octorust` API ([39bf2fc](https://github.com/stencila/stencila/commit/39bf2fc17305438887a76847dd768c11d06faaf9))
+* **TypeScript parser:** Update `tree-sitter-typescript` and test fixture ([017a7c8](https://github.com/stencila/stencila/commit/017a7c86be068b1f15e9fa749d2d3fab866136d3))
+
+
+### Features
+
+* **Source cron schedules:** Allow for more than one expression ([64a5ff4](https://github.com/stencila/stencila/commit/64a5ff428067a1e38b56e7e41cc777877b808b79))
+* **Sources:** Expose the provider that resolved the source ([264d5ee](https://github.com/stencila/stencila/commit/264d5ee442cb148f18b601a83de66c15cbffdebd))
+* **Sources:** Include parsed node and cron schedule in source struct ([e92a9d8](https://github.com/stencila/stencila/commit/e92a9d82477b9e93c6635ef1ebfdcf2a5a39fa5e))
+
 # [1.2.0](https://github.com/stencila/stencila/compare/v1.1.0...v1.2.0) (2022-04-07)
 
 
