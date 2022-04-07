@@ -23,6 +23,9 @@ variables:
   # Statically link the lzma-sys crate. See https://github.com/stencila/stencila/issues/1038
   LZMA_API_STATIC: 1
 
+  # Node.js version to use
+  NODE_VERSION: '16.x'
+
 jobs:
   # Create variables indicating whether or not there are changes in
   # each product folder
@@ -109,7 +112,7 @@ jobs:
       # Specify Node.js version to use for `node`, `desktop`, and `web` tests and builds
       - task: NodeTool@0
         inputs:
-          versionSpec: '16.x'
+          versionSpec: $(NODE_VERSION)
         displayName: 'Install: Node.js version'
 
       # Install Jupyter kernels
@@ -157,7 +160,7 @@ jobs:
         env:
           # Increase maximum for non-garbage collected memory to 5Gb
           NODE_OPTIONS: --max_old_space_size=5120
-        condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'node'))
+        condition: false # or(contains(variables.changed, 'rust'), contains(variables.changed, 'node'))
         displayName: 'Node.js: Test'
 
       # Desktop is tested if there are changes in the `rust`, `node`, or `desktop` folders.
@@ -274,7 +277,7 @@ jobs:
 
       - task: NodeTool@0
         inputs:
-          versionSpec: '16.x'
+          versionSpec: $(NODE_VERSION)
         displayName: 'Install: Node.js version'
 
       - script: |
@@ -376,7 +379,7 @@ jobs:
 
       - task: NodeTool@0
         inputs:
-          versionSpec: '16.x'
+          versionSpec: $(NODE_VERSION)
         displayName: 'Install: Node.js version'
 
       - script: |
@@ -554,7 +557,7 @@ jobs:
     steps:
       - task: NodeTool@0
         inputs:
-          versionSpec: 16.x
+          versionSpec: $(NODE_VERSION)
         displayName: Install Node.js
 
       - task: Cache@2

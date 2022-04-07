@@ -1,7 +1,7 @@
 [workspace]
 
-# Do not include Python and R binding until more developed
-members = ["rust/*", "node"]
+# Do not include Node, Python and R binding until more developed
+members = ["rust/*"]
 
 # Exclude crates that are alpha (needing work before they will compile and/or pass tests)
 exclude = ["rust/plugins"]
