@@ -124,7 +124,7 @@ fn phrase(input: &str) -> IResult<&str, Cron> {
         separated_list1(
             multispace1,
             alt((
-                every, at, time, hour_range, hour_list, on, dow_range, dow_list,
+                every, at, time, hour_range, hour_list, on, every, dow_range, dow_list,
             )),
         ),
         |crons| {
@@ -259,7 +259,7 @@ fn every(input: &str) -> IResult<&str, Cron> {
 
     preceded(
         tuple((tag_no_case("every"), multispace1)),
-        alt((minute, hour, day, week, duration)),
+        alt((minute, hour, day, week, duration, dow)),
     )(input)
 }
 
@@ -464,10 +464,25 @@ fn dow_order(day: &str) -> u8 {
 
 /// Parse a day of week
 fn dow(input: &str) -> IResult<&str, Cron> {
-    let sun = map(alt((tag_no_case("sunday"), tag_no_case("sun"))), |_| "sun");
-    let mon = map(alt((tag_no_case("monday"), tag_no_case("mon"))), |_| "mon");
+    let sun = map(
+        alt((
+            tag_no_case("sundays"),
+            tag_no_case("sunday"),
+            tag_no_case("sun"),
+        )),
+        |_| "sun",
+    );
+    let mon = map(
+        alt((
+            tag_no_case("mondays"),
+            tag_no_case("monday"),
+            tag_no_case("mon"),
+        )),
+        |_| "mon",
+    );
     let tue = map(
         alt((
+            tag_no_case("tuesdays"),
             tag_no_case("tuesday"),
             tag_no_case("tues"),
             tag_no_case("tue"),
@@ -476,6 +491,7 @@ fn dow(input: &str) -> IResult<&str, Cron> {
     );
     let wed = map(
         alt((
+            tag_no_case("wednesdays"),
             tag_no_case("wednesday"),
             tag_no_case("wednes"),
             tag_no_case("wed"),
@@ -484,6 +500,7 @@ fn dow(input: &str) -> IResult<&str, Cron> {
     );
     let thu = map(
         alt((
+            tag_no_case("thursdays"),
             tag_no_case("thursday"),
             tag_no_case("thurs"),
             tag_no_case("thur"),
@@ -491,10 +508,22 @@ fn dow(input: &str) -> IResult<&str, Cron> {
         )),
         |_| "thu",
     );
-    let fri = map(alt((tag_no_case("friday"), tag_no_case("fri"))), |_| "fri");
-    let sat = map(alt((tag_no_case("saturday"), tag_no_case("sat"))), |_| {
-        "sat"
-    });
+    let fri = map(
+        alt((
+            tag_no_case("fridays"),
+            tag_no_case("friday"),
+            tag_no_case("fri"),
+        )),
+        |_| "fri",
+    );
+    let sat = map(
+        alt((
+            tag_no_case("saturdays"),
+            tag_no_case("saturday"),
+            tag_no_case("sat"),
+        )),
+        |_| "sat",
+    );
 
     map(
         alt((sun, mon, tue, wed, thu, fri, sat)),
@@ -707,6 +736,7 @@ mod tests {
             "tuesday",
             "wed",
             "wednesday",
+            "wednesdays",
             "thu",
             "thur",
             "thurs",
@@ -715,6 +745,7 @@ mod tests {
             "friday",
             "sat",
             "saturday",
+            "Saturdays",
         ] {
             assert_eq!(
                 parse(day)?.0[0],
@@ -785,6 +816,18 @@ mod tests {
             "every 5mins 9-17 mon-fri",
             "mon-fri 9-17 every 5mins",
             "0 */5 9-17 * * mon-fri",
+        ] {
+            assert_eq!(parse(exp)?.0[0], target);
+        }
+
+        let target = Schedule::from_str("0 0 18 * * wed")?;
+        for exp in [
+            "6pm wednesdays",
+            "at 18:00 wednesday",
+            "wed 6pm",
+            "6pm every Wednesday",
+            "every wednesday at 6PM",
+            "on wednesdays at 6pm",
         ] {
             assert_eq!(parse(exp)?.0[0], target);
         }
