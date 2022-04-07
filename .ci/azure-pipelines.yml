@@ -75,6 +75,7 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           df -h
+        continueOnError: true
         displayName: Free up space
 
       # Use caches
@@ -192,6 +193,8 @@ jobs:
 
       # Web client is tested if there are changes in the `web`, or `rust` folders
       # because it includes end-to-end tests of integrations with the Rust server.
+      # Only runs if previous steps succeeded.
+      #
       # Starts the build / running of the server in the background while it does install
       # linting etc. Then waits for the port to open before running tests.
       # Use the `--prefix` option rather than `cd web` so that the server runs from the
@@ -207,9 +210,12 @@ jobs:
           SERVER_URL="ws://127.0.0.1:9000/~ws" npm test --prefix web
           kill %1
         condition: |
-          or(
-            contains(variables.changed, 'rust'),
-            contains(variables.changed, 'web')
+          and(
+            succeeded(),
+            or(
+              contains(variables.changed, 'rust'),
+              contains(variables.changed, 'web')
+            )
           )
         displayName: 'Web: Test'
 
