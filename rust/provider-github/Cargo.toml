@@ -12,7 +12,7 @@ base64 = "0.13.0"
 hash-utils = { path = "../hash-utils", version = "0.0.0" }
 key-utils = { path = "../key-utils", version = "0.0.0" }
 http-utils = { path = "../http-utils", version = "0.0.0" }
-octorust = "0.1.34"
+octorust = "0.1.35"
 provider = { path = "../provider", version = "0.0.0" }
 server-utils = { path = "../server-utils", version = "0.0.0" }
 uuids = { path = "../uuids", version = "0.0.0" }

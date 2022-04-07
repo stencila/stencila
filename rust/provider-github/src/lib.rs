@@ -7,7 +7,7 @@ use std::{
 
 use archive_utils::extract_tar;
 use hash_utils::bytes_hmac_sha256_hex;
-use http_utils::{download_temp_with, headers, tempfile::NamedTempFile, url};
+use http_utils::{download_temp_with, headers, tempfile::NamedTempFile};
 use octorust::types::{
     ContentFile, ReposCreateWebhookRequest, ReposCreateWebhookRequestConfig,
     ReposGetContentResponseOneOf,
@@ -394,14 +394,13 @@ impl ProviderTrait for GithubProvider {
                 port = WEBHOOK_PORT
             ),
         };
-        let webhook_url = url::Url::parse(&format!("https://{webhook_host}/{webhook_id}"))?;
 
         // Generate the secret key used for signing/validating event payloads
         let secret = key_utils::generate();
 
         // Create the webhook
         let config = ReposCreateWebhookRequestConfig {
-            url: Some(webhook_url),
+            url: format!("https://{webhook_host}/{webhook_id}"),
             content_type: "json".to_string(),
             secret: secret.clone(),
             // Default values for properties that octorust does not provide defaults for
@@ -425,9 +424,7 @@ impl ProviderTrait for GithubProvider {
             )
             .await
             .map_err(to_eyre)?;
-        if let Some(url) = hook.url {
-            tracing::info!("Created GitHub webhook `{}`", url);
-        }
+        tracing::info!("Created GitHub webhook `{}`", hook.url);
 
         // Listen for webhook events
         let response_headers = Headers(vec![(
