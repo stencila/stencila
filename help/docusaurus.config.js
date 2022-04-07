@@ -40,21 +40,6 @@ module.exports = {
       apiKey: '8f59224393d852be19f51abd67a9fbbb',
       indexName: 'stenci',
     },
-    colorMode: {
-      defaultMode: 'light',
-      // Respect user's system preferences for `prefers-color-scheme` media-query
-      respectPrefersColorScheme: true,
-      switchConfig: {
-        darkIcon: '🌙',
-        darkIconStyle: {
-          fontSize: '80%',
-        },
-        lightIcon: '☀️',
-        lightIconStyle: {
-          fontSize: '80%',
-        },
-      },
-    },
     footer: {
       style: 'dark',
       links: [
