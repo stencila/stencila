@@ -70,7 +70,7 @@ jobs:
       - script: |
           set -e
           df -h
-          docker rmi -fq $(docker images -aq)
+          docker rmi -f $(docker images -aq)
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
