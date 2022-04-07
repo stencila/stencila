@@ -86,7 +86,7 @@ jobs:
           rustup target add x86_64-unknown-linux-musl
 
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-unknown-linux-musl.tar.gz | tar xz
-          mkdir -p $(CARGO_HOME)
+          mkdir -p $(CARGO_HOME)/bin/sccache
           mv -f sccache*/sccache $(CARGO_HOME)/bin/sccache
           chmod +x $(CARGO_HOME)/bin/sccache
           echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
@@ -258,6 +258,7 @@ jobs:
       - script: |
           set -e
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-apple-darwin.tar.gz | tar xz
+          mkdir -p $(CARGO_HOME)/bin/sccache
           mv -f sccache*/sccache $(CARGO_HOME)/bin/sccache
           chmod +x $(CARGO_HOME)/bin/sccache
           echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
@@ -353,6 +354,7 @@ jobs:
       - script: |
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-pc-windows-msvc.tar.gz -o sccache.tar.gz
           tar -xzf sccache.tar.gz
+          mkdir -p $(CARGO_HOME)/bin/sccache
           mv -f sccache*/sccache $(CARGO_HOME)/bin/sccache
           chmod +x $(CARGO_HOME)/bin/sccache
           echo ##vso[task.prependpath]$(CARGO_HOME)/bin
