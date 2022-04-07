@@ -67,10 +67,11 @@ jobs:
 
       # At times we run out of space. So free some up!
       # Based on https://github.com/easimon/maximize-build-space (for GH but uses same machines)
+      # Previously we did `docker rmi -f $(docker images -aq)` too but that seemed to take a long time (up to 6mins)
+      # and provided comparatively small space gains
       - script: |
           set -e
           df -h
-          docker rmi -f $(docker images -aq)
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
