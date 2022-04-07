@@ -65,13 +65,15 @@ jobs:
       # condition simply to improve visibility (ie. its quicker to discover where
       # a build fails if it is broken into several steps)
 
-      # At time of writing, Microsoft hosted agents only come with 10GB disk space
-      # So we need to free up some space.
+      # At times we run out of space. So free some up!
+      # Based on https://github.com/easimon/maximize-build-space (for GH but uses same machines)
       - script: |
           set -e
           df -h
-          docker rmi -f $(docker images -aq)
+          docker rmi -fq $(docker images -aq)
           sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
           df -h
         displayName: Free up space
 
