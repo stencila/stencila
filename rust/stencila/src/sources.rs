@@ -35,7 +35,10 @@ pub struct Source {
     /// The URL of the source
     pub url: String,
 
-    /// The node parsed / detected from the URL
+    /// The providers that matched the URL
+    pub provider: Option<String>,
+
+    /// The node parsed from the URL by the provider
     pub node: Option<Node>,
 
     /// The destination path within the project
@@ -115,7 +118,7 @@ impl Source {
         cron: Option<String>,
         watch: Option<WatchMode>,
     ) -> Result<Source> {
-        let node = Some(providers::resolve(&url).await?);
+        let (provider, node) = providers::resolve(&url).await?;
 
         let cron = if let Some(schedule) = cron {
             let (schedules, timezone) = cron_utils::parse(&schedule)?;
@@ -140,7 +143,8 @@ impl Source {
         Ok(Source {
             name,
             url,
-            node,
+            provider: Some(provider),
+            node: Some(node),
             dest,
             cron,
             watch,
@@ -224,7 +228,7 @@ impl Source {
     ///
     /// - `path`: The path to import the source into
     pub async fn import(&self, path: &Path) -> Result<()> {
-        let node = providers::resolve(&self.url).await?;
+        let (.., node) = providers::resolve(&self.url).await?;
         let dest = match &self.dest {
             Some(dest) => path.join(dest),
             None => path.to_path_buf(),
@@ -257,7 +261,7 @@ impl Source {
         tracing::info!("Starting cron task for source `{}`", self.label());
         let action = cron.action.clone().unwrap_or_default();
         let schedule = cron.schedule.clone();
-        let node = providers::resolve(&self.url).await?;
+        let (.., node) = providers::resolve(&self.url).await?;
         let dest = dest.to_path_buf();
         let (canceller, cancellee) = mpsc::channel(1);
         tokio::spawn(
@@ -278,7 +282,7 @@ impl Source {
         };
 
         tracing::info!("Starting watch task for source `{}`", self.label());
-        let node = providers::resolve(&self.url).await?;
+        let (.., node) = providers::resolve(&self.url).await?;
         let dest = dest.to_path_buf();
         let (canceller, cancellee) = mpsc::channel(1);
         let options = SyncOptions {

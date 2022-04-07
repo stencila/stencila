@@ -23,11 +23,11 @@ pub async fn detect(node: &Node) -> Result<Vec<DetectItem>> {
     PROVIDERS.detect(node).await
 }
 
-pub async fn resolve(identifier: &str) -> Result<Node> {
+pub async fn resolve(identifier: &str) -> Result<(String, Node)> {
     let root = Node::String(identifier.to_string());
     let detections = detect(&root).await?;
     match detections.first() {
-        Some(detection) => Ok(detection.node.clone()),
+        Some(detection) => Ok((detection.provider.clone(), detection.node.clone())),
         None => bail!("Unable to resolve identifier `{}`", identifier),
     }
 }
@@ -393,7 +393,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Import {
         async fn run(&self) -> Result {
-            let node = resolve(&self.source).await?;
+            let (.., node) = resolve(&self.source).await?;
 
             let options = ImportOptions {
                 secret_name: self.secret.clone(),
@@ -425,7 +425,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Export {
         async fn run(&self) -> Result {
-            let node = resolve(&self.source).await?;
+            let (.., node) = resolve(&self.source).await?;
 
             let options = ExportOptions {
                 secret_name: self.secret.clone(),
@@ -470,7 +470,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Watch {
         async fn run(&self) -> Result {
-            let node = resolve(&self.source).await?;
+            let (.., node) = resolve(&self.source).await?;
 
             let (subscriber, canceller) = mpsc::channel(1);
             events::subscribe_to_interrupt(subscriber).await;
@@ -507,7 +507,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Cron {
         async fn run(&self) -> Result {
-            let node = resolve(&self.source).await?;
+            let (.., node) = resolve(&self.source).await?;
 
             let (subscriber, canceller) = mpsc::channel(1);
             events::subscribe_to_interrupt(subscriber).await;
