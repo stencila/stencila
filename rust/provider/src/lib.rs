@@ -158,7 +158,7 @@ pub struct ExportOptions {
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct SyncOptions {
     /// The synchronization mode
-    pub mode: Option<SyncMode>,
+    pub mode: Option<WatchMode>,
 
     /// The name of the secret needed to access the resource
     pub secret_name: Option<String>,
@@ -169,17 +169,20 @@ pub struct SyncOptions {
 
 #[derive(Debug, Clone, AsRefStr, EnumString, EnumVariantNames, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
-pub enum SyncMode {
-    /// Synchronize the resource whenever changes are made
-    Live,
+pub enum WatchMode {
+    /// Synchronize the resource whenever it has been changed
+    Changed,
 
-    /// Synchronize the resource whenever it is tagged e.g. a git tag is added, or a Google file has a revision made
+    /// Synchronize the resource whenever it has been commited (e.g. using `git commit`)
+    Committed,
+
+    /// Synchronize the resource whenever it is tagged (e.g. a git tag is added, or a Google file has a revision made)
     Tagged,
 }
 
-impl Default for SyncMode {
+impl Default for WatchMode {
     fn default() -> Self {
-        SyncMode::Live
+        WatchMode::Changed
     }
 }
 

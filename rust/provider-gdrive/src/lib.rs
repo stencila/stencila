@@ -19,7 +19,7 @@ use provider::{
     strum::{AsRefStr, EnumString},
     tokens::token_for_provider,
     tokio::{self, sync::mpsc},
-    tracing, ImportOptions, ParseItem, Provider, ProviderTrait, SyncMode, SyncOptions,
+    tracing, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions, WatchMode,
 };
 use server_utils::{
     axum::{
@@ -338,7 +338,7 @@ impl ProviderTrait for GoogleDriveProvider {
             ),
         )]);
         let dest = dest.to_path_buf();
-        let sync_mode = options.mode.unwrap_or_default();
+        let watch_mode = options.mode.unwrap_or_default();
         let client_clone = client.clone();
         let mut last_revision_time = Utc::now();
         let router = Router::new().route(
@@ -349,7 +349,7 @@ impl ProviderTrait for GoogleDriveProvider {
                     &file_kind,
                     &file_id,
                     &dest,
-                    &sync_mode,
+                    &watch_mode,
                     &client_clone,
                     &channel_id,
                     &channel_token,
@@ -392,7 +392,7 @@ async fn webhook_event(
     file_kind: &FileKind,
     file_id: &str,
     dest: &Path,
-    sync_mode: &SyncMode,
+    watch_mode: &WatchMode,
     client: &GoogleDriveClient,
     channel_id: &str,
     channel_token: &str,
@@ -453,8 +453,8 @@ async fn webhook_event(
                 .get("X-Goog-Changed")
                 .map_or("", |val| val.to_str().unwrap_or_default());
             if changed.contains("content") || changed.contains("properties") {
-                match sync_mode {
-                    SyncMode::Live => {
+                match watch_mode {
+                    WatchMode::Changed | WatchMode::Committed => {
                         // Change in content so download
                         // Experiments showed that notifications for changes to content
                         // are throttled to once every three minutes (at least for sheets). So "live"
@@ -467,7 +467,7 @@ async fn webhook_event(
                         );
                         client.download(file_kind, file_id, dest).await?;
                     }
-                    SyncMode::Tagged => {
+                    WatchMode::Tagged => {
                         // See if there is a new revision
                         if let Some(revision) = client
                             .api()

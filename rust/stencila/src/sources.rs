@@ -10,7 +10,7 @@ use graph_triples::{
     relations::{self, NULL_RANGE},
     resources, Resource, Triple,
 };
-use providers::provider::{ImportOptions, SyncMode, SyncOptions};
+use providers::provider::{ImportOptions, WatchMode, SyncOptions};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use strum::VariantNames;
@@ -41,7 +41,7 @@ pub struct Source {
     pub cron: Option<SourceCron>,
 
     /// Synchronize the source
-    pub sync: Option<SourceSync>,
+    pub watch: Option<SourceSync>,
 
     /// The name of the secret required to access the source
     ///
@@ -61,10 +61,10 @@ pub struct Source {
     #[def = "None"]
     cron_task: Option<SourceTask>,
 
-    /// A running sync task
+    /// A running watch task
     #[serde(skip)]
     #[def = "None"]
-    sync_task: Option<SourceTask>,
+    watch_task: Option<SourceTask>,
 }
 
 #[skip_serializing_none]
@@ -83,7 +83,7 @@ pub struct SourceCron {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct SourceSync {
     /// The synchronization mode
-    mode: Option<SyncMode>,
+    mode: Option<WatchMode>,
 }
 
 #[derive(Debug, Clone)]
@@ -195,10 +195,10 @@ impl Source {
         Ok(())
     }
 
-    /// Start cron and sync tasks (as applicable and as needed) for the source
+    /// Start cron and watch tasks (as applicable and as needed) for the source
     pub async fn start(&mut self, dest: &Path) -> Result<()> {
         self.cron_task_start(dest).await?;
-        self.sync_task_start(dest).await?;
+        self.watch_task_start(dest).await?;
 
         Ok(())
     }
@@ -226,31 +226,31 @@ impl Source {
         Ok(())
     }
 
-    /// Start a background sync task for the source
+    /// Start a background watch task for the source
     ///
-    /// A task has a `sync` spec and there is no tasks currently running for it.
-    pub async fn sync_task_start(&mut self, dest: &Path) -> Result<()> {
-        let sync = match (&self.sync, &self.sync_task) {
-            (Some(sync), None) => sync,
+    /// A task has a `watch` spec and there is no tasks currently running for it.
+    pub async fn watch_task_start(&mut self, dest: &Path) -> Result<()> {
+        let watch = match (&self.watch, &self.watch_task) {
+            (Some(watch), None) => watch,
             _ => return Ok(()),
         };
 
-        tracing::info!("Starting sync task for source `{}`", self.label());
+        tracing::info!("Starting watch task for source `{}`", self.label());
         let node = providers::resolve(&self.url).await?;
         let dest = dest.to_path_buf();
         let (canceller, cancellee) = mpsc::channel(1);
         let options = SyncOptions {
-            mode: sync.mode.clone(),
+            mode: watch.mode.clone(),
             secret_name: self.secret_name.clone(),
             ..Default::default()
         };
-        tokio::spawn(async move { providers::sync(&node, &dest, cancellee, Some(options)).await });
-        self.sync_task = Some(SourceTask { canceller });
+        tokio::spawn(async move { providers::watch(&node, &dest, cancellee, Some(options)).await });
+        self.watch_task = Some(SourceTask { canceller });
 
         Ok(())
     }
 
-    /// Start cron and sync tasks (if started) for the source
+    /// Start cron and watch tasks (if started) for the source
     pub async fn stop(&mut self) -> Result<()> {
         if let Some(task) = &self.cron_task {
             tracing::info!("Stopping cron task for source `{}`", self.label());
@@ -258,11 +258,11 @@ impl Source {
         }
         self.cron_task = None;
 
-        if let Some(task) = &self.sync_task {
-            tracing::info!("Stopping sync task for source `{}`", self.label());
+        if let Some(task) = &self.watch_task {
+            tracing::info!("Stopping watch task for source `{}`", self.label());
             task.canceller.send(()).await?
         }
-        self.sync_task = None;
+        self.watch_task = None;
 
         Ok(())
     }
@@ -275,7 +275,7 @@ pub struct Sources {
     /// The list of sources
     pub(crate) inner: Vec<Source>,
 
-    /// If in a running state, the path that cron and sync tasks were started with
+    /// If in a running state, the path that cron and watch tasks were started with
     ///
     /// If tasks are running then any new sources that are added will have
     /// tasks automatically started for them.
@@ -385,7 +385,7 @@ impl Sources {
         Ok(())
     }
 
-    /// Start cron and/or sync tasks for each source
+    /// Start cron and/or watch tasks for each source
     pub async fn start(&mut self, path: &Path) -> Result<()> {
         for source in self.inner.iter_mut() {
             let dest = match &source.dest {
@@ -399,7 +399,7 @@ impl Sources {
         Ok(())
     }
 
-    /// Stop any cron or sync tasks for each source
+    /// Stop any cron or watch tasks for each source
     pub async fn stop(&mut self) -> Result<()> {
         for source in self.inner.iter_mut() {
             source.stop().await?;
@@ -523,9 +523,9 @@ pub mod commands {
         #[structopt(long, short)]
         cron: Option<String>,
 
-        /// A sync mode for the source
-        #[structopt(long, short, possible_values = SyncMode::VARIANTS)]
-        sync: Option<SyncMode>,
+        /// A watch mode for the source
+        #[structopt(long, short, possible_values = WatchMode::VARIANTS)]
+        watch: Option<WatchMode>,
     }
 
     #[async_trait]
@@ -539,7 +539,7 @@ pub mod commands {
                 schedule: schedule.clone(),
                 action: None,
             });
-            let sync = self.sync.as_ref().map(|mode| SourceSync {
+            let watch = self.watch.as_ref().map(|mode| SourceSync {
                 mode: Some(mode.clone()),
             });
             let source = Source {
@@ -547,7 +547,7 @@ pub mod commands {
                 url: self.url.clone(),
                 dest: self.dest.clone(),
                 cron,
-                sync,
+                watch,
                 ..Default::default()
             };
             project.sources.add(source.clone()).await?;
@@ -623,7 +623,7 @@ pub mod commands {
         }
     }
 
-    /// Start cron and sync tasks for a project's sources
+    /// Start cron and watch tasks for a project's sources
     ///
     /// This command is only useful in interactive mode because otherwise the
     /// process will exit straight away.
@@ -651,7 +651,7 @@ pub mod commands {
         }
     }
 
-    /// Stop any cron and sync tasks for a project's sources
+    /// Stop any cron and watch tasks for a project's sources
     ///
     /// This command is only useful in interactive mode. Use it to stop source tasks
     /// previously started using the `start` command.
@@ -678,7 +678,7 @@ pub mod commands {
         }
     }
 
-    /// Run cron and sync tasks for a project's sources
+    /// Run cron and watch tasks for a project's sources
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,

@@ -44,7 +44,7 @@ pub async fn export(node: &Node, path: &Path, options: Option<ExportOptions>) ->
     PROVIDERS.export(node, path, options).await
 }
 
-pub async fn sync(
+pub async fn watch(
     node: &Node,
     dest: &Path,
     canceller: mpsc::Receiver<()>,
@@ -220,7 +220,7 @@ pub mod commands {
 
     use super::*;
     use cli_utils::{async_trait::async_trait, result, Result, Run};
-    use provider::SyncMode;
+    use provider::WatchMode;
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -237,7 +237,7 @@ pub mod commands {
         Enrich(Enrich),
         Import(Import),
         Export(Export),
-        Sync(Sync),
+        Watch(Watch),
         Cron(Cron),
     }
 
@@ -251,7 +251,7 @@ pub mod commands {
                 Command::Enrich(action) => action.run().await,
                 Command::Import(action) => action.run().await,
                 Command::Export(action) => action.run().await,
-                Command::Sync(action) => action.run().await,
+                Command::Watch(action) => action.run().await,
                 Command::Cron(action) => action.run().await,
             }
         }
@@ -436,10 +436,10 @@ pub mod commands {
         }
     }
 
-    /// Synchronize changes between a remote source and a local path
+    /// Watch a resource and synchronize changes between a remote source and a local path
     #[derive(Debug, StructOpt)]
     #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-    pub struct Sync {
+    pub struct Watch {
         /// The source identifier e.g. `github:org/name`
         source: String,
 
@@ -448,8 +448,8 @@ pub mod commands {
         path: PathBuf,
 
         /// The synchronization mode
-        #[structopt(long, short, possible_values = &SyncMode::VARIANTS)]
-        mode: Option<SyncMode>,
+        #[structopt(long, short, possible_values = &WatchMode::VARIANTS)]
+        mode: Option<WatchMode>,
 
         /// The name of a secret environment variable required to access the resource
         ///
@@ -468,7 +468,7 @@ pub mod commands {
         host: Option<String>,
     }
     #[async_trait]
-    impl Run for Sync {
+    impl Run for Watch {
         async fn run(&self) -> Result {
             let node = resolve(&self.source).await?;
 
@@ -480,7 +480,7 @@ pub mod commands {
                 secret_name: self.secret.clone(),
                 host: self.host.clone(),
             };
-            sync(&node, &self.path, canceller, Some(options)).await?;
+            watch(&node, &self.path, canceller, Some(options)).await?;
 
             result::nothing()
         }
