@@ -65,14 +65,15 @@ jobs:
       # Use caches
       # Currently turned off due to persistent error in "Post-job: Cache"
       # https://dev.azure.com/stencila/stencila/_build/results?buildId=18087&view=logs&j=0da5d1d9-276d-5173-c4c4-9d4d4ed14fdb&t=452b6f04-c7b9-47ba-8224-3e6792d8d761&l=22
-      #- task: Cache@2
-      #  inputs:
-      #    path: $(RUST_CACHE)
-      #    key: 'Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock | $(Build.SourceVersion)'
-      #    restoreKeys: |
-      #      Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock
-      #      Rust | $(Agent.OS) | ./Cargo.toml
-      #      Rust | $(Agent.OS)
+      - task: Cache@2
+        inputs:
+          path: $(RUST_CACHE)
+          key: 'Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock | $(Build.SourceVersion)'
+          restoreKeys: |
+            Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock
+            Rust | $(Agent.OS) | ./Cargo.toml
+            Rust | $(Agent.OS)
+        condition: false
 
       # Install core Rust build tools if there are changes any folder using Rust.
       # Additional build tools e.g. `tarpaulin` are installed just-in-time given
@@ -85,6 +86,15 @@ jobs:
           sudo apt-get install musl-tools
           rustup target add x86_64-unknown-linux-musl
 
+          cargo list | grep --quiet cache || cargo install cargo-cache
+          echo "##vso[task.setvariable variable=RUST_CACHING]true"
+
+          rustc --version
+          cargo --version
+        displayName: 'Install: Rust build tools'
+
+      - script: |
+          set -e
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-unknown-linux-musl.tar.gz | tar xz
           mkdir -p $(CARGO_HOME)/bin/sccache
           mv -f sccache*/sccache $(CARGO_HOME)/bin/sccache
@@ -93,13 +103,8 @@ jobs:
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
           echo "##vso[task.setvariable variable=SCCACHE_DIR]$(Pipeline.Workspace)/sccache"
           echo "##vso[task.setvariable variable=SCCACHE_CACHE_SIZE]5G"
-
-          cargo list | grep --quiet cache || cargo install cargo-cache
-          echo "##vso[task.setvariable variable=RUST_CACHING]true"
-
-          rustc --version
-          cargo --version
-        displayName: 'Install: Rust build tools'
+        condition: false
+        displayName: 'Install: sscache'
 
       # Specify Node.js version to use for `node`, `desktop`, and `web` tests and builds
       - task: NodeTool@0
@@ -140,7 +145,7 @@ jobs:
           set -e
           cargo list | grep --quiet audit || cargo install cargo-audit
           cargo audit
-        condition: and(false, contains(variables.changed, 'rust'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        condition: false # contains(variables.changed, 'rust'), eq(variables['Build.SourceBranch'], 'refs/heads/master')
         displayName: 'Rust: Audit'
 
       # Node.js package is tested if there are changes in the `rust` or `node` folders.
@@ -149,31 +154,26 @@ jobs:
           cd node
           make cover
           bash <(curl -s https://codecov.io/bash) -F node
-        condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'node'))
-        displayName: 'Node.js: Test'
         env:
           # Increase maximum for non-garbage collected memory to 5Gb
           NODE_OPTIONS: --max_old_space_size=5120
+        condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'node'))
+        displayName: 'Node.js: Test'
 
       # Desktop is tested if there are changes in the `rust`, `node`, or `desktop` folders.
       # Includes build of UI to check that compiles
-      # - script: |
-      #    set -e
-      #    make -C node build-debug build-ts
-      #    make -C desktop lint
-      #    make -C desktop test
-      #    npm run ui:build --prefix desktop
-      #  env:
-      #    # Increase maximum for non-garbage collected memory to 6Gb
-      #    NODE_OPTIONS: --max_old_space_size=6144
-      #    TSESTREE_SINGLE_RUN: true
-      #  condition: |
-      #    or(
-      #      contains(variables.changed, 'rust'),
-      #      contains(variables.changed, 'node'),
-      #      contains(variables.changed, 'desktop')
-      #    )
-      #  displayName: 'Desktop: Test'
+      - script: |
+          set -e
+          make -C node build-debug build-ts
+          make -C desktop lint
+          make -C desktop test
+          npm run ui:build --prefix desktop
+        env:
+          # Increase maximum for non-garbage collected memory to 6Gb
+          NODE_OPTIONS: --max_old_space_size=6144
+          TSESTREE_SINGLE_RUN: true
+        condition: false # or(contains(variables.changed, 'rust'), contains(variables.changed, 'node'), contains(variables.changed, 'desktop'))
+        displayName: 'Desktop: Test'
 
       # Web client is tested if there are changes in the `web`, or `rust` folders
       # because it includes end-to-end tests of integrations with the Rust server.
@@ -206,29 +206,29 @@ jobs:
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
           make -C rust build-musl
           bash .ci/upload-release.sh target/x86_64-unknown-linux-musl/release/stencila stencila x86_64-unknown-linux-musl.tar.gz
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'CLI: Build and publish'
 
       # Desktop is built and published on tags
-      #- script: |
-      #    set -e
-      #    make -C node build
-      #    sudo apt-get install rpm
-      #    make -C desktop publish
-      #  condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-      #  displayName: 'Desktop: Build and publish'
-      #  env:
-      #    GITHUB_TOKEN: $(GITHUB_TOKEN)
-      #    SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
+      - script: |
+          set -e
+          make -C node build
+          sudo apt-get install rpm
+          make -C desktop publish
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+          SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
+        condition: false # startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'Desktop: Build and publish'
 
       # Reduce the size of the Rust cache (and print summary) before storing it.
       - script: |
-          sccache --stop-server
+          # sccache --stop-server
           cargo cache --autoclean
-        condition: eq(variables.RUST_CACHING, 'true')
         continueOnError: true
+        condition: eq(variables.RUST_CACHING, 'true')
         displayName: 'Rust: Clean cache'
 
   # On MacOS, Rust crate is tested if there are changes in `rust` folder,
@@ -257,15 +257,20 @@ jobs:
 
       - script: |
           set -e
+          cargo list | grep --quiet cache || cargo install cargo-cache
+          echo ##vso[task.setvariable variable=RUST_CACHING]true
+        displayName: 'Install: Rust build tools'
+
+      - script: |
+          set -e
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-apple-darwin.tar.gz | tar xz
           mkdir -p $(CARGO_HOME)/bin/sccache
           mv -f sccache*/sccache $(CARGO_HOME)/bin/sccache
           chmod +x $(CARGO_HOME)/bin/sccache
           echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
-          cargo list | grep --quiet cache || cargo install cargo-cache
-          echo "##vso[task.setvariable variable=RUST_CACHING]true"
-        displayName: 'Install: Rust build tools'
+        condition: false
+        displayName: 'Install: sscache'
 
       - task: NodeTool@0
         inputs:
@@ -286,10 +291,10 @@ jobs:
         displayName: 'Rust: Test'
 
       - task: InstallAppleCertificate@2
-        displayName: 'Install code signing certificate'
         inputs:
           certSecureFile: 'AppleCodeSigningCertificate.p12'
           certPwd: $(APPLE_CODESIGN_PASSWORD)
+        displayName: 'Install code signing certificate'
 
       - script: |
           set -e
@@ -298,25 +303,25 @@ jobs:
           codesign -s "Stencila Ltd." target/release/stencila
           codesign --display --verbose=4 target/release/stencila
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
-
-      #- script: |
-      #    set -e
-      #    make -C node build
-      #    make -C desktop publish
-      #  condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-      #  displayName: 'Desktop: Build and publish'
-      #  env:
-      #    GITHUB_TOKEN: $(GITHUB_TOKEN)
-      #    SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
-      #    APPLE_ID: $(APPLE_ID)
-      #    APPLE_ID_PASSWORD: $(APPLE_ID_PASSWORD)
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'CLI: Build and publish'
 
       - script: |
-          sccache --stop-server
+          set -e
+          make -C node build
+          make -C desktop publish
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+          SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
+          APPLE_ID: $(APPLE_ID)
+          APPLE_ID_PASSWORD: $(APPLE_ID_PASSWORD)
+        condition: false # startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'Desktop: Build and publish'
+
+      - script: |
+          # sccache --stop-server
           cargo cache --autoclean
         condition: eq(variables.RUST_CACHING, 'true')
         continueOnError: true
@@ -352,6 +357,13 @@ jobs:
             Rust | $(Agent.OS)
 
       - script: |
+          set -e
+          cargo list | grep --quiet cache || cargo install cargo-cache
+          echo ##vso[task.setvariable variable=RUST_CACHING]true
+        displayName: 'Install: Rust build tools'
+
+      - script: |
+          set -e
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-pc-windows-msvc.tar.gz -o sccache.tar.gz
           tar -xzf sccache.tar.gz
           mkdir -p $(CARGO_HOME)/bin/sccache
@@ -359,9 +371,8 @@ jobs:
           chmod +x $(CARGO_HOME)/bin/sccache
           echo ##vso[task.prependpath]$(CARGO_HOME)/bin
           echo ##vso[task.setvariable variable=RUSTC_WRAPPER]sccache
-          cargo list | grep --quiet cache || cargo install cargo-cache
-          echo ##vso[task.setvariable variable=RUST_CACHING]true
-        displayName: 'Install: Rust build tools'
+        condition: false
+        displayName: 'Install: sscache'
 
       - task: NodeTool@0
         inputs:
@@ -385,9 +396,9 @@ jobs:
 
       - task: DownloadSecureFile@1
         name: certificate
-        displayName: 'Install code signing certificate'
         inputs:
           secureFile: 'SectigoCodeSigningCertificate.pfx'
+        displayName: 'Install code signing certificate'
 
       - script: |
           cargo list | grep --quiet strip || cargo install cargo-strip
@@ -395,27 +406,27 @@ jobs:
           curl -sL --output signtool.exe https://raw.githubusercontent.com/StefanKert/azuredevops-codesigning-task/efbb9cca6911aa4542e13dd876d8c913df6ff25b/task/signtool.exe
           signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f $(certificate.secureFilePath) /p $(WINDOWS_CODESIGN_PASSWORD) target/release/stencila.exe
           bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
-
-    #  - script: |
-    #      make -C node build
-    #      make -C desktop publish
-    #    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-    #    displayName: 'Desktop: Build and publish'
-    #    env:
-    #      GITHUB_TOKEN: $(GITHUB_TOKEN)
-    #      SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
-    #      WINDOWS_CODESIGN_FILE: $(certificate.secureFilePath)
-    #      WINDOWS_CODESIGN_PASSWORD: $(WINDOWS_CODESIGN_PASSWORD)
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'CLI: Build and publish'
 
       - script: |
-          sccache --stop-server
+          make -C node build
+          make -C desktop publish
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+          SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
+          WINDOWS_CODESIGN_FILE: $(certificate.secureFilePath)
+          WINDOWS_CODESIGN_PASSWORD: $(WINDOWS_CODESIGN_PASSWORD)
+        condition: false # startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'Desktop: Build and publish'
+
+      - script: |
+          # sccache --stop-server
           cargo cache --autoclean
-        condition: eq(variables.RUST_CACHING, 'true')
         continueOnError: true
+        condition: eq(variables.RUST_CACHING, 'true')
         displayName: 'Rust: Clean cache'
 
   # Docker images are built on tags (i.e. after a Release job) or if there is a
