@@ -3,7 +3,6 @@ source: rust/parser-js/src/lib.rs
 assertion_line: 215
 expression: resource_info
 input_file: fixtures/fragments/js/declares.js
-
 ---
 {
   "resource": {
