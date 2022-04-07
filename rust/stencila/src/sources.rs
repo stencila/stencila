@@ -79,8 +79,8 @@ pub struct SourceCron {
     /// Can be a cron phrase (e.g. "every 10mins") or cron expression (e.g. "0 0 */10 * * *").
     schedule: String,
 
-    /// The cron expression parsed from the `schedule`
-    expression: String,
+    /// The cron expression/s parsed from the `schedule`
+    expressions: Vec<String>,
 
     /// The timezone parsed from the `schedule`
     timezone: String,
@@ -118,20 +118,16 @@ impl Source {
         let node = Some(providers::resolve(&url).await?);
 
         let cron = if let Some(schedule) = cron {
-            let (expressions, timezone) = cron_utils::parse(&schedule)?;
-            if expressions.len() > 1 {
-                tracing::warn!("More than one cron expression parsed; will only use the first")
-            }
-            let expression = expressions
-                .first()
-                .ok_or_else(|| eyre!("Unable to get cron expression"))?
-                .to_string();
-
+            let (schedules, timezone) = cron_utils::parse(&schedule)?;
+            let expressions = schedules
+                .iter()
+                .map(|schedule| schedule.to_string())
+                .collect();
             let timezone = timezone.to_string();
 
             Some(SourceCron {
                 schedule,
-                expression,
+                expressions,
                 timezone,
                 action: None,
             })
