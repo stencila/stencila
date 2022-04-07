@@ -15,7 +15,6 @@ mod projects;
 mod pubsub;
 mod server;
 mod sessions;
-mod sources;
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
@@ -39,15 +38,10 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("projectsOpen", projects::open)?;
     cx.export_function("projectsWrite", projects::write)?;
     cx.export_function("projectsClose", projects::close)?;
-    cx.export_function("projectsAddSource", projects::add_source)?;
-    cx.export_function("projectsRemoveSource", projects::remove_source)?;
-    cx.export_function("projectsImportSource", projects::import_source)?;
     cx.export_function("projectsGraph", projects::graph)?;
 
     cx.export_function("graphsSchemas", graphs::schemas)?;
     cx.export_function("kernelsLanguages", kernels::languages)?;
-
-    cx.export_function("sourcesSchemas", sources::schemas)?;
 
     cx.export_function("sessionsSchemas", sessions::schemas)?;
 

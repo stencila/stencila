@@ -18,7 +18,7 @@ pub fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     if let Err(error) = logging::init(false, true, true, &conf.logging) {
         return cx.throw_error(format!(
             "When attempting to initialize logging: {}",
-            error.to_string()
+            error
         ));
     };
     Ok(cx.undefined())

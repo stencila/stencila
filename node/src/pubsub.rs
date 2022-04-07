@@ -28,7 +28,7 @@ pub fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Vec<Js
         Ok(guard) => Ok(guard),
         Err(error) => cx.throw_error(format!(
             "When attempting to obtain subscriptions: {}",
-            error.to_string()
+            error
         )),
     }
 }
@@ -105,10 +105,7 @@ pub fn bridging_subscriber(topic: String, data: serde_json::Value) {
 /// as a subscriber to all topics.
 pub fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     if let Err(error) = events::subscribe("*", events::Subscriber::Function(bridging_subscriber)) {
-        return cx.throw_error(format!(
-            "While attempting to initialize pubsub: {}",
-            error.to_string()
-        ));
+        return cx.throw_error(format!("While attempting to initialize pubsub: {}", error));
     }
     Ok(cx.undefined())
 }

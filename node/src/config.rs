@@ -11,10 +11,7 @@ use stencila::{
 pub fn lock(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Config>> {
     match CONFIG.try_lock() {
         Ok(guard) => Ok(guard),
-        Err(error) => cx.throw_error(format!(
-            "When attempting to obtain config: {}",
-            error.to_string()
-        )),
+        Err(error) => cx.throw_error(format!("When attempting to obtain config: {}", error)),
     }
 }
 
