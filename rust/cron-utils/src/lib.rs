@@ -90,7 +90,7 @@ impl Cron {
 }
 /// Parse a string into a list of cron schedules in a specific timezone
 pub fn parse(input: &str) -> Result<(Vec<Schedule>, Tz)> {
-    let (crons, tz) = main(input)?;
+    let (crons, tz) = main(input.trim())?;
     let mut schedules = Vec::new();
     for cron in crons {
         let cron = cron.to_cron();
@@ -110,11 +110,26 @@ fn main(input: &str) -> Result<(Vec<Cron>, Tz)> {
             delimited(multispace1, tag("and"), multispace1),
             alt((cron, phrase)),
         ),
-        opt(preceded(multispace1, timezone)),
+        opt(delimited(
+            multispace1,
+            timezone,
+            opt(preceded(multispace1, timezone_suffix)),
+        )),
     ))(input)
     {
-        Ok((_, (crons, tz))) => Ok((crons, tz.unwrap_or(UTC))),
-        Err(error) => bail!("Unable to parse input as schedule: {}", error),
+        Ok((remaining, (crons, tz))) => {
+            if remaining.is_empty() {
+                Ok((crons, tz.unwrap_or(UTC)))
+            } else {
+                bail!(
+                    "Unable to parse input as cron schedule; unrecognized fragment: {}",
+                    remaining
+                )
+            }
+        }
+        Err(_) => {
+            bail!("Unable to parse input as cron schedule")
+        }
     }
 }
 
@@ -542,7 +557,7 @@ fn cron(input: &str) -> IResult<&str, Cron> {
         Ok(schedule) => {
             let cron = schedule.to_string();
             let cron = Cron::from_cron(&cron);
-            Ok((input, cron))
+            Ok(("", cron))
         }
         Err(..) => fail(input),
     }
@@ -553,11 +568,10 @@ fn cron(input: &str) -> IResult<&str, Cron> {
 /// Ignores any trailing "time" e.g. "Auckland time" and then search using
 /// abbreviations, the full, two-part, name, or the second (city) part, of the timezone
 fn timezone(input: &str) -> IResult<&str, Tz> {
-    let name = match input.trim().strip_suffix("time") {
-        Some(name) => name,
-        None => input,
-    }
-    .trim();
+    let (name, rest) = match input.find(' ') {
+        Some(pos) => (&input[..pos], &input[pos..]),
+        None => (input, ""),
+    };
 
     let name = match TZ_ABBREVIATIONS.get(name.to_uppercase().as_str()) {
         Some(name) => name,
@@ -565,7 +579,7 @@ fn timezone(input: &str) -> IResult<&str, Tz> {
     };
 
     if let Ok(tz) = Tz::from_str(name) {
-        return Ok((input, tz));
+        return Ok((rest, tz));
     }
 
     let name = name.to_lowercase();
@@ -577,11 +591,20 @@ fn timezone(input: &str) -> IResult<&str, Tz> {
             .unwrap_or_default()
             .to_lowercase();
         if city == name {
-            return Ok((input, tz));
+            return Ok((rest, tz));
         }
     }
 
     fail(input)
+}
+
+/// Parse a timezone suffix
+fn timezone_suffix(input: &str) -> IResult<&str, &str> {
+    alt((
+        tag_no_case("timezone"),
+        tag_no_case("time zone"),
+        tag_no_case("time"),
+    ))(input)
 }
 
 /// Get the next time (in UTC) from amongst a list of schedules in a specific timezone
@@ -855,20 +878,21 @@ mod tests {
 
         assert_eq!(timezone("Madrid")?.1, Madrid);
         assert_eq!(timezone("Europe/Madrid")?.1, Madrid);
-        assert_eq!(timezone("  Europe/Madrid    time ")?.1, Madrid);
 
         assert_eq!(timezone("npt")?.1, Kathmandu);
-        assert_eq!(timezone("npt time")?.1, Kathmandu);
         assert_eq!(timezone("Kathmandu")?.1, Kathmandu);
         assert_eq!(timezone("Asia/Kathmandu")?.1, Kathmandu);
 
         assert_eq!(timezone("auckland")?.1, Auckland);
         assert_eq!(timezone("Auckland")?.1, Auckland);
-        assert_eq!(timezone("Auckland time")?.1, Auckland);
         assert_eq!(timezone("Pacific/Auckland")?.1, Auckland);
 
         assert_eq!(timezone("ET")?.1, Eastern);
         assert_eq!(timezone("US/Eastern")?.1, Eastern);
+
+        assert_eq!(parse("3am Kathmandu time")?.1, Kathmandu);
+        assert_eq!(parse("3:00 kathmandu time zone")?.1, Kathmandu);
+        assert_eq!(parse("3 Asia/Kathmandu timezone")?.1, Kathmandu);
 
         Ok(())
     }
@@ -903,6 +927,14 @@ mod tests {
         let (schedules, tz) = parse("tue at 13:00 and fri at 09:12:01 auckland time")?;
         assert_eq!(schedules, target);
         assert_eq!(tz, Auckland);
+
+        Ok(())
+    }
+
+    #[test]
+    fn errors() -> Result<()> {
+        assert!(parse("Not a parse-able string").is_err());
+        assert!(parse("6:00 unknown timezone").is_err());
 
         Ok(())
     }
