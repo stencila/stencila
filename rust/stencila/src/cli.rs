@@ -20,6 +20,7 @@ use cli_utils::{result, Result, Run};
 use std::{collections::HashMap, path::PathBuf};
 use structopt::StructOpt;
 use strum::VariantNames;
+use utils::some_string;
 
 /// Stencila, in a terminal console, on your own machine
 ///
@@ -39,8 +40,8 @@ pub struct Args {
     ///
     /// If the command result can be displayed in the specified format
     /// it will be. Display format preferences can be configured.
-    #[structopt(long, global = true, alias = "as")]
-    pub display: Option<String>,
+    #[structopt(flatten)]
+    pub display: DisplayOptions,
 
     /// Enter interactive mode (with any command and options as the prefix)
     #[structopt(short, long, global = true, alias = "interactive")]
@@ -61,6 +62,44 @@ pub struct Args {
     /// The format to print log events
     #[structopt(long, global = true, possible_values = LoggingFormat::VARIANTS, case_insensitive = true)]
     pub log_format: Option<LoggingFormat>,
+}
+
+#[derive(Debug, Default, StructOpt)]
+pub struct DisplayOptions {
+    /// Format to display output values (if possible)
+    ///
+    /// If the command result can be displayed in the specified format
+    /// it will be. Display format preferences can be configured.
+    #[structopt(long, global = true, alias = "as", conflicts_with_all = &["json", "yaml", "md"])]
+    pub display: Option<String>,
+
+    /// Display output values as JSON (alias for `--as json`)
+    #[structopt(long, global = true, conflicts_with_all = &["display", "yaml", "md"])]
+    pub json: bool,
+
+    /// Display output values as YAML (alias for `--as yaml`)
+    #[structopt(long, global = true, conflicts_with_all = &["display", "json", "md"])]
+    pub yaml: bool,
+
+    /// Display output values as Markdown if possible (alias for `--as md`)
+    #[structopt(long, global = true, conflicts_with_all = &["display", "json", "yaml"])]
+    pub md: bool,
+}
+
+impl DisplayOptions {
+    fn to_format(&self) -> Option<String> {
+        if self.display.is_some() {
+            self.display.clone()
+        } else if self.json {
+            some_string!("json")
+        } else if self.yaml {
+            some_string!("yaml")
+        } else if self.md {
+            some_string!("md")
+        } else {
+            None
+        }
+    }
 }
 
 /// Global arguments that should be removed when entering interactive mode
@@ -205,11 +244,8 @@ pub struct Line {
     #[structopt(subcommand)]
     pub command: Command,
 
-    /// Display format
-    ///
-    /// The format used to display results of commands (if possible)
-    #[structopt(long, global = true, alias = "as")]
-    pub display: Option<String>,
+    #[structopt(flatten)]
+    pub display: DisplayOptions,
 }
 
 #[async_trait]
@@ -227,8 +263,8 @@ impl Run for Line {
         match self.run().await {
             Ok(value) => {
                 let mut formats: Vec<String> = formats.into();
-                if let Some(display) = &self.display {
-                    formats.insert(0, display.clone())
+                if let Some(format) = self.display.to_format() {
+                    formats.insert(0, format)
                 }
                 if let Err(error) = result::print::value(value, &formats) {
                     result::print::error(error)
@@ -433,7 +469,7 @@ pub async fn main() -> eyre::Result<()> {
             {
                 Args {
                     command: None,
-                    display: None,
+                    display: DisplayOptions::default(),
                     debug: args.contains(&"--debug".to_string()),
                     log_level: None,
                     log_format: None,
@@ -508,7 +544,7 @@ pub async fn main() -> eyre::Result<()> {
     };
 
     // Use the desired display format, falling back to configured values
-    let formats = match display {
+    let formats = match display.to_format() {
         Some(display) => vec![display],
         None => vec!["md".to_string(), "yaml".to_string(), "json".to_string()],
     };

@@ -93,7 +93,7 @@ default = [
   "binaries/binary-poetry",
   "binaries/binary-python",
   "binaries/binary-r",
-  
+
   # Providers
   "providers-cli",
   "providers/provider-doi",
@@ -114,7 +114,7 @@ default = [
 
   # Server & upgrade
   "server",
-  "upgrade"
+  "upgrade",
 ]
 
 [dependencies]
@@ -185,6 +185,7 @@ node-reshape = { path = "../node-reshape", version = "0.0.0" }
 parsers = { path = "../parsers", version = "0.0.0" }
 path-utils = { path = "../path-utils", version = "0.0.0" }
 providers = { path = "../providers", version = "0.0.0" }
+utils = { path = "../utils", version = "0.0.0" }
 uuids = { path = "../uuids", version = "0.0.0" }
 
 # Optional crates related to `cli` feature
