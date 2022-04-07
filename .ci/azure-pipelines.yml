@@ -65,6 +65,16 @@ jobs:
       # condition simply to improve visibility (ie. its quicker to discover where
       # a build fails if it is broken into several steps)
 
+      # At time of writing, Microsoft hosted agents only come with 10GB disk space
+      # So we need to free up some space.
+      - script: |
+          set -e
+          df -h
+          docker rmi -f $(docker images -aq)
+          sudo rm -rf /usr/share/dotnet
+          df -h
+        displayName: Free up space
+
       # Use caches
       # Currently turned off due to persistent error in "Post-job: Cache"
       # https://dev.azure.com/stencila/stencila/_build/results?buildId=18087&view=logs&j=0da5d1d9-276d-5173-c4c4-9d4d4ed14fdb&t=452b6f04-c7b9-47ba-8224-3e6792d8d761&l=22
