@@ -37,6 +37,7 @@ impl BinaryTrait for PandocBinary {
         // Map standard semver triples to Pandoc's version numbers (if they differ).
         // See https://github.com/jgm/pandoc/releases for mappings.
         let version = match version {
+            "2.18.0" => "2.18",
             "2.17.1" => "2.17.1.1",
             "2.17.0" => "2.17.0.1",
             "2.16.0" => "2.16",
