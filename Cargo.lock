@@ -5847,6 +5847,7 @@ dependencies = [
  "chrono",
  "cli-utils",
  "codecs",
+ "cron-utils",
  "crossbeam-channel",
  "defaults",
  "derivative",

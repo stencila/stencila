@@ -170,6 +170,7 @@ validator = { version = "=0.14.0", features = ["derive"] }
 binaries = { path = "../binaries", version = "0.0.0" }
 buildpacks = { path = "../buildpacks", version = "0.0.0" }
 codecs = { path = "../codecs", version = "0.0.0" }
+cron-utils = { path = "../cron-utils", version = "0.0.0" }
 events = { path = "../events", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }
 graph = { path = "../graph", version = "0.0.0" }

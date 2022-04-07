@@ -168,6 +168,7 @@ pub struct SyncOptions {
 }
 
 #[derive(Debug, Clone, AsRefStr, EnumString, EnumVariantNames, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 pub enum WatchMode {
     /// Synchronize the resource whenever it has been changed

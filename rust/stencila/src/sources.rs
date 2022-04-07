@@ -4,15 +4,16 @@ use std::{
 };
 
 use defaults::Defaults;
-use eyre::{bail, Result};
+use eyre::{bail, eyre, Result};
 use futures::future;
 use graph_triples::{
     relations::{self, NULL_RANGE},
     resources, Resource, Triple,
 };
-use providers::provider::{ImportOptions, WatchMode, SyncOptions};
+use providers::provider::{ImportOptions, SyncOptions, WatchMode};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use stencila_schema::Node;
 use strum::VariantNames;
 use tokio::sync::mpsc;
 
@@ -34,6 +35,9 @@ pub struct Source {
     /// The URL of the source
     pub url: String,
 
+    /// The node parsed / detected from the URL
+    pub node: Option<Node>,
+
     /// The destination path within the project
     pub dest: Option<PathBuf>,
 
@@ -41,7 +45,7 @@ pub struct Source {
     pub cron: Option<SourceCron>,
 
     /// Synchronize the source
-    pub watch: Option<SourceSync>,
+    pub watch: Option<SourceWatch>,
 
     /// The name of the secret required to access the source
     ///
@@ -72,8 +76,14 @@ pub struct Source {
 pub struct SourceCron {
     /// The schedule on which to perform the action
     ///
-    /// A cron phrase (e.g. "every 10mins") or cron expression (e.g. "0 0 */10 * * *").
+    /// Can be a cron phrase (e.g. "every 10mins") or cron expression (e.g. "0 0 */10 * * *").
     schedule: String,
+
+    /// The cron expression parsed from the `schedule`
+    expression: String,
+
+    /// The timezone parsed from the `schedule`
+    timezone: String,
 
     /// The action to perform at each scheduled time
     action: Option<String>,
@@ -81,7 +91,7 @@ pub struct SourceCron {
 
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct SourceSync {
+pub struct SourceWatch {
     /// The synchronization mode
     mode: Option<WatchMode>,
 }
@@ -98,12 +108,48 @@ struct SourceTask {
 
 impl Source {
     /// Create a new source
-    pub fn new(url: String, dest: Option<PathBuf>) -> Source {
-        Source {
+    pub async fn new(
+        url: String,
+        name: Option<String>,
+        dest: Option<PathBuf>,
+        cron: Option<String>,
+        watch: Option<WatchMode>,
+    ) -> Result<Source> {
+        let node = Some(providers::resolve(&url).await?);
+
+        let cron = if let Some(schedule) = cron {
+            let (expressions, timezone) = cron_utils::parse(&schedule)?;
+            if expressions.len() > 1 {
+                tracing::warn!("More than one cron expression parsed; will only use the first")
+            }
+            let expression = expressions
+                .first()
+                .ok_or_else(|| eyre!("Unable to get cron expression"))?
+                .to_string();
+
+            let timezone = timezone.to_string();
+
+            Some(SourceCron {
+                schedule,
+                expression,
+                timezone,
+                action: None,
+            })
+        } else {
+            None
+        };
+
+        let watch = watch.map(|mode| SourceWatch { mode: Some(mode) });
+
+        Ok(Source {
+            name,
             url,
+            node,
             dest,
+            cron,
+            watch,
             ..Default::default()
-        }
+        })
     }
 
     /// Generate a label for the source
@@ -526,6 +572,10 @@ pub mod commands {
         /// A watch mode for the source
         #[structopt(long, short, possible_values = WatchMode::VARIANTS)]
         watch: Option<WatchMode>,
+
+        /// Parse the inputs into a source but do not add it to the project
+        #[structopt(long)]
+        dry_run: bool,
     }
 
     #[async_trait]
@@ -535,25 +585,23 @@ pub mod commands {
             let project = PROJECTS.get(project.path).await?;
             let mut project = project.lock().await;
 
-            let cron = self.cron.as_ref().map(|schedule| SourceCron {
-                schedule: schedule.clone(),
-                action: None,
-            });
-            let watch = self.watch.as_ref().map(|mode| SourceSync {
-                mode: Some(mode.clone()),
-            });
-            let source = Source {
-                name: self.name.clone(),
-                url: self.url.clone(),
-                dest: self.dest.clone(),
-                cron,
-                watch,
-                ..Default::default()
-            };
+            let source = Source::new(
+                self.url.clone(),
+                self.name.clone(),
+                self.dest.clone(),
+                self.cron.clone(),
+                self.watch.clone(),
+            )
+            .await?;
+
+            if self.dry_run {
+                return result::value(source);
+            }
+
             project.sources.add(source.clone()).await?;
             project.write().await?;
 
-            tracing::info!("Added source");
+            tracing::info!("Added source to project");
             result::value(source)
         }
     }
@@ -584,7 +632,7 @@ pub mod commands {
             let source = project.sources.remove(&self.source).await?;
             project.write().await?;
 
-            tracing::info!("Removed source");
+            tracing::info!("Removed source from project");
             result::value(source)
         }
     }
