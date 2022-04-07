@@ -421,6 +421,7 @@ pub mod commands {
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Manage the a project's sources",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]
@@ -453,7 +454,10 @@ pub mod commands {
 
     /// List the sources for a project
     #[derive(Debug, StructOpt)]
-    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct List {
         /// The project to list sources for (defaults to the current project)
         project: Option<PathBuf>,
@@ -471,7 +475,10 @@ pub mod commands {
 
     /// Show a source for a project
     #[derive(Debug, StructOpt)]
-    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Show {
         /// An identifier for the source
         source: String,
