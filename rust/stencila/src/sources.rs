@@ -4,7 +4,7 @@ use std::{
 };
 
 use defaults::Defaults;
-use eyre::{bail, eyre, Result};
+use eyre::{bail, Result};
 use futures::future;
 use graph_triples::{
     relations::{self, NULL_RANGE},
