@@ -101,6 +101,7 @@ jobs:
 
           sudo apt-get update
           sudo apt-get install musl-tools
+          sudo ln -s /bin/g++ /bin/musl-g++ 
           rustup target add x86_64-unknown-linux-musl
 
           cargo list | grep --quiet cache || cargo install cargo-cache
@@ -548,9 +549,9 @@ jobs:
           command: push
           containerRegistry: DockerHub
           repository: stencila/builder
+          # Note: because of how we build stencila/builder above there is no `stencila/builder:bionic-$(GitVersion.SemVer)` tag
           tags: |
             bionic
-            bionic-$(GitVersion.SemVer)
             latest
 
       - script: |
