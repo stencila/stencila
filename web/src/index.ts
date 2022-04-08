@@ -1,5 +1,5 @@
 import { Document, Session } from '@stencila/stencila'
-import { Client, ClientId, connect, disconnect } from './client'
+import { Client, ClientId, ClientOptions, connect, disconnect } from './client'
 import * as documents from './documents'
 import { onDiscoverExecutableLanguages } from './events/kernels'
 import { languages } from './kernels'
@@ -18,7 +18,7 @@ export const main = (
   projectId: ProjectId,
   documentPath?: documents.DocumentPath,
   origin?: string | null,
-  token?: string | null
+  clientOptions?: ClientOptions
 ): (() => Promise<[Client, Document, Session]>) => {
   let client: Client | undefined
   let session: Session | undefined
@@ -36,7 +36,7 @@ export const main = (
     }
 
     if (client === undefined) {
-      client = await connect(projectId, clientId, origin, token)
+      client = await connect(projectId, clientId, origin, clientOptions)
     }
 
     if (session === undefined) {
