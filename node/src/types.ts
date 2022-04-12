@@ -490,7 +490,7 @@ export interface File {
    *
    * Usually this is the lower cased filename extension (if any) but may also be normalized. May be more convenient, and usually more available, than the `media_type` property.
    */
-  format: Format
+  format: string
   /**
    * The parent `File`, if any
    */

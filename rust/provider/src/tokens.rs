@@ -15,7 +15,7 @@
 use std::{collections::HashMap, env};
 
 use chrono::{DateTime, Duration, Utc};
-use eyre::{bail, eyre, Result};
+use eyre::{bail, Result};
 use http_utils::{get_response, headers, serde_json};
 use once_cell::sync::Lazy;
 use serde::Deserialize;
@@ -118,9 +118,10 @@ async fn token_from_stencila(provider: &str) -> Result<Option<Token>> {
     let base_url =
         env::var("STENCILA_API_URL").unwrap_or_else(|_| "https://stenci.la/api/v1".to_string());
 
-    let stencila_token = token_from_environment("stencila").ok_or_else(|| {
-        eyre!("The STENCILA_TOKEN environment variable is required to obtain an access token for `{}`", provider)
-    })?;
+    let stencila_token = match token_from_environment("stencila") {
+        Some(token) => token,
+        None => return Ok(None),
+    };
 
     let response = get_response(
         &[

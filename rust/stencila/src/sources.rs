@@ -1,4 +1,5 @@
 use std::{
+    collections::BTreeMap,
     fs,
     path::{Path, PathBuf},
 };
@@ -16,6 +17,8 @@ use serde_with::skip_serializing_none;
 use stencila_schema::Node;
 use strum::VariantNames;
 use tokio::sync::mpsc;
+
+use crate::files::{File, Files};
 
 /// A source-destination combination
 ///
@@ -227,7 +230,7 @@ impl Source {
     /// # Arguments
     ///
     /// - `path`: The path to import the source into
-    pub async fn import(&self, path: &Path) -> Result<()> {
+    pub async fn import(&self, path: &Path) -> Result<BTreeMap<PathBuf, File>> {
         let (.., node) = providers::resolve(&self.url).await?;
         let dest = match &self.dest {
             Some(dest) => path.join(dest),
@@ -236,9 +239,26 @@ impl Source {
         let options = ImportOptions {
             secret_name: self.secret_name.clone(),
         };
+
+        let (pre, ..) = Files::walk(path, false);
+
         providers::import(&node, &dest, Some(options)).await?;
 
-        Ok(())
+        let (post, ..) = Files::walk(path, false);
+        let files = post
+            .into_iter()
+            .filter_map(|(path, file)| match pre.get(&path) {
+                None => Some((path, file)),
+                Some(existing) => {
+                    if existing.size != file.size && existing.modified != file.modified {
+                        Some((path, file))
+                    } else {
+                        None
+                    }
+                }
+            });
+
+        Ok(files.collect())
     }
 
     /// Start cron and watch tasks (as applicable and as needed) for the source
@@ -598,11 +618,16 @@ pub mod commands {
                 return result::value(source);
             }
 
+            let files = source.import(&project.path).await?;
+
             project.sources.add(source.clone()).await?;
             project.write().await?;
 
             tracing::info!("Added source to project");
-            result::value(source)
+            result::value(serde_json::json!({
+                "source": source,
+                "files": files
+            }))
         }
     }
 
@@ -644,7 +669,7 @@ pub mod commands {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Import {
-        /// The project to remove the source from (defaults to the current project)
+        /// The project to import the source into (defaults to the current project)
         project: Option<PathBuf>,
 
         /// An identifier for the source to import

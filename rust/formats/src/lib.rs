@@ -1,10 +1,10 @@
 use inflector::Inflector;
 use schemars::JsonSchema;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use std::path::Path;
 use strum::{EnumIter, IntoEnumIterator};
 
-#[derive(Debug, PartialEq, EnumIter)]
+#[derive(Debug, Clone, PartialEq, EnumIter, Serialize, Deserialize, JsonSchema)]
 pub enum Format {
     Bash,
     Calc,

@@ -1,7 +1,7 @@
 use crate::utils::schemas;
 use defaults::Defaults;
 use events::publish;
-use formats::FormatSpec;
+use formats::Format;
 use schemars::{schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -31,13 +31,8 @@ pub struct File {
     pub size: Option<u64>,
 
     /// Format of the file
-    ///
-    /// Usually this is the lower cased filename extension (if any)
-    /// but may also be normalized. May be more convenient,
-    /// and usually more available, than the `media_type` property.
-    #[def = "FormatSpec::unknown(\"unknown\")"]
-    #[schemars(schema_with = "File::schema_format")]
-    pub format: FormatSpec,
+    #[def = "Format::Unknown"]
+    pub format: Format,
 
     /// The parent `File`, if any
     pub parent: Option<PathBuf>,
@@ -52,11 +47,6 @@ pub struct File {
 }
 
 impl File {
-    /// Generate the JSON Schema for the `format` property to avoid nested type.
-    fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Format", true)
-    }
-
     /// Get a file's name from it's path
     pub fn name(path: &Path) -> String {
         path.file_name()
@@ -98,9 +88,9 @@ impl File {
         };
 
         let (format, children) = if path.is_file() {
-            (formats::match_path(&path).spec(), None)
+            (formats::match_path(&path), None)
         } else {
-            (FormatSpec::directory(), Some(BTreeSet::new()))
+            (Format::Directory, Some(BTreeSet::new()))
         };
 
         File {
@@ -230,7 +220,7 @@ impl Files {
     const GITIGNORE_NAMES: [&'static str; 2] = [".ignore", ".gitignore"];
 
     pub fn new<P: AsRef<Path>>(path: P) -> Files {
-        let (files, ignore_files) = Files::walk(&path);
+        let (files, ignore_files) = Files::walk(&path, true);
         Files {
             path: path.as_ref().to_path_buf(),
             files,
@@ -240,7 +230,10 @@ impl Files {
     }
 
     /// Walk a path and collect file and Git ignore files from it
-    pub fn walk<P: AsRef<Path>>(path: P) -> (BTreeMap<PathBuf, File>, BTreeSet<PathBuf>) {
+    pub fn walk<P: AsRef<Path>>(
+        path: P,
+        absolute_paths: bool,
+    ) -> (BTreeMap<PathBuf, File>, BTreeSet<PathBuf>) {
         // Build walker
         let walker = ignore::WalkBuilder::new(&path)
             // Respect .ignore files
@@ -251,17 +244,44 @@ impl Files {
 
         // Collect files in parallel using a collector thread and several walker thread
         // (number of which is chosen by the `ignore` walker)
-        let (sender, receiver) = crossbeam_channel::bounded(100);
-        let join_handle =
-            std::thread::spawn(move || -> BTreeMap<PathBuf, File> { receiver.iter().collect() });
+        let (sender, receiver) = crossbeam_channel::bounded::<(PathBuf, File)>(100);
+        let root_path = path.as_ref().to_path_buf();
+        let join_handle = std::thread::spawn(move || -> BTreeMap<PathBuf, File> {
+            receiver
+                .into_iter()
+                .map(|(path, mut file)| {
+                    if absolute_paths {
+                        (path, file)
+                    } else {
+                        file.path = file
+                            .path
+                            .strip_prefix(&root_path)
+                            .expect("Should always have path as prefix")
+                            .to_path_buf();
+
+                        file.parent = match file.parent {
+                            Some(path) => match path == root_path {
+                                true => None,
+                                false => Some(
+                                    path.strip_prefix(&root_path).unwrap_or(&path).to_path_buf(),
+                                ),
+                            },
+
+                            None => None,
+                        };
+
+                        (file.path.clone(), file)
+                    }
+                })
+                .collect()
+        });
         walker.run(|| {
             let sender = sender.clone();
             Box::new(move |result| {
                 use ignore::WalkState::*;
 
                 if let Ok(entry) = result {
-                    let path = entry.path();
-                    let file = File::load(path);
+                    let file = File::load(entry.path());
                     sender
                         .send((file.path.clone(), file))
                         .expect("Unable to send to collector");
@@ -407,7 +427,7 @@ impl Files {
             // already loaded files when getting individual file `created` events
             // or when walking subdirectories (e.g. when a zip file is extracted).
             // But there does not seem to be an easy, safe alternative.
-            let (files, ignore_files) = &mut Files::walk(path);
+            let (files, ignore_files) = &mut Files::walk(path, true);
             self.files.append(files);
             self.ignore_files.append(ignore_files);
         } else {
@@ -468,7 +488,7 @@ impl Files {
                 file.path = new_path.into();
                 file.name = File::name(new_path);
                 file.parent = File::parent(new_path);
-                file.format = formats::match_path(&new_path).spec();
+                file.format = formats::match_path(&new_path);
                 rename_children(&mut self.files, &mut file, old_path, new_path);
                 self.files.insert(new_path.into(), file.clone());
                 file
