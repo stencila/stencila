@@ -5901,6 +5901,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "sudo",
+ "tempfile",
  "test-utils",
  "thiserror",
  "tokio",

@@ -230,6 +230,10 @@ impl Source {
     /// # Arguments
     ///
     /// - `path`: The path to import the source into
+    ///
+    /// # Returns
+    ///
+    /// A map of the [`File`]s that were imported by the source.
     pub async fn import(&self, path: &Path) -> Result<BTreeMap<PathBuf, File>> {
         let (.., node) = providers::resolve(&self.url).await?;
         let dest = match &self.dest {
@@ -593,7 +597,11 @@ pub mod commands {
         #[structopt(long, short, possible_values = WatchMode::VARIANTS)]
         watch: Option<WatchMode>,
 
-        /// Parse the inputs into a source but do not add it to the project
+        /// Do a dry run of adding the source
+        ///
+        /// Parses the input URL and other arguments into a source but does not add it, or the
+        /// files that it imports, to the project. Useful for checking URL and cron formats
+        /// and previewing the files that will be imported.
         #[structopt(long)]
         dry_run: bool,
     }
@@ -614,14 +622,17 @@ pub mod commands {
             )
             .await?;
 
-            if self.dry_run {
-                return result::value(source);
+            let temp_dir = tempfile::tempdir()?;
+            let path = match self.dry_run {
+                true => temp_dir.path(),
+                false => &project.path,
+            };
+            let files = source.import(path).await?;
+
+            if !self.dry_run {
+                project.sources.add(source.clone()).await?;
+                project.write().await?;
             }
-
-            let files = source.import(&project.path).await?;
-
-            project.sources.add(source.clone()).await?;
-            project.write().await?;
 
             tracing::info!("Added source to project");
             result::value(serde_json::json!({
