@@ -755,7 +755,7 @@ mod tests {
         // Capital letters and dashes in names or paths
         for string in [
             "gitlab:Org-with-dashes/name-with-2Dashes/path-with/dashes-@branch-with-dashes-1",
-            "gitlab.com/Org-with-dashes/name-with-2Dashes/tree/branch-with-dashes-1/path-with/dashes-",
+            "gitlab.com/Org-with-dashes/name-with-2Dashes/-/tree/branch-with-dashes-1/path-with/dashes-",
             "https://gitlab.com/Org-with-dashes/name-with-2Dashes/-/tree/branch-with-dashes-1/path-with/dashes-",
         ] {
             assert_json_is!(

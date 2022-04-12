@@ -6,7 +6,7 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1.51"
-chrono = "0.4.19"
+chrono = { version = "0.4.19", features = ["serde"] }
 cron-utils = { path = "../cron-utils", version = "0.0.0" }
 eyre = "0.6.5"
 futures = "0.3.19"
