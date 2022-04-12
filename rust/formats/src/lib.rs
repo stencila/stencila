@@ -1,10 +1,12 @@
 use inflector::Inflector;
 use schemars::JsonSchema;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::path::Path;
-use strum::{EnumIter, IntoEnumIterator};
+use strum::{EnumIter, EnumString, IntoEnumIterator};
 
-#[derive(Debug, Clone, PartialEq, EnumIter, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, EnumIter, Serialize, Deserialize, JsonSchema, EnumString)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
 pub enum Format {
     Bash,
     Calc,
