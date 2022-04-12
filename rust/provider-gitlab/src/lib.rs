@@ -168,14 +168,14 @@ impl ProviderTrait for GitlabProvider {
     fn parse(string: &str) -> Vec<ParseItem> {
         // Regex targeting short identifiers e.g. gitlab:org/name
         static SHORT_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"gitlab:([a-z0-9\-]+)/([a-z0-9\-_]+)(?:/([^@\s]+))?(?:@([^\s]+))?")
+            Regex::new(r"gitlab:([a-zA-Z0-9\-]+)/([a-zA-Z0-9\-_]+)(?:/([^@\s]+))?(?:@([^\s]+))?")
                 .expect("Unable to create regex")
         });
 
         // Regex targeting URL copied from the browser address bar
         // Note that compared to the equivalent Gitlab URLs, these have an additional `-/` before `tree` or `blob`
         static URL_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"(?:https?://)?gitlab\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/?(?:-/(?:tree|blob)/([^/\s]+)?/?([^\s]+))?(?:$|\s)")
+            Regex::new(r"(?:https?://)?gitlab\.com/([a-zA-Z0-9\-]+)/([a-zA-Z0-9\-_]+)/?(?:-/(?:tree|blob)/([^/\s]+)?/?([^\s]+))?(?:$|\s)")
                 .expect("Unable to create regex")
         });
 
@@ -748,6 +748,28 @@ mod tests {
                     },
                     "name": "name",
                     "content": "sub/folder/file.ext"
+                }
+            );
+        }
+
+        // Capital letters and dashes in names or paths
+        for string in [
+            "gitlab:Org-with-dashes/name-with-2Dashes/path-with/dashes-@branch-with-dashes-1",
+            "gitlab.com/Org-with-dashes/name-with-2Dashes/tree/branch-with-dashes-1/path-with/dashes-",
+            "https://gitlab.com/Org-with-dashes/name-with-2Dashes/-/tree/branch-with-dashes-1/path-with/dashes-",
+        ] {
+            assert_json_is!(
+                GitlabProvider::parse(string)[0].node,
+                {
+                    "type": "SoftwareSourceCode",
+                    "codeRepository": "https://gitlab.com/Org-with-dashes/name-with-2Dashes",
+                    "publisher": {
+                        "type": "Organization",
+                        "name": "Org-with-dashes"
+                    },
+                    "name": "name-with-2Dashes",
+                    "version": "branch-with-dashes-1",
+                    "content": "path-with/dashes-"
                 }
             );
         }
