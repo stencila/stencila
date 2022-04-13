@@ -1,3 +1,18 @@
+# [1.4.0](https://github.com/stencila/stencila/compare/v1.3.0...v1.4.0) (2022-04-13)
+
+
+### Bug Fixes
+
+* **Error reporting and logging:** Make JSON format for errors and logs consistent ([196b7b5](https://github.com/stencila/stencila/commit/196b7b5610a5e3507135ad779c5c5419ea2745dd)), closes [#1430](https://github.com/stencila/stencila/issues/1430)
+* **Formats:** Use `lowercase` serialization consistent with other enums ([7055a6a](https://github.com/stencila/stencila/commit/7055a6a9df992135869a9117257cd79ecf3911f4))
+* **GitHub and Gitlab providers:** Allow for capitals in org and repo names ([e2cb873](https://github.com/stencila/stencila/commit/e2cb87357092ea6584d8e213c895c526f841ea8a))
+
+
+### Features
+
+* **Sources:** When importing a source enumerate the files imported ([07932ce](https://github.com/stencila/stencila/commit/07932ceaaf85fdf0956c2df01845e4e680246ecd))
+* **Sources:** When using `--dry-run` option import files into a temporary folder ([f3c2067](https://github.com/stencila/stencila/commit/f3c20678a4978e285772c7d15f5a14aac177975d))
+
 # [1.3.0](https://github.com/stencila/stencila/compare/v1.2.0...v1.3.0) (2022-04-07)
 
 
