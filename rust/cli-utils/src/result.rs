@@ -84,6 +84,8 @@ pub mod print {
 /// Printing with prettiness
 #[cfg(feature = "pretty")]
 pub mod print {
+    use chrono::Utc;
+
     use super::*;
 
     /// Print a value
@@ -182,31 +184,53 @@ pub mod print {
         Ok(())
     }
 
-    /// Print an error
-    pub fn error(error: eyre::Report) {
+    /// Print an error to stderr
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: The format of errors
+    ///
+    /// If the `format` is "json" will construct an error object with the same structure
+    /// as a log entry (when `LoggingFormat::Json`) and print it to a line. This way the
+    /// stderr can be treated as http://ndjson.org/ with the last line being this error.
+    pub fn error(error: eyre::Report, format: &str) {
         use ansi_term::Color::{Blue, Red};
         use color_eyre::{Help, SectionExt};
 
-        let title = format!("CLI: {}", error);
-        let body = format!(
-            "Version: {}\nOS: {}\n\nPlease describe the error a little more...",
-            env!("CARGO_PKG_VERSION"),
-            std::env::consts::OS
-        );
-        let issue_url = format!(
-            "https://github.com/stencila/stencila/issues/new?title={}&body={}",
-            urlencoding::encode(&title),
-            urlencoding::encode(&body)
-        );
-
-        let error = error.with_section(move || {
-            format!(
-                "Report issue: {}.\nRead docs: {}.",
-                Blue.paint(issue_url),
-                Blue.paint("https://help.stenci.la")
-            )
-            .header("Help:")
-        });
-        eprintln!("{} {:?}", Red.bold().paint("ERROR"), error);
+        if format == "json" {
+            let context = error
+                .chain()
+                .skip(1)
+                .map(|cause| cause.to_string())
+                .collect::<Vec<String>>();
+            let error = serde_json::json!({
+                "time": Utc::now(),
+                "level": "error",
+                "message": error.to_string(),
+                "context": context
+            });
+            eprintln!("{}", serde_json::to_string(&error).unwrap_or_default())
+        } else {
+            let title = format!("CLI: {}", error);
+            let body = format!(
+                "Version: {}\nOS: {}\n\nPlease describe the error a little more...",
+                env!("CARGO_PKG_VERSION"),
+                std::env::consts::OS
+            );
+            let issue_url = format!(
+                "https://github.com/stencila/stencila/issues/new?title={}&body={}",
+                urlencoding::encode(&title),
+                urlencoding::encode(&body)
+            );
+            let error = error.with_section(move || {
+                format!(
+                    "Report issue: {}.\nRead docs: {}.",
+                    Blue.paint(issue_url),
+                    Blue.paint("https://help.stenci.la")
+                )
+                .header("Help:")
+            });
+            eprintln!("{} {:?}", Red.bold().paint("ERROR"), error);
+        }
     }
 }

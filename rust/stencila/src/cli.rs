@@ -16,7 +16,7 @@ use crate::{
     sources,
 };
 use async_trait::async_trait;
-use cli_utils::{result, Result, Run};
+use cli_utils::{result, stderr_isatty, Result, Run};
 use std::{collections::HashMap, path::PathBuf};
 use structopt::StructOpt;
 use strum::VariantNames;
@@ -259,7 +259,7 @@ impl Run for Line {
     ///
     /// This override allow the user to specify preferred display format
     /// on a per line basis.
-    async fn print(&self, formats: &[String]) {
+    async fn print(&self, formats: &[String], error_format: &str) {
         match self.run().await {
             Ok(value) => {
                 let mut formats: Vec<String> = formats.into();
@@ -267,10 +267,10 @@ impl Run for Line {
                     formats.insert(0, format)
                 }
                 if let Err(error) = result::print::value(value, &formats) {
-                    result::print::error(error)
+                    result::print::error(error, error_format)
                 }
             }
-            Err(error) => result::print::error(error),
+            Err(error) => result::print::error(error, error_format),
         }
     }
 }
@@ -566,7 +566,13 @@ pub async fn main() -> eyre::Result<()> {
 
     // Run the command and print result
     if let (false, Some(command)) = (interact, command) {
-        command.print(&formats).await;
+        let error_format =
+            if matches!(logging_config.stderr.format, LoggingFormat::Json) || !stderr_isatty() {
+                "json"
+            } else {
+                ""
+            };
+        command.print(&formats, error_format).await;
     } else {
         #[cfg(feature = "cli-interact")]
         {

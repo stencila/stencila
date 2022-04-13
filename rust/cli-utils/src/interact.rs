@@ -137,7 +137,7 @@ where
                 match T::clap().get_matches_from_safe(args) {
                     Ok(matches) => {
                         let command = T::from_clap(&matches);
-                        command.print(formats).await
+                        command.print(formats, "").await
                     }
                     Err(error) => {
                         if error.kind == structopt::clap::ErrorKind::VersionDisplayed {

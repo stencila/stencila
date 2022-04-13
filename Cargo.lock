@@ -924,6 +924,7 @@ dependencies = [
  "ansi_term",
  "async-trait",
  "atty",
+ "chrono",
  "color-eyre",
  "events",
  "eyre",

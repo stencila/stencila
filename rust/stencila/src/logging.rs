@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use events::publish;
 use eyre::Result;
 use schemars::JsonSchema;
@@ -168,11 +169,11 @@ struct StderrPlainLayer {
 }
 
 #[derive(Default)]
-struct StderrVisitor {
+struct StderrPlainVisitor {
     message: String,
 }
 
-impl tracing::field::Visit for StderrVisitor {
+impl tracing::field::Visit for StderrPlainVisitor {
     fn record_debug(&mut self, field: &tracing::field::Field, value: &dyn std::fmt::Debug) {
         if field.name() == "message" {
             self.message = format!("{:?}", value);
@@ -201,9 +202,83 @@ impl<S: tracing::subscriber::Subscriber> tracing_subscriber::layer::Layer<S> for
                 .paint(format!("{:5}", level_name))
             };
 
-            let mut visitor = StderrVisitor::default();
+            let mut visitor = StderrPlainVisitor::default();
             event.record(&mut visitor);
             eprintln!("{} {}", level_name, visitor.message)
+        }
+    }
+}
+
+/// Custom tracing_subscriber layer that prints events to stderr in a custom JSON structure
+/// that is consistent with JSON log and error entries used elsewhere in Stencila
+///
+/// See https://burgers.io/custom-logging-in-rust-using-tracing
+struct StderrJsonLayer {
+    level: LoggingLevel,
+}
+
+#[derive(Serialize)]
+struct StderrJsonVisitor {
+    time: DateTime<Utc>,
+    level: LoggingLevel,
+    message: String,
+
+    #[serde(skip_serializing)]
+    min_level: LoggingLevel,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    module: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    file: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    line: Option<u64>,
+}
+
+impl StderrJsonVisitor {
+    fn new(level: LoggingLevel, min_level: LoggingLevel) -> Self {
+        Self {
+            time: Utc::now(),
+            level,
+            message: "".to_string(),
+            min_level,
+            module: None,
+            file: None,
+            line: None,
+        }
+    }
+}
+
+impl tracing::field::Visit for StderrJsonVisitor {
+    fn record_str(&mut self, field: &tracing::field::Field, value: &str) {
+        if field.name() == "log.module_path" {
+            self.module = Some(value.to_string());
+        } else if self.min_level >= LoggingLevel::Debug && field.name() == "log.file" {
+            self.file = Some(value.to_string());
+        }
+    }
+
+    fn record_u64(&mut self, field: &tracing::field::Field, value: u64) {
+        if self.min_level >= LoggingLevel::Debug && field.name() == "log.line" {
+            self.line = Some(value);
+        }
+    }
+
+    fn record_debug(&mut self, field: &tracing::field::Field, value: &dyn std::fmt::Debug) {
+        if field.name() == "message" {
+            self.message = format!("{:?}", value);
+        }
+    }
+}
+
+impl<S: tracing::subscriber::Subscriber> tracing_subscriber::layer::Layer<S> for StderrJsonLayer {
+    fn on_event(&self, event: &Event<'_>, _ctx: tracing_subscriber::layer::Context<'_, S>) {
+        let level = LoggingLevel::from(event.metadata().level());
+        if level >= self.level {
+            let mut visitor = StderrJsonVisitor::new(level, self.level);
+            event.record(&mut visitor);
+            if let Ok(json) = serde_json::to_string(&visitor) {
+                eprintln!("{}", json)
+            }
         }
     }
 }
@@ -312,7 +387,11 @@ pub fn init(
     if config.stderr.format == LoggingFormat::Detail {
         registry.with(fmt::Layer::new().pretty()).init();
     } else if config.stderr.format == LoggingFormat::Json {
-        registry.with(fmt::Layer::new().json()).init();
+        registry
+            .with(StderrJsonLayer {
+                level: stderr_level,
+            })
+            .init();
     } else {
         registry
             .with(StderrPlainLayer {
