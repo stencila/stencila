@@ -22,6 +22,7 @@ buildpack-dockerfile = { path = "../buildpack-dockerfile", version = "0.0.0", op
 buildpack-node = { path = "../buildpack-node", version = "0.0.0", optional = true }
 buildpack-python = { path = "../buildpack-python", version = "0.0.0", optional = true }
 buildpack-r = { path = "../buildpack-r", version = "0.0.0", optional = true }
+buildpack-sources = { path = "../buildpack-sources", version = "0.0.0", optional = true}
 buildpack-stencila = { path = "../buildpack-stencila", version = "0.0.0", optional = true }
 
 [dev-dependencies]

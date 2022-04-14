@@ -25,10 +25,19 @@ uri = "../../../target/buildpack/release/stencila_stencila"
 # Order can be important.
 # See https://github.com/buildpacks/spec/blob/main/buildpack.md#phase-1-detection
 #
-# All buildpacks are optional, so they can potentially all be applied to the
+# The `sources` buildpack should always be first as it may import sources
+# into the wroking directory of the project that other buildpacks will detect against.
+#
+# The `stencila` buildpack installs the Stencila CLI binary which acts as the default
+# entrypoint to the container image.
+#
+# Other buildpacks are optional. They can potentially all be applied to the
 # same project.
 
 [[order]]
+
+[[order.group]]
+id = "stencila/sources"
 
 [[order.group]]
 id = "stencila/apt"

@@ -110,6 +110,7 @@ default = [
   "buildpacks/buildpack-node",
   "buildpacks/buildpack-python",
   "buildpacks/buildpack-r",
+  "buildpacks/buildpack-sources",
   "buildpacks/buildpack-stencila",
 
   # Server & upgrade

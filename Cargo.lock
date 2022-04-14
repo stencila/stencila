@@ -669,6 +669,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "buildpack-sources"
+version = "0.0.0"
+dependencies = [
+ "buildpack",
+ "serde_json",
+ "sources",
+]
+
+[[package]]
 name = "buildpack-stencila"
 version = "0.0.0"
 dependencies = [
@@ -687,6 +696,7 @@ dependencies = [
  "buildpack-node",
  "buildpack-python",
  "buildpack-r",
+ "buildpack-sources",
  "buildpack-stencila",
  "cli-utils",
  "once_cell",
