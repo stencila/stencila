@@ -5824,7 +5824,6 @@ dependencies = [
 name = "sources"
 version = "0.0.0"
 dependencies = [
- "cli-utils",
  "cron-utils",
  "defaults",
  "eyre",
@@ -5836,7 +5835,6 @@ dependencies = [
  "serde_json",
  "serde_with",
  "stencila-schema",
- "structopt",
  "strum",
  "tokio",
  "tracing",

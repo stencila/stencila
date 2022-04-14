@@ -19,7 +19,6 @@ parsers-cli = ["parsers/cli"]
 kernels-cli = ["kernels/cli"]
 binaries-cli = ["binaries/cli"]
 providers-cli = ["providers/cli"]
-sources-cli = ["sources/cli"]
 buildpacks-cli = ["buildpacks/cli"]
 
 server = [
@@ -103,9 +102,6 @@ default = [
   "providers/provider-github",
   "providers/provider-gitlab",
   "providers/provider-http",
-
-  # Sources
-  "sources-cli",
 
   # Buildpacks
   "buildpacks-cli",

@@ -4,7 +4,6 @@ name = "sources"
 version = "0.0.0"
 
 [features]
-cli = ["cli-utils", "structopt"]
 default = [
   "providers/provider-doi",
   "providers/provider-elife",
@@ -15,7 +14,7 @@ default = [
 ]
 
 [dependencies]
-cron-utils = { path = "../cron-utils" }
+cron-utils = {path = "../cron-utils"}
 defaults = "0.2.0"
 eyre = "0.6.6"
 files = {path = "../files", version = "0.0.0"}
@@ -32,8 +31,3 @@ tokio = {version = "1.13.0", features = [
   "macros",
 ]}
 tracing = "0.1.29"
-
-cli-utils = {path = "../cli-utils", version = "0.0.0", features = [
-  "pretty",
-], optional = true}
-structopt = {version = "0.3.25", optional = true}
