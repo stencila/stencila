@@ -2313,9 +2313,9 @@ dependencies = [
 
 [[package]]
 name = "gloo-timers"
-version = "0.2.3"
+version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d12a7f4e95cfe710f1d624fb1210b7d961a5fb05c4fd942f4feab06e61f590e"
+checksum = "5fb7d06c1c8cc2a29bee7ec961009a0b2caa0793ee4900c2ffb348734ba1c8f9"
 dependencies = [
  "futures-channel",
  "futures-core",
@@ -5236,9 +5236,9 @@ dependencies = [
 
 [[package]]
 name = "rustix"
-version = "0.34.2"
+version = "0.34.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96619609a54d638872db136f56941d34e2a00bb0acf3fa783a90d6b96a093ba2"
+checksum = "cb617eb09c4ef1536405e357e3b63f39e3ab4cc2159db05395278ad5c352bb16"
 dependencies = [
  "bitflags",
  "errno",
@@ -5839,7 +5839,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
-version = "1.4.0"
+version = "1.4.1"
 dependencies = [
  "async-recursion 1.0.0",
  "async-trait",

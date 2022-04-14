@@ -1,3 +1,11 @@
+## [1.4.1](https://github.com/stencila/stencila/compare/v1.4.0...v1.4.1) (2022-04-14)
+
+
+### Bug Fixes
+
+* **GitHub provider:** Improve message for 404 errors ([762b01a](https://github.com/stencila/stencila/commit/762b01a5b304804f5a3ce5e0db987cc6b7b0637d))
+* **Google Drive provider:** Download non-Workspace files and improve error message on 404 ([276a291](https://github.com/stencila/stencila/commit/276a291d4bd85e192e9d03006d2c436ad6781d69))
+
 # [1.4.0](https://github.com/stencila/stencila/compare/v1.3.0...v1.4.0) (2022-04-13)
 
 
