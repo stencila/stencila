@@ -18,7 +18,7 @@ use stencila_schema::Node;
 use strum::VariantNames;
 use tokio::sync::mpsc;
 
-use crate::files::{File, Files};
+use files::{File, Files};
 
 /// A source-destination combination
 ///

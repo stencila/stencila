@@ -1986,6 +1986,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "files"
+version = "0.0.0"
+dependencies = [
+ "crossbeam-channel",
+ "defaults",
+ "events",
+ "formats",
+ "gitignore",
+ "ignore",
+ "schemars",
+ "serde",
+ "serde_with",
+ "strum",
+]
+
+[[package]]
 name = "filetime"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5805,6 +5821,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "sources"
+version = "0.0.0"
+
+[[package]]
 name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5858,15 +5878,14 @@ dependencies = [
  "events",
  "exitcode",
  "eyre",
+ "files",
  "formats",
  "futures",
- "gitignore",
  "glob",
  "graph",
  "graph-triples",
  "handlebars",
  "humantime",
- "ignore",
  "itertools",
  "jsonwebtoken",
  "kernels",

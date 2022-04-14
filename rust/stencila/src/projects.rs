@@ -1,28 +1,31 @@
-use crate::config::CONFIG;
-use crate::documents::DOCUMENTS;
-use crate::files::{File, FileEvent, Files};
-use crate::sources::Sources;
-use crate::utils::schemas;
-use events::publish;
+use std::{
+    collections::HashMap,
+    fs,
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::Duration,
+};
+
 use eyre::{bail, Result};
-use graph::{Graph, GraphEvent, GraphEventType};
-use graph_triples::{resources, Resource};
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::sync::Arc;
-use std::time::Duration;
-use std::{
-    collections::HashMap,
-    fs,
-    path::{Path, PathBuf},
-};
 use strum::Display;
 use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
+
+use events::publish;
+use files::{File, FileEvent, Files};
+use graph::{Graph, GraphEvent, GraphEventType};
+use graph_triples::{resources, Resource};
+
+use crate::config::CONFIG;
+use crate::documents::DOCUMENTS;
+use crate::sources::Sources;
+use crate::utils::schemas;
 
 #[derive(Debug, Display, JsonSchema, Serialize)]
 #[serde(rename_all = "lowercase")]

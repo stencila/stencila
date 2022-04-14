@@ -132,11 +132,9 @@ dirs-next = "=2.0.0"
 enum_dispatch = "=0.3.7"
 eyre = "=0.6.6"
 futures = "=0.3.19"
-gitignore = "=1.0.7"
 glob = "=0.3.0"
 handlebars = "4.2.1"
 humantime = "=2.1.0"
-ignore = "=0.4.18"
 itertools = "=0.10.3"
 maplit = "=1.0.2"
 mime_guess = "=2.0.3"
@@ -173,6 +171,7 @@ buildpacks = { path = "../buildpacks", version = "0.0.0" }
 codecs = { path = "../codecs", version = "0.0.0" }
 cron-utils = { path = "../cron-utils", version = "0.0.0" }
 events = { path = "../events", version = "0.0.0" }
+files = { path = "../files", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }
 graph = { path = "../graph", version = "0.0.0" }
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
