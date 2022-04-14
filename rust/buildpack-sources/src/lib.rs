@@ -37,7 +37,7 @@ impl Buildpack for SourcesBuildpack {
             .and_then(|sources| serde_json::from_value::<Sources>(sources).ok());
 
         if let Some(sources) = sources {
-            tracing::warn!("Importing project sources");
+            tracing::info!("Importing project sources");
             sources
                 .import_sync(&context.app_dir)
                 .map_err(libcnb::Error::BuildpackError)?;
