@@ -7,6 +7,6 @@ buildpack-%:
 # Build the buildpacks that are included in the builder
 buildpacks: buildpack-apt buildpack-node buildpack-python buildpack-r buildpack-stencila
 
-# Create the builder
+# Create the builder using pack
 create: buildpacks
 	pack builder create stencila/builder:bionic --config ./builder.toml

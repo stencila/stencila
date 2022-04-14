@@ -496,8 +496,6 @@ jobs:
           repository: stencila/maker
           tags: |
             focal
-            focal-$(GitVersion.SemVer)
-            latest
 
       - task: Docker@2
         displayName: Build stencila/stencila
@@ -506,8 +504,8 @@ jobs:
           dockerfile: docker/stencila/focal/Dockerfile
           repository: stencila/stencila
           tags: |
+            $(GitVersion.SemVer)
             focal
-            focal-$(GitVersion.SemVer)
             latest
 
       # Build `stencila/builder` image if the above image builds succeeded
@@ -538,8 +536,8 @@ jobs:
           containerRegistry: DockerHub
           repository: stencila/stencila
           tags: |
+            $(GitVersion.SemVer)
             focal
-            focal-$(GitVersion.SemVer)
             latest
 
       - task: Docker@2
@@ -549,10 +547,9 @@ jobs:
           command: push
           containerRegistry: DockerHub
           repository: stencila/builder
-          # Note: because of how we build stencila/builder above there is no `stencila/builder:bionic-$(GitVersion.SemVer)` tag
+          # Note: because of how we build stencila/builder (using pack) there is only a `bionic` tag
           tags: |
             bionic
-            latest
 
       - script: |
           mkdir -p $(Pipeline.Workspace)/docker
