@@ -1,25 +1,9 @@
-use std::{
-    collections::BTreeMap,
-    fs,
-    path::{Path, PathBuf},
-};
+use std::path::PathBuf;
 
-use defaults::Defaults;
-use eyre::{bail, Result};
-use futures::future;
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
 use tokio::sync::mpsc;
 
-use files::{File, Files};
-use graph_triples::{
-    relations::{self, NULL_RANGE},
-    resources, Resource, Triple,
-};
-use providers::provider::{ImportOptions, SyncOptions, WatchMode};
+use providers::provider::WatchMode;
 use sources::Source;
-use stencila_schema::Node;
-
 
 #[cfg(feature = "cli")]
 pub mod commands {

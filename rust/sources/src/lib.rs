@@ -462,6 +462,17 @@ impl Sources {
         Ok(())
     }
 
+    /// Import all sources synchronously
+    ///
+    /// # Arguments
+    ///
+    /// - `path`: The path to import the sources into (usually a project directory)
+    ///
+    /// Imports sources in parallel but blocks until all are complete.
+    pub fn import_sync(&self, path: &Path) -> Result<()> {
+        futures::executor::block_on(async { self.import(path).await })
+    }
+
     /// Start cron and/or watch tasks for each source
     pub async fn start(&mut self, path: &Path) -> Result<()> {
         for source in self.inner.iter_mut() {
