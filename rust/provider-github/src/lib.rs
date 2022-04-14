@@ -233,7 +233,7 @@ impl ProviderTrait for GithubProvider {
             .repos()
             .get(owner, repo)
             .await
-            .map_err(to_eyre)?;
+            .map_err(enhance_error)?;
 
         let description = match !repo_details.description.is_empty() {
             true => Some(Box::new(ThingDescription::String(repo_details.description))),
@@ -259,7 +259,7 @@ impl ProviderTrait for GithubProvider {
             .repos()
             .list_all_contributors(owner, repo, "false")
             .await
-            .map_err(to_eyre)?
+            .map_err(enhance_error)?
             .into_iter()
             .filter_map(|user| {
                 if user.login.contains("[bot]") {
@@ -322,7 +322,7 @@ impl ProviderTrait for GithubProvider {
                 ref_.unwrap_or_default(),
             )
             .await
-            .map_err(to_eyre)?;
+            .map_err(enhance_error)?;
 
         if let ReposGetContentResponseOneOf::ContentFile(content_file) = content {
             // Content is a single file with content so write to destination
@@ -423,7 +423,7 @@ impl ProviderTrait for GithubProvider {
                 },
             )
             .await
-            .map_err(to_eyre)?;
+            .map_err(enhance_error)?;
         tracing::info!("Created GitHub webhook `{}`", hook.url);
 
         // Listen for webhook events
@@ -644,7 +644,7 @@ async fn webhook_event(
                         .repos()
                         .get_content_file(owner, repo, event_path, event_ref)
                         .await
-                        .map_err(to_eyre)?;
+                        .map_err(enhance_error)?;
                     write_content_file(content_file, &local_path)?;
                 } else {
                     // Remove the file, if it exists
@@ -666,11 +666,16 @@ async fn webhook_event(
     Ok((StatusCode::OK, msg.into()))
 }
 
-/// Convert an `anyhow::Error` to an `eyre::Report`
+/// Convert an `anyhow::Error` to an `eyre::Report` and if the error is
+/// a 404 provide the user with some hints as to what to do
 ///
 /// See https://github.com/yaahc/eyre/issues/31 for potential improvements
-fn to_eyre<E: std::fmt::Debug>(error: E) -> eyre::Report {
-    eyre!("{:?}", error)
+fn enhance_error<E: std::fmt::Debug>(error: E) -> eyre::Report {
+    let mut message = format!("{:?}", error);
+    if message.contains("404 Not Found") {
+        message = "Could not access the GitHub repository. Please check that it exists, that you have permission to access it, and a GitHub access token is available (you may need to connect GitHub to your Stencila account)".to_string();
+    }
+    eyre!(message)
 }
 
 #[cfg(test)]
