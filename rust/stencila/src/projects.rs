@@ -21,10 +21,10 @@ use events::publish;
 use files::{File, FileEvent, Files};
 use graph::{Graph, GraphEvent, GraphEventType};
 use graph_triples::{resources, Resource};
+use sources::Sources;
 
 use crate::config::CONFIG;
 use crate::documents::DOCUMENTS;
-use crate::sources::Sources;
 use crate::utils::schemas;
 
 #[derive(Debug, Display, JsonSchema, Serialize)]

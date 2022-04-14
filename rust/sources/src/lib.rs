@@ -7,18 +7,18 @@ use std::{
 use defaults::Defaults;
 use eyre::{bail, Result};
 use futures::future;
+use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
+use stencila_schema::Node;
+
+use tokio::sync::mpsc;
+
+use files::{File, Files};
 use graph_triples::{
     relations::{self, NULL_RANGE},
     resources, Resource, Triple,
 };
 use providers::provider::{ImportOptions, SyncOptions, WatchMode};
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-use stencila_schema::Node;
-use strum::VariantNames;
-use tokio::sync::mpsc;
-
-use files::{File, Files};
 
 /// A source-destination combination
 ///

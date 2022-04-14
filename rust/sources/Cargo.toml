@@ -1,0 +1,39 @@
+[package]
+edition = "2021"
+name = "sources"
+version = "0.0.0"
+
+[features]
+cli = ["cli-utils", "structopt"]
+default = [
+  "providers/provider-doi",
+  "providers/provider-elife",
+  "providers/provider-gdrive",
+  "providers/provider-github",
+  "providers/provider-gitlab",
+  "providers/provider-http",
+]
+
+[dependencies]
+cron-utils = { path = "../cron-utils" }
+defaults = "0.2.0"
+eyre = "0.6.6"
+files = {path = "../files", version = "0.0.0"}
+futures = "0.3.19"
+graph-triples = {path = "../graph-triples", version = "0.0.0"}
+providers = {path = "../providers", version = "0.0.0"}
+serde = {version = "1.0.130", features = ["derive", "rc"]}
+serde_json = {version = "1.0.75"}
+serde_with = "1.11.0"
+stencila-schema = {path = "../schema"}
+strum = {version = "0.23.0", features = ["derive"]}
+tokio = {version = "1.13.0", features = [
+  "sync",
+  "macros",
+]}
+tracing = "0.1.29"
+
+cli-utils = {path = "../cli-utils", version = "0.0.0", features = [
+  "pretty",
+], optional = true}
+structopt = {version = "0.3.25", optional = true}

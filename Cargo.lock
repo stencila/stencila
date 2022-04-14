@@ -5823,6 +5823,24 @@ dependencies = [
 [[package]]
 name = "sources"
 version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "cron-utils",
+ "defaults",
+ "eyre",
+ "files",
+ "futures",
+ "graph-triples",
+ "providers",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "stencila-schema",
+ "structopt",
+ "strum",
+ "tokio",
+ "tracing",
+]
 
 [[package]]
 name = "spin"
@@ -5916,6 +5934,7 @@ dependencies = [
  "serde_with",
  "serde_yaml",
  "slug",
+ "sources",
  "stencila-schema",
  "structopt",
  "strum",

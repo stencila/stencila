@@ -19,6 +19,7 @@ parsers-cli = ["parsers/cli"]
 kernels-cli = ["kernels/cli"]
 binaries-cli = ["binaries/cli"]
 providers-cli = ["providers/cli"]
+sources-cli = ["sources/cli"]
 buildpacks-cli = ["buildpacks/cli"]
 
 server = [
@@ -103,6 +104,9 @@ default = [
   "providers/provider-gitlab",
   "providers/provider-http",
 
+  # Sources
+  "sources-cli",
+
   # Buildpacks
   "buildpacks-cli",
   "buildpacks/buildpack-apt",
@@ -186,6 +190,7 @@ node-reshape = { path = "../node-reshape", version = "0.0.0" }
 parsers = { path = "../parsers", version = "0.0.0" }
 path-utils = { path = "../path-utils", version = "0.0.0" }
 providers = { path = "../providers", version = "0.0.0" }
+sources = { path = "../sources", version = "0.0.0" }
 utils = { path = "../utils", version = "0.0.0" }
 uuids = { path = "../uuids", version = "0.0.0" }
 
