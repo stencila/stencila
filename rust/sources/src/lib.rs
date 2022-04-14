@@ -85,10 +85,10 @@ pub struct SourceCron {
     schedule: String,
 
     /// The cron expression/s parsed from the `schedule`
-    expressions: Vec<String>,
+    expressions: Option<Vec<String>>,
 
     /// The timezone parsed from the `schedule`
-    timezone: String,
+    timezone: Option<String>,
 
     /// The action to perform at each scheduled time
     action: Option<String>,
@@ -124,11 +124,19 @@ impl Source {
 
         let cron = if let Some(schedule) = cron {
             let (schedules, timezone) = cron_utils::parse(&schedule)?;
-            let expressions = schedules
-                .iter()
-                .map(|schedule| schedule.to_string())
-                .collect();
-            let timezone = timezone.to_string();
+            let (expressions, timezone) = if !schedules.is_empty() {
+                (
+                    Some(
+                        schedules
+                            .iter()
+                            .map(|schedule| schedule.to_string())
+                            .collect(),
+                    ),
+                    Some(timezone.to_string()),
+                )
+            } else {
+                (None, None)
+            };
 
             Some(SourceCron {
                 schedule,
