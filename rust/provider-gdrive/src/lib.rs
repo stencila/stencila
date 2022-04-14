@@ -10,7 +10,7 @@ use google_drive::{self, types::Channel, DEFAULT_HOST};
 use provider::{
     async_trait::async_trait,
     chrono::{DateTime, Utc},
-    eyre::{bail, eyre, Result},
+    eyre::{self, bail, eyre, Result},
     futures::future,
     http_utils::{download_with, headers},
     once_cell::sync::Lazy,
@@ -130,7 +130,7 @@ impl GoogleDriveClient {
                 .files()
                 .list_all("", "", false, "", false, "", &query, "", false, false, "")
                 .await
-                .map_err(|error| eyre!(error))?;
+                .map_err(enhance_error)?;
 
             // Download in parallel
             let futures = children.into_iter().map(|child| {
@@ -156,14 +156,31 @@ impl GoogleDriveClient {
         } else {
             // The destination path does not have an extension so use the default for the kind
             // The list of available export formats: https://developers.google.com/drive/api/v3/ref-export-formats
-            let mime_type = match file_kind {
-                FileKind::Doc => "text/html",
-                FileKind::Sheet => "text/csv",
-                _ => "",
+            let (ext, mime_type) = match file_kind {
+                FileKind::Doc => (".html", "text/html"),
+                FileKind::Sheet => (".csv", "text/csv"),
+                FileKind::File => ("", ""),
+                _ => bail!("Unhandled Google Drive file kind {:?}", file_kind),
             };
 
-            let url = format!("{DEFAULT_HOST}/files/{file_id}/export?mimeType={mime_type}");
-            download_with(&url, dest, &headers).await?;
+            // Make sure the destination is a file path
+            let dest = if dest.is_dir() || dest.extension().is_none() {
+                dest.join(format!("{}{}", file_id, ext))
+            } else {
+                dest.to_path_buf()
+            };
+
+            let url = match file_kind {
+                FileKind::Doc | FileKind::Sheet => {
+                    format!("{DEFAULT_HOST}/files/{file_id}/export?mimeType={mime_type}")
+                }
+                FileKind::File => format!("{DEFAULT_HOST}/files/{file_id}?alt=media"),
+                _ => bail!("Unhandled Google Drive file kind {:?}", file_kind),
+            };
+
+            download_with(&url, &dest, &headers)
+                .await
+                .map_err(enhance_error)?;
         }
 
         Ok(())
@@ -475,7 +492,7 @@ async fn webhook_event(
                             .revisions()
                             .list_all(file_id)
                             .await
-                            .map_err(|error| eyre!(error))?
+                            .map_err(enhance_error)?
                             .last()
                         {
                             if let Some(time) = revision.modified_time {
@@ -522,6 +539,16 @@ fn now() -> u128 {
         .duration_since(UNIX_EPOCH)
         .expect("Time should not go backwards")
         .as_millis()
+}
+
+/// Convert an `anyhow::Error` to an `eyre::Report` and if the error is
+/// a 404 provide the user with some hints as to what to do.
+fn enhance_error<E: std::fmt::Debug>(error: E) -> eyre::Report {
+    let mut message = format!("{:?}", error);
+    if message.contains("404 Not Found") {
+        message = "Could not access the Google Drive file or folder. Please check that it exists, that you have given Stencila permission to access it, and a Google access token is available (you may need to connect Google to your Stencila account)".to_string();
+    }
+    eyre!(message)
 }
 
 #[cfg(test)]
