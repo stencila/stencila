@@ -497,23 +497,21 @@ impl Buildpacks {
             working_dir.display()
         );
 
-        const CNB_BUILDER: &str = "stencila/buildpacks:focal";
+        const CNB_BUILDER: &str = "stencila/builder:bionic";
 
         let pack = PackBinary {}.ensure().await?;
-        let output = pack
-            .run(&[
-                "build",
-                &tag,
-                "--builder",
-                CNB_BUILDER,
-                "--path",
-                &working_dir.display().to_string(),
-            ])
-            .await?;
-
-        tracing::info!("Output from pack: {:#?}", output);
-
-        Ok(())
+        pack.run(&[
+            "build",
+            &tag,
+            "--builder",
+            CNB_BUILDER,
+            "--path",
+            &working_dir.display().to_string(),
+            "--pull-policy",
+            "if-not-present",
+            "--trust-builder",
+        ])
+        .await
     }
 
     /// Clean build directories for one, or all, buildpacks
@@ -894,8 +892,12 @@ pub mod commands {
     ///
     /// If the directory has a `Dockerfile` (or `Containerfile`) then the image will be
     /// built directly from that. Otherwise, the image will be built using
-    /// using [`pack`](https://buildpacks.io/docs/tools/pack/) and the Stencila buildpacks
-    /// (available from `stencila buildpacks list`).
+    /// using [`pack`](https://buildpacks.io/docs/tools/pack/) and the Stencila `builder`
+    /// container image which include the buildpacks listed at `stencila buildpacks list`.
+    ///
+    /// Of course, you can use either `docker` or `pack` directly. This command just provides
+    /// a convenient means of testing Stencila's image building logic locally an is mainly
+    /// intended for developers.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
