@@ -572,8 +572,8 @@ impl RenvLayer {
 
         tracing::info!("Installing R packages into `renv` layer");
 
-        // Get `Rscript` (should have been installed in `RLayer`)
-        let mut rscript = Binary::named("Rscript").require_sync()?;
+        // Get `R` (should have been installed in `RLayer`)
+        let mut r = Binary::named("R").require_sync()?;
 
         // Reuse or create a `renv/library` folder.
         let library_path = if context.is_local() {
@@ -587,7 +587,7 @@ impl RenvLayer {
             create_dir_all(&library_path)?;
         }
 
-        if self.method == "rscript" {
+        let expr = if self.method == "rscript" {
             // Determine which file to run
             let file = if PathBuf::from(INSTALL_R).exists() {
                 INSTALL_R.to_string()
@@ -602,31 +602,30 @@ impl RenvLayer {
             );
 
             // Run a script that monkey patches `install.packages` so that `renv/library` is the lib
-            let script = format!(
+            format!(
                 r#"
 install.packages <- function(pkgs, lib = NULL, repos = NULL, ...) {{ utils::install.packages(pkgs, lib = "{lib_path}", ...) }}
 source("{install_script}")
             "#,
                 lib_path = library_path.display(),
                 install_script = file
-            );
-            rscript.run_sync(&["-e", &script])?;
+            )
         } else {
             tracing::info!(
-                "Installing packages into `renv` using `renv::{}",
+                "Installing packages into `renv` using `renv::{}`",
                 self.method
             );
 
             // If a CNB build use the layer as the renv cache
             if context.is_cnb() {
-                rscript.env_list(&[("RENV_PATHS_CACHE", layer_path.canonicalize()?.as_os_str())]);
+                r.env_list(&[("RENV_PATHS_CACHE", layer_path.canonicalize()?.as_os_str())]);
             }
 
             // Run a script that does the install including installing if necessary and options for non-interactive use
-            let script = format!(
+            format!(
                 r#"
 options(renv.consent = TRUE)
-if (!require(renv, quietly=TRUE)) install.packages("renv")
+if (!suppressMessages(require(renv, quietly=TRUE))) install.packages("renv")
 {snapshot}
 renv::activate()
 renv::restore(prompt = FALSE)"#,
@@ -635,9 +634,10 @@ renv::restore(prompt = FALSE)"#,
                 } else {
                     ""
                 }
-            );
-            rscript.run_sync(&["-e", &script])?;
-        }
+            )
+        };
+        // Do not use --vanilla or --no-site-file here because we want the `Rprofile.site` from above to be used
+        r.run_sync(&["--slave", "--no-restore", "-e", &expr])?;
 
         // Add `renv/library` to the R_LIBS_USER
         // See https://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html for more
