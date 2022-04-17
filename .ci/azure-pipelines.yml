@@ -404,9 +404,8 @@ jobs:
       # Use a target directory on C: drive because it has a lot more free space
       # (~110GB) than D: drive (~30GB)
       - script: |
-          mkdir -p "C:\cargo_target"
-          cd rust
-          cargo test --target-dir ..\..\..\..\C:\cargo_target
+          cd C:\
+          cargo test --all --manifest-path D:\a\1\s\rust\Cargo.toml --target-dir target
         condition: true # contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
