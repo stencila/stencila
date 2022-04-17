@@ -404,8 +404,9 @@ jobs:
       # Use a target directory on C: drive because it has a lot more free space
       # (~110GB) than D: drive (~30GB)
       - script: |
-          cd C:\
-          cargo test --all --manifest-path $(Build.SourcesDirectory)/Cargo.toml --target-dir target
+          xcopy $(Build.SourcesDirectory) C:\build\ /s /h
+          cd C:\build
+          cargo test --all
         condition: true # contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
