@@ -40,6 +40,8 @@ macro_rules! dispatch_builtins {
             "stencila/python" => buildpack_python::PythonBuildpack{}.$method($($arg),*),
             #[cfg(feature = "buildpack-r")]
             "stencila/r" => buildpack_r::RBuildpack{}.$method($($arg),*),
+            #[cfg(feature = "buildpack-sources")]
+            "stencila/sources" => buildpack_sources::SourcesBuildpack{}.$method($($arg),*),
             #[cfg(feature = "buildpack-stencila")]
             "stencila/stencila" => buildpack_stencila::StencilaBuildpack{}.$method($($arg),*),
             _ => bail!("No buildpack with label `{}`", $label)
@@ -52,16 +54,23 @@ impl Buildpacks {
     pub fn new() -> Self {
         Self {
             inner: [
-                #[cfg(feature = "buildpack-apt")]
-                buildpack_apt::AptBuildpack::spec().ok(),
+                // The `SourcesBuildpack` should be first because it will import files
+                // during `detect` which other buildpacks will run their `detect` against
+                #[cfg(feature = "buildpack-sources")]
+                buildpack_sources::SourcesBuildpack::spec().ok(),
+                // The `Dockerfile` buildpack should come second because it excludes the
+                // other buildpacks from running
                 #[cfg(feature = "buildpack-dockerfile")]
                 buildpack_dockerfile::DockerfileBuildpack::spec().ok(),
+                #[cfg(feature = "buildpack-apt")]
+                buildpack_apt::AptBuildpack::spec().ok(),
                 #[cfg(feature = "buildpack-node")]
                 buildpack_node::NodeBuildpack::spec().ok(),
                 #[cfg(feature = "buildpack-python")]
                 buildpack_python::PythonBuildpack::spec().ok(),
                 #[cfg(feature = "buildpack-r")]
                 buildpack_r::RBuildpack::spec().ok(),
+                // Stencila CLI buildpack
                 #[cfg(feature = "buildpack-stencila")]
                 buildpack_stencila::StencilaBuildpack::spec().ok(),
             ]
@@ -163,8 +172,9 @@ impl Buildpacks {
     /// Create a CNB layers directory for a buildpack
     ///
     /// Used in `build` when the `layers_dir` argument is not supplied.
-    fn layers_dir_default(buildpack_id: &BuildpackId) -> Result<PathBuf> {
-        let dir = PathBuf::from(".stencila")
+    fn layers_dir_default(working_dir: &Path, buildpack_id: &BuildpackId) -> Result<PathBuf> {
+        let dir = working_dir
+            .join(".stencila")
             .join("layers")
             .join(Self::slugify_buildpack_id(buildpack_id));
         fs::create_dir_all(&dir)?;
@@ -412,7 +422,7 @@ impl Buildpacks {
 
         let layers_dir = match layers_dir {
             Some(dir) => dir.to_owned(),
-            None => Self::layers_dir_default(buildpack_id)?,
+            None => Self::layers_dir_default(&working_dir, buildpack_id)?,
         };
 
         let platform_dir = match platform_dir {
@@ -424,20 +434,6 @@ impl Buildpacks {
             Some(path) => path.to_owned(),
             None => Self::buildpack_plan_default(&working_dir, buildpack_id)?,
         };
-
-        if platform_dir_is_stencila(&platform_dir) {
-            tracing::debug!("Buildpack platform is Stencila");
-
-            let code = self.detect(buildpack_id, Some(&working_dir), Some(&platform_dir), None)?;
-            if code != 0 {
-                tracing::warn!(
-                    "Directory `{}` does not match buildpack `{}` so will not be built",
-                    working_dir.display(),
-                    buildpack_id
-                );
-                return Ok(100);
-            }
-        }
 
         set_current_dir(working_dir)?;
         let result = dispatch_builtins!(
@@ -501,23 +497,21 @@ impl Buildpacks {
             working_dir.display()
         );
 
-        const CNB_BUILDER: &str = "stencila/buildpacks:focal";
+        const CNB_BUILDER: &str = "stencila/builder:bionic";
 
         let pack = PackBinary {}.ensure().await?;
-        let output = pack
-            .run(&[
-                "build",
-                &tag,
-                "--builder",
-                CNB_BUILDER,
-                "--path",
-                &working_dir.display().to_string(),
-            ])
-            .await?;
-
-        tracing::info!("Output from pack: {:#?}", output);
-
-        Ok(())
+        pack.run(&[
+            "build",
+            &tag,
+            "--builder",
+            CNB_BUILDER,
+            "--path",
+            &working_dir.display().to_string(),
+            "--pull-policy",
+            "if-not-present",
+            "--trust-builder",
+        ])
+        .await
     }
 
     /// Clean build directories for one, or all, buildpacks
@@ -844,15 +838,8 @@ pub mod commands {
             });
 
             if label == "all" {
-                let tty = stdout_isatty();
-                if tty {
-                    let plans = PACKS.plan_all(self.working.as_deref(), platform_dir.as_deref())?;
-                    let md = Buildpacks::plan_as_markdown(&plans, false);
-                    result::print::markdown(&md)?;
-                }
-
                 let results = PACKS.build_all(self.working.as_deref(), platform_dir.as_deref())?;
-                return if tty {
+                return if stdout_isatty() {
                     result::nothing()
                 } else {
                     result::value(results)
@@ -905,8 +892,12 @@ pub mod commands {
     ///
     /// If the directory has a `Dockerfile` (or `Containerfile`) then the image will be
     /// built directly from that. Otherwise, the image will be built using
-    /// using [`pack`](https://buildpacks.io/docs/tools/pack/) and the Stencila buildpacks
-    /// (available from `stencila buildpacks list`).
+    /// using [`pack`](https://buildpacks.io/docs/tools/pack/) and the Stencila `builder`
+    /// container image which include the buildpacks listed at `stencila buildpacks list`.
+    ///
+    /// Of course, you can use either `docker` or `pack` directly. This command just provides
+    /// a convenient means of testing Stencila's image building logic locally an is mainly
+    /// intended for developers.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp

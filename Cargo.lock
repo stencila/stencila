@@ -669,6 +669,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "buildpack-sources"
+version = "0.0.0"
+dependencies = [
+ "buildpack",
+ "serde_json",
+ "sources",
+]
+
+[[package]]
 name = "buildpack-stencila"
 version = "0.0.0"
 dependencies = [
@@ -687,6 +696,7 @@ dependencies = [
  "buildpack-node",
  "buildpack-python",
  "buildpack-r",
+ "buildpack-sources",
  "buildpack-stencila",
  "cli-utils",
  "once_cell",
@@ -1983,6 +1993,22 @@ dependencies = [
  "cfg-if 1.0.0",
  "rustix",
  "windows-sys 0.30.0",
+]
+
+[[package]]
+name = "files"
+version = "0.0.0"
+dependencies = [
+ "crossbeam-channel",
+ "defaults",
+ "events",
+ "formats",
+ "gitignore",
+ "ignore",
+ "schemars",
+ "serde",
+ "serde_with",
+ "strum",
 ]
 
 [[package]]
@@ -5805,6 +5831,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "sources"
+version = "0.0.0"
+dependencies = [
+ "cron-utils",
+ "defaults",
+ "eyre",
+ "files",
+ "futures",
+ "graph-triples",
+ "providers",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "stencila-schema",
+ "strum",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5858,15 +5904,14 @@ dependencies = [
  "events",
  "exitcode",
  "eyre",
+ "files",
  "formats",
  "futures",
- "gitignore",
  "glob",
  "graph",
  "graph-triples",
  "handlebars",
  "humantime",
- "ignore",
  "itertools",
  "jsonwebtoken",
  "kernels",
@@ -5897,6 +5942,7 @@ dependencies = [
  "serde_with",
  "serde_yaml",
  "slug",
+ "sources",
  "stencila-schema",
  "structopt",
  "strum",

@@ -34,8 +34,10 @@ pack build --buildpack ../../target/buildpack/debug/stencila_python
 And if the build succeeds run the container and check that everything was installed and environment variables set properly,
 
 ```sh
-docker run --rm -it python-pyproject
+docker run --rm -it --entrypoint launcher python-pyproject bash
 ```
+
+It is important to use `--entrypoint launcher` so that environment variables are loaded from the files in `/layers/<layer>/env/` etc
 
 ### Testing multiple buildpacks
 

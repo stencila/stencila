@@ -1,0 +1,29 @@
+[package]
+edition = "2021"
+name = "sources"
+version = "0.0.0"
+
+[features]
+doi = ["providers/provider-doi"]
+elife = ["providers/provider-elife"]
+gdrive = ["providers/provider-gdrive"]
+github = ["providers/provider-github"]
+gitlab = ["providers/provider-gitlab"]
+http = ["providers/provider-http"]
+default = ["doi", "elife", "gdrive", "github", "gitlab", "http"]
+
+[dependencies]
+cron-utils = { path = "../cron-utils" }
+defaults = "0.2.0"
+eyre = "0.6.6"
+files = { path = "../files", version = "0.0.0" }
+futures = "0.3.19"
+graph-triples = { path = "../graph-triples", version = "0.0.0" }
+providers = { path = "../providers", version = "0.0.0" }
+serde = { version = "1.0.130", features = ["derive", "rc"] }
+serde_json = { version = "1.0.75" }
+serde_with = "1.11.0"
+stencila-schema = { path = "../schema" }
+strum = { version = "0.23.0", features = ["derive"] }
+tokio = { version = "1.13.0", features = ["sync", "macros"] }
+tracing = "0.1.29"

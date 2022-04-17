@@ -1,8 +1,7 @@
-use crate::utils::schemas;
 use defaults::Defaults;
 use events::publish;
 use formats::Format;
-use schemars::{schema::Schema, JsonSchema};
+use schemars::JsonSchema;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
@@ -141,7 +140,6 @@ pub struct FileEvent {
     /// Will be `None` for for `refreshed` and `removed` events,
     /// or if for some reason it was not possible to fetch metadata
     /// about the file.
-    #[schemars(schema_with = "FileEvent::schema_file")]
     pub file: Option<File>,
 
     /// The updated set of files in the project
@@ -149,21 +147,10 @@ pub struct FileEvent {
     /// Represents the new state of the file tree after the
     /// event including updated `parent` and `children`
     /// properties of files affects by the event.
-    #[schemars(schema_with = "FileEvent::schema_files")]
     pub files: BTreeMap<PathBuf, File>,
 }
 
 impl FileEvent {
-    /// Generate the JSON Schema for the `file` property
-    fn schema_file(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("File", false)
-    }
-
-    /// Generate the JSON Schema for the `files` property
-    fn schema_files(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Record<string, File>", true)
-    }
-
     pub fn publish(
         project: &Path,
         path: &Path,

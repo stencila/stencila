@@ -1110,12 +1110,41 @@ impl BinaryInstallation {
             let name = self.name.clone();
             tokio::spawn(async move {
                 while let Ok(Some(line)) = stderr_reader.next_line().await {
+                    // Attempt to parse the line as a JSON log object and get the level and message from there
+                    // This allows for better integration with tools such as Stencila itself which output
+                    // structured logs when stderr is not a TTY.
+                    let (level, message) = match serde_json::from_str::<serde_json::Value>(&line) {
+                        Ok(value) => {
+                            let level = match value
+                                .get("level")
+                                .and_then(|value| value.as_str())
+                                .map(|str| str.to_uppercase())
+                                .unwrap_or_default()
+                                .as_str()
+                            {
+                                "ERROR" => tracing::Level::ERROR,
+                                "WARN" => tracing::Level::WARN,
+                                "INFO" => tracing::Level::INFO,
+                                "DEBUG" => tracing::Level::DEBUG,
+                                "TRACE" => tracing::Level::TRACE,
+                                _ => level,
+                            };
+                            let message = value
+                                .get("message")
+                                .and_then(|value| value.as_str())
+                                .map(String::from)
+                                .unwrap_or_else(|| line.clone());
+                            (level, message)
+                        }
+                        Err(..) => (level, line),
+                    };
+
                     match level {
-                        tracing::Level::ERROR => tracing::error!("[{}] {}", name, line),
-                        tracing::Level::WARN => tracing::warn!("[{}] {}", name, line),
-                        tracing::Level::INFO => tracing::info!("[{}] {}", name, line),
-                        tracing::Level::DEBUG => tracing::debug!("[{}] {}", name, line),
-                        _ => tracing::trace!("[{}] {}", name, line),
+                        tracing::Level::ERROR => tracing::error!("[{}] {}", name, message),
+                        tracing::Level::WARN => tracing::warn!("[{}] {}", name, message),
+                        tracing::Level::INFO => tracing::info!("[{}] {}", name, message),
+                        tracing::Level::DEBUG => tracing::debug!("[{}] {}", name, message),
+                        _ => tracing::trace!("[{}] {}", name, message),
                     }
                 }
             });

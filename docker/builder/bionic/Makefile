@@ -5,7 +5,7 @@ buildpack-%:
 	make -C ../../../rust $@
 	
 # Build the buildpacks that are included in the builder
-buildpacks: buildpack-apt buildpack-node buildpack-python buildpack-r buildpack-stencila
+buildpacks: buildpack-sources buildpack-apt buildpack-node buildpack-python buildpack-r buildpack-stencila
 
 # Create the builder using pack
 create: buildpacks

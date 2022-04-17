@@ -5,9 +5,7 @@
 //
 // Core Stencila objects e.g `File`, `Article`, `Project`
 
-pub mod conversions;
 pub mod documents;
-pub mod files;
 pub use kernels;
 pub mod projects;
 pub mod sessions;

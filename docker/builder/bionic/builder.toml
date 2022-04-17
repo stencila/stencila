@@ -6,6 +6,9 @@ description = "Stencila CNB builder based on Ubuntu Bionic Beaver (18.04)"
 # The buildpacks to include in the builder
 
 [[buildpacks]]
+uri = "../../../target/buildpack/release/stencila_sources"
+
+[[buildpacks]]
 uri = "../../../target/buildpack/release/stencila_apt"
 
 [[buildpacks]]
@@ -25,10 +28,21 @@ uri = "../../../target/buildpack/release/stencila_stencila"
 # Order can be important.
 # See https://github.com/buildpacks/spec/blob/main/buildpack.md#phase-1-detection
 #
-# All buildpacks are optional, so they can potentially all be applied to the
+# The `sources` buildpack should always be first as it may import sources
+# into the working directory of the project that other buildpacks will detect against.
+# Because a `project.json` is not always present it is optional.
+#
+# The `stencila` buildpack installs the Stencila CLI binary which acts as the default
+# entrypoint to the container image. As such it is not optional.
+#
+# Other buildpacks are optional. They can potentially all be applied to the
 # same project.
 
 [[order]]
+
+[[order.group]]
+id = "stencila/sources"
+optional = true
 
 [[order.group]]
 id = "stencila/apt"
