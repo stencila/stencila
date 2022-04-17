@@ -405,7 +405,7 @@ jobs:
       # (~110GB) than D: drive (~30GB)
       - script: |
           cd C:\
-          cargo test --all --manifest-path D:\a\1\s\rust\Cargo.toml --target-dir target
+          cargo test --all --manifest-path $(Build.SourcesDirectory)/rust/Cargo.toml --target-dir target
         condition: true # contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
