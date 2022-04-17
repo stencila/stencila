@@ -366,6 +366,10 @@ jobs:
         startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       )
     steps:
+      - checkout: self
+        path: "C:\\custom_build"
+        fetchDepth: 1
+
       - task: Cache@2
         inputs:
           path: $(RUST_CACHE)
@@ -401,13 +405,7 @@ jobs:
           python3 -m ipykernel install --user
         displayName: 'Install: Jupyter kernels'
 
-      # Use a target directory on C: drive because it has a lot more free space
-      # (~110GB) than D: drive (~30GB)
       - script: |
-          mkdir -p C:\build\rust\
-          xcopy $(Build.SourcesDirectory)\rust C:\build\rust\ /s /h
-          cp $(Build.SourcesDirectory)\Cargo.toml C:\build\Cargo.toml
-          cd C:\build\
           cargo test --all
         condition: true # contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
