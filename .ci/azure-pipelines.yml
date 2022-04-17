@@ -404,9 +404,10 @@ jobs:
       # Use a target directory on C: drive because it has a lot more free space
       # (~110GB) than D: drive (~30GB)
       - script: |
-          cd rust
           mkdir -p "C:\cargo_target"
-          CARGO_TARGET_DIR="C:\cargo_target" cargo test
+          setx CARGO_TARGET_DIR "C:\cargo_target"
+          cd rust
+          cargo test
         condition: true # contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
