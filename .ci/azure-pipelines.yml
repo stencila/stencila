@@ -366,10 +366,6 @@ jobs:
         startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       )
     steps:
-      - checkout: self
-        path: "C:\\custom_build"
-        fetchDepth: 1
-
       - task: Cache@2
         inputs:
           path: $(RUST_CACHE)
@@ -406,7 +402,7 @@ jobs:
         displayName: 'Install: Jupyter kernels'
 
       - script: |
-          cargo test --all
+          cargo test --all --exclude "buildpack-*" --exclude "buildpacks" --exclude "codec-*" --exclude "codecs" --exclude "kernel-*" --exclude "kernels" --exclude "parser-*" --exclude "parsers" --exclude "provider-*" --exclude "providers"
         condition: true # contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
