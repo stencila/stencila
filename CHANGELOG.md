@@ -1,3 +1,20 @@
+# [1.5.0](https://github.com/stencila/stencila/compare/v1.4.1...v1.5.0) (2022-04-18)
+
+
+### Bug Fixes
+
+* **Binary:** Attempt to parse stderr lines a JSON log entries and use `level` and `message` properties ([9d88394](https://github.com/stencila/stencila/commit/9d883943e297c4d8c1c6c62bf7ac6644afcc1a5e))
+* **Buildpacks:** Use correct builder image tag ([299e2b1](https://github.com/stencila/stencila/commit/299e2b19f2e8fa249c5b10501291832cbcb780e0))
+* **CNB Builder:** Add `stencila_sources` buildpack ([c5f39b3](https://github.com/stencila/stencila/commit/c5f39b33c8ce05e83d1bcae5f1daaec825ded7ac))
+* **Dependencies:** Upgrade to libcnb 0.7.0 ([e3f5cfd](https://github.com/stencila/stencila/commit/e3f5cfd606e983f2d784e124d6ccd53b0f539aae))
+* **R buildpack:** Use `renv::snapshot` as default method for installing packages ([78502dd](https://github.com/stencila/stencila/commit/78502dd954d10bd62846d3bfd697752fee88deb7))
+* **R buildpack:** Use R directly in `RenvLayer` ([bcc59d5](https://github.com/stencila/stencila/commit/bcc59d54cfe9148c91109fb81307019e8c9eb7e6))
+
+
+### Features
+
+* **Sources buildpack:** Add buildpack to import project sources during `detect` phase` ([f162b71](https://github.com/stencila/stencila/commit/f162b71458606f267856f99ceb4ccfcfc0258279))
+
 ## [1.4.1](https://github.com/stencila/stencila/compare/v1.4.0...v1.4.1) (2022-04-14)
 
 
