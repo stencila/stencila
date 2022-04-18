@@ -135,6 +135,7 @@ jobs:
           set -e
           python3 -m pip install ipykernel
           python3 -m ipykernel install --user
+        condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: 'Install: Jupyter kernels'
 
       # Schema is tested and built (including language bindings which other modules use)
@@ -145,12 +146,12 @@ jobs:
 
       # Rust crate is linted if there are changes in the `rust` folder.
       - script: make -C rust lint
-        condition: contains(variables.changed, 'rust')
+        condition: and(contains(variables.changed, 'rust'), not(startsWith(variables['Build.SourceBranch'], 'refs/tags/')))
         displayName: 'Rust: Lint'
 
       # Rust crate is tested if there are changes in the `rust` folder.
       - script: make -C rust test
-        condition: contains(variables.changed, 'rust')
+        condition: and(contains(variables.changed, 'rust'), not(startsWith(variables['Build.SourceBranch'], 'refs/tags/')))
         displayName: 'Rust: Test'
 
       # Rust crate is audited if there are changes in the `rust` folder and on `master`.
@@ -213,6 +214,7 @@ jobs:
           kill %1
         condition: |
           and(
+            not(startsWith(variables['Build.SourceBranch'], 'refs/tags/')),
             succeeded(),
             or(
               contains(variables.changed, 'rust'),
@@ -304,13 +306,14 @@ jobs:
           set -e
           python3 -m pip install ipykernel
           python3 -m ipykernel install --user
+        condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: 'Install: Jupyter kernels'
 
       - script: |
           set -e
           cd rust
           cargo test
-        condition: contains(variables.changed, 'rust')
+        condition: and(contains(variables.changed, 'rust'), not(startsWith(variables['Build.SourceBranch'], 'refs/tags/')))
         displayName: 'Rust: Test'
 
       - task: InstallAppleCertificate@2
@@ -398,6 +401,7 @@ jobs:
       - script: |
           python3 -m pip install ipykernel
           python3 -m ipykernel install --user
+        condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: 'Install: Jupyter kernels'
 
       # Exclude several tests to avoid running out of disk space on drive D: (~14GB available).
@@ -407,7 +411,7 @@ jobs:
       #   3. unable to use CARGO_TARGET_DIR or --target-dir on another drive
       - script: |
           cargo test --all --exclude "buildpack-*" --exclude "buildpacks" --exclude "codec-*" --exclude "codecs" --exclude "kernel-*" --exclude "kernels" --exclude "parser-*" --exclude "parsers" --exclude "provider-*" --exclude "providers"
-        condition: contains(variables.changed, 'rust')
+        condition: and(contains(variables.changed, 'rust'), not(startsWith(variables['Build.SourceBranch'], 'refs/tags/')))
         displayName: 'Rust: Test'
 
       - task: DownloadSecureFile@1
