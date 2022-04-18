@@ -359,15 +359,10 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    # Skip Windows builds until we are able to resolve issue with filenames of Cargo `git = ...` crates
-    # having too long filenames e.g. https://dev.azure.com/stencila/stencila/_build/results?buildId=18068&view=logs&j=2d2b3007-3c5c-5840-9bb0-2b1ea49925f3&t=be5e7cb1-b8ca-569b-a02f-a5442c8a3f8a&l=27
     condition: |
-      and(
-        false,
-        or(
-          contains(variables.changed, 'rust'),
-          startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        )
+      or(
+        contains(variables.changed, 'rust'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       )
     steps:
       - task: Cache@2
@@ -380,13 +375,11 @@ jobs:
             Rust | $(Agent.OS)
 
       - script: |
-          set -e
           cargo list | grep --quiet cache || cargo install cargo-cache
           echo ##vso[task.setvariable variable=RUST_CACHING]true
         displayName: 'Install: Rust build tools'
 
       - script: |
-          set -e
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-pc-windows-msvc.tar.gz -o sccache.tar.gz
           tar -xzf sccache.tar.gz
           mkdir -p $(CARGO_HOME)/bin/sccache
@@ -403,17 +396,17 @@ jobs:
         displayName: 'Install: Node.js version'
 
       - script: |
-          set -e
           python3 -m pip install ipykernel
           python3 -m ipykernel install --user
         displayName: 'Install: Jupyter kernels'
 
-      # At the time of writing, when running all the tests, storage space was being exceed
-      # so this skips the `codec-*` tests.
+      # Exclude several tests to avoid running out of disk space on drive D: (~14GB available).
+      # Several other ways around this were attempted to no avail:
+      #   1. unable to checkout repo to C: drive (~100GB available)
+      #   2. unable to copy repo to C: drive
+      #   3. unable to use CARGO_TARGET_DIR or --target-dir on another drive
       - script: |
-          set -e
-          cd rust
-          cargo test  --workspace --exclude "codec-*"
+          cargo test --all --exclude "buildpack-*" --exclude "buildpacks" --exclude "codec-*" --exclude "codecs" --exclude "kernel-*" --exclude "kernels" --exclude "parser-*" --exclude "parsers" --exclude "provider-*" --exclude "providers"
         condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
