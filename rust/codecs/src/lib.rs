@@ -448,8 +448,31 @@ pub mod commands {
         #[structopt(short, long)]
         to: Option<String>,
 
-        /// The theme to apply to the output (only for HTML and PDF)
-        #[structopt(short = "e", long)]
+        /// Whether to encode in compact form
+        ///
+        /// Some formats (e.g HTML and JSON) can be encoded in either compact
+        /// or "pretty-printed" (e.g. indented) forms.
+        #[structopt(long, short)]
+        compact: bool,
+
+        /// Whether to ensure that the encoded document is standalone
+        ///
+        /// Some formats (e.g. Markdown, DOCX) are always standalone.
+        /// Others can be fragments, or standalone documents (e.g HTML).
+        #[structopt(long, short)]
+        standalone: bool,
+
+        /// Whether to bundle local media files into the encoded document
+        ///
+        /// Some formats (e.g. DOCX, PDF) always bundle. For HTML, bundling means
+        /// including media as data URIs rather than links to files.
+        #[structopt(long, short)]
+        bundle: bool,
+
+        /// The theme to apply to the encoded document
+        ///
+        /// Only applies to some formats (e.g. HTML, PDF, PNG).
+        #[structopt(long, short = "e")]
         theme: Option<String>,
     }
     #[async_trait]
@@ -474,8 +497,11 @@ pub mod commands {
             };
 
             let options = Some(EncodeOptions {
+                compact: self.compact,
+                standalone: self.standalone,
+                bundle: self.bundle,
                 theme: self.theme.clone(),
-                ..Default::default()
+                format: self.to.clone(),
             });
             if self.output.display().to_string() == "-" {
                 let format = match &self.to {
