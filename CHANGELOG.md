@@ -1,3 +1,11 @@
+## [1.5.1](https://github.com/stencila/stencila/compare/v1.5.0...v1.5.1) (2022-04-19)
+
+
+### Bug Fixes
+
+* **Docker:** Install `openssl` and `ca-certificates` into `stencila/stencila:focal` ([6ee52ed](https://github.com/stencila/stencila/commit/6ee52edae1a26427f0c554815c66792e94bf3c16))
+* **Files:** Do not panic if unable to make path relative ([1c14ab5](https://github.com/stencila/stencila/commit/1c14ab5e7248d7a65bff14a10f9f214b4048eb74))
+
 # [1.5.0](https://github.com/stencila/stencila/compare/v1.4.1...v1.5.0) (2022-04-18)
 
 
