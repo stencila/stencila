@@ -98,6 +98,7 @@ pub async fn nodes_to_bytes(
 
     // Wrap the HTML with a header etc so that the theme is set and CSS is loaded
     let EncodeOptions { theme, .. } = options.unwrap_or_default();
+    let theme = theme.unwrap_or_else(|| "rpng".to_string());
     let html = codec_html::wrap_standalone("PNG", &theme, &html);
 
     // Launch the browser
@@ -149,15 +150,7 @@ mod tests {
 
         let dir = tempfile::tempdir()?;
         let path = dir.path().join("temp.png");
-        PngCodec::to_path(
-            &node,
-            &path,
-            Some(EncodeOptions {
-                theme: "rpng".to_string(),
-                ..Default::default()
-            }),
-        )
-        .await?;
+        PngCodec::to_path(&node, &path, None).await?;
         assert!(path.exists());
 
         let data = PngCodec::to_string_async(&node, None).await?;

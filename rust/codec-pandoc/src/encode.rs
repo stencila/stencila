@@ -62,7 +62,7 @@ impl EncodeContext {
         let json = JsonCodec::to_string(
             &node,
             Some(EncodeOptions {
-                theme: "compact".to_string(),
+                theme: Some("compact".to_string()),
                 ..Default::default()
             }),
         )

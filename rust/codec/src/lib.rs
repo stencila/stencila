@@ -217,7 +217,7 @@ pub struct EncodeOptions {
     /// The theme to apply to the encoded document
     ///
     /// Only applies to some formats (e.g. HTML, PDF, PNG).
-    pub theme: String,
+    pub theme: Option<String>,
 
     /// The format to encode to
     ///
@@ -232,7 +232,7 @@ impl Default for EncodeOptions {
             compact: true,
             standalone: false,
             bundle: false,
-            theme: "stencila".to_string(),
+            theme: None,
             format: None,
         }
     }

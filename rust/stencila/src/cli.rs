@@ -414,9 +414,9 @@ impl Run for ShowCommand {
     }
 }
 
-/// Currently, these commands simply delegate to the `documents` module
+/// Currently, these top-level commands simply delegate to those in other modules
 type RunCommand = documents::commands::Runn;
-type ConvertCommand = documents::commands::Convert;
+type ConvertCommand = codecs::commands::Convert;
 type DiffCommand = documents::commands::Diff;
 type MergeCommand = documents::commands::Merge;
 
