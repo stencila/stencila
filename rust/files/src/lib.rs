@@ -240,17 +240,16 @@ impl Files {
                     if absolute_paths {
                         (path, file)
                     } else {
-                        file.path = file
-                            .path
-                            .strip_prefix(&root_path)
-                            .expect("Should always have path as prefix")
-                            .to_path_buf();
+                        file.path = path.strip_prefix(&root_path).unwrap_or(&path).to_path_buf();
 
                         file.parent = match file.parent {
-                            Some(path) => match path == root_path {
+                            Some(parent_path) => match parent_path == root_path {
                                 true => None,
                                 false => Some(
-                                    path.strip_prefix(&root_path).unwrap_or(&path).to_path_buf(),
+                                    parent_path
+                                        .strip_prefix(&root_path)
+                                        .unwrap_or(&parent_path)
+                                        .to_path_buf(),
                                 ),
                             },
 
