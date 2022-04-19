@@ -132,7 +132,7 @@ pub async fn nodes_to_bytes(
         let json = JsonCodec::to_string(
             nodes[index],
             Some(EncodeOptions {
-                theme: Some("compact".to_string()),
+                compact: true,
                 ..Default::default()
             }),
         )?;
