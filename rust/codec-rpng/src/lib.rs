@@ -119,7 +119,7 @@ pub async fn nodes_to_bytes(
     let pngs = codec_png::nodes_to_bytes(
         nodes,
         Some(EncodeOptions {
-            theme: "rpng".to_string(),
+            theme: Some("rpng".to_string()),
             ..options.unwrap_or_default()
         }),
     )
@@ -132,7 +132,7 @@ pub async fn nodes_to_bytes(
         let json = JsonCodec::to_string(
             nodes[index],
             Some(EncodeOptions {
-                theme: "compact".to_string(),
+                compact: true,
                 ..Default::default()
             }),
         )?;

@@ -1315,6 +1315,8 @@ dependencies = [
  "formats",
  "once_cell",
  "structopt",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]

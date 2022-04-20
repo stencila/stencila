@@ -343,43 +343,42 @@ impl Default for Codecs {
 
 #[cfg(feature = "cli")]
 pub mod commands {
-    use super::*;
-    use cli_utils::{result, Result, Run};
-    use codec::async_trait::async_trait;
+    use std::{io::Read, path::PathBuf};
+
     use structopt::StructOpt;
 
-    /// Manage codecs
+    use cli_utils::{result, Result, Run};
+    use codec::async_trait::async_trait;
+
+    use super::*;
+
+    /// Manage and use codecs
     ///
     /// In Stencila, a "codec" is responsible for converting documents
     /// to ("encoding") and from ("decoding") a format (e.g. Markdown).
-    /// This command alls you to list the available codecs and see their
-    /// specifications (e.g. which formats they support).
+    ///
+    /// This command allows you to list the available codecs, see their
+    /// specifications (e.g. which formats they support), and use them
+    /// to convert content between formats.
     #[derive(Debug, StructOpt)]
     #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]
-    pub struct Command {
-        #[structopt(subcommand)]
-        pub action: Action,
-    }
-
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
-    pub enum Action {
+    pub enum Command {
         List(List),
         Show(Show),
+        Convert(Convert),
     }
 
     #[async_trait]
     impl Run for Command {
         async fn run(&self) -> Result {
-            let Self { action } = self;
-            match action {
-                Action::List(action) => action.run().await,
-                Action::Show(action) => action.run().await,
+            match self {
+                Command::List(action) => action.run().await,
+                Command::Show(action) => action.run().await,
+                Command::Convert(action) => action.run().await,
             }
         }
     }
@@ -420,6 +419,102 @@ pub mod commands {
         async fn run(&self) -> Result {
             let codec = CODECS.get(&self.label)?;
             result::value(codec)
+        }
+    }
+
+    /// Convert between formats
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Convert {
+        /// The path of the input document
+        ///
+        /// Use `-` to read from the console's standard input.
+        input: PathBuf,
+
+        /// The path of the output document
+        ///
+        /// Use `-` to print to the console's standard output (default).
+        #[structopt(default_value = "-")]
+        output: PathBuf,
+
+        /// The format of the input (defaults to being inferred from the file extension or content type)
+        #[structopt(short, long)]
+        from: Option<String>,
+
+        /// The format of the output (defaults to being inferred from the file extension)
+        #[structopt(short, long)]
+        to: Option<String>,
+
+        /// Whether to encode in compact form
+        ///
+        /// Some formats (e.g HTML and JSON) can be encoded in either compact
+        /// or "pretty-printed" (e.g. indented) forms.
+        #[structopt(long, short)]
+        compact: bool,
+
+        /// Whether to ensure that the encoded document is standalone
+        ///
+        /// Some formats (e.g. Markdown, DOCX) are always standalone.
+        /// Others can be fragments, or standalone documents (e.g HTML).
+        #[structopt(long, short)]
+        standalone: bool,
+
+        /// Whether to bundle local media files into the encoded document
+        ///
+        /// Some formats (e.g. DOCX, PDF) always bundle. For HTML, bundling means
+        /// including media as data URIs rather than links to files.
+        #[structopt(long, short)]
+        bundle: bool,
+
+        /// The theme to apply to the encoded document
+        ///
+        /// Only applies to some formats (e.g. HTML, PDF, PNG).
+        #[structopt(long, short = "e")]
+        theme: Option<String>,
+    }
+    #[async_trait]
+    impl Run for Convert {
+        async fn run(&self) -> Result {
+            let options = Some(DecodeOptions {
+                ..Default::default()
+            });
+            let node = if self.input.display().to_string() == "-" {
+                tracing::info!("Reading from standard input; use Ctl+D to end");
+                let mut content = String::new();
+                std::io::stdin().read_to_string(&mut content)?;
+
+                let format = match &self.from {
+                    Some(from) => from.clone(),
+                    None => "json".to_string(),
+                };
+
+                from_str(&content, &format, options).await?
+            } else {
+                from_path(&self.input, self.from.as_deref(), options).await?
+            };
+
+            let options = Some(EncodeOptions {
+                compact: self.compact,
+                standalone: self.standalone,
+                bundle: self.bundle,
+                theme: self.theme.clone(),
+                format: self.to.clone(),
+            });
+            if self.output.display().to_string() == "-" {
+                let format = match &self.to {
+                    Some(to) => to.clone(),
+                    None => "json".to_string(),
+                };
+
+                let content = to_string(&node, &format, options).await?;
+                result::content(&format, &content)
+            } else {
+                to_path(&node, &self.output, self.to.as_deref(), options).await?;
+                result::nothing()
+            }
         }
     }
 }

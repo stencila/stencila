@@ -195,29 +195,28 @@ pub struct DecodeOptions {
 /// Futhermore, some combinations of options are ineffectual e.g. a `theme` when `standalone: false`
 #[derive(Clone)]
 pub struct EncodeOptions {
-    /// Whether to encode in compact form.
+    /// Whether to encode in compact form
     ///
     /// Some formats (e.g HTML and JSON) can be encoded in either compact
-    /// or "pretty-printed" ie.e. indented forms.
+    /// or "pretty-printed" (e.g. indented) forms.
     pub compact: bool,
 
-    /// Whether to ensure that the encoded document is standalone.
+    /// Whether to ensure that the encoded document is standalone
     ///
-    /// Some formats (e.g. Markdown, DOCX) are always standalone, others
-    /// can be frangments, or standalong documents (e.g HTML).
+    /// Some formats (e.g. Markdown, DOCX) are always standalone.
+    /// Others can be fragments, or standalone documents (e.g HTML).
     pub standalone: bool,
 
     /// Whether to bundle local media files into the encoded document
     ///
-    /// Some formats (e.g. DOCX, PDF) always bundle. For HTML,
-    /// bundling means including media as data URIs rather than
-    /// links to files.
+    /// Some formats (e.g. DOCX, PDF) always bundle. For HTML, bundling means
+    /// including media as data URIs rather than links to files.
     pub bundle: bool,
 
     /// The theme to apply to the encoded document
     ///
     /// Only applies to some formats (e.g. HTML, PDF, PNG).
-    pub theme: String,
+    pub theme: Option<String>,
 
     /// The format to encode to
     ///
@@ -232,7 +231,7 @@ impl Default for EncodeOptions {
             compact: true,
             standalone: false,
             bundle: false,
-            theme: "stencila".to_string(),
+            theme: None,
             format: None,
         }
     }

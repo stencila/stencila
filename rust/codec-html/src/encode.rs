@@ -14,7 +14,7 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
     } = options.unwrap_or_default();
 
     let html = if standalone {
-        wrap_standalone("", &theme, &html)
+        wrap_standalone("", &theme.unwrap_or_else(|| "stencila".to_string()), &html)
     } else {
         html
     };

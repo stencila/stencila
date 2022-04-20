@@ -76,7 +76,7 @@ pub mod print {
     }
 
     /// Print an error
-    pub fn error(error: eyre::Report) {
+    pub fn error(error: eyre::Report, _format: &str) {
         eprintln!("ERROR {:?}", error);
     }
 }

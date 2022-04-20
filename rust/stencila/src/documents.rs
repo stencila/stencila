@@ -691,11 +691,9 @@ impl Document {
 
         let mut options = codecs::EncodeOptions {
             standalone: true,
+            theme,
             ..Default::default()
         };
-        if let Some(theme) = theme {
-            options.theme = theme
-        }
 
         let root = &*self.root.read().await;
         codecs::to_path(root, path, Some(&format), Some(options)).await?;
@@ -1899,7 +1897,6 @@ pub mod commands {
         Graph(Graph),
         Run(Runn),
         Query(Query),
-        Convert(Convert),
         Diff(Diff),
         Merge(Merge),
         Detect(Detect),
@@ -1934,7 +1931,6 @@ pub mod commands {
                 Action::Graph(action) => action.run().await,
                 Action::Run(action) => action.run().await,
                 Action::Query(action) => action.run().await,
-                Action::Convert(action) => action.run().await,
                 Action::Diff(action) => action.run().await,
                 Action::Merge(action) => action.run().await,
                 Action::Detect(action) => action.run().await,
@@ -2398,56 +2394,6 @@ pub mod commands {
             let node = &*document.root.read().await;
             let result = node_query::query(node, query, lang)?;
             result::value(result)
-        }
-    }
-
-    /// Convert a document to another format
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Convert {
-        /// The path of the input document
-        pub input: PathBuf,
-
-        /// The path of the output document
-        ///
-        /// Use `-` to print output to the console's standard output.
-        #[structopt(default_value = "-")]
-        pub output: PathBuf,
-
-        /// The format of the input (defaults to being inferred from the file extension or content type)
-        #[structopt(short, long)]
-        from: Option<String>,
-
-        /// The format of the output (defaults to being inferred from the file extension)
-        #[structopt(short, long)]
-        to: Option<String>,
-
-        /// The theme to apply to the output (only for HTML and PDF)
-        #[structopt(short = "e", long)]
-        theme: Option<String>,
-    }
-    #[async_trait]
-    impl Run for Convert {
-        async fn run(&self) -> Result {
-            let document = Document::open(&self.input, self.from.clone()).await?;
-
-            let out = self.output.display().to_string();
-            if out == "-" {
-                let format = match &self.to {
-                    None => "json".to_string(),
-                    Some(format) => format.clone(),
-                };
-                let content = document.dump(Some(format.clone()), None).await?;
-                result::content(&format, &content)
-            } else {
-                document
-                    .write_as(&self.output, self.to.clone(), self.theme.clone())
-                    .await?;
-                result::nothing()
-            }
         }
     }
 
