@@ -6,7 +6,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use google_drive::{self, types::Channel, DEFAULT_HOST};
+use google_drive::{self, types::Channel};
 use provider::{
     async_trait::async_trait,
     chrono::{DateTime, Utc},
@@ -29,6 +29,10 @@ use server_utils::{
     },
     hostname, serve_gracefully,
 };
+
+/// Base URLs for APIs used
+const GOOGLE_DRIVE_API: &str = "https://www.googleapis.com/drive/v3";
+const GOOGLE_DOCS_API: &str = "https://docs.googleapis.com/v1";
 
 /// The default name for the secret used to authenticate with the API
 const SECRET_NAME: &str = "GOOGLE_TOKEN";
@@ -139,7 +143,8 @@ impl GoogleDriveClient {
                 tokio::spawn(async move {
                     let file_id = child.id;
                     // TODO mime type
-                    let url = format!("{DEFAULT_HOST}/files/{file_id}/export?mimeType=text/html");
+                    let url =
+                        format!("{GOOGLE_DRIVE_API}/files/{file_id}/export?mimeType=text/html");
                     let filename = PathBuf::from(child.name);
                     let path = dest_clone.join(filename);
                     tracing::debug!(
@@ -157,7 +162,7 @@ impl GoogleDriveClient {
             // The destination path does not have an extension so use the default for the kind
             // The list of available export formats: https://developers.google.com/drive/api/v3/ref-export-formats
             let (ext, mime_type) = match file_kind {
-                FileKind::Doc => (".html", "text/html"),
+                FileKind::Doc => (".gdoc", ""),
                 FileKind::Sheet => (".csv", "text/csv"),
                 FileKind::File => ("", ""),
                 _ => bail!("Unhandled Google Drive file kind {:?}", file_kind),
@@ -171,10 +176,13 @@ impl GoogleDriveClient {
             };
 
             let url = match file_kind {
-                FileKind::Doc | FileKind::Sheet => {
-                    format!("{DEFAULT_HOST}/files/{file_id}/export?mimeType={mime_type}")
+                FileKind::Doc => {
+                    format!("{GOOGLE_DOCS_API}/documents/{file_id}")
                 }
-                FileKind::File => format!("{DEFAULT_HOST}/files/{file_id}?alt=media"),
+                FileKind::Sheet => {
+                    format!("{GOOGLE_DRIVE_API}/files/{file_id}/export?mimeType={mime_type}")
+                }
+                FileKind::File => format!("{GOOGLE_DRIVE_API}/files/{file_id}?alt=media"),
                 _ => bail!("Unhandled Google Drive file kind {:?}", file_kind),
             };
 
