@@ -1,3 +1,16 @@
+# [1.6.0](https://github.com/stencila/stencila/compare/v1.5.1...v1.6.0) (2022-04-20)
+
+
+### Bug Fixes
+
+* **Google Drive provider:** Import Google Docs as `.gdoc` JSON ([c3f3d6a](https://github.com/stencila/stencila/commit/c3f3d6a87b7f9d76d125beaa17b9479db8c69626))
+* **RPNG:** Use `compact` option, rather than deprecated "compact" theme ([6a9eeac](https://github.com/stencila/stencila/commit/6a9eeacc41c40027f75cb9c4dd9fb9da50affb6c))
+
+
+### Features
+
+* **Codecs:** Make all `EncodeOptions` available to `convert` CLI command ([6fbfd81](https://github.com/stencila/stencila/commit/6fbfd81f4cdf898f7f6350f939bcabff340b0bfa))
+
 ## [1.5.1](https://github.com/stencila/stencila/compare/v1.5.0...v1.5.1) (2022-04-19)
 
 
