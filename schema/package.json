@@ -12,8 +12,8 @@
   "unpkg": "dist/browser/schema.umd.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
-    "lint": "npx eslint 'src/**/*.{js,ts}' --fix",
+    "format": "prettier --write './**/*.{js,json,md,ts,yaml}'",
+    "lint": "eslint 'src/**/*.{js,ts}' --fix",
     "test": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && jest --runInBand",
     "test:cover": "npm test -- --coverage",
     "build": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && npm run build:python && npm run build:r && npm run build:rust && npm run build:vscode && npm run build:dist",
@@ -26,11 +26,11 @@
     "build:vscode": "ts-node src/bindings/vscode.ts",
     "build:browser": "microbundle --tsconfig tsconfig.browser.json -o dist/browser --format es,umd src/index.browser.ts",
     "build:node": "microbundle --tsconfig tsconfig.lib.json --target node --format es,cjs src/index.ts",
-    "build:dist": "npm run build:node && npm run build:browser && cp public/*.schema.json dist && cp public/*.jsonld dist",
+    "build:dist": "npm run build:node && npm run build:browser && shx cp 'public/*.schema.json' dist && shx cp 'public/*.jsonld' dist",
     "docs": "npm run docs:md && npm run docs:api",
     "docs:md": "ts-node src/docs.ts",
     "docs:api": "ts-node src/bindings/typescript.ts && typedoc src/index.ts --readme src/README.md --tsconfig tsconfig.docs.json --out src/docs/",
-    "clean": "rimraf coverage dist public src/types.ts"
+    "clean": "shx rm -rf coverage dist public src/types.ts"
   },
   "repository": {
     "type": "git",
@@ -72,7 +72,7 @@
     "lodash": "4.17.21",
     "microbundle": "0.14.2",
     "prettier": "2.5.1",
-    "rimraf": "3.0.2",
+    "shx": "0.3.4",
     "toposort": "2.0.2",
     "ts-jest": "27.1.3",
     "ts-node": "10.4.0",
