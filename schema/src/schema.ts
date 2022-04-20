@@ -447,7 +447,7 @@ const parentSchema = (
  * Add all entity and primitive types to the `Node` union schema.
  *
  * The order of the types is important as it influences the
- * order of attempted de-serialization and coercion (in Rust and possibly other 
+ * order of attempted de-serialization and coercion (in Rust and possibly other
  * languages). Furthermore, some code may rely on the order. So test before
  * changing.
  */

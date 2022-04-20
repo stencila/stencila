@@ -52,7 +52,7 @@ export function microdataItem(node: Node, id?: string): MicrodataItem {
     }
   else if (typeof node !== 'string')
     return {
-      'itemtype': itemtype,
+      itemtype: itemtype,
       ...itemidAttr,
     }
   else return itemidAttr

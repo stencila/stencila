@@ -2,6 +2,5 @@ title: Node
 category: other
 status: stable
 description: Union type for all types of nodes in this schema, including primitives and entities
-
 # All the individual entity and primitive types are added to the `anyOf` property of this
 # schema during the build to JSON Schema. This file just serves as a stub for status, description etc
