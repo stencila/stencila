@@ -140,7 +140,7 @@ impl Buildpack for RBuildpack {
             );
             requires.push(require);
             provides.push(provide);
-        } 
+        }
 
         let mut build_plan = BuildPlan::new();
         build_plan.requires = requires;
