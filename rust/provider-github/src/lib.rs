@@ -110,7 +110,7 @@ pub struct GithubProvider;
 impl GithubProvider {
     /// Extract the GitHub repository owner and name from a [`SoftwareSourceCode`] node
     fn owner_repo(ssc: &SoftwareSourceCode) -> Result<(&str, &str)> {
-        if let Some(repo) = &ssc.code_repository {
+        if let Some(repo) = &ssc.url {
             if let Some(repo) = repo.strip_prefix("https://github.com/") {
                 let parts: Vec<&str> = repo.split('/').collect();
                 if parts.len() >= 2 {
@@ -118,7 +118,7 @@ impl GithubProvider {
                 }
             }
         }
-        bail!("Unable to resolve GitHub repo from `code_repository` property")
+        bail!("Unable to resolve GitHub repo from `url` property")
     }
 
     /// Extract the sub-path from a [`SoftwareSourceCode`] node (if any)
@@ -190,7 +190,7 @@ impl ProviderTrait for GithubProvider {
                 begin,
                 end,
                 node: Node::SoftwareSourceCode(SoftwareSourceCode {
-                    code_repository: Some(Box::new(format!("https://github.com/{}/{}", org, name))),
+                    url: Some(Box::new(format!("https://github.com/{}/{}", org, name))),
                     publisher: Some(Box::new(CreativeWorkPublisher::Organization(
                         Organization {
                             name: Some(Box::new(org)),
@@ -697,7 +697,7 @@ mod tests {
                 GithubProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://github.com/owner/name",
+                    "url": "https://github.com/owner/name",
                     "publisher": {
                         "type": "Organization",
                         "name": "owner"
@@ -713,7 +713,7 @@ mod tests {
                 GithubProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://github.com/owner/name",
+                    "url": "https://github.com/owner/name",
                     "publisher": {
                         "type": "Organization",
                         "name": "owner"
@@ -733,7 +733,7 @@ mod tests {
                 GithubProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://github.com/owner/name",
+                    "url": "https://github.com/owner/name",
                     "publisher": {
                         "type": "Organization",
                         "name": "owner"
@@ -754,7 +754,7 @@ mod tests {
                 GithubProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://github.com/owner/name",
+                    "url": "https://github.com/owner/name",
                     "publisher": {
                         "type": "Organization",
                         "name": "owner"
@@ -772,7 +772,7 @@ mod tests {
                 GithubProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://github.com/owner/name",
+                    "url": "https://github.com/owner/name",
                     "publisher": {
                         "type": "Organization",
                         "name": "owner"
@@ -792,7 +792,7 @@ mod tests {
                 GithubProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://github.com/Org-with-dashes/name-with-2Dashes",
+                    "url": "https://github.com/Org-with-dashes/name-with-2Dashes",
                     "publisher": {
                         "type": "Organization",
                         "name": "Org-with-dashes"
@@ -814,7 +814,7 @@ mod tests {
         assert_eq!(parse_items.len(), 2);
         assert_json_is!(parse_items[0].node, {
             "type": "SoftwareSourceCode",
-            "codeRepository": "https://github.com/owner/name",
+            "url": "https://github.com/owner/name",
             "publisher": {
                 "type": "Organization",
                 "name": "owner"
@@ -823,7 +823,7 @@ mod tests {
         });
         assert_json_is!(parse_items[1].node, {
             "type": "SoftwareSourceCode",
-            "codeRepository": "https://github.com/owner/name",
+            "url": "https://github.com/owner/name",
             "publisher": {
                 "type": "Organization",
                 "name": "owner"

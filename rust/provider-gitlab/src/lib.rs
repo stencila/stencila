@@ -115,7 +115,7 @@ pub struct GitlabProvider;
 impl GitlabProvider {
     /// Extract the Gitlab org and project name from a [`SoftwareSourceCode`] node
     fn org_name(ssc: &SoftwareSourceCode) -> Result<(&str, &str)> {
-        if let Some(repo) = &ssc.code_repository {
+        if let Some(repo) = &ssc.url {
             if let Some(repo) = repo.strip_prefix("https://gitlab.com/") {
                 let parts: Vec<&str> = repo.split('/').collect();
                 if parts.len() >= 2 {
@@ -123,7 +123,7 @@ impl GitlabProvider {
                 }
             }
         }
-        bail!("Unable to resolve Gitlab repository from `code_repository` property")
+        bail!("Unable to resolve Gitlab repository from `url` property")
     }
 
     /// Extract the Gitlab project from a [`SoftwareSourceCode`] node as a URL encoded path
@@ -208,7 +208,7 @@ impl ProviderTrait for GitlabProvider {
                 begin,
                 end,
                 node: Node::SoftwareSourceCode(SoftwareSourceCode {
-                    code_repository: Some(Box::new(format!("https://gitlab.com/{}/{}", org, name))),
+                    url: Some(Box::new(format!("https://gitlab.com/{}/{}", org, name))),
                     publisher: Some(Box::new(CreativeWorkPublisher::Organization(
                         Organization {
                             name: Some(Box::new(org)),
@@ -666,7 +666,7 @@ mod tests {
                 GitlabProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://gitlab.com/owner/name",
+                    "url": "https://gitlab.com/owner/name",
                     "publisher": {
                         "type": "Organization",
                         "name": "owner"
@@ -682,7 +682,7 @@ mod tests {
                 GitlabProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://gitlab.com/owner/name",
+                    "url": "https://gitlab.com/owner/name",
                     "publisher": {
                         "type": "Organization",
                         "name": "owner"
@@ -702,7 +702,7 @@ mod tests {
                 GitlabProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://gitlab.com/owner/name",
+                    "url": "https://gitlab.com/owner/name",
                     "publisher": {
                         "type": "Organization",
                         "name": "owner"
@@ -723,7 +723,7 @@ mod tests {
                 GitlabProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://gitlab.com/owner/name",
+                    "url": "https://gitlab.com/owner/name",
                     "publisher": {
                         "type": "Organization",
                         "name": "owner"
@@ -741,7 +741,7 @@ mod tests {
                 GitlabProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://gitlab.com/owner/name",
+                    "url": "https://gitlab.com/owner/name",
                     "publisher": {
                         "type": "Organization",
                         "name": "owner"
@@ -762,7 +762,7 @@ mod tests {
                 GitlabProvider::parse(string)[0].node,
                 {
                     "type": "SoftwareSourceCode",
-                    "codeRepository": "https://gitlab.com/Org-with-dashes/name-with-2Dashes",
+                    "url": "https://gitlab.com/Org-with-dashes/name-with-2Dashes",
                     "publisher": {
                         "type": "Organization",
                         "name": "Org-with-dashes"
@@ -784,7 +784,7 @@ mod tests {
         assert_eq!(parse_items.len(), 2);
         assert_json_is!(parse_items[0].node, {
             "type": "SoftwareSourceCode",
-            "codeRepository": "https://gitlab.com/owner/name",
+            "url": "https://gitlab.com/owner/name",
             "publisher": {
                 "type": "Organization",
                 "name": "owner"
@@ -793,7 +793,7 @@ mod tests {
         });
         assert_json_is!(parse_items[1].node, {
             "type": "SoftwareSourceCode",
-            "codeRepository": "https://gitlab.com/owner/name",
+            "url": "https://gitlab.com/owner/name",
             "publisher": {
                 "type": "Organization",
                 "name": "owner"
