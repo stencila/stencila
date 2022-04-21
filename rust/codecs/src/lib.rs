@@ -83,6 +83,8 @@ macro_rules! dispatch_builtins {
             Format::Date => Some(codec_date::DateCodec::$method($($arg),*)),
             #[cfg(feature = "codec-docx")]
             Format::Docx => Some(codec_docx::DocxCodec::$method($($arg),*)),
+            #[cfg(feature = "codec-gdoc")]
+            Format::Gdoc => Some(codec_gdoc::GdocCodec::$method($($arg),*)),
             #[cfg(feature = "codec-html")]
             Format::Html => Some(codec_html::HtmlCodec::$method($($arg),*)),
             #[cfg(feature = "codec-ipynb")]
@@ -132,6 +134,8 @@ impl Codecs {
             ("date", codec_date::DateCodec::spec()),
             #[cfg(feature = "codec-docx")]
             ("docx", codec_docx::DocxCodec::spec()),
+            #[cfg(feature = "codec-gdoc")]
+            ("gdoc", codec_gdoc::GdocCodec::spec()),
             #[cfg(feature = "codec-html")]
             ("html", codec_html::HtmlCodec::spec()),
             #[cfg(feature = "codec-ipynb")]

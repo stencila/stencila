@@ -19,6 +19,7 @@ pub enum Format {
     Dockerfile,
     Docx,
     Flac,
+    Gdoc,
     Gif,
     Html,
     Ipynb,
@@ -86,6 +87,7 @@ impl Format {
 
             // Article formats
             Format::Docx => FormatSpec::new("Microsoft Word", "docx", &[], true, true, FormatNodeType::Article),
+            Format::Gdoc => FormatSpec::new("Google Docs", "gdoc", &[], false, true, FormatNodeType::Article),
             Format::Html => FormatSpec::new("HTML", "html", &[], false, true, FormatNodeType::Article),
             Format::Ipynb => FormatSpec::new("Jupyter Notebook", "ipynb", &[], false, true, FormatNodeType::Article),
             Format::Markdown => FormatSpec::new("Markdown", "md", &[], false, true, FormatNodeType::Article),

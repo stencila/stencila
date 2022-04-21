@@ -52,6 +52,7 @@ default = [
   "codecs-cli",
   "codecs/codec-date",
   "codecs/codec-docx",
+  "codecs/codec-gdoc",
   "codecs/codec-html",
   "codecs/codec-ipynb",
   "codecs/codec-json",
