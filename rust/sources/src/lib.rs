@@ -113,6 +113,10 @@ struct SourceTask {
 
 impl Source {
     /// Create a new source
+    ///
+    /// Resolves a [`Provider`] for the source.
+    /// Ensures that `dest` is a relative path and does not include any traversal (i.e. `..`).
+    /// Parses the `cron` into an expression and timezone.
     pub async fn new(
         url: String,
         name: Option<String>,
@@ -121,6 +125,15 @@ impl Source {
         watch: Option<WatchMode>,
     ) -> Result<Source> {
         let (provider, node) = providers::resolve(&url).await?;
+
+        if let Some(dest) = dest.as_ref() {
+            if dest.is_absolute() {
+                bail!("Source destination must be a relative path; try removing any leading slash (MacOS or Linux) or drive letter (e.g. `C:/` on Windows)")
+            }
+            if dest.to_string_lossy().contains("..") {
+                bail!("Source destination must not have any path traversal (a.k.a directory climbing); try removing any `..` in the destination path")
+            }
+        }
 
         let cron = if let Some(schedule) = cron {
             let (schedules, timezone) = cron_utils::parse(&schedule)?;
