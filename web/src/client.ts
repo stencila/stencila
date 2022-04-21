@@ -9,6 +9,7 @@ export async function connect(
   projectId: ProjectId,
   clientId: ClientId,
   origin?: string | null,
+  token?: string | null,
   clientOptions: ClientOptions = {}
 ): Promise<Client> {
   const baseUrl =
@@ -17,13 +18,18 @@ export async function connect(
       : `${window.location.protocol.replace('http', 'ws')}//${
           window.location.host
         }`
-  const connectUrl = `${baseUrl}/${projectId}?client=${clientId}`
+
+  let connectUrl = `${baseUrl}/${projectId}?client=${clientId}`
+  if (typeof token === 'string' && token.length > 0) {
+    connectUrl += `&token=${token}`
+  }
 
   const client = new Client(connectUrl, {
     reconnect_interval: 1000 + 3000 * Math.random(), // random interval between 1 and 4 seconds
     max_reconnects: 300, // attempt to reconnect for ~5-15 minutes
     ...clientOptions,
   })
+
   return new Promise<Client>((resolve) =>
     client.on('open', () => resolve(client))
   )

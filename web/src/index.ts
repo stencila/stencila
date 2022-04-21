@@ -18,6 +18,7 @@ export const main = (
   projectId: ProjectId,
   documentPath?: documents.DocumentPath,
   origin?: string | null,
+  token?: string | null,
   clientOptions?: ClientOptions
 ): (() => Promise<[Client, Document, Session]>) => {
   let client: Client | undefined
@@ -36,7 +37,7 @@ export const main = (
     }
 
     if (client === undefined) {
-      client = await connect(projectId, clientId, origin, clientOptions)
+      client = await connect(projectId, clientId, origin, token, clientOptions)
     }
 
     if (session === undefined) {
