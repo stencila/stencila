@@ -1,3 +1,11 @@
+## [1.6.1](https://github.com/stencila/stencila/compare/v1.6.0...v1.6.1) (2022-04-21)
+
+
+### Bug Fixes
+
+* **Client:** Allow passing through Web Client options ([8b47e97](https://github.com/stencila/stencila/commit/8b47e97b8d84808500e5231f6e2ed7598cbee00e))
+* **Sources:** Check for invalid destination path when creating a new `Source` ([f023a52](https://github.com/stencila/stencila/commit/f023a52032417cb4184c3434c7817f7724b9df5f))
+
 # [1.6.0](https://github.com/stencila/stencila/compare/v1.5.1...v1.6.0) (2022-04-20)
 
 
