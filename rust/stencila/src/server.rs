@@ -1171,7 +1171,7 @@ fn authentication_filter(
                         .display()
                         .to_string();
                         Some(format!(
-                            "token={}; Path={}; SameSite; HttpOnly",
+                            "token={}; Path={}; SameSite=Lax; HttpOnly",
                             updated_token, path
                         ))
                     } else {
