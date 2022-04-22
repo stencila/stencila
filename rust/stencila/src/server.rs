@@ -22,10 +22,16 @@ use std::{
     fmt::Debug,
     fs,
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc,
+    },
+    time::{SystemTime, UNIX_EPOCH},
 };
-use thiserror::private::PathAsDisplay;
-use tokio::sync::{mpsc, oneshot, RwLock};
+use tokio::{
+    sync::{mpsc, RwLock},
+    task::JoinHandle,
+};
 use warp::{
     http::{
         header::{self, HeaderValue},
@@ -45,13 +51,14 @@ use warp::{
 pub async fn main() -> Result<()> {
     use tokio::time::{sleep, Duration};
 
-    start(None, None, None, false, false, false).await?;
+    start(None, None, None, false, false, false, None, None).await?;
     sleep(Duration::MAX).await;
 
     Ok(())
 }
 
 /// Start the server
+#[allow(clippy::too_many_arguments)]
 #[tracing::instrument]
 pub async fn start(
     home: Option<PathBuf>,
@@ -60,7 +67,9 @@ pub async fn start(
     insecure: bool,
     traversal: bool,
     root: bool,
-) -> Result<()> {
+    max_inactivity: Option<u64>,
+    max_duration: Option<u64>,
+) -> Result<JoinHandle<()>> {
     if let Some(server) = SERVER.get() {
         let server = server.read().await;
         if server.running() {
@@ -68,8 +77,18 @@ pub async fn start(
         }
     }
 
-    let mut server = Server::new(home, url, key, insecure, traversal, root).await?;
-    server.start().await?;
+    let mut server = Server::new(
+        home,
+        url,
+        key,
+        insecure,
+        traversal,
+        root,
+        max_inactivity,
+        max_duration,
+    )
+    .await?;
+    let join_handle = server.start().await?;
 
     match SERVER.get() {
         Some(mutex) => {
@@ -82,7 +101,7 @@ pub async fn start(
         }
     }
 
-    Ok(())
+    Ok(join_handle)
 }
 
 /// Stop the server
@@ -94,6 +113,28 @@ pub async fn stop() -> Result<()> {
         tracing::warn!("Server has not yet been started");
     }
     Ok(())
+}
+
+/// The time that the server was started
+static START_TIMESTAMP: AtomicU64 = AtomicU64::new(0);
+
+/// The time that the last request activity was recorded (e.g. a HTTP or RPC request)
+static ACTIVITY_TIMESTAMP: AtomicU64 = AtomicU64::new(0);
+
+/// Get the current timestamp in seconds
+fn timestamp() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards")
+        .as_secs()
+}
+
+/// Record activity
+///
+/// Note: this is separate to metric recording because some requests (e.g. to `~metrics` or `~static`
+/// routes) should not be recorded as activity
+fn record_activity() {
+    ACTIVITY_TIMESTAMP.fetch_max(timestamp(), Ordering::Relaxed);
 }
 
 /// Serve a project or document
@@ -119,7 +160,7 @@ pub async fn serve<P: AsRef<Path>>(
     let server = match SERVER.get() {
         Some(server) => server,
         None => {
-            let mut server = Server::new(None, None, None, false, false, false).await?;
+            let mut server = Server::new(None, None, None, false, false, false, None, None).await?;
             server.start().await?;
             SERVER.get_or_init(|| RwLock::new(server))
         }
@@ -183,12 +224,18 @@ pub struct Server {
     /// Whether traversal out of `paths` is permitted
     traversal: bool,
 
+    /// Maximum number of seconds of inactivity before the server shutsdown
+    max_inactivity: u64,
+
+    /// Maximum number of seconds running before the server shutsdown
+    max_duration: u64,
+
     /// The set of already used, single-use tokens
     used_tokens: HashSet<String>,
 
-    /// The `oneshot` channel sender used internally to gracefully shutdown the server
+    /// The `mpsc` channel sender used internally to gracefully shutdown the server
     #[serde(skip)]
-    shutdown_sender: Option<oneshot::Sender<()>>,
+    shutdown_sender: Option<mpsc::Sender<()>>,
 }
 
 impl Server {
@@ -202,6 +249,7 @@ impl Server {
     /// - `insecure`: Allow unauthenticated access (i.e. no JSON Web Token)
     /// - `traversal`: Allow traversal out of the root directory is allowed
     /// - `root`: Allow serving as root user
+    #[allow(clippy::too_many_arguments)]
     pub async fn new(
         home: Option<PathBuf>,
         url: Option<String>,
@@ -209,6 +257,8 @@ impl Server {
         insecure: bool,
         traversal: bool,
         root: bool,
+        max_inactivity: Option<u64>,
+        max_duration: Option<u64>,
     ) -> Result<Self> {
         let config = &CONFIG.lock().await.server;
 
@@ -263,6 +313,10 @@ impl Server {
             None => ("127.0.0.1".to_string(), Self::pick_port(9000, 9011)?),
         };
 
+        let ten_years = 315360000;
+        let max_inactivity = max_inactivity.unwrap_or(ten_years);
+        let max_duration = max_duration.unwrap_or(ten_years);
+
         Ok(Self {
             address,
             port,
@@ -270,13 +324,15 @@ impl Server {
             home,
             projects,
             traversal,
+            max_inactivity,
+            max_duration,
             used_tokens: HashSet::new(),
             shutdown_sender: None,
         })
     }
 
     /// Start the server
-    pub async fn start(&mut self) -> Result<()> {
+    pub async fn start(&mut self) -> Result<JoinHandle<()>> {
         let home = self.home.clone();
         let traversal = self.traversal;
 
@@ -304,6 +360,12 @@ impl Server {
             .and(warp::path("~static"))
             .and(warp::path::tail())
             .and_then(get_static);
+
+        // Prometheus metrics
+
+        let metrics = warp::get()
+            .and(warp::path("~metrics"))
+            .and_then(get_metrics);
 
         // The following HTTP and WS endpoints all require authentication
 
@@ -345,6 +407,7 @@ impl Server {
             .max_age(24 * 60 * 60);
 
         let routes = statics
+            .or(metrics)
             .or(ws)
             .or(get)
             .with(server_header)
@@ -352,24 +415,66 @@ impl Server {
             .recover(rejection_handler);
 
         // Spawn the serving task
-        let (shutdown_sender, shutdown_receiver) = oneshot::channel::<()>();
+        let (shutdown_sender, mut shutdown_receiver) = mpsc::channel::<()>(1);
         let address: std::net::IpAddr = self.address.parse()?;
         let (_, future) =
-            warp::serve(routes).bind_with_graceful_shutdown((address, self.port), async {
-                shutdown_receiver.await.ok();
+            warp::serve(routes).bind_with_graceful_shutdown((address, self.port), async move {
+                shutdown_receiver.recv().await;
             });
-        tokio::task::spawn(future);
+        let serve_task = tokio::task::spawn(future);
+
+        // Initialize timestamps and pawn a timing task to shutdown the server after inactivity,
+        // or a maximum duration
+        START_TIMESTAMP.fetch_max(timestamp(), Ordering::SeqCst);
+        ACTIVITY_TIMESTAMP.fetch_max(timestamp(), Ordering::SeqCst);
+        let shutdown_sender_clone = shutdown_sender.clone();
+        let max_duration = self.max_duration;
+        let max_inactivity = self.max_inactivity;
+        tokio::task::spawn(async move {
+            use tokio::time::{sleep, Duration};
+            loop {
+                let now = timestamp();
+
+                let inactivity_remaining = max_inactivity
+                    .saturating_sub(now.saturating_sub(ACTIVITY_TIMESTAMP.load(Ordering::SeqCst)));
+                let duration_remaining = max_duration
+                    .saturating_sub(now.saturating_sub(START_TIMESTAMP.load(Ordering::SeqCst)));
+                if inactivity_remaining == 0 || duration_remaining == 0 {
+                    if inactivity_remaining == 0 {
+                        tracing::info!(
+                            "Server shutting down after maximum period of inactivity of {} seconds",
+                            max_inactivity
+                        );
+                    } else {
+                        tracing::info!(
+                            "Server shutting down after maximum duration of {} seconds",
+                            max_duration
+                        );
+                    }
+                    shutdown_sender_clone.send(()).await.ok();
+                    return;
+                }
+
+                SECONDS_TO_SHUTDOWN.set(
+                    std::cmp::min(inactivity_remaining, duration_remaining)
+                        .try_into()
+                        .unwrap_or(i64::MAX),
+                );
+
+                sleep(Duration::from_secs(1)).await;
+            }
+        });
 
         self.shutdown_sender = Some(shutdown_sender);
 
-        Ok(())
+        Ok(serve_task)
     }
 
     /// Stop the server
     pub async fn stop(&mut self) -> Result<()> {
         tracing::debug!("Stopping server");
 
-        CLIENTS.clear().await;
+        WEBSOCKET_CLIENTS.clear().await;
 
         if self.shutdown_sender.is_some() {
             // It appears to be sufficient to just set the sender to None to shutdown the server
@@ -409,8 +514,76 @@ impl Server {
     }
 }
 
+static HTTP_REQUESTS_COUNT: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
+    prometheus::IntCounterVec::new(
+        prometheus::Opts::new(
+            "stencila_http_requests_count",
+            "Count of HTTP requests by method and path",
+        ),
+        &["method", "path"],
+    )
+    .expect("Unable to create metric")
+});
+
+static RPC_REQUESTS_COUNT: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
+    prometheus::IntCounterVec::new(
+        prometheus::Opts::new(
+            "stencila_rpc_requests_count",
+            "Count of RPC requests by method",
+        ),
+        &["method"],
+    )
+    .expect("Unable to create metric")
+});
+
+static WEBSOCKET_CLIENTS_COUNT: Lazy<prometheus::IntGauge> = Lazy::new(|| {
+    prometheus::IntGauge::new(
+        "stencila_websocket_clients",
+        "Count of Websocket clients currently connected",
+    )
+    .expect("Unable to create metric")
+});
+
+static SECONDS_TO_SHUTDOWN: Lazy<prometheus::IntGauge> = Lazy::new(|| {
+    prometheus::IntGauge::new(
+        "stencila_seconds_to_shutdown",
+        "Number of seconds until the server shutsdown",
+    )
+    .expect("Unable to create metric")
+});
+
+static METRICS_REGISTRY: Lazy<prometheus::Registry> = Lazy::new(|| {
+    let registry = prometheus::Registry::new();
+
+    registry
+        .register(Box::new(HTTP_REQUESTS_COUNT.clone()))
+        .expect("Unable to register metric");
+
+    registry
+        .register(Box::new(RPC_REQUESTS_COUNT.clone()))
+        .expect("Unable to register metric");
+
+    registry
+        .register(Box::new(WEBSOCKET_CLIENTS_COUNT.clone()))
+        .expect("Unable to register metric");
+
+    registry
+        .register(Box::new(SECONDS_TO_SHUTDOWN.clone()))
+        .expect("Unable to register metric");
+
+    registry
+});
+
+fn record_http_request(method: &str, path: &str) {
+    HTTP_REQUESTS_COUNT.with_label_values(&[method, path]).inc();
+}
+
+fn record_rpc_request(method: &str) {
+    RPC_REQUESTS_COUNT.with_label_values(&[method]).inc();
+}
+
 #[derive(Debug, Serialize)]
-struct Client {
+struct WebsocketClient {
     /// The client id
     id: String,
 
@@ -425,7 +598,7 @@ struct Client {
     sender: mpsc::UnboundedSender<ws::Message>,
 }
 
-impl Client {
+impl WebsocketClient {
     /// Subscribe the client to an event topic
     pub fn subscribe(&mut self, topic: &str) {
         self.subscriptions.insert(topic.to_string());
@@ -457,21 +630,21 @@ impl Client {
     /// Send a text message to the client
     pub fn send_text(&self, text: &str) {
         if let Err(error) = self.sender.send(warp::ws::Message::text(text)) {
-            tracing::error!("Client send error `{}`", error)
+            tracing::error!("Websocket client send error `{}`", error)
         }
     }
 }
 
-/// The global store of clients
-static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
+/// The global store of Websocket clients
+static WEBSOCKET_CLIENTS: Lazy<WebsocketClients> = Lazy::new(WebsocketClients::new);
 
 /// A store of clients
 ///
 /// Used to manage relaying events to clients.
 #[derive(Debug)]
-struct Clients {
+struct WebsocketClients {
     /// The clients
-    inner: Arc<RwLock<HashMap<String, Client>>>,
+    inner: Arc<RwLock<HashMap<String, WebsocketClient>>>,
 
     /// The event subscriptions held on behalf of clients
     ///
@@ -485,7 +658,7 @@ struct Clients {
     sender: mpsc::UnboundedSender<events::Message>,
 }
 
-impl Clients {
+impl WebsocketClients {
     /// Create a new client store and begin task for publishing events to them
     pub fn new() -> Self {
         let inner = Arc::new(RwLock::new(HashMap::new()));
@@ -493,7 +666,7 @@ impl Clients {
         let subscriptions = Arc::new(RwLock::new(HashMap::new()));
 
         let (sender, receiver) = mpsc::unbounded_channel::<events::Message>();
-        tokio::spawn(Clients::relay(inner.clone(), receiver));
+        tokio::spawn(WebsocketClients::relay(inner.clone(), receiver));
 
         Self {
             inner,
@@ -513,7 +686,7 @@ impl Clients {
             }
             Entry::Vacant(vacant) => {
                 tracing::debug!("New connection for client `{}`", client_id);
-                vacant.insert(Client {
+                vacant.insert(WebsocketClient {
                     id: client_id.to_string(),
                     subscriptions: HashSet::new(),
                     sender,
@@ -567,7 +740,7 @@ impl Clients {
     /// no more clients are subscribed to that topic.
     fn unsubscribe_topic(
         &self,
-        client: &mut Client,
+        client: &mut WebsocketClient,
         topic: &str,
         subscriptions: &mut HashMap<String, (SubscriptionId, usize)>,
     ) {
@@ -660,7 +833,7 @@ impl Clients {
     /// The receiver will receive _all_ events that are published and relay them on to
     /// clients based in their subscriptions.
     async fn relay(
-        clients: Arc<RwLock<HashMap<String, Client>>>,
+        clients: Arc<RwLock<HashMap<String, WebsocketClient>>>,
         receiver: mpsc::UnboundedReceiver<events::Message>,
     ) {
         let mut receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(receiver);
@@ -761,7 +934,9 @@ async fn get_static(
     path: warp::path::Tail,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str().to_string();
-    tracing::trace!("GET ~static /{}", path);
+    tracing::trace!("GET /~static/{}", path);
+
+    record_http_request("GET", &["/~static/", &path].concat());
 
     // Remove the version number with warnings if it is not present
     // or different to current version
@@ -838,6 +1013,46 @@ async fn get_static(
         header::CACHE_CONTROL,
         HeaderValue::from_str(cache_control).unwrap(),
     );
+
+    Ok(response)
+}
+
+#[tracing::instrument]
+async fn get_metrics() -> Result<impl warp::Reply, std::convert::Infallible> {
+    tracing::trace!("GET /~metrics");
+
+    record_http_request("GET", "/~metrics");
+
+    use prometheus::Encoder;
+    let encoder = prometheus::TextEncoder::new();
+
+    // Gather custom metrics
+    let mut buffer = Vec::new();
+    if let Err(error) = encoder.encode(&METRICS_REGISTRY.gather(), &mut buffer) {
+        tracing::error!("Could not encode custom metrics: {}", error);
+    };
+    let mut response = match String::from_utf8(buffer.clone()) {
+        Ok(string) => string,
+        Err(error) => {
+            tracing::error!("Custom metrics could not be stringified: {}", error);
+            String::default()
+        }
+    };
+
+    // Gather default process metrics
+    // https://prometheus.io/docs/instrumenting/writing_clientlibs/#process-metrics
+    let mut buffer = Vec::new();
+    if let Err(error) = encoder.encode(&prometheus::gather(), &mut buffer) {
+        tracing::error!("Could not encode Prometheus metrics: {}", error);
+    };
+    let defaults = match String::from_utf8(buffer.clone()) {
+        Ok(string) => string,
+        Err(error) => {
+            tracing::error!("Prometheus metrics could not be stringified: {}", error);
+            String::default()
+        }
+    };
+    response.push_str(&defaults);
 
     Ok(response)
 }
@@ -1004,6 +1219,9 @@ async fn get_handler(
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
     tracing::trace!("GET {}", path);
+
+    record_http_request("GET", path);
+    record_activity();
 
     // Determine if the requested path is relative to the server `home` directory;
     // otherwise construct an absolute path accordingly
@@ -1273,7 +1491,7 @@ pub fn html_rewrite(
         client = uuids::generate("cl"),
         token = token,
         project = project,
-        document = document.as_display()
+        document = document.display()
     );
 
     // Head elements for web components
@@ -1358,9 +1576,12 @@ fn ws_handshake(
     params: WsParams,
     (secure, token, claims, _cookie): (bool, String, jwt::Claims, Option<String>),
 ) -> Box<dyn warp::Reply> {
-    use warp::reply;
+    tracing::trace!("GET /~ws");
 
-    tracing::trace!("WebSocket handshake");
+    record_http_request("GET", "/~ws");
+    record_activity();
+
+    use warp::reply;
 
     // Check that client is authorized to access the path
     // On MacOS and Linux the leading slash is removed from the URL path so it
@@ -1376,6 +1597,8 @@ fn ws_handshake(
     if secure && project != fs_path && project != ["/", &fs_path].concat() {
         return Box::new(reply::with_status(reply(), StatusCode::UNAUTHORIZED));
     }
+
+    // OK, so upgrade the connection
 
     Box::new(ws.on_upgrade(|socket| ws_connected(socket, params.client)))
 }
@@ -1406,13 +1629,16 @@ async fn ws_connected(socket: warp::ws::WebSocket, client_id: String) {
                     tracing::debug!("Websocket send error `{}`", error);
                     false
                 };
-                CLIENTS.disconnected(&client_clone, graceful).await
+                WEBSOCKET_CLIENTS
+                    .disconnected(&client_clone, graceful)
+                    .await
             }
         }
     });
 
     // Save / update the client
-    CLIENTS.connected(&client_id, client_sender).await;
+    WEBSOCKET_CLIENTS.connected(&client_id, client_sender).await;
+    WEBSOCKET_CLIENTS_COUNT.inc();
 
     while let Some(result) = ws_receiver.next().await {
         // Get the message
@@ -1422,7 +1648,7 @@ async fn ws_connected(socket: warp::ws::WebSocket, client_id: String) {
                 let message = error.to_string();
                 if message == "WebSocket protocol error: Connection reset without closing handshake"
                 {
-                    CLIENTS.disconnected(&client_id, false).await
+                    WEBSOCKET_CLIENTS.disconnected(&client_id, false).await
                 } else {
                     tracing::error!("Websocket receive error `{}`", error);
                 }
@@ -1443,27 +1669,32 @@ async fn ws_connected(socket: warp::ws::WebSocket, client_id: String) {
             Err(error) => {
                 let error = rpc::Error::parse_error(&error.to_string());
                 let response = rpc::Response::new(None, None, Some(error));
-                CLIENTS.send(&client_id, response).await;
+                WEBSOCKET_CLIENTS.send(&client_id, response).await;
                 continue;
             }
         };
 
+        // Record the request
+        record_rpc_request(&request.method);
+        record_activity();
+
         // Dispatch the request and send back the response and update subscriptions
         let (response, subscription) = request.dispatch(&client_id).await;
-        CLIENTS.send(&client_id, response).await;
+        WEBSOCKET_CLIENTS.send(&client_id, response).await;
         match subscription {
             rpc::Subscription::Subscribe(topic) => {
-                CLIENTS.subscribe(&client_id, &topic).await;
+                WEBSOCKET_CLIENTS.subscribe(&client_id, &topic).await;
             }
             rpc::Subscription::Unsubscribe(topic) => {
-                CLIENTS.unsubscribe(&client_id, &topic).await;
+                WEBSOCKET_CLIENTS.unsubscribe(&client_id, &topic).await;
             }
             rpc::Subscription::None => (),
         }
     }
 
     // Record that the client has disconnected gracefully
-    CLIENTS.disconnected(&client_id, true).await
+    WEBSOCKET_CLIENTS.disconnected(&client_id, true).await;
+    WEBSOCKET_CLIENTS_COUNT.dec();
 }
 
 /// Handle a rejection by converting into a JSON-RPC response
@@ -1642,6 +1873,14 @@ pub mod commands {
         /// For security reasons (clients may be able to execute code as root) this should be avoided.
         #[structopt(long)]
         root: bool,
+
+        /// The maximum number of seconds of inactivity before the server shutsdown
+        #[structopt(long)]
+        max_inactivity: Option<u64>,
+
+        /// The maximum number of seconds that the server should run for
+        #[structopt(long)]
+        max_duration: Option<u64>,
     }
     #[async_trait]
     impl Run for Start {
@@ -1650,20 +1889,21 @@ pub mod commands {
                 tracing::warn!("Server key set on command line could be sniffed by malicious processes; prefer to set it in config file.");
             };
 
-            start(
+            let join_handle = start(
                 self.home.clone(),
                 self.url.clone(),
                 self.key.clone(),
                 self.insecure,
                 self.traversal,
                 self.root,
+                self.max_inactivity,
+                self.max_duration,
             )
             .await?;
 
-            // If not in interactive mode then just sleep here forever to avoid finishing
+            // If not in interactive mode then wait for join handle to avoid finishing
             if std::env::var("STENCILA_INTERACT_MODE").is_err() {
-                use tokio::time::{sleep, Duration};
-                sleep(Duration::MAX).await;
+                join_handle.await?;
             }
 
             result::nothing()
@@ -1719,7 +1959,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Clients {
         async fn run(&self) -> Result {
-            let clients = CLIENTS.inner.read().await;
+            let clients = WEBSOCKET_CLIENTS.inner.read().await;
             result::value(&*clients)
         }
     }
