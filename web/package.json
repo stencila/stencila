@@ -24,18 +24,22 @@
     "default": {},
     "read": {
       "source": "src/index.read.ts",
+      "context": "browser",
       "distDir": "dist/browser"
     },
     "view": {
       "source": "src/index.view.ts",
+      "context": "browser",
       "distDir": "dist/browser"
     },
     "exec": {
       "source": "src/index.exec.ts",
+      "context": "browser",
       "distDir": "dist/browser"
     },
     "edit": {
       "source": "src/index.edit.ts",
+      "context": "browser",
       "distDir": "dist/browser"
     }
   },

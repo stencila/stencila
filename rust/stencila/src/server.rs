@@ -1480,8 +1480,8 @@ pub fn html_rewrite(
     // Head elements for web client
     let web = format!(
         r#"
-    <link href="{static_root}/web/{mode}.css" rel="stylesheet">
-    <script src="{static_root}/web/{mode}.js"></script>
+    <link href="{static_root}/web/index.{mode}.css" rel="stylesheet">
+    <script src="{static_root}/web/index.{mode}.js"></script>
     <script>
         const startup = stencilaWebClient.main("{client}", "{project}", "{document}", null, "{token}");
         startup().catch((err) => console.error('Error during startup', err))
