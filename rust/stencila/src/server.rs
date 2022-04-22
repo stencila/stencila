@@ -1885,8 +1885,8 @@ pub mod commands {
     #[async_trait]
     impl Run for Start {
         async fn run(&self) -> Result {
-            if self.key.is_some() {
-                tracing::warn!("Server key set on command line could be sniffed by malicious processes; prefer to set it in config file.");
+            if self.key.is_some() && std::env::var("STENCILA_SERVER_KEY").is_err() {
+                tracing::warn!("Server key set on command line could be sniffed by malicious processes; prefer to set it in an environment variable or config file.");
             };
 
             let join_handle = start(
