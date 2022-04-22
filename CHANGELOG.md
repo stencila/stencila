@@ -1,3 +1,16 @@
+# [1.7.0](https://github.com/stencila/stencila/compare/v1.6.1...v1.7.0) (2022-04-22)
+
+
+### Bug Fixes
+
+* **Server:** Update paths to web client JS and CSS ([9e64615](https://github.com/stencila/stencila/commit/9e64615b895e68e3ad88b3ffc391ddc5473b189f))
+* **Web:** Set correct build target for browser packages ([8bf32c7](https://github.com/stencila/stencila/commit/8bf32c7a47cc9e7a279f816553318bc3e4c9aec8))
+
+
+### Features
+
+* **Server:** Add Prometheus metrics and `--max-inactivity` and `--max-duration` options ([c4e129c](https://github.com/stencila/stencila/commit/c4e129c5ac2842dc7430a500a0aa4b247dd2cdfb))
+
 ## [1.6.1](https://github.com/stencila/stencila/compare/v1.6.0...v1.6.1) (2022-04-21)
 
 
