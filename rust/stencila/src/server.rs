@@ -21,6 +21,7 @@ use std::{
     env,
     fmt::Debug,
     fs,
+    io::{Read, Write},
     path::{Path, PathBuf},
     sync::{
         atomic::{AtomicU64, Ordering},
@@ -371,6 +372,16 @@ impl Server {
 
         let authenticate = || authentication_filter(self.key.clone(), self.home.clone());
 
+        let terminal = warp::get()
+            .and(warp::path("~terminal"))
+            .and(authenticate())
+            .and_then(terminal_handler);
+
+        let attach = warp::ws()
+            .and(warp::path("~attach"))
+            .and(authenticate())
+            .map(attach_handler);
+
         let ws = warp::ws()
             .and(warp::path::full())
             .and(warp::query::<WsParams>())
@@ -408,6 +419,8 @@ impl Server {
 
         let routes = statics
             .or(metrics)
+            .or(terminal)
+            .or(attach)
             .or(ws)
             .or(get)
             .with(server_header)
@@ -887,20 +900,24 @@ impl WebsocketClients {
     }
 }
 
-/// Return an error response
+/// Return an error response result
 ///
 /// Used to have a consistent structure to error responses in the
 /// handler functions below.
-#[allow(clippy::unnecessary_wraps)]
-fn error_response(
-    code: StatusCode,
-    message: &str,
-) -> Result<warp::reply::Response, std::convert::Infallible> {
-    Ok(warp::reply::with_status(
+fn error_response(code: StatusCode, message: &str) -> warp::reply::Response {
+    warp::reply::with_status(
         warp::reply::json(&serde_json::json!({ "message": message })),
         code,
     )
-    .into_response())
+    .into_response()
+}
+
+/// Return an error response result
+fn error_result(
+    code: StatusCode,
+    message: &str,
+) -> Result<warp::reply::Response, std::convert::Infallible> {
+    Ok(error_response(code, message))
 }
 
 /// Static assets
@@ -960,7 +977,7 @@ async fn get_static(
     // for development. But to keep dev and prod as consistent as possible it is
     // applied in both contexts.
     if path.contains("..") {
-        return error_response(
+        return error_result(
             StatusCode::UNAUTHORIZED,
             "Path traversal not permitted for static assets",
         );
@@ -978,7 +995,7 @@ async fn get_static(
         match fs::read(&fs_path) {
             Ok(data) => data,
             Err(error) => {
-                return error_response(
+                return error_result(
                     StatusCode::INTERNAL_SERVER_ERROR,
                     &format!("Error reading file `{}`: {}", fs_path.display(), error),
                 )
@@ -988,7 +1005,7 @@ async fn get_static(
         match Static::get(&path) {
             Some(asset) => asset.data.into(),
             None => {
-                return error_response(
+                return error_result(
                     StatusCode::NOT_FOUND,
                     &format!("Requested static asset `{}` does not exist", &path),
                 )
@@ -1187,6 +1204,128 @@ fn authentication_filter(
         )
 }
 
+/// Handle a request for a HTTP upgrade to the
+#[tracing::instrument(skip(_cookie))]
+async fn terminal_handler(
+    (secure, token, claims, _cookie): (bool, String, jwt::Claims, Option<String>),
+) -> Result<warp::reply::Response, std::convert::Infallible> {
+    tracing::trace!("GET /~terminal");
+
+    record_http_request("GET", "/~terminal");
+    record_activity();
+
+    let html = format!(
+        r#"<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="{static_root}/xterm/css/xterm.css" />
+        <script src="{static_root}/xterm/lib/xterm.js"></script>
+        <script src="{static_root}/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
+        <script src="{static_root}/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+    </head>
+    <body>
+      <div id="terminal"></div>
+      <script>
+        const term = new Terminal();
+
+        //const fitAddon = new FitAddon();
+        //term.loadAddon(fitAddon);
+
+        const socket = new WebSocket('/~attach');
+        const attachAddon = new AttachAddon(socket);
+        term.loadAddon(attachAddon);
+
+        term.open(document.getElementById('terminal'));
+        term.fit();
+      </script>
+    </body>
+</html>"#,
+        static_root = ["/~static/", STATIC_VERSION].concat()
+    );
+
+    let response = warp::reply::Response::new(html.into());
+    Ok(response)
+}
+
+/// Handle a HTTP request for ~attach
+#[tracing::instrument(skip(_cookie))]
+fn attach_handler(
+    ws: warp::ws::Ws,
+    (secure, token, claims, _cookie): (bool, String, jwt::Claims, Option<String>),
+) -> Box<dyn warp::Reply> {
+    tracing::trace!("GET /~attach");
+
+    record_http_request("GET", "/~attach");
+    record_activity();
+
+    use portable_pty::{native_pty_system, CommandBuilder, PtySize};
+
+    let pty_system = native_pty_system();
+    let pty_pair = match pty_system.openpty(PtySize {
+        rows: 24,
+        cols: 80,
+        pixel_width: 0,
+        pixel_height: 0,
+    }) {
+        Ok(pair) => pair,
+        Err(error) => {
+            return Box::new(error_response(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                &format!("While creating pty: {}", error),
+            ));
+        }
+    };
+
+    let pty_cmd = CommandBuilder::new("bash");
+    match pty_pair.slave.spawn_command(pty_cmd) {
+        Ok(child) => child,
+        Err(error) => {
+            return Box::new(error_response(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                &format!("While spawning bash: {}", error),
+            ));
+        }
+    };
+
+    let pty_reader = match pty_pair.master.try_clone_reader() {
+        Ok(reader) => reader,
+        Err(error) => {
+            return Box::new(error_response(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                &format!("While cloning pty reader: {}", error),
+            ));
+        }
+    };
+
+    Box::new(ws.on_upgrade(|socket| attach_connected(socket, pty_reader, pty_pair.master)))
+}
+
+/// Handle a WebSocket connection for ~attach
+///
+/// Pipes data between the websocket connection and the PTY.
+async fn attach_connected(
+    web_socket: warp::ws::WebSocket,
+    mut pty_receiver: Box<dyn Read + Send>,
+    mut pty_sender: Box<dyn portable_pty::MasterPty + Send>,
+) {
+    let (mut ws_sender, mut ws_receiver) = web_socket.split();
+
+    tokio::task::spawn(async move {
+        let mut buffer = [0; 8];
+        while let Ok(..) = pty_receiver.read(&mut buffer[..]) {
+            let message = warp::ws::Message::binary(buffer);
+            ws_sender.send(message).await;
+        }
+    });
+
+    while let Some(Ok(message)) = ws_receiver.next().await {
+        let buffer = message.as_bytes();
+        pty_sender.write(buffer);
+    }
+}
+
 /// Query parameters for `get_handler`
 #[derive(Debug, Deserialize)]
 struct GetParams {
@@ -1239,7 +1378,7 @@ async fn get_handler(
         // Path found elsewhere on the filesystem (when stripped leading slash is added back; see `serve()`)
         path
     } else {
-        return error_response(
+        return error_result(
             StatusCode::NOT_FOUND,
             &format!("Requested path `{}` does not exist", fs_path.display()),
         );
@@ -1264,7 +1403,7 @@ async fn get_handler(
             }
         }
         if !ok {
-            return error_response(
+            return error_result(
                 StatusCode::FORBIDDEN,
                 "Traversal outside of server's home, or registered, projects is not permitted",
             );
@@ -1273,7 +1412,7 @@ async fn get_handler(
 
     // Check the path is within the project for which authorization is given
     if secure && fs_path.strip_prefix(&claims.project).is_err() {
-        return error_response(
+        return error_result(
             StatusCode::FORBIDDEN,
             "Insufficient permissions to access this directory or file",
         );
@@ -1306,7 +1445,7 @@ async fn get_handler(
         let content = match fs::read(&fs_path) {
             Ok(content) => content,
             Err(error) => {
-                return error_response(
+                return error_result(
                     StatusCode::INTERNAL_SERVER_ERROR,
                     &format!("When reading file `{}`", error),
                 )
@@ -1325,7 +1464,7 @@ async fn get_handler(
                 let content = match document.dump(Some(format.clone()), None).await {
                     Ok(content) => content,
                     Err(error) => {
-                        return error_response(
+                        return error_result(
                             StatusCode::INTERNAL_SERVER_ERROR,
                             &format!("While converting document to {} `{}`", format, error),
                         )
@@ -1365,7 +1504,7 @@ async fn get_handler(
                 (content, mime.to_string(), false)
             }
             Err(error) => {
-                return error_response(
+                return error_result(
                     StatusCode::INTERNAL_SERVER_ERROR,
                     &format!("While opening document `{}`", error),
                 )

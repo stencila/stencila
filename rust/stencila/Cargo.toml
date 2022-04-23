@@ -219,6 +219,7 @@ self_update = { version = "0.28.0", optional = true, features = [
   "compression-flate2",
   "compression-zip-deflate",
 ] }
+portable-pty = "0.7.0"
 
 [dev-dependencies]
 
