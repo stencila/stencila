@@ -50,11 +50,17 @@ static SIMPLE_REGEX: Lazy<Regex> = Lazy::new(|| {
 });
 
 // Regex targeting URL copied from the browser address bar
-static URL_REGEX: Lazy<Regex> = Lazy::new(|| {
+static URL_REGEX_1: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
                 r"(?:https?://)?(?:drive|docs)\.google\.com/(drive|file|document|spreadsheets)(?:.*?)/(?:folders|d)/([a-zA-Z0-9-_]+)(?:/[^\s]*)?",
             )
             .expect("Unable to create regex")
+});
+
+// Regex for "open" URLs
+static URL_REGEX_2: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?:https?://)?docs\.google\.com/open\?id=([a-zA-Z0-9-_]+)")
+        .expect("Unable to create regex")
 });
 
 /// The kind of entity on Google Drive
@@ -68,7 +74,7 @@ enum FileKind {
     #[strum(serialize = "folder", serialize = "drive")]
     Folder,
     File,
-    #[strum(serialize = "doc", serialize = "document")]
+    #[strum(serialize = "doc", serialize = "docs", serialize = "document")]
     Doc,
     #[strum(serialize = "sheet", serialize = "spreadsheets")]
     Sheet,
@@ -211,7 +217,7 @@ impl GoogleDriveProvider {
 
     /// Parse a URL for a Google Drive resources (usually to retrieve the kind and id from the URL of a [`CreativeWork`])
     fn parse_url(url: &str) -> Result<(FileKind, String)> {
-        let captures = URL_REGEX
+        let captures = URL_REGEX_1
             .captures(url)
             .ok_or_else(|| eyre!("Unable to parse as a Google Drive URL"))?;
         let kind = FileKind::from_str(&captures[1])?;
@@ -251,15 +257,34 @@ impl ProviderTrait for GoogleDriveProvider {
                     captures[2].to_string(),
                 )
             })
-            .chain(URL_REGEX.captures_iter(string).into_iter().map(|captures| {
-                let capture = captures.get(0).unwrap();
-                (
-                    capture.start(),
-                    capture.end(),
-                    FileKind::from_str(&captures[1]).unwrap_or(FileKind::File),
-                    captures[2].to_string(),
-                )
-            }))
+            .chain(
+                URL_REGEX_1
+                    .captures_iter(string)
+                    .into_iter()
+                    .map(|captures| {
+                        let capture = captures.get(0).unwrap();
+                        (
+                            capture.start(),
+                            capture.end(),
+                            FileKind::from_str(&captures[1]).unwrap_or(FileKind::File),
+                            captures[2].to_string(),
+                        )
+                    }),
+            )
+            .chain(
+                URL_REGEX_2
+                    .captures_iter(string)
+                    .into_iter()
+                    .map(|captures| {
+                        let capture = captures.get(0).unwrap();
+                        (
+                            capture.start(),
+                            capture.end(),
+                            FileKind::Doc,
+                            captures[1].to_string(),
+                        )
+                    }),
+            )
             .map(|(begin, end, kind, id)| ParseItem {
                 begin,
                 end,
@@ -601,6 +626,7 @@ mod tests {
                 "https://docs.google.com/document/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/",
                 "https://docs.google.com/document/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/edit",
                 "https://docs.google.com/document/u/1/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/edit",
+                "https://docs.google.com/open?id=1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA"
             ] {
                 assert_json_is!(
                     GoogleDriveProvider::parse(string)[0].node,
@@ -631,9 +657,10 @@ mod tests {
             "
             gdrive:file/17Fw92iZgjD9dEcE8N2m08m-CRa3g-6_Ar24TLumjVV0 som word to be ignored
             and then another url https://docs.google.com/spreadsheets/d/1STkgekwd0Vqo9wj8huU2ps9RaPRvfAWDF7GoR5Vb3GY
+            and https://docs.google.com/open?id=1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA too
         ",
         );
-        assert_eq!(parse_items.len(), 2);
+        assert_eq!(parse_items.len(), 3);
         assert_json_is!(parse_items[0].node, {
             "type": "CreativeWork",
             "url": "https://drive.google.com/file/d/17Fw92iZgjD9dEcE8N2m08m-CRa3g-6_Ar24TLumjVV0",
@@ -641,6 +668,10 @@ mod tests {
         assert_json_is!(parse_items[1].node, {
             "type": "CreativeWork",
             "url": "https://docs.google.com/spreadsheets/d/1STkgekwd0Vqo9wj8huU2ps9RaPRvfAWDF7GoR5Vb3GY",
+        });
+        assert_json_is!(parse_items[2].node, {
+            "type": "CreativeWork",
+            "url": "https://docs.google.com/document/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA",
         });
     }
 }
