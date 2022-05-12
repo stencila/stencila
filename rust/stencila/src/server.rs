@@ -52,7 +52,7 @@ use warp::{
 pub async fn main() -> Result<()> {
     use tokio::time::{sleep, Duration};
 
-    start(None, None, None, false, false, false, None, None).await?;
+    start(None, None, None, false, false, false, None, None, false).await?;
     sleep(Duration::MAX).await;
 
     Ok(())
@@ -70,6 +70,7 @@ pub async fn start(
     root: bool,
     max_inactivity: Option<u64>,
     max_duration: Option<u64>,
+    log_requests: bool,
 ) -> Result<JoinHandle<()>> {
     if let Some(server) = SERVER.get() {
         let server = server.read().await;
@@ -87,6 +88,7 @@ pub async fn start(
         root,
         max_inactivity,
         max_duration,
+        log_requests,
     )
     .await?;
     let join_handle = server.start().await?;
@@ -161,7 +163,8 @@ pub async fn serve<P: AsRef<Path>>(
     let server = match SERVER.get() {
         Some(server) => server,
         None => {
-            let mut server = Server::new(None, None, None, false, false, false, None, None).await?;
+            let mut server =
+                Server::new(None, None, None, false, false, false, None, None, false).await?;
             server.start().await?;
             SERVER.get_or_init(|| RwLock::new(server))
         }
@@ -231,6 +234,9 @@ pub struct Server {
     /// Maximum number of seconds running before the server shutsdown
     max_duration: u64,
 
+    /// Whether each request should be logged
+    log_requests: bool,
+
     /// The set of already used, single-use tokens
     used_tokens: HashSet<String>,
 
@@ -260,6 +266,7 @@ impl Server {
         root: bool,
         max_inactivity: Option<u64>,
         max_duration: Option<u64>,
+        log_requests: bool,
     ) -> Result<Self> {
         let config = &CONFIG.lock().await.server;
 
@@ -327,6 +334,7 @@ impl Server {
             traversal,
             max_inactivity,
             max_duration,
+            log_requests,
             used_tokens: HashSet::new(),
             shutdown_sender: None,
         })
@@ -417,6 +425,46 @@ impl Server {
             .allow_methods(&[warp::http::Method::GET, warp::http::Method::POST])
             .max_age(24 * 60 * 60);
 
+        let log_requests = self.log_requests;
+        let log = warp::log::custom(move |info| {
+            if !log_requests {
+                return;
+            }
+
+            let method = info.method().as_str();
+            let path = info.path();
+            let time = info.elapsed();
+            let status = info.status().as_u16();
+
+            macro_rules! event {
+                ($level:expr) => {
+                    tracing::event!(
+                        $level,
+                        method,
+                        path,
+                        status,
+                        time = time.as_micros() as u64,
+                        referer = info.referer(),
+                        user_agent = info.user_agent(),
+                        "{} {} {} {:?}",
+                        method,
+                        path,
+                        status,
+                        time,
+                    );
+                };
+            }
+
+            use tracing::Level;
+            if status < 400 {
+                event!(Level::INFO);
+            } else if status < 500 {
+                event!(Level::WARN);
+            } else {
+                event!(Level::ERROR);
+            }
+        });
+
         let routes = statics
             .or(metrics)
             .or(terminal)
@@ -425,6 +473,7 @@ impl Server {
             .or(get)
             .with(server_header)
             .with(cors_headers)
+            .with(log)
             .recover(rejection_handler);
 
         // Spawn the serving task
@@ -951,8 +1000,6 @@ async fn get_static(
     path: warp::path::Tail,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str().to_string();
-    tracing::trace!("GET /~static/{}", path);
-
     record_http_request("GET", &["/~static/", &path].concat());
 
     // Remove the version number with warnings if it is not present
@@ -1036,8 +1083,6 @@ async fn get_static(
 
 #[tracing::instrument]
 async fn get_metrics() -> Result<impl warp::Reply, std::convert::Infallible> {
-    tracing::trace!("GET /~metrics");
-
     record_http_request("GET", "/~metrics");
 
     use prometheus::Encoder;
@@ -1209,8 +1254,6 @@ fn authentication_filter(
 async fn terminal_handler(
     (secure, token, claims, _cookie): (bool, String, jwt::Claims, Option<String>),
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
-    tracing::trace!("GET /~terminal");
-
     record_http_request("GET", "/~terminal");
     record_activity();
 
@@ -1245,8 +1288,6 @@ fn attach_handler(
     ws: warp::ws::Ws,
     (secure, token, claims, _cookie): (bool, String, jwt::Claims, Option<String>),
 ) -> Box<dyn warp::Reply> {
-    tracing::trace!("GET /~attach");
-
     record_http_request("GET", "/~attach");
     record_activity();
 
@@ -1318,7 +1359,7 @@ async fn attach_connected(
         while let Ok(bytes_read) = pty_receiver.read(&mut buffer[..]) {
             let message = warp::ws::Message::binary(&buffer[..bytes_read]);
             if let Err(error) = ws_sender.send(message).await {
-                if (error.to_string().contains("Connection closed normally")) {
+                if error.to_string().contains("Connection closed normally") {
                     return;
                 }
                 tracing::error!("While sending PTY message to Websocket: {}", error)
@@ -1358,7 +1399,6 @@ async fn get_handler(
     (home, traversal): (PathBuf, bool),
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    tracing::trace!("GET {}", path);
 
     record_http_request("GET", path);
     record_activity();
@@ -1716,8 +1756,6 @@ fn ws_handshake(
     params: WsParams,
     (secure, token, claims, _cookie): (bool, String, jwt::Claims, Option<String>),
 ) -> Box<dyn warp::Reply> {
-    tracing::trace!("GET /~ws");
-
     record_http_request("GET", "/~ws");
     record_activity();
 
@@ -1856,8 +1894,6 @@ async fn rejection_handler(
     } else {
         Error::server_error("Unknown error")
     };
-
-    tracing::error!("{}", error);
 
     Ok(warp::reply::with_status(
         warp::reply::json(&Response {
@@ -2021,6 +2057,10 @@ pub mod commands {
         /// The maximum number of seconds that the server should run for
         #[structopt(long)]
         max_duration: Option<u64>,
+
+        /// Log each request
+        #[structopt(long)]
+        log_requests: bool,
     }
     #[async_trait]
     impl Run for Start {
@@ -2038,6 +2078,7 @@ pub mod commands {
                 self.root,
                 self.max_inactivity,
                 self.max_duration,
+                self.log_requests,
             )
             .await?;
 
