@@ -10,7 +10,7 @@ import './terminal.css'
  *
  * @param elemId The id of the element on which to create the terminal
  */
-const main = (elemId: string) : void => {
+const main = (elemId: string): void => {
   const terminal = new Terminal({
     fontFamily: 'Menlo, monospace',
     fontSize: 14,
