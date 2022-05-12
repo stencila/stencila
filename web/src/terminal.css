@@ -1,0 +1,10 @@
+html, body {
+  margin:0px;
+  height:100%;
+}
+
+#terminal-container {
+  background-color: #2d2e2c;
+  padding: 10px;
+  height:100%;
+}
