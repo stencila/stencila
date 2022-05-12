@@ -1,3 +1,20 @@
+# [1.8.0](https://github.com/stencila/stencila/compare/v1.7.0...v1.8.0) (2022-05-12)
+
+
+### Bug Fixes
+
+* **GDrive provider:** Parse `open?id=` style URLs ([d492ec4](https://github.com/stencila/stencila/commit/d492ec4d48816b71ef2bf5e9d55309a905815680))
+* **Key utilities:** Generate key with `sik` identifying prefix ([4a3b247](https://github.com/stencila/stencila/commit/4a3b24785df98b1679b9d40cf32e0b27ba793676))
+* **Server:** Allow routing to more than one WebSocket path; remove need for `projectId` when conecting ([6424fbc](https://github.com/stencila/stencila/commit/6424fbc1201a5ec777808759597c5302594c61e0))
+* **Server:** Do not warn if `STENCILA_SERVER_KEY` env var is set ([1e3a9b2](https://github.com/stencila/stencila/commit/1e3a9b286b8ca743dcf24052b76231d9697d5670)), closes [#1439](https://github.com/stencila/stencila/issues/1439)
+* **Server:** Set `SameSite` value for token cookie properly ([d938617](https://github.com/stencila/stencila/commit/d93861793b02fd1089a2e6331ee94555f40d447a)), closes [#1438](https://github.com/stencila/stencila/issues/1438)
+
+
+### Features
+
+* **Server terminal:** Add terminal for attaching to remote instances ([1de900e](https://github.com/stencila/stencila/commit/1de900ee07e2d9774e7b9275d1521613b0f1e242))
+* **Server:** Add `--log-requests` option ([2a51c3a](https://github.com/stencila/stencila/commit/2a51c3aa388edfafdbb0e9ba16dc77a68fcfe548))
+
 # [1.7.0](https://github.com/stencila/stencila/compare/v1.6.1...v1.7.0) (2022-04-22)
 
 
