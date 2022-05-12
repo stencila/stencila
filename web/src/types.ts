@@ -10,5 +10,8 @@ declare global {
       main: typeof main
       executableLanguages: FileFormatUtils.FileFormatMap
     }
+    stencilaWebTerminal: {
+      main: (elemId: string) => void
+    }
   }
 }

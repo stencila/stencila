@@ -1220,25 +1220,15 @@ async fn terminal_handler(
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" href="{static_root}/xterm/css/xterm.css" />
-        <script src="{static_root}/xterm/lib/xterm.js"></script>
-        <script src="{static_root}/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
-        <script src="{static_root}/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+        <link href="{static_root}/web/terminal.css" rel="stylesheet">
+        <script src="{static_root}/web/terminal.js"></script>
     </head>
     <body>
-      <div id="terminal"></div>
+      <div id="terminal-container">
+        <div id="terminal"></div>
+      </div>
       <script>
-        const term = new Terminal();
-
-        //const fitAddon = new FitAddon();
-        //term.loadAddon(fitAddon);
-
-        const socket = new WebSocket('/~attach');
-        const attachAddon = new AttachAddon(socket);
-        term.loadAddon(attachAddon);
-
-        term.open(document.getElementById('terminal'));
-        term.fit();
+        stencilaWebTerminal.main("terminal")
       </script>
     </body>
 </html>"#,
@@ -1312,18 +1302,29 @@ async fn attach_connected(
 ) {
     let (mut ws_sender, mut ws_receiver) = web_socket.split();
 
+    // Receive bytes from the WebSocket and write to the PTY
     tokio::task::spawn(async move {
-        let mut buffer = [0; 8];
-        while let Ok(..) = pty_receiver.read(&mut buffer[..]) {
-            let message = warp::ws::Message::binary(buffer);
-            ws_sender.send(message).await;
+        while let Some(Ok(message)) = ws_receiver.next().await {
+            let buffer = message.as_bytes();
+            if let Err(error) = pty_sender.write(buffer) {
+                tracing::error!("While writing WebSocket message to PTY: {}", error)
+            }
         }
     });
 
-    while let Some(Ok(message)) = ws_receiver.next().await {
-        let buffer = message.as_bytes();
-        pty_sender.write(buffer);
-    }
+    // Receive bytes from the PTY and send to WebSocket
+    tokio::task::spawn(async move {
+        let mut buffer = [0; 256];
+        while let Ok(bytes_read) = pty_receiver.read(&mut buffer[..]) {
+            let message = warp::ws::Message::binary(&buffer[..bytes_read]);
+            if let Err(error) = ws_sender.send(message).await {
+                if (error.to_string().contains("Connection closed normally")) {
+                    return;
+                }
+                tracing::error!("While sending PTY message to Websocket: {}", error)
+            }
+        }
+    });
 }
 
 /// Query parameters for `get_handler`
