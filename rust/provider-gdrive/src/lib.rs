@@ -15,9 +15,9 @@ use provider::{
     http_utils::{download_with, headers},
     once_cell::sync::Lazy,
     regex::Regex,
+    resolve_token,
     stencila_schema::{CreativeWork, Node},
     strum::{AsRefStr, EnumString},
-    tokens::token_for_provider,
     tokio::{self, sync::mpsc},
     tracing, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions, WatchMode,
 };
@@ -34,8 +34,8 @@ use server_utils::{
 const GOOGLE_DRIVE_API: &str = "https://www.googleapis.com/drive/v3";
 const GOOGLE_DOCS_API: &str = "https://docs.googleapis.com/v1";
 
-/// The default name for the secret used to authenticate with the API
-const SECRET_NAME: &str = "GOOGLE_TOKEN";
+/// The default name for the token used to authenticate with the API
+const TOKEN_NAME: &str = "GOOGLE_TOKEN";
 
 /// Port for the webhook server
 ///
@@ -82,44 +82,37 @@ enum FileKind {
 
 #[derive(Clone)]
 struct GoogleDriveClient {
-    /// The name of the secret containing the access token
-    secret_name: String,
+    /// A Google API token
+    token: String,
 }
 
 impl GoogleDriveClient {
-    /// Create a new Goole Drive API client
-    fn new(secret_name: Option<String>) -> Self {
-        let secret_name = secret_name.unwrap_or_else(|| SECRET_NAME.to_string());
-        Self { secret_name }
-    }
-
-    /// Get an API token from the environment or Stencila API
-    async fn token(&self) -> Result<String> {
-        match env::var(&self.secret_name) {
-            Ok(token) => Ok(token),
-            Err(..) => match token_for_provider("google").await? {
-                Some(token) => Ok(token),
-                None => bail!("An access token is required to access the Google Drive API"),
-            },
+    /// Create a new Google Drive API client
+    fn new(token: Option<String>) -> Result<Self> {
+        let token = resolve_token(token.as_deref().unwrap_or(TOKEN_NAME));
+        match token {
+            Some(token) => Ok(Self { token }),
+            None => bail!("An access token is required for the Google Drive API"),
         }
     }
 
-    /// Get a `google_drive` API client
+    /// Get a `google_drive` create API client
     async fn api(&self) -> Result<google_drive::Client> {
-        let token = self.token().await?;
         Ok(google_drive::Client::new(
             String::new(),
             String::new(),
             String::new(),
-            token,
+            self.token.clone(),
             String::new(),
         ))
     }
 
     /// Get additional headers required for a request
     async fn headers(&self) -> Result<Vec<(headers::HeaderName, String)>> {
-        let token = self.token().await?;
-        Ok(vec![(headers::AUTHORIZATION, ["Bearer ", &token].concat())])
+        Ok(vec![(
+            headers::AUTHORIZATION,
+            ["Bearer ", &self.token].concat(),
+        )])
     }
 
     /// Download a file/folder
@@ -304,7 +297,7 @@ impl ProviderTrait for GoogleDriveProvider {
         let (file_kind, file_id) = Self::file_kind_id(node)?;
 
         let options = options.unwrap_or_default();
-        let client = GoogleDriveClient::new(options.secret_name);
+        let client = GoogleDriveClient::new(options.token)?;
 
         tracing::info!("Downloading {}", Self::create_url(&file_kind, &file_id));
         client.download(&file_kind, &file_id, dest).await
@@ -325,7 +318,7 @@ impl ProviderTrait for GoogleDriveProvider {
         let file_url = Self::create_url(&file_kind, &file_id);
 
         let options = options.unwrap_or_default();
-        let client = GoogleDriveClient::new(options.secret_name);
+        let client = GoogleDriveClient::new(options.token)?;
 
         // See https://developers.google.com/drive/api/v3/push for docs related to this
 

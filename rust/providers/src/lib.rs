@@ -336,12 +336,13 @@ pub mod commands {
         #[structopt(short, long)]
         string: bool,
 
-        /// The name of a secret environment variable required to access the resource
+        /// The token (or name of environment variable) required to access the resource
         ///
-        /// Only necessary if authentication is required for the resource and the name
-        /// of the secret is different to the default for the corresponding provider.
+        /// Only necessary if authentication is required for the resource. Defaults to
+        /// using the environment variable corresponding to the provider of the resource
+        /// e.g. `GITHUB_TOKEN`.
         #[structopt(long)]
-        secret: Option<String>,
+        token: Option<String>,
     }
     #[async_trait]
     impl Run for Enrich {
@@ -361,7 +362,7 @@ pub mod commands {
 
             let mut nodes: Vec<Node> = Vec::with_capacity(detections.len());
             let options = EnrichOptions {
-                secret_name: self.secret.clone(),
+                token: self.token.clone(),
             };
             for detection in detections.into_iter() {
                 let node = enrich(detection.node, Some(options.clone())).await?;
@@ -383,12 +384,13 @@ pub mod commands {
         #[structopt(default_value = ".")]
         path: PathBuf,
 
-        /// The name of a secret environment variable required to access the resource
+        /// The token (or name of environment variable) required to access the resource
         ///
-        /// Only necessary if authentication is required for the resource and the name
-        /// of the secret is different to the default for the corresponding provider.
+        /// Only necessary if authentication is required for the resource. Defaults to
+        /// using the environment variable corresponding to the provider of the resource
+        /// e.g. `GITHUB_TOKEN`.
         #[structopt(long)]
-        secret: Option<String>,
+        token: Option<String>,
     }
     #[async_trait]
     impl Run for Import {
@@ -396,7 +398,7 @@ pub mod commands {
             let (.., node) = resolve(&self.source).await?;
 
             let options = ImportOptions {
-                secret_name: self.secret.clone(),
+                token: self.token.clone(),
             };
             import(&node, &self.path, Some(options)).await?;
 
@@ -415,12 +417,13 @@ pub mod commands {
         #[structopt(default_value = ".")]
         path: PathBuf,
 
-        /// The name of a secret environment variable required to access the resource
+        /// The token (or name of environment variable) required to access the resource
         ///
-        /// Only necessary if authentication is required for the resource and the name
-        /// of the secret is different to the default for the corresponding provider.
+        /// Only necessary if authentication is required for the resource. Defaults to
+        /// using the environment variable corresponding to the provider of the resource
+        /// e.g. `GITHUB_TOKEN`.
         #[structopt(long)]
-        secret: Option<String>,
+        token: Option<String>,
     }
     #[async_trait]
     impl Run for Export {
@@ -428,7 +431,7 @@ pub mod commands {
             let (.., node) = resolve(&self.source).await?;
 
             let options = ExportOptions {
-                secret_name: self.secret.clone(),
+                token: self.token.clone(),
             };
             export(&node, &self.path, Some(options)).await?;
 
@@ -451,12 +454,13 @@ pub mod commands {
         #[structopt(long, short, possible_values = &WatchMode::VARIANTS)]
         mode: Option<WatchMode>,
 
-        /// The name of a secret environment variable required to access the resource
+        /// The token (or name of environment variable) required to access the resource
         ///
-        /// Only necessary if authentication is required for the resource and the name
-        /// of the secret is different to the default for the corresponding provider.
+        /// Only necessary if authentication is required for the resource. Defaults to
+        /// using the environment variable corresponding to the provider of the resource
+        /// e.g. `GITHUB_TOKEN`.
         #[structopt(long)]
-        secret: Option<String>,
+        token: Option<String>,
 
         /// The host to listen on for events from the source provider
         ///
@@ -477,7 +481,7 @@ pub mod commands {
 
             let options = SyncOptions {
                 mode: self.mode.clone(),
-                secret_name: self.secret.clone(),
+                token: self.token.clone(),
                 host: self.host.clone(),
             };
             watch(&node, &self.path, canceller, Some(options)).await?;

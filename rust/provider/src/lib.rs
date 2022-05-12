@@ -1,10 +1,12 @@
-use std::path::Path;
+use std::{env, path::Path};
 
 use async_trait::async_trait;
 use chrono::Utc;
-use eyre::Result;
+use eyre::{Result};
 use node_address::Address;
 use node_pointer::{walk, Visitor};
+use once_cell::sync::Lazy;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use stencila_schema::{InlineContent, Node};
 use strum::{AsRefStr, EnumString, EnumVariantNames};
@@ -26,8 +28,6 @@ pub use ::stencila_schema;
 pub use ::strum;
 pub use ::tokio;
 pub use ::tracing;
-
-pub mod tokens;
 
 pub const IMPORT: &str = "import";
 pub const EXPORT: &str = "export";
@@ -138,21 +138,44 @@ pub trait ProviderTrait {
     }
 }
 
+/// Resolve a string to an access token
+///
+/// If the string looks like an environment variable (is `UPPER_SNAKE_CASE`), and that variable exists
+/// then will return the value of that variable. Otherwise will return the input string.
+pub fn resolve_token(token: &str) -> Option<String> {
+    static ENV_VAR_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new("[A-Z_]+").expect("Unable to create regex"));
+
+    if ENV_VAR_REGEX.is_match(token) {
+        match env::var(&token) {
+            Ok(value) => Some(value),
+            Err(..) => {
+                tracing::debug!("Token string appears to be an environment variable name but no such variable found");
+                None
+            }
+        }
+    } else {
+        Some(token.to_string())
+    }
+}
+
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct EnrichOptions {
-    pub secret_name: Option<String>,
+    pub token: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ImportOptions {
-    /// The name of the secret needed to access the resource
-    pub secret_name: Option<String>,
+    /// The token required to access the resource (or the `ALL_CAPS` name of the
+    /// environment variable containing the token)
+    pub token: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ExportOptions {
-    /// The name of the secret needed to access the resource
-    pub secret_name: Option<String>,
+    /// The token required to access the resource (or the `ALL_CAPS` name of the
+    /// environment variable containing the token)
+    pub token: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -160,8 +183,9 @@ pub struct SyncOptions {
     /// The synchronization mode
     pub mode: Option<WatchMode>,
 
-    /// The name of the secret needed to access the resource
-    pub secret_name: Option<String>,
+    /// The token required to access the resource (or the `ALL_CAPS` name of the
+    /// environment variable containing the token)
+    pub token: Option<String>,
 
     /// The host address (optionally including port number) to listen on for notifications of changes
     pub host: Option<String>,
@@ -174,7 +198,7 @@ pub enum WatchMode {
     /// Synchronize the resource whenever it has been changed
     Changed,
 
-    /// Synchronize the resource whenever it has been commited (e.g. using `git commit`)
+    /// Synchronize the resource whenever it has been committed (e.g. using `git commit`)
     Committed,
 
     /// Synchronize the resource whenever it is tagged (e.g. a git tag is added, or a Google file has a revision made)

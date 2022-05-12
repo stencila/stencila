@@ -261,7 +261,7 @@ impl Source {
             None => path.to_path_buf(),
         };
         let options = ImportOptions {
-            secret_name: self.secret_name.clone(),
+            token: self.secret_name.clone(),
         };
 
         let (pre, ..) = Files::walk(path, false);
@@ -331,7 +331,7 @@ impl Source {
         let (canceller, cancellee) = mpsc::channel(1);
         let options = SyncOptions {
             mode: watch.mode.clone(),
-            secret_name: self.secret_name.clone(),
+            token: self.secret_name.clone(),
             ..Default::default()
         };
         tokio::spawn(async move { providers::watch(&node, &dest, cancellee, Some(options)).await });

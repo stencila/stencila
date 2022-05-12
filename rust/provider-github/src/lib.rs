@@ -18,11 +18,11 @@ use provider::{
     eyre::{self, bail, eyre, Result},
     once_cell::sync::Lazy,
     regex::Regex,
+    resolve_token,
     stencila_schema::{
         CreativeWorkAuthors, CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date,
         Node, Organization, Person, SoftwareSourceCode, ThingDescription,
     },
-    tokens::token_for_provider,
     tokio::sync::mpsc,
     tracing, EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
 };
@@ -43,39 +43,33 @@ use server_utils::{
 /// rules, may assume this number.
 const WEBHOOK_PORT: u16 = 10002;
 
-/// The default name for the secret used to authenticate with the API
-const SECRET_NAME: &str = "GITHUB_TOKEN";
+/// The default name for the token used to authenticate with the API
+const TOKEN_NAME: &str = "GITHUB_TOKEN";
 
 /// A client for the Github REST API
 ///
 /// This takes a just-in-time approach and gets the API token from the environment (if any)
-/// and constucts an `octorust::Client` for each request (see the `api` method).
+/// and constructs an `octorust::Client` for each request (see the `api` method).
 /// This is somewhat inefficient but allows the token to be added or changed without a restart.
 #[derive(Clone)]
 struct GithubClient {
-    /// The name of the secret containing the access token
-    secret_name: String,
+    /// A GitHub API token
+    token: Option<String>,
 }
 
 impl GithubClient {
     /// Create a new Github API client
-    fn new(secret_name: Option<String>) -> Self {
-        let secret_name = secret_name.unwrap_or_else(|| SECRET_NAME.to_string());
-        Self { secret_name }
-    }
-
-    /// Get an API token from the environment or Stencila API
-    async fn token(&self) -> Result<Option<String>> {
-        match env::var(&self.secret_name) {
-            Ok(token) => Ok(Some(token)),
-            Err(..) => token_for_provider("github").await,
-        }
+    fn new(token: Option<String>) -> Self {
+        let token = resolve_token(token.as_deref().unwrap_or(TOKEN_NAME));
+        Self { token }
     }
 
     /// Get an `octorust` API client
     async fn api(&self) -> Result<octorust::Client> {
-        let token = self.token().await?;
-        let credentials = token.map(octorust::auth::Credentials::Token);
+        let credentials = self
+            .token
+            .as_ref()
+            .map(|token| octorust::auth::Credentials::Token(token.to_string()));
         Ok(octorust::Client::custom(
             octorust::DEFAULT_HOST,
             http_utils::USER_AGENT,
@@ -86,12 +80,12 @@ impl GithubClient {
 
     /// Get additional headers required for a request
     ///
-    /// Currenty only used for `download_temp`.
-    async fn headers(&self) -> Result<Vec<(headers::HeaderName, String)>> {
-        Ok(match self.token().await? {
-            Some(token) => vec![(headers::AUTHORIZATION, ["Token ", &token].concat())],
+    /// Currently only used for `download_temp`.
+    fn headers(&self) -> Vec<(headers::HeaderName, String)> {
+        match &self.token {
+            Some(token) => vec![(headers::AUTHORIZATION, ["Token ", token].concat())],
             None => Vec::new(),
-        })
+        }
     }
 
     /// Download the tarball for a repo
@@ -100,7 +94,7 @@ impl GithubClient {
     /// use `http_utils::download_temp_with` instead and "manually" add auth header
     async fn download_temp(&self, path: &str) -> Result<NamedTempFile> {
         let url = [octorust::DEFAULT_HOST, path].concat();
-        let headers = self.headers().await?;
+        let headers = self.headers();
         download_temp_with(&url, None, &headers).await
     }
 }
@@ -225,7 +219,7 @@ impl ProviderTrait for GithubProvider {
 
         let options = options.unwrap_or_default();
 
-        let client = GithubClient::new(options.secret_name);
+        let client = GithubClient::new(options.token);
 
         let repo_details = client
             .api()
@@ -309,7 +303,7 @@ impl ProviderTrait for GithubProvider {
         let path = Self::path(ssc);
 
         let options = options.unwrap_or_default();
-        let client = GithubClient::new(options.secret_name.clone());
+        let client = GithubClient::new(options.token.clone());
 
         let content = client
             .api()
@@ -380,7 +374,7 @@ impl ProviderTrait for GithubProvider {
         let path = Self::path(ssc);
 
         let options = options.unwrap_or_default();
-        let client = GithubClient::new(options.secret_name);
+        let client = GithubClient::new(options.token);
 
         // Generate the unique id for the webhook
         let webhook_id = uuids::generate_num("wh", 36).to_string();
