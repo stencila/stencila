@@ -207,7 +207,7 @@ jobs:
           npm install --prefix web
           npm run lint --prefix web
           while ! echo exit | nc 127.0.0.1 9000; do sleep 5; done
-          SERVER_URL="ws://127.0.0.1:9000/~ws" npm test --prefix web
+          SERVER_URL="ws://127.0.0.1:9000" npm test --prefix web
           kill %1
         condition: |
           and(
