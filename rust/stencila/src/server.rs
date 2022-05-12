@@ -33,6 +33,7 @@ use tokio::{
     sync::{mpsc, RwLock},
     task::JoinHandle,
 };
+use uuids::generate;
 use warp::{
     http::{
         header::{self, HeaderValue},
@@ -385,16 +386,16 @@ impl Server {
             .and(authenticate())
             .and_then(terminal_handler);
 
-        let attach = warp::ws()
-            .and(warp::path("~attach"))
+        let attach = warp::path("~attach")
+            .and(warp::ws())
             .and(authenticate())
             .map(attach_handler);
 
-        let ws = warp::ws()
-            .and(warp::path::full())
+        let rpc_ws = warp::path("~rpc")
+            .and(warp::ws())
             .and(warp::query::<WsParams>())
             .and(authenticate())
-            .map(ws_handshake);
+            .map(rpc_ws_handler);
 
         let get = warp::get()
             .and(warp::path::full())
@@ -469,7 +470,7 @@ impl Server {
             .or(metrics)
             .or(terminal)
             .or(attach)
-            .or(ws)
+            .or(rpc_ws)
             .or(get)
             .with(server_header)
             .with(cors_headers)
@@ -1288,7 +1289,7 @@ fn attach_handler(
     ws: warp::ws::Ws,
     (secure, token, claims, _cookie): (bool, String, jwt::Claims, Option<String>),
 ) -> Box<dyn warp::Reply> {
-    record_http_request("GET", "/~attach");
+    record_http_request("WS", "/~attach");
     record_activity();
 
     use portable_pty::{native_pty_system, CommandBuilder, PtySize};
@@ -1513,28 +1514,15 @@ async fn get_handler(
                 };
 
                 let content = match format.as_str() {
-                    "html" => {
-                        let project =
-                            Projects::project_of_path(&fs_path).unwrap_or_else(|_| fs_path.clone());
-
-                        let project = if let Ok(project) = project.strip_prefix("/") {
-                            project.display()
-                        } else {
-                            project.display()
-                        }
-                        .to_string();
-
-                        html_rewrite(
-                            &content,
-                            &mode,
-                            &theme,
-                            &components,
-                            &token,
-                            &project,
-                            &home,
-                            &fs_path,
-                        )
-                    }
+                    "html" => html_rewrite(
+                        &content,
+                        &mode,
+                        &theme,
+                        &components,
+                        &token,
+                        &home,
+                        &fs_path,
+                    ),
                     _ => content,
                 }
                 .as_bytes()
@@ -1644,7 +1632,6 @@ pub fn html_rewrite(
     theme: &str,
     components: &str,
     token: &str,
-    project: &str,
     home: &Path,
     document: &Path,
 ) -> String {
@@ -1663,14 +1650,13 @@ pub fn html_rewrite(
     <link href="{static_root}/web/index.{mode}.css" rel="stylesheet">
     <script src="{static_root}/web/index.{mode}.js"></script>
     <script>
-        const startup = stencilaWebClient.main("{client}", "{project}", "{document}", null, "{token}");
+        const startup = stencilaWebClient.main("{client}", "{document}", null, "{token}");
         startup().catch((err) => console.error('Error during startup', err))
     </script>"#,
         static_root = static_root,
         mode = mode,
         client = uuids::generate("cl"),
         token = token,
-        project = project,
         document = document.display()
     );
 
@@ -1740,7 +1726,7 @@ pub fn html_rewrite(
 #[derive(Debug, Deserialize)]
 struct WsParams {
     /// The id of the client
-    client: String,
+    client: Option<String>,
 }
 
 /// Perform a WebSocket handshake / upgrade
@@ -1750,35 +1736,16 @@ struct WsParams {
 /// Authorization is done by checking the `project` in the JWT claims
 /// against the requested path.
 #[tracing::instrument(skip(_cookie))]
-fn ws_handshake(
+fn rpc_ws_handler(
     ws: warp::ws::Ws,
-    path: warp::path::FullPath,
     params: WsParams,
-    (secure, token, claims, _cookie): (bool, String, jwt::Claims, Option<String>),
+    (_secure, _token, _claims, _cookie): (bool, String, jwt::Claims, Option<String>),
 ) -> Box<dyn warp::Reply> {
-    record_http_request("GET", "/~ws");
+    record_http_request("WS", "/~rpc");
     record_activity();
 
-    use warp::reply;
-
-    // Check that client is authorized to access the path
-    // On MacOS and Linux the leading slash is removed from the URL path so it
-    // is necessary to check against both the path, and the path less any leading slash.
-
-    let project = claims.project.display().to_string();
-
-    let path = path.as_str();
-    let fs_path = path.strip_prefix('/').unwrap_or(path).to_string();
-    let fs_path = urlencoding::decode(&fs_path)
-        .map_or_else(|_| fs_path.clone(), |fs_path| fs_path.to_string());
-
-    if secure && project != fs_path && project != ["/", &fs_path].concat() {
-        return Box::new(reply::with_status(reply(), StatusCode::UNAUTHORIZED));
-    }
-
-    // OK, so upgrade the connection
-
-    Box::new(ws.on_upgrade(|socket| ws_connected(socket, params.client)))
+    let client_id = params.client.unwrap_or_else(|| generate("cl").to_string());
+    Box::new(ws.on_upgrade(|socket| rpc_ws_connected(socket, client_id)))
 }
 
 /// Handle a WebSocket connection
@@ -1786,8 +1753,8 @@ fn ws_handshake(
 /// This function is called after the handshake, when a WebSocket client
 /// has successfully connected.
 #[tracing::instrument(skip(socket))]
-async fn ws_connected(socket: warp::ws::WebSocket, client_id: String) {
-    tracing::trace!("WebSocket connected");
+async fn rpc_ws_connected(socket: warp::ws::WebSocket, client_id: String) {
+    tracing::trace!("WebSocket client `{}` connected", client_id);
 
     let (mut ws_sender, mut ws_receiver) = socket.split();
 

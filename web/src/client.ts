@@ -1,12 +1,10 @@
 import { Client } from 'rpc-websockets'
-import { ProjectId } from './types'
 export { Client } from 'rpc-websockets'
 
 export type ClientId = string
 export type ClientOptions = ConstructorParameters<typeof Client>[1]
 
 export async function connect(
-  projectId: ProjectId,
   clientId: ClientId,
   origin?: string | null,
   token?: string | null,
@@ -19,7 +17,7 @@ export async function connect(
           window.location.host
         }`
 
-  let connectUrl = `${baseUrl}/${projectId}?client=${clientId}`
+  let connectUrl = `${baseUrl}/~rpc?client=${clientId}`
   if (typeof token === 'string' && token.length > 0) {
     connectUrl += `&token=${token}`
   }

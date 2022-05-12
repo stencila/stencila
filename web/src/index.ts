@@ -4,7 +4,6 @@ import * as documents from './documents'
 import { onDiscoverExecutableLanguages } from './events/kernels'
 import { languages } from './kernels'
 import * as sessions from './sessions'
-import { ProjectId } from './types'
 
 export type { Document, Patch, Session } from '@stencila/stencila'
 export * as client from './client'
@@ -15,7 +14,6 @@ export * as utils from './utils'
 
 export const main = (
   clientId: ClientId,
-  projectId: ProjectId,
   documentPath?: documents.DocumentPath,
   origin?: string | null,
   token?: string | null,
@@ -37,11 +35,11 @@ export const main = (
     }
 
     if (client === undefined) {
-      client = await connect(projectId, clientId, origin, token, clientOptions)
+      client = await connect(clientId, origin, token, clientOptions)
     }
 
     if (session === undefined) {
-      session = await sessions.start(client, projectId)
+      session = await sessions.start(client, documentPath)
       sessions.subscribe(client, session.id, 'updated').catch((err) => {
         console.warn(`Couldn't subscribe to session updates`, err)
       })

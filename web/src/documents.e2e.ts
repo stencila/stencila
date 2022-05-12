@@ -18,7 +18,6 @@ const clientId = 'cl-document-tests'
 let client: Client
 beforeAll(async () => {
   client = await connect(
-    'pr-document-tests',
     clientId,
     process.env.SERVER_URL ?? 'ws://127.0.0.1:9000'
   )
