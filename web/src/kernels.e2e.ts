@@ -1,7 +1,7 @@
 import { Client, connect, disconnect } from './client'
 import { languages } from './kernels'
 
-jest.setTimeout(10000)
+jest.setTimeout(60000)
 
 const clientId = 'cl-kernels-tests'
 let client: Client

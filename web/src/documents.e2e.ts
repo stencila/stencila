@@ -12,7 +12,7 @@ import {
   unsubscribe,
 } from './documents'
 
-jest.setTimeout(10000)
+jest.setTimeout(60000)
 
 const clientId = 'cl-document-tests'
 let client: Client

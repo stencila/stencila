@@ -3,7 +3,7 @@ import { Session, SessionEvent } from '@stencila/stencila'
 import { Client, connect, disconnect } from './client'
 import { start, stop, subscribe, unsubscribe } from './sessions'
 
-jest.setTimeout(10000)
+jest.setTimeout(60000)
 
 const clientId = 'cl-session-tests'
 let client: Client
