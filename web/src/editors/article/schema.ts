@@ -1,5 +1,6 @@
 import {
   AttributeSpec,
+  DOMOutputSpec,
   MarkSpec,
   Node,
   NodeSpec,
@@ -358,9 +359,8 @@ function tableCell(): NodeSpec {
     parseDOM: [
       { tag: 'td', getAttrs: (dom) => tableCellAttrsGet(dom as HTMLElement) },
     ],
-    // @ts-expect-error
     toDOM(node) {
-      return ['td', tableCellAttrsSet(node), 0]
+      return ['td', tableCellAttrsSet(node), 0] as DOMOutputSpec
     },
   }
 }
@@ -383,9 +383,8 @@ function tableHeader(): NodeSpec {
     parseDOM: [
       { tag: 'th', getAttrs: (dom) => tableCellAttrsGet(dom as HTMLElement) },
     ],
-    // @ts-expect-error
     toDOM(node) {
-      return ['th', tableCellAttrsSet(node), 0]
+      return ['th', tableCellAttrsSet(node), 0] as DOMOutputSpec
     },
   }
 }
