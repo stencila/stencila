@@ -21,7 +21,6 @@ use std::{
     env,
     fmt::Debug,
     fs,
-    io::{Read, Write},
     path::{Path, PathBuf},
     sync::{
         atomic::{AtomicU64, Ordering},
@@ -731,6 +730,8 @@ impl WebsocketClients {
         let (sender, receiver) = mpsc::unbounded_channel::<events::Message>();
         tokio::spawn(WebsocketClients::relay(inner.clone(), receiver));
 
+        Self::ping(inner.clone());
+
         Self {
             inner,
             subscriptions,
@@ -879,6 +880,23 @@ impl WebsocketClients {
 
         let mut clients = self.inner.write().await;
         clients.clear();
+    }
+
+    /// Ping all clients periodically
+    fn ping(clients: Arc<RwLock<HashMap<String, WebsocketClient>>>) {
+        tokio::spawn(async move {
+            loop {
+                let clients = clients.read().await;
+                for (client_id, client) in clients.iter() {
+                    if let Err(error) = client.sender.send(warp::ws::Message::ping("ping")) {
+                        tracing::debug!("While sending ping to client `{}`: {}", client_id, error)
+                    }
+                }
+
+                use tokio::time::{sleep, Duration};
+                sleep(Duration::from_secs(15)).await;
+            }
+        });
     }
 
     /// Send a message to a client
@@ -1292,81 +1310,88 @@ fn attach_handler(
     record_http_request("WS", "/~attach");
     record_activity();
 
-    use portable_pty::{native_pty_system, CommandBuilder, PtySize};
-
-    let pty_system = native_pty_system();
-    let pty_pair = match pty_system.openpty(PtySize {
-        rows: 24,
-        cols: 80,
-        pixel_width: 0,
-        pixel_height: 0,
-    }) {
-        Ok(pair) => pair,
-        Err(error) => {
-            return Box::new(error_response(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                &format!("While creating pty: {}", error),
-            ));
-        }
-    };
-
-    let pty_cmd = CommandBuilder::new("bash");
-    match pty_pair.slave.spawn_command(pty_cmd) {
-        Ok(child) => child,
-        Err(error) => {
-            return Box::new(error_response(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                &format!("While spawning bash: {}", error),
-            ));
-        }
-    };
-
-    let pty_reader = match pty_pair.master.try_clone_reader() {
-        Ok(reader) => reader,
-        Err(error) => {
-            return Box::new(error_response(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                &format!("While cloning pty reader: {}", error),
-            ));
-        }
-    };
-
-    Box::new(ws.on_upgrade(|socket| attach_connected(socket, pty_reader, pty_pair.master)))
+    Box::new(ws.on_upgrade(|socket| attach_connected(socket, "/bin/bash".to_string())))
 }
 
 /// Handle a WebSocket connection for ~attach
 ///
 /// Pipes data between the websocket connection and the PTY.
-async fn attach_connected(
-    web_socket: warp::ws::WebSocket,
-    mut pty_receiver: Box<dyn Read + Send>,
-    mut pty_sender: Box<dyn portable_pty::MasterPty + Send>,
-) {
+async fn attach_connected(web_socket: warp::ws::WebSocket, cmd: String) {
     let (mut ws_sender, mut ws_receiver) = web_socket.split();
+    let (message_sender, mut message_receiver) = mpsc::channel(1);
 
-    // Receive bytes from the WebSocket and write to the PTY
-    tokio::task::spawn(async move {
-        while let Some(Ok(message)) = ws_receiver.next().await {
-            let buffer = message.as_bytes();
-            if let Err(error) = pty_sender.write(buffer) {
-                tracing::error!("While writing WebSocket message to PTY: {}", error)
+    tokio::spawn(async move {
+        use pty_process::Command;
+        use tokio::io::AsyncReadExt;
+        use tokio::io::AsyncWriteExt;
+
+        let mut command = tokio::process::Command::new(&cmd);
+        let mut child = match command.spawn_pty(Some(&pty_process::Size::new(100, 80))) {
+            Ok(child) => child,
+            Err(error) => {
+                let message = format!("Unable to start command `{}`: {}", cmd, error);
+                message_sender
+                    .send(warp::ws::Message::text(message))
+                    .await
+                    .ok();
+                return;
             }
-        }
-    });
+        };
 
-    // Receive bytes from the PTY and send to WebSocket
-    tokio::task::spawn(async move {
-        let mut buffer = [0; 256];
-        while let Ok(bytes_read) = pty_receiver.read(&mut buffer[..]) {
-            let message = warp::ws::Message::binary(&buffer[..bytes_read]);
-            if let Err(error) = ws_sender.send(message).await {
-                if error.to_string().contains("Connection closed normally") {
-                    return;
+        let mut buffer = [0; 4096];
+        loop {
+            tokio::select! {
+                message = ws_receiver.next() => {
+                    if let Some(Ok(message)) = message {
+                        if message.is_ping() {
+                            if let Err(error) = message_sender.send(warp::ws::Message::pong("pong")).await {
+                                tracing::error!("While sending pong message to channel: {}", error)
+                            }
+                        } if message.is_pong() {
+                            // Ignore
+                        } else {
+                            let buffer = message.as_bytes();
+                            if let Err(error) = child.pty_mut().write_all(buffer).await {
+                                tracing::error!("While writing message to PTY: {}", error)
+                            }
+                        }
+                    }
+                },
+                bytes_read = child.pty_mut().read(&mut buffer[..]) => {
+                    if let Ok(bytes_read) = bytes_read {
+                        let message = warp::ws::Message::binary(&buffer[..bytes_read]);
+                        if let Err(error) = message_sender.send(message).await {
+                            tracing::error!("While sending binary message to channel: {}", error)
+                        }
+                    }
                 }
-                tracing::error!("While sending PTY message to Websocket: {}", error)
-            }
+            };
         }
     });
+
+    // Receive messages on message channel and forward to WebSocket.
+    // Use a timeout so that if there is no other activity we at least send a PING
+    // every 15 seconds.
+    use tokio::time::{timeout, Duration};
+    loop {
+        let message = match timeout(Duration::from_secs(15), message_receiver.recv()).await {
+            Ok(Some(message)) => message,
+            Ok(None) => {
+                tracing::trace!("Message channel sender was dropped");
+                return;
+            }
+            Err(..) => warp::ws::Message::ping("ping"),
+        };
+        if let Err(error) = ws_sender.send(message).await {
+            if error.to_string().contains("Connection closed normally") {
+                return;
+            }
+            tracing::error!(
+                "While sending message to terminal WebSocket client: {}",
+                error
+            )
+        }
+    }
 }
 
 /// Query parameters for `get_handler`
