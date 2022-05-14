@@ -1310,26 +1310,29 @@ fn attach_handler(
     record_http_request("WS", "/~attach");
     record_activity();
 
-    Box::new(ws.on_upgrade(|socket| attach_connected(socket, "/bin/bash".to_string())))
+    Box::new(ws.on_upgrade(|socket| attach_connected(socket)))
 }
 
 /// Handle a WebSocket connection for ~attach
 ///
 /// Pipes data between the websocket connection and the PTY.
-async fn attach_connected(web_socket: warp::ws::WebSocket, cmd: String) {
+async fn attach_connected(web_socket: warp::ws::WebSocket) {
+    #[allow(unused_mut, unused_variables)]
     let (mut ws_sender, mut ws_receiver) = web_socket.split();
     let (message_sender, mut message_receiver) = mpsc::channel(1);
 
+    #[cfg(target_os = "linux")]
     tokio::spawn(async move {
         use pty_process::Command;
         use tokio::io::AsyncReadExt;
         use tokio::io::AsyncWriteExt;
 
-        let mut command = tokio::process::Command::new(&cmd);
+        const CMD: &str = "/bin/bash";
+        let mut command = tokio::process::Command::new(CMD);
         let mut child = match command.spawn_pty(Some(&pty_process::Size::new(100, 80))) {
             Ok(child) => child,
             Err(error) => {
-                let message = format!("Unable to start command `{}`: {}", cmd, error);
+                let message = format!("Unable to start command `{}`: {}", CMD, error);
                 message_sender
                     .send(warp::ws::Message::text(message))
                     .await
@@ -1350,6 +1353,7 @@ async fn attach_connected(web_socket: warp::ws::WebSocket, cmd: String) {
                         } if message.is_pong() {
                             // Ignore
                         } else {
+                            record_activity();
                             let buffer = message.as_bytes();
                             if let Err(error) = child.pty_mut().write_all(buffer).await {
                                 tracing::error!("While writing message to PTY: {}", error)
@@ -1368,6 +1372,16 @@ async fn attach_connected(web_socket: warp::ws::WebSocket, cmd: String) {
             };
         }
     });
+
+    #[cfg(not(target_os = "linux"))]
+    {
+        let message =
+            "😢  Sorry, web terminal is not currently available on this operating system.\n";
+        message_sender
+            .send(warp::ws::Message::text(message))
+            .await
+            .ok();
+    }
 
     // Receive messages on message channel and forward to WebSocket.
     // Use a timeout so that if there is no other activity we at least send a PING
