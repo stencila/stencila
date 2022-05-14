@@ -1,10 +1,11 @@
-html, body {
-  margin:0px;
-  height:100%;
+body {
+  margin: 0;
+  padding: 10px;
+  background-color: #2d2e2c;
 }
 
 #terminal-container {
-  background-color: #2d2e2c;
-  padding: 10px;
+  margin: auto;
+  max-width: 60rem;
   height:100%;
 }

@@ -12,6 +12,7 @@ import './terminal.css'
  */
 const main = (elemId: string): void => {
   const terminal = new Terminal({
+    rows: 50,
     fontFamily: 'Menlo, monospace',
     fontSize: 14,
     cursorBlink: true,

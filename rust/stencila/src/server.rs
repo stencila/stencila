@@ -1329,7 +1329,7 @@ async fn attach_connected(web_socket: warp::ws::WebSocket) {
 
         const CMD: &str = "/bin/bash";
         let mut command = tokio::process::Command::new(CMD);
-        let mut child = match command.spawn_pty(Some(&pty_process::Size::new(100, 80))) {
+        let mut child = match command.spawn_pty(Some(&pty_process::Size::new(50, 80))) {
             Ok(child) => child,
             Err(error) => {
                 let message = format!("Unable to start command `{}`: {}", CMD, error);
