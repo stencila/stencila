@@ -1322,7 +1322,7 @@ async fn attach_connected(web_socket: warp::ws::WebSocket) {
     let (message_sender, mut message_receiver) = mpsc::channel(1);
 
     #[cfg(target_os = "linux")]
-    tokio::spawn(async move {
+    let child_task = tokio::spawn(async move {
         use pty_process::Command;
         use tokio::io::AsyncReadExt;
         use tokio::io::AsyncWriteExt;
@@ -1341,6 +1341,7 @@ async fn attach_connected(web_socket: warp::ws::WebSocket) {
             }
         };
 
+        // Only Ubuntu Linux at least, the bytes read from the PTY do not seem to exceed 4.1k
         let mut buffer = [0; 4096];
         loop {
             tokio::select! {
@@ -1348,9 +1349,13 @@ async fn attach_connected(web_socket: warp::ws::WebSocket) {
                     if let Some(Ok(message)) = message {
                         if message.is_ping() {
                             if let Err(error) = message_sender.send(warp::ws::Message::pong("pong")).await {
-                                tracing::error!("While sending pong message to channel: {}", error)
+                                let error = error.to_string();
+                                if !error.contains("channel closed") {
+                                    tracing::error!("While sending pong message to channel: {}", error)
+                                }
+                                break;
                             }
-                        } if message.is_pong() {
+                        } else if message.is_pong() {
                             // Ignore
                         } else {
                             record_activity();
@@ -1365,7 +1370,11 @@ async fn attach_connected(web_socket: warp::ws::WebSocket) {
                     if let Ok(bytes_read) = bytes_read {
                         let message = warp::ws::Message::binary(&buffer[..bytes_read]);
                         if let Err(error) = message_sender.send(message).await {
-                            tracing::error!("While sending binary message to channel: {}", error)
+                            let error = error.to_string();
+                            if !error.contains("channel closed") {
+                                tracing::error!("While sending binary message to channel: {}", error)
+                            }
+                            break;
                         }
                     }
                 }
@@ -1392,20 +1401,25 @@ async fn attach_connected(web_socket: warp::ws::WebSocket) {
             Ok(Some(message)) => message,
             Ok(None) => {
                 tracing::trace!("Message channel sender was dropped");
-                return;
+                break;
             }
             Err(..) => warp::ws::Message::ping("ping"),
         };
         if let Err(error) = ws_sender.send(message).await {
-            if error.to_string().contains("Connection closed normally") {
-                return;
+            let error = error.to_string();
+            if !(error.contains("Connection closed normally") || error.contains("Broken pipe")) {
+                tracing::error!(
+                    "While sending message to terminal WebSocket client: {}",
+                    error
+                )
             }
-            tracing::error!(
-                "While sending message to terminal WebSocket client: {}",
-                error
-            )
+            break;
         }
     }
+
+    // Abort the child process
+    #[cfg(target_os = "linux")]
+    child_task.abort();
 }
 
 /// Query parameters for `get_handler`
