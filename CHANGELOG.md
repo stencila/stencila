@@ -1,3 +1,20 @@
+# [1.9.0](https://github.com/stencila/stencila/compare/v1.8.0...v1.9.0) (2022-05-14)
+
+
+### Bug Fixes
+
+* **Cargo.toml:** Correct ordering of YAML tables ([1996878](https://github.com/stencila/stencila/commit/19968783fb5b14d316b1b933853bb96eb7c7be8b))
+* **Server:** Drop read lock on WebSocket clients within ping task; improve logging ([2bc3e53](https://github.com/stencila/stencila/commit/2bc3e53cb794391ac80c2b713c671fa9d1a0bb9f))
+* **Server:** Ping WebSocket clients periodically to keep connections alive; use alternative pty crate ([c2f3721](https://github.com/stencila/stencila/commit/c2f37214adc0bf41ba42f85eb4e589f54ffa1b21))
+* **Web teminal:** Only use `pty-process` on Linux ([4c73ca6](https://github.com/stencila/stencila/commit/4c73ca6d1f4170a969a9203dc69626c788b797fb))
+* **Web terminal:** Improve clean up after diconnects ([8baaf70](https://github.com/stencila/stencila/commit/8baaf7022a2d32bec13886a561542ba1d1e85060))
+* **Web terminal:** Improve layout in browser ([17f4e93](https://github.com/stencila/stencila/commit/17f4e93fe22d56eb710c8976e5906d9c46dc8742))
+
+
+### Features
+
+* **Web terminal:** Use username (and in the future project) from JWT in Bash prompt; simplify server to single project use ([14bc6f2](https://github.com/stencila/stencila/commit/14bc6f2f144fc13dc05eba25d3bb71d76bf34f4d))
+
 # [1.8.0](https://github.com/stencila/stencila/compare/v1.7.0...v1.8.0) (2022-05-12)
 
 
