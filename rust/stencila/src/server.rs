@@ -159,21 +159,30 @@ pub async fn serve<P: AsRef<Path>>(
 ) -> Result<String> {
     let path = path.as_ref();
 
+    // Insert the path into the server's paths to allow access
+    let project = Projects::project_of_path(path)?;
+
     // Get, or start, the server
     let server = match SERVER.get() {
         Some(server) => server,
         None => {
-            let mut server =
-                Server::new(None, None, None, false, false, false, None, None, false).await?;
+            let mut server = Server::new(
+                Some(project.clone()),
+                None,
+                None,
+                false,
+                false,
+                false,
+                None,
+                None,
+                false,
+            )
+            .await?;
             server.start().await?;
             SERVER.get_or_init(|| RwLock::new(server))
         }
     };
-    let mut server = server.write().await;
-
-    // Insert the path into the server's paths to allow access
-    let project = Projects::project_of_path(path)?;
-    server.projects.insert(project.clone());
+    let server = server.read().await;
 
     // If the path is in the server `home` directory, use a relative path in the URL.
     // Strip forward slashes from paths: URL paths beginning with a forward slash cause issues with 301 redirects
@@ -192,7 +201,7 @@ pub async fn serve<P: AsRef<Path>>(
     // Create a URL to path, with a path scoped token (if necessary).
     let mut url = format!("http://{}:{}/{}", server.address, server.port, url_path);
     if let Some(key) = &server.key {
-        let token = jwt::encode(key, project, expiry_seconds, single_use)?;
+        let token = jwt::encode(key, Some(project), expiry_seconds, single_use)?;
         url += &format!("?token={}", token);
     }
 
@@ -221,9 +230,6 @@ pub struct Server {
     /// Any relative paths that are requested from the server will be resolved to this
     /// directory.
     home: PathBuf,
-
-    /// The projects that the server will allow access to
-    projects: HashSet<PathBuf>,
 
     /// Whether traversal out of `paths` is permitted
     traversal: bool,
@@ -274,9 +280,6 @@ impl Server {
             Some(home) => home.canonicalize()?,
             None => Projects::project_of_cwd()?,
         };
-
-        let mut projects = HashSet::new();
-        projects.insert(home.clone());
 
         let url = match url {
             Some(url) => Some(url),
@@ -330,7 +333,6 @@ impl Server {
             port,
             key,
             home,
-            projects,
             traversal,
             max_inactivity,
             max_duration,
@@ -357,7 +359,7 @@ impl Server {
             }
 
             // Provide the user with a long-expiring, multiple-use token, scoped to the home project.
-            let token = jwt::encode(key, home.clone(), None, false)?;
+            let token = jwt::encode(key, Some(home.clone()), None, false)?;
             url.push_str("?token=");
             url.push_str(&token);
         }
@@ -1163,7 +1165,7 @@ fn authentication_filter(
             },
         )
         .and_then(
-            |(key, home, param, header, cookie): (
+            |(key, _home, param, header, cookie): (
                 Option<String>,
                 PathBuf,
                 Option<String>,
@@ -1176,7 +1178,7 @@ fn authentication_filter(
 
                     // Attempt to get from query parameter
                     let (token, claims) = if let Some(param) = param {
-                        tracing::trace!("Authentication claims from param");
+                        tracing::trace!("Authenticated using param");
                         (Some(param.clone()), jwt::decode(&param, &key))
                     } else {
                         (None, Err(JwtError::NoTokenSupplied))
@@ -1184,7 +1186,7 @@ fn authentication_filter(
 
                     // Attempt to get from authorization header
                     let (token, claims) = if let (Err(..), Some(header)) = (&claims, header) {
-                        tracing::trace!("Authentication claims from header");
+                        tracing::trace!("Authenticated using header");
                         match jwt::from_auth_header(header) {
                             Ok(token) => (Some(token.clone()), jwt::decode(&token, &key)),
                             Err(error) => {
@@ -1199,7 +1201,7 @@ fn authentication_filter(
                     // Attempt to get from cookie
                     let (token, claims, from_cookie) =
                         if let (Err(..), Some(cookie)) = (&claims, cookie) {
-                            tracing::trace!("Authentication claims from cookie");
+                            tracing::trace!("Authenticated using cookie");
                             let claims = jwt::decode(&cookie, &key);
                             let ok = claims.is_ok();
                             (Some(cookie), claims, ok)
@@ -1223,14 +1225,14 @@ fn authentication_filter(
                         }
                     }
 
-                    let project = claims.project.clone();
+                    let project = claims.prn.clone().map(PathBuf::from);
 
                     // Generate a new token if necessary (single-use or soon to expire) for use in WebSocket URLs
                     // and/or cookies.
                     let updated_token = if claims.jti.is_some()
                         || Utc.timestamp(claims.exp, 0) < Utc::now() + Duration::seconds(60)
                     {
-                        jwt::encode(&key, project.clone(), Some(YEAR_SECONDS), false)
+                        jwt::encode(&key, project, Some(YEAR_SECONDS), false)
                             .expect("Should encode")
                     } else {
                         token.clone().unwrap_or_default()
@@ -1241,19 +1243,9 @@ fn authentication_filter(
                     // Token expires at the end of the browser session and should only be sent to
                     // URL paths that are within the project.
                     let cookie = if !from_cookie || updated_token != token.unwrap_or_default() {
-                        // If the project is within the home project (ie. a subfolder) then need to strip the prefix
-                        let path = if project == home {
-                            PathBuf::from("/".to_string())
-                        } else if let Ok(rest) = project.strip_prefix(home) {
-                            rest.to_path_buf()
-                        } else {
-                            project
-                        }
-                        .display()
-                        .to_string();
                         Some(format!(
-                            "token={}; Path={}; SameSite=Lax; HttpOnly",
-                            updated_token, path
+                            "token={}; Path=/; SameSite=Lax; HttpOnly",
+                            updated_token
                         ))
                     } else {
                         None
@@ -1310,13 +1302,13 @@ fn attach_handler(
     record_http_request("WS", "/~attach");
     record_activity();
 
-    Box::new(ws.on_upgrade(|socket| attach_connected(socket)))
+    Box::new(ws.on_upgrade(|socket| attach_connected(socket, claims)))
 }
 
 /// Handle a WebSocket connection for ~attach
 ///
 /// Pipes data between the websocket connection and the PTY.
-async fn attach_connected(web_socket: warp::ws::WebSocket) {
+async fn attach_connected(web_socket: warp::ws::WebSocket, claims: jwt::Claims) {
     #[allow(unused_mut, unused_variables)]
     let (mut ws_sender, mut ws_receiver) = web_socket.split();
     let (message_sender, mut message_receiver) = mpsc::channel(1);
@@ -1329,6 +1321,23 @@ async fn attach_connected(web_socket: warp::ws::WebSocket) {
 
         const CMD: &str = "/bin/bash";
         let mut command = tokio::process::Command::new(CMD);
+
+        // Options necessary to ensure the custom PS1, and other settings are not overridden
+        // by profile and init scripts. See https://unix.stackexchange.com/a/291913
+        command.args(&["--noprofile", "--norc"]);
+
+        let user = claims.usn.as_deref().unwrap_or("\\u");
+        let host = "\\h";
+        let dir = "\\w";
+        const GREEN: &str = "\\e[1;32m";
+        const BLUE: &str = "\\e[0;34m";
+        const RESET: &str = "\\e[0m";
+        let prompt = format!(
+            r"{}{}{}@{}{}{}:{}{}{}$",
+            GREEN, user, RESET, BLUE, host, RESET, GREEN, dir, RESET
+        );
+        command.env("PS1", prompt);
+
         let mut child = match command.spawn_pty(Some(&pty_process::Size::new(50, 80))) {
             Ok(child) => child,
             Err(error) => {
@@ -1480,36 +1489,11 @@ async fn get_handler(
     }
     .to_path_buf();
 
-    // Check the path is within one of the server's `projects`
-    // Because `projects` may be appended to at runtime, it is necessary to get these
-    // from the server instance.
-    if !traversal {
-        let server = SERVER
-            .get()
-            .expect("Server should be instantiated")
-            .read()
-            .await;
-
-        let mut ok = false;
-        for project in &server.projects {
-            if fs_path.strip_prefix(&project).is_ok() {
-                ok = true;
-                break;
-            }
-        }
-        if !ok {
-            return error_result(
-                StatusCode::FORBIDDEN,
-                "Traversal outside of server's home, or registered, projects is not permitted",
-            );
-        }
-    }
-
-    // Check the path is within the project for which authorization is given
-    if secure && fs_path.strip_prefix(&claims.project).is_err() {
+    // Check the path is within the server's `home`
+    if !traversal && fs_path.strip_prefix(&home).is_err() {
         return error_result(
             StatusCode::FORBIDDEN,
-            "Insufficient permissions to access this directory or file",
+            "Traversal outside of server's home is not permitted",
         );
     }
 

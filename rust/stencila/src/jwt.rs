@@ -9,7 +9,9 @@ pub const YEAR_SECONDS: i64 = 31556952;
 /// JSON Web Token claims
 ///
 /// Where appropriate we used existing, registered claim names from
-/// https://www.iana.org/assignments/jwt/jwt.xhtml#claims
+/// https://www.iana.org/assignments/jwt/jwt.xhtml#claims and in other
+/// cases keep three letter convention in serialization to keep payload
+/// sizes as small as possible.
 #[skip_serializing_none]
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Claims {
@@ -24,8 +26,11 @@ pub struct Claims {
     /// Used to prevent replay attacks (using single-use tokens more than once).
     pub jti: Option<String>,
 
-    /// The project to which authorization is being granted.
-    pub project: PathBuf,
+    /// The username of the user
+    pub usn: Option<String>,
+
+    /// The name of the project
+    pub prn: Option<String>,
 }
 
 /// Custom server errors
@@ -73,7 +78,7 @@ pub fn to_auth_header(jwt: String) -> String {
 /// Encode a JSON Web Token
 pub fn encode(
     key: &str,
-    project: PathBuf,
+    project: Option<PathBuf>,
     expiry_seconds: Option<i64>,
     single_use: bool,
 ) -> Result<String, JwtError> {
@@ -90,7 +95,14 @@ pub fn encode(
         None
     };
 
-    let claims = Claims { exp, jti, project };
+    let prn = project.map(|path| path.to_string_lossy().to_string());
+
+    let claims = Claims {
+        exp,
+        jti,
+        prn,
+        ..Default::default()
+    };
 
     match jsonwebtoken::encode(
         &jsonwebtoken::Header::new(jsonwebtoken::Algorithm::HS512),
