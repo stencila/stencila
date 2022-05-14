@@ -4,13 +4,14 @@ use once_cell::sync::Lazy;
 use provider::{
     codecs,
     eyre::{bail, eyre, Result},
+    http_utils::http::{Request, Response},
+    serde_json,
     stencila_schema::Node,
-    strum::VariantNames,
-    EnrichOptions, ExportOptions, ImportOptions, ProviderTrait, SyncOptions,
+    EnrichOptions, ProviderTrait,
 };
 use tokio::sync::mpsc;
 
-pub use provider::{DetectItem, Provider};
+pub use provider::{DetectItem, ExportOptions, ImportOptions, Provider, SyncOptions, WatchMode};
 
 // Re-exports for consumers of this crate
 pub use ::provider;
@@ -44,24 +45,24 @@ pub async fn export(node: &Node, path: &Path, options: Option<ExportOptions>) ->
     PROVIDERS.export(node, path, options).await
 }
 
-pub async fn watch(
+pub async fn sync(
     node: &Node,
     dest: &Path,
-    canceller: mpsc::Receiver<()>,
+    request: &Request<serde_json::Value>,
     options: Option<SyncOptions>,
-) -> Result<()> {
-    PROVIDERS.sync(node, dest, canceller, options).await
+) -> Result<Response<String>> {
+    PROVIDERS.sync(node, dest, request, options).await
 }
 
 pub async fn cron(
-    action: &str,
-    schedule: &str,
     node: &Node,
     dest: &Path,
+    action: &str,
+    schedule: &str,
     canceller: mpsc::Receiver<()>,
 ) -> Result<()> {
     PROVIDERS
-        .cron(action, schedule, node, dest, canceller)
+        .cron(node, dest, action, schedule, canceller)
         .await
 }
 
@@ -187,24 +188,28 @@ impl Providers {
         &self,
         node: &Node,
         path: &Path,
-        canceller: mpsc::Receiver<()>,
+        request: &Request<serde_json::Value>,
         options: Option<SyncOptions>,
-    ) -> Result<()> {
-        let provider = self.provider_for(node)?;
-        dispatch_builtins!(provider.name, sync, node, path, canceller, options).await
+    ) -> Result<Response<String>> {
+        let resolved = match node {
+            Node::String(identifier) => resolve(identifier).await?.1,
+            _ => node.to_owned(),
+        };
+        let provider = self.provider_for(&resolved)?;
+        dispatch_builtins!(provider.name, sync, &resolved, path, request, options).await
     }
 
     /// Schedule import and/or export to/from a remove [`Node`] and a local path
     async fn cron(
         &self,
-        action: &str,
-        schedule: &str,
         node: &Node,
         path: &Path,
+        action: &str,
+        schedule: &str,
         canceller: mpsc::Receiver<()>,
     ) -> Result<()> {
         let provider = self.provider_for(node)?;
-        dispatch_builtins!(provider.name, cron, action, schedule, node, path, canceller).await
+        dispatch_builtins!(provider.name, cron, node, path, action, schedule, canceller).await
     }
 }
 
@@ -220,7 +225,6 @@ pub mod commands {
 
     use super::*;
     use cli_utils::{async_trait::async_trait, result, Result, Run};
-    use provider::WatchMode;
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -237,7 +241,6 @@ pub mod commands {
         Enrich(Enrich),
         Import(Import),
         Export(Export),
-        Watch(Watch),
         Cron(Cron),
     }
 
@@ -251,7 +254,6 @@ pub mod commands {
                 Command::Enrich(action) => action.run().await,
                 Command::Import(action) => action.run().await,
                 Command::Export(action) => action.run().await,
-                Command::Watch(action) => action.run().await,
                 Command::Cron(action) => action.run().await,
             }
         }
@@ -439,57 +441,6 @@ pub mod commands {
         }
     }
 
-    /// Watch a resource and synchronize changes between a remote source and a local path
-    #[derive(Debug, StructOpt)]
-    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-    pub struct Watch {
-        /// The source identifier e.g. `github:org/name`
-        source: String,
-
-        /// The local path to synchronize with the source
-        #[structopt(default_value = ".")]
-        path: PathBuf,
-
-        /// The synchronization mode
-        #[structopt(long, short, possible_values = &WatchMode::VARIANTS)]
-        mode: Option<WatchMode>,
-
-        /// The token (or name of environment variable) required to access the resource
-        ///
-        /// Only necessary if authentication is required for the resource. Defaults to
-        /// using the environment variable corresponding to the provider of the resource
-        /// e.g. `GITHUB_TOKEN`.
-        #[structopt(long)]
-        token: Option<String>,
-
-        /// The host to listen on for events from the source provider
-        ///
-        /// This option is usually only used for testing during development
-        /// with a tool such as ngrok to forward a public host to localhost.
-        /// The value should exclude the protocol e.g. "https://" but may include
-        /// a port number.
-        #[structopt(long)]
-        host: Option<String>,
-    }
-    #[async_trait]
-    impl Run for Watch {
-        async fn run(&self) -> Result {
-            let (.., node) = resolve(&self.source).await?;
-
-            let (subscriber, canceller) = mpsc::channel(1);
-            events::subscribe_to_interrupt(subscriber).await;
-
-            let options = SyncOptions {
-                mode: self.mode.clone(),
-                token: self.token.clone(),
-                host: self.host.clone(),
-            };
-            watch(&node, &self.path, canceller, Some(options)).await?;
-
-            result::nothing()
-        }
-    }
-
     /// Schedule import and/or export between remote source and a local path
     #[derive(Debug, StructOpt)]
     #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
@@ -516,7 +467,7 @@ pub mod commands {
             let (subscriber, canceller) = mpsc::channel(1);
             events::subscribe_to_interrupt(subscriber).await;
 
-            cron(&self.action, &self.schedule, &node, &self.path, canceller).await?;
+            cron(&node, &self.path, &self.action, &self.schedule, canceller).await?;
 
             result::nothing()
         }

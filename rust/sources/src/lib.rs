@@ -16,7 +16,7 @@ use graph_triples::{
     relations::{self, NULL_RANGE},
     resources, Resource, Triple,
 };
-use providers::provider::{ImportOptions, SyncOptions, WatchMode};
+use providers::provider::{ImportOptions, WatchMode};
 use stencila_schema::Node;
 
 /// A source-destination combination
@@ -69,11 +69,6 @@ pub struct Source {
     #[serde(skip)]
     #[def = "None"]
     cron_task: Option<SourceTask>,
-
-    /// A running watch task
-    #[serde(skip)]
-    #[def = "None"]
-    watch_task: Option<SourceTask>,
 }
 
 #[skip_serializing_none]
@@ -285,18 +280,8 @@ impl Source {
         Ok(files.collect())
     }
 
-    /// Start cron and watch tasks (as applicable and as needed) for the source
+    /// Start a cron for the source
     pub async fn start(&mut self, dest: &Path) -> Result<()> {
-        self.cron_task_start(dest).await?;
-        self.watch_task_start(dest).await?;
-
-        Ok(())
-    }
-
-    /// Start a background cron task for the source
-    ///
-    /// A task has a `cron` spec and there is no tasks currently running for it.
-    pub async fn cron_task_start(&mut self, dest: &Path) -> Result<()> {
         let cron = match (&self.cron, &self.cron_task) {
             (Some(cron), None) => cron,
             _ => return Ok(()),
@@ -309,50 +294,20 @@ impl Source {
         let dest = dest.to_path_buf();
         let (canceller, cancellee) = mpsc::channel(1);
         tokio::spawn(
-            async move { providers::cron(&action, &schedule, &node, &dest, cancellee).await },
+            async move { providers::cron(&node, &dest, &action, &schedule, cancellee).await },
         );
         self.cron_task = Some(SourceTask { canceller });
 
         Ok(())
     }
 
-    /// Start a background watch task for the source
-    ///
-    /// A task has a `watch` spec and there is no tasks currently running for it.
-    pub async fn watch_task_start(&mut self, dest: &Path) -> Result<()> {
-        let watch = match (&self.watch, &self.watch_task) {
-            (Some(watch), None) => watch,
-            _ => return Ok(()),
-        };
-
-        tracing::info!("Starting watch task for source `{}`", self.label());
-        let (.., node) = providers::resolve(&self.url).await?;
-        let dest = dest.to_path_buf();
-        let (canceller, cancellee) = mpsc::channel(1);
-        let options = SyncOptions {
-            mode: watch.mode.clone(),
-            token: self.secret_name.clone(),
-            ..Default::default()
-        };
-        tokio::spawn(async move { providers::watch(&node, &dest, cancellee, Some(options)).await });
-        self.watch_task = Some(SourceTask { canceller });
-
-        Ok(())
-    }
-
-    /// Start cron and watch tasks (if started) for the source
+    /// Stop the cron task for the source (if started)
     pub async fn stop(&mut self) -> Result<()> {
         if let Some(task) = &self.cron_task {
             tracing::info!("Stopping cron task for source `{}`", self.label());
             task.canceller.send(()).await?
         }
         self.cron_task = None;
-
-        if let Some(task) = &self.watch_task {
-            tracing::info!("Stopping watch task for source `{}`", self.label());
-            task.canceller.send(()).await?
-        }
-        self.watch_task = None;
 
         Ok(())
     }

@@ -4,10 +4,10 @@ use std::{
 };
 
 use archive_utils::extract;
-use http_utils::{download, download_temp, url};
 use provider::{
     async_trait::async_trait,
     eyre::{bail, Result},
+    http_utils::{download, download_temp, url},
     once_cell::sync::Lazy,
     regex::Regex,
     run_schedule,
@@ -116,10 +116,10 @@ impl ProviderTrait for HttpProvider {
     }
 
     async fn cron(
-        action: &str,
-        schedule: &str,
         node: &Node,
         path: &Path,
+        action: &str,
+        schedule: &str,
         canceller: mpsc::Receiver<()>,
     ) -> Result<()> {
         let url = Self::get_url(node)?;

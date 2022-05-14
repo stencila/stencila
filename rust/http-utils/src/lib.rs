@@ -13,7 +13,7 @@ use std::{env, fs::File, io, path::Path};
 use eyre::Result;
 use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
 use once_cell::sync::Lazy;
-use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
+use reqwest::header::{self, HeaderMap, HeaderName, HeaderValue};
 use reqwest::Response;
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 use serde::de::DeserializeOwned;
@@ -21,8 +21,8 @@ use serde::Serialize;
 use tempfile::NamedTempFile;
 
 // Re-exports for consumers of this crate
+pub use http;
 pub use reqwest;
-pub use reqwest::header as headers;
 pub use reqwest_middleware;
 pub use serde;
 pub use serde_json;
@@ -58,7 +58,7 @@ pub static CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
 /// Convert an array of tuples to a `reqwest::HeaderMap`
 fn header_map(headers: &[(HeaderName, String)]) -> Result<HeaderMap> {
     let mut header_map = HeaderMap::new();
-    header_map.insert(headers::ACCEPT, HeaderValue::from_str("application/json")?);
+    header_map.insert(header::ACCEPT, HeaderValue::from_str("application/json")?);
     for (key, value) in headers {
         header_map.insert(key, value.parse()?);
     }

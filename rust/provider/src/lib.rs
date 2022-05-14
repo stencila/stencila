@@ -2,7 +2,8 @@ use std::{env, path::Path};
 
 use async_trait::async_trait;
 use chrono::Utc;
-use eyre::{Result};
+use eyre::Result;
+use http_utils::http::{Request, Response, StatusCode};
 use node_address::Address;
 use node_pointer::{walk, Visitor};
 use once_cell::sync::Lazy;
@@ -24,6 +25,8 @@ pub use ::futures;
 pub use ::http_utils;
 pub use ::once_cell;
 pub use ::regex;
+pub use ::serde;
+pub use ::serde_json;
 pub use ::stencila_schema;
 pub use ::strum;
 pub use ::tokio;
@@ -116,22 +119,30 @@ pub trait ProviderTrait {
         Ok(())
     }
 
-    /// Synchronize changes between a remote [`Node`] (e.g. a `SoftwareSourceCode` repository) and a local path (a file or directory)
+    /// Synchronize changes between a remote [`Node`] (e.g. a `SoftwareSourceCode` repository) and a local
+    /// destination path (a file or directory)
     async fn sync(
         _node: &Node,
         _path: &Path,
-        _canceller: mpsc::Receiver<()>,
+        _request: &Request<serde_json::Value>,
         _options: Option<SyncOptions>,
-    ) -> Result<()> {
-        Ok(())
+    ) -> Result<Response<String>> {
+        let message =
+            "Provider received a sync request but does not yet implement handling of those"
+                .to_string();
+        tracing::error!("{}", message);
+        let response = Response::builder()
+            .status(StatusCode::NOT_IMPLEMENTED)
+            .body(message)?;
+        Ok(response)
     }
 
     /// Schedule import and/or export to/from a remove [`Node`] and a local path
     async fn cron(
-        _action: &str,
-        _schedule: &str,
         _node: &Node,
         _path: &Path,
+        _action: &str,
+        _schedule: &str,
         _canceller: mpsc::Receiver<()>,
     ) -> Result<()> {
         Ok(())
@@ -186,22 +197,21 @@ pub struct SyncOptions {
     /// The token required to access the resource (or the `ALL_CAPS` name of the
     /// environment variable containing the token)
     pub token: Option<String>,
-
-    /// The host address (optionally including port number) to listen on for notifications of changes
-    pub host: Option<String>,
 }
 
 #[derive(Debug, Clone, AsRefStr, EnumString, EnumVariantNames, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-#[strum(serialize_all = "lowercase")]
 pub enum WatchMode {
     /// Synchronize the resource whenever it has been changed
+    #[strum(serialize = "changed", serialize = "change")]
     Changed,
 
     /// Synchronize the resource whenever it has been committed (e.g. using `git commit`)
+    #[strum(serialize = "committed", serialize = "commit")]
     Committed,
 
     /// Synchronize the resource whenever it is tagged (e.g. a git tag is added, or a Google file has a revision made)
+    #[strum(serialize = "tagged", serialize = "tag")]
     Tagged,
 }
 

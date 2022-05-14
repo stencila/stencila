@@ -8,7 +8,6 @@ edition = "2021"
 google-drive = "0.2.5"
 key-utils = { path = "../key-utils", version = "0.0.0" }
 provider = { path = "../provider", version = "0.0.0" }
-server-utils = { path = "../server-utils", version = "0.0.0" }
 uuids = { path = "../uuids", version = "0.0.0" }
 
 [dev-dependencies]
