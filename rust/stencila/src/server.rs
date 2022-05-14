@@ -766,9 +766,9 @@ impl WebsocketClients {
         self.remove(client_id).await;
 
         if gracefully {
-            tracing::trace!("Graceful disconnection by client `{}`", client_id)
+            tracing::trace!("Graceful disconnect by client `{}`", client_id)
         } else {
-            tracing::warn!("Ungraceful disconnection by client `{}`", client_id)
+            tracing::warn!("Ungraceful disconnect by client `{}`", client_id)
         }
     }
 
@@ -894,6 +894,8 @@ impl WebsocketClients {
                         tracing::debug!("While sending ping to client `{}`: {}", client_id, error)
                     }
                 }
+                // Explicitly drop the read lock so that it is not held while sleeping
+                drop(clients);
 
                 use tokio::time::{sleep, Duration};
                 sleep(Duration::from_secs(15)).await;
@@ -1823,6 +1825,8 @@ async fn rpc_ws_connected(socket: warp::ws::WebSocket, client_id: String) {
     WEBSOCKET_CLIENTS_COUNT.inc();
 
     while let Some(result) = ws_receiver.next().await {
+        tracing::trace!("Received WebSocket message from client `{}`", client_id);
+
         // Get the message
         let message = match result {
             Ok(message) => message,
@@ -1832,7 +1836,7 @@ async fn rpc_ws_connected(socket: warp::ws::WebSocket, client_id: String) {
                 {
                     WEBSOCKET_CLIENTS.disconnected(&client_id, false).await
                 } else {
-                    tracing::error!("Websocket receive error `{}`", error);
+                    tracing::error!("WebSocket receive error `{}`", error);
                 }
                 continue;
             }
@@ -1850,6 +1854,12 @@ async fn rpc_ws_connected(socket: warp::ws::WebSocket, client_id: String) {
             Ok(request) => request,
             Err(error) => {
                 let error = rpc::Error::parse_error(&error.to_string());
+                tracing::debug!(
+                    "Error when parsing request from client `{}`: {}",
+                    client_id,
+                    error
+                );
+
                 let response = rpc::Response::new(None, None, Some(error));
                 WEBSOCKET_CLIENTS.send(&client_id, response).await;
                 continue;
