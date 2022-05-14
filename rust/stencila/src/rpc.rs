@@ -49,7 +49,7 @@ impl Request {
         tracing::trace!("Dispatching request for client `{}`", client);
 
         let result: Result<(serde_json::Value, Subscription)> = match self.method.as_str() {
-            "sessions.start" => sessions_start(&self.params).await,
+            "sessions.start" => sessions_start().await,
             "sessions.stop" => sessions_stop(&self.params).await,
             "sessions.subscribe" => sessions_subscribe(&self.params, client).await,
             "sessions.unsubscribe" => sessions_unsubscribe(&self.params, client).await,
@@ -240,10 +240,8 @@ impl Error {
 // and send them on to the relevant core functions, raising errors is arguments are
 // missing or of the wrong type, and converting returned values to JSON.
 
-async fn sessions_start(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let project = required_string(params, "projectId")?;
-
-    let session = SESSIONS.start(&project).await?;
+async fn sessions_start() -> Result<(serde_json::Value, Subscription)> {
+    let session = SESSIONS.start().await?;
     Ok((json!(session), Subscription::None))
 }
 

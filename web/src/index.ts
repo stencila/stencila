@@ -39,7 +39,7 @@ export const main = (
     }
 
     if (session === undefined) {
-      session = await sessions.start(client, documentPath)
+      session = await sessions.start(client)
       sessions.subscribe(client, session.id, 'updated').catch((err) => {
         console.warn(`Couldn't subscribe to session updates`, err)
       })

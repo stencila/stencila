@@ -10,12 +10,9 @@ type SessionTopic = 'updated' | 'heartbeat'
  * Start a session
  */
 export async function start(
-  client: Client,
-  documentPath?: DocumentPath
+  client: Client
 ): Promise<Session> {
-  return client.call('sessions.start', {
-    projectId: documentPath,
-  }) as Promise<Session>
+  return client.call('sessions.start', {}) as Promise<Session>
 }
 
 /**
