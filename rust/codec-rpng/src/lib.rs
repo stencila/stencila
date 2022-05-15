@@ -6,6 +6,7 @@ use codec::{
     Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
 use codec_json::JsonCodec;
+use png::{PixelDimensions, Unit};
 use std::{fs, path::Path};
 
 /// Encode and decode a document node to a reproducible PNG image.
@@ -150,7 +151,25 @@ pub async fn nodes_to_bytes(
         encoder.set_color(image_info.color_type);
         encoder.set_depth(image_info.bit_depth);
         encoder.add_itxt_chunk("json".to_string(), json).unwrap();
+
         let mut writer = encoder.write_header()?;
+
+        // Add a chunk to describe the physical size of the image
+        // This is necessary because, for higher resolution images, we scale by two when
+        // taking screenshots in the PNG codec. Unless specified, Pandoc assumes
+        // images are 96dpi and thus they appear twice as big in DOCX and other formats.
+        // Implementation based on https://github.com/image-rs/image-png/pull/124/files
+        // 96 pixels-per-inch x 2 resolution to pixels per meter
+        let ppm = 7559; // = 96.0 / 0.0254 * 2.0;
+        let pixel_dims = PixelDimensions {
+            xppu: ppm,
+            yppu: ppm,
+            unit: Unit::Meter,
+        };
+        let mut phys = [pixel_dims.xppu.to_be_bytes(), pixel_dims.yppu.to_be_bytes()].concat();
+        phys.push(pixel_dims.unit as u8);
+        writer.write_chunk(png::chunk::pHYs, &phys)?;
+
         writer.write_image_data(&image_data)?;
         drop(writer);
 

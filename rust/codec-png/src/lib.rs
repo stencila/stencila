@@ -1,6 +1,9 @@
 use std::{fs, path::Path};
 
-use chromiumoxide::{cdp::browser_protocol::page::CaptureScreenshotFormat, Browser, BrowserConfig};
+use chromiumoxide::{
+    cdp::browser_protocol::page::CaptureScreenshotFormat, handler::viewport::Viewport, Browser,
+    BrowserConfig,
+};
 use futures::StreamExt;
 use tokio::time::{sleep, Duration, Instant};
 
@@ -96,18 +99,59 @@ pub async fn nodes_to_bytes(
                 ..Default::default()
             }),
         )?;
-        html.push_str(&format!(r#"<div id="node-{}">{}</div>"#, index, node_html));
+        html.push_str(&format!(
+            r#"<div class="node" id="node-{}">{}</div>"#,
+            index, node_html
+        ));
     }
 
-    // Wrap the HTML with a header etc so that the theme is set and CSS is loaded
     let EncodeOptions { theme, .. } = options.unwrap_or_default();
     let theme = theme.unwrap_or_else(|| "rpng".to_string());
-    let html = codec_html::wrap_standalone("PNG", &theme, &html);
+
+    // Wrap the HTML with a header etc so that the theme is set and CSS is loaded
+    let base_url = "http://127.0.0.1:9000/~static/dev"; // TODO: start served on demand as get current url
+    let html = format!(
+        r#"<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>PNG Codec</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link href="{base_url}/themes/themes/{theme}/styles.css" rel="stylesheet">
+        <script src="{base_url}/components/stencila-components.esm.js" type="module"></script>
+        <style>
+            body {{
+                width: 640px; /* Avoid having images of block node that are too wide */
+            }}
+            div.node {{
+                margin: 10px; /* Mainly to improve spacing when previewing HTML during development */
+            }}
+        </style>
+    </head>
+    <body data-root="">
+        {html}
+    </body>
+</html>"#,
+        theme = theme,
+        html = html
+    );
+
+    // This can be useful during debugging to preview the HTML
+    use std::io::Write;
+    std::fs::File::create("temp-png.html")
+        .expect("Unable to create file")
+        .write_all(html.as_bytes())
+        .expect("Unable to write data");
 
     // Launch the browser
     let chrome = binaries::require_any(&[("chrome", "*"), ("chromium", "*")]).await?;
     let config = BrowserConfig::builder()
         .chrome_executable(chrome.path)
+        .viewport(Viewport {
+            // Increase the scale for higher resolution images. See https://github.com/puppeteer/puppeteer/issues/571#issuecomment-325404760
+            device_scale_factor: Some(2.0),
+            ..Default::default()
+        })
         .build()
         .expect("Should build config");
     let (browser, mut handler) = Browser::launch(config).await?;
@@ -130,9 +174,14 @@ pub async fn nodes_to_bytes(
     }
 
     // Take a screenshot of each element
+    // This uses `:first-child`, rather than screen-shotting the entire div, so that for
+    // inline elements we do not get wide (page width) images. Assumes that the node is represented
+    // by one element.
     let mut pngs = Vec::with_capacity(nodes.len());
     for index in 0..nodes.len() {
-        let element = page.find_element(&format!("#node-{}", index)).await?;
+        let element = page
+            .find_element(&format!("#node-{} *:first-child", index))
+            .await?;
         let bytes = element.screenshot(CaptureScreenshotFormat::Png).await?;
         pngs.push(bytes)
     }
