@@ -2688,6 +2688,7 @@ version = "0.0.0"
 dependencies = [
  "dirs",
  "eyre",
+ "http",
  "http-cache-reqwest",
  "once_cell",
  "reqwest",
@@ -4825,6 +4826,7 @@ dependencies = [
  "once_cell",
  "regex",
  "serde",
+ "serde_json",
  "stencila-schema",
  "strum",
  "tokio",
@@ -4837,8 +4839,6 @@ version = "0.0.0"
 dependencies = [
  "codec-csl",
  "provider",
- "reqwest",
- "serde_json",
  "test-utils",
  "tokio",
 ]
@@ -4859,7 +4859,6 @@ dependencies = [
  "google-drive",
  "key-utils",
  "provider",
- "server-utils",
  "test-utils",
  "uuids",
 ]
@@ -4871,11 +4870,9 @@ dependencies = [
  "archive-utils",
  "base64 0.13.0",
  "hash-utils",
- "http-utils",
  "key-utils",
  "octorust",
  "provider",
- "server-utils",
  "test-utils",
  "uuids",
 ]
@@ -4886,10 +4883,8 @@ version = "0.0.0"
 dependencies = [
  "archive-utils",
  "base64 0.13.0",
- "http-utils",
  "key-utils",
  "provider",
- "server-utils",
  "test-utils",
  "urlencoding 2.1.0",
  "uuids",
@@ -4900,7 +4895,6 @@ name = "provider-http"
 version = "0.0.0"
 dependencies = [
  "archive-utils",
- "http-utils",
  "provider",
  "slug",
  "test-utils",
@@ -6001,6 +5995,7 @@ dependencies = [
  "graph",
  "graph-triples",
  "handlebars",
+ "http",
  "humantime",
  "itertools",
  "jsonwebtoken",

@@ -28,6 +28,7 @@ use std::{
     },
     time::{SystemTime, UNIX_EPOCH},
 };
+use stencila_schema::Node;
 use tokio::{
     sync::{mpsc, RwLock},
     task::JoinHandle,
@@ -365,20 +366,26 @@ impl Server {
         }
         tracing::info!("Serving {} at {}", home.display(), url);
 
-        // Static files (assets embedded in binary for which authentication is not required)
+        // HTTP endpoints without authentication
 
         let statics = warp::get()
             .and(warp::path("~static"))
             .and(warp::path::tail())
             .and_then(get_static);
 
-        // Prometheus metrics
-
         let metrics = warp::get()
             .and(warp::path("~metrics"))
             .and_then(get_metrics);
 
-        // The following HTTP and WS endpoints all require authentication
+        let hooks = warp::post()
+            .and(warp::path("~hooks"))
+            .and(warp::query::<HooksParams>())
+            .and(warp::header::headers_cloned())
+            .and(warp::body::content_length_limit(10 * 1_048_576)) // 10MB limit
+            .and(warp::body::json())
+            .and_then(post_hooks);
+
+        // HTTP and WS endpoints requiring authentication
 
         let authenticate = || authentication_filter(self.key.clone(), self.home.clone());
 
@@ -469,6 +476,7 @@ impl Server {
 
         let routes = statics
             .or(metrics)
+            .or(hooks)
             .or(terminal)
             .or(attach)
             .or(rpc_ws)
@@ -1142,7 +1150,62 @@ async fn get_metrics() -> Result<impl warp::Reply, std::convert::Infallible> {
     Ok(response)
 }
 
-/// Query parameters for `auth_filter`
+/// Query parameters for `post_hooks`
+#[derive(Debug, Deserialize)]
+struct HooksParams {
+    src: String,
+    dest: Option<PathBuf>,
+    mode: Option<providers::WatchMode>,
+    token: Option<String>,
+}
+
+// Handle a webhook event
+//
+// Marshals the request into a `server_utils::Request` which is then forwarded
+// on to the `providers` internal crate for dispatching based on the `source` query
+// parameter.
+#[tracing::instrument]
+async fn post_hooks(
+    params: HooksParams,
+    headers: warp::http::HeaderMap,
+    json: serde_json::Value,
+) -> Result<warp::reply::Response, std::convert::Infallible> {
+    record_http_request("POST", "/~hooks");
+
+    let mut builder = http::Request::builder();
+    for (name, value) in headers {
+        if let Some(name) = name {
+            builder = builder.header(name, value);
+        }
+    }
+    let request = builder.body(json).expect("Unable to create request");
+
+    let response = match providers::sync(
+        &Node::String(params.src),
+        &params.dest.unwrap_or_else(|| PathBuf::from(".")),
+        &request,
+        Some(providers::SyncOptions {
+            mode: params.mode,
+            token: params.token,
+        }),
+    )
+    .await
+    {
+        Ok(response) => warp::reply::with_status(
+            warp::reply::Response::new(response.body().to_string().into()),
+            StatusCode::OK,
+        ),
+        Err(error) => warp::reply::with_status(
+            warp::reply::Response::new(error.to_string().into()),
+            StatusCode::BAD_REQUEST,
+        ),
+    }
+    .into_response();
+
+    Ok(response)
+}
+
+/// Query parameters for `authentication_filter`
 #[derive(Deserialize)]
 struct AuthParams {
     pub token: Option<String>,
@@ -1912,7 +1975,7 @@ async fn rejection_handler(
     } else if let Some(error) = rejection.find::<warp::filters::body::BodyDeserializeError>() {
         Error::invalid_request_error(&format!("{}", error))
     } else if rejection.find::<warp::reject::MethodNotAllowed>().is_some() {
-        Error::invalid_request_error("Invalid HTTP method and/or path")
+        Error::invalid_request_error("Invalid HTTP method, path and/or query parameters")
     } else {
         Error::server_error("Unknown error")
     };

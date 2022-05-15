@@ -2,7 +2,7 @@ use codec_csl::CslCodec;
 use provider::{
     async_trait::async_trait,
     eyre::Result,
-    http_utils::{get_with, headers},
+    http_utils::{get_with, http::header},
     once_cell::sync::Lazy,
     regex::Regex,
     stencila_schema::*,
@@ -99,7 +99,7 @@ impl ProviderTrait for DoiProvider {
         let data = get_with(
             &url,
             &[(
-                headers::ACCEPT,
+                header::ACCEPT,
                 "application/vnd.citationstyles.csl+json".into(),
             )],
         )
