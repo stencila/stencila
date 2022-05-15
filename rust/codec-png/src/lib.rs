@@ -1,4 +1,9 @@
+use std::{fs, path::Path};
+
 use chromiumoxide::{cdp::browser_protocol::page::CaptureScreenshotFormat, Browser, BrowserConfig};
+use futures::StreamExt;
+use tokio::time::{sleep, Duration, Instant};
+
 use codec::{
     async_trait::async_trait,
     eyre::Result,
@@ -7,8 +12,6 @@ use codec::{
     Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
 use codec_html::HtmlCodec;
-use futures::StreamExt;
-use std::{fs, path::Path};
 
 /// Encode and decode a document node to a PNG image.
 ///
@@ -114,9 +117,17 @@ pub async fn nodes_to_bytes(
         }
     });
 
-    // Create a page and set its HTML
+    // Create a page, set its HTML and wait for "navigation"
     let page = browser.new_page("about:blank").await?;
     page.set_content(html).await?.wait_for_navigation().await?;
+
+    // Wait up to a further 5s for Web Components on the page to be hydrated
+    // An alternative to this would be to listen for the StencilJS `appload`
+    // event https://stenciljs.com/docs/api#the-appload-event
+    let deadline = Instant::now() + Duration::from_secs(5);
+    while page.find_element("html.hydrated").await.is_err() && Instant::now() < deadline {
+        sleep(Duration::from_millis(5)).await;
+    }
 
     // Take a screenshot of each element
     let mut pngs = Vec::with_capacity(nodes.len());
@@ -127,7 +138,7 @@ pub async fn nodes_to_bytes(
     }
 
     // Abort the handler task (if this is not done can get a `ResetWithoutClosingHandshake`
-    // when this function ends
+    // when this function ends)
     handler_task.abort();
 
     Ok(pngs)
