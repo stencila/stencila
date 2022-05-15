@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/stencila/stencila/compare/v1.9.0...v1.9.1) (2022-05-15)
+
+
+### Bug Fixes
+
+* **Web terminal:** Handle error cases in `select!` to avoid infinite loops on disconnections ([c36c539](https://github.com/stencila/stencila/commit/c36c539895f7ee7e9d31aab0ab42e4796941e9c4))
+
 # [1.9.0](https://github.com/stencila/stencila/compare/v1.8.0...v1.9.0) (2022-05-14)
 
 
