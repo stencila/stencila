@@ -1335,7 +1335,7 @@ async fn attach_connected(web_socket: warp::ws::WebSocket, claims: jwt::Claims) 
         const BLUE: &str = "\\e[0;34m";
         const RESET: &str = "\\e[0m";
         let prompt = format!(
-            r"{}{}{}@{}{}{}:{}{}{}$",
+            r"{}{}{}@{}{}{}:{}{}{}$ ",
             GREEN, user, RESET, BLUE, host, RESET, GREEN, dir, RESET
         );
         command.env("PS1", prompt);
@@ -1375,6 +1375,11 @@ async fn attach_connected(web_socket: warp::ws::WebSocket, claims: jwt::Claims) 
                                 tracing::error!("While writing message to PTY: {}", error)
                             }
                         }
+                    } else if let Some(Err(error)) = message {
+                        tracing::error!("While receiving WebSocket message: {}", error);
+                        break;
+                    } else if message.is_none() {
+                        break;
                     }
                 },
                 bytes_read = child.pty_mut().read(&mut buffer[..]) => {
@@ -1387,6 +1392,9 @@ async fn attach_connected(web_socket: warp::ws::WebSocket, claims: jwt::Claims) 
                             }
                             break;
                         }
+                    } else if let Err(error) = bytes_read {
+                        tracing::error!("While reading bytes from PTY: {}", error);
+                        break;
                     }
                 }
             };
@@ -1396,7 +1404,7 @@ async fn attach_connected(web_socket: warp::ws::WebSocket, claims: jwt::Claims) 
     #[cfg(not(target_os = "linux"))]
     {
         let message =
-            "😢  Sorry, web terminal is not currently available on this operating system.\n";
+            "😢  Web terminal is not currently available on this server operating system.\n";
         message_sender
             .send(warp::ws::Message::text(message))
             .await
