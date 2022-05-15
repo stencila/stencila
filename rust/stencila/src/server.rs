@@ -1989,6 +1989,28 @@ async fn rejection_handler(
     ))
 }
 
+/// Get a hostname to use in an externally accessible URL
+///
+/// This is used when we need to provide an external service with a URL to
+/// connect to a server for this instance e.g. Webhooks.
+///
+/// If the environment variable `STENCILA_HOSTNAME` is defined then that is used,
+/// falling back to the public IP address, falling back to `localhost`.
+pub async fn hostname() -> String {
+    if let Ok(hostname) = env::var("STENCILA_HOSTNAME") {
+        hostname
+    } else if let Some(ip) = public_ip::addr().await {
+        if ip.is_ipv6() {
+            // IP6 addresses need to be surrounded in square brackets to use in a URL
+            ["[", &ip.to_string(), "]"].concat()
+        } else {
+            ip.to_string()
+        }
+    } else {
+        "localhost".into()
+    }
+}
+
 pub mod config {
     use defaults::Defaults;
     use schemars::JsonSchema;
