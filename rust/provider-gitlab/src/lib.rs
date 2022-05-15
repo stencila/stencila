@@ -1,38 +1,33 @@
 use std::{
-    env,
     fs::{create_dir_all, remove_file, File},
     io::Write,
     path::{Path, PathBuf},
 };
 
 use archive_utils::extract_tar;
-use http_utils::{
-    delete_with, download_temp_with, get_with, headers, post_with,
-    serde::{de::DeserializeOwned, Deserialize, Serialize},
-    serde_json::json,
-    tempfile::NamedTempFile,
-};
 use provider::{
     async_trait::async_trait,
     codecs,
     eyre::{bail, Result},
+    http_utils::{
+        delete_with, download_temp_with, get_with,
+        http::{
+            header::{self, HeaderName},
+            Request, Response, StatusCode,
+        },
+        post_with, response,
+        tempfile::NamedTempFile,
+    },
     once_cell::sync::Lazy,
     regex::Regex,
     resolve_token,
+    serde::{de::DeserializeOwned, Deserialize, Serialize},
+    serde_json,
     stencila_schema::{
         CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date, Node, Organization,
         SoftwareSourceCode, ThingDescription,
     },
-    tokio::sync::mpsc,
     tracing, EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
-};
-use server_utils::{
-    axum::{
-        http::{header::HeaderMap, StatusCode},
-        response::Headers,
-        routing, Json, Router,
-    },
-    hostname, serve_gracefully,
 };
 
 /// The base URL for API requests
@@ -40,13 +35,6 @@ const BASE_URL: &str = "https://gitlab.com/api/v4/";
 
 /// The default name for the token used to authenticate with the API
 const TOKEN_NAME: &str = "GITLAB_TOKEN";
-
-/// Port for the webhook server
-///
-/// This should not clash with any other port numbers for other providers.
-/// Changes should be avoided as network configurations, such as firewall
-/// rules, may assume this number.
-const WEBHOOK_PORT: u16 = 10003;
 
 /// A client for the Gitlab REST API
 ///
@@ -74,9 +62,9 @@ impl GitlabClient {
     }
 
     /// Get additional headers required for a request
-    fn headers(&self) -> Vec<(headers::HeaderName, String)> {
+    fn headers(&self) -> Vec<(HeaderName, String)> {
         match &self.token {
-            Some(token) => vec![(headers::AUTHORIZATION, ["Bearer ", token].concat())],
+            Some(token) => vec![(header::AUTHORIZATION, ["Bearer ", token].concat())],
             None => Vec::new(),
         }
     }
@@ -86,11 +74,13 @@ impl GitlabClient {
         get_with(&[BASE_URL, path].concat(), &headers).await
     }
 
+    #[allow(dead_code)]
     async fn post<B: Serialize, T: DeserializeOwned>(&self, path: &str, body: B) -> Result<T> {
         let headers = self.headers();
         post_with(&[BASE_URL, path].concat(), body, &headers).await
     }
 
+    #[allow(dead_code)]
     async fn delete(&self, path: &str) -> Result<()> {
         let headers = self.headers();
         delete_with(&[BASE_URL, path].concat(), &headers).await
@@ -337,120 +327,111 @@ impl ProviderTrait for GitlabProvider {
         Ok(())
     }
 
+    #[tracing::instrument(skip(request))]
     async fn sync(
         node: &Node,
-        local: &Path,
-        _canceller: mpsc::Receiver<()>,
+        dest: &Path,
+        request: &Request<serde_json::Value>,
         options: Option<SyncOptions>,
-    ) -> Result<()> {
+    ) -> Result<Response<String>> {
+        tracing::trace!("Received a Gitlab sync event");
+
         let ssc = match node {
             Node::SoftwareSourceCode(ssc) => ssc,
             _ => bail!("Unrecognized node type"),
         };
         let project_id = Self::project_id(ssc)?;
         let version = Self::version(ssc);
-        let path = Self::path(ssc);
+        let sub_path = Self::path(ssc).unwrap_or_default();
 
         let options = options.unwrap_or_default();
         let client = GitlabClient::new(options.token);
 
-        // Generate the unique id for the webhook
-        let webhook_id = uuids::generate_num("wh", 36).to_string();
+        let event: HookEvent = serde_json::from_value(request.body().to_owned())?;
 
-        // Create a URL for the webhook
-        let webhook_host = match options.host {
-            Some(host) => host,
-            None => format!(
-                "{hostname}:{port}",
-                hostname = hostname().await,
-                port = WEBHOOK_PORT
-            ),
-        };
-        let webhook_url = format!("https://{webhook_host}/{webhook_id}");
-
-        // Generate a token for validating event payloads
-        let token = key_utils::generate().to_string();
-
-        // Create the webhook
-        let hook: Hook = client
-            .post(
-                &format!("projects/{id}/hooks", id = project_id),
-                json!({
-                    "url": webhook_url,
-                    "token": token,
-                    "push_events": true
-                }),
-            )
-            .await?;
-        tracing::info!("Created Gitlab webhook `{}`", hook.url);
-
-        // Listen for webhook events
-        let response_headers = Headers(vec![(
-            "Server",
-            format!(
-                "Stencila-Gitlab-Provider/{} ({})",
-                env!("CARGO_PKG_VERSION"),
-                env::consts::OS
-            ),
-        )]);
-        let local_clone = local.to_path_buf();
-        let client_clone = client.clone();
-        let project_clone = project_id.clone();
-        let ref_ = version
+        // Ignore events not associated with the ref being watched
+        let desired_ref = version
             .map(|version| ["refs/heads/", version].concat())
             .unwrap_or_else(|| "refs/heads/main".to_string());
-        let path_clone = path.map(|path| path.to_string()).unwrap_or_default();
-        let router = Router::new().route(
-            &format!("/{}", webhook_id),
-            routing::post(
-                // Note that the order of extractors is important and some may not be able to be mixed.
-                // See https://docs.rs/axum/latest/axum/extract/index.html#applying-multiple-extractors
-                move |Json(event): Json<HookEvent>, request_headers: HeaderMap| async move {
-                    match webhook_event(
-                        request_headers,
-                        event,
-                        &local_clone,
-                        &client_clone,
-                        &token,
-                        &project_clone,
-                        &ref_,
-                        &path_clone,
-                    )
-                    .await
-                    {
-                        Ok((status, msg)) => (status, response_headers, msg),
-                        Err(error) => {
-                            tracing::error!("While handling webhook event: {}", error);
-                            (
-                                StatusCode::INTERNAL_SERVER_ERROR,
-                                response_headers,
-                                "Internal server error".into(),
-                            )
+        if event.ref_.is_empty() {
+            // Not a push event
+            let msg = "Ignoring non-push webhook event";
+            tracing::trace!("{}", msg);
+            return Ok(response(StatusCode::ACCEPTED, msg));
+        }
+        if !(event.ref_ == desired_ref
+            || (event.ref_ == "refs/heads/master" && desired_ref == "refs/heads/main"))
+        {
+            let msg = format!(
+                "Ignoring webhook event for a different ref `{} != {}`",
+                event.ref_, desired_ref
+            );
+            tracing::trace!("{}", msg);
+            return Ok(response(StatusCode::ACCEPTED, &msg));
+        }
+
+        // Iterate over the commits and synchronize each file
+        for commit in event.commits {
+            const ADDED: &str = "added";
+            const MODIFIED: &str = "modified";
+            const REMOVED: &str = "removed";
+            for action in [ADDED, MODIFIED, REMOVED] {
+                let paths = match action {
+                    ADDED => &commit.added,
+                    MODIFIED => &commit.modified,
+                    REMOVED => &commit.removed,
+                    _ => unreachable!(),
+                };
+                for event_path in paths {
+                    let dest_path = match PathBuf::from(event_path).strip_prefix(sub_path) {
+                        // Only join stripped path if it has content. This avoids a trailing slash
+                        // when the local path is a file
+                        Ok(path) => match path == PathBuf::from("") {
+                            true => dest.to_path_buf(),
+                            false => dest.join(path),
+                        },
+                        Err(..) => {
+                            tracing::info!(
+                                "Ignored webhook event with excluded path: `{}` is not in `{}`",
+                                event_path,
+                                sub_path
+                            );
+                            continue;
+                        }
+                    };
+
+                    if action == ADDED || action == MODIFIED {
+                        // Fetch the content of the file and write to disk
+                        tracing::info!(
+                            "Fetching content of `{}` to write to `{}`",
+                            event_path,
+                            dest_path.display()
+                        );
+                        let repo_file = client
+                            .get::<RepositoryFile>(&format!(
+                                "projects/{id}/repository/files/{path}?ref={ref_}",
+                                id = project_id,
+                                path = urlencoding::encode(event_path),
+                                ref_ = event.ref_
+                            ))
+                            .await?;
+                        repo_file.write(&dest_path)?;
+                    } else {
+                        // Remove the file, if it exists
+                        if dest_path.exists() {
+                            remove_file(dest_path)?;
+                        } else {
+                            tracing::warn!(
+                                "Ignored webhook event to remove non-existent file `{}`",
+                                dest_path.display()
+                            );
                         }
                     }
-                },
-            ),
-        );
-        serve_gracefully([0, 0, 0, 0], WEBHOOK_PORT, router).await?;
-
-        // Delete the webhook
-        match client
-            .delete(&format!(
-                "projects/{project_id}/hooks/{hook_id}",
-                project_id = project_id,
-                hook_id = hook.id
-            ))
-            .await
-        {
-            Ok(..) => {
-                tracing::info!("Deleted Gitlab webhook `{}`", hook.id);
-            }
-            Err(error) => {
-                tracing::warn!("While deleting Gitlab webhook: {}", error);
+                }
             }
         }
 
-        Ok(())
+        Ok(response(StatusCode::OK, "OK"))
     }
 }
 
@@ -458,7 +439,7 @@ impl ProviderTrait for GitlabProvider {
 ///
 /// See https://docs.gitlab.com/ee/api/projects.html#get-single-project
 #[derive(Debug, Deserialize)]
-#[serde(crate = "http_utils::serde")]
+#[serde(crate = "provider::serde")]
 struct Project {
     description: String,
     created_at: String,
@@ -468,7 +449,7 @@ struct Project {
 ///
 /// See https://docs.gitlab.com/ee/api/repository_files.html#get-file-from-repository
 #[derive(Debug, Deserialize)]
-#[serde(crate = "http_utils::serde")]
+#[serde(crate = "provider::serde")]
 struct RepositoryFile {
     file_name: String,
     content: String,
@@ -492,21 +473,11 @@ impl RepositoryFile {
     }
 }
 
-/// A webhook
-///
-/// See https://docs.gitlab.com/ee/api/projects.html#get-project-hook
-#[derive(Debug, Deserialize)]
-#[serde(crate = "http_utils::serde")]
-struct Hook {
-    id: u64,
-    url: String,
-}
-
 /// A webhook push event
 ///
 /// See https://docs.gitlab.com/ee/user/project/integrations/webhook_events.html#push-events
 #[derive(Debug, Deserialize)]
-#[serde(crate = "http_utils::serde")]
+#[serde(crate = "provider::serde")]
 struct HookEvent {
     #[serde(rename = "ref")]
     ref_: String,
@@ -515,128 +486,11 @@ struct HookEvent {
 
 /// A commit within a webhook push event
 #[derive(Debug, Deserialize)]
-#[serde(crate = "http_utils::serde")]
+#[serde(crate = "provider::serde")]
 struct HookEventCommit {
     added: Vec<String>,
     modified: Vec<String>,
     removed: Vec<String>,
-}
-
-/// Handle Gitlab webhook events
-///
-/// Validates payloads using secret token.
-/// See https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#validate-payloads-by-using-a-secret-token.
-///
-/// For debugging purposes this function both logs events and returns meaningful status codes
-/// and messages for recording in the "Recent events" log on Gitlab.
-/// See https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#troubleshoot-webhooks
-#[allow(clippy::too_many_arguments)]
-async fn webhook_event(
-    headers: HeaderMap,
-    event: HookEvent,
-    local: &Path,
-    client: &GitlabClient,
-    token: &str,
-    project_id: &str,
-    ref_: &str,
-    path: &str,
-) -> Result<(StatusCode, String)> {
-    // Reject events with a nonexistent or invalid token
-    match headers.get("X-Gitlab-Token") {
-        Some(value) => {
-            if value != token {
-                let msg = "Rejected webhook event with an invalid token";
-                tracing::warn!("{}", msg);
-                return Ok((StatusCode::BAD_REQUEST, msg.into()));
-            }
-        }
-        None => {
-            let msg = "Rejected webhook event without token";
-            tracing::warn!("{}", msg);
-            return Ok((StatusCode::BAD_REQUEST, msg.into()));
-        }
-    };
-
-    // Ignore events not associated with the ref being watched
-    if event.ref_.is_empty() {
-        // Not a push event
-        let msg = "Ignoring non-push webhook event";
-        tracing::trace!("{}", msg);
-        return Ok((StatusCode::ACCEPTED, msg.into()));
-    }
-    if !(event.ref_ == ref_ || (event.ref_ == "refs/heads/master" && ref_ == "refs/heads/main")) {
-        let msg = format!(
-            "Ignoring webhook event for a different ref `{} != {}`",
-            event.ref_, ref_
-        );
-        tracing::trace!("{}", msg);
-        return Ok((StatusCode::ACCEPTED, msg));
-    }
-
-    // Iterate over the commits and synchronize each file
-    for commit in event.commits {
-        const ADDED: &str = "added";
-        const MODIFIED: &str = "modified";
-        const REMOVED: &str = "removed";
-        for action in [ADDED, MODIFIED, REMOVED] {
-            let paths = match action {
-                ADDED => &commit.added,
-                MODIFIED => &commit.modified,
-                REMOVED => &commit.removed,
-                _ => unreachable!(),
-            };
-            for event_path in paths {
-                let local_path = match PathBuf::from(event_path).strip_prefix(path) {
-                    // Only join stripped path if it has content. This avoids a trailing slash
-                    // when the local path is a file
-                    Ok(path) => match path == PathBuf::from("") {
-                        true => local.to_path_buf(),
-                        false => local.join(path),
-                    },
-                    Err(..) => {
-                        tracing::info!(
-                            "Ignored webhook event with excluded path: `{}` is not in `{}`",
-                            event_path,
-                            path
-                        );
-                        continue;
-                    }
-                };
-
-                if action == ADDED || action == MODIFIED {
-                    // Fetch the content of the file and write to disk
-                    tracing::info!(
-                        "Fetching content of `{}` to write to `{}`",
-                        event_path,
-                        local_path.display()
-                    );
-                    let repo_file = client
-                        .get::<RepositoryFile>(&format!(
-                            "projects/{id}/repository/files/{path}?ref={ref_}",
-                            id = project_id,
-                            path = urlencoding::encode(event_path),
-                            ref_ = event.ref_
-                        ))
-                        .await?;
-                    repo_file.write(&local_path)?;
-                } else {
-                    // Remove the file, if it exists
-                    if local_path.exists() {
-                        remove_file(local_path)?;
-                    } else {
-                        tracing::warn!(
-                            "Ignored webhook event to remove non-existent file `{}`",
-                            local_path.display()
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    let msg = "Webhook event handled";
-    tracing::trace!("{}", msg);
-    Ok((StatusCode::OK, msg.into()))
 }
 
 #[cfg(test)]

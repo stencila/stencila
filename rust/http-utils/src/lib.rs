@@ -199,3 +199,14 @@ pub async fn download_temp_with(
     download_with(url, temp.path(), headers).await?;
     Ok(temp)
 }
+
+/// Create a `Response`
+///
+/// A convenience function for creating a HTTP response with a status code and
+/// a text body.
+pub fn response(status: http::StatusCode, content: &str) -> http::Response<String> {
+    http::Response::builder()
+        .status(status)
+        .body(content.into())
+        .expect("Unable to create HTTP response")
+}
