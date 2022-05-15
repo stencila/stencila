@@ -161,7 +161,7 @@ pub fn resolve_token(token: &str) -> Option<String> {
         match env::var(&token) {
             Ok(value) => Some(value),
             Err(..) => {
-                tracing::debug!("Token string appears to be an environment variable name but no such variable found");
+                tracing::debug!("Token string `{}` appears to be an environment variable name but no such variable found", token);
                 None
             }
         }
