@@ -2,7 +2,6 @@ use std::path::Path;
 
 use chromiumoxide::{cdp::browser_protocol::page::PrintToPdfParamsBuilder, Browser, BrowserConfig};
 use futures::StreamExt;
-use tokio::time::{sleep, Duration, Instant};
 
 use codec::{
     async_trait::async_trait, eyre::Result, stencila_schema::Node, utils::vec_string, Codec,
@@ -40,6 +39,7 @@ impl CodecTrait for PdfCodec {
                 standalone: true,
                 bundle: true,
                 theme,
+                components: false,
                 ..Default::default()
             }),
         )?;
@@ -62,14 +62,7 @@ impl CodecTrait for PdfCodec {
         let page = browser.new_page("about:blank").await?;
         page.set_content(html).await?.wait_for_navigation().await?;
 
-        // Wait up to a further 5s for Web Components on the page to be hydrated
-        // An alternative to this would be to listen for the StencilJS `appload`
-        // event https://stenciljs.com/docs/api#the-appload-event
-        let deadline = Instant::now() + Duration::from_secs(5);
-        while page.find_element("html.hydrated").await.is_err() && Instant::now() < deadline {
-            sleep(Duration::from_millis(5)).await;
-        }
-
+        // Save as PDF
         let params = PrintToPdfParamsBuilder::default().build();
         page.save_pdf(params, path).await?;
 

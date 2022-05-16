@@ -5,7 +5,6 @@ use chromiumoxide::{
     BrowserConfig,
 };
 use futures::StreamExt;
-use tokio::time::{sleep, Duration, Instant};
 
 use codec::{
     async_trait::async_trait,
@@ -89,7 +88,7 @@ pub async fn nodes_to_bytes(
     }
 
     // Generate HTML for each node
-    let mut html = String::new();
+    let mut nodes_html = String::new();
     for (index, node) in nodes.iter().enumerate() {
         let node_html = HtmlCodec::to_string(
             node,
@@ -99,49 +98,35 @@ pub async fn nodes_to_bytes(
                 ..Default::default()
             }),
         )?;
-        html.push_str(&format!(
+        nodes_html.push_str(&format!(
             r#"<div class="node" id="node-{}">{}</div>"#,
             index, node_html
         ));
     }
 
-    let EncodeOptions { theme, .. } = options.unwrap_or_default();
-    let theme = theme.unwrap_or_else(|| "rpng".to_string());
+    let theme = options
+        .unwrap_or_default()
+        .theme
+        .unwrap_or_else(|| "rpng".to_string());
 
-    // Wrap the HTML with a header etc so that the theme is set and CSS is loaded
-    let base_url = "http://127.0.0.1:9000/~static/dev"; // TODO: start served on demand as get current url
-    let html = format!(
-        r#"<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>PNG Codec</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link href="{base_url}/themes/themes/{theme}/styles.css" rel="stylesheet">
-        <script src="{base_url}/components/stencila-components.esm.js" type="module"></script>
-        <style>
-            body {{
-                width: 640px; /* Avoid having images of block node that are too wide */
-            }}
-            div.node {{
-                margin: 10px; /* Mainly to improve spacing when previewing HTML during development */
-            }}
-        </style>
-    </head>
-    <body data-root="">
-        {html}
-    </body>
-</html>"#,
-        theme = theme,
-        html = html
+    // Wrap the generated HTML into a standalone page with bundled CSS & JS
+    let html = codec_html::wrap_standalone(
+        &nodes_html,
+        EncodeOptions {
+            bundle: true,
+            theme: Some(theme),
+            components: false,
+            ..Default::default()
+        },
+        "PngCodec",
+        r"
+        body {{
+            width: 640px; /* Avoid having images of block node that are too wide */
+        }}
+        div.node {{
+            margin: 10px; /* Mainly to improve spacing when previewing HTML during development */
+        }}",
     );
-
-    // This can be useful during debugging to preview the HTML
-    use std::io::Write;
-    std::fs::File::create("temp-png.html")
-        .expect("Unable to create file")
-        .write_all(html.as_bytes())
-        .expect("Unable to write data");
 
     // Launch the browser
     let chrome = binaries::require_any(&[("chrome", "*"), ("chromium", "*")]).await?;
@@ -164,14 +149,6 @@ pub async fn nodes_to_bytes(
     // Create a page, set its HTML and wait for "navigation"
     let page = browser.new_page("about:blank").await?;
     page.set_content(html).await?.wait_for_navigation().await?;
-
-    // Wait up to a further 5s for Web Components on the page to be hydrated
-    // An alternative to this would be to listen for the StencilJS `appload`
-    // event https://stenciljs.com/docs/api#the-appload-event
-    let deadline = Instant::now() + Duration::from_secs(5);
-    while page.find_element("html.hydrated").await.is_err() && Instant::now() < deadline {
-        sleep(Duration::from_millis(5)).await;
-    }
 
     // Take a screenshot of each element
     // This uses `:first-child`, rather than screen-shotting the entire div, so that for

@@ -502,6 +502,7 @@ pub mod commands {
                 bundle: self.bundle,
                 theme: self.theme.clone(),
                 format: self.to.clone(),
+                ..Default::default()
             });
             if self.output.display().to_string() == "-" {
                 let format = match &self.to {

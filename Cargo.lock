@@ -1080,6 +1080,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "server-next",
  "stencila-schema",
  "test-props",
  "test-snaps",
@@ -1228,7 +1229,6 @@ dependencies = [
  "codec",
  "codec-html",
  "futures",
- "server-next",
  "test-utils",
  "tokio",
 ]
