@@ -1,7 +1,6 @@
-
 use structopt::StructOpt;
 
-use cli_utils::{result, Result, Run, async_trait::async_trait};
+use cli_utils::{async_trait::async_trait, result, Result, Run};
 
 use crate::server::Server;
 
@@ -24,7 +23,6 @@ impl Run for Command {
     }
 }
 
-
 #[derive(Debug, StructOpt)]
 #[structopt(
     setting = structopt::clap::AppSettings::DeriveDisplayOrder,
@@ -42,7 +40,7 @@ impl Run for Start {
         if std::env::var("STENCILA_INTERACT_MODE").is_err() {
             handle.await?;
         }
-        
+
         result::nothing()
     }
 }

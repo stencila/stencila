@@ -125,12 +125,15 @@ pub fn wrap_standalone(html: &str, options: EncodeOptions, title: &str, extra_cs
         html = html
     );
 
-    // This can be useful during debugging to preview the HTML
-    use std::io::Write;
-    std::fs::File::create("temp-png.html")
-        .expect("Unable to create file")
-        .write_all(html.as_bytes())
-        .expect("Unable to write data");
+    #[cfg(skip)]
+    {
+        // This can be useful during debugging to preview the HTML
+        use std::io::Write;
+        std::fs::File::create("temp.html")
+            .expect("Unable to create file")
+            .write_all(html.as_bytes())
+            .expect("Unable to write data");
+    }
 
     html
 }

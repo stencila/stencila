@@ -219,7 +219,7 @@ pub struct EncodeOptions {
     pub theme: Option<String>,
 
     /// Whether Javascript for Web Components should be loaded or not
-    /// 
+    ///
     /// Only applies to standalone HTML and formats derived from it (e.g. PDF, PNG).
     pub components: bool,
 

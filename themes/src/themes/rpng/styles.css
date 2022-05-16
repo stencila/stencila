@@ -33,7 +33,7 @@ body {
   and they should have a minimum size. */
   display: inline-block;
   margin: 0 !important;
-  min-width: 1em;
+  min-width: 16px;
   min-height: 16px;
   overflow: visible;
   position: relative;
@@ -46,7 +46,7 @@ body {
     background-color: var(--color-ok);
     background-position: center;
     background-repeat: no-repeat;
-    border-radius: 4px;
+    border-radius: 2px;
     color: #4e6751;
     content: '';
     height: 14px;
@@ -74,10 +74,12 @@ body {
   }
 }
 
-/* Hide the UI chrome etc that is not wanted */
+/* Hide the `text` property (ie. the code) and Web Component chrome */
+:--CodeChunk [slot="text"],
 :--CodeChunk stencila-action-menu,
-:--CodeChunk [slot='text'],
 :--CodeChunk .emptyContentMessage,
+:--CodeExpression [slot="text"],
+:--CodeExpression stencila-tooltip,
 :--CodeExpression .actions,
 :--CodeExpression .divider {
   display: none !important;
