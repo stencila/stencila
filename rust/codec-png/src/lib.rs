@@ -1,4 +1,11 @@
-use chromiumoxide::{cdp::browser_protocol::page::CaptureScreenshotFormat, Browser, BrowserConfig};
+use std::{fs, path::Path};
+
+use chromiumoxide::{
+    cdp::browser_protocol::page::CaptureScreenshotFormat, handler::viewport::Viewport, Browser,
+    BrowserConfig,
+};
+use futures::StreamExt;
+
 use codec::{
     async_trait::async_trait,
     eyre::Result,
@@ -7,8 +14,6 @@ use codec::{
     Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
 use codec_html::HtmlCodec;
-use futures::StreamExt;
-use std::{fs, path::Path};
 
 /// Encode and decode a document node to a PNG image.
 ///
@@ -83,7 +88,7 @@ pub async fn nodes_to_bytes(
     }
 
     // Generate HTML for each node
-    let mut html = String::new();
+    let mut nodes_html = String::new();
     for (index, node) in nodes.iter().enumerate() {
         let node_html = HtmlCodec::to_string(
             node,
@@ -93,18 +98,45 @@ pub async fn nodes_to_bytes(
                 ..Default::default()
             }),
         )?;
-        html.push_str(&format!(r#"<div id="node-{}">{}</div>"#, index, node_html));
+        nodes_html.push_str(&format!(
+            r#"<div class="node" id="node-{}">{}</div>"#,
+            index, node_html
+        ));
     }
 
-    // Wrap the HTML with a header etc so that the theme is set and CSS is loaded
-    let EncodeOptions { theme, .. } = options.unwrap_or_default();
-    let theme = theme.unwrap_or_else(|| "rpng".to_string());
-    let html = codec_html::wrap_standalone("PNG", &theme, &html);
+    let theme = options
+        .unwrap_or_default()
+        .theme
+        .unwrap_or_else(|| "rpng".to_string());
+
+    // Wrap the generated HTML into a standalone page with bundled CSS & JS
+    let html = codec_html::wrap_standalone(
+        &nodes_html,
+        EncodeOptions {
+            bundle: true,
+            theme: Some(theme),
+            components: false,
+            ..Default::default()
+        },
+        "PngCodec",
+        r"
+        body {{
+            width: 640px; /* Avoid having images of block node that are too wide */
+        }}
+        div.node {{
+            margin: 10px; /* Mainly to improve spacing when previewing HTML during development */
+        }}",
+    );
 
     // Launch the browser
     let chrome = binaries::require_any(&[("chrome", "*"), ("chromium", "*")]).await?;
     let config = BrowserConfig::builder()
         .chrome_executable(chrome.path)
+        .viewport(Viewport {
+            // Increase the scale for higher resolution images. See https://github.com/puppeteer/puppeteer/issues/571#issuecomment-325404760
+            device_scale_factor: Some(2.0),
+            ..Default::default()
+        })
         .build()
         .expect("Should build config");
     let (browser, mut handler) = Browser::launch(config).await?;
@@ -114,20 +146,25 @@ pub async fn nodes_to_bytes(
         }
     });
 
-    // Create a page and set its HTML
+    // Create a page, set its HTML and wait for "navigation"
     let page = browser.new_page("about:blank").await?;
     page.set_content(html).await?.wait_for_navigation().await?;
 
     // Take a screenshot of each element
+    // This uses `:first-child`, rather than screen-shotting the entire div, so that for
+    // inline elements we do not get wide (page width) images. Assumes that the node is represented
+    // by one element.
     let mut pngs = Vec::with_capacity(nodes.len());
     for index in 0..nodes.len() {
-        let element = page.find_element(&format!("#node-{}", index)).await?;
+        let element = page
+            .find_element(&format!("#node-{} *:first-child", index))
+            .await?;
         let bytes = element.screenshot(CaptureScreenshotFormat::Png).await?;
         pngs.push(bytes)
     }
 
     // Abort the handler task (if this is not done can get a `ResetWithoutClosingHandshake`
-    // when this function ends
+    // when this function ends)
     handler_task.abort();
 
     Ok(pngs)

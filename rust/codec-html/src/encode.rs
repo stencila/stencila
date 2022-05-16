@@ -2,19 +2,18 @@ use codec::{eyre::Result, EncodeOptions};
 use html_escape::{encode_double_quoted_attribute, encode_safe};
 use inflector::cases::{camelcase::to_camel_case, kebabcase::to_kebab_case};
 use once_cell::sync::Lazy;
+use server_next::statics::get_static_bytes;
 use std::{any::type_name, collections::HashMap};
 use stencila_schema::*;
 
 /// Encode a `Node` to a HTML document
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-    let html = encode_root(node, options.clone());
+    let options = options.unwrap_or_default();
 
-    let EncodeOptions {
-        theme, standalone, ..
-    } = options.unwrap_or_default();
+    let html = encode_root(node, Some(options.clone()));
 
-    let html = if standalone {
-        wrap_standalone("", &theme.unwrap_or_else(|| "stencila".to_string()), &html)
+    let html = if options.standalone {
+        wrap_standalone(&html, options, "", "")
     } else {
         html
     };
@@ -81,52 +80,62 @@ fn indent(html: &str) -> String {
 }
 
 /// Wrap generated HTML so that it is standalone
-pub fn wrap_standalone(title: &str, theme: &str, html: &str) -> String {
+pub fn wrap_standalone(html: &str, options: EncodeOptions, title: &str, extra_css: &str) -> String {
     let title = if title.is_empty() { "Untitled" } else { &title };
-    let theme = if theme.is_empty() { "stencila" } else { &theme };
+    let theme = options.theme.unwrap_or_else(|| "stencila".to_string());
 
-    format!(
+    // Get the theme CSS
+    let theme_css =
+        get_static_bytes(&format!("themes/themes/{theme}/styles.css")).unwrap_or_default();
+    let theme_css = String::from_utf8_lossy(&theme_css);
+
+    let components = match options.components {
+        true => {
+            r#"
+        <script src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.esm.js" type="module"></script>
+        <script src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.js" nomodule=""></script>
+            "#
+        }
+        false => "",
+    };
+
+    let html = format!(
         r#"<!DOCTYPE html>
 <html lang="en">
     <head>
         <title>{title}</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link
-            href="https://unpkg.com/@stencila/thema/dist/themes/{theme}/styles.css"
-            rel="stylesheet">
-        <script
-            src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.esm.js"
-            type="module"></script>
-        <script
-            src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.js"
-            nomodule=""></script>
         <style>
-            .error {{
-                font-family: mono;
-                color: #9e0000;
-                background: #ffd9d9;
-            }}
-            .todo {{
-                font-family: mono;
-                color: #9e9b00;
-                background: #faf9de;
-            }}
-            .unsupported {{
-                font-family: mono;
-                color: #777;
-                background: #eee;
-            }}
+            {theme_css}
         </style>
+        <style>
+            {extra_css}
+        </style>
+        {components}
     </head>
     <body>
         {html}
     </body>
 </html>"#,
         title = title,
-        theme = theme,
+        theme_css = theme_css,
+        extra_css = extra_css,
+        components = components,
         html = html
-    )
+    );
+
+    #[cfg(skip)]
+    {
+        // This can be useful during debugging to preview the HTML
+        use std::io::Write;
+        std::fs::File::create("temp.html")
+            .expect("Unable to create file")
+            .write_all(html.as_bytes())
+            .expect("Unable to write data");
+    }
+
+    html
 }
 
 /// The encoding context.

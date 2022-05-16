@@ -42,7 +42,7 @@ build:
 	cd ../node && npm install && npm run build:ts
 	cd ../web && npm install && npm run build
 	cd ../themes && npm install && npm run build
-	cd stencila && npm install
+	cd server-next && npm install
 	cargo build --bin stencila --release
 	cd .. && cargo strip
 

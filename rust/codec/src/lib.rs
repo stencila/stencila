@@ -215,8 +215,13 @@ pub struct EncodeOptions {
 
     /// The theme to apply to the encoded document
     ///
-    /// Only applies to some formats (e.g. HTML, PDF, PNG).
+    /// Only applies to standalone HTML and formats derived from it (e.g. PDF, PNG).
     pub theme: Option<String>,
+
+    /// Whether Javascript for Web Components should be loaded or not
+    ///
+    /// Only applies to standalone HTML and formats derived from it (e.g. PDF, PNG).
+    pub components: bool,
 
     /// The format to encode to
     ///
@@ -232,6 +237,7 @@ impl Default for EncodeOptions {
             standalone: false,
             bundle: false,
             theme: None,
+            components: true,
             format: None,
         }
     }
