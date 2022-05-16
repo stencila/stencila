@@ -447,10 +447,11 @@ jobs:
         displayName: 'Rust: Clean cache'
 
   # Docker images are built on tags (i.e. after a Release job) or if there is a
-  # change in the `docker` folder.
+  # change in the `docker` folder. The `stencila/stencila` image relies on the
+  # `stencila` Linux binary being available so runs after that job.
   - job: Docker
     timeoutInMinutes: 180
-    dependsOn: [Changes]
+    dependsOn: [Changes, Linux]
     condition: |
       or(
         startsWith(variables['Build.SourceBranch'], 'refs/tags/'),
@@ -467,29 +468,12 @@ jobs:
           cacheHitVar: CACHE_RESTORED
 
       - script: |
-          docker load -i $(Pipeline.Workspace)/docker/stencila-maker.tar
           docker load -i $(Pipeline.Workspace)/docker/stencila-stencila.tar
           docker load -i $(Pipeline.Workspace)/docker/stencila-builder.tar
         displayName: Load from cache
         condition: and(not(canceled()), eq(variables.CACHE_RESTORED, 'true'))
 
-      - task: gitversion/setup@0
-        displayName: Install GitVersion
-        inputs:
-          versionSpec: '5.x'
-
-      - task: gitversion/execute@0
-        displayName: Determine version
-
-      - task: Docker@2
-        displayName: Build stencila/maker
-        inputs:
-          command: build
-          dockerfile: docker/maker/focal/Dockerfile
-          arguments: --build-arg STENCILA_VERSION=$(Build.SourceVersion)
-          repository: stencila/maker
-          tags: |
-            focal
+      # Build `stencila/stencila` image
 
       - task: Docker@2
         displayName: Build stencila/stencila
@@ -502,7 +486,7 @@ jobs:
             focal
             latest
 
-      # Build `stencila/builder` image if the above image builds succeeded
+      # Build `stencila/builder` image
 
       - script: |
           set -e
@@ -516,7 +500,6 @@ jobs:
           
           make -C docker/builder/bionic 
         displayName: Build stencila/builder
-        condition: succeeded()
 
       # Push images if on a tag
       # Note that if a image was built successfully it will be pushed, regardless of whether
@@ -547,7 +530,6 @@ jobs:
 
       - script: |
           mkdir -p $(Pipeline.Workspace)/docker
-          docker save -o $(Pipeline.Workspace)/docker/stencila-maker.tar stencila/maker
           docker save -o $(Pipeline.Workspace)/docker/stencila-stencila.tar stencila/stencila
           docker save -o $(Pipeline.Workspace)/docker/stencila-builder.tar stencila/builder
         displayName: Save to cache

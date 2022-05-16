@@ -9,10 +9,11 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
  && apt-get install -y \
       ca-certificates \
+      curl \
       openssl \
  && rm -rf /var/lib/apt/lists/*
 
-COPY --from=stencila/maker:focal /stencila/target/release/stencila /usr/local/bin/
+RUN curl -sL https://raw.githubusercontent.com/stencila/stencila/master/install.sh | bash -s v1.9.0 /usr/bin
 
 USER stencila
 WORKDIR /workspace

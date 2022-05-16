@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This image is intended primarily for those who would like to use the `stencila` command line tool without installing it locally.
+This image is intended primarily for those who would like to use the `stencila` command line tool without installing it locally. It downloads and installs the latest release of the Stencila CLI from the Stencila GitHub repository.
 
 ## Installation
 
@@ -26,7 +26,7 @@ The image has `/workspace` as its working directory and a default `stencila` use
 docker run -it --rm -p 9000 -v $PWD:/workspace -u $(id -u):$(id -g) stencila/stencila
 ```
 
-If you want to access the Stencila server at `http://localhost:9000` make sure to expose port `9000` and serve on all addresses (`0.0.0.0`) from within the container e.g.
+If you want to access the Stencila document server at `http://localhost:9000` make sure to expose port `9000` and serve on all addresses (`0.0.0.0`) from within the container e.g.
 
 ```sh
 docker run -it --rm -p 9000 stencila/stencila server start --url 0.0.0.0:9000
