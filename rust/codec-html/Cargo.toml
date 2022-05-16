@@ -8,41 +8,48 @@ edition = "2021"
 default = ["decode", "encode"]
 decode = ["kuchiki", "markup5ever"]
 encode = [
-    "Inflector",
     "base64",
     "chrono",
     "html-escape",
+    "Inflector",
     "itertools",
     "mime_guess",
+    "node-dispatch",
     "once_cell",
     "quick-xml",
-    "serde",
     "serde_json",
+    "serde",
     "server-next",
     "tracing",
+    "uuids"
 ]
 
 [dependencies]
-Inflector = { version = "0.11.4", optional = true }
-base64 = { version = "0.13.0", optional = true }
-chrono = {version = "0.4.19", optional = true }
+
 codec = { path = "../codec", version = "0.0.0" }
 codec-txt = { path = "../codec-txt", version = "0.0.0" }
-html-escape = { version = "0.2.9", optional = true }
-itertools = { version = "0.10.1", optional = true }
+node-transform = { path = "../node-transform", version = "0.0.0" }
+stencila-schema = { path = "../schema" }
+
+# Dependencies for decode feature
 kuchiki = { version = "0.8.1", optional = true }
 markup5ever = { version = "0.10.1", optional = true }
+
+# Dependencies for encode feature
+base64 = { version = "0.13.0", optional = true }
+chrono = {version = "0.4.19", optional = true }
+html-escape = { version = "0.2.9", optional = true }
+Inflector = { version = "0.11.4", optional = true }
+itertools = { version = "0.10.1", optional = true }
 mime_guess = { version = "2.0.3", optional = true }
-node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
-node-transform = { path = "../node-transform", version = "0.0.0" }
+node-dispatch = { path = "../node-dispatch", version = "0.0.0", optional = true }
 once_cell = { version = "1.9.0", optional = true }
 quick-xml = { version = "0.22.0", optional = true }
 serde = { version = "1.0.130", optional = true }
 serde_json = { version = "1.0.75", optional = true }
-server-next = { path = "../server-next", version = "0.0.0", optional = true }
-stencila-schema = { path = "../schema" }
+server-next = { path = "../server-next", version = "0.0.0", default-features = false, optional = true }
 tracing = { version = "0.1.29", optional = true }
-uuids = { path = "../uuids", version = "0.0.0" }
+uuids = { path = "../uuids", version = "0.0.0", optional = true }
 
 [dev-dependencies]
 reqwest = { version = "0.11.9", features = ["json"] }
