@@ -14,7 +14,6 @@ use itertools::Itertools;
 use jwt::JwtError;
 use once_cell::sync::{Lazy, OnceCell};
 use regex::{Captures, Regex};
-use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
@@ -41,6 +40,8 @@ use warp::{
     },
     ws, Filter, Reply,
 };
+
+use server_next::statics::{get_static_parts, STATIC_VERSION};
 
 /// Main server entry point function
 ///
@@ -1000,32 +1001,7 @@ fn error_result(
     Ok(error_response(code, message))
 }
 
-/// Static assets
-///
-/// During development, these are served from the `static` folder (which
-/// has a symlink to `web/dist/browser` (and maybe in the future other folders).
-/// At build time these are embedded in the binary. Use `include` and `exclude`
-/// glob patterns to only include the assets that are required.
-#[derive(RustEmbed)]
-#[folder = "static"]
-#[exclude = "web/*.map"]
-struct Static;
-
-/// The version used in URL paths for static assets
-/// Allows for caching control (see [`get_static`]).
-const STATIC_VERSION: &str = if cfg!(debug_assertions) {
-    "dev"
-} else {
-    env!("CARGO_PKG_VERSION")
-};
-
 /// Handle a HTTP `GET` request to the `/~static/` path
-///
-/// This path includes the current version number e.g. `/~static/0.127.0`. This
-/// allows a `Cache-Control` header with long `max-age` and `immutable` (so that browsers do not
-/// fetch / parse assets on each request) while also causing the browser cache to be busted for
-/// each new version of Stencila. During development, the version is set to "dev" and the cache control
-/// header is not set (for automatic reloading of re-built assets etc).
 #[tracing::instrument]
 async fn get_static(
     path: warp::path::Tail,
@@ -1033,83 +1009,19 @@ async fn get_static(
     let path = path.as_str().to_string();
     record_http_request("GET", &["/~static/", &path].concat());
 
-    // Remove the version number with warnings if it is not present
-    // or different to current version
-    let parts = path.split('/').collect_vec();
-    let path = if parts.len() < 2 {
-        tracing::warn!("Expected path to have at least two parts");
-        path
-    } else {
-        let version = parts[0];
-        if version != STATIC_VERSION {
-            tracing::warn!(
-                "Requested static assets for a version `{}` not equal to current version `{}`",
-                version,
-                STATIC_VERSION
-            );
+    match get_static_parts(&path) {
+        Ok((status, header_map, body)) => {
+            let mut response = warp::reply::Response::new(body.into());
+            *response.status_mut() = status;
+            for (name, value) in header_map {
+                if let Some(name) = name {
+                    response.headers_mut().insert(name, value);
+                };
+            }
+            Ok(response)
         }
-        parts[1..].join("/")
-    };
-
-    // This is not necessary for production (since the filesystem is not touched) only
-    // for development. But to keep dev and prod as consistent as possible it is
-    // applied in both contexts.
-    if path.contains("..") {
-        return error_result(
-            StatusCode::UNAUTHORIZED,
-            "Path traversal not permitted for static assets",
-        );
+        Err(error) => Ok(error_response(error.status, &error.message)),
     }
-
-    let asset = if cfg!(debug_assertions) {
-        // The `rust-embed` crate will load from the filesystem during development but
-        // does not allow for symlinks (because, since https://github.com/pyros2097/rust-embed/commit/e1720ce38452c7f94d2ff32d2c120d7d427e2ebe,
-        // it checks for path traversal using the canonicalized path). This is problematic for our development workflow which
-        // includes live reloading of assets developed in the `web` and `components` modules. Therefore, this
-        // re-implements loading of assets from the filesystem.
-        let fs_path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("static")
-            .join(&path);
-        match fs::read(&fs_path) {
-            Ok(data) => data,
-            Err(error) => {
-                return error_result(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    &format!("Error reading file `{}`: {}", fs_path.display(), error),
-                )
-            }
-        }
-    } else {
-        match Static::get(&path) {
-            Some(asset) => asset.data.into(),
-            None => {
-                return error_result(
-                    StatusCode::NOT_FOUND,
-                    &format!("Requested static asset `{}` does not exist", &path),
-                )
-            }
-        }
-    };
-
-    let mut response = warp::reply::Response::new(asset.into());
-
-    let mime = mime_guess::from_path(path).first_or_octet_stream();
-    response.headers_mut().insert(
-        header::CONTENT_TYPE,
-        HeaderValue::from_str(mime.as_ref()).unwrap(),
-    );
-
-    let cache_control = if STATIC_VERSION == "dev" {
-        "no-cache"
-    } else {
-        "max-age=31536000, immutable"
-    };
-    response.headers_mut().insert(
-        header::CACHE_CONTROL,
-        HeaderValue::from_str(cache_control).unwrap(),
-    );
-
-    Ok(response)
 }
 
 #[tracing::instrument]
