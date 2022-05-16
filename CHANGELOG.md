@@ -1,3 +1,13 @@
+## [1.9.2](https://github.com/stencila/stencila/compare/v1.9.1...v1.9.2) (2022-05-16)
+
+
+### Bug Fixes
+
+* **PNG & PDF codecs:** Wait for Web Components to be hydrated before rendering ([d42c4f9](https://github.com/stencila/stencila/commit/d42c4f94781580d4b9656827832fbd013ffaf9f4))
+* **PNG and PDF codecs:** Load themes from local files and do not load component JS ([5c415c4](https://github.com/stencila/stencila/commit/5c415c47219690f6c536d8d27f631fe66a7970b6))
+* **RPNG codec:** Improve styling, resolution and aspect ratio of RPNGs ([ef12e92](https://github.com/stencila/stencila/commit/ef12e9250e6c7aeabdcdd9cf96bf4afb4a5e214b))
+* **RPNG theme:** Improve appearance in absence of components ([ccd8181](https://github.com/stencila/stencila/commit/ccd8181f7650a5833760a0772546fea2fb6685b0))
+
 ## [1.9.1](https://github.com/stencila/stencila/compare/v1.9.0...v1.9.1) (2022-05-15)
 
 
