@@ -1,14 +1,13 @@
 use std::{
     env,
     ffi::OsString,
-    fs::{copy, create_dir_all, read_to_string, remove_dir_all, write, OpenOptions},
-    io::{BufWriter, Write},
+    fs::{create_dir_all, read_to_string, remove_dir_all, write},
     path::{Path, PathBuf},
 };
 
 use binary::{http_utils::download_sync, Binary, BinaryTrait};
 use buildpack::{
-    eyre,
+    eyre::{self, eyre},
     fs_utils::clear_dir_all,
     hash_utils::str_sha256_hex,
     libcnb::{
@@ -248,6 +247,11 @@ impl AptPackagesLayer {
     ) -> Result<LayerResult<AptPackagesLayer>, eyre::Report> {
         let layer_path = &layer_path.canonicalize()?;
 
+        let use_mirrors = !matches!(
+            env::var("STENCILA_APT_MIRRORS").as_deref(),
+            Ok("no") | Ok("off") | Ok("false") | Ok("0")
+        );
+
         tracing::info!("Installing apt packages: {}", self.packages.join(", "));
 
         let apt_cache_dir = layer_path.join("cache");
@@ -262,29 +266,38 @@ impl AptPackagesLayer {
         create_dir_all(&apt_sources_dir)?;
         create_dir_all(&apt_downloads_dir)?;
 
-        // Copy over the system sources list
-        let apt_sources_list = apt_sources_dir.join("sources.list");
-        copy(
-            PathBuf::from("/")
-                .join("etc")
-                .join("apt")
-                .join("sources.list"),
-            &apt_sources_list,
-        )?;
+        // Create a list of base deb repositories
+        let repos = if use_mirrors {
+            // Generate a new sources list using the mirror protocol
+            // In the future we may allow the `STENCILA_APT_MIRRORS` env var to contain a
+            // list of mirrors to use
+            let release = sys_info::linux_os_release()
+                .ok()
+                .and_then(|info| info.version_codename)
+                .ok_or_else(|| eyre!("Unable to get Linux OS release"))?;
+            format!(
+                r#"
+deb mirror://mirrors.ubuntu.com/mirrors.txt {release} main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt {release}-updates main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt {release}-backports main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt {release}-security main restricted universe multiverse
+            "#,
+            )
+        } else {
+            // Use the existing system sources list
+            read_to_string(
+                PathBuf::from("/")
+                    .join("etc")
+                    .join("apt")
+                    .join("sources.list"),
+            )?
+        };
 
         // Add any repositories added in the `Aptfile`
-        if !self.repos.is_empty() {
-            let mut file = BufWriter::new(
-                OpenOptions::new()
-                    .write(true)
-                    .append(true)
-                    .open(&apt_sources_list)
-                    .expect("Should be able to open file"),
-            );
-            for repo in &self.repos {
-                writeln!(file, "{}", repo)?;
-            }
-        }
+        let repos = [&repos, "\n", &self.repos.join("\n")].concat();
+
+        let apt_sources_list = apt_sources_dir.join("sources.list");
+        write(&apt_sources_list, repos)?;
 
         // WARN: This function has logic for updating an existing layer (with the view to making updates
         // related to changes in the list of packages faster). However, that seems to be unreliable and
@@ -367,19 +380,18 @@ impl AptPackagesLayer {
                 } else {
                     tracing::info!("Fetching deb files for package `{}`", package);
 
-                    // Assumes using `apt-get` >= 1.1 which replaced `--force-yes` with
-                    // `--allow-*` options
+                    // Assumes using `apt-get` >= 1.1 which replaced `--force-yes` with `--allow-*` options
                     apt.run_sync(
                         [
                             apt_options.clone(),
                             vec_string![
-                                "-y",
+                                "--assume-yes",
                                 "--allow-downgrades",
                                 "--allow-remove-essential",
                                 "--allow-change-held-packages",
-                                "-d",
-                                "install",
+                                "--download-only",
                                 "--reinstall",
+                                "install",
                                 package
                             ],
                         ]

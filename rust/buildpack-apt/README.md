@@ -26,3 +26,11 @@ https://downloads.example.com/example.deb
 # If necessary, you can add options for the repo e.g.
 :repo: deb [trusted=yes] https://apt.example.com/ bionic main
 ```
+
+## Options
+
+### Turn of use of repository mirrors
+
+By default the Ubuntu `mirror://` protocol is used to speed up downloads of debs by using repositories that are closest to you. See https://launchpad.net/ubuntu/+archivemirrors or http://mirrors.ubuntu.com/ for a full list of mirrors by country, and http://mirrors.ubuntu.com/mirrors.txt for a geo-resolved list of mirrors near you.
+
+To turn mirroring off, and use default system repositories e.g. http://archive.ubuntu.com/, set the `STENCILA_APT_MIRRORS` environment variable to `no` ie. `STENCILA_APT_MIRRORS=no`.
