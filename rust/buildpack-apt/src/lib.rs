@@ -104,7 +104,8 @@ impl Buildpack for AptBuildpack {
     }
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize)]
+#[serde(default)]
 pub struct AptPackagesLayer {
     /// The version of Ubuntu that packages will be installed for e.g `bionic`, `focal`
     version: String,
@@ -118,7 +119,7 @@ pub struct AptPackagesLayer {
     /// Should packages that are no longer in the Aptfile be removed
     clean: bool,
 
-    /// A list of package names, or deb URLs to be installed
+    /// A list of package names, or deb URLs, to be installed
     ///
     /// Usually instead of an `Aptfile` but can be specified in addition to it
     packages: Vec<String>,
@@ -369,9 +370,7 @@ deb mirror://mirrors.ubuntu.com/mirrors.txt {release}-security main restricted u
         for package in &self.packages {
             // Slugify URLs to be more filesystem friendly
             let package_id = if package.starts_with("http") && package.ends_with(".deb") {
-                package
-                    .replace("://", "-")
-                    .replace("/", "-")
+                package.replace("://", "-").replace("/", "-")
             } else {
                 package.to_string()
             };
