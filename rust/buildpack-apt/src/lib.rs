@@ -1,15 +1,15 @@
 use std::{
+    collections::HashSet,
     env,
     ffi::OsString,
-    fs::{create_dir_all, read_to_string, remove_dir_all, write},
+    fs::{create_dir_all, read_dir, read_to_string, remove_file, write},
     path::{Path, PathBuf},
+    process,
 };
 
 use binary::{http_utils::download_sync, Binary, BinaryTrait};
 use buildpack::{
     eyre::{self, eyre},
-    fs_utils::clear_dir_all,
-    hash_utils::str_sha256_hex,
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
@@ -112,6 +112,12 @@ pub struct AptPackagesLayer {
     /// The path to the `Aptfile` (or similar name) that specifies packages to be installed
     file: Option<PathBuf>,
 
+    /// Should Ubuntu deb repository mirrors be used?
+    mirrors: bool,
+
+    /// Should packages that are no longer in the Aptfile be removed
+    clean: bool,
+
     /// A list of package names, or deb URLs to be installed
     ///
     /// Usually instead of an `Aptfile` but can be specified in addition to it
@@ -135,7 +141,9 @@ impl AptPackagesLayer {
 
         let file = options.get("file").map(PathBuf::from);
 
-        // Split `Aptfile` into  packages and repos
+        // Split `Aptfile` into  packages and repos and detect options
+        let mut mirrors = env::var("STENCILA_APT_MIRRORS").ok();
+        let mut clean = env::var("STENCILA_APT_CLEAN").ok();
         let mut repos = Vec::new();
         let mut packages = match (&file, &app_path) {
             (Some(file), Some(path)) => read_to_string(path.join(file))
@@ -148,6 +156,12 @@ impl AptPackagesLayer {
                     } else if let Some(repo) = line.strip_prefix(":repo:") {
                         repos.push(repo.to_string());
                         None
+                    } else if let Some(value) = line.strip_prefix(":mirrors:") {
+                        mirrors = Some(value.trim().to_string());
+                        None
+                    } else if let Some(value) = line.strip_prefix(":clean:") {
+                        clean = Some(value.trim().to_string());
+                        None
                     } else {
                         Some(line.to_string())
                     }
@@ -155,6 +169,18 @@ impl AptPackagesLayer {
                 .collect(),
             _ => Vec::new(),
         };
+
+        // Turn off use of mirrors?
+        let mirrors = !matches!(
+            mirrors.as_deref(),
+            Some("no") | Some("off") | Some("false") | Some("0")
+        );
+
+        // Turn off cleaning?
+        let clean = !matches!(
+            clean.as_deref(),
+            Some("no") | Some("off") | Some("false") | Some("0")
+        );
 
         // Add any other packages
         if let Some(list) = options.get("packages") {
@@ -169,6 +195,8 @@ impl AptPackagesLayer {
         Self {
             version,
             file,
+            mirrors,
+            clean,
             packages,
             repos,
         }
@@ -209,11 +237,11 @@ impl Layer for AptPackagesLayer {
             ExistingLayerStrategy::Recreate
         } else if self.packages != existing.packages {
             tracing::info!(
-                "Existing `apt_packages` layer has different packages (`{}` => `{}`); will recreate",
+                "Existing `apt_packages` layer has different packages (`{}` => `{}`); will update",
                 existing.packages.join(","),
                 self.packages.join(",")
             );
-            ExistingLayerStrategy::Recreate
+            ExistingLayerStrategy::Update
         } else {
             tracing::info!("Existing `apt_packages` layer meets requirements; will keep",);
             ExistingLayerStrategy::Keep
@@ -247,27 +275,17 @@ impl AptPackagesLayer {
     ) -> Result<LayerResult<AptPackagesLayer>, eyre::Report> {
         let layer_path = &layer_path.canonicalize()?;
 
-        let use_mirrors = !matches!(
-            env::var("STENCILA_APT_MIRRORS").as_deref(),
-            Ok("no") | Ok("off") | Ok("false") | Ok("0")
-        );
-
-        tracing::info!("Installing apt packages: {}", self.packages.join(", "));
-
+        // Create the directories that `apt-get` needs
         let apt_cache_dir = layer_path.join("cache");
         let apt_archives_dir = apt_cache_dir.join("archives");
         let apt_state_dir = layer_path.join("state");
         let apt_sources_dir = layer_path.join("sources");
-        let apt_downloads_dir = layer_path.join("downloads");
-
-        // Create the directories that `apt-get` expects
         create_dir_all(apt_archives_dir.join("partial"))?;
         create_dir_all(apt_state_dir.join("lists").join("partial"))?;
         create_dir_all(&apt_sources_dir)?;
-        create_dir_all(&apt_downloads_dir)?;
 
         // Create a list of base deb repositories
-        let repos = if use_mirrors {
+        let repos = if self.mirrors {
             // Generate a new sources list using the mirror protocol
             // In the future we may allow the `STENCILA_APT_MIRRORS` env var to contain a
             // list of mirrors to use
@@ -299,23 +317,7 @@ deb mirror://mirrors.ubuntu.com/mirrors.txt {release}-security main restricted u
         let apt_sources_list = apt_sources_dir.join("sources.list");
         write(&apt_sources_list, repos)?;
 
-        // WARN: This function has logic for updating an existing layer (with the view to making updates
-        // related to changes in the list of packages faster). However, that seems to be unreliable and
-        // so for now at least, the layer is recreated on any detected changes
-
-        // Remove everything in the layer's `state`, `usr` and `etc` dirs so we don't have artifacts
-        // of packages that were previous installed but have been removed from the list
-        tracing::info!("Removing previous installs");
-        clear_dir_all(&apt_state_dir)?;
-        let layer_usr_dir = layer_path.join("usr");
-        if layer_usr_dir.exists() {
-            remove_dir_all(layer_usr_dir)?;
-        }
-        let layer_etc_dir = layer_path.join("etc");
-        if layer_etc_dir.exists() {
-            remove_dir_all(layer_etc_dir)?;
-        }
-
+        // Configure apt-get and update cache
         let apt = Binary::named("apt-get").require_sync()?;
         let apt_options: Vec<String> = vec![
             "debug::nolocking=true",
@@ -331,102 +333,186 @@ deb mirror://mirrors.ubuntu.com/mirrors.txt {release}-security main restricted u
         tracing::info!("Updating apt caches");
         apt.run_sync([apt_options.clone(), vec_string!["update"]].concat())?;
 
+        // Read in the list of packages that are currently installed
+        let installed_packages_dir = layer_path.join("installed").join("packages");
+        create_dir_all(&installed_packages_dir)?;
+        let mut installed_packages = read_dir(&installed_packages_dir)?
+            .flatten()
+            .map(|entry| entry.file_name().to_string_lossy().to_string())
+            .collect::<HashSet<String>>();
+
+        // Ensure the `installed/debs` dir is created (reading of this done later only if needed)
+        let installed_debs_dir = layer_path.join("installed").join("debs");
+        create_dir_all(&installed_debs_dir)?;
+
         let dpkg = Binary::named("dpkg").require_sync()?;
 
-        // Get deb files
+        // Closure to get a list of the debs in archives dir
+        let get_debs = || -> Vec<OsString> {
+            apt_archives_dir
+                .read_dir()
+                .expect("Archives directory should be readable")
+                .flatten()
+                .filter_map(|entry| {
+                    let path = entry.path();
+                    if path.extension() == Some(&OsString::from("deb")) {
+                        path.file_name().map(|name| name.to_os_string())
+                    } else {
+                        None
+                    }
+                })
+                .collect()
+        };
+
+        // Get deb files, including those of dependencies, extract them and record the list
+        // of files associated with each
         for package in &self.packages {
-            // Use hash of URL as package name for remote debs
+            // Slugify URLs to be more filesystem friendly
             let package_id = if package.starts_with("http") && package.ends_with(".deb") {
-                str_sha256_hex(package)
+                package
+                    .replace("://", "-")
+                    .replace("/", "-")
             } else {
                 package.to_string()
             };
 
-            // Use record of downloaded debs for a package or download them
-            let downloads_for_package = apt_downloads_dir.join(&package_id);
-            let downloaded_debs = if downloads_for_package.exists() {
-                tracing::info!("Package `{}` already downloaded", package);
-
-                read_to_string(downloads_for_package)?
-                    .lines()
-                    .map(OsString::from)
-                    .collect()
+            // If the package has already been installed then skip it (but remove so it is not
+            // uninstalled later since it is still wanted)
+            if installed_packages.remove(&package_id) {
+                tracing::info!("Package `{}` is already installed", package);
+                continue;
             } else {
-                // Get a list of the debs in archive
-                let get_debs = || -> Vec<OsString> {
-                    apt_archives_dir
-                        .read_dir()
-                        .expect("Archives directory should be readable")
-                        .flatten()
-                        .filter_map(|entry| {
-                            let path = entry.path();
-                            if path.extension() == Some(&OsString::from("deb")) {
-                                path.file_name().map(|name| name.to_os_string())
-                            } else {
-                                None
-                            }
-                        })
-                        .collect()
-                };
+                tracing::info!("Installing package `{}`", package);
+            }
 
-                // Record debs before
-                let debs_before = get_debs();
+            // Record list of debs in archive before download
+            let debs_before = get_debs();
 
-                if package.starts_with("http") && package.ends_with(".deb") {
-                    tracing::info!("Downloading `{}`", package);
+            // Download debs for this package (including any dependencies if not a URL)
+            if package.starts_with("http") && package.ends_with(".deb") {
+                tracing::info!("Downloading `{}`", package);
 
-                    let path = apt_archives_dir.join(format!("{}.deb", package_id));
-                    download_sync(package, &path)?;
-                } else {
-                    tracing::info!("Fetching deb files for package `{}`", package);
+                let path = apt_archives_dir.join(format!("{}.deb", package_id));
+                download_sync(package, &path)?;
+            } else {
+                tracing::info!("Fetching deb files for package `{}`", package);
 
-                    // Assumes using `apt-get` >= 1.1 which replaced `--force-yes` with `--allow-*` options
-                    apt.run_sync(
-                        [
-                            apt_options.clone(),
-                            vec_string![
-                                "--assume-yes",
-                                "--allow-downgrades",
-                                "--allow-remove-essential",
-                                "--allow-change-held-packages",
-                                "--download-only",
-                                "--reinstall",
-                                "install",
-                                package
-                            ],
-                        ]
-                        .concat(),
-                    )?;
-                }
-
-                let debs_after = get_debs();
-                let debs_downloaded: Vec<OsString> = debs_after
-                    .into_iter()
-                    .filter(|item| !debs_before.contains(item))
-                    .collect();
-
-                // Record the debs that were downloaded for the package
-                write(
-                    apt_downloads_dir.join(package_id),
-                    debs_downloaded
-                        .iter()
-                        .map(|deb| deb.to_string_lossy().to_string())
-                        .collect::<Vec<String>>()
-                        .join("\n"),
+                // Assumes using `apt-get` >= 1.1 which replaced `--force-yes` with `--allow-*` options
+                apt.run_sync(
+                    [
+                        apt_options.clone(),
+                        vec_string![
+                            "--assume-yes",
+                            "--allow-downgrades",
+                            "--allow-remove-essential",
+                            "--allow-change-held-packages",
+                            "--download-only",
+                            "--reinstall",
+                            "install",
+                            package
+                        ],
+                    ]
+                    .concat(),
                 )?;
+            }
 
-                debs_downloaded
-            };
+            // Record the debs that were downloaded for the package
+            // TODO: This is not very reliable since it will be empty if the package has
+            // already been downloaded because it is an dependency of another.
+            let debs_after = get_debs();
+            let debs_downloaded: Vec<OsString> = debs_after
+                .into_iter()
+                .filter(|item| !debs_before.contains(item))
+                .collect();
 
-            // Install the downloaded deb files into layer using `dpkg`
-            tracing::info!("Installing debs for package `{}`", package);
-            for deb in downloaded_debs {
+            // Extract the downloaded deb files into the layer and record
+            tracing::info!("Extracting debs for package `{}`", package);
+            for deb in &debs_downloaded {
                 let deb_path = apt_archives_dir.join(deb);
                 dpkg.run_sync([
-                    "-x",
+                    "--extract",
                     &deb_path.display().to_string(),
                     &layer_path.display().to_string(),
                 ])?;
+
+                // Now that the deb has been extracted write it's manifest file with the list of files extracted
+                // TODO: This does not need to be done here but can instead deferred to if / when the
+                // package needs to be removed.
+                let contents = process::Command::new("dpkg")
+                    .arg("--contents")
+                    .arg(deb_path)
+                    .output()?
+                    .stdout;
+                let files_extracted = String::from_utf8(contents)?
+                    .split('\n')
+                    .filter_map(|line| {
+                        let mut cols = line.split_whitespace();
+                        let size = cols.nth(2).unwrap_or("0");
+                        if size != "0" {
+                            line.rfind("./").map(|pos| line[pos..].to_string())
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<String>>()
+                    .join("\n");
+                write(installed_debs_dir.join(deb), files_extracted)?;
+            }
+
+            // Now that the package has been successfully installed write its manifest file
+            write(
+                installed_packages_dir.join(package_id),
+                debs_downloaded
+                    .iter()
+                    .map(|deb| deb.to_string_lossy().to_string())
+                    .collect::<Vec<String>>()
+                    .join("\n"),
+            )?;
+        }
+
+        // Function to read a manifests file (list of debs, or files within a deb)
+        fn read_manifest(file: &Path) -> Option<Vec<String>> {
+            read_to_string(file).ok().map(|content| {
+                content
+                    .split('\n')
+                    .map(|line| line.to_string())
+                    .collect::<Vec<String>>()
+            })
+        }
+
+        // Remove previously installed but currently unwanted packages (those not yet removed from the list)
+        if self.clean && !installed_packages.is_empty() {
+            for package in installed_packages {
+                tracing::info!("Uninstalling package `{}`", package);
+
+                // Read in the list of debs installed for this package
+                let package_debs = installed_packages_dir.join(&package);
+                let debs = read_manifest(&package_debs).unwrap_or_default();
+
+                if debs.len() > 1 {
+                    tracing::warn!("Dependencies were installed when package `{}` was installed. These will be removed also but may this may affect other packages subsequently installed that share those dependencies", package);
+                }
+
+                for deb in debs {
+                    // Read in the list of files that were installed for the deb and remove them all
+                    let deb_files = installed_debs_dir.join(&deb);
+                    if let Some(files) = read_manifest(&deb_files) {
+                        for file_path in files {
+                            let layer_file_path = layer_path.join(file_path);
+                            remove_file(layer_file_path).ok();
+                        }
+                    }
+
+                    // Remove the deb from the archive
+                    // If we don't do this then if the package get's re-added we do not "see"
+                    // the deb as getting added. Also, it saves space.
+                    remove_file(apt_archives_dir.join(&deb)).ok();
+
+                    // Remove the manifest
+                    remove_file(&deb_files).ok();
+                }
+
+                remove_file(&package_debs).ok();
             }
         }
 
