@@ -13,9 +13,9 @@ pub mod commands {
     use providers::provider::strum::VariantNames;
     use structopt::StructOpt;
 
+    /// Manage and use project sources
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Manage the a project's sources",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands

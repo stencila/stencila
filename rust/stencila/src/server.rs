@@ -1960,9 +1960,9 @@ pub mod commands {
     use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
 
+    /// Manage document server
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Manage the HTTP/WebSocket server",
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]

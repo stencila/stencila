@@ -556,7 +556,7 @@ pub mod commands {
     use std::{path::PathBuf, process};
     use structopt::StructOpt;
 
-    /// Manage buildpacks
+    /// Manage and use container buildpacks
     ///
     /// In Stencila, a "buildpack" is a Cloud Native Buildpack (https://buildpacks.io)
     /// that is responsible for adding support for a programming language or other type of application

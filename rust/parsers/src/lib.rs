@@ -140,9 +140,9 @@ pub mod commands {
     use parser::graph_triples::resources;
     use structopt::StructOpt;
 
+    /// Manage and use language parsers
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Manage and use parsers",
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]

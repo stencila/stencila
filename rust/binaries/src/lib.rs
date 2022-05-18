@@ -190,9 +190,9 @@ pub mod commands {
     use cli_utils::structopt::StructOpt;
     use cli_utils::{async_trait::async_trait, result, Result, Run};
 
+    /// Manage and use helper binaries
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Manage helper binaries",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands

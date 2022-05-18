@@ -352,7 +352,7 @@ pub mod commands {
 
     use super::*;
 
-    /// Manage and use codecs
+    /// Manage and use conversion codecs
     ///
     /// In Stencila, a "codec" is responsible for converting documents
     /// to ("encoding") and from ("decoding") a format (e.g. Markdown).

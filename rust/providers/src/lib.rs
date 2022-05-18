@@ -227,9 +227,9 @@ pub mod commands {
     use cli_utils::{async_trait::async_trait, result, Result, Run};
     use structopt::StructOpt;
 
+    /// Manage and use source providers
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Manage providers",
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::VersionlessSubcommands

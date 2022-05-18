@@ -1636,9 +1636,9 @@ pub mod commands {
     use structopt::StructOpt;
     use tokio::sync::Mutex;
 
+    /// Manage and use execution kernels
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Manage kernels",
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]
