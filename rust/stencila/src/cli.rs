@@ -168,7 +168,7 @@ pub enum Command {
 
     #[cfg(feature = "buildpacks-cli")]
     #[structopt(aliases = &["buildpack"])]
-    Buildpacks(buildpacks::commands::Command),
+    Buildpacks(buildpacks::cli::Command),
 
     #[cfg(feature = "plugins-cli")]
     #[structopt(aliases = &["plugin"])]
