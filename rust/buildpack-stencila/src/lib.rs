@@ -78,7 +78,7 @@ impl Buildpack for StencilaBuildpack {
 
         let launch = Launch::new().process(
             ProcessBuilder::new(process_type!("server"), "stencila")
-                .args(["server", "start"])
+                .args(["server", "start", "--url=0.0.0.0:9000"])
                 .direct(true)
                 .default(true)
                 .build(),
