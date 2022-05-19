@@ -1,3 +1,18 @@
+# [1.10.0](https://github.com/stencila/stencila/compare/v1.9.2...v1.10.0) (2022-05-19)
+
+
+### Bug Fixes
+
+* **Apt buildpack:** Fix bug causing layer to be recreated ([760b90a](https://github.com/stencila/stencila/commit/760b90ae931ddbda6fb1985b46e484d5d340e439))
+* **Apt buildpack:** Update rather than replace layer when list of packages changes ([f95381b](https://github.com/stencila/stencila/commit/f95381b428c90a2fe78cd2c4f64ff4537e3f677b))
+* **CLI:** Improve subcommand titles ([0adc7d8](https://github.com/stencila/stencila/commit/0adc7d8d3f0e0684dc9c9f43969e9ae349a6edde))
+* **Stencila buildpack:** Launch with `--url` suitable for use in container ([7f1a821](https://github.com/stencila/stencila/commit/7f1a8216316198d6b302b1bc0b0d9261641e2b45))
+
+
+### Features
+
+* **Apt buildpack:** Use repository mirrors with option to turn off ([98abff7](https://github.com/stencila/stencila/commit/98abff7f692e40d70445c25ec94ddf1661ef7ad2)), closes [#1434](https://github.com/stencila/stencila/issues/1434)
+
 ## [1.9.2](https://github.com/stencila/stencila/compare/v1.9.1...v1.9.2) (2022-05-16)
 
 

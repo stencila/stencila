@@ -2,7 +2,7 @@
   "name": "stencila-desktop",
   "productName": "Stencila",
   "private": true,
-  "version": "1.9.2",
+  "version": "1.10.0",
   "description": "Stencila desktop interface",
   "main": "./.webpack/main",
   "scripts": {
