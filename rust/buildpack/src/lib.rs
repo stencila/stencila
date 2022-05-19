@@ -20,6 +20,8 @@ use libcnb::{
     libcnb_runtime_build, libcnb_runtime_detect, BuildArgs, DetectArgs, Env, Platform,
 };
 pub use maplit;
+pub use serde;
+pub use serde_json;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 pub use tokio;
