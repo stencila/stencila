@@ -4,6 +4,12 @@ use std::{fs, io, path::Path};
 use eyre::{bail, eyre, Result};
 use path_utils::lexiclean::Lexiclean;
 
+#[cfg(feature = "tar")]
+pub use ::tar;
+
+#[cfg(feature = "zip")]
+pub use ::zip;
+
 /// Extract an archive to a destination
 #[allow(unused_variables)]
 pub fn extract(archive: &Path, dest: &Path, strip: usize, subdir: Option<&str>) -> Result<()> {
