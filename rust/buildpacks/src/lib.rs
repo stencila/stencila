@@ -1,5 +1,7 @@
+mod images;
+
 mod buildpacks;
-pub use buildpacks::{Buildpacks, PACKS};
+pub use crate::buildpacks::{Buildpacks, PACKS};
 
 #[cfg(feature = "cli")]
 pub mod cli;

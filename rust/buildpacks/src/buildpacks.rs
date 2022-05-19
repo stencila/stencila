@@ -52,31 +52,29 @@ macro_rules! dispatch_builtins {
 impl Buildpacks {
     /// Create a new buildpack registry
     pub fn new() -> Self {
+        let specs: Vec<Option<BuildpackToml>> = vec![
+            // The `SourcesBuildpack` should be first because it will import files
+            // during `detect` which other buildpacks will run their `detect` against
+            #[cfg(feature = "buildpack-sources")]
+            buildpack_sources::SourcesBuildpack::spec().ok(),
+            // The `Dockerfile` buildpack should come second because it excludes the
+            // other buildpacks from running
+            #[cfg(feature = "buildpack-dockerfile")]
+            buildpack_dockerfile::DockerfileBuildpack::spec().ok(),
+            #[cfg(feature = "buildpack-apt")]
+            buildpack_apt::AptBuildpack::spec().ok(),
+            #[cfg(feature = "buildpack-node")]
+            buildpack_node::NodeBuildpack::spec().ok(),
+            #[cfg(feature = "buildpack-python")]
+            buildpack_python::PythonBuildpack::spec().ok(),
+            #[cfg(feature = "buildpack-r")]
+            buildpack_r::RBuildpack::spec().ok(),
+            // Stencila CLI buildpack
+            #[cfg(feature = "buildpack-stencila")]
+            buildpack_stencila::StencilaBuildpack::spec().ok(),
+        ];
         Self {
-            inner: [
-                // The `SourcesBuildpack` should be first because it will import files
-                // during `detect` which other buildpacks will run their `detect` against
-                #[cfg(feature = "buildpack-sources")]
-                buildpack_sources::SourcesBuildpack::spec().ok(),
-                // The `Dockerfile` buildpack should come second because it excludes the
-                // other buildpacks from running
-                #[cfg(feature = "buildpack-dockerfile")]
-                buildpack_dockerfile::DockerfileBuildpack::spec().ok(),
-                #[cfg(feature = "buildpack-apt")]
-                buildpack_apt::AptBuildpack::spec().ok(),
-                #[cfg(feature = "buildpack-node")]
-                buildpack_node::NodeBuildpack::spec().ok(),
-                #[cfg(feature = "buildpack-python")]
-                buildpack_python::PythonBuildpack::spec().ok(),
-                #[cfg(feature = "buildpack-r")]
-                buildpack_r::RBuildpack::spec().ok(),
-                // Stencila CLI buildpack
-                #[cfg(feature = "buildpack-stencila")]
-                buildpack_stencila::StencilaBuildpack::spec().ok(),
-            ]
-            .into_iter()
-            .flatten()
-            .collect(),
+            inner: specs.into_iter().flatten().collect(),
         }
     }
 
