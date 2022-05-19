@@ -13,7 +13,7 @@ use derive_more::{Deref, DerefMut};
 use jwalk::WalkDirGeneric;
 use seahash::SeaHasher;
 
-use archive_utils::tar;
+use archive_utils::{flate2, tar};
 use buildpack::{
     eyre::{eyre, Result},
     serde::{Deserialize, Serialize},
@@ -38,9 +38,10 @@ impl SnapshotChanges {
     /// This implements the [Representing Changes](https://github.com/opencontainers/image-spec/blob/main/layer.md#representing-changes)
     /// section of the OCI image spec. `Added` and `Modified` paths are added to the tar archive.
     /// `Removed` paths are represented as "whiteout" files.
-    fn write(self, src: &Path, dest: &Path) -> Result<()> {
+    fn write_archive(self, src: &Path, dest: &Path) -> Result<()> {
         let file = File::create(dest).unwrap();
-        let mut archive = tar::Builder::new(file);
+        let encoder = flate2::write::GzEncoder::new(file, flate2::Compression::best());
+        let mut archive = tar::Builder::new(encoder);
         for change in self.iter() {
             match change {
                 SnapshotChange::Added(path) | SnapshotChange::Modified(path) => {
@@ -66,6 +67,13 @@ impl SnapshotChanges {
             };
         }
         Ok(())
+    }
+
+    fn read_archive(path: &Path) -> Result<tar::Archive<flate2::read::GzDecoder<File>>> {
+        let file = fs::File::open(&path)?;
+        let decoder = flate2::read::GzDecoder::new(file);
+        let archive = tar::Archive::new(decoder);
+        Ok(archive)
     }
 }
 
@@ -315,8 +323,8 @@ mod tests {
         assert_eq!(changes.len(), 1);
         assert_eq!(changes[0], SnapshotChange::Added(a_txt.clone()));
 
-        changes.write(dir.path(), &tar)?;
-        let mut layer = tar::Archive::new(File::open(&tar)?);
+        changes.write_archive(dir.path(), &tar)?;
+        let mut layer = SnapshotChanges::read_archive(&tar)?;
         let mut entries = layer.entries()?;
         let entry = entries.next().unwrap()?;
         assert_eq!(entry.path()?, a_txt);
@@ -355,8 +363,8 @@ mod tests {
         assert_eq!(changes.len(), 1);
         assert_eq!(changes[0], SnapshotChange::Removed(a_txt));
 
-        changes.write(dir.path(), &tar)?;
-        let mut layer = tar::Archive::new(File::open(&tar)?);
+        changes.write_archive(dir.path(), &tar)?;
+        let mut layer = SnapshotChanges::read_archive(&tar)?;
         let mut entries = layer.entries()?;
         let entry = entries.next().unwrap()?;
         assert_eq!(entry.path()?, PathBuf::from(".wh.a.txt"));
@@ -375,9 +383,9 @@ mod tests {
         assert_eq!(changes.len(), 1);
         assert_eq!(changes[0], SnapshotChange::Modified(b_txt.clone()));
 
-        changes.write(dir.path(), &tar)?;
-        let mut layer = tar::Archive::new(File::open(&tar)?);
-        let mut entries = layer.entries()?;
+        changes.write_archive(dir.path(), &tar)?;
+        let mut archive = SnapshotChanges::read_archive(&tar)?;
+        let mut entries = archive.entries()?;
         let entry = entries.next().unwrap()?;
         assert_eq!(entry.path()?, b_txt);
         assert_eq!(entry.size(), 5);
