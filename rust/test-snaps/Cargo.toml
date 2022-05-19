@@ -5,7 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-insta = { version = "1.8.0", features = ["glob"] }
+insta = { version = "1.8.0", features = ["glob", "redactions"] }
 serde_json = "1.0.75"
 stencila-schema = { path = "../schema" }
 test-utils = { path = "../test-utils", version = "0.0.0" }
