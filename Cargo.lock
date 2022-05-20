@@ -701,7 +701,6 @@ dependencies = [
  "buildpack-sources",
  "buildpack-stencila",
  "cli-utils",
- "derive_more",
  "jwalk",
  "oci-spec",
  "once_cell",

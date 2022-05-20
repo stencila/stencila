@@ -9,13 +9,14 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use derive_more::{Deref, DerefMut};
 use jwalk::WalkDirGeneric;
+use oci_spec::image::{Descriptor, DescriptorBuilder, MediaType};
 use seahash::SeaHasher;
 
 use archive_utils::{flate2, tar};
 use buildpack::{
     eyre::{eyre, Result},
+    hash_utils::sha2::{Digest, Sha256},
     serde::{Deserialize, Serialize},
     serde_json, tracing,
 };
@@ -24,51 +25,115 @@ use buildpack::{
 ///
 /// This `struct` represents a set of changes between two snapshots and thus represents
 /// an OCI [Layer](https://github.com/opencontainers/image-spec/blob/main/layer.md)
-#[derive(Deref, DerefMut)]
-struct SnapshotChanges(Vec<SnapshotChange>);
+struct SnapshotChanges {
+    /// The directory that these changes are for
+    dir: PathBuf,
+
+    /// The change items
+    items: Vec<SnapshotChange>,
+}
 
 impl SnapshotChanges {
     /// Create a new set of snapshot changes
-    fn new() -> Self {
-        Self(Vec::new())
+    fn new<P: AsRef<Path>>(dir: P, changes: Vec<SnapshotChange>) -> Self {
+        Self {
+            dir: dir.as_ref().to_path_buf(),
+            items: changes,
+        }
     }
 
-    /// Create a tar archive from the snapshot changes
+    /// Get the number of changes in this set
+    fn len(&self) -> usize {
+        self.items.len()
+    }
+
+    /// Creates OCI layer for the set of changes
+    ///
+    /// This function creates an archive for the changes at `dest` path and
+    /// returns an OCI content descriptor for it.
+    fn layer<P: AsRef<Path>>(self, dest: P) -> Result<Descriptor> {
+        let (size, digest) = self.write_archive(&dest)?;
+
+        let descriptor = DescriptorBuilder::default()
+            .media_type(MediaType::ImageLayerGzip)
+            .size(size)
+            .digest(digest)
+            .build()?;
+
+        Ok(descriptor)
+    }
+
+    /// Create a compressed tar archive for the layer and return its size and SHA256 digest
     ///
     /// This implements the [Representing Changes](https://github.com/opencontainers/image-spec/blob/main/layer.md#representing-changes)
-    /// section of the OCI image spec. `Added` and `Modified` paths are added to the tar archive.
-    /// `Removed` paths are represented as "whiteout" files.
-    fn write_archive(self, src: &Path, dest: &Path) -> Result<()> {
-        let file = File::create(dest).unwrap();
-        let encoder = flate2::write::GzEncoder::new(file, flate2::Compression::best());
-        let mut archive = tar::Builder::new(encoder);
-        for change in self.iter() {
-            match change {
-                SnapshotChange::Added(path) | SnapshotChange::Modified(path) => {
-                    archive.append_path_with_name(src.join(path), path)?;
-                }
-                SnapshotChange::Removed(path) => {
-                    let basename = path
-                        .file_name()
-                        .ok_or_else(|| eyre!("Path has no file name"))?;
-                    let mut whiteout = OsString::from(".wh.".to_string());
-                    whiteout.push(basename);
-                    let path = match path.parent() {
-                        Some(parent) => parent.join(whiteout),
-                        None => PathBuf::from(whiteout),
-                    };
-                    let mut header = tar::Header::new_gnu();
-                    header.set_path(path)?;
-                    header.set_size(0);
-                    header.set_cksum();
-                    let data: &[u8] = &[];
-                    archive.append(&header, data)?;
-                }
-            };
+    /// section of the OCI image spec:
+    ///
+    /// - `Added` and `Modified` paths are added to the archive.
+    /// - `Removed` paths are represented as "whiteout" files.
+    fn write_archive<P: AsRef<Path>>(self, dest: P) -> Result<(u32, String)> {
+        // A writer that calculates the size and SHA256 hash of the `tar.gz` file as it is written
+        struct SizedAndHashedFile {
+            file: File,
+            size: usize,
+            sha256: Sha256,
         }
-        Ok(())
+        impl io::Write for SizedAndHashedFile {
+            fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+                self.file.write_all(buf)?;
+                self.size += buf.len();
+                self.sha256.update(buf);
+                Ok(buf.len())
+            }
+
+            fn flush(&mut self) -> io::Result<()> {
+                Ok(())
+            }
+        }
+        let mut file = SizedAndHashedFile {
+            file: File::create(dest)?,
+            size: 0,
+            sha256: Sha256::new(),
+        };
+
+        {
+            // Block required to drop encoder and its borrow of `file`
+            let encoder = flate2::write::GzEncoder::new(&mut file, flate2::Compression::best());
+
+            let mut archive = tar::Builder::new(encoder);
+            for change in self.items {
+                match change {
+                    SnapshotChange::Added(path) | SnapshotChange::Modified(path) => {
+                        archive.append_path_with_name(self.dir.join(&path), path)?;
+                    }
+                    SnapshotChange::Removed(path) => {
+                        let basename = path
+                            .file_name()
+                            .ok_or_else(|| eyre!("Path has no file name"))?;
+                        let mut whiteout = OsString::from(".wh.".to_string());
+                        whiteout.push(basename);
+                        let path = match path.parent() {
+                            Some(parent) => parent.join(whiteout),
+                            None => PathBuf::from(whiteout),
+                        };
+                        let mut header = tar::Header::new_gnu();
+                        header.set_path(path)?;
+                        header.set_size(0);
+                        header.set_cksum();
+                        let data: &[u8] = &[];
+                        archive.append(&header, data)?;
+                    }
+                };
+            }
+        }
+
+        let size = file.size;
+        let digest = format!("sha256:{:x}", file.sha256.finalize());
+        Ok((size.try_into()?, digest))
     }
 
+    /// Read a compressed tar archive
+    ///
+    /// At this stage, mainly just used for testing.
     fn read_archive(path: &Path) -> Result<tar::Archive<flate2::read::GzDecoder<File>>> {
         let file = fs::File::open(&path)?;
         let decoder = flate2::read::GzDecoder::new(file);
@@ -167,7 +232,7 @@ impl Snapshot {
 
     /// Create a set of changes by calculating the difference between two snapshots
     fn diff(&self, other: &Snapshot) -> SnapshotChanges {
-        let mut changes = SnapshotChanges::new();
+        let mut changes = Vec::new();
         for (path, entry) in self.entries.iter() {
             match other.entries.get(path) {
                 Some(other_entry) => {
@@ -183,13 +248,23 @@ impl Snapshot {
                 changes.push(SnapshotChange::Added(path.into()))
             }
         }
-        changes
+        SnapshotChanges::new(&self.dir, changes)
     }
 
     /// Create a set of changes by repeating the current snapshot
+    ///
+    /// Convenience function for combining calls to `repeat` and `diff.
     fn changes(&self) -> SnapshotChanges {
         self.diff(&self.repeat())
     }
+
+    /// Create a layer by repeating the current snapshot
+    /// 
+    /// Convenience function for combining calls to `changes` and `layer` on those changes.
+    fn layer<P: AsRef<Path>>(self, dest: P) -> Result<Descriptor> { 
+        self.changes().layer(dest)
+    }
+    
 }
 
 /// An entry for a file or directory in a snapshot
@@ -256,7 +331,6 @@ fn file_hash<H>(path: &Path) -> io::Result<u64>
 where
     H: Hasher + Default,
 {
-    #[repr(transparent)]
     struct HashWriter<H>(H);
     impl<H: Hasher> io::Write for HashWriter<H> {
         fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
@@ -287,6 +361,7 @@ fn file_timestamp(time: Result<SystemTime, io::Error>) -> Option<u64> {
 
 #[cfg(test)]
 mod tests {
+    use buildpack::hash_utils::file_sha256_hex;
     use test_utils::{print_logs, tempfile::tempdir};
 
     use super::*;
@@ -321,9 +396,9 @@ mod tests {
 
         let changes = snap1.diff(&snap2);
         assert_eq!(changes.len(), 1);
-        assert_eq!(changes[0], SnapshotChange::Added(a_txt.clone()));
+        assert_eq!(changes.items[0], SnapshotChange::Added(a_txt.clone()));
 
-        changes.write_archive(dir.path(), &tar)?;
+        changes.write_archive(&tar)?;
         let mut layer = SnapshotChanges::read_archive(&tar)?;
         let mut entries = layer.entries()?;
         let entry = entries.next().unwrap()?;
@@ -345,7 +420,7 @@ mod tests {
 
         let changes = snap2.diff(&snap3);
         assert_eq!(changes.len(), 1);
-        assert_eq!(changes[0], SnapshotChange::Added(b_txt.clone()));
+        assert_eq!(changes.items[0], SnapshotChange::Added(b_txt.clone()));
 
         // Remove a.txt and check that the change set has a `Removed` and tar has
         // a whiteout entry of size 0
@@ -361,9 +436,9 @@ mod tests {
 
         let changes = snap3.diff(&snap4);
         assert_eq!(changes.len(), 1);
-        assert_eq!(changes[0], SnapshotChange::Removed(a_txt));
+        assert_eq!(changes.items[0], SnapshotChange::Removed(a_txt));
 
-        changes.write_archive(dir.path(), &tar)?;
+        changes.write_archive(&tar)?;
         let mut layer = SnapshotChanges::read_archive(&tar)?;
         let mut entries = layer.entries()?;
         let entry = entries.next().unwrap()?;
@@ -381,14 +456,40 @@ mod tests {
 
         let changes = snap4.diff(&snap5);
         assert_eq!(changes.len(), 1);
-        assert_eq!(changes[0], SnapshotChange::Modified(b_txt.clone()));
+        assert_eq!(changes.items[0], SnapshotChange::Modified(b_txt.clone()));
 
-        changes.write_archive(dir.path(), &tar)?;
+        changes.write_archive(&tar)?;
         let mut archive = SnapshotChanges::read_archive(&tar)?;
         let mut entries = archive.entries()?;
         let entry = entries.next().unwrap()?;
         assert_eq!(entry.path()?, b_txt);
         assert_eq!(entry.size(), 5);
+
+        Ok(())
+    }
+
+    #[test]
+    fn changes_layer() -> Result<()> {
+        let dir = tempdir()?;
+
+        let snap = Snapshot::new(&dir);
+
+        fs::write(&dir.path().join("some-file.txt"), "Hello")?;
+
+        // Create a layer archive and descriptor
+
+        let changes = snap.changes();
+        let archive_dir = tempdir()?;
+        let archive = archive_dir.path().join("archive.tar.gz");
+        let descriptor = changes.layer(&archive)?;
+
+        // Test that size and digest in the descriptor is as for the file
+
+        let size = fs::metadata(&archive)?.len() as i64;
+        assert_eq!(descriptor.size(), size);
+
+        let digest = format!("sha256:{}", file_sha256_hex(&archive)?);
+        assert_eq!(descriptor.digest(), &digest);
 
         Ok(())
     }

@@ -12,7 +12,6 @@ cli = ["cli-utils", "structopt", "tokio"]
 archive-utils = { path = "../archive-utils", version = "0.0.0" }
 binary-pack = { path = "../binary-pack", version = "0.0.0" }
 buildpack = { path = "../buildpack", version = "0.0.0" }
-derive_more = "0.99.17"
 jwalk = "0.6.0"
 oci-spec = "0.5.6"
 once_cell = "1.9.0"
