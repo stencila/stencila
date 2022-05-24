@@ -700,6 +700,7 @@ dependencies = [
  "buildpack-r",
  "buildpack-sources",
  "buildpack-stencila",
+ "chrono",
  "cli-utils",
  "jwalk",
  "oci-spec",

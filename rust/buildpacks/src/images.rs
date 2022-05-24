@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    env,
     ffi::OsString,
     fs::{self, File, FileType, Metadata},
     hash::Hasher,
@@ -9,8 +10,12 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+use chrono::Utc;
 use jwalk::WalkDirGeneric;
-use oci_spec::image::{Descriptor, DescriptorBuilder, MediaType};
+use oci_spec::image::{
+    Descriptor, DescriptorBuilder, ImageConfiguration, ImageConfigurationBuilder,
+    ImageIndexBuilder, ImageManifest, ImageManifestBuilder, MediaType, SCHEMA_VERSION,
+};
 use seahash::SeaHasher;
 
 use archive_utils::{flate2, tar};
@@ -18,24 +23,94 @@ use buildpack::{
     eyre::{eyre, Result},
     hash_utils::sha2::{Digest, Sha256},
     serde::{Deserialize, Serialize},
-    serde_json, tracing,
+    serde_json::{self, json},
+    tracing,
 };
+
+struct Image {}
+
+impl Image {
+    /// Create a new image
+    fn new() -> Self {
+        Self {}
+    }
+
+    /// Write an image config blob
+    ///
+    /// # Arguments
+    ///
+    /// - `image_dir`: the image directory
+    fn write_config<P: AsRef<Path>>(&self, image_dir: P) -> Result<Descriptor> {
+        let config = ImageConfigurationBuilder::default()
+            .created(Utc::now().to_rfc3339())
+            .os(env::consts::OS)
+            .architecture(env::consts::ARCH)
+            .build()?;
+
+        BlobWriter::write_json(image_dir, MediaType::ImageConfig, &config)
+    }
+
+    /// Write an image manifest blob
+    ///
+    /// # Arguments
+    ///
+    /// - `image_dir`: the image directory
+    fn write_manifest<P: AsRef<Path>>(&self, image_dir: P) -> Result<Descriptor> {
+        let config = self.write_config(&image_dir)?;
+
+        let layers = []; // TODO
+
+        let manifest = ImageManifestBuilder::default()
+            .schema_version(SCHEMA_VERSION)
+            .config(config)
+            .layers(layers)
+            .build()?;
+
+        BlobWriter::write_json(image_dir, MediaType::ImageManifest, &manifest)
+    }
+
+    /// Create a directory with an OCI image layout
+    ///
+    /// Implements the [OCI Image Layout](https://github.com/opencontainers/image-spec/blob/main/image-layout.md)
+    /// specification.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_dir`: the image directory
+    fn write<P: AsRef<Path>>(&self, image_dir: P) -> Result<()> {
+        let image_dir = image_dir.as_ref();
+
+        let oci_layout = image_dir.join("oci-layout");
+        fs::write(oci_layout, r#"{"imageLayoutVersion": "1.0.0"}"#)?;
+
+        let manifest = self.write_manifest(image_dir)?;
+
+        let index_json = image_dir.join("index.json");
+        let index = ImageIndexBuilder::default()
+            .schema_version(SCHEMA_VERSION)
+            .manifests([manifest])
+            .build()?;
+        fs::write(index_json, serde_json::to_string(&index)?)?;
+
+        Ok(())
+    }
+}
 
 /// The set of changes between two snapshots
 ///
-/// This `struct` represents a set of changes between two snapshots and thus represents
-/// an OCI [Layer](https://github.com/opencontainers/image-spec/blob/main/layer.md)
-struct SnapshotChanges {
+/// Represents the set of changes between two filesystem snapshots as described in
+/// [OCI Image Layer Filesystem Changeset](https://github.com/opencontainers/image-spec/blob/main/layer.md)
+struct ChangeSet {
     /// The directory that these changes are for
     dir: PathBuf,
 
     /// The change items
-    items: Vec<SnapshotChange>,
+    items: Vec<Change>,
 }
 
-impl SnapshotChanges {
+impl ChangeSet {
     /// Create a new set of snapshot changes
-    fn new<P: AsRef<Path>>(dir: P, changes: Vec<SnapshotChange>) -> Self {
+    fn new<P: AsRef<Path>>(dir: P, changes: Vec<Change>) -> Self {
         Self {
             dir: dir.as_ref().to_path_buf(),
             items: changes,
@@ -47,65 +122,30 @@ impl SnapshotChanges {
         self.items.len()
     }
 
-    /// Creates OCI layer for the set of changes
-    ///
-    /// This function creates an archive for the changes at `dest` path and
-    /// returns an OCI content descriptor for it.
-    fn layer<P: AsRef<Path>>(self, dest: P) -> Result<Descriptor> {
-        let (size, digest) = self.write_archive(&dest)?;
-
-        let descriptor = DescriptorBuilder::default()
-            .media_type(MediaType::ImageLayerGzip)
-            .size(size)
-            .digest(digest)
-            .build()?;
-
-        Ok(descriptor)
-    }
-
-    /// Create a compressed tar archive for the layer and return its size and SHA256 digest
+    /// Creates an OCI layer for the set of changes
     ///
     /// This implements the [Representing Changes](https://github.com/opencontainers/image-spec/blob/main/layer.md#representing-changes)
     /// section of the OCI image spec:
     ///
     /// - `Added` and `Modified` paths are added to the archive.
     /// - `Removed` paths are represented as "whiteout" files.
-    fn write_archive<P: AsRef<Path>>(self, dest: P) -> Result<(u32, String)> {
-        // A writer that calculates the size and SHA256 hash of the `tar.gz` file as it is written
-        struct SizedAndHashedFile {
-            file: File,
-            size: usize,
-            sha256: Sha256,
-        }
-        impl io::Write for SizedAndHashedFile {
-            fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-                self.file.write_all(buf)?;
-                self.size += buf.len();
-                self.sha256.update(buf);
-                Ok(buf.len())
-            }
-
-            fn flush(&mut self) -> io::Result<()> {
-                Ok(())
-            }
-        }
-        let mut file = SizedAndHashedFile {
-            file: File::create(dest)?,
-            size: 0,
-            sha256: Sha256::new(),
-        };
-
+    ///
+    /// # Arguments
+    ///
+    /// - `dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
+    fn write_layer<P: AsRef<Path>>(self, image_dir: P) -> Result<Descriptor> {
+        let mut writer = BlobWriter::new(&image_dir, MediaType::ImageLayerGzip)?;
         {
-            // Block required to drop encoder and its borrow of `file`
-            let encoder = flate2::write::GzEncoder::new(&mut file, flate2::Compression::best());
+            // Block required to drop encoder and its borrow of `writer` before returning
+            let encoder = flate2::write::GzEncoder::new(&mut writer, flate2::Compression::best());
 
             let mut archive = tar::Builder::new(encoder);
             for change in self.items {
                 match change {
-                    SnapshotChange::Added(path) | SnapshotChange::Modified(path) => {
+                    Change::Added(path) | Change::Modified(path) => {
                         archive.append_path_with_name(self.dir.join(&path), path)?;
                     }
-                    SnapshotChange::Removed(path) => {
+                    Change::Removed(path) => {
                         let basename = path
                             .file_name()
                             .ok_or_else(|| eyre!("Path has no file name"))?;
@@ -125,16 +165,36 @@ impl SnapshotChanges {
                 };
             }
         }
-
-        let size = file.size;
-        let digest = format!("sha256:{:x}", file.sha256.finalize());
-        Ok((size.try_into()?, digest))
+        writer.finish()
     }
 
-    /// Read a compressed tar archive
+    /// Get the path of a layer blob within an image directory
+    ///
+    /// # Arguments
+    ///
+    /// - `image_dir`: the image directory
+    /// - `digest`: the digest of the layer (with or without the "sha256:" prefix)
+    fn layer_path<P: AsRef<Path>>(image_dir: P, digest: &str) -> PathBuf {
+        image_dir
+            .as_ref()
+            .join("blobs")
+            .join("sha256")
+            .join(digest.strip_prefix("sha256:").unwrap_or(&digest))
+    }
+
+    /// Read a layer blob (a compressed tar archive) from an image directory
     ///
     /// At this stage, mainly just used for testing.
-    fn read_archive(path: &Path) -> Result<tar::Archive<flate2::read::GzDecoder<File>>> {
+    ///
+    /// # Arguments
+    ///
+    /// - `image_dir`: the image directory
+    /// - `digest`: the digest of the layer (with or without the "sha256:" prefix)
+    fn read_layer<P: AsRef<Path>>(
+        image_dir: P,
+        digest: &str,
+    ) -> Result<tar::Archive<flate2::read::GzDecoder<File>>> {
+        let path = Self::layer_path(image_dir, digest);
         let file = fs::File::open(&path)?;
         let decoder = flate2::read::GzDecoder::new(file);
         let archive = tar::Archive::new(decoder);
@@ -147,7 +207,7 @@ impl SnapshotChanges {
 /// This enum represents the [Change Types](https://github.com/opencontainers/image-spec/blob/main/layer.md#change-types)
 /// described in the OCI spec.
 #[derive(Debug, PartialEq)]
-enum SnapshotChange {
+enum Change {
     Added(PathBuf),
     Modified(PathBuf),
     Removed(PathBuf),
@@ -231,40 +291,39 @@ impl Snapshot {
     }
 
     /// Create a set of changes by calculating the difference between two snapshots
-    fn diff(&self, other: &Snapshot) -> SnapshotChanges {
+    fn diff(&self, other: &Snapshot) -> ChangeSet {
         let mut changes = Vec::new();
         for (path, entry) in self.entries.iter() {
             match other.entries.get(path) {
                 Some(other_entry) => {
                     if entry != other_entry {
-                        changes.push(SnapshotChange::Modified(path.into()))
+                        changes.push(Change::Modified(path.into()))
                     }
                 }
-                None => changes.push(SnapshotChange::Removed(path.into())),
+                None => changes.push(Change::Removed(path.into())),
             }
         }
         for path in other.entries.keys() {
             if !self.entries.contains_key(path) {
-                changes.push(SnapshotChange::Added(path.into()))
+                changes.push(Change::Added(path.into()))
             }
         }
-        SnapshotChanges::new(&self.dir, changes)
+        ChangeSet::new(&self.dir, changes)
     }
 
     /// Create a set of changes by repeating the current snapshot
     ///
     /// Convenience function for combining calls to `repeat` and `diff.
-    fn changes(&self) -> SnapshotChanges {
+    fn changes(&self) -> ChangeSet {
         self.diff(&self.repeat())
     }
 
     /// Create a layer by repeating the current snapshot
-    /// 
+    ///
     /// Convenience function for combining calls to `changes` and `layer` on those changes.
-    fn layer<P: AsRef<Path>>(self, dest: P) -> Result<Descriptor> { 
-        self.changes().layer(dest)
+    fn write_layer<P: AsRef<Path>>(self, dest: P) -> Result<Descriptor> {
+        self.changes().write_layer(dest)
     }
-    
 }
 
 /// An entry for a file or directory in a snapshot
@@ -359,26 +418,132 @@ fn file_timestamp(time: Result<SystemTime, io::Error>) -> Option<u64> {
     .ok()
 }
 
+/// A writer that calculates the size and SHA256 hash of files as they are written
+///
+/// Writes blobs into the `blobs/sha256` subdirectory of an image directory and returns
+/// an [OCI Content Descriptor](https://github.com/opencontainers/image-spec/blob/main/descriptor.md)
+///
+/// Allows use to do a single pass when writing files instead of reading them after writing in order
+/// to generate the SHA256 signature.
+struct BlobWriter {
+    /// The path to the `blobs/sha256` subdirectory where the blob is written to
+    blobs_dir: PathBuf,
+
+    /// The media type of the blob
+    media_type: MediaType,
+
+    /// The temporary filename of the blob (used before we know its final name - which is its SHA256 checksum)
+    filename: PathBuf,
+
+    /// The file the blob is written tp
+    file: File,
+
+    /// The number of bytes in the blob content
+    bytes: usize,
+
+    /// The SHA256 hash of the blob content
+    hash: Sha256,
+}
+
+impl BlobWriter {
+    /// Create a new blob writer
+    ///
+    /// # Arguments
+    ///
+    /// - `image_dir`: the image directory (blobs are written to the `blobs/sha256` subdirectory of this)
+    /// - `media_type`: the media type of the blob
+    fn new<P: AsRef<Path>>(image_dir: P, media_type: MediaType) -> Result<Self> {
+        let blobs_dir = image_dir.as_ref().join("blobs").join("sha256");
+        fs::create_dir_all(&blobs_dir)?;
+
+        // Create a unique temporary filename without use of external crates
+        // Based on https://users.rust-lang.org/t/random-number-without-using-the-external-crate/17260/9
+        let ptr = Box::into_raw(Box::new(0)) as usize;
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .subsec_nanos();
+        let filename = PathBuf::from(format!(".{}{}", ptr, nanos));
+
+        let file = File::create(blobs_dir.join(&filename))?;
+
+        Ok(Self {
+            blobs_dir,
+            media_type,
+            filename,
+            file,
+            bytes: 0,
+            hash: Sha256::new(),
+        })
+    }
+
+    /// Finish writing the blob
+    ///
+    /// Finalizes the SHA256 hash, renames the file to the hex digest of that hash,
+    /// and returns a descriptor of the blob.
+    fn finish(self) -> Result<Descriptor> {
+        let sha256 = format!("{:x}", self.hash.finalize());
+
+        fs::rename(
+            self.blobs_dir.join(self.filename),
+            self.blobs_dir.join(&sha256),
+        )?;
+
+        let descriptor = DescriptorBuilder::default()
+            .media_type(self.media_type)
+            .size(self.bytes as i64)
+            .digest(format!("sha256:{}", sha256))
+            .build()?;
+
+        Ok(descriptor)
+    }
+
+    /// Write an object as a JSON based media type
+    fn write_json<P: AsRef<Path>, S: Serialize>(
+        path: P,
+        media_type: MediaType,
+        object: &S,
+    ) -> Result<Descriptor> {
+        let mut writer = Self::new(path, media_type)?;
+        serde_json::to_writer_pretty(&mut writer, object)?;
+        writer.finish()
+    }
+}
+
+impl io::Write for BlobWriter {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        self.file.write_all(buf)?;
+        self.bytes += buf.len();
+        self.hash.update(buf);
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use buildpack::hash_utils::file_sha256_hex;
-    use test_utils::{print_logs, tempfile::tempdir};
+    use buildpack::{eyre::bail, hash_utils::file_sha256_hex};
+    use test_snaps::{insta::assert_json_snapshot, snapshot_settings};
+    use test_utils::{print_logs, print_logs_level, tempfile::tempdir};
 
     use super::*;
 
+    /// Test snap-shotting, calculation of changesets, and the generation of layers from them.
     #[test]
     fn snapshot_changes() -> Result<()> {
-        print_logs();
+        print_logs_level(tracing::Level::TRACE);
 
         // Create a temporary directory as a text fixture and a tar file for writing / reading layers
 
-        let dir = tempdir()?;
-        let tars = tempdir()?;
-        let tar = tars.path().join("layer.tar");
+        let working_dir = tempdir()?;
+        let image_dir = tempdir()?;
 
-        // Create an initial snapshot which should be empty and has not changes with self
+        // Create an initial snapshot which should be empty and has no changes with self
 
-        let snap1 = Snapshot::new(dir.path());
+        let snap1 = Snapshot::new(working_dir.path());
         assert_eq!(snap1.entries.len(), 0);
 
         let changes = snap1.diff(&snap1);
@@ -388,7 +553,7 @@ mod tests {
         // with `Added` and tar has entry for it
 
         let a_txt = PathBuf::from("a.txt");
-        fs::write(dir.path().join(&a_txt), "Hello from a.txt")?;
+        fs::write(working_dir.path().join(&a_txt), "Hello from a.txt")?;
 
         let snap2 = snap1.repeat();
         assert_eq!(snap2.entries.len(), 1);
@@ -396,19 +561,22 @@ mod tests {
 
         let changes = snap1.diff(&snap2);
         assert_eq!(changes.len(), 1);
-        assert_eq!(changes.items[0], SnapshotChange::Added(a_txt.clone()));
+        assert_eq!(changes.items[0], Change::Added(a_txt.clone()));
 
-        changes.write_archive(&tar)?;
-        let mut layer = SnapshotChanges::read_archive(&tar)?;
+        let descriptor = changes.write_layer(&image_dir)?;
+
+        let mut layer = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
-        let entry = entries.next().unwrap()?;
+        let entry = entries
+            .next()
+            .ok_or_else(|| eyre!("No entries in tar archive"))??;
         assert_eq!(entry.path()?, a_txt);
         assert_eq!(entry.size(), 16);
 
         // Repeat
 
         let b_txt = PathBuf::from("b.txt");
-        fs::write(dir.path().join(&b_txt), "Hello from b.txt")?;
+        fs::write(working_dir.path().join(&b_txt), "Hello from b.txt")?;
 
         let snap3 = snap1.repeat();
         assert_eq!(snap3.entries.len(), 2);
@@ -420,12 +588,12 @@ mod tests {
 
         let changes = snap2.diff(&snap3);
         assert_eq!(changes.len(), 1);
-        assert_eq!(changes.items[0], SnapshotChange::Added(b_txt.clone()));
+        assert_eq!(changes.items[0], Change::Added(b_txt.clone()));
 
         // Remove a.txt and check that the change set has a `Removed` and tar has
         // a whiteout entry of size 0
 
-        fs::remove_file(dir.path().join(&a_txt))?;
+        fs::remove_file(working_dir.path().join(&a_txt))?;
 
         let snap4 = snap1.repeat();
         assert_eq!(snap4.entries.len(), 1);
@@ -436,10 +604,10 @@ mod tests {
 
         let changes = snap3.diff(&snap4);
         assert_eq!(changes.len(), 1);
-        assert_eq!(changes.items[0], SnapshotChange::Removed(a_txt));
+        assert_eq!(changes.items[0], Change::Removed(a_txt));
 
-        changes.write_archive(&tar)?;
-        let mut layer = SnapshotChanges::read_archive(&tar)?;
+        let descriptor = changes.write_layer(&image_dir)?;
+        let mut layer = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
         let entry = entries.next().unwrap()?;
         assert_eq!(entry.path()?, PathBuf::from(".wh.a.txt"));
@@ -448,7 +616,7 @@ mod tests {
         // Modify b.txt and check that the change set has a `Modified` and tar has
         // entry with new content
 
-        fs::write(dir.path().join(&b_txt), "Hello")?;
+        fs::write(working_dir.path().join(&b_txt), "Hello")?;
 
         let snap5 = snap1.repeat();
         assert_eq!(snap5.entries.len(), 1);
@@ -456,10 +624,10 @@ mod tests {
 
         let changes = snap4.diff(&snap5);
         assert_eq!(changes.len(), 1);
-        assert_eq!(changes.items[0], SnapshotChange::Modified(b_txt.clone()));
+        assert_eq!(changes.items[0], Change::Modified(b_txt.clone()));
 
-        changes.write_archive(&tar)?;
-        let mut archive = SnapshotChanges::read_archive(&tar)?;
+        let descriptor = changes.write_layer(&image_dir)?;
+        let mut archive = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = archive.entries()?;
         let entry = entries.next().unwrap()?;
         assert_eq!(entry.path()?, b_txt);
@@ -468,28 +636,43 @@ mod tests {
         Ok(())
     }
 
+    /// Test that the descriptor for a layer is accurate (SHA256 and size are same as
+    /// when independently calculated)
     #[test]
     fn changes_layer() -> Result<()> {
-        let dir = tempdir()?;
+        let working_dir = tempdir()?;
+        let image_dir = tempdir()?;
 
-        let snap = Snapshot::new(&dir);
+        let snap = Snapshot::new(&working_dir);
 
-        fs::write(&dir.path().join("some-file.txt"), "Hello")?;
+        fs::write(&working_dir.path().join("some-file.txt"), "Hello")?;
 
         // Create a layer archive and descriptor
 
         let changes = snap.changes();
-        let archive_dir = tempdir()?;
-        let archive = archive_dir.path().join("archive.tar.gz");
-        let descriptor = changes.layer(&archive)?;
+        let descriptor = changes.write_layer(&image_dir)?;
 
         // Test that size and digest in the descriptor is as for the file
+        let archive = image_dir
+            .path()
+            .join("blobs")
+            .join("sha256")
+            .join(descriptor.digest().strip_prefix("sha256:").unwrap());
 
         let size = fs::metadata(&archive)?.len() as i64;
         assert_eq!(descriptor.size(), size);
 
         let digest = format!("sha256:{}", file_sha256_hex(&archive)?);
         assert_eq!(descriptor.digest(), &digest);
+
+        Ok(())
+    }
+
+    #[test]
+    fn image_write() -> Result<()> {
+        let image_dir = tempdir()?;
+        let image = Image::new();
+        image.write(image_dir)?;
 
         Ok(())
     }
