@@ -146,6 +146,7 @@ impl ChangeSet {
                         archive.append_path_with_name(self.dir.join(&path), path)?;
                     }
                     Change::Removed(path) => {
+                        let path = PathBuf::from(path);
                         let basename = path
                             .file_name()
                             .ok_or_else(|| eyre!("Path has no file name"))?;
@@ -208,9 +209,9 @@ impl ChangeSet {
 /// described in the OCI spec.
 #[derive(Debug, PartialEq)]
 enum Change {
-    Added(PathBuf),
-    Modified(PathBuf),
-    Removed(PathBuf),
+    Added(String),
+    Modified(String),
+    Removed(String),
 }
 
 /// A snapshot of the files and directories in a directory
@@ -222,14 +223,14 @@ enum Change {
 /// Currently this uses `serde_json` for serializing to/from disk. An alternative
 /// serialization such as `rkyv` would be a lot more efficient but, at the time of writing,
 /// does not support `HashMap` with `PathBuf` as the key.
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "buildpack::serde")]
 struct Snapshot {
     /// The directory to snapshot
     dir: PathBuf,
 
     /// Entries in the snapshot
-    entries: HashMap<PathBuf, SnapshotEntry>,
+    entries: HashMap<String, SnapshotEntry>,
 }
 
 impl Snapshot {
@@ -252,14 +253,16 @@ impl Snapshot {
             .into_iter()
             .filter_map(|entry_result| match entry_result {
                 Ok(entry) => {
-                    let relative_path = entry
-                        .path()
+                    let path = entry.path();
+                    let relative_path = path
                         .strip_prefix(&dir)
-                        .expect("Should always be able to strip the root dir")
-                        .to_path_buf();
+                        .expect("Should always be able to strip the root dir");
                     match relative_path == PathBuf::from("") {
                         true => None, // This is the entry for the dir itself so ignore it
-                        false => Some((relative_path, entry.client_state)),
+                        false => Some((
+                            relative_path.to_string_lossy().to_string(), // Should be lossless on Linux (and MacOS)
+                            entry.client_state,
+                        )),
                     }
                 }
                 Err(error) => {
@@ -277,14 +280,14 @@ impl Snapshot {
     }
 
     /// Write a snapshot to a file
-    fn write(&self, path: &Path) -> Result<()> {
+    fn write<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         let json = serde_json::to_string_pretty(self)?;
         fs::write(path, json)?;
         Ok(())
     }
 
     /// Read a snapshot from a file
-    fn read(path: &Path) -> Result<Self> {
+    fn read<P: AsRef<Path>>(path: P) -> Result<Self> {
         let json = fs::read_to_string(&path)?;
         let snapshot = serde_json::from_str(&json)?;
         Ok(snapshot)
@@ -527,16 +530,33 @@ impl io::Write for BlobWriter {
 
 #[cfg(test)]
 mod tests {
-    use buildpack::{eyre::bail, hash_utils::file_sha256_hex};
-    use test_snaps::{insta::assert_json_snapshot, snapshot_settings};
-    use test_utils::{print_logs, print_logs_level, tempfile::tempdir};
+    use buildpack::hash_utils::file_sha256_hex;
+    use test_snaps::fixtures;
+    use test_utils::{print_logs, tempfile::tempdir};
 
     use super::*;
+
+    /// Test that snapshots are correctly written to and read back from disk
+    #[test]
+    fn snapshot_serialization() -> Result<()> {
+        let working_dir = fixtures().join("projects").join("apt");
+
+        let temp = tempdir()?;
+        let snapshot_path = temp.path().join("test.snap");
+        let snapshot1 = Snapshot::new(working_dir);
+
+        snapshot1.write(&snapshot_path)?;
+
+        let snapshot2 = Snapshot::read(&snapshot_path)?;
+        assert_eq!(snapshot1, snapshot2);
+
+        Ok(())
+    }
 
     /// Test snap-shotting, calculation of changesets, and the generation of layers from them.
     #[test]
     fn snapshot_changes() -> Result<()> {
-        print_logs_level(tracing::Level::TRACE);
+        print_logs();
 
         // Create a temporary directory as a text fixture and a tar file for writing / reading layers
 
@@ -554,7 +574,7 @@ mod tests {
         // Add a file, create a new snapshot and check it has one entry and produces a change set
         // with `Added` and tar has entry for it
 
-        let a_txt = PathBuf::from("a.txt");
+        let a_txt = "a.txt".to_string();
         fs::write(working_dir.path().join(&a_txt), "Hello from a.txt")?;
 
         let snap2 = snap1.repeat();
@@ -572,12 +592,12 @@ mod tests {
         let entry = entries
             .next()
             .ok_or_else(|| eyre!("No entries in tar archive"))??;
-        assert_eq!(entry.path()?, a_txt);
+        assert_eq!(entry.path()?, PathBuf::from(&a_txt));
         assert_eq!(entry.size(), 16);
 
         // Repeat
 
-        let b_txt = PathBuf::from("b.txt");
+        let b_txt = "b.txt".to_string();
         fs::write(working_dir.path().join(&b_txt), "Hello from b.txt")?;
 
         let snap3 = snap1.repeat();
@@ -632,7 +652,7 @@ mod tests {
         let mut archive = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = archive.entries()?;
         let entry = entries.next().unwrap()?;
-        assert_eq!(entry.path()?, b_txt);
+        assert_eq!(entry.path()?, PathBuf::from(b_txt));
         assert_eq!(entry.size(), 5);
 
         Ok(())
