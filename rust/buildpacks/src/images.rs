@@ -357,15 +357,15 @@ impl SnapshotEntry {
     /// Create a new snapshot entry
     fn new(path: &Path, file_type: &FileType, metadata: Option<Metadata>) -> Self {
         let metadata = metadata.map(|metadata| SnapshotEntryMetadata {
-            created: file_timestamp(metadata.created()),
-            modified: file_timestamp(metadata.modified()),
+            created: Self::file_timestamp(metadata.created()),
+            modified: Self::file_timestamp(metadata.modified()),
             uid: metadata.uid(),
             gid: metadata.gid(),
             readonly: metadata.permissions().readonly(),
         });
 
         let fingerprint = if file_type.is_file() {
-            match file_hash::<SeaHasher>(path) {
+            match Self::file_fingerprint::<SeaHasher>(path) {
                 Ok(fingerprint) => Some(fingerprint),
                 Err(error) => {
                     tracing::error!("While fingerprinting file `{}`: {}", path.display(), error);
@@ -381,41 +381,43 @@ impl SnapshotEntry {
             fingerprint,
         }
     }
-}
 
-/// Generate a hash of a file's content
-///
-/// Based on https://github.com/jRimbault/yadf/blob/04205a57882ffa7d6a9ca05016e18214a38079b6/src/fs/hash.rs#L29
-fn file_hash<H>(path: &Path) -> io::Result<u64>
-where
-    H: Hasher + Default,
-{
-    struct HashWriter<H>(H);
-    impl<H: Hasher> io::Write for HashWriter<H> {
-        fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-            self.0.write(buf);
-            Ok(buf.len())
+    /// Generate a hash of a file's content
+    ///
+    /// Used to generate a fingerprint
+    ///
+    /// Based on https://github.com/jRimbault/yadf/blob/04205a57882ffa7d6a9ca05016e18214a38079b6/src/fs/hash.rs#L29
+    fn file_fingerprint<H>(path: &Path) -> io::Result<u64>
+    where
+        H: Hasher + Default,
+    {
+        struct HashWriter<H>(H);
+        impl<H: Hasher> io::Write for HashWriter<H> {
+            fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+                self.0.write(buf);
+                Ok(buf.len())
+            }
+
+            fn flush(&mut self) -> io::Result<()> {
+                Ok(())
+            }
         }
 
-        fn flush(&mut self) -> io::Result<()> {
-            Ok(())
-        }
+        let mut hasher = HashWriter(H::default());
+        io::copy(&mut File::open(path)?, &mut hasher)?;
+        Ok(hasher.0.finish())
     }
 
-    let mut hasher = HashWriter(H::default());
-    io::copy(&mut File::open(path)?, &mut hasher)?;
-    Ok(hasher.0.finish())
-}
-
-/// Get a timestamp from a file's created or modified system time
-fn file_timestamp(time: Result<SystemTime, io::Error>) -> Option<u64> {
-    time.map(|system_time| {
-        system_time
-            .duration_since(UNIX_EPOCH)
-            .expect("Time should not go backwards")
-            .as_secs()
-    })
-    .ok()
+    /// Get a timestamp from a file's created or modified system time
+    fn file_timestamp(time: Result<SystemTime, io::Error>) -> Option<u64> {
+        time.map(|system_time| {
+            system_time
+                .duration_since(UNIX_EPOCH)
+                .expect("Time should not go backwards")
+                .as_secs()
+        })
+        .ok()
+    }
 }
 
 /// A writer that calculates the size and SHA256 hash of files as they are written
@@ -668,11 +670,18 @@ mod tests {
         Ok(())
     }
 
+    /// Test that when an image is written to a directory that they directory conforms to
+    /// the OCI Image Layout spec
     #[test]
     fn image_write() -> Result<()> {
         let image_dir = tempdir()?;
         let image = Image::new();
-        image.write(image_dir)?;
+        image.write(&image_dir)?;
+
+        let path = image_dir.path();
+        assert!(path.join("oci-layout").is_file());
+        assert!(path.join("index.json").is_file());
+        assert!(path.join("blobs").join("sha256").is_dir());
 
         Ok(())
     }
