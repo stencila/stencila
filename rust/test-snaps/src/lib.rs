@@ -5,6 +5,13 @@ use std::path::Path;
 pub use insta;
 pub use test_utils::fixtures;
 
+/// Use our default settings for snapshots.
+pub fn snapshot_settings<F: FnMut()>(func: F) {
+    let mut settings = insta::Settings::clone_current();
+    settings.set_prepend_module_to_snapshot(false);
+    settings.bind(func);
+}
+
 /// Generate snapshots from the paths of fixtures matching a glob pattern.
 ///
 /// # Arguments
