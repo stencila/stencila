@@ -716,6 +716,7 @@ dependencies = [
  "chrono",
  "cli-utils",
  "eyre",
+ "futures",
  "hash-utils",
  "http-utils",
  "jwalk",

@@ -7,7 +7,7 @@ use http_utils::{reqwest_middleware::RequestBuilder, CLIENT};
 use oci_spec::image::{Descriptor, ImageManifest};
 use tokio::{
     fs::File,
-    io::{self, AsyncReadExt},
+    io::{self, AsyncReadExt, AsyncWriteExt},
 };
 
 /// A client that implements the [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec/blob/main/spec.md)
@@ -42,7 +42,7 @@ impl RegistryClient {
     ///
     /// - `reference`: a reference for the image (usually a tag)
     /// - `image_dir`: the image directory following the [OCI Image Layout](https://github.com/opencontainers/image-spec/blob/main/image-layout.md) spec
-    pub async fn push_image<P: AsRef<Path>>(&self, reference: &str, image_dir: &P) -> Result<()> {
+    pub async fn push_image<P: AsRef<Path>>(&self, reference: &str, image_dir: P) -> Result<()> {
         let image_dir = image_dir.as_ref();
 
         let manifest_path = image_dir.join("index.json");
@@ -72,7 +72,13 @@ impl RegistryClient {
 
         let manifest = self.pull_manifest(reference, image_dir).await?;
 
-        self.pull_blob(manifest.config(), image_dir).await?;
+        let mut futures = vec![self.pull_blob(manifest.config(), image_dir)];
+        for layer in manifest.layers() {
+            let future = self.pull_blob(layer, image_dir);
+            futures.push(future);
+        }
+
+        futures::future::try_join_all(futures).await?;
 
         Ok(())
     }
@@ -85,8 +91,17 @@ impl RegistryClient {
         reference: S,
         image_dir: P,
     ) -> Result<ImageManifest> {
+        let reference = reference.as_ref();
+
+        tracing::info!(
+            "Pulling manifest from repository `{}/{}:{}`",
+            self.url,
+            self.name,
+            reference
+        );
+
         let response = self
-            .get(&[&self.name, "/manifests/", reference.as_ref()].concat())
+            .get(&["/manifests/", reference].concat())
             .header(
                 "Accept",
                 "application/vnd.docker.distribution.manifest.v2+json",
@@ -100,7 +115,7 @@ impl RegistryClient {
         fs::create_dir_all(&image_dir)?;
         let manifest_path = image_dir.as_ref().join("index.json");
         let mut manifest_file = fs::File::create(manifest_path)?;
-        manifest.to_writer(&mut manifest_file)?;
+        manifest.to_writer_pretty(&mut manifest_file)?;
 
         Ok(manifest)
     }
@@ -113,9 +128,18 @@ impl RegistryClient {
         reference: S,
         mainfest_path: P,
     ) -> Result<()> {
+        let reference = reference.as_ref();
+
+        tracing::info!(
+            "Pushing manifest to repository `{}/{}:{}`",
+            self.url,
+            self.name,
+            reference
+        );
+
         let manifest = fs::read_to_string(mainfest_path)?;
 
-        self.post(&[&self.name, "/manifests/", reference.as_ref()].concat())
+        self.put(&["/manifests/", reference].concat())
             .header(
                 "Content-Type",
                 "application/vnd.docker.distribution.manifest.v2+json",
@@ -137,18 +161,53 @@ impl RegistryClient {
         image_dir: P,
     ) -> Result<()> {
         let digest = descriptor.digest();
+        let size = descriptor.size();
 
-        let _response = self
-            .get(&[&self.name, "/blobs/", digest].concat())
+        tracing::info!(
+            "Pulling blob `{}` from repository `{}/{}`",
+            digest,
+            self.url,
+            self.name
+        );
+
+        let mut response = self
+            .get(&["/blobs/", digest].concat())
             .header("Accept", "application/octet-stream")
             .send()
             .await?
             .error_for_status()?;
 
+        if let Some(length) = response
+            .headers()
+            .get("Content-Length")
+            .and_then(|length| length.to_str().ok())
+            .and_then(|length| length.parse::<i64>().ok())
+        {
+            if length != size {
+                bail!(
+                    "Content-Length header is different from size in descriptor ({} != {})",
+                    length,
+                    size
+                )
+            }
+        }
+
         let blobs_dir = image_dir.as_ref().join("blobs").join("sha256");
         fs::create_dir_all(&blobs_dir)?;
 
-        todo!();
+        let filename = match digest.strip_prefix("sha256:") {
+            Some(sha256) => sha256,
+            None => bail!(
+                "Expected digest to be prefixed by 'sha256:' but got: {}",
+                digest
+            ),
+        };
+        let blob_path = blobs_dir.join(filename);
+        let mut file = File::create(blob_path).await?;
+
+        while let Some(chunk) = response.chunk().await? {
+            file.write(chunk.as_ref()).await?;
+        }
 
         Ok(())
     }
@@ -168,7 +227,7 @@ impl RegistryClient {
         let response = self.get(["/blobs/", &digest].concat()).send().await?;
         if response.status() == 200 {
             tracing::info!(
-                "Blob `{}` already exists on repository `{}/{}`, will not upload",
+                "Blob `{}` already exists in repository `{}/{}`, will not push",
                 digest,
                 self.url,
                 self.name
@@ -193,7 +252,7 @@ impl RegistryClient {
         };
 
         tracing::info!(
-            "Uploading blob `{}` to registry `{}/{}",
+            "Pushing blob `{}` to repository `{}/{}`",
             digest,
             self.url,
             self.name
@@ -309,4 +368,40 @@ impl RegistryClient {
             .put([&self.url, "/v2/", &self.name, path.as_ref()].concat())
             .bearer_auth(self.token.clone())
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use test_utils::{print_logs_level, tempfile::tempdir, skip_ci};
+
+    use super::*;
+
+    /// Pull and push back the Docker `hello-world` image from the local registry
+    /// 
+    /// To set up this test, run a registry container:
+    /// 
+    ///    docker run -p5000:5000 registry
+    /// 
+    /// Then push `library/hello-world` to that registry:
+    /// 
+    ///    docker pull library/hello-world
+    ///    docker tag hello-world localhost:5000/library/hello-world:latest
+    ///    docker push localhost:5000/library/hello-world:latest
+    #[ignore]
+    #[tokio::test]
+    async fn hello_world() -> Result<()> {
+        skip_ci("Requires an image registry to be running locally");
+
+        print_logs_level(tracing::Level::INFO);
+
+        let image_dir = tempdir()?;
+
+        let client = RegistryClient::new("http://localhost:5000", "library/hello-world", "");
+        client.pull_image("latest", &image_dir).await?;
+        client.push_image("latest", &image_dir).await?;
+
+        Ok(())
+    }
+
+
 }
