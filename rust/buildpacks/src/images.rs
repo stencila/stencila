@@ -139,16 +139,46 @@ impl ChangeSet {
     /// - `Added` and `Modified` paths are added to the archive.
     /// - `Removed` paths are represented as "whiteout" files.
     ///
+    ///
+    /// Note that two SHA256 hashes are calculated, one for the `DiffID` of a changeset (calculated in this function
+    /// and used in the image config file) and one for the digest which (calculated by the [`BlobWriter`] and used in the image manifest).
+    /// A useful diagram showing how these are calculated and used is available
+    /// [here](https://github.com/google/go-containerregistry/blob/main/pkg/v1/remote/README.md#anatomy-of-an-image-upload).
+    ///
     /// # Arguments
     ///
-    /// - `dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
-    fn write_layer<P: AsRef<Path>>(self, image_dir: P) -> Result<Descriptor> {
-        let mut writer = BlobWriter::new(&image_dir, MediaType::ImageLayerGzip)?;
-        {
-            // Block required to drop encoder and its borrow of `writer` before returning
-            let encoder = flate2::write::GzEncoder::new(&mut writer, flate2::Compression::best());
+    /// - `image_dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
+    fn write_layer<P: AsRef<Path>>(self, image_dir: P) -> Result<(String, Descriptor)> {
+        let mut diffid_hash = Sha256::new();
+        let mut blob_writer = BlobWriter::new(&image_dir, MediaType::ImageLayerGzip)?;
 
-            let mut archive = tar::Builder::new(encoder);
+        {
+            struct LayerWriter<'lt> {
+                diffid_hash: &'lt mut Sha256,
+                gzip_encoder: flate2::write::GzEncoder<&'lt mut BlobWriter>,
+            }
+
+            impl<'lt> io::Write for LayerWriter<'lt> {
+                fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+                    self.diffid_hash.update(buf);
+                    self.gzip_encoder.write_all(buf)?;
+                    Ok(buf.len())
+                }
+
+                fn flush(&mut self) -> io::Result<()> {
+                    Ok(())
+                }
+            }
+
+            let mut layer_writer = LayerWriter {
+                diffid_hash: &mut diffid_hash,
+                gzip_encoder: flate2::write::GzEncoder::new(
+                    &mut blob_writer,
+                    flate2::Compression::best(),
+                ),
+            };
+
+            let mut archive = tar::Builder::new(&mut layer_writer);
             for change in self.items {
                 match change {
                     Change::Added(path) | Change::Modified(path) => {
@@ -175,7 +205,10 @@ impl ChangeSet {
                 };
             }
         }
-        writer.finish()
+
+        let diffid = format!("{:x}", diffid_hash.finalize());
+        let descriptor = blob_writer.finish()?;
+        Ok((diffid, descriptor))
     }
 
     /// Get the path of a layer blob within an image directory
@@ -363,8 +396,8 @@ impl Snapshot {
 
     /// Create a layer by repeating the current snapshot
     ///
-    /// Convenience function for combining calls to `changes` and `layer` on those changes.
-    fn write_layer<P: AsRef<Path>>(self, dest: P) -> Result<Descriptor> {
+    /// Convenience function for combining calls to `changes` and `write_layer` on those changes.
+    fn write_layer<P: AsRef<Path>>(self, dest: P) -> Result<(String, Descriptor)> {
         self.changes().write_layer(dest)
     }
 }
@@ -629,7 +662,7 @@ mod tests {
         assert_eq!(changes.len(), 1);
         assert_eq!(changes.items[0], Change::Added(a_txt.clone()));
 
-        let descriptor = changes.write_layer(&image_dir)?;
+        let (.., descriptor) = changes.write_layer(&image_dir)?;
 
         let mut layer = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
@@ -672,7 +705,7 @@ mod tests {
         assert_eq!(changes.len(), 1);
         assert_eq!(changes.items[0], Change::Removed(a_txt));
 
-        let descriptor = changes.write_layer(&image_dir)?;
+        let (.., descriptor) = changes.write_layer(&image_dir)?;
         let mut layer = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
         let entry = entries.next().unwrap()?;
@@ -692,7 +725,7 @@ mod tests {
         assert_eq!(changes.len(), 1);
         assert_eq!(changes.items[0], Change::Modified(b_txt.clone()));
 
-        let descriptor = changes.write_layer(&image_dir)?;
+        let (.., descriptor) = changes.write_layer(&image_dir)?;
         let mut archive = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = archive.entries()?;
         let entry = entries.next().unwrap()?;
@@ -713,10 +746,12 @@ mod tests {
 
         fs::write(&working_dir.path().join("some-file.txt"), "Hello")?;
 
-        // Create a layer archive and descriptor
+        // Create a layer archive, diffid and descriptor
 
         let changes = snap.changes();
-        let descriptor = changes.write_layer(&image_dir)?;
+        let (diffid, descriptor) = changes.write_layer(&image_dir)?;
+
+        assert_eq!(diffid.len(), 64);
 
         // Test that size and digest in the descriptor is as for the file
         let archive = image_dir
