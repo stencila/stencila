@@ -13,19 +13,28 @@ use std::{
 use chrono::Utc;
 use jwalk::WalkDirGeneric;
 use oci_spec::image::{
-    Descriptor, DescriptorBuilder, ImageConfiguration, ImageConfigurationBuilder,
-    ImageIndexBuilder, ImageManifest, ImageManifestBuilder, MediaType, SCHEMA_VERSION,
+    Descriptor, DescriptorBuilder, ImageConfigurationBuilder, ImageIndexBuilder,
+    ImageManifestBuilder, MediaType, SCHEMA_VERSION,
 };
 use seahash::SeaHasher;
 
 use archive_utils::{flate2, tar};
 use buildpack::{
-    eyre::{eyre, Result},
+    eyre::{bail, eyre, Result},
     hash_utils::sha2::{Digest, Sha256},
-    serde::{Deserialize, Serialize},
-    serde_json::{self, json},
-    tracing,
+    serde, serde_json, tracing,
 };
+
+// Serialization framework defaults to `rkyv` with fallback to `serde` JSON
+
+#[cfg(feature = "rkyv")]
+use rkyv::{Archive, Deserialize, Serialize};
+
+#[cfg(feature = "rkyv-safe")]
+use bytecheck::CheckBytes;
+
+#[cfg(not(feature = "rkyv"))]
+use buildpack::serde::{Deserialize, Serialize};
 
 struct Image {}
 
@@ -180,7 +189,7 @@ impl ChangeSet {
             .as_ref()
             .join("blobs")
             .join("sha256")
-            .join(digest.strip_prefix("sha256:").unwrap_or(&digest))
+            .join(digest.strip_prefix("sha256:").unwrap_or(digest))
     }
 
     /// Read a layer blob (a compressed tar archive) from an image directory
@@ -219,15 +228,13 @@ enum Change {
 /// A snapshot is created at the start of a session and stored to disk. Another snapshot
 /// is taken at the end of session. The changes between the snapshots are used to create
 /// an image layer.
-///
-/// Currently this uses `serde_json` for serializing to/from disk. An alternative
-/// serialization such as `rkyv` would be a lot more efficient but, at the time of writing,
-/// does not support `HashMap` with `PathBuf` as the key.
-#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
-#[serde(crate = "buildpack::serde")]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "rkyv", derive(Archive))]
+#[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
+#[cfg_attr(not(feature = "rkyv"), serde(crate = "buildpack::serde"))]
 struct Snapshot {
     /// The directory to snapshot
-    dir: PathBuf,
+    dir: String,
 
     /// Entries in the snapshot
     entries: HashMap<String, SnapshotEntry>,
@@ -271,6 +278,7 @@ impl Snapshot {
                 }
             })
             .collect();
+        let dir = dir.to_string_lossy().to_string();
         Self { dir, entries }
     }
 
@@ -281,16 +289,48 @@ impl Snapshot {
 
     /// Write a snapshot to a file
     fn write<P: AsRef<Path>>(&self, path: P) -> Result<()> {
-        let json = serde_json::to_string_pretty(self)?;
-        fs::write(path, json)?;
+        #[cfg(feature = "rkyv")]
+        {
+            let bytes = rkyv::to_bytes::<Self, 256>(self)?;
+            fs::write(path, bytes)?;
+        }
+
+        #[cfg(not(feature = "rkyv"))]
+        {
+            let json = serde_json::to_string_pretty(self)?;
+            fs::write(path, json)?;
+        }
+
         Ok(())
     }
 
     /// Read a snapshot from a file
     fn read<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let json = fs::read_to_string(&path)?;
-        let snapshot = serde_json::from_str(&json)?;
-        Ok(snapshot)
+        #[cfg(feature = "rkyv")]
+        {
+            let bytes = fs::read(path)?;
+
+            #[cfg(feature = "rkyv-safe")]
+            let archived = match rkyv::check_archived_root::<Self>(&bytes[..]) {
+                Ok(archived) => archived,
+                Err(error) => {
+                    bail!("While checking archive: {}", error)
+                }
+            };
+
+            #[cfg(not(feature = "rkyv-safe"))]
+            let archived = unsafe { rkyv::archived_root::<Self>(&bytes[..]) };
+
+            let snapshot = archived.deserialize(&mut rkyv::Infallible)?;
+            Ok(snapshot)
+        }
+
+        #[cfg(not(feature = "rkyv"))]
+        {
+            let json = fs::read_to_string(&path)?;
+            let snapshot = serde_json::from_str(&json)?;
+            Ok(snapshot)
+        }
     }
 
     /// Create a set of changes by calculating the difference between two snapshots
@@ -331,7 +371,9 @@ impl Snapshot {
 
 /// An entry for a file or directory in a snapshot
 #[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
-#[serde(crate = "buildpack::serde")]
+#[cfg_attr(feature = "rkyv", derive(Archive))]
+#[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
+#[cfg_attr(not(feature = "rkyv"), serde(crate = "buildpack::serde"))]
 struct SnapshotEntry {
     /// Metadata on the file or directory
     ///
@@ -346,8 +388,10 @@ struct SnapshotEntry {
 }
 
 /// Filesystem metadata for a snapshot entry
-#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
-#[serde(crate = "buildpack::serde")]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "rkyv", derive(Archive))]
+#[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
+#[cfg_attr(not(feature = "rkyv"), serde(crate = "buildpack::serde"))]
 struct SnapshotEntryMetadata {
     created: Option<u64>,
     modified: Option<u64>,
@@ -504,7 +548,7 @@ impl BlobWriter {
     }
 
     /// Write an object as a JSON based media type
-    fn write_json<P: AsRef<Path>, S: Serialize>(
+    fn write_json<P: AsRef<Path>, S: serde::Serialize>(
         path: P,
         media_type: MediaType,
         object: &S,

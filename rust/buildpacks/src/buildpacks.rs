@@ -119,7 +119,7 @@ impl Buildpacks {
         let label_lower = label.to_ascii_lowercase();
         for buildpack_toml in &self.inner {
             let id = buildpack_toml.buildpack.id.to_string();
-            if id == label_lower || id.split('/').last() == Some(&label_lower) {
+            if id == label_lower || id.split('/').last() == Some(label_lower.as_str()) {
                 return Ok(&buildpack_toml.buildpack.id);
             }
         }

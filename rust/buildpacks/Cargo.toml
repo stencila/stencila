@@ -5,7 +5,8 @@ version = "0.0.0"
 edition = "2021"
 
 [features]
-default = ["cli"]
+default = ["cli", "rkyv-safe"]
+rkyv-safe = ["rkyv", "bytecheck"]
 cli = ["cli-utils", "structopt", "tokio"]
 
 [dependencies]
@@ -22,6 +23,9 @@ seahash = "4.1.0"
 cli-utils = { path = "../cli-utils", version = "0.0.0", optional = true, features = ["pretty"] }
 structopt = { version = "0.3.25", optional = true }
 tokio = { version = "1.13.0", features = ["rt-multi-thread", "macros"], optional = true}
+
+rkyv = { version = "0.7.38", features = ["validation"], optional = true }
+bytecheck = { version = "0.6.8", optional = true }
 
 buildpack-apt = { path = "../buildpack-apt", version = "0.0.0", optional = true }
 buildpack-dockerfile = { path = "../buildpack-dockerfile", version = "0.0.0", optional = true }

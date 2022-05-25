@@ -3,5 +3,7 @@
 //!
 //! cargo run --all-features -- --help
 
+#[cfg(feature = "cli")]
 use buildpacks::cli::Command;
+#[cfg(feature = "cli")]
 cli_utils::mini_main!(Command);
