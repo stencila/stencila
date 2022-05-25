@@ -1,3 +1,13 @@
+use std::{
+    env::{current_dir, set_current_dir},
+    fs,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
+
+use once_cell::sync::Lazy;
+use regex::Regex;
+
 use binary_pack::{BinaryTrait, PackBinary};
 use buildpack::{
     buildpacks_dir,
@@ -5,14 +15,6 @@ use buildpack::{
     libcnb::data::{buildpack::BuildpackId, buildpack_id},
     platform_dir_is_stencila, tag_for_path, toml, tracing, BuildPlan, BuildpackPlan, BuildpackToml,
     BuildpackTrait,
-};
-use once_cell::sync::Lazy;
-use regex::Regex;
-use std::{
-    env::{current_dir, set_current_dir},
-    fs,
-    path::{Path, PathBuf},
-    sync::Arc,
 };
 
 /// The set of registered buildpacks in the current process

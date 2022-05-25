@@ -1,6 +1,3 @@
-mod distribution;
-mod images;
-
 mod buildpacks;
 pub use crate::buildpacks::{Buildpacks, PACKS};
 

@@ -11,6 +11,8 @@ use std::{
 };
 
 use chrono::Utc;
+use eyre::{bail, eyre, Result};
+use hash_utils::sha2::Sha256;
 use jwalk::WalkDirGeneric;
 use oci_spec::image::{
     Descriptor, DescriptorBuilder, ImageConfigurationBuilder, ImageIndexBuilder,
@@ -19,11 +21,7 @@ use oci_spec::image::{
 use seahash::SeaHasher;
 
 use archive_utils::{flate2, tar};
-use buildpack::{
-    eyre::{bail, eyre, Result},
-    hash_utils::sha2::{Digest, Sha256},
-    serde, serde_json, tracing,
-};
+use hash_utils::sha2::Digest;
 
 // Serialization framework defaults to `rkyv` with fallback to `serde` JSON
 
@@ -607,7 +605,7 @@ impl io::Write for BlobWriter {
 
 #[cfg(test)]
 mod tests {
-    use buildpack::hash_utils::file_sha256_hex;
+    use hash_utils::file_sha256_hex;
     use test_snaps::fixtures;
     use test_utils::{print_logs, tempfile::tempdir};
 

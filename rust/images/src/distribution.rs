@@ -2,13 +2,13 @@ use std::{fs, path::Path};
 
 use bytes::Bytes;
 use eyre::{bail, Result};
-
-use http_utils::{reqwest_middleware::RequestBuilder, CLIENT};
 use oci_spec::image::{Descriptor, ImageManifest};
 use tokio::{
     fs::File,
     io::{self, AsyncReadExt, AsyncWriteExt},
 };
+
+use http_utils::{reqwest_middleware::RequestBuilder, CLIENT};
 
 /// A client that implements the [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec/blob/main/spec.md)
 /// for pulling and pushing images from a container registry
@@ -372,18 +372,18 @@ impl RegistryClient {
 
 #[cfg(test)]
 mod tests {
-    use test_utils::{print_logs_level, tempfile::tempdir, skip_ci};
+    use test_utils::{print_logs_level, skip_ci, tempfile::tempdir};
 
     use super::*;
 
     /// Pull and push back the Docker `hello-world` image from the local registry
-    /// 
+    ///
     /// To set up this test, run a registry container:
-    /// 
+    ///
     ///    docker run -p5000:5000 registry
-    /// 
+    ///
     /// Then push `library/hello-world` to that registry:
-    /// 
+    ///
     ///    docker pull library/hello-world
     ///    docker tag hello-world localhost:5000/library/hello-world:latest
     ///    docker push localhost:5000/library/hello-world:latest
@@ -402,6 +402,4 @@ mod tests {
 
         Ok(())
     }
-
-
 }

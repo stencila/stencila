@@ -701,7 +701,6 @@ dependencies = [
 name = "buildpacks"
 version = "0.0.0"
 dependencies = [
- "archive-utils",
  "binary-pack",
  "buildpack",
  "buildpack-apt",
@@ -711,20 +710,14 @@ dependencies = [
  "buildpack-r",
  "buildpack-sources",
  "buildpack-stencila",
- "bytecheck",
  "bytes",
  "chrono",
  "cli-utils",
- "eyre",
  "futures",
  "hash-utils",
  "http-utils",
- "jwalk",
- "oci-spec",
  "once_cell",
  "regex",
- "rkyv",
- "seahash",
  "serde_json",
  "structopt",
  "test-snaps",
@@ -2995,6 +2988,34 @@ dependencies = [
  "thread_local",
  "walkdir",
  "winapi-util",
+]
+
+[[package]]
+name = "images"
+version = "0.0.0"
+dependencies = [
+ "archive-utils",
+ "bytecheck",
+ "bytes",
+ "chrono",
+ "cli-utils",
+ "eyre",
+ "futures",
+ "hash-utils",
+ "http-utils",
+ "jwalk",
+ "oci-spec",
+ "once_cell",
+ "regex",
+ "rkyv",
+ "seahash",
+ "serde",
+ "serde_json",
+ "structopt",
+ "test-snaps",
+ "test-utils",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
