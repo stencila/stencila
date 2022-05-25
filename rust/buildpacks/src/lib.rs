@@ -1,3 +1,4 @@
+mod distribution;
 mod images;
 
 mod buildpacks;
