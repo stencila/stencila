@@ -3,7 +3,7 @@ use std::{env, path::Path};
 use eyre::Result;
 use tokio::fs::create_dir_all;
 
-use crate::{distribution::Client, image::ImageSpec};
+use crate::{distribution::Client, image::ImageRef};
 
 pub async fn build<L>(
     project_dir: Option<&Path>,
@@ -29,7 +29,7 @@ where
     let from_image = from_image
         .map(|image| image.to_string())
         .unwrap_or_else(|| "stencila/femto".to_string());
-    let from_image: ImageSpec = from_image.parse()?;
+    let from_image: ImageRef = from_image.parse()?;
 
     let from_client = Client::new(&from_image.registry, &from_image.name, None);
     let from_config = from_client.get_config(from_image.reference()).await?;

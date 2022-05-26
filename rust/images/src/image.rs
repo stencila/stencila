@@ -36,36 +36,36 @@ use bytecheck::CheckBytes;
 use buildpack::serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, PartialEq)]
-pub struct ImageSpec {
+pub struct ImageRef {
     /// The registry the image is on. Defaults to `registry.hub.docker.com`
     pub registry: String,
 
     /// The name of the image e.g. `ubuntu`, `library/hello-world`
     pub name: String,
 
-    /// An image tag e.g. `sha256:...`. Conflicts with `hash`.
+    /// An image tag e.g. `sha256:...`. Conflicts with `digest`.
     pub tag: Option<String>,
 
-    /// An image hash e.g. `sha256:e07ee1baac5fae6a26f3...`. Conflicts with `tag`.
-    pub hash: Option<String>,
+    /// An image digest e.g. `sha256:e07ee1baac5fae6a26f3...`. Conflicts with `tag`.
+    pub digest: Option<String>,
 }
 
-impl ImageSpec {
+impl ImageRef {
     pub fn reference(&self) -> String {
-        match self.hash.as_ref().or_else(|| self.tag.as_ref()) {
+        match self.digest.as_ref().or_else(|| self.tag.as_ref()) {
             Some(reference) => reference.clone(),
             None => "latest".to_string(),
         }
     }
 }
 
-impl FromStr for ImageSpec {
+impl FromStr for ImageRef {
     type Err = eyre::Report;
 
     /// Parse a string into an [`ImageSpec`]
     ///
     /// Based on the implementation in https://github.com/HewlettPackard/dockerfile-parser-rs/
-    fn from_str(str: &str) -> Result<ImageSpec> {
+    fn from_str(str: &str) -> Result<ImageRef> {
         let parts: Vec<&str> = str.splitn(2, '/').collect();
 
         let first = parts[0];
@@ -95,11 +95,11 @@ impl FromStr for ImageSpec {
             (name, tag, None)
         };
 
-        Ok(ImageSpec {
+        Ok(ImageRef {
             registry,
             name,
             tag,
-            hash,
+            digest: hash,
         })
     }
 }
@@ -683,49 +683,49 @@ mod tests {
 
     /// Test parsing image spec
     #[test]
-    fn parse_image_spec() -> Result<()> {
-        let ubuntu = ImageSpec {
+    fn parse_image_ref() -> Result<()> {
+        let ubuntu = ImageRef {
             registry: "registry.hub.docker.com".to_string(),
             name: "ubuntu".to_string(),
             ..Default::default()
         };
 
-        assert_eq!("ubuntu".parse::<ImageSpec>()?, ubuntu);
-        assert_eq!("docker.io/ubuntu".parse::<ImageSpec>()?, ubuntu);
+        assert_eq!("ubuntu".parse::<ImageRef>()?, ubuntu);
+        assert_eq!("docker.io/ubuntu".parse::<ImageRef>()?, ubuntu);
         assert_eq!(
-            "registry.hub.docker.com/ubuntu".parse::<ImageSpec>()?,
+            "registry.hub.docker.com/ubuntu".parse::<ImageRef>()?,
             ubuntu
         );
 
-        let ubuntu_2204 = ImageSpec {
+        let ubuntu_2204 = ImageRef {
             registry: "registry.hub.docker.com".to_string(),
             name: "ubuntu".to_string(),
             tag: Some("22.04".to_string()),
             ..Default::default()
         };
 
-        assert_eq!("ubuntu:22.04".parse::<ImageSpec>()?, ubuntu_2204);
-        assert_eq!("docker.io/ubuntu:22.04".parse::<ImageSpec>()?, ubuntu_2204);
+        assert_eq!("ubuntu:22.04".parse::<ImageRef>()?, ubuntu_2204);
+        assert_eq!("docker.io/ubuntu:22.04".parse::<ImageRef>()?, ubuntu_2204);
         assert_eq!(
-            "registry.hub.docker.com/ubuntu:22.04".parse::<ImageSpec>()?,
+            "registry.hub.docker.com/ubuntu:22.04".parse::<ImageRef>()?,
             ubuntu_2204
         );
 
-        let ubuntu_hash = ImageSpec {
+        let ubuntu_digest = ImageRef {
             registry: "registry.hub.docker.com".to_string(),
             name: "ubuntu".to_string(),
-            hash: Some("sha256:abcdef".to_string()),
+            digest: Some("sha256:abcdef".to_string()),
             ..Default::default()
         };
 
-        assert_eq!("ubuntu@sha256:abcdef".parse::<ImageSpec>()?, ubuntu_hash);
+        assert_eq!("ubuntu@sha256:abcdef".parse::<ImageRef>()?, ubuntu_digest);
         assert_eq!(
-            "docker.io/ubuntu@sha256:abcdef".parse::<ImageSpec>()?,
-            ubuntu_hash
+            "docker.io/ubuntu@sha256:abcdef".parse::<ImageRef>()?,
+            ubuntu_digest
         );
         assert_eq!(
-            "registry.hub.docker.com/ubuntu@sha256:abcdef".parse::<ImageSpec>()?,
-            ubuntu_hash
+            "registry.hub.docker.com/ubuntu@sha256:abcdef".parse::<ImageRef>()?,
+            ubuntu_digest
         );
 
         Ok(())
