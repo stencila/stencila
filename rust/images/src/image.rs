@@ -7,6 +7,7 @@ use std::{
     io,
     os::unix::prelude::MetadataExt,
     path::{Path, PathBuf},
+    str::FromStr,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -33,6 +34,75 @@ use bytecheck::CheckBytes;
 
 #[cfg(not(feature = "rkyv"))]
 use buildpack::serde::{Deserialize, Serialize};
+
+#[derive(Debug, Default, PartialEq)]
+pub struct ImageSpec {
+    /// The registry the image is on. Defaults to `registry.hub.docker.com`
+    pub registry: String,
+
+    /// The name of the image e.g. `ubuntu`, `library/hello-world`
+    pub name: String,
+
+    /// An image tag e.g. `sha256:...`. Conflicts with `hash`.
+    pub tag: Option<String>,
+
+    /// An image hash e.g. `sha256:e07ee1baac5fae6a26f3...`. Conflicts with `tag`.
+    pub hash: Option<String>,
+}
+
+impl ImageSpec {
+    pub fn reference(&self) -> String {
+        match self.hash.as_ref().or_else(|| self.tag.as_ref()) {
+            Some(reference) => reference.clone(),
+            None => "latest".to_string(),
+        }
+    }
+}
+
+impl FromStr for ImageSpec {
+    type Err = eyre::Report;
+
+    /// Parse a string into an [`ImageSpec`]
+    ///
+    /// Based on the implementation in https://github.com/HewlettPackard/dockerfile-parser-rs/
+    fn from_str(str: &str) -> Result<ImageSpec> {
+        let parts: Vec<&str> = str.splitn(2, '/').collect();
+
+        let first = parts[0];
+        let (registry, rest) = if parts.len() == 2
+            && (first == "localhost" || first.contains('.') || first.contains(':'))
+        {
+            (Some(parts[0]), parts[1])
+        } else {
+            (None, str)
+        };
+
+        let registry = if matches!(registry, None) || matches!(registry, Some("docker.io")) {
+            "registry.hub.docker.com".to_string()
+        } else {
+            registry
+                .expect("Should be Some because of the match above")
+                .to_string()
+        };
+
+        let (name, tag, hash) = if let Some(at_pos) = rest.find('@') {
+            let (name, hash) = rest.split_at(at_pos);
+            (name.to_string(), None, Some(hash[1..].to_string()))
+        } else {
+            let parts: Vec<&str> = rest.splitn(2, ':').collect();
+            let name = parts[0].to_string();
+            let tag = parts.get(1).map(|str| str.to_string());
+            (name, tag, None)
+        };
+
+        Ok(ImageSpec {
+            registry,
+            name,
+            tag,
+            hash,
+        })
+    }
+}
 
 struct Image {}
 
@@ -610,6 +680,56 @@ mod tests {
     use test_utils::{print_logs, tempfile::tempdir};
 
     use super::*;
+
+    /// Test parsing image spec
+    #[test]
+    fn parse_image_spec() -> Result<()> {
+        let ubuntu = ImageSpec {
+            registry: "registry.hub.docker.com".to_string(),
+            name: "ubuntu".to_string(),
+            ..Default::default()
+        };
+
+        assert_eq!("ubuntu".parse::<ImageSpec>()?, ubuntu);
+        assert_eq!("docker.io/ubuntu".parse::<ImageSpec>()?, ubuntu);
+        assert_eq!(
+            "registry.hub.docker.com/ubuntu".parse::<ImageSpec>()?,
+            ubuntu
+        );
+
+        let ubuntu_2204 = ImageSpec {
+            registry: "registry.hub.docker.com".to_string(),
+            name: "ubuntu".to_string(),
+            tag: Some("22.04".to_string()),
+            ..Default::default()
+        };
+
+        assert_eq!("ubuntu:22.04".parse::<ImageSpec>()?, ubuntu_2204);
+        assert_eq!("docker.io/ubuntu:22.04".parse::<ImageSpec>()?, ubuntu_2204);
+        assert_eq!(
+            "registry.hub.docker.com/ubuntu:22.04".parse::<ImageSpec>()?,
+            ubuntu_2204
+        );
+
+        let ubuntu_hash = ImageSpec {
+            registry: "registry.hub.docker.com".to_string(),
+            name: "ubuntu".to_string(),
+            hash: Some("sha256:abcdef".to_string()),
+            ..Default::default()
+        };
+
+        assert_eq!("ubuntu@sha256:abcdef".parse::<ImageSpec>()?, ubuntu_hash);
+        assert_eq!(
+            "docker.io/ubuntu@sha256:abcdef".parse::<ImageSpec>()?,
+            ubuntu_hash
+        );
+        assert_eq!(
+            "registry.hub.docker.com/ubuntu@sha256:abcdef".parse::<ImageSpec>()?,
+            ubuntu_hash
+        );
+
+        Ok(())
+    }
 
     /// Test that snapshots are correctly written to and read back from disk
     #[test]
