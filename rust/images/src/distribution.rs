@@ -3,6 +3,7 @@ use std::{env, fs, path::Path};
 use bytes::Bytes;
 use eyre::{bail, Result};
 use oci_spec::image::{Descriptor, ImageConfiguration, ImageManifest};
+use serde::Deserialize;
 use tokio::{
     fs::File,
     io::{self, AsyncReadExt, AsyncWriteExt},
@@ -14,40 +15,71 @@ use http_utils::{
     CLIENT,
 };
 
+pub const DOCKER_REGISTRY: &str = "registry.hub.docker.com";
+
+pub const FLY_REGISTRY: &str = "registry.fly.io";
+
 /// A client that implements the [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec/blob/main/spec.md)
 /// for pulling and pushing images from a container registry
 pub struct Client {
     /// URL of the image registry e.g. `registry.fly.io`, `localhost:5000`
-    registry_host: String,
+    registry: String,
 
     /// Name of the image e.g. `library/hello-world`
-    image_name: String,
+    image: String,
 
     /// Token used to authenticate requests
-    registry_token: Option<String>,
+    token: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[allow(dead_code)]
+struct DockerAuthToken {
+    token: String,
+    expires_in: u32,
+    issued_at: String,
 }
 
 impl Client {
     /// Create a new client
-    pub fn new(registry_host: &str, image_name: &str, registry_token: Option<&str>) -> Self {
-        let registry_token =
-            registry_token
-                .map(|str| str.to_string())
-                .or_else(|| match registry_host {
-                    "registry.hub.docker.io" => env::var("DOCKER_TOKEN")
-                        .or_else(|_| env::var("DOCKER_API_TOKEN"))
-                        .ok(),
-                    "registry.fly.io" => env::var("FLY_TOKEN")
-                        .or_else(|_| env::var("FLY_API_TOKEN"))
-                        .ok(),
-                    _ => None,
-                });
+    pub async fn new(
+        registry_host: &str,
+        image_name: &str,
+        registry_token: Option<&str>,
+    ) -> Result<Self> {
+        let registry_token = match registry_token {
+            None => match registry_host {
+                DOCKER_REGISTRY => {
+                    // Get a temporary access token (at time of writing they last 5 minutes)
+                    let mut request = CLIENT.get(
+                            format!("https://auth.docker.io/token?service=registry.docker.io&scope=repository:{}:pull", image_name)
+                        );
+                    // If possible use a Docker Hub username and password (the password is preferably an access token) for
+                    // higher rate limits and push access
+                    let username =
+                        env::var("DOCKER_HUB_USERNAME").or_else(|_| env::var("DOCKER_USERNAME"));
+                    let password =
+                        env::var("DOCKER_HUB_PASSWORD").or_else(|_| env::var("DOCKER_PASSWORD"));
+                    if let (Ok(username), Ok(password)) = (username, password) {
+                        request = request.basic_auth(username, Some(password));
+                    }
+                    let response = request.send().await?.error_for_status()?;
+                    let token: DockerAuthToken = response.json().await?;
+                    Some(token.token)
+                }
+                FLY_REGISTRY => env::var("FLY_API_TOKEN")
+                    .or_else(|_| env::var("FLY_TOKEN"))
+                    .ok(),
+                _ => None,
+            },
+            Some(token) => Some(token.to_string()),
+        };
 
-        Self {
-            registry_host: registry_host.to_string(),
-            image_name: image_name.to_string(),
-            registry_token,
-        }
+        Ok(Self {
+            registry: registry_host.to_string(),
+            image: image_name.to_string(),
+            token: registry_token,
+        })
     }
 
     /// Push an image
@@ -108,8 +140,8 @@ impl Client {
 
         tracing::info!(
             "Pulling manifest from repository `{}/{}:{}`",
-            self.registry_host,
-            self.image_name,
+            self.registry,
+            self.image,
             reference
         );
 
@@ -155,8 +187,8 @@ impl Client {
 
         tracing::info!(
             "Pushing manifest to repository `{}/{}:{}`",
-            self.registry_host,
-            self.image_name,
+            self.registry,
+            self.image,
             reference
         );
 
@@ -176,8 +208,15 @@ impl Client {
     }
 
     /// Get an image config from the registry
-    pub async fn get_config<S: AsRef<str>>(&self, reference: S) -> Result<ImageConfiguration> {
-        let manifest = self.get_manifest(reference).await?;
+    pub async fn get_config<S: AsRef<str>>(
+        &self,
+        reference: S,
+        manifest: Option<&ImageManifest>,
+    ) -> Result<ImageConfiguration> {
+        let manifest = match manifest {
+            Some(manifest) => manifest.to_owned(),
+            None => self.get_manifest(reference).await?,
+        };
         let descriptor = manifest.config();
         let response = self.get_blob(descriptor).await?;
         let config: ImageConfiguration = response.json().await?;
@@ -194,8 +233,8 @@ impl Client {
         tracing::info!(
             "Pulling blob `{}` from repository `{}/{}`",
             digest,
-            self.registry_host,
-            self.image_name
+            self.registry,
+            self.image
         );
 
         let response = self
@@ -269,8 +308,8 @@ impl Client {
             tracing::info!(
                 "Blob `{}` already exists in repository `{}/{}`, will not push",
                 digest,
-                self.registry_host,
-                self.image_name
+                self.registry,
+                self.image
             );
             return Ok(());
         }
@@ -294,8 +333,8 @@ impl Client {
         tracing::info!(
             "Pushing blob `{}` to repository `{}/{}`",
             digest,
-            self.registry_host,
-            self.image_name
+            self.registry,
+            self.image
         );
 
         const MAX_CHUNK_SIZE: usize = 1000; //5_048_576;
@@ -393,19 +432,19 @@ impl Client {
         let url = if path.starts_with("http") {
             path.to_string()
         } else {
-            let registry_url = if self.registry_host.starts_with("https://") {
-                self.registry_host.clone()
-            } else if self.registry_host.starts_with("localhost") {
-                ["http://", &self.registry_host].concat()
+            let registry_url = if self.registry.starts_with("https://") {
+                self.registry.clone()
+            } else if self.registry.starts_with("localhost") {
+                ["http://", &self.registry].concat()
             } else {
-                ["https://", &self.registry_host].concat()
+                ["https://", &self.registry].concat()
             };
-            [&registry_url, "/v2/", &self.image_name, path].concat()
+            [&registry_url, "/v2/", &self.image, path].concat()
         };
 
         let mut request = CLIENT.request(method, url);
 
-        if let Some(token) = &self.registry_token {
+        if let Some(token) = &self.token {
             request = request.bearer_auth(token);
         }
 
@@ -459,7 +498,7 @@ mod tests {
 
         let image_dir = tempdir()?;
 
-        let client = Client::new("localhost:5000", "hello-world", None);
+        let client = Client::new("localhost:5000", "hello-world", None).await?;
         client.pull_image("latest", &image_dir).await?;
         client.push_image("latest", &image_dir).await?;
 

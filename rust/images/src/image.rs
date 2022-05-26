@@ -2,7 +2,7 @@ use std::{
     collections::HashMap,
     env,
     ffi::OsString,
-    fs::{self, File, FileType, Metadata},
+    fs::{self, create_dir_all, File, FileType, Metadata},
     hash::Hasher,
     io,
     os::unix::prelude::MetadataExt,
@@ -21,9 +21,6 @@ use oci_spec::image::{
 };
 use seahash::SeaHasher;
 
-use archive_utils::{flate2, tar};
-use hash_utils::sha2::Digest;
-
 // Serialization framework defaults to `rkyv` with fallback to `serde` JSON
 
 #[cfg(feature = "rkyv")]
@@ -35,13 +32,18 @@ use bytecheck::CheckBytes;
 #[cfg(not(feature = "rkyv"))]
 use buildpack::serde::{Deserialize, Serialize};
 
+use archive_utils::{flate2, tar};
+use hash_utils::sha2::Digest;
+
+use crate::distribution::DOCKER_REGISTRY;
+
 #[derive(Debug, Default, PartialEq)]
-pub struct ImageRef {
+pub struct ImageReference {
     /// The registry the image is on. Defaults to `registry.hub.docker.com`
     pub registry: String,
 
-    /// The name of the image e.g. `ubuntu`, `library/hello-world`
-    pub name: String,
+    /// The repository the image is in e.g. `ubuntu`, `library/hello-world`
+    pub repository: String,
 
     /// An image tag e.g. `sha256:...`. Conflicts with `digest`.
     pub tag: Option<String>,
@@ -50,7 +52,7 @@ pub struct ImageRef {
     pub digest: Option<String>,
 }
 
-impl ImageRef {
+impl ImageReference {
     pub fn reference(&self) -> String {
         match self.digest.as_ref().or_else(|| self.tag.as_ref()) {
             Some(reference) => reference.clone(),
@@ -59,13 +61,13 @@ impl ImageRef {
     }
 }
 
-impl FromStr for ImageRef {
+impl FromStr for ImageReference {
     type Err = eyre::Report;
 
     /// Parse a string into an [`ImageSpec`]
     ///
     /// Based on the implementation in https://github.com/HewlettPackard/dockerfile-parser-rs/
-    fn from_str(str: &str) -> Result<ImageRef> {
+    fn from_str(str: &str) -> Result<ImageReference> {
         let parts: Vec<&str> = str.splitn(2, '/').collect();
 
         let first = parts[0];
@@ -78,7 +80,7 @@ impl FromStr for ImageRef {
         };
 
         let registry = if matches!(registry, None) || matches!(registry, Some("docker.io")) {
-            "registry.hub.docker.com".to_string()
+            DOCKER_REGISTRY.to_string()
         } else {
             registry
                 .expect("Should be Some because of the match above")
@@ -95,45 +97,64 @@ impl FromStr for ImageRef {
             (name, tag, None)
         };
 
-        Ok(ImageRef {
+        let name = if registry == DOCKER_REGISTRY && !name.contains('/') {
+            ["library/", &name].concat()
+        } else {
+            name
+        };
+
+        Ok(ImageReference {
             registry,
-            name,
+            repository: name,
             tag,
             digest: hash,
         })
     }
 }
 
-struct Image {}
+pub struct Image {
+    /// The project directory to build an image for
+    project_dir: PathBuf,
+
+    // The directory where this image will be written to
+    image_dir: PathBuf,
+}
 
 impl Image {
     /// Create a new image
-    fn new() -> Self {
-        Self {}
+    pub fn new<ID, PD>(project_dir: Option<&ID>, image_dir: Option<&PD>) -> Self
+    where
+        ID: AsRef<Path> + ?Sized,
+        PD: AsRef<Path> + ?Sized,
+    {
+        let project_dir = project_dir
+            .map(|dir| dir.as_ref().to_path_buf())
+            .unwrap_or_else(|| env::current_dir().expect("Unable to get cwd"));
+
+        let image_dir = image_dir
+            .map(|dir| dir.as_ref().to_path_buf())
+            .unwrap_or_else(|| project_dir.join(".stencila").join("image"));
+
+        Self {
+            project_dir,
+            image_dir,
+        }
     }
 
     /// Write an image config blob
-    ///
-    /// # Arguments
-    ///
-    /// - `image_dir`: the image directory
-    fn write_config<P: AsRef<Path>>(&self, image_dir: P) -> Result<Descriptor> {
+    fn write_config(&self) -> Result<Descriptor> {
         let config = ImageConfigurationBuilder::default()
             .created(Utc::now().to_rfc3339())
             .os(env::consts::OS)
             .architecture(env::consts::ARCH)
             .build()?;
 
-        BlobWriter::write_json(image_dir, MediaType::ImageConfig, &config)
+        BlobWriter::write_json(&self.image_dir, MediaType::ImageConfig, &config)
     }
 
     /// Write an image manifest blob
-    ///
-    /// # Arguments
-    ///
-    /// - `image_dir`: the image directory
-    fn write_manifest<P: AsRef<Path>>(&self, image_dir: P) -> Result<Descriptor> {
-        let config = self.write_config(&image_dir)?;
+    fn write_manifest(&self) -> Result<Descriptor> {
+        let config = self.write_config()?;
 
         let layers = []; // TODO
 
@@ -143,7 +164,7 @@ impl Image {
             .layers(layers)
             .build()?;
 
-        BlobWriter::write_json(image_dir, MediaType::ImageManifest, &manifest)
+        BlobWriter::write_json(&self.image_dir, MediaType::ImageManifest, &manifest)
     }
 
     /// Create a directory with an OCI image layout
@@ -154,20 +175,18 @@ impl Image {
     /// # Arguments
     ///
     /// - `image_dir`: the image directory
-    fn write<P: AsRef<Path>>(&self, image_dir: P) -> Result<()> {
-        let image_dir = image_dir.as_ref();
+    pub fn write(&self) -> Result<()> {
+        let manifest = self.write_manifest()?;
 
-        let oci_layout = image_dir.join("oci-layout");
-        fs::write(oci_layout, r#"{"imageLayoutVersion": "1.0.0"}"#)?;
-
-        let manifest = self.write_manifest(image_dir)?;
-
-        let index_json = image_dir.join("index.json");
+        let index_json = self.image_dir.join("index.json");
         let index = ImageIndexBuilder::default()
             .schema_version(SCHEMA_VERSION)
             .manifests([manifest])
             .build()?;
         fs::write(index_json, serde_json::to_string(&index)?)?;
+
+        let oci_layout = self.image_dir.join("oci-layout");
+        fs::write(oci_layout, r#"{"imageLayoutVersion": "1.0.0"}"#)?;
 
         Ok(())
     }
@@ -684,47 +703,53 @@ mod tests {
     /// Test parsing image spec
     #[test]
     fn parse_image_ref() -> Result<()> {
-        let ubuntu = ImageRef {
+        let ubuntu = ImageReference {
             registry: "registry.hub.docker.com".to_string(),
-            name: "ubuntu".to_string(),
+            repository: "library/ubuntu".to_string(),
             ..Default::default()
         };
 
-        assert_eq!("ubuntu".parse::<ImageRef>()?, ubuntu);
-        assert_eq!("docker.io/ubuntu".parse::<ImageRef>()?, ubuntu);
+        assert_eq!("ubuntu".parse::<ImageReference>()?, ubuntu);
+        assert_eq!("docker.io/ubuntu".parse::<ImageReference>()?, ubuntu);
         assert_eq!(
-            "registry.hub.docker.com/ubuntu".parse::<ImageRef>()?,
+            "registry.hub.docker.com/ubuntu".parse::<ImageReference>()?,
             ubuntu
         );
 
-        let ubuntu_2204 = ImageRef {
+        let ubuntu_2204 = ImageReference {
             registry: "registry.hub.docker.com".to_string(),
-            name: "ubuntu".to_string(),
+            repository: "library/ubuntu".to_string(),
             tag: Some("22.04".to_string()),
             ..Default::default()
         };
 
-        assert_eq!("ubuntu:22.04".parse::<ImageRef>()?, ubuntu_2204);
-        assert_eq!("docker.io/ubuntu:22.04".parse::<ImageRef>()?, ubuntu_2204);
+        assert_eq!("ubuntu:22.04".parse::<ImageReference>()?, ubuntu_2204);
         assert_eq!(
-            "registry.hub.docker.com/ubuntu:22.04".parse::<ImageRef>()?,
+            "docker.io/ubuntu:22.04".parse::<ImageReference>()?,
+            ubuntu_2204
+        );
+        assert_eq!(
+            "registry.hub.docker.com/ubuntu:22.04".parse::<ImageReference>()?,
             ubuntu_2204
         );
 
-        let ubuntu_digest = ImageRef {
+        let ubuntu_digest = ImageReference {
             registry: "registry.hub.docker.com".to_string(),
-            name: "ubuntu".to_string(),
+            repository: "library/ubuntu".to_string(),
             digest: Some("sha256:abcdef".to_string()),
             ..Default::default()
         };
 
-        assert_eq!("ubuntu@sha256:abcdef".parse::<ImageRef>()?, ubuntu_digest);
         assert_eq!(
-            "docker.io/ubuntu@sha256:abcdef".parse::<ImageRef>()?,
+            "ubuntu@sha256:abcdef".parse::<ImageReference>()?,
             ubuntu_digest
         );
         assert_eq!(
-            "registry.hub.docker.com/ubuntu@sha256:abcdef".parse::<ImageRef>()?,
+            "docker.io/ubuntu@sha256:abcdef".parse::<ImageReference>()?,
+            ubuntu_digest
+        );
+        assert_eq!(
+            "registry.hub.docker.com/ubuntu@sha256:abcdef".parse::<ImageReference>()?,
             ubuntu_digest
         );
 
@@ -891,9 +916,10 @@ mod tests {
     /// the OCI Image Layout spec
     #[test]
     fn image_write() -> Result<()> {
+        let project_dir = tempdir()?;
         let image_dir = tempdir()?;
-        let image = Image::new();
-        image.write(&image_dir)?;
+        let image = Image::new(Some(&project_dir), Some(&image_dir));
+        image.write()?;
 
         let path = image_dir.path();
         assert!(path.join("oci-layout").is_file());
