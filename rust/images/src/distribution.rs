@@ -1,35 +1,52 @@
-use std::{fs, path::Path};
+use std::{env, fs, path::Path};
 
 use bytes::Bytes;
 use eyre::{bail, Result};
-use oci_spec::image::{Descriptor, ImageManifest};
+use oci_spec::image::{Descriptor, ImageConfiguration, ImageManifest};
 use tokio::{
     fs::File,
     io::{self, AsyncReadExt, AsyncWriteExt},
 };
 
-use http_utils::{reqwest_middleware::RequestBuilder, CLIENT};
+use http_utils::{
+    reqwest::{Method, Response},
+    reqwest_middleware::RequestBuilder,
+    CLIENT,
+};
 
 /// A client that implements the [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec/blob/main/spec.md)
 /// for pulling and pushing images from a container registry
-pub struct RegistryClient {
-    /// Base URL of the image registry API
-    url: String,
+pub struct Client {
+    /// URL of the image registry e.g. `registry.fly.io`, `localhost:5000`
+    registry_host: String,
 
-    /// Name of the image repository e.g. library/hello-world
-    name: String,
+    /// Name of the image e.g. `library/hello-world`
+    image_name: String,
 
     /// Token used to authenticate requests
-    token: String,
+    registry_token: Option<String>,
 }
 
-impl RegistryClient {
+impl Client {
     /// Create a new client
-    fn new(url: &str, name: &str, token: &str) -> Self {
+    pub fn new(registry_host: &str, image_name: &str, registry_token: Option<&str>) -> Self {
+        let registry_token =
+            registry_token
+                .map(|str| str.to_string())
+                .or_else(|| match registry_host {
+                    "registry.hub.docker.io" => env::var("DOCKER_TOKEN")
+                        .or_else(|_| env::var("DOCKER_API_TOKEN"))
+                        .ok(),
+                    "registry.fly.io" => env::var("FLY_TOKEN")
+                        .or_else(|_| env::var("FLY_API_TOKEN"))
+                        .ok(),
+                    _ => None,
+                });
+
         Self {
-            url: url.to_string(),
-            name: name.to_string(),
-            token: token.to_string(),
+            registry_host: registry_host.to_string(),
+            image_name: image_name.to_string(),
+            registry_token,
         }
     }
 
@@ -83,20 +100,16 @@ impl RegistryClient {
         Ok(())
     }
 
-    /// Pull a manifest from the registry to a local file and return it
+    /// Get a manifest from the registry
     ///
     /// See https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests
-    pub async fn pull_manifest<S: AsRef<str>, P: AsRef<Path>>(
-        &self,
-        reference: S,
-        image_dir: P,
-    ) -> Result<ImageManifest> {
+    pub async fn get_manifest<S: AsRef<str>>(&self, reference: S) -> Result<ImageManifest> {
         let reference = reference.as_ref();
 
         tracing::info!(
             "Pulling manifest from repository `{}/{}:{}`",
-            self.url,
-            self.name,
+            self.registry_host,
+            self.image_name,
             reference
         );
 
@@ -111,6 +124,16 @@ impl RegistryClient {
             .error_for_status()?;
 
         let manifest: ImageManifest = response.json().await?;
+        Ok(manifest)
+    }
+
+    /// Pull a manifest from the registry to a local file and return it
+    pub async fn pull_manifest<S: AsRef<str>, P: AsRef<Path>>(
+        &self,
+        reference: S,
+        image_dir: P,
+    ) -> Result<ImageManifest> {
+        let manifest = self.get_manifest(reference).await?;
 
         fs::create_dir_all(&image_dir)?;
         let manifest_path = image_dir.as_ref().join("index.json");
@@ -132,8 +155,8 @@ impl RegistryClient {
 
         tracing::info!(
             "Pushing manifest to repository `{}/{}:{}`",
-            self.url,
-            self.name,
+            self.registry_host,
+            self.image_name,
             reference
         );
 
@@ -152,25 +175,30 @@ impl RegistryClient {
         Ok(())
     }
 
-    /// Pull a blob from the registry to a local file
+    /// Get an image config from the registry
+    pub async fn get_config<S: AsRef<str>>(&self, reference: S) -> Result<ImageConfiguration> {
+        let manifest = self.get_manifest(reference).await?;
+        let descriptor = manifest.config();
+        let response = self.get_blob(descriptor).await?;
+        let config: ImageConfiguration = response.json().await?;
+        Ok(config)
+    }
+
+    /// Get a blob from the registry
     ///
     /// See https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-blobs
-    pub async fn pull_blob<P: AsRef<Path>>(
-        &self,
-        descriptor: &Descriptor,
-        image_dir: P,
-    ) -> Result<()> {
+    pub async fn get_blob(&self, descriptor: &Descriptor) -> Result<Response> {
         let digest = descriptor.digest();
         let size = descriptor.size();
 
         tracing::info!(
             "Pulling blob `{}` from repository `{}/{}`",
             digest,
-            self.url,
-            self.name
+            self.registry_host,
+            self.image_name
         );
 
-        let mut response = self
+        let response = self
             .get(&["/blobs/", digest].concat())
             .header("Accept", "application/octet-stream")
             .send()
@@ -192,9 +220,21 @@ impl RegistryClient {
             }
         }
 
+        Ok(response)
+    }
+
+    /// Pull a blob from the registry to a local file
+    pub async fn pull_blob<P: AsRef<Path>>(
+        &self,
+        descriptor: &Descriptor,
+        image_dir: P,
+    ) -> Result<()> {
+        let mut response = self.get_blob(descriptor).await?;
+
         let blobs_dir = image_dir.as_ref().join("blobs").join("sha256");
         fs::create_dir_all(&blobs_dir)?;
 
+        let digest = descriptor.digest();
         let filename = match digest.strip_prefix("sha256:") {
             Some(sha256) => sha256,
             None => bail!(
@@ -229,8 +269,8 @@ impl RegistryClient {
             tracing::info!(
                 "Blob `{}` already exists in repository `{}/{}`, will not push",
                 digest,
-                self.url,
-                self.name
+                self.registry_host,
+                self.image_name
             );
             return Ok(());
         }
@@ -254,8 +294,8 @@ impl RegistryClient {
         tracing::info!(
             "Pushing blob `{}` to repository `{}/{}`",
             digest,
-            self.url,
-            self.name
+            self.registry_host,
+            self.image_name
         );
 
         const MAX_CHUNK_SIZE: usize = 1000; //5_048_576;
@@ -277,9 +317,8 @@ impl RegistryClient {
             ]
             .concat();
 
-            let response = CLIENT
+            let response = self
                 .put(upload_url)
-                .bearer_auth(self.token.clone())
                 .header("Content-Type", "application/octet-stream")
                 .body(bytes)
                 .send()
@@ -309,9 +348,8 @@ impl RegistryClient {
                 chunk.len()
             );
 
-            let response = CLIENT
+            let response = self
                 .patch(upload_url)
-                .bearer_auth(self.token.clone())
                 .header("Content-Type", "application/octet-stream")
                 .header(
                     "Content-Range",
@@ -348,25 +386,50 @@ impl RegistryClient {
         Ok(())
     }
 
+    /// Make a request to the registry
+    fn request<S: AsRef<str>>(&self, method: Method, path: S) -> RequestBuilder {
+        let path = path.as_ref();
+
+        let url = if path.starts_with("http") {
+            path.to_string()
+        } else {
+            let registry_url = if self.registry_host.starts_with("https://") {
+                self.registry_host.clone()
+            } else if self.registry_host.starts_with("localhost") {
+                ["http://", &self.registry_host].concat()
+            } else {
+                ["https://", &self.registry_host].concat()
+            };
+            [&registry_url, "/v2/", &self.image_name, path].concat()
+        };
+
+        let mut request = CLIENT.request(method, url);
+
+        if let Some(token) = &self.registry_token {
+            request = request.bearer_auth(token);
+        }
+
+        request
+    }
+
     /// Make a GET request to the registry
     fn get<S: AsRef<str>>(&self, path: S) -> RequestBuilder {
-        CLIENT
-            .get([&self.url, "/v2/", &self.name, path.as_ref()].concat())
-            .bearer_auth(self.token.clone())
+        self.request(Method::GET, path)
     }
 
     /// Make a POST request to the registry
     fn post<S: AsRef<str>>(&self, path: S) -> RequestBuilder {
-        CLIENT
-            .post([&self.url, "/v2/", &self.name, path.as_ref()].concat())
-            .bearer_auth(self.token.clone())
+        self.request(Method::POST, path)
+    }
+
+    /// Make a PATCH request to the registry
+    fn patch<S: AsRef<str>>(&self, path: S) -> RequestBuilder {
+        self.request(Method::PATCH, path)
     }
 
     /// Make a PUT request to the registry
     fn put<S: AsRef<str>>(&self, path: S) -> RequestBuilder {
-        CLIENT
-            .put([&self.url, "/v2/", &self.name, path.as_ref()].concat())
-            .bearer_auth(self.token.clone())
+        self.request(Method::PUT, path)
     }
 }
 
@@ -396,7 +459,7 @@ mod tests {
 
         let image_dir = tempdir()?;
 
-        let client = RegistryClient::new("http://localhost:5000", "library/hello-world", "");
+        let client = Client::new("localhost:5000", "hello-world", None);
         client.pull_image("latest", &image_dir).await?;
         client.push_image("latest", &image_dir).await?;
 
