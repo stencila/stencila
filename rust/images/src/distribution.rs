@@ -245,8 +245,8 @@ impl Client {
     /// Pull a manifest from the registry to a local file and return it
     pub async fn pull_manifest<S: AsRef<str>, P: AsRef<Path>>(
         &self,
-        reference: S,
-        layout_dir: P,
+        _reference: S,
+        _layout_dir: P,
     ) -> Result<ImageManifest> {
         todo!()
     }

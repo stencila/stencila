@@ -2,7 +2,7 @@ use std::{
     collections::HashMap,
     env,
     ffi::OsString,
-    fs::{self, create_dir_all, File, FileType, Metadata},
+    fs::{self, File, FileType, Metadata},
     hash::Hasher,
     io,
     os::unix::prelude::MetadataExt,
@@ -16,9 +16,9 @@ use eyre::{bail, eyre, Result};
 use hash_utils::{sha2::Sha256, str_sha256_hex};
 use jwalk::WalkDirGeneric;
 use oci_spec::image::{
-    self, ConfigBuilder, Descriptor, DescriptorBuilder, HistoryBuilder, ImageConfiguration,
-    ImageConfigurationBuilder, ImageIndexBuilder, ImageManifest, ImageManifestBuilder, MediaType,
-    RootFsBuilder, SCHEMA_VERSION,
+    Descriptor, DescriptorBuilder, History, HistoryBuilder, ImageConfiguration,
+    ImageConfigurationBuilder, ImageIndexBuilder, ImageManifestBuilder, MediaType, RootFsBuilder,
+    SCHEMA_VERSION,
 };
 use seahash::SeaHasher;
 
@@ -153,6 +153,13 @@ pub struct Image {
     /// Equivalent to the `FROM` directive of a Dockerfile.
     pub base: ImageReference,
 
+    /// The directories that will be snapshotted to generate individual layers for the image
+    ///
+    /// Defaults to the `project_dir` and any subdirectories of `/layers/*`.
+    pub layer_dirs: Vec<PathBuf>,
+
+    layer_snapshots: Vec<Snapshot>,
+
     /// The directory where this image will be written to
     ///
     /// The image will be written to this directory following the [OCI Layout Spec]
@@ -165,8 +172,9 @@ impl Image {
     pub fn new(
         project_dir: Option<&Path>,
         reference: Option<&str>,
-        from: Option<&str>,
-        image_dir: Option<&Path>,
+        base: Option<&str>,
+        layer_dirs: &[&str],
+        layout_dir: Option<&Path>,
     ) -> Result<Self> {
         let project_dir = project_dir
             .map(PathBuf::from)
@@ -189,9 +197,25 @@ impl Image {
             }
         };
 
-        let from = from.unwrap_or("stencila/stencila:latest").parse()?;
+        let base = base.unwrap_or("stencila/stencila:latest").parse()?;
 
-        let image_dir = image_dir
+        let patterns = if !layer_dirs.is_empty() {
+            layer_dirs.iter().cloned().map(String::from).collect()
+        } else {
+            vec![project_dir.to_string_lossy().to_string()]
+        };
+        let mut layer_dirs = vec![];
+        for pattern in patterns {
+            for path in glob::glob(&pattern)?.flatten() {
+                if path.is_dir() {
+                    layer_dirs.push(path);
+                }
+            }
+        }
+
+        let layer_snapshots = layer_dirs.iter().map(Snapshot::new).collect();
+
+        let layout_dir = layout_dir
             .map(PathBuf::from)
             .unwrap_or_else(|| project_dir.join(".stencila").join("image"));
 
@@ -199,8 +223,10 @@ impl Image {
             project_dir,
             registry,
             repository,
-            base: from,
-            layout_dir: image_dir,
+            base,
+            layer_dirs,
+            layer_snapshots,
+            layout_dir,
         })
     }
 
@@ -216,18 +242,54 @@ impl Image {
         Ok((config, layers))
     }
 
+    /// Write the image layer blobs and returns vectors of DiffIDs and layer descriptors
+    fn write_layers(
+        &self,
+        base_config: &ImageConfiguration,
+        base_layers: Vec<Descriptor>,
+    ) -> Result<(Vec<Descriptor>, Vec<String>, Vec<History>)> {
+        let mut layers = base_layers;
+        let mut diff_ids = base_config.rootfs().diff_ids().clone();
+        let mut histories = base_config.history().clone();
+
+        for snapshot in &self.layer_snapshots {
+            let (diff_id, layer) = snapshot.write_layer(&self.layout_dir)?;
+
+            let empty_layer = diff_id == "<empty>";
+
+            if !empty_layer {
+                diff_ids.push(diff_id);
+                layers.push(layer);
+            }
+
+            let history = HistoryBuilder::default()
+                .created(Utc::now().to_rfc3339())
+                .created_by(format!(
+                    "stencila {}",
+                    env::args().skip(1).collect::<Vec<String>>().join(" ")
+                ))
+                .comment(format!("Layer for snapshotted directory {}", snapshot.dir))
+                .empty_layer(empty_layer)
+                .build()?;
+            histories.push(history)
+        }
+
+        Ok((layers, diff_ids, histories))
+    }
+
     /// Write the image config blob
     ///
     /// Implements the [OCI Image Configuration Specification](https://github.com/opencontainers/image-spec/blob/main/config.md).
-    fn write_config(&self, base_config: ImageConfiguration) -> Result<Descriptor> {
+    fn write_config(
+        &self,
+        base_config: &ImageConfiguration,
+        diff_ids: Vec<String>,
+        history: Vec<History>,
+    ) -> Result<Descriptor> {
         // Start with the config of the base image and override as necessary
         let config = base_config.config().clone().unwrap_or_default();
 
-        // Start with the rootfs of the base image and add the diffid of each of this image's layers
-        let rootfs = base_config.rootfs().clone();
-
-        // Start with the history of the base image and add items for each of this image's layers
-        let history = base_config.history().clone();
+        let rootfs = RootFsBuilder::default().diff_ids(diff_ids).build()?;
 
         let configuration = ImageConfigurationBuilder::default()
             .created(Utc::now().to_rfc3339())
@@ -241,19 +303,16 @@ impl Image {
         BlobWriter::write_json(&self.layout_dir, MediaType::ImageConfig, &configuration)
     }
 
-    /// Write the image layer blobs
-    fn write_layers(&self, base_layers: Vec<Descriptor>) -> Result<Vec<Descriptor>> {
-        Ok(base_layers)
-    }
-
     /// Write the image manifest blob
     ///
     /// Implements the [OCI Image Manifest Specification](https://github.com/opencontainers/image-spec/blob/main/manifest.md).
     /// Given that the manifest requires the descriptors for config and layers also calls `write_config` and `write_layers`.
     async fn write_manifest(&self) -> Result<Descriptor> {
         let (base_config, base_layers) = self.get_base().await?;
-        let config = self.write_config(base_config)?;
-        let layers = self.write_layers(base_layers)?;
+
+        let (layers, diff_ids, history) = self.write_layers(&base_config, base_layers)?;
+
+        let config = self.write_config(&base_config, diff_ids, history)?;
 
         let manifest = ImageManifestBuilder::default()
             .schema_version(SCHEMA_VERSION)
@@ -307,7 +366,7 @@ impl Image {
     }
 
     pub async fn build(&self) -> Result<()> {
-        // TODO
+        fs::write("./foo.txt", Utc::now().to_rfc3339())?;
         Ok(())
     }
 
@@ -384,10 +443,14 @@ impl ChangeSet {
     ///
     /// # Arguments
     ///
-    /// - `image_dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
-    fn write_layer<P: AsRef<Path>>(self, image_dir: P) -> Result<(String, Descriptor)> {
+    /// - `layout_dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
+    fn write_layer<P: AsRef<Path>>(self, layout_dir: P) -> Result<(String, Descriptor)> {
+        if self.items.is_empty() {
+            return Ok(("<empty>".to_string(), DescriptorBuilder::default().build()?));
+        }
+
         let mut diffid_hash = Sha256::new();
-        let mut blob_writer = BlobWriter::new(&image_dir, MediaType::ImageLayerGzip)?;
+        let mut blob_writer = BlobWriter::new(&layout_dir, MediaType::ImageLayerGzip)?;
 
         {
             struct LayerWriter<'lt> {
@@ -443,9 +506,9 @@ impl ChangeSet {
             }
         }
 
-        let diffid = format!("{:x}", diffid_hash.finalize());
+        let diff_id = format!("sha256:{:x}", diffid_hash.finalize());
         let descriptor = blob_writer.finish()?;
-        Ok((diffid, descriptor))
+        Ok((diff_id, descriptor))
     }
 
     /// Get the path of a layer blob within an image directory
@@ -634,8 +697,8 @@ impl Snapshot {
     /// Create a layer by repeating the current snapshot
     ///
     /// Convenience function for combining calls to `changes` and `write_layer` on those changes.
-    fn write_layer<P: AsRef<Path>>(self, dest: P) -> Result<(String, Descriptor)> {
-        self.changes().write_layer(dest)
+    fn write_layer<P: AsRef<Path>>(&self, layout_dir: P) -> Result<(String, Descriptor)> {
+        self.changes().write_layer(layout_dir)
     }
 }
 
@@ -1042,9 +1105,10 @@ mod tests {
         // Create a layer archive, diffid and descriptor
 
         let changes = snap.changes();
-        let (diffid, descriptor) = changes.write_layer(&image_dir)?;
+        let (diff_id, descriptor) = changes.write_layer(&image_dir)?;
 
-        assert_eq!(diffid.len(), 64);
+        assert_eq!(diff_id.len(), 7 + 64);
+        assert!(diff_id.starts_with("sha256:"));
 
         // Test that size and digest in the descriptor is as for the file
         let archive = image_dir
@@ -1067,7 +1131,7 @@ mod tests {
     #[tokio::test]
     async fn image_write() -> Result<()> {
         let project_dir = tempdir()?;
-        let image = Image::new(Some(project_dir.path()), None, None, None)?;
+        let image = Image::new(Some(project_dir.path()), None, None, &[], None)?;
 
         image.write().await?;
 

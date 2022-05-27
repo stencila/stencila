@@ -75,16 +75,17 @@ pub struct Build {
 #[async_trait]
 impl Run for Build {
     async fn run(&self) -> Result {
-        let layers_dir: Vec<String> = self
+        let layers_dirs: Vec<&str> = self
             .layers
             .as_ref()
-            .map(|str| str.split(':').map(String::from).collect())
+            .map(|str| str.split(':').collect())
             .unwrap_or_default();
 
         let image = Image::new(
             self.project.as_deref(),
             self.tag.as_deref(),
             self.from.as_deref(),
+            &layers_dirs,
             self.dir.as_deref(),
         )?;
 
