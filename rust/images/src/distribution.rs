@@ -372,15 +372,8 @@ impl Client {
         let blob_path = Self::blob_path(layout_dir, digest)?;
 
         let mut file = File::create(blob_path).await?;
-        let mut hash = Sha256::new();
         while let Some(chunk) = response.chunk().await? {
             file.write_all(&chunk).await?;
-            hash.update(chunk);
-        }
-        file.flush().await?;
-
-        if format!("sha256:{:x}", hash.finalize()) != digest {
-            bail!("Hash of pulled blob is not the same as digest")
         }
 
         Ok(())
