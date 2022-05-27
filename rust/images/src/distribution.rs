@@ -1,16 +1,17 @@
 use std::{
     collections::HashMap,
-    env, fs,
+    env,
     path::{Path, PathBuf},
 };
 
 use bytes::Bytes;
 use eyre::{bail, eyre, Result};
+use hash_utils::{sha2::Digest, sha2::Sha256};
 use oci_spec::image::{Descriptor, ImageConfiguration, ImageIndex, ImageManifest, MediaType};
 use once_cell::sync::Lazy;
 use serde::Deserialize;
 use tokio::{
-    fs::File,
+    fs::{create_dir_all, metadata, read_to_string, File},
     io::{self, AsyncReadExt, AsyncWriteExt},
     sync::RwLock,
 };
@@ -49,7 +50,7 @@ impl BlobMap {
         let path = Self::path();
 
         let inner = if path.exists() {
-            match fs::read_to_string(&path)
+            match std::fs::read_to_string(&path)
                 .map_err(|error| eyre!(error))
                 .and_then(|json| serde_json::from_str(&json).map_err(|error| eyre!(error)))
             {
@@ -68,9 +69,11 @@ impl BlobMap {
 
     fn write(&self) -> Result<()> {
         let path = Self::path();
-        fs::create_dir_all(path.parent().expect("Path should always have a parent"))?;
+        std::fs::create_dir_all(path.parent().expect("Path should always have a parent"))?;
+
         let json = serde_json::to_string_pretty(&self.inner)?;
         std::fs::write(&path, json)?;
+        
         Ok(())
     }
 
@@ -181,7 +184,7 @@ impl Client {
     /// - `image_dir`: the image directory following the [OCI Image Layout](https://github.com/opencontainers/image-spec/blob/main/image-layout.md) spec
     pub async fn push_image(&self, reference: &str, layout_dir: &Path) -> Result<()> {
         let index_path = layout_dir.join("index.json");
-        let index_json = fs::read_to_string(index_path)?;
+        let index_json = read_to_string(index_path).await?;
         let index: ImageIndex = serde_json::from_str(&index_json)?;
 
         let manifest_descriptor = index.manifests().get(0).unwrap();
@@ -234,7 +237,7 @@ impl Client {
         let manifest: ImageManifest = response.json().await?;
 
         let mut blob_map = BLOB_MAP.write().await;
-        blob_map.insert_layers(&manifest.layers(), &self.registry, &self.repository)?;
+        blob_map.insert_layers(manifest.layers(), &self.registry, &self.repository)?;
 
         Ok(manifest)
     }
@@ -245,14 +248,7 @@ impl Client {
         reference: S,
         layout_dir: P,
     ) -> Result<ImageManifest> {
-        let manifest = self.get_manifest(reference).await?;
-
-        fs::create_dir_all(&layout_dir)?;
-        let manifest_path = layout_dir.as_ref().join("index.json");
-        let mut manifest_file = fs::File::create(manifest_path)?;
-        manifest.to_writer_pretty(&mut manifest_file)?;
-
-        Ok(manifest)
+        todo!()
     }
 
     /// Push a manifest from a local file to the registry
@@ -273,7 +269,7 @@ impl Client {
         );
 
         let manifest_path = Self::blob_path(layout_dir, digest)?;
-        let manifest_json = fs::read_to_string(manifest_path)?;
+        let manifest_json = read_to_string(manifest_path).await?;
         let manifest: ImageManifest = serde_json::from_str(&manifest_json)?;
 
         self.push_blob(layout_dir, manifest.config().digest())
@@ -371,13 +367,20 @@ impl Client {
         let mut response = self.get_blob(digest, size).await?;
 
         let blobs_dir = layout_dir.join("blobs").join("sha256");
-        fs::create_dir_all(&blobs_dir)?;
+        create_dir_all(&blobs_dir).await?;
 
         let blob_path = Self::blob_path(layout_dir, digest)?;
-        let mut file = File::create(blob_path).await?;
 
+        let mut file = File::create(blob_path).await?;
+        let mut hash = Sha256::new();
         while let Some(chunk) = response.chunk().await? {
-            file.write(chunk.as_ref()).await?;
+            file.write_all(&chunk).await?;
+            hash.update(chunk);
+        }
+        file.flush().await?;
+
+        if format!("sha256:{:x}", hash.finalize()) != digest {
+            bail!("Hash of pulled blob is not the same as digest")
         }
 
         Ok(())
@@ -476,7 +479,7 @@ impl Client {
         }
 
         let mut blob_file = File::open(&blob_path).await?;
-        let blob_length = fs::metadata(&blob_path)?.len() as usize;
+        let blob_length = metadata(&blob_path).await?.len() as usize;
 
         const MAX_CHUNK_SIZE: usize = 5_048_576;
 
@@ -637,8 +640,8 @@ mod tests {
         let image_dir = tempdir()?;
 
         let client = Client::new("localhost:5000", "hello-world", None).await?;
-        client.pull_image("latest", &image_dir).await?;
-        client.push_image("latest", &image_dir).await?;
+        client.pull_image("latest", image_dir.path()).await?;
+        client.push_image("latest", image_dir.path()).await?;
 
         Ok(())
     }
