@@ -50,7 +50,7 @@ pub struct Build {
     /// Equivalent to the `--tag` option to Docker build.
     /// Must be a valid image reference e.g. `localhost:5000/my-project`.
     /// Defaults to the name of the directory plus a hash of its path (to maintain uniqueness).
-    #[structopt(long, short, multiple = true, env = "STENCILA_IMAGE_TAG")]
+    #[structopt(long, short, env = "STENCILA_IMAGE_TAG")]
     tag: Option<String>,
 
     /// Directories that should be added as separate layers to the image
@@ -69,7 +69,7 @@ pub struct Build {
     /// Defaults to a temporary directory. Use this option when you want to inspect the contents
     /// of the image directory. When building within a container you can bind mount this volume from the host.
     /// 
-    /// If the `layout_dir` already exists, its contents are deleted! Use this with care.
+    /// If the `layout_dir` already exists, its contents are deleted - use with care!
     #[structopt(long)]
     layout_dir: Option<PathBuf>,
 }

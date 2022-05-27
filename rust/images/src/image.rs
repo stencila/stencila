@@ -386,6 +386,7 @@ impl Image {
     }
 
     pub async fn build(&self) -> Result<()> {
+        buildpacks::PACKS.build_all(Some(&self.project_dir), None)?;
         Ok(())
     }
 
