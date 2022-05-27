@@ -66,10 +66,12 @@ pub struct Build {
 
     /// The directory to write the image to
     ///
-    /// Defaults to `.stencila/image` in the project. When building within a container
-    /// it can be useful to bind mount this volume from the host.
-    #[structopt(long, short, env = "STENCILA_IMAGE_DIR")]
-    dir: Option<PathBuf>,
+    /// Defaults to a temporary directory. Use this option when you want to inspect the contents
+    /// of the image directory. When building within a container you can bind mount this volume from the host.
+    /// 
+    /// If the `layout_dir` already exists, its contents are deleted! Use this with care.
+    #[structopt(long)]
+    layout_dir: Option<PathBuf>,
 }
 
 #[async_trait]
@@ -86,13 +88,14 @@ impl Run for Build {
             self.tag.as_deref(),
             self.from.as_deref(),
             &layers_dirs,
-            self.dir.as_deref(),
+            self.layout_dir.as_deref(),
         )?;
 
         image.build().await?;
 
+        image.write().await?;
+
         if self.no_push {
-            image.write().await?;
             tracing::info!(
                 "Image built and written to `{}`",
                 image.layout_dir.display()
@@ -106,6 +109,6 @@ impl Run for Build {
             );
         }
 
-        result::nothing()
+        result::value(image)
     }
 }

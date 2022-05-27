@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    env,
+    env::{self, temp_dir},
     ffi::OsString,
     fs::{self, File, FileType, Metadata},
     hash::Hasher,
@@ -13,7 +13,6 @@ use std::{
 
 use chrono::Utc;
 use eyre::{bail, eyre, Result};
-use hash_utils::{sha2::Sha256, str_sha256_hex};
 use jwalk::WalkDirGeneric;
 use oci_spec::image::{
     Descriptor, DescriptorBuilder, History, HistoryBuilder, ImageConfiguration,
@@ -34,11 +33,14 @@ use bytecheck::CheckBytes;
 use buildpack::serde::{Deserialize, Serialize};
 
 use archive_utils::{flate2, tar};
-use hash_utils::sha2::Digest;
+use hash_utils::{sha2::Digest, sha2::Sha256, str_sha256_hex};
 
-use crate::distribution::{Client, DOCKER_REGISTRY};
+use crate::{
+    distribution::{Client, DOCKER_REGISTRY},
+    utils::unique_string,
+};
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq, serde::Serialize)]
 pub struct ImageReference {
     /// The registry the image is on. Defaults to `registry.hub.docker.com`
     pub registry: String,
@@ -130,6 +132,10 @@ impl ToString for ImageReference {
     }
 }
 
+/// A container image
+///
+/// This is serializable mainly so that it can be inspected as JSON or YAML output from a CLI command.
+#[derive(Debug, serde::Serialize)]
 pub struct Image {
     /// The project directory to build an image for
     ///
@@ -158,11 +164,13 @@ pub struct Image {
     /// Defaults to the `project_dir` and any subdirectories of `/layers/*`.
     pub layer_dirs: Vec<PathBuf>,
 
+    /// The snapshots for each layer directory, used to generated [`ChangeSet`]s and image layers
+    #[serde(skip)]
     layer_snapshots: Vec<Snapshot>,
 
     /// The directory where this image will be written to
     ///
-    /// The image will be written to this directory following the [OCI Layout Spec]
+    /// The image will be written to this directory following the [OCI Image Layout Specification]
     /// (https://github.com/opencontainers/image-spec/blob/main/image-layout.md)
     pub layout_dir: PathBuf,
 }
@@ -215,9 +223,10 @@ impl Image {
 
         let layer_snapshots = layer_dirs.iter().map(Snapshot::new).collect();
 
-        let layout_dir = layout_dir
-            .map(PathBuf::from)
-            .unwrap_or_else(|| project_dir.join(".stencila").join("image"));
+        let layout_dir = match layout_dir {
+            Some(path) => PathBuf::from(path),
+            None => temp_dir().join(format!("stencila-image-layout-{}", unique_string())),
+        };
 
         Ok(Self {
             project_dir,
@@ -334,6 +343,7 @@ impl Image {
 
         let index = ImageIndexBuilder::default()
             .schema_version(SCHEMA_VERSION)
+            .media_type(MediaType::ImageIndex)
             .manifests([manifest])
             .annotations([
                 // Where appropriate use pre defined annotations
@@ -373,7 +383,9 @@ impl Image {
     /// Write the image to `layout_dir`
     ///
     /// Implements the [OCI Image Layout Specification](https://github.com/opencontainers/image-spec/blob/main/image-layout.md).
-    /// If the `layout_dir` already exists, its contents are deleted.
+    ///
+    /// Note that the `blobs/sha256` subdirectory may not have blobs for the base image (these
+    /// are only pulled into that directory if necessary i.e. if the registry does not yet have them).
     pub async fn write(&self) -> Result<()> {
         if self.layout_dir.exists() {
             fs::remove_dir_all(&self.layout_dir)?;
@@ -390,10 +402,10 @@ impl Image {
         Ok(())
     }
 
-    /// Push the image to `registry`
+    /// Push the image to its registry
+    ///
+    /// The image must be written first (by a call to `self.write()`).
     pub async fn push(&self) -> Result<()> {
-        self.write().await?;
-
         let client = Client::new(&self.registry, &self.repository, None).await?;
         client.push_image("latest", &self.layout_dir).await?;
 
@@ -445,7 +457,7 @@ impl ChangeSet {
     ///
     /// - `layout_dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
     fn write_layer<P: AsRef<Path>>(self, layout_dir: P) -> Result<(String, Descriptor)> {
-        if self.items.is_empty() {
+        if self.len() == 0 {
             return Ok(("<empty>".to_string(), DescriptorBuilder::default().build()?));
         }
 
@@ -838,15 +850,7 @@ impl BlobWriter {
         let blobs_dir = image_dir.as_ref().join("blobs").join("sha256");
         fs::create_dir_all(&blobs_dir)?;
 
-        // Create a unique temporary filename without use of external crates
-        // Based on https://users.rust-lang.org/t/random-number-without-using-the-external-crate/17260/9
-        let ptr = Box::into_raw(Box::new(0)) as usize;
-        let nanos = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .subsec_nanos();
-        let filename = PathBuf::from(format!(".{}{}", ptr, nanos));
-
+        let filename = PathBuf::from(format!("temporary-{}", unique_string()));
         let file = File::create(blobs_dir.join(&filename))?;
 
         Ok(Self {
