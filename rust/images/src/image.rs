@@ -248,12 +248,14 @@ impl Image {
     ///
     /// Used when writing the image because the DiffIDs (from the config) and the layers (from the
     /// manifest) and required for the config and manifest of this image.
-    async fn get_base(&self) -> Result<(ImageConfiguration, Vec<Descriptor>)> {
+    async fn get_base(&self) -> Result<(String, ImageConfiguration, Vec<Descriptor>)> {
         let client = Client::new(&self.base.registry, &self.base.repository, None).await?;
-        let manifest = client.get_manifest(self.base.reference()).await?;
+        let (manifest, digest) = client.get_manifest(self.base.reference()).await?;
+
         let config = client.get_config(&manifest).await?;
         let layers = manifest.layers().clone();
-        Ok((config, layers))
+
+        Ok((digest, config, layers))
     }
 
     /// Write the image layer blobs and returns vectors of DiffIDs and layer descriptors
@@ -321,8 +323,8 @@ impl Image {
     ///
     /// Implements the [OCI Image Manifest Specification](https://github.com/opencontainers/image-spec/blob/main/manifest.md).
     /// Given that the manifest requires the descriptors for config and layers also calls `write_config` and `write_layers`.
-    async fn write_manifest(&self) -> Result<Descriptor> {
-        let (base_config, base_layers) = self.get_base().await?;
+    async fn write_manifest(&self) -> Result<(String, Descriptor)> {
+        let (base_digest, base_config, base_layers) = self.get_base().await?;
 
         let (layers, diff_ids, history) = self.write_layers(&base_config, base_layers)?;
 
@@ -335,7 +337,10 @@ impl Image {
             .layers(layers)
             .build()?;
 
-        BlobWriter::write_json(&self.layout_dir, MediaType::ImageManifest, &manifest)
+        Ok((
+            base_digest,
+            BlobWriter::write_json(&self.layout_dir, MediaType::ImageManifest, &manifest)?,
+        ))
     }
 
     /// Write the image `index.json`
@@ -344,32 +349,39 @@ impl Image {
     /// Given that the index requires the image manifest descriptor, also calls `write_manifest`. At present the
     /// image only has one manifest (for a Linux image).
     async fn write_index(&self) -> Result<()> {
-        let manifest = self.write_manifest().await?;
+        let (base_digest, manifest) = self.write_manifest().await?;
+
+        let annotations: HashMap<String, String> = [
+            // Where appropriate use pre defined annotations
+            // https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
+            (
+                "io.stencila.stencila.version".to_string(),
+                env!("CARGO_PKG_VERSION").to_string(),
+            ),
+            (
+                "org.opencontainers.image.ref.name".to_string(),
+                self.ref_.to_string(),
+            ),
+            (
+                "org.opencontainers.image.created".to_string(),
+                Utc::now().to_rfc3339(),
+            ),
+            (
+                "org.opencontainers.image.base.name".to_string(),
+                self.base.to_string(),
+            ),
+            (
+                "org.opencontainers.image.base.digest".to_string(),
+                base_digest,
+            ),
+        ]
+        .into();
 
         let index = ImageIndexBuilder::default()
             .schema_version(SCHEMA_VERSION)
             .media_type(MediaType::ImageIndex)
             .manifests([manifest])
-            .annotations([
-                // Where appropriate use pre defined annotations
-                // https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
-                (
-                    "org.opencontainers.image.ref.name".to_string(),
-                    self.ref_.to_string(),
-                ),
-                (
-                    "org.opencontainers.image.created".to_string(),
-                    Utc::now().to_rfc3339(),
-                ),
-                (
-                    "org.opencontainers.image.base.name".to_string(),
-                    self.base.to_string(),
-                ),
-                (
-                    "io.stencila.stencila.version".to_string(),
-                    env!("CARGO_PKG_VERSION").to_string(),
-                ),
-            ])
+            .annotations(annotations)
             .build()?;
 
         fs::write(

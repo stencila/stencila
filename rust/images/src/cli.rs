@@ -62,15 +62,15 @@ pub struct Build {
 
     /// Do not actually build the image
     ///
-    /// Mainly useful during development for testing the parsing of inputs such as `--from`
-    /// and `--tag` image references.
+    /// Mainly useful during development for testing the writing of images, without waiting for
+    /// potentially long build times.
     #[structopt(long)]
     no_build: bool,
 
     /// Do not write the image to disk after building it
     ///
     /// Mainly useful during development for testing that the image can be built without
-    /// waiting for downloads of base image manifest or snapshot changesets to be calculated.
+    /// waiting for the base image manifest to be fetched or snapshot changesets to be calculated.
     #[structopt(long)]
     no_write: bool,
 
@@ -84,7 +84,9 @@ pub struct Build {
     /// The directory to write the image to
     ///
     /// Defaults to a temporary directory. Use this option if you want to inspect the contents
-    /// of the image directory. When building within a container you can bind mount this volume from the host.
+    /// of the image directory. e.g.
+    /// 
+    ///     stencila images build ... --no-build --no-push --layout-dir temp
     ///
     /// If the `layout_dir` already exists, its contents are deleted - so use with care!
     #[structopt(long)]
@@ -109,24 +111,24 @@ impl Run for Build {
         )?;
 
         if self.no_build {
-            tracing::info!("Skipped build because --no-build option used");
+            tracing::info!("Skipped build because --no-build option used.");
         } else {
             image.build().await?;
+        }
 
-            if self.no_write {
-                tracing::info!("Image built successfully");
+        if self.no_write {
+            tracing::info!("Image built successfully. Skipping write and push because --no-write option used.");
+        } else {
+            image.write().await?;
+
+            if self.no_push {
+                tracing::info!(
+                    "Image built and written to `{}`.",
+                    image.layout_dir.display()
+                );
             } else {
-                image.write().await?;
-
-                if self.no_push {
-                    tracing::info!(
-                        "Image built and written to `{}`",
-                        image.layout_dir.display()
-                    );
-                } else {
-                    image.push().await?;
-                    tracing::info!("Image built and pushed to `{}`", image.ref_.to_string());
-                }
+                image.push().await?;
+                tracing::info!("Image built and pushed to `{}`.", image.ref_.to_string());
             }
         }
 

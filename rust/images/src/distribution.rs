@@ -6,7 +6,7 @@ use std::{
 
 use bytes::Bytes;
 use eyre::{bail, eyre, Result};
-use hash_utils::{sha2::Digest, sha2::Sha256};
+use hash_utils::str_sha256_hex;
 use oci_spec::image::{Descriptor, ImageConfiguration, ImageIndex, ImageManifest, MediaType};
 use once_cell::sync::Lazy;
 use serde::Deserialize;
@@ -214,7 +214,13 @@ impl Client {
     /// Get a manifest from the registry
     ///
     /// See https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests
-    pub async fn get_manifest<S: AsRef<str>>(&self, reference: S) -> Result<ImageManifest> {
+    ///
+    /// In accordance with that spec, if the `Docker-Content_Digest` header is provided, it is verified
+    /// against the digest of the downloaded content of the manifest.
+    pub async fn get_manifest<S: AsRef<str>>(
+        &self,
+        reference: S,
+    ) -> Result<(ImageManifest, String)> {
         let reference = reference.as_ref();
 
         tracing::info!(
@@ -226,6 +232,8 @@ impl Client {
 
         let response = self
             .get(&["/manifests/", reference].concat())
+            .header("Accept", MediaType::ImageManifest.to_string())
+            // Required for current version of Docker registry..
             .header(
                 "Accept",
                 "application/vnd.docker.distribution.manifest.v2+json",
@@ -234,12 +242,23 @@ impl Client {
             .await?
             .error_for_status()?;
 
-        let manifest: ImageManifest = response.json().await?;
+        let headers = response.headers().clone();
+        let json = response.text().await?;
+
+        let digest = format!("sha256:{}", str_sha256_hex(&json));
+        if let Some(provided_digest) = headers.get("Docker-Content_Digest") {
+            let provided_digest = provided_digest.to_str()?;
+            if provided_digest != digest {
+                bail!("Digest in the `Docker-Content_Digest` header differs to that of the manifest content ({} != {})", provided_digest, digest)
+            }
+        }
+
+        let manifest: ImageManifest = serde_json::from_str(&json)?;
 
         let mut blob_map = BLOB_MAP.write().await;
         blob_map.insert_layers(manifest.layers(), &self.registry, &self.repository)?;
 
-        Ok(manifest)
+        Ok((manifest, digest))
     }
 
     /// Pull a manifest from the registry to a local file and return it
