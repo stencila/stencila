@@ -386,7 +386,6 @@ impl Image {
     }
 
     pub async fn build(&self) -> Result<()> {
-        fs::write("./foo.txt", Utc::now().to_rfc3339())?;
         Ok(())
     }
 
@@ -468,7 +467,14 @@ impl ChangeSet {
     /// - `layout_dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
     fn write_layer<P: AsRef<Path>>(self, layout_dir: P) -> Result<(String, Descriptor)> {
         if self.len() == 0 {
-            return Ok(("<empty>".to_string(), DescriptorBuilder::default().build()?));
+            return Ok((
+                "<empty>".to_string(),
+                DescriptorBuilder::default()
+                    .media_type(MediaType::ImageLayer)
+                    .digest("<none>")
+                    .size(0)
+                    .build()?,
+            ));
         }
 
         let mut diffid_hash = Sha256::new();
