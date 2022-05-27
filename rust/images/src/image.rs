@@ -138,11 +138,11 @@ impl ToString for ImageReference {
 /// This is serializable mainly so that it can be inspected as JSON or YAML output from a CLI command.
 #[derive(Debug, serde::Serialize)]
 pub struct Image {
-    /// The project directory to build an image for
+    /// The working directory to build an image for
     ///
-    /// This is the "working directory" that buildpacks will build layers
-    /// for based on the source code within it. Defaults to the current directory.
-    pub project_dir: PathBuf,
+    /// Buildpacks will build layers based on the source code within this directory. Usually
+    /// the home directroy of a project. Defaults to the current directory.
+    pub working_dir: PathBuf,
 
     /// The registry that the image is pushed to
     ///
@@ -151,8 +151,8 @@ pub struct Image {
 
     /// The repository that the image is pushed to
     ///
-    /// Defaults to the name of the `project_dir` suffixed with a hash of the
-    /// absolute path of the `project_dir` (this ensures uniqueness on the current machine).
+    /// Defaults to the name of the `working_dir` suffixed with a hash of the
+    /// absolute path of the `working_dir` (this ensures uniqueness on the current machine).
     pub repository: String,
 
     /// The base image from which this image is derived
@@ -162,7 +162,7 @@ pub struct Image {
 
     /// The directories that will be snapshotted to generate individual layers for the image
     ///
-    /// Defaults to the `project_dir` and any subdirectories of `/layers/*`.
+    /// Defaults to the `working_dir` and any subdirectories of `/layers/*`.
     pub layer_dirs: Vec<PathBuf>,
 
     /// The snapshots for each layer directory, used to generated [`ChangeSet`]s and image layers
@@ -184,13 +184,13 @@ pub struct Image {
 impl Image {
     /// Create a new image
     pub fn new(
-        project_dir: Option<&Path>,
+        working_dir: Option<&Path>,
         reference: Option<&str>,
         base: Option<&str>,
         layer_dirs: &[&str],
         layout_dir: Option<&Path>,
     ) -> Result<Self> {
-        let project_dir = project_dir
+        let working_dir = working_dir
             .map(PathBuf::from)
             .unwrap_or_else(|| env::current_dir().expect("Unable to get cwd"));
 
@@ -201,11 +201,11 @@ impl Image {
             }
             None => {
                 let registry = DOCKER_REGISTRY.to_string();
-                let name = project_dir
+                let name = working_dir
                     .file_name()
                     .map(|name| name.to_string_lossy().to_string())
                     .unwrap_or_else(|| "unnamed".to_string());
-                let hash = str_sha256_hex(&project_dir.to_string_lossy().to_string());
+                let hash = str_sha256_hex(&working_dir.to_string_lossy().to_string());
                 let repository = [&name, "-", &hash[..12]].concat();
                 (registry, repository)
             }
@@ -216,7 +216,7 @@ impl Image {
         let patterns = if !layer_dirs.is_empty() {
             layer_dirs.iter().cloned().map(String::from).collect()
         } else {
-            vec![project_dir.to_string_lossy().to_string()]
+            vec![working_dir.to_string_lossy().to_string()]
         };
         let mut layer_dirs = vec![];
         for pattern in patterns {
@@ -238,7 +238,7 @@ impl Image {
         };
 
         Ok(Self {
-            project_dir,
+            working_dir: working_dir,
             registry,
             repository,
             base,
@@ -386,7 +386,7 @@ impl Image {
     }
 
     pub async fn build(&self) -> Result<()> {
-        buildpacks::PACKS.build_all(Some(&self.project_dir), None)?;
+        buildpacks::PACKS.build_all(Some(&self.working_dir), None)?;
         Ok(())
     }
 
@@ -1151,8 +1151,8 @@ mod tests {
     /// the OCI Image Layout spec
     #[tokio::test]
     async fn image_write() -> Result<()> {
-        let project_dir = tempdir()?;
-        let image = Image::new(Some(project_dir.path()), None, None, &[], None)?;
+        let working_dir = tempdir()?;
+        let image = Image::new(Some(working_dir.path()), None, None, &[], None)?;
 
         image.write().await?;
 

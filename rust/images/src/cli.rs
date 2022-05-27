@@ -33,10 +33,10 @@ impl Run for Command {
     setting = structopt::clap::AppSettings::ColoredHelp
 )]
 pub struct Build {
-    /// The project directory to build
+    /// The directory to build an image for
     ///
-    /// Defaults to the current project.
-    project: Option<PathBuf>,
+    /// Defaults to the current directory.
+    dir: Option<PathBuf>,
 
     /// The base image to build from
     ///
@@ -55,21 +55,23 @@ pub struct Build {
 
     /// Directories that should be added as separate layers to the image
     ///
-    /// Use a colon separated list of globs. Defaults to "<project>" and "/layers/*/*" (i.e. a layer for the project
+    /// Use a colon separated list of globs. Defaults to "<dir>" and "/layers/*/*" (i.e. a layer for the working
     /// directory and one for each of the sub-sub-directories of "/layers" which are created by buildpacks).
     #[structopt(long, short, env = "STENCILA_IMAGE_LAYERS")]
     layers: Option<String>,
 
-    /// Do not push the image
+    /// Do not push the image to the repository after building it
+    /// 
+    /// Mainly useful for testing during development
     #[structopt(long, short)]
     no_push: bool,
 
     /// The directory to write the image to
     ///
-    /// Defaults to a temporary directory. Use this option when you want to inspect the contents
+    /// Defaults to a temporary directory. Use this option if you want to inspect the contents
     /// of the image directory. When building within a container you can bind mount this volume from the host.
     /// 
-    /// If the `layout_dir` already exists, its contents are deleted - use with care!
+    /// If the `layout_dir` already exists, its contents are deleted - so use with care!
     #[structopt(long)]
     layout_dir: Option<PathBuf>,
 }
@@ -84,7 +86,7 @@ impl Run for Build {
             .unwrap_or_default();
 
         let image = Image::new(
-            self.project.as_deref(),
+            self.dir.as_deref(),
             self.tag.as_deref(),
             self.from.as_deref(),
             &layers_dirs,
