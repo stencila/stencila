@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    env::{self, temp_dir},
+    env,
     ffi::OsString,
     fs::{self, File, FileType, Metadata},
     hash::Hasher,
@@ -34,6 +34,7 @@ use buildpack::serde::{Deserialize, Serialize};
 
 use archive_utils::{flate2, tar};
 use hash_utils::{sha2::Digest, sha2::Sha256, str_sha256_hex};
+use http_utils::tempfile::{tempdir, TempDir};
 
 use crate::{
     distribution::{Client, DOCKER_REGISTRY},
@@ -173,6 +174,11 @@ pub struct Image {
     /// The image will be written to this directory following the [OCI Image Layout Specification]
     /// (https://github.com/opencontainers/image-spec/blob/main/image-layout.md)
     pub layout_dir: PathBuf,
+
+    /// The temporary directory created for the duration of the image's life to write layout to
+    #[serde(skip)]
+    #[allow(dead_code)]
+    layout_tempdir: Option<TempDir>,
 }
 
 impl Image {
@@ -223,9 +229,12 @@ impl Image {
 
         let layer_snapshots = layer_dirs.iter().map(Snapshot::new).collect();
 
-        let layout_dir = match layout_dir {
-            Some(path) => PathBuf::from(path),
-            None => temp_dir().join(format!("stencila-image-layout-{}", unique_string())),
+        let (layout_dir, layout_tempdir) = match layout_dir {
+            Some(path) => (PathBuf::from(path), None),
+            None => {
+                let tempdir = tempdir()?;
+                (tempdir.path().to_path_buf(), Some(tempdir))
+            }
         };
 
         Ok(Self {
@@ -236,6 +245,7 @@ impl Image {
             layer_dirs,
             layer_snapshots,
             layout_dir,
+            layout_tempdir,
         })
     }
 
