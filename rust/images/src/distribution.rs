@@ -73,7 +73,7 @@ impl BlobMap {
 
         let json = serde_json::to_string_pretty(&self.inner)?;
         std::fs::write(&path, json)?;
-        
+
         Ok(())
     }
 
@@ -444,22 +444,6 @@ impl Client {
         // Registry does not support cross-repository mounting or is unable to mount the blob
         // "This indicates that the upload session has begun and that the client MAY proceed with the upload."
 
-        let upload_uuid = match response.headers().get("Docker-Upload-UUID") {
-            Some(url) => url.to_str()?,
-            None => bail!("Did not receive upload UUID from registry"),
-        };
-        let upload_url = match response.headers().get("Location") {
-            Some(url) => url.to_str()?,
-            None => bail!("Did not receive upload URL from registry"),
-        };
-
-        tracing::info!(
-            "Pushing blob `{}` to `{}/{}`",
-            digest,
-            self.registry,
-            self.repository
-        );
-
         let blob_path = Self::blob_path(layout_dir, digest)?;
 
         if !blob_path.exists() {
@@ -481,6 +465,18 @@ impl Client {
         let mut blob_file = File::open(&blob_path).await?;
         let blob_length = metadata(&blob_path).await?.len() as usize;
 
+        tracing::info!(
+            "Pushing blob `{}` to `{}/{}`",
+            digest,
+            self.registry,
+            self.repository
+        );
+
+        let mut upload_url = match response.headers().get("Location") {
+            Some(url) => url.to_str()?.to_string(),
+            None => bail!("Did not receive upload URL from registry"),
+        };
+
         const MAX_CHUNK_SIZE: usize = 5_048_576;
 
         // If the blob is less than the maximum chunk size then upload it "monolithically"
@@ -490,7 +486,7 @@ impl Client {
             io::copy(&mut blob_file, &mut bytes).await?;
 
             let upload_url = [
-                upload_url,
+                upload_url.as_str(),
                 if upload_url.contains('?') { "&" } else { "?" },
                 "digest=",
                 digest,
@@ -512,7 +508,7 @@ impl Client {
 
         // Read the blob in chunks and upload each
         let mut buffer = vec![0u8; MAX_CHUNK_SIZE];
-        let mut start_byte = 0;
+        let mut chunk_start = 0;
         while let Ok(chunk_length) = blob_file.read(&mut buffer[..]).await {
             if chunk_length == 0 {
                 break;
@@ -520,48 +516,46 @@ impl Client {
 
             let chunk = Bytes::copy_from_slice(&buffer[0..chunk_length]);
 
-            tracing::info!(
-                "{} {} {} {}",
-                start_byte,
-                start_byte + chunk_length - 1,
-                chunk_length,
-                chunk.len()
-            );
-
             let response = self
                 .patch(upload_url)
                 .header("Content-Type", "application/octet-stream")
                 .header(
                     "Content-Range",
-                    format!("{}-{}", start_byte, start_byte + chunk_length - 1),
+                    format!("{}-{}", chunk_start, chunk_start + chunk_length - 1),
                 )
-                .header("Content-Length", chunk.len())
+                .header("Content-Length", chunk_length)
                 .body(chunk)
                 .send()
                 .await?;
-            if response.status() != 202 {
+            if response.status() == 202 {
+                // "Each consecutive chunk upload SHOULD use the <location> provided in the
+                // response to the previous chunk upload."
+                upload_url = match response.headers().get("Location") {
+                    Some(value) => value.to_str()?.to_string(),
+                    None => {
+                        bail!("Response did not have `Location` header")
+                    }
+                }
+            } else {
                 bail!(
                     "While uploading chunk: {} {}",
                     response.status(),
                     response.text().await?
                 )
-            } else {
-                let range = response
-                    .headers()
-                    .get("Range")
-                    .and_then(|range| range.to_str().ok())
-                    .unwrap_or_default();
-                tracing::info!("Uploaded chunk range `{}`", range);
             }
 
-            start_byte += chunk_length;
+            chunk_start += chunk_length;
         }
 
         // Notify the registry that the upload is complete
-        self.put(["/blobs/uploads/", upload_uuid, "?digest=", digest].concat())
-            .send()
-            .await?
-            .error_for_status()?;
+        let upload_url = [
+            upload_url.as_str(),
+            if upload_url.contains('?') { "&" } else { "?" },
+            "digest=",
+            digest,
+        ]
+        .concat();
+        self.put(upload_url).send().await?.error_for_status()?;
 
         Ok(())
     }
