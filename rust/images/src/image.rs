@@ -144,18 +144,11 @@ pub struct Image {
     /// the home directroy of a project. Defaults to the current directory.
     pub working_dir: PathBuf,
 
-    /// The registry that the image is pushed to
-    ///
-    /// Defaults to `registry.hub.docker.com`.
-    pub registry: String,
+    /// The image reference for this image
+    #[serde(rename = "ref")]
+    pub ref_: ImageReference,
 
-    /// The repository that the image is pushed to
-    ///
-    /// Defaults to the name of the `working_dir` suffixed with a hash of the
-    /// absolute path of the `working_dir` (this ensures uniqueness on the current machine).
-    pub repository: String,
-
-    /// The base image from which this image is derived
+    /// The image reference for the base image from which this image is derived
     ///
     /// Equivalent to the `FROM` directive of a Dockerfile.
     pub base: ImageReference,
@@ -185,7 +178,7 @@ impl Image {
     /// Create a new image
     pub fn new(
         working_dir: Option<&Path>,
-        reference: Option<&str>,
+        ref_: Option<&str>,
         base: Option<&str>,
         layer_dirs: &[&str],
         layout_dir: Option<&Path>,
@@ -194,20 +187,23 @@ impl Image {
             .map(PathBuf::from)
             .unwrap_or_else(|| env::current_dir().expect("Unable to get cwd"));
 
-        let (registry, repository) = match reference {
-            Some(reference) => {
-                let reference: ImageReference = reference.parse()?;
-                (reference.registry, reference.repository)
-            }
+        let ref_ = match ref_ {
+            Some(reference) => reference.parse::<ImageReference>()?,
             None => {
                 let registry = DOCKER_REGISTRY.to_string();
+
                 let name = working_dir
                     .file_name()
                     .map(|name| name.to_string_lossy().to_string())
                     .unwrap_or_else(|| "unnamed".to_string());
                 let hash = str_sha256_hex(&working_dir.to_string_lossy().to_string());
                 let repository = [&name, "-", &hash[..12]].concat();
-                (registry, repository)
+
+                ImageReference {
+                    registry,
+                    repository,
+                    ..Default::default()
+                }
             }
         };
 
@@ -238,9 +234,8 @@ impl Image {
         };
 
         Ok(Self {
-            working_dir: working_dir,
-            registry,
-            repository,
+            working_dir,
+            ref_,
             base,
             layer_dirs,
             layer_snapshots,
@@ -359,16 +354,16 @@ impl Image {
                 // Where appropriate use pre defined annotations
                 // https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
                 (
+                    "org.opencontainers.image.ref.name".to_string(),
+                    self.ref_.to_string(),
+                ),
+                (
                     "org.opencontainers.image.created".to_string(),
                     Utc::now().to_rfc3339(),
                 ),
                 (
                     "org.opencontainers.image.base.name".to_string(),
                     self.base.to_string(),
-                ),
-                (
-                    "org.opencontainers.image.ref.name".to_string(),
-                    self.repository.clone(),
                 ),
                 (
                     "io.stencila.stencila.version".to_string(),
@@ -416,7 +411,7 @@ impl Image {
     ///
     /// The image must be written first (by a call to `self.write()`).
     pub async fn push(&self) -> Result<()> {
-        let client = Client::new(&self.registry, &self.repository, None).await?;
+        let client = Client::new(&self.ref_.registry, &self.ref_.repository, None).await?;
         client.push_image("latest", &self.layout_dir).await?;
 
         Ok(())
