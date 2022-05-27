@@ -135,29 +135,29 @@ pub struct Image {
     ///
     /// This is the "working directory" that buildpacks will build layers
     /// for based on the source code within it. Defaults to the current directory.
-    project_dir: PathBuf,
+    pub project_dir: PathBuf,
 
     /// The registry that the image is pushed to
     ///
     /// Defaults to `registry.hub.docker.com`.
-    registry: String,
+    pub registry: String,
 
     /// The repository that the image is pushed to
     ///
     /// Defaults to the name of the `project_dir` suffixed with a hash of the
     /// absolute path of the `project_dir` (this ensures uniqueness on the current machine).
-    repository: String,
+    pub repository: String,
 
     /// The base image from which this image is derived
     ///
     /// Equivalent to the `FROM` directive of a Dockerfile.
-    base: ImageReference,
+    pub base: ImageReference,
 
     /// The directory where this image will be written to
     ///
     /// The image will be written to this directory following the [OCI Layout Spec]
     /// (https://github.com/opencontainers/image-spec/blob/main/image-layout.md)
-    layout_dir: PathBuf,
+    pub layout_dir: PathBuf,
 }
 
 impl Image {
@@ -306,6 +306,11 @@ impl Image {
         Ok(())
     }
 
+    pub async fn build(&self) -> Result<()> {
+        // TODO
+        Ok(())
+    }
+
     /// Write the image to `layout_dir`
     ///
     /// Implements the [OCI Image Layout Specification](https://github.com/opencontainers/image-spec/blob/main/image-layout.md).
@@ -326,15 +331,14 @@ impl Image {
         Ok(())
     }
 
+    /// Push the image to `registry`
     pub async fn push(&self) -> Result<()> {
+        self.write().await?;
+
         let client = Client::new(&self.registry, &self.repository, None).await?;
         client.push_image("latest", &self.layout_dir).await?;
-        Ok(())
-    }
 
-    pub async fn build(&self) -> Result<()> {
-        self.write().await?;
-        self.push().await
+        Ok(())
     }
 }
 

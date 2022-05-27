@@ -4,7 +4,7 @@ use structopt::StructOpt;
 
 use cli_utils::{async_trait::async_trait, result, Result, Run};
 
-use crate::build::build;
+use crate::image::Image;
 
 /// Build and distribute container images
 #[derive(Debug, StructOpt)]
@@ -40,10 +40,18 @@ pub struct Build {
 
     /// The base image to build from
     ///
-    /// Use the image name and optionally a tag e.g. `docker.io/library/ubuntu:22.04`, `ubuntu:22.04`, `ubuntu`
     /// Equivalent to the `FROM` directive in a Dockerfile. Defaults to `stencila/femto`.
+    /// Must be a valid image reference e.g. `docker.io/library/ubuntu:22.04`, `ubuntu:22.04`, `ubuntu`
     #[structopt(long, short, env = "STENCILA_IMAGE_FROM")]
     from: Option<String>,
+
+    /// The registry, repository and tag to push to
+    ///
+    /// Equivalent to the `--tag` option to Docker build.
+    /// Must be a valid image reference e.g. `localhost:5000/my-project`.
+    /// Defaults to the name of the directory plus a hash of its path (to maintain uniqueness).
+    #[structopt(long, short, multiple = true, env = "STENCILA_IMAGE_TAG")]
+    tag: Option<String>,
 
     /// Directories that should be added as separate layers to the image
     ///
@@ -52,18 +60,16 @@ pub struct Build {
     #[structopt(long, short, env = "STENCILA_IMAGE_LAYERS")]
     layers: Option<String>,
 
+    /// Do not push the image
+    #[structopt(long, short)]
+    no_push: bool,
+
     /// The directory to write the image to
     ///
     /// Defaults to `.stencila/image` in the project. When building within a container
     /// it can be useful to bind mount this volume from the host.
     #[structopt(long, short, env = "STENCILA_IMAGE_DIR")]
     dir: Option<PathBuf>,
-
-    /// The name for the built image
-    ///
-    /// Defaults to the name of the directory plus a hash of its path (to maintain uniqueness).
-    #[structopt(long, short, env = "STENCILA_IMAGE_TO")]
-    to: Option<String>,
 }
 
 #[async_trait]
@@ -75,14 +81,29 @@ impl Run for Build {
             .map(|str| str.split(':').map(String::from).collect())
             .unwrap_or_default();
 
-        build(
+        let image = Image::new(
             self.project.as_deref(),
-            &layers_dir,
+            self.tag.as_deref(),
             self.from.as_deref(),
-            self.to.as_deref(),
             self.dir.as_deref(),
-        )
-        .await?;
+        )?;
+
+        image.build().await?;
+
+        if self.no_push {
+            image.write().await?;
+            tracing::info!(
+                "Image built and written to `{}`",
+                image.layout_dir.display()
+            );
+        } else {
+            image.push().await?;
+            tracing::info!(
+                "Image built and pushed to `{}/{}`",
+                image.registry,
+                image.repository
+            );
+        }
 
         result::nothing()
     }
