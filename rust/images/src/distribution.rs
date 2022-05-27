@@ -1,12 +1,18 @@
-use std::{env, fs, path::Path};
+use std::{
+    collections::HashMap,
+    env, fs,
+    path::{Path, PathBuf},
+};
 
 use bytes::Bytes;
-use eyre::{bail, Result};
-use oci_spec::image::{Descriptor, ImageConfiguration, ImageManifest};
+use eyre::{bail, eyre, Result};
+use oci_spec::image::{Descriptor, ImageConfiguration, ImageIndex, ImageManifest, MediaType};
+use once_cell::sync::Lazy;
 use serde::Deserialize;
 use tokio::{
     fs::File,
     io::{self, AsyncReadExt, AsyncWriteExt},
+    sync::RwLock,
 };
 
 use http_utils::{
@@ -16,8 +22,94 @@ use http_utils::{
 };
 
 pub const DOCKER_REGISTRY: &str = "registry.hub.docker.com";
-
 pub const FLY_REGISTRY: &str = "registry.fly.io";
+
+/// Get the directory of the cache
+pub fn cache_dir() -> PathBuf {
+    let user_cache_dir = dirs::cache_dir().unwrap_or_else(|| env::current_dir().unwrap());
+    match env::consts::OS {
+        "macos" | "windows" => user_cache_dir.join("Stencila").join("Images-Cache"),
+        _ => user_cache_dir.join("stencila").join("images-cache"),
+    }
+}
+
+/// A persistent mapping of blobs and which registries and repositories they occur in
+///
+/// Used for [Cross Repository Blob Mounting](https://github.com/opencontainers/distribution-spec/blob/main/spec.md#mounting-a-blob-from-another-repository)
+struct BlobMap {
+    inner: HashMap<String, Vec<(String, String)>>,
+}
+
+impl BlobMap {
+    fn path() -> PathBuf {
+        cache_dir().join("blob-map.json")
+    }
+
+    fn read() -> Self {
+        let path = Self::path();
+
+        let inner = if path.exists() {
+            match fs::read_to_string(&path)
+                .map_err(|error| eyre!(error))
+                .and_then(|json| serde_json::from_str(&json).map_err(|error| eyre!(error)))
+            {
+                Ok(inner) => inner,
+                Err(error) => {
+                    tracing::warn!("While reading {}: {}", path.display(), error);
+                    HashMap::new()
+                }
+            }
+        } else {
+            HashMap::new()
+        };
+
+        BlobMap { inner }
+    }
+
+    fn write(&self) -> Result<()> {
+        let path = Self::path();
+        fs::create_dir_all(path.parent().expect("Path should always have a parent"))?;
+        let json = serde_json::to_string_pretty(&self.inner)?;
+        std::fs::write(&path, json)?;
+        Ok(())
+    }
+
+    fn insert(&mut self, digest: &str, registry: &str, repository: &str) {
+        let pairs = self.inner.entry(digest.to_string()).or_default();
+        let pair = (registry.to_string(), repository.to_string());
+        if !pairs.contains(&pair) {
+            pairs.push(pair);
+        }
+    }
+
+    fn insert_layers(
+        &mut self,
+        layers: &[Descriptor],
+        registry: &str,
+        repository: &str,
+    ) -> Result<()> {
+        for descriptor in layers {
+            self.insert(descriptor.digest(), registry, repository)
+        }
+        self.write()?;
+        Ok(())
+    }
+
+    fn get_registry_and_repo(&self, digest: &str) -> Option<&(String, String)> {
+        self.inner.get(digest).and_then(|pairs| pairs.first())
+    }
+
+    fn get_repo(&self, digest: &str, registry: &str) -> Option<String> {
+        self.inner.get(digest).and_then(|pairs| {
+            pairs.iter().find_map(|pair| match pair.0 == registry {
+                true => Some(pair.1.clone()),
+                false => None,
+            })
+        })
+    }
+}
+
+static BLOB_MAP: Lazy<RwLock<BlobMap>> = Lazy::new(|| RwLock::new(BlobMap::read()));
 
 /// A client that implements the [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec/blob/main/spec.md)
 /// for pulling and pushing images from a container registry
@@ -25,8 +117,8 @@ pub struct Client {
     /// URL of the image registry e.g. `registry.fly.io`, `localhost:5000`
     registry: String,
 
-    /// Name of the image e.g. `library/hello-world`
-    image: String,
+    /// Name of the image repository e.g. `library/hello-world`
+    repository: String,
 
     /// Token used to authenticate requests
     token: Option<String>,
@@ -42,17 +134,13 @@ struct DockerAuthToken {
 
 impl Client {
     /// Create a new client
-    pub async fn new(
-        registry_host: &str,
-        image_name: &str,
-        registry_token: Option<&str>,
-    ) -> Result<Self> {
-        let registry_token = match registry_token {
-            None => match registry_host {
+    pub async fn new(registry: &str, repository: &str, token: Option<&str>) -> Result<Self> {
+        let token = match token {
+            None => match registry {
                 DOCKER_REGISTRY => {
                     // Get a temporary access token (at time of writing they last 5 minutes)
                     let mut request = CLIENT.get(
-                            format!("https://auth.docker.io/token?service=registry.docker.io&scope=repository:{}:pull", image_name)
+                            format!("https://auth.docker.io/token?service=registry.docker.io&scope=repository:{}:pull", repository)
                         );
                     // If possible use a Docker Hub username and password (the password is preferably an access token) for
                     // higher rate limits and push access
@@ -76,9 +164,9 @@ impl Client {
         };
 
         Ok(Self {
-            registry: registry_host.to_string(),
-            image: image_name.to_string(),
-            token: registry_token,
+            registry: registry.to_string(),
+            repository: repository.to_string(),
+            token,
         })
     }
 
@@ -91,24 +179,14 @@ impl Client {
     ///
     /// - `reference`: a reference for the image (usually a tag)
     /// - `image_dir`: the image directory following the [OCI Image Layout](https://github.com/opencontainers/image-spec/blob/main/image-layout.md) spec
-    pub async fn push_image<P: AsRef<Path>>(&self, reference: &str, image_dir: P) -> Result<()> {
-        let image_dir = image_dir.as_ref();
+    pub async fn push_image(&self, reference: &str, layout_dir: &Path) -> Result<()> {
+        let index_path = layout_dir.join("index.json");
+        let index_json = fs::read_to_string(index_path)?;
+        let index: ImageIndex = serde_json::from_str(&index_json)?;
 
-        let manifest_path = image_dir.join("index.json");
-        if !manifest_path.exists() {
-            bail!("The image directory does not have an `index.json` manifest file")
-        }
-
-        let blobs_dir = image_dir.join("blobs").join("sha256");
-        if !blobs_dir.exists() {
-            bail!("The image directory does not have as `blobs/sha256` sub-directory")
-        }
-
-        for entry in blobs_dir.read_dir()?.flatten() {
-            self.push_blob(entry.path()).await?;
-        }
-
-        self.push_manifest(reference, manifest_path).await?;
+        let manifest_descriptor = index.manifests().get(0).unwrap();
+        self.push_manifest(reference, layout_dir, manifest_descriptor.digest())
+            .await?;
 
         Ok(())
     }
@@ -116,14 +194,12 @@ impl Client {
     /// Pull an image
     ///
     /// Pulls an image from the registry to a local directory. The inverse of `push_image`.
-    pub async fn pull_image<P: AsRef<Path>>(&self, reference: &str, image_dir: P) -> Result<()> {
-        let image_dir = image_dir.as_ref();
+    pub async fn pull_image(&self, reference: &str, layout_dir: &Path) -> Result<()> {
+        let manifest = self.pull_manifest(reference, layout_dir).await?;
 
-        let manifest = self.pull_manifest(reference, image_dir).await?;
-
-        let mut futures = vec![self.pull_blob(manifest.config(), image_dir)];
+        let mut futures = vec![self.pull_blob_via(layout_dir, manifest.config())];
         for layer in manifest.layers() {
-            let future = self.pull_blob(layer, image_dir);
+            let future = self.pull_blob_via(layout_dir, layer);
             futures.push(future);
         }
 
@@ -139,9 +215,9 @@ impl Client {
         let reference = reference.as_ref();
 
         tracing::info!(
-            "Pulling manifest from repository `{}/{}:{}`",
+            "Pulling manifest from `{}/{}:{}`",
             self.registry,
-            self.image,
+            self.repository,
             reference
         );
 
@@ -156,6 +232,10 @@ impl Client {
             .error_for_status()?;
 
         let manifest: ImageManifest = response.json().await?;
+
+        let mut blob_map = BLOB_MAP.write().await;
+        blob_map.insert_layers(&manifest.layers(), &self.registry, &self.repository)?;
+
         Ok(manifest)
     }
 
@@ -163,12 +243,12 @@ impl Client {
     pub async fn pull_manifest<S: AsRef<str>, P: AsRef<Path>>(
         &self,
         reference: S,
-        image_dir: P,
+        layout_dir: P,
     ) -> Result<ImageManifest> {
         let manifest = self.get_manifest(reference).await?;
 
-        fs::create_dir_all(&image_dir)?;
-        let manifest_path = image_dir.as_ref().join("index.json");
+        fs::create_dir_all(&layout_dir)?;
+        let manifest_path = layout_dir.as_ref().join("index.json");
         let mut manifest_file = fs::File::create(manifest_path)?;
         manifest.to_writer_pretty(&mut manifest_file)?;
 
@@ -177,64 +257,81 @@ impl Client {
 
     /// Push a manifest from a local file to the registry
     ///
-    /// See https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pushing-manifests
-    pub async fn push_manifest<S: AsRef<str>, P: AsRef<Path>>(
+    ///
+    /// See https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pushing-manifests.
+    pub async fn push_manifest(
         &self,
-        reference: S,
-        mainfest_path: P,
+        reference: &str,
+        layout_dir: &Path,
+        digest: &str,
     ) -> Result<()> {
-        let reference = reference.as_ref();
-
         tracing::info!(
-            "Pushing manifest to repository `{}/{}:{}`",
+            "Pushing manifest to `{}/{}:{}`",
             self.registry,
-            self.image,
+            self.repository,
             reference
         );
 
-        let manifest = fs::read_to_string(mainfest_path)?;
+        let manifest_path = Self::blob_path(layout_dir, digest)?;
+        let manifest_json = fs::read_to_string(manifest_path)?;
+        let manifest: ImageManifest = serde_json::from_str(&manifest_json)?;
 
-        self.put(&["/manifests/", reference].concat())
-            .header(
-                "Content-Type",
-                "application/vnd.docker.distribution.manifest.v2+json",
-            )
-            .body(manifest)
+        self.push_blob(layout_dir, manifest.config().digest())
+            .await?;
+
+        for layer_descriptor in manifest.layers() {
+            self.push_blob(layout_dir, layer_descriptor.digest())
+                .await?
+        }
+
+        let response = self
+            .put(&["/manifests/", reference].concat())
+            .header("Content-Type", MediaType::ImageManifest.to_string())
+            .body(manifest_json)
             .send()
-            .await?
-            .error_for_status()?;
+            .await?;
+        if let Err(..) = response.error_for_status_ref() {
+            bail!(
+                "While pushing manifest: {} {}",
+                response.status(),
+                response.text().await?
+            );
+        }
+
+        let mut blob_map = BLOB_MAP.write().await;
+        blob_map.insert_layers(manifest.layers(), &self.registry, &self.repository)?;
 
         Ok(())
     }
 
     /// Get an image config from the registry
-    pub async fn get_config<S: AsRef<str>>(
-        &self,
-        reference: S,
-        manifest: Option<&ImageManifest>,
-    ) -> Result<ImageConfiguration> {
-        let manifest = match manifest {
-            Some(manifest) => manifest.to_owned(),
-            None => self.get_manifest(reference).await?,
-        };
+    pub async fn get_config(&self, manifest: &ImageManifest) -> Result<ImageConfiguration> {
         let descriptor = manifest.config();
-        let response = self.get_blob(descriptor).await?;
+        let response = self
+            .get_blob(descriptor.digest(), Some(descriptor.size()))
+            .await?;
         let config: ImageConfiguration = response.json().await?;
         Ok(config)
+    }
+
+    /// Get the local filesystem path to a blob based on its digest
+    fn blob_path(layout_dir: &Path, digest: &str) -> Result<PathBuf> {
+        if let Some(suffix) = digest.strip_prefix("sha256:") {
+            Ok(layout_dir.join("blobs").join("sha256").join(suffix))
+        } else {
+            bail!("Digest is not prefixed by `sha256:`")
+        }
     }
 
     /// Get a blob from the registry
     ///
     /// See https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-blobs
-    pub async fn get_blob(&self, descriptor: &Descriptor) -> Result<Response> {
-        let digest = descriptor.digest();
-        let size = descriptor.size();
-
+    pub async fn get_blob(&self, digest: &str, size: Option<i64>) -> Result<Response> {
         tracing::info!(
-            "Pulling blob `{}` from repository `{}/{}`",
+            "Pulling blob `{}` from `{}/{}`",
             digest,
             self.registry,
-            self.image
+            self.repository
         );
 
         let response = self
@@ -244,18 +341,20 @@ impl Client {
             .await?
             .error_for_status()?;
 
-        if let Some(length) = response
-            .headers()
-            .get("Content-Length")
-            .and_then(|length| length.to_str().ok())
-            .and_then(|length| length.parse::<i64>().ok())
-        {
-            if length != size {
-                bail!(
-                    "Content-Length header is different from size in descriptor ({} != {})",
-                    length,
-                    size
-                )
+        if let Some(size) = size {
+            if let Some(length) = response
+                .headers()
+                .get("Content-Length")
+                .and_then(|length| length.to_str().ok())
+                .and_then(|length| length.parse::<i64>().ok())
+            {
+                if length != size {
+                    bail!(
+                        "Content-Length header is different from size in descriptor ({} != {})",
+                        length,
+                        size
+                    )
+                }
             }
         }
 
@@ -263,25 +362,18 @@ impl Client {
     }
 
     /// Pull a blob from the registry to a local file
-    pub async fn pull_blob<P: AsRef<Path>>(
+    pub async fn pull_blob(
         &self,
-        descriptor: &Descriptor,
-        image_dir: P,
+        layout_dir: &Path,
+        digest: &str,
+        size: Option<i64>,
     ) -> Result<()> {
-        let mut response = self.get_blob(descriptor).await?;
+        let mut response = self.get_blob(digest, size).await?;
 
-        let blobs_dir = image_dir.as_ref().join("blobs").join("sha256");
+        let blobs_dir = layout_dir.join("blobs").join("sha256");
         fs::create_dir_all(&blobs_dir)?;
 
-        let digest = descriptor.digest();
-        let filename = match digest.strip_prefix("sha256:") {
-            Some(sha256) => sha256,
-            None => bail!(
-                "Expected digest to be prefixed by 'sha256:' but got: {}",
-                digest
-            ),
-        };
-        let blob_path = blobs_dir.join(filename);
+        let blob_path = Self::blob_path(layout_dir, digest)?;
         let mut file = File::create(blob_path).await?;
 
         while let Some(chunk) = response.chunk().await? {
@@ -291,36 +383,64 @@ impl Client {
         Ok(())
     }
 
+    /// Pull a blob from the registry via a [`Descriptor`]
+    pub async fn pull_blob_via(&self, layout_dir: &Path, descriptor: &Descriptor) -> Result<()> {
+        self.pull_blob(layout_dir, descriptor.digest(), Some(descriptor.size()))
+            .await
+    }
+
     /// Push a blob from a local file to the registry
     ///
     /// See https://docs.docker.com/registry/spec/api/#pushing-a-layer for a description of the flow.
     /// See also https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pushing-blobs.
-    pub async fn push_blob<P: AsRef<Path>>(&self, blob_path: P) -> Result<()> {
-        let filename = blob_path
-            .as_ref()
-            .file_name()
-            .expect("Path to always have a filename");
-        let digest = format!("sha256:{}", filename.to_string_lossy());
-
+    pub async fn push_blob(&self, layout_dir: &Path, digest: &str) -> Result<()> {
         // Check that the blob actually needs to be pushed
-        let response = self.get(["/blobs/", &digest].concat()).send().await?;
+        let response = self.get(["/blobs/", digest].concat()).send().await?;
         if response.status() == 200 {
             tracing::info!(
-                "Blob `{}` already exists in repository `{}/{}`, will not push",
+                "Blob `{}` already exists in `{}/{}`",
                 digest,
                 self.registry,
-                self.image
+                self.repository
             );
             return Ok(());
         }
 
-        // Get the UUID and URL for this upload
+        // Check to see if the blob has a known repository on the registry
+        let blob_map = BLOB_MAP.read().await;
+        let other_repository = blob_map.get_repo(digest, &self.registry);
+        drop(blob_map);
+
+        // Initiate an upload with Cross Repository Blob Mounting if possible
+        // Note: according to the OCI spec "The registry MAY treat the from parameter as optional,
+        // and it MAY cross-mount the blob if it can be found.". So it will always pay to try.
+        let from = other_repository
+            .clone()
+            .map(|repository| ["&from=", &repository].concat())
+            .unwrap_or_default();
+        let path = format!("/blobs/uploads/?mount={}{}", digest, from);
         let response = self
-            .post("/blobs/uploads/")
+            .post(path)
             .header("Content-Length", "0")
             .send()
             .await?
             .error_for_status()?;
+        if response.status() == 201 {
+            // Successful mount
+            tracing::info!(
+                "Mounted blob `{}` from `{}/{}`",
+                digest,
+                self.registry,
+                other_repository
+                    .clone()
+                    .unwrap_or_else(|| "<unknown>".to_string())
+            );
+            return Ok(());
+        }
+
+        // Registry does not support cross-repository mounting or is unable to mount the blob
+        // "This indicates that the upload session has begun and that the client MAY proceed with the upload."
+
         let upload_uuid = match response.headers().get("Docker-Upload-UUID") {
             Some(url) => url.to_str()?,
             None => bail!("Did not receive upload UUID from registry"),
@@ -331,28 +451,46 @@ impl Client {
         };
 
         tracing::info!(
-            "Pushing blob `{}` to repository `{}/{}`",
+            "Pushing blob `{}` to `{}/{}`",
             digest,
             self.registry,
-            self.image
+            self.repository
         );
 
-        const MAX_CHUNK_SIZE: usize = 1000; //5_048_576;
+        let blob_path = Self::blob_path(layout_dir, digest)?;
 
-        let mut file = File::open(&blob_path).await?;
-        let length = fs::metadata(&blob_path)?.len() as usize;
+        if !blob_path.exists() {
+            // The blob does not exist (usually because it is in a manifest for a base image and thus
+            // not pulled in case it does not need to be). So, pull the blob using the BLOB_MAP's
+            // record of the registry and repo it belongs to.
+            let blob_map = BLOB_MAP.read().await;
+            if let Some((registry, repository)) = blob_map.get_registry_and_repo(digest) {
+                let client = Client::new(registry, repository, None).await?;
+                client.pull_blob(layout_dir, digest, None).await?;
+            } else {
+                bail!(
+                    "Blob with digest is not in image layout directory or blob map: {}",
+                    digest
+                )
+            }
+        }
+
+        let mut blob_file = File::open(&blob_path).await?;
+        let blob_length = fs::metadata(&blob_path)?.len() as usize;
+
+        const MAX_CHUNK_SIZE: usize = 5_048_576;
 
         // If the blob is less than the maximum chunk size then upload it "monolithically"
         // rather than in chunks (to reduce the number of requests)
-        if length <= MAX_CHUNK_SIZE {
-            let mut bytes = Vec::with_capacity(length);
-            io::copy(&mut file, &mut bytes).await?;
+        if blob_length <= MAX_CHUNK_SIZE {
+            let mut bytes = Vec::with_capacity(blob_length);
+            io::copy(&mut blob_file, &mut bytes).await?;
 
             let upload_url = [
                 upload_url,
                 if upload_url.contains('?') { "&" } else { "?" },
                 "digest=",
-                &digest,
+                digest,
             ]
             .concat();
 
@@ -372,7 +510,7 @@ impl Client {
         // Read the blob in chunks and upload each
         let mut buffer = vec![0u8; MAX_CHUNK_SIZE];
         let mut start_byte = 0;
-        while let Ok(chunk_length) = file.read(&mut buffer[..]).await {
+        while let Ok(chunk_length) = blob_file.read(&mut buffer[..]).await {
             if chunk_length == 0 {
                 break;
             }
@@ -417,7 +555,7 @@ impl Client {
         }
 
         // Notify the registry that the upload is complete
-        self.put(["/blobs/uploads/", upload_uuid, "?digest=", &digest].concat())
+        self.put(["/blobs/uploads/", upload_uuid, "?digest=", digest].concat())
             .send()
             .await?
             .error_for_status()?;
@@ -439,7 +577,7 @@ impl Client {
             } else {
                 ["https://", &self.registry].concat()
             };
-            [&registry_url, "/v2/", &self.image, path].concat()
+            [&registry_url, "/v2/", &self.repository, path].concat()
         };
 
         let mut request = CLIENT.request(method, url);

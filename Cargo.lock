@@ -2999,6 +2999,7 @@ dependencies = [
  "bytes",
  "chrono",
  "cli-utils",
+ "dirs",
  "eyre",
  "futures",
  "hash-utils",

@@ -13,11 +13,12 @@ use std::{
 
 use chrono::Utc;
 use eyre::{bail, eyre, Result};
-use hash_utils::sha2::Sha256;
+use hash_utils::{sha2::Sha256, str_sha256_hex};
 use jwalk::WalkDirGeneric;
 use oci_spec::image::{
-    Descriptor, DescriptorBuilder, ImageConfigurationBuilder, ImageIndexBuilder,
-    ImageManifestBuilder, MediaType, SCHEMA_VERSION,
+    self, ConfigBuilder, Descriptor, DescriptorBuilder, HistoryBuilder, ImageConfiguration,
+    ImageConfigurationBuilder, ImageIndexBuilder, ImageManifest, ImageManifestBuilder, MediaType,
+    RootFsBuilder, SCHEMA_VERSION,
 };
 use seahash::SeaHasher;
 
@@ -35,7 +36,7 @@ use buildpack::serde::{Deserialize, Serialize};
 use archive_utils::{flate2, tar};
 use hash_utils::sha2::Digest;
 
-use crate::distribution::DOCKER_REGISTRY;
+use crate::distribution::{Client, DOCKER_REGISTRY};
 
 #[derive(Debug, Default, PartialEq)]
 pub struct ImageReference {
@@ -112,83 +113,228 @@ impl FromStr for ImageReference {
     }
 }
 
+impl ToString for ImageReference {
+    fn to_string(&self) -> String {
+        if let Some(digest) = &self.digest {
+            [&self.registry, "/", &self.repository, "@", digest]
+        } else {
+            [
+                &self.registry,
+                "/",
+                &self.repository,
+                ":",
+                self.tag.as_deref().unwrap_or("latest"),
+            ]
+        }
+        .concat()
+    }
+}
+
 pub struct Image {
     /// The project directory to build an image for
+    ///
+    /// This is the "working directory" that buildpacks will build layers
+    /// for based on the source code within it. Defaults to the current directory.
     project_dir: PathBuf,
 
-    // The directory where this image will be written to
-    image_dir: PathBuf,
+    /// The registry that the image is pushed to
+    ///
+    /// Defaults to `registry.hub.docker.com`.
+    registry: String,
+
+    /// The repository that the image is pushed to
+    ///
+    /// Defaults to the name of the `project_dir` suffixed with a hash of the
+    /// absolute path of the `project_dir` (this ensures uniqueness on the current machine).
+    repository: String,
+
+    /// The base image from which this image is derived
+    ///
+    /// Equivalent to the `FROM` directive of a Dockerfile.
+    base: ImageReference,
+
+    /// The directory where this image will be written to
+    ///
+    /// The image will be written to this directory following the [OCI Layout Spec]
+    /// (https://github.com/opencontainers/image-spec/blob/main/image-layout.md)
+    layout_dir: PathBuf,
 }
 
 impl Image {
     /// Create a new image
-    pub fn new<ID, PD>(project_dir: Option<&ID>, image_dir: Option<&PD>) -> Self
-    where
-        ID: AsRef<Path> + ?Sized,
-        PD: AsRef<Path> + ?Sized,
-    {
+    pub fn new(
+        project_dir: Option<&Path>,
+        reference: Option<&str>,
+        from: Option<&str>,
+        image_dir: Option<&Path>,
+    ) -> Result<Self> {
         let project_dir = project_dir
-            .map(|dir| dir.as_ref().to_path_buf())
+            .map(PathBuf::from)
             .unwrap_or_else(|| env::current_dir().expect("Unable to get cwd"));
 
+        let (registry, repository) = match reference {
+            Some(reference) => {
+                let reference: ImageReference = reference.parse()?;
+                (reference.registry, reference.repository)
+            }
+            None => {
+                let registry = DOCKER_REGISTRY.to_string();
+                let name = project_dir
+                    .file_name()
+                    .map(|name| name.to_string_lossy().to_string())
+                    .unwrap_or_else(|| "unnamed".to_string());
+                let hash = str_sha256_hex(&project_dir.to_string_lossy().to_string());
+                let repository = [&name, "-", &hash[..12]].concat();
+                (registry, repository)
+            }
+        };
+
+        let from = from.unwrap_or("stencila/stencila:latest").parse()?;
+
         let image_dir = image_dir
-            .map(|dir| dir.as_ref().to_path_buf())
+            .map(PathBuf::from)
             .unwrap_or_else(|| project_dir.join(".stencila").join("image"));
 
-        Self {
+        Ok(Self {
             project_dir,
-            image_dir,
-        }
+            registry,
+            repository,
+            base: from,
+            layout_dir: image_dir,
+        })
     }
 
-    /// Write an image config blob
-    fn write_config(&self) -> Result<Descriptor> {
-        let config = ImageConfigurationBuilder::default()
+    /// Fetches the manifest and configuration of the base image
+    ///
+    /// Used when writing the image because the DiffIDs (from the config) and the layers (from the
+    /// manifest) and required for the config and manifest of this image.
+    async fn get_base(&self) -> Result<(ImageConfiguration, Vec<Descriptor>)> {
+        let client = Client::new(&self.base.registry, &self.base.repository, None).await?;
+        let manifest = client.get_manifest(self.base.reference()).await?;
+        let config = client.get_config(&manifest).await?;
+        let layers = manifest.layers().clone();
+        Ok((config, layers))
+    }
+
+    /// Write the image config blob
+    ///
+    /// Implements the [OCI Image Configuration Specification](https://github.com/opencontainers/image-spec/blob/main/config.md).
+    fn write_config(&self, base_config: ImageConfiguration) -> Result<Descriptor> {
+        // Start with the config of the base image and override as necessary
+        let config = base_config.config().clone().unwrap_or_default();
+
+        // Start with the rootfs of the base image and add the diffid of each of this image's layers
+        let rootfs = base_config.rootfs().clone();
+
+        // Start with the history of the base image and add items for each of this image's layers
+        let history = base_config.history().clone();
+
+        let configuration = ImageConfigurationBuilder::default()
             .created(Utc::now().to_rfc3339())
             .os(env::consts::OS)
             .architecture(env::consts::ARCH)
+            .config(config)
+            .rootfs(rootfs)
+            .history(history)
             .build()?;
 
-        BlobWriter::write_json(&self.image_dir, MediaType::ImageConfig, &config)
+        BlobWriter::write_json(&self.layout_dir, MediaType::ImageConfig, &configuration)
     }
 
-    /// Write an image manifest blob
-    fn write_manifest(&self) -> Result<Descriptor> {
-        let config = self.write_config()?;
+    /// Write the image layer blobs
+    fn write_layers(&self, base_layers: Vec<Descriptor>) -> Result<Vec<Descriptor>> {
+        Ok(base_layers)
+    }
 
-        let layers = []; // TODO
+    /// Write the image manifest blob
+    ///
+    /// Implements the [OCI Image Manifest Specification](https://github.com/opencontainers/image-spec/blob/main/manifest.md).
+    /// Given that the manifest requires the descriptors for config and layers also calls `write_config` and `write_layers`.
+    async fn write_manifest(&self) -> Result<Descriptor> {
+        let (base_config, base_layers) = self.get_base().await?;
+        let config = self.write_config(base_config)?;
+        let layers = self.write_layers(base_layers)?;
 
         let manifest = ImageManifestBuilder::default()
             .schema_version(SCHEMA_VERSION)
+            .media_type(MediaType::ImageManifest)
             .config(config)
             .layers(layers)
             .build()?;
 
-        BlobWriter::write_json(&self.image_dir, MediaType::ImageManifest, &manifest)
+        BlobWriter::write_json(&self.layout_dir, MediaType::ImageManifest, &manifest)
     }
 
-    /// Create a directory with an OCI image layout
+    /// Write the image `index.json`
     ///
-    /// Implements the [OCI Image Layout](https://github.com/opencontainers/image-spec/blob/main/image-layout.md)
-    /// specification.
-    ///
-    /// # Arguments
-    ///
-    /// - `image_dir`: the image directory
-    pub fn write(&self) -> Result<()> {
-        let manifest = self.write_manifest()?;
+    /// Implements the [OCI Image Index Specification](https://github.com/opencontainers/image-spec/blob/main/image-index.md).
+    /// Given that the index requires the image manifest descriptor, also calls `write_manifest`. At present the
+    /// image only has one manifest (for a Linux image).
+    async fn write_index(&self) -> Result<()> {
+        let manifest = self.write_manifest().await?;
 
-        let index_json = self.image_dir.join("index.json");
         let index = ImageIndexBuilder::default()
             .schema_version(SCHEMA_VERSION)
             .manifests([manifest])
+            .annotations([
+                // Where appropriate use pre defined annotations
+                // https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
+                (
+                    "org.opencontainers.image.created".to_string(),
+                    Utc::now().to_rfc3339(),
+                ),
+                (
+                    "org.opencontainers.image.base.name".to_string(),
+                    self.base.to_string(),
+                ),
+                (
+                    "org.opencontainers.image.ref.name".to_string(),
+                    self.repository.clone(),
+                ),
+                (
+                    "io.stencila.stencila.version".to_string(),
+                    env!("CARGO_PKG_VERSION").to_string(),
+                ),
+            ])
             .build()?;
-        fs::write(index_json, serde_json::to_string(&index)?)?;
 
-        let oci_layout = self.image_dir.join("oci-layout");
-        fs::write(oci_layout, r#"{"imageLayoutVersion": "1.0.0"}"#)?;
+        fs::write(
+            self.layout_dir.join("index.json"),
+            serde_json::to_string_pretty(&index)?,
+        )?;
 
         Ok(())
+    }
+
+    /// Write the image to `layout_dir`
+    ///
+    /// Implements the [OCI Image Layout Specification](https://github.com/opencontainers/image-spec/blob/main/image-layout.md).
+    /// If the `layout_dir` already exists, its contents are deleted.
+    pub async fn write(&self) -> Result<()> {
+        if self.layout_dir.exists() {
+            fs::remove_dir_all(&self.layout_dir)?;
+        }
+        fs::create_dir_all(&self.layout_dir)?;
+
+        self.write_index().await?;
+
+        fs::write(
+            self.layout_dir.join("oci-layout"),
+            r#"{"imageLayoutVersion": "1.0.0"}"#,
+        )?;
+
+        Ok(())
+    }
+
+    pub async fn push(&self) -> Result<()> {
+        let client = Client::new(&self.registry, &self.repository, None).await?;
+        client.push_image("latest", &self.layout_dir).await?;
+        Ok(())
+    }
+
+    pub async fn build(&self) -> Result<()> {
+        self.write().await?;
+        self.push().await
     }
 }
 
@@ -914,17 +1060,16 @@ mod tests {
 
     /// Test that when an image is written to a directory that they directory conforms to
     /// the OCI Image Layout spec
-    #[test]
-    fn image_write() -> Result<()> {
+    #[tokio::test]
+    async fn image_write() -> Result<()> {
         let project_dir = tempdir()?;
-        let image_dir = tempdir()?;
-        let image = Image::new(Some(&project_dir), Some(&image_dir));
-        image.write()?;
+        let image = Image::new(Some(project_dir.path()), None, None, None)?;
 
-        let path = image_dir.path();
-        assert!(path.join("oci-layout").is_file());
-        assert!(path.join("index.json").is_file());
-        assert!(path.join("blobs").join("sha256").is_dir());
+        image.write().await?;
+
+        assert!(image.layout_dir.join("oci-layout").is_file());
+        assert!(image.layout_dir.join("index.json").is_file());
+        assert!(image.layout_dir.join("blobs").join("sha256").is_dir());
 
         Ok(())
     }
