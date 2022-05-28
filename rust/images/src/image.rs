@@ -262,13 +262,14 @@ impl Image {
         &self,
         base_config: &ImageConfiguration,
         base_layers: Vec<Descriptor>,
+        diff_snapshots: bool,
     ) -> Result<(Vec<Descriptor>, Vec<String>, Vec<History>)> {
         let mut layers = base_layers;
         let mut diff_ids = base_config.rootfs().diff_ids().clone();
         let mut histories = base_config.history().clone();
 
         for snapshot in &self.layer_snapshots {
-            let (diff_id, layer) = snapshot.write_layer(&self.layout_dir)?;
+            let (diff_id, layer) = snapshot.write_layer(&self.layout_dir, diff_snapshots)?;
 
             let empty_layer = diff_id == "<empty>";
 
@@ -322,10 +323,11 @@ impl Image {
     ///
     /// Implements the [OCI Image Manifest Specification](https://github.com/opencontainers/image-spec/blob/main/manifest.md).
     /// Given that the manifest requires the descriptors for config and layers also calls `write_config` and `write_layers`.
-    async fn write_manifest(&self) -> Result<(String, Descriptor)> {
+    async fn write_manifest(&self, diff_snapshots: bool) -> Result<(String, Descriptor)> {
         let (base_digest, base_config, base_layers) = self.get_base().await?;
 
-        let (layers, diff_ids, history) = self.write_layers(&base_config, base_layers)?;
+        let (layers, diff_ids, history) =
+            self.write_layers(&base_config, base_layers, diff_snapshots)?;
 
         let config = self.write_config(&base_config, diff_ids, history)?;
 
@@ -347,10 +349,10 @@ impl Image {
     /// Implements the [OCI Image Index Specification](https://github.com/opencontainers/image-spec/blob/main/image-index.md).
     /// Given that the index requires the image manifest descriptor, also calls `write_manifest`. At present the
     /// image only has one manifest (for a Linux image).
-    async fn write_index(&self) -> Result<()> {
+    async fn write_index(&self, diff_snapshots: bool) -> Result<()> {
         use tokio::fs;
 
-        let (base_digest, manifest) = self.write_manifest().await?;
+        let (base_digest, manifest) = self.write_manifest(diff_snapshots).await?;
 
         let annotations: HashMap<String, String> = [
             // Where appropriate use pre defined annotations
@@ -405,7 +407,7 @@ impl Image {
     ///
     /// Note that the `blobs/sha256` subdirectory may not have blobs for the base image (these
     /// are only pulled into that directory if necessary i.e. if the registry does not yet have them).
-    pub async fn write(&self) -> Result<()> {
+    pub async fn write(&self, diff: bool) -> Result<()> {
         use tokio::fs;
 
         if self.layout_dir.exists() {
@@ -413,7 +415,7 @@ impl Image {
         }
         fs::create_dir_all(&self.layout_dir).await?;
 
-        self.write_index().await?;
+        self.write_index(diff).await?;
 
         fs::write(
             self.layout_dir.join("oci-layout"),
@@ -489,6 +491,11 @@ impl ChangeSet {
                     .build()?,
             ));
         }
+
+        tracing::info!(
+            "Writing image layer from changeset for `{}`",
+            self.dir.display()
+        );
 
         let mut diffid_hash = Sha256::new();
         let mut blob_writer = BlobWriter::new(&layout_dir, MediaType::ImageLayerGzip)?;
@@ -713,7 +720,17 @@ impl Snapshot {
         }
     }
 
-    /// Create a set of changes by calculating the difference between two snapshots
+    /// Create a set of changes that replicate the current snapshot using only additions
+    fn replicate(&self) -> ChangeSet {
+        let changes = self
+            .entries
+            .keys()
+            .map(|path| Change::Added(path.into()))
+            .collect();
+        ChangeSet::new(&self.dir, changes)
+    }
+
+    /// Create a set of changes by determining the difference between two snapshots
     fn diff(&self, other: &Snapshot) -> ChangeSet {
         let mut changes = Vec::new();
         for (path, entry) in self.entries.iter() {
@@ -743,9 +760,22 @@ impl Snapshot {
 
     /// Create a layer by repeating the current snapshot
     ///
-    /// Convenience function for combining calls to `changes` and `write_layer` on those changes.
-    fn write_layer<P: AsRef<Path>>(&self, layout_dir: P) -> Result<(String, Descriptor)> {
-        self.changes().write_layer(layout_dir)
+    /// # Arguments
+    ///
+    /// - `diff`: Whether to create the layer as the difference to the original snapshot
+    ///           (the usual) or as a replicate.
+    fn write_layer<P: AsRef<Path>>(
+        &self,
+        layout_dir: P,
+        diff: bool,
+    ) -> Result<(String, Descriptor)> {
+        let new = self.repeat();
+        let changeset = if diff {
+            self.diff(&new)
+        } else {
+            new.replicate()
+        };
+        changeset.write_layer(layout_dir)
     }
 }
 
@@ -1184,7 +1214,7 @@ mod tests {
         let working_dir = tempdir()?;
         let image = Image::new(Some(working_dir.path()), None, None, &[], None)?;
 
-        image.write().await?;
+        image.write(true).await?;
 
         assert!(image.layout_dir.join("oci-layout").is_file());
         assert!(image.layout_dir.join("index.json").is_file());

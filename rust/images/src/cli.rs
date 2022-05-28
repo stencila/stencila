@@ -60,6 +60,15 @@ pub struct Build {
     #[structopt(long, short, env = "STENCILA_IMAGE_LAYERS")]
     layers: Option<String>,
 
+    /// Do not calculate a changeset for each layer directory and instead represent them in their entirety.
+    /// 
+    /// The default behavior is to take snapshots of directories before and after the buildpacks build
+    /// and generate a changeset representing the difference. This replicates the behavior of Dockerfile `RUN` directives.
+    /// 
+    /// This option instead forces the layer to represent the entire directory after the build.
+    #[structopt(long)]
+    no_diff: bool,
+
     /// Do not actually build the image
     ///
     /// Mainly useful during development for testing the writing of images, without waiting for
@@ -85,8 +94,8 @@ pub struct Build {
     ///
     /// Defaults to a temporary directory. Use this option if you want to inspect the contents
     /// of the image directory. e.g.
-    /// 
-    ///     stencila images build ... --no-build --no-push --layout-dir temp
+    ///
+    ///   stencila images build ... --no-build --no-push --layout-dir temp
     ///
     /// If the `layout_dir` already exists, its contents are deleted - so use with care!
     #[structopt(long)]
@@ -117,9 +126,11 @@ impl Run for Build {
         }
 
         if self.no_write {
-            tracing::info!("Image built successfully. Skipping write and push because --no-write option used.");
+            tracing::info!(
+                "Image built successfully. Skipping write and push because --no-write option used."
+            );
         } else {
-            image.write().await?;
+            image.write(!self.no_diff).await?;
 
             if self.no_push {
                 tracing::info!(
