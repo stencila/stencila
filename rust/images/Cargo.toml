@@ -23,6 +23,7 @@ rkyv-safe = ["rkyv", "bytecheck"]
 [dependencies]
 archive-utils = { path = "../archive-utils", version = "0.0.0", features = [
     "tar-gz",
+    "tar-zst",
 ] }
 buildpacks = { path = "../buildpacks", version = "0.0.0" }
 bytes = "1.1.0"

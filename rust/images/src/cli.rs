@@ -60,14 +60,27 @@ pub struct Build {
     #[structopt(long, short, env = "STENCILA_IMAGE_LAYERS")]
     layers: Option<String>,
 
+    /// The format to use for image layers
+    ///
+    /// The Open Container Image spec allows for layers to be in several formats. The most common
+    /// is "tar+gzip". The "tar+zstd" format offers substantial performance benefits but may not be
+    /// supported by older runtimes.
+    #[structopt(
+        long,
+        env = "STENCILA_IMAGE_LAYER_FORMAT",
+        default_value = "tar+gzip",
+        possible_values = &["tar", "tar+gzip", "tgz", "tar+zstd", "tzs"]
+    )]
+    layer_format: String,
+
     /// Do not calculate a changeset for each layer directory and instead represent them in their entirety.
-    /// 
+    ///
     /// The default behavior is to take snapshots of directories before and after the buildpacks build
     /// and generate a changeset representing the difference. This replicates the behavior of Dockerfile `RUN` directives.
-    /// 
+    ///
     /// This option instead forces the layer to represent the entire directory after the build.
     #[structopt(long)]
-    no_diff: bool,
+    no_diffs: bool,
 
     /// Do not actually build the image
     ///
@@ -116,6 +129,8 @@ impl Run for Build {
             self.tag.as_deref(),
             self.from.as_deref(),
             &layers_dirs,
+            Some(!self.no_diffs),
+            Some(self.layer_format.as_str()),
             self.layout_dir.as_deref(),
         )?;
 
@@ -130,7 +145,7 @@ impl Run for Build {
                 "Image built successfully. Skipping write and push because --no-write option used."
             );
         } else {
-            image.write(!self.no_diff).await?;
+            image.write().await?;
 
             if self.no_push {
                 tracing::info!(

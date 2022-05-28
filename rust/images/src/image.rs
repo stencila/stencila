@@ -31,7 +31,7 @@ use bytecheck::CheckBytes;
 #[cfg(not(feature = "rkyv"))]
 use serde::{Deserialize, Serialize};
 
-use archive_utils::{flate2, tar};
+use archive_utils::{flate2, tar, zstd};
 use hash_utils::{sha2::Digest, sha2::Sha256, str_sha256_hex};
 use http_utils::tempfile::{tempdir, TempDir};
 
@@ -157,6 +157,12 @@ pub struct Image {
     /// Defaults to the `working_dir` and any subdirectories of `/layers/*`.
     pub layer_dirs: Vec<PathBuf>,
 
+    /// Whether snapshots should be diffed or replicated
+    layer_diffs: bool,
+
+    /// The format used when writing layers
+    pub layer_format: MediaType,
+
     /// The snapshots for each layer directory, used to generated [`ChangeSet`]s and image layers
     #[serde(skip)]
     layer_snapshots: Vec<Snapshot>,
@@ -180,6 +186,8 @@ impl Image {
         ref_: Option<&str>,
         base: Option<&str>,
         layer_dirs: &[&str],
+        layer_diffs: Option<bool>,
+        layer_format: Option<&str>,
         layout_dir: Option<&Path>,
     ) -> Result<Self> {
         let working_dir = working_dir
@@ -232,12 +240,23 @@ impl Image {
             }
         };
 
+        let layer_diffs = layer_diffs.unwrap_or(true);
+
+        let layer_format = match layer_format {
+            None | Some("tar+gzip") | Some("tgz") => MediaType::ImageLayerGzip,
+            Some("tar+zstd") | Some("tzs") => MediaType::ImageLayerZstd,
+            Some("tar") => MediaType::ImageLayer,
+            _ => bail!("Unknown layer format"),
+        };
+
         Ok(Self {
             working_dir,
             ref_,
             base,
             layer_dirs,
             layer_snapshots,
+            layer_diffs,
+            layer_format,
             layout_dir,
             layout_tempdir,
         })
@@ -262,14 +281,14 @@ impl Image {
         &self,
         base_config: &ImageConfiguration,
         base_layers: Vec<Descriptor>,
-        diff_snapshots: bool,
     ) -> Result<(Vec<Descriptor>, Vec<String>, Vec<History>)> {
         let mut layers = base_layers;
         let mut diff_ids = base_config.rootfs().diff_ids().clone();
         let mut histories = base_config.history().clone();
 
         for snapshot in &self.layer_snapshots {
-            let (diff_id, layer) = snapshot.write_layer(&self.layout_dir, diff_snapshots)?;
+            let (diff_id, layer) =
+                snapshot.write_layer(&self.layout_dir, self.layer_diffs, &self.layer_format)?;
 
             let empty_layer = diff_id == "<empty>";
 
@@ -323,11 +342,10 @@ impl Image {
     ///
     /// Implements the [OCI Image Manifest Specification](https://github.com/opencontainers/image-spec/blob/main/manifest.md).
     /// Given that the manifest requires the descriptors for config and layers also calls `write_config` and `write_layers`.
-    async fn write_manifest(&self, diff_snapshots: bool) -> Result<(String, Descriptor)> {
+    async fn write_manifest(&self) -> Result<(String, Descriptor)> {
         let (base_digest, base_config, base_layers) = self.get_base().await?;
 
-        let (layers, diff_ids, history) =
-            self.write_layers(&base_config, base_layers, diff_snapshots)?;
+        let (layers, diff_ids, history) = self.write_layers(&base_config, base_layers)?;
 
         let config = self.write_config(&base_config, diff_ids, history)?;
 
@@ -349,10 +367,10 @@ impl Image {
     /// Implements the [OCI Image Index Specification](https://github.com/opencontainers/image-spec/blob/main/image-index.md).
     /// Given that the index requires the image manifest descriptor, also calls `write_manifest`. At present the
     /// image only has one manifest (for a Linux image).
-    async fn write_index(&self, diff_snapshots: bool) -> Result<()> {
+    async fn write_index(&self) -> Result<()> {
         use tokio::fs;
 
-        let (base_digest, manifest) = self.write_manifest(diff_snapshots).await?;
+        let (base_digest, manifest) = self.write_manifest().await?;
 
         let annotations: HashMap<String, String> = [
             // Where appropriate use pre defined annotations
@@ -407,7 +425,7 @@ impl Image {
     ///
     /// Note that the `blobs/sha256` subdirectory may not have blobs for the base image (these
     /// are only pulled into that directory if necessary i.e. if the registry does not yet have them).
-    pub async fn write(&self, diff: bool) -> Result<()> {
+    pub async fn write(&self) -> Result<()> {
         use tokio::fs;
 
         if self.layout_dir.exists() {
@@ -415,7 +433,7 @@ impl Image {
         }
         fs::create_dir_all(&self.layout_dir).await?;
 
-        self.write_index(diff).await?;
+        self.write_index().await?;
 
         fs::write(
             self.layout_dir.join("oci-layout"),
@@ -480,12 +498,16 @@ impl ChangeSet {
     /// # Arguments
     ///
     /// - `layout_dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
-    fn write_layer<P: AsRef<Path>>(self, layout_dir: P) -> Result<(String, Descriptor)> {
+    fn write_layer<P: AsRef<Path>>(
+        self,
+        layout_dir: P,
+        media_type: &MediaType,
+    ) -> Result<(String, Descriptor)> {
         if self.len() == 0 {
             return Ok((
                 "<empty>".to_string(),
                 DescriptorBuilder::default()
-                    .media_type(MediaType::ImageLayer)
+                    .media_type(media_type.clone())
                     .digest("<none>")
                     .size(0)
                     .build()?,
@@ -497,39 +519,52 @@ impl ChangeSet {
             self.dir.display()
         );
 
-        struct LayerWriter<'lt> {
-            diffid_hash: &'lt mut Sha256,
-            gzip_encoder: flate2::write::GzEncoder<&'lt mut BlobWriter>,
-        }
-
-        impl<'lt> io::Write for LayerWriter<'lt> {
-            fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-                self.diffid_hash.update(buf);
-                self.gzip_encoder.write_all(buf)?;
-                Ok(buf.len())
-            }
-
-            fn flush(&mut self) -> io::Result<()> {
-                Ok(())
-            }
-        }
-
         let mut diffid_hash = Sha256::new();
-
-        let mut blob_writer = BlobWriter::new(&layout_dir, MediaType::ImageLayerGzip)?;
-
-        // Note: compression is a lot slower for un-optimized (ie.e. non-release) binaries
-        //
-        // Note: I tried to use https://crates.io/crates/gzp here but found that is did not substantially
-        // improve performance (at least for my tests with several configurations e.g. 7s vs 9s). Given that
-        // decided to avoid the extra dependency.
-        let gzip_encoder =
-            flate2::write::GzEncoder::new(&mut blob_writer, flate2::Compression::new(4));
+        let mut blob_writer = BlobWriter::new(&layout_dir, media_type.to_owned())?;
 
         {
+            enum LayerEncoder<'lt> {
+                Plain(&'lt mut BlobWriter),
+                Gzip(flate2::write::GzEncoder<&'lt mut BlobWriter>),
+                Zstd(zstd::stream::AutoFinishEncoder<'lt, &'lt mut BlobWriter>),
+            }
+
+            struct LayerWriter<'lt> {
+                diffid_hash: &'lt mut Sha256,
+                layer_encoder: LayerEncoder<'lt>,
+            }
+
+            impl<'lt> io::Write for LayerWriter<'lt> {
+                fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+                    self.diffid_hash.update(buf);
+                    match &mut self.layer_encoder {
+                        LayerEncoder::Plain(encoder) => encoder.write_all(buf)?,
+                        LayerEncoder::Gzip(encoder) => encoder.write_all(buf)?,
+                        LayerEncoder::Zstd(encoder) => encoder.write_all(buf)?,
+                    }
+                    Ok(buf.len())
+                }
+
+                fn flush(&mut self) -> io::Result<()> {
+                    Ok(())
+                }
+            }
+
+            let layer_encoder = match media_type {
+                MediaType::ImageLayer => LayerEncoder::Plain(&mut blob_writer),
+                MediaType::ImageLayerGzip => LayerEncoder::Gzip(flate2::write::GzEncoder::new(
+                    &mut blob_writer,
+                    flate2::Compression::new(4),
+                )),
+                MediaType::ImageLayerZstd => LayerEncoder::Zstd(
+                    zstd::stream::Encoder::new(&mut blob_writer, 4)?.auto_finish(),
+                ),
+                _ => bail!("Unhandled media type for layer: {}", media_type.to_string()),
+            };
+
             let mut layer_writer = LayerWriter {
                 diffid_hash: &mut diffid_hash,
-                gzip_encoder,
+                layer_encoder,
             };
 
             let mut archive = tar::Builder::new(&mut layer_writer);
@@ -773,6 +808,7 @@ impl Snapshot {
         &self,
         layout_dir: P,
         diff: bool,
+        media_type: &MediaType,
     ) -> Result<(String, Descriptor)> {
         let new = self.repeat();
         let changeset = if diff {
@@ -780,7 +816,7 @@ impl Snapshot {
         } else {
             new.replicate()
         };
-        changeset.write_layer(layout_dir)
+        changeset.write_layer(layout_dir, media_type)
     }
 }
 
@@ -1100,7 +1136,7 @@ mod tests {
         assert_eq!(changes.len(), 1);
         assert_eq!(changes.items[0], Change::Added(a_txt.clone()));
 
-        let (.., descriptor) = changes.write_layer(&image_dir)?;
+        let (.., descriptor) = changes.write_layer(&image_dir, &MediaType::ImageLayerGzip)?;
 
         let mut layer = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
@@ -1143,7 +1179,7 @@ mod tests {
         assert_eq!(changes.len(), 1);
         assert_eq!(changes.items[0], Change::Removed(a_txt));
 
-        let (.., descriptor) = changes.write_layer(&image_dir)?;
+        let (.., descriptor) = changes.write_layer(&image_dir, &MediaType::ImageLayerGzip)?;
         let mut layer = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
         let entry = entries.next().unwrap()?;
@@ -1163,7 +1199,7 @@ mod tests {
         assert_eq!(changes.len(), 1);
         assert_eq!(changes.items[0], Change::Modified(b_txt.clone()));
 
-        let (.., descriptor) = changes.write_layer(&image_dir)?;
+        let (.., descriptor) = changes.write_layer(&image_dir, &MediaType::ImageLayerGzip)?;
         let mut archive = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = archive.entries()?;
         let entry = entries.next().unwrap()?;
@@ -1189,7 +1225,7 @@ mod tests {
         // Create a layer archive, diffid and descriptor
 
         let changes = snap.changes();
-        let (diff_id, descriptor) = changes.write_layer(&image_dir)?;
+        let (diff_id, descriptor) = changes.write_layer(&image_dir, &MediaType::ImageLayerGzip)?;
 
         assert_eq!(diff_id.len(), 7 + 64);
         assert!(diff_id.starts_with("sha256:"));
@@ -1215,9 +1251,9 @@ mod tests {
     #[tokio::test]
     async fn image_write() -> Result<()> {
         let working_dir = tempdir()?;
-        let image = Image::new(Some(working_dir.path()), None, None, &[], None)?;
+        let image = Image::new(Some(working_dir.path()), None, None, &[], None, None, None)?;
 
-        image.write(true).await?;
+        image.write().await?;
 
         assert!(image.layout_dir.join("oci-layout").is_file());
         assert!(image.layout_dir.join("index.json").is_file());

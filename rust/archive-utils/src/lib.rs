@@ -16,6 +16,9 @@ pub use ::flate2;
 #[cfg(feature = "xz2")]
 pub use ::xz2;
 
+#[cfg(feature = "zstd")]
+pub use ::zstd;
+
 /// Extract an archive to a destination
 #[allow(unused_variables)]
 pub fn extract(archive: &Path, dest: &Path, strip: usize, subdir: Option<&str>) -> Result<()> {
@@ -57,6 +60,8 @@ pub fn extract_tar(
         "gz" | "tgz" => Box::new(flate2::read::GzDecoder::new(file)),
         #[cfg(feature = "tar-xz")]
         "xz" => Box::new(xz2::read::XzDecoder::new(file)),
+        #[cfg(feature = "tar-zstd")]
+        "zst" | "zstd" => Box::new(zstd::stream::Decoder::new(file)),
         _ => bail!("Unhandled archive extension {}", ext),
     });
 
