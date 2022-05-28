@@ -775,6 +775,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "bytesize"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c58ec36aac5066d5ca17df51b3e70279f5670a72102f5752cb7e7c856adfc70"
+
+[[package]]
 name = "bzip2"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2998,6 +3004,7 @@ dependencies = [
  "buildpacks",
  "bytecheck",
  "bytes",
+ "bytesize",
  "chrono",
  "cli-utils",
  "dirs",

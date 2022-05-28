@@ -5,6 +5,7 @@ use std::{
 };
 
 use bytes::Bytes;
+use bytesize::MIB;
 use eyre::{bail, eyre, Result};
 use hash_utils::str_sha256_hex;
 use oci_spec::image::{Descriptor, ImageConfiguration, ImageIndex, ImageManifest, MediaType};
@@ -489,7 +490,7 @@ impl Client {
             None => bail!("Did not receive upload URL from registry"),
         };
 
-        const MAX_CHUNK_SIZE: usize = 5_048_576;
+        const MAX_CHUNK_SIZE: usize = 5 * MIB as usize;
 
         // If the blob is less than the maximum chunk size then upload it "monolithically"
         // rather than in chunks (to reduce the number of requests)
