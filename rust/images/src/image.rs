@@ -2,7 +2,6 @@ use std::{
     collections::HashMap,
     env,
     ffi::OsString,
-    fs::{self, File, FileType, Metadata},
     hash::Hasher,
     io,
     os::unix::prelude::MetadataExt,
@@ -349,6 +348,8 @@ impl Image {
     /// Given that the index requires the image manifest descriptor, also calls `write_manifest`. At present the
     /// image only has one manifest (for a Linux image).
     async fn write_index(&self) -> Result<()> {
+        use tokio::fs;
+
         let (base_digest, manifest) = self.write_manifest().await?;
 
         let annotations: HashMap<String, String> = [
@@ -387,7 +388,8 @@ impl Image {
         fs::write(
             self.layout_dir.join("index.json"),
             serde_json::to_string_pretty(&index)?,
-        )?;
+        )
+        .await?;
 
         Ok(())
     }
@@ -404,17 +406,20 @@ impl Image {
     /// Note that the `blobs/sha256` subdirectory may not have blobs for the base image (these
     /// are only pulled into that directory if necessary i.e. if the registry does not yet have them).
     pub async fn write(&self) -> Result<()> {
+        use tokio::fs;
+
         if self.layout_dir.exists() {
-            fs::remove_dir_all(&self.layout_dir)?;
+            fs::remove_dir_all(&self.layout_dir).await?;
         }
-        fs::create_dir_all(&self.layout_dir)?;
+        fs::create_dir_all(&self.layout_dir).await?;
 
         self.write_index().await?;
 
         fs::write(
             self.layout_dir.join("oci-layout"),
             r#"{"imageLayoutVersion": "1.0.0"}"#,
-        )?;
+        )
+        .await?;
 
         Ok(())
     }
@@ -572,7 +577,9 @@ impl ChangeSet {
     fn read_layer<P: AsRef<Path>>(
         image_dir: P,
         digest: &str,
-    ) -> Result<tar::Archive<flate2::read::GzDecoder<File>>> {
+    ) -> Result<tar::Archive<flate2::read::GzDecoder<std::fs::File>>> {
+        use std::fs;
+
         let path = Self::layer_path(image_dir, digest);
         let file = fs::File::open(&path)?;
         let decoder = flate2::read::GzDecoder::new(file);
@@ -658,6 +665,8 @@ impl Snapshot {
 
     /// Write a snapshot to a file
     fn write<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+        use std::fs;
+
         #[cfg(feature = "rkyv")]
         {
             let bytes = rkyv::to_bytes::<Self, 256>(self)?;
@@ -675,6 +684,8 @@ impl Snapshot {
 
     /// Read a snapshot from a file
     fn read<P: AsRef<Path>>(path: P) -> Result<Self> {
+        use std::fs;
+
         #[cfg(feature = "rkyv")]
         {
             let bytes = fs::read(path)?;
@@ -771,7 +782,11 @@ struct SnapshotEntryMetadata {
 
 impl SnapshotEntry {
     /// Create a new snapshot entry
-    fn new(path: &Path, file_type: &FileType, metadata: Option<Metadata>) -> Self {
+    fn new(
+        path: &Path,
+        file_type: &std::fs::FileType,
+        metadata: Option<std::fs::Metadata>,
+    ) -> Self {
         let metadata = metadata.map(|metadata| SnapshotEntryMetadata {
             created: Self::file_timestamp(metadata.created()),
             modified: Self::file_timestamp(metadata.modified()),
@@ -820,7 +835,7 @@ impl SnapshotEntry {
         }
 
         let mut hasher = HashWriter(H::default());
-        io::copy(&mut File::open(path)?, &mut hasher)?;
+        io::copy(&mut std::fs::File::open(path)?, &mut hasher)?;
         Ok(hasher.0.finish())
     }
 
@@ -854,7 +869,7 @@ struct BlobWriter {
     filename: PathBuf,
 
     /// The file the blob is written tp
-    file: File,
+    file: std::fs::File,
 
     /// The number of bytes in the blob content
     bytes: usize,
@@ -871,6 +886,8 @@ impl BlobWriter {
     /// - `image_dir`: the image directory (blobs are written to the `blobs/sha256` subdirectory of this)
     /// - `media_type`: the media type of the blob
     fn new<P: AsRef<Path>>(image_dir: P, media_type: MediaType) -> Result<Self> {
+        use std::fs::{self, File};
+
         let blobs_dir = image_dir.as_ref().join("blobs").join("sha256");
         fs::create_dir_all(&blobs_dir)?;
 
@@ -892,6 +909,8 @@ impl BlobWriter {
     /// Finalizes the SHA256 hash, renames the file to the hex digest of that hash,
     /// and returns a descriptor of the blob.
     fn finish(self) -> Result<Descriptor> {
+        use std::fs;
+
         let sha256 = format!("{:x}", self.hash.finalize());
 
         fs::rename(
@@ -1017,6 +1036,8 @@ mod tests {
     /// Test snap-shotting, calculation of changesets, and the generation of layers from them.
     #[test]
     fn snapshot_changes() -> Result<()> {
+        use std::fs;
+
         print_logs();
 
         // Create a temporary directory as a text fixture and a tar file for writing / reading layers
@@ -1123,6 +1144,8 @@ mod tests {
     /// when independently calculated)
     #[test]
     fn changes_layer() -> Result<()> {
+        use std::fs;
+
         let working_dir = tempdir()?;
         let image_dir = tempdir()?;
 
