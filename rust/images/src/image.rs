@@ -29,7 +29,7 @@ use rkyv::{Archive, Deserialize, Serialize};
 use bytecheck::CheckBytes;
 
 #[cfg(not(feature = "rkyv"))]
-use buildpack::serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 use archive_utils::{flate2, tar};
 use hash_utils::{sha2::Digest, sha2::Sha256, str_sha256_hex};
@@ -497,33 +497,39 @@ impl ChangeSet {
             self.dir.display()
         );
 
+        struct LayerWriter<'lt> {
+            diffid_hash: &'lt mut Sha256,
+            gzip_encoder: flate2::write::GzEncoder<&'lt mut BlobWriter>,
+        }
+
+        impl<'lt> io::Write for LayerWriter<'lt> {
+            fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+                self.diffid_hash.update(buf);
+                self.gzip_encoder.write_all(buf)?;
+                Ok(buf.len())
+            }
+
+            fn flush(&mut self) -> io::Result<()> {
+                Ok(())
+            }
+        }
+
         let mut diffid_hash = Sha256::new();
+
         let mut blob_writer = BlobWriter::new(&layout_dir, MediaType::ImageLayerGzip)?;
 
+        // Note: compression is a lot slower for un-optimized (ie.e. non-release) binaries
+        //
+        // Note: I tried to use https://crates.io/crates/gzp here but found that is did not substantially
+        // improve performance (at least for my tests with several configurations e.g. 7s vs 9s). Given that
+        // decided to avoid the extra dependency.
+        let gzip_encoder =
+            flate2::write::GzEncoder::new(&mut blob_writer, flate2::Compression::new(4));
+
         {
-            struct LayerWriter<'lt> {
-                diffid_hash: &'lt mut Sha256,
-                gzip_encoder: flate2::write::GzEncoder<&'lt mut BlobWriter>,
-            }
-
-            impl<'lt> io::Write for LayerWriter<'lt> {
-                fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-                    self.diffid_hash.update(buf);
-                    self.gzip_encoder.write_all(buf)?;
-                    Ok(buf.len())
-                }
-
-                fn flush(&mut self) -> io::Result<()> {
-                    Ok(())
-                }
-            }
-
             let mut layer_writer = LayerWriter {
                 diffid_hash: &mut diffid_hash,
-                gzip_encoder: flate2::write::GzEncoder::new(
-                    &mut blob_writer,
-                    flate2::Compression::best(),
-                ),
+                gzip_encoder,
             };
 
             let mut archive = tar::Builder::new(&mut layer_writer);
@@ -614,7 +620,6 @@ enum Change {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
-#[cfg_attr(not(feature = "rkyv"), serde(crate = "buildpack::serde"))]
 struct Snapshot {
     /// The directory to snapshot
     dir: String,
@@ -783,7 +788,6 @@ impl Snapshot {
 #[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
-#[cfg_attr(not(feature = "rkyv"), serde(crate = "buildpack::serde"))]
 struct SnapshotEntry {
     /// Metadata on the file or directory
     ///
@@ -801,7 +805,6 @@ struct SnapshotEntry {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
-#[cfg_attr(not(feature = "rkyv"), serde(crate = "buildpack::serde"))]
 struct SnapshotEntryMetadata {
     created: Option<u64>,
     modified: Option<u64>,
