@@ -6,8 +6,8 @@ use std::{
 
 use bytes::Bytes;
 use bytesize::MIB;
+use chrono::Utc;
 use eyre::{bail, eyre, Result};
-use hash_utils::str_sha256_hex;
 use oci_spec::image::{Descriptor, ImageConfiguration, ImageIndex, ImageManifest, MediaType};
 use once_cell::sync::Lazy;
 use serde::Deserialize;
@@ -17,6 +17,7 @@ use tokio::{
     sync::RwLock,
 };
 
+use hash_utils::str_sha256_hex;
 use http_utils::{
     reqwest::{Method, Response},
     reqwest_middleware::RequestBuilder,
@@ -410,8 +411,17 @@ impl Client {
     /// See https://docs.docker.com/registry/spec/api/#pushing-a-layer for a description of the flow.
     /// See also https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pushing-blobs.
     pub async fn push_blob(&self, layout_dir: &Path, digest: &str) -> Result<()> {
-        // Check that the blob actually needs to be pushed
-        let response = self.get(["/blobs/", digest].concat()).send().await?;
+        // Check that the blob actually needs to be pushed. We avoid caching because if we do
+        // use a cached response and the blob was deleted in the meantime (or a new locahost server
+        // started during development, we'll get a "blob unknown to registry" error below.
+        // In theory, the `Cache-Control: no-cache` header should work, but it didn't
+        // so we use the current time as a query param to bust the cache.
+        // See https://github.com/06chaynes/http-cache/issues/13
+        let response = self
+            .head(["/blobs/", digest, "?time=", &Utc::now().to_rfc3339()].concat())
+            .header("Cache-Control", "no-cache")
+            .send()
+            .await?;
         if response.status() == 200 {
             tracing::info!(
                 "Blob `{}` already exists in `{}/{}`",
@@ -597,6 +607,11 @@ impl Client {
         }
 
         request
+    }
+
+    /// Make a HEAD request to the registry
+    fn head<S: AsRef<str>>(&self, path: S) -> RequestBuilder {
+        self.request(Method::HEAD, path)
     }
 
     /// Make a GET request to the registry
