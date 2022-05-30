@@ -228,21 +228,20 @@ impl Image {
 
         let base = base.unwrap_or("stencila/stencila:latest").parse()?;
 
-        let patterns = if !layer_dirs.is_empty() {
-            layer_dirs.iter().cloned().map(String::from).collect()
-        } else {
-            vec![working_dir.to_string_lossy().to_string()]
-        };
-        let mut layer_dirs = vec![];
+        let patterns = layer_dirs;
+        let mut layer_dirs: Vec<PathBuf> = vec![];
         for pattern in patterns {
-            for path in glob::glob(&pattern)?.flatten() {
+            for path in glob::glob(pattern)?.flatten() {
                 if path.is_dir() {
                     layer_dirs.push(path);
                 }
             }
         }
 
-        let layer_snapshots = layer_dirs.iter().map(Snapshot::new).collect();
+        let mut layer_snapshots = vec![Snapshot::new(working_dir.clone(), "/workspace")];
+        for layer_dir in &layer_dirs {
+            layer_snapshots.push(Snapshot::new(&layer_dir, "/layers"));
+        }
 
         let (layout_dir, layout_tempdir) = match layout_dir {
             Some(path) => (PathBuf::from(path), None),
@@ -317,7 +316,10 @@ impl Image {
                     "stencila {}",
                     env::args().skip(1).collect::<Vec<String>>().join(" ")
                 ))
-                .comment(format!("Layer for snapshotted directory {}", snapshot.dir))
+                .comment(format!(
+                    "Layer for snapshotted directory {}",
+                    snapshot.source_dir
+                ))
                 .empty_layer(empty_layer)
                 .build()?;
             histories.push(history)
@@ -480,8 +482,11 @@ impl Image {
 /// Represents the set of changes between two filesystem snapshots as described in
 /// [OCI Image Layer Filesystem Changeset](https://github.com/opencontainers/image-spec/blob/main/layer.md)
 struct ChangeSet {
-    /// The directory that these changes are for
-    dir: PathBuf,
+    /// The source directory, on the local filesystem, for the changes
+    source_dir: PathBuf,
+
+    /// The destination directory, within the image's root filesystem, for the changes
+    dest_dir: PathBuf,
 
     /// The change items
     items: Vec<Change>,
@@ -489,10 +494,20 @@ struct ChangeSet {
 
 impl ChangeSet {
     /// Create a new set of snapshot changes
-    fn new<P: AsRef<Path>>(dir: P, changes: Vec<Change>) -> Self {
+    fn new<P: AsRef<Path>>(source_dir: P, dest_dir: P, items: Vec<Change>) -> Self {
+        let source_dir = source_dir.as_ref().to_path_buf();
+
+        // Parths in tar archive must be relative so stri any leading slash
+        let dest_dir = dest_dir.as_ref().to_path_buf();
+        let dest_dir = match dest_dir.strip_prefix("/") {
+            Ok(dir) => dir.to_owned(),
+            Err(_) => dest_dir,
+        };
+
         Self {
-            dir: dir.as_ref().to_path_buf(),
-            items: changes,
+            source_dir,
+            dest_dir,
+            items,
         }
     }
 
@@ -536,7 +551,7 @@ impl ChangeSet {
 
         tracing::info!(
             "Writing image layer from changeset for `{}`",
-            self.dir.display()
+            self.source_dir.display()
         );
 
         let mut diffid_hash = Sha256::new();
@@ -591,7 +606,10 @@ impl ChangeSet {
             for change in self.items {
                 match change {
                     Change::Added(path) | Change::Modified(path) => {
-                        archive.append_path_with_name(self.dir.join(&path), path)?;
+                        archive.append_path_with_name(
+                            self.source_dir.join(&path),
+                            self.dest_dir.join(path),
+                        )?;
                     }
                     Change::Removed(path) => {
                         let path = PathBuf::from(path);
@@ -604,6 +622,8 @@ impl ChangeSet {
                             Some(parent) => parent.join(whiteout),
                             None => PathBuf::from(whiteout),
                         };
+                        let path = self.dest_dir.join(path);
+
                         let mut header = tar::Header::new_gnu();
                         header.set_path(path)?;
                         header.set_size(0);
@@ -676,8 +696,11 @@ enum Change {
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
 struct Snapshot {
-    /// The directory to snapshot
-    dir: String,
+    /// The source directory, on the local filestem, for the snapshot
+    source_dir: String,
+
+    /// The destination directory, within the image's root filesystem, for the snapshot
+    dest_dir: String,
 
     /// Entries in the snapshot
     entries: HashMap<String, SnapshotEntry>,
@@ -685,9 +708,11 @@ struct Snapshot {
 
 impl Snapshot {
     /// Create a new snapshot of a directory
-    fn new<P: AsRef<Path>>(dir: P) -> Self {
-        let dir = dir.as_ref().to_path_buf();
-        let entries = WalkDirGeneric::<((), SnapshotEntry)>::new(&dir)
+    fn new<S: AsRef<Path>, D: AsRef<Path>>(source_dir: S, dest_dir: D) -> Self {
+        let source_dir = source_dir.as_ref().to_path_buf();
+        let dest_dir = dest_dir.as_ref().to_path_buf();
+
+        let entries = WalkDirGeneric::<((), SnapshotEntry)>::new(&source_dir)
             .skip_hidden(false)
             .process_read_dir(|_depth, _path, _read_dir_state, children| {
                 children.iter_mut().flatten().for_each(|dir_entry| {
@@ -705,7 +730,7 @@ impl Snapshot {
                 Ok(entry) => {
                     let path = entry.path();
                     let relative_path = path
-                        .strip_prefix(&dir)
+                        .strip_prefix(&source_dir)
                         .expect("Should always be able to strip the root dir");
                     match relative_path == PathBuf::from("") {
                         true => None, // This is the entry for the dir itself so ignore it
@@ -716,18 +741,24 @@ impl Snapshot {
                     }
                 }
                 Err(error) => {
-                    tracing::error!("While snapshotting `{}`: {}", dir.display(), error);
+                    tracing::error!("While snapshotting `{}`: {}", source_dir.display(), error);
                     None
                 }
             })
             .collect();
-        let dir = dir.to_string_lossy().to_string();
-        Self { dir, entries }
+
+        let source_dir = source_dir.to_string_lossy().to_string();
+        let dest_dir = dest_dir.to_string_lossy().to_string();
+        Self {
+            source_dir,
+            dest_dir,
+            entries,
+        }
     }
 
     /// Create a new snapshot by repeating the current one
     fn repeat(&self) -> Self {
-        Self::new(&self.dir)
+        Self::new(&self.source_dir, &self.dest_dir)
     }
 
     /// Write a snapshot to a file
@@ -787,7 +818,7 @@ impl Snapshot {
             .keys()
             .map(|path| Change::Added(path.into()))
             .collect();
-        ChangeSet::new(&self.dir, changes)
+        ChangeSet::new(&self.source_dir, &self.dest_dir, changes)
     }
 
     /// Create a set of changes by determining the difference between two snapshots
@@ -808,7 +839,7 @@ impl Snapshot {
                 changes.push(Change::Added(path.into()))
             }
         }
-        ChangeSet::new(&self.dir, changes)
+        ChangeSet::new(&self.source_dir, &self.dest_dir, changes)
     }
 
     /// Create a set of changes by repeating the current snapshot
@@ -1112,7 +1143,7 @@ mod tests {
 
         let temp = tempdir()?;
         let snapshot_path = temp.path().join("test.snap");
-        let snapshot1 = Snapshot::new(working_dir);
+        let snapshot1 = Snapshot::new(working_dir, "/workspace");
 
         snapshot1.write(&snapshot_path)?;
 
@@ -1136,7 +1167,7 @@ mod tests {
 
         // Create an initial snapshot which should be empty and has no changes with self
 
-        let snap1 = Snapshot::new(working_dir.path());
+        let snap1 = Snapshot::new(working_dir.path(), "/workspace");
         assert_eq!(snap1.entries.len(), 0);
 
         let changes = snap1.diff(&snap1);
@@ -1238,7 +1269,7 @@ mod tests {
         let working_dir = tempdir()?;
         let image_dir = tempdir()?;
 
-        let snap = Snapshot::new(&working_dir);
+        let snap = Snapshot::new(&working_dir, "/workspace");
 
         fs::write(&working_dir.path().join("some-file.txt"), "Hello")?;
 
