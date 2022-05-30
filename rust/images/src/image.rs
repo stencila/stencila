@@ -37,6 +37,7 @@ use http_utils::tempfile::{tempdir, TempDir};
 
 use crate::{
     distribution::{Client, DOCKER_REGISTRY},
+    media_types::ToDockerV2S2,
     utils::unique_string,
 };
 
@@ -351,7 +352,7 @@ impl Image {
 
         let manifest = ImageManifestBuilder::default()
             .schema_version(SCHEMA_VERSION)
-            .media_type(MediaType::ImageManifest)
+            .media_type(MediaType::ImageManifest.to_docker_v2s2()?)
             .config(config)
             .layers(layers)
             .build()?;

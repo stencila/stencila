@@ -24,6 +24,8 @@ use http_utils::{
     CLIENT,
 };
 
+use crate::media_types::ToDockerV2S2;
+
 pub const DOCKER_REGISTRY: &str = "registry.hub.docker.com";
 pub const FLY_REGISTRY: &str = "registry.fly.io";
 
@@ -235,11 +237,8 @@ impl Client {
         let response = self
             .get(&["/manifests/", reference].concat())
             .header("Accept", MediaType::ImageManifest.to_string())
-            // Required for current version of Docker registry..
-            .header(
-                "Accept",
-                "application/vnd.docker.distribution.manifest.v2+json",
-            )
+            // Currently required for compatibility with Docker registry...
+            .header("Accept", MediaType::ImageManifest.to_docker_v2s2()?)
             .send()
             .await?
             .error_for_status()?;
@@ -274,7 +273,6 @@ impl Client {
 
     /// Push a manifest from a local file to the registry
     ///
-    ///
     /// See https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pushing-manifests.
     pub async fn push_manifest(
         &self,
@@ -303,7 +301,8 @@ impl Client {
 
         let response = self
             .put(&["/manifests/", reference].concat())
-            .header("Content-Type", MediaType::ImageManifest.to_string())
+            // Currently required for compatibility with Docker registry...
+            .header("Content-Type", MediaType::ImageManifest.to_docker_v2s2()?)
             .body(manifest_json)
             .send()
             .await?;
@@ -379,7 +378,7 @@ impl Client {
     }
 
     /// Pull a blob from the registry to a local file
-    /// 
+    ///
     /// Uses a [`BufWriter`] to avoid many small writes to the file (for each downloaded chunk).
     pub async fn pull_blob(
         &self,
@@ -395,12 +394,8 @@ impl Client {
         let blob_path = Self::blob_path(layout_dir, digest)?;
         let file = File::create(&blob_path).await?;
 
-        tracing::info!(
-            "Writing blob `{}` to `{}`",
-            digest,
-            blob_path.display()
-        );
-        
+        tracing::info!("Writing blob `{}` to `{}`", digest, blob_path.display());
+
         let mut buffer = BufWriter::new(file);
         while let Some(chunk) = response.chunk().await? {
             buffer.write_all(&chunk).await?;
