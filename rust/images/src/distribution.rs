@@ -416,14 +416,11 @@ impl Client {
     /// See also https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pushing-blobs.
     pub async fn push_blob(&self, layout_dir: &Path, digest: &str) -> Result<()> {
         // Check that the blob actually needs to be pushed. We avoid caching because if we do
-        // use a cached response and the blob was deleted in the meantime (or a new locahost server
-        // started during development, we'll get a "blob unknown to registry" error below.
-        // In theory, the `Cache-Control: no-cache` header should work, but it didn't
-        // so we use the current time as a query param to bust the cache.
-        // See https://github.com/06chaynes/http-cache/issues/13
+        // use a cached response and the blob was deleted in the meantime (or a new localhost registry
+        // started during development) we'll get a "blob unknown to registry" error below.
         let response = self
-            .head(["/blobs/", digest, "?time=", &Utc::now().to_rfc3339()].concat())
-            .header("Cache-Control", "no-cache")
+            .head(["/blobs/", digest].concat())
+            .header("Cache-Control", "no-store")
             .send()
             .await?;
         if response.status() == 200 {
