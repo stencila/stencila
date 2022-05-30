@@ -3014,7 +3014,6 @@ dependencies = [
  "dirs",
  "eyre",
  "futures",
- "glob",
  "hash-utils",
  "http-utils",
  "jwalk",

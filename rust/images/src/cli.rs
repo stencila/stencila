@@ -53,13 +53,6 @@ pub struct Build {
     #[structopt(long, short, env = "STENCILA_IMAGE_TAG")]
     tag: Option<String>,
 
-    /// Directories that should be added as separate layers to the image
-    ///
-    /// Use a colon separated list of globs. Defaults to "<dir>" and "/layers/*/*" (i.e. a layer for the working
-    /// directory and one for each of the sub-sub-directories of "/layers" which are created by buildpacks).
-    #[structopt(long, short, env = "STENCILA_IMAGE_LAYERS")]
-    layers: Option<String>,
-
     /// The format to use for image layers
     ///
     /// The Open Container Image spec allows for layers to be in several formats.
@@ -103,6 +96,13 @@ pub struct Build {
     #[structopt(long)]
     no_push: bool,
 
+    /// The directory where buildpacks build layers and which will are written into the image
+    ///
+    /// Defaults to a `/layers` (the usual in CNB images) or `<dir>/.stencila/layers` (the fallback
+    /// for local builds).
+    #[structopt(long)]
+    layers_dir: Option<PathBuf>,
+
     /// The directory to write the image to
     ///
     /// Defaults to a temporary directory. Use this option if you want to inspect the contents
@@ -118,17 +118,11 @@ pub struct Build {
 #[async_trait]
 impl Run for Build {
     async fn run(&self) -> Result {
-        let layers_dirs: Vec<&str> = self
-            .layers
-            .as_ref()
-            .map(|str| str.split(':').collect())
-            .unwrap_or_default();
-
         let mut image = Image::new(
             self.dir.as_deref(),
             self.tag.as_deref(),
             self.from.as_deref(),
-            &layers_dirs,
+            self.layers_dir.as_deref(),
             Some(!self.no_diffs),
             Some(self.layer_format.as_str()),
             self.layout_dir.as_deref(),

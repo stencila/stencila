@@ -6,7 +6,6 @@ use std::{
 
 use bytes::Bytes;
 use bytesize::MIB;
-use chrono::Utc;
 use eyre::{bail, eyre, Result};
 use oci_spec::image::{Descriptor, ImageConfiguration, ImageIndex, ImageManifest, MediaType};
 use once_cell::sync::Lazy;

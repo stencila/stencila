@@ -164,10 +164,10 @@ pub struct Image {
     /// Equivalent to the `FROM` directive of a Dockerfile.
     pub base: ImageReference,
 
-    /// The directories that will be snapshotted to generate individual layers for the image
+    /// The directory that contains the buildpack layers
     ///
-    /// Defaults to the `working_dir` and any subdirectories of `/layers/*`.
-    pub layer_dirs: Vec<PathBuf>,
+    /// Defaults to `/layers` or `<working_dir>/.stencila/layers` (in order of priority).
+    pub layers_dir: PathBuf,
 
     /// Whether snapshots should be diffed or replicated
     layer_diffs: bool,
@@ -197,7 +197,7 @@ impl Image {
         working_dir: Option<&Path>,
         ref_: Option<&str>,
         base: Option<&str>,
-        layer_dirs: &[&str],
+        layers_dir: Option<&Path>,
         layer_diffs: Option<bool>,
         layer_format: Option<&str>,
         layout_dir: Option<&Path>,
@@ -228,19 +228,29 @@ impl Image {
 
         let base = base.unwrap_or("stencila/stencila:latest").parse()?;
 
-        let patterns = layer_dirs;
-        let mut layer_dirs: Vec<PathBuf> = vec![];
-        for pattern in patterns {
-            for path in glob::glob(pattern)?.flatten() {
-                if path.is_dir() {
-                    layer_dirs.push(path);
+        let layers_dir = layers_dir
+            .map(|path| path.to_path_buf())
+            .unwrap_or_else(|| {
+                let layers_top = PathBuf::from("/layers");
+                if layers_top.exists() {
+                    layers_top
+                } else {
+                    working_dir.join(".stencila").join("layers")
                 }
-            }
-        }
+            });
 
         let mut layer_snapshots = vec![Snapshot::new(working_dir.clone(), "/workspace")];
-        for layer_dir in &layer_dirs {
-            layer_snapshots.push(Snapshot::new(&layer_dir, "/layers"));
+        for subdir in layers_dir.read_dir()?.flatten().filter_map(|entry| {
+            if entry.path().is_dir() {
+                Some((entry.path(), entry.file_name()))
+            } else {
+                None
+            }
+        }) {
+            layer_snapshots.push(Snapshot::new(
+                &subdir.0,
+                PathBuf::from("/layers").join(subdir.1),
+            ));
         }
 
         let (layout_dir, layout_tempdir) = match layout_dir {
@@ -264,7 +274,7 @@ impl Image {
             working_dir,
             ref_,
             base,
-            layer_dirs,
+            layers_dir,
             layer_snapshots,
             layer_diffs,
             layer_format,
@@ -435,7 +445,7 @@ impl Image {
     }
 
     pub async fn build(&self) -> Result<()> {
-        buildpacks::PACKS.build_all(Some(&self.working_dir), None)?;
+        buildpacks::PACKS.build_all(Some(&self.working_dir), Some(&self.layers_dir), None)?;
         Ok(())
     }
 
@@ -1162,12 +1172,13 @@ mod tests {
 
         // Create a temporary directory as a text fixture and a tar file for writing / reading layers
 
-        let working_dir = tempdir()?;
+        let source_dir = tempdir()?;
+        let dest_dir = PathBuf::from("workspace");
         let image_dir = tempdir()?;
 
         // Create an initial snapshot which should be empty and has no changes with self
 
-        let snap1 = Snapshot::new(working_dir.path(), "/workspace");
+        let snap1 = Snapshot::new(source_dir.path(), &dest_dir);
         assert_eq!(snap1.entries.len(), 0);
 
         let changes = snap1.diff(&snap1);
@@ -1177,7 +1188,7 @@ mod tests {
         // with `Added` and tar has entry for it
 
         let a_txt = "a.txt".to_string();
-        fs::write(working_dir.path().join(&a_txt), "Hello from a.txt")?;
+        fs::write(source_dir.path().join(&a_txt), "Hello from a.txt")?;
 
         let snap2 = snap1.repeat();
         assert_eq!(snap2.entries.len(), 1);
@@ -1194,13 +1205,13 @@ mod tests {
         let entry = entries
             .next()
             .ok_or_else(|| eyre!("No entries in tar archive"))??;
-        assert_eq!(entry.path()?, PathBuf::from(&a_txt));
+        assert_eq!(entry.path()?, dest_dir.join(&a_txt));
         assert_eq!(entry.size(), 16);
 
         // Repeat
 
         let b_txt = "b.txt".to_string();
-        fs::write(working_dir.path().join(&b_txt), "Hello from b.txt")?;
+        fs::write(source_dir.path().join(&b_txt), "Hello from b.txt")?;
 
         let snap3 = snap1.repeat();
         assert_eq!(snap3.entries.len(), 2);
@@ -1217,7 +1228,7 @@ mod tests {
         // Remove a.txt and check that the change set has a `Removed` and tar has
         // a whiteout entry of size 0
 
-        fs::remove_file(working_dir.path().join(&a_txt))?;
+        fs::remove_file(source_dir.path().join(&a_txt))?;
 
         let snap4 = snap1.repeat();
         assert_eq!(snap4.entries.len(), 1);
@@ -1234,13 +1245,13 @@ mod tests {
         let mut layer = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
         let entry = entries.next().unwrap()?;
-        assert_eq!(entry.path()?, PathBuf::from(".wh.a.txt"));
+        assert_eq!(entry.path()?, dest_dir.join(".wh.a.txt"));
         assert_eq!(entry.size(), 0);
 
         // Modify b.txt and check that the change set has a `Modified` and tar has
         // entry with new content
 
-        fs::write(working_dir.path().join(&b_txt), "Hello")?;
+        fs::write(source_dir.path().join(&b_txt), "Hello")?;
 
         let snap5 = snap1.repeat();
         assert_eq!(snap5.entries.len(), 1);
@@ -1254,7 +1265,7 @@ mod tests {
         let mut archive = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
         let mut entries = archive.entries()?;
         let entry = entries.next().unwrap()?;
-        assert_eq!(entry.path()?, PathBuf::from(b_txt));
+        assert_eq!(entry.path()?, dest_dir.join(b_txt));
         assert_eq!(entry.size(), 5);
 
         Ok(())
@@ -1266,12 +1277,12 @@ mod tests {
     fn changes_layer() -> Result<()> {
         use std::fs;
 
-        let working_dir = tempdir()?;
+        let source_dir = tempdir()?;
         let image_dir = tempdir()?;
 
-        let snap = Snapshot::new(&working_dir, "/workspace");
+        let snap = Snapshot::new(&source_dir, "workspace");
 
-        fs::write(&working_dir.path().join("some-file.txt"), "Hello")?;
+        fs::write(&source_dir.path().join("some-file.txt"), "Hello")?;
 
         // Create a layer archive, diffid and descriptor
 
@@ -1302,7 +1313,7 @@ mod tests {
     #[tokio::test]
     async fn image_write() -> Result<()> {
         let working_dir = tempdir()?;
-        let mut image = Image::new(Some(working_dir.path()), None, None, &[], None, None, None)?;
+        let mut image = Image::new(Some(working_dir.path()), None, None, None, None, None, None)?;
 
         image.write().await?;
 
