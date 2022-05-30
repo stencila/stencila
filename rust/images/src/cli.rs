@@ -62,13 +62,13 @@ pub struct Build {
 
     /// The format to use for image layers
     ///
-    /// The Open Container Image spec allows for layers to be in several formats. The most common
-    /// is "tar+gzip". The "tar+zstd" format offers substantial performance benefits but may not be
-    /// supported by older runtimes.
+    /// The Open Container Image spec allows for layers to be in several formats.
+    /// The default "tar+zstd" format provides performance benefits over the others but may not be
+    /// supported by older versions of some container tools.
     #[structopt(
         long,
         env = "STENCILA_IMAGE_LAYER_FORMAT",
-        default_value = "tar+gzip",
+        default_value = "tar+zstd",
         possible_values = &["tar", "tar+gzip", "tgz", "tar+zstd", "tzs"]
     )]
     layer_format: String,
