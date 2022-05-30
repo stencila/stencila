@@ -57,11 +57,22 @@ pub struct ImageReference {
 }
 
 impl ImageReference {
-    pub fn reference(&self) -> String {
+    /// Get the digest or tag for the reference, falling back to `latest`
+    ///
+    /// Use this when pulling a manifest to get the version that most closely
+    /// matches that specified in the reference.
+    pub fn digest_or_tag_or_latest(&self) -> String {
         match self.digest.as_ref().or_else(|| self.tag.as_ref()) {
             Some(reference) => reference.clone(),
             None => "latest".to_string(),
         }
+    }
+
+    /// Get the tag for the reference falling back to `latest`
+    ///
+    /// Use this when pushing a manifest for the image.
+    pub fn tag_or_latest(&self) -> String {
+        self.tag.clone().unwrap_or_else(|| "latest".to_string())
     }
 }
 
@@ -269,7 +280,9 @@ impl Image {
     /// manifest) and required for the config and manifest of this image.
     async fn get_base(&self) -> Result<(String, ImageConfiguration, Vec<Descriptor>)> {
         let client = Client::new(&self.base.registry, &self.base.repository, None).await?;
-        let (manifest, digest) = client.get_manifest(self.base.reference()).await?;
+        let (manifest, digest) = client
+            .get_manifest(self.base.digest_or_tag_or_latest())
+            .await?;
 
         let config = client.get_config(&manifest).await?;
         let layers = manifest.layers().clone();
@@ -330,7 +343,9 @@ impl Image {
         let configuration = ImageConfigurationBuilder::default()
             .created(Utc::now().to_rfc3339())
             .os(env::consts::OS)
-            .architecture(env::consts::ARCH)
+            // Not that arch should be one of the values listed at https://go.dev/doc/install/source#environment
+            // and that `env::consts::ARCH` does not necessarily return that
+            .architecture("amd64")
             .config(config)
             .rootfs(rootfs)
             .history(history)
@@ -366,12 +381,14 @@ impl Image {
     /// Write the image `index.json`
     ///
     /// Implements the [OCI Image Index Specification](https://github.com/opencontainers/image-spec/blob/main/image-index.md).
-    /// Given that the index requires the image manifest descriptor, also calls `write_manifest`. At present the
-    /// image only has one manifest (for a Linux image).
-    async fn write_index(&self) -> Result<()> {
+    /// Updates both `self.ref_.digest` and `self.base.digest`.
+    async fn write_index(&mut self) -> Result<()> {
         use tokio::fs;
 
         let (base_digest, manifest) = self.write_manifest().await?;
+
+        self.base.digest = Some(base_digest.clone());
+        self.ref_.digest = Some(manifest.digest().to_string());
 
         let annotations: HashMap<String, String> = [
             // Where appropriate use pre defined annotations
@@ -426,7 +443,7 @@ impl Image {
     ///
     /// Note that the `blobs/sha256` subdirectory may not have blobs for the base image (these
     /// are only pulled into that directory if necessary i.e. if the registry does not yet have them).
-    pub async fn write(&self) -> Result<()> {
+    pub async fn write(&mut self) -> Result<()> {
         use tokio::fs;
 
         if self.layout_dir.exists() {
@@ -450,7 +467,9 @@ impl Image {
     /// The image must be written first (by a call to `self.write()`).
     pub async fn push(&self) -> Result<()> {
         let client = Client::new(&self.ref_.registry, &self.ref_.repository, None).await?;
-        client.push_image("latest", &self.layout_dir).await?;
+        client
+            .push_image(&self.ref_.tag_or_latest(), &self.layout_dir)
+            .await?;
 
         Ok(())
     }
@@ -1252,7 +1271,7 @@ mod tests {
     #[tokio::test]
     async fn image_write() -> Result<()> {
         let working_dir = tempdir()?;
-        let image = Image::new(Some(working_dir.path()), None, None, &[], None, None, None)?;
+        let mut image = Image::new(Some(working_dir.path()), None, None, &[], None, None, None)?;
 
         image.write().await?;
 

@@ -1,6 +1,6 @@
-pub mod media_types;
 pub mod distribution;
 pub mod image;
+pub mod media_types;
 mod utils;
 
 #[cfg(feature = "cli")]

@@ -7,7 +7,7 @@ use oci_spec::image::MediaType;
  * This trait may be necessary for compatibility with tools that do not recognize the OCI Media Types.
  * Where a [`MediaType`] is expected (e.g. the `media_type` method of builders) you can use
  * `MediaType::ImageManifest.to_docker_v2s2()?` instead.
- * 
+ *
  * Not all OCI Media Types have an equivalent Docker V2S2 Media Type. In those cases, `to_docker_v2s2` will error.
  */
 pub trait ToDockerV2S2 {

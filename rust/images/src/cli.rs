@@ -124,7 +124,7 @@ impl Run for Build {
             .map(|str| str.split(':').collect())
             .unwrap_or_default();
 
-        let image = Image::new(
+        let mut image = Image::new(
             self.dir.as_deref(),
             self.tag.as_deref(),
             self.from.as_deref(),
