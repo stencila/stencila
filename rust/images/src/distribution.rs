@@ -13,7 +13,7 @@ use once_cell::sync::Lazy;
 use serde::Deserialize;
 use tokio::{
     fs::{create_dir_all, metadata, read_to_string, File},
-    io::{self, AsyncReadExt, AsyncWriteExt},
+    io::{self, AsyncReadExt, AsyncWriteExt, BufWriter},
     sync::RwLock,
 };
 
@@ -345,7 +345,7 @@ impl Client {
     /// See https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-blobs
     pub async fn get_blob(&self, digest: &str, size: Option<i64>) -> Result<Response> {
         tracing::info!(
-            "Pulling blob `{}` from `{}/{}`",
+            "Getting blob `{}` from `{}/{}`",
             digest,
             self.registry,
             self.repository
@@ -379,6 +379,8 @@ impl Client {
     }
 
     /// Pull a blob from the registry to a local file
+    /// 
+    /// Uses a [`BufWriter`] to avoid many small writes to the file (for each downloaded chunk).
     pub async fn pull_blob(
         &self,
         layout_dir: &Path,
@@ -391,10 +393,17 @@ impl Client {
         create_dir_all(&blobs_dir).await?;
 
         let blob_path = Self::blob_path(layout_dir, digest)?;
+        let file = File::create(&blob_path).await?;
 
-        let mut file = File::create(blob_path).await?;
+        tracing::info!(
+            "Writing blob `{}` to `{}`",
+            digest,
+            blob_path.display()
+        );
+        
+        let mut buffer = BufWriter::new(file);
         while let Some(chunk) = response.chunk().await? {
-            file.write_all(&chunk).await?;
+            buffer.write_all(&chunk).await?;
         }
 
         Ok(())
@@ -485,9 +494,6 @@ impl Client {
             }
         }
 
-        let mut blob_file = File::open(&blob_path).await?;
-        let blob_length = metadata(&blob_path).await?.len() as usize;
-
         tracing::info!(
             "Pushing blob `{}` to `{}/{}`",
             digest,
@@ -495,12 +501,17 @@ impl Client {
             self.repository
         );
 
+        let mut blob_file = File::open(&blob_path).await?;
+        let blob_length = metadata(&blob_path).await?.len() as usize;
+
         let mut upload_url = match response.headers().get("Location") {
             Some(url) => url.to_str()?.to_string(),
             None => bail!("Did not receive upload URL from registry"),
         };
 
-        const MAX_CHUNK_SIZE: usize = 5 * MIB as usize;
+        // It is not clear what the optimum chunk size here but if too small results
+        // in many requests which is slow.
+        const MAX_CHUNK_SIZE: usize = 100 * MIB as usize;
 
         // If the blob is less than the maximum chunk size then upload it "monolithically"
         // rather than in chunks (to reduce the number of requests)
