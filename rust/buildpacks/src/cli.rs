@@ -246,7 +246,7 @@ pub struct Build {
     /// To get the list of buildpacks available use `stencila buildpacks list`.
     label: Option<String>,
 
-    /// A directory that may contain subdirectories representing each layer created by the
+    /// A directory that will contain subdirectories representing each layer created by the
     /// buildpack in the final image or build cache
     layers: Option<PathBuf>,
 
@@ -289,7 +289,11 @@ impl Run for Build {
         });
 
         if label == "all" {
-            let results = PACKS.build_all(self.working.as_deref(), platform_dir.as_deref())?;
+            let results = PACKS.build_all(
+                self.working.as_deref(),
+                self.layers.as_deref(),
+                platform_dir.as_deref(),
+            )?;
             return if stdout_isatty() {
                 result::nothing()
             } else {

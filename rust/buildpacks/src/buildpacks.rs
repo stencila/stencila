@@ -171,12 +171,21 @@ impl Buildpacks {
 
     /// Create a CNB layers directory for a buildpack
     ///
-    /// Used in `build` when the `layers_dir` argument is not supplied.
+    /// Used in `build` when the `layers_dir` argument is not supplied (usually this only
+    /// happens when called from within Stencila and not by a CNB platform tool such as `pack`).
+    /// 
+    /// If there is a directory `/layers` on the filesystem, that will be used (usually when
+    /// running inside a container), otherwise `./.stencila/layers` within the working directory
+    /// will be used.
     fn layers_dir_default(working_dir: &Path, buildpack_id: &BuildpackId) -> Result<PathBuf> {
-        let dir = working_dir
-            .join(".stencila")
-            .join("layers")
-            .join(Self::slugify_buildpack_id(buildpack_id));
+        let layers_at_top = PathBuf::from("/layers");
+        let layers_dir = if layers_at_top.exists() {
+            layers_at_top
+        } else {
+            working_dir.join(".stencila").join("layers")
+        };
+
+        let dir = layers_dir.join(Self::slugify_buildpack_id(buildpack_id));
         fs::create_dir_all(&dir)?;
 
         Ok(dir)
@@ -456,6 +465,7 @@ impl Buildpacks {
     pub fn build_all(
         &self,
         working_dir: Option<&Path>,
+        layers_dir: Option<&Path>,
         platform_dir: Option<&Path>,
     ) -> Result<Vec<(BuildpackId, bool)>> {
         let matches = self.detect_all(working_dir, platform_dir)?;
@@ -463,7 +473,7 @@ impl Buildpacks {
         let dockerfile_buildpack_id = buildpack_id!("stencila/dockerfile");
         for (buildpack_id, matched) in &matches {
             if *matched {
-                self.build(buildpack_id, working_dir, None, platform_dir, None)?;
+                self.build(buildpack_id, working_dir, layers_dir, platform_dir, None)?;
                 if *buildpack_id == dockerfile_buildpack_id {
                     break;
                 }
