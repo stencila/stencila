@@ -360,7 +360,7 @@ impl Image {
             .to_str()
             .ok_or_else(|| eyre!("Layers dir is none"))?;
 
-        // Environment variables need to be updated based on files in `/layers/*/*/env`
+        // Get the environment variables in the base images
         let mut env: HashMap<String, String> = config
             .env()
             .clone()
@@ -375,6 +375,29 @@ impl Image {
             })
             .collect();
 
+        // Update the env vars with those that are expected to be provided by the `launcher` lifecycle
+        // See https://github.com/buildpacks/spec/blob/main/buildpack.md#provided-by-the-lifecycle
+        let layer_dirs = glob::glob(&[layers_dir, "/*/*/"].concat())?.flatten();
+        for layer_dir in layer_dirs {
+            let path = [
+                layer_dir.join("bin").to_string_lossy().to_string(),
+                ":".to_string(),
+                env.get("PATH").cloned().unwrap_or_default(),
+            ]
+            .concat();
+            env.insert("PATH".to_string(), path);
+
+            let lid_library_path = [
+                layer_dir.join("lib").to_string_lossy().to_string(),
+                ":".to_string(),
+                env.get("LD_LIBRARY_PATH").cloned().unwrap_or_default(),
+            ]
+            .concat();
+            env.insert("LD_LIBRARY_PATH".to_string(), lid_library_path);
+        }
+
+        // Update the env vars with those provided by buildpacks
+        // See https://github.com/buildpacks/spec/blob/main/buildpack.md#provided-by-the-buildpacks
         let var_files = glob::glob(&[layers_dir, "/*/*/env/*"].concat())?.flatten();
         for var_file in var_files {
             let action = match var_file.extension() {
@@ -395,7 +418,6 @@ impl Image {
             // Because the base image may have been built with Stencila buildpacks, for
             // prepend and append the value is only added if it is not present (this avoid
             // having env vars such as PATH that grow very long).
-            // See https://github.com/buildpacks/spec/blob/main/buildpack.md#environment-variable-modification-rules
             match action.as_str() {
                 "default" => {
                     if value.is_empty() {
