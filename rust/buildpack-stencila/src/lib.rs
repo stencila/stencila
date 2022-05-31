@@ -1,7 +1,4 @@
-use std::{
-    fs::{copy, create_dir_all, remove_file},
-    path::Path,
-};
+use std::{fs::create_dir_all, path::Path};
 
 use binary_stencila::{BinaryTrait, StencilaBinary};
 use buildpack::{
@@ -151,29 +148,23 @@ impl Layer for StencilaLayer {
             self.requirement
         );
 
-        let stencila = StencilaBinary {}.ensure_version_sync(&self.requirement)?;
-        let version = stencila.version()?.to_string();
-
         let bin_path = layer_path.join("bin");
         create_dir_all(&bin_path)?;
 
-        if context.is_local() {
+        let version = if context.is_local() {
+            let stencila = StencilaBinary {}.ensure_version_sync(&self.requirement)?;
+            let version = stencila.version()?.to_string();
+
             tracing::info!("Linking to `stencila {}`", version);
 
             symlink_file(stencila.path, bin_path.join(stencila.name))?;
+
+            version
         } else {
-            #[allow(clippy::collapsible_else_if)]
-            if stencila.is_stencila_install() {
-                tracing::info!("Moving `stencila {}`", version);
+            tracing::info!("Installing `stencila {}`", self.requirement);
 
-                copy(&stencila.path, bin_path.join(stencila.name))?;
-                remove_file(stencila.path)?;
-            } else {
-                tracing::info!("Linking to `stencila {}` installed on stack image", version);
-
-                symlink_file(stencila.path, bin_path.join(stencila.name))?;
-            }
-        }
+            StencilaBinary {}.install_in_sync(Some(self.requirement.clone()), Some(bin_path))?
+        };
 
         // Store version in metadata to detect if layer is stale in `existing_layer_strategy()`
         let metadata = LayerVersionMetadata { version };
