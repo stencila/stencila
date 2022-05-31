@@ -235,9 +235,15 @@ impl Image {
                 if layers_top.exists() {
                     layers_top
                 } else {
-                    working_dir.join(".stencila").join("layers")
+                    let dir = working_dir.join(".stencila").join("layers");
+                    std::fs::create_dir_all(&dir).expect("Unable to create layers dir");
+                    dir
                 }
             });
+
+        // Before creating snapshots do a "prebuild" so that the directories
+        // that may need to be snapshotted are present and picked up in `layers_dir.read_dir()` call below.
+        buildpacks::PACKS.prebuild_all(&layers_dir)?;
 
         let mut layer_snapshots = vec![Snapshot::new(working_dir.clone(), "/workspace")];
         for subdir in layers_dir.read_dir()?.flatten().filter_map(|entry| {
@@ -313,12 +319,12 @@ impl Image {
             let (diff_id, layer) =
                 snapshot.write_layer(&self.layout_dir, self.layer_diffs, &self.layer_format)?;
 
-            let empty_layer = diff_id == "<empty>";
-
-            if !empty_layer {
-                diff_ids.push(diff_id);
-                layers.push(layer);
+            if diff_id == "<empty>" {
+                continue;
             }
+
+            diff_ids.push(diff_id);
+            layers.push(layer);
 
             let history = HistoryBuilder::default()
                 .created(Utc::now().to_rfc3339())
@@ -326,11 +332,7 @@ impl Image {
                     "stencila {}",
                     env::args().skip(1).collect::<Vec<String>>().join(" ")
                 ))
-                .comment(format!(
-                    "Layer for snapshotted directory {}",
-                    snapshot.source_dir
-                ))
-                .empty_layer(empty_layer)
+                .comment(format!("Layer for directory {}", snapshot.source_dir))
                 .build()?;
             histories.push(history)
         }
@@ -348,8 +350,84 @@ impl Image {
         history: Vec<History>,
     ) -> Result<Descriptor> {
         // Start with the config of the base image and override as necessary
-        let config = base_config.config().clone().unwrap_or_default();
+        let mut config = base_config.config().clone().unwrap_or_default();
 
+        // Working directory is represented in image as /workspace. Override it
+        config.set_working_dir(Some("/workspace".to_string()));
+
+        let layers_dir = self
+            .layers_dir
+            .to_str()
+            .ok_or_else(|| eyre!("Layers dir is none"))?;
+
+        // Environment variables need to be updated based on files in `/layers/*/*/env`
+        let mut env: HashMap<String, String> = config
+            .env()
+            .clone()
+            .unwrap_or_default()
+            .iter()
+            .map(|name_value| {
+                let mut parts = name_value.splitn(2, '=');
+                (
+                    parts.next().unwrap_or_default().to_owned(),
+                    parts.next().unwrap_or_default().to_owned(),
+                )
+            })
+            .collect();
+
+        let var_files = glob::glob(&[layers_dir, "/*/*/env/*"].concat())?.flatten();
+        for var_file in var_files {
+            let action = match var_file.extension() {
+                Some(ext) => ext.to_string_lossy().to_string(),
+                None => continue,
+            };
+            let name = match var_file.file_stem() {
+                Some(name) => name.to_string_lossy().to_string(),
+                None => continue,
+            };
+            let mut value = match env.get(&name) {
+                Some(value) => value.clone(),
+                None => String::new(),
+            };
+            let new_value = std::fs::read_to_string(&var_file)?;
+
+            // Apply modification action
+            // Because the base image may have been built with Stencila buildpacks, for
+            // prepend and append the value is only added if it is not present (this avoid
+            // having env vars such as PATH that grow very long).
+            // See https://github.com/buildpacks/spec/blob/main/buildpack.md#environment-variable-modification-rules
+            match action.as_str() {
+                "default" => {
+                    if value.is_empty() {
+                        value = new_value;
+                    }
+                }
+                "prepend" => {
+                    if !value.contains(&new_value) {
+                        value = [new_value, value].concat()
+                    }
+                }
+                "append" => {
+                    if !value.contains(&new_value) {
+                        value = [value, new_value].concat()
+                    }
+                }
+                "override" => {
+                    value = new_value;
+                }
+                _ => tracing::warn!("ignoring env var file {}", var_file.display()),
+            }
+
+            env.insert(name, value);
+        }
+
+        let env: Vec<String> = env
+            .iter()
+            .map(|(name, value)| [name, "=", value].concat())
+            .collect();
+        config.set_env(Some(env));
+
+        // Rootfs DiffIDs calculated above
         let rootfs = RootFsBuilder::default().diff_ids(diff_ids).build()?;
 
         let configuration = ImageConfigurationBuilder::default()
@@ -445,7 +523,12 @@ impl Image {
     }
 
     pub async fn build(&self) -> Result<()> {
-        buildpacks::PACKS.build_all(Some(&self.working_dir), Some(&self.layers_dir), None)?;
+        // Because buildpacks will change directories into the working dir. It is safest to use absolute paths here.
+        let working_dir = self.working_dir.canonicalize()?;
+        let layers_dir = self.layers_dir.canonicalize()?;
+
+        buildpacks::PACKS.build_all(Some(&working_dir), Some(&layers_dir), None)?;
+
         Ok(())
     }
 
