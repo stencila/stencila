@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use bytes::Bytes;
+use bytes::{Bytes, BytesMut};
 use bytesize::MIB;
 use eyre::{bail, eyre, Result};
 use oci_spec::image::{Descriptor, ImageConfiguration, ImageIndex, ImageManifest, MediaType};
@@ -502,11 +502,11 @@ impl Client {
 
         // It is not clear what the optimum chunk size here but if too small results
         // in many requests which is slow.
-        const MAX_CHUNK_SIZE: usize = 100 * MIB as usize;
+        const CHUNK_SIZE: usize = 50 * MIB as usize;
 
         // If the blob is less than the maximum chunk size then upload it "monolithically"
         // rather than in chunks (to reduce the number of requests)
-        if blob_length <= MAX_CHUNK_SIZE {
+        if blob_length <= CHUNK_SIZE {
             let mut bytes = Vec::with_capacity(blob_length);
             io::copy(&mut blob_file, &mut bytes).await?;
 
@@ -532,14 +532,17 @@ impl Client {
         }
 
         // Read the blob in chunks and upload each
-        let mut buffer = vec![0u8; MAX_CHUNK_SIZE];
+        let mut buffer = BytesMut::with_capacity(CHUNK_SIZE);
         let mut chunk_start = 0;
-        while let Ok(chunk_length) = blob_file.read(&mut buffer[..]).await {
-            if chunk_length == 0 {
-                break;
+        while let Ok(bytes_read) = blob_file.read_buf(&mut buffer).await {
+            // If there are still bytes to be read but the buffer is less than the chunk size
+            // then continue the next iteration of the loop
+            if bytes_read > 0 && buffer.len() < CHUNK_SIZE {
+                continue;
             }
 
-            let chunk = Bytes::copy_from_slice(&buffer[0..chunk_length]);
+            let chunk_length = std::cmp::min(buffer.len(), CHUNK_SIZE);
+            let chunk = buffer.split_to(chunk_length);
 
             let response = self
                 .patch(upload_url)
@@ -549,7 +552,7 @@ impl Client {
                     format!("{}-{}", chunk_start, chunk_start + chunk_length - 1),
                 )
                 .header("Content-Length", chunk_length)
-                .body(chunk)
+                .body(Bytes::from(chunk))
                 .send()
                 .await?;
             if response.status() == 202 {
@@ -567,6 +570,11 @@ impl Client {
                     response.status(),
                     response.text().await?
                 )
+            }
+
+            // No more bytes to read so exit the loop
+            if bytes_read == 0 {
+                break;
             }
 
             chunk_start += chunk_length;
