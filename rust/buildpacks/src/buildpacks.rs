@@ -173,7 +173,7 @@ impl Buildpacks {
     ///
     /// Used in `build` when the `layers_dir` argument is not supplied (usually this only
     /// happens when called from within Stencila and not by a CNB platform tool such as `pack`).
-    /// 
+    ///
     /// If there is a directory `/layers` on the filesystem, that will be used (usually when
     /// running inside a container), otherwise `./.stencila/layers` within the working directory
     /// will be used.
@@ -430,7 +430,7 @@ impl Buildpacks {
         );
 
         let layers_dir = match layers_dir {
-            Some(dir) => dir.to_owned(),
+            Some(dir) => dir.join(Self::slugify_buildpack_id(buildpack_id)),
             None => Self::layers_dir_default(&working_dir, buildpack_id)?,
         };
 
@@ -455,6 +455,30 @@ impl Buildpacks {
         set_current_dir(current_dir)?;
 
         result
+    }
+
+    /// Prepare all buildpacks before a build
+    /// 
+    /// This function is used to initialize the layers directory so that it contains a 
+    /// subdirectory for all buildpacks that create a layer (standard CNB buildpacks create a
+    /// layer but some Stencila buildpacks e.g. `sources` and `dockerfile` do not). This
+    /// is in turned used to record initial image snapshots for directories that may later change during
+    /// the build process. 
+    pub fn prebuild_all(&self, layers_dir: &Path) -> Result<()> {
+        for toml in &self.inner {
+            if toml
+                .metadata
+                .as_ref()
+                .and_then(|metadata| metadata.get("creates-layer"))
+                .and_then(|value| value.as_bool())
+                .unwrap_or(true)
+            {
+                let dir = layers_dir.join(Self::slugify_buildpack_id(&toml.buildpack.id));
+                fs::create_dir_all(dir)?;
+            }
+        }
+
+        Ok(())
     }
 
     /// Run `detect` for all buildpacks, run `build` for those that match, and return

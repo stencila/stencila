@@ -10,5 +10,8 @@ homepage = "https://github.com/stencila/stencila/tree/HEAD/rust/buildpack-source
 [[buildpack.licenses]]
 type = "Apache-2.0"
 
+[metadata]
+creates-layer = false
+
 [[stacks]]
 id = "io.buildpacks.stacks.bionic"
