@@ -21,8 +21,8 @@ use libcnb::{
 };
 pub use maplit;
 pub use serde;
-pub use serde_json;
 use serde::{Deserialize, Serialize};
+pub use serde_json;
 use serde_with::skip_serializing_none;
 pub use tokio;
 pub use toml;
@@ -39,32 +39,26 @@ pub fn platform_dir_is_stencila(platform_dir: &Path) -> bool {
     platform_dir.join("env").join("STENCILA_VERSION").exists()
 }
 
-/// Test whether the current CNB platform is Stencila
-pub fn platform_is_stencila(platform: &impl Platform) -> bool {
-    platform.env().contains_key("STENCILA_VERSION")
-}
-
 pub trait BuildpackContext {
-    /// Is this a local build (ie. using Stencila, not Pack as platform)
-    fn is_local(&self) -> bool;
-
-    /// Is this a CNB build (e.g. using Pack as the platform)
-    fn is_cnb(&self) -> bool {
-        !self.is_local()
-    }
-}
-
-impl<B: libcnb::Buildpack> BuildpackContext for libcnb::detect::DetectContext<B> {
+    /// Is this a local build
+    ///
+    /// For local builds, buildpacks use optimizations such as sym-linking to
+    /// binaries on the host machine. In contrast, for traditional CNB builds
+    /// (e.g. using Pack) and for Stencila builds inside containers there
+    /// should be no reliance on the host system (everything should be inside
+    /// the `/layers` directory).
+    ///
+    /// Note we can't just use "are we inside a container" detection methods
+    /// since when running in a microVM these won't work. Also, using presence
+    /// of `/layers` is useful as it allows for testing during development.
     fn is_local(&self) -> bool {
-        platform_is_stencila(&self.platform)
+        !(env::consts::OS == "linux" && PathBuf::from("/layers").exists())
     }
 }
 
-impl<B: libcnb::Buildpack> BuildpackContext for libcnb::build::BuildContext<B> {
-    fn is_local(&self) -> bool {
-        platform_is_stencila(&self.platform)
-    }
-}
+impl<B: libcnb::Buildpack> BuildpackContext for libcnb::detect::DetectContext<B> {}
+
+impl<B: libcnb::Buildpack> BuildpackContext for libcnb::build::BuildContext<B> {}
 
 /// A local trait for buildpacks that extends `libcnb::Buildpack`
 ///

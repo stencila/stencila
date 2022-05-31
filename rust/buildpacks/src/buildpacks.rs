@@ -458,12 +458,12 @@ impl Buildpacks {
     }
 
     /// Prepare all buildpacks before a build
-    /// 
-    /// This function is used to initialize the layers directory so that it contains a 
+    ///
+    /// This function is used to initialize the layers directory so that it contains a
     /// subdirectory for all buildpacks that create a layer (standard CNB buildpacks create a
     /// layer but some Stencila buildpacks e.g. `sources` and `dockerfile` do not). This
     /// is in turned used to record initial image snapshots for directories that may later change during
-    /// the build process. 
+    /// the build process.
     pub fn prebuild_all(&self, layers_dir: &Path) -> Result<()> {
         for toml in &self.inner {
             if toml

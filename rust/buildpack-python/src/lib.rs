@@ -642,8 +642,8 @@ impl VenvLayer {
                 vec![],
             );
 
-            // If a CNB build use the layer as the Pip cache
-            if context.is_cnb() {
+            // If not a local build use the layer as the Pip cache
+            if !context.is_local() {
                 python.env_list(&[("PIP_CACHE_DIR", layer_path.as_os_str())]);
             }
 

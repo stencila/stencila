@@ -631,8 +631,8 @@ source("{install_script}")
                 self.method
             );
 
-            // If a CNB build use the layer as the renv cache
-            if context.is_cnb() {
+            // If not a local build use the layer as the renv cache
+            if !context.is_local() {
                 r.env_list(&[("RENV_PATHS_CACHE", layer_path.canonicalize()?.as_os_str())]);
             }
 
