@@ -17,7 +17,7 @@ use libcnb::{
         buildpack::BuildpackId,
     },
     layer_env::{LayerEnv, Scope},
-    libcnb_runtime_build, libcnb_runtime_detect, BuildArgs, DetectArgs, Env, Platform,
+    libcnb_runtime_build, libcnb_runtime_detect, BuildArgs, DetectArgs, Env,
 };
 pub use maplit;
 pub use serde;
