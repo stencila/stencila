@@ -30,7 +30,8 @@ impl Run for Command {
 /// Build an image
 #[derive(Debug, StructOpt)]
 #[structopt(
-    setting = structopt::clap::AppSettings::ColoredHelp
+    setting = structopt::clap::AppSettings::ColoredHelp,
+    setting = structopt::clap::AppSettings::DeriveDisplayOrder
 )]
 pub struct Build {
     /// The directory to build an image for
@@ -66,6 +67,20 @@ pub struct Build {
     )]
     layer_format: String,
 
+    /// Do not create a layer for the workspace (i.e. ignore the `<dir>` argument)
+    ///
+    /// Mainly if you simply want to apply add `.env` and/or `.labels` files to the `--from` image
+    /// and give it a new `--tag`.
+    #[structopt(long)]
+    no_workspace: bool,
+
+    /// Do not run any buildpacks
+    ///
+    /// Mainly useful during development for testing the writing of images, without waiting for
+    /// potentially long buildpack build times.
+    #[structopt(long)]
+    no_buildpacks: bool,
+
     /// Do not calculate a changeset for each layer directory and instead represent them in their entirety.
     ///
     /// The default behavior is to take snapshots of directories before and after the buildpacks build
@@ -74,13 +89,6 @@ pub struct Build {
     /// This option instead forces the layer to represent the entire directory after the build.
     #[structopt(long)]
     no_diffs: bool,
-
-    /// Do not actually build the image
-    ///
-    /// Mainly useful during development for testing the writing of images, without waiting for
-    /// potentially long build times.
-    #[structopt(long)]
-    no_build: bool,
 
     /// Do not write the image to disk after building it
     ///
@@ -113,30 +121,48 @@ pub struct Build {
     /// If the `layout_dir` already exists, its contents are deleted - so use with care!
     #[structopt(long)]
     layout_dir: Option<PathBuf>,
+
+    /// Whether the layout directory should be written with all layers
+    ///
+    /// As an optimization, base layers are only written to the layout directory as needed
+    /// (i.e. when a registry does not have the layer yet). Use this option to ensure that layout directory
+    /// includes all layers  (e.g. when wanting to run the image locally).
+    #[structopt(long)]
+    layout_complete: bool,
 }
 
 #[async_trait]
 impl Run for Build {
     async fn run(&self) -> Result {
+        let working_dir = if self.no_workspace {
+            None
+        } else {
+            Some(match self.dir.as_ref() {
+                Some(dir) => dir.to_owned(),
+                None => std::env::current_dir()?,
+            })
+        };
+
         let mut image = Image::new(
-            self.dir.as_deref(),
+            working_dir.as_deref(),
             self.tag.as_deref(),
             self.from.as_deref(),
             self.layers_dir.as_deref(),
             Some(!self.no_diffs),
             Some(self.layer_format.as_str()),
             self.layout_dir.as_deref(),
+            self.layout_complete,
         )?;
 
-        if self.no_build {
-            tracing::info!("Skipped build because --no-build option used.");
+        if self.no_buildpacks {
+            tracing::info!("Skipped build (--no-build option used).");
         } else {
             image.build().await?;
         }
 
         if self.no_write {
             tracing::info!(
-                "Image built successfully. Skipping write and push because --no-write option used."
+                "Image built successfully. Skipping write and push (--no-write option used)."
             );
         } else {
             image.write().await?;
@@ -144,11 +170,14 @@ impl Run for Build {
             if self.no_push {
                 tracing::info!(
                     "Image built and written to `{}`.",
-                    image.layout_dir.display()
+                    image.layout_dir().display()
                 );
             } else {
                 image.push().await?;
-                tracing::info!("Image built and pushed to `{}`.", image.ref_.to_string());
+                tracing::info!(
+                    "Image built and pushed to `{}`.",
+                    image.reference().to_string()
+                );
             }
         }
 

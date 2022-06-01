@@ -153,27 +153,27 @@ pub struct Image {
     ///
     /// Buildpacks will build layers based on the source code within this directory. Usually
     /// the home directroy of a project. Defaults to the current directory.
-    pub working_dir: PathBuf,
+    working_dir: Option<PathBuf>,
 
     /// The image reference for this image
     #[serde(rename = "ref")]
-    pub ref_: ImageReference,
+    ref_: ImageReference,
 
     /// The image reference for the base image from which this image is derived
     ///
     /// Equivalent to the `FROM` directive of a Dockerfile.
-    pub base: ImageReference,
+    base: ImageReference,
 
     /// The directory that contains the buildpack layers
     ///
     /// Defaults to `/layers` or `<working_dir>/.stencila/layers` (in order of priority).
-    pub layers_dir: PathBuf,
+    layers_dir: PathBuf,
 
     /// Whether snapshots should be diffed or replicated
     layer_diffs: bool,
 
     /// The format used when writing layers
-    pub layer_format: MediaType,
+    layer_format: MediaType,
 
     /// The snapshots for each layer directory, used to generated [`ChangeSet`]s and image layers
     #[serde(skip)]
@@ -183,7 +183,13 @@ pub struct Image {
     ///
     /// The image will be written to this directory following the [OCI Image Layout Specification]
     /// (https://github.com/opencontainers/image-spec/blob/main/image-layout.md)
-    pub layout_dir: PathBuf,
+    layout_dir: PathBuf,
+
+    /// Whether the layout directory should be written will all layers, including those of the base image
+    ///
+    /// When pushing an image to a registry, if the registry already has a base layer, it is not
+    /// necessary to pull it first. However, in some cases it may be desirable to have all layers included.
+    layout_complete: bool,
 
     /// The temporary directory created for the duration of the image's life to write layout to
     #[serde(skip)]
@@ -193,6 +199,7 @@ pub struct Image {
 
 impl Image {
     /// Create a new image
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         working_dir: Option<&Path>,
         ref_: Option<&str>,
@@ -201,10 +208,9 @@ impl Image {
         layer_diffs: Option<bool>,
         layer_format: Option<&str>,
         layout_dir: Option<&Path>,
+        layout_complete: bool,
     ) -> Result<Self> {
-        let working_dir = working_dir
-            .map(PathBuf::from)
-            .unwrap_or_else(|| env::current_dir().expect("Unable to get cwd"));
+        let working_dir = working_dir.map(PathBuf::from);
 
         let ref_ = match ref_ {
             Some(reference) => reference.parse::<ImageReference>()?,
@@ -212,10 +218,14 @@ impl Image {
                 let registry = DOCKER_REGISTRY.to_string();
 
                 let name = working_dir
-                    .file_name()
+                    .as_ref()
+                    .and_then(|dir| dir.file_name())
                     .map(|name| name.to_string_lossy().to_string())
                     .unwrap_or_else(|| "unnamed".to_string());
-                let hash = str_sha256_hex(&working_dir.to_string_lossy().to_string());
+                let hash = working_dir
+                    .as_ref()
+                    .map(|dir| str_sha256_hex(&dir.to_string_lossy().to_string()))
+                    .unwrap_or_else(unique_string);
                 let repository = [&name, "-", &hash[..12]].concat();
 
                 ImageReference {
@@ -234,10 +244,12 @@ impl Image {
                 let layers_top = PathBuf::from("/layers");
                 if layers_top.exists() {
                     layers_top
-                } else {
+                } else if let Some(working_dir) = working_dir.as_ref() {
                     let dir = working_dir.join(".stencila").join("layers");
                     std::fs::create_dir_all(&dir).expect("Unable to create layers dir");
                     dir
+                } else {
+                    std::env::temp_dir().join(["stencila-", &unique_string()].concat())
                 }
             });
 
@@ -245,7 +257,10 @@ impl Image {
         // that may need to be snapshotted are present and picked up in `layers_dir.read_dir()` call below.
         buildpacks::PACKS.prebuild_all(&layers_dir)?;
 
-        let mut layer_snapshots = vec![Snapshot::new(working_dir.clone(), "/workspace")];
+        let mut layer_snapshots = Vec::new();
+        if let Some(working_dir) = working_dir.as_ref() {
+            layer_snapshots.push(Snapshot::new(working_dir.clone(), "/workspace"));
+        }
         for subdir in layers_dir.read_dir()?.flatten().filter_map(|entry| {
             if entry.path().is_dir() {
                 Some((entry.path(), entry.file_name()))
@@ -285,8 +300,24 @@ impl Image {
             layer_diffs,
             layer_format,
             layout_dir,
+            layout_complete,
             layout_tempdir,
         })
+    }
+
+    /// Get the [`ImageReference`] of the image
+    pub fn reference(&self) -> &ImageReference {
+        &self.ref_
+    }
+
+    /// Get the [`ImageReference`] of the image's base
+    pub fn base(&self) -> &ImageReference {
+        &self.base
+    }
+
+    /// Get the the image's OCI layout directory
+    pub fn layout_dir(&self) -> &Path {
+        &self.layout_dir
     }
 
     /// Fetches the manifest and configuration of the base image
@@ -306,7 +337,7 @@ impl Image {
     }
 
     /// Write the image layer blobs and returns vectors of DiffIDs and layer descriptors
-    fn write_layers(
+    async fn write_layers(
         &self,
         base_config: &ImageConfiguration,
         base_layers: Vec<Descriptor>,
@@ -314,6 +345,13 @@ impl Image {
         let mut layers = base_layers;
         let mut diff_ids = base_config.rootfs().diff_ids().clone();
         let mut histories = base_config.history().clone();
+
+        if self.layout_complete {
+            let client = Client::new(&self.base.registry, &self.base.repository, None).await?;
+            for layer in &layers {
+                client.pull_blob_via(&self.layout_dir, layer).await?
+            }
+        }
 
         for snapshot in &self.layer_snapshots {
             let (diff_id, layer) =
@@ -473,7 +511,7 @@ impl Image {
     async fn write_manifest(&self) -> Result<(String, Descriptor)> {
         let (base_digest, base_config, base_layers) = self.get_base().await?;
 
-        let (layers, diff_ids, history) = self.write_layers(&base_config, base_layers)?;
+        let (layers, diff_ids, history) = self.write_layers(&base_config, base_layers).await?;
 
         let config = self.write_config(&base_config, diff_ids, history)?;
 
@@ -534,7 +572,6 @@ impl Image {
             .manifests([manifest])
             .annotations(annotations)
             .build()?;
-
         fs::write(
             self.layout_dir.join("index.json"),
             serde_json::to_string_pretty(&index)?,
@@ -545,11 +582,13 @@ impl Image {
     }
 
     pub async fn build(&self) -> Result<()> {
-        // Because buildpacks will change directories into the working dir. It is safest to use absolute paths here.
-        let working_dir = self.working_dir.canonicalize()?;
-        let layers_dir = self.layers_dir.canonicalize()?;
+        if let Some(working_dir) = &self.working_dir {
+            // Because buildpacks will change directories into the working dir. It is safest to use absolute paths here.
+            let working_dir = working_dir.canonicalize()?;
+            let layers_dir = self.layers_dir.canonicalize()?;
 
-        buildpacks::PACKS.build_all(Some(&working_dir), Some(&layers_dir), None)?;
+            buildpacks::PACKS.build_all(Some(&working_dir), Some(&layers_dir), None)?;
+        }
 
         Ok(())
     }
@@ -1418,7 +1457,16 @@ mod tests {
     #[tokio::test]
     async fn image_write() -> Result<()> {
         let working_dir = tempdir()?;
-        let mut image = Image::new(Some(working_dir.path()), None, None, None, None, None, None)?;
+        let mut image = Image::new(
+            Some(working_dir.path()),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            false,
+        )?;
 
         image.write().await?;
 
