@@ -20,6 +20,7 @@ kernels-cli = ["kernels/cli"]
 binaries-cli = ["binaries/cli"]
 providers-cli = ["providers/cli"]
 buildpacks-cli = ["buildpacks/cli"]
+images-cli = ["images/cli"]
 
 server = [
   "jsonwebtoken",
@@ -117,6 +118,9 @@ default = [
   "buildpacks/buildpack-sources",
   "buildpacks/buildpack-stencila",
 
+  # Images
+  "images-cli",
+
   # Server & upgrade
   "server",
   "upgrade",
@@ -179,6 +183,7 @@ files = { path = "../files", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }
 graph = { path = "../graph", version = "0.0.0" }
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
+images = { path = "../images", version = "0.0.0" }
 kernels = { path = "../kernels", version = "0.0.0" }
 node-address = { path = "../node-address", version = "0.0.0" }
 node-dispatch = { path = "../node-dispatch", version = "0.0.0" }

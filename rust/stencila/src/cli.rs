@@ -170,6 +170,10 @@ pub enum Command {
     #[structopt(aliases = &["buildpack"])]
     Buildpacks(buildpacks::cli::Command),
 
+    #[cfg(feature = "images-cli")]
+    #[structopt(aliases = &["image"])]
+    Images(images::cli::Command),
+
     #[cfg(feature = "plugins-cli")]
     #[structopt(aliases = &["plugin"])]
     Plugins(plugins::commands::Command),
@@ -219,6 +223,9 @@ impl Run for Command {
             #[cfg(feature = "buildpacks-cli")]
             Command::Buildpacks(command) => command.run().await,
 
+            #[cfg(feature = "images-cli")]
+            Command::Images(command) => command.run().await,
+    
             #[cfg(feature = "plugins-cli")]
             Command::Plugins(command) => command.run().await,
 
