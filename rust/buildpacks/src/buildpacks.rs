@@ -186,7 +186,7 @@ impl Buildpacks {
         };
 
         let buildpack_layers = all_layers.join(Self::slugify_buildpack_id(buildpack_id));
-        
+
         fs::create_dir_all(&buildpack_layers).wrap_err(format!(
             "Could not create layers directory `{}` for buildpack `{}`",
             buildpack_layers.display(),
