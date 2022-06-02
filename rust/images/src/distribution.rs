@@ -298,10 +298,15 @@ impl Client {
                 .await?
         }
 
+        let media_type = manifest
+            .media_type()
+            .clone()
+            .unwrap_or(MediaType::ImageManifest)
+            .to_string();
+
         let response = self
             .put(&["/manifests/", reference].concat())
-            // Currently required for compatibility with Docker registry...
-            .header("Content-Type", MediaType::ImageManifest.to_docker_v2s2()?)
+            .header("Content-Type", media_type)
             .body(manifest_json)
             .send()
             .await?;

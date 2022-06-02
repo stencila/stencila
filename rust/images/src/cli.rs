@@ -41,7 +41,7 @@ pub struct Build {
 
     /// The base image to build from
     ///
-    /// Equivalent to the `FROM` directive in a Dockerfile. Defaults to `stencila/femto`.
+    /// Equivalent to the `FROM` directive in a Dockerfile. Defaults to `stencila/stencila:nano`.
     /// Must be a valid image reference e.g. `docker.io/library/ubuntu:22.04`, `ubuntu:22.04`, `ubuntu`
     #[structopt(long, short, env = "STENCILA_IMAGE_FROM")]
     from: Option<String>,
@@ -57,7 +57,7 @@ pub struct Build {
     /// The format to use for image layers
     ///
     /// The Open Container Image spec allows for layers to be in several formats.
-    /// The default "tar+zstd" format provides performance benefits over the others but may not be
+    /// The default `tar+zstd` format provides performance benefits over the others but may not be
     /// supported by older versions of some container tools.
     #[structopt(
         long,
@@ -66,6 +66,18 @@ pub struct Build {
         possible_values = &["tar", "tar+gzip", "tgz", "tar+zstd", "tzs"]
     )]
     layer_format: String,
+
+    /// The format to use for the image manifest
+    ///
+    /// Defaults to `oci`, however for compatibility with older version of some image registries it
+    /// may be necessary to use `v2s2` (Docker Version 2 Schema 2).
+    #[structopt(
+        long,
+        env = "STENCILA_IMAGE_MANIFEST_FORMAT",
+        default_value = "oci",
+        possible_values = &["oci", "v2s2"]
+    )]
+    manifest_format: String,
 
     /// Do not create a layer for the workspace (i.e. ignore the `<dir>` argument)
     ///
@@ -152,6 +164,7 @@ impl Run for Build {
             Some(self.layer_format.as_str()),
             self.layout_dir.as_deref(),
             self.layout_complete,
+            Some(self.manifest_format.as_str()),
         )?;
 
         if self.no_buildpacks {

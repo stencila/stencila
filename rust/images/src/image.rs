@@ -195,6 +195,13 @@ pub struct Image {
     #[serde(skip)]
     #[allow(dead_code)]
     layout_tempdir: Option<TempDir>,
+
+    /// The format for the image manifest
+    ///
+    /// Defaults to `application/vnd.oci.image.manifest.v1+json`. However, for some registries it
+    /// may be necessary to use `application/vnd.docker.distribution.manifest.v2+json` (which has
+    /// the same underlying schema).
+    manifest_format: String,
 }
 
 impl Image {
@@ -209,6 +216,7 @@ impl Image {
         layer_format: Option<&str>,
         layout_dir: Option<&Path>,
         layout_complete: bool,
+        manifest_format: Option<&str>,
     ) -> Result<Self> {
         let working_dir = working_dir.map(PathBuf::from);
 
@@ -291,6 +299,12 @@ impl Image {
             _ => bail!("Unknown layer format"),
         };
 
+        let manifest_format = match manifest_format {
+            None | Some("oci") => MediaType::ImageManifest.to_string(),
+            Some("v2s2") => MediaType::ImageManifest.to_docker_v2s2()?.to_string(),
+            _ => bail!("Unknown manifest format"),
+        };
+
         Ok(Self {
             working_dir,
             ref_,
@@ -302,6 +316,7 @@ impl Image {
             layout_dir,
             layout_complete,
             layout_tempdir,
+            manifest_format,
         })
     }
 
@@ -517,7 +532,7 @@ impl Image {
 
         let manifest = ImageManifestBuilder::default()
             .schema_version(SCHEMA_VERSION)
-            .media_type(MediaType::ImageManifest.to_docker_v2s2()?)
+            .media_type(self.manifest_format.as_str())
             .config(config)
             .layers(layers)
             .build()?;
@@ -760,10 +775,15 @@ impl ChangeSet {
             for change in self.items {
                 match change {
                     Change::Added(path) | Change::Modified(path) => {
-                        archive.append_path_with_name(
+                        if let Err(error) = archive.append_path_with_name(
                             self.source_dir.join(&path),
                             self.dest_dir.join(path),
-                        )?;
+                        ) {
+                            tracing::warn!(
+                                "While adding added or modified entry to layer: {}",
+                                error
+                            )
+                        };
                     }
                     Change::Removed(path) => {
                         let path = PathBuf::from(path);
@@ -783,7 +803,10 @@ impl ChangeSet {
                         header.set_size(0);
                         header.set_cksum();
                         let data: &[u8] = &[];
-                        archive.append(&header, data)?;
+
+                        if let Err(error) = archive.append(&header, data) {
+                            tracing::warn!("While adding whiteout entry for file: {}", error)
+                        };
                     }
                 };
             }
@@ -1466,6 +1489,7 @@ mod tests {
             None,
             None,
             false,
+            None,
         )?;
 
         image.write().await?;
