@@ -11,7 +11,7 @@ use regex::Regex;
 use binary_pack::{BinaryTrait, PackBinary};
 use buildpack::{
     buildpacks_dir,
-    eyre::{bail, Result},
+    eyre::{bail, Context, Result},
     libcnb::data::{buildpack::BuildpackId, buildpack_id},
     platform_dir_is_stencila, tag_for_path, toml, tracing, BuildPlan, BuildpackPlan, BuildpackToml,
     BuildpackTrait,
@@ -178,17 +178,22 @@ impl Buildpacks {
     /// running inside a container), otherwise `./.stencila/layers` within the working directory
     /// will be used.
     fn layers_dir_default(working_dir: &Path, buildpack_id: &BuildpackId) -> Result<PathBuf> {
-        let layers_at_top = PathBuf::from("/layers");
-        let layers_dir = if layers_at_top.exists() {
-            layers_at_top
+        let root_layers = PathBuf::from("/layers");
+        let all_layers = if root_layers.exists() {
+            root_layers
         } else {
             working_dir.join(".stencila").join("layers")
         };
 
-        let dir = layers_dir.join(Self::slugify_buildpack_id(buildpack_id));
-        fs::create_dir_all(&dir)?;
+        let buildpack_layers = all_layers.join(Self::slugify_buildpack_id(buildpack_id));
+        
+        fs::create_dir_all(&buildpack_layers).wrap_err(format!(
+            "Could not create layers directory `{}` for buildpack `{}`",
+            buildpack_layers.display(),
+            buildpack_id.as_str()
+        ))?;
 
-        Ok(dir)
+        Ok(buildpack_layers)
     }
 
     /// Create a `.stencila/build/<buildpack>` directory in a working directory
@@ -197,13 +202,18 @@ impl Buildpacks {
     /// it within the `.stencila` directory for transparency and easier debugging and
     /// to be able to display the build plan to users.
     fn build_dir_default(working_dir: &Path, buildpack_id: &BuildpackId) -> Result<PathBuf> {
-        let dir = working_dir
+        let build_dir = working_dir
             .join(".stencila")
             .join("build")
             .join(Self::slugify_buildpack_id(buildpack_id));
-        fs::create_dir_all(&dir)?;
 
-        Ok(dir)
+        fs::create_dir_all(&build_dir).wrap_err(format!(
+            "Could not create build plan directory `{}` for buildpack `{}`",
+            build_dir.display(),
+            buildpack_id.as_str()
+        ))?;
+
+        Ok(build_dir)
     }
 
     /// Create a CNB Build Plan file for a buildpack in a working directory
@@ -271,7 +281,11 @@ impl Buildpacks {
         build_plan: Option<&Path>,
     ) -> Result<i32> {
         let current_dir = current_dir()?;
-        let working_dir = working_dir.unwrap_or(&current_dir).canonicalize()?;
+        let working_dir = working_dir.unwrap_or(&current_dir);
+        let working_dir = working_dir.canonicalize().wrap_err(format!(
+            "Could not find working directory `{}`",
+            working_dir.display()
+        ))?;
 
         let platform_dir = match platform_dir {
             Some(dir) => dir.to_owned(),
