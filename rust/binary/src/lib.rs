@@ -412,24 +412,29 @@ pub trait BinaryTrait: Send + Sync {
 
     /// Find the first installation of the binary on the `PATH`
     fn find(&self) -> Result<BinaryInstallation> {
-        self.find_version_in(None, None)
+        self.find_with(None, None)
     }
 
     /// Find the first installation of the binary on paths
     fn find_in(&self, paths: &OsStr) -> Result<BinaryInstallation> {
-        self.find_version_in(None, Some(paths.into()))
+        self.find_with(None, Some(paths))
     }
 
     /// Find the first installation of the binary, that matches semver requirement, on `PATH`
     fn find_version(&self, requirement: &str) -> Result<BinaryInstallation> {
-        self.find_version_in(Some(requirement.into()), None)
+        self.find_with(Some(requirement), None)
     }
 
     /// Find the first installation of the binary, that matches semver requirement, on paths
-    fn find_version_in(
+    fn find_version_in(&self, requirement: &str, paths: &OsStr) -> Result<BinaryInstallation> {
+        self.find_with(Some(requirement), Some(paths))
+    }
+
+    /// Find the first installation of the binary, that optionally matches semver requirement on paths
+    fn find_with(
         &self,
-        requirement: Option<String>,
-        paths: Option<OsString>,
+        requirement: Option<&str>,
+        paths: Option<&OsStr>,
     ) -> Result<BinaryInstallation> {
         let name = self.spec().name;
         let cwd = std::env::current_dir().unwrap();
@@ -450,7 +455,7 @@ pub trait BinaryTrait: Send + Sync {
         bail!(
             "No installation for binary `{}` matching semver requirement `{}` found",
             name,
-            requirement.unwrap_or_else(|| "*".to_string())
+            requirement.unwrap_or("*")
         )
     }
 
