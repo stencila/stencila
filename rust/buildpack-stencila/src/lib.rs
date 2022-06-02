@@ -18,8 +18,8 @@ use buildpack::{
         layer::{ExistingLayerStrategy, Layer, LayerResult, LayerResultBuilder},
         Buildpack,
     },
-    maplit::hashmap,
-    tracing, BuildpackContext, BuildpackTrait, LayerOptions, LayerVersionMetadata,
+    serde::{Deserialize, Serialize},
+    tracing, BuildpackContext, BuildpackTrait, LayerOptions,
 };
 
 pub struct StencilaBuildpack;
@@ -38,31 +38,24 @@ impl Buildpack for StencilaBuildpack {
     type Error = eyre::Report;
 
     fn detect(&self, _context: DetectContext<Self>) -> libcnb::Result<DetectResult, Self::Error> {
-        // Read `.tool-versions` for Stencila version
-        let tool_versions = Self::tool_versions();
+        let mut requires = Vec::new();
+        let mut provides = Vec::new();
 
-        // Resolve Stencila version from `.tool-versions`
-        let (version, source) = if let Some(version) = tool_versions.get("stencila") {
-            (version.to_string(), TOOL_VERSIONS)
-        } else {
-            // Default to at least 1.1.0 which is the first version with a `musl` binary suitable for
-            // use in a CNB container
-            (">=1.1.0".to_string(), "")
+        let tool_versions = Self::tool_versions();
+        if let Some(version) = tool_versions.get("stencila") {
+            let (require, provide) = Self::require_and_provide(
+                "stencila",
+                TOOL_VERSIONS,
+                format!("Install Stencila {}", version).trim(),
+                Some([("version", version.to_owned())].into()),
+            );
+            requires.push(require);
+            provides.push(provide);
         };
 
-        // Require and provide Stencila
-        let (require, provide) = Self::require_and_provide(
-            "stencila",
-            source,
-            format!("Install Stencila {}", version).trim(),
-            Some(hashmap! {
-                "version" => version
-            }),
-        );
-
         let mut build_plan = BuildPlan::new();
-        build_plan.requires = vec![require];
-        build_plan.provides = vec![provide];
+        build_plan.requires = requires;
+        build_plan.provides = provides;
         DetectResultBuilder::pass().build_plan(build_plan).build()
     }
 
@@ -85,25 +78,27 @@ impl Buildpack for StencilaBuildpack {
     }
 }
 
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(crate = "buildpack::serde")]
 struct StencilaLayer {
     /// The semantic version requirement for the `stencila` binary
-    requirement: String,
+    version: String,
 }
 
 impl StencilaLayer {
     fn new(options: &LayerOptions) -> Self {
-        let requirement = options
+        let version = options
             .get("version")
             .cloned()
             .unwrap_or_else(|| "*".to_string());
 
-        Self { requirement }
+        Self { version }
     }
 }
 
 impl Layer for StencilaLayer {
     type Buildpack = StencilaBuildpack;
-    type Metadata = LayerVersionMetadata;
+    type Metadata = StencilaLayer;
 
     fn types(&self) -> LayerTypes {
         LayerTypes {
@@ -119,19 +114,19 @@ impl Layer for StencilaLayer {
         layer_data: &libcnb::layer::LayerData<Self::Metadata>,
     ) -> Result<libcnb::layer::ExistingLayerStrategy, <Self::Buildpack as Buildpack>::Error> {
         let version = &layer_data.content_metadata.metadata.version;
-        let installed = StencilaBinary {}.semver_version_matches(version, &self.requirement)?;
+        let installed = StencilaBinary {}.semver_version_matches(version, &self.version)?;
         let strategy = if installed {
             tracing::info!(
                 "Existing `stencila` layer has `stencila {}` which matches semver requirement `{}`; will keep",
                 version,
-                self.requirement
+                self.version
             );
             ExistingLayerStrategy::Keep
         } else {
             tracing::info!(
                 "Existing `stencila` layer has `stencila {}` which does not match semver requirement `{}`; will update",
                 version,
-                self.requirement
+                self.version
             );
             ExistingLayerStrategy::Update
         };
@@ -162,19 +157,14 @@ impl StencilaLayer {
         &self,
         context: &BuildContext<StencilaBuildpack>,
         layer_path: &Path,
-    ) -> Result<LayerResult<LayerVersionMetadata>, eyre::Report> {
-        tracing::info!(
-            "Creating `stencila` layer with semver requirement `{}`",
-            self.requirement
-        );
-
+    ) -> Result<LayerResult<StencilaLayer>, eyre::Report> {
         let bin_path = layer_path.join("bin");
         create_dir_all(&bin_path)?;
 
         let stencila_binary = StencilaBinary {};
 
         let version = if context.is_local() {
-            let stencila = stencila_binary.ensure_version_sync(&self.requirement)?;
+            let stencila = stencila_binary.ensure_version_sync(&self.version)?;
             let version = stencila.version()?.to_string();
 
             tracing::info!("Linking to `stencila {}`", version);
@@ -183,7 +173,7 @@ impl StencilaLayer {
 
             version
         } else {
-            let current = stencila_binary.find_version_in(&self.requirement, bin_path.as_os_str());
+            let current = stencila_binary.find_version_in(&self.version, bin_path.as_os_str());
             match current {
                 Ok(installation) => {
                     let version = installation.version.unwrap_or_default();
@@ -191,22 +181,21 @@ impl StencilaLayer {
                     tracing::info!(
                         "Binary `stencila {}` is already installed and meets requirement `{}`",
                         version,
-                        self.requirement
+                        self.version
                     );
 
                     version
                 }
                 Err(..) => {
-                    tracing::info!("Installing `stencila {}`", self.requirement);
+                    tracing::info!("Installing `stencila {}`", self.version);
 
-                    stencila_binary
-                        .install_in_sync(Some(self.requirement.clone()), Some(bin_path))?
+                    stencila_binary.install_in_sync(Some(self.version.clone()), Some(bin_path))?
                 }
             }
         };
 
         // Store version in metadata to detect if layer is stale in `existing_layer_strategy()`
-        let metadata = LayerVersionMetadata { version };
+        let metadata = StencilaLayer { version };
 
         LayerResultBuilder::new(metadata).build()
     }
