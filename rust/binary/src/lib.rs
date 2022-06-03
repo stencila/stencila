@@ -293,8 +293,28 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Parse a string as a semantic version
-    fn semver_version(&self, string: &str) -> Result<semver::Version> {
-        Ok(semver::Version::parse(string)?)
+    ///
+    /// Falls back to parsing as a `VersionReq` because that allows for
+    /// incomplete versions e.g. 2.15.
+    fn semver_version(&self, version: &str) -> Result<semver::Version> {
+        Ok(semver::Version::parse(version).or_else(|error| {
+            semver::VersionReq::parse(version).and_then(|version_req| {
+                match version_req.comparators.first() {
+                    Some(comparator) => {
+                        let mut version = semver::Version::new(
+                            comparator.major,
+                            comparator.minor.unwrap_or(0),
+                            comparator.patch.unwrap_or(0),
+                        );
+                        if !comparator.pre.is_empty() {
+                            version.pre = comparator.pre.clone()
+                        }
+                        Ok(version)
+                    }
+                    None => Err(error),
+                }
+            })
+        })?)
     }
 
     /// Parse a string as a semantic version and return the major version e.g. "3.10.2" => "3"
@@ -376,38 +396,18 @@ pub trait BinaryTrait: Send + Sync {
             .collect()
     }
 
-    /// Filter out any versions that are not valid semver versions.
+    /// Filter out any versions that are not valid semver versions or are a pre-release
     /// Also sorts in **descending** semver order.
     fn semver_versions_sorted(&self, versions: &[String]) -> Vec<String> {
         let mut versions: Vec<semver::Version> = versions
             .iter()
-            .filter_map(|version| {
-                // Parse a `VersionReq` rather than a `Version` because that allows for incomplete versions e.g. 2.15
-                semver::VersionReq::parse(version)
-                    .ok()
-                    .and_then(|version_req| {
-                        version_req.comparators.first().and_then(|comparator| {
-                            // Ignore pre-releases
-                            if comparator.pre.is_empty() {
-                                Some(semver::Version::new(
-                                    comparator.major,
-                                    comparator.minor.unwrap_or(0),
-                                    comparator.patch.unwrap_or(0),
-                                ))
-                            } else {
-                                None
-                            }
-                        })
-                    })
-            })
+            .filter_map(|version| self.semver_version(version).ok())
+            .filter(|version| version.pre.is_empty())
             .collect();
         versions.dedup();
         versions.sort();
         versions.reverse();
-        versions
-            .iter()
-            .map(|version| format!("{}.{}.{}", version.major, version.minor, version.patch))
-            .collect()
+        versions.iter().map(|version| version.to_string()).collect()
     }
 
     /// Find the first installation of the binary on the `PATH`
