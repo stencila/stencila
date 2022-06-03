@@ -57,20 +57,26 @@ impl Buildpack for RBuildpack {
         // Read `DESCRIPTION` for parsing for R version
         let description = read_to_string(DESCRIPTION).ok();
 
+        // Check for any R files. This is used to detect if to add a Renv layer (which
+        // is not required is R is only in `.tool-versions`)
+        let r_files_exist = Self::any_exist(&[
+            RENV,
+            RENV_LOCK,
+            INSTALL_R,
+            DESCRIPTION,
+            &INSTALL_R.to_lowercase(),
+            "main.R",
+            "main.r",
+            "index.R",
+            "index.r",
+        ]);
+
         // Fail early
         if !(tool_versions.contains_key("r")
             || tool_versions.contains_key("R")
             || renv_lock.is_some()
             || description.is_some()
-            || Self::any_exist(&[
-                RENV,
-                INSTALL_R,
-                &INSTALL_R.to_lowercase(),
-                "main.R",
-                "main.r",
-                "index.R",
-                "index.r",
-            ]))
+            || r_files_exist)
         {
             return DetectResultBuilder::fail().build();
         }
@@ -127,7 +133,7 @@ impl Buildpack for RBuildpack {
             );
             requires.push(require);
             provides.push(provide);
-        } else {
+        } else if r_files_exist {
             // Default behavior is to use `renv`'s snapshot method that scans files,
             // including DESCRIPTION files and `library` statements, for R packages
             let (require, provide) = Self::require_and_provide(
