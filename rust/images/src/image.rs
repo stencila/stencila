@@ -244,7 +244,11 @@ impl Image {
             }
         };
 
-        let base = base.unwrap_or("stencila/stencila:latest").parse()?;
+        let base = base
+            .map(String::from)
+            .or_else(|| std::env::var("STENCILA_IMAGE_REF").ok())
+            .unwrap_or_else(|| "stencila/stencila:nano".to_string())
+            .parse()?;
 
         let layers_dir = layers_dir
             .map(|path| path.to_path_buf())
@@ -495,6 +499,9 @@ impl Image {
 
             env.insert(name, value);
         }
+
+        // Add an env var for the ref of the image (used as the default `--from` image when building another image from this)
+        env.insert("STENCILA_IMAGE_REF".to_string(), self.ref_.to_string());
 
         let env: Vec<String> = env
             .iter()

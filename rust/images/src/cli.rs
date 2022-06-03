@@ -41,7 +41,8 @@ pub struct Build {
 
     /// The base image to build from
     ///
-    /// Equivalent to the `FROM` directive in a Dockerfile. Defaults to `stencila/stencila:nano`.
+    /// Equivalent to the `FROM` directive in a Dockerfile. Defaults to the `STENCILA_IMAGE_REF` (i.e. the
+    /// current image, if Stencila is running in a container), falling back to `stencila/stencila:nano` if not.
     /// Must be a valid image reference e.g. `docker.io/library/ubuntu:22.04`, `ubuntu:22.04`, `ubuntu`
     #[structopt(long, short, env = "STENCILA_IMAGE_FROM")]
     from: Option<String>,
