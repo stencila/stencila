@@ -244,8 +244,10 @@ impl Layer for RLayer {
         //   https://stat.ethz.ch/R-manual/R-devel/library/base/html/Rhome.html
         let mut layer_env = LayerEnv::new();
 
+        let r_binary = RBinary {};
+
         let version = if context.is_local() {
-            let r = RBinary {}.ensure_version_sync(&self.requirement)?;
+            let r = r_binary.ensure_version_sync(&self.requirement)?;
             let version = r.version()?.to_string();
 
             if r.is_stencila_install() {
@@ -274,9 +276,8 @@ impl Layer for RLayer {
             tracing::info!("Installing `R` using `apt` repositories for `{}`", release);
 
             // Determine the highest version meeting semver requirement
-            let r = RBinary {};
-            let versions = r.versions_sync(env::consts::OS)?;
-            let version = match r
+            let versions = r_binary.versions_sync(env::consts::OS)?;
+            let version = match r_binary
                 .semver_versions_matching(&versions, &self.requirement)
                 .first()
             {
@@ -302,10 +303,8 @@ impl Layer for RLayer {
 
             // Packages to install
             let packages = [
-                // Installing `r-base` alone appears to cause version conflicts (for some versions
-                // at least?) so specify `r-base-core`.
-                format!("r-base-core={}-*", version),
-                // Install `r-base-dev` to allow users to install packages (at runtime) that require building
+                // Install `r-base` and `r-base-dev` to allow users to install packages (at runtime) that require building
+                format!("r-base={}-*", version),
                 format!("r-base-dev={}-*", version),
             ]
             .join(",");
@@ -404,11 +403,24 @@ options(
                 ),
             )?;
 
+            // Add /etc/R/Renviron if missing (not sure why this is missing?)
+            // At present only env vars found to be necessary are added
+            let r_environ = layer_path.join("etc").join("R").join("Renviron");
+            if !r_environ.exists() {
+                write(
+                    r_environ,
+                    r#"
+EDITOR=nano
+"#,
+                )?;
+            }
+
             // Replace broken symlinks
             let from = layer_path.join("etc").join("R");
             let to = r_home_dir.join("etc");
             for file in [
                 "Makeconf",
+                "Renviron",
                 "Renviron.site",
                 "Rprofile.site",
                 "ldpaths",
@@ -418,8 +430,6 @@ options(
                 remove_file(&target)?;
                 symlink_file(from.join(file), target)?;
             }
-            remove_file(to.join("Renviron"))?;
-            symlink_file(to.join("Renviron.orig"), to.join("Renviron"))?;
 
             // Additional library paths needed by R at launch-time and when we check the version below
             // This overrides the `LD_LIBRARY_PATH` prepend defined by the apt layer above (thats why it
