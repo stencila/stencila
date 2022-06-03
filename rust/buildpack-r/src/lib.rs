@@ -267,6 +267,16 @@ impl Layer for RLayer {
             }
 
             version
+        } else if let Some(r) = r_binary.installed(Some(self.requirement.clone()))? {
+            let version = r.version()?.to_string();
+
+            tracing::info!("Linking to `r {}` installed on stack image", version);
+            let source = r.grandparent()?;
+
+            symlink_dir(source.join("bin"), &layer_path.join("bin"))?;
+            symlink_dir(source.join("lib"), &layer_path.join("lib"))?;
+
+            version
         } else {
             let release = sys_info::linux_os_release()
                 .ok()

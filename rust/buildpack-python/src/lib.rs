@@ -6,7 +6,7 @@ use std::{
 };
 
 use binary_poetry::PoetryBinary;
-use binary_python::{Binary, BinaryInstallation, BinaryTrait, PythonBinary};
+use binary_python::{BinaryInstallation, BinaryTrait, PythonBinary};
 use buildpack::{
     eyre::{self, bail, eyre},
     fs_utils::{copy_if_exists, symlink_dir, symlink_file},
@@ -160,7 +160,7 @@ impl Buildpack for PythonBuildpack {
         let env_vars = self.get_env_vars();
         let entries = self.buildpack_plan_entries(&context.buildpack_plan);
 
-        if let Some(options) = entries.get("python") {
+        if let Some(options) = entries.get("python").or_else(|| entries.get("python3")) {
             let layer_data =
                 context.handle_layer(layer_name!("python"), PythonLayer::new(options))?;
             self.set_layer_env_vars(&layer_data.env);
@@ -247,9 +247,10 @@ impl Layer for PythonLayer {
         );
 
         let mut layer_env = LayerEnv::new();
+        let python_binary = PythonBinary {};
 
         let version = if context.is_local() {
-            let python = PythonBinary {}.ensure_version_sync(&self.requirement)?;
+            let python = python_binary.ensure_version_sync(&self.requirement)?;
             let version = python.version()?.to_string();
 
             if python.is_stencila_install() {
@@ -267,13 +268,22 @@ impl Layer for PythonLayer {
             }
 
             version
+        } else if let Some(python) = python_binary.installed(Some(self.requirement.clone()))? {
+            let version = python.version()?.to_string();
+
+            tracing::info!("Linking to `python {}` installed on stack image", version);
+            let source = python.grandparent()?;
+
+            symlink_dir(source.join("bin"), &layer_path.join("bin"))?;
+            symlink_dir(source.join("lib"), &layer_path.join("lib"))?;
+
+            version
         } else {
             tracing::info!("Installing `python` using `apt`");
 
             // Determine the highest version meeting semver requirement
-            let python = PythonBinary {};
-            let versions = python.versions_sync(env::consts::OS)?;
-            let version = match python
+            let versions = python_binary.versions_sync(env::consts::OS)?;
+            let version = match python_binary
                 .semver_versions_matching(&versions, &self.requirement)
                 .first()
             {
@@ -286,7 +296,7 @@ impl Layer for PythonLayer {
                         .ok_or_else(|| eyre!("No versions available for Python"))?
                 }
             };
-            let minor_version = python.semver_version_minor(&version)?;
+            let minor_version = python_binary.semver_version_minor(&version)?;
 
             // Determine apt repository to use
             let release = sys_info::linux_os_release()
@@ -340,8 +350,7 @@ impl Layer for PythonLayer {
             }
 
             // The Python installation should now work, verify that is does and get the version
-            let python =
-                Binary::named("python").find_in(layer_path.join("usr").join("bin").as_os_str())?;
+            let python = python_binary.find_in(layer_path.join("usr").join("bin").as_os_str())?;
             let version = match python.version() {
                 Ok(version) => version,
                 Err(error) => {

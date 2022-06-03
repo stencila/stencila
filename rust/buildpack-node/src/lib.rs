@@ -217,10 +217,12 @@ impl Layer for NodeLayer {
             self.requirement
         );
 
-        let node = NodeBinary {}.ensure_version_sync(&self.requirement)?;
-        let version = node.version()?.to_string();
+        let node_binary = NodeBinary {};
 
-        if context.is_local() {
+        let version = if context.is_local() {
+            let node = node_binary.ensure_version_sync(&self.requirement)?;
+            let version = node.version()?.to_string();
+
             if node.is_stencila_install() {
                 tracing::info!("Linking to `node {}` installed by Stencila", version);
                 let source = node.grandparent()?;
@@ -245,21 +247,25 @@ impl Layer for NodeLayer {
                     lib_path.join(NODE_MODULES),
                 )?;
             }
+            version
+        } else if let Some(node) = node_binary.installed(Some(self.requirement.clone()))? {
+            let version = node.version()?.to_string();
+
+            tracing::info!("Linking to `node {}` installed on stack image", version);
+            let source = node.grandparent()?;
+
+            symlink_dir(source.join("bin"), &layer_path.join("bin"))?;
+            symlink_dir(source.join("lib"), &layer_path.join("lib"))?;
+
+            version
         } else {
-            #[allow(clippy::collapsible_else_if)]
-            if node.is_stencila_install() {
-                tracing::info!("Moving `node {}` installed by Stencila", version);
-                let source = node.grandparent()?;
+            tracing::info!("Installing `node {}`", self.requirement);
 
-                move_dir_all(&source, layer_path)?;
-            } else {
-                tracing::info!("Linking to `node {}` installed on stack image", version);
-                let source = node.grandparent()?;
-
-                symlink_dir(source.join("bin"), &layer_path.join("bin"))?;
-                symlink_dir(source.join("lib"), &layer_path.join("lib"))?;
-            }
-        }
+            node_binary.install_in_sync(
+                Some(self.requirement.clone()),
+                Some(layer_path.to_path_buf()),
+            )?
+        };
 
         // Store version in metadata to detect if layer is stale in `existing_layer_strategy()`
         let metadata = LayerVersionMetadata { version };
