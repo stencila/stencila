@@ -200,18 +200,24 @@ impl Buildpacks {
     ///
     /// Rather than generate a temporary directory (as Pack does) we generate
     /// it within the `.stencila` directory for transparency and easier debugging and
-    /// to be able to display the build plan to users.
+    /// to be able to display the build plan to users. However, if unable to do so (e.g
+    /// due to permissions) then use a temporary directory.
     fn build_dir_default(working_dir: &Path, buildpack_id: &BuildpackId) -> Result<PathBuf> {
         let build_dir = working_dir
             .join(".stencila")
             .join("build")
             .join(Self::slugify_buildpack_id(buildpack_id));
 
-        fs::create_dir_all(&build_dir).wrap_err(format!(
-            "Could not create build plan directory `{}` for buildpack `{}`",
-            build_dir.display(),
-            buildpack_id.as_str()
-        ))?;
+        if fs::create_dir_all(&build_dir).is_ok() {
+            return Ok(build_dir);
+        }
+
+        let build_dir = std::env::temp_dir()
+            .join("stencila")
+            .join(hash_utils::str_sha256_hex(&working_dir.to_string_lossy()))
+            .join(Self::slugify_buildpack_id(buildpack_id));
+
+        fs::create_dir_all(&build_dir)?;
 
         Ok(build_dir)
     }
