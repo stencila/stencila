@@ -759,6 +759,9 @@ impl ChangeSet {
         let mut blob_writer = BlobWriter::new(&layout_dir, media_type.to_owned())?;
 
         let changes = self.len();
+        let mut additions: Vec<String> = Vec::new();
+        let mut modifications: Vec<String> = Vec::new();
+        let mut deletions: Vec<String> = Vec::new();
 
         {
             enum LayerEncoder<'lt> {
@@ -808,39 +811,47 @@ impl ChangeSet {
             let mut archive = tar::Builder::new(&mut layer_writer);
             for change in self.items {
                 match change {
-                    Change::Added(path) | Change::Modified(path) => {
+                    Change::Added(ref path) | Change::Modified(ref path) => {
                         if let Err(error) = archive.append_path_with_name(
-                            self.source_dir.join(&path),
+                            self.source_dir.join(path),
                             self.dest_dir.join(path),
                         ) {
                             tracing::warn!(
                                 "While adding added or modified entry to layer: {}",
                                 error
                             )
-                        };
+                        } else {
+                            match change {
+                                Change::Added(..) => additions.push(path.to_string()),
+                                Change::Modified(..) => modifications.push(path.to_string()),
+                                _ => unreachable!(),
+                            }
+                        }
                     }
                     Change::Removed(path) => {
-                        let path = PathBuf::from(path);
-                        let basename = path
+                        let path_buf = PathBuf::from(&path);
+                        let basename = path_buf
                             .file_name()
                             .ok_or_else(|| eyre!("Path has no file name"))?;
                         let mut whiteout = OsString::from(".wh.".to_string());
                         whiteout.push(basename);
-                        let path = match path.parent() {
+                        let path_buf = match path_buf.parent() {
                             Some(parent) => parent.join(whiteout),
                             None => PathBuf::from(whiteout),
                         };
-                        let path = self.dest_dir.join(path);
+                        let path_buf = self.dest_dir.join(path_buf);
 
                         let mut header = tar::Header::new_gnu();
-                        header.set_path(path)?;
+                        header.set_path(path_buf)?;
                         header.set_size(0);
                         header.set_cksum();
                         let data: &[u8] = &[];
 
                         if let Err(error) = archive.append(&header, data) {
                             tracing::warn!("While adding whiteout entry for file: {}", error)
-                        };
+                        } else {
+                            deletions.push(path)
+                        }
                     }
                 };
             }
@@ -848,7 +859,8 @@ impl ChangeSet {
 
         let diff_id = format!("sha256:{:x}", diffid_hash.finalize());
 
-        let annotations = [
+        let mut annotations: HashMap<String, String> = [
+            ("io.stencila.version", env!("CARGO_PKG_VERSION").to_string()),
             ("io.stencila.layer.created", Utc::now().to_rfc3339()),
             (
                 "io.stencila.layer.directory",
@@ -858,6 +870,28 @@ impl ChangeSet {
         ]
         .map(|(name, value)| (name.to_string(), value))
         .into();
+
+        fn first_100(vec: Vec<String>) -> String {
+            vec[..(std::cmp::min(vec.len(), 100))].join(":")
+        }
+        if !additions.is_empty() {
+            annotations.insert(
+                "io.stencila.layer.additions".to_string(),
+                first_100(additions),
+            );
+        }
+        if !modifications.is_empty() {
+            annotations.insert(
+                "io.stencila.layer.modifications".to_string(),
+                first_100(modifications),
+            );
+        }
+        if !deletions.is_empty() {
+            annotations.insert(
+                "io.stencila.layer.deletions".to_string(),
+                first_100(deletions),
+            );
+        }
 
         let descriptor = blob_writer.finish(Some(annotations))?;
 
