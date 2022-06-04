@@ -808,6 +808,11 @@ impl ChangeSet {
             };
 
             let mut archive = tar::Builder::new(&mut layer_writer);
+
+            // Add an entry for the `dest_dir` so that ownership and other metadata is maintained
+            archive.append_path_with_name(&self.source_dir, &self.dest_dir)?;
+
+            // Add each change
             for change in self.items {
                 match change {
                     Change::Added(ref path) | Change::Modified(ref path) => {
@@ -815,7 +820,7 @@ impl ChangeSet {
                             self.source_dir.join(path),
                             self.dest_dir.join(path),
                         ) {
-                            tracing::warn!(
+                            tracing::debug!(
                                 "While adding added or modified entry to layer: {}",
                                 error
                             )
@@ -847,7 +852,7 @@ impl ChangeSet {
                         let data: &[u8] = &[];
 
                         if let Err(error) = archive.append(&header, data) {
-                            tracing::warn!("While adding whiteout entry for file: {}", error)
+                            tracing::debug!("While adding whiteout entry for file: {}", error)
                         } else {
                             deletions.push(path)
                         }
@@ -953,10 +958,10 @@ enum Change {
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
 struct Snapshot {
-    /// The source directory, on the local filestem, for the snapshot
+    /// The source directory, on the local filesystem, for the snapshot
     source_dir: String,
 
-    /// The destination directory, within the image's root filesystem, for the snapshot
+    /// The destination directory, on the image's root filesystem, for the snapshot
     dest_dir: String,
 
     /// Entries in the snapshot
@@ -965,9 +970,35 @@ struct Snapshot {
 
 impl Snapshot {
     /// Create a new snapshot of a directory
+    ///
+    /// If there is a `.dockerignore` or `.containerignore` file in source directory then it will be
+    /// used to exclude paths, including those in child sub-directories.
     fn new<S: AsRef<Path>, D: AsRef<Path>>(source_dir: S, dest_dir: D) -> Self {
         let source_dir = source_dir.as_ref().to_path_buf();
         let dest_dir = dest_dir.as_ref().to_path_buf();
+
+        let docker_ignore = source_dir.join(".dockerignore");
+        let container_ignore = source_dir.join(".containerignore");
+        fn parse_ignore_file(path: &Path) -> Option<gitignore::File> {
+            match gitignore::File::new(&path) {
+                Ok(file) => Some(file),
+                Err(error) => {
+                    tracing::warn!(
+                        "Error while parsing `{}`; will not be used: {}",
+                        path.display(),
+                        error
+                    );
+                    None
+                }
+            }
+        }
+        let ignore_file = if docker_ignore.exists() {
+            parse_ignore_file(&docker_ignore)
+        } else if container_ignore.exists() {
+            parse_ignore_file(&container_ignore)
+        } else {
+            None
+        };
 
         let entries = WalkDirGeneric::<((), SnapshotEntry)>::new(&source_dir)
             .skip_hidden(false)
@@ -986,6 +1017,16 @@ impl Snapshot {
             .filter_map(|entry_result| match entry_result {
                 Ok(entry) => {
                     let path = entry.path();
+
+                    // Check that the file should not be ignored
+                    if let Some(true) = ignore_file
+                        .as_ref()
+                        .map(|ignore_file| ignore_file.is_excluded(&path).ok())
+                        .flatten()
+                    {
+                        return None;
+                    };
+
                     let relative_path = path
                         .strip_prefix(&source_dir)
                         .expect("Should always be able to strip the root dir");
@@ -1410,6 +1451,34 @@ mod tests {
 
         let snapshot2 = Snapshot::read(&snapshot_path)?;
         assert_eq!(snapshot1, snapshot2);
+
+        Ok(())
+    }
+
+    /// Test that snap-shotting takes into consideration .dockerignore and .containerignore files
+    #[test]
+    fn snapshot_ignores() -> Result<()> {
+        use std::fs;
+
+        let temp = tempdir()?;
+        let source_dir = temp.path();
+
+        fs::write(source_dir.join("a.txt"), "A")?;
+        assert!(Snapshot::new(source_dir, "").entries.contains_key("a.txt"));
+
+        fs::write(source_dir.join(".dockerignore"), "*\n")?;
+        assert!(!Snapshot::new(source_dir, "").entries.contains_key("a.txt"));
+
+        fs::remove_file(source_dir.join(".dockerignore"))?;
+        fs::write(source_dir.join(".containerignore"), "*.txt\n")?;
+        assert!(!Snapshot::new(source_dir, "").entries.contains_key("a.txt"));
+
+        fs::remove_file(source_dir.join(".containerignore"))?;
+        fs::write(source_dir.join("b.txt"), "B")?;
+        fs::write(source_dir.join(".dockerignore"), "!a.txt\n")?;
+        let snapshot = Snapshot::new(source_dir, "");
+        assert!(snapshot.entries.contains_key("a.txt"));
+        assert!(snapshot.entries.contains_key("b.txt"));
 
         Ok(())
     }
