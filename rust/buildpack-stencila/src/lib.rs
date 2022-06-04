@@ -64,17 +64,19 @@ impl Buildpack for StencilaBuildpack {
 
         if let Some(options) = entries.get("stencila") {
             context.handle_layer(layer_name!("stencila"), StencilaLayer::new(options))?;
+
+            let launch = Launch::new().process(
+                ProcessBuilder::new(process_type!("server"), "stencila")
+                    .args(["server", "start", "--url=0.0.0.0:9000"])
+                    .direct(true)
+                    .default(true)
+                    .build(),
+            );
+
+            return BuildResultBuilder::new().launch(launch).build();
         }
 
-        let launch = Launch::new().process(
-            ProcessBuilder::new(process_type!("server"), "stencila")
-                .args(["server", "start", "--url=0.0.0.0:9000"])
-                .direct(true)
-                .default(true)
-                .build(),
-        );
-
-        BuildResultBuilder::new().launch(launch).build()
+        BuildResultBuilder::new().build()
     }
 }
 
