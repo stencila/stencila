@@ -547,7 +547,12 @@ impl Image {
             .history(history)
             .build()?;
 
-        BlobWriter::write_json(&self.layout_dir, MediaType::ImageConfig, &configuration)
+        BlobWriter::write_json(
+            &self.layout_dir,
+            MediaType::ImageConfig,
+            &configuration,
+            None,
+        )
     }
 
     /// Write the image manifest blob
@@ -570,7 +575,7 @@ impl Image {
 
         Ok((
             base_digest,
-            BlobWriter::write_json(&self.layout_dir, MediaType::ImageManifest, &manifest)?,
+            BlobWriter::write_json(&self.layout_dir, MediaType::ImageManifest, &manifest, None)?,
         ))
     }
 
@@ -753,6 +758,8 @@ impl ChangeSet {
         let mut diffid_hash = Sha256::new();
         let mut blob_writer = BlobWriter::new(&layout_dir, media_type.to_owned())?;
 
+        let changes = self.len();
+
         {
             enum LayerEncoder<'lt> {
                 Plain(&'lt mut BlobWriter),
@@ -840,7 +847,20 @@ impl ChangeSet {
         }
 
         let diff_id = format!("sha256:{:x}", diffid_hash.finalize());
-        let descriptor = blob_writer.finish()?;
+
+        let annotations = [
+            ("io.stencila.layer.created", Utc::now().to_rfc3339()),
+            (
+                "io.stencila.layer.directory",
+                self.dest_dir.to_string_lossy().to_string(),
+            ),
+            ("io.stencila.layer.changes", changes.to_string()),
+        ]
+        .map(|(name, value)| (name.to_string(), value))
+        .into();
+
+        let descriptor = blob_writer.finish(Some(annotations))?;
+
         Ok((diff_id, descriptor))
     }
 
@@ -1178,7 +1198,7 @@ impl SnapshotEntry {
 /// A writer that calculates the size and SHA256 hash of files as they are written
 ///
 /// Writes blobs into the `blobs/sha256` subdirectory of an image directory and returns
-/// an [OCI Content Descriptor](https://github.com/opencontainers/image-spec/blob/main/descriptor.md)
+/// an [OCI Content Descriptor](https://github.com/opencontainers/image-spec/blob/main/descriptor.md).
 ///
 /// Allows use to do a single pass when writing files instead of reading them after writing in order
 /// to generate the SHA256 signature.
@@ -1189,10 +1209,10 @@ struct BlobWriter {
     /// The media type of the blob
     media_type: MediaType,
 
-    /// The temporary filename of the blob (used before we know its final name - which is its SHA256 checksum)
-    filename: PathBuf,
+    /// The temporary file name of the blob (used before we know its final name, which is its SHA256 checksum)
+    file_name: PathBuf,
 
-    /// The file the blob is written tp
+    /// The file the blob is written to
     file: std::fs::File,
 
     /// The number of bytes in the blob content
@@ -1221,7 +1241,7 @@ impl BlobWriter {
         Ok(Self {
             blobs_dir,
             media_type,
-            filename,
+            file_name: filename,
             file,
             bytes: 0,
             hash: Sha256::new(),
@@ -1232,21 +1252,24 @@ impl BlobWriter {
     ///
     /// Finalizes the SHA256 hash, renames the file to the hex digest of that hash,
     /// and returns a descriptor of the blob.
-    fn finish(self) -> Result<Descriptor> {
+    fn finish(self, annotations: Option<HashMap<String, String>>) -> Result<Descriptor> {
         use std::fs;
 
         let sha256 = format!("{:x}", self.hash.finalize());
 
         fs::rename(
-            self.blobs_dir.join(self.filename),
+            self.blobs_dir.join(self.file_name),
             self.blobs_dir.join(&sha256),
         )?;
 
-        let descriptor = DescriptorBuilder::default()
+        let mut descriptor = DescriptorBuilder::default()
             .media_type(self.media_type)
             .size(self.bytes as i64)
-            .digest(format!("sha256:{}", sha256))
-            .build()?;
+            .digest(format!("sha256:{}", sha256));
+        if let Some(annotations) = annotations {
+            descriptor = descriptor.annotations(annotations)
+        }
+        let descriptor = descriptor.build()?;
 
         Ok(descriptor)
     }
@@ -1256,10 +1279,11 @@ impl BlobWriter {
         path: P,
         media_type: MediaType,
         object: &S,
+        annotations: Option<HashMap<String, String>>,
     ) -> Result<Descriptor> {
         let mut writer = Self::new(path, media_type)?;
         serde_json::to_writer_pretty(&mut writer, object)?;
-        writer.finish()
+        writer.finish(annotations)
     }
 }
 
