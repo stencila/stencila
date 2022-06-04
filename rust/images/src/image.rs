@@ -74,6 +74,18 @@ impl ImageReference {
     pub fn tag_or_latest(&self) -> String {
         self.tag.clone().unwrap_or_else(|| "latest".to_string())
     }
+
+    /// Convert reference to a string with `tag` or "latest" (i.e. not using any `digest`).
+    pub fn to_string_tag_or_latest(&self) -> String {
+        [
+            &self.registry,
+            "/",
+            &self.repository,
+            ":",
+            self.tag.as_deref().unwrap_or("latest"),
+        ]
+        .concat()
+    }
 }
 
 impl FromStr for ImageReference {
@@ -130,17 +142,10 @@ impl FromStr for ImageReference {
 impl ToString for ImageReference {
     fn to_string(&self) -> String {
         if let Some(digest) = &self.digest {
-            [&self.registry, "/", &self.repository, "@", digest]
+            [&self.registry, "/", &self.repository, "@", digest].concat()
         } else {
-            [
-                &self.registry,
-                "/",
-                &self.repository,
-                ":",
-                self.tag.as_deref().unwrap_or("latest"),
-            ]
+            self.to_string_tag_or_latest()
         }
-        .concat()
     }
 }
 
@@ -509,6 +514,25 @@ impl Image {
             .collect();
         config.set_env(Some(env));
 
+        // Extend labels, including with the contents of an y `.image-labels` file in working dir
+        let mut labels = config.labels().clone().unwrap_or_default();
+        labels.insert(
+            "io.stencila.version".to_string(),
+            env!("CARGO_PKG_VERSION").to_string(),
+        );
+        if let Some(content) = self
+            .working_dir
+            .as_ref()
+            .and_then(|dir| std::fs::read_to_string(dir.join(".image-labels")).ok())
+        {
+            for line in content.lines() {
+                if let Some((name, value)) = line.split_once(' ') {
+                    labels.insert(name.into(), value.into());
+                }
+            }
+        }
+        config.set_labels(Some(labels));
+
         // Rootfs DiffIDs calculated above
         let rootfs = RootFsBuilder::default().diff_ids(diff_ids).build()?;
 
@@ -566,12 +590,8 @@ impl Image {
             // Where appropriate use pre defined annotations
             // https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
             (
-                "io.stencila.stencila.version".to_string(),
-                env!("CARGO_PKG_VERSION").to_string(),
-            ),
-            (
                 "org.opencontainers.image.ref.name".to_string(),
-                self.ref_.to_string(),
+                self.ref_.to_string_tag_or_latest(),
             ),
             (
                 "org.opencontainers.image.created".to_string(),
@@ -579,7 +599,7 @@ impl Image {
             ),
             (
                 "org.opencontainers.image.base.name".to_string(),
-                self.base.to_string(),
+                self.base.to_string_tag_or_latest(),
             ),
             (
                 "org.opencontainers.image.base.digest".to_string(),
