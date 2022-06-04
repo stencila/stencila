@@ -725,7 +725,6 @@ impl ChangeSet {
     /// - `Added` and `Modified` paths are added to the archive.
     /// - `Removed` paths are represented as "whiteout" files.
     ///
-    ///
     /// Note that two SHA256 hashes are calculated, one for the `DiffID` of a changeset (calculated in this function
     /// and used in the image config file) and one for the digest which (calculated by the [`BlobWriter`] and used in the image manifest).
     /// A useful diagram showing how these are calculated and used is available
@@ -1147,12 +1146,14 @@ struct SnapshotEntry {
 }
 
 /// Filesystem metadata for a snapshot entry
+///
+/// Only includes the metadata that needs to be differences. For that reason,
+/// does not record `modified` time since that would create a false positive
+/// difference (if all other attributes were the same).
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
 struct SnapshotEntryMetadata {
-    created: Option<u64>,
-    modified: Option<u64>,
     uid: u32,
     gid: u32,
     readonly: bool,
@@ -1166,8 +1167,6 @@ impl SnapshotEntry {
         metadata: Option<std::fs::Metadata>,
     ) -> Self {
         let metadata = metadata.map(|metadata| SnapshotEntryMetadata {
-            created: Self::file_timestamp(metadata.created()),
-            modified: Self::file_timestamp(metadata.modified()),
             uid: metadata.uid(),
             gid: metadata.gid(),
             readonly: metadata.permissions().readonly(),
