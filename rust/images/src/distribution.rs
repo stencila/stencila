@@ -23,10 +23,10 @@ use http_utils::{
     CLIENT,
 };
 
-use crate::media_types::ToDockerV2S2;
-
-pub const DOCKER_REGISTRY: &str = "registry.hub.docker.com";
-pub const FLY_REGISTRY: &str = "registry.fly.io";
+use crate::{
+    image_reference::{DOCKER_REGISTRY, FLY_REGISTRY},
+    media_types::ToDockerV2S2,
+};
 
 /// Get the directory of the cache
 pub fn cache_dir() -> PathBuf {
