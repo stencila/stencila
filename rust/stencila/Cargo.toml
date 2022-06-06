@@ -146,7 +146,7 @@ notify = "=4.0.17"
 once_cell = "1.9.0"
 path-slash = "=0.1.4"
 pathdiff = "=0.2.1"
-regex = "=1.5.4"
+regex = "=1.5.5"
 schemars = { version = "=0.8.8", features = ["preserve_order", "chrono"] }
 serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = { version = "1.0.75", features = ["preserve_order"] }

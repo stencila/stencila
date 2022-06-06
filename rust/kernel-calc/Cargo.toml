@@ -8,7 +8,7 @@ edition = "2021"
 kernel = { path = "../kernel", version = "0.0.0" }
 fasteval = "0.2.4"
 once_cell = "1.9.0"
-regex = "1.5.4"
+regex = "1.5.5"
 
 [dev-dependencies]
 tokio = { version = "1.13.0", features = ["rt", "macros"] }

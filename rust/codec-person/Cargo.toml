@@ -8,7 +8,7 @@ edition = "2021"
 codec = { path = "../codec", version = "0.0.0" }
 human_name = "1.0.3"
 once_cell = "1.9.0"
-regex = "1.5.4"
+regex = "1.5.5"
 
 [dev-dependencies]
 test-utils = { path = "../test-utils", version = "0.0.0" }
