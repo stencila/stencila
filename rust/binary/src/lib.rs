@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use defaults::Defaults;
-use eyre::{bail, eyre, Result};
+use eyre::{bail, eyre, Context, Result};
 use http_utils::url;
 use regex::Regex;
 use serde::Serialize;
@@ -1090,7 +1090,8 @@ impl BinaryInstallation {
             .args(args)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
-            .spawn()?;
+            .spawn()
+            .wrap_err(format!("Unable to spawn binary `{}`", self.path.display()))?;
 
         if let Some(level) = stdout_log_level {
             let stdout = child.stdout.take().expect("stdout is piped");
