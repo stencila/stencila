@@ -3,6 +3,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use chrono::{Datelike, Utc};
+use serde::{Deserialize, Serialize};
+
 use binary_node::{BinaryTrait, NodeBinary};
 use buildpack::{
     eyre,
@@ -21,7 +24,6 @@ use buildpack::{
     maplit::hashmap,
     tracing, BuildpackContext, BuildpackTrait, LayerOptions, LayerVersionMetadata,
 };
-use serde::{Deserialize, Serialize};
 
 pub struct NodeBuildpack;
 
@@ -159,9 +161,12 @@ impl NodeLayer {
             .unwrap_or_else(|| "lts".to_string());
 
         let requirement = if requirement == "lts" {
-            // TODO: Determine LTS without doing a fetch, perhaps based on date
-            // https://nodejs.org/en/about/releases/
-            "^16".to_string()
+            // Calculate the current LTS version based on date. This avoid having
+            // to fetch. LTS releases are made in late APril each year. See https://nodejs.org/en/about/releases/
+            let now = Utc::now();
+            let (.., year) = now.year_ce();
+            let lts = 10 + (year - 2018) * 2 - if now.month() >= 5 { 0 } else { 2 };
+            format!("^{}", lts)
         } else {
             requirement
         };

@@ -7,5 +7,6 @@ edition = "2021"
 [dependencies]
 binary-node = { path = "../binary-node", version = "0.0.0" }
 buildpack = { path = "../buildpack", version = "0.0.0" }
+chrono = "0.4.19"
 serde = "1.0.130"
 serde_json = "1.0.75"
