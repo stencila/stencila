@@ -1,7 +1,8 @@
 use std::{
     collections::HashMap,
     ffi::OsString,
-    io,
+    fs, io,
+    os::unix::prelude::MetadataExt,
     path::{Path, PathBuf},
 };
 
@@ -164,12 +165,31 @@ impl ChangeSet {
             for change in self.items {
                 match change {
                     Change::Added(ref path) | Change::Modified(ref path) => {
-                        if let Err(error) = archive.append_path_with_name(
-                            self.source_dir.join(path),
-                            self.dest_dir.join(path),
-                        ) {
+                        let source_path = self.source_dir.join(path);
+                        let dest_path = self.dest_dir.join(path);
+
+                        let result = if source_path.is_symlink() {
+                            match fs::read_link(&source_path).and_then(|target| {
+                                fs::metadata(&source_path).map(|metadata| (target, metadata))
+                            }) {
+                                Ok((target, metadata)) => {
+                                    let mut header = tar::Header::new_gnu();
+                                    header.set_uid(metadata.uid().into());
+                                    header.set_gid(metadata.gid().into());
+                                    header.set_entry_type(tar::EntryType::Symlink);
+                                    header.set_size(0);
+                                    archive.append_link(&mut header, dest_path, target)
+                                }
+                                Err(error) => Err(error),
+                            }
+                        } else {
+                            archive.append_path_with_name(source_path, dest_path)
+                        };
+
+                        if let Err(error) = result {
                             tracing::debug!(
-                                "While adding added or modified entry to layer: {}",
+                                "While appending item for added or modified path `{}`: {}",
+                                path,
                                 error
                             )
                         } else {
@@ -200,7 +220,11 @@ impl ChangeSet {
                         let data: &[u8] = &[];
 
                         if let Err(error) = archive.append(&header, data) {
-                            tracing::debug!("While adding whiteout entry for file: {}", error)
+                            tracing::debug!(
+                                "While appending item for deleted path `{}`: {}",
+                                path,
+                                error
+                            )
                         } else {
                             deletions.push(path)
                         }
@@ -276,8 +300,6 @@ impl ChangeSet {
         image_dir: P,
         digest: &str,
     ) -> Result<tar::Archive<flate2::read::GzDecoder<std::fs::File>>> {
-        use std::fs;
-
         let path = Self::layer_path(image_dir, digest);
         let file = fs::File::open(&path)?;
         let decoder = flate2::read::GzDecoder::new(file);

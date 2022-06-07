@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    fs,
     hash::Hasher,
     io,
     os::unix::prelude::MetadataExt,
@@ -24,12 +25,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::change_set::{Change, ChangeSet};
 
-/// An entry for a file or directory in a snapshot
+/// An entry for a file, directory, or symlink, in a snapshot
+///
+/// Stores data necessary to detect a change in the file.
 #[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
 pub struct SnapshotEntry {
-    /// Metadata on the file or directory
+    /// Metadata on the file, directory, or symlink
     ///
     /// Should only be `None` if there was an error getting the metadata
     /// while creating the snapshot.
@@ -37,8 +40,15 @@ pub struct SnapshotEntry {
 
     /// Hash of the content of the file
     ///
-    /// Will be `None` if the entry is a directory
+    /// Used to detect if the content of a file is changed.
+    /// Will be `None` if the entry is a directory or symlink.
     fingerprint: Option<u64>,
+
+    /// The target of the symlink
+    ///
+    /// Used to detect if the target of the symlink has changed.
+    /// Will be `None` if the entry is a file or directory.
+    target: Option<String>,
 }
 
 /// Filesystem metadata for a snapshot entry
@@ -80,9 +90,26 @@ impl SnapshotEntry {
             None
         };
 
+        let target = if file_type.is_symlink() {
+            match fs::read_link(path) {
+                Ok(target) => Some(target.to_string_lossy().to_string()),
+                Err(error) => {
+                    tracing::error!(
+                        "While reading target of symlink `{}`: {}",
+                        path.display(),
+                        error
+                    );
+                    None
+                }
+            }
+        } else {
+            None
+        };
+
         Self {
             metadata,
             fingerprint,
+            target,
         }
     }
 
@@ -225,8 +252,6 @@ impl Snapshot {
 
     /// Write a snapshot to a file
     pub fn write<P: AsRef<Path>>(&self, path: P) -> Result<()> {
-        use std::fs;
-
         #[cfg(feature = "rkyv")]
         {
             let bytes = rkyv::to_bytes::<Self, 256>(self)?;
@@ -244,8 +269,6 @@ impl Snapshot {
 
     /// Read a snapshot from a file
     pub fn read<P: AsRef<Path>>(path: P) -> Result<Self> {
-        use std::fs;
-
         #[cfg(feature = "rkyv")]
         {
             let bytes = fs::read(path)?;
