@@ -6,7 +6,7 @@ use std::{
 use binary_node::{BinaryTrait, NodeBinary};
 use buildpack::{
     eyre,
-    fs_utils::{copy_if_exists, move_dir_all, symlink_dir, symlink_file},
+    fs_utils::{copy_if_exists, symlink_dir, symlink_file},
     hash_utils::str_sha256_hex,
     libcnb::{
         self,
