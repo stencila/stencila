@@ -39,6 +39,15 @@ docker run --rm -it --entrypoint launcher python-pyproject bash
 
 It is important to use `--entrypoint launcher` so that environment variables are loaded from the files in `/layers/<layer>/env/` etc
 
+Another option is to test the buildpack thought the "mini cli" of the `buildpacks` internal crate e.g.
+
+```sh
+cd rust/buildpacks
+cargo run --all-features -- build ../../fixtures/projects/apt/names
+```
+
+This has the advantage of being able to easily inspect the files that are installed into the various buildpack layers.
+
 ### Testing multiple buildpacks
 
 Sometimes you want to test running multiple buildpacks on a project. Start by making sure that each buildpack is packaged,
