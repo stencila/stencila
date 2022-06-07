@@ -220,7 +220,7 @@ impl Layer for PythonLayer {
         let installed = PythonBinary {}.semver_version_matches(version, &self.requirement)?;
         let strategy = if installed {
             tracing::info!(
-                "Existing `python` layer has `python {}` which match semver requirement `{}`; will keep",
+                "Existing `python` layer has `python {}` which matches semver requirement `{}`; will keep",
                 version,
                 self.requirement
             );
@@ -274,8 +274,20 @@ impl Layer for PythonLayer {
             tracing::info!("Linking to `python {}` installed on stack image", version);
             let source = python.grandparent()?;
 
-            symlink_dir(source.join("bin"), &layer_path.join("bin"))?;
-            symlink_dir(source.join("lib"), &layer_path.join("lib"))?;
+            // Link to binary file and library folder directly rather than all of `bin` and `lib`
+            let bin_path = layer_path.join("bin");
+            create_dir_all(&bin_path)?;
+            symlink_file(
+                source.join("bin").join("python3"),
+                &bin_path.join("python3"),
+            )?;
+
+            let lib_path = layer_path.join("lib");
+            create_dir_all(&lib_path)?;
+            symlink_dir(
+                source.join("lib").join("python3"),
+                &lib_path.join("python3"),
+            )?;
 
             version
         } else {
@@ -623,8 +635,8 @@ impl VenvLayer {
             // Create a `.venv` virtual environment using the installed version of Python
             // This is important because if affects the binary in the `.venv`
             let python = BinaryInstallation::new(
-                "python",
-                python_layer_path.join("bin").join("python"),
+                "python3",
+                python_layer_path.join("bin").join("python3"),
                 None,
                 vec![],
             );
@@ -645,8 +657,8 @@ impl VenvLayer {
 
             // Use the Python in the virtual environment
             let mut python = BinaryInstallation::new(
-                "python",
-                venv_path.join("bin").join("python"),
+                "python3",
+                venv_path.join("bin").join("python3"),
                 None,
                 vec![],
             );
