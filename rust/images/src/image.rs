@@ -351,9 +351,13 @@ impl Image {
             let new_value = std::fs::read_to_string(&var_file)?;
 
             // Apply modification action
+            //
             // Because the base image may have been built with Stencila buildpacks, for
             // prepend and append the value is only added if it is not present (this avoid
             // having env vars such as PATH that grow very long).
+            //
+            // Because prepend and append are almost always associated with paths, and need
+            // to have separator, these are added if necessary.
             match action.as_str() {
                 "default" => {
                     if value.is_empty() {
@@ -362,12 +366,28 @@ impl Image {
                 }
                 "prepend" => {
                     if !value.contains(&new_value) {
-                        value = [new_value, value].concat()
+                        let sep = if new_value.ends_with(':')
+                            || value.is_empty()
+                            || value.starts_with(':')
+                        {
+                            ""
+                        } else {
+                            ":"
+                        };
+                        value = [new_value, sep.to_string(), value].concat()
                     }
                 }
                 "append" => {
                     if !value.contains(&new_value) {
-                        value = [value, new_value].concat()
+                        let sep = if new_value.starts_with(':')
+                            || value.is_empty()
+                            || value.ends_with(':')
+                        {
+                            ""
+                        } else {
+                            ":"
+                        };
+                        value = [value, sep.to_string(), new_value].concat()
                     }
                 }
                 "override" => {
