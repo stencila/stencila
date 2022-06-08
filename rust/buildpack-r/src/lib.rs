@@ -126,7 +126,7 @@ impl Buildpack for RBuildpack {
             let (require, provide) = Self::require_and_provide(
                 "renv",
                 RENV_LOCK,
-                "Install R packages into `renv` by restoring from lockfile",
+                "Install R packages by restoring from `renv` lockfile",
                 Some(hashmap! {
                     "method" => "restore".to_string()
                 }),
@@ -134,14 +134,14 @@ impl Buildpack for RBuildpack {
             requires.push(require);
             provides.push(provide);
         } else if r_files_exist {
-            // Default behavior is to use `renv`'s snapshot method that scans files,
+            // Default behavior is to use `renv`'s init method that scans files,
             // including DESCRIPTION files and `library` statements, for R packages
             let (require, provide) = Self::require_and_provide(
                 "renv",
                 DESCRIPTION,
-                "Install R packages into `renv` by generating a lockfile",
+                "Install R packages by initializing `renv`",
                 Some(hashmap! {
-                    "method" => "snapshot".to_string()
+                    "method" => "init".to_string()
                 }),
             );
             requires.push(require);
@@ -502,10 +502,10 @@ EDITOR=nano
 
 #[derive(Clone, Deserialize, Serialize)]
 struct RenvLayer {
-    /// The package manager used to do the installation of packages
+    /// The method used to do the installation of packages
     ///
-    /// - "restore": restore from a `renv.lock` file
-    /// - "snapshot": restore from a `renv.lock` file
+    /// - "restore": use `renv::restore()` to install packages based on an existing a `renv.lock` file
+    /// - "init": use `renv::init()` to install packages discovered in R files (including `DESCRIPTION`)
     /// - "rscript": run an R script (usually `install.R`)
     method: String,
 
@@ -526,7 +526,7 @@ impl RenvLayer {
         let method = options
             .get("method")
             .cloned()
-            .unwrap_or_else(|| "snapshot".to_string());
+            .unwrap_or_else(|| "init".to_string());
 
         let minor_version = RBinary {}
             .require_sync()
@@ -610,7 +610,6 @@ impl RenvLayer {
         context: &BuildContext<RBuildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<RenvLayer>, eyre::Report> {
-        let app_path = &context.app_dir.canonicalize()?;
         let layer_path = &layer_path.canonicalize()?;
 
         tracing::info!("Installing R packages into `renv` layer");
@@ -618,17 +617,11 @@ impl RenvLayer {
         // Get `R` (should have been installed in `RLayer`)
         let mut r = Binary::named("R").require_sync()?;
 
-        // Reuse or create a `renv/library` folder.
-        let library_path = if context.is_local() {
-            app_path
-        } else {
-            layer_path
-        }
-        .join("renv")
-        .join("library");
-        if !library_path.exists() {
-            create_dir_all(&library_path)?;
-        }
+        // Reuse or create a `renv` library and caches
+        let renv_paths_library = layer_path.join("library");
+        create_dir_all(&renv_paths_library)?;
+        let renv_paths_cache = layer_path.join("cache");
+        create_dir_all(&renv_paths_cache)?;
 
         let expr = if self.method == "rscript" {
             // Determine which file to run
@@ -640,7 +633,7 @@ impl RenvLayer {
 
             tracing::info!(
                 "Installing packages into `{}` directory by running `{}`",
-                library_path.display(),
+                renv_paths_library.display(),
                 file
             );
 
@@ -650,7 +643,7 @@ impl RenvLayer {
 install.packages <- function(pkgs, lib = NULL, repos = NULL, ...) {{ utils::install.packages(pkgs, lib = "{lib_path}", ...) }}
 source("{install_script}")
             "#,
-                lib_path = library_path.display(),
+                lib_path = renv_paths_library.display(),
                 install_script = file
             )
         } else {
@@ -661,19 +654,22 @@ source("{install_script}")
 
             // If not a local build use the layer as the renv cache
             if !context.is_local() {
-                r.env_list(&[("RENV_PATHS_CACHE", layer_path.canonicalize()?.as_os_str())]);
+                r.env_list(&[
+                    ("RENV_PATHS_LIBRARY", &renv_paths_library),
+                    ("RENV_PATHS_CACHE", &renv_paths_cache),
+                ]);
             }
 
-            // Run a script that does the install including installing if necessary and options for non-interactive use
+            // Run a script that does the install if necessary and options for non-interactive use
             format!(
                 r#"
 options(renv.consent = TRUE)
 if (!suppressMessages(require(renv, quietly=TRUE))) install.packages("renv")
-{snapshot}
+{}
 renv::activate()
 renv::restore(prompt = FALSE)"#,
-                snapshot = if self.method == "snapshot" {
-                    "renv::snapshot()"
+                if self.method == "init" {
+                    "renv::init()"
                 } else {
                     ""
                 }
@@ -682,15 +678,29 @@ renv::restore(prompt = FALSE)"#,
         // Do not use --vanilla or --no-site-file here because we want the `Rprofile.site` from above to be used
         r.run_sync(&["--slave", "--no-restore", "-e", &expr])?;
 
-        // Add `renv/library` to the R_LIBS_USER
-        // See https://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html for more
-        // on R library paths
-        let layer_env = LayerEnv::new().chainable_insert(
-            Scope::All,
-            ModificationBehavior::Prepend,
-            "R_LIBS_USER",
-            library_path,
-        );
+        let layer_env = LayerEnv::new()
+            // Add `renv/library` to the R_LIBS_USER
+            // See https://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html for more
+            // on R library paths
+            .chainable_insert(
+                Scope::All,
+                ModificationBehavior::Prepend,
+                "R_LIBS_USER",
+                &renv_paths_library,
+            )
+            // Add `renv` configuration vars
+            .chainable_insert(
+                Scope::All,
+                ModificationBehavior::Override,
+                "RENV_PATHS_LIBRARY",
+                renv_paths_library,
+            )
+            .chainable_insert(
+                Scope::All,
+                ModificationBehavior::Override,
+                "RENV_PATHS_CACHE",
+                renv_paths_cache,
+            );
 
         LayerResultBuilder::new(self.clone()).env(layer_env).build()
     }
