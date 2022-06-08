@@ -225,7 +225,7 @@ impl Run for Command {
 
             #[cfg(feature = "images-cli")]
             Command::Images(command) => command.run().await,
-    
+
             #[cfg(feature = "plugins-cli")]
             Command::Plugins(command) => command.run().await,
 
