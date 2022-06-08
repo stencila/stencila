@@ -390,9 +390,11 @@ impl Layer for RLayer {
                 r#"
 R_SHARE_DIR={}
 R_INCLUDE_DIR={}
+R_DOC_DIR={}
 "#,
                 layer_usr_share_r.join("share").display(),
-                layer_usr_share_r.join("include").display()
+                layer_usr_share_r.join("include").display(),
+                layer_usr_share_r.join("doc").display()
             ));
             write(&r_environ, content)?;
 
