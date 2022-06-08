@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use defaults::Defaults;
-use eyre::{bail, eyre, Result};
+use eyre::{bail, eyre, Context, Result};
 use http_utils::url;
 use regex::Regex;
 use serde::Serialize;
@@ -293,8 +293,28 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Parse a string as a semantic version
-    fn semver_version(&self, string: &str) -> Result<semver::Version> {
-        Ok(semver::Version::parse(string)?)
+    ///
+    /// Falls back to parsing as a `VersionReq` because that allows for
+    /// incomplete versions e.g. 2.15.
+    fn semver_version(&self, version: &str) -> Result<semver::Version> {
+        Ok(semver::Version::parse(version).or_else(|error| {
+            semver::VersionReq::parse(version).and_then(|version_req| {
+                match version_req.comparators.first() {
+                    Some(comparator) => {
+                        let mut version = semver::Version::new(
+                            comparator.major,
+                            comparator.minor.unwrap_or(0),
+                            comparator.patch.unwrap_or(0),
+                        );
+                        if !comparator.pre.is_empty() {
+                            version.pre = comparator.pre.clone()
+                        }
+                        Ok(version)
+                    }
+                    None => Err(error),
+                }
+            })
+        })?)
     }
 
     /// Parse a string as a semantic version and return the major version e.g. "3.10.2" => "3"
@@ -376,60 +396,45 @@ pub trait BinaryTrait: Send + Sync {
             .collect()
     }
 
-    /// Filter out any versions that are not valid semver versions.
+    /// Filter out any versions that are not valid semver versions or are a pre-release
     /// Also sorts in **descending** semver order.
     fn semver_versions_sorted(&self, versions: &[String]) -> Vec<String> {
         let mut versions: Vec<semver::Version> = versions
             .iter()
-            .filter_map(|version| {
-                // Parse a `VersionReq` rather than a `Version` because that allows for incomplete versions e.g. 2.15
-                semver::VersionReq::parse(version)
-                    .ok()
-                    .and_then(|version_req| {
-                        version_req.comparators.first().and_then(|comparator| {
-                            // Ignore pre-releases
-                            if comparator.pre.is_empty() {
-                                Some(semver::Version::new(
-                                    comparator.major,
-                                    comparator.minor.unwrap_or(0),
-                                    comparator.patch.unwrap_or(0),
-                                ))
-                            } else {
-                                None
-                            }
-                        })
-                    })
-            })
+            .filter_map(|version| self.semver_version(version).ok())
+            .filter(|version| version.pre.is_empty())
             .collect();
         versions.dedup();
         versions.sort();
         versions.reverse();
-        versions
-            .iter()
-            .map(|version| format!("{}.{}.{}", version.major, version.minor, version.patch))
-            .collect()
+        versions.iter().map(|version| version.to_string()).collect()
     }
 
     /// Find the first installation of the binary on the `PATH`
     fn find(&self) -> Result<BinaryInstallation> {
-        self.find_version_in(None, None)
+        self.find_with(None, None)
     }
 
     /// Find the first installation of the binary on paths
     fn find_in(&self, paths: &OsStr) -> Result<BinaryInstallation> {
-        self.find_version_in(None, Some(paths.into()))
+        self.find_with(None, Some(paths))
     }
 
     /// Find the first installation of the binary, that matches semver requirement, on `PATH`
     fn find_version(&self, requirement: &str) -> Result<BinaryInstallation> {
-        self.find_version_in(Some(requirement.into()), None)
+        self.find_with(Some(requirement), None)
     }
 
     /// Find the first installation of the binary, that matches semver requirement, on paths
-    fn find_version_in(
+    fn find_version_in(&self, requirement: &str, paths: &OsStr) -> Result<BinaryInstallation> {
+        self.find_with(Some(requirement), Some(paths))
+    }
+
+    /// Find the first installation of the binary, that optionally matches semver requirement on paths
+    fn find_with(
         &self,
-        requirement: Option<String>,
-        paths: Option<OsString>,
+        requirement: Option<&str>,
+        paths: Option<&OsStr>,
     ) -> Result<BinaryInstallation> {
         let name = self.spec().name;
         let cwd = std::env::current_dir().unwrap();
@@ -450,7 +455,7 @@ pub trait BinaryTrait: Send + Sync {
         bail!(
             "No installation for binary `{}` matching semver requirement `{}` found",
             name,
-            requirement.unwrap_or_else(|| "*".to_string())
+            requirement.unwrap_or("*")
         )
     }
 
@@ -1085,7 +1090,8 @@ impl BinaryInstallation {
             .args(args)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
-            .spawn()?;
+            .spawn()
+            .wrap_err(format!("Unable to spawn binary `{}`", self.path.display()))?;
 
         if let Some(level) = stdout_log_level {
             let stdout = child.stdout.take().expect("stdout is piped");

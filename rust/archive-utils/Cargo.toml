@@ -7,6 +7,7 @@ edition = "2021"
 [features]
 tar-gz = ["tar", "flate2"]
 tar-xz = ["tar", "xz2"]
+tar-zst = ["tar", "zstd"]
 
 [dependencies]
 eyre = "0.6.6"
@@ -17,3 +18,4 @@ flate2 = { version = "1.0.22", optional = true }
 tar = { version = "0.4.37", optional = true }
 xz2 = { version = "0.1.6", optional = true }
 zip = { version = "0.5.13", optional = true }
+zstd = { version = "0.11.2", optional = true }

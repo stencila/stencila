@@ -391,7 +391,7 @@ deb mirror://mirrors.ubuntu.com/mirrors.txt {release}-security main restricted u
             if package.starts_with("http") && package.ends_with(".deb") {
                 tracing::info!("Downloading `{}`", package);
 
-                let path = apt_archives_dir.join(format!("{}.deb", package_id));
+                let path = apt_archives_dir.join(&package_id);
                 download_sync(package, &path)?;
             } else {
                 tracing::info!("Fetching deb files for package `{}`", package);

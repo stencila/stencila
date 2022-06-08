@@ -57,20 +57,26 @@ impl Buildpack for RBuildpack {
         // Read `DESCRIPTION` for parsing for R version
         let description = read_to_string(DESCRIPTION).ok();
 
+        // Check for any R files. This is used to detect if to add a Renv layer (which
+        // is not required is R is only in `.tool-versions`)
+        let r_files_exist = Self::any_exist(&[
+            RENV,
+            RENV_LOCK,
+            INSTALL_R,
+            DESCRIPTION,
+            &INSTALL_R.to_lowercase(),
+            "main.R",
+            "main.r",
+            "index.R",
+            "index.r",
+        ]);
+
         // Fail early
         if !(tool_versions.contains_key("r")
             || tool_versions.contains_key("R")
             || renv_lock.is_some()
             || description.is_some()
-            || Self::any_exist(&[
-                RENV,
-                INSTALL_R,
-                &INSTALL_R.to_lowercase(),
-                "main.R",
-                "main.r",
-                "index.R",
-                "index.r",
-            ]))
+            || r_files_exist)
         {
             return DetectResultBuilder::fail().build();
         }
@@ -120,22 +126,22 @@ impl Buildpack for RBuildpack {
             let (require, provide) = Self::require_and_provide(
                 "renv",
                 RENV_LOCK,
-                "Install R packages into `renv` by restoring from lockfile",
+                "Install R packages by restoring from `renv` lockfile",
                 Some(hashmap! {
                     "method" => "restore".to_string()
                 }),
             );
             requires.push(require);
             provides.push(provide);
-        } else {
-            // Default behavior is to use `renv`'s snapshot method that scans files,
+        } else if r_files_exist {
+            // Default behavior is to use `renv`'s init method that scans files,
             // including DESCRIPTION files and `library` statements, for R packages
             let (require, provide) = Self::require_and_provide(
                 "renv",
                 DESCRIPTION,
-                "Install R packages into `renv` by generating a lockfile",
+                "Install R packages by initializing `renv`",
                 Some(hashmap! {
-                    "method" => "snapshot".to_string()
+                    "method" => "init".to_string()
                 }),
             );
             requires.push(require);
@@ -244,8 +250,10 @@ impl Layer for RLayer {
         //   https://stat.ethz.ch/R-manual/R-devel/library/base/html/Rhome.html
         let mut layer_env = LayerEnv::new();
 
+        let r_binary = RBinary {};
+
         let version = if context.is_local() {
-            let r = RBinary {}.ensure_version_sync(&self.requirement)?;
+            let r = r_binary.ensure_version_sync(&self.requirement)?;
             let version = r.version()?.to_string();
 
             if r.is_stencila_install() {
@@ -265,6 +273,16 @@ impl Layer for RLayer {
             }
 
             version
+        } else if let Some(r) = r_binary.installed(Some(self.requirement.clone()))? {
+            let version = r.version()?.to_string();
+
+            tracing::info!("Linking to `r {}` installed on stack image", version);
+            let source = r.grandparent()?;
+
+            symlink_dir(source.join("bin"), &layer_path.join("bin"))?;
+            symlink_dir(source.join("lib"), &layer_path.join("lib"))?;
+
+            version
         } else {
             let release = sys_info::linux_os_release()
                 .ok()
@@ -274,9 +292,8 @@ impl Layer for RLayer {
             tracing::info!("Installing `R` using `apt` repositories for `{}`", release);
 
             // Determine the highest version meeting semver requirement
-            let r = RBinary {};
-            let versions = r.versions_sync(env::consts::OS)?;
-            let version = match r
+            let versions = r_binary.versions_sync(env::consts::OS)?;
+            let version = match r_binary
                 .semver_versions_matching(&versions, &self.requirement)
                 .first()
             {
@@ -302,10 +319,8 @@ impl Layer for RLayer {
 
             // Packages to install
             let packages = [
-                // Installing `r-base` alone appears to cause version conflicts (for some versions
-                // at least?) so specify `r-base-core`.
-                format!("r-base-core={}-*", version),
-                // Install `r-base-dev` to allow users to install packages (at runtime) that require building
+                // Install `r-base` and `r-base-dev` to allow users to install packages (at runtime) that require building
+                format!("r-base={}-*", version),
                 format!("r-base-dev={}-*", version),
             ]
             .join(",");
@@ -375,9 +390,11 @@ impl Layer for RLayer {
                 r#"
 R_SHARE_DIR={}
 R_INCLUDE_DIR={}
+R_DOC_DIR={}
 "#,
                 layer_usr_share_r.join("share").display(),
-                layer_usr_share_r.join("include").display()
+                layer_usr_share_r.join("include").display(),
+                layer_usr_share_r.join("doc").display()
             ));
             write(&r_environ, content)?;
 
@@ -404,11 +421,24 @@ options(
                 ),
             )?;
 
+            // Add /etc/R/Renviron if missing (not sure why this is missing?)
+            // At present only env vars found to be necessary are added
+            let r_environ = layer_path.join("etc").join("R").join("Renviron");
+            if !r_environ.exists() {
+                write(
+                    r_environ,
+                    r#"
+EDITOR=nano
+"#,
+                )?;
+            }
+
             // Replace broken symlinks
             let from = layer_path.join("etc").join("R");
             let to = r_home_dir.join("etc");
             for file in [
                 "Makeconf",
+                "Renviron",
                 "Renviron.site",
                 "Rprofile.site",
                 "ldpaths",
@@ -418,8 +448,6 @@ options(
                 remove_file(&target)?;
                 symlink_file(from.join(file), target)?;
             }
-            remove_file(to.join("Renviron"))?;
-            symlink_file(to.join("Renviron.orig"), to.join("Renviron"))?;
 
             // Additional library paths needed by R at launch-time and when we check the version below
             // This overrides the `LD_LIBRARY_PATH` prepend defined by the apt layer above (thats why it
@@ -474,10 +502,10 @@ options(
 
 #[derive(Clone, Deserialize, Serialize)]
 struct RenvLayer {
-    /// The package manager used to do the installation of packages
+    /// The method used to do the installation of packages
     ///
-    /// - "restore": restore from a `renv.lock` file
-    /// - "snapshot": restore from a `renv.lock` file
+    /// - "restore": use `renv::restore()` to install packages based on an existing a `renv.lock` file
+    /// - "init": use `renv::init()` to install packages discovered in R files (including `DESCRIPTION`)
     /// - "rscript": run an R script (usually `install.R`)
     method: String,
 
@@ -498,7 +526,7 @@ impl RenvLayer {
         let method = options
             .get("method")
             .cloned()
-            .unwrap_or_else(|| "snapshot".to_string());
+            .unwrap_or_else(|| "init".to_string());
 
         let minor_version = RBinary {}
             .require_sync()
@@ -582,7 +610,6 @@ impl RenvLayer {
         context: &BuildContext<RBuildpack>,
         layer_path: &Path,
     ) -> Result<LayerResult<RenvLayer>, eyre::Report> {
-        let app_path = &context.app_dir.canonicalize()?;
         let layer_path = &layer_path.canonicalize()?;
 
         tracing::info!("Installing R packages into `renv` layer");
@@ -590,17 +617,11 @@ impl RenvLayer {
         // Get `R` (should have been installed in `RLayer`)
         let mut r = Binary::named("R").require_sync()?;
 
-        // Reuse or create a `renv/library` folder.
-        let library_path = if context.is_local() {
-            app_path
-        } else {
-            layer_path
-        }
-        .join("renv")
-        .join("library");
-        if !library_path.exists() {
-            create_dir_all(&library_path)?;
-        }
+        // Reuse or create a `renv` library and caches
+        let renv_paths_library = layer_path.join("library");
+        create_dir_all(&renv_paths_library)?;
+        let renv_paths_cache = layer_path.join("cache");
+        create_dir_all(&renv_paths_cache)?;
 
         let expr = if self.method == "rscript" {
             // Determine which file to run
@@ -612,7 +633,7 @@ impl RenvLayer {
 
             tracing::info!(
                 "Installing packages into `{}` directory by running `{}`",
-                library_path.display(),
+                renv_paths_library.display(),
                 file
             );
 
@@ -622,7 +643,7 @@ impl RenvLayer {
 install.packages <- function(pkgs, lib = NULL, repos = NULL, ...) {{ utils::install.packages(pkgs, lib = "{lib_path}", ...) }}
 source("{install_script}")
             "#,
-                lib_path = library_path.display(),
+                lib_path = renv_paths_library.display(),
                 install_script = file
             )
         } else {
@@ -631,21 +652,24 @@ source("{install_script}")
                 self.method
             );
 
-            // If a CNB build use the layer as the renv cache
-            if context.is_cnb() {
-                r.env_list(&[("RENV_PATHS_CACHE", layer_path.canonicalize()?.as_os_str())]);
+            // If not a local build use the layer as the renv cache
+            if !context.is_local() {
+                r.env_list(&[
+                    ("RENV_PATHS_LIBRARY", &renv_paths_library),
+                    ("RENV_PATHS_CACHE", &renv_paths_cache),
+                ]);
             }
 
-            // Run a script that does the install including installing if necessary and options for non-interactive use
+            // Run a script that does the install if necessary and options for non-interactive use
             format!(
                 r#"
 options(renv.consent = TRUE)
 if (!suppressMessages(require(renv, quietly=TRUE))) install.packages("renv")
-{snapshot}
+{}
 renv::activate()
 renv::restore(prompt = FALSE)"#,
-                snapshot = if self.method == "snapshot" {
-                    "renv::snapshot()"
+                if self.method == "init" {
+                    "renv::init()"
                 } else {
                     ""
                 }
@@ -654,15 +678,29 @@ renv::restore(prompt = FALSE)"#,
         // Do not use --vanilla or --no-site-file here because we want the `Rprofile.site` from above to be used
         r.run_sync(&["--slave", "--no-restore", "-e", &expr])?;
 
-        // Add `renv/library` to the R_LIBS_USER
-        // See https://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html for more
-        // on R library paths
-        let layer_env = LayerEnv::new().chainable_insert(
-            Scope::All,
-            ModificationBehavior::Prepend,
-            "R_LIBS_USER",
-            library_path,
-        );
+        let layer_env = LayerEnv::new()
+            // Add `renv/library` to the R_LIBS_USER
+            // See https://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html for more
+            // on R library paths
+            .chainable_insert(
+                Scope::All,
+                ModificationBehavior::Prepend,
+                "R_LIBS_USER",
+                &renv_paths_library,
+            )
+            // Add `renv` configuration vars
+            .chainable_insert(
+                Scope::All,
+                ModificationBehavior::Override,
+                "RENV_PATHS_LIBRARY",
+                renv_paths_library,
+            )
+            .chainable_insert(
+                Scope::All,
+                ModificationBehavior::Override,
+                "RENV_PATHS_CACHE",
+                renv_paths_cache,
+            );
 
         LayerResultBuilder::new(self.clone()).env(layer_env).build()
     }

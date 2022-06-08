@@ -15,7 +15,7 @@ pub struct PythonBinary;
 #[async_trait]
 impl BinaryTrait for PythonBinary {
     fn spec(&self) -> Binary {
-        Binary::new("python", &["python3"], &["C:\\Python3*"])
+        Binary::new("python3", &["python"], &["C:\\Python3*"])
     }
 
     binary_clone_box!();

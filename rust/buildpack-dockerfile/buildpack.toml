@@ -10,6 +10,9 @@ homepage = "https://github.com/stencila/stencila/tree/HEAD/rust/buildpack-docker
 [[buildpack.licenses]]
 type = "Apache-2.0"
 
+[metadata]
+creates-layer = false
+
 # Does not build or run on any stucks but we have to 
 # have something here to meet spec
 [[stacks]]

@@ -374,7 +374,7 @@ pub const VERSIONS: &[&str] = &[
         pub semver: Option<String>,
 
         /// The directory to install in (defaults to the Stencila `binaries` folder)
-        #[structopt(short, long)]
+        #[structopt(short, long, alias = "into")]
         pub dest: Option<PathBuf>,
 
         /// The operating system to install for (defaults to the current)
