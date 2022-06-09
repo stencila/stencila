@@ -2,8 +2,8 @@
 
 use std::path::Path;
 
+use clap::Parser;
 use rustyline::error::ReadlineError;
-use structopt::StructOpt;
 
 use common::{
     eyre::{bail, eyre, Result},
@@ -66,7 +66,7 @@ interactive session (see the shortcut keystrokes below).
 #[tracing::instrument]
 pub async fn run<T>(mut prefix: Vec<String>, formats: &[String], history: &Path) -> Result<()>
 where
-    T: StructOpt + Run + Send + Sync,
+    T: Parser + Run + Send + Sync,
 {
     let mut rl = editor::new();
     if rl.load_history(history).is_err() {
@@ -119,7 +119,7 @@ where
                 // Construct args vector for this line, handling bypassing the prefix and
                 // reordering (and errors) if using the `with` command.
                 let mut args = if line.starts_with('$') {
-                    args.remove(0);
+                    args.remove(0); // Remove the '$' character
                     args
                 } else {
                     [prefix.as_slice(), args.as_slice()].concat()
@@ -140,26 +140,19 @@ where
                 };
 
                 // Parse args and run the command
-                match T::clap().get_matches_from_safe(args) {
+                match T::command().try_get_matches_from(args) {
                     Ok(matches) => {
-                        let command = T::from_clap(&matches);
+                        let command = T::from_arg_matches(&matches)?;
                         command.print(formats, "").await
                     }
                     Err(error) => {
-                        if error.kind == structopt::clap::ErrorKind::VersionDisplayed {
+                        if error.kind() == clap::ErrorKind::DisplayVersion {
                             print!("{}", error)
-                        } else if error.kind == structopt::clap::ErrorKind::HelpDisplayed
-                            || error.kind == structopt::clap::ErrorKind::MissingArgumentOrSubcommand
+                        } else if error.kind() == clap::ErrorKind::DisplayHelp
+                            || error.kind()
+                                == clap::ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
                         {
-                            // Remove the unnecessary command / version line at the start
-                            let lines = format!("{}\n", error)
-                                .to_string()
-                                .lines()
-                                .skip(1)
-                                .map(str::to_string)
-                                .collect::<Vec<String>>()
-                                .join("\n");
-                            print!("{}", lines)
+                            error.print()?;
                         } else {
                             eprintln!("{:?}", eyre!(error))
                         }

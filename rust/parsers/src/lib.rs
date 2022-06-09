@@ -137,26 +137,23 @@ impl Default for Parsers {
 pub mod commands {
     use std::{fs, path::PathBuf};
 
-    use super::*;
-    use cli_utils::{common::async_trait::async_trait, result, Result, Run};
+    use cli_utils::{
+        clap::{self, Parser},
+        common::async_trait::async_trait,
+        result, Result, Run,
+    };
     use parser::graph_triples::resources;
-    use structopt::StructOpt;
+
+    use super::*;
 
     /// Manage and use language parsers
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp,
-        setting = structopt::clap::AppSettings::VersionlessSubcommands
-    )]
+    #[derive(Debug, Parser)]
     pub struct Command {
-        #[structopt(subcommand)]
+        #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
+    #[derive(Debug, Parser)]
     pub enum Action {
         List(List),
         Show(Show),
@@ -179,10 +176,7 @@ pub mod commands {
     ///
     /// The list of available parsers includes those that are built into the Stencila
     /// binary as well as any parsers provided by plugins.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct List {}
     #[async_trait]
     impl Run for List {
@@ -193,10 +187,7 @@ pub mod commands {
     }
 
     /// Show the specifications of a parser
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Show {
         /// The label of the parser
         ///
@@ -216,21 +207,18 @@ pub mod commands {
     /// The code is parsed into a set of graph `Relation`/`Resource` pairs using the
     /// parser that matches the filename extension (or specified using `--lang`).
     /// Useful for testing Stencila's static code analysis for a particular language.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Parse {
         /// The file (or code) to parse
-        #[structopt(multiple = true)]
+        #[clap(multiple_values = true)]
         code: Vec<String>,
 
         /// If the argument should be treated as text, rather than a file path
-        #[structopt(short, long)]
+        #[clap(short, long)]
         text: bool,
 
         /// The language of the code
-        #[structopt(short, long)]
+        #[clap(short, long)]
         lang: Option<String>,
     }
     #[async_trait]

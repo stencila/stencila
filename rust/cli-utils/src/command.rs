@@ -27,12 +27,14 @@ macro_rules! mini_main {
         use cli_utils::common::tokio;
         #[tokio::main]
         async fn main() {
-            use cli_utils::{tracing_subscriber, Run};
-            use structopt::StructOpt;
+            use cli_utils::{
+                clap::{self, Parser},
+                tracing_subscriber, Run,
+            };
 
             tracing_subscriber::fmt().pretty().init();
 
-            $command::from_args()
+            $command::parse()
                 .print(
                     &["md".to_string(), "yaml".to_string(), "json".to_string()],
                     "",

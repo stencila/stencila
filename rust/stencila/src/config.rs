@@ -280,63 +280,42 @@ pub fn schemas() -> Result<serde_json::Value> {
 /// CLI options for the `config` command
 #[cfg(feature = "cli")]
 pub mod commands {
-    use structopt::StructOpt;
-
-    use cli_utils::{result, Result, Run};
+    use cli_utils::{
+        clap::{self, Parser},
+        result, Result, Run,
+    };
     use common::async_trait::async_trait;
 
     use super::*;
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Manage configuration settings",
-        setting = structopt::clap::AppSettings::ColoredHelp,
-        setting = structopt::clap::AppSettings::VersionlessSubcommands
-    )]
+    /// Manage configuration settings
+    #[derive(Debug, Parser)]
     pub struct Command {
-        #[structopt(subcommand)]
+        #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
+    #[derive(Debug, Parser)]
     pub enum Action {
         Get(Get),
         Set(Set),
         Reset(Reset),
-
-        #[structopt(
-            about = "Get the directories used for config, cache etc",
-            setting = structopt::clap::AppSettings::ColoredHelp
-        )]
+        /// Get the directories used for config, cache etc
         Dirs,
-
-        #[structopt(
-            about = "Get JSON Schemas for configuration and associated types",
-            setting = structopt::clap::AppSettings::ColoredHelp
-        )]
+        /// Get JSON Schemas for configuration and associated types
         Schemas,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Get configuration properties",
-        // Provide `show` alias for consistency with `documents` and `projects`
-        aliases = &["show"],
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Get configuration properties
+    #[derive(Debug, Parser)]
+    #[clap(alias = "show")]
     pub struct Get {
         /// A pointer to a config property e.g. `upgrade.auto`
         pub pointer: Option<String>,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Set configuration properties",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Set configuration properties
+    #[derive(Debug, Parser)]
     pub struct Set {
         /// A pointer to a config property e.g. `upgrade.auto`
         pub pointer: String,
@@ -345,11 +324,8 @@ pub mod commands {
         pub value: String,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Reset configuration properties to their defaults",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Reset configuration properties to their defaults
+    #[derive(Debug, Parser)]
     pub struct Reset {
         /// The config property to reset. Use 'all' to reset the entire config.
         pub property: String,

@@ -6,9 +6,10 @@
 
 use std::{collections::HashMap, path::PathBuf};
 
-use structopt::StructOpt;
-
-use cli_utils::{result, stderr_isatty, Result, Run};
+use cli_utils::{
+    clap::{self, AppSettings, Parser},
+    result, stderr_isatty, Result, Run,
+};
 use common::{async_trait::async_trait, eyre, strum::VariantNames, tokio, tracing};
 use utils::some_string;
 
@@ -27,26 +28,26 @@ use crate::{
 /// Stencila, in a terminal console, on your own machine
 ///
 /// Enter interactive mode by using the `--interact` option with any command.
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-    setting = structopt::clap::AppSettings::ColoredHelp,
-    setting = structopt::clap::AppSettings::VersionlessSubcommands
+#[derive(Debug, Parser)]
+#[clap(
+    version,
+    infer_subcommands = true,
+    global_setting = AppSettings::DeriveDisplayOrder,
 )]
-pub struct Args {
+pub struct Cli {
     /// The command to run
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     pub command: Option<Command>,
 
     /// Format to display results of commands (e.g. json, yaml, md)
     ///
     /// If the command result can be displayed in the specified format
     /// it will be. Display format preferences can be configured.
-    #[structopt(flatten)]
+    #[clap(flatten)]
     pub display: DisplayOptions,
 
     /// Enter interactive mode (with any command and options as the prefix)
-    #[structopt(short, long, global = true, alias = "interactive")]
+    #[clap(short, long, global = true, alias = "interactive")]
     pub interact: bool,
 
     /// Print debug level log events and additional diagnostics
@@ -54,37 +55,37 @@ pub struct Args {
     /// Equivalent to setting `--log-level=debug` and `--log-format=detail`.
     /// Overrides the both of those options and any configuration settings
     /// for logging on standard error stream.
-    #[structopt(long, global = true)]
+    #[clap(long, global = true)]
     pub debug: bool,
 
     /// The minimum log level to print
-    #[structopt(long, global = true, possible_values = LoggingLevel::VARIANTS, case_insensitive = true)]
+    #[clap(long, global = true, possible_values = LoggingLevel::VARIANTS, ignore_case = true)]
     pub log_level: Option<LoggingLevel>,
 
     /// The format to print log events
-    #[structopt(long, global = true, possible_values = LoggingFormat::VARIANTS, case_insensitive = true)]
+    #[clap(long, global = true, possible_values = LoggingFormat::VARIANTS, ignore_case = true)]
     pub log_format: Option<LoggingFormat>,
 }
 
-#[derive(Debug, Default, StructOpt)]
+#[derive(Debug, Default, Parser)]
 pub struct DisplayOptions {
     /// Format to display output values (if possible)
     ///
     /// If the command result can be displayed in the specified format
     /// it will be. Display format preferences can be configured.
-    #[structopt(long, global = true, alias = "as", conflicts_with_all = &["json", "yaml", "md"])]
+    #[clap(long, global = true, alias = "as", conflicts_with_all = &["json", "yaml", "md"])]
     pub display: Option<String>,
 
     /// Display output values as JSON (alias for `--as json`)
-    #[structopt(long, global = true, conflicts_with_all = &["display", "yaml", "md"])]
+    #[clap(long, global = true, conflicts_with_all = &["display", "yaml", "md"])]
     pub json: bool,
 
     /// Display output values as YAML (alias for `--as yaml`)
-    #[structopt(long, global = true, conflicts_with_all = &["display", "json", "md"])]
+    #[clap(long, global = true, conflicts_with_all = &["display", "json", "md"])]
     pub yaml: bool,
 
     /// Display output values as Markdown if possible (alias for `--as md`)
-    #[structopt(long, global = true, conflicts_with_all = &["display", "json", "yaml"])]
+    #[clap(long, global = true, conflicts_with_all = &["display", "json", "yaml"])]
     pub md: bool,
 }
 
@@ -116,9 +117,10 @@ pub const GLOBAL_ARGS: [&str; 6] = [
     "--log-format",
 ];
 
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::DeriveDisplayOrder
+#[derive(Debug, Parser)]
+#[clap(
+    infer_subcommands = true,
+    global_setting = AppSettings::DeriveDisplayOrder,
 )]
 pub enum Command {
     // General commands that delegate to either the `projects` module,
@@ -139,49 +141,49 @@ pub enum Command {
     With(WithCommand),
 
     // Module-specific commands defined in the `stencila` library
-    #[structopt(aliases = &["project"])]
+    #[clap(aliases = &["project"])]
     Projects(projects::commands::Command),
 
-    #[structopt(aliases = &["document", "docs", "doc"])]
+    #[clap(aliases = &["document", "docs", "doc"])]
     Documents(documents::commands::Command),
 
-    #[structopt(aliases = &["source"])]
+    #[clap(aliases = &["source"])]
     Sources(sources::commands::Command),
 
     #[cfg(feature = "codecs-cli")]
-    #[structopt(aliases = &["codec"])]
+    #[clap(aliases = &["codec"])]
     Codecs(codecs::commands::Command),
 
     #[cfg(feature = "parsers-cli")]
-    #[structopt(aliases = &["parser"])]
+    #[clap(aliases = &["parser"])]
     Parsers(parsers::commands::Command),
 
     #[cfg(feature = "kernels-cli")]
-    #[structopt(aliases = &["kernel"])]
+    #[clap(aliases = &["kernel"])]
     Kernels(kernels::commands::Command),
 
     #[cfg(feature = "binaries-cli")]
-    #[structopt(aliases = &["binary"])]
+    #[clap(aliases = &["binary"])]
     Binaries(binaries::commands::Command),
 
     #[cfg(feature = "providers-cli")]
-    #[structopt(aliases = &["provider"])]
+    #[clap(aliases = &["provider"])]
     Providers(providers::commands::Command),
 
     #[cfg(feature = "buildpacks-cli")]
-    #[structopt(aliases = &["buildpack"])]
+    #[clap(aliases = &["buildpack"])]
     Buildpacks(buildpacks::cli::Command),
 
     #[cfg(feature = "images-cli")]
-    #[structopt(aliases = &["image"])]
+    #[clap(aliases = &["image"])]
     Images(images::cli::Command),
 
     #[cfg(feature = "plugins-cli")]
-    #[structopt(aliases = &["plugin"])]
+    #[clap(aliases = &["plugin"])]
     Plugins(plugins::commands::Command),
 
     #[cfg(feature = "server")]
-    #[structopt(aliases = &["server"])]
+    #[clap(aliases = &["server"])]
     Server(crate::server::commands::Command),
 
     Config(config::commands::Command),
@@ -242,18 +244,14 @@ impl Run for Command {
     }
 }
 
-// The structopt used in interactive mode
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::NoBinaryName,
-    setting = structopt::clap::AppSettings::ColoredHelp,
-    setting = structopt::clap::AppSettings::VersionlessSubcommands
-)]
+// The clap args used in interactive mode
+#[derive(Debug, Parser)]
+#[clap(no_binary_name = true)]
 pub struct Line {
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     pub command: Command,
 
-    #[structopt(flatten)]
+    #[clap(flatten)]
     pub display: DisplayOptions,
 }
 
@@ -285,11 +283,7 @@ impl Run for Line {
 }
 
 /// List all open project and documents.
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::NoBinaryName,
-    setting = structopt::clap::AppSettings::ColoredHelp,
-)]
+#[derive(Debug, Parser)]
 pub struct ListCommand {}
 #[async_trait]
 impl Run for ListCommand {
@@ -309,11 +303,7 @@ impl Run for ListCommand {
 ///
 /// In the future this command will open the project/document
 /// in the Stencila Desktop if that is available.
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::NoBinaryName,
-    setting = structopt::clap::AppSettings::ColoredHelp,
-)]
+#[derive(Debug, Parser)]
 pub struct OpenCommand {
     /// The file or folder to open
     path: Option<PathBuf>,
@@ -374,14 +364,10 @@ impl Run for OpenCommand {
 /// If the path is a folder, the associated project (if any) will be closed.
 /// Closing a document or project just means that it is unloaded from memory
 /// and the file or folder is not longer watched for changes.
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::NoBinaryName,
-    setting = structopt::clap::AppSettings::ColoredHelp,
-)]
+#[derive(Debug, Parser)]
 pub struct CloseCommand {
     /// The file or folder to close
-    #[structopt(default_value = ".")]
+    #[clap(default_value = ".")]
     path: PathBuf,
 }
 #[async_trait]
@@ -401,11 +387,7 @@ impl Run for CloseCommand {
 ///
 /// If the path is a file, it will be opened as a document and displayed.
 /// If the path is a folder, it will be opened as a project and displayed.
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::NoBinaryName,
-    setting = structopt::clap::AppSettings::ColoredHelp,
-)]
+#[derive(Debug, Parser)]
 pub struct ShowCommand {
     /// The file or folder to close
     path: Option<PathBuf>,
@@ -431,11 +413,7 @@ type MergeCommand = documents::commands::Merge;
 
 /// Run commands interactively with a particular project or document
 ///
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::NoBinaryName,
-    setting = structopt::clap::AppSettings::ColoredHelp,
-)]
+#[derive(Debug, Parser)]
 pub struct WithCommand {
     /// The file or folder to run command with
     path: PathBuf,
@@ -458,8 +436,8 @@ pub async fn main() -> eyre::Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
     // Parse args into a command
-    let parsed_args = Args::from_iter_safe(args.clone());
-    let Args {
+    let parsed_args = Cli::try_parse_from(args.clone());
+    let Cli {
         command,
         display,
         debug,
@@ -476,7 +454,7 @@ pub async fn main() -> eyre::Result<()> {
                 || args.contains(&"--interact".to_string())
                 || args.contains(&"--interactive".to_string())
             {
-                Args {
+                Cli {
                     command: None,
                     display: DisplayOptions::default(),
                     debug: args.contains(&"--debug".to_string()),
@@ -486,7 +464,7 @@ pub async fn main() -> eyre::Result<()> {
                 }
             } else {
                 // Print the error `clap` help or usage message and exit
-                eprintln!("{}", error);
+                error.print()?;
                 std::process::exit(exitcode::USAGE);
             }
         }
@@ -618,4 +596,10 @@ pub async fn main() -> eyre::Result<()> {
     }
 
     Ok(())
+}
+
+#[test]
+fn verify_cli() {
+    use clap::CommandFactory;
+    Cli::command().debug_assert()
 }

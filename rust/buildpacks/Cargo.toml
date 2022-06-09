@@ -6,7 +6,7 @@ edition = "2021"
 
 [features]
 default = ["cli"]
-cli = ["cli-utils", "structopt"]
+cli = ["cli-utils"]
 
 [dependencies]
 binary-pack = { path = "../binary-pack" }
@@ -19,7 +19,6 @@ http-utils = { path = "../http-utils" }
 cli-utils = { path = "../cli-utils", optional = true, features = [
     "pretty",
 ] }
-structopt = { version = "0.3.25", optional = true }
 
 buildpack-apt = { path = "../buildpack-apt", optional = true }
 buildpack-dockerfile = { path = "../buildpack-dockerfile", optional = true }

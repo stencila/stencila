@@ -1,39 +1,37 @@
 use std::path::PathBuf;
 
-use structopt::StructOpt;
-
-use cli_utils::{common::async_trait::async_trait, result, Result, Run};
+use cli_utils::{
+    clap::{self, Parser},
+    common::async_trait::async_trait,
+    result, Result, Run,
+};
 use common::tracing;
 
 use crate::image::Image;
 
 /// Build and distribute container images
-#[derive(Debug, StructOpt)]
-#[structopt(
-    alias = "images",
-    setting = structopt::clap::AppSettings::ColoredHelp,
-    setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-    setting = structopt::clap::AppSettings::VersionlessSubcommands
-)]
-pub enum Command {
+#[derive(Debug, Parser)]
+pub struct Command {
+    #[clap(subcommand)]
+    pub action: Action,
+}
+
+#[derive(Debug, Parser)]
+pub enum Action {
     Build(Build),
 }
 
 #[async_trait]
 impl Run for Command {
     async fn run(&self) -> Result {
-        match self {
-            Command::Build(cmd) => cmd.run().await,
+        match &self.action {
+            Action::Build(action) => action.run().await,
         }
     }
 }
 
 /// Build an image
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::ColoredHelp,
-    setting = structopt::clap::AppSettings::DeriveDisplayOrder
-)]
+#[derive(Debug, Parser)]
 pub struct Build {
     /// The directory to build an image for
     ///
@@ -45,7 +43,7 @@ pub struct Build {
     /// Equivalent to the `FROM` directive in a Dockerfile. Defaults to the `STENCILA_IMAGE_REF` (i.e. the
     /// current image, if Stencila is running in a container), falling back to `stencila/stencila:nano` if not.
     /// Must be a valid image reference e.g. `docker.io/library/ubuntu:22.04`, `ubuntu:22.04`, `ubuntu`
-    #[structopt(long, short, env = "STENCILA_IMAGE_FROM")]
+    #[clap(long, short, env = "STENCILA_IMAGE_FROM")]
     from: Option<String>,
 
     /// The registry, repository and tag to push to
@@ -53,7 +51,7 @@ pub struct Build {
     /// Equivalent to the `--tag` option to Docker build.
     /// Must be a valid image reference e.g. `localhost:5000/my-project`.
     /// Defaults to the name of the directory plus a hash of its path (to maintain uniqueness).
-    #[structopt(long, short, env = "STENCILA_IMAGE_TAG")]
+    #[clap(long, short, env = "STENCILA_IMAGE_TAG")]
     tag: Option<String>,
 
     /// The format to use for image layers
@@ -61,7 +59,7 @@ pub struct Build {
     /// The Open Container Image spec allows for layers to be in several formats.
     /// The default `tar+zstd` format provides performance benefits over the others but may not be
     /// supported by older versions of some container tools.
-    #[structopt(
+    #[clap(
         long,
         env = "STENCILA_IMAGE_LAYER_FORMAT",
         default_value = "tar+zstd",
@@ -73,7 +71,7 @@ pub struct Build {
     ///
     /// Defaults to `oci`, however for compatibility with older version of some image registries it
     /// may be necessary to use `v2s2` (Docker Version 2 Schema 2).
-    #[structopt(
+    #[clap(
         long,
         env = "STENCILA_IMAGE_MANIFEST_FORMAT",
         default_value = "oci",
@@ -85,14 +83,14 @@ pub struct Build {
     ///
     /// Mainly if you simply want to apply add `.env` and/or `.labels` files to the `--from` image
     /// and give it a new `--tag`.
-    #[structopt(long)]
+    #[clap(long)]
     no_workspace: bool,
 
     /// Do not run any buildpacks
     ///
     /// Mainly useful during development for testing the writing of images, without waiting for
     /// potentially long buildpack build times.
-    #[structopt(long)]
+    #[clap(long)]
     no_buildpacks: bool,
 
     /// Do not calculate a changeset for each layer directory and instead represent them in their entirety.
@@ -101,28 +99,28 @@ pub struct Build {
     /// and generate a changeset representing the difference. This replicates the behavior of Dockerfile `RUN` directives.
     ///
     /// This option instead forces the layer to represent the entire directory after the build.
-    #[structopt(long)]
+    #[clap(long)]
     no_diffs: bool,
 
     /// Do not write the image to disk after building it
     ///
     /// Mainly useful during development for testing that the image can be built without
     /// waiting for the base image manifest to be fetched or snapshot changesets to be calculated.
-    #[structopt(long)]
+    #[clap(long)]
     no_write: bool,
 
     /// Do not push the image to the repository after writing it
     ///
     /// Mainly useful during development for testing that the image can be built without
     /// waiting for it to be pushed to the registry.
-    #[structopt(long)]
+    #[clap(long)]
     no_push: bool,
 
     /// The directory where buildpacks build layers and which will are written into the image
     ///
     /// Defaults to a `/layers` (the usual in CNB images) or `<dir>/.stencila/layers` (the fallback
     /// for local builds).
-    #[structopt(long)]
+    #[clap(long)]
     layers_dir: Option<PathBuf>,
 
     /// The directory to write the image to
@@ -133,7 +131,7 @@ pub struct Build {
     ///   stencila images build ... --no-build --no-push --layout-dir temp
     ///
     /// If the `layout_dir` already exists, its contents are deleted - so use with care!
-    #[structopt(long)]
+    #[clap(long)]
     layout_dir: Option<PathBuf>,
 
     /// Whether the layout directory should be written with all layers
@@ -141,7 +139,7 @@ pub struct Build {
     /// As an optimization, base layers are only written to the layout directory as needed
     /// (i.e. when a registry does not have the layer yet). Use this option to ensure that layout directory
     /// includes all layers  (e.g. when wanting to run the image locally).
-    #[structopt(long)]
+    #[clap(long)]
     layout_complete: bool,
 }
 

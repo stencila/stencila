@@ -17,14 +17,11 @@ default = [
     "buildpacks/buildpack-stencila",
 ]
 
-cli = ["cli-utils", "structopt"]
+cli = ["cli-utils"]
 rkyv-safe = ["rkyv", "bytecheck"]
 
 [dependencies]
-archive-utils = { path = "../archive-utils", features = [
-    "tar-gz",
-    "tar-zst",
-] }
+archive-utils = { path = "../archive-utils", features = ["tar-gz", "tar-zst"] }
 buildpacks = { path = "../buildpacks" }
 bytes = "1.1.0"
 bytesize = "1.1.0"
@@ -36,10 +33,7 @@ jwalk = "0.6.0"
 oci-spec = "0.5.6"
 seahash = "4.1.0"
 
-cli-utils = { path = "../cli-utils", optional = true, features = [
-    "pretty",
-] }
-structopt = { version = "0.3.25", optional = true }
+cli-utils = { path = "../cli-utils", optional = true, features = ["pretty"] }
 
 rkyv = { version = "0.7.38", features = ["validation"], optional = true }
 bytecheck = { version = "0.6.8", optional = true }

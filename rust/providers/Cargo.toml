@@ -5,16 +5,13 @@ version = "0.0.0"
 edition = "2021"
 
 [features]
-cli = ["cli-utils", "structopt"]
+cli = ["cli-utils"]
 
 [dependencies]
 events = { path = "../events" }
 provider = { path = "../provider" }
 
-cli-utils = { path = "../cli-utils", features = [
-    "pretty",
-], optional = true }
-structopt = { version = "0.3.25", optional = true }
+cli-utils = { path = "../cli-utils", features = ["pretty"], optional = true }
 
 provider-doi = { path = "../provider-doi", optional = true }
 provider-elife = { path = "../provider-elife", optional = true }

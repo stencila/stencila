@@ -7,7 +7,7 @@ edition = "2021"
 
 default = ["cli"]
 
-cli = ["cli-utils", "structopt"]
+cli = ["cli-utils"]
 
 binary = []
 docker = ["bollard"]
@@ -27,6 +27,5 @@ semver = "1.0.4"
 stencila-schema = { path = "../schema" }
 
 cli-utils = { path = "../cli-utils", optional = true }
-structopt = { version = "0.3.25", optional = true }
 
 bollard = { version = "0.11.1", optional = true }

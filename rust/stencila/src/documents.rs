@@ -1862,9 +1862,10 @@ pub fn schemas() -> Result<serde_json::Value> {
 pub mod commands {
     use std::str::FromStr;
 
-    use structopt::StructOpt;
-
-    use cli_utils::{result, Result, Run};
+    use cli_utils::{
+        clap::{self, Parser},
+        result, Result, Run,
+    };
     use common::async_trait::async_trait;
     use graph::{PlanOptions, PlanOrdering};
     use node_patch::diff_display;
@@ -1873,21 +1874,14 @@ pub mod commands {
 
     use super::*;
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Manage documents",
-        setting = structopt::clap::AppSettings::ColoredHelp,
-        setting = structopt::clap::AppSettings::VersionlessSubcommands
-    )]
+    /// Manage documents
+    #[derive(Debug, Parser)]
     pub struct Command {
-        #[structopt(subcommand)]
+        #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
+    #[derive(Debug, Parser)]
     pub enum Action {
         List(List),
         Open(Open),
@@ -1956,16 +1950,13 @@ pub mod commands {
 
     // The arguments used to specify the document file path and format
     // Reused (with flatten) below
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     struct File {
         /// The path of the document file
         path: String,
 
         /// The format of the document file
-        #[structopt(short, long)]
+        #[clap(short, long)]
         format: Option<String>,
     }
     impl File {
@@ -1980,10 +1971,7 @@ pub mod commands {
     }
 
     /// List open documents
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct List {}
     #[async_trait]
     impl Run for List {
@@ -1994,13 +1982,9 @@ pub mod commands {
     }
 
     /// Open a document
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Open {
-        #[structopt(flatten)]
+        #[clap(flatten)]
         file: File,
     }
     #[async_trait]
@@ -2012,11 +1996,7 @@ pub mod commands {
     }
 
     /// Close a document
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Close {
         /// The path of the document file
         pub path: String,
@@ -2030,13 +2010,9 @@ pub mod commands {
     }
 
     /// Show a document
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Show {
-        #[structopt(flatten)]
+        #[clap(flatten)]
         file: File,
 
         /// A pointer to the part of the document to show e.g. `variables`, `format.name`
@@ -2074,19 +2050,16 @@ pub mod commands {
     mod kernel_commands {
         use super::*;
 
-        #[derive(Debug, StructOpt)]
-        #[structopt(
-            alias = "exec",
-            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-            setting = structopt::clap::AppSettings::ColoredHelp
-        )]
+        #[derive(Debug, Parser)]
+        #[clap(alias = "exec")]
         pub struct Execute {
-            #[structopt(flatten)]
+            #[clap(flatten)]
             file: File,
 
-            #[structopt(flatten)]
+            #[clap(flatten)]
             execute: kernels::commands::Execute,
         }
+
         #[async_trait]
         impl Run for Execute {
             async fn run(&self) -> Result {
@@ -2098,18 +2071,15 @@ pub mod commands {
             }
         }
 
-        #[derive(Debug, StructOpt)]
-        #[structopt(
-            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-            setting = structopt::clap::AppSettings::ColoredHelp
-        )]
+        #[derive(Debug, Parser)]
         pub struct Kernels {
-            #[structopt(flatten)]
+            #[clap(flatten)]
             file: File,
 
-            #[structopt(flatten)]
+            #[clap(flatten)]
             kernels: kernels::commands::Running,
         }
+
         #[async_trait]
         impl Run for Kernels {
             async fn run(&self) -> Result {
@@ -2120,18 +2090,15 @@ pub mod commands {
             }
         }
 
-        #[derive(Debug, StructOpt)]
-        #[structopt(
-            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-            setting = structopt::clap::AppSettings::ColoredHelp
-        )]
+        #[derive(Debug, Parser)]
         pub struct Tasks {
-            #[structopt(flatten)]
+            #[clap(flatten)]
             file: File,
 
-            #[structopt(flatten)]
+            #[clap(flatten)]
             tasks: kernels::commands::Tasks,
         }
+
         #[async_trait]
         impl Run for Tasks {
             async fn run(&self) -> Result {
@@ -2142,18 +2109,15 @@ pub mod commands {
             }
         }
 
-        #[derive(Debug, StructOpt)]
-        #[structopt(
-            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-            setting = structopt::clap::AppSettings::ColoredHelp
-        )]
+        #[derive(Debug, Parser)]
         pub struct Queues {
-            #[structopt(flatten)]
+            #[clap(flatten)]
             file: File,
 
-            #[structopt(flatten)]
+            #[clap(flatten)]
             queues: kernels::commands::Queues,
         }
+
         #[async_trait]
         impl Run for Queues {
             async fn run(&self) -> Result {
@@ -2164,18 +2128,15 @@ pub mod commands {
             }
         }
 
-        #[derive(Debug, StructOpt)]
-        #[structopt(
-            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-            setting = structopt::clap::AppSettings::ColoredHelp
-        )]
+        #[derive(Debug, Parser)]
         pub struct Cancel {
-            #[structopt(flatten)]
+            #[clap(flatten)]
             file: File,
 
-            #[structopt(flatten)]
+            #[clap(flatten)]
             cancel: kernels::commands::Cancel,
         }
+
         #[async_trait]
         impl Run for Cancel {
             async fn run(&self) -> Result {
@@ -2186,18 +2147,16 @@ pub mod commands {
                 result::nothing()
             }
         }
-        #[derive(Debug, StructOpt)]
-        #[structopt(
-            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-            setting = structopt::clap::AppSettings::ColoredHelp
-        )]
+
+        #[derive(Debug, Parser)]
         pub struct Symbols {
-            #[structopt(flatten)]
+            #[clap(flatten)]
             file: File,
 
-            #[structopt(flatten)]
+            #[clap(flatten)]
             symbols: kernels::commands::Symbols,
         }
+
         #[async_trait]
         impl Run for Symbols {
             async fn run(&self) -> Result {
@@ -2208,18 +2167,15 @@ pub mod commands {
             }
         }
 
-        #[derive(Debug, StructOpt)]
-        #[structopt(
-            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-            setting = structopt::clap::AppSettings::ColoredHelp
-        )]
+        #[derive(Debug, Parser)]
         pub struct Restart {
-            #[structopt(flatten)]
+            #[clap(flatten)]
             file: File,
 
-            #[structopt(flatten)]
+            #[clap(flatten)]
             restart: kernels::commands::Restart,
         }
+
         #[async_trait]
         impl Run for Restart {
             async fn run(&self) -> Result {
@@ -2241,18 +2197,14 @@ pub mod commands {
     /// stencila documents graph | dot -Tpng | display
     /// ```
     ///
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Graph {
-        #[structopt(flatten)]
+        #[clap(flatten)]
         file: File,
 
         /// The format to output the graph as
-        #[structopt(long, short, default_value = "dot", possible_values = &graph::FORMATS)]
-        r#as: String,
+        #[clap(long, short, default_value = "dot", possible_values = &graph::FORMATS)]
+        to: String,
     }
 
     #[async_trait]
@@ -2260,17 +2212,13 @@ pub mod commands {
         async fn run(&self) -> Result {
             let document = self.file.get().await?;
             let document = document.lock().await;
-            let content = document.graph.read().await.to_format(&self.r#as)?;
-            result::content(&self.r#as, &content)
+            let content = document.graph.read().await.to_format(&self.to)?;
+            result::content(&self.to, &content)
         }
     }
 
     /// Run a document
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Runn {
         /// The path of the document to execute
         pub input: PathBuf,
@@ -2279,23 +2227,23 @@ pub mod commands {
         pub output: Option<PathBuf>,
 
         /// The format of the input (defaults to being inferred from the file extension or content type)
-        #[structopt(short, long)]
+        #[clap(short, long)]
         from: Option<String>,
 
         /// The format of the output (defaults to being inferred from the file extension)
-        #[structopt(short, long)]
+        #[clap(short, long)]
         to: Option<String>,
 
         /// The theme to apply to the output (only for HTML and PDF)
-        #[structopt(short = "e", long)]
+        #[clap(short = 'e', long)]
         theme: Option<String>,
 
         /// The id of the node to start execution from
-        #[structopt(short, long)]
+        #[clap(short, long)]
         start: Option<String>,
 
         /// Ordering for the execution plan
-        #[structopt(short, long, parse(try_from_str = PlanOrdering::from_str), case_insensitive = true)]
+        #[clap(short, long, parse(try_from_str = PlanOrdering::from_str), ignore_case = true)]
         ordering: Option<PlanOrdering>,
 
         /// Maximum concurrency for the execution plan
@@ -2303,15 +2251,15 @@ pub mod commands {
         /// A maximum concurrency of 2 means that no more than two tasks will
         /// run at the same time (ie. in the same stage).
         /// Defaults to the number of CPUs on the machine.
-        #[structopt(short, long)]
+        #[clap(short, long)]
         concurrency: Option<usize>,
 
         /// Generate execution plan but do not execute it
-        #[structopt(short, long)]
+        #[clap(short, long)]
         dry_run: bool,
 
         /// Do not display execution plan or progress
-        #[structopt(short, long)]
+        #[clap(short, long)]
         quiet: bool,
     }
 
@@ -2370,11 +2318,7 @@ pub mod commands {
     }
 
     /// Query a document
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Query {
         /// The path of the document file
         file: String,
@@ -2383,11 +2327,11 @@ pub mod commands {
         query: String,
 
         /// The format of the file
-        #[structopt(short, long)]
+        #[clap(short, long)]
         format: Option<String>,
 
         /// The language of the query
-        #[structopt(
+        #[clap(
             short,
             long,
             default_value = "jmespath",
@@ -2413,11 +2357,7 @@ pub mod commands {
     }
 
     /// Display the structural differences between two documents
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Diff {
         /// The path of the first document
         first: PathBuf,
@@ -2431,9 +2371,10 @@ pub mod commands {
         /// of the documents. Unified diffs of other formats are available
         /// e.g. "md", "yaml". Use "raw" for the raw patch as a list of
         /// operations.
-        #[structopt(short, long, default_value = "json")]
+        #[clap(short, long, default_value = "json")]
         format: String,
     }
+
     #[async_trait]
     impl Run for Diff {
         async fn run(&self) -> Result {
@@ -2474,11 +2415,7 @@ pub mod commands {
     /// *.{md|docx} merge=stencila
     ///
     /// This can be done per project, or globally.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     // See https://git-scm.com/docs/gitattributes#_defining_a_custom_merge_driver and
     // https://www.julianburr.de/til/custom-git-merge-drivers/ for more examples of defining a
     // custom driver. In particular the meaning of the placeholders %O, %A etc
@@ -2487,16 +2424,17 @@ pub mod commands {
         original: PathBuf,
 
         /// The paths of the derived versions
-        #[structopt(required = true, multiple = true)]
+        #[clap(required = true, multiple_occurrences = true)]
         derived: Vec<PathBuf>,
 
         /// A flag to indicate that the command is being used as a Git merge driver
         ///
         /// When the `merge` command is used as a Git merge driver the second path
         /// supplied is the file that is written to.
-        #[structopt(short, long)]
+        #[clap(short, long)]
         git: bool,
     }
+
     #[async_trait]
     impl Run for Merge {
         async fn run(&self) -> Result {
@@ -2519,16 +2457,13 @@ pub mod commands {
         }
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Detect entities within a document",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Detect entities within a document
+    #[derive(Debug, Parser)]
     pub struct Detect {
         /// The path of the document file
         pub file: String,
     }
+
     #[async_trait]
     impl Run for Detect {
         async fn run(&self) -> Result {
@@ -2539,11 +2474,8 @@ pub mod commands {
         }
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Get JSON Schemas for documents and associated types",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Get JSON Schemas for documents and associated types
+    #[derive(Debug, Parser)]
     pub struct Schemas {}
     impl Schemas {
         pub fn run(&self) -> Result {

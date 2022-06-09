@@ -349,9 +349,11 @@ impl Default for Codecs {
 pub mod commands {
     use std::{io::Read, path::PathBuf};
 
-    use structopt::StructOpt;
-
-    use cli_utils::{common::async_trait::async_trait, result, Result, Run};
+    use cli_utils::{
+        clap::{self, Parser},
+        common::async_trait::async_trait,
+        result, Result, Run,
+    };
 
     use super::*;
 
@@ -363,13 +365,14 @@ pub mod commands {
     /// This command allows you to list the available codecs, see their
     /// specifications (e.g. which formats they support), and use them
     /// to convert content between formats.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp,
-        setting = structopt::clap::AppSettings::VersionlessSubcommands
-    )]
-    pub enum Command {
+    #[derive(Debug, Parser)]
+    pub struct Command {
+        #[clap(subcommand)]
+        pub action: Action,
+    }
+
+    #[derive(Debug, Parser)]
+    pub enum Action {
         List(List),
         Show(Show),
         Convert(Convert),
@@ -378,10 +381,10 @@ pub mod commands {
     #[async_trait]
     impl Run for Command {
         async fn run(&self) -> Result {
-            match self {
-                Command::List(action) => action.run().await,
-                Command::Show(action) => action.run().await,
-                Command::Convert(action) => action.run().await,
+            match &self.action {
+                Action::List(action) => action.run().await,
+                Action::Show(action) => action.run().await,
+                Action::Convert(action) => action.run().await,
             }
         }
     }
@@ -390,10 +393,7 @@ pub mod commands {
     ///
     /// The list of available codecs includes those that are built into the Stencila
     /// binary (e.g. `html`) as well as any codecs provided by plugins.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct List {}
 
     #[async_trait]
@@ -406,10 +406,7 @@ pub mod commands {
     }
 
     /// Show the specifications of a codec
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Show {
         /// The label of the codec
         ///
@@ -426,11 +423,7 @@ pub mod commands {
     }
 
     /// Convert between formats
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Convert {
         /// The path of the input document
         ///
@@ -440,42 +433,42 @@ pub mod commands {
         /// The path of the output document
         ///
         /// Use `-` to print to the console's standard output (default).
-        #[structopt(default_value = "-")]
+        #[clap(default_value = "-")]
         output: PathBuf,
 
         /// The format of the input (defaults to being inferred from the file extension or content type)
-        #[structopt(short, long)]
+        #[clap(short, long)]
         from: Option<String>,
 
         /// The format of the output (defaults to being inferred from the file extension)
-        #[structopt(short, long)]
+        #[clap(short, long)]
         to: Option<String>,
 
         /// Whether to encode in compact form
         ///
         /// Some formats (e.g HTML and JSON) can be encoded in either compact
         /// or "pretty-printed" (e.g. indented) forms.
-        #[structopt(long, short)]
+        #[clap(long, short)]
         compact: bool,
 
         /// Whether to ensure that the encoded document is standalone
         ///
         /// Some formats (e.g. Markdown, DOCX) are always standalone.
         /// Others can be fragments, or standalone documents (e.g HTML).
-        #[structopt(long, short)]
+        #[clap(long, short)]
         standalone: bool,
 
         /// Whether to bundle local media files into the encoded document
         ///
         /// Some formats (e.g. DOCX, PDF) always bundle. For HTML, bundling means
         /// including media as data URIs rather than links to files.
-        #[structopt(long, short)]
+        #[clap(long, short)]
         bundle: bool,
 
         /// The theme to apply to the encoded document
         ///
         /// Only applies to some formats (e.g. HTML, PDF, PNG).
-        #[structopt(long, short = "e")]
+        #[clap(long, short = 'e')]
         theme: Option<String>,
     }
     #[async_trait]

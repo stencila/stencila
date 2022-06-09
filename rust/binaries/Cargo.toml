@@ -8,13 +8,12 @@ edition = "2021"
 
 # The CLI is not enabled by default to avoid extra dependencies for crates
 # that only want to use `require()`.
-cli = ["cli-utils", "structopt"]
+cli = ["cli-utils"]
 
 [dependencies]
 binary = { path = "../binary" }
 
 cli-utils = { path = "../cli-utils", optional = true, features = ["pretty"] }
-structopt = { version = "0.3.25", optional = true }
 
 binary-asdf = { path = "../binary-asdf", optional = true }
 binary-chrome = { path = "../binary-chrome", optional = true }

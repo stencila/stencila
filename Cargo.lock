@@ -396,7 +396,6 @@ dependencies = [
  "binary-r",
  "binary-stencila",
  "cli-utils",
- "structopt",
  "test-utils",
 ]
 
@@ -689,7 +688,6 @@ dependencies = [
  "common",
  "hash-utils",
  "http-utils",
- "structopt",
  "test-snaps",
  "test-utils",
 ]
@@ -962,18 +960,42 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "2.34.0"
+version = "3.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0610544180c38b88101fecf2dd634b174a62eef6946f84dfc6a7127512b381c"
+checksum = "d2dbdf4bdacb33466e854ce889eee8dfd5729abf7ccd7664d0a2d60cd384440b"
 dependencies = [
- "ansi_term",
  "atty",
  "bitflags",
- "strsim 0.8.0",
- "term_size",
+ "clap_derive",
+ "clap_lex",
+ "indexmap",
+ "lazy_static",
+ "strsim 0.10.0",
+ "termcolor",
+ "terminal_size",
  "textwrap",
- "unicode-width",
- "vec_map",
+]
+
+[[package]]
+name = "clap_derive"
+version = "3.1.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25320346e922cffe59c0bbc5410c8d8784509efb321488971081313cb1e1a33c"
+dependencies = [
+ "heck 0.4.0",
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "clap_lex"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a37c35f1112dad5e6e0b1adaff798507497a18fceeb30cceb3bae7d1427b9213"
+dependencies = [
+ "os_str_bytes",
 ]
 
 [[package]]
@@ -982,13 +1004,13 @@ version = "0.0.0"
 dependencies = [
  "ansi_term",
  "atty",
+ "clap",
  "color-eyre",
  "common",
  "events",
  "linya",
  "rustyline",
  "rustyline-derive",
- "structopt",
  "syntect",
  "termimad",
  "tracing-subscriber",
@@ -1276,7 +1298,6 @@ dependencies = [
  "codec-txt",
  "codec-yaml",
  "formats",
- "structopt",
 ]
 
 [[package]]
@@ -2916,7 +2937,6 @@ dependencies = [
  "oci-spec",
  "rkyv",
  "seahash",
- "structopt",
  "test-snaps",
  "test-utils",
 ]
@@ -3283,7 +3303,6 @@ dependencies = [
  "kernel-store",
  "kernel-zsh",
  "parsers",
- "structopt",
 ]
 
 [[package]]
@@ -4201,6 +4220,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "os_str_bytes"
+version = "6.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21326818e99cfe6ce1e524c2a805c189a99b5ae555a35d19f9a284b427d86afa"
+
+[[package]]
 name = "output_vt100"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4392,7 +4417,6 @@ dependencies = [
  "parser-r",
  "parser-rust",
  "parser-ts",
- "structopt",
  "test-utils",
 ]
 
@@ -4899,7 +4923,6 @@ dependencies = [
  "provider-github",
  "provider-gitlab",
  "provider-http",
- "structopt",
  "test-utils",
 ]
 
@@ -5772,7 +5795,6 @@ dependencies = [
  "mime_guess",
  "portpicker",
  "rust-embed",
- "structopt",
  "tower-http",
 ]
 
@@ -6066,7 +6088,6 @@ dependencies = [
  "server-next",
  "sources",
  "stencila-schema",
- "structopt",
  "sudo",
  "test-utils",
  "thiserror",
@@ -6139,12 +6160,6 @@ dependencies = [
 
 [[package]]
 name = "strsim"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
-
-[[package]]
-name = "strsim"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6446ced80d6c486436db5c078dde11a9f73d42b57fb273121e160b84f63d894c"
@@ -6154,30 +6169,6 @@ name = "strsim"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
-
-[[package]]
-name = "structopt"
-version = "0.3.25"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "40b9788f4202aa75c240ecc9c15c65185e6a39ccdeb0fd5d008b98825464c87c"
-dependencies = [
- "clap",
- "lazy_static",
- "structopt-derive",
-]
-
-[[package]]
-name = "structopt-derive"
-version = "0.4.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dcb5ae327f9cc13b68763b5749770cb9e048a99bd9dfdfa58d0cf05d5f64afe0"
-dependencies = [
- "heck 0.3.3",
- "proc-macro-error",
- "proc-macro2",
- "quote",
- "syn",
-]
 
 [[package]]
 name = "strum"
@@ -6334,13 +6325,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "term_size"
-version = "0.3.2"
+name = "termcolor"
+version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e4129646ca0ed8f45d09b929036bafad5377103edd06e50bf574b353d2b08d9"
+checksum = "bab24d30b911b2376f3a13cc2cd443142f0c81dda04c118693e35b3835757755"
 dependencies = [
- "libc",
- "winapi 0.3.9",
+ "winapi-util",
 ]
 
 [[package]]
@@ -6397,12 +6387,11 @@ dependencies = [
 
 [[package]]
 name = "textwrap"
-version = "0.11.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d326610f408c7a4eb6f51c37c330e496b08506c9457c9d34287ecc38809fb060"
+checksum = "b1141d4d61095b28419e22cb0bbf02755f5e54e0526f97f1e3d1d160e60885fb"
 dependencies = [
- "term_size",
- "unicode-width",
+ "terminal_size",
 ]
 
 [[package]]
@@ -7139,12 +7128,6 @@ name = "vcpkg"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
-
-[[package]]
-name = "vec_map"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1bddf1187be692e79c5ffeab891132dfb0f236ed36a43c7ed39f1165ee20191"
 
 [[package]]
 name = "version_check"

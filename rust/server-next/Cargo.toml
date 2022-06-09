@@ -5,7 +5,7 @@ edition = "2021"
 
 [features]
 default = ["cli"]
-cli = ["cli-utils", "structopt"]
+cli = ["cli-utils"]
 
 [dependencies]
 axum = "0.5.5"
@@ -16,4 +16,3 @@ rust-embed = { version = "6.4.0", features = ["compression"] }
 tower-http = { version = "0.3.3", features = ["trace"] }
 
 cli-utils = { path = "../cli-utils", features = ["pretty"], optional = true }
-structopt = { version = "0.3.25", optional = true }

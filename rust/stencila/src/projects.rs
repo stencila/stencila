@@ -884,28 +884,22 @@ pub mod config {
 
 #[cfg(feature = "cli")]
 pub mod commands {
-    use structopt::StructOpt;
-
-    use cli_utils::{result, Result, Run};
+    use cli_utils::{
+        clap::{self, Parser},
+        result, Result, Run,
+    };
     use common::async_trait::async_trait;
 
     use super::*;
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Manage projects",
-        setting = structopt::clap::AppSettings::ColoredHelp,
-        setting = structopt::clap::AppSettings::VersionlessSubcommands
-    )]
+    /// Manage projects
+    #[derive(Debug, Parser)]
     pub struct Command {
-        #[structopt(subcommand)]
+        #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
+    #[derive(Debug, Parser)]
     pub enum Action {
         Init(Init),
         List(List),
@@ -915,6 +909,7 @@ pub mod commands {
         Graph(Graph),
         Schemas(Schemas),
     }
+
     #[async_trait]
     impl Run for Command {
         async fn run(&self) -> Result {
@@ -931,21 +926,18 @@ pub mod commands {
         }
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Initialize a project in a new, or existing, folder",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Initialize a project in a new, or existing, folder
+    #[derive(Debug, Parser)]
     pub struct Init {
         /// The path of the new, or existing, folder to initialize
         ///
         /// If no folder exists at the path, then one will be created.
         /// If no `project.json` file exists in the folder then a new one
         /// will be created.
-        #[structopt(default_value = ".")]
+        #[clap(default_value = ".")]
         pub folder: PathBuf,
     }
+
     #[async_trait]
     impl Run for Init {
         async fn run(&self) -> Result {
@@ -954,12 +946,10 @@ pub mod commands {
         }
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "List open projects",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// List open projects
+    #[derive(Debug, Parser)]
     pub struct List {}
+
     #[async_trait]
     impl Run for List {
         async fn run(&self) -> Result {
@@ -968,16 +958,13 @@ pub mod commands {
         }
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Open a project",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Open a project
+    #[derive(Debug, Parser)]
     pub struct Open {
         /// The path of the project folder (defaults to the current project)
         pub folder: Option<PathBuf>,
     }
+
     #[async_trait]
     impl Run for Open {
         async fn run(&self) -> Result {
@@ -986,17 +973,14 @@ pub mod commands {
         }
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Close a project",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Close a project
+    #[derive(Debug, Parser)]
     pub struct Close {
         /// The path of the project folder
-        #[structopt(default_value = ".")]
+        #[clap(default_value = ".")]
         pub folder: PathBuf,
     }
+
     #[async_trait]
     impl Run for Close {
         async fn run(&self) -> Result {
@@ -1005,16 +989,13 @@ pub mod commands {
         }
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Show a project details",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Show a project details
+    #[derive(Debug, Parser)]
     pub struct Show {
         /// The path of the project folder (defaults to the current project)
         pub folder: Option<PathBuf>,
     }
+
     #[async_trait]
     impl Run for Show {
         async fn run(&self) -> Result {
@@ -1032,35 +1013,28 @@ pub mod commands {
     /// ```sh
     /// stencila documents graph mydoc.md | dot -Tpng | display
     /// ```
-    ///
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
+    #[clap(verbatim_doc_comment)]
     pub struct Graph {
         /// The path of the project folder (defaults to the current project)
         folder: Option<PathBuf>,
 
         /// The format to output the graph as
-        #[structopt(long, short, default_value = "dot", possible_values = &graph::FORMATS)]
-        r#as: String,
+        #[clap(long, short, default_value = "dot", possible_values = &graph::FORMATS)]
+        to: String,
     }
 
     #[async_trait]
     impl Run for Graph {
         async fn run(&self) -> Result {
             let project = &mut PROJECTS.open(self.folder.clone(), false).await?;
-            let content = project.graph.to_format(&self.r#as)?;
-            result::content(&self.r#as, &content)
+            let content = project.graph.to_format(&self.to)?;
+            result::content(&self.to, &content)
         }
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Get JSON schemas for projects and associated types",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Get JSON schemas for projects and associated types
+    #[derive(Debug, Parser)]
     pub struct Schemas {}
 
     impl Schemas {

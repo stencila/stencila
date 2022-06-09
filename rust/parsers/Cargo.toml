@@ -5,7 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [features]
-cli = ["cli-utils", "structopt"]
+cli = ["cli-utils"]
 
 [dependencies]
 common = { path = "../common" }
@@ -13,7 +13,6 @@ parser = { path = "../parser" }
 formats = { path = "../formats" }
 
 cli-utils = { path = "../cli-utils" , optional = true}
-structopt = { version = "0.3.25" , optional = true}
 
 parser-bash = { path = "../parser-bash" , optional = true}
 parser-calc = { path = "../parser-calc" , optional = true}

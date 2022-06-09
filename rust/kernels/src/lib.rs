@@ -1638,27 +1638,23 @@ fn format_duration(seconds: Option<f64>) -> String {
 
 #[cfg(feature = "cli")]
 pub mod commands {
-    use super::*;
-    use cli_utils::{result, Result, Run};
+    use cli_utils::{
+        clap::{self, Parser},
+        result, Result, Run,
+    };
     use common::once_cell::sync::Lazy;
-    use structopt::StructOpt;
     use tokio::sync::Mutex;
 
+    use super::*;
+
     /// Manage and use execution kernels
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp,
-        setting = structopt::clap::AppSettings::VersionlessSubcommands
-    )]
+    #[derive(Debug, Parser)]
     pub struct Command {
-        #[structopt(subcommand)]
+        #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
+    #[derive(Debug, Parser)]
     pub enum Action {
         Available(Available),
         Languages(Languages),
@@ -1717,11 +1713,8 @@ pub mod commands {
     /// The list of available kernels includes those that are built into the Stencila
     /// binary (e.g. `calc`), Jupyter kernels installed on the machine, and Microkernels
     /// for which a supporting runtime (e.g. `python`) is installed.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        alias = "avail",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
+    #[clap(alias = "avail")]
     pub struct Available {}
     #[async_trait]
     impl Run for Available {
@@ -1733,11 +1726,8 @@ pub mod commands {
     /// List the languages supported by the kernels available on this machine
     ///
     /// Returns a unique list of languages across all kernels available.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        alias = "langs",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
+    #[clap(alias = "langs")]
     pub struct Languages {}
     #[async_trait]
     impl Run for Languages {
@@ -1751,10 +1741,7 @@ pub mod commands {
     /// This command scans the Jupyter `runtime` directory to get a list of running
     /// Jupyter notebook servers. It then gets a list of kernels from the REST API
     /// of each of those servers.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct External {}
     #[async_trait]
     impl Run for External {
@@ -1765,11 +1752,8 @@ pub mod commands {
 
     /// List the directories on this machine that will be searched for Jupyter kernel specs
     /// and running kernels
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        alias = "dirs",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
+    #[clap(alias = "dirs")]
     pub struct Directories {}
     #[async_trait]
     impl Run for Directories {
@@ -1804,31 +1788,28 @@ pub mod commands {
     ///
     /// If a kernel is not yet running for the language then one will be started
     /// (if installed on the machine).
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        alias = "exec",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
+    #[clap(alias = "exec")]
     pub struct Execute {
         /// Code to execute within the kernel space
-        // Using a `Vec` and the `multiple` option allows for spaces in the code
-        #[structopt(multiple = true)]
+        // Using a `Vec` and the `multiple_values` option allows for spaces in the code
+        #[clap(multiple_values = true)]
         code: Vec<String>,
 
         /// The programming language of the code
-        #[structopt(short, long)]
+        #[clap(short, long)]
         lang: Option<String>,
 
         /// The kernel where the code should executed (a kernel selector string)
-        #[structopt(short, long)]
+        #[clap(short, long)]
         kernel: Option<String>,
 
         /// The task should run be in the background
-        #[structopt(short, long, alias = "back")]
+        #[clap(short, long, alias = "back")]
         background: bool,
 
         /// The task should run be in a kernel fork (if possible)
-        #[structopt(long)]
+        #[clap(long)]
         fork: bool,
     }
     impl Execute {
@@ -1846,14 +1827,14 @@ pub mod commands {
     }
 
     /// List the code execution tasks in a document kernel space
-    #[derive(Debug, StructOpt)]
+    #[derive(Debug, Parser)]
     pub struct Tasks {
         /// The maximum number of tasks to show
-        #[structopt(short, long, default_value = "100")]
+        #[clap(short, long, default_value = "100")]
         num: usize,
 
         /// The order to sort tasks (defaults to by task number)
-        #[structopt(
+        #[clap(
             short, long,
             possible_values = KernelTaskSorting::VARIANTS,
             default_value = "number"
@@ -1861,11 +1842,11 @@ pub mod commands {
         sort: KernelTaskSorting,
 
         /// Whether to sort in descending order
-        #[structopt(short, long)]
+        #[clap(short, long)]
         desc: bool,
 
         /// Only show tasks assigned to a specific kernel
-        #[structopt(short, long)]
+        #[clap(short, long)]
         kernel: Option<KernelId>,
     }
     impl Tasks {
@@ -1885,10 +1866,10 @@ pub mod commands {
     }
 
     /// Show the code execution queues in a document kernel space
-    #[derive(Debug, StructOpt)]
+    #[derive(Debug, Parser)]
     pub struct Queues {
         /// Only show the queue for a specific kernel
-        #[structopt(short, long)]
+        #[clap(short, long)]
         kernel: Option<KernelId>,
     }
     impl Queues {
@@ -1903,7 +1884,7 @@ pub mod commands {
     }
 
     /// Show the code symbols in a document kernel space
-    #[derive(Debug, StructOpt)]
+    #[derive(Debug, Parser)]
     pub struct Symbols {}
     impl Symbols {
         pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
@@ -1916,7 +1897,7 @@ pub mod commands {
     ///
     /// Use an integer to cancel a task by it's number.
     /// Use "all" to cancel all unfinished tasks.
-    #[derive(Debug, StructOpt)]
+    #[derive(Debug, Parser)]
     pub struct Cancel {
         /// The task number or id, or "all"
         task: String,
@@ -1948,11 +1929,8 @@ pub mod commands {
     /// To get a list of externally started Jupyter kernels that can be connected to run,
     ///
     /// > kernels external
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        alias = "kernels",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
+    #[clap(alias = "kernels")]
     pub struct Running {}
     impl Running {
         pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
@@ -1965,10 +1943,7 @@ pub mod commands {
     ///
     /// Mainly intended for testing that kernels that rely on external files or processes
     /// (i.e. a Jupyter kernel or a Microkernel) can be started successfully.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Start {
         /// The name or programming language of the kernel
         selector: String,
@@ -1992,10 +1967,7 @@ pub mod commands {
     /// Only kernels that were started by Stencila can be stopped. A kernel
     /// that were started externally by a Jupyter server and then connected to
     /// will still run but Stencila will clone any connections to it.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Stop {
         /// The id of the kernel
         id: String,
@@ -2009,7 +1981,7 @@ pub mod commands {
     }
 
     /// Restart one or all of the kernels
-    #[derive(Debug, StructOpt)]
+    #[derive(Debug, Parser)]
     pub struct Restart {
         /// The id of the kernel (defaults to all)
         id: Option<String>,
@@ -2042,10 +2014,7 @@ pub mod commands {
     /// whose (already started) kernel you wish to connect to e.g.,
     ///
     /// > kernels connect ../main.ipynb
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Connect {
         /// The id of the kernel e.g. `31248fc2-38d0-4d11-80a1-f8a1bd3842fb`
         /// or the relative path of the notebook
@@ -2063,10 +2032,7 @@ pub mod commands {
     /// Show the details of a current kernel
     ///
     /// Mainly intended for interactive mode testing / inspection.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Show {
         /// The id of the kernel (see `kernels status`)
         id: KernelId,

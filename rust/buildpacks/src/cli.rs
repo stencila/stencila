@@ -1,8 +1,7 @@
 use std::{env::current_dir, path::PathBuf, process};
 
-use structopt::StructOpt;
-
 use cli_utils::{
+    clap::{self, Parser},
     common::{async_trait::async_trait, tracing},
     result, stdout_isatty, Result, Run,
 };
@@ -14,14 +13,15 @@ use crate::buildpacks::{Buildpacks, PACKS};
 /// In Stencila, a "buildpack" is a Cloud Native Buildpack (https://buildpacks.io)
 /// that is responsible for adding support for a programming language or other type of application
 /// to a container image.
-#[derive(Debug, StructOpt)]
-#[structopt(
-    alias = "buildpack",
-    setting = structopt::clap::AppSettings::ColoredHelp,
-    setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-    setting = structopt::clap::AppSettings::VersionlessSubcommands
-)]
-pub enum Command {
+#[derive(Debug, Parser)]
+#[clap(alias = "buildpack")]
+pub struct Command {
+    #[clap(subcommand)]
+    pub action: Action,
+}
+
+#[derive(Debug, Parser)]
+pub enum Action {
     List(List),
     Show(Show),
     Detect(Detect),
@@ -34,14 +34,14 @@ pub enum Command {
 #[async_trait]
 impl Run for Command {
     async fn run(&self) -> Result {
-        match self {
-            Command::List(cmd) => cmd.run().await,
-            Command::Show(cmd) => cmd.run().await,
-            Command::Detect(cmd) => cmd.run().await,
-            Command::Plan(cmd) => cmd.run().await,
-            Command::Build(cmd) => cmd.run().await,
-            Command::Pack(cmd) => cmd.run().await,
-            Command::Clean(cmd) => cmd.run().await,
+        match &self.action {
+            Action::List(action) => action.run().await,
+            Action::Show(action) => action.run().await,
+            Action::Detect(action) => action.run().await,
+            Action::Plan(action) => action.run().await,
+            Action::Build(action) => action.run().await,
+            Action::Pack(action) => action.run().await,
+            Action::Clean(action) => action.run().await,
         }
     }
 }
@@ -50,10 +50,7 @@ impl Run for Command {
 ///
 /// The list of available buildpacks includes those that are built into the Stencila
 /// binary (e.g. `python`) as well as any buildpacks provided by plugins.
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::ColoredHelp
-)]
+#[derive(Debug, Parser)]
 pub struct List {}
 
 #[async_trait]
@@ -66,10 +63,7 @@ impl Run for List {
 }
 
 /// Show the specifications of a buildpack
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::ColoredHelp
-)]
+#[derive(Debug, Parser)]
 pub struct Show {
     /// The label of the buildpack
     ///
@@ -97,10 +91,7 @@ impl Run for Show {
 ///
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#detection
 /// further details.
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::ColoredHelp
-)]
+#[derive(Debug, Parser)]
 pub struct Detect {
     /// The working directory (defaults to the current directory)
     working: Option<PathBuf>,
@@ -122,7 +113,7 @@ pub struct Detect {
     plan: Option<PathBuf>,
 
     /// Simulate detection on a CNB platform such as Pack
-    #[structopt(long)]
+    #[clap(long)]
     cnb: bool,
 }
 
@@ -188,20 +179,17 @@ impl Run for Detect {
 }
 
 /// Show the build plan for a working directory
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::ColoredHelp
-)]
+#[derive(Debug, Parser)]
 pub struct Plan {
     /// The working directory (defaults to the current directory)
     path: Option<PathBuf>,
 
     /// Show all buildpacks, including those that failed to match against the working directory
-    #[structopt(short, long)]
+    #[clap(short, long)]
     all: bool,
 
     /// Simulate plan on a CNB platform such as Pack
-    #[structopt(long)]
+    #[clap(long)]
     cnb: bool,
 }
 
@@ -232,10 +220,7 @@ impl Run for Plan {
 ///
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#build for
 /// further details.
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::ColoredHelp
-)]
+#[derive(Debug, Parser)]
 pub struct Build {
     /// The working directory (defaults to the current directory)
     working: Option<PathBuf>,
@@ -273,7 +258,7 @@ pub struct Build {
     ///
     /// Equivalent to using `/tmp/cnb` as `platform` directory (so won't work on
     /// platforms without `/tmp`).
-    #[structopt(long)]
+    #[clap(long)]
     cnb: bool,
 }
 
@@ -355,10 +340,7 @@ impl Run for Build {
 /// Of course, you can use either `docker` or `pack` directly. This command just provides
 /// a convenient means of testing Stencila's image building logic locally an is mainly
 /// intended for developers.
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::ColoredHelp
-)]
+#[derive(Debug, Parser)]
 pub struct Pack {
     /// The working directory (defaults to the current directory)
     path: Option<PathBuf>,
@@ -375,10 +357,7 @@ impl Run for Pack {
 /// Remove buildpack related directories from the `.stencila` folder or a working directory
 ///
 /// At present the buildpack related directories are `.stencila/build` and `.stencila/layers`.
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::ColoredHelp
-)]
+#[derive(Debug, Parser)]
 pub struct Clean {
     /// The working directory (defaults to the current directory)
     working: Option<PathBuf>,
@@ -386,7 +365,7 @@ pub struct Clean {
     /// The label of the Stencila buildpack to clean
     ///
     /// If not supplied, or "all", will perform clean for all buildpacks
-    #[structopt(short, long)]
+    #[clap(short, long)]
     buildpack: Option<String>,
 }
 

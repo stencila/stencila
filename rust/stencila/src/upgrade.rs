@@ -179,34 +179,31 @@ pub mod config {
 
 #[cfg(feature = "cli")]
 pub mod commands {
-    use structopt::StructOpt;
-
-    use cli_utils::{result, Result, Run};
+    use cli_utils::{
+        clap::{self, Parser},
+        result, Result, Run,
+    };
     use common::async_trait::async_trait;
 
     use super::*;
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Upgrade to the latest (or other) version",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    /// Upgrade to the latest (or other) version
+    #[derive(Debug, Parser)]
     pub struct Command {
         /// Version to upgrade (or downgrade) to (defaults to the latest)
-        #[structopt(short, long)]
+        #[clap(short, long)]
         pub to: Option<String>,
 
         /// Plugins should also be upgraded to their latest version
-        #[structopt(short, long)]
+        #[clap(short, long)]
         pub plugins: bool,
 
         /// The user should be asked to confirm an upgrade
-        #[structopt(short, long)]
+        #[clap(short, long)]
         pub confirm: bool,
 
         /// Print information on the upgrade process
-        #[structopt(short, long)]
+        #[clap(short, long)]
         pub verbose: bool,
     }
 

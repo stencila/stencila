@@ -1898,27 +1898,27 @@ pub mod commands {
     use crate::config::CONFIG;
     use async_trait::async_trait;
     use cli_utils::{result, Result, Run};
-    use structopt::StructOpt;
+    use clap::Parser;
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
+    #[derive(Debug, Parser)]
+    #[clap(
         about = "Manage plugins",
-        setting = structopt::clap::AppSettings::ColoredHelp,
-        setting = structopt::clap::AppSettings::VersionlessSubcommands
+        
+        setting = AppSettings::VersionlessSubcommands
     )]
     pub struct Command {
-        #[structopt(subcommand)]
+        #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
+    #[derive(Debug, Parser)]
+    #[clap(
+        setting = AppSettings::DeriveDisplayOrder
     )]
     pub enum Action {
-        #[structopt(
+        #[clap(
             about = "List installed plugins",
-            setting = structopt::clap::AppSettings::ColoredHelp
+            
         )]
         List,
 
@@ -1930,15 +1930,15 @@ pub mod commands {
         Unlink(Unlink),
         Refresh(Refresh),
 
-        #[structopt(
+        #[clap(
             about = "List registered plugin aliases",
-            setting = structopt::clap::AppSettings::ColoredHelp
+            
         )]
         Aliases,
 
-        #[structopt(
+        #[clap(
             about = "List current plugin instances",
-            setting = structopt::clap::AppSettings::ColoredHelp
+            
         )]
         Instances,
 
@@ -1946,131 +1946,131 @@ pub mod commands {
 
         Delegate(Delegate),
 
-        #[structopt(
+        #[clap(
             about = "Get the JSON Schema for plugins",
-            setting = structopt::clap::AppSettings::ColoredHelp
+            
         )]
         Schema,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
+    #[derive(Debug, Parser)]
+    #[clap(
         about = "Show the details of an installed plugin",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
+        setting = AppSettings::DeriveDisplayOrder,
+        
     )]
     pub struct Show {
         /// The name of the plugin to show
-        #[structopt()]
+        #[clap()]
         pub plugin: String,
     }
 
-    #[derive(Debug, Default, StructOpt)]
-    #[structopt(
+    #[derive(Debug, Default, Parser)]
+    #[clap(
         about = "Install one or more plugins",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
+        setting = AppSettings::DeriveDisplayOrder,
+        
     )]
     pub struct Install {
         /// Install plugins as Docker images
-        #[structopt(short, long)]
+        #[clap(short, long)]
         pub docker: bool,
 
         /// Install plugins as binaries
-        #[structopt(short, long)]
+        #[clap(short, long)]
         pub binary: bool,
 
         /// Install plugins as Javascript packages
-        #[structopt(short, long)]
+        #[clap(short, long)]
         pub javascript: bool,
 
         /// Install plugins as Python packages
-        #[structopt(short, long)]
+        #[clap(short, long)]
         pub python: bool,
 
         /// Install plugins as R packages
-        #[structopt(short, long)]
+        #[clap(short, long)]
         pub r: bool,
 
         /// Install plugins as soft links
-        #[structopt(short, long)]
+        #[clap(short, long)]
         pub link: bool,
 
         /// The names or aliases of plugins to add
-        #[structopt(required = true, multiple = true)]
+        #[clap(required = true, multiple = true)]
         pub plugins: Vec<String>,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
+    #[derive(Debug, Parser)]
+    #[clap(
         about = "Link to a local plugins",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
+        setting = AppSettings::DeriveDisplayOrder,
+        
     )]
     pub struct Link {
         /// The path of a plugin directory
-        #[structopt()]
+        #[clap()]
         pub path: String,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
+    #[derive(Debug, Parser)]
+    #[clap(
         about = "Upgrade one of more plugins",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
+        setting = AppSettings::DeriveDisplayOrder,
+        
     )]
     pub struct Upgrade {
         /// The names or aliases of plugins to upgrade
         /// (omit to upgrade all plugins)
-        #[structopt(multiple = true)]
+        #[clap(multiple = true)]
         pub plugins: Vec<String>,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
+    #[derive(Debug, Parser)]
+    #[clap(
         about = "Uninstall one or more plugins",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
+        setting = AppSettings::DeriveDisplayOrder,
+        
     )]
     pub struct Uninstall {
         /// The names or aliases of plugins to uninstall
-        #[structopt(required = true, multiple = true)]
+        #[clap(required = true, multiple = true)]
         pub plugins: Vec<String>,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
+    #[derive(Debug, Parser)]
+    #[clap(
         about = "Unlink a local plugins",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
+        setting = AppSettings::DeriveDisplayOrder,
+        
     )]
     pub struct Unlink {
         /// The name of the plugin to unlink
-        #[structopt()]
+        #[clap()]
         pub plugin: String,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
+    #[derive(Debug, Parser)]
+    #[clap(
         about = "Refresh details of one or more plugins",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
+        setting = AppSettings::DeriveDisplayOrder,
+        
     )]
     pub struct Refresh {
         /// The names or aliases of plugins to refresh (leave blank for all)
-        #[structopt(required = false, multiple = true)]
+        #[clap(required = false, multiple = true)]
         pub plugins: Vec<String>,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
+    #[derive(Debug, Parser)]
+    #[clap(
         about = "List methods and the plugins that implement them",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
+        setting = AppSettings::DeriveDisplayOrder,
+        
     )]
     pub struct Methods {
         /// The name of the method to display
-        #[structopt()]
+        #[clap()]
         pub method: Option<String>,
     }
     impl Methods {
@@ -2085,22 +2085,22 @@ pub mod commands {
         }
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
+    #[derive(Debug, Parser)]
+    #[clap(
         about = "Delegate a method call to any, or a particular, plugin",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
+        setting = AppSettings::DeriveDisplayOrder,
+        
     )]
     pub struct Delegate {
         /// The method to call
-        #[structopt(possible_values = Method::VARIANTS, case_insensitive = true)]
+        #[clap(possible_values = Method::VARIANTS, case_insensitive = true)]
         method: Method,
 
         /// The plugin to delegate to
         plugin: Option<String>,
 
         /// Method parameters (after `--`) as strings (e.g. `format=json`) or JSON (e.g. `node:='{"type":...}'`)
-        #[structopt(raw(true))]
+        #[clap(raw(true))]
         params: Vec<String>,
     }
     impl Delegate {

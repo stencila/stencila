@@ -187,23 +187,25 @@ pub async fn require_any(binaries: &[(&str, &str)]) -> Result<BinaryInstallation
 
 #[cfg(feature = "cli")]
 pub mod commands {
-    use std::fs::File;
-    use std::io::Write;
-    use std::path::PathBuf;
+    use std::{fs::File, io::Write, path::PathBuf};
+
+    use cli_utils::{
+        clap::{self, Parser},
+        common::async_trait::async_trait,
+        result, Result, Run,
+    };
 
     use super::*;
-    use cli_utils::structopt::StructOpt;
-    use cli_utils::{common::async_trait::async_trait, result, Result, Run};
 
     /// Manage and use helper binaries
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp,
-        setting = structopt::clap::AppSettings::VersionlessSubcommands
-    )]
-    pub enum Command {
-        #[structopt(alias = "installable")]
+    #[derive(Debug, Parser)]
+    pub struct Command {
+        #[clap(subcommand)]
+        pub action: Action,
+    }
+
+    #[derive(Debug, Parser)]
+    pub enum Action {
         List(List),
         Show(Show),
         Versions(Versions),
@@ -215,13 +217,13 @@ pub mod commands {
     #[async_trait]
     impl Run for Command {
         async fn run(&self) -> Result {
-            match self {
-                Command::List(cmd) => cmd.run().await,
-                Command::Show(cmd) => cmd.run().await,
-                Command::Versions(cmd) => cmd.run().await,
-                Command::Install(cmd) => cmd.run().await,
-                Command::Uninstall(cmd) => cmd.run().await,
-                Command::Run(cmd) => cmd.run().await,
+            match &self.action {
+                Action::List(action) => action.run().await,
+                Action::Show(action) => action.run().await,
+                Action::Versions(action) => action.run().await,
+                Action::Install(action) => action.run().await,
+                Action::Uninstall(action) => action.run().await,
+                Action::Run(action) => action.run().await,
             }
         }
     }
@@ -229,11 +231,8 @@ pub mod commands {
     /// List binaries that can be installed using Stencila
     ///
     /// The returned list is a list of the binaries/versions that Stencila knows how to install.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
+    #[clap(alias = "installable")]
     pub struct List {}
 
     #[async_trait]
@@ -261,12 +260,8 @@ pub mod commands {
     ///
     /// This command should find any binary that is on your PATH
     /// (i.e. including those not in the `stencila binaries installable` list).
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        alias = "which",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
+    #[clap(alias = "which")]
     pub struct Show {
         /// The name of the binary e.g. pandoc
         pub name: String,
@@ -302,24 +297,20 @@ pub mod commands {
     }
 
     /// List the versions that can be installed for a binary
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Versions {
         /// The name of the binary e.g. pandoc
         pub name: String,
 
         /// The operating system to list versions for (defaults to the current)
-        #[structopt(short, long, possible_values = &OS_VALUES )]
+        #[clap(short, long, possible_values = &OS_VALUES )]
         pub os: Option<String>,
 
         /// The Rust file to write the the versions to
         ///
         /// This option is usually only used by developers of Stencila to update the
         /// static list of versions for a binary.
-        #[structopt(long)]
+        #[clap(long)]
         pub write: Option<PathBuf>,
     }
 
@@ -365,11 +356,7 @@ pub const VERSIONS: &[&str] = &[
     }
 
     /// Install a binary
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Install {
         /// The name of the binary (must be a registered binary name)
         pub name: String,
@@ -379,15 +366,15 @@ pub const VERSIONS: &[&str] = &[
         pub semver: Option<String>,
 
         /// The directory to install in (defaults to the Stencila `binaries` folder)
-        #[structopt(short, long, alias = "into")]
+        #[clap(short, long, alias = "into")]
         pub dest: Option<PathBuf>,
 
         /// The operating system to install for (defaults to the current)
-        #[structopt(short, long, possible_values = &OS_VALUES )]
+        #[clap(short, long, possible_values = &OS_VALUES )]
         pub os: Option<String>,
 
         /// The architecture to install for (defaults to the current)
-        #[structopt(short, long, possible_values = &ARCH_VALUES)]
+        #[clap(short, long, possible_values = &ARCH_VALUES)]
         pub arch: Option<String>,
     }
 
@@ -424,11 +411,7 @@ pub const VERSIONS: &[&str] = &[
     /// Removes the binary (optionally, just a specific version) from the Stencila
     /// "binaries" folder. No other installations of the binary on the system will
     /// will be removed.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Uninstall {
         /// The name of the binary (must be a registered binary name)
         pub name: String,
@@ -452,11 +435,7 @@ pub const VERSIONS: &[&str] = &[
     /// Run a command using a binary
     ///
     /// Pass arguments and options to the binary after the `--` flag.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Run_ {
         /// The name of the binary e.g. node
         pub name: String,
@@ -465,7 +444,7 @@ pub const VERSIONS: &[&str] = &[
         pub semver: Option<String>,
 
         /// The arguments and options to pass to the binary
-        #[structopt(raw(true))]
+        #[clap(raw(true))]
         pub args: Vec<String>,
     }
 

@@ -20,7 +20,7 @@ pub use outputs::*;
 // Note: this structopt can not actually be used for macros yet.
 // See https://github.com/TeXitoi/structopt/issues/339
 pub use ansi_term;
+pub use clap;
 pub use color_eyre;
 pub use common;
-pub use structopt;
 pub use tracing_subscriber;

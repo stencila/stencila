@@ -1,16 +1,12 @@
-use structopt::StructOpt;
-
-use cli_utils::{result, Result, Run};
+use cli_utils::{
+    clap::{self, Parser},
+    result, Result, Run,
+};
 use common::async_trait::async_trait;
 
 use crate::server::Server;
 
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-    setting = structopt::clap::AppSettings::ColoredHelp,
-    setting = structopt::clap::AppSettings::VersionlessSubcommands
-)]
+#[derive(Debug, Parser)]
 pub enum Command {
     Start(Start),
 }
@@ -24,11 +20,7 @@ impl Run for Command {
     }
 }
 
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-    setting = structopt::clap::AppSettings::ColoredHelp
-)]
+#[derive(Debug, Parser)]
 pub struct Start {}
 
 #[async_trait]

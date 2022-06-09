@@ -6,7 +6,7 @@ edition = "2021"
 
 [features]
 default = ["codec-json"]
-cli = ["cli-utils", "structopt"]
+cli = ["cli-utils"]
 
 [dependencies]
 codec = { path = "../codec" }
@@ -14,7 +14,6 @@ codec-format = { path = "../codec-format" }
 formats = { path = "../formats" }
 
 cli-utils = { path = "../cli-utils", features = ["pretty"], optional = true}
-structopt = { version = "0.3.25", optional = true}
 
 codec-date = { path = "../codec-date", optional = true }
 codec-docx = { path = "../codec-docx", optional = true }

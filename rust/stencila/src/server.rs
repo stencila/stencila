@@ -1971,28 +1971,22 @@ pub mod config {
 pub mod commands {
     use std::path::PathBuf;
 
-    use structopt::StructOpt;
-
-    use cli_utils::{result, Result, Run};
+    use cli_utils::{
+        clap::{self, Parser},
+        result, Result, Run,
+    };
     use common::async_trait::async_trait;
 
     use super::*;
 
     /// Manage document server
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp,
-        setting = structopt::clap::AppSettings::VersionlessSubcommands
-    )]
+    #[derive(Debug, Parser)]
     pub struct Command {
-        #[structopt(subcommand)]
+        #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
+    #[derive(Debug, Parser)]
     pub enum Action {
         Start(Start),
         Stop(Stop),
@@ -2043,11 +2037,7 @@ pub mod commands {
     /// Use the `--root` option, with extreme caution, to allow to be run as root.
     ///
     /// Most of these options can be set in the Stencila configuration file. See `stencila config get serve`
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Start {
         /// The home directory for the server to serve from
         ///
@@ -2059,46 +2049,47 @@ pub mod commands {
         ///
         /// Defaults to the `STENCILA_SERVER_URL` environment variable, the value set in config
         /// or otherwise `http://127.0.0.1:9000`.
-        #[structopt(short, long, env = "STENCILA_SERVER_URL")]
+        #[clap(short, long, env = "STENCILA_SERVER_URL")]
         url: Option<String>,
 
         /// Secret key to use for signing and verifying JSON Web Tokens
         ///
         /// Defaults to the `STENCILA_SERVER_KEY` environment variable, the value set in config
         /// or otherwise a randomly generated value.
-        #[structopt(short, long, env = "STENCILA_SERVER_KEY")]
+        #[clap(short, long, env = "STENCILA_SERVER_KEY")]
         key: Option<String>,
 
         /// Do not require a JSON Web Token to access the server
         ///
         /// For security reasons (any client can access files and execute code) this should be avoided.
-        #[structopt(long)]
+        #[clap(long)]
         insecure: bool,
 
         /// Allow traversal out of the server's home directory
         ///
         /// For security reasons (clients can access any file on the filesystem) this should be avoided.
-        #[structopt(long)]
+        #[clap(long)]
         traversal: bool,
 
         /// Allow root (Linux/Mac OS/Unix) or administrator (Windows) user to serve
         ///
         /// For security reasons (clients may be able to execute code as root) this should be avoided.
-        #[structopt(long)]
+        #[clap(long)]
         root: bool,
 
         /// The maximum number of seconds of inactivity before the server shutsdown
-        #[structopt(long)]
+        #[clap(long)]
         max_inactivity: Option<u64>,
 
         /// The maximum number of seconds that the server should run for
-        #[structopt(long)]
+        #[clap(long)]
         max_duration: Option<u64>,
 
         /// Log each request
-        #[structopt(long)]
+        #[clap(long)]
         log_requests: bool,
     }
+
     #[async_trait]
     impl Run for Start {
         async fn run(&self) -> Result {
@@ -2129,12 +2120,9 @@ pub mod commands {
     }
 
     /// Stop the server
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Stop {}
+
     #[async_trait]
     impl Run for Stop {
         async fn run(&self) -> Result {
@@ -2145,12 +2133,9 @@ pub mod commands {
     }
 
     /// Show details of the server
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Show {}
+
     #[async_trait]
     impl Run for Show {
         async fn run(&self) -> Result {
@@ -2168,12 +2153,9 @@ pub mod commands {
     }
 
     /// List the clients connected to the server
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Clients {}
+
     #[async_trait]
     impl Run for Clients {
         async fn run(&self) -> Result {

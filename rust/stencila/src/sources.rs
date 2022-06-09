@@ -6,9 +6,10 @@ use sources::Source;
 
 #[cfg(feature = "cli")]
 pub mod commands {
-    use structopt::StructOpt;
-
-    use cli_utils::{result, Result, Run};
+    use cli_utils::{
+        clap::{self, Parser},
+        result, Result, Run,
+    };
     use common::{async_trait::async_trait, strum::VariantNames, tempfile};
 
     use crate::projects::PROJECTS;
@@ -16,13 +17,14 @@ pub mod commands {
     use super::*;
 
     /// Manage and use project sources
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp,
-        setting = structopt::clap::AppSettings::VersionlessSubcommands
-    )]
-    pub enum Command {
+    #[derive(Debug, Parser)]
+    pub struct Command {
+        #[clap(subcommand)]
+        pub action: Action,
+    }
+
+    #[derive(Debug, Parser)]
+    pub enum Action {
         List(List),
         Show(Show),
         Add(Add),
@@ -36,25 +38,21 @@ pub mod commands {
     #[async_trait]
     impl Run for Command {
         async fn run(&self) -> Result {
-            match self {
-                Command::List(cmd) => cmd.run().await,
-                Command::Show(cmd) => cmd.run().await,
-                Command::Add(cmd) => cmd.run().await,
-                Command::Remove(cmd) => cmd.run().await,
-                Command::Import(cmd) => cmd.run().await,
-                Command::Start(cmd) => cmd.run().await,
-                Command::Stop(cmd) => cmd.run().await,
-                Command::Run(cmd) => cmd.run().await,
+            match &self.action {
+                Action::List(action) => action.run().await,
+                Action::Show(action) => action.run().await,
+                Action::Add(action) => action.run().await,
+                Action::Remove(action) => action.run().await,
+                Action::Import(action) => action.run().await,
+                Action::Start(action) => action.run().await,
+                Action::Stop(action) => action.run().await,
+                Action::Run(action) => action.run().await,
             }
         }
     }
 
     /// List the sources for a project
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct List {
         /// The project to list sources for (defaults to the current project)
         project: Option<PathBuf>,
@@ -71,11 +69,7 @@ pub mod commands {
     }
 
     /// Show a source for a project
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Show {
         /// An identifier for the source
         source: String,
@@ -97,11 +91,7 @@ pub mod commands {
     /// Add a source to a project
     ///
     /// Does not import the source use the `import` command for that.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Add {
         /// The URL (or "short URL" e.g github:owner/repo@v1.1) of the source to be added
         url: String,
@@ -113,15 +103,15 @@ pub mod commands {
         project: Option<PathBuf>,
 
         /// The name to give the source
-        #[structopt(long, short)]
+        #[clap(long, short)]
         name: Option<String>,
 
         /// A cron schedule for the source
-        #[structopt(long, short)]
+        #[clap(long, short)]
         cron: Option<String>,
 
         /// A watch mode for the source
-        #[structopt(long, short, possible_values = WatchMode::VARIANTS)]
+        #[clap(long, short, possible_values = WatchMode::VARIANTS)]
         watch: Option<WatchMode>,
 
         /// Do a dry run of adding the source
@@ -129,7 +119,7 @@ pub mod commands {
         /// Parses the input URL and other arguments into a source but does not add it, or the
         /// files that it imports, to the project. Useful for checking URL and cron formats
         /// and previewing the files that will be imported.
-        #[structopt(long)]
+        #[clap(long)]
         dry_run: bool,
     }
 
@@ -172,11 +162,7 @@ pub mod commands {
     /// Remove a source from a project
     ///
     /// Note that this will remove all files imported from this source.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Remove {
         /// An identifier for the source
         source: String,
@@ -201,11 +187,7 @@ pub mod commands {
     }
 
     /// Import one or all of a project's sources
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Import {
         /// The project to import the source into (defaults to the current project)
         project: Option<PathBuf>,
@@ -213,7 +195,7 @@ pub mod commands {
         /// An identifier for the source to import
         ///
         /// Only the first source matching this identifier will be imported.
-        #[structopt(long, short)]
+        #[clap(long, short)]
         source: Option<String>,
     }
 
@@ -238,11 +220,7 @@ pub mod commands {
     ///
     /// This command is only useful in interactive mode because otherwise the
     /// process will exit straight away.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Start {
         /// The project to start tasks for (defaults to the current project)
         project: Option<PathBuf>,
@@ -266,11 +244,7 @@ pub mod commands {
     ///
     /// This command is only useful in interactive mode. Use it to stop source tasks
     /// previously started using the `start` command.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Stop {
         /// The project to start tasks for (defaults to the current project)
         project: Option<PathBuf>,
@@ -290,11 +264,7 @@ pub mod commands {
     }
 
     /// Run cron and watch tasks for a project's sources
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
+    #[derive(Debug, Parser)]
     pub struct Run_ {
         /// The project to run tasks for (defaults to the current project)
         project: Option<PathBuf>,

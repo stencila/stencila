@@ -6,7 +6,7 @@ edition = "2021"
 
 [features]
 
-cli = ["cli-utils", "structopt", "exitcode"]
+cli = ["cli-utils", "exitcode"]
 cli-pretty = ["cli-utils/pretty"]
 cli-progress = ["cli-utils/progress"]
 cli-interact = ["cli-utils/interact"]
@@ -176,7 +176,6 @@ uuids = { path = "../uuids" }
 
 cli-utils = { path = "../cli-utils", optional = true }
 exitcode = { version = "1.1.2", optional = true }
-structopt = { version = "0.3.25", features = ["wrap_help"], optional = true }
 
 # Optional crates related to `server` feature
 

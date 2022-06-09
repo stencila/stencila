@@ -225,18 +225,23 @@ impl Default for Providers {
 pub mod commands {
     use std::path::PathBuf;
 
+    use cli_utils::{
+        clap::{self, Parser},
+        common::async_trait::async_trait,
+        result, Result, Run,
+    };
+
     use super::*;
-    use cli_utils::{common::async_trait::async_trait, result, Result, Run};
-    use structopt::StructOpt;
 
     /// Manage and use source providers
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp,
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::VersionlessSubcommands
-    )]
-    pub enum Command {
+    #[derive(Debug, Parser)]
+    pub struct Command {
+        #[clap(subcommand)]
+        pub action: Action,
+    }
+
+    #[derive(Debug, Parser)]
+    pub enum Action {
         List(List),
         Show(Show),
         Detect(Detect),
@@ -249,14 +254,14 @@ pub mod commands {
     #[async_trait]
     impl Run for Command {
         async fn run(&self) -> Result {
-            match self {
-                Command::List(action) => action.run().await,
-                Command::Show(action) => action.run().await,
-                Command::Detect(action) => action.run().await,
-                Command::Enrich(action) => action.run().await,
-                Command::Import(action) => action.run().await,
-                Command::Export(action) => action.run().await,
-                Command::Cron(action) => action.run().await,
+            match &self.action {
+                Action::List(action) => action.run().await,
+                Action::Show(action) => action.run().await,
+                Action::Detect(action) => action.run().await,
+                Action::Enrich(action) => action.run().await,
+                Action::Import(action) => action.run().await,
+                Action::Export(action) => action.run().await,
+                Action::Cron(action) => action.run().await,
             }
         }
     }
@@ -265,9 +270,9 @@ pub mod commands {
     ///
     /// The list of available providers includes those that are built into the Stencila
     /// binary as well as those provided by plugins.
-    #[derive(Debug, StructOpt)]
-    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    #[derive(Debug, Parser)]
     pub struct List {}
+
     #[async_trait]
     impl Run for List {
         async fn run(&self) -> Result {
@@ -277,14 +282,14 @@ pub mod commands {
     }
 
     /// Show the specifications of a provider
-    #[derive(Debug, StructOpt)]
-    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    #[derive(Debug, Parser)]
     pub struct Show {
         /// The name of the provider
         ///
         /// To get the list of provider names using `stencila providers list`.
         name: String,
     }
+
     #[async_trait]
     impl Run for Show {
         async fn run(&self) -> Result {
@@ -294,8 +299,7 @@ pub mod commands {
     }
 
     /// Detect nodes within a file or string
-    #[derive(Debug, StructOpt)]
-    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    #[derive(Debug, Parser)]
     pub struct Detect {
         /// The path to the file (or the string value if the `--string` flag is used)
         path: PathBuf,
@@ -304,9 +308,10 @@ pub mod commands {
         format: Option<String>,
 
         /// If the argument should be treated as a string, rather than a file path
-        #[structopt(short, long)]
+        #[clap(short, long)]
         string: bool,
     }
+
     #[async_trait]
     impl Run for Detect {
         async fn run(&self) -> Result {
@@ -327,8 +332,7 @@ pub mod commands {
     }
 
     /// Enrich nodes within a file or string
-    #[derive(Debug, StructOpt)]
-    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    #[derive(Debug, Parser)]
     pub struct Enrich {
         /// The path to the file (or the string value if the `--string` flag is used)
         path: PathBuf,
@@ -337,7 +341,7 @@ pub mod commands {
         format: Option<String>,
 
         /// If the argument should be treated as a string, rather than a file path
-        #[structopt(short, long)]
+        #[clap(short, long)]
         string: bool,
 
         /// The token (or name of environment variable) required to access the resource
@@ -345,9 +349,10 @@ pub mod commands {
         /// Only necessary if authentication is required for the resource. Defaults to
         /// using the environment variable corresponding to the provider of the resource
         /// e.g. `GITHUB_TOKEN`.
-        #[structopt(long)]
+        #[clap(long)]
         token: Option<String>,
     }
+
     #[async_trait]
     impl Run for Enrich {
         async fn run(&self) -> Result {
@@ -378,14 +383,13 @@ pub mod commands {
     }
 
     /// Import content from a remote source to a local path
-    #[derive(Debug, StructOpt)]
-    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    #[derive(Debug, Parser)]
     pub struct Import {
         /// The source identifier e.g. `github:org/name@v1.2.0`
         source: String,
 
         /// The local path to import file/s to e.g. `data`
-        #[structopt(default_value = ".")]
+        #[clap(default_value = ".")]
         path: PathBuf,
 
         /// The token (or name of environment variable) required to access the resource
@@ -393,9 +397,10 @@ pub mod commands {
         /// Only necessary if authentication is required for the resource. Defaults to
         /// using the environment variable corresponding to the provider of the resource
         /// e.g. `GITHUB_TOKEN`.
-        #[structopt(long)]
+        #[clap(long)]
         token: Option<String>,
     }
+
     #[async_trait]
     impl Run for Import {
         async fn run(&self) -> Result {
@@ -411,14 +416,13 @@ pub mod commands {
     }
 
     /// Export content from a local path to a remote source
-    #[derive(Debug, StructOpt)]
-    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    #[derive(Debug, Parser)]
     pub struct Export {
         /// The source identifier e.g. `github:org/name@v1.2.0`
         source: String,
 
         /// The local path to export file/s from e.g. `report.md`
-        #[structopt(default_value = ".")]
+        #[clap(default_value = ".")]
         path: PathBuf,
 
         /// The token (or name of environment variable) required to access the resource
@@ -426,9 +430,10 @@ pub mod commands {
         /// Only necessary if authentication is required for the resource. Defaults to
         /// using the environment variable corresponding to the provider of the resource
         /// e.g. `GITHUB_TOKEN`.
-        #[structopt(long)]
+        #[clap(long)]
         token: Option<String>,
     }
+
     #[async_trait]
     impl Run for Export {
         async fn run(&self) -> Result {
@@ -444,11 +449,10 @@ pub mod commands {
     }
 
     /// Schedule import and/or export between remote source and a local path
-    #[derive(Debug, StructOpt)]
-    #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+    #[derive(Debug, Parser)]
     pub struct Cron {
         /// The action to take at the scheduled time
-        #[structopt(possible_values=provider::ACTIONS)]
+        #[clap(possible_values=provider::ACTIONS)]
         action: String,
 
         /// The schedule on which to perform the action
@@ -458,9 +462,10 @@ pub mod commands {
         source: String,
 
         /// The local path to synchronize with the source
-        #[structopt(default_value = ".")]
+        #[clap(default_value = ".")]
         path: PathBuf,
     }
+
     #[async_trait]
     impl Run for Cron {
         async fn run(&self) -> Result {

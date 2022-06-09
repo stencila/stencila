@@ -3,7 +3,7 @@ use codec_docx::DocxCodec;
 use test_props::{article, proptest::prelude::*, Freedom};
 use test_utils::{
     assert_json_eq,
-    common::{once_cell::sync::Lazy, tokio, tempfile},
+    common::{once_cell::sync::Lazy, tempfile, tokio},
 };
 
 static RUNTIME: Lazy<tokio::runtime::Runtime> =
