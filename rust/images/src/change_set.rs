@@ -2,7 +2,6 @@ use std::{
     collections::HashMap,
     ffi::OsString,
     fs, io,
-    os::unix::prelude::MetadataExt,
     path::{Path, PathBuf},
 };
 
@@ -176,9 +175,18 @@ impl ChangeSet {
                                 fs::metadata(&source_path).map(|metadata| (target, metadata))
                             }) {
                                 Ok((target, metadata)) => {
+                                    #[cfg(target_family = "unix")]
+                                    let (uid, gid) = {
+                                        use std::os::unix::prelude::MetadataExt;
+                                        (metadata.uid(), metadata.gid())
+                                    };
+
+                                    #[cfg(not(target_family = "unix"))]
+                                    let (uid, gid) = (1000, 1000);
+
                                     let mut header = tar::Header::new_gnu();
-                                    header.set_uid(metadata.uid().into());
-                                    header.set_gid(metadata.gid().into());
+                                    header.set_uid(uid.into());
+                                    header.set_gid(gid.into());
                                     header.set_entry_type(tar::EntryType::Symlink);
                                     header.set_size(0);
                                     archive.append_link(&mut header, dest_path, target)

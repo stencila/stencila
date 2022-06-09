@@ -3,7 +3,6 @@ use std::{
     fs,
     hash::Hasher,
     io,
-    os::unix::prelude::MetadataExt,
     path::{Path, PathBuf},
 };
 
@@ -76,10 +75,21 @@ impl SnapshotEntry {
         file_type: &std::fs::FileType,
         metadata: Option<std::fs::Metadata>,
     ) -> Self {
-        let metadata = metadata.map(|metadata| SnapshotEntryMetadata {
-            uid: metadata.uid(),
-            gid: metadata.gid(),
-            readonly: metadata.permissions().readonly(),
+        let metadata = metadata.map(|metadata| {
+            #[cfg(target_family = "unix")]
+            let (uid, gid) = {
+                use std::os::unix::prelude::MetadataExt;
+                (metadata.uid(), metadata.gid())
+            };
+
+            #[cfg(not(target_family = "unix"))]
+            let (uid, gid) = (1000, 1000);
+        
+            SnapshotEntryMetadata {
+                uid,
+                gid,
+                readonly: metadata.permissions().readonly(),
+            }
         });
 
         let fingerprint = if file_type.is_file() {
