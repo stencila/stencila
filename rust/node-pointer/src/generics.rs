@@ -1,7 +1,8 @@
-use crate::{Pointable, Pointer, PointerMut, Visitor, VisitorMut};
-use eyre::{bail, Result};
+use common::eyre::{bail, Result};
 use node_address::{invalid_slot_index, invalid_slot_variant, Address, Slot};
 use std::ops::{Deref, DerefMut};
+
+use crate::{Pointable, Pointer, PointerMut, Visitor, VisitorMut};
 
 /// Generate a `impl Pointable` for a `struct`
 macro_rules! pointable_struct {

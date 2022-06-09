@@ -1,10 +1,17 @@
-use crate::to_pandoc;
-use codec::{eyre::Result, stencila_schema::*, CodecTrait, EncodeOptions};
+use std::{collections::HashMap, path::PathBuf};
+
+use pandoc_types::definition as pandoc;
+
+use codec::{
+    common::{eyre::Result, tempfile},
+    stencila_schema::*,
+    CodecTrait, EncodeOptions,
+};
 use codec_json::JsonCodec;
 use node_transform::Transform;
-use pandoc_types::definition as pandoc;
-use path_slash::PathBufExt;
-use std::{collections::HashMap, path::PathBuf};
+use path_utils::path_slash::PathBufExt;
+
+use crate::to_pandoc;
 
 /// Encode a `Node` to a document via Pandoc
 ///

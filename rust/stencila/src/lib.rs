@@ -41,18 +41,3 @@ pub mod telemetry;
 //
 // Usually just small functions that are often wrappers around other crates.
 pub mod utils;
-
-// Re-export packages
-//
-// Mainly for use by stencila-* language packages in this workspace
-
-pub use eyre;
-pub use once_cell;
-pub use regex;
-pub use serde;
-pub use serde_json;
-pub use serde_yaml;
-pub use strum;
-pub use tokio;
-pub use tracing;
-pub use validator;

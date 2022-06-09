@@ -10,10 +10,10 @@ decode = ["codec-md/decode"]
 encode = ["codec-md/encode"]
 
 [dependencies]
-codec = { path = "../codec", version = "0.0.0" }
-codec-md = { path = "../codec-md", version = "0.0.0" }
+codec = { path = "../codec" }
+codec-md = { path = "../codec-md" }
 
 [dev-dependencies]
-test-props = { path = "../test-props", version = "0.0.0" }
-test-snaps = { path = "../test-snaps", version = "0.0.0" }
-test-utils = { path = "../test-utils", version = "0.0.0" }
+test-props = { path = "../test-props" }
+test-snaps = { path = "../test-snaps" }
+test-utils = { path = "../test-utils" }

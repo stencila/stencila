@@ -1,11 +1,9 @@
-use eyre::{bail, eyre, Result};
-use graph_triples::{
-    direction, relations, resources::ResourceDigest, stencila_schema::CodeChunkExecuteAuto,
-    Direction, Pairs, Relation, Resource, ResourceInfo, Triple,
+use std::{
+    cmp::Ordering,
+    collections::{BTreeMap, HashMap, HashSet},
+    path::{Path, PathBuf},
 };
-use hash_utils::{sha2, sha2::Digest};
-use kernels::{Kernel, KernelSelector};
-use path_slash::PathExt;
+
 use petgraph::{
     graph::NodeIndex,
     stable_graph::StableGraph,
@@ -17,15 +15,22 @@ use schemars::{
     schema::{Schema, SchemaObject},
     schema_for, JsonSchema,
 };
-use serde::{ser::SerializeMap, Serialize};
-use serde_json::json;
-use serde_with::skip_serializing_none;
-use std::{
-    cmp::Ordering,
-    collections::{BTreeMap, HashMap, HashSet},
-    path::{Path, PathBuf},
+
+use common::{
+    eyre::{bail, eyre, Result},
+    serde::{self, ser::SerializeMap, Serialize},
+    serde_json::{self, json},
+    serde_with::skip_serializing_none,
+    serde_yaml,
+    strum::Display,
 };
-use strum::Display;
+use graph_triples::{
+    direction, relations, resources::ResourceDigest, stencila_schema::CodeChunkExecuteAuto,
+    Direction, Pairs, Relation, Resource, ResourceInfo, Triple,
+};
+use hash_utils::{sha2, sha2::Digest};
+use kernels::{Kernel, KernelSelector};
+use path_utils::path_slash::PathExt;
 use utils::some_string;
 
 use crate::{Plan, PlanOptions, PlanOrdering, PlanStage, PlanTask};
@@ -1098,7 +1103,7 @@ impl Graph {
 }
 
 #[derive(Debug, Display, JsonSchema, Serialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase")]
 pub enum GraphEventType {
     Updated,
@@ -1106,6 +1111,7 @@ pub enum GraphEventType {
 
 #[skip_serializing_none]
 #[derive(Debug, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct GraphEvent {
     /// The path of the project (absolute)

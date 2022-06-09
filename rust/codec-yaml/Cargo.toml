@@ -5,10 +5,9 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codec = { path = "../codec", version = "0.0.0" }
-node-coerce = { path = "../node-coerce", version = "0.0.0" }
-serde_yaml = "0.8.23"
+codec = { path = "../codec" }
+node-coerce = { path = "../node-coerce" }
 
 [dev-dependencies]
-test-props = { path = "../test-props", version = "0.0.0" }
-test-utils = { path = "../test-utils", version = "0.0.0" }
+test-props = { path = "../test-props" }
+test-utils = { path = "../test-utils" }

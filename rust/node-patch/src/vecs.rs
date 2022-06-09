@@ -1,13 +1,17 @@
-use super::prelude::*;
-use serde::de::DeserializeOwned;
+use std::{
+    any::type_name,
+    cmp::min,
+    collections::{hash_map::Entry, HashMap},
+    hash::{Hash, Hasher},
+    ops::Deref,
+    time::{Duration, Instant},
+};
+
 use similar::DiffOp;
-use std::any::type_name;
-use std::cmp::min;
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-use std::hash::{Hash, Hasher};
-use std::ops::Deref;
-use std::time::{Duration, Instant};
+
+use common::{serde::de::DeserializeOwned, serde_json};
+
+use super::prelude::*;
 
 /// The number of seconds before a diff times out (falls back to a `Replace`)
 const DIFF_TIMEOUT_SECS: u64 = 1;

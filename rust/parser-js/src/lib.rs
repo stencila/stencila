@@ -1,13 +1,13 @@
-use once_cell::sync::Lazy;
+use std::path::Path;
+
 use parser_treesitter::{
-    eyre::Result,
+    common::{eyre::Result, once_cell::sync::Lazy},
     formats::Format,
     graph_triples::{relations, resources, Pair, Resource, ResourceInfo},
     path_utils, resource_info,
     utils::remove_quotes,
     Capture, Parser, ParserTrait, TreesitterParser,
 };
-use std::path::Path;
 
 /// Tree-sitter based parser for JavaScript
 static PARSER: Lazy<TreesitterParser> =

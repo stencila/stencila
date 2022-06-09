@@ -1,36 +1,31 @@
 use std::{env, path::Path};
 
-use async_trait::async_trait;
-use chrono::Utc;
-use eyre::Result;
+use common::{
+    async_trait::async_trait,
+    chrono::Utc,
+    eyre::Result,
+    once_cell::sync::Lazy,
+    regex::Regex,
+    serde::{Deserialize, Serialize},
+    serde_json,
+    strum::{AsRefStr, EnumString, EnumVariantNames},
+    tokio::{
+        self,
+        sync::mpsc,
+        time::{timeout, Duration},
+    },
+    tracing,
+};
 use http_utils::http::{Request, Response, StatusCode};
 use node_address::Address;
 use node_pointer::{walk, Visitor};
-use once_cell::sync::Lazy;
-use regex::Regex;
-use serde::{Deserialize, Serialize};
 use stencila_schema::{InlineContent, Node};
-use strum::{AsRefStr, EnumString, EnumVariantNames};
-use tokio::{
-    sync::mpsc,
-    time::{timeout, Duration},
-};
 
 // Export and re-export for the convenience of crates that implement a provider
-pub use ::async_trait;
-pub use ::chrono;
 pub use ::codecs;
-pub use ::eyre;
-pub use ::futures;
+pub use ::common;
 pub use ::http_utils;
-pub use ::once_cell;
-pub use ::regex;
-pub use ::serde;
-pub use ::serde_json;
 pub use ::stencila_schema;
-pub use ::strum;
-pub use ::tokio;
-pub use ::tracing;
 
 pub const IMPORT: &str = "import";
 pub const EXPORT: &str = "export";
@@ -44,7 +39,7 @@ pub const ACTIONS: &[&str] = &[IMPORT, EXPORT, IMPORT_EXPORT];
 /// `spec` function of `ProviderTrait`. Plugins provide a JSON or YAML serialization
 /// as part of their manifest.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
+#[serde(default, rename_all = "camelCase", crate = "common::serde")]
 pub struct Provider {
     /// The name of the provider
     pub name: String,
@@ -171,11 +166,13 @@ pub fn resolve_token(token: &str) -> Option<String> {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub struct EnrichOptions {
     pub token: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub struct ImportOptions {
     /// The token required to access the resource (or the `ALL_CAPS` name of the
     /// environment variable containing the token)
@@ -183,6 +180,7 @@ pub struct ImportOptions {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub struct ExportOptions {
     /// The token required to access the resource (or the `ALL_CAPS` name of the
     /// environment variable containing the token)
@@ -190,6 +188,7 @@ pub struct ExportOptions {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub struct SyncOptions {
     /// The synchronization mode
     pub mode: Option<WatchMode>,
@@ -200,7 +199,8 @@ pub struct SyncOptions {
 }
 
 #[derive(Debug, Clone, AsRefStr, EnumString, EnumVariantNames, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[strum(crate = "common::strum")]
 pub enum WatchMode {
     /// Synchronize the resource whenever it has been changed
     #[strum(serialize = "changed", serialize = "change")]
@@ -222,6 +222,7 @@ impl Default for WatchMode {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct ParseItem {
     /// The start position in the string that the node was parsed from
     pub begin: usize,
@@ -234,6 +235,7 @@ pub struct ParseItem {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct DetectItem {
     /// The name of the provider that detected the node
     pub provider: String,

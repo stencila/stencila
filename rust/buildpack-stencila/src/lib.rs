@@ -2,7 +2,11 @@ use std::{fs::create_dir_all, path::Path};
 
 use binary_stencila::{BinaryTrait, StencilaBinary};
 use buildpack::{
-    eyre,
+    common::{
+        eyre,
+        serde::{Deserialize, Serialize},
+        tracing,
+    },
     fs_utils::symlink_file,
     libcnb::{
         self,
@@ -18,8 +22,7 @@ use buildpack::{
         layer::{ExistingLayerStrategy, Layer, LayerResult, LayerResultBuilder},
         Buildpack,
     },
-    serde::{Deserialize, Serialize},
-    tracing, BuildpackContext, BuildpackTrait, LayerOptions,
+    BuildpackContext, BuildpackTrait, LayerOptions,
 };
 
 pub struct StencilaBuildpack;
@@ -81,7 +84,7 @@ impl Buildpack for StencilaBuildpack {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-#[serde(crate = "buildpack::serde")]
+#[serde(crate = "buildpack::common::serde")]
 struct StencilaLayer {
     /// The semantic version requirement for the `stencila` binary
     version: String,

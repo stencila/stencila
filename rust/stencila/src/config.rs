@@ -1,21 +1,28 @@
+use std::{env, fs, io::Write, path::PathBuf};
+
+use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use validator::Validate;
+
+use common::{
+    defaults::Defaults,
+    dirs,
+    eyre::{bail, Result},
+    once_cell::sync::Lazy,
+    serde::{Deserialize, Serialize},
+    serde_json::{self, json},
+    tokio::sync::Mutex,
+    toml, tracing,
+};
+use events::publish;
+
 use crate::{
     logging, projects, telemetry,
     utils::{json, schemas},
 };
-use defaults::Defaults;
-use events::publish;
-use eyre::{bail, Result};
-use once_cell::sync::Lazy;
-use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
-use serde::{Deserialize, Serialize};
-use serde_json::json;
-use std::{env, fs, io::Write, path::PathBuf};
-use tokio::sync::Mutex;
-use validator::Validate;
 
 /// Get the directory where configuration data is stored
 pub fn dir(ensure: bool) -> Result<PathBuf> {
-    let config_base = dirs_next::config_dir().unwrap_or_else(|| env::current_dir().unwrap());
+    let config_base = dirs::config_dir().unwrap_or_else(|| env::current_dir().unwrap());
     let dir = match env::consts::OS {
         "macos" => config_base.join("Stencila"),
         "windows" => config_base.join("Stencila").join("Config"),
@@ -28,7 +35,7 @@ pub fn dir(ensure: bool) -> Result<PathBuf> {
 }
 
 #[derive(Debug, JsonSchema, Serialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 enum ConfigEventType {
     Set,
     Reset,
@@ -36,6 +43,7 @@ enum ConfigEventType {
 
 /// An event associated with changes to the configuration
 #[derive(Debug, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 struct ConfigEvent {
     /// The type of event
@@ -64,7 +72,7 @@ impl ConfigEvent {
 }
 
 #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-#[serde(default)]
+#[serde(default, crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Config {
     pub projects: projects::config::ProjectsConfig,
@@ -89,7 +97,7 @@ pub struct Config {
 ///
 /// Configuration settings for document editors.
 #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize)]
-#[serde(default, rename_all = "camelCase")]
+#[serde(default, rename_all = "camelCase", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct EditorsConfig {
     /// Default format for new documents
@@ -272,10 +280,12 @@ pub fn schemas() -> Result<serde_json::Value> {
 /// CLI options for the `config` command
 #[cfg(feature = "cli")]
 pub mod commands {
-    use super::*;
-    use async_trait::async_trait;
-    use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
+
+    use cli_utils::{result, Result, Run};
+    use common::async_trait::async_trait;
+
+    use super::*;
 
     #[derive(Debug, StructOpt)]
     #[structopt(
@@ -389,6 +399,8 @@ pub mod commands {
 
 #[cfg(test)]
 mod tests {
+    use common::tokio;
+
     use super::*;
 
     #[test]

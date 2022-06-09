@@ -1,13 +1,13 @@
 use schemars::JsonSchema;
-use serde::Serialize;
-use strum::Display;
+
+use common::{serde::Serialize, strum::Display};
 
 /// The relation between two resources in a dependency graph (the edges of the graph)
 ///
 /// Some relations carry additional information such whether the relation is active
 /// (`Import` and `Convert`) or the range that they occur in code (`Assign`, `Use`, `Read`) etc
 #[derive(Debug, Display, Clone, JsonSchema, Serialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", crate = "common::serde")]
 pub enum Relation {
     Assign(Assign),
     Alter(Alter),
@@ -37,6 +37,7 @@ pub const NULL_RANGE: Range = (0, 0, 0, 0);
 /// (e.g. `let` in JavaScript). This relation allows for those to be
 /// distinguished.
 #[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Declare {
     /// The range within code that the assignment is done
@@ -50,6 +51,7 @@ pub fn declares(range: Range) -> Relation {
 
 /// Assigns to a symbol
 #[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Assign {
     /// The range within code that the assignment is done
@@ -63,6 +65,7 @@ pub fn assigns(range: Range) -> Relation {
 
 /// Alters a symbol
 #[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Alter {
     /// The range within code that the alter
@@ -76,6 +79,7 @@ pub fn alters(range: Range) -> Relation {
 
 /// Imports a `Module` or a `File`
 #[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Import {
     /// The range within code
@@ -89,6 +93,7 @@ pub fn imports(range: Range) -> Relation {
 
 /// Converts a file into another
 #[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Convert {
     /// Whether or not the conversion is automatically updated
@@ -102,6 +107,7 @@ pub fn converts(auto: bool) -> Relation {
 
 /// Reads from a file
 #[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Read {
     /// The range within code that the read is declared
@@ -115,6 +121,7 @@ pub fn reads(range: Range) -> Relation {
 
 /// Uses a symbol or module
 #[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Use {
     /// The range within code that the use is declared
@@ -128,6 +135,7 @@ pub fn uses(range: Range) -> Relation {
 
 /// Writes to a file
 #[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Write {
     /// The range within code that the write is declared
@@ -145,6 +153,7 @@ pub fn writes(range: Range) -> Relation {
 /// explicitly declared, using its id, rather than relying on semantic
 /// analysis or `@uses` tags.
 #[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Require {
     /// The range within code that the require is declared

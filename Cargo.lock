@@ -72,11 +72,10 @@ checksum = "08f9b8508dccb7687a1d6c4ce66b2b0ecef467c94667de27d8d7fe1f8d2a9cdc"
 name = "archive-utils"
 version = "0.0.0"
 dependencies = [
- "eyre",
+ "common",
  "flate2",
  "path-utils",
  "tar",
- "tracing",
  "xz2",
  "zip",
  "zstd",
@@ -252,9 +251,9 @@ checksum = "30696a84d817107fc028e049980e09d5e140e8da8f1caeb17e8e950658a3cea9"
 
 [[package]]
 name = "async-trait"
-version = "0.1.53"
+version = "0.1.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed6aa3524a2dfcf9fe180c51eae2b58738348d819517ceadf95789c51fff7600"
+checksum = "96cf8829f67d2eab0b2dfa42c5d0ef737e0724e4a82b01b3e292456202b19716"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -397,12 +396,8 @@ dependencies = [
  "binary-r",
  "binary-stencila",
  "cli-utils",
- "once_cell",
- "serde_json",
  "structopt",
  "test-utils",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -410,18 +405,9 @@ name = "binary"
 version = "0.0.0"
 dependencies = [
  "archive-utils",
- "async-trait",
- "defaults",
- "dirs",
- "eyre",
- "glob",
+ "common",
  "http-utils",
- "regex",
  "semver 1.0.9",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
  "which",
 ]
 
@@ -614,18 +600,10 @@ dependencies = [
 name = "buildpack"
 version = "0.0.0"
 dependencies = [
- "dirs",
- "eyre",
+ "common",
  "fs-utils",
  "hash-utils",
  "libcnb",
- "maplit",
- "serde",
- "serde_json",
- "serde_with",
- "tokio",
- "toml 0.5.8",
- "tracing",
  "tracing-subscriber",
 ]
 
@@ -635,7 +613,6 @@ version = "0.0.0"
 dependencies = [
  "binary",
  "buildpack",
- "serde",
  "sys-info",
  "utils",
 ]
@@ -654,9 +631,7 @@ version = "0.0.0"
 dependencies = [
  "binary-node",
  "buildpack",
- "chrono",
- "serde",
- "serde_json",
+ "common",
 ]
 
 [[package]]
@@ -667,7 +642,6 @@ dependencies = [
  "binary-python",
  "buildpack",
  "buildpack-apt",
- "serde",
  "sys-info",
 ]
 
@@ -678,8 +652,6 @@ dependencies = [
  "binary-r",
  "buildpack",
  "buildpack-apt",
- "serde",
- "serde_json",
  "sys-info",
 ]
 
@@ -688,7 +660,6 @@ name = "buildpack-sources"
 version = "0.0.0"
 dependencies = [
  "buildpack",
- "serde_json",
  "sources",
 ]
 
@@ -714,19 +685,13 @@ dependencies = [
  "buildpack-sources",
  "buildpack-stencila",
  "bytes",
- "chrono",
  "cli-utils",
- "futures",
+ "common",
  "hash-utils",
  "http-utils",
- "once_cell",
- "regex",
- "serde_json",
  "structopt",
  "test-snaps",
  "test-utils",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -1016,24 +981,16 @@ name = "cli-utils"
 version = "0.0.0"
 dependencies = [
  "ansi_term",
- "async-trait",
  "atty",
- "chrono",
  "color-eyre",
+ "common",
  "events",
- "eyre",
  "linya",
- "once_cell",
- "regex",
  "rustyline",
  "rustyline-derive",
- "serde",
- "serde_json",
- "serde_yaml",
  "structopt",
  "syntect",
  "termimad",
- "tracing",
  "tracing-subscriber",
  "urlencoding 2.1.0",
 ]
@@ -1062,11 +1019,8 @@ dependencies = [
 name = "codec"
 version = "0.0.0"
 dependencies = [
- "async-trait",
- "eyre",
- "serde",
+ "common",
  "stencila-schema",
- "tokio",
  "utils",
 ]
 
@@ -1075,7 +1029,6 @@ name = "codec-csl"
 version = "0.0.0"
 dependencies = [
  "codec",
- "serde_json",
  "test-snaps",
  "test-utils",
 ]
@@ -1084,7 +1037,6 @@ dependencies = [
 name = "codec-date"
 version = "0.0.0"
 dependencies = [
- "chrono",
  "codec",
  "dtparse",
  "test-utils",
@@ -1096,11 +1048,8 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-pandoc",
- "once_cell",
- "tempfile",
  "test-props",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -1115,30 +1064,21 @@ dependencies = [
 name = "codec-html"
 version = "0.0.0"
 dependencies = [
- "Inflector",
- "base64 0.13.0",
- "chrono",
  "codec",
  "codec-txt",
  "html-escape",
- "itertools",
  "kuchiki",
  "markup5ever",
  "mime_guess",
  "node-dispatch",
  "node-transform",
- "once_cell",
  "quick-xml 0.22.0",
  "reqwest",
- "serde",
- "serde_json",
  "server-next",
  "stencila-schema",
  "test-props",
  "test-snaps",
  "test-utils",
- "tokio",
- "tracing",
  "uuids",
 ]
 
@@ -1146,21 +1086,17 @@ dependencies = [
 name = "codec-ipynb"
 version = "0.0.0"
 dependencies = [
- "base64 0.13.0",
  "codec",
  "codec-html",
  "codec-md",
  "codec-txt",
  "node-coerce",
  "node-transform",
- "serde",
- "serde_json",
  "stencila-schema",
  "strip-ansi-escapes",
  "test-props",
  "test-snaps",
  "test-utils",
- "tracing",
 ]
 
 [[package]]
@@ -1169,7 +1105,6 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "node-coerce",
- "serde_json",
  "test-props",
  "test-utils",
 ]
@@ -1181,7 +1116,6 @@ dependencies = [
  "codec",
  "json5",
  "node-coerce",
- "serde_json",
  "test-props",
  "test-utils",
 ]
@@ -1192,36 +1126,26 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-pandoc",
- "once_cell",
  "test-props",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
 name = "codec-md"
 version = "0.0.0"
 dependencies = [
- "Inflector",
  "codec",
  "codec-html",
  "codec-txt",
  "formats",
- "itertools",
  "json5",
  "node-coerce",
  "node-transform",
  "nom 7.1.1",
- "once_cell",
  "pulldown-cmark",
- "regex",
- "serde_json",
- "serde_yaml",
  "test-props",
  "test-snaps",
  "test-utils",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -1237,14 +1161,10 @@ dependencies = [
  "node-coerce",
  "node-transform",
  "pandoc_types",
- "path-slash",
- "serde_json",
- "slug",
- "tempfile",
+ "path-utils",
  "test-props",
  "test-snaps",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -1255,9 +1175,7 @@ dependencies = [
  "chromiumoxide",
  "codec",
  "codec-html",
- "futures",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -1266,8 +1184,6 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "human_name",
- "once_cell",
- "regex",
  "test-utils",
 ]
 
@@ -1275,14 +1191,11 @@ dependencies = [
 name = "codec-png"
 version = "0.0.0"
 dependencies = [
- "base64 0.13.0",
  "binaries",
  "chromiumoxide",
  "codec",
  "codec-html",
- "futures",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -1300,14 +1213,12 @@ dependencies = [
 name = "codec-rpng"
 version = "0.0.0"
 dependencies = [
- "base64 0.13.0",
  "codec",
  "codec-json",
  "codec-png",
  "png",
  "test-props",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -1318,7 +1229,6 @@ dependencies = [
  "node-coerce",
  "test-props",
  "test-utils",
- "toml 0.5.8",
 ]
 
 [[package]]
@@ -1337,7 +1247,6 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "node-coerce",
- "serde_yaml",
  "test-props",
  "test-utils",
 ]
@@ -1367,10 +1276,7 @@ dependencies = [
  "codec-txt",
  "codec-yaml",
  "formats",
- "once_cell",
  "structopt",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -1398,6 +1304,36 @@ dependencies = [
  "owo-colors",
  "tracing-core",
  "tracing-error",
+]
+
+[[package]]
+name = "common"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "async-trait",
+ "base64 0.13.0",
+ "chrono",
+ "defaults",
+ "derive_more",
+ "dirs",
+ "eyre",
+ "futures",
+ "glob",
+ "itertools",
+ "maplit",
+ "once_cell",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml",
+ "slug",
+ "strum 0.24.0",
+ "tempfile",
+ "tokio",
+ "toml 0.5.9",
+ "tracing",
 ]
 
 [[package]]
@@ -1486,12 +1422,10 @@ dependencies = [
 name = "cron-utils"
 version = "0.0.0"
 dependencies = [
- "chrono",
  "chrono-tz 0.6.1",
+ "common",
  "cron",
- "eyre",
  "nom 7.1.1",
- "once_cell",
 ]
 
 [[package]]
@@ -2023,18 +1957,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "enum_dispatch"
-version = "0.3.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd53b3fde38a39a06b2e66dc282f3e86191e53bd04cc499929c15742beae3df8"
-dependencies = [
- "once_cell",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "errno"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2081,12 +2003,7 @@ checksum = "77f3309417938f28bf8228fcff79a4a37103981e3e186d2ccd19c74b38f4eb71"
 name = "events"
 version = "0.0.0"
 dependencies = [
- "eyre",
- "once_cell",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
+ "common",
  "uuids",
 ]
 
@@ -2098,9 +2015,9 @@ checksum = "de853764b47027c2e862a995c34978ffa63c1501f2e15f987ba11bd4f9bba193"
 
 [[package]]
 name = "eyre"
-version = "0.6.6"
+version = "0.6.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc225d8f637923fe585089fcf03e705c222131232d2c1fb622e84ecf725d0eb8"
+checksum = "4c2b6b5a29c02cdc822728b7d7b8ae1bab3e3b05d44522770ddd49722eeac7eb"
 dependencies = [
  "indenter",
  "once_cell",
@@ -2152,16 +2069,13 @@ dependencies = [
 name = "files"
 version = "0.0.0"
 dependencies = [
+ "common",
  "crossbeam-channel",
- "defaults",
  "events",
  "formats",
  "gitignore",
  "ignore",
  "schemars",
- "serde",
- "serde_with",
- "strum",
 ]
 
 [[package]]
@@ -2229,17 +2143,15 @@ dependencies = [
 name = "formats"
 version = "0.0.0"
 dependencies = [
- "Inflector",
+ "common",
  "schemars",
- "serde",
- "strum",
 ]
 
 [[package]]
 name = "fs-utils"
 version = "0.0.0"
 dependencies = [
- "eyre",
+ "common",
 ]
 
 [[package]]
@@ -2289,9 +2201,9 @@ dependencies = [
 
 [[package]]
 name = "futures"
-version = "0.3.19"
+version = "0.3.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28560757fe2bb34e79f907794bb6b22ae8b0e5c669b638a1132f2592b19035b4"
+checksum = "f73fe65f54d1e12b726f517d3e2135ca3125a437b6d998caf1962961f7172d9e"
 dependencies = [
  "futures-channel",
  "futures-core",
@@ -2550,22 +2462,16 @@ dependencies = [
 name = "graph"
 version = "0.0.0"
 dependencies = [
+ "common",
  "derivative",
  "events",
- "eyre",
  "graph-triples",
  "hash-utils",
  "kernels",
  "num_cpus",
- "path-slash",
+ "path-utils",
  "petgraph",
  "schemars",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml",
- "strum",
- "tokio",
  "utils",
 ]
 
@@ -2573,17 +2479,12 @@ dependencies = [
 name = "graph-triples"
 version = "0.0.0"
 dependencies = [
- "base64 0.13.0",
+ "common",
  "derivative",
- "eyre",
  "hash-utils",
- "path-slash",
+ "path-utils",
  "schemars",
- "serde",
- "serde_json",
- "serde_with",
  "stencila-schema",
- "strum",
 ]
 
 [[package]]
@@ -2623,7 +2524,7 @@ dependencies = [
 name = "hash-utils"
 version = "0.0.0"
 dependencies = [
- "eyre",
+ "common",
  "hmac",
  "sha2 0.10.2",
 ]
@@ -2827,18 +2728,13 @@ dependencies = [
 name = "http-utils"
 version = "0.0.0"
 dependencies = [
- "dirs",
- "eyre",
+ "common",
  "http",
  "http-cache-reqwest",
- "once_cell",
  "reqwest",
  "reqwest-middleware",
- "serde",
- "serde_json",
- "tempfile",
- "tokio",
  "url",
+ "urlencoding 2.1.0",
 ]
 
 [[package]]
@@ -3011,28 +2907,18 @@ dependencies = [
  "bytecheck",
  "bytes",
  "bytesize",
- "chrono",
  "cli-utils",
- "dirs",
- "eyre",
- "futures",
+ "common",
  "gitignore",
- "glob",
  "hash-utils",
  "http-utils",
  "jwalk",
  "oci-spec",
- "once_cell",
- "regex",
  "rkyv",
  "seahash",
- "serde",
- "serde_json",
  "structopt",
  "test-snaps",
  "test-utils",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -3256,18 +3142,10 @@ dependencies = [
 name = "kernel"
 version = "0.0.0"
 dependencies = [
- "async-trait",
- "chrono",
- "eyre",
+ "common",
  "formats",
- "once_cell",
- "regex",
- "serde",
  "stencila-schema",
- "strum",
  "test-utils",
- "tokio",
- "tracing",
  "utils",
  "uuids",
 ]
@@ -3279,7 +3157,6 @@ dependencies = [
  "kernel",
  "kernel-micro",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -3288,10 +3165,7 @@ version = "0.0.0"
 dependencies = [
  "fasteval",
  "kernel",
- "once_cell",
- "regex",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -3301,34 +3175,23 @@ dependencies = [
  "kernel",
  "kernel-micro",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
 name = "kernel-jupyter"
 version = "0.0.0"
 dependencies = [
- "chrono",
  "codec-ipynb",
- "defaults",
  "derivative",
- "dirs",
- "glob",
  "hex 0.4.3",
  "hmac",
  "kernel",
  "key-utils",
- "once_cell",
- "path-slash",
+ "path-utils",
  "portpicker",
  "reqwest",
- "serde",
- "serde_json",
- "serde_with",
  "sha2 0.10.2",
  "test-utils",
- "tokio",
- "tracing",
  "uuids",
  "zmq",
 ]
@@ -3338,14 +3201,8 @@ name = "kernel-micro"
 version = "0.0.0"
 dependencies = [
  "binaries",
- "dirs",
  "kernel",
  "nix",
- "serde",
- "serde_json",
- "tempfile",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -3356,7 +3213,6 @@ dependencies = [
  "kernel",
  "kernel-micro",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -3367,7 +3223,6 @@ dependencies = [
  "kernel",
  "kernel-micro",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -3377,9 +3232,7 @@ dependencies = [
  "binaries",
  "kernel",
  "kernel-micro",
- "once_cell",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -3387,7 +3240,6 @@ name = "kernel-store"
 version = "0.0.0"
 dependencies = [
  "kernel",
- "tokio",
 ]
 
 [[package]]
@@ -3397,7 +3249,6 @@ dependencies = [
  "kernel",
  "kernel-micro",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -3414,9 +3265,8 @@ dependencies = [
 name = "kernels"
 version = "0.0.0"
 dependencies = [
- "chrono",
  "cli-utils",
- "derive_more",
+ "common",
  "events",
  "formats",
  "graph-triples",
@@ -3432,16 +3282,8 @@ dependencies = [
  "kernel-r",
  "kernel-store",
  "kernel-zsh",
- "once_cell",
  "parsers",
- "regex",
- "serde",
- "serde_json",
- "slug",
  "structopt",
- "strum",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -3512,7 +3354,7 @@ dependencies = [
  "libcnb-proc-macros",
  "serde",
  "thiserror",
- "toml 0.5.8",
+ "toml 0.5.9",
 ]
 
 [[package]]
@@ -3525,7 +3367,7 @@ dependencies = [
  "libcnb-proc-macros",
  "serde",
  "thiserror",
- "toml 0.5.8",
+ "toml 0.5.9",
 ]
 
 [[package]]
@@ -3931,12 +3773,8 @@ dependencies = [
 name = "node-address"
 version = "0.0.0"
 dependencies = [
- "Inflector",
- "derive_more",
- "eyre",
+ "common",
  "schemars",
- "serde",
- "strum",
  "thiserror",
 ]
 
@@ -3944,20 +3782,13 @@ dependencies = [
 name = "node-coerce"
 version = "0.0.0"
 dependencies = [
- "Inflector",
  "codec",
  "codec-date",
  "codec-person",
- "eyre",
- "once_cell",
- "regex",
- "serde",
- "serde_json",
- "serde_yaml",
+ "common",
  "stencila-schema",
  "test-snaps",
  "test-utils",
- "tracing",
  "utils",
 ]
 
@@ -3969,13 +3800,10 @@ version = "0.0.0"
 name = "node-execute"
 version = "0.0.0"
 dependencies = [
- "async-trait",
- "chrono",
  "codec",
  "codec-md",
- "eyre",
+ "common",
  "formats",
- "futures",
  "graph",
  "graph-triples",
  "kernels",
@@ -3985,13 +3813,9 @@ dependencies = [
  "node-pointer",
  "parsers",
  "path-utils",
- "serde",
- "serde_json",
  "stencila-schema",
  "test-snaps",
  "test-utils",
- "tokio",
- "tracing",
  "uuids",
 ]
 
@@ -4002,26 +3826,18 @@ dependencies = [
  "codec-html",
  "codec-txt",
  "codecs",
- "defaults",
- "derive_more",
- "eyre",
- "itertools",
+ "common",
  "node-address",
  "node-coerce",
  "node-dispatch",
  "node-pointer",
  "schemars",
- "serde",
- "serde_json",
- "serde_with",
  "similar",
  "stencila-schema",
- "strum",
  "test-props",
  "test-snaps",
  "test-utils",
  "thiserror",
- "tracing",
  "unicode-segmentation",
 ]
 
@@ -4029,7 +3845,7 @@ dependencies = [
 name = "node-pointer"
 version = "0.0.0"
 dependencies = [
- "eyre",
+ "common",
  "node-address",
  "node-dispatch",
  "node-transform",
@@ -4040,9 +3856,8 @@ dependencies = [
 name = "node-query"
 version = "0.0.0"
 dependencies = [
- "eyre",
+ "common",
  "jmespatch",
- "serde_json",
  "stencila-schema",
 ]
 
@@ -4054,11 +3869,7 @@ dependencies = [
  "codec-date",
  "codec-person",
  "codec-txt",
- "defaults",
- "eyre",
- "once_cell",
- "regex",
- "serde_yaml",
+ "common",
  "stencila-schema",
  "test-snaps",
  "test-utils",
@@ -4277,9 +4088,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.10.0"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87f3e037eac156d1775da914196f0f37741a274155e34a0b7e427c35d2a2ecb9"
+checksum = "7709cef83f0c1f58f666e746a08b21e0085f7440fa6a29cc194d68aac97a4225"
 
 [[package]]
 name = "onig"
@@ -4481,20 +4292,15 @@ dependencies = [
 name = "parser"
 version = "0.0.0"
 dependencies = [
- "eyre",
+ "common",
  "formats",
  "graph-triples",
- "once_cell",
- "regex",
- "serde",
- "serde_with",
 ]
 
 [[package]]
 name = "parser-bash"
 version = "0.0.0"
 dependencies = [
- "once_cell",
  "parser-treesitter",
  "test-snaps",
  "test-utils",
@@ -4505,9 +4311,7 @@ dependencies = [
 name = "parser-calc"
 version = "0.0.0"
 dependencies = [
- "once_cell",
  "parser",
- "regex",
  "test-snaps",
  "test-utils",
 ]
@@ -4516,7 +4320,6 @@ dependencies = [
 name = "parser-js"
 version = "0.0.0"
 dependencies = [
- "once_cell",
  "parser-treesitter",
  "test-snaps",
  "test-utils",
@@ -4527,8 +4330,6 @@ dependencies = [
 name = "parser-py"
 version = "0.0.0"
 dependencies = [
- "maplit",
- "once_cell",
  "parser-treesitter",
  "test-snaps",
  "test-utils",
@@ -4539,8 +4340,6 @@ dependencies = [
 name = "parser-r"
 version = "0.0.0"
 dependencies = [
- "maplit",
- "once_cell",
  "parser-treesitter",
  "test-snaps",
  "test-utils",
@@ -4551,7 +4350,6 @@ dependencies = [
 name = "parser-rust"
 version = "0.0.0"
 dependencies = [
- "once_cell",
  "parser-treesitter",
  "test-snaps",
  "test-utils",
@@ -4572,7 +4370,6 @@ dependencies = [
 name = "parser-ts"
 version = "0.0.0"
 dependencies = [
- "once_cell",
  "parser-js",
  "parser-treesitter",
  "test-snaps",
@@ -4585,8 +4382,8 @@ name = "parsers"
 version = "0.0.0"
 dependencies = [
  "cli-utils",
+ "common",
  "formats",
- "once_cell",
  "parser",
  "parser-bash",
  "parser-calc",
@@ -4611,6 +4408,7 @@ version = "0.0.0"
 dependencies = [
  "lexiclean",
  "path-slash",
+ "pathdiff",
 ]
 
 [[package]]
@@ -5022,23 +4820,13 @@ checksum = "cf7e6d18738ecd0902d30d1ad232c9125985a3422929b16c65517b38adc14f96"
 name = "provider"
 version = "0.0.0"
 dependencies = [
- "async-trait",
- "chrono",
  "codecs",
+ "common",
  "cron-utils",
- "eyre",
- "futures",
  "http-utils",
  "node-address",
  "node-pointer",
- "once_cell",
- "regex",
- "serde",
- "serde_json",
  "stencila-schema",
- "strum",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -5048,7 +4836,6 @@ dependencies = [
  "codec-csl",
  "provider",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -5057,7 +4844,6 @@ version = "0.0.0"
 dependencies = [
  "provider",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -5065,7 +4851,6 @@ name = "provider-gdrive"
 version = "0.0.0"
 dependencies = [
  "google-drive",
- "key-utils",
  "provider",
  "test-utils",
  "uuids",
@@ -5076,9 +4861,6 @@ name = "provider-github"
 version = "0.0.0"
 dependencies = [
  "archive-utils",
- "base64 0.13.0",
- "hash-utils",
- "key-utils",
  "octorust",
  "provider",
  "test-utils",
@@ -5090,11 +4872,8 @@ name = "provider-gitlab"
 version = "0.0.0"
 dependencies = [
  "archive-utils",
- "base64 0.13.0",
- "key-utils",
  "provider",
  "test-utils",
- "urlencoding 2.1.0",
  "uuids",
 ]
 
@@ -5104,7 +4883,6 @@ version = "0.0.0"
 dependencies = [
  "archive-utils",
  "provider",
- "slug",
  "test-utils",
 ]
 
@@ -5114,7 +4892,6 @@ version = "0.0.0"
 dependencies = [
  "cli-utils",
  "events",
- "once_cell",
  "provider",
  "provider-doi",
  "provider-elife",
@@ -5124,7 +4901,6 @@ dependencies = [
  "provider-http",
  "structopt",
  "test-utils",
- "tokio",
 ]
 
 [[package]]
@@ -5377,9 +5153,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.5.4"
+version = "1.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d07a8629359eb56f1e2fb1652bb04212c072a87ba68546a04065d525673ac461"
+checksum = "d83f127d94bdbcda4c8cc2e50f6f84f4b611f69c902699ca385a39c3a75f9ff1"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -5397,9 +5173,9 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
-version = "0.6.25"
+version = "0.6.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
+checksum = "49b3de9ec5dc0a3417da371aab17d729997c15010e7fd24ff707773a33bddb64"
 
 [[package]]
 name = "remove_dir_all"
@@ -5954,11 +5730,10 @@ dependencies = [
 
 [[package]]
 name = "serde_with"
-version = "1.11.0"
+version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad6056b4cb69b6e43e3a0f055def223380baecc99da683884f205bf347f7c4b3"
+checksum = "678b5a069e50bf00ecd22d0cd8ddf7c236f68581b03db652061ed5eb13a312ff"
 dependencies = [
- "rustversion",
  "serde",
  "serde_with_macros",
 ]
@@ -5993,15 +5768,12 @@ version = "0.0.0"
 dependencies = [
  "axum",
  "cli-utils",
- "eyre",
+ "common",
  "mime_guess",
  "portpicker",
  "rust-embed",
- "serde_json",
  "structopt",
- "tokio",
  "tower-http",
- "tracing",
 ]
 
 [[package]]
@@ -6206,20 +5978,12 @@ dependencies = [
 name = "sources"
 version = "0.0.0"
 dependencies = [
+ "common",
  "cron-utils",
- "defaults",
- "eyre",
  "files",
- "futures",
  "graph-triples",
  "providers",
- "serde",
- "serde_json",
- "serde_with",
  "stencila-schema",
- "strum",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -6260,37 +6024,27 @@ name = "stencila"
 version = "1.10.0"
 dependencies = [
  "async-recursion 1.0.0",
- "async-trait",
  "binaries",
  "buildpacks",
- "chrono",
  "cli-utils",
  "codecs",
+ "common",
  "cron-utils",
  "crossbeam-channel",
- "defaults",
  "derivative",
- "derive_more",
- "dirs-next",
- "enum_dispatch",
  "events",
  "exitcode",
- "eyre",
  "files",
  "formats",
- "futures",
- "glob",
  "graph",
  "graph-triples",
  "handlebars",
- "http",
+ "http-utils",
  "humantime",
  "images",
- "itertools",
  "jsonwebtoken",
  "kernels",
  "key-utils",
- "maplit",
  "mime_guess",
  "node-address",
  "node-dispatch",
@@ -6300,44 +6054,27 @@ dependencies = [
  "node-query",
  "node-reshape",
  "notify",
- "once_cell",
  "parsers",
- "path-slash",
  "path-utils",
- "pathdiff",
  "portpicker",
  "prometheus",
  "providers",
  "pty-process",
  "public-ip",
- "regex",
  "schemars",
  "self_update",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml",
  "server-next",
- "slug",
  "sources",
  "stencila-schema",
  "structopt",
- "strum",
- "strum_macros",
  "sudo",
- "tempfile",
  "test-utils",
  "thiserror",
- "tokio",
  "tokio-stream",
- "toml 0.5.8",
- "tracing",
  "tracing-appender",
  "tracing-error",
  "tracing-serde",
  "tracing-subscriber",
- "url",
- "urlencoding 2.1.0",
  "utils",
  "uuids",
  "validator",
@@ -6356,7 +6093,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
- "strum",
+ "strum 0.23.0",
 ]
 
 [[package]]
@@ -6448,7 +6185,16 @@ version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cae14b91c7d11c9a851d3fbc80a963198998c2a64eec840477fa92d8ce9b70bb"
 dependencies = [
- "strum_macros",
+ "strum_macros 0.23.1",
+]
+
+[[package]]
+name = "strum"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e96acfc1b70604b8b2f1ffa4c57e59176c7dbb05d556c71ecd2f5498a1dee7f8"
+dependencies = [
+ "strum_macros 0.24.0",
 ]
 
 [[package]]
@@ -6458,6 +6204,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5bb0dc7ee9c15cea6199cde9a127fa16a4c5819af85395457ad72d68edc85a38"
 dependencies = [
  "heck 0.3.3",
+ "proc-macro2",
+ "quote",
+ "rustversion",
+ "syn",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6878079b17446e4d3eba6192bb0a2950d5b14f0ed8424b852310e5a94345d0ef"
+dependencies = [
+ "heck 0.4.0",
  "proc-macro2",
  "quote",
  "rustversion",
@@ -6482,9 +6241,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.95"
+version = "1.0.96"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fbaf6116ab8924f39d52792136fb74fd60a80194cf1b1c6ffa6453eef1c3f942"
+checksum = "0748dd251e24453cb8717f0354206b91557e4ec8703673a4b30208f2abaf1ebf"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6612,7 +6371,7 @@ dependencies = [
 name = "test-props"
 version = "0.0.0"
 dependencies = [
- "itertools",
+ "common",
  "proptest",
  "stencila-schema",
 ]
@@ -6621,8 +6380,8 @@ dependencies = [
 name = "test-snaps"
 version = "0.0.0"
 dependencies = [
+ "common",
  "insta",
- "serde_json",
  "stencila-schema",
  "test-utils",
 ]
@@ -6631,10 +6390,8 @@ dependencies = [
 name = "test-utils"
 version = "0.0.0"
 dependencies = [
+ "common",
  "pretty_assertions 1.2.1",
- "serde_json",
- "tempfile",
- "tracing",
  "tracing-subscriber",
 ]
 
@@ -6722,9 +6479,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.18.2"
+version = "1.19.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4903bf0427cf68dddd5aa6a93220756f8be0c34fcfa9f5e6191e103e15a31395"
+checksum = "c51a52ed6686dd62c320f9b89299e9dfb46f730c7a48e635c19f21d116cb1439"
 dependencies = [
  "bytes",
  "libc",
@@ -6832,9 +6589,9 @@ checksum = "736b60249cb25337bc196faa43ee12c705e426f3d55c214d73a4e7be06f92cb4"
 
 [[package]]
 name = "toml"
-version = "0.5.8"
+version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a31142970826733df8241ef35dc040ef98c679ab14d7c3e54d827099b3acecaa"
+checksum = "8d82e1a7758622a465f8cee077614c73484dac5b836c02ff6a40d5d1010324d7"
 dependencies = [
  "serde",
 ]
@@ -6890,9 +6647,9 @@ checksum = "360dfd1d6d30e05fda32ace2c8c70e9c0a9da713275777f5a4dbb8a1893930c6"
 
 [[package]]
 name = "tracing"
-version = "0.1.29"
+version = "0.1.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "375a639232caf30edfc78e8d89b2d4c375515393e7af7e16f01cd96917fb2105"
+checksum = "5d0ecdcb44a79f0fe9844f0c4f33a342cbcbb5117de8001e6ba0dc2351327d09"
 dependencies = [
  "cfg-if 1.0.0",
  "log",
@@ -7313,10 +7070,8 @@ dependencies = [
 name = "uuids"
 version = "0.0.0"
 dependencies = [
- "eyre",
+ "common",
  "nanoid",
- "regex",
- "serde",
  "smartstring",
 ]
 

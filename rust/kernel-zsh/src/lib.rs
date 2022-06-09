@@ -23,8 +23,12 @@ pub fn new() -> MicroKernel {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernel::{eyre::Result, stencila_schema::Node, KernelTrait};
-    use test_utils::{assert_json_eq, serde_json::json};
+    use kernel::{
+        common::{eyre::Result, tokio},
+        stencila_schema::Node,
+        KernelTrait,
+    };
+    use test_utils::{assert_json_eq, common::serde_json::json};
 
     /// Tests of basic functionality
     /// This test is replicated in all the microkernels.

@@ -1,5 +1,6 @@
+use common::async_trait::async_trait;
+
 use crate::{result, Result};
-use async_trait::async_trait;
 
 #[async_trait]
 pub trait Run {
@@ -23,6 +24,7 @@ pub trait Run {
 #[macro_export]
 macro_rules! mini_main {
     ($command:ident) => {
+        use cli_utils::common::tokio;
         #[tokio::main]
         async fn main() {
             use cli_utils::{tracing_subscriber, Run};

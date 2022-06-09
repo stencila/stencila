@@ -1,12 +1,14 @@
 //! Encode a `BlockContent` nodes to HTML
 
+use html_escape::encode_safe;
+
+use stencila_schema::*;
+
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype, attr_prop,
     attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder, json, nothing, EncodeContext,
     ToHtml,
 };
-use html_escape::encode_safe;
-use stencila_schema::*;
 
 impl ToHtml for BlockContent {
     fn to_html(&self, context: &EncodeContext) -> String {

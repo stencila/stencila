@@ -1,6 +1,7 @@
 use structopt::StructOpt;
 
-use cli_utils::{async_trait::async_trait, result, Result, Run};
+use cli_utils::{result, Result, Run};
+use common::async_trait::async_trait;
 
 use crate::server::Server;
 

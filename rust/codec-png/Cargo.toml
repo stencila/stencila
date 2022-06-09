@@ -5,13 +5,10 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-base64 = "0.13.0"
-binaries = { path = "../binaries", version = "0.0.0" }
+binaries = { path = "../binaries" }
 chromiumoxide = { version = "0.3.4", features = ["tokio-runtime"] }
-codec-html = { path = "../codec-html", version = "0.0.0" }
-codec = { path = "../codec", version = "0.0.0" }
-futures = "0.3.19"
-tokio = { version = "1.13.0", features = ["macros"] }
+codec-html = { path = "../codec-html" }
+codec = { path = "../codec" }
 
 [dev-dependencies]
-test-utils = { path = "../test-utils", version = "0.0.0" }
+test-utils = { path = "../test-utils" }

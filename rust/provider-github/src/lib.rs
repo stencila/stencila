@@ -8,9 +8,17 @@ use octorust::types::{ContentFile, ReposGetContentResponseOneOf};
 
 use archive_utils::extract_tar;
 use provider::{
-    async_trait::async_trait,
     codecs,
-    eyre::{self, bail, eyre, Result},
+    common::{
+        async_trait::async_trait,
+        base64,
+        eyre::{bail, eyre, Result},
+        once_cell::sync::Lazy,
+        regex::Regex,
+        serde_json,
+        tempfile::NamedTempFile,
+        tracing,
+    },
     http_utils::{
         self, download_temp_with,
         http::{
@@ -18,16 +26,13 @@ use provider::{
             Request, Response, StatusCode,
         },
         response,
-        tempfile::NamedTempFile,
     },
-    once_cell::sync::Lazy,
-    regex::Regex,
-    resolve_token, serde_json,
+    resolve_token,
     stencila_schema::{
         CreativeWorkAuthors, CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date,
         Node, Organization, Person, SoftwareSourceCode, ThingDescription,
     },
-    tracing, EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
+    EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
 };
 
 /// The default name for the token used to authenticate with the API
@@ -497,7 +502,7 @@ fn write_content_file(content_file: ContentFile, path: &Path) -> Result<()> {
 /// a 404 provide the user with some hints as to what to do
 ///
 /// See https://github.com/yaahc/eyre/issues/31 for potential improvements
-fn enhance_error<E: std::fmt::Debug>(error: E) -> eyre::Report {
+fn enhance_error<E: std::fmt::Debug>(error: E) -> provider::common::eyre::Report {
     let mut message = format!("{:?}", error);
     if message.contains("404 Not Found") {
         message = "Could not access the GitHub repository. Please check that it exists, that you have permission to access it, and a GitHub access token is available (you may need to connect GitHub to your Stencila account)".to_string();

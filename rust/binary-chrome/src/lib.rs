@@ -1,6 +1,8 @@
 use binary::{
-    async_trait::async_trait,
-    eyre::{bail, Result},
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, Result},
+    },
     Binary, BinaryTrait,
 };
 use std::{fs::read_dir, path::Path};

@@ -1,10 +1,7 @@
 use codec_csl::CslCodec;
 use provider::{
-    async_trait::async_trait,
-    eyre::Result,
+    common::{async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex},
     http_utils::{get_with, http::header},
-    once_cell::sync::Lazy,
-    regex::Regex,
     stencila_schema::*,
     EnrichOptions, ParseItem, Provider, ProviderTrait,
 };
@@ -112,7 +109,7 @@ impl ProviderTrait for DoiProvider {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use provider::eyre::bail;
+    use provider::common::{eyre::bail, tokio};
     use test_utils::assert_json_is;
 
     #[tokio::test]

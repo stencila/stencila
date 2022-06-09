@@ -61,7 +61,7 @@ pub fn snapshot_fixtures_path_content<F: FnMut(&Path, &str)>(pattern: &str, mut 
 pub fn snapshot_fixtures_nodes<F: FnMut(stencila_schema::Node)>(pattern: &str, mut func: F) {
     snapshot_fixtures(pattern, |path| {
         let json = std::fs::read_to_string(path).expect("Unable to read file");
-        let node = serde_json::from_str(&json).expect("Unable to deserialize from JSON");
+        let node = common::serde_json::from_str(&json).expect("Unable to deserialize from JSON");
         func(node)
     })
 }

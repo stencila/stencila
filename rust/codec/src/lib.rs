@@ -1,18 +1,19 @@
-use async_trait::async_trait;
-use eyre::{bail, Result};
-use serde::{Deserialize, Serialize};
 use std::{fs::create_dir_all, path::Path};
-use stencila_schema::Node;
-use tokio::{
-    fs::File,
-    io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
+
+use common::{
+    async_trait::async_trait,
+    eyre::{bail, Result},
+    serde::{Deserialize, Serialize},
+    tokio::{
+        fs::File,
+        io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
+    },
 };
+use stencila_schema::Node;
 use utils::vec_string;
 
 // Re-export for the convenience of crates that implement `CodecTrait`
-pub use ::async_trait;
-pub use eyre;
-pub use serde;
+pub use common;
 pub use stencila_schema;
 pub use utils;
 
@@ -23,7 +24,7 @@ pub use utils;
 /// `spec` function of `CodecTrait`. Plugins provide a JSON or YAML serialization
 /// as part of their manifest.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
+#[serde(default, rename_all = "camelCase", crate = "common::serde")]
 pub struct Codec {
     /// A list of format names (or aliases) that the codec can decode from
     /// or encode to

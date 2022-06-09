@@ -5,15 +5,19 @@ use std::{
 
 use archive_utils::extract;
 use provider::{
-    async_trait::async_trait,
-    eyre::{bail, Result},
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, Result},
+        once_cell::sync::Lazy,
+        regex::Regex,
+        slug,
+        tokio::{self, sync::mpsc},
+        tracing,
+    },
     http_utils::{download, download_temp, url},
-    once_cell::sync::Lazy,
-    regex::Regex,
     run_schedule,
     stencila_schema::{Node, Thing},
-    tokio::{self, sync::mpsc},
-    tracing, ImportOptions, ParseItem, Provider, ProviderTrait, IMPORT,
+    ImportOptions, ParseItem, Provider, ProviderTrait, IMPORT,
 };
 
 pub struct HttpProvider;

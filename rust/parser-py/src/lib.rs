@@ -1,14 +1,14 @@
-use once_cell::sync::Lazy;
+use std::path::Path;
+
 use parser_treesitter::{
     captures_as_args_map,
-    eyre::Result,
+    common::{eyre::Result, once_cell::sync::Lazy},
     formats::Format,
     graph_triples::{relations, resources, Resource, ResourceInfo},
     path_utils, resource_info,
     utils::{is_quoted, remove_quotes},
     Parser, ParserTrait, TreesitterParser,
 };
-use std::path::Path;
 
 /// Tree-sitter based parser for Python
 static PARSER: Lazy<TreesitterParser> =

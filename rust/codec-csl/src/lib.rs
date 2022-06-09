@@ -1,6 +1,9 @@
 pub use codec::CodecTrait;
 use codec::{
-    eyre::{bail, eyre, Result},
+    common::{
+        eyre::{bail, eyre, Result},
+        serde_json,
+    },
     stencila_schema::{
         Article, CreativeWorkAuthors, CreativeWorkPublisher, CreativeWorkTitle, CreativeWorkTypes,
         Date, Node, Organization, Periodical, Person, PublicationIssue,

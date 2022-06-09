@@ -5,8 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-binary = { path = "../binary", version = "0.0.0", features = ["download"] }
-buildpack = { path = "../buildpack", version = "0.0.0" }
-serde = "1.0.130"
+binary = { path = "../binary", features = ["download"] }
+buildpack = { path = "../buildpack" }
 sys-info = "0.9.1"
-utils = { path = "../utils", version = "0.0.0" }
+utils = { path = "../utils" }

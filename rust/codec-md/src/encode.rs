@@ -1,6 +1,10 @@
-use codec::{eyre::Result, stencila_schema::*, EncodeOptions};
-use itertools::Itertools;
 use std::cmp::max;
+
+use codec::{
+    common::{eyre::Result, itertools::Itertools},
+    stencila_schema::*,
+    EncodeOptions,
+};
 
 /// Encode a `Node` to Markdown
 pub fn encode(node: &Node, _options: Option<EncodeOptions>) -> Result<String> {

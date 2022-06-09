@@ -1,6 +1,6 @@
 use binary_podman::{BinaryTrait, PodmanBinary};
 use buildpack::{
-    eyre::Report,
+    common::eyre::Report,
     libcnb::{
         build::{BuildContext, BuildResult, BuildResultBuilder},
         detect::{DetectContext, DetectResult, DetectResultBuilder},

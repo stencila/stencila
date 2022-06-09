@@ -1,7 +1,7 @@
 use std::fs::read_to_string;
 
 use buildpack::{
-    eyre,
+    common::{eyre, serde_json, tracing},
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
@@ -10,7 +10,7 @@ use buildpack::{
         generic::{GenericMetadata, GenericPlatform},
         Buildpack,
     },
-    tracing, BuildpackTrait,
+    BuildpackTrait,
 };
 use sources::Sources;
 

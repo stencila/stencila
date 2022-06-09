@@ -4,11 +4,9 @@ use chromiumoxide::{
     cdp::browser_protocol::page::CaptureScreenshotFormat, handler::viewport::Viewport, Browser,
     BrowserConfig,
 };
-use futures::StreamExt;
 
 use codec::{
-    async_trait::async_trait,
-    eyre::Result,
+    common::{async_trait::async_trait, base64, eyre::Result, futures::StreamExt, tokio},
     stencila_schema::{ImageObject, Node},
     utils::vec_string,
     Codec, CodecTrait, DecodeOptions, EncodeOptions,
@@ -172,9 +170,10 @@ pub async fn nodes_to_bytes(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use codec::stencila_schema::CodeChunk;
-    use test_utils::tempfile;
+    use test_utils::common::tempfile;
+
+    use super::*;
 
     #[tokio::test]
     async fn encode() -> super::Result<()> {

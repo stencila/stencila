@@ -5,9 +5,9 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codec = { path = "../codec", version = "0.0.0" }
+codec = { path = "../codec" }
 json5 = "0.4.1"
-node-coerce = { path = "../node-coerce", version = "0.0.0" }
+node-coerce = { path = "../node-coerce" }
 
 [dev-dependencies]
-test-utils = { path = "../test-utils", version = "0.0.0" }
+test-utils = { path = "../test-utils" }

@@ -1,19 +1,24 @@
-use defaults::Defaults;
-use eyre::{bail, Result};
-use node_address::{Address, Slot};
-use node_pointer::{resolve_mut, Pointable};
-use schemars::JsonSchema;
-use serde::de::DeserializeOwned;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use serde_with::skip_serializing_none;
-use similar::TextDiff;
 use std::{
     any::{type_name, Any},
     fmt::Debug,
     hash::Hasher,
 };
+
+use schemars::JsonSchema;
+use similar::TextDiff;
+
+use common::{
+    defaults::Defaults,
+    eyre::{bail, Result},
+    serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize, Serializer},
+    serde_json,
+    serde_with::skip_serializing_none,
+    strum::Display,
+    tracing,
+};
+use node_address::{Address, Slot};
+use node_pointer::{resolve_mut, Pointable};
 use stencila_schema::*;
-use strum::Display;
 
 /// Do two nodes of the same type have equal value?
 pub fn equal<Type>(node1: &Type, node2: &Type) -> bool
@@ -200,7 +205,7 @@ pub type Value = Box<dyn Any + Send>;
 /// characters not bytes.
 #[skip_serializing_none]
 #[derive(Debug, Display, JsonSchema, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub enum Operation {
     /// Add a value
@@ -533,6 +538,7 @@ impl Operation {
 /// A set of [`Operation`]s
 #[skip_serializing_none]
 #[derive(Debug, Default, JsonSchema, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Patch {
     /// The [`Operation`]s to apply

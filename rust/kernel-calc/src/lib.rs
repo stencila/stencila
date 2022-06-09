@@ -1,21 +1,25 @@
+use std::collections::BTreeMap;
+
 use fasteval::{ez_eval, Error};
+
 use kernel::{
-    async_trait::async_trait,
-    eyre::{bail, Result},
-    serde::Serialize,
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, Result},
+        once_cell::sync::Lazy,
+        regex::Regex,
+        serde::Serialize,
+    },
     stencila_schema::{CodeError, Node, Primitive},
     Kernel, KernelStatus, KernelTrait, KernelType, Task, TaskResult,
 };
-use once_cell::sync::Lazy;
-use regex::Regex;
-use std::collections::BTreeMap;
 
 /// A kernel that evaluates simple calculator like numerical expressions
 ///
 /// Based on [`fasteval`](https://github.com/likebike/fasteval). See the
 /// `fasteval` docs for more on the syntax and functions supported.
 #[derive(Debug, Clone, Default, Serialize)]
-#[serde(crate = "kernel::serde")]
+#[serde(crate = "kernel::common::serde")]
 pub struct CalcKernel {
     symbols: BTreeMap<String, f64>,
 }
@@ -174,8 +178,8 @@ fn now() -> Option<f64> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernel::{KernelStatus, KernelTrait};
-    use test_utils::{assert_json_eq, serde_json::json};
+    use kernel::{common::tokio, KernelStatus, KernelTrait};
+    use test_utils::{assert_json_eq, common::serde_json::json};
 
     #[tokio::test]
     async fn status() -> Result<()> {

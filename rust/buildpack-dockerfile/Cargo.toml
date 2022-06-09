@@ -5,5 +5,5 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-binary-podman = { path = "../binary-podman", version = "0.0.0" }
-buildpack = { path = "../buildpack", version = "0.0.0" }
+binary-podman = { path = "../binary-podman" }
+buildpack = { path = "../buildpack" }

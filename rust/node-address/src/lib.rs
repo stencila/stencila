@@ -1,17 +1,20 @@
-use derive_more::{Constructor, Deref, DerefMut};
-use eyre::Result;
-use inflector::cases::{camelcase::to_camel_case, snakecase::to_snake_case};
-use schemars::JsonSchema;
-use serde::{Deserialize, Deserializer, Serialize};
-use std::any::type_name;
-use std::collections::BTreeMap;
 use std::{
-    collections::VecDeque,
+    any::type_name,
+    collections::{BTreeMap, VecDeque},
     fmt::{self, Debug},
     iter::FromIterator,
 };
-use strum::AsRefStr;
+
+use schemars::JsonSchema;
 use thiserror::Error;
+
+use common::{
+    derive_more::{Constructor, Deref, DerefMut},
+    eyre::Result,
+    inflector::cases::{camelcase::to_camel_case, snakecase::to_snake_case},
+    serde::{self, Deserialize, Deserializer, Serialize},
+    strum::AsRefStr,
+};
 
 /// A slot, used as part of an [`Address`], to locate a value within a `Node` tree.
 ///
@@ -34,7 +37,7 @@ use thiserror::Error;
 /// to describe the location of additions and removals, slots offer improved performance and
 /// type safety.
 #[derive(Debug, Clone, JsonSchema, Serialize, Deserialize, AsRefStr)]
-#[serde(untagged)]
+#[serde(untagged, crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub enum Slot {
     Index(usize),
@@ -171,7 +174,7 @@ pub type AddressMap = BTreeMap<String, Address>;
 /// context to the user, in particular regarding actions that can be taken to
 /// resolve the error.
 #[derive(Error, Debug, JsonSchema, Serialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub enum Error {
     /// The user attempted to use an an address (e.g. in a patch operation) that

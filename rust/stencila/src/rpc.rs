@@ -1,13 +1,17 @@
-use crate::{documents::DOCUMENTS, sessions::SESSIONS};
-use defaults::Defaults;
-use eyre::{bail, Result};
+use std::{collections::HashMap, str::FromStr};
+
+use common::{
+    defaults::Defaults,
+    eyre::{bail, Result},
+    serde::{Deserialize, Serialize},
+    serde_json::{self, json},
+    serde_with::skip_serializing_none,
+    tracing,
+};
 use graph::{PlanOrdering, PlanScope};
 use node_patch::Patch;
-use serde::{Deserialize, Serialize};
-use serde_json::json;
-use serde_with::skip_serializing_none;
-use std::collections::HashMap;
-use std::str::FromStr;
+
+use crate::{documents::DOCUMENTS, sessions::SESSIONS};
 
 type Params = HashMap<String, serde_json::Value>;
 
@@ -16,6 +20,7 @@ type Params = HashMap<String, serde_json::Value>;
 /// See <https://www.jsonrpc.org/specification#request_object>.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Defaults, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub struct Request {
     /// A string specifying the version of the JSON-RPC protocol.
     #[def = "Some(\"2.0\".to_string())"]
@@ -109,6 +114,7 @@ pub type Notification = Request;
 /// See <https://www.jsonrpc.org/specification#response_object>.
 #[skip_serializing_none]
 #[derive(Debug, Defaults, PartialEq, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub struct Response {
     /// A string specifying the version of the JSON-RPC protocol.
     #[def = "Some(\"2.0\".to_string())"]
@@ -146,6 +152,7 @@ pub enum Subscription {
 /// See <https://www.jsonrpc.org/specification#error_object>.
 #[skip_serializing_none]
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub struct Error {
     /// A number that indicates the error type that ocurred
     pub code: i16,

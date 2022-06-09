@@ -1,8 +1,12 @@
 use std::path::PathBuf;
 
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
 use thiserror::Error;
+
+use common::{
+    chrono::{Duration, Utc},
+    serde::{Deserialize, Serialize},
+    serde_with::skip_serializing_none,
+};
 
 pub const YEAR_SECONDS: i64 = 31556952;
 
@@ -14,6 +18,7 @@ pub const YEAR_SECONDS: i64 = 31556952;
 /// sizes as small as possible.
 #[skip_serializing_none]
 #[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub struct Claims {
     /// The expiry time of the permissions
     ///
@@ -82,10 +87,8 @@ pub fn encode(
     expiry_seconds: Option<i64>,
     single_use: bool,
 ) -> Result<String, JwtError> {
-    let exp = chrono::Utc::now()
-        .checked_add_signed(chrono::Duration::seconds(
-            expiry_seconds.unwrap_or(YEAR_SECONDS),
-        ))
+    let exp = Utc::now()
+        .checked_add_signed(Duration::seconds(expiry_seconds.unwrap_or(YEAR_SECONDS)))
         .expect("valid timestamp")
         .timestamp();
 

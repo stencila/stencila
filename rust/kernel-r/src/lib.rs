@@ -21,15 +21,18 @@ pub fn new() -> MicroKernel {
 mod tests {
     use std::collections::HashMap;
 
-    use super::*;
     use kernel::{
-        eyre::{bail, Result},
+        common::{
+            eyre::{bail, Result},
+            once_cell::sync::Lazy,
+            tokio::{self, sync::Mutex},
+        },
         stencila_schema::{Array, Node, Object, Primitive},
         KernelTrait, TaskResult,
     };
-    use once_cell::sync::Lazy;
     use test_utils::{assert_json_eq, assert_json_is};
-    use tokio::sync::Mutex;
+
+    use super::*;
 
     // Make sure that only one test runs at any one time
     // This is to avoid `install.packages` being run in parallel.

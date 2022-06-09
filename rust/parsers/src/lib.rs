@@ -1,12 +1,14 @@
+use std::{collections::BTreeMap, sync::Arc};
+
 use formats::{match_name, Format};
-use once_cell::sync::Lazy;
 use parser::{
-    eyre::{bail, Result},
+    common::{
+        eyre::{bail, Result},
+        once_cell::sync::Lazy,
+    },
     graph_triples::{Resource, ResourceInfo},
     ParserTrait,
 };
-use std::collections::BTreeMap;
-use std::sync::Arc;
 
 // Re-exports
 pub use parser::Parser;
@@ -136,7 +138,7 @@ pub mod commands {
     use std::{fs, path::PathBuf};
 
     use super::*;
-    use cli_utils::{async_trait::async_trait, result, Result, Run};
+    use cli_utils::{common::async_trait::async_trait, result, Result, Run};
     use parser::graph_triples::resources;
     use structopt::StructOpt;
 

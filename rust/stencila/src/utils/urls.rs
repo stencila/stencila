@@ -1,5 +1,5 @@
-use eyre::Result;
-use regex::Regex;
+use common::{eyre::Result, regex::Regex};
+use http_utils::url;
 
 pub fn parse(url: &str) -> Result<url::Url> {
     // Ensure that url is fully formed

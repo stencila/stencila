@@ -1,5 +1,5 @@
 use codec::{
-    eyre::{bail, Result},
+    common::eyre::{bail, Result},
     stencila_schema::{
         Article, AudioObject, Date, ImageObject, Node, Person, SoftwareSourceCode, VideoObject,
     },

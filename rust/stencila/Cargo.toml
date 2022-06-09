@@ -24,7 +24,6 @@ images-cli = ["images/cli"]
 
 server = [
   "jsonwebtoken",
-  "http",
   "mime_guess",
   "portpicker",
   "prometheus",
@@ -35,7 +34,6 @@ server = [
   "webbrowser",
   "key-utils",
   "tokio-stream",
-  "urlencoding",
 ]
 
 upgrade = ["self_update"]
@@ -131,95 +129,68 @@ default = [
 # Required external crates
 
 async-recursion = "1.0.0"
-async-trait = "0.1.52"
-chrono = { version = "=0.4.19", features = ["serde"] }
 crossbeam-channel = "0.5.2"
-defaults = "=0.2.0"
-derivative = "=2.2.0"
-derive_more = "=0.99.17"
-dirs-next = "=2.0.0"
-enum_dispatch = "=0.3.7"
-eyre = "=0.6.6"
-futures = "=0.3.19"
-glob = "=0.3.0"
+derivative = "2.2.0"
 handlebars = "4.2.1"
-humantime = "=2.1.0"
-itertools = "=0.10.3"
-maplit = "=1.0.2"
-notify = "=4.0.17"
-once_cell = "1.9.0"
-path-slash = "=0.1.4"
-pathdiff = "=0.2.1"
-regex = "=1.5.4"
-schemars = { version = "=0.8.8", features = ["preserve_order", "chrono"] }
-serde = { version = "1.0.130", features = ["derive", "rc"] }
-serde_json = { version = "1.0.75", features = ["preserve_order"] }
-serde_with = "=1.11.0"
-serde_yaml = "0.8.23"
-slug = "=0.1.4"
+humantime = "2.1.0"
+notify = "4.0.17"
+schemars = { version = "0.8.8", features = ["preserve_order", "chrono"] }
 stencila-schema = { path = "../schema" }
-strum = { version = "=0.23.0", features = ["derive"] }
-strum_macros = "=0.23.1"
-tempfile = "3.2.0"
-thiserror = "=1.0.30"
-tokio = { version = "1.13.0", features = ["full"] }
-toml = "=0.5.8"
-tracing = "=0.1.29"
-tracing-appender = "=0.2.0"
-tracing-error = "=0.2.0"
-tracing-serde = "=0.1.2"
-tracing-subscriber = { version = "=0.3.6", features = ["env-filter", "json"] }
-url = "=2.2.2"
-validator = { version = "=0.14.0", features = ["derive"] }
+thiserror = "1.0.30"
+tracing-appender = "0.2.0"
+tracing-error = "0.2.0"
+tracing-serde = "0.1.2"
+tracing-subscriber = { version = "0.3.6", features = ["env-filter", "json"] }
+validator = { version = "0.14.0", features = ["derive"] }
 
 # Required internal crates
 
-binaries = { path = "../binaries", version = "0.0.0" }
-buildpacks = { path = "../buildpacks", version = "0.0.0" }
-codecs = { path = "../codecs", version = "0.0.0" }
-cron-utils = { path = "../cron-utils", version = "0.0.0" }
-events = { path = "../events", version = "0.0.0" }
-files = { path = "../files", version = "0.0.0" }
-formats = { path = "../formats", version = "0.0.0" }
-graph = { path = "../graph", version = "0.0.0" }
-graph-triples = { path = "../graph-triples", version = "0.0.0" }
-images = { path = "../images", version = "0.0.0" }
-kernels = { path = "../kernels", version = "0.0.0" }
-node-address = { path = "../node-address", version = "0.0.0" }
-node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
-node-execute = { path = "../node-execute", version = "0.0.0" }
-node-patch = { path = "../node-patch", version = "0.0.0" }
-node-pointer = { path = "../node-pointer", version = "0.0.0" }
-node-query = { path = "../node-query", version = "0.0.0" }
-node-reshape = { path = "../node-reshape", version = "0.0.0" }
-parsers = { path = "../parsers", version = "0.0.0" }
-path-utils = { path = "../path-utils", version = "0.0.0" }
-providers = { path = "../providers", version = "0.0.0" }
-sources = { path = "../sources", version = "0.0.0" }
-utils = { path = "../utils", version = "0.0.0" }
-uuids = { path = "../uuids", version = "0.0.0" }
+binaries = { path = "../binaries" }
+buildpacks = { path = "../buildpacks" }
+codecs = { path = "../codecs" }
+common = { path = "../common" }
+cron-utils = { path = "../cron-utils" }
+events = { path = "../events" }
+files = { path = "../files" }
+formats = { path = "../formats" }
+graph = { path = "../graph" }
+graph-triples = { path = "../graph-triples" }
+http-utils = { path = "../http-utils" }
+images = { path = "../images" }
+kernels = { path = "../kernels" }
+node-address = { path = "../node-address" }
+node-dispatch = { path = "../node-dispatch" }
+node-execute = { path = "../node-execute" }
+node-patch = { path = "../node-patch" }
+node-pointer = { path = "../node-pointer" }
+node-query = { path = "../node-query" }
+node-reshape = { path = "../node-reshape" }
+parsers = { path = "../parsers" }
+path-utils = { path = "../path-utils" }
+providers = { path = "../providers" }
+sources = { path = "../sources" }
+utils = { path = "../utils" }
+uuids = { path = "../uuids" }
 
 # Optional crates related to `cli` feature
 
-cli-utils = { path = "../cli-utils", version = "0.0.0", optional = true }
-exitcode = { version = "=1.1.2", optional = true }
-structopt = { version = "=0.3.25", features = ["wrap_help"], optional = true }
+cli-utils = { path = "../cli-utils", optional = true }
+exitcode = { version = "1.1.2", optional = true }
+structopt = { version = "0.3.25", features = ["wrap_help"], optional = true }
 
 # Optional crates related to `server` feature
 
-jsonwebtoken = { version = "=7.2.0", optional = true }
-http = { version = "0.2.7", optional = true }
-key-utils = { path = "../key-utils", version = "0.0.0", optional = true }
+jsonwebtoken = { version = "7.2.0", optional = true }
+key-utils = { path = "../key-utils", optional = true }
 mime_guess = { version = "2.0.4", optional = true }
-portpicker = { version = "=0.1.1", optional = true }
+portpicker = { version = "0.1.1", optional = true }
 prometheus = { version = "0.13.0", features = ["process"], optional = true }
 public-ip = { version = "0.2.2", optional = true }
-server-next = { path = "../server-next", version = "0.0.0", optional = true }
-sudo = { version = "=0.6.0", optional = true }
+server-next = { path = "../server-next", optional = true }
+sudo = { version = "0.6.0", optional = true }
 tokio-stream = { version = "0.1.8", optional = true }
-urlencoding = { version = "=2.1.0", optional = true }
-warp = { version = "=0.3.2", optional = true }
-webbrowser = { version = "=0.5.5", optional = true }
+warp = { version = "0.3.2", optional = true }
+webbrowser = { version = "0.5.5", optional = true }
 
 # Optional crates related to `update` feature
 
@@ -237,5 +208,4 @@ pty-process = { version = "0.2.0", features = ["backend-tokio"] }
 
 
 [dev-dependencies]
-
-test-utils = { path = "../test-utils", version = "0.0.0" }
+test-utils = { path = "../test-utils" }

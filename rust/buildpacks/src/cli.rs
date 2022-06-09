@@ -2,8 +2,10 @@ use std::{env::current_dir, path::PathBuf, process};
 
 use structopt::StructOpt;
 
-use buildpack::tracing;
-use cli_utils::{async_trait::async_trait, result, stdout_isatty, Result, Run};
+use cli_utils::{
+    common::{async_trait::async_trait, tracing},
+    result, stdout_isatty, Result, Run,
+};
 
 use crate::buildpacks::{Buildpacks, PACKS};
 

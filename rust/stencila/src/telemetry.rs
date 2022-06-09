@@ -5,14 +5,16 @@
 ///! or similar for monitoring of worker processes.
 
 pub mod config {
-    use defaults::Defaults;
+    use common::{
+        defaults::Defaults,
+        serde::{Deserialize, Serialize},
+    };
     use schemars::JsonSchema;
-    use serde::{Deserialize, Serialize};
     use validator::Validate;
 
     /// Telemetry settings for Stencila CLI
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-    #[serde(default)]
+    #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct TelemetryCliConfig {
         /// Whether to send error reports. Default is false.
@@ -22,7 +24,7 @@ pub mod config {
 
     /// Telemetry settings for Stencila Desktop
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-    #[serde(default)]
+    #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct TelemetryDesktopConfig {
         /// Whether to send error reports. Default is false.
@@ -34,7 +36,7 @@ pub mod config {
     ///
     /// Configuration settings for telemetry
     #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-    #[serde(default)]
+    #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct TelemetryConfig {
         pub cli: TelemetryCliConfig,

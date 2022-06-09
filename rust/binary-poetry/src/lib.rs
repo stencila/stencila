@@ -2,7 +2,9 @@ use std::ffi::OsString;
 use std::path::Path;
 
 use binary::{
-    async_trait::async_trait, binary_clone_box, eyre::Result, tracing, Binary, BinaryTrait,
+    binary_clone_box,
+    common::{async_trait::async_trait, eyre::Result, tracing},
+    Binary, BinaryTrait,
 };
 use binary_python::PythonBinary;
 

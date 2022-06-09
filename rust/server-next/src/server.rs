@@ -1,7 +1,11 @@
 use axum::{routing::get, Router};
-use eyre::{bail, Result};
-use tokio::{sync::mpsc, task::JoinHandle};
 use tower_http::trace::TraceLayer;
+
+use common::{
+    eyre::{bail, Result},
+    tokio::{self, sync::mpsc, task::JoinHandle},
+    tracing,
+};
 
 use crate::statics::{get_static, STATIC_VERSION};
 

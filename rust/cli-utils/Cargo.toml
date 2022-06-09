@@ -6,29 +6,21 @@ edition = "2021"
 
 [features]
 default = []
-pretty = ["once_cell", "syntect", "serde_yaml", "termimad", "urlencoding"]
-progress = ["events", "linya", "once_cell"]
-interact = ["rustyline", "rustyline-derive", "tracing"]
+pretty = ["syntect", "termimad", "urlencoding"]
+progress = ["events", "linya"]
+interact = ["rustyline", "rustyline-derive"]
 
 [dependencies]
 ansi_term = "0.12.1"
-async-trait = "0.1.52"
 atty = "0.2.14"
-chrono = { version = "0.4.19", features = ["serde"] }
 color-eyre = "0.6.1"
-eyre = "0.6.6"
-events = { path = "../events", version = "0.0.0", optional = true }
+common = { path = "../common" }
+events = { path = "../events", optional = true }
 linya = { version = "0.2.1", optional = true }
-once_cell = { version = "1.9.0", optional = true }
-regex = "1.5.4"
 rustyline = { version = "9.0.0", optional = true }
 rustyline-derive = { version = "0.6.0", optional = true }
-serde = "1.0.130"
-serde_json = "1.0.75"
-serde_yaml = { version = "0.8.23", optional = true }
 structopt = { version = "0.3.25", features = ["wrap_help"] }
 syntect = { version = "4.6.0", optional = true }
 termimad = { version = "0.20.0", optional = true }
-tracing = { version = "0.1.29", optional = true }
 tracing-subscriber = "0.3.6"
 urlencoding = { version = "2.1.0", optional = true }

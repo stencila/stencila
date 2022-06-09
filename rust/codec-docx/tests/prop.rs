@@ -1,8 +1,10 @@
 use codec::{utils::vec_string, CodecTrait};
 use codec_docx::DocxCodec;
-use once_cell::sync::Lazy;
 use test_props::{article, proptest::prelude::*, Freedom};
-use test_utils::assert_json_eq;
+use test_utils::{
+    assert_json_eq,
+    common::{once_cell::sync::Lazy, tokio, tempfile},
+};
 
 static RUNTIME: Lazy<tokio::runtime::Runtime> =
     Lazy::new(|| tokio::runtime::Runtime::new().unwrap());

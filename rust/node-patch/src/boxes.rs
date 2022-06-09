@@ -1,9 +1,11 @@
-use super::prelude::*;
-use serde::de::DeserializeOwned;
 use std::{
     hash::Hasher,
     ops::{Deref, DerefMut},
 };
+
+use common::serde::de::DeserializeOwned;
+
+use super::prelude::*;
 
 /// Implements patching for `Box`
 ///

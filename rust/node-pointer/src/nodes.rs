@@ -1,8 +1,9 @@
-use crate::{Pointable, Pointer, PointerMut, Visitor, VisitorMut};
-use eyre::Result;
+use common::eyre::Result;
 use node_address::Address;
 use node_dispatch::dispatch_node;
 use stencila_schema::*;
+
+use crate::{Pointable, Pointer, PointerMut, Visitor, VisitorMut};
 
 impl Pointable for Node {
     /// Resolve an [`Address`] into a node [`Pointer`].

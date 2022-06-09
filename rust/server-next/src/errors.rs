@@ -3,7 +3,8 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use serde_json::json;
+
+use common::{eyre, serde_json::json};
 
 /// A server error which, as well as having the usual message string,
 /// has a HTTP status code

@@ -1,12 +1,16 @@
-use inflector::Inflector;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 use std::path::Path;
-use strum::{EnumIter, EnumString, IntoEnumIterator};
+
+use schemars::JsonSchema;
+
+use common::{
+    inflector::Inflector,
+    serde::{Deserialize, Serialize},
+    strum::{EnumIter, EnumString, IntoEnumIterator},
+};
 
 #[derive(Debug, Clone, PartialEq, EnumIter, Serialize, Deserialize, JsonSchema, EnumString)]
-#[serde(rename_all = "lowercase")]
-#[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum Format {
     Bash,
     Calc,
@@ -122,6 +126,7 @@ impl Format {
 
 /// The type of format as a schema `Node` type
 #[derive(Clone, Debug, PartialEq, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 pub enum FormatNodeType {
     Article,
     AudioObject,
@@ -138,6 +143,7 @@ pub enum FormatNodeType {
 /// Used to determine various application behaviors
 /// e.g. not reading binary formats into memory unnecessarily
 #[derive(Clone, Debug, PartialEq, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct FormatSpec {
     /// The title of the format e.g. "Markdown"

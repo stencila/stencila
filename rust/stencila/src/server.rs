@@ -1,20 +1,3 @@
-use crate::{
-    config::CONFIG,
-    documents::DOCUMENTS,
-    jwt::{self, YEAR_SECONDS},
-    projects::Projects,
-    rpc::{self, Error, Response},
-    utils::urls,
-};
-use chrono::{Duration, TimeZone, Utc};
-use events::{subscribe, unsubscribe, Subscriber, SubscriptionId};
-use eyre::{bail, eyre, Result};
-use futures::{SinkExt, StreamExt};
-use itertools::Itertools;
-use jwt::JwtError;
-use once_cell::sync::{Lazy, OnceCell};
-use regex::{Captures, Regex};
-use serde::{Deserialize, Serialize};
 use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
     env,
@@ -27,12 +10,8 @@ use std::{
     },
     time::{SystemTime, UNIX_EPOCH},
 };
-use stencila_schema::Node;
-use tokio::{
-    sync::{mpsc, RwLock},
-    task::JoinHandle,
-};
-use uuids::generate;
+
+use jwt::JwtError;
 use warp::{
     http::{
         header::{self, HeaderValue},
@@ -41,7 +20,36 @@ use warp::{
     ws, Filter, Reply,
 };
 
+use common::{
+    chrono::{Duration, TimeZone, Utc},
+    eyre::{bail, eyre, Result},
+    futures::{SinkExt, StreamExt},
+    itertools::Itertools,
+    once_cell::sync::{Lazy, OnceCell},
+    regex::{Captures, Regex},
+    serde::{Deserialize, Serialize},
+    serde_json,
+    tokio::{
+        self,
+        sync::{mpsc, RwLock},
+        task::JoinHandle,
+    },
+    tracing,
+};
+use events::{subscribe, unsubscribe, Subscriber, SubscriptionId};
+use http_utils::{http, urlencoding};
 use server_next::statics::{get_static_parts, STATIC_VERSION};
+use stencila_schema::Node;
+use uuids::generate;
+
+use crate::{
+    config::CONFIG,
+    documents::DOCUMENTS,
+    jwt::{self, YEAR_SECONDS},
+    projects::Projects,
+    rpc::{self, Error, Response},
+    utils::urls,
+};
 
 /// Main server entry point function
 ///
@@ -215,6 +223,7 @@ static SERVER: OnceCell<RwLock<Server>> = OnceCell::new();
 
 /// A HTTP/WebSocket server
 #[derive(Debug, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct Server {
     /// The IP address that the server is listening on
     address: String,
@@ -656,6 +665,7 @@ fn record_rpc_request(method: &str) {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(crate = "common::serde")]
 struct WebsocketClient {
     /// The client id
     id: String,
@@ -1064,6 +1074,7 @@ async fn get_metrics() -> Result<impl warp::Reply, std::convert::Infallible> {
 
 /// Query parameters for `post_hooks`
 #[derive(Debug, Deserialize)]
+#[serde(crate = "common::serde")]
 struct HooksParams {
     src: String,
     dest: Option<PathBuf>,
@@ -1119,6 +1130,7 @@ async fn post_hooks(
 
 /// Query parameters for `authentication_filter`
 #[derive(Deserialize)]
+#[serde(crate = "common::serde")]
 struct AuthParams {
     pub token: Option<String>,
 }
@@ -1418,6 +1430,7 @@ async fn attach_connected(web_socket: warp::ws::WebSocket, claims: jwt::Claims) 
 
 /// Query parameters for `get_handler`
 #[derive(Debug, Deserialize)]
+#[serde(crate = "common::serde")]
 struct GetParams {
     /// The mode "read", "view", "exec", or "edit"
     mode: Option<String>,
@@ -1746,6 +1759,7 @@ pub fn html_rewrite(
 
 /// Parameters for the WebSocket handshake
 #[derive(Debug, Deserialize)]
+#[serde(crate = "common::serde")]
 struct WsParams {
     /// The id of the client
     client: Option<String>,
@@ -1924,10 +1938,12 @@ pub async fn hostname() -> String {
 }
 
 pub mod config {
-    use defaults::Defaults;
+    use common::{
+        defaults::Defaults,
+        serde::{Deserialize, Serialize},
+        serde_with::skip_serializing_none,
+    };
     use schemars::JsonSchema;
-    use serde::{Deserialize, Serialize};
-    use serde_with::skip_serializing_none;
     use validator::Validate;
 
     /// Server
@@ -1935,7 +1951,7 @@ pub mod config {
     /// Configuration settings for running as a server
     #[skip_serializing_none]
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-    #[serde(default)]
+    #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct ServerConfig {
         /// The URL to serve on
@@ -1955,10 +1971,12 @@ pub mod config {
 pub mod commands {
     use std::path::PathBuf;
 
-    use super::*;
-    use async_trait::async_trait;
-    use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
+
+    use cli_utils::{result, Result, Run};
+    use common::async_trait::async_trait;
+
+    use super::*;
 
     /// Manage document server
     #[derive(Debug, StructOpt)]

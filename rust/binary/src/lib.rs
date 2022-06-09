@@ -1,34 +1,38 @@
-use async_trait::async_trait;
-use defaults::Defaults;
-use eyre::{bail, eyre, Context, Result};
-use http_utils::url;
-use regex::Regex;
-use serde::Serialize;
 #[allow(unused_imports)]
 use std::{
     cmp::Ordering,
+    collections::{HashMap, HashSet},
     env::{
         self,
         consts::{ARCH, OS},
     },
+    ffi::{OsStr, OsString},
     fs, io,
     path::{Path, PathBuf},
     process::{Output, Stdio},
     str::FromStr,
 };
-use std::{
-    collections::{HashMap, HashSet},
-    ffi::{OsStr, OsString},
+
+use common::{
+    async_trait::async_trait,
+    defaults::Defaults,
+    dirs,
+    eyre::{bail, eyre, Context, Result},
+    glob,
+    regex::Regex,
+    serde::{self, Serialize},
+    serde_json,
+    tokio::{
+        self,
+        io::{AsyncBufReadExt, BufReader},
+    },
+    tracing,
 };
-use tokio::io::{AsyncBufReadExt, BufReader};
+use http_utils::url;
 
 /// Re-exports for the convenience of crates implementing `BinaryTrait`
-pub use ::async_trait;
-pub use ::eyre;
+pub use ::common;
 pub use ::http_utils;
-pub use ::serde_json;
-pub use ::tokio;
-pub use ::tracing;
 
 /// Get the directory where binaries are stored
 pub fn binaries_dir() -> PathBuf {
@@ -46,6 +50,7 @@ pub fn binaries_dir() -> PathBuf {
 ///
 /// The `installable` field lists the versions that Stencila is capable of installing.
 #[derive(Defaults, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct Binary {
     /// The name of the binary
     pub name: String,
@@ -934,6 +939,7 @@ impl BinaryTrait for Binary {
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct BinaryInstallation {
     /// The name of the binary
     #[serde(skip)]

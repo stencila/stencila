@@ -1,6 +1,6 @@
-use maplit::hashset;
-use once_cell::sync::Lazy;
 use std::collections::HashSet;
+
+use parser_treesitter::common::{maplit::hashset, once_cell::sync::Lazy};
 
 /// A list of builtin Python functions to ignore when generating relations of type `Relation::Use`.
 ///

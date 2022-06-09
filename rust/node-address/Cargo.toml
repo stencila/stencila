@@ -5,10 +5,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-Inflector = "0.11.4"
-derive_more = "0.99.17"
-eyre = "0.6.6"
+common = { path = "../common" }
 schemars = "0.8.8"
-serde = "1.0.130"
-strum = { version = "0.23.0", features = ["derive"] }
 thiserror = "1.0.30"

@@ -1,6 +1,9 @@
 use codec::{
-    async_trait::async_trait,
-    eyre::{bail, Result},
+    common::{
+        async_trait::async_trait,
+        base64,
+        eyre::{bail, Result},
+    },
     stencila_schema::Node,
     utils::vec_string,
     Codec, CodecTrait, DecodeOptions, EncodeOptions,
@@ -181,9 +184,13 @@ pub async fn nodes_to_bytes(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use codec::stencila_schema::CodeChunk;
-    use test_utils::{assert_json_eq, tempfile};
+    use test_utils::{
+        assert_json_eq,
+        common::{tempfile, tokio},
+    };
+
+    use super::*;
 
     /// End-to-end test of encoding a node to a PNG and then decoding
     /// it from the PNG. See `../tests/prop.rs` for more intensive end-to-end testing.

@@ -1,17 +1,3 @@
-use codec_ipynb::{translate_error, translate_mime_bundle, translate_stderr};
-use defaults::Defaults;
-use derivative::Derivative;
-use kernel::{
-    async_trait::async_trait,
-    eyre::{bail, eyre, Result},
-    serde::{Deserialize, Serialize},
-    stencila_schema::{CodeError, Node},
-    Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, Task, TaskResult,
-};
-use once_cell::sync::Lazy;
-use path_slash::PathBufExt;
-use serde_json::json;
-use serde_with::skip_serializing_none;
 use std::{
     collections::HashMap,
     fs,
@@ -20,13 +6,33 @@ use std::{
     sync::Arc,
     time::Duration,
 };
-use tokio::{
-    process::Command,
-    sync::{broadcast, Mutex, RwLock},
-    task::JoinHandle,
-    time::{sleep, timeout},
-};
+
+use derivative::Derivative;
 use zmq::Socket;
+
+use codec_ipynb::{translate_error, translate_mime_bundle, translate_stderr};
+use kernel::{
+    common::{
+        async_trait::async_trait,
+        defaults::Defaults,
+        eyre::{bail, eyre, Result},
+        once_cell::sync::Lazy,
+        serde::{Deserialize, Serialize},
+        serde_json::{self, json},
+        serde_with::skip_serializing_none,
+        tokio::{
+            self,
+            process::Command,
+            sync::{broadcast, Mutex, RwLock},
+            task::JoinHandle,
+            time::{sleep, timeout},
+        },
+        tracing,
+    },
+    stencila_schema::{CodeError, Node},
+    Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, Task, TaskResult,
+};
+use path_utils::path_slash::PathBufExt;
 
 mod connection;
 pub mod dirs;
@@ -57,7 +63,7 @@ uuids::uuid_family!(JupyterSessionId, "se");
 /// Comments below are copied from there.
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Deserialize, Serialize)]
-#[serde(default)]
+#[serde(default, crate = "kernel::common::serde")]
 pub struct JupyterKernel {
     /// The id of the kernel instance
     id: JupyterKernelId,

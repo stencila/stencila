@@ -1,21 +1,26 @@
-use derivative::Derivative;
-use eyre::Result;
-use hash_utils::{file_sha256, str_sha256};
-use path_slash::PathExt;
-use schemars::JsonSchema;
-use serde::Serialize;
-use serde_with::skip_serializing_none;
 use std::{
     fmt::Display,
     path::{Path, PathBuf},
 };
+
+use derivative::Derivative;
+use schemars::JsonSchema;
+
+use common::{
+    base64,
+    eyre::Result,
+    serde::{self, Serialize},
+    serde_with::skip_serializing_none,
+};
+use hash_utils::{file_sha256, str_sha256};
+use path_utils::path_slash::PathExt;
 use stencila_schema::{CodeChunkExecuteAuto, CodeExecutableExecuteStatus};
 
 use crate::{Pairs, Relation};
 
 /// A resource in a dependency graph (the nodes of the graph)
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", crate = "common::serde")]
 pub enum Resource {
     /// A symbol within code, within a document
     Symbol(Symbol),
@@ -244,6 +249,7 @@ impl Serialize for ResourceDigest {
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct ResourceInfo {
     /// The resource (the "subject") that this information is for
     pub resource: Resource,
@@ -475,6 +481,7 @@ impl ResourceInfo {
 }
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
 #[derivative(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Symbol {
     /// The path of the file that the symbol is defined in
@@ -504,6 +511,7 @@ pub fn symbol(path: &Path, name: &str, kind: &str) -> Resource {
 }
 
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[derivative(PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[schemars(deny_unknown_fields)]
 pub struct Node {
@@ -535,6 +543,7 @@ pub fn node(path: &Path, id: &str, kind: &str) -> Resource {
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[derivative(PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[schemars(deny_unknown_fields)]
 pub struct Code {
@@ -569,6 +578,7 @@ pub fn code(path: &Path, id: &str, kind: &str, language: Option<String>) -> Reso
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct File {
     /// The path of the file
@@ -584,6 +594,7 @@ pub fn file(path: &Path) -> Resource {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Module {
     /// The programming language of the module
@@ -602,6 +613,7 @@ pub fn module(language: &str, name: &str) -> Resource {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Url {
     /// The URL of the external resource

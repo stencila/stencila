@@ -1,6 +1,13 @@
-use crate::from_pandoc;
+use std::{collections::HashMap, path::PathBuf};
+
+use pandoc_types::definition as pandoc;
+
 use codec::{
-    eyre::{bail, Result},
+    common::{
+        eyre::{bail, Result},
+        serde_json,
+        slug::slugify,
+    },
     stencila_schema::*,
     CodecTrait,
 };
@@ -9,9 +16,8 @@ use codec_rpng::RpngCodec;
 use codec_txt::ToTxt;
 use formats::FormatNodeType;
 use node_coerce::coerce;
-use pandoc_types::definition as pandoc;
-use slug::slugify;
-use std::{collections::HashMap, path::PathBuf};
+
+use crate::from_pandoc;
 
 /// Decode a document to a `Node`
 ///
@@ -677,8 +683,10 @@ fn try_code_chunk(inline: &InlineContent) -> Option<BlockContent> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
+    use test_utils::common::tokio;
+
+    use super::*;
 
     #[test]
     fn pandoc_fragments() {

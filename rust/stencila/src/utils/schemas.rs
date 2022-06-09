@@ -4,13 +4,16 @@
 //! Not to be confused with the `stencila-schema` crate which
 //! provides Rust `struct`s generated from Stencila's JSON Schema ;)
 
-use eyre::Result;
 use schemars::{
     gen::{SchemaGenerator, SchemaSettings},
     schema::{Schema, SchemaObject},
     JsonSchema, Map,
 };
-use serde_json::{json, Value as JsonValue};
+
+use common::{
+    eyre::Result,
+    serde_json::{self, json, Value as JsonValue},
+};
 
 /// Create a `schemars` JSON Schema generator
 ///

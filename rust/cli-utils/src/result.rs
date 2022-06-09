@@ -1,4 +1,4 @@
-use serde::Serialize;
+use common::{eyre, serde::Serialize, serde_json, serde_yaml};
 
 /// A result which should be printed to the console
 pub type Result = eyre::Result<Value>;
@@ -84,7 +84,7 @@ pub mod print {
 /// Printing with prettiness
 #[cfg(feature = "pretty")]
 pub mod print {
-    use chrono::Utc;
+    use common::chrono::Utc;
 
     use super::*;
 
@@ -152,7 +152,7 @@ pub mod print {
 
     // Apply syntax highlighting and print to terminal
     pub fn highlight(format: &str, content: &str) -> eyre::Result<()> {
-        use once_cell::sync::Lazy;
+        use common::once_cell::sync::Lazy;
         use syntect::{
             easy::HighlightLines,
             highlighting::{Style, ThemeSet},

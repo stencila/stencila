@@ -6,28 +6,28 @@
 //! the number of network requests for the client, several APIs ask clients
 //! to implement caching to reduce load on their servers.
 
-use std::fs::create_dir_all;
-use std::io::Write;
-use std::{env, fs::File, io, path::Path};
+use std::{env, fs::create_dir_all, fs::File, io, io::Write, path::Path};
 
-use eyre::Result;
 use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
-use once_cell::sync::Lazy;
 use reqwest::header::{self, HeaderMap, HeaderName, HeaderValue};
 use reqwest::Response;
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use tempfile::NamedTempFile;
+
+use common::{
+    dirs,
+    eyre::Result,
+    once_cell::sync::Lazy,
+    serde::{de::DeserializeOwned, Serialize},
+    tempfile::{self, NamedTempFile},
+    tokio,
+};
 
 // Re-exports for consumers of this crate
 pub use http;
 pub use reqwest;
 pub use reqwest_middleware;
-pub use serde;
-pub use serde_json;
-pub use tempfile;
 pub use url;
+pub use urlencoding;
 
 pub static USER_AGENT: &str = concat!("stencila/", env!("CARGO_PKG_VERSION"),);
 

@@ -1,20 +1,21 @@
-use defaults::Defaults;
-use events::publish;
-use formats::Format;
-use schemars::JsonSchema;
-use serde::Serialize;
-use serde_with::skip_serializing_none;
 use std::{
     collections::{btree_map::Entry, BTreeMap, BTreeSet},
     path::{Path, PathBuf},
     time::UNIX_EPOCH,
 };
-use strum::Display;
+
+use schemars::JsonSchema;
+
+use common::{
+    defaults::Defaults, serde::Serialize, serde_with::skip_serializing_none, strum::Display,
+};
+use events::publish;
+use formats::Format;
 
 /// A file or directory within a `Project`
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, JsonSchema, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct File {
     /// The absolute path of the file or directory
@@ -105,7 +106,7 @@ impl File {
 }
 
 #[derive(Display, JsonSchema, Serialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum FileEventType {
     Refreshed,
     Created,
@@ -118,6 +119,7 @@ pub enum FileEventType {
 ///
 /// These events published under the `projects:<project-path>:files` topic.
 #[derive(JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct FileEvent {
     /// The path of the project (absolute)
@@ -177,6 +179,7 @@ impl FileEvent {
 
 /// A registry of `File`s within a `Project`
 #[derive(Clone, Debug, Default, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct Files {
     /// The root path of the project
     #[serde(skip)]

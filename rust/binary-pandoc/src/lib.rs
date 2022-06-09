@@ -1,9 +1,11 @@
 use std::path::Path;
 
 use binary::{
-    async_trait::async_trait,
     binary_clone_box,
-    eyre::{bail, Result},
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, Result},
+    },
     Binary, BinaryTrait,
 };
 

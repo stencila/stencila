@@ -1,7 +1,8 @@
-use crate::{Pointable, Pointer, PointerMut, Visitor, VisitorMut};
-use eyre::{bail, Result};
+use common::eyre::{bail, Result};
 use node_address::Address;
 use stencila_schema::*;
+
+use crate::{Pointable, Pointer, PointerMut, Visitor, VisitorMut};
 
 // Implementations for data related types
 

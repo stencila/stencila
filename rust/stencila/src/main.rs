@@ -1,7 +1,9 @@
 #![recursion_limit = "256"]
 
+use common::tokio;
+
 #[tokio::main]
-pub async fn main() -> eyre::Result<()> {
+pub async fn main() -> common::eyre::Result<()> {
     #[cfg(feature = "cli")]
     stencila::cli::main().await?;
 

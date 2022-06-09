@@ -6,11 +6,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-pub use eyre;
-use eyre::{bail, Result};
-pub use fs_utils;
-pub use hash_utils;
-pub use libcnb;
 use libcnb::{
     data::{
         build_plan::{Provide, Require},
@@ -19,14 +14,20 @@ use libcnb::{
     layer_env::{LayerEnv, Scope},
     libcnb_runtime_build, libcnb_runtime_detect, BuildArgs, DetectArgs, Env,
 };
-pub use maplit;
-pub use serde;
-use serde::{Deserialize, Serialize};
-pub use serde_json;
-use serde_with::skip_serializing_none;
-pub use tokio;
-pub use toml;
-pub use tracing;
+
+use common::{
+    dirs,
+    eyre::{bail, Result},
+    serde::{Deserialize, Serialize},
+    serde_json,
+    serde_with::skip_serializing_none,
+    toml,
+};
+
+pub use common;
+pub use fs_utils;
+pub use hash_utils;
+pub use libcnb;
 
 /// The stack id
 ///
@@ -334,12 +335,14 @@ pub type LayerOptions = HashMap<String, String>;
 
 /// Metadata for a layer that uses a hash to determine existing layer strategy
 #[derive(Clone, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct LayerHashMetadata {
     pub hash: String,
 }
 
 /// Metadata for a layer that uses a version to determine existing layer strategy
 #[derive(Clone, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct LayerVersionMetadata {
     pub version: String,
 }
@@ -384,6 +387,7 @@ pub fn tag_for_path(path: &Path) -> String {
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#buildpacktoml-toml
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct BuildpackToml {
     pub api: String,
     pub buildpack: Buildpack,
@@ -394,6 +398,7 @@ pub struct BuildpackToml {
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct Buildpack {
     pub id: BuildpackId,
     pub version: String,
@@ -409,6 +414,7 @@ pub struct Buildpack {
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct BuildpackLicense {
     pub r#type: Option<String>,
     pub uri: Option<String>,
@@ -416,13 +422,14 @@ pub struct BuildpackLicense {
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct BuildpackStack {
     pub id: String,
     pub mixins: Option<Vec<String>>,
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
-#[serde(default)]
+#[serde(default, crate = "common::serde")]
 pub struct BuildpackGroup {
     pub id: String,
     pub version: String,
@@ -436,6 +443,7 @@ pub struct BuildpackGroup {
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#build-plan-toml
 #[skip_serializing_none]
 #[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct BuildPlan {
     pub provides: Option<Vec<BuildPlanProvides>>,
     pub requires: Option<Vec<BuildPlanRequires>>,
@@ -443,12 +451,14 @@ pub struct BuildPlan {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct BuildPlanProvides {
     pub name: String,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct BuildPlanRequires {
     pub name: String,
     pub metadata: Option<toml::Value>,
@@ -456,6 +466,7 @@ pub struct BuildPlanRequires {
 
 #[skip_serializing_none]
 #[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct BuildPlanOr {
     pub provides: Option<BuildPlanProvides>,
     pub requires: Option<BuildPlanRequires>,
@@ -468,6 +479,7 @@ pub struct BuildPlanOr {
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#buildpack-plan-toml
 #[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
+#[serde(crate = "common::serde")]
 pub struct BuildpackPlan {
     pub entries: Vec<BuildPlanRequires>,
 }
@@ -485,6 +497,7 @@ pub fn runtime<B: libcnb::Buildpack>(buildpack: &B) {
 #[macro_export]
 macro_rules! buildpack_main {
     ($buildpack:ident) => {
+        use buildpack::common::tokio;
         #[tokio::main]
         async fn main() {
             buildpack::runtime(&$buildpack);

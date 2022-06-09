@@ -261,9 +261,11 @@ patchable_media_object!(VideoObjectSimple, content_url, media_type);
 mod tests {
     use super::*;
     use crate::{apply_new, diff, equal};
-    use serde_json::json;
     use stencila_schema::Node;
-    use test_utils::{assert_json_eq, assert_json_is};
+    use test_utils::{
+        assert_json_eq, assert_json_is,
+        common::serde_json::{self, json},
+    };
 
     // Test that operations with address are passed through
     #[test]

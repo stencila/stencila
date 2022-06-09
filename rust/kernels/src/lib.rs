@@ -1,24 +1,29 @@
-use chrono::{DateTime, Utc};
-use derive_more::{Deref, DerefMut};
-use graph_triples::ResourceInfo;
-#[allow(unused_imports)]
-use kernel::{
-    async_trait::async_trait,
-    eyre::{bail, eyre, Result},
-    stencila_schema::{CodeError, Node},
-    KernelId, KernelInfo, KernelStatus, KernelTrait, TaskId, TaskMessages, TaskOutputs,
-};
-use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, BTreeMap, HashMap, HashSet, VecDeque},
     sync::Arc,
     time::Duration,
 };
+
+use graph_triples::ResourceInfo;
 #[allow(unused_imports)]
-use strum::{EnumString, EnumVariantNames, VariantNames};
-use tokio::{
-    sync::{broadcast, mpsc, Mutex},
-    task::JoinHandle,
+use kernel::{
+    common::{
+        async_trait::async_trait,
+        chrono::{DateTime, Utc},
+        derive_more::{Deref, DerefMut},
+        eyre::{bail, eyre, Result},
+        serde::Serialize,
+        serde_json, slug,
+        strum::{EnumString, EnumVariantNames, VariantNames},
+        tokio::{
+            self,
+            sync::{broadcast, mpsc, Mutex},
+            task::JoinHandle,
+        },
+        tracing,
+    },
+    stencila_schema::{CodeError, Node},
+    KernelId, KernelInfo, KernelStatus, KernelTrait, TaskId, TaskMessages, TaskOutputs,
 };
 
 // Re-exports
@@ -30,6 +35,7 @@ pub use kernel::{Kernel, KernelSelector, KernelType, Task, TaskResult};
 /// to allow dispatching to plugins that are dynamically added at runtime.
 #[allow(clippy::large_enum_variant)]
 #[derive(Debug, Serialize)]
+#[serde(crate = "common::serde")]
 enum MetaKernel {
     #[cfg(feature = "kernel-store")]
     Store(kernel_store::StoreKernel),
@@ -165,6 +171,7 @@ impl KernelTrait for MetaKernel {
 
 /// A map of kernel ids to kernels.
 #[derive(Debug, Default, Deref, DerefMut, Serialize)]
+#[serde(crate = "common::serde")]
 struct KernelMap(BTreeMap<KernelId, MetaKernel>);
 
 impl KernelMap {
@@ -267,7 +274,7 @@ impl KernelMap {
         }
 
         #[cfg(not(feature = "kernel-jupyter"))]
-        kernel::eyre::bail!(
+        kernel::common::eyre::bail!(
             "Unable to connect to running kernel because support for Jupyter kernels is not enabled",
         )
     }
@@ -342,6 +349,7 @@ impl KernelMap {
 
 /// Information on a symbol in a kernel space
 #[derive(Debug, Clone, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct SymbolInfo {
     /// The type of the object that the symbol refers to (e.g `Number`, `Function`)
     ///
@@ -440,6 +448,7 @@ fn display_symbols(symbols: &KernelSymbols) -> cli_utils::Result {
 }
 
 #[derive(Debug, Clone, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct TaskInfo {
     /// The unique number for the task within the [`KernelSpace`]
     ///
@@ -525,7 +534,7 @@ struct KernelTasks {
 }
 
 #[derive(Debug, EnumVariantNames, EnumString)]
-#[strum(serialize_all = "lowercase")]
+#[strum(serialize_all = "lowercase", crate = "kernel::common::strum")]
 enum KernelTaskSorting {
     /// Sort by task number (default)
     Number,
@@ -1396,10 +1405,9 @@ impl KernelSpace {
         is_fork: bool,
     ) -> cli_utils::Result {
         use cli_utils::result;
+        use common::{once_cell::sync::Lazy, regex::Regex};
         use events::{subscribe, unsubscribe, Subscriber};
         use graph_triples::resources;
-        use once_cell::sync::Lazy;
-        use regex::Regex;
         use std::path::PathBuf;
 
         static SYMBOL: Lazy<Regex> =
@@ -1632,7 +1640,7 @@ fn format_duration(seconds: Option<f64>) -> String {
 pub mod commands {
     use super::*;
     use cli_utils::{result, Result, Run};
-    use once_cell::sync::Lazy;
+    use common::once_cell::sync::Lazy;
     use structopt::StructOpt;
     use tokio::sync::Mutex;
 

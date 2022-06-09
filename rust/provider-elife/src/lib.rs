@@ -1,6 +1,5 @@
 use provider::{
-    once_cell::sync::Lazy,
-    regex::Regex,
+    common::{once_cell::sync::Lazy, regex::Regex},
     stencila_schema::{Article, CreativeWorkPublisher, Node, Organization, ThingIdentifiers},
     ParseItem, Provider, ProviderTrait,
 };

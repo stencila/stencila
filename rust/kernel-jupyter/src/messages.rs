@@ -1,12 +1,16 @@
-use defaults::Defaults;
+use std::any::type_name;
+
 use hmac::Mac;
-use kernel::{
+use zmq::Socket;
+
+use kernel::common::{
+    chrono::Utc,
+    defaults::Defaults,
     eyre::{bail, eyre, Result},
     serde::{de::DeserializeOwned, Deserialize, Serialize},
+    serde_json::{self, json},
+    tracing,
 };
-use serde_json::json;
-use std::any::type_name;
-use zmq::Socket;
 
 pub type HmacSha256 = hmac::Hmac<sha2::Sha256>;
 
@@ -14,7 +18,7 @@ pub type HmacSha256 = hmac::Hmac<sha2::Sha256>;
 ///
 /// This list is from https://jupyter-client.readthedocs.io/en/stable/messaging.html.
 #[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde()]
+#[serde(crate = "kernel::common::serde")]
 #[allow(non_camel_case_types)]
 pub enum JupyterMessageType {
     // Messages on the shell (ROUTER/DEALER) channel
@@ -62,7 +66,7 @@ pub enum JupyterMessageType {
 /// Note that communication with some kernels may fail if one of more of these fields
 /// is missing.
 #[derive(Debug, Clone, Defaults, Deserialize, Serialize)]
-#[serde(default)]
+#[serde(default, crate = "kernel::common::serde")]
 pub struct JupyterMessageHeader {
     /// The version of the message protocol
     #[def = "\"5.3\".to_string()"]
@@ -89,7 +93,7 @@ pub struct JupyterMessageHeader {
     pub(crate) username: String,
 
     /// ISO 8601 timestamp for when the message was created
-    #[def = "chrono::Utc::now().to_rfc3339()"]
+    #[def = "Utc::now().to_rfc3339()"]
     pub(crate) date: String,
 }
 
@@ -117,7 +121,7 @@ impl JupyterMessageHeader {
 ///
 /// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#kernel-info
 #[derive(Debug, Defaults, Deserialize)]
-#[serde(default)]
+#[serde(default, crate = "kernel::common::serde")]
 pub struct JupyterKernelInfoReply {
     /// 'ok' if the request succeeded or 'error', with error information as in all other replies.
     pub(crate) status: String,
@@ -156,7 +160,7 @@ pub struct JupyterKernelInfoReply {
 
 /// Content of an `execute_request` message
 #[derive(Debug, Defaults, Serialize)]
-#[serde(default)]
+#[serde(default, crate = "kernel::common::serde")]
 pub struct JupyterExecuteRequest {
     // Source code to be executed by the kernel, one or more lines.
     pub(crate) code: String,
@@ -198,7 +202,7 @@ pub struct JupyterExecuteRequest {
 
 /// Content of a `stream` message
 #[derive(Debug, Defaults, Deserialize)]
-#[serde(default)]
+#[serde(default, crate = "kernel::common::serde")]
 pub struct JupyterStream {
     /// The name of the stream is one of 'stdout', 'stderr'
     pub(crate) name: String,
@@ -209,7 +213,7 @@ pub struct JupyterStream {
 
 /// Content of a `display_data` message
 #[derive(Debug, Defaults, Deserialize)]
-#[serde(default)]
+#[serde(default, crate = "kernel::common::serde")]
 pub struct JupyterDisplayData {
     /// The data dict contains key/value pairs, where the keys are MIME
     /// types and the values are the raw data of the representation in that
@@ -227,7 +231,7 @@ pub struct JupyterDisplayData {
 
 /// Content of an `execute_result` message
 #[derive(Debug, Defaults, Deserialize)]
-#[serde(default)]
+#[serde(default, crate = "kernel::common::serde")]
 pub struct JupyterExecuteResult {
     // The counter for this execution is also provided so that clients can
     // display it, since IPython automatically creates variables called _N
@@ -243,7 +247,7 @@ pub struct JupyterExecuteResult {
 
 /// Content of a `status` message
 #[derive(Debug, Defaults, Deserialize)]
-#[serde(default)]
+#[serde(default, crate = "kernel::common::serde")]
 pub struct JupyterStatus {
     /// When the kernel starts to handle a message, it will enter the 'busy'
     /// state and when it finishes, it will enter the 'idle' state.
@@ -256,7 +260,7 @@ pub struct JupyterStatus {
 /// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#general-message-format.
 /// Some of the below documentation is copied from there.
 #[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde()]
+#[serde(crate = "kernel::common::serde")]
 pub struct JupyterMessage {
     /// ZeroMQ socket identities
     pub(crate) identities: Vec<String>,

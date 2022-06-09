@@ -2,7 +2,8 @@ use std::path::PathBuf;
 
 use structopt::StructOpt;
 
-use cli_utils::{async_trait::async_trait, result, Result, Run};
+use cli_utils::{common::async_trait::async_trait, result, Result, Run};
+use common::tracing;
 
 use crate::image::Image;
 

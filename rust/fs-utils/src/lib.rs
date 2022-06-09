@@ -1,7 +1,8 @@
 ///! File system utilities, particularly functionality that requires
 ///! alternative implementations for alternative operating systems.
-use eyre::{eyre, Result};
 use std::{fs, io, os, path::Path};
+
+use common::eyre::{eyre, Result};
 
 /// Set permissions on a file
 #[allow(unused_variables)]

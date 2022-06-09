@@ -5,11 +5,13 @@
 //! - `Array`: is covered by `impl Patchable for Vec<Primitive>` in `vecs.rs`
 //! - `Object`: is covered by `impl Patchable for BTreeMap<String, Primitive>` in `maps.rs`
 
-use super::prelude::*;
-use node_dispatch::{dispatch_primitive, dispatch_primitive_pair};
-use serde::de::DeserializeOwned;
 use std::hash::{Hash, Hasher};
+
+use common::{serde::de::DeserializeOwned, serde_json};
+use node_dispatch::{dispatch_primitive, dispatch_primitive_pair};
 use stencila_schema::*;
+
+use super::prelude::*;
 
 impl Patchable for Primitive {
     fn is_equal(&self, other: &Self) -> Result<()> {

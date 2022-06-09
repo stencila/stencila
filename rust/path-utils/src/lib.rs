@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 // Re-exports for the convenience of consumers
 pub use lexiclean;
 pub use path_slash;
+pub use pathdiff;
 
 /// Merge paths
 ///

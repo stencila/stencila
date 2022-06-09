@@ -1,9 +1,17 @@
-use codec::{eyre::Result, EncodeOptions};
-use html_escape::{encode_double_quoted_attribute, encode_safe};
-use inflector::cases::{camelcase::to_camel_case, kebabcase::to_kebab_case};
-use once_cell::sync::Lazy;
-use server_next::statics::get_static_bytes;
 use std::{any::type_name, collections::HashMap};
+
+use html_escape::{encode_double_quoted_attribute, encode_safe};
+
+use codec::{
+    common::{
+        eyre::Result,
+        inflector::cases::{camelcase::to_camel_case, kebabcase::to_kebab_case},
+        once_cell::sync::Lazy,
+        serde, serde_json, tracing,
+    },
+    EncodeOptions,
+};
+use server_next::statics::get_static_bytes;
 use stencila_schema::*;
 
 /// Encode a `Node` to a HTML document
@@ -423,14 +431,16 @@ mod works;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::decode::decode;
-    use codec::eyre::bail;
+    use codec::common::{eyre::bail, tokio};
     use serde_json::json;
     use test_snaps::{
         insta::assert_display_snapshot, snapshot_fixtures_content, snapshot_fixtures_nodes,
     };
     use test_utils::{assert_json_eq, home, skip_ci, skip_ci_os, skip_slow};
+
+    use crate::decode::decode;
+
+    use super::*;
 
     /// Encode the node fixtures
     #[test]

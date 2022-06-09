@@ -1,10 +1,12 @@
 //! Utilities for displaying progress log entries on the command line
 
+use std::{collections::HashMap, sync::Mutex};
+
 use ansi_term::Color::Purple;
 use events::ProgressEvent;
 use linya::{Bar, Progress};
-use once_cell::sync::Lazy;
-use std::{collections::HashMap, sync::Mutex};
+
+use common::{once_cell::sync::Lazy, serde_json};
 
 pub static PROGRESS: Lazy<Mutex<Progress>> = Lazy::new(|| Mutex::new(Progress::new()));
 

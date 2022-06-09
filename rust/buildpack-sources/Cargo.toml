@@ -15,6 +15,5 @@ default = [
 ]
 
 [dependencies]
-sources = { path = "../sources", version = "0.0.0", default-features = false }
-buildpack = { path = "../buildpack", version = "0.0.0" }
-serde_json = "1.0.75"
+sources = { path = "../sources", default-features = false }
+buildpack = { path = "../buildpack" }

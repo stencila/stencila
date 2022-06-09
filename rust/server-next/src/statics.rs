@@ -10,6 +10,8 @@ use axum::{
 };
 use rust_embed::RustEmbed;
 
+use common::{eyre, tracing};
+
 use crate::errors::ServerError;
 
 /// Static assets

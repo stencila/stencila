@@ -1,4 +1,4 @@
-use codec::{eyre::Result, stencila_schema::*, CodecTrait, DecodeOptions};
+use codec::{common::eyre::Result, stencila_schema::*, CodecTrait, DecodeOptions};
 use codec_md::MdCodec;
 
 const LANGUAGES: &[&str] = &["r", "py", "python", "js", "javascript"];

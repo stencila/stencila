@@ -1,17 +1,24 @@
+use std::{env, fs, sync::Arc};
+
 use kernel::{
-    async_trait::async_trait,
-    eyre::{bail, eyre, Result},
+    common::{
+        async_trait::async_trait,
+        dirs,
+        eyre::{bail, eyre, Result},
+        serde::Serialize,
+        serde_json,
+        tempfile::tempdir,
+        tokio::{
+            self,
+            fs::File,
+            io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
+            process::{Child, ChildStderr, ChildStdin, ChildStdout},
+            sync::{broadcast, mpsc, Mutex, MutexGuard, RwLock},
+        },
+        tracing,
+    },
     stencila_schema::{CodeError, Node, Object},
     Kernel, KernelStatus, KernelTrait, KernelType, Task, TaskMessages, TaskOutputs, TaskResult,
-};
-use serde::Serialize;
-use std::{env, fs, sync::Arc};
-use tempfile::tempdir;
-use tokio::{
-    fs::File,
-    io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
-    process::{Child, ChildStderr, ChildStdin, ChildStdout},
-    sync::{broadcast, mpsc, Mutex, MutexGuard, RwLock},
 };
 
 // Line end flags for the Microkernel protocol
@@ -36,6 +43,7 @@ const FORK: &str = "\u{10DE70}";
 const FORK_ALT: &str = "<U+0010DE70>";
 
 #[derive(Debug, Serialize)]
+#[serde(crate = "kernel::common::serde")]
 pub struct MicroKernel {
     /// The name of the kernel
     ///

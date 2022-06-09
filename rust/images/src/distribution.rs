@@ -6,16 +6,22 @@ use std::{
 
 use bytes::{Bytes, BytesMut};
 use bytesize::MIB;
-use eyre::{bail, eyre, Result};
 use oci_spec::image::{Descriptor, ImageConfiguration, ImageIndex, ImageManifest, MediaType};
-use once_cell::sync::Lazy;
-use serde::Deserialize;
-use tokio::{
-    fs::{create_dir_all, metadata, read_to_string, File},
-    io::{self, AsyncReadExt, AsyncWriteExt, BufWriter},
-    sync::RwLock,
-};
 
+use common::{
+    dirs,
+    eyre::{bail, eyre, Result},
+    futures,
+    once_cell::sync::Lazy,
+    serde::Deserialize,
+    serde_json,
+    tokio::{
+        fs::{create_dir_all, metadata, read_to_string, File},
+        io::{self, AsyncReadExt, AsyncWriteExt, BufWriter},
+        sync::RwLock,
+    },
+    tracing,
+};
 use hash_utils::str_sha256_hex;
 use http_utils::{
     reqwest::{Method, Response},
@@ -131,6 +137,7 @@ pub struct Client {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(crate = "common::serde")]
 #[allow(dead_code)]
 struct DockerAuthToken {
     token: String,
@@ -652,7 +659,10 @@ impl Client {
 
 #[cfg(test)]
 mod tests {
-    use test_utils::{print_logs_level, skip_ci, tempfile::tempdir};
+    use test_utils::{
+        common::{tempfile::tempdir, tokio},
+        print_logs_level, skip_ci,
+    };
 
     use super::*;
 

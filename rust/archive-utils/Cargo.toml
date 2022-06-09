@@ -10,9 +10,8 @@ tar-xz = ["tar", "xz2"]
 tar-zst = ["tar", "zstd"]
 
 [dependencies]
-eyre = "0.6.6"
-path-utils = { path = "../path-utils", version = "0.0.0" }
-tracing = "0.1.29"
+common = { path = "../common" }
+path-utils = { path = "../path-utils" }
 
 flate2 = { version = "1.0.22", optional = true }
 tar = { version = "0.4.37", optional = true }

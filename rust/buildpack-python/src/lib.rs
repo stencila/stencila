@@ -8,7 +8,12 @@ use std::{
 use binary_poetry::PoetryBinary;
 use binary_python::{BinaryInstallation, BinaryTrait, PythonBinary};
 use buildpack::{
-    eyre::{self, bail, eyre},
+    common::{
+        eyre::{self, bail, eyre},
+        maplit::hashmap,
+        serde::{Deserialize, Serialize},
+        toml, tracing,
+    },
     fs_utils::{copy_if_exists, symlink_dir, symlink_file},
     hash_utils::str_sha256_hex,
     libcnb::{
@@ -21,11 +26,9 @@ use buildpack::{
         layer_env::{LayerEnv, ModificationBehavior, Scope},
         Buildpack,
     },
-    maplit::hashmap,
-    toml, tracing, BuildpackContext, BuildpackTrait, LayerOptions, LayerVersionMetadata,
+    BuildpackContext, BuildpackTrait, LayerOptions, LayerVersionMetadata,
 };
 use buildpack_apt::AptPackagesLayer;
-use serde::{Deserialize, Serialize};
 
 pub struct PythonBuildpack;
 
@@ -494,6 +497,7 @@ impl Layer for PoetryLayer {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
+#[serde(crate = "buildpack::common::serde")]
 struct VenvLayer {
     /// The package manager used to do the installation of packages
     ///

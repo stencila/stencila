@@ -1,6 +1,8 @@
-use super::prelude::*;
-use serde::de::DeserializeOwned;
 use std::hash::Hasher;
+
+use common::serde::de::DeserializeOwned;
+
+use super::prelude::*;
 
 /// Implements patching for `Option`
 ///

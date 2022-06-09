@@ -1,7 +1,9 @@
-use eyre::Result;
+use std::{convert::TryInto, fs::File, io, path::Path};
+
 use hmac::{Hmac, Mac};
 use sha2::{digest::Output, Digest, Sha256};
-use std::{convert::TryInto, fs::File, io, path::Path};
+
+use common::eyre::Result;
 
 // Re-exports for consumers of this crate
 pub use hmac;

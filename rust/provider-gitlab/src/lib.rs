@@ -6,28 +6,32 @@ use std::{
 
 use archive_utils::extract_tar;
 use provider::{
-    async_trait::async_trait,
     codecs,
-    eyre::{bail, Result},
+    common::{
+        async_trait::async_trait,
+        base64,
+        eyre::{bail, Result},
+        once_cell::sync::Lazy,
+        regex::Regex,
+        serde::{de::DeserializeOwned, Deserialize, Serialize},
+        serde_json,
+        tempfile::NamedTempFile,
+        tracing,
+    },
     http_utils::{
         delete_with, download_temp_with, get_with,
         http::{
             header::{self, HeaderName},
             Request, Response, StatusCode,
         },
-        post_with, response,
-        tempfile::NamedTempFile,
+        post_with, response, urlencoding,
     },
-    once_cell::sync::Lazy,
-    regex::Regex,
     resolve_token,
-    serde::{de::DeserializeOwned, Deserialize, Serialize},
-    serde_json,
     stencila_schema::{
         CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date, Node, Organization,
         SoftwareSourceCode, ThingDescription,
     },
-    tracing, EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
+    EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
 };
 
 /// The base URL for API requests
@@ -439,7 +443,7 @@ impl ProviderTrait for GitlabProvider {
 ///
 /// See https://docs.gitlab.com/ee/api/projects.html#get-single-project
 #[derive(Debug, Deserialize)]
-#[serde(crate = "provider::serde")]
+#[serde(crate = "provider::common::serde")]
 struct Project {
     description: String,
     created_at: String,
@@ -449,7 +453,7 @@ struct Project {
 ///
 /// See https://docs.gitlab.com/ee/api/repository_files.html#get-file-from-repository
 #[derive(Debug, Deserialize)]
-#[serde(crate = "provider::serde")]
+#[serde(crate = "provider::common::serde")]
 struct RepositoryFile {
     file_name: String,
     content: String,
@@ -477,7 +481,7 @@ impl RepositoryFile {
 ///
 /// See https://docs.gitlab.com/ee/user/project/integrations/webhook_events.html#push-events
 #[derive(Debug, Deserialize)]
-#[serde(crate = "provider::serde")]
+#[serde(crate = "provider::common::serde")]
 struct HookEvent {
     #[serde(rename = "ref")]
     ref_: String,
@@ -486,7 +490,7 @@ struct HookEvent {
 
 /// A commit within a webhook push event
 #[derive(Debug, Deserialize)]
-#[serde(crate = "provider::serde")]
+#[serde(crate = "provider::common::serde")]
 struct HookEventCommit {
     added: Vec<String>,
     modified: Vec<String>,

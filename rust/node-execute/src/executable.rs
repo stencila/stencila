@@ -1,5 +1,9 @@
-use async_trait::async_trait;
-use eyre::Result;
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
+
+use common::{async_trait::async_trait, eyre::Result, tracing};
 use formats::normalize_title;
 use graph_triples::{
     relations,
@@ -11,10 +15,6 @@ use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, AddressMap, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
 use path_utils::merge;
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
 use stencila_schema::*;
 
 /// The compilation context, used to pass down properties of the

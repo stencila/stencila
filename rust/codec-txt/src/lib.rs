@@ -1,5 +1,5 @@
 use codec::{
-    eyre::Result,
+    common::eyre::Result,
     stencila_schema::{Node, Null},
     utils::vec_string,
     Codec, CodecTrait, DecodeOptions, EncodeOptions,
@@ -68,7 +68,7 @@ mod tests {
     use std::collections::BTreeMap;
 
     use super::*;
-    use codec::{eyre::bail, stencila_schema::Primitive};
+    use codec::{common::eyre::bail, stencila_schema::Primitive};
     use test_utils::assert_json_eq;
 
     #[test]

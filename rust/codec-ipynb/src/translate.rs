@@ -4,7 +4,10 @@
 //! for executing code within them. They use them to translate Jupyter outputs
 //! and errors into their Stencila equivalents.
 
-use codec::CodecTrait;
+use codec::{
+    common::{base64, serde_json, tracing},
+    CodecTrait,
+};
 use codec_txt::TxtCodec;
 use node_transform::Transform;
 use stencila_schema::{CodeError, ImageObject, Node};

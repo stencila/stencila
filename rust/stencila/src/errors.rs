@@ -1,8 +1,9 @@
-use eyre::Result;
-use schemars::{gen::SchemaSettings, JsonSchema};
-use serde::Serialize;
 use std::{any::type_name, collections::HashMap};
+
+use schemars::{gen::SchemaSettings, JsonSchema};
 use thiserror::Error;
+
+use common::{eyre::Result, serde::Serialize, serde_json};
 
 /// An enumeration of custom errors returned by this library
 ///
@@ -10,7 +11,7 @@ use thiserror::Error;
 /// context to the user, in particular regarding actions that can be taken to
 /// resolve the error.
 #[derive(Error, Debug, JsonSchema, Serialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub enum Error {
     /// An identifier was supplied that does not match the pattern for the

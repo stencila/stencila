@@ -1,9 +1,12 @@
+use std::path::{Path, PathBuf};
+
 use codec::{
-    async_trait::async_trait, eyre::Result, stencila_schema::Node, utils::vec_string, Codec,
-    CodecTrait, DecodeOptions, EncodeOptions,
+    common::{async_trait::async_trait, eyre::Result},
+    stencila_schema::Node,
+    utils::vec_string,
+    Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
 use codec_pandoc::{decode, encode, PandocCodec};
-use std::path::{Path, PathBuf};
 
 /// A codec for Microsoft Word (.docx) files
 pub struct DocxCodec {}

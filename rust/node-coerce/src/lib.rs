@@ -1,15 +1,19 @@
 //! Coerce a JSON value to a Stencila document `Node`
 
+use std::{collections::HashMap, sync::Mutex};
+
 use codec::CodecTrait;
 use codec_date::DateCodec;
 use codec_person::PersonCodec;
-use eyre::{bail, Result};
-use inflector::Inflector;
-use once_cell::sync::Lazy;
-use regex::Regex;
-use serde::Deserialize;
-use serde_json::{json, Value as JsonValue};
-use std::{collections::HashMap, sync::Mutex};
+use common::{
+    eyre::{bail, Result},
+    inflector::Inflector,
+    once_cell::sync::Lazy,
+    regex::Regex,
+    serde::{self, Deserialize},
+    serde_json::{self, json, Value as JsonValue},
+    tracing,
+};
 use stencila_schema::{self, Node, Null, Object, Primitive, ValidatorTypes};
 use utils::some_string;
 
@@ -121,7 +125,7 @@ pub fn coerce_to_validator(node: &Node, validator: &ValidatorTypes) -> Result<No
 /// Only implements properties of JSON Schema used in coercion or
 /// validation in the Stencila Schema (e.g. excludes `patternProperties`)
 #[derive(Clone, Default, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 #[allow(dead_code)]
 struct JsonSchema {
     #[serde(rename = "type")]
@@ -840,7 +844,7 @@ fn valid_for_all_of(value: &JsonValue, schemas: &[JsonSchema]) -> bool {
 mod tests {
     use super::*;
     use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
-    use test_utils::pretty_assertions::assert_eq;
+    use test_utils::{common::serde_yaml, pretty_assertions::assert_eq};
 
     #[test]
     fn test_coerce_to_null() {

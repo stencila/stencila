@@ -1,6 +1,8 @@
 use codec::{
-    eyre::Result, stencila_schema::Node, utils::vec_string, Codec, CodecTrait, DecodeOptions,
-    EncodeOptions,
+    common::{eyre::Result, serde_json},
+    stencila_schema::Node,
+    utils::vec_string,
+    Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
 use node_coerce::coerce;
 

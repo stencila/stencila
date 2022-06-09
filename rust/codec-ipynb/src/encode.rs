@@ -1,12 +1,16 @@
+use std::collections::HashMap;
+
 use codec::{
-    eyre::{bail, Result},
+    common::{
+        base64,
+        eyre::{bail, Result},
+        serde::Serialize,
+        serde_json::{self, json},
+    },
     stencila_schema::*,
 };
 use codec_md::ToMd;
 use codec_txt::ToTxt;
-use serde::Serialize;
-use serde_json::json;
-use std::collections::HashMap;
 
 /// Encode a `Node` to a Jupyter Notebook.
 ///

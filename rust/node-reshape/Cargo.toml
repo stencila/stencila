@@ -5,18 +5,14 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codec = { path = "../codec", version = "0.0.0" }
-codec-date = { path = "../codec-date", version = "0.0.0" }
-codec-person = { path = "../codec-person", version = "0.0.0" }
-codec-txt = { path = "../codec-txt", version = "0.0.0" }
-defaults = "0.2.0"
-eyre = "0.6.6"
-once_cell = "1.9.0"
-regex = "1.5.4"
+codec = { path = "../codec" }
+codec-date = { path = "../codec-date" }
+codec-person = { path = "../codec-person" }
+codec-txt = { path = "../codec-txt" }
+common = { path = "../common" }
 stencila-schema = { path = "../schema" }
-utils = { path = "../utils", version = "0.0.0" }
+utils = { path = "../utils" }
 
 [dev-dependencies]
-serde_yaml = "0.8.23"
-test-snaps = { path = "../test-snaps", version = "0.0.0" }
-test-utils = { path = "../test-utils", version = "0.0.0" }
+test-snaps = { path = "../test-snaps" }
+test-utils = { path = "../test-utils" }

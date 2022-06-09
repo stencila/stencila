@@ -1,10 +1,16 @@
 //! Functions for an interactive mode command line (REPL)
 
-use crate::command::Run;
-use eyre::{bail, eyre, Result};
-use rustyline::error::ReadlineError;
 use std::path::Path;
+
+use rustyline::error::ReadlineError;
 use structopt::StructOpt;
+
+use common::{
+    eyre::{bail, eyre, Result},
+    tracing,
+};
+
+use crate::command::Run;
 
 fn help() -> String {
     use ansi_term::{

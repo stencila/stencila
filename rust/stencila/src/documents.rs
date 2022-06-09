@@ -1,25 +1,3 @@
-use crate::utils::schemas;
-use events::publish;
-use eyre::{bail, Result};
-use formats::FormatSpec;
-use graph::{Graph, Plan, PlanOptions, PlanOrdering, PlanScope};
-use graph_triples::{resources, Relations};
-use kernels::{KernelInfos, KernelSpace, KernelSymbols};
-use maplit::hashset;
-use node_address::AddressMap;
-use node_execute::{
-    compile, execute, CancelRequest, CancelResponse, CompileRequest, CompileResponse,
-    ExecuteRequest, ExecuteResponse, PatchRequest, PatchResponse, RequestId,
-};
-use node_patch::{apply, diff, merge, Patch};
-use node_pointer::resolve;
-use node_reshape::reshape;
-use notify::DebouncedEvent;
-use once_cell::sync::Lazy;
-use providers::DetectItem;
-use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
-use serde::Serialize;
-use serde_with::skip_serializing_none;
 use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
     env, fs,
@@ -28,15 +6,46 @@ use std::{
     sync::Arc,
     time::{Duration, Instant},
 };
-use stencila_schema::{Article, Node};
-use strum::Display;
-use tokio::{
-    sync::{mpsc, watch, Mutex, RwLock},
-    task::JoinHandle,
+
+use notify::DebouncedEvent;
+use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+
+use common::{
+    eyre::{self, bail, Result},
+    maplit::hashset,
+    once_cell::sync::Lazy,
+    serde::Serialize,
+    serde_json,
+    serde_with::skip_serializing_none,
+    strum::Display,
+    tokio::{
+        self,
+        sync::{mpsc, watch, Mutex, RwLock},
+        task::JoinHandle,
+    },
+    tracing,
 };
+use events::publish;
+use formats::FormatSpec;
+use graph::{Graph, Plan, PlanOptions, PlanOrdering, PlanScope};
+use graph_triples::{resources, Relations};
+use kernels::{KernelInfos, KernelSpace, KernelSymbols};
+use node_address::AddressMap;
+use node_execute::{
+    compile, execute, CancelRequest, CancelResponse, CompileRequest, CompileResponse,
+    ExecuteRequest, ExecuteResponse, PatchRequest, PatchResponse, RequestId,
+};
+use node_patch::{apply, diff, merge, Patch};
+use node_pointer::resolve;
+use node_reshape::reshape;
+use path_utils::pathdiff;
+use providers::DetectItem;
+use stencila_schema::{Article, Node};
+
+use crate::utils::schemas;
 
 #[derive(Debug, JsonSchema, Serialize, Display)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase")]
 enum DocumentEventType {
     Deleted,
@@ -48,6 +57,7 @@ enum DocumentEventType {
 
 #[skip_serializing_none]
 #[derive(Debug, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 struct DocumentEvent {
     /// The type of event
@@ -91,7 +101,7 @@ impl DocumentEvent {
 
 /// The status of a document with respect to on-disk synchronization
 #[derive(Debug, Clone, JsonSchema, Serialize, Display)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase")]
 enum DocumentStatus {
     /// The document `content` is the same as on disk at its `path`.
@@ -110,6 +120,7 @@ enum DocumentStatus {
 
 /// An in-memory representation of a document
 #[derive(Debug, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Document {
     /// The document identifier
@@ -1849,14 +1860,18 @@ pub fn schemas() -> Result<serde_json::Value> {
 
 #[cfg(feature = "cli")]
 pub mod commands {
-    use super::*;
-    use crate::utils::json;
-    use async_trait::async_trait;
+    use std::str::FromStr;
+
+    use structopt::StructOpt;
+
     use cli_utils::{result, Result, Run};
+    use common::async_trait::async_trait;
     use graph::{PlanOptions, PlanOrdering};
     use node_patch::diff_display;
-    use std::str::FromStr;
-    use structopt::StructOpt;
+
+    use crate::utils::json;
+
+    use super::*;
 
     #[derive(Debug, StructOpt)]
     #[structopt(
@@ -2540,9 +2555,9 @@ pub mod commands {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use maplit::hashmap;
     use test_utils::fixtures;
+
+    use super::*;
 
     #[tokio::test]
     async fn new() {
@@ -2552,7 +2567,7 @@ mod tests {
         assert!(matches!(doc.status, DocumentStatus::Synced));
         assert_eq!(doc.format.extension, "txt");
         assert_eq!(doc.content, "");
-        assert_eq!(doc.subscriptions, hashmap! {});
+        assert_eq!(doc.subscriptions, HashMap::new());
 
         let doc = Document::new(None, Some("md".to_string()));
         assert!(doc.path.starts_with(env::temp_dir()));
@@ -2560,7 +2575,7 @@ mod tests {
         assert!(matches!(doc.status, DocumentStatus::Synced));
         assert_eq!(doc.format.extension, "md");
         assert_eq!(doc.content, "");
-        assert_eq!(doc.subscriptions, hashmap! {});
+        assert_eq!(doc.subscriptions, HashMap::new());
     }
 
     #[tokio::test]
@@ -2571,7 +2586,7 @@ mod tests {
             assert!(matches!(doc.status, DocumentStatus::Synced));
             assert_eq!(doc.format.extension, "json");
             assert!(!doc.content.is_empty());
-            assert_eq!(doc.subscriptions, hashmap! {});
+            assert_eq!(doc.subscriptions, HashMap::new());
         }
 
         Ok(())

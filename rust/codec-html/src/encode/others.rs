@@ -1,6 +1,10 @@
-use super::{attr, elem, EncodeContext, ToHtml};
-use chrono::{DateTime, Datelike};
+use codec::common::{
+    chrono::{DateTime, Datelike},
+    tracing,
+};
 use stencila_schema::*;
+
+use super::{attr, elem, EncodeContext, ToHtml};
 
 /// Encode a `Date` to HTML
 ///

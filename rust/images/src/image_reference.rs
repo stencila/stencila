@@ -1,11 +1,15 @@
 use std::str::FromStr;
 
-use eyre::Result;
+use common::{
+    eyre::{self, Result},
+    serde::Serialize,
+};
 
 pub const DOCKER_REGISTRY: &str = "registry.hub.docker.com";
 pub const FLY_REGISTRY: &str = "registry.fly.io";
 
-#[derive(Debug, Default, PartialEq, serde::Serialize)]
+#[derive(Debug, Default, PartialEq, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct ImageReference {
     /// The registry the image is on. Defaults to `registry.hub.docker.com`
     pub registry: String,

@@ -24,11 +24,14 @@ pub fn new() -> MicroKernel {
 mod tests {
     use super::*;
     use kernel::{
-        eyre::{bail, Result},
+        common::{
+            eyre::{bail, Result},
+            tokio,
+        },
         stencila_schema::Node,
         KernelTrait,
     };
-    use test_utils::{assert_json_eq, serde_json::json, skip_ci_os};
+    use test_utils::{assert_json_eq, common::serde_json::json, skip_ci_os};
 
     /// Tests of basic functionality
     /// This test is replicated in all the microkernels.

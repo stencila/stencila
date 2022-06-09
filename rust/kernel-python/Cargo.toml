@@ -5,10 +5,9 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-binaries = { path = "../binaries", version = "0.0.0", features = ["binary-python"] }
-kernel = { path = "../kernel", version = "0.0.0" }
-kernel-micro = { path = "../kernel-micro", version = "0.0.0" }
+binaries = { path = "../binaries", features = ["binary-python"] }
+kernel = { path = "../kernel" }
+kernel-micro = { path = "../kernel-micro" }
 
 [dev-dependencies]
-tokio = { version = "1.13.0", features = ["macros"] }
-test-utils = { path = "../test-utils", version = "0.0.0" }
+test-utils = { path = "../test-utils" }

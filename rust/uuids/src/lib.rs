@@ -26,10 +26,15 @@
 ///!  - https://segment.com/blog/a-brief-history-of-the-uuid/
 ///!  - https://zelark.github.io/nano-id-cc/
 ///!  - https://gist.github.com/fnky/76f533366f75cf75802c8052b577e2a5
-use eyre::{bail, Result};
 use nanoid::nanoid;
-use regex::Regex;
 use smartstring::{Compact, SmartString};
+
+use common::{
+    eyre::{bail, Result},
+    regex::Regex,
+};
+
+pub use common;
 
 pub type Uuid = SmartString<Compact>;
 
@@ -58,7 +63,10 @@ const CHARACTERS: [char; 62] = [
 #[macro_export]
 macro_rules! uuid_family {
     ($name:ident, $prefix:literal) => {
-        #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
+        #[derive(
+            Debug, Clone, uuids::common::serde::Deserialize, uuids::common::serde::Serialize,
+        )]
+        #[serde(crate = "uuids::common::serde")]
         pub struct $name(uuids::Uuid);
 
         impl $name {

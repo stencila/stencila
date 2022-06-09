@@ -1,7 +1,9 @@
-use schemars::JsonSchema;
-use serde::Serialize;
 use std::any::type_name;
+
+use schemars::JsonSchema;
 use thiserror::Error;
+
+use common::serde::Serialize;
 
 /// An enumeration of custom errors returned by this library
 ///
@@ -9,7 +11,7 @@ use thiserror::Error;
 /// context to the user, in particular regarding actions that can be taken to
 /// resolve the error.
 #[derive(Error, Debug, JsonSchema, Serialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub enum Error {
     /// Used to indicate that two values are not equal (rather than

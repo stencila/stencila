@@ -4,20 +4,14 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+common = { path = "../common" }
 derivative = "2.2.0"
-events = { path = "../events", version = "0.0.0" }
-eyre = "0.6.6"
-graph-triples = { path = "../graph-triples", version = "0.0.0" }
-hash-utils = { path = "../hash-utils", version = "0.0.0" }
-kernels = { path = "../kernels", version = "0.0.0" }
+events = { path = "../events" }
+graph-triples = { path = "../graph-triples" }
+hash-utils = { path = "../hash-utils" }
+kernels = { path = "../kernels" }
 num_cpus = "1.13.1"
-path-slash = "0.1.4"
+path-utils = { path = "../path-utils" }
 petgraph = { version = "0.6.0", features = ["serde-1"] }
 schemars = { version = "0.8.8", features = ["preserve_order"] }
-serde = "1.0.130"
-serde_json = { version = "1.0.75", features = ["preserve_order"] }
-serde_with = "1.11.0"
-serde_yaml = "0.8.23"
-strum = { version = "0.23.0", features = ["derive"] }
-tokio = { version = "1.13.0", features = ["macros"] }
-utils = { path = "../utils", version = "0.0.0" }
+utils = { path = "../utils" }

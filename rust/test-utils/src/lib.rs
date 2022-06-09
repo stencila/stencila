@@ -2,10 +2,11 @@
 
 use std::path::PathBuf;
 
+use common::tracing;
+
 // Expose dependencies for use by other internal crates (e.g. so macros work)
+pub use common;
 pub use pretty_assertions;
-pub use serde_json;
-pub use tempfile;
 
 /// Get the path of the home directory of this repository
 pub fn home() -> PathBuf {
@@ -77,8 +78,8 @@ pub fn skip_slow() -> bool {
 macro_rules! assert_json_eq {
     ($a:expr, $b:expr) => {
         test_utils::pretty_assertions::assert_eq!(
-            test_utils::serde_json::to_value(&$a).unwrap(),
-            test_utils::serde_json::to_value(&$b).unwrap()
+            test_utils::common::serde_json::to_value(&$a).unwrap(),
+            test_utils::common::serde_json::to_value(&$b).unwrap()
         );
     };
 }
@@ -91,8 +92,8 @@ macro_rules! assert_json_eq {
 macro_rules! assert_json_is {
     ($a:expr, $b:tt) => {
         test_utils::pretty_assertions::assert_eq!(
-            test_utils::serde_json::json!($a),
-            test_utils::serde_json::json!($b)
+            test_utils::common::serde_json::json!($a),
+            test_utils::common::serde_json::json!($b)
         );
     };
 }

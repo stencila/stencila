@@ -5,7 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-binary = { path = "../binary", version = "0.0.0", features = [
+binary = { path = "../binary", features = [
     "download-zip",
     "download-tar-gz"
 ] }

@@ -5,7 +5,4 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-kernel = { path = "../kernel", version = "0.0.0" }
-
-[dev-dependencies]
-tokio = { version = "1.13.0", features = ["rt", "macros"] }
+kernel = { path = "../kernel" }

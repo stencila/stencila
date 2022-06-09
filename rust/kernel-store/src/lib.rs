@@ -1,7 +1,9 @@
 use kernel::{
-    async_trait::async_trait,
-    eyre::{bail, Result},
-    serde::Serialize,
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, Result},
+        serde::Serialize,
+    },
     stencila_schema::{CodeError, Node},
     Kernel, KernelStatus, KernelTrait, Task, TaskResult,
 };
@@ -13,7 +15,7 @@ use std::collections::HashMap;
 /// parameters. The value of those parameters can then be mirrored to other
 /// kernels.
 #[derive(Debug, Clone, Default, Serialize)]
-#[serde(crate = "kernel::serde")]
+#[serde(crate = "kernel::common::serde")]
 pub struct StoreKernel {
     symbols: HashMap<String, Node>,
 }
@@ -73,8 +75,9 @@ impl KernelTrait for StoreKernel {
 
 #[cfg(test)]
 mod tests {
+    use kernel::{common::tokio, KernelStatus, KernelTrait};
+
     use super::*;
-    use kernel::{KernelStatus, KernelTrait};
 
     #[tokio::test]
     async fn status() -> Result<()> {

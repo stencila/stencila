@@ -13,18 +13,9 @@ download-tar-gz = ["download-tar", "archive-utils/tar-gz"]
 download-tar-xz = ["download-tar", "archive-utils/tar-xz"]
 
 [dependencies]
-async-trait = "0.1.52"
-defaults = "0.2.0"
-dirs = "4.0.0"
-eyre = "0.6.6"
-glob = "0.3.0"
-regex = "1.5.4"
+common = { path = "../common" }
 semver = "1.0.4"
-serde = { version = "1.0.130", features = ["derive"] }
-serde_json = "1.0.75"
-tokio = { version = "1.13.0", features = ["macros", "process", "io-util"] }
-tracing = "0.1.29"
 which = "4.2.2"
 
-archive-utils = { path = "../archive-utils", version = "0.0.0", optional = true }
-http-utils = { path = "../http-utils", version = "0.0.0", optional = true }
+archive-utils = { path = "../archive-utils", optional = true }
+http-utils = { path = "../http-utils", optional = true }

@@ -21,7 +21,10 @@ pub fn new() -> MicroKernel {
 mod tests {
     use super::*;
     use kernel::{
-        eyre::{bail, Result},
+        common::{
+            eyre::{bail, Result},
+            tokio,
+        },
         stencila_schema::Node,
         KernelTrait, TaskResult,
     };

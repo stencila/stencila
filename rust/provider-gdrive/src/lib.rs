@@ -6,10 +6,17 @@ use std::{
 };
 
 use provider::{
-    async_trait::async_trait,
-    chrono::{DateTime, Utc},
-    eyre::{self, bail, eyre, Result},
-    futures::future,
+    common::{
+        async_trait::async_trait,
+        chrono::{DateTime, Utc},
+        eyre::{bail, eyre, Result},
+        futures::future,
+        once_cell::sync::Lazy,
+        regex::Regex,
+        serde_json,
+        strum::{AsRefStr, EnumString},
+        tokio, tracing,
+    },
     http_utils::{
         download_with,
         http::{
@@ -18,12 +25,9 @@ use provider::{
         },
         response,
     },
-    once_cell::sync::Lazy,
-    regex::Regex,
-    resolve_token, serde_json,
+    resolve_token,
     stencila_schema::{CreativeWork, Node},
-    strum::{AsRefStr, EnumString},
-    tokio, tracing, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions, WatchMode,
+    ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions, WatchMode,
 };
 
 /// Base URLs for APIs used
@@ -58,7 +62,7 @@ static URL_REGEX_2: Lazy<Regex> = Lazy::new(|| {
 ///
 /// Note: the final serialization variants below allow parsing from the URL_REGEX above
 #[derive(Debug, Clone, AsRefStr, EnumString)]
-#[strum(serialize_all = "lowercase", crate = "provider::strum")]
+#[strum(serialize_all = "lowercase", crate = "provider::common::strum")]
 enum FileKind {
     #[strum(serialize = "folder", serialize = "drive")]
     Folder,
@@ -416,7 +420,7 @@ impl ProviderTrait for GoogleDriveProvider {
 
 /// Convert an `anyhow::Error` to an `eyre::Report` and if the error is
 /// a 404 provide the user with some hints as to what to do.
-fn enhance_error<E: std::fmt::Debug>(error: E) -> eyre::Report {
+fn enhance_error<E: std::fmt::Debug>(error: E) -> provider::common::eyre::Report {
     let mut message = format!("{:?}", error);
     if message.contains("404 Not Found") {
         message = "Could not access the Google Drive file or folder. Please check that it exists, that you have given Stencila permission to access it, and a Google access token is available (you may need to connect Google to your Stencila account)".to_string();

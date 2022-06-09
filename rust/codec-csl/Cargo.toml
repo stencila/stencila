@@ -5,9 +5,8 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codec = { path = "../codec", version = "0.0.0" }
-serde_json = "1.0.72"
+codec = { path = "../codec" }
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps", version = "0.0.0" }
-test-utils = { path = "../test-utils", version = "0.0.0" }
+test-snaps = { path = "../test-snaps" }
+test-utils = { path = "../test-utils" }

@@ -5,8 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-provider = { path = "../provider", version = "0.0.0" }
+provider = { path = "../provider" }
 
 [dev-dependencies]
-test-utils = { path = "../test-utils", version = "0.0.0" }
-tokio = { version = "1.13.0", features = ["macros"] }
+test-utils = { path = "../test-utils" }

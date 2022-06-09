@@ -6,9 +6,11 @@ use std::{
 };
 
 use binary::{
-    async_trait::async_trait,
     binaries_dir, binary_clone_box,
-    eyre::{bail, Result},
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, Result},
+    },
     Binary, BinaryTrait,
 };
 

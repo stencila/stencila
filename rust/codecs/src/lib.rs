@@ -1,12 +1,16 @@
+use std::{collections::BTreeMap, path::Path, sync::Arc};
+
 use codec::{
-    eyre::{bail, eyre, Result},
+    common::{
+        eyre::{bail, eyre, Result},
+        once_cell::sync::Lazy,
+        tracing,
+    },
     stencila_schema::Node,
     Codec, CodecTrait,
 };
 use codec_format::FormatCodec;
 use formats::{match_name, Format};
-use once_cell::sync::Lazy;
-use std::{collections::BTreeMap, path::Path, sync::Arc};
 
 // Re-exports for use in other crates that call the following functions
 pub use codec::{DecodeOptions, EncodeOptions};
@@ -347,8 +351,7 @@ pub mod commands {
 
     use structopt::StructOpt;
 
-    use cli_utils::{result, Result, Run};
-    use codec::async_trait::async_trait;
+    use cli_utils::{common::async_trait::async_trait, result, Result, Run};
 
     use super::*;
 

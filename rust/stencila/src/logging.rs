@@ -1,12 +1,17 @@
-use chrono::{DateTime, Utc};
-use events::publish;
-use eyre::Result;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 use std::path::Path;
-use strum::{Display, EnumString, EnumVariantNames};
-use tracing::Event;
+
+use schemars::JsonSchema;
 use validator::Validate;
+
+use common::{
+    chrono::{DateTime, Utc},
+    eyre::Result,
+    serde::{Deserialize, Serialize},
+    serde_json,
+    strum::{Display, EnumString, EnumVariantNames},
+    tracing::{self, Event},
+};
+use events::publish;
 
 /// Logging level
 #[derive(
@@ -22,8 +27,8 @@ use validator::Validate;
     EnumString,
     EnumVariantNames,
 )]
-#[serde(rename_all = "lowercase")]
-#[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum LoggingLevel {
     Trace,
     Debug,
@@ -50,8 +55,8 @@ impl From<&tracing::Level> for LoggingLevel {
 #[derive(
     Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, EnumString, EnumVariantNames,
 )]
-#[serde(rename_all = "lowercase")]
-#[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum LoggingFormat {
     Simple,
     Detail,
@@ -59,10 +64,14 @@ pub enum LoggingFormat {
 }
 
 pub mod config {
+    use std::{
+        fs,
+        {env, path::PathBuf},
+    };
+
+    use common::defaults::Defaults;
+
     use super::*;
-    use defaults::Defaults;
-    use std::fs;
-    use std::{env, path::PathBuf};
 
     /// Get the directory where logs are stored
     pub fn dir(ensure: bool) -> Result<PathBuf> {
@@ -83,7 +92,7 @@ pub mod config {
     #[derive(
         Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
     )]
-    #[serde(default)]
+    #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct LoggingStdErrConfig {
         /// The maximum log level to emit
@@ -101,7 +110,7 @@ pub mod config {
     #[derive(
         Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
     )]
-    #[serde(default)]
+    #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct LoggingDesktopConfig {
         /// The maximum log level to emit
@@ -113,7 +122,7 @@ pub mod config {
     ///
     /// Configuration settings for logs entries written to file
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-    #[serde(default)]
+    #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct LoggingFileConfig {
         /// The path of the log file
@@ -139,7 +148,7 @@ pub mod config {
     ///
     /// Configuration settings for logging
     #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-    #[serde(default)]
+    #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct LoggingConfig {
         pub stderr: LoggingStdErrConfig,
@@ -218,6 +227,7 @@ struct StderrJsonLayer {
 }
 
 #[derive(Serialize)]
+#[serde(crate = "common::serde")]
 struct StderrJsonVisitor {
     time: DateTime<Utc>,
     level: LoggingLevel,

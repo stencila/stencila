@@ -1,4 +1,6 @@
-use codec::{eyre::Result, utils::vec_string, Codec, CodecTrait, DecodeOptions, EncodeOptions};
+use codec::{
+    common::eyre::Result, utils::vec_string, Codec, CodecTrait, DecodeOptions, EncodeOptions,
+};
 use stencila_schema::Node;
 
 #[cfg(feature = "decode")]

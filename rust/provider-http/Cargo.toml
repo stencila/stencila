@@ -5,14 +5,13 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-archive-utils = { path = "../archive-utils", version = "0.0.0", features = [
+archive-utils = { path = "../archive-utils", features = [
     "tar",
     "tar-gz",
     "tar-xz",
     "zip",
 ] }
-provider = { path = "../provider", version = "0.0.0" }
-slug = "0.1.4"
+provider = { path = "../provider" }
 
 [dev-dependencies]
-test-utils = { path = "../test-utils", version = "0.0.0" }
+test-utils = { path = "../test-utils" }

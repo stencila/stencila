@@ -13,15 +13,18 @@
 //! For use in a `Parameter`, the `ToAttrs` trait is implemented so that the validator
 //! can be represented as standard HTML form input attributes e.g. `type="number" minimum="0"`
 
+use std::string::ToString;
+
+use codec::common::tracing;
+use codec_txt::ToTxt;
+use node_dispatch::dispatch_validator;
+use stencila_schema::*;
+
 use super::{
     attr, attr_bool, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_prop,
     attr_slot, concat, concat_html, elem, elem_empty, elem_meta, elem_placeholder, nothing,
     EncodeContext, ToHtml,
 };
-use codec_txt::ToTxt;
-use node_dispatch::dispatch_validator;
-use std::string::ToString;
-use stencila_schema::*;
 
 /// Encode a `Datatable`
 impl ToHtml for Datatable {

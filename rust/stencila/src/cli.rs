@@ -4,6 +4,14 @@
 //!
 //! cargo run --no-default-features --features cli help
 
+use std::{collections::HashMap, path::PathBuf};
+
+use structopt::StructOpt;
+
+use cli_utils::{result, stderr_isatty, Result, Run};
+use common::{async_trait::async_trait, eyre, strum::VariantNames, tokio, tracing};
+use utils::some_string;
+
 use crate::{
     config::{self, CONFIG},
     documents::{self, DOCUMENTS},
@@ -15,12 +23,6 @@ use crate::{
     projects::{self, PROJECTS},
     sources,
 };
-use async_trait::async_trait;
-use cli_utils::{result, stderr_isatty, Result, Run};
-use std::{collections::HashMap, path::PathBuf};
-use structopt::StructOpt;
-use strum::VariantNames;
-use utils::some_string;
 
 /// Stencila, in a terminal console, on your own machine
 ///

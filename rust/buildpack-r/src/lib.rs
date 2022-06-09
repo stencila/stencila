@@ -7,7 +7,12 @@ use std::{
 
 use binary_r::{Binary, BinaryTrait, RBinary};
 use buildpack::{
-    eyre::{self, eyre},
+    common::{
+        eyre::{self, eyre},
+        maplit::hashmap,
+        serde::{Deserialize, Serialize},
+        serde_json, tracing,
+    },
     fs_utils::{symlink_dir, symlink_file},
     hash_utils::str_sha256_hex,
     libcnb::{
@@ -20,11 +25,9 @@ use buildpack::{
         layer_env::{LayerEnv, ModificationBehavior, Scope},
         Buildpack,
     },
-    maplit::hashmap,
-    tracing, BuildpackContext, BuildpackTrait, LayerOptions, LayerVersionMetadata,
+    BuildpackContext, BuildpackTrait, LayerOptions, LayerVersionMetadata,
 };
 use buildpack_apt::AptPackagesLayer;
-use serde::{Deserialize, Serialize};
 
 pub struct RBuildpack;
 
@@ -501,6 +504,7 @@ EDITOR=nano
 }
 
 #[derive(Clone, Deserialize, Serialize)]
+#[serde(crate = "buildpack::common::serde")]
 struct RenvLayer {
     /// The method used to do the installation of packages
     ///

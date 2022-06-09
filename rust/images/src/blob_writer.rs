@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use eyre::Result;
+use common::{eyre::Result, serde, serde_json};
 use oci_spec::image::{Descriptor, DescriptorBuilder, MediaType};
 
 use hash_utils::sha2::{Digest, Sha256};

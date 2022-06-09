@@ -6,21 +6,26 @@ use std::{
     time::Duration,
 };
 
-use eyre::{bail, Result};
 use notify::DebouncedEvent;
-use once_cell::sync::Lazy;
-use regex::Regex;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-use strum::Display;
-use tokio::sync::Mutex;
-use tokio::task::JoinHandle;
 
+use common::{
+    eyre::{bail, Result},
+    glob,
+    once_cell::sync::Lazy,
+    regex::Regex,
+    serde::{Deserialize, Serialize},
+    serde_json,
+    serde_with::skip_serializing_none,
+    strum::Display,
+    tokio::{self, sync::Mutex, task::JoinHandle},
+    tracing,
+};
 use events::publish;
 use files::{File, FileEvent, Files};
 use graph::{Graph, GraphEvent, GraphEventType};
 use graph_triples::{resources, Resource};
+use path_utils::pathdiff;
 use sources::Sources;
 
 use crate::config::CONFIG;
@@ -28,14 +33,15 @@ use crate::documents::DOCUMENTS;
 use crate::utils::schemas;
 
 #[derive(Debug, Display, JsonSchema, Serialize)]
-#[serde(rename_all = "lowercase")]
-#[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[strum(serialize_all = "lowercase", crate = "common::strum")]
 enum ProjectEventType {
     Updated,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 struct ProjectEvent {
     /// The project associated with the event
@@ -75,7 +81,7 @@ impl ProjectEvent {
 /// where needed (e.g. `theme`).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, JsonSchema, Deserialize, Serialize)]
-#[serde(default, rename_all = "camelCase")]
+#[serde(default, rename_all = "camelCase", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Project {
     /// The name of the project
@@ -837,15 +843,17 @@ pub fn schemas() -> Result<serde_json::Value> {
 }
 
 pub mod config {
-    use super::*;
-    use defaults::Defaults;
     use validator::Validate;
+
+    use common::defaults::Defaults;
+
+    use super::*;
 
     /// Projects
     ///
     /// Configuration settings for project defaults
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-    #[serde(default, rename_all = "camelCase")]
+    #[serde(default, rename_all = "camelCase", crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct ProjectsConfig {
         /// Patterns used to infer the main file of projects
@@ -876,10 +884,12 @@ pub mod config {
 
 #[cfg(feature = "cli")]
 pub mod commands {
-    use super::*;
-    use async_trait::async_trait;
-    use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
+
+    use cli_utils::{result, Result, Run};
+    use common::async_trait::async_trait;
+
+    use super::*;
 
     #[derive(Debug, StructOpt)]
     #[structopt(

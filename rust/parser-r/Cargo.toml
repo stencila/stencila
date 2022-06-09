@@ -4,11 +4,9 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-maplit = "1.0.2"
-once_cell = "1.9.0"
-parser-treesitter = { path = "../parser-treesitter", version = "0.0.0" }
+parser-treesitter = { path = "../parser-treesitter" }
 tree-sitter-r = "0.19.5"
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps", version = "0.0.0" }
-test-utils = { path = "../test-utils", version = "0.0.0" }
+test-snaps = { path = "../test-snaps" }
+test-utils = { path = "../test-utils" }

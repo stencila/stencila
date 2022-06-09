@@ -1,4 +1,4 @@
-use codec::{eyre::Result, stencila_schema::*, CodecTrait, EncodeOptions};
+use codec::{common::eyre::Result, stencila_schema::*, CodecTrait, EncodeOptions};
 use codec_md::MdCodec;
 
 /// Encode a `Node` to R Markdown

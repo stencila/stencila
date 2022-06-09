@@ -21,7 +21,7 @@ macro_rules! patchable_variants_hash {
                     $variant(me) => me.make_hash(state),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => tracing::error!("Unhandled variant `{}` of `{}` in `Patchable::hash`", self.as_ref(), type_name::<Self>())
+                _ => common::tracing::error!("Unhandled variant `{}` of `{}` in `Patchable::hash`", self.as_ref(), type_name::<Self>())
             }
         }
     };

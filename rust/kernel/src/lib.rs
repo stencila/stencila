@@ -1,29 +1,30 @@
-// use crate::utils::uuids;
-use async_trait::async_trait;
-use chrono::{DateTime, Utc};
-use eyre::{bail, Result};
-use formats::Format;
-use once_cell::sync::Lazy;
-use regex::Regex;
-use serde::{Deserialize, Serialize};
 use std::fmt;
+
+use common::{
+    async_trait::async_trait,
+    chrono::{DateTime, Utc},
+    eyre::{bail, Result},
+    once_cell::sync::Lazy,
+    regex::Regex,
+    serde::{Deserialize, Serialize},
+    strum::Display,
+    tokio::sync::{broadcast, mpsc},
+    tracing,
+};
+use formats::Format;
 use stencila_schema::{CodeError, Node};
-use strum::Display;
-use tokio::sync::{broadcast, mpsc};
 use utils::some_box_string;
 use uuids::uuid_family;
 
 // Re-export for the convenience of crates that implement `KernelTrait`
-pub use ::async_trait;
-pub use eyre;
-pub use serde;
+pub use common;
 pub use stencila_schema;
-pub use tokio;
 
 /// The type of kernel
 ///
 /// At present this is mainly for informational purposes.
 #[derive(Debug, Clone, Serialize, Deserialize, Display)]
+#[serde(crate = "common::serde")]
 pub enum KernelType {
     Builtin,
     Micro,
@@ -37,7 +38,7 @@ pub enum KernelType {
 /// `spec` function of `KernelTrait`. Plugins provide a JSON or YAML serialization
 /// as part of their manifest.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Kernel {
     /// The name of the kernel
     ///
@@ -107,6 +108,7 @@ pub type KernelId = String;
 
 /// The status of a running kernel
 #[derive(Debug, PartialEq, Clone, Serialize, Display)]
+#[serde(crate = "common::serde")]
 #[allow(dead_code)]
 pub enum KernelStatus {
     Pending,
@@ -125,6 +127,7 @@ pub enum KernelStatus {
 /// Used when displaying information to the user about currently
 /// running kernels.
 #[derive(Debug, Clone, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct KernelInfo {
     /// The id of the kernel instance
     pub id: KernelId,
@@ -315,6 +318,7 @@ pub type TaskMessages = Vec<CodeError>;
 
 /// The result of a [`Task`]
 #[derive(Debug, Clone, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct TaskResult {
     /// Outputs from the task
     pub outputs: Vec<Node>,
@@ -364,6 +368,7 @@ pub type TaskCanceller = mpsc::Sender<()>;
 
 /// A task running in a [`Kernel`]
 #[derive(Debug, Clone, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct Task {
     /// The uuid of the task
     pub id: TaskId,

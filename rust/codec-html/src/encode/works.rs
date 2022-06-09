@@ -1,15 +1,17 @@
 //! Encode `CreativeWork` nodes to HTML
 
+use std::collections::BTreeMap;
+
+use codec::common::itertools::Itertools;
+use codec_txt::ToTxt;
+use html_escape::encode_safe;
+use node_transform::Transform;
+use stencila_schema::*;
+
 use super::{
     attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, concat, elem, elem_empty, json,
     EncodeContext, ToHtml,
 };
-use codec_txt::ToTxt;
-use html_escape::encode_safe;
-use itertools::Itertools;
-use node_transform::Transform;
-use std::collections::BTreeMap;
-use stencila_schema::*;
 
 impl ToHtml for CreativeWorkTypes {
     fn to_html(&self, context: &EncodeContext) -> String {

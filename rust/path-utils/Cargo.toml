@@ -7,3 +7,4 @@ edition = "2021"
 [dependencies]
 lexiclean = "0.0.1"
 path-slash = "0.1.4"
+pathdiff = "0.2.1"

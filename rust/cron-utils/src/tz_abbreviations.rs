@@ -1,5 +1,6 @@
-use once_cell::sync::Lazy;
 use std::collections::HashMap;
+
+use common::once_cell::sync::Lazy;
 
 /// A list of common timezone abbreviations
 ///

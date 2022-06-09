@@ -1,20 +1,24 @@
+use std::{fs, io::Write, path::PathBuf};
+
+use hmac::Mac;
+
+use kernel::common::{
+    defaults::Defaults,
+    eyre::{eyre, Result},
+    serde::{Deserialize, Serialize},
+    serde_json,
+};
+
 use crate::{
     dirs::{data_dir, runtime_dirs},
     messages::HmacSha256,
 };
-use defaults::Defaults;
-use hmac::Mac;
-use kernel::{
-    eyre::{eyre, Result},
-    serde::{Deserialize, Serialize},
-};
-use std::{fs, io::Write, path::PathBuf};
 
 /// A Jupyter kernel connection
 ///
 /// See https://jupyter-client.readthedocs.io/en/stable/kernels.html#connection-files
 #[derive(Debug, Clone, Defaults, Deserialize, Serialize)]
-#[serde(default, crate = "kernel::serde")]
+#[serde(default, crate = "kernel::common::serde")]
 pub struct JupyterConnection {
     /// The path to the connection file
     #[serde(skip_deserializing)]

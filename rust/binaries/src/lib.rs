@@ -4,13 +4,18 @@
 ///! as helpers by sibling crates (e.g Pandoc by the `codec-pandoc` crate).
 ///! Although we use the term `binaries`, they do not need to be compiled binaries
 ///! and can be executable shell scripts for example.
+use std::collections::{BTreeMap, HashMap};
+
 use binary::{
-    eyre::{bail, Result},
+    common::{
+        eyre::{bail, Result},
+        once_cell::sync::Lazy,
+        serde_json,
+        tokio::{self, sync::RwLock},
+        tracing,
+    },
     Binary, BinaryInstallation, BinaryTrait,
 };
-use once_cell::sync::Lazy;
-use std::collections::{BTreeMap, HashMap};
-use tokio::sync::RwLock;
 
 /// A global store of binaries
 ///
@@ -188,7 +193,7 @@ pub mod commands {
 
     use super::*;
     use cli_utils::structopt::StructOpt;
-    use cli_utils::{async_trait::async_trait, result, Result, Run};
+    use cli_utils::{common::async_trait::async_trait, result, Result, Run};
 
     /// Manage and use helper binaries
     #[derive(Debug, StructOpt)]

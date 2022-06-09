@@ -1,7 +1,12 @@
-use crate::config::CONFIG;
-use chrono::{DateTime, Duration, Utc};
-use eyre::{bail, eyre, Result};
 use std::{fs, thread};
+
+use common::{
+    chrono::{DateTime, Duration, Utc},
+    eyre::{bail, eyre, Result},
+    tokio,
+};
+
+use crate::config::CONFIG;
 
 /// Upgrade the application
 ///
@@ -122,9 +127,11 @@ pub async fn upgrade_auto() -> tokio::task::JoinHandle<Result<()>> {
 }
 
 pub mod config {
-    use defaults::Defaults;
+    use common::{
+        defaults::Defaults,
+        serde::{Deserialize, Serialize},
+    };
     use schemars::JsonSchema;
-    use serde::{Deserialize, Serialize};
     use validator::{Validate, ValidationError};
 
     /// Upgrade
@@ -133,7 +140,7 @@ pub mod config {
     /// automatically, in the background. These settings are NOT used as defaults when
     /// using the CLI `upgrade` command directly.
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-    #[serde(default)]
+    #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct UpgradeConfig {
         /// Plugins should also be upgraded to latest version
@@ -172,10 +179,12 @@ pub mod config {
 
 #[cfg(feature = "cli")]
 pub mod commands {
-    use super::*;
-    use async_trait::async_trait;
-    use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
+
+    use cli_utils::{result, Result, Run};
+    use common::async_trait::async_trait;
+
+    use super::*;
 
     #[derive(Debug, StructOpt)]
     #[structopt(

@@ -3,12 +3,15 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use chrono::{Datelike, Utc};
-use serde::{Deserialize, Serialize};
-
 use binary_node::{BinaryTrait, NodeBinary};
 use buildpack::{
-    eyre,
+    common::{
+        chrono::{Datelike, Utc},
+        eyre,
+        maplit::hashmap,
+        serde::{Deserialize, Serialize},
+        serde_json, tracing,
+    },
     fs_utils::{copy_if_exists, symlink_dir, symlink_file},
     hash_utils::str_sha256_hex,
     libcnb::{
@@ -21,8 +24,7 @@ use buildpack::{
         layer_env::{LayerEnv, ModificationBehavior, Scope},
         Buildpack,
     },
-    maplit::hashmap,
-    tracing, BuildpackContext, BuildpackTrait, LayerOptions, LayerVersionMetadata,
+    BuildpackContext, BuildpackTrait, LayerOptions, LayerVersionMetadata,
 };
 
 pub struct NodeBuildpack;
@@ -288,6 +290,7 @@ impl Layer for NodeLayer {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
+#[serde(crate = "buildpack::common::serde")]
 struct NodeModulesLayer {
     /// The major version of Node.js to install packages for e.g. `16`
     ///

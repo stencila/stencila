@@ -1,20 +1,26 @@
-use crate::utils::schemas;
-use defaults::Defaults;
-use events::publish;
-use eyre::{bail, Result};
-use maplit::hashset;
-use once_cell::sync::Lazy;
-use schemars::{schema::Schema, JsonSchema};
-use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
     sync::Arc,
 };
-use tokio::{sync::RwLock, task::JoinHandle};
+
+use schemars::{schema::Schema, JsonSchema};
+
+use common::{
+    defaults::Defaults,
+    eyre::{bail, Result},
+    maplit::hashset,
+    once_cell::sync::Lazy,
+    serde::Serialize,
+    serde_json,
+    tokio::{self, sync::RwLock, task::JoinHandle},
+};
+use events::publish;
+
+use crate::utils::schemas;
 
 /// A session event
 #[derive(Debug, JsonSchema, Serialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub enum SessionEvent {
     /// One or more of the session's properties was updated
@@ -38,6 +44,7 @@ impl SessionEvent {
 
 /// The status of a session
 #[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 pub enum SessionStatus {
     Pending,
     Starting,
@@ -48,6 +55,7 @@ pub enum SessionStatus {
 
 /// A session
 #[derive(Debug, Clone, Defaults, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Session {
     /// The id of the session

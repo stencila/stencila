@@ -1,11 +1,14 @@
-use super::prelude::*;
-use itertools::Itertools;
-use similar::{ChangeTag, TextDiff};
 use std::{
     hash::{Hash, Hasher},
     time::Duration,
 };
+
+use similar::{ChangeTag, TextDiff};
 use unicode_segmentation::UnicodeSegmentation;
+
+use common::itertools::Itertools;
+
+use super::prelude::*;
 
 /// The number of seconds before a diff times out (falls back to a `Replace`)
 const DIFF_TIMEOUT_SECS: u64 = 1;

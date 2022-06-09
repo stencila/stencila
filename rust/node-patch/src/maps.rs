@@ -1,7 +1,11 @@
+use std::{
+    collections::BTreeMap,
+    hash::{Hash, Hasher},
+};
+
+use common::serde::de::DeserializeOwned;
+
 use super::prelude::*;
-use serde::de::DeserializeOwned;
-use std::collections::BTreeMap;
-use std::hash::{Hash, Hasher};
 
 /// Implements `Patchable` for `BTreeMap<String, Type>`
 ///
@@ -232,7 +236,7 @@ where
 mod tests {
     use super::*;
     use crate::{apply_new, diff};
-    use test_utils::assert_json_is;
+    use test_utils::{assert_json_is, common::serde_json};
 
     macro_rules! mapint {
         ($json:tt) => {

@@ -5,9 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-binary-r = { path = "../binary-r", version = "0.0.0" }
-buildpack = { path = "../buildpack", version = "0.0.0" }
-buildpack-apt = { path = "../buildpack-apt", version = "0.0.0" }
-serde = "1.0.130"
-serde_json = "1.0.75"
+binary-r = { path = "../binary-r" }
+buildpack = { path = "../buildpack" }
+buildpack-apt = { path = "../buildpack-apt" }
 sys-info = "0.9.1"

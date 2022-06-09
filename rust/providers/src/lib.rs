@@ -1,15 +1,17 @@
 use std::{path::Path, sync::Arc};
 
-use once_cell::sync::Lazy;
 use provider::{
     codecs,
-    eyre::{bail, eyre, Result},
+    common::{
+        eyre::{bail, eyre, Result},
+        once_cell::sync::Lazy,
+        serde_json,
+        tokio::sync::mpsc,
+    },
     http_utils::http::{Request, Response},
-    serde_json,
     stencila_schema::Node,
     EnrichOptions, ProviderTrait,
 };
-use tokio::sync::mpsc;
 
 pub use provider::{DetectItem, ExportOptions, ImportOptions, Provider, SyncOptions, WatchMode};
 
@@ -224,7 +226,7 @@ pub mod commands {
     use std::path::PathBuf;
 
     use super::*;
-    use cli_utils::{async_trait::async_trait, result, Result, Run};
+    use cli_utils::{common::async_trait::async_trait, result, Result, Run};
     use structopt::StructOpt;
 
     /// Manage and use source providers

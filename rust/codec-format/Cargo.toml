@@ -5,5 +5,5 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codec = { path = "../codec", version = "0.0.0" }
-formats = { path = "../formats", version = "0.0.0" }
+codec = { path = "../codec" }
+formats = { path = "../formats" }

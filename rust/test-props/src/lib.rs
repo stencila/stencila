@@ -1,5 +1,5 @@
 ///! Utility functions and strategies for property testing
-use itertools::interleave;
+use common::itertools::interleave;
 use proptest::collection::{size_range, vec};
 use proptest::prelude::*;
 use proptest::strategy::Union;

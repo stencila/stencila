@@ -4,13 +4,17 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use defaults::Defaults;
-use eyre::{bail, Result};
-use futures::future;
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-use tokio::sync::mpsc;
-
+use common::{
+    defaults::Defaults,
+    eyre::{bail, Result},
+    futures,
+    futures::future,
+    serde::{Deserialize, Serialize},
+    serde_json,
+    serde_with::skip_serializing_none,
+    tokio::{self, sync::mpsc},
+    tracing,
+};
 use files::{File, Files};
 use graph_triples::{
     relations::{self, NULL_RANGE},
@@ -27,7 +31,7 @@ use stencila_schema::Node;
 /// destination (e.g. the root directory of the project).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Deserialize, Serialize)]
-#[serde(default)]
+#[serde(default, crate = "common::serde")]
 pub struct Source {
     /// The name of the source
     ///
@@ -73,6 +77,7 @@ pub struct Source {
 
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[serde(default, crate = "common::serde")]
 pub struct SourceCron {
     /// The schedule on which to perform the action
     ///
@@ -91,6 +96,7 @@ pub struct SourceCron {
 
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct SourceWatch {
     /// The synchronization mode
     mode: Option<WatchMode>,
@@ -315,7 +321,7 @@ impl Source {
 
 /// A set of sources, usually associated with a project
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
-#[serde(transparent)]
+#[serde(transparent, crate = "common::serde")]
 pub struct Sources {
     /// The list of sources
     pub inner: Vec<Source>,

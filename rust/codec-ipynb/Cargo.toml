@@ -6,43 +6,21 @@ edition = "2021"
 
 [features]
 default = ["decode", "encode", "translate"]
-decode = [
-    "codec",
-    "node-coerce",
-    "node-transform",
-    "tracing",
-    "translate",
-]
-encode = [
-    "base64",
-    "codec-html",
-    "codec-md",
-    "codec",
-    "codec-txt",
-    "serde_json",
-    "serde",
-]
-translate = [
-    "codec-txt",
-    "node-transform",
-    "strip-ansi-escapes",
-]
+decode = ["codec", "node-coerce", "node-transform", "translate"]
+encode = ["codec-html", "codec-md", "codec", "codec-txt"]
+translate = ["codec-txt", "node-transform", "strip-ansi-escapes"]
 
 [dependencies]
-base64 = { version = "0.13.0", optional = true }
-codec-html = { path = "../codec-html", version = "0.0.0", optional = true }
-codec-md = { path = "../codec-md", version = "0.0.0", optional = true }
-codec = { path = "../codec", version = "0.0.0", optional = true }
-codec-txt = { path = "../codec-txt", version = "0.0.0", optional = true }
-node-coerce = { path = "../node-coerce", version = "0.0.0", optional = true }
-node-transform = { path = "../node-transform", version = "0.0.0", optional = true }
-serde = { version = "1.0.130", optional = true }
-serde_json = { version = "1.0.75", features = ["preserve_order"], optional = true }
+codec-html = { path = "../codec-html", optional = true }
+codec-md = { path = "../codec-md", optional = true }
+codec = { path = "../codec", optional = true }
+codec-txt = { path = "../codec-txt", optional = true }
+node-coerce = { path = "../node-coerce", optional = true }
+node-transform = { path = "../node-transform", optional = true }
 stencila-schema = { path = "../schema" }
 strip-ansi-escapes = { version = "0.1.1", optional = true }
-tracing = { version = "0.1.29", optional = true }
 
 [dev-dependencies]
-test-props = { path = "../test-props", version = "0.0.0" }
-test-snaps = { path = "../test-snaps", version = "0.0.0" }
-test-utils = { path = "../test-utils", version = "0.0.0" }
+test-props = { path = "../test-props" }
+test-snaps = { path = "../test-snaps" }
+test-utils = { path = "../test-utils" }

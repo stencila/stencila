@@ -1,11 +1,11 @@
 //! Utility functions for use by parser implementations
 
+use std::path::{Path, PathBuf};
+
+use common::{once_cell::sync::Lazy, regex::Regex};
 use graph_triples::{
     relations, resources, stencila_schema::CodeChunkExecuteAuto, Relation, Resource,
 };
-use once_cell::sync::Lazy;
-use regex::Regex;
-use std::path::{Path, PathBuf};
 
 use crate::ResourceInfo;
 

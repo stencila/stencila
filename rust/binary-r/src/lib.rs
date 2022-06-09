@@ -1,9 +1,11 @@
 use std::{collections::HashMap, path::Path};
 
 use binary::{
-    async_trait::async_trait,
     binary_clone_box,
-    eyre::{bail, eyre, Result},
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, eyre, Result},
+    },
     http_utils,
 };
 pub use binary::{Binary, BinaryInstallation, BinaryTrait};

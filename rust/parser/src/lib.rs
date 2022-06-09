@@ -1,11 +1,14 @@
-use eyre::Result;
-use graph_triples::{Resource, ResourceInfo};
-use serde::{Deserialize, Serialize};
 use std::path::Path;
+
+use common::{
+    eyre::Result,
+    serde::{Deserialize, Serialize},
+};
+use graph_triples::{Resource, ResourceInfo};
 
 // Export and re-export for the convenience of crates that implement a parser
 pub mod utils;
-pub use eyre;
+pub use common;
 pub use formats;
 pub use graph_triples;
 
@@ -16,7 +19,7 @@ pub use graph_triples;
 /// `spec` function of `ParserTrait`. Plugins provide a JSON or YAML serialization
 /// as part of their manifest.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
+#[serde(default, rename_all = "camelCase", crate = "common::serde")]
 pub struct Parser {
     /// The language that the parser parses
     pub language: String,

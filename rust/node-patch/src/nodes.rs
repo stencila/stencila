@@ -1,5 +1,7 @@
-use super::prelude::*;
+use common::serde_json;
 use stencila_schema::Node;
+
+use super::prelude::*;
 
 /// Override of macro to implement `from_value` for all node types
 macro_rules! patchable_node_variants {

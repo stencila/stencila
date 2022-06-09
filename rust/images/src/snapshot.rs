@@ -7,10 +7,14 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use eyre::{bail, Result};
 use jwalk::WalkDirGeneric;
 use oci_spec::image::{Descriptor, MediaType};
 use seahash::SeaHasher;
+
+use common::{
+    eyre::{bail, Result},
+    tracing,
+};
 
 // Serialization framework defaults to `rkyv` with fallback to `serde` JSON
 
@@ -358,10 +362,10 @@ impl Snapshot {
 
 #[cfg(test)]
 mod tests {
-    use eyre::eyre;
+    use common::{eyre::eyre, tempfile::tempdir};
 
     use test_snaps::fixtures;
-    use test_utils::{print_logs, tempfile::tempdir};
+    use test_utils::print_logs;
 
     use super::*;
 

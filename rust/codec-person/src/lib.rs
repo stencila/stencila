@@ -1,12 +1,15 @@
+use human_name::Name;
+
 use codec::{
-    eyre::{bail, Result},
+    common::{
+        eyre::{bail, Result},
+        once_cell::sync::Lazy,
+        regex::Regex,
+    },
     stencila_schema::{Node, Person},
     utils::vec_string,
     Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
-use human_name::Name;
-use once_cell::sync::Lazy;
-use regex::Regex;
 
 // A codec for people's names, honorifics and contact details
 pub struct PersonCodec {}

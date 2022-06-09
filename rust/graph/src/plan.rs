@@ -1,12 +1,15 @@
 use std::str::FromStr;
 
-use eyre::{bail, Result};
+use common::{
+    eyre::{self, bail, Result},
+    serde::Serialize,
+    strum::AsRefStr,
+};
 use graph_triples::ResourceInfo;
-use serde::Serialize;
-use strum::AsRefStr;
 
 /// An execution plan for a document
 #[derive(Debug, Default, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct Plan {
     /// The options used to generate the plan
     pub options: PlanOptions,
@@ -31,6 +34,7 @@ impl Plan {
 
 /// Options for generating a plan
 #[derive(Debug, Clone, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct PlanOptions {
     /// The ordering of nodes used when generating the plan
     pub ordering: PlanOrdering,
@@ -74,6 +78,7 @@ impl Default for PlanOptions {
 
 /// The ordering of nodes used when generating a plan
 #[derive(Debug, Clone, Serialize, AsRefStr)]
+#[serde(crate = "common::serde")]
 pub enum PlanOrdering {
     /// Only a single, specified, node is to be executed
     Single,
@@ -102,6 +107,7 @@ impl FromStr for PlanOrdering {
 
 /// The scope of a cancellation request
 #[derive(Debug, Clone, Serialize, AsRefStr)]
+#[serde(crate = "common::serde")]
 pub enum PlanScope {
     /// A single node in the current execution plan
     Single,
@@ -127,6 +133,7 @@ impl FromStr for PlanScope {
 /// A stage represents a group of [`PlanTask`]s that can be executed concurrently
 /// (e.g. because they can be executed in different kernels or a kernel fork)
 #[derive(Debug, Default, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct PlanStage {
     /// The tasks to be executed
     pub tasks: Vec<PlanTask>,
@@ -146,6 +153,7 @@ impl PlanStage {
 ///
 /// A task is the smallest unit in an execution plan and corresponds to a kernel [`Task`]
 #[derive(Debug, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct PlanTask {
     /// Information on the resource to be executed
     ///

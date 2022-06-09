@@ -1,6 +1,7 @@
-use once_cell::sync::Lazy;
+use std::path::Path;
+
 use parser::{
-    eyre::Result,
+    common::{eyre::Result, once_cell::sync::Lazy, regex::Regex},
     formats::Format,
     graph_triples::{
         relations,
@@ -10,8 +11,6 @@ use parser::{
     utils::apply_tags,
     Parser, ParserTrait,
 };
-use regex::Regex;
-use std::path::Path;
 
 /// A parser for the "Calc" language
 pub struct CalcParser {}

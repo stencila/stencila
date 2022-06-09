@@ -40,7 +40,7 @@ pub fn data_dir() -> PathBuf {
 
     if let Ok(path) = env::var("JUPYTER_DATA_DIR") {
         PathBuf::from(path)
-    } else if let Some(data_dir) = ::dirs::data_dir() {
+    } else if let Some(data_dir) = kernel::common::dirs::data_dir() {
         #[cfg(target_os = "macos")]
         return data_dir
             .parent()
@@ -106,7 +106,7 @@ pub fn runtime_dirs() -> Vec<PathBuf> {
 
     push_missing(&mut dirs, data_dir().join("runtime"));
 
-    if let Some(runtime_dir) = ::dirs::runtime_dir() {
+    if let Some(runtime_dir) = kernel::common::dirs::runtime_dir() {
         push_missing(&mut dirs, runtime_dir.join("jupyter"));
     }
 

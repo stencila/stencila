@@ -1,11 +1,11 @@
-use once_cell::sync::Lazy;
+use std::path::Path;
+
 use parser_treesitter::{
-    eyre::Result,
+    common::{eyre::Result, once_cell::sync::Lazy},
     formats::Format,
     graph_triples::{relations, resources, Resource, ResourceInfo},
     resource_info, Parser, ParserTrait, TreesitterParser,
 };
-use std::path::Path;
 
 /// Tree-sitter based parser for Bash
 static PARSER: Lazy<TreesitterParser> =

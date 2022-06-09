@@ -4,15 +4,21 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use chrono::Utc;
-use eyre::{bail, eyre, Result};
 use oci_spec::image::{
     Descriptor, History, HistoryBuilder, ImageConfiguration, ImageConfigurationBuilder,
     ImageIndexBuilder, ImageManifestBuilder, MediaType, RootFsBuilder, SCHEMA_VERSION,
 };
 
+use common::{
+    chrono::Utc,
+    eyre::{bail, eyre, Result},
+    glob,
+    serde::Serialize,
+    serde_json,
+    tempfile::{tempdir, TempDir},
+    tokio, tracing,
+};
 use hash_utils::str_sha256_hex;
-use http_utils::tempfile::{tempdir, TempDir};
 
 use crate::{
     blob_writer::BlobWriter,
@@ -26,7 +32,8 @@ use crate::{
 /// A container image
 ///
 /// This is serializable mainly so that it can be inspected as JSON or YAML output from a CLI command.
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct Image {
     /// The working directory to build an image for
     ///
@@ -574,7 +581,7 @@ impl Image {
 
 #[cfg(test)]
 mod tests {
-    use test_utils::tempfile::tempdir;
+    use test_utils::common::tempfile::tempdir;
 
     use super::*;
 

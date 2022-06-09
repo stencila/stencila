@@ -9,14 +9,11 @@ cli = ["cli-utils", "structopt"]
 
 [dependencies]
 axum = "0.5.5"
-eyre = "0.6.6"
+common = { path = "../common" }
 mime_guess = "2.0.4"
 portpicker = "0.1.1"
 rust-embed = { version = "6.4.0", features = ["compression"] }
-serde_json = "1.0.81"
-tokio = { version = "1.13.0", features = ["macros", "rt-multi-thread", "sync"] }
 tower-http = { version = "0.3.3", features = ["trace"] }
-tracing = "0.1.29"
 
-cli-utils = { path = "../cli-utils", version = "0.0.0", features = ["pretty"], optional = true }
+cli-utils = { path = "../cli-utils", features = ["pretty"], optional = true }
 structopt = { version = "0.3.25", optional = true }

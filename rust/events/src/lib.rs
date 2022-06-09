@@ -1,18 +1,24 @@
-use eyre::{bail, Result};
-use once_cell::sync::Lazy;
-use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     sync::{Mutex, MutexGuard},
 };
-use tokio::{
-    signal,
-    sync::{mpsc, Mutex as AsyncMutex},
+
+use common::{
+    eyre::{bail, Result},
+    once_cell::sync::Lazy,
+    serde::{Deserialize, Serialize},
+    serde_json,
+    tokio::{
+        self, signal,
+        sync::{mpsc, Mutex as AsyncMutex},
+    },
+    tracing,
 };
 use uuids::uuid_family;
 
 /// An event updating progress of some task
 #[derive(Default, Debug, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct ProgressEvent {
     /// The id of the task that this progress event relates to
     pub id: Option<String>,

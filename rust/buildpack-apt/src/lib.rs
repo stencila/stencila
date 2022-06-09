@@ -9,7 +9,12 @@ use std::{
 
 use binary::{http_utils::download_sync, Binary, BinaryTrait};
 use buildpack::{
-    eyre::{self, eyre},
+    common::{
+        eyre::{self, eyre},
+        maplit::hashmap,
+        serde::{Deserialize, Serialize},
+        tracing,
+    },
     libcnb::{
         self,
         build::{BuildContext, BuildResult, BuildResultBuilder},
@@ -20,10 +25,8 @@ use buildpack::{
         layer_env::{LayerEnv, ModificationBehavior, Scope},
         Buildpack,
     },
-    maplit::hashmap,
-    tracing, BuildpackTrait, LayerOptions,
+    BuildpackTrait, LayerOptions,
 };
-use serde::{Deserialize, Serialize};
 use utils::vec_string;
 
 pub struct AptBuildpack;
@@ -105,7 +108,7 @@ impl Buildpack for AptBuildpack {
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
-#[serde(default)]
+#[serde(default, crate = "buildpack::common::serde")]
 pub struct AptPackagesLayer {
     /// The version of Ubuntu that packages will be installed for e.g `bionic`, `focal`
     version: String,

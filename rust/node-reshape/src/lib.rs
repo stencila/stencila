@@ -2,10 +2,7 @@ use codec::CodecTrait;
 use codec_date::DateCodec;
 use codec_person::PersonCodec;
 use codec_txt::ToTxt;
-use defaults::Defaults;
-use eyre::Result;
-use once_cell::sync::Lazy;
-use regex::Regex;
+use common::{defaults::Defaults, eyre::Result, once_cell::sync::Lazy, regex::Regex};
 use stencila_schema::*;
 use utils::vec_string;
 
@@ -408,6 +405,7 @@ fn detect_abstract(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use common::serde_yaml;
     use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     #[test]
