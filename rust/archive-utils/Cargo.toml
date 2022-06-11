@@ -13,10 +13,10 @@ tar-zst = ["tar", "zstd"]
 common = { path = "../common" }
 path-utils = { path = "../path-utils" }
 
-flate2 = { version = "1.0.22", optional = true }
+flate2 = { version = "1.0.24", optional = true }
 tar = { version = "0.4.37", optional = true }
-xz2 = { version = "0.1.6", optional = true }
-zip = { version = "0.5.13", optional = true, default-features = false, features = [
+xz2 = { version = "0.1.7", optional = true }
+zip = { version = "0.6.2", optional = true, default-features = false, features = [
     "deflate",
     "bzip2",
     "time",

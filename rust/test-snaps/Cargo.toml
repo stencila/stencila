@@ -6,6 +6,6 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-insta = { version = "1.8.0", features = ["glob", "redactions"] }
+insta = { version = "1.14.1", features = ["glob", "redactions"] }
 stencila-schema = { path = "../schema" }
 test-utils = { path = "../test-utils" }

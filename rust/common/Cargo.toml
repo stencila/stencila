@@ -27,4 +27,4 @@ strum = { version = "0.24.0", features = ["derive"] }
 tempfile = "3.3.0"
 tokio = { version = "1.19.2", features = ["full"] }
 toml = "0.5.9"
-tracing = "0.1.34"
+tracing = "0.1.35"

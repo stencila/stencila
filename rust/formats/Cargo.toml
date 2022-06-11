@@ -6,4 +6,4 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-schemars = "0.8.8"
+schemars = "0.8.10"

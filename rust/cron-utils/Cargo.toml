@@ -7,5 +7,5 @@ edition = "2021"
 [dependencies]
 chrono-tz = "0.6.1"
 common = { path = "../common" }
-cron = "0.9.0"
+cron = "0.11.0"
 nom = "7.1.0"

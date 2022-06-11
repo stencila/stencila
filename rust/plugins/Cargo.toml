@@ -22,7 +22,7 @@ events = { path = "../events" }
 humantime = "2.1.0"
 jsonschema = "0.13.2"
 rand = "0.8.4"
-schemars = "0.8.8"
+schemars = "0.8.10"
 semver = "1.0.4"
 stencila-schema = { path = "../schema" }
 
