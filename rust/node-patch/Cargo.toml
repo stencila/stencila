@@ -16,7 +16,7 @@ node-pointer = { path = "../node-pointer" }
 schemars = { version = "0.8.8", features = ["preserve_order", "chrono"] }
 similar = { version = "2.1.0", features = ["unicode"] }
 stencila-schema = { path = "../schema" }
-unicode-segmentation = "1.8.0"
+unicode-segmentation = "1.9.0"
 thiserror = "1.0.31"
 
 [dev-dependencies]
