@@ -2426,9 +2426,9 @@ dependencies = [
 
 [[package]]
 name = "google-drive"
-version = "0.2.8"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c749c89b97f0fef7dd830850881a838aa4e4c8a4de797f49f34b03ddd346efe1"
+checksum = "50648eebc0293698930e7fbf646971e1997827c463ce9ff912b33f5903bc0343"
 dependencies = [
  "anyhow",
  "async-recursion 0.3.2",
@@ -2450,6 +2450,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_urlencoded",
+ "tokio",
  "url",
  "urlencoding 1.3.3",
  "uuid",
