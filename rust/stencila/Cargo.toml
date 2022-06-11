@@ -131,17 +131,17 @@ default = [
 async-recursion = "1.0.0"
 crossbeam-channel = "0.5.2"
 derivative = "2.2.0"
-handlebars = "4.2.1"
+handlebars = "4.3.1"
 humantime = "2.1.0"
 notify = "4.0.17"
 schemars = { version = "0.8.8", features = ["preserve_order", "chrono"] }
 stencila-schema = { path = "../schema" }
 thiserror = "1.0.31"
-tracing-appender = "0.2.0"
+tracing-appender = "0.2.2"
 tracing-error = "0.2.0"
 tracing-serde = "0.1.2"
 tracing-subscriber = { version = "0.3.6", features = ["env-filter", "json"] }
-validator = { version = "0.14.0", features = ["derive"] }
+validator = { version = "0.15.0", features = ["derive"] }
 
 # Required internal crates
 
@@ -179,21 +179,21 @@ exitcode = { version = "1.1.2", optional = true }
 
 # Optional crates related to `server` feature
 
-jsonwebtoken = { version = "7.2.0", optional = true }
+jsonwebtoken = { version = "8.1.0", optional = true }
 key-utils = { path = "../key-utils", optional = true }
 mime_guess = { version = "2.0.4", optional = true }
 portpicker = { version = "0.1.1", optional = true }
-prometheus = { version = "0.13.0", features = ["process"], optional = true }
+prometheus = { version = "0.13.1", features = ["process"], optional = true }
 public-ip = { version = "0.2.2", optional = true }
 server-next = { path = "../server-next", optional = true }
 sudo = { version = "0.6.0", optional = true }
-tokio-stream = { version = "0.1.8", optional = true }
+tokio-stream = { version = "0.1.9", optional = true }
 warp = { version = "0.3.2", optional = true }
-webbrowser = { version = "0.5.5", optional = true }
+webbrowser = { version = "0.7.1", optional = true }
 
 # Optional crates related to `update` feature
 
-self_update = { version = "0.28.0", optional = true, features = [
+self_update = { version = "0.30.0", optional = true, features = [
   "archive-tar",
   "archive-zip",
   "compression-flate2",
