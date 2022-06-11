@@ -4,7 +4,7 @@
 all: format lint test build docs
 
 setup:
-	npm install
+	npm install --force
 
 format:
 	npm run format

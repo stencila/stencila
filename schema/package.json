@@ -46,7 +46,7 @@
   "devDependencies": {
     "@semantic-release/exec": "6.0.3",
     "@stencila/dev-config": "3.0.4",
-    "@stencila/eslint-config": "3.0.1",
+    "@stencila/eslint-config": "3.0.4",
     "@stencila/semantic-release-config": "2.0.15",
     "@stoplight/json-ref-resolver": "3.1.4",
     "@types/fs-extra": "9.0.13",
