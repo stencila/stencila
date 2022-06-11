@@ -16,5 +16,9 @@ path-utils = { path = "../path-utils" }
 flate2 = { version = "1.0.22", optional = true }
 tar = { version = "0.4.37", optional = true }
 xz2 = { version = "0.1.6", optional = true }
-zip = { version = "0.5.13", optional = true }
+zip = { version = "0.5.13", optional = true, default-features = false, features = [
+    "deflate",
+    "bzip2",
+    "time",
+] }
 zstd = { version = "0.11.2", optional = true }
