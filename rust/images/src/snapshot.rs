@@ -83,7 +83,7 @@ impl SnapshotEntry {
             };
 
             #[cfg(not(target_family = "unix"))]
-            let (uid, gid) = (1000, 1000);
+            let (uid, gid) = (1000u32, 1000u32);
         
             SnapshotEntryMetadata {
                 uid,

@@ -182,7 +182,7 @@ impl ChangeSet {
                                     };
 
                                     #[cfg(not(target_family = "unix"))]
-                                    let (uid, gid) = (1000, 1000);
+                                    let (uid, gid) = (1000u32, 1000u32);
 
                                     let mut header = tar::Header::new_gnu();
                                     header.set_uid(uid.into());
