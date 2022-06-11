@@ -64,7 +64,7 @@
     "@stencila/dev-config": "3.0.4",
     "@stencila/eslint-config": "3.0.4",
     "@stencila/schema": "file:../schema",
-    "@types/jest": "27.0.1",
+    "@types/jest": "28.1.1",
     "@types/prosemirror-collab": "1.1.2",
     "@types/prosemirror-commands": "1.0.4",
     "@types/prosemirror-dropcursor": "1.0.3",
@@ -78,10 +78,11 @@
     "@types/prosemirror-tables": "0.9.1",
     "@types/prosemirror-transform": "1.1.4",
     "@types/prosemirror-view": "1.19.1",
-    "jest": "27.1.0",
+    "jest": "28.1.1",
+    "jest-environment-jsdom": "28.1.1",
     "microbundle": "0.14.2",
     "parcel": "^2.0.0-nightly.991",
-    "ts-jest": "27.0.5",
+    "ts-jest": "28.0.4",
     "typescript": "4.7.3"
   },
   "peerDependencies": {
@@ -96,6 +97,7 @@
     "fast-deep-equal": "^3.1.3",
     "grapheme-splitter": "^1.0.4",
     "html-fragment": "^1.1.2",
+    "nanoid": "^4.0.0",
     "prosemirror-collab": "^1.2.2",
     "prosemirror-commands": "^1.1.12",
     "prosemirror-dropcursor": "^1.4.0",
@@ -109,7 +111,7 @@
     "prosemirror-tables": "^1.1.1",
     "prosemirror-transform": "^1.3.3",
     "prosemirror-view": "^1.23.0",
-    "rpc-websockets": "^7.4.17",
+    "rpc-websockets": "^7.5.0",
     "xterm": "^4.18.0",
     "xterm-addon-attach": "^0.6.0",
     "xterm-addon-fit": "^0.5.0"
@@ -128,6 +130,10 @@
     "testMatch": [
       "**/*.e2e.ts",
       "**/*.test.ts"
+    ],
+    "testPathIgnorePatterns": [
+      "uid\\.test\\.ts",
+      "\\.e2e\\.ts$"
     ]
   },
   "eslintConfig": {
