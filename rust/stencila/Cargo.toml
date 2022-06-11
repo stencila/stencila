@@ -136,7 +136,7 @@ humantime = "2.1.0"
 notify = "4.0.17"
 schemars = { version = "0.8.8", features = ["preserve_order", "chrono"] }
 stencila-schema = { path = "../schema" }
-thiserror = "1.0.30"
+thiserror = "1.0.31"
 tracing-appender = "0.2.0"
 tracing-error = "0.2.0"
 tracing-serde = "0.1.2"
