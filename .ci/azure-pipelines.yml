@@ -24,7 +24,7 @@ variables:
   LZMA_API_STATIC: 1
 
   # Node.js version to use
-  NODE_VERSION: '16.x'
+  NODE_VERSION: '18.x'
 
 jobs:
   # Create variables indicating whether or not there are changes in
@@ -204,7 +204,7 @@ jobs:
           cargo run --manifest-path rust/stencila/Cargo.toml -- server start --url :9000 --insecure --log-requests --log-level=trace &
           make -C node build-ts
           make -C schema setup build
-          npm install --prefix web
+          npm ci --prefix web
           npm run lint --prefix web
           while ! echo exit | nc 127.0.0.1 9000; do sleep 5; done
           SERVER_URL="ws://127.0.0.1:9000" npm test --prefix web
@@ -490,15 +490,15 @@ jobs:
 
       - script: |
           set -e
-          
+
           sudo apt-get update
           sudo apt-get install musl-tools
           rustup target add x86_64-unknown-linux-musl
           cargo install libcnb-cargo
-          
+
           curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.24.0/pack-v0.24.0-linux.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack
-          
-          make -C docker/builder/bionic 
+
+          make -C docker/builder/bionic
         displayName: Build stencila/builder
 
       # Push images if on a tag
