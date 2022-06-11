@@ -1,4 +1,4 @@
-import { Address, Operation, Slot } from '@stencila/stencila'
+import { Address, Operation, Slot } from '../../types'
 import { collab, receiveTransaction, sendableSteps } from 'prosemirror-collab'
 import { baseKeymap } from 'prosemirror-commands'
 import { dropCursor } from 'prosemirror-dropcursor'

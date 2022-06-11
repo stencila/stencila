@@ -1,4 +1,4 @@
-import { Slot } from '@stencila/stencila'
+import { Slot } from '../../types'
 import { assertObject, isElement, JsonValue } from '../checks'
 import { applyAddStruct } from './add'
 import { STRUCT_ATTRIBUTES } from './consts'

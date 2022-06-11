@@ -1,4 +1,4 @@
-import { Address, Operation, Patch, Slot } from '@stencila/stencila'
+import { Address, Operation, Patch, Slot } from '../../types'
 import { getPatch } from 'fast-array-diff'
 import GraphemeSplitter from 'grapheme-splitter'
 import { assert, assertIndex, assertString, panic } from '../checks'

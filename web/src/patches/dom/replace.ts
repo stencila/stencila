@@ -1,5 +1,4 @@
-import { OperationReplace, Slot } from '@stencila/stencila'
-import { ElementId } from '../../types'
+import { OperationReplace, Slot, ElementId } from '../../types'
 import {
   assert,
   assertElement,

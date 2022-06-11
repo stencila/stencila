@@ -202,7 +202,6 @@ jobs:
       - script: |
           set -e
           cargo run --manifest-path rust/stencila/Cargo.toml -- server start --url :9000 --insecure --log-requests --log-level=trace &
-          make -C node build-ts
           make -C schema setup build
           npm ci --prefix web
           npm run lint --prefix web

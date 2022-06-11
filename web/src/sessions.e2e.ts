@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Session, SessionEvent } from '@stencila/stencila'
+import { Session, SessionEvent } from './types'
 import { Client, connect, disconnect } from './client'
 import { start, stop, subscribe, unsubscribe } from './sessions'
 

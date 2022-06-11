@@ -4,7 +4,7 @@
 
 import { ChangeSet, ChangeSpec, EditorState } from '@codemirror/state'
 import { ViewUpdate } from '@codemirror/view'
-import { Address, Operation } from '@stencila/stencila'
+import { Address, Operation } from '../../types'
 import { assertNumber } from '../checks'
 import { diff } from '../string'
 

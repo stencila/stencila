@@ -4,13 +4,7 @@ import {
   CodeExecuteEvent,
 } from '@stencila/components/dist/types/components/code/codeTypes'
 import { ValidatorTypes } from '@stencila/schema'
-import {
-  Address,
-  Document,
-  DocumentEvent,
-  Operation,
-  Patch,
-} from '@stencila/stencila'
+import { Address, Document, DocumentEvent, Operation, Patch } from './types'
 import { Client, ClientId } from './client'
 import { KernelId } from './kernels'
 import { JsonValue } from './patches/checks'

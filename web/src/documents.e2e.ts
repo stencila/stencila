@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { article, creativeWork } from '@stencila/schema'
-import { Document, DocumentEvent } from '@stencila/stencila'
+import { Document, DocumentEvent } from './types'
 import { Client, connect, disconnect } from './client'
 import {
   close,

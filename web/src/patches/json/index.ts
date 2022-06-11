@@ -8,7 +8,7 @@ import {
   OperationTransform,
   Patch,
   Slot,
-} from '@stencila/stencila'
+} from '../../types'
 import { getPatch, PatchItem } from 'fast-array-diff'
 import equal from 'fast-deep-equal'
 import {

@@ -6,7 +6,7 @@
  * that any inconsistency should trigger a "panic" to reset the state of the document.
  */
 
-import { Slot } from '@stencila/stencila'
+import { Slot } from '../types'
 
 /**
  * Panic if there is a conflict between a `Patch` and the current DOM.

@@ -1,11 +1,11 @@
-import { Document, Session } from '@stencila/stencila'
+import { Document, Session } from './types'
 import { Client, ClientId, ClientOptions, connect, disconnect } from './client'
 import * as documents from './documents'
 import { onDiscoverExecutableLanguages } from './events/kernels'
 import { languages } from './kernels'
 import * as sessions from './sessions'
 
-export type { Document, Patch, Session } from '@stencila/stencila'
+export type { Document, Patch, Session } from './types'
 export * as client from './client'
 export type { Client } from './client'
 export * as documents from './documents'

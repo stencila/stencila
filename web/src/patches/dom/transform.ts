@@ -1,5 +1,4 @@
-import { OperationTransform } from '@stencila/stencila'
-import { ElementId } from '../../types'
+import { OperationTransform, ElementId } from '../../types'
 import { assert, isElement, isText, panic } from '../checks'
 import { resolveNode } from './resolve'
 

@@ -39,7 +39,6 @@ audit:
 # Builds / installs embedded static assets first
 build:
 	cd ../schema && npm install && npm run build
-	cd ../node && npm install && npm run build:ts
 	cd ../web && npm install && npm run build
 	cd ../themes && npm install && npm run build
 	cd server-next && npm install

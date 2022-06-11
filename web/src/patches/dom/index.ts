@@ -10,8 +10,7 @@
  * in this module.
  */
 
-import { Operation, Patch } from '@stencila/stencila'
-import { ElementId } from '../../types'
+import { Operation, Patch, ElementId } from '../../types'
 import { assertNumber } from '../checks'
 import { applyAdd } from './add'
 import { applyMove } from './move'

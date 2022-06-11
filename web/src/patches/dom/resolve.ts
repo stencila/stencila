@@ -1,6 +1,5 @@
-import { Address, Slot } from '@stencila/stencila'
+import { Address, Slot, ElementId } from '../../types'
 import HtmlFragment from 'html-fragment'
-import { ElementId } from '../../types'
 import {
   assert,
   assertElement,
