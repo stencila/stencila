@@ -2,7 +2,6 @@
 //! node types have expected traits e.g. `Clone`, `Serialize` etc.
 
 use maplit::btreemap;
-use pretty_assertions::assert_eq;
 use serde_json::{json, Result, Value};
 use stencila_schema::{
     Article, BlockContent, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle, InlineContent,

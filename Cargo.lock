@@ -4684,18 +4684,6 @@ checksum = "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c"
 
 [[package]]
 name = "pretty_assertions"
-version = "0.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1cab0e7c02cf376875e9335e0ba1da535775beb5450d21e1dffca068818ed98b"
-dependencies = [
- "ansi_term",
- "ctor",
- "diff",
- "output_vt100",
-]
-
-[[package]]
-name = "pretty_assertions"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c89f989ac94207d048d92db058e4f6ec7342b0971fc58d1271ca148b799b3563"
@@ -6072,7 +6060,6 @@ dependencies = [
  "chrono",
  "defaults",
  "maplit",
- "pretty_assertions 0.7.2",
  "serde",
  "serde_json",
  "serde_with",
@@ -6321,7 +6308,7 @@ name = "test-utils"
 version = "0.0.0"
 dependencies = [
  "common",
- "pretty_assertions 1.2.1",
+ "pretty_assertions",
  "tracing-subscriber",
 ]
 

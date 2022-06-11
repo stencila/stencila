@@ -20,4 +20,3 @@ strum = { version = "0.24.0", features = ["derive"] }
 
 [dev-dependencies]
 maplit = "1.0.2"
-pretty_assertions = "0.7.2"
