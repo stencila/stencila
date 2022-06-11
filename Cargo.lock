@@ -3211,7 +3211,7 @@ version = "0.0.0"
 dependencies = [
  "binaries",
  "kernel",
- "nix",
+ "nix 0.24.1",
 ]
 
 [[package]]
@@ -3751,6 +3751,18 @@ checksum = "9f866317acbd3a240710c63f065ffb1e4fd466259045ccb504130b7f668f35c6"
 dependencies = [
  "bitflags",
  "cc",
+ "cfg-if 1.0.0",
+ "libc",
+ "memoffset",
+]
+
+[[package]]
+name = "nix"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f17df307904acd05aa8e32e97bb20f2a0df1728bbc2d771ae8f9a90463441e9"
+dependencies = [
+ "bitflags",
  "cfg-if 1.0.0",
  "libc",
  "memoffset",
@@ -4904,7 +4916,7 @@ checksum = "b5c0159357669a990d96531d7095fd9d5eaa9f59d3d7d522f65b438dc8d1c109"
 dependencies = [
  "futures",
  "libc",
- "nix",
+ "nix 0.23.1",
  "tokio",
 ]
 
@@ -5447,7 +5459,7 @@ dependencies = [
  "libc",
  "log",
  "memchr",
- "nix",
+ "nix 0.23.1",
  "radix_trie",
  "scopeguard",
  "smallvec",
