@@ -12,6 +12,6 @@ hash-utils = { path = "../hash-utils" }
 kernels = { path = "../kernels" }
 num_cpus = "1.13.1"
 path-utils = { path = "../path-utils" }
-petgraph = { version = "0.6.0", features = ["serde-1"] }
+petgraph = { version = "0.6.2", features = ["serde-1"] }
 schemars = { version = "0.8.8", features = ["preserve_order"] }
 utils = { path = "../utils" }
