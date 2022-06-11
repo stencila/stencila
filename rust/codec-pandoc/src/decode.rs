@@ -47,15 +47,15 @@ pub async fn decode_fragment(
 
     let pandoc = from_pandoc(input, None, format, args).await?;
     let context = DecodeContext {};
-    Ok(translate_blocks(&pandoc.1, &context))
+    Ok(translate_blocks(&pandoc.blocks, &context))
 }
 
 /// Decode a Pandoc document to a `Node`
 pub fn decode_pandoc(pandoc: pandoc::Pandoc) -> Result<Node> {
     let context = DecodeContext {};
-    let mut article = translate_meta(pandoc.0, &context)?;
+    let mut article = translate_meta(pandoc.meta, &context)?;
 
-    let content = translate_blocks(&pandoc.1, &context);
+    let content = translate_blocks(&pandoc.blocks, &context);
     article.content = if content.is_empty() {
         None
     } else {
@@ -66,8 +66,11 @@ pub fn decode_pandoc(pandoc: pandoc::Pandoc) -> Result<Node> {
 }
 
 /// Translate Pandoc meta data into an `Article` node
-fn translate_meta(meta: pandoc::Meta, context: &DecodeContext) -> Result<Article> {
-    let mut article = translate_meta_map(&meta.0, context);
+fn translate_meta(
+    meta: HashMap<String, pandoc::MetaValue>,
+    context: &DecodeContext,
+) -> Result<Article> {
+    let mut article = translate_meta_map(&meta, context);
     article.insert("type".to_string(), serde_json::json!("Article"));
 
     let node = coerce(serde_json::Value::Object(article), None)?;
@@ -244,17 +247,24 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
             })]
         }
 
-        pandoc::Block::Table(attrs, caption, _column_specs, head, bodies, foot) => {
-            let id = get_id(attrs).map(Box::new);
+        pandoc::Block::Table(pandoc::Table {
+            attr,
+            caption,
+            head,
+            bodies,
+            foot,
+            ..
+        }) => {
+            let id = get_id(attr).map(Box::new);
 
-            let caption = translate_blocks(&caption.1, context);
+            let caption = translate_blocks(&caption.long, context);
             let caption = match caption.is_empty() {
                 true => None,
                 false => Some(Box::new(TableCaption::VecBlockContent(caption))),
             };
 
             let head: Vec<TableRow> = head
-                .1
+                .rows
                 .iter()
                 .map(|row| translate_row(row, context, Some(TableRowRowType::Header)))
                 .collect();
@@ -262,12 +272,12 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
                 .iter()
                 .flat_map(|body| {
                     let intermediate_head: Vec<TableRow> = body
-                        .2
+                        .head
                         .iter()
                         .map(|row| translate_row(row, context, Some(TableRowRowType::Header)))
                         .collect();
                     let intermediate_body: Vec<TableRow> = body
-                        .3
+                        .body
                         .iter()
                         .map(|row| translate_row(row, context, None))
                         .collect();
@@ -275,7 +285,7 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
                 })
                 .collect();
             let foot: Vec<TableRow> = foot
-                .1
+                .rows
                 .iter()
                 .map(|row| translate_row(row, context, Some(TableRowRowType::Footer)))
                 .collect();
@@ -331,7 +341,7 @@ fn translate_row(
         None => None,
     };
     let cells = row
-        .1
+        .cells
         .iter()
         .map(|cell| translate_cell(cell, context, cell_type.clone()))
         .collect();
@@ -353,7 +363,12 @@ fn translate_cell(
     context: &DecodeContext,
     cell_type: Option<TableCellCellType>,
 ) -> TableCell {
-    let pandoc::Cell(_attrs, _alignment, row_span, col_span, blocks) = cell;
+    let pandoc::Cell {
+        row_span,
+        col_span,
+        content: blocks,
+        ..
+    } = cell;
     let blocks = translate_blocks(blocks, context);
     let content = match blocks.len() {
         0 => None,
@@ -461,7 +476,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
         })],
 
         pandoc::Inline::Link(attrs, inlines, target) => {
-            let pandoc::Target(url, title) = target;
+            let pandoc::Target { url, title } = target;
             vec![InlineContent::Link(Link {
                 id: get_id(attrs).map(Box::new),
                 target: url.clone(),
@@ -479,7 +494,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
                 false => Some(Box::new(caption)),
             };
 
-            let pandoc::Target(url, title) = target;
+            let pandoc::Target { url, title } = target;
             let content_url = url.clone();
             let title = match title.is_empty() {
                 true => None,
@@ -576,15 +591,15 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
 /// Get an attribute from a Pandoc `Attr` tuple struct
 fn get_attr(attrs: &pandoc::Attr, name: &str) -> Option<String> {
     match name {
-        "id" => match attrs.0.is_empty() {
+        "id" => match attrs.identifier.is_empty() {
             true => None,
-            false => Some(attrs.0.clone()),
+            false => Some(attrs.identifier.clone()),
         },
-        "classes" => match attrs.1.is_empty() {
+        "classes" => match attrs.classes.is_empty() {
             true => None,
-            false => Some(attrs.1.join(" ")),
+            false => Some(attrs.classes.join(" ")),
         },
-        _ => attrs.2.iter().find_map(|(key, value)| {
+        _ => attrs.attributes.iter().find_map(|(key, value)| {
             if key == name {
                 Some(value.clone())
             } else {

@@ -80,7 +80,10 @@ impl EncodeContext {
         pandoc::Inline::Image(
             attrs_empty(),
             vec![pandoc::Inline::Str(json)],
-            pandoc::Target(path, type_name.into()),
+            pandoc::Target {
+                url: path,
+                title: type_name.into(),
+            },
         )
     }
 
@@ -100,7 +103,10 @@ impl EncodeContext {
 trait ToPandoc {
     /// Encode to a Pandoc document
     fn to_pandoc(&self, _context: &mut EncodeContext) -> pandoc::Pandoc {
-        pandoc::Pandoc(pandoc::Meta(HashMap::new()), Vec::new())
+        pandoc::Pandoc {
+            meta: HashMap::new(),
+            blocks: Vec::new(),
+        }
     }
 
     /// Encode to a Pandoc inline element
@@ -126,7 +132,11 @@ trait ToPandoc {
 
 /// Create an empty Pandoc `Attr` tuple
 fn attrs_empty() -> pandoc::Attr {
-    pandoc::Attr("".to_string(), Vec::new(), Vec::new())
+    pandoc::Attr {
+        identifier: "".to_string(),
+        classes: Vec::new(),
+        attributes: Vec::new(),
+    }
 }
 
 macro_rules! unimplemented_to_pandoc {
@@ -182,7 +192,7 @@ macro_rules! inline_media_to_pandoc_image {
                 pandoc::Inline::Image(
                     attrs_empty(),
                     Vec::new(), // TODO: content or caption here
-                    pandoc::Target(url, title),
+                    pandoc::Target { url, title },
                 )
             }
         }
@@ -214,12 +224,13 @@ impl ToPandoc for Link {
         pandoc::Inline::Link(
             attrs_empty(),
             self.content.to_pandoc_inlines(context),
-            pandoc::Target(
-                self.target.clone(),
-                self.title
+            pandoc::Target {
+                url: self.target.clone(),
+                title: self
+                    .title
                     .as_ref()
                     .map_or("".to_string(), |title| title.to_string()),
-            ),
+            },
         )
     }
 }
@@ -289,7 +300,11 @@ impl ToPandoc for CodeBlock {
             .programming_language
             .as_ref()
             .map_or(vec![], |lang| vec![*lang.clone()]);
-        let attrs = pandoc::Attr(id, classes, vec![]);
+        let attrs = pandoc::Attr {
+            identifier: id,
+            classes,
+            attributes: vec![],
+        };
         pandoc::Block::CodeBlock(attrs, self.text.clone())
     }
 }
@@ -370,11 +385,11 @@ impl ToPandoc for List {
             .collect();
         match &self.order {
             Some(ListOrder::Ascending) => pandoc::Block::OrderedList(
-                pandoc::ListAttributes(
-                    1,
-                    pandoc::ListNumberStyle::Decimal,
-                    pandoc::ListNumberDelim::DefaultDelim,
-                ),
+                pandoc::ListAttributes {
+                    start_number: 1,
+                    style: pandoc::ListNumberStyle::Decimal,
+                    delim: pandoc::ListNumberDelim::DefaultDelim,
+                },
                 items,
             ),
             _ => pandoc::Block::BulletList(items),
@@ -423,10 +438,19 @@ impl ToPandoc for TableSimple {
                             }
                         },
                     };
-                    pandoc::Cell(attrs_empty(), pandoc::Alignment::AlignDefault, 1, 1, blocks)
+                    pandoc::Cell {
+                        attr: attrs_empty(),
+                        align: pandoc::Alignment::AlignDefault,
+                        row_span: 1,
+                        col_span: 1,
+                        content: blocks,
+                    }
                 })
                 .collect();
-            let pandoc_row = pandoc::Row(attrs_empty(), cells);
+            let pandoc_row = pandoc::Row {
+                attr: attrs_empty(),
+                cells,
+            };
             match row.row_type {
                 Some(TableRowRowType::Header) => head.push(pandoc_row),
                 Some(TableRowRowType::Footer) => foot.push(pandoc_row),
@@ -434,14 +458,28 @@ impl ToPandoc for TableSimple {
             }
         }
 
-        pandoc::Block::Table(
-            attrs_empty(),
-            pandoc::Caption(None, vec![]),
-            vec![],
-            pandoc::TableHead(attrs_empty(), head),
-            vec![pandoc::TableBody(attrs_empty(), 1, vec![], body)],
-            pandoc::TableFoot(attrs_empty(), foot),
-        )
+        pandoc::Block::Table(pandoc::Table {
+            attr: attrs_empty(),
+            caption: pandoc::Caption {
+                short: None,
+                long: vec![],
+            },
+            colspecs: vec![],
+            head: pandoc::TableHead {
+                attr: attrs_empty(),
+                rows: head,
+            },
+            bodies: vec![pandoc::TableBody {
+                attr: attrs_empty(),
+                row_head_columns: 1,
+                head: vec![],
+                body,
+            }],
+            foot: pandoc::TableFoot {
+                attr: attrs_empty(),
+                rows: foot,
+            },
+        })
     }
 }
 
@@ -475,14 +513,14 @@ impl ToPandoc for [BlockContent] {
 
 impl ToPandoc for Article {
     fn to_pandoc(&self, context: &mut EncodeContext) -> pandoc::Pandoc {
-        let meta = pandoc::Meta(HashMap::new());
+        let meta = HashMap::new();
 
         let blocks = self
             .content
             .as_ref()
             .map_or_else(Vec::new, |content| content.to_pandoc_blocks(context));
 
-        pandoc::Pandoc(meta, blocks)
+        pandoc::Pandoc { meta, blocks }
     }
 }
 

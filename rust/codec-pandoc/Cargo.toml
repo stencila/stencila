@@ -15,7 +15,7 @@ codec = { path = "../codec" }
 codec-json = { path = "../codec-json" }
 codec-rpng = { path = "../codec-rpng" }
 formats = { path = "../formats" }
-pandoc_types = "0.4.0"
+pandoc_types = "0.5.0"
 path-utils = { path = "../path-utils" }
 
 codec-txt = { path = "../codec-txt", optional = true }

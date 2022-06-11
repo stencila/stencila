@@ -4204,12 +4204,12 @@ checksum = "decf7381921fea4dcb2549c5667eda59b3ec297ab7e2b5fc33eac69d2e7da87b"
 
 [[package]]
 name = "pandoc_types"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6498bb7d873ae27bed0900373d70a0b2afe525c0195d6e30aa8e0b3cfcbaeb7a"
+checksum = "c3277cf3c81dc5fae4a0e77705896bfb95e53d31e5141b0ac65cbd441448eb38"
 dependencies = [
  "serde",
- "serde_json",
+ "serde_tuple",
 ]
 
 [[package]]
@@ -5687,6 +5687,27 @@ dependencies = [
  "itoa 1.0.2",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serde_tuple"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f4f025b91216f15a2a32aa39669329a475733590a015835d1783549a56d09427"
+dependencies = [
+ "serde",
+ "serde_tuple_macros",
+]
+
+[[package]]
+name = "serde_tuple_macros"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4076151d1a2b688e25aaf236997933c66e18b870d0369f8b248b8ab2be630d7e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
