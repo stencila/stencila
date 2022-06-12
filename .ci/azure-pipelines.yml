@@ -641,12 +641,14 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
+  # Releases are made on master but allowed even if Mac or Windows fail.
+  # This avoids releases on Linux binaries being blocked by failures on other operating systems.
   - job: Release
     dependsOn: [Linux, MacOS, Windows]
     condition: |
       and(
         in(dependencies.Linux.result, 'Succeeded', 'Skipped'),
-        in(dependencies.MacOS.result, 'Succeeded', 'Skipped'),
+        in(dependencies.MacOS.result, 'Succeeded', 'Skipped', 'Failed'),
         in(dependencies.Windows.result, 'Succeeded', 'Skipped', 'Failed'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/master'),

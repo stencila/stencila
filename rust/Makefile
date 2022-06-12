@@ -38,7 +38,7 @@ audit:
 # Build and strip binary
 # Builds / installs embedded static assets first
 build:
-	cd ../schema && npm install && npm run build
+	cd ../schema && npm install --force && npm run build
 	cd ../web && npm install && npm run build
 	cd ../themes && npm install && npm run build
 	cd server-next && npm install
