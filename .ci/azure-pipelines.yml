@@ -642,7 +642,7 @@ jobs:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
   - job: Release
-    dependsOn: [Linux, MacOS]
+    dependsOn: [Linux, MacOS, Windows]
     condition: |
       and(
         in(dependencies.Linux.result, 'Succeeded', 'Skipped'),
