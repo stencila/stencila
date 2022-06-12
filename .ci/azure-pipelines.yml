@@ -641,14 +641,13 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-  # Releases are only made if all three platform builds have succeeded and on the `master` branch.
   - job: Release
-    dependsOn: [Linux, MacOS, Windows]
+    dependsOn: [Linux, MacOS]
     condition: |
       and(
         in(dependencies.Linux.result, 'Succeeded', 'Skipped'),
         in(dependencies.MacOS.result, 'Succeeded', 'Skipped'),
-        in(dependencies.Windows.result, 'Succeeded', 'Skipped'),
+        in(dependencies.Windows.result, 'Succeeded', 'Skipped', 'Failed'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/master'),
           contains(dependencies.Changes.outputs['folders.changed'], 'docker')
