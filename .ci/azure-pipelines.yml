@@ -24,7 +24,9 @@ variables:
   LZMA_API_STATIC: 1
 
   # Node.js version to use
-  NODE_VERSION: '18.x'
+  # At time of writing, not upgrading to 18, due to this issue
+  # https://github.com/parcel-bundler/parcel/issues/8005#issuecomment-1120149358
+  NODE_VERSION: '16.x'
 
 jobs:
   # Create variables indicating whether or not there are changes in
@@ -229,8 +231,6 @@ jobs:
           bash .ci/upload-release.sh target/x86_64-unknown-linux-musl/release/stencila stencila x86_64-unknown-linux-musl.tar.gz
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
-          # Fix for parcel issue https://github.com/parcel-bundler/parcel/issues/8005#issuecomment-1120149358
-          NODE_OPTIONS: --no-experimental-fetch
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
 
@@ -329,7 +329,6 @@ jobs:
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
-          NODE_OPTIONS: --no-experimental-fetch
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
 
@@ -427,7 +426,6 @@ jobs:
           bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
-          NODE_OPTIONS: --no-experimental-fetch
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
 
