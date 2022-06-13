@@ -342,6 +342,7 @@ fn attr_itemprop(itemprop: &str) -> String {
 }
 
 /// Encode a node `id` as the "id" attribute of an HTML element
+#[allow(clippy::box_collection)]
 fn attr_id(id: &Option<Box<String>>) -> String {
     match id.as_deref() {
         Some(id) => attr("id", id),

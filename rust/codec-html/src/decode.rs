@@ -597,6 +597,7 @@ fn decode_table_cells(node: &NodeRef, context: &DecodeContext) -> Vec<TableCell>
 }
 
 /// Get the `id` attribute of an element (if any)
+#[allow(clippy::box_collection)]
 fn get_id(element: &ElementData) -> Option<Box<String>> {
     element
         .attributes

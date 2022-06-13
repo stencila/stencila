@@ -10,6 +10,7 @@ pub use prelude::Number;
 pub use prelude::Object;
 pub use prelude::Primitive;
 
+#[allow(non_camel_case_types)]
 #[rustfmt::skip]
 mod types;
 pub use types::*;
