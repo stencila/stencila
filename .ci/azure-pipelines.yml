@@ -476,6 +476,14 @@ jobs:
         displayName: Load from cache
         condition: and(not(canceled()), eq(variables.CACHE_RESTORED, 'true'))
 
+      - task: gitversion/setup@0
+        displayName: Install GitVersion
+        inputs:
+          versionSpec: '5.x'
+
+      - task: gitversion/execute@0
+        displayName: Determine version
+
       # Build `stencila/stencila` image
 
       - task: Docker@2
