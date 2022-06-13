@@ -1,3 +1,5 @@
+## [1.11.1](https://github.com/stencila/stencila/compare/v1.11.0...v1.11.1) (2022-06-13)
+
 # [1.11.0](https://github.com/stencila/stencila/compare/v1.10.0...v1.11.0) (2022-06-12)
 
 
