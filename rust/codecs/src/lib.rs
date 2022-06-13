@@ -217,7 +217,7 @@ impl Codecs {
     }
 
     /// Decode a document node from a string
-    #[allow(clippy::needless_update)]
+    #[allow(clippy::wrong_self_convention, clippy::needless_update)]
     async fn from_str(
         &self,
         content: &str,
@@ -247,7 +247,7 @@ impl Codecs {
     }
 
     /// Decode a document node from a file system path
-    #[allow(clippy::needless_update)]
+    #[allow(clippy::wrong_self_convention, clippy::needless_update)]
     async fn from_path(
         &self,
         path: &Path,
@@ -280,7 +280,6 @@ impl Codecs {
     }
 
     /// Encode a document node to a string
-    #[allow(unused_variables)]
     async fn to_string(
         &self,
         node: &Node,
