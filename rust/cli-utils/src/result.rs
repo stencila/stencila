@@ -175,7 +175,7 @@ pub mod print {
 
             let mut highlighter = HighlightLines::new(syntax, &THEMES.themes["Solarized (light)"]);
             for line in content.lines() {
-                let ranges: Vec<(Style, &str)> = highlighter.highlight(line, &SYNTAXES);
+                let ranges: Vec<(Style, &str)> = highlighter.highlight_line(line, &SYNTAXES)?;
                 let escaped = as_24_bit_terminal_escaped(&ranges[..], false);
                 println!("{}", escaped);
             }
