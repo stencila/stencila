@@ -658,7 +658,7 @@ impl MicroKernel {
 /// Send a task to a kernel on stdin
 async fn send_task<W: AsyncWrite + Unpin>(task: &[String], stdin: &mut BufWriter<W>) -> Result<()> {
     let task = task.join("\n");
-    let task = task.replace("\n", "\\n");
+    let task = task.replace('\n', "\\n");
     let task = [&task, "\n"].concat();
     tracing::trace!("Sending task on stdin");
     if let Err(error) = stdin.write_all(task.as_bytes()).await {

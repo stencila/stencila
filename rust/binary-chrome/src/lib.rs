@@ -86,7 +86,7 @@ impl BinaryTrait for ChromeBinary {
 
         let url = format!(
             "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/{suffix}?alt=media",
-            suffix = suffix.replace("/", "%2F")
+            suffix = suffix.replace('/', "%2F")
         );
         let filename = format!("chrome-v{version}-{os}.zip", version = version, os = os);
         let archive = self.download(&url, Some(filename), None).await?;

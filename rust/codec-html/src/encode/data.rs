@@ -143,7 +143,7 @@ impl ToHtml for Parameter {
             let value = self
                 .value
                 .as_deref()
-                .or_else(|| self.default.as_deref())
+                .or(self.default.as_deref())
                 .map(|node| node.to_txt())
                 .unwrap_or_default();
 

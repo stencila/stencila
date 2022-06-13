@@ -267,7 +267,7 @@ fn encode_markdown(blocks: &[BlockContent]) -> serde_json::Value {
 
 /// Encode a `String` to a Jupyter multiline string
 fn encode_multiline_string(string: &str) -> Vec<&str> {
-    string.split_inclusive("\n").collect()
+    string.split_inclusive('\n').collect()
 }
 
 #[cfg(test)]

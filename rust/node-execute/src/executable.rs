@@ -281,7 +281,7 @@ impl Executable for Parameter {
         let content_str = self
             .value
             .as_deref()
-            .or_else(|| self.default.as_deref())
+            .or(self.default.as_deref())
             .map(|node| format!("{:?}", node))
             .unwrap_or_else(|| "".to_string());
         let semantic_str = [self.name.as_str(), content_str.as_str()].concat();
@@ -312,7 +312,7 @@ impl Executable for Parameter {
     ) -> Result<Option<TaskInfo>> {
         tracing::debug!("Executing `Parameter`");
 
-        if let Some(value) = self.value.as_deref().or_else(|| self.default.as_deref()) {
+        if let Some(value) = self.value.as_deref().or(self.default.as_deref()) {
             kernel_space
                 .set(&self.name, value.clone(), kernel_selector)
                 .await?;

@@ -30,7 +30,7 @@ impl ImageReference {
     /// Use this when pulling a manifest to get the version that most closely
     /// matches that specified in the reference.
     pub fn digest_or_tag_or_latest(&self) -> String {
-        match self.digest.as_ref().or_else(|| self.tag.as_ref()) {
+        match self.digest.as_ref().or(self.tag.as_ref()) {
             Some(reference) => reference.clone(),
             None => "latest".to_string(),
         }

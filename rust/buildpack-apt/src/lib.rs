@@ -373,7 +373,7 @@ deb mirror://mirrors.ubuntu.com/mirrors.txt {release}-security main restricted u
         for package in &self.packages {
             // Slugify URLs to be more filesystem friendly
             let package_id = if package.starts_with("http") && package.ends_with(".deb") {
-                package.replace("://", "-").replace("/", "-")
+                package.replace("://", "-").replace('/', "-")
             } else {
                 package.to_string()
             };

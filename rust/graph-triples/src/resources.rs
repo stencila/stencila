@@ -210,7 +210,7 @@ impl ResourceDigest {
 
     /// Strip carriage returns (and possibly other problematic characters) from strings
     pub fn strip_chars(bytes: &str) -> String {
-        bytes.replace("\r", "")
+        bytes.replace('\r', "")
     }
 
     /// Encode bytes as Base64

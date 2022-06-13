@@ -493,7 +493,7 @@ fn write_content_file(content_file: ContentFile, path: &Path) -> Result<()> {
         create_dir_all(parent)?
     }
     let mut file = File::create(path)?;
-    let content = content_file.content.replace("\n", "");
+    let content = content_file.content.replace('\n', "");
     file.write_all(&base64::decode(content)?)?;
     Ok(())
 }

@@ -84,7 +84,7 @@ impl SnapshotEntry {
 
             #[cfg(not(target_family = "unix"))]
             let (uid, gid) = (1000u32, 1000u32);
-        
+
             SnapshotEntryMetadata {
                 uid,
                 gid,
@@ -226,8 +226,7 @@ impl Snapshot {
                     // Check that the file should not be ignored
                     if let Some(true) = ignore_file
                         .as_ref()
-                        .map(|ignore_file| ignore_file.is_excluded(&path).ok())
-                        .flatten()
+                        .and_then(|ignore_file| ignore_file.is_excluded(&path).ok())
                     {
                         return None;
                     };

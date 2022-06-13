@@ -46,7 +46,7 @@ pub fn encode_root(node: &Node, options: Option<EncodeOptions>) -> String {
     // This is currently used in `themes` (for CSS scope) and in `web` (for address resolution).
     // This is a bit hacky and there may be a better approach. Or we may find
     // a way of avoid this entirely.
-    let html = html.replacen(" ", " data-root ", 1);
+    let html = html.replacen(' ', " data-root ", 1);
 
     if compact {
         html
@@ -89,7 +89,7 @@ fn indent(html: &str) -> String {
 
 /// Wrap generated HTML so that it is standalone
 pub fn wrap_standalone(html: &str, options: EncodeOptions, title: &str, extra_css: &str) -> String {
-    let title = if title.is_empty() { "Untitled" } else { &title };
+    let title = if title.is_empty() { "Untitled" } else { title };
     let theme = options.theme.unwrap_or_else(|| "stencila".to_string());
 
     // Get the theme CSS

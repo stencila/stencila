@@ -45,8 +45,7 @@ where
 
     fn to_attrs(&self, context: &EncodeContext) -> Vec<String> {
         self.iter()
-            .map(|item| item.to_attrs(context))
-            .flatten()
+            .flat_map(|item| item.to_attrs(context))
             .collect()
     }
 }

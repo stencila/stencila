@@ -260,7 +260,7 @@ pub fn resource_info(
 /// Strips carriage returns to avoid different digests on Windows.
 fn content_digest(code: &[u8]) -> [u8; 32] {
     let mut sha256 = Sha256::new();
-    let text = String::from_utf8_lossy(code).replace("\r", "");
+    let text = String::from_utf8_lossy(code).replace('\r', "");
     sha256.update(&text);
     sha256
         .finalize()
@@ -292,7 +292,7 @@ fn semantic_digest(tree: &Tree, code: &[u8], exclude: &[&str]) -> [u8; 32] {
         if node.is_named() && !exclude.contains(&kind) {
             sha256.update(&kind);
             if node.child_count() == 0 {
-                let text = node.utf8_text(code).unwrap().replace("\r", "");
+                let text = node.utf8_text(code).unwrap().replace('\r', "");
                 sha256.update(&text);
             }
         }

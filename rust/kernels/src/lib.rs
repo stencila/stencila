@@ -695,7 +695,7 @@ impl KernelTasks {
                     code.truncate(17);
                     code += "...";
                 }
-                code = code.replace("\n", "; ");
+                code = code.replace('\n', "; ");
 
                 format!(
                     "|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|`{}`|",
@@ -871,7 +871,7 @@ impl KernelSpace {
     /// Start a kernel
     pub async fn start(&self, selector: &KernelSelector) -> Result<KernelId> {
         let kernels = &mut *self.kernels.lock().await;
-        Ok(kernels.start(selector).await?)
+        kernels.start(selector).await
     }
 
     /// Stop a kernel

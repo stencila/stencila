@@ -954,17 +954,17 @@ fn set(language: &str, name: &str, json: &str) -> Result<Option<String>> {
         "javascript" => Some(format!(
             "let {} = JSON.parse(\"{}\")",
             name,
-            json.replace("\"", "\\\"")
+            json.replace('\"', "\\\"")
         )),
         "python" => Some(format!(
             "{} = json.loads(\"{}\")",
             name,
-            json.replace("\"", "\\\"")
+            json.replace('\"', "\\\"")
         )),
         "r" => Some(format!(
             "{} = jsonlite::fromJSON(\"{}\")",
             name,
-            json.replace("\"", "\\\"")
+            json.replace('\"', "\\\"")
         )),
         _ => None,
     })

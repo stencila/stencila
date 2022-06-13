@@ -3,7 +3,7 @@
 /// Replaces dots (`.`) with slashes (`/`) and ensures a
 /// leading slash.
 pub fn pointer(pointer: &str) -> String {
-    let pointer = pointer.replace(".", "/");
+    let pointer = pointer.replace('.', "/");
     if pointer.starts_with('/') {
         pointer
     } else {

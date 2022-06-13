@@ -626,7 +626,7 @@ pub trait BinaryTrait: Send + Sync {
         let names = [vec![name.clone()], aliases].concat();
         let paths: HashSet<PathBuf> = names
             .iter()
-            .map(|name| {
+            .flat_map(|name| {
                 match which::which_in_all(name, dirs.clone(), std::env::current_dir().unwrap()) {
                     Ok(paths) => paths.filter_map(|path| path.canonicalize().ok()).collect(),
                     Err(error) => {
@@ -635,7 +635,6 @@ pub trait BinaryTrait: Send + Sync {
                     }
                 }
             })
-            .flatten()
             .collect();
 
         // Get version of each executable found
@@ -772,15 +771,12 @@ pub trait BinaryTrait: Send + Sync {
         let requirement = self.semver_requirement(&requirement)?;
 
         // Get the latest version matching semver requirements
-        if let Some(version) = versions.iter().find_map(|version| {
-            match requirement.matches(
+        if let Some(version) = versions.iter().find(|version| {
+            requirement.matches(
                 &self
                     .semver_version(version)
                     .expect("Version to always be valid"),
-            ) {
-                true => Some(version),
-                false => None,
-            }
+            )
         }) {
             // Set install time env vars
             for (name, value) in self.install_env(Some(version.to_string())) {
