@@ -157,8 +157,87 @@
   "release": {
     "extends": "@stencila/semantic-release-config",
     "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "angular",
+          "releaseRules": [
+            {
+              "type": "build",
+              "release": "patch"
+            }
+          ]
+        }
+      ],
+      [
+        "@semantic-release/release-notes-generator",
+        {
+          "preset": "angular",
+          "config": {
+            "types": [
+              {
+                "type": "feat",
+                "section": "🎁 Features"
+              },
+              {
+                "type": "perf",
+                "section": "🚀 Performance"
+              },
+              {
+                "type": "fix",
+                "section": "🩹 Fixes"
+              },
+              {
+                "type": "revert",
+                "section": "🔙 Reversions"
+              },
+              {
+                "type": "build",
+                "section": "🏗️ Builds"
+              },
+              {
+                "type": "docs",
+                "section": "📚 Documentation"
+              },
+              {
+                "type": "style",
+                "section": "Styles",
+                "hidden": true
+              },
+              {
+                "type": "chore",
+                "section": "Chores",
+                "hidden": true
+              },
+              {
+                "type": "refactor",
+                "section": "Refactoring",
+                "hidden": true
+              },
+              {
+                "type": "test",
+                "section": "Tests",
+                "hidden": true
+              },
+              {
+                "type": "ci",
+                "section": "Continuous Integration",
+                "hidden": true
+              }
+            ]
+          },
+          "writerOpts": {
+            "commitGroupsSort": [
+              "🎁 Features",
+              "🚀 Performance",
+              "🩹 Fixes",
+              "🔙 Reversions",
+              "🏗️ Builds",
+              "📚 Documentation"
+            ]
+          }
+        }
+      ],
       "@semantic-release/changelog",
       [
         "@semantic-release/exec",
