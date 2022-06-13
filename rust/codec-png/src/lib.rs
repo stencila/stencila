@@ -123,6 +123,8 @@ pub async fn nodes_to_bytes(
         }}
         div.node {{
             margin: 10px; /* Mainly to improve spacing when previewing HTML during development */
+            min-height: 1px; /* To avoid 'Error -32000: Cannot take screenshot with 0 height' */
+            min-width: 1px;
         }}",
     );
 
