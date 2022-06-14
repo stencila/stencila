@@ -12,6 +12,7 @@
 pub use async_trait;
 pub use base64;
 pub use chrono;
+pub use chrono_humanize;
 pub use defaults;
 pub use derive_more;
 pub use dirs;
