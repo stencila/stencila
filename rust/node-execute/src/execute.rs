@@ -16,7 +16,7 @@ use common::{
     tracing,
 };
 use graph::{Plan, PlanScope};
-use graph_triples::{Resource, ResourceInfo};
+use graph_triples::Resource;
 use kernels::{KernelSelector, KernelSpace};
 use node_address::{Address, AddressMap};
 use node_patch::{diff, mutate, Patch};
@@ -77,20 +77,13 @@ pub async fn execute(
                 .tasks
                 .iter()
                 .enumerate()
-                .filter_map(move |(task_index, task)| {
+                .filter_map(move |(.., task)| {
                     let resource_info = task.resource_info.clone();
                     let resource = &resource_info.resource;
                     match resource_to_node(resource, root_guard, address_map_guard) {
                         Ok((node, node_id, node_address)) => Some((
                             resource.clone(),
-                            NodeInfo::new(
-                                stage_index,
-                                task_index,
-                                resource_info,
-                                node_id,
-                                node_address,
-                                node,
-                            ),
+                            NodeInfo::new(stage_index, node_id, node_address, node),
                         )),
                         Err(error) => {
                             tracing::warn!("While executing plan: {}", error);
@@ -431,12 +424,6 @@ struct NodeInfo {
     // The index of the stage of the plan the node is in
     stage_index: usize,
 
-    // The index of the task in the stage associated with the node
-    task_index: usize,
-
-    /// The associated [`ResourceInfo`]
-    resource_info: ResourceInfo,
-
     /// The id of the node
     node_id: String,
 
@@ -446,7 +433,7 @@ struct NodeInfo {
     /// A copy of the node
     ///
     /// We take a copy of the node initially at the start of [`execute`] and
-    /// then and send pathces for it to update status and execution results.
+    /// then and send patches for it to update status and execution results.
     node: Node,
 
     /// The execution state of the node prior to [`execute`]
@@ -454,18 +441,9 @@ struct NodeInfo {
 }
 
 impl NodeInfo {
-    fn new(
-        stage_index: usize,
-        task_index: usize,
-        resource_info: ResourceInfo,
-        node_id: String,
-        node_address: Address,
-        node: Node,
-    ) -> Self {
+    fn new(stage_index: usize, node_id: String, node_address: Address, node: Node) -> Self {
         let mut node_info = Self {
             stage_index,
-            task_index,
-            resource_info,
             node_id,
             node_address,
             node,
