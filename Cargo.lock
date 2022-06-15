@@ -2086,7 +2086,6 @@ name = "files"
 version = "0.0.0"
 dependencies = [
  "common",
- "crossbeam-channel",
  "events",
  "formats",
  "gitignore",

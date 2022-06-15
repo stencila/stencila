@@ -1,6 +1,7 @@
 use std::{
     collections::{btree_map::Entry, BTreeMap, BTreeSet},
     path::{Path, PathBuf},
+    sync::mpsc,
     time::UNIX_EPOCH,
 };
 
@@ -234,7 +235,7 @@ impl Files {
 
         // Collect files in parallel using a collector thread and several walker thread
         // (number of which is chosen by the `ignore` walker)
-        let (sender, receiver) = crossbeam_channel::bounded::<(PathBuf, File)>(100);
+        let (sender, receiver) = mpsc::channel::<(PathBuf, File)>();
         let root_path = path.as_ref().to_path_buf();
         let join_handle = std::thread::spawn(move || -> BTreeMap<PathBuf, File> {
             receiver
