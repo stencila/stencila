@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    fs::{rename, File},
     io,
     path::{Path, PathBuf},
 };
@@ -9,24 +10,20 @@ use oci_spec::image::{Descriptor, DescriptorBuilder, MediaType};
 
 use hash_utils::sha2::{Digest, Sha256};
 
-use crate::utils::unique_string;
+use crate::{
+    storage::{blob_path_safe, blob_symlink},
+    utils::unique_string,
+};
 
 /// A writer that calculates the size and SHA256 hash of files as they are written
 ///
-/// Writes blobs into the `blobs/sha256` subdirectory of an image directory and returns
-/// an [OCI Content Descriptor](https://github.com/opencontainers/image-spec/blob/main/descriptor.md).
-///
-/// Allows use to do a single pass when writing files instead of reading them after writing in order
-/// to generate the SHA256 signature.
+/// Allows a single pass when writing blobs (instead of reading them after writing in order
+/// to generate the SHA256 signature). Writes blobs into a shared `blobs/sha256` subdirectory and then
+/// symlinks to those in each individual image directory, thereby maximizing layer reuse and reducing
+/// disk consumption.
 pub struct BlobWriter {
-    /// The path to the `blobs/sha256` subdirectory where the blob is written to
-    blobs_dir: PathBuf,
-
-    /// The media type of the blob
-    media_type: MediaType,
-
-    /// The temporary file name of the blob (used before we know its final name, which is its SHA256 checksum)
-    file_name: PathBuf,
+    /// The temporary file path of the blob (used before we know its final name, which is its SHA256 checksum)
+    file_path: PathBuf,
 
     /// The file the blob is written to
     file: std::fs::File,
@@ -40,24 +37,12 @@ pub struct BlobWriter {
 
 impl BlobWriter {
     /// Create a new blob writer
-    ///
-    /// # Arguments
-    ///
-    /// - `image_dir`: the image directory (blobs are written to the `blobs/sha256` subdirectory of this)
-    /// - `media_type`: the media type of the blob
-    pub fn new<P: AsRef<Path>>(image_dir: P, media_type: MediaType) -> Result<Self> {
-        use std::fs::{self, File};
-
-        let blobs_dir = image_dir.as_ref().join("blobs").join("sha256");
-        fs::create_dir_all(&blobs_dir)?;
-
-        let filename = PathBuf::from(format!("temporary-{}", unique_string()));
-        let file = File::create(blobs_dir.join(&filename))?;
+    pub fn new() -> Result<Self> {
+        let file_path = blob_path_safe(&format!("temp:{}", unique_string()))?;
+        let file = File::create(&file_path)?;
 
         Ok(Self {
-            blobs_dir,
-            media_type,
-            file_name: filename,
+            file_path,
             file,
             bytes: 0,
             hash: Sha256::new(),
@@ -68,18 +53,27 @@ impl BlobWriter {
     ///
     /// Finalizes the SHA256 hash, renames the file to the hex digest of that hash,
     /// and returns a descriptor of the blob.
-    pub fn finish(self, annotations: Option<HashMap<String, String>>) -> Result<Descriptor> {
-        use std::fs;
-
+    pub fn finish(
+        self,
+        media_type: MediaType,
+        annotations: Option<HashMap<String, String>>,
+        layout_dir: Option<&Path>,
+    ) -> Result<Descriptor> {
+        // Finalize the hash
         let sha256 = format!("{:x}", self.hash.finalize());
 
-        fs::rename(
-            self.blobs_dir.join(self.file_name),
-            self.blobs_dir.join(&sha256),
-        )?;
+        // Rename the blob file to its hash
+        let blob_path = blob_path_safe(&format!("sha256:{}", sha256))?;
+        rename(self.file_path, &blob_path)?;
 
+        // Create a symlink from the layout dir to the shared blobs dir
+        if let Some(layout_dir) = layout_dir {
+            blob_symlink(&blob_path, layout_dir)?;
+        }
+
+        // Build the descriptor to return
         let mut descriptor = DescriptorBuilder::default()
-            .media_type(self.media_type)
+            .media_type(media_type)
             .size(self.bytes as i64)
             .digest(format!("sha256:{}", sha256));
         if let Some(annotations) = annotations {
@@ -91,15 +85,15 @@ impl BlobWriter {
     }
 
     /// Write an object as a JSON based media type
-    pub fn write_json<P: AsRef<Path>, S: serde::Serialize>(
-        path: P,
-        media_type: MediaType,
+    pub fn write_json<S: serde::Serialize>(
         object: &S,
+        media_type: MediaType,
         annotations: Option<HashMap<String, String>>,
+        layout_dir: Option<&Path>,
     ) -> Result<Descriptor> {
-        let mut writer = Self::new(path, media_type)?;
+        let mut writer = Self::new()?;
         serde_json::to_writer_pretty(&mut writer, object)?;
-        writer.finish(annotations)
+        writer.finish(media_type, annotations, layout_dir)
     }
 }
 

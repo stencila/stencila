@@ -5,34 +5,66 @@ use cli_utils::{
     common::async_trait::async_trait,
     result, Result, Run,
 };
-use common::tracing;
+use common::{tokio::fs::remove_dir_all, tracing};
 
-use crate::image::Image;
+use crate::{
+    distribution::{pull, push},
+    image::Image,
+    storage::{image_path, IMAGES_MAP},
+};
 
 /// Build and distribute container images
+///
+/// This subcommand provides a limited version of the functionality provided by
+/// `docker` and `podman` CLI tools. It is not a general purpose container tool.
+/// Only those commands needed by Stencila have been implemented.
 #[derive(Debug, Parser)]
 pub struct Command {
     #[clap(subcommand)]
-    pub action: Action,
+    action: Action,
 }
 
 #[derive(Debug, Parser)]
-pub enum Action {
+enum Action {
+    List(List),
     Build(Build),
+    Pull(Pull),
+    Push(Push),
+    Remove(Remove),
 }
 
 #[async_trait]
 impl Run for Command {
     async fn run(&self) -> Result {
         match &self.action {
+            Action::List(action) => action.run().await,
             Action::Build(action) => action.run().await,
+            Action::Pull(action) => action.run().await,
+            Action::Push(action) => action.run().await,
+            Action::Remove(action) => action.run().await,
         }
+    }
+}
+
+/// List images in the local image store
+///
+/// Similar to `docker images` or `podman images` but only includes
+/// container images that have been built or pulled by Stencila.
+#[derive(Debug, Parser)]
+struct List;
+
+#[async_trait]
+impl Run for List {
+    async fn run(&self) -> Result {
+        let images = IMAGES_MAP.read().await;
+        let (images, table) = images.list();
+        result::new("md", &table, images)
     }
 }
 
 /// Build an image
 #[derive(Debug, Parser)]
-pub struct Build {
+struct Build {
     /// The directory to build an image for
     ///
     /// Defaults to the current directory.
@@ -162,8 +194,6 @@ impl Run for Build {
             self.layers_dir.as_deref(),
             Some(!self.no_diffs),
             Some(self.layer_format.as_str()),
-            self.layout_dir.as_deref(),
-            self.layout_complete,
             Some(self.manifest_format.as_str()),
         )?;
 
@@ -182,11 +212,11 @@ impl Run for Build {
 
             if self.no_push {
                 tracing::info!(
-                    "Image built and written to `{}`.",
-                    image.layout_dir().display()
+                    "Image built and written to ``.",
+                    //image.layout_dir().display()
                 );
             } else {
-                image.push().await?;
+                //image.push().await?;
                 tracing::info!(
                     "Image built and pushed to `{}`.",
                     image.reference().to_string()
@@ -195,5 +225,72 @@ impl Run for Build {
         }
 
         result::value(image)
+    }
+}
+
+/// Pull an image from a registry
+///
+/// Equivalent to `docker pull` and `podman pull`.
+#[derive(Debug, Parser)]
+struct Pull {
+    /// The image to pull
+    image: String,
+}
+
+#[async_trait]
+impl Run for Pull {
+    async fn run(&self) -> Result {
+        let image = pull(&self.image).await?;
+        result::value(image)
+    }
+}
+
+/// Push an image to a registry
+///
+/// Similar to `podman pull` in that it allows an image to be pushed from
+/// one image reference to another (without having to tag first as with `docker`).
+#[derive(Debug, Parser)]
+struct Push {
+    /// The image to push
+    image: String,
+
+    /// The reference to push the image to (if different)
+    to: Option<String>,
+
+    /// Force a direct transfer from the source registry to the destination registry
+    #[clap(long, short)]
+    force_direct: bool,
+}
+
+#[async_trait]
+impl Run for Push {
+    async fn run(&self) -> Result {
+        let to = push(&self.image, self.to.as_deref(), self.force_direct).await?;
+        result::value(to)
+    }
+}
+
+/// Remove an image from the local image store
+///
+/// Equivalent to `docker rmi` and `podman rmi`.
+#[derive(Debug, Parser)]
+struct Remove {
+    /// The image to remove (a reference, id, or hash component of id)
+    image: String,
+}
+
+#[async_trait]
+impl Run for Remove {
+    async fn run(&self) -> Result {
+        let mut image_map = IMAGES_MAP.write().await;
+        if let Some(digest) = image_map.remove(&self.image)? {
+            let image_path = image_path(&digest);
+            remove_dir_all(image_path).await?;
+            tracing::info!("Image {} removed", digest)
+        } else {
+            tracing::warn!("No image matching {} to remove", self.image)
+        }
+
+        result::nothing()
     }
 }
