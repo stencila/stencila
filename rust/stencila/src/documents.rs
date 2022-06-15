@@ -1605,8 +1605,8 @@ impl DocumentHandler {
         id: String,
         path: PathBuf,
         document: Arc<Mutex<Document>>,
-    ) -> (crossbeam_channel::Sender<()>, JoinHandle<()>) {
-        let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
+    ) -> (std::sync::mpsc::Sender<()>, JoinHandle<()>) {
+        let (thread_sender, thread_receiver) = std::sync::mpsc::channel();
         let (async_sender, mut async_receiver) = tokio::sync::mpsc::channel(100);
 
         let path_cloned = path.clone();
@@ -1645,8 +1645,7 @@ impl DocumentHandler {
                     }
                 }
                 // Check to see if this thread should be ended
-                if let Err(crossbeam_channel::TryRecvError::Disconnected) =
-                    thread_receiver.try_recv()
+                if let Err(std::sync::mpsc::TryRecvError::Disconnected) = thread_receiver.try_recv()
                 {
                     break;
                 }

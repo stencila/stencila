@@ -129,7 +129,6 @@ default = [
 # Required external crates
 
 async-recursion = "1.0.0"
-crossbeam-channel = "0.5.2"
 derivative = "2.2.0"
 handlebars = "4.3.1"
 humantime = "2.1.0"

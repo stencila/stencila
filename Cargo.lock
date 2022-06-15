@@ -6132,7 +6132,6 @@ dependencies = [
  "codecs",
  "common",
  "cron-utils",
- "crossbeam-channel",
  "derivative",
  "events",
  "exitcode",
