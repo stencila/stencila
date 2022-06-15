@@ -1542,12 +1542,6 @@ pub struct DocumentHandler {
     /// The document being handled.
     document: Arc<Mutex<Document>>,
 
-    /// The watcher thread's channel sender.
-    ///
-    /// Held so that when this handler is dropped, the
-    /// watcher thread is ended.
-    watcher: Option<crossbeam_channel::Sender<()>>,
-
     /// The event handler thread's join handle.
     ///
     /// Held so that when this handler is dropped, the
@@ -1559,7 +1553,6 @@ impl Clone for DocumentHandler {
     fn clone(&self) -> Self {
         DocumentHandler {
             document: self.document.clone(),
-            watcher: None,
             handler: None,
         }
     }
@@ -1586,18 +1579,14 @@ impl DocumentHandler {
         let path = document.path.clone();
 
         let document = Arc::new(Mutex::new(document));
-        let (watcher, handler) = if watch {
-            let (watcher, handler) = DocumentHandler::watch(id, path, Arc::clone(&document));
-            (Some(watcher), Some(handler))
+        let handler = if watch {
+            let (.., handler) = DocumentHandler::watch(id, path, Arc::clone(&document));
+            Some(handler)
         } else {
-            (None, None)
+            None
         };
 
-        DocumentHandler {
-            document,
-            watcher,
-            handler,
-        }
+        DocumentHandler { document, handler }
     }
 
     const WATCHER_DELAY_MILLIS: u64 = 100;

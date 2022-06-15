@@ -473,12 +473,6 @@ pub struct ProjectHandler {
     /// The project being handled.
     project: Arc<Mutex<Project>>,
 
-    /// The watcher thread's channel sender.
-    ///
-    /// Held so that when this handler is dropped, the
-    /// watcher thread is ended.
-    watcher: Option<crossbeam_channel::Sender<()>>,
-
     /// The event handler thread's join handle.
     ///
     /// Held so that when this handler is dropped, the
@@ -522,19 +516,15 @@ impl ProjectHandler {
 
         let project = Arc::new(Mutex::new(project));
 
-        let (watcher, handler) = if watch {
-            let (watcher, handler) =
+        let handler = if watch {
+            let (.., handler) =
                 ProjectHandler::watch(path, watch_exclude_patterns, Arc::clone(&project));
-            (Some(watcher), Some(handler))
+            Some(handler)
         } else {
-            (None, None)
+            None
         };
 
-        ProjectHandler {
-            project,
-            watcher,
-            handler,
-        }
+        ProjectHandler { project, handler }
     }
 
     const WATCHER_DELAY_MILLIS: u64 = 300;
