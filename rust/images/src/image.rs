@@ -14,18 +14,17 @@ use common::{
     eyre::{bail, eyre, Result},
     glob,
     serde::Serialize,
-    serde_json,
-    tempfile::{tempdir, TempDir},
-    tokio, tracing,
+    serde_json, tokio, tracing,
 };
 use hash_utils::str_sha256_hex;
 
 use crate::{
     blob_writer::BlobWriter,
     distribution::Client,
-    image_reference::{ImageReference, DOCKER_REGISTRY},
+    image_reference::ImageReference,
     media_types::ToDockerV2S2,
     snapshot::Snapshot,
+    storage::{image_path, image_path_safe, write_oci_layout_file, IMAGES_MAP},
     utils::unique_string,
 };
 
@@ -42,8 +41,7 @@ pub struct Image {
     working_dir: Option<PathBuf>,
 
     /// The image reference for this image
-    #[serde(rename = "ref")]
-    ref_: ImageReference,
+    reference: ImageReference,
 
     /// The image reference for the base image from which this image is derived
     ///
@@ -65,23 +63,6 @@ pub struct Image {
     #[serde(skip)]
     layer_snapshots: Vec<Snapshot>,
 
-    /// The directory where this image will be written to
-    ///
-    /// The image will be written to this directory following the [OCI Image Layout Specification]
-    /// (https://github.com/opencontainers/image-spec/blob/main/image-layout.md)
-    layout_dir: PathBuf,
-
-    /// Whether the layout directory should be written will all layers, including those of the base image
-    ///
-    /// When pushing an image to a registry, if the registry already has a base layer, it is not
-    /// necessary to pull it first. However, in some cases it may be desirable to have all layers included.
-    layout_complete: bool,
-
-    /// The temporary directory created for the duration of the image's life to write layout to
-    #[serde(skip)]
-    #[allow(dead_code)]
-    layout_tempdir: Option<TempDir>,
-
     /// The format for the image manifest
     ///
     /// Defaults to `application/vnd.oci.image.manifest.v1+json`. However, for some registries it
@@ -92,7 +73,6 @@ pub struct Image {
 
 impl Image {
     /// Create a new image
-    #[allow(clippy::too_many_arguments)]
     pub fn new(
         working_dir: Option<&Path>,
         ref_: Option<&str>,
@@ -100,8 +80,6 @@ impl Image {
         layers_dir: Option<&Path>,
         layer_diffs: Option<bool>,
         layer_format: Option<&str>,
-        layout_dir: Option<&Path>,
-        layout_complete: bool,
         manifest_format: Option<&str>,
     ) -> Result<Self> {
         let working_dir = working_dir.map(PathBuf::from);
@@ -109,7 +87,7 @@ impl Image {
         let ref_ = match ref_ {
             Some(reference) => reference.parse::<ImageReference>()?,
             None => {
-                let registry = DOCKER_REGISTRY.to_string();
+                let registry = "localhost".to_string();
 
                 let name = working_dir
                     .as_ref()
@@ -133,7 +111,7 @@ impl Image {
         let base = base
             .map(String::from)
             .or_else(|| std::env::var("STENCILA_IMAGE_REF").ok())
-            .unwrap_or_else(|| "scratch".to_string())
+            .unwrap_or_else(|| "ubuntu".to_string())
             .parse()?;
 
         let layers_dir = layers_dir
@@ -172,14 +150,6 @@ impl Image {
             ));
         }
 
-        let (layout_dir, layout_tempdir) = match layout_dir {
-            Some(path) => (PathBuf::from(path), None),
-            None => {
-                let tempdir = tempdir()?;
-                (tempdir.path().to_path_buf(), Some(tempdir))
-            }
-        };
-
         let layer_diffs = layer_diffs.unwrap_or(true);
 
         let layer_format = match layer_format {
@@ -197,32 +167,24 @@ impl Image {
 
         Ok(Self {
             working_dir,
-            ref_,
+            reference: ref_,
             base,
             layers_dir,
             layer_snapshots,
             layer_diffs,
             layer_format,
-            layout_dir,
-            layout_complete,
-            layout_tempdir,
             manifest_format,
         })
     }
 
     /// Get the [`ImageReference`] of the image
     pub fn reference(&self) -> &ImageReference {
-        &self.ref_
+        &self.reference
     }
 
     /// Get the [`ImageReference`] of the image's base
     pub fn base(&self) -> &ImageReference {
         &self.base
-    }
-
-    /// Get the the image's OCI layout directory
-    pub fn layout_dir(&self) -> &Path {
-        &self.layout_dir
     }
 
     /// Fetches the manifest and configuration of the base image
@@ -231,14 +193,14 @@ impl Image {
     /// manifest) and required for the config and manifest of this image.
     async fn get_base(&self) -> Result<(String, ImageConfiguration, Vec<Descriptor>)> {
         let client = Client::new(&self.base.registry, &self.base.repository, None).await?;
-        let (manifest, digest) = client
-            .get_manifest(self.base.digest_or_tag_or_latest())
+        let (manifest, manifest_descriptor) = client
+            .pull_manifest(&self.base.digest_or_tag_or_latest(), None)
             .await?;
 
-        let config = client.get_config(&manifest).await?;
+        let config = client.pull_config(&manifest, None).await?;
         let layers = manifest.layers().clone();
 
-        Ok((digest, config, layers))
+        Ok((manifest_descriptor.digest().to_string(), config, layers))
     }
 
     /// Write the image layer blobs and returns vectors of DiffIDs and layer descriptors
@@ -246,21 +208,20 @@ impl Image {
         &self,
         base_config: &ImageConfiguration,
         base_layers: Vec<Descriptor>,
+        layout_dir: &Path,
     ) -> Result<(Vec<Descriptor>, Vec<String>, Vec<History>)> {
         let mut layers = base_layers;
         let mut diff_ids = base_config.rootfs().diff_ids().clone();
         let mut histories = base_config.history().clone();
 
-        if self.layout_complete {
-            let client = Client::new(&self.base.registry, &self.base.repository, None).await?;
-            for layer in &layers {
-                client.pull_blob_via(&self.layout_dir, layer).await?
-            }
+        let client = Client::new(&self.base.registry, &self.base.repository, None).await?;
+        for layer in &layers {
+            client.pull_blob_via(layer, None).await?
         }
 
         for snapshot in &self.layer_snapshots {
             let (diff_id, layer) =
-                snapshot.write_layer(&self.layout_dir, self.layer_diffs, &self.layer_format)?;
+                snapshot.write_layer(layout_dir, self.layer_diffs, &self.layer_format)?;
 
             if diff_id == "<empty>" {
                 continue;
@@ -291,6 +252,7 @@ impl Image {
         base_config: &ImageConfiguration,
         diff_ids: Vec<String>,
         history: Vec<History>,
+        layout_dir: &Path,
     ) -> Result<Descriptor> {
         // Start with the config of the base image and override as necessary
         let mut config = base_config.config().clone().unwrap_or_default();
@@ -407,7 +369,7 @@ impl Image {
         }
 
         // Add an env var for the ref of the image (used as the default `--from` image when building another image from this)
-        env.insert("STENCILA_IMAGE_REF".to_string(), self.ref_.to_string());
+        env.insert("STENCILA_IMAGE_REF".to_string(), self.reference.to_string());
 
         let env: Vec<String> = env
             .iter()
@@ -449,10 +411,10 @@ impl Image {
             .build()?;
 
         BlobWriter::write_json(
-            &self.layout_dir,
-            MediaType::ImageConfig,
             &configuration,
+            MediaType::ImageConfig,
             None,
+            Some(layout_dir),
         )
     }
 
@@ -460,44 +422,47 @@ impl Image {
     ///
     /// Implements the [OCI Image Manifest Specification](https://github.com/opencontainers/image-spec/blob/main/manifest.md).
     /// Given that the manifest requires the descriptors for config and layers also calls `write_config` and `write_layers`.
-    async fn write_manifest(&self) -> Result<(String, Descriptor)> {
+    async fn write_manifest(&self, layout_dir: &Path) -> Result<(String, Descriptor, Descriptor)> {
         let (base_digest, base_config, base_layers) = self.get_base().await?;
 
-        let (layers, diff_ids, history) = self.write_layers(&base_config, base_layers).await?;
+        let (layers, diff_ids, history) = self
+            .write_layers(&base_config, base_layers, layout_dir)
+            .await?;
 
-        let config = self.write_config(&base_config, diff_ids, history)?;
+        let config_descriptor = self.write_config(&base_config, diff_ids, history, layout_dir)?;
 
         let manifest = ImageManifestBuilder::default()
             .schema_version(SCHEMA_VERSION)
             .media_type(self.manifest_format.as_str())
-            .config(config)
+            .config(config_descriptor.clone())
             .layers(layers)
             .build()?;
 
-        Ok((
-            base_digest,
-            BlobWriter::write_json(&self.layout_dir, MediaType::ImageManifest, &manifest, None)?,
-        ))
+        let manifest_descriptor =
+            BlobWriter::write_json(&manifest, MediaType::ImageManifest, None, Some(layout_dir))?;
+
+        Ok((base_digest, config_descriptor, manifest_descriptor))
     }
 
     /// Write the image `index.json`
     ///
     /// Implements the [OCI Image Index Specification](https://github.com/opencontainers/image-spec/blob/main/image-index.md).
     /// Updates both `self.ref_.digest` and `self.base.digest`.
-    async fn write_index(&mut self) -> Result<()> {
+    async fn write_index(&mut self, layout_dir: &Path) -> Result<Descriptor> {
         use tokio::fs;
 
-        let (base_digest, manifest) = self.write_manifest().await?;
+        let (base_digest, config_descriptor, manifest_descriptor) =
+            self.write_manifest(layout_dir).await?;
 
         self.base.digest = Some(base_digest.clone());
-        self.ref_.digest = Some(manifest.digest().to_string());
+        self.reference.digest = Some(manifest_descriptor.digest().to_string());
 
         let annotations: HashMap<String, String> = [
             // Where appropriate use pre defined annotations
             // https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
             (
                 "org.opencontainers.image.ref.name".to_string(),
-                self.ref_.to_string_tag_or_latest(),
+                self.reference.to_string_tag_or_latest(),
             ),
             (
                 "org.opencontainers.image.created".to_string(),
@@ -517,16 +482,16 @@ impl Image {
         let index = ImageIndexBuilder::default()
             .schema_version(SCHEMA_VERSION)
             .media_type(MediaType::ImageIndex)
-            .manifests([manifest])
+            .manifests([manifest_descriptor])
             .annotations(annotations)
             .build()?;
         fs::write(
-            self.layout_dir.join("index.json"),
+            layout_dir.join("index.json"),
             serde_json::to_string_pretty(&index)?,
         )
         .await?;
 
-        Ok(())
+        Ok(config_descriptor)
     }
 
     pub async fn build(&self) -> Result<()> {
@@ -550,30 +515,21 @@ impl Image {
     pub async fn write(&mut self) -> Result<()> {
         use tokio::fs;
 
-        if self.layout_dir.exists() {
-            fs::remove_dir_all(&self.layout_dir).await?;
-        }
-        fs::create_dir_all(&self.layout_dir).await?;
+        // Create a temporary OCI layout directory
+        let layout_dir = image_path(&format!("temp:{}", &unique_string()));
 
-        self.write_index().await?;
+        // Write image into that directory
+        let config_descriptor = self.write_index(&layout_dir).await?;
+        write_oci_layout_file(&layout_dir)?;
+        let config_digest = config_descriptor.digest();
 
-        fs::write(
-            self.layout_dir.join("oci-layout"),
-            r#"{"imageLayoutVersion": "1.0.0"}"#,
-        )
-        .await?;
+        // Now we know the id of the image, rename the dir
+        let image_dir = image_path_safe(config_digest)?;
+        fs::rename(&layout_dir, image_dir).await?;
 
-        Ok(())
-    }
-
-    /// Push the image to its registry
-    ///
-    /// The image must be written first (by a call to `self.write()`).
-    pub async fn push(&self) -> Result<()> {
-        let client = Client::new(&self.ref_.registry, &self.ref_.repository, None).await?;
-        client
-            .push_image(&self.ref_.tag_or_latest(), &self.layout_dir)
-            .await?;
+        // Add an entry in the images map
+        let mut images = IMAGES_MAP.write().await;
+        images.insert(&self.reference.to_string_tag_or_latest(), config_digest)?;
 
         Ok(())
     }
@@ -584,62 +540,6 @@ mod tests {
     use test_utils::common::tempfile::tempdir;
 
     use super::*;
-
-    /// Test parsing image spec
-    #[test]
-    fn parse_image_ref() -> Result<()> {
-        let ubuntu = ImageReference {
-            registry: "registry.hub.docker.com".to_string(),
-            repository: "library/ubuntu".to_string(),
-            ..Default::default()
-        };
-
-        assert_eq!("ubuntu".parse::<ImageReference>()?, ubuntu);
-        assert_eq!("docker.io/ubuntu".parse::<ImageReference>()?, ubuntu);
-        assert_eq!(
-            "registry.hub.docker.com/ubuntu".parse::<ImageReference>()?,
-            ubuntu
-        );
-
-        let ubuntu_2204 = ImageReference {
-            registry: "registry.hub.docker.com".to_string(),
-            repository: "library/ubuntu".to_string(),
-            tag: Some("22.04".to_string()),
-            ..Default::default()
-        };
-
-        assert_eq!("ubuntu:22.04".parse::<ImageReference>()?, ubuntu_2204);
-        assert_eq!(
-            "docker.io/ubuntu:22.04".parse::<ImageReference>()?,
-            ubuntu_2204
-        );
-        assert_eq!(
-            "registry.hub.docker.com/ubuntu:22.04".parse::<ImageReference>()?,
-            ubuntu_2204
-        );
-
-        let ubuntu_digest = ImageReference {
-            registry: "registry.hub.docker.com".to_string(),
-            repository: "library/ubuntu".to_string(),
-            digest: Some("sha256:abcdef".to_string()),
-            ..Default::default()
-        };
-
-        assert_eq!(
-            "ubuntu@sha256:abcdef".parse::<ImageReference>()?,
-            ubuntu_digest
-        );
-        assert_eq!(
-            "docker.io/ubuntu@sha256:abcdef".parse::<ImageReference>()?,
-            ubuntu_digest
-        );
-        assert_eq!(
-            "registry.hub.docker.com/ubuntu@sha256:abcdef".parse::<ImageReference>()?,
-            ubuntu_digest
-        );
-
-        Ok(())
-    }
 
     /// Test that when an image is written to a directory that they directory conforms to
     /// the OCI Image Layout spec
@@ -654,15 +554,13 @@ mod tests {
             None,
             None,
             None,
-            false,
-            None,
         )?;
 
         image.write().await?;
 
-        assert!(image.layout_dir.join("oci-layout").is_file());
-        assert!(image.layout_dir.join("index.json").is_file());
-        assert!(image.layout_dir.join("blobs").join("sha256").is_dir());
+        //assert!(image.layout_dir.join("oci-layout").is_file());
+        //assert!(image.layout_dir.join("index.json").is_file());
+        //assert!(image.layout_dir.join("blobs").join("sha256").is_dir());
 
         Ok(())
     }

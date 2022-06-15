@@ -15,7 +15,7 @@ use common::{
 };
 use hash_utils::{sha2::Digest, sha2::Sha256};
 
-use crate::blob_writer::BlobWriter;
+use crate::{blob_writer::BlobWriter, storage::digest_to_parts};
 
 /// A change in a path between two snapshots
 ///
@@ -80,8 +80,8 @@ impl ChangeSet {
     /// - `layout_dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
     pub fn write_layer<P: AsRef<Path>>(
         self,
-        layout_dir: P,
         media_type: &MediaType,
+        layout_dir: P,
     ) -> Result<(String, Descriptor)> {
         if self.items.is_empty() {
             return Ok((
@@ -100,7 +100,7 @@ impl ChangeSet {
         );
 
         let mut diffid_hash = Sha256::new();
-        let mut blob_writer = BlobWriter::new(&layout_dir, media_type.to_owned())?;
+        let mut blob_writer = BlobWriter::new()?;
 
         let changes = self.items.len();
         let mut additions: Vec<String> = Vec::new();
@@ -280,7 +280,11 @@ impl ChangeSet {
             );
         }
 
-        let descriptor = blob_writer.finish(Some(annotations))?;
+        let descriptor = blob_writer.finish(
+            media_type.to_owned(),
+            Some(annotations),
+            Some(layout_dir.as_ref()),
+        )?;
 
         Ok((diff_id, descriptor))
     }
@@ -292,11 +296,8 @@ impl ChangeSet {
     /// - `image_dir`: the image directory
     /// - `digest`: the digest of the layer (with or without the "sha256:" prefix)
     fn layer_path<P: AsRef<Path>>(image_dir: P, digest: &str) -> PathBuf {
-        image_dir
-            .as_ref()
-            .join("blobs")
-            .join("sha256")
-            .join(digest.strip_prefix("sha256:").unwrap_or(digest))
+        let (algo, hash) = digest_to_parts(digest);
+        image_dir.as_ref().join("blobs").join(algo).join(hash)
     }
 
     /// Read a layer blob (a compressed tar archive) from an image directory
@@ -324,7 +325,7 @@ mod tests {
     use hash_utils::file_sha256_hex;
     use test_utils::common::tempfile::tempdir;
 
-    use crate::snapshot::Snapshot;
+    use crate::{snapshot::Snapshot, storage::digest_to_parts};
 
     use super::*;
 
@@ -335,26 +336,22 @@ mod tests {
         use std::fs;
 
         let source_dir = tempdir()?;
-        let image_dir = tempdir()?;
+        let layout_dir = tempdir()?;
 
         let snap = Snapshot::new(&source_dir, "workspace");
 
         fs::write(&source_dir.path().join("some-file.txt"), "Hello")?;
 
         // Create a layer archive, diffid and descriptor
-
         let changes = snap.changes();
-        let (diff_id, descriptor) = changes.write_layer(&image_dir, &MediaType::ImageLayerGzip)?;
+        let (diff_id, descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
 
         assert_eq!(diff_id.len(), 7 + 64);
         assert!(diff_id.starts_with("sha256:"));
 
         // Test that size and digest in the descriptor is as for the file
-        let archive = image_dir
-            .path()
-            .join("blobs")
-            .join("sha256")
-            .join(descriptor.digest().strip_prefix("sha256:").unwrap());
+        let (algo, hash) = digest_to_parts(descriptor.digest());
+        let archive = layout_dir.path().join("blobs").join(algo).join(hash);
 
         let size = fs::metadata(&archive)?.len() as i64;
         assert_eq!(descriptor.size(), size);

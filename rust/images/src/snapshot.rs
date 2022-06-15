@@ -365,7 +365,7 @@ impl Snapshot {
         } else {
             new.replicate()
         };
-        changeset.write_layer(layout_dir, media_type)
+        changeset.write_layer(media_type, layout_dir)
     }
 }
 
@@ -434,7 +434,7 @@ mod tests {
 
         let source_dir = tempdir()?;
         let dest_dir = PathBuf::from("workspace");
-        let image_dir = tempdir()?;
+        let layout_dir = tempdir()?;
 
         // Create an initial snapshot which should be empty and has no changes with self
 
@@ -458,9 +458,9 @@ mod tests {
         assert_eq!(changes.items.len(), 1);
         assert_eq!(changes.items[0], Change::Added(a_txt.clone()));
 
-        let (.., descriptor) = changes.write_layer(&image_dir, &MediaType::ImageLayerGzip)?;
+        let (.., descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
 
-        let mut layer = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
+        let mut layer = ChangeSet::read_layer(&layout_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
         let entry = entries
             .nth(1)
@@ -501,8 +501,8 @@ mod tests {
         assert_eq!(changes.items.len(), 1);
         assert_eq!(changes.items[0], Change::Removed(a_txt));
 
-        let (.., descriptor) = changes.write_layer(&image_dir, &MediaType::ImageLayerGzip)?;
-        let mut layer = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
+        let (.., descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
+        let mut layer = ChangeSet::read_layer(&layout_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
         let entry = entries.nth(1).unwrap()?;
         assert_eq!(entry.path()?, dest_dir.join(".wh.a.txt"));
@@ -521,8 +521,8 @@ mod tests {
         assert_eq!(changes.items.len(), 1);
         assert_eq!(changes.items[0], Change::Modified(b_txt.clone()));
 
-        let (.., descriptor) = changes.write_layer(&image_dir, &MediaType::ImageLayerGzip)?;
-        let mut archive = ChangeSet::read_layer(&image_dir, descriptor.digest())?;
+        let (.., descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
+        let mut archive = ChangeSet::read_layer(&layout_dir, descriptor.digest())?;
         let mut entries = archive.entries()?;
         let entry = entries.nth(1).unwrap()?;
         assert_eq!(entry.path()?, dest_dir.join(b_txt));

@@ -5,10 +5,7 @@ use common::{
     serde::Serialize,
 };
 
-pub const DOCKER_REGISTRY: &str = "registry.hub.docker.com";
-pub const FLY_REGISTRY: &str = "registry.fly.io";
-
-#[derive(Debug, Default, PartialEq, Serialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct ImageReference {
     /// The registry the image is on. Defaults to `registry.hub.docker.com`
@@ -74,13 +71,7 @@ impl FromStr for ImageReference {
             (None, str)
         };
 
-        let registry = if matches!(registry, None) || matches!(registry, Some("docker.io")) {
-            DOCKER_REGISTRY.to_string()
-        } else {
-            registry
-                .expect("Should be Some because of the match above")
-                .to_string()
-        };
+        let registry = registry.unwrap_or("docker.io").to_string();
 
         let (name, tag, hash) = if let Some(at_pos) = rest.find('@') {
             let (name, hash) = rest.split_at(at_pos);
@@ -92,7 +83,7 @@ impl FromStr for ImageReference {
             (name, tag, None)
         };
 
-        let name = if registry == DOCKER_REGISTRY && !name.contains('/') {
+        let name = if registry == "docker.io" && !name.contains('/') {
             ["library/", &name].concat()
         } else {
             name
@@ -114,5 +105,63 @@ impl ToString for ImageReference {
         } else {
             self.to_string_tag_or_latest()
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Test parsing image spec
+    #[test]
+    fn parse_image_ref() -> Result<()> {
+        let ubuntu = ImageReference {
+            registry: "docker.io".to_string(),
+            repository: "library/ubuntu".to_string(),
+            ..Default::default()
+        };
+
+        assert_eq!("ubuntu".parse::<ImageReference>()?, ubuntu);
+        assert_eq!("docker.io/ubuntu".parse::<ImageReference>()?, ubuntu);
+        assert_eq!("docker.io/ubuntu".parse::<ImageReference>()?, ubuntu);
+
+        let ubuntu_2204 = ImageReference {
+            registry: "docker.io".to_string(),
+            repository: "library/ubuntu".to_string(),
+            tag: Some("22.04".to_string()),
+            ..Default::default()
+        };
+
+        assert_eq!("ubuntu:22.04".parse::<ImageReference>()?, ubuntu_2204);
+        assert_eq!(
+            "docker.io/ubuntu:22.04".parse::<ImageReference>()?,
+            ubuntu_2204
+        );
+        assert_eq!(
+            "docker.io/ubuntu:22.04".parse::<ImageReference>()?,
+            ubuntu_2204
+        );
+
+        let ubuntu_digest = ImageReference {
+            registry: "docker.io".to_string(),
+            repository: "library/ubuntu".to_string(),
+            digest: Some("sha256:abcdef".to_string()),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            "ubuntu@sha256:abcdef".parse::<ImageReference>()?,
+            ubuntu_digest
+        );
+        assert_eq!(
+            "docker.io/ubuntu@sha256:abcdef".parse::<ImageReference>()?,
+            ubuntu_digest
+        );
+        assert_eq!(
+            "docker.io/ubuntu@sha256:abcdef".parse::<ImageReference>()?,
+            ubuntu_digest
+        );
+
+        Ok(())
     }
 }
