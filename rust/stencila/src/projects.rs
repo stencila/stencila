@@ -896,7 +896,6 @@ pub mod commands {
         Close(Close),
         Show(Show),
         Graph(Graph),
-        Schemas(Schemas),
     }
 
     #[async_trait]
@@ -910,7 +909,6 @@ pub mod commands {
                 Action::Close(action) => action.run().await,
                 Action::Show(action) => action.run().await,
                 Action::Graph(action) => action.run().await,
-                Action::Schemas(action) => action.run(),
             }
         }
     }
@@ -1019,17 +1017,6 @@ pub mod commands {
             let project = &mut PROJECTS.open(self.folder.clone(), false).await?;
             let content = project.graph.to_format(&self.to)?;
             result::content(&self.to, &content)
-        }
-    }
-
-    /// Get JSON schemas for projects and associated types
-    #[derive(Debug, Parser)]
-    pub struct Schemas {}
-
-    impl Schemas {
-        pub fn run(&self) -> Result {
-            let schema = schemas()?;
-            result::value(schema)
         }
     }
 }

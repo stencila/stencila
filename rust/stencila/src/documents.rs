@@ -1837,7 +1837,7 @@ impl Documents {
 /// The global documents store
 pub static DOCUMENTS: Lazy<Documents> = Lazy::new(Documents::new);
 
-/// Get JSON Schemas for this modules
+/// Get JSON Schemas for this module
 pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![
         schemas::generate::<Document>()?,
@@ -1897,7 +1897,6 @@ pub mod commands {
         Diff(Diff),
         Merge(Merge),
         Detect(Detect),
-        Schemas(Schemas),
     }
 
     #[async_trait]
@@ -1931,7 +1930,6 @@ pub mod commands {
                 Action::Diff(action) => action.run().await,
                 Action::Merge(action) => action.run().await,
                 Action::Detect(action) => action.run().await,
-                Action::Schemas(action) => action.run(),
             }
         }
     }
@@ -2459,16 +2457,6 @@ pub mod commands {
             document.read(true).await?;
             let nodes = document.detect().await?;
             result::value(nodes)
-        }
-    }
-
-    /// Get JSON Schemas for documents and associated types
-    #[derive(Debug, Parser)]
-    pub struct Schemas {}
-    impl Schemas {
-        pub fn run(&self) -> Result {
-            let schema = schemas()?;
-            result::value(schema)
         }
     }
 }

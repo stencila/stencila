@@ -302,8 +302,6 @@ pub mod commands {
         Reset(Reset),
         /// Get the directories used for config, cache etc
         Dirs,
-        /// Get JSON Schemas for configuration and associated types
-        Schemas,
     }
 
     /// Get configuration properties
@@ -362,10 +360,6 @@ pub mod commands {
                             json!(crate::plugins::plugins_dir(false)?.display().to_string());
                     }
 
-                    result::value(value)
-                }
-                Action::Schemas => {
-                    let value = schemas()?;
                     result::value(value)
                 }
             }
