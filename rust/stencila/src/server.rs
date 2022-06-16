@@ -310,7 +310,7 @@ impl Server {
         let key = if key.is_none() {
             match insecure {
                 true => None,
-                false => Some(key_utils::generate()),
+                false => Some(key_utils::generate("ssk")),
             }
         } else {
             key

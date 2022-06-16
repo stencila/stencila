@@ -72,7 +72,7 @@ impl JupyterConnection {
             .first()
             .expect("Should always be at least one runtime directory")
             .join(name);
-        let key = key_utils::generate();
+        let key = key_utils::generate("sjk");
 
         JupyterConnection {
             path,
@@ -106,26 +106,7 @@ impl JupyterConnection {
             fs::create_dir_all(dir)?;
         }
 
-        let mut options = fs::OpenOptions::new();
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
-        {
-            use std::os::unix::fs::OpenOptionsExt;
-            options.mode(0o600);
-        }
-        #[cfg(any(target_os = "windows"))]
-        {
-            use std::os::windows::fs::OpenOptionsExt;
-            options.share_mode(0);
-        }
-
-        // Using `create_new` is the safest way to create the file to
-        // avoid a time-of-check to time-of-use race condition / attack
-        let mut file = options
-            .read(true)
-            .write(true)
-            .create_new(true)
-            .open(&self.path)?;
-
+        let file = open_file_600(&self.path)?;
         let json = serde_json::to_string_pretty(&self)?;
         file.write_all(json.as_bytes())?;
 
