@@ -1,3 +1,15 @@
+# [1.12.0](https://github.com/stencila/stencila/compare/v1.11.0...v1.12.0) (2022-06-16)
+
+
+### Features
+
+* **Images:** Add `list`, `pull`, `push` and `remove` actions ([753d814](https://github.com/stencila/stencila/commit/753d814776aa891d4dd83ce7566d24b3e600f5dd))
+
+
+### Reverts
+
+* Revert "chore(Rust): Ignore `clap` deprecation warnings" ([d418755](https://github.com/stencila/stencila/commit/d41875570a33c818492e642012a87f6d83d550e7))
+
 # [1.11.0](https://github.com/stencila/stencila/compare/v1.10.0...v1.11.0) (2022-06-13)
 
 
