@@ -27,11 +27,10 @@ use crate::image_reference::ImageReference;
 
 /// Get the directory of the image and blob storage cache
 pub fn cache_dir() -> PathBuf {
-    let user_cache_dir = dirs::cache_dir().unwrap_or_else(|| env::current_dir().unwrap());
-    match env::consts::OS {
-        "macos" | "windows" => user_cache_dir.join("Stencila").join("Images-Cache"),
-        _ => user_cache_dir.join("stencila").join("images"),
-    }
+    dirs::cache_dir()
+        .unwrap_or_else(|| env::current_dir().unwrap())
+        .join("stencila")
+        .join("images")
 }
 
 /// Split a digest string into its algorithm and hash parts
