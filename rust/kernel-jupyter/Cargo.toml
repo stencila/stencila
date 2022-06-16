@@ -8,18 +8,19 @@ version = "0.0.0"
 default = ["zmq/vendored"]
 
 [dependencies]
-codec-ipynb = {path = "../codec-ipynb"}
+codec-ipynb = { path = "../codec-ipynb" }
 derivative = "2.2.0"
 hex = "0.4.3"
 hmac = "0.12.0"
-kernel = {path = "../kernel"}
-key-utils = {path = "../key-utils"}
-path-utils = {path = "../path-utils"}
+kernel = { path = "../kernel" }
+fs-utils = { path = "../fs-utils" }
+key-utils = { path = "../key-utils" }
+path-utils = { path = "../path-utils" }
 portpicker = "0.1.1"
 reqwest = "0.11.9"
 sha2 = "0.10.1"
-uuids = {path = "../uuids"}
-zmq = {version = "0.9.2", default-features = false}
+uuids = { path = "../uuids" }
+zmq = { version = "0.9.2", default-features = false }
 
 [dev-dependencies]
-test-utils = {path = "../test-utils"}
+test-utils = { path = "../test-utils" }
