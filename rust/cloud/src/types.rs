@@ -1,5 +1,5 @@
 //! Type definitions for Stencila Cloud API types
-//! 
+//!
 //! To avoid drift, prefer to only only add properties that are needed here to these structs.
 
 use common::serde::{Deserialize, Serialize};

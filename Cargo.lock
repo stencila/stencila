@@ -1013,6 +1013,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "cloud"
+version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "common",
+ "fs-utils",
+ "http-utils",
+ "key-utils",
+ "webbrowser",
+]
+
+[[package]]
 name = "cmake"
 version = "0.1.48"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3223,6 +3235,7 @@ version = "0.0.0"
 dependencies = [
  "codec-ipynb",
  "derivative",
+ "fs-utils",
  "hex 0.4.3",
  "hmac",
  "kernel",
