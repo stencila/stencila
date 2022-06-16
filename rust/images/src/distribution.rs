@@ -718,7 +718,8 @@ impl Client {
 mod tests {
     use test_utils::{
         common::{tempfile::tempdir, tokio},
-        print_logs_level, skip_ci,
+        // print_logs_level,
+        skip_ci,
     };
 
     use super::*;
@@ -739,7 +740,7 @@ mod tests {
     async fn hello_world() -> Result<()> {
         skip_ci("Requires an image registry to be running locally");
 
-        print_logs_level(tracing::Level::INFO);
+        // print_logs_level(tracing::Level::INFO);
 
         let image_dir = tempdir()?;
 
