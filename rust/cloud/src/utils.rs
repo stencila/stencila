@@ -9,7 +9,11 @@ use common::{
 use crate::types::ApiToken;
 
 /// The base URL for Stencila Cloud
-pub(crate) const BASE_URL: &str = "http://localhost:3000/api/v1"; // "https://stencila.fly.dev/api/v1";
+pub(crate) const BASE_URL: &str = if cfg!(debug_assertions) {
+    "http://localhost:3000/api/v1"
+} else {
+    "https://stencila.fly.dev/api/v1"
+};
 
 /// Get the path used to store `token.json`, `user.json`, and other files
 /// associated with this crate
@@ -32,7 +36,7 @@ pub(crate) fn token_read() -> Result<String> {
         let token: ApiToken = serde_json::from_str(&json)?;
         Ok(token.token)
     } else {
-        bail!("You are not logged in; try doing `stencila login` first");
+        bail!("You are not logged in; try using `stencila login` first");
     }
 }
 
