@@ -2,7 +2,8 @@ use std::{env, fs::read_to_string, path::PathBuf};
 
 use common::{
     eyre::{self, bail, Result},
-    serde_json, serde_yaml, toml, tracing,
+    serde_json::{self, json},
+    serde_yaml, toml, tracing,
 };
 use http_utils::CLIENT;
 
@@ -44,9 +45,10 @@ pub fn project_current() -> Result<(PathBuf, ProjectLocal)> {
 }
 
 pub async fn project_list(
-    search: &Option<String>,
-    role: &Option<String>,
-    org: &Option<String>,
+    search: Option<&str>,
+    role: Option<&str>,
+    org_id: Option<u64>,
+    org_name: Option<&str>,
     all: bool,
 ) -> Result<Vec<ProjectRemote>> {
     let mut request = CLIENT
@@ -58,8 +60,11 @@ pub async fn project_list(
     if let Some(role) = role {
         request = request.query(&[("role", role)]);
     }
-    if let Some(org) = org {
-        request = request.query(&[("org", org)]);
+    if let Some(org_id) = org_id {
+        request = request.query(&[("orgId", org_id)]);
+    }
+    if let Some(org_name) = org_name {
+        request = request.query(&[("orgName", org_name)]);
     }
     request = request.query(&[("all", all)]);
 
@@ -69,6 +74,39 @@ pub async fn project_list(
     } else {
         bail!("{}", Error::response_to_string(response).await)
     }
+}
+
+pub async fn project_create(
+    org_id: Option<u64>,
+    name: Option<&str>,
+    title: Option<&str>,
+    public: bool
+) -> Result<ProjectLocal> {
+    let mut request = CLIENT
+        .post(format!("{}/projects", BASE_URL))
+        .bearer_auth(token_read()?)
+        .json(&json!({
+            "name": name,
+            "title": title,
+            "is_public": public
+        }));
+    if let Some(org_id) = org_id {
+        request = request.query(&[("orgId", org_id)]);
+    }
+
+    let response = request.send().await?;
+    let project: ProjectLocal = if response.status().is_success() {
+        response.json().await?
+    } else {
+        bail!("{}", Error::response_to_string(response).await)
+    };
+
+    if project_current().is_err() {
+        let toml = toml::to_string_pretty(&project)?;
+        std::fs::write("stencila.toml", toml)?;
+    }
+
+    Ok(project)
 }
 
 pub async fn project_retrieve(project_id: &str) -> Result<ProjectRemote> {
@@ -124,15 +162,14 @@ pub async fn members_add(
     team_id: Option<&str>,
     role: &str,
 ) -> Result<ProjectMember> {
-    let json = serde_json::to_string(&serde_json::json!({
-        "userId": user_id,
-        "teamId": team_id,
-        "role": role
-    }))?;
     let response = CLIENT
         .post(format!("{}/projects/{}/members", BASE_URL, project_id))
         .bearer_auth(token_read()?)
-        .body(json)
+        .json(&json!({
+            "userId": user_id,
+            "teamId": team_id,
+            "role": role
+        }))
         .send()
         .await?;
     if response.status().is_success() {
@@ -142,7 +179,11 @@ pub async fn members_add(
     }
 }
 
-pub async fn members_change(project_id: &str, membership_id: &str, role: &str) -> Result<()> {
+pub async fn members_change(
+    project_id: &str,
+    membership_id: &str,
+    role: &str,
+) -> Result<ProjectMember> {
     let json = serde_json::to_string(&serde_json::json!({ "role": role }))?;
     let response = CLIENT
         .patch(format!(
@@ -154,7 +195,7 @@ pub async fn members_change(project_id: &str, membership_id: &str, role: &str) -
         .send()
         .await?;
     if response.status().is_success() {
-        Ok(())
+        Ok(response.json().await?)
     } else {
         bail!("{}", Error::response_to_string(response).await)
     }
@@ -226,6 +267,7 @@ pub mod cli {
     enum Action {
         List(List),
         Show(Show),
+        Create(Create),
         Delete(Delete),
         Members(members::Command),
     }
@@ -236,6 +278,7 @@ pub mod cli {
             match &self.action {
                 Action::List(action) => action.run().await,
                 Action::Show(action) => action.run().await,
+                Action::Create(action) => action.run().await,
                 Action::Delete(action) => action.run().await,
                 Action::Members(action) => action.run().await,
             }
@@ -267,7 +310,7 @@ pub mod cli {
 
         /// Only list projects which belong to a particular organization
         ///
-        /// Provide a numeric organization id.
+        /// Use a numeric id or organization's short name.
         #[clap(short, long)]
         org: Option<String>,
 
@@ -282,7 +325,21 @@ pub mod cli {
     #[async_trait]
     impl Run for List {
         async fn run(&self) -> Result {
-            let projects = project_list(&self.search, &self.role, &self.org, self.all).await?;
+            let (org_id, org_name) = match &self.org {
+                Some(org) => match org.parse::<u64>() {
+                    Ok(id) => (Some(id), None),
+                    Err(..) => (None, Some(org.as_str())),
+                },
+                None => (None, None),
+            };
+            let projects = project_list(
+                self.search.as_deref(),
+                self.role.as_deref(),
+                org_id,
+                org_name,
+                self.all,
+            )
+            .await?;
             result::table(projects, ProjectRemote::title())
         }
     }
@@ -302,6 +359,57 @@ pub mod cli {
     impl Run for Show {
         async fn run(&self) -> Result {
             let project = project_retrieve(&self.project.resolve()?).await?;
+            result::value(project)
+        }
+    }
+
+    /// Create a project
+    ///
+    /// Use this command to create a new Stencila project. A new project will be created on Stencila Cloud
+    /// and a `stencila.toml` file will be created, with the new project's id, in the current folder.
+    ///
+    /// Use the `--org` option to select the organization for the project.
+    #[derive(Parser)]
+    struct Create {
+        /// The name of the project
+        ///
+        /// Must be unique within the organization. Defaults to a randomly generated name.
+        #[clap(short, long)]
+        name: Option<String>,
+
+        /// The title of the project
+        #[clap(short, long)]
+        title: Option<String>,
+
+        /// Whether the project should be public
+        ///
+        /// New projects default to being private. Use the this flag to make
+        /// the new project public.
+        #[clap(short, long)]
+        public: bool,
+
+        /// The organization under which to create the project
+        ///
+        /// Use the organization's numeric id.
+        #[clap(short, long)]
+        org: Option<u64>,
+    }
+
+    #[async_trait]
+    impl Run for Create {
+        async fn run(&self) -> Result {
+            let project = project_create(
+                self.org,
+                self.name.as_deref(),
+                self.title.as_deref(),
+                self.public,
+            )
+            .await?;
+
+            if let Some(id) = project.id {
+                tracing::info!("Successfully created project #{}", id);
+            }
+
             result::value(project)
         }
     }
@@ -336,6 +444,9 @@ pub mod cli {
             }
 
             project_delete(project_id).await?;
+
+            tracing::info!("Successfully deleted project #{}", project_id);
+
             result::nothing()
         }
     }
@@ -397,6 +508,10 @@ pub mod cli {
         /// on the project.
         #[derive(Parser)]
         struct Add {
+            /// The type of member to add
+            #[clap(possible_values = ["user", "team"])]
+            type_: String,
+
             /// The id of the user or team
             ///
             /// To add a user use their UUID (e.g. "b18beb15-af3a-4696-98ea-f89e0cf6149a").
@@ -419,7 +534,7 @@ pub mod cli {
             async fn run(&self) -> Result {
                 let project_id = self.project.resolve()?;
 
-                // Resolve if id is for a user or team
+                // Determine if id is for a user or team
                 let (user_id, team_id) = match self.id.parse::<u64>() {
                     Ok(..) => (None, Some(self.id.as_str())),
                     Err(..) => (Some(self.id.as_str()), None),
@@ -427,17 +542,17 @@ pub mod cli {
 
                 let member = members_add(&project_id, user_id, team_id, &self.role).await?;
 
-                if let Some(user_id) = user_id {
+                if let Some(user) = &member.user {
                     tracing::info!(
                         "Successfully added user #{} as {} of project #{}",
-                        user_id,
+                        user.id,
                         member.role,
                         project_id
                     )
-                } else if let Some(team_id) = team_id {
+                } else if let Some(team) = &member.team {
                     tracing::info!(
                         "Successfully added team #{} as {} of project #{}",
-                        team_id,
+                        team.id,
                         member.role,
                         project_id
                     )
@@ -469,8 +584,27 @@ pub mod cli {
         #[async_trait]
         impl Run for Change {
             async fn run(&self) -> Result {
-                members_change(&self.project.resolve()?, &self.id, &self.role).await?;
-                result::nothing()
+                let project_id = &self.project.resolve()?;
+
+                let member = members_change(project_id, &self.id, &self.role).await?;
+
+                if let Some(user) = &member.user {
+                    tracing::info!(
+                        "Successfully changed role of user #{} to {} on project #{}",
+                        user.id,
+                        member.role,
+                        project_id
+                    )
+                }
+                if let Some(team) = &member.team {
+                    tracing::info!(
+                        "Successfully changed role of team #{} to {} on project #{}",
+                        team.id,
+                        member.role,
+                        project_id
+                    )
+                }
+                result::value(member)
             }
         }
 

@@ -39,7 +39,7 @@ pub struct User {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[table(crate = "cli_utils::cli_table")]
 pub struct Org {
-    #[table(title = "Org.")]
+    #[table(title = "Organization")]
     pub id: u64,
 
     #[table(title = "Short name")]
@@ -69,6 +69,16 @@ pub struct Team {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ProjectLocal {
     pub id: Option<u64>,
+
+    pub name: Option<String>,
+
+    pub title: Option<String>,
+
+    /// Whether the project is public or not
+    ///
+    /// Uses `public` rather than `isPublic` as used on Stencila Cloud.
+    #[serde(alias = "isPublic")]
+    pub public: bool,
 }
 
 #[skip_serializing_none]
@@ -76,16 +86,16 @@ pub struct ProjectLocal {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[table(crate = "cli_utils::cli_table")]
 pub struct ProjectRemote {
-    #[table(title = "Project", display_fn = "id_table_display")]
+    #[table(title = "ID")]
     pub id: u64,
 
-    #[table(title = "Org.", display_fn = "project_org_table_display")]
+    #[table(title = "Organization", display_fn = "project_org_table_display")]
     pub org: Org,
 
-    #[table(title = "Name", display_fn = "option_string")]
+    #[table(title = "Name", display_fn = "project_name_table_display")]
     pub name: Option<String>,
 
-    #[table(title = "Title", display_fn = "option_string")]
+    #[table(title = "Title", display_fn = "project_title_table_display")]
     pub title: Option<String>,
 
     #[table(title = "Visibility", display_fn = "project_visibility_table_display")]
@@ -105,10 +115,33 @@ fn project_org_table_display(org: &Org) -> String {
     format!("{} (#{})", org.short_name.as_str(), org.id)
 }
 
-pub fn project_visibility_table_display(is_public: &bool) -> &str {
+fn project_name_table_display(name: &Option<String>) -> &str {
+    name.as_deref().unwrap_or("*Unnamed*")
+}
+
+fn project_title_table_display(title: &Option<String>) -> &str {
+    title.as_deref().unwrap_or("*Untitled*")
+}
+
+fn project_visibility_table_display(is_public: &bool) -> &str {
     match is_public {
         true => "🌍",
         false => "🔒",
+    }
+}
+
+fn option_project_role_table_display(role: &Option<String>) -> &str {
+    role.as_deref()
+        .map(project_role_table_display)
+        .unwrap_or("*None*")
+}
+
+fn project_role_table_display(role: &str) -> &str {
+    match role {
+        "owner" => "🧰 Owner",
+        "admin" => "🛠  Admin",
+        "member" => "🔨 Member",
+        _ => "?",
     }
 }
 
@@ -117,7 +150,7 @@ pub fn project_visibility_table_display(is_public: &bool) -> &str {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[table(crate = "cli_utils::cli_table")]
 pub struct ProjectMember {
-    #[table(title = "Membership", display_fn = "id_table_display")]
+    #[table(title = "ID")]
     pub id: u64,
 
     #[table(title = "User", display_fn = "member_user_table_display")]
@@ -133,29 +166,14 @@ pub struct ProjectMember {
 fn member_user_table_display(user: &Option<User>) -> String {
     user.as_ref()
         .map(|user| format!("{} (#{})", user.short_name.as_str(), user.id))
-        .unwrap_or_default()
+        .unwrap_or_else(|| "-".to_string())
 }
 
 fn member_team_table_display(team: &Option<Team>) -> String {
     team.as_ref()
         .map(|team| {
-            let name = team.name.clone().unwrap_or_else(|| "*unnamed*".to_string());
+            let name = team.name.clone().unwrap_or_else(|| "*Unnamed*".to_string());
             format!("{} (#{})", name, team.id)
         })
         .unwrap_or_else(|| "-".to_string())
-}
-
-fn option_project_role_table_display(role: &Option<String>) -> &str {
-    role.as_deref()
-        .map(project_role_table_display)
-        .unwrap_or_default()
-}
-
-fn project_role_table_display(role: &str) -> &str {
-    match role {
-        "owner" => "**Owner**",
-        "admin" => "**Admin**",
-        "member" => "Member",
-        _ => role,
-    }
 }
