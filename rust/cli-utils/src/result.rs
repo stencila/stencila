@@ -1,3 +1,4 @@
+use cli_table::{RowStruct, Table};
 use common::{eyre, serde::Serialize, serde_json, serde_yaml};
 
 /// A result which should be printed to the console
@@ -6,6 +7,21 @@ pub type Result = eyre::Result<Value>;
 /// A result with nothing to be displayed
 pub fn nothing() -> Result {
     Ok(Value {
+        ..Default::default()
+    })
+}
+
+/// A result with a table to be displayed
+pub fn table<Type>(value: Type, title: RowStruct) -> Result
+where
+    Type: Table + Serialize,
+{
+    let value_ = serde_json::to_value(&value)?;
+    let table = value.table().title(title);
+
+    Ok(Value {
+        value: Some(value_),
+        table: Some(table),
         ..Default::default()
     })
 }
@@ -39,12 +55,16 @@ where
         format: Some(format.into()),
         content: Some(content.into()),
         value: Some(serde_json::to_value(&value)?),
+        table: None,
     })
 }
 
 /// A value resulting from a command
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct Value {
+    /// The table to be displayed
+    pub table: Option<cli_table::TableStruct>,
+
     /// The value to be displayed
     pub value: Option<serde_json::Value>,
 
@@ -84,6 +104,10 @@ pub mod print {
 /// Printing with prettiness
 #[cfg(feature = "pretty")]
 pub mod print {
+    use cli_table::{
+        format::{Border, HorizontalLine, Separator, VerticalLine},
+        TableStruct,
+    };
     use common::chrono::Utc;
 
     use super::*;
@@ -94,7 +118,8 @@ pub mod print {
             content,
             format,
             value,
-        } = &value;
+            table,
+        } = value;
 
         // Nothing to display
         if content.is_none() && value.is_none() {
@@ -102,8 +127,12 @@ pub mod print {
         }
 
         // Try to display in preferred format
+        // Tabulate needs to be called outside of loop to avoid ownership issue when in loop
+        if let (Some(table), Some("md")) = (table, formats.first().map(|format| format.as_str())) {
+            return tabulate(table);
+        }
         for preference in formats {
-            if let (Some(content), Some(format)) = (content, format) {
+            if let (Some(content), Some(format)) = (&content, &format) {
                 if format == preference {
                     return match format.as_str() {
                         "md" => markdown(content),
@@ -111,7 +140,7 @@ pub mod print {
                     };
                 }
             }
-            if let Some(value) = value {
+            if let Some(value) = &value {
                 if let Some(content) = match preference.as_str() {
                     "json" => serde_json::to_string_pretty(&value).ok(),
                     "yaml" => serde_yaml::to_string(&value)
@@ -127,8 +156,8 @@ pub mod print {
         // Fallback to displaying content if available, otherwise value as JSON.
         if let (Some(content), Some(format)) = (content, format) {
             match format.as_str() {
-                "md" => return markdown(content),
-                _ => return highlight(format, content),
+                "md" => return markdown(&content),
+                _ => return highlight(&format, &content),
             };
         } else if let Some(value) = value {
             let json = serde_json::to_string_pretty(&value)?;
@@ -138,7 +167,37 @@ pub mod print {
         Ok(())
     }
 
-    // Print Markdown to the terminal
+    /// Print a [`TableStruct`] as Markdown to the terminal
+    ///
+    /// Sets up the table border and separators so that it is stringified as a Markdown table.
+    /// This allows us to use the advanced wrapping and theming of `terminad` to display the
+    /// table on the terminal.
+    pub fn tabulate(table: TableStruct) -> eyre::Result<()> {
+        let hl = HorizontalLine::new('|', '|', '|', '-');
+
+        let border = Border::builder()
+            .top(hl)
+            .bottom(hl)
+            .left(VerticalLine::new('|'))
+            .right(VerticalLine::new('|'))
+            .build();
+
+        let seps = Separator::builder()
+            .column(Some(VerticalLine::new('|')))
+            .title(Some(hl))
+            .row(None)
+            .build();
+
+        let table = table
+            .border(border)
+            .separator(seps)
+            .color_choice(cli_table::ColorChoice::Never);
+
+        let md = table.display()?.to_string();
+        markdown(&md)
+    }
+
+    /// Print Markdown to the terminal
     pub fn markdown(content: &str) -> eyre::Result<()> {
         if atty::isnt(atty::Stream::Stdout) {
             println!("{}", content)
@@ -150,7 +209,7 @@ pub mod print {
         Ok(())
     }
 
-    // Apply syntax highlighting and print to terminal
+    /// Apply syntax highlighting and print to terminal
     pub fn highlight(format: &str, content: &str) -> eyre::Result<()> {
         use common::once_cell::sync::Lazy;
         use syntect::{
