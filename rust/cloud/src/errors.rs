@@ -18,14 +18,14 @@ pub struct Error {
 
 impl Error {
     pub async fn response_to_string(response: Response) -> String {
-        let status = response.status();
+        let status = response.status().as_u16();
         if let Ok(payload) = response.json::<ErrorPayload>().await {
             let error = payload.error;
             let hint = error
                 .hint
-                .map(|hint| format!(" {}", hint))
+                .map(|hint| format!(". {}", hint))
                 .unwrap_or_else(String::new);
-            format!("{}.{} [{}]", error.message, hint, status)
+            format!("{}{} [{}]", error.message, hint, status)
         } else {
             format!("Unknown error [{}]", status)
         }

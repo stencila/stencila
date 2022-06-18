@@ -3,15 +3,10 @@ name = "cloud"
 version = "0.0.0"
 edition = "2021"
 
-[features]
-default = ["cli"]
-cli = ["cli-utils"]
-
 [dependencies]
+cli-utils = { path = "../cli-utils", features = ["pretty"] }
 common = { path = "../common" }
-fs-utils = { path = "../fs-utils"}
-http-utils = { path = "../http-utils"}
-key-utils = { path = "../key-utils"}
+fs-utils = { path = "../fs-utils" }
+http-utils = { path = "../http-utils" }
+key-utils = { path = "../key-utils" }
 webbrowser = "0.7.1"
-
-cli-utils = { path = "../cli-utils", optional = true, features = ["pretty"] }

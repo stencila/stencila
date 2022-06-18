@@ -4,11 +4,8 @@ use cli_utils::{
     result, Result, Run,
 };
 
-use super::*;
+use crate::{projects, user};
 
-/// Manage and use your Stencila account
-///
-/// Connect
 #[derive(Parser)]
 pub struct Command {
     #[clap(subcommand)]
@@ -17,9 +14,10 @@ pub struct Command {
 
 #[derive(Parser)]
 enum Action {
-    Me(Me),
-    Login(Login),
-    Logout(Logout),
+    Me(user::cli::Me),
+    Login(user::cli::Login),
+    Logout(user::cli::Logout),
+    Projects(projects::cli::Command),
 }
 
 #[async_trait]
@@ -29,65 +27,7 @@ impl Run for Command {
             Action::Me(action) => action.run().await,
             Action::Login(action) => action.run().await,
             Action::Logout(action) => action.run().await,
+            Action::Projects(action) => action.run().await,
         }
-    }
-}
-
-/// Common options for all actions
-#[derive(Parser)]
-struct Common {
-    /// URL of Stencila
-    #[clap(long, short, hide = true)]
-    url: Option<String>,
-}
-
-/// Show the currently authenticated user
-#[derive(Parser)]
-#[clap(alias = "user")]
-struct Me {
-    #[clap(flatten)]
-    common: Common,
-}
-
-#[async_trait]
-impl Run for Me {
-    async fn run(&self) -> Result {
-        let user = me()?;
-        if user.is_none() {
-            tracing::info!("No user currently logged in");
-        }
-        result::value(user)
-    }
-}
-
-/// Login to your Stencila account
-#[derive(Parser)]
-#[clap(alias = "signin")]
-struct Login {
-    #[clap(flatten)]
-    common: Common,
-}
-
-#[async_trait]
-impl Run for Login {
-    async fn run(&self) -> Result {
-        let user = login(self.common.url.as_deref()).await?;
-        result::value(user)
-    }
-}
-
-/// Logout from your Stencila account
-#[derive(Parser)]
-#[clap(alias = "signin")]
-struct Logout {
-    #[clap(flatten)]
-    common: Common,
-}
-
-#[async_trait]
-impl Run for Logout {
-    async fn run(&self) -> Result {
-        logout().await?;
-        result::nothing()
     }
 }

@@ -1,7 +1,6 @@
-use std::{env, fs::read_to_string, io::Write, path::PathBuf};
+use std::{fs::read_to_string, io::Write};
 
 use common::{
-    dirs,
     eyre::{bail, Result},
     serde_json,
     tokio::time::{sleep, Duration},
@@ -10,11 +9,11 @@ use common::{
 use fs_utils::{open_file_600, remove_if_exists};
 use http_utils::CLIENT;
 
-use crate::errors::*;
-use crate::types::*;
-
-/// The base URL for Stencila Cloud
-const BASE_URL: &str = "https://stencila.fly.dev/api/v1";
+use crate::{
+    errors::*,
+    types::*,
+    utils::{token_path, user_path, BASE_URL},
+};
 
 /// Get the currently authenticated user, if any
 pub fn me() -> Result<Option<User>> {
@@ -33,22 +32,20 @@ pub fn me() -> Result<Option<User>> {
 /// Creates a voucher, opens the browser at the `/api/v1/vouchers?create=XXX` page,
 /// and then starts polling `/api/v1/vouchers?redeem=XXX` to get the generated
 /// API tokens.
-pub async fn login(base_url: Option<&str>) -> Result<User> {
+pub async fn login() -> Result<User> {
     if let Some(user) = me()? {
         tracing::info!("Already logged in as @{}; use `stencila logout` first if you want to login as a different user", user.short_name);
         return Ok(user);
     }
 
-    let base_url = base_url.unwrap_or(BASE_URL);
-
     let voucher = key_utils::generate("svk");
 
-    let create_url = format!("{}/vouchers?create={}", base_url, voucher);
+    let create_url = format!("{}/vouchers?create={}", BASE_URL, voucher);
     tracing::info!("Opening login URL in browser: {}", create_url);
     webbrowser::open(&create_url)?;
 
     tracing::info!("Waiting for you to login in via browser");
-    let redeem_url = format!("{}/vouchers?redeem={}", base_url, voucher);
+    let redeem_url = format!("{}/vouchers?redeem={}", BASE_URL, voucher);
     loop {
         sleep(Duration::from_millis(1000)).await;
 
@@ -60,7 +57,7 @@ pub async fn login(base_url: Option<&str>) -> Result<User> {
             file.write_all(json.as_bytes())?;
 
             let response = CLIENT
-                .get(format!("{}/me", base_url))
+                .get(format!("{}/me", BASE_URL))
                 .bearer_auth(token.token)
                 .send()
                 .await?;
@@ -108,32 +105,54 @@ pub async fn logout() -> Result<()> {
     Ok(())
 }
 
-/// Get the path used to store `token.json`, `user.json`, and other files
-/// associated with this crate
-fn config_dir() -> PathBuf {
-    dirs::config_dir()
-        .unwrap_or_else(|| env::current_dir().unwrap())
-        .join("stencila")
-}
+pub mod cli {
+    use cli_utils::{
+        clap::{self, Parser},
+        common::{async_trait::async_trait, tracing},
+        result, Result, Run,
+    };
 
-/// Get the path of `token.json`
-fn token_path() -> PathBuf {
-    config_dir().join("token.json")
-}
+    use super::*;
 
-/// Get the path of `user.json`
-fn user_path() -> PathBuf {
-    config_dir().join("user.json")
-}
+    /// Show the currently authenticated user
+    #[derive(Parser)]
+    #[clap(alias = "user")]
+    pub struct Me;
 
-/// Read the current Stencila access token
-fn token_read() -> Result<String> {
-    let path = token_path();
-    if path.exists() {
-        let json = read_to_string(token_path())?;
-        let token: ApiToken = serde_json::from_str(&json)?;
-        Ok(token.token)
-    } else {
-        bail!("You are not logged in; try doing `stencila login` first");
+    #[async_trait]
+    impl Run for Me {
+        async fn run(&self) -> Result {
+            let user = me()?;
+            if user.is_none() {
+                tracing::info!("No user currently logged in");
+            }
+            result::value(user)
+        }
+    }
+
+    /// Login to your Stencila account
+    #[derive(Parser)]
+    #[clap(alias = "signin")]
+    pub struct Login;
+
+    #[async_trait]
+    impl Run for Login {
+        async fn run(&self) -> Result {
+            let user = login().await?;
+            result::value(user)
+        }
+    }
+
+    /// Logout from your Stencila account
+    #[derive(Parser)]
+    #[clap(alias = "signin")]
+    pub struct Logout;
+
+    #[async_trait]
+    impl Run for Logout {
+        async fn run(&self) -> Result {
+            logout().await?;
+            result::nothing()
+        }
     }
 }
