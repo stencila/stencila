@@ -2,7 +2,7 @@
 //!
 //! To avoid drift, prefer to only only add properties that are needed here to these structs.
 
-use cli_utils::table::{date_time_ago, option_string, option_u64, Table};
+use cli_utils::table::{date_time_ago, option_string, Table};
 use common::{
     chrono::{DateTime, Utc},
     serde::{Deserialize, Serialize},

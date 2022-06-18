@@ -1,7 +1,7 @@
 use cli_utils::{
     clap::{self, Parser},
-    common::{async_trait::async_trait, tracing},
-    result, Result, Run,
+    common::async_trait::async_trait,
+    Result, Run,
 };
 
 use crate::{projects, user};
