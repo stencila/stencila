@@ -1,4 +1,8 @@
-use std::{env, fs::read_to_string, path::PathBuf};
+use std::{
+    env,
+    fs::{create_dir_all, read_to_string, remove_file, write},
+    path::{Path, PathBuf},
+};
 
 use common::{
     eyre::{self, bail, Result},
@@ -44,6 +48,17 @@ pub fn project_current() -> Result<(PathBuf, ProjectLocal)> {
     bail!("Unable to determine the current project. Could not find a `stencila.toml`, `stencila.yaml` or `stencila.json` file in the current directory or any of its parents")
 }
 
+impl ProjectLocal {
+    /// Convert a local project to a JSON payload suitable for a `PATCH /projects/<id>` request
+    fn to_json(&self) -> Result<serde_json::Value> {
+        Ok(json!({
+            "name": self.name,
+            "title": self.title,
+            "isPublic": self.public.unwrap_or(false)
+        }))
+    }
+}
+
 pub async fn project_list(
     search: Option<&str>,
     role: Option<&str>,
@@ -80,7 +95,7 @@ pub async fn project_create(
     org_id: Option<u64>,
     name: Option<&str>,
     title: Option<&str>,
-    public: bool
+    public: bool,
 ) -> Result<ProjectLocal> {
     let mut request = CLIENT
         .post(format!("{}/projects", BASE_URL))
@@ -103,10 +118,45 @@ pub async fn project_create(
 
     if project_current().is_err() {
         let toml = toml::to_string_pretty(&project)?;
-        std::fs::write("stencila.toml", toml)?;
+        write("stencila.toml", toml)?;
     }
 
     Ok(project)
+}
+
+pub async fn project_clone(project_id: u64, dir: Option<&Path>) -> Result<()> {
+    let response = CLIENT
+        .get(format!("{}/projects/{}", BASE_URL, project_id))
+        .bearer_auth(token_read()?)
+        .send()
+        .await?;
+    if response.status().is_success() {
+        let value: serde_json::Value = response.json().await?;
+
+        let project: ProjectRemote = serde_json::from_value(value.clone())?;
+
+        let dir = dir
+            .map(PathBuf::from)
+            .unwrap_or_else(|| PathBuf::from(project.name));
+        if dir.exists() {
+            bail!("Directory `{}` already exists", dir.display())
+        }
+        create_dir_all(&dir)?;
+
+        let project: ProjectLocal = serde_json::from_value(value)?;
+        let toml = toml::to_string_pretty(&project)?;
+        write(dir.join("stencila.toml"), toml)?;
+
+        tracing::info!(
+            "Successfully cloned project #{} into `{}`",
+            project_id,
+            dir.display()
+        );
+
+        Ok(())
+    } else {
+        bail!("{}", Error::response_to_string(response).await)
+    }
 }
 
 pub async fn project_retrieve(project_id: &str) -> Result<ProjectRemote> {
@@ -117,6 +167,63 @@ pub async fn project_retrieve(project_id: &str) -> Result<ProjectRemote> {
         .await?;
     if response.status().is_success() {
         Ok(response.json().await?)
+    } else {
+        bail!("{}", Error::response_to_string(response).await)
+    }
+}
+
+pub async fn project_pull() -> Result<()> {
+    let (path, project) = project_current()?;
+
+    let id = match project.id {
+        Some(id) => id,
+        None => bail!(
+            "Project file is missing an `id`. To see available projects and their ids use `stencila projects list`",
+        ),
+    };
+
+    let response = CLIENT
+        .get(format!("{}/projects/{}", BASE_URL, id))
+        .bearer_auth(token_read()?)
+        .send()
+        .await?;
+    if response.status().is_success() {
+        let project: ProjectLocal = response.json().await?;
+        let toml = toml::to_string_pretty(&project)?;
+        write(&path, toml)?;
+
+        tracing::info!(
+            "Successfully pulled project #{} to file `{}`",
+            id,
+            path.display()
+        );
+
+        Ok(())
+    } else {
+        bail!("{}", Error::response_to_string(response).await)
+    }
+}
+
+pub async fn project_push() -> Result<()> {
+    let (.., project) = project_current()?;
+
+    let id = match project.id {
+        Some(id) => id,
+        None => bail!(
+            "Project file is missing an `id`. To create a new project from the file use `stencila projects create --from <file>`",
+        ),
+    };
+
+    let data = project.to_json()?;
+
+    let response = CLIENT
+        .patch(format!("{}/projects/{}", BASE_URL, id))
+        .bearer_auth(token_read()?)
+        .json(&data)
+        .send()
+        .await?;
+    if response.status().is_success() {
+        Ok(())
     } else {
         bail!("{}", Error::response_to_string(response).await)
     }
@@ -135,7 +242,7 @@ pub async fn project_delete(project_id: &str) -> Result<()> {
     if let Ok((path, project)) = project_current() {
         if let Some(id) = project.id {
             if id.to_string() == project_id {
-                std::fs::remove_file(path)?;
+                remove_file(path)?;
             }
         }
     }
@@ -156,7 +263,7 @@ pub async fn members_list(project_id: &str) -> Result<Vec<ProjectMember>> {
     }
 }
 
-pub async fn members_add(
+pub async fn members_create(
     project_id: &str,
     user_id: Option<&str>,
     team_id: Option<&str>,
@@ -179,7 +286,7 @@ pub async fn members_add(
     }
 }
 
-pub async fn members_change(
+pub async fn members_update(
     project_id: &str,
     membership_id: &str,
     role: &str,
@@ -201,7 +308,7 @@ pub async fn members_change(
     }
 }
 
-pub async fn members_remove(project_id: &str, membership_id: &str) -> Result<()> {
+pub async fn members_delete(project_id: &str, membership_id: &str) -> Result<()> {
     let response = CLIENT
         .delete(format!(
             "{}/projects/{}/members/{}",
@@ -268,6 +375,9 @@ pub mod cli {
         List(List),
         Show(Show),
         Create(Create),
+        Clone(Clone),
+        Pull(Pull),
+        Push(Push),
         Delete(Delete),
         Members(members::Command),
     }
@@ -279,6 +389,9 @@ pub mod cli {
                 Action::List(action) => action.run().await,
                 Action::Show(action) => action.run().await,
                 Action::Create(action) => action.run().await,
+                Action::Clone(action) => action.run().await,
+                Action::Pull(action) => action.run().await,
+                Action::Push(action) => action.run().await,
                 Action::Delete(action) => action.run().await,
                 Action::Members(action) => action.run().await,
             }
@@ -370,6 +483,7 @@ pub mod cli {
     ///
     /// Use the `--org` option to select the organization for the project.
     #[derive(Parser)]
+    #[clap(alias = "init")]
     struct Create {
         /// The name of the project
         ///
@@ -414,6 +528,58 @@ pub mod cli {
         }
     }
 
+    /// Clone a project
+    ///
+    /// Use this command to create a local clone of a project on Stencila Cloud.
+    #[derive(Parser)]
+    struct Clone {
+        /// The id of the project to clone
+        project: u64,
+
+        /// The directory to clone the project into
+        ///
+        /// Defaults to the name of the project
+        into: Option<PathBuf>,
+    }
+
+    #[async_trait]
+    impl Run for Clone {
+        async fn run(&self) -> Result {
+            project_clone(self.project, self.into.as_deref()).await?;
+            result::nothing()
+        }
+    }
+
+    /// Pull the current project
+    ///
+    /// Updates the local project configuration file (e.g. `stencila.toml`) from Stencila Cloud.
+    /// The file must have a project id.
+    #[derive(Parser)]
+    struct Pull;
+
+    #[async_trait]
+    impl Run for Pull {
+        async fn run(&self) -> Result {
+            project_pull().await?;
+            result::nothing()
+        }
+    }
+
+    /// Push the current project
+    ///
+    /// Updates the project on Stencila Cloud based on the local configuration file (e.g. `stencila.toml`).
+    /// The file must have a project id. You can create a new project from a file with no id using `stencila projects create --from <file>`.
+    #[derive(Parser)]
+    struct Push;
+
+    #[async_trait]
+    impl Run for Push {
+        async fn run(&self) -> Result {
+            project_push().await?;
+            result::nothing()
+        }
+    }
+
     /// Delete a project
     ///
     /// Use this command to delete a Stencila project, forever. If the current project is being deleted
@@ -434,12 +600,11 @@ pub mod cli {
             let project_id = &self.project.resolve()?;
             let project = project_retrieve(project_id).await?;
 
-            let name = project.name.unwrap_or_else(|| "unnamed".to_string());
-            tracing::warn!("Deleting a project can not be undone. Please confirm you want to proceed by typing the name of the project: {}", name);
+            tracing::warn!("Deleting a project can not be undone. Please confirm you want to proceed by typing the name of the project: {}", project.name);
 
             let mut input = String::new();
             std::io::stdin().read_line(&mut input)?;
-            if input.trim() != name {
+            if input.trim() != project.name {
                 tracing::error!("Inputted name is not the same as the project name. Cancelling project deletion.")
             }
 
@@ -540,7 +705,7 @@ pub mod cli {
                     Err(..) => (Some(self.id.as_str()), None),
                 };
 
-                let member = members_add(&project_id, user_id, team_id, &self.role).await?;
+                let member = members_create(&project_id, user_id, team_id, &self.role).await?;
 
                 if let Some(user) = &member.user {
                     tracing::info!(
@@ -586,7 +751,7 @@ pub mod cli {
             async fn run(&self) -> Result {
                 let project_id = &self.project.resolve()?;
 
-                let member = members_change(project_id, &self.id, &self.role).await?;
+                let member = members_update(project_id, &self.id, &self.role).await?;
 
                 if let Some(user) = &member.user {
                     tracing::info!(
@@ -624,7 +789,7 @@ pub mod cli {
         #[async_trait]
         impl Run for Remove {
             async fn run(&self) -> Result {
-                members_remove(&self.project.resolve()?, &self.id).await?;
+                members_delete(&self.project.resolve()?, &self.id).await?;
                 result::nothing()
             }
         }

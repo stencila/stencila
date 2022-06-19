@@ -78,7 +78,7 @@ pub struct ProjectLocal {
     ///
     /// Uses `public` rather than `isPublic` as used on Stencila Cloud.
     #[serde(alias = "isPublic")]
-    pub public: bool,
+    pub public: Option<bool>,
 }
 
 #[skip_serializing_none]
@@ -92,8 +92,8 @@ pub struct ProjectRemote {
     #[table(title = "Organization", display_fn = "project_org_table_display")]
     pub org: Org,
 
-    #[table(title = "Name", display_fn = "project_name_table_display")]
-    pub name: Option<String>,
+    #[table(title = "Name")]
+    pub name: String,
 
     #[table(title = "Title", display_fn = "project_title_table_display")]
     pub title: Option<String>,
@@ -113,10 +113,6 @@ pub struct ProjectRemote {
 
 fn project_org_table_display(org: &Org) -> String {
     format!("{} (#{})", org.short_name.as_str(), org.id)
-}
-
-fn project_name_table_display(name: &Option<String>) -> &str {
-    name.as_deref().unwrap_or("*Unnamed*")
 }
 
 fn project_title_table_display(title: &Option<String>) -> &str {
