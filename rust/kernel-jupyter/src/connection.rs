@@ -1,5 +1,6 @@
 use std::{fs, io::Write, path::PathBuf};
 
+use fs_utils::open_file_600;
 use hmac::Mac;
 
 use kernel::common::{
@@ -106,7 +107,7 @@ impl JupyterConnection {
             fs::create_dir_all(dir)?;
         }
 
-        let file = open_file_600(&self.path)?;
+        let mut file = open_file_600(&self.path)?;
         let json = serde_json::to_string_pretty(&self)?;
         file.write_all(json.as_bytes())?;
 
