@@ -2,7 +2,8 @@ use std::{fs::read_to_string, io::Write};
 
 use common::{
     eyre::{bail, Result},
-    serde_json,
+    serde::{Deserialize, Serialize},
+    serde_json::{self, json},
     tokio::time::{sleep, Duration},
     tracing,
 };
@@ -120,6 +121,31 @@ pub async fn user_list(search: &str) -> Result<Vec<OrgPersonal>> {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub struct UserInvite {
+    user: OrgPersonal,
+    emailed: bool,
+    link: String,
+}
+
+pub async fn user_invite(email: &str, no_send: bool) -> Result<UserInvite> {
+    let response = CLIENT
+        .post(format!("{}/invite", BASE_URL))
+        .bearer_auth(token_read()?)
+        .json(&json!({
+            "email": email,
+            "send": !no_send
+        }))
+        .send()
+        .await?;
+    if response.status().is_success() {
+        Ok(response.json().await?)
+    } else {
+        bail!("{}", Error::response_to_string(response).await)
+    }
+}
+
 pub mod cli {
     use cli_utils::{
         clap::{self, Parser},
@@ -144,6 +170,7 @@ pub mod cli {
         Logout(Logout),
         Me(Me),
         Find(Find),
+        Invite(Invite),
     }
 
     #[async_trait]
@@ -154,6 +181,7 @@ pub mod cli {
                 Action::Login(action) => action.run().await,
                 Action::Logout(action) => action.run().await,
                 Action::Find(action) => action.run().await,
+                Action::Invite(action) => action.run().await,
             }
         }
     }
@@ -215,7 +243,7 @@ pub mod cli {
     /// Use this command to search for Stencila users, for example, when you need their
     /// id to add them as a member on a project or organization.
     #[derive(Parser)]
-    #[clap(alias = "user")]
+    #[clap(alias = "search")]
     pub struct Find {
         /// A search string to filter users by
         search: String,
@@ -226,6 +254,34 @@ pub mod cli {
         async fn run(&self) -> Result {
             let users = user_list(&self.search).await?;
             result::table(users, User::title())
+        }
+    }
+
+    /// Invite users by email or link
+    ///
+    /// Use this command when you want to invite someone who is not yet a Stencila user
+    /// to join your project or organization.
+    ///
+    /// Stencila will send an invitation message to the user and generate a link that you can also personally
+    /// send to them (this is advisable if you are concerned about spam filters catching the email).
+    #[derive(Parser)]
+    pub struct Invite {
+        /// The email address of the user you wish to invite
+        email: String,
+
+        /// Do not send an email, just generate a link
+        ///
+        /// Use this option if you do not want Stencila to send an email and will
+        /// send the invitee the link yourself.
+        #[clap(long)]
+        no_send: bool,
+    }
+
+    #[async_trait]
+    impl Run for Invite {
+        async fn run(&self) -> Result {
+            let user_invite = user_invite(&self.email, self.no_send).await?;
+            result::value(user_invite)
         }
     }
 }

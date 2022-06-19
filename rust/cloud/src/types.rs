@@ -72,7 +72,7 @@ pub struct Org {
 
 /// A user's personal organization
 ///
-/// Used when listing users. Differs from [`Org`] in that it displays
+/// Used when finding and inviting users. Differs from [`Org`] in that it displays
 /// `user_id` (a string) rather than `id` (an integer)
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize, Table)]
