@@ -40,7 +40,7 @@ pub async fn login() -> Result<User> {
 
     let voucher = key_utils::generate("svk");
 
-    let create_url = format!("{}/vouchers?create={}", BASE_URL, voucher);
+    let create_url = format!("{}/vouchers?create={}&tag=cli&note=Automatically%20generated%20for%20logins%20from%20Stencila%20CLI", BASE_URL, voucher);
     tracing::info!("Opening login URL in browser: {}", create_url);
     webbrowser::open(&create_url)?;
 
