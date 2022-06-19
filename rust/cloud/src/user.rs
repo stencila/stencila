@@ -131,6 +131,12 @@ pub mod cli {
     }
 
     /// Login to your Stencila account
+    ///
+    /// Use this command to link the Stencila CLI to your Stencila account.
+    /// A browser window will be opened allowing you to sign in to Stencila, or
+    /// create a Stencila account if you do not have one already. Once you have
+    /// done that an access token will be stored on your machine allowing to access the
+    /// Stencila API without having to sign in again.
     #[derive(Parser)]
     #[clap(alias = "signin")]
     pub struct Login;
@@ -144,6 +150,10 @@ pub mod cli {
     }
 
     /// Logout from your Stencila account
+    ///
+    /// Use this command to unlink the Stencila CLI from your Stencila account.
+    /// This will not affect your login status in the browser. i.e. if you are logged in
+    /// to Stencila in your browser, this will not log you out there.
     #[derive(Parser)]
     #[clap(alias = "signin")]
     pub struct Logout;
