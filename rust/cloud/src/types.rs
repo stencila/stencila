@@ -2,7 +2,7 @@
 //!
 //! To avoid drift, prefer to only only add properties that are needed here to these structs.
 
-use cli_utils::table::{date_time_ago, option_string, Table};
+use cli_utils::table::{date_time_ago, option_date_time_ago, option_string, Table};
 use common::{
     chrono::{DateTime, Utc},
     serde::{Deserialize, Serialize},
@@ -13,10 +13,31 @@ pub fn id_table_display(id: &u64) -> String {
     format!("#{}", id)
 }
 
-#[derive(Serialize, Deserialize)]
+#[skip_serializing_none]
+#[derive(Serialize, Deserialize, Table)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[table(crate = "cli_utils::cli_table")]
 pub struct ApiToken {
+    #[table(title = "ID")]
+    pub id: u64,
+
+    #[table(title = "Token")]
     pub token: String,
+
+    #[table(title = "Tag", display_fn = "option_string")]
+    pub tag: Option<String>,
+
+    #[table(title = "Note", display_fn = "option_string")]
+    pub note: Option<String>,
+
+    #[table(title = "Expires", display_fn = "option_date_time_ago")]
+    pub expires_at: Option<DateTime<Utc>>,
+
+    #[table(title = "Last used", display_fn = "option_date_time_ago")]
+    pub last_used_at: Option<DateTime<Utc>>,
+
+    #[table(title = "Created", display_fn = "date_time_ago")]
+    pub created_at: DateTime<Utc>,
 }
 
 #[skip_serializing_none]

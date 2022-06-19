@@ -18,6 +18,13 @@ pub fn date_time_ago(value: &DateTime<Utc>) -> String {
     HumanTime::from(*value).to_string()
 }
 
+pub fn option_date_time_ago(value: &Option<DateTime<Utc>>) -> String {
+    value
+        .as_ref()
+        .map(date_time_ago)
+        .unwrap_or_else(|| "*Never*".to_string())
+}
+
 pub fn option_u64(value: &Option<u64>) -> String {
     value.map(|value| value.to_string()).unwrap_or_default()
 }

@@ -17,6 +17,7 @@ enum Action {
     Me(user::cli::Me),
     Login(user::cli::Login),
     Logout(user::cli::Logout),
+    Tokens(user::cli::tokens::Command),
     Projects(projects::cli::Command),
 }
 
@@ -27,6 +28,7 @@ impl Run for Command {
             Action::Me(action) => action.run().await,
             Action::Login(action) => action.run().await,
             Action::Logout(action) => action.run().await,
+            Action::Tokens(action) => action.run().await,
             Action::Projects(action) => action.run().await,
         }
     }
