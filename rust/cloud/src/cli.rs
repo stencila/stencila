@@ -4,7 +4,7 @@ use cli_utils::{
     Result, Run,
 };
 
-use crate::{projects, user};
+use crate::{projects, tokens, users};
 
 #[derive(Parser)]
 pub struct Command {
@@ -12,12 +12,15 @@ pub struct Command {
     action: Action,
 }
 
+/// Manage your Stencila account, organizations, teams and projects
+///
+/// Only intended to be used during development as a "mini-cli".
+/// At the top level `stencila` command, most of these will be pulled
+/// out as separate commands.
 #[derive(Parser)]
 enum Action {
-    Me(user::cli::Me),
-    Login(user::cli::Login),
-    Logout(user::cli::Logout),
-    Tokens(user::cli::tokens::Command),
+    Users(users::cli::Command),
+    Tokens(tokens::cli::Command),
     Projects(projects::cli::Command),
 }
 
@@ -25,9 +28,7 @@ enum Action {
 impl Run for Command {
     async fn run(&self) -> Result {
         match &self.action {
-            Action::Me(action) => action.run().await,
-            Action::Login(action) => action.run().await,
-            Action::Logout(action) => action.run().await,
+            Action::Users(action) => action.run().await,
             Action::Tokens(action) => action.run().await,
             Action::Projects(action) => action.run().await,
         }

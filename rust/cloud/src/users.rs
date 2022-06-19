@@ -1,9 +1,8 @@
 use std::{fs::read_to_string, io::Write};
 
 use common::{
-    chrono::{self, Utc},
     eyre::{bail, Result},
-    serde_json::{self, json},
+    serde_json,
     tokio::time::{sleep, Duration},
     tracing,
 };
@@ -106,52 +105,16 @@ pub async fn logout() -> Result<()> {
     Ok(())
 }
 
-pub async fn token_list() -> Result<Vec<ApiToken>> {
+pub async fn user_list(search: &str) -> Result<Vec<OrgPersonal>> {
     let response = CLIENT
-        .get(format!("{}/tokens", BASE_URL))
+        .get(format!("{}/orgs", BASE_URL))
         .bearer_auth(token_read()?)
+        .query(&[("type", "personal")])
+        .query(&[("search", search)])
         .send()
         .await?;
     if response.status().is_success() {
         Ok(response.json().await?)
-    } else {
-        bail!("{}", Error::response_to_string(response).await)
-    }
-}
-
-pub async fn token_create(
-    tag: Option<&str>,
-    note: Option<&str>,
-    expires_in: Option<u64>,
-) -> Result<ApiToken> {
-    let data = json!({
-        "tag": tag,
-        "note": note,
-        "expires_at": expires_in.map(|minutes| Utc::now() + chrono::Duration::minutes(minutes as i64))
-    });
-    let response = CLIENT
-        .post(format!("{}/tokens", BASE_URL))
-        .bearer_auth(token_read()?)
-        .json(&data)
-        .send()
-        .await?;
-    if response.status().is_success() {
-        tracing::info!("Successfully created token");
-        Ok(response.json().await?)
-    } else {
-        bail!("{}", Error::response_to_string(response).await)
-    }
-}
-
-pub async fn token_delete(id: u64) -> Result<()> {
-    let response = CLIENT
-        .delete(format!("{}/tokens/{}", BASE_URL, id))
-        .bearer_auth(token_read()?)
-        .send()
-        .await?;
-    if response.status().is_success() {
-        tracing::info!("Successfully deleted token");
-        Ok(())
     } else {
         bail!("{}", Error::response_to_string(response).await)
     }
@@ -167,9 +130,37 @@ pub mod cli {
 
     use super::*;
 
-    /// Show the currently authenticated user
+    /// Find and invite users
     #[derive(Parser)]
     #[clap(alias = "user")]
+    pub struct Command {
+        #[clap(subcommand)]
+        action: Action,
+    }
+
+    #[derive(Parser)]
+    enum Action {
+        Login(Login),
+        Logout(Logout),
+        Me(Me),
+        Find(Find),
+    }
+
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
+            match &self.action {
+                Action::Me(action) => action.run().await,
+                Action::Login(action) => action.run().await,
+                Action::Logout(action) => action.run().await,
+                Action::Find(action) => action.run().await,
+            }
+        }
+    }
+
+    /// Show the currently authenticated user
+    #[derive(Parser)]
+    #[clap(alias = "current")]
     pub struct Me;
 
     #[async_trait]
@@ -219,108 +210,22 @@ pub mod cli {
         }
     }
 
-    pub mod tokens {
-        use super::*;
+    /// Find users by name
+    ///
+    /// Use this command to search for Stencila users, for example, when you need their
+    /// id to add them as a member on a project or organization.
+    #[derive(Parser)]
+    #[clap(alias = "user")]
+    pub struct Find {
+        /// A search string to filter users by
+        search: String,
+    }
 
-        /// Manage your personal access tokens
-        #[derive(Parser)]
-        #[clap(alias = "token")]
-        pub struct Command {
-            #[clap(subcommand)]
-            action: Action,
-        }
-
-        #[derive(Parser)]
-        enum Action {
-            List(List),
-            Create(Create),
-            Delete(Delete),
-        }
-
-        #[async_trait]
-        impl Run for Command {
-            async fn run(&self) -> Result {
-                match &self.action {
-                    Action::List(action) => action.run().await,
-                    Action::Create(action) => action.run().await,
-                    Action::Delete(action) => action.run().await,
-                }
-            }
-        }
-
-        /// List your personal access tokens
-        ///
-        /// Use this command to retrieve the details of the tokens created by you
-        /// or on your behalf when signing in using Stencila API clients. Note that
-        /// you can not retrieve the actual token itself (that is only available when
-        /// you create it).
-        #[derive(Default, Parser)]
-        struct List;
-
-        #[async_trait]
-        impl Run for List {
-            async fn run(&self) -> Result {
-                let members = token_list().await?;
-                result::table(members, ApiToken::title())
-            }
-        }
-
-        /// Create a new personal access token
-        ///
-        /// Use this command to create a token for accessing the Stencila API on your behalf.
-        /// Store tokens securely.
-        #[derive(Parser)]
-        struct Create {
-            /// A note for the token
-            ///
-            /// This option is useful for remembering why you created a token and whether
-            /// you can safely delete it in the future.
-            #[clap(long, short)]
-            note: Option<String>,
-
-            /// The number of minutes until the token should expire
-            ///
-            /// Use this option if you want the new token to expire after a certain amount
-            /// of time.
-            #[clap(long, short)]
-            expires_in: Option<u64>,
-
-            /// A tag for the token
-            ///
-            /// Tags are used to identify a token created for a specific client or purpose.
-            /// They avoid the generation of multiple, redundant tokens. You probably do not
-            /// need to set a tag when manually creating a token.
-            #[clap(long, short)]
-            tag: Option<String>,
-        }
-
-        #[async_trait]
-        impl Run for Create {
-            async fn run(&self) -> Result {
-                let token =
-                    token_create(self.tag.as_deref(), self.note.as_deref(), self.expires_in)
-                        .await?;
-                result::value(token)
-            }
-        }
-
-        /// Delete a personal access token
-        ///
-        /// Use this command to permanently delete an access token. Take care as any clients or services still
-        /// relying on the token (including this CLI!) may be interrupted.
-        #[derive(Parser)]
-        #[clap(alias = "revoke")]
-        struct Delete {
-            /// The id of the token
-            id: u64,
-        }
-
-        #[async_trait]
-        impl Run for Delete {
-            async fn run(&self) -> Result {
-                token_delete(self.id).await?;
-                result::nothing()
-            }
+    #[async_trait]
+    impl Run for Find {
+        async fn run(&self) -> Result {
+            let users = user_list(&self.search).await?;
+            result::table(users, User::title())
         }
     }
 }

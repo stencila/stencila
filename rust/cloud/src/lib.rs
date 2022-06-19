@@ -1,7 +1,8 @@
 mod errors;
 mod projects;
+mod tokens;
 mod types;
-mod user;
+mod users;
 mod utils;
 
 pub mod cli;

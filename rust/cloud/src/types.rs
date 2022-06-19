@@ -45,7 +45,7 @@ pub struct ApiToken {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[table(crate = "cli_utils::cli_table")]
 pub struct User {
-    #[table(title = "User ID")]
+    #[table(title = "ID")]
     pub id: String,
 
     #[table(title = "Username")]
@@ -60,8 +60,30 @@ pub struct User {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[table(crate = "cli_utils::cli_table")]
 pub struct Org {
-    #[table(title = "Organization")]
+    #[table(title = "ID")]
     pub id: u64,
+
+    #[table(title = "Short name")]
+    pub short_name: String,
+
+    #[table(title = "Long name", display_fn = "option_string")]
+    pub long_name: Option<String>,
+}
+
+/// A user's personal organization
+///
+/// Used when listing users. Differs from [`Org`] in that it displays
+/// `user_id` (a string) rather than `id` (an integer)
+#[skip_serializing_none]
+#[derive(Serialize, Deserialize, Table)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[table(crate = "cli_utils::cli_table")]
+pub struct OrgPersonal {
+    #[table(skip)]
+    pub id: u64,
+
+    #[table(title = "ID")]
+    pub user_id: String,
 
     #[table(title = "Short name")]
     pub short_name: String,
