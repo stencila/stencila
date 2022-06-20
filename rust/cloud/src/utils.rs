@@ -11,10 +11,24 @@ use crate::types::{ApiToken, User};
 
 /// The base URL for Stencila Cloud
 pub(crate) const BASE_URL: &str = if cfg!(debug_assertions) {
-    "http://localhost:3000/api/v1"
+    "http://localhost:3000"
 } else {
-    "https://stencila.fly.dev/api/v1"
+    "https://stencila.fly.dev"
 };
+
+#[macro_export]
+macro_rules! api {
+    ($template:expr $(, $par:expr)*) => {
+        [crate::utils::BASE_URL, "/api/v1/", &format!($template $(, $par)*)].concat()
+    };
+}
+
+#[macro_export]
+macro_rules! page {
+    ($template:expr $(, $par:expr)*) => {
+        [crate::utils::BASE_URL, &format!($template $(, $par)*)].concat()
+    };
+}
 
 /// Get the path used to store `token.json`, `user.json`, and other files
 /// associated with this crate

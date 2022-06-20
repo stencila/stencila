@@ -11,9 +11,10 @@ use fs_utils::remove_if_exists;
 use http_utils::CLIENT;
 
 use crate::{
+    api,
     errors::*,
     types::*,
-    utils::{token_path, token_read, token_write, user_path, user_write, BASE_URL},
+    utils::{token_path, token_read, token_write, user_path, user_write},
 };
 
 /// Get the currently authenticated user, if any
@@ -41,12 +42,12 @@ pub async fn login() -> Result<User> {
 
     let voucher = key_utils::generate("svk");
 
-    let create_url = format!("{}/vouchers?create={}&tag=cli&note=Automatically%20generated%20for%20logins%20from%20Stencila%20CLI", BASE_URL, voucher);
+    let create_url = api!("vouchers?create={}&tag=cli&note=Automatically%20generated%20for%20logins%20from%20Stencila%20CLI", voucher);
     tracing::info!("Opening login URL in browser: {}", create_url);
     webbrowser::open(&create_url)?;
 
     tracing::info!("Waiting for you to login in via browser");
-    let redeem_url = format!("{}/vouchers?redeem={}", BASE_URL, voucher);
+    let redeem_url = api!("vouchers?redeem={}", voucher);
     loop {
         sleep(Duration::from_millis(1000)).await;
 
@@ -56,7 +57,7 @@ pub async fn login() -> Result<User> {
             token_write(&token)?;
 
             let response = CLIENT
-                .get(format!("{}/me", BASE_URL))
+                .get(api!("me"))
                 .bearer_auth(token.token)
                 .send()
                 .await?;
@@ -110,7 +111,7 @@ pub async fn logout() -> Result<()> {
 
 pub async fn user_list(search: &str) -> Result<Vec<OrgPersonal>> {
     let response = CLIENT
-        .get(format!("{}/orgs", BASE_URL))
+        .get(api!("orgs"))
         .bearer_auth(token_read()?)
         .query(&[("type", "personal")])
         .query(&[("search", search)])
@@ -133,7 +134,7 @@ pub struct UserInvite {
 
 pub async fn user_invite(email: &str, no_send: bool) -> Result<UserInvite> {
     let response = CLIENT
-        .post(format!("{}/invite", BASE_URL))
+        .post(api!("invite"))
         .bearer_auth(token_read()?)
         .json(&json!({
             "email": email,

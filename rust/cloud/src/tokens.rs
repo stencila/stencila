@@ -6,15 +6,11 @@ use common::{
 };
 use http_utils::CLIENT;
 
-use crate::{
-    errors::*,
-    types::*,
-    utils::{token_read, BASE_URL},
-};
+use crate::{api, errors::*, types::*, utils::token_read};
 
 pub async fn token_list() -> Result<Vec<ApiToken>> {
     let response = CLIENT
-        .get(format!("{}/tokens", BASE_URL))
+        .get(api!("tokens"))
         .bearer_auth(token_read()?)
         .send()
         .await?;
@@ -36,7 +32,7 @@ pub async fn token_create(
         "expires_at": expires_in.map(|minutes| Utc::now() + chrono::Duration::minutes(minutes as i64))
     });
     let response = CLIENT
-        .post(format!("{}/tokens", BASE_URL))
+        .post(api!("tokens"))
         .bearer_auth(token_read()?)
         .json(&data)
         .send()
@@ -51,7 +47,7 @@ pub async fn token_create(
 
 pub async fn token_delete(id: u64) -> Result<()> {
     let response = CLIENT
-        .delete(format!("{}/tokens/{}", BASE_URL, id))
+        .delete(api!("tokens/{}", id))
         .bearer_auth(token_read()?)
         .send()
         .await?;

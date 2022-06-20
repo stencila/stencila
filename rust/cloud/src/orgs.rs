@@ -6,9 +6,10 @@ use common::{
 use http_utils::CLIENT;
 
 use crate::{
+    api,
     errors::Error,
     types::{Org, OrgMember},
-    utils::{token_read, user_read, user_write, BASE_URL},
+    utils::{token_read, user_read, user_write},
 };
 
 /// Get the id of the default organization for the user
@@ -21,9 +22,7 @@ pub fn org_default() -> Result<u64> {
 }
 
 pub async fn org_list(search: Option<&str>, role: Option<&str>, all: bool) -> Result<Vec<Org>> {
-    let mut request = CLIENT
-        .get(format!("{}/orgs", BASE_URL))
-        .bearer_auth(token_read()?);
+    let mut request = CLIENT.get(api!("orgs")).bearer_auth(token_read()?);
     if let Some(search) = search {
         request = request.query(&[("search", search)]);
     }
@@ -48,7 +47,7 @@ pub async fn org_create(
     default: bool,
 ) -> Result<Org> {
     let response = CLIENT
-        .post(format!("{}/orgs", BASE_URL))
+        .post(api!("orgs"))
         .bearer_auth(token_read()?)
         .json(&json!({
             "shortName": short_name,
@@ -65,7 +64,7 @@ pub async fn org_create(
 
     if default {
         let response = CLIENT
-            .patch(format!("{}/me", BASE_URL))
+            .patch(api!("me"))
             .bearer_auth(token_read()?)
             .json(&json!({
                 "defaultOrg": org.id
@@ -86,7 +85,7 @@ pub async fn org_create(
 
 pub async fn org_retrieve(org_id: &str) -> Result<Org> {
     let response = CLIENT
-        .get(format!("{}/orgs/{}", BASE_URL, org_id))
+        .get(api!("orgs/{}", org_id))
         .bearer_auth(token_read()?)
         .send()
         .await?;
@@ -99,7 +98,7 @@ pub async fn org_retrieve(org_id: &str) -> Result<Org> {
 
 pub async fn members_list(org_id: &str) -> Result<Vec<OrgMember>> {
     let response = CLIENT
-        .get(format!("{}/orgs/{}/members", BASE_URL, org_id))
+        .get(api!("orgs/{}/members", org_id))
         .bearer_auth(token_read()?)
         .send()
         .await?;
@@ -112,7 +111,7 @@ pub async fn members_list(org_id: &str) -> Result<Vec<OrgMember>> {
 
 pub async fn members_create(org_id: &str, user_id: &str, role: &str) -> Result<OrgMember> {
     let response = CLIENT
-        .post(format!("{}/orgs/{}/members", BASE_URL, org_id))
+        .post(api!("orgs/{}/members", org_id))
         .bearer_auth(token_read()?)
         .json(&json!({
             "userId": user_id,
@@ -130,10 +129,7 @@ pub async fn members_create(org_id: &str, user_id: &str, role: &str) -> Result<O
 pub async fn members_update(org_id: &str, membership_id: &str, role: &str) -> Result<OrgMember> {
     let json = serde_json::to_string(&serde_json::json!({ "role": role }))?;
     let response = CLIENT
-        .patch(format!(
-            "{}/orgs/{}/members/{}",
-            BASE_URL, org_id, membership_id
-        ))
+        .patch(api!("orgs/{}/members/{}", org_id, membership_id))
         .bearer_auth(token_read()?)
         .body(json)
         .send()
@@ -147,10 +143,7 @@ pub async fn members_update(org_id: &str, membership_id: &str, role: &str) -> Re
 
 pub async fn members_delete(org_id: &str, membership_id: &str) -> Result<()> {
     let response = CLIENT
-        .delete(format!(
-            "{}/orgs/{}/members/{}",
-            BASE_URL, org_id, membership_id
-        ))
+        .delete(api!("orgs/{}/members/{}", org_id, membership_id))
         .bearer_auth(token_read()?)
         .send()
         .await?;
@@ -168,6 +161,8 @@ pub mod cli {
         common::async_trait::async_trait,
         result, Result, Run,
     };
+
+    use crate::page;
 
     use super::*;
 
@@ -208,9 +203,8 @@ pub mod cli {
         Show(Show),
         Create(Create),
         Members(members::Command),
-        // Plan
-        // Usage
-        // Activity
+        Plan(Plan), // Usage
+                    // Activity
     }
 
     #[async_trait]
@@ -221,6 +215,7 @@ pub mod cli {
                 Action::Show(action) => action.run().await,
                 Action::Create(action) => action.run().await,
                 Action::Members(action) => action.run().await,
+                Action::Plan(action) => action.run().await,
             }
         }
     }
@@ -330,6 +325,29 @@ pub mod cli {
             }
 
             result::value(org)
+        }
+    }
+
+    /// Manage organization's plan and extras settings
+    ///
+    /// Currently this command simply opens a web browser at the page for the organizations plan.
+    /// You can view and make changes to the plan there.
+    #[derive(Parser)]
+    struct Plan {
+        #[clap(flatten)]
+        org: OrgArg,
+    }
+
+    #[async_trait]
+    impl Run for Plan {
+        async fn run(&self) -> Result {
+            let org = self.org.resolve()?;
+            let url = page!("/orgs/{}/plan", org);
+
+            tracing::info!("Opening page for organization's plan in browser: {}", url);
+            webbrowser::open(&url)?;
+
+            result::nothing()
         }
     }
 

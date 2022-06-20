@@ -12,9 +12,10 @@ use common::{
 use http_utils::CLIENT;
 
 use crate::{
+    api,
     errors::Error,
     types::{ProjectLocal, ProjectMember, ProjectRemote},
-    utils::{token_read, BASE_URL},
+    utils::token_read,
 };
 
 /// Resolve the current project
@@ -66,9 +67,7 @@ pub async fn project_list(
     org_name: Option<&str>,
     all: bool,
 ) -> Result<Vec<ProjectRemote>> {
-    let mut request = CLIENT
-        .get(format!("{}/projects", BASE_URL))
-        .bearer_auth(token_read()?);
+    let mut request = CLIENT.get(api!("projects")).bearer_auth(token_read()?);
     if let Some(search) = search {
         request = request.query(&[("search", search)]);
     }
@@ -100,7 +99,7 @@ pub async fn project_create(
     public: bool,
 ) -> Result<ProjectLocal> {
     let mut request = CLIENT
-        .post(format!("{}/projects", BASE_URL))
+        .post(api!("projects"))
         .bearer_auth(token_read()?)
         .json(&json!({
             "name": name,
@@ -128,7 +127,7 @@ pub async fn project_create(
 
 pub async fn project_clone(project_id: u64, dir: Option<&Path>) -> Result<()> {
     let response = CLIENT
-        .get(format!("{}/projects/{}", BASE_URL, project_id))
+        .get(api!("projects/{}", project_id))
         .bearer_auth(token_read()?)
         .send()
         .await?;
@@ -163,7 +162,7 @@ pub async fn project_clone(project_id: u64, dir: Option<&Path>) -> Result<()> {
 
 pub async fn project_retrieve(project_id: &str) -> Result<ProjectRemote> {
     let response = CLIENT
-        .get(format!("{}/projects/{}", BASE_URL, project_id))
+        .get(api!("projects/{}", project_id))
         .bearer_auth(token_read()?)
         .send()
         .await?;
@@ -185,7 +184,7 @@ pub async fn project_pull() -> Result<()> {
     };
 
     let response = CLIENT
-        .get(format!("{}/projects/{}", BASE_URL, id))
+        .get(api!("projects/{}", id))
         .bearer_auth(token_read()?)
         .send()
         .await?;
@@ -219,7 +218,7 @@ pub async fn project_push() -> Result<()> {
     let data = project.to_json()?;
 
     let response = CLIENT
-        .patch(format!("{}/projects/{}", BASE_URL, id))
+        .patch(api!("projects/{}", id))
         .bearer_auth(token_read()?)
         .json(&data)
         .send()
@@ -233,7 +232,7 @@ pub async fn project_push() -> Result<()> {
 
 pub async fn project_delete(project_id: &str) -> Result<()> {
     let response = CLIENT
-        .delete(format!("{}/projects/{}", BASE_URL, project_id))
+        .delete(api!("projects/{}", project_id))
         .bearer_auth(token_read()?)
         .send()
         .await?;
@@ -254,7 +253,7 @@ pub async fn project_delete(project_id: &str) -> Result<()> {
 
 pub async fn members_list(project_id: &str) -> Result<Vec<ProjectMember>> {
     let response = CLIENT
-        .get(format!("{}/projects/{}/members", BASE_URL, project_id))
+        .get(api!("projects/{}/members", project_id))
         .bearer_auth(token_read()?)
         .send()
         .await?;
@@ -272,7 +271,7 @@ pub async fn members_create(
     role: &str,
 ) -> Result<ProjectMember> {
     let response = CLIENT
-        .post(format!("{}/projects/{}/members", BASE_URL, project_id))
+        .post(api!("projects/{}/members", project_id))
         .bearer_auth(token_read()?)
         .json(&json!({
             "userId": user_id,
@@ -295,10 +294,7 @@ pub async fn members_update(
 ) -> Result<ProjectMember> {
     let json = serde_json::to_string(&serde_json::json!({ "role": role }))?;
     let response = CLIENT
-        .patch(format!(
-            "{}/projects/{}/members/{}",
-            BASE_URL, project_id, membership_id
-        ))
+        .patch(api!("projects/{}/members/{}", project_id, membership_id))
         .bearer_auth(token_read()?)
         .body(json)
         .send()
@@ -312,10 +308,7 @@ pub async fn members_update(
 
 pub async fn members_delete(project_id: &str, membership_id: &str) -> Result<()> {
     let response = CLIENT
-        .delete(format!(
-            "{}/projects/{}/members/{}",
-            BASE_URL, project_id, membership_id
-        ))
+        .delete(api!("projects/{}/members/{}", project_id, membership_id))
         .bearer_auth(token_read()?)
         .send()
         .await?;
