@@ -120,7 +120,7 @@ pub async fn user_list(search: &str) -> Result<Vec<OrgPersonal>> {
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -145,7 +145,7 @@ pub async fn user_invite(email: &str, no_send: bool) -> Result<UserInvite> {
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 

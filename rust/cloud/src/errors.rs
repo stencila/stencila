@@ -1,6 +1,9 @@
 //! Handling of errors for Stencila Cloud API
 
-use common::serde::{Deserialize, Serialize};
+use common::{
+    eyre::{bail, Result},
+    serde::{Deserialize, Serialize},
+};
 use http_utils::reqwest::Response;
 
 #[derive(Serialize, Deserialize)]
@@ -29,5 +32,9 @@ impl Error {
         } else {
             format!("Unknown error [{}]", status)
         }
+    }
+
+    pub async fn from_response<T>(response: Response) -> Result<T> {
+        bail!("{}", Error::response_to_string(response).await)
     }
 }

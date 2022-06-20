@@ -1,6 +1,6 @@
 use common::{
     chrono::{self, Utc},
-    eyre::{bail, Result},
+    eyre::{Result},
     serde_json::json,
     tracing,
 };
@@ -17,7 +17,7 @@ pub async fn token_list() -> Result<Vec<ApiToken>> {
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -41,7 +41,7 @@ pub async fn token_create(
         tracing::info!("Successfully created token");
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -55,7 +55,7 @@ pub async fn token_delete(id: u64) -> Result<()> {
         tracing::info!("Successfully deleted token");
         Ok(())
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 

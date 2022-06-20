@@ -88,7 +88,7 @@ pub async fn project_list(
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -114,7 +114,7 @@ pub async fn project_create(
     let project: ProjectLocal = if response.status().is_success() {
         response.json().await?
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        return Error::from_response(response).await;
     };
 
     if project_current().is_err() {
@@ -156,7 +156,7 @@ pub async fn project_clone(project_id: u64, dir: Option<&Path>) -> Result<()> {
 
         Ok(())
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -169,7 +169,7 @@ pub async fn project_retrieve(project_id: &str) -> Result<ProjectRemote> {
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -201,7 +201,7 @@ pub async fn project_pull() -> Result<()> {
 
         Ok(())
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -226,7 +226,7 @@ pub async fn project_push() -> Result<()> {
     if response.status().is_success() {
         Ok(())
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -237,7 +237,7 @@ pub async fn project_delete(project_id: &str) -> Result<()> {
         .send()
         .await?;
     if !response.status().is_success() {
-        bail!("{}", Error::response_to_string(response).await)
+        return Error::from_response(response).await;
     }
 
     if let Ok((path, project)) = project_current() {
@@ -260,7 +260,7 @@ pub async fn members_list(project_id: &str) -> Result<Vec<ProjectMember>> {
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -283,7 +283,7 @@ pub async fn members_create(
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -302,7 +302,7 @@ pub async fn members_update(
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -315,7 +315,7 @@ pub async fn members_delete(project_id: &str, membership_id: &str) -> Result<()>
     if response.status().is_success() {
         Ok(())
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 

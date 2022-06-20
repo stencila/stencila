@@ -37,7 +37,7 @@ pub async fn org_list(search: Option<&str>, role: Option<&str>, all: bool) -> Re
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -59,7 +59,7 @@ pub async fn org_create(
     let org: Org = if response.status().is_success() {
         response.json().await?
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        return Error::from_response(response).await;
     };
 
     if default {
@@ -75,7 +75,7 @@ pub async fn org_create(
         let user = if response.status().is_success() {
             response.json().await?
         } else {
-            bail!("{}", Error::response_to_string(response).await)
+            return Error::from_response(response).await;
         };
         user_write(&user)?;
     }
@@ -92,7 +92,7 @@ pub async fn org_retrieve(org_id: &str) -> Result<Org> {
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -105,7 +105,7 @@ pub async fn members_list(org_id: &str) -> Result<Vec<OrgMember>> {
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -122,7 +122,7 @@ pub async fn members_create(org_id: &str, user_id: &str, role: &str) -> Result<O
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -137,7 +137,7 @@ pub async fn members_update(org_id: &str, membership_id: &str, role: &str) -> Re
     if response.status().is_success() {
         Ok(response.json().await?)
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
@@ -150,7 +150,7 @@ pub async fn members_delete(org_id: &str, membership_id: &str) -> Result<()> {
     if response.status().is_success() {
         Ok(())
     } else {
-        bail!("{}", Error::response_to_string(response).await)
+        Error::from_response(response).await
     }
 }
 
