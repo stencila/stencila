@@ -9,10 +9,6 @@ use common::{
     serde_with::skip_serializing_none,
 };
 
-pub fn id_table_display(id: &u64) -> String {
-    format!("#{}", id)
-}
-
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize, Table)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -40,19 +36,23 @@ pub struct ApiToken {
     pub created_at: DateTime<Utc>,
 }
 
+/// The authenticated user
+///
+/// This is not used for `users find` or `users invite`, only for `user.json`.
+/// It has the properties that we need to show to the current user.
 #[skip_serializing_none]
-#[derive(Serialize, Deserialize, Table)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[table(crate = "cli_utils::cli_table")]
 pub struct User {
-    #[table(title = "ID")]
     pub id: String,
 
-    #[table(title = "Username")]
     pub short_name: String,
 
-    #[table(title = "Full name", display_fn = "option_string")]
     pub long_name: Option<String>,
+
+    pub email: Option<String>,
+
+    pub default_org: Option<u64>,
 }
 
 #[skip_serializing_none]
@@ -68,6 +68,24 @@ pub struct Org {
 
     #[table(title = "Long name", display_fn = "option_string")]
     pub long_name: Option<String>,
+
+    #[table(title = "Role", display_fn = "option_org_role_table_display")]
+    pub user_role: Option<String>,
+}
+
+fn option_org_role_table_display(role: &Option<String>) -> &str {
+    role.as_deref()
+        .map(project_role_table_display)
+        .unwrap_or("*None*")
+}
+
+fn org_role_table_display(role: &str) -> &str {
+    match role {
+        "owner" => "🧰 Owner",
+        "admin" => "🛠  Admin",
+        "member" => "🔨 Member",
+        _ => "?",
+    }
 }
 
 /// A user's personal organization
@@ -96,12 +114,28 @@ pub struct OrgPersonal {
 #[derive(Serialize, Deserialize, Table)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[table(crate = "cli_utils::cli_table")]
-pub struct Team {
-    #[table(title = "Project", display_fn = "id_table_display")]
+pub struct OrgMember {
+    #[table(title = "ID")]
     pub id: u64,
 
-    #[table(title = "Org", display_fn = "id_table_display")]
-    pub org_id: u64,
+    #[table(title = "User", display_fn = "org_member_table_display")]
+    pub user: User,
+
+    #[table(title = "Role", display_fn = "org_role_table_display")]
+    pub role: String,
+}
+
+fn org_member_table_display(user: &User) -> String {
+    format!("{} (#{})", user.short_name.as_str(), user.id)
+}
+
+#[skip_serializing_none]
+#[derive(Serialize, Deserialize, Table)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[table(crate = "cli_utils::cli_table")]
+pub struct Team {
+    #[table(title = "ID")]
+    pub id: u64,
 
     #[table(title = "Name", display_fn = "option_string")]
     pub name: Option<String>,
@@ -192,23 +226,23 @@ pub struct ProjectMember {
     #[table(title = "ID")]
     pub id: u64,
 
-    #[table(title = "User", display_fn = "member_user_table_display")]
+    #[table(title = "User", display_fn = "project_member_user_table_display")]
     pub user: Option<User>,
 
-    #[table(title = "Team", display_fn = "member_team_table_display")]
+    #[table(title = "Team", display_fn = "project_member_team_table_display")]
     pub team: Option<Team>,
 
     #[table(title = "Role", display_fn = "project_role_table_display")]
     pub role: String,
 }
 
-fn member_user_table_display(user: &Option<User>) -> String {
+fn project_member_user_table_display(user: &Option<User>) -> String {
     user.as_ref()
         .map(|user| format!("{} (#{})", user.short_name.as_str(), user.id))
         .unwrap_or_else(|| "-".to_string())
 }
 
-fn member_team_table_display(team: &Option<Team>) -> String {
+fn project_member_team_table_display(team: &Option<Team>) -> String {
     team.as_ref()
         .map(|team| {
             let name = team.name.clone().unwrap_or_else(|| "*Unnamed*".to_string());

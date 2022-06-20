@@ -81,7 +81,9 @@ pub async fn project_list(
     if let Some(org_name) = org_name {
         request = request.query(&[("orgName", org_name)]);
     }
-    request = request.query(&[("all", all)]);
+    if all {
+        request = request.query(&[("all", all)]);
+    }
 
     let response = request.send().await?;
     if response.status().is_success() {

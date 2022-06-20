@@ -6,7 +6,7 @@ use common::{
     serde_json,
 };
 
-use crate::types::ApiToken;
+use crate::types::{ApiToken, User};
 
 /// The base URL for Stencila Cloud
 pub(crate) const BASE_URL: &str = if cfg!(debug_assertions) {
@@ -43,4 +43,16 @@ pub(crate) fn token_read() -> Result<String> {
 /// Get the path of `user.json`
 pub(crate) fn user_path() -> PathBuf {
     config_dir().join("user.json")
+}
+
+/// Read the current Stencila user
+pub(crate) fn user_read() -> Result<User> {
+    let path = user_path();
+    if path.exists() {
+        let json = read_to_string(user_path())?;
+        let user: User = serde_json::from_str(&json)?;
+        Ok(user)
+    } else {
+        bail!("You are not logged in; try using `stencila login` first");
+    }
 }

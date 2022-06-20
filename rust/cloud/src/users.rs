@@ -89,18 +89,24 @@ pub async fn login() -> Result<User> {
 ///
 /// Deletes `token.json`, `user.json`, etc.
 pub async fn logout() -> Result<()> {
-    match me()? {
-        Some(user) => {
-            remove_if_exists(token_path())?;
-            remove_if_exists(user_path())?;
+    let user = me();
 
+    remove_if_exists(token_path())?;
+    remove_if_exists(user_path())?;
+
+    match user {
+        Ok(Some(user)) => {
             tracing::info!(
                 "Goodbye @{}, you successfully logged out of your Stencila account",
                 user.short_name
             );
         }
-        None => {
+        Ok(None) => {
             tracing::info!("No user currently logged in");
+        }
+        _ => {
+            // It doesn't matter if there was an error with `me()` call cause we deleted the files
+            tracing::info!("Successfully logged out");
         }
     }
     Ok(())
@@ -253,7 +259,7 @@ pub mod cli {
     impl Run for Find {
         async fn run(&self) -> Result {
             let users = user_list(&self.search).await?;
-            result::table(users, User::title())
+            result::table(users, OrgPersonal::title())
         }
     }
 

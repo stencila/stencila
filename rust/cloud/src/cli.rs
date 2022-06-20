@@ -4,7 +4,7 @@ use cli_utils::{
     Result, Run,
 };
 
-use crate::{projects, tokens, users};
+use crate::{orgs, projects, tokens, users};
 
 #[derive(Parser)]
 pub struct Command {
@@ -19,18 +19,20 @@ pub struct Command {
 /// out as separate commands.
 #[derive(Parser)]
 enum Action {
+    Projects(projects::cli::Command),
+    Orgs(orgs::cli::Command),
     Users(users::cli::Command),
     Tokens(tokens::cli::Command),
-    Projects(projects::cli::Command),
 }
 
 #[async_trait]
 impl Run for Command {
     async fn run(&self) -> Result {
         match &self.action {
+            Action::Projects(action) => action.run().await,
+            Action::Orgs(action) => action.run().await,
             Action::Users(action) => action.run().await,
             Action::Tokens(action) => action.run().await,
-            Action::Projects(action) => action.run().await,
         }
     }
 }
