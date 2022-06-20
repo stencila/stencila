@@ -124,7 +124,8 @@ pub fn open_file_600(path: impl AsRef<Path>) -> Result<File> {
     let file = options
         .read(true)
         .write(true)
-        .create_new(true)
+        .create(true)
+        .truncate(true)
         .open(&path)?;
 
     Ok(file)
