@@ -1,10 +1,11 @@
-use std::{env, fs::read_to_string, path::PathBuf};
+use std::{env, fs::read_to_string, io::Write, path::PathBuf};
 
 use common::{
     dirs,
     eyre::{bail, Result},
     serde_json,
 };
+use fs_utils::open_file_600;
 
 use crate::types::{ApiToken, User};
 
@@ -40,6 +41,13 @@ pub(crate) fn token_read() -> Result<String> {
     }
 }
 
+pub(crate) fn token_write(token: &ApiToken) -> Result<()> {
+    let json = serde_json::to_string_pretty(&token)?;
+    let mut file = open_file_600(token_path())?;
+    file.write_all(json.as_bytes())?;
+    Ok(())
+}
+
 /// Get the path of `user.json`
 pub(crate) fn user_path() -> PathBuf {
     config_dir().join("user.json")
@@ -55,4 +63,12 @@ pub(crate) fn user_read() -> Result<User> {
     } else {
         bail!("You are not logged in; try using `stencila login` first");
     }
+}
+
+/// Write the current Stencila user
+pub(crate) fn user_write(user: &User) -> Result<()> {
+    let json = serde_json::to_string_pretty(&user)?;
+    let mut file = open_file_600(user_path())?;
+    file.write_all(json.as_bytes())?;
+    Ok(())
 }

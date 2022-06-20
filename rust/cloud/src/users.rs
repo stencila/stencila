@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, io::Write};
+use std::fs::read_to_string;
 
 use common::{
     eyre::{bail, Result},
@@ -7,13 +7,13 @@ use common::{
     tokio::time::{sleep, Duration},
     tracing,
 };
-use fs_utils::{open_file_600, remove_if_exists};
+use fs_utils::remove_if_exists;
 use http_utils::CLIENT;
 
 use crate::{
     errors::*,
     types::*,
-    utils::{token_path, token_read, user_path, BASE_URL},
+    utils::{token_path, token_read, token_write, user_path, user_write, BASE_URL},
 };
 
 /// Get the currently authenticated user, if any
@@ -53,9 +53,7 @@ pub async fn login() -> Result<User> {
         let response = CLIENT.get(&redeem_url).send().await?;
         if response.status() == 200 {
             let token: ApiToken = response.json().await?;
-            let json = serde_json::to_string_pretty(&token)?;
-            let mut file = open_file_600(token_path())?;
-            file.write_all(json.as_bytes())?;
+            token_write(&token)?;
 
             let response = CLIENT
                 .get(format!("{}/me", BASE_URL))
@@ -63,9 +61,7 @@ pub async fn login() -> Result<User> {
                 .send()
                 .await?;
             let user: User = response.json().await?;
-            let json = serde_json::to_string_pretty(&user)?;
-            let mut file = open_file_600(user_path())?;
-            file.write_all(json.as_bytes())?;
+            user_write(&user)?;
 
             tracing::info!(
                 "Welcome @{}, you successfully logged in to your Stencila account",

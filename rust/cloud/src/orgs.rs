@@ -8,7 +8,7 @@ use http_utils::CLIENT;
 use crate::{
     errors::Error,
     types::{Org, OrgMember},
-    utils::{token_read, user_read, BASE_URL},
+    utils::{token_read, user_read, user_write, BASE_URL},
 };
 
 /// Get the id of the default organization for the user
@@ -42,7 +42,11 @@ pub async fn org_list(search: Option<&str>, role: Option<&str>, all: bool) -> Re
     }
 }
 
-pub async fn org_create(short_name: Option<&str>, long_name: Option<&str>) -> Result<Org> {
+pub async fn org_create(
+    short_name: Option<&str>,
+    long_name: Option<&str>,
+    default: bool,
+) -> Result<Org> {
     let response = CLIENT
         .post(format!("{}/orgs", BASE_URL))
         .bearer_auth(token_read()?)
@@ -53,11 +57,31 @@ pub async fn org_create(short_name: Option<&str>, long_name: Option<&str>) -> Re
         .send()
         .await?;
 
-    if response.status().is_success() {
-        Ok(response.json().await?)
+    let org: Org = if response.status().is_success() {
+        response.json().await?
     } else {
         bail!("{}", Error::response_to_string(response).await)
+    };
+
+    if default {
+        let response = CLIENT
+            .patch(format!("{}/me", BASE_URL))
+            .bearer_auth(token_read()?)
+            .json(&json!({
+                "defaultOrg": org.id
+            }))
+            .send()
+            .await?;
+
+        let user = if response.status().is_success() {
+            response.json().await?
+        } else {
+            bail!("{}", Error::response_to_string(response).await)
+        };
+        user_write(&user)?;
     }
+
+    Ok(org)
 }
 
 pub async fn org_retrieve(org_id: &str) -> Result<Org> {
@@ -259,9 +283,10 @@ pub mod cli {
 
     /// Create an organization
     ///
-    /// Use this command to create a new Stencila organization.
+    /// Use this command to create a new Stencila organization. Use the `--default`
+    /// option to make the new organization your default.
     #[derive(Parser)]
-    #[clap(alias = "init")]
+    #[clap(alias = "new")]
     struct Create {
         /// A "short name" of the organization
         ///
@@ -275,13 +300,35 @@ pub mod cli {
         /// Used mainly for display purposes.
         #[clap(short, long)]
         long_name: Option<String>,
+
+        /// Make the new organization your default organization
+        ///
+        /// Use this option to make the new organization your default.
+        /// It will then be used instead of having to specify the `--org` option
+        /// in the CLI or on the web.
+        #[clap(short, long)]
+        default: bool,
     }
 
     #[async_trait]
     impl Run for Create {
         async fn run(&self) -> Result {
-            let org = org_create(self.long_name.as_deref(), self.long_name.as_deref()).await?;
-            tracing::info!("Successfully created org #{}", org.id);
+            let org = org_create(
+                self.long_name.as_deref(),
+                self.long_name.as_deref(),
+                self.default,
+            )
+            .await?;
+
+            if self.default {
+                tracing::info!(
+                    "Successfully created organization #{} and made it your default",
+                    org.id
+                );
+            } else {
+                tracing::info!("Successfully created organization #{}", org.id);
+            }
+
             result::value(org)
         }
     }
