@@ -5,6 +5,7 @@
 use cli_utils::table::{date_time_ago, option_date_time_ago, option_string, Table};
 use common::{
     chrono::{DateTime, Utc},
+    inflector::Inflector,
     serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
 };
@@ -34,6 +35,49 @@ pub struct ApiToken {
 
     #[table(title = "Created", display_fn = "date_time_ago")]
     pub created_at: DateTime<Utc>,
+}
+
+#[skip_serializing_none]
+#[derive(Serialize, Deserialize, Table)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[table(crate = "cli_utils::cli_table")]
+pub struct LogEntry {
+    #[table(title = "User", display_fn = "log_entry_user_table_display")]
+    pub user: Option<OrgPersonal>,
+
+    #[table(title = "Action", display_fn = "log_entry_action_type_table_display")]
+    pub action_type: String,
+
+    #[table(title = "Type", display_fn = "log_entry_subject_type_table_display")]
+    pub subject_type: String,
+
+    #[serde(default)]
+    #[table(title = "Description")]
+    pub description: String,
+
+    #[table(title = "Time", display_fn = "date_time_ago")]
+    pub created_at: DateTime<Utc>,
+}
+
+fn log_entry_user_table_display(user: &Option<OrgPersonal>) -> String {
+    user.as_ref()
+        .map(|user| user.short_name.clone())
+        .unwrap_or_default()
+}
+
+fn log_entry_subject_type_table_display(subject: &str) -> String {
+    subject.to_title_case()
+}
+
+fn log_entry_action_type_table_display(action: &str) -> String {
+    match action {
+        "created" => "✨ Created".to_string(),
+        "updated" => "🔨 Updated".to_string(),
+        "deleted" => "❌ Deleted".to_string(),
+        "started" => "🚀 Started".to_string(),
+        "stopped" => "🛑 Stopped".to_string(),
+        _ => action.to_sentence_case(),
+    }
 }
 
 /// The authenticated user

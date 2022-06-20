@@ -1,9 +1,13 @@
 use std::{env, fs::read_to_string, io::Write, path::PathBuf};
 
+use cli_utils::{
+    clap::{self, Parser},
+    result,
+};
 use common::{
     dirs,
     eyre::{bail, Result},
-    serde_json,
+    serde_json, tracing,
 };
 use fs_utils::open_file_600;
 
@@ -26,8 +30,30 @@ macro_rules! api {
 #[macro_export]
 macro_rules! page {
     ($template:expr $(, $par:expr)*) => {
-        [crate::utils::BASE_URL, &format!($template $(, $par)*)].concat()
+        [crate::utils::BASE_URL, "/", &format!($template $(, $par)*)].concat()
     };
+}
+
+// An option that is reused in several subcommands in this crate to
+// allow the user to open the corresponding web page on Stencila Cloud
+#[derive(Parser)]
+pub(crate) struct WebArg {
+    /// Open the corresponding web page on Stencila in your browser
+    ///
+    /// Use this option when you want to quickly jump to the web page
+    /// on Stencila that offers the same, or similar, functionality to this
+    /// command.
+    #[clap(long = "web", short = 'w')]
+    pub yes: bool,
+}
+
+impl WebArg {
+    pub fn open(&self, url: impl AsRef<str>) -> cli_utils::Result {
+        let url = url.as_ref();
+        tracing::info!("Opening web page in browser: {}", url);
+        webbrowser::open(url)?;
+        result::nothing()
+    }
 }
 
 /// Get the path used to store `token.json`, `user.json`, and other files

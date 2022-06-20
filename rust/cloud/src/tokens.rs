@@ -1,6 +1,6 @@
 use common::{
     chrono::{self, Utc},
-    eyre::{Result},
+    eyre::Result,
     serde_json::json,
     tracing,
 };

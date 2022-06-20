@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 
 use common::{
     eyre::{self, bail, Result},
@@ -11,7 +11,7 @@ use http_utils::CLIENT;
 use crate::{
     api,
     errors::Error,
-    types::{Org, OrgMember, OrgUsedQuota},
+    types::{LogEntry, Org, OrgMember, OrgUsedQuota},
     utils::{token_read, user_read, user_write},
 };
 
@@ -115,7 +115,7 @@ pub async fn org_usage(org_id: &str) -> Result<Vec<OrgUsedQuota>> {
             "orgComputeTime".to_string() => "Compute time (hrs)".to_string(),
             "orgNetworkEgress".to_string() => "Data out (GB)".to_string(),
         };
-        let usages: BTreeMap<String, HashMap<String, f64>> = response.json().await?;
+        let usages: HashMap<String, HashMap<String, f64>> = response.json().await?;
         let usages = usages
             .into_iter()
             .map(|(name, resource)| {
@@ -131,6 +131,31 @@ pub async fn org_usage(org_id: &str) -> Result<Vec<OrgUsedQuota>> {
             })
             .collect();
         Ok(usages)
+    } else {
+        Error::from_response(response).await
+    }
+}
+
+pub async fn org_activity(
+    org_id: &str,
+    subject: Option<&str>,
+    action: Option<&str>,
+    limit: u32,
+) -> Result<Vec<LogEntry>> {
+    let mut request = CLIENT
+        .get(api!("orgs/{}/logs", org_id))
+        .bearer_auth(token_read()?)
+        .query(&[("limit", limit)]);
+    if let Some(subject) = subject {
+        request = request.query(&[("subjectType", subject)]);
+    }
+    if let Some(action) = action {
+        request = request.query(&[("actionType", action)]);
+    }
+
+    let response = request.send().await?;
+    if response.status().is_success() {
+        Ok(response.json().await?)
     } else {
         Error::from_response(response).await
     }
@@ -202,7 +227,7 @@ pub mod cli {
         result, Result, Run,
     };
 
-    use crate::page;
+    use crate::{page, utils::WebArg};
 
     use super::*;
 
@@ -245,7 +270,7 @@ pub mod cli {
         Members(members::Command),
         Plan(Plan),
         Usage(Usage),
-        // Activity
+        Activity(Activity),
     }
 
     #[async_trait]
@@ -258,6 +283,7 @@ pub mod cli {
                 Action::Members(action) => action.run().await,
                 Action::Plan(action) => action.run().await,
                 Action::Usage(action) => action.run().await,
+                Action::Activity(action) => action.run().await,
             }
         }
     }
@@ -378,17 +404,15 @@ pub mod cli {
     struct Plan {
         #[clap(flatten)]
         org: OrgArg,
+
+        #[clap(flatten)]
+        web: WebArg,
     }
 
     #[async_trait]
     impl Run for Plan {
         async fn run(&self) -> Result {
-            let org = self.org.resolve()?;
-            let url = page!("/orgs/{}/plan", org);
-
-            tracing::info!("Opening page for organization's plan in browser: {}", url);
-            webbrowser::open(&url)?;
-
+            self.web.open(page!("orgs/{}/plan", self.org.resolve()?))?;
             result::nothing()
         }
     }
@@ -401,13 +425,66 @@ pub mod cli {
     struct Usage {
         #[clap(flatten)]
         org: OrgArg,
+
+        #[clap(flatten)]
+        web: WebArg,
     }
 
     #[async_trait]
     impl Run for Usage {
         async fn run(&self) -> Result {
-            let usage = org_usage(&self.org.resolve()?).await?;
-            result::table(usage, OrgUsedQuota::title())
+            let org_id = self.org.resolve()?;
+            if self.web.yes {
+                self.web.open(page!("orgs/{}/usage", org_id))
+            } else {
+                let usage = org_usage(&org_id).await?;
+                result::table(usage, OrgUsedQuota::title())
+            }
+        }
+    }
+
+    /// Get activity logs for an organization
+    ///
+    /// Use this command to get logs of activity relation to the organization and projects
+    /// it owns. Note that the duration that logs are retained is dependant upon the organizations
+    /// plan, so there may be no entries if there has been no recent activity.
+    #[derive(Parser)]
+    struct Activity {
+        /// The subject to filter logs by (e.g. "org", "project")
+        #[clap(short, long)]
+        subject: Option<String>,
+
+        /// The action to filter logs by (e.g. "updated")
+        #[clap(short, long, possible_values = &["created", "read", "updated", "deleted", "started", "stopped"])]
+        action: Option<String>,
+
+        /// The number of entries to limit the result to
+        #[clap(short, long, default_value_t = 100)]
+        limit: u32,
+
+        #[clap(flatten)]
+        org: OrgArg,
+
+        #[clap(flatten)]
+        web: WebArg,
+    }
+
+    #[async_trait]
+    impl Run for Activity {
+        async fn run(&self) -> Result {
+            let org_id = self.org.resolve()?;
+            if self.web.yes {
+                self.web.open(page!("orgs/{}/activity", org_id))
+            } else {
+                let activity = org_activity(
+                    &self.org.resolve()?,
+                    self.subject.as_deref(),
+                    self.action.as_deref(),
+                    self.limit,
+                )
+                .await?;
+                result::table(activity, LogEntry::title())
+            }
         }
     }
 
