@@ -129,6 +129,28 @@ fn org_member_table_display(user: &User) -> String {
     format!("{} (#{})", user.short_name.as_str(), user.id)
 }
 
+#[derive(Serialize, Deserialize, Table)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[table(crate = "cli_utils::cli_table")]
+pub struct OrgUsedQuota {
+    #[table(title = "Resource")]
+    pub name: String,
+
+    #[table(title = "Used")]
+    pub used: f64,
+
+    #[table(title = "Quota")]
+    pub quota: f64,
+
+    #[serde(default)]
+    #[table(title = "Percent", display_fn = "org_used_percent_table_display")]
+    pub percent: f64,
+}
+
+fn org_used_percent_table_display(percent: &f64) -> String {
+    format!("{:.1}%", percent)
+}
+
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize, Table)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

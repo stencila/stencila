@@ -1,5 +1,8 @@
+use std::collections::{BTreeMap, HashMap};
+
 use common::{
     eyre::{self, bail, Result},
+    maplit::hashmap,
     serde_json::{self, json},
     tracing,
 };
@@ -8,7 +11,7 @@ use http_utils::CLIENT;
 use crate::{
     api,
     errors::Error,
-    types::{Org, OrgMember},
+    types::{Org, OrgMember, OrgUsedQuota},
     utils::{token_read, user_read, user_write},
 };
 
@@ -91,6 +94,43 @@ pub async fn org_retrieve(org_id: &str) -> Result<Org> {
         .await?;
     if response.status().is_success() {
         Ok(response.json().await?)
+    } else {
+        Error::from_response(response).await
+    }
+}
+
+pub async fn org_usage(org_id: &str) -> Result<Vec<OrgUsedQuota>> {
+    let response = CLIENT
+        .get(api!("orgs/{}/usage", org_id))
+        .bearer_auth(token_read()?)
+        .send()
+        .await?;
+    if response.status().is_success() {
+        let names: HashMap<String, String> = hashmap! {
+            "orgProjectsPublic".to_string() => "Public projects (num)".to_string(),
+            "orgProjectsPrivate".to_string() => "Private projects (num)".to_string(),
+            "orgMembersNum".to_string() => "Organization members".to_string(),
+            "orgTeamsNum".to_string() => "Teams (num)".to_string(),
+            "orgDeploymentsNum".to_string() => "Deployment templates (num)".to_string(),
+            "orgComputeTime".to_string() => "Compute time (hrs)".to_string(),
+            "orgNetworkEgress".to_string() => "Data out (GB)".to_string(),
+        };
+        let usages: BTreeMap<String, HashMap<String, f64>> = response.json().await?;
+        let usages = usages
+            .into_iter()
+            .map(|(name, resource)| {
+                let used = resource.get("used").cloned().unwrap_or_default();
+                let quota = resource.get("quota").cloned().unwrap_or_default();
+                let percent = used / quota * 100.;
+                OrgUsedQuota {
+                    name: names.get(&name).cloned().unwrap_or(name),
+                    used,
+                    quota,
+                    percent,
+                }
+            })
+            .collect();
+        Ok(usages)
     } else {
         Error::from_response(response).await
     }
@@ -203,8 +243,9 @@ pub mod cli {
         Show(Show),
         Create(Create),
         Members(members::Command),
-        Plan(Plan), // Usage
-                    // Activity
+        Plan(Plan),
+        Usage(Usage),
+        // Activity
     }
 
     #[async_trait]
@@ -216,6 +257,7 @@ pub mod cli {
                 Action::Create(action) => action.run().await,
                 Action::Members(action) => action.run().await,
                 Action::Plan(action) => action.run().await,
+                Action::Usage(action) => action.run().await,
             }
         }
     }
@@ -348,6 +390,24 @@ pub mod cli {
             webbrowser::open(&url)?;
 
             result::nothing()
+        }
+    }
+
+    /// View an organization's resource usage against quotas
+    ///
+    /// Use this command to quickly see the usage of various resources (e.g. compute time)
+    /// against the quota for an organization.
+    #[derive(Parser)]
+    struct Usage {
+        #[clap(flatten)]
+        org: OrgArg,
+    }
+
+    #[async_trait]
+    impl Run for Usage {
+        async fn run(&self) -> Result {
+            let usage = org_usage(&self.org.resolve()?).await?;
+            result::table(usage, OrgUsedQuota::title())
         }
     }
 
