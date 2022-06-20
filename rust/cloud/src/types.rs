@@ -170,7 +170,7 @@ pub struct OrgMember {
 }
 
 fn org_member_table_display(user: &User) -> String {
-    format!("{} (#{})", user.short_name.as_str(), user.id)
+    format!("👤 {} (#{})", user.short_name.as_str(), user.id)
 }
 
 #[derive(Serialize, Deserialize, Table)]
@@ -292,27 +292,29 @@ pub struct ProjectMember {
     #[table(title = "ID")]
     pub id: u64,
 
-    #[table(title = "User", display_fn = "project_member_user_table_display")]
+    #[table(skip)]
     pub user: Option<User>,
 
-    #[table(title = "Team", display_fn = "project_member_team_table_display")]
+    #[table(skip)]
     pub team: Option<Team>,
+
+    #[serde(skip)]
+    #[table(title = "User or team")]
+    pub desc: String,
 
     #[table(title = "Role", display_fn = "project_role_table_display")]
     pub role: String,
 }
 
-fn project_member_user_table_display(user: &Option<User>) -> String {
-    user.as_ref()
-        .map(|user| format!("{} (#{})", user.short_name.as_str(), user.id))
-        .unwrap_or_else(|| "-".to_string())
-}
-
-fn project_member_team_table_display(team: &Option<Team>) -> String {
-    team.as_ref()
-        .map(|team| {
+impl ProjectMember {
+    pub fn generate_desc(&mut self) -> String {
+        if let Some(user) = &self.user {
+            format!("👤 {} (#{})", user.short_name.as_str(), user.id)
+        } else if let Some(team) = &self.team {
             let name = team.name.clone().unwrap_or_else(|| "*Unnamed*".to_string());
-            format!("{} (#{})", name, team.id)
-        })
-        .unwrap_or_else(|| "-".to_string())
+            format!("👥 {} (#{})", name, team.id)
+        } else {
+            "-".to_string()
+        }
+    }
 }

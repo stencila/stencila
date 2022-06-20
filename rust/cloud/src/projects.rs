@@ -258,7 +258,11 @@ pub async fn members_list(project_id: &str) -> Result<Vec<ProjectMember>> {
         .send()
         .await?;
     if response.status().is_success() {
-        Ok(response.json().await?)
+        let mut members: Vec<ProjectMember> = response.json().await?;
+        members
+            .iter_mut()
+            .for_each(|member| member.desc = member.generate_desc());
+        Ok(members)
     } else {
         Error::from_response(response).await
     }
