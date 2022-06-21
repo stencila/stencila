@@ -115,6 +115,29 @@ pub struct Org {
 
     #[table(title = "Role", display_fn = "option_org_role_table_display")]
     pub user_role: Option<String>,
+
+    // The following fields are only available for orgs that
+    // a user is a member of and only for `show` command (not `list`)
+    #[table(skip)]
+    pub created_by: Option<String>,
+
+    #[table(skip)]
+    pub created_at: Option<DateTime<Utc>>,
+
+    #[table(skip)]
+    pub updated_at: Option<DateTime<Utc>>,
+
+    #[table(skip)]
+    pub is_public: Option<bool>,
+
+    #[table(skip)]
+    pub plan_id: Option<u64>,
+
+    #[table(skip)]
+    pub extra_compute_time: Option<bool>,
+
+    #[table(skip)]
+    pub extra_network_egress: Option<bool>,
 }
 
 fn option_org_role_table_display(role: &Option<String>) -> &str {
