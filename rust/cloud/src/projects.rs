@@ -277,6 +277,7 @@ pub async fn members_list(project_id: &str) -> Result<Vec<ProjectMember>> {
 
 pub async fn members_create(
     project_id: &str,
+    user_name: Option<&str>,
     user_id: Option<&str>,
     team_id: Option<&str>,
     role: &str,
@@ -285,6 +286,7 @@ pub async fn members_create(
         .post(api!("projects/{}/members", project_id))
         .bearer_auth(token_read()?)
         .json(&json!({
+            "userName": user_name,
             "userId": user_id,
             "teamId": team_id,
             "role": role
@@ -648,6 +650,8 @@ pub mod cli {
     }
 
     mod members {
+        use crate::utils::UUID_REGEX;
+
         use super::*;
 
         /// Manage project members
@@ -710,7 +714,7 @@ pub mod cli {
 
             /// The id of the user or team
             ///
-            /// To add a user use their UUID (e.g. "b18beb15-af3a-4696-98ea-f89e0cf6149a").
+            /// To add a user use their username or id (e.g. "b18beb15-af3a-4696-98ea-f89e0cf6149a").
             /// To add a team use its numeric id (e.g. 123).
             id: String,
 
@@ -728,13 +732,24 @@ pub mod cli {
         #[async_trait]
         impl Run for Add {
             async fn run(&self) -> Result {
-                let (user_id, team_id) = match self.id.parse::<u64>() {
-                    Ok(..) => (None, Some(self.id.as_str())),
-                    Err(..) => (Some(self.id.as_str()), None),
+                let id = Some(self.id.as_str());
+                let (user_name, user_id, team_id) = match self.type_.as_str() {
+                    "user" => match UUID_REGEX.is_match(&self.id) {
+                        true => (None, id, None),
+                        false => (id, None, None),
+                    },
+                    "team" => (None, None, id),
+                    _ => unreachable!(),
                 };
 
-                let member =
-                    members_create(&self.project.resolve()?, user_id, team_id, &self.role).await?;
+                let member = members_create(
+                    &self.project.resolve()?,
+                    user_name,
+                    user_id,
+                    team_id,
+                    &self.role,
+                )
+                .await?;
                 result::invisible(member)
             }
         }
