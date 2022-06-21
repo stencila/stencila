@@ -37,6 +37,18 @@ where
     })
 }
 
+/// A result with a value that should not be displayed unless user use --json or --yaml option
+pub fn invisible<Type>(value: Type) -> Result
+where
+    Type: Serialize,
+{
+    Ok(Value {
+        value: Some(serde_json::to_value(&value)?),
+        invisible: true,
+        ..Default::default()
+    })
+}
+
 /// A result with content to be displayed
 pub fn content(format: &str, content: &str) -> Result {
     Ok(Value {
@@ -55,7 +67,7 @@ where
         format: Some(format.into()),
         content: Some(content.into()),
         value: Some(serde_json::to_value(&value)?),
-        table: None,
+        ..Default::default()
     })
 }
 
@@ -73,6 +85,9 @@ pub struct Value {
 
     /// Format of the content
     pub format: Option<String>,
+
+    /// Whether the value should be visible
+    pub invisible: bool,
 }
 
 /// Printing without prettiness
@@ -119,10 +134,17 @@ pub mod print {
             format,
             value,
             table,
+            invisible,
         } = value;
 
         // Nothing to display
         if content.is_none() && value.is_none() {
+            return Ok(());
+        }
+
+        // Preferred format is not `json` or `yaml` and the value is invisible
+        if invisible && (formats.is_empty() || formats.first().cloned().unwrap_or_default() == "md")
+        {
             return Ok(());
         }
 

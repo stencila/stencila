@@ -81,6 +81,13 @@ pub async fn org_create(
             return Error::from_response(response).await;
         };
         user_write(&user)?;
+
+        tracing::info!(
+            "Successfully created organization #{} and made it your default",
+            org.id
+        );
+    } else {
+        tracing::info!("Successfully created organization #{}", org.id);
     }
 
     Ok(org)
@@ -174,18 +181,31 @@ pub async fn members_list(org_id: &str) -> Result<Vec<OrgMember>> {
     }
 }
 
-pub async fn members_create(org_id: &str, user_id: &str, role: &str) -> Result<OrgMember> {
+pub async fn members_create(
+    org_id: &str,
+    user_id: Option<&str>,
+    user_name: Option<&str>,
+    role: &str,
+) -> Result<OrgMember> {
     let response = CLIENT
         .post(api!("orgs/{}/members", org_id))
         .bearer_auth(token_read()?)
         .json(&json!({
             "userId": user_id,
+            "userName": user_name,
             "role": role
         }))
         .send()
         .await?;
     if response.status().is_success() {
-        Ok(response.json().await?)
+        let member: OrgMember = response.json().await?;
+        tracing::info!(
+            "Successfully added user #{} as {} of organization #{}",
+            member.user.id,
+            member.role,
+            org_id
+        );
+        Ok(member)
     } else {
         Error::from_response(response).await
     }
@@ -200,7 +220,14 @@ pub async fn members_update(org_id: &str, membership_id: &str, role: &str) -> Re
         .send()
         .await?;
     if response.status().is_success() {
-        Ok(response.json().await?)
+        let member: OrgMember = response.json().await?;
+        tracing::info!(
+            "Successfully changed role of user #{} to {} on organization #{}",
+            member.user.id,
+            member.role,
+            org_id
+        );
+        Ok(member)
     } else {
         Error::from_response(response).await
     }
@@ -213,6 +240,7 @@ pub async fn members_delete(org_id: &str, membership_id: &str) -> Result<()> {
         .send()
         .await?;
     if response.status().is_success() {
+        tracing::info!("Successfully removed user from organization #{}", org_id);
         Ok(())
     } else {
         Error::from_response(response).await
@@ -382,17 +410,7 @@ pub mod cli {
                 self.default,
             )
             .await?;
-
-            if self.default {
-                tracing::info!(
-                    "Successfully created organization #{} and made it your default",
-                    org.id
-                );
-            } else {
-                tracing::info!("Successfully created organization #{}", org.id);
-            }
-
-            result::value(org)
+            result::invisible(org)
         }
     }
 
@@ -489,6 +507,8 @@ pub mod cli {
     }
 
     mod members {
+        use crate::utils::UUID_REGEX;
+
         use super::*;
 
         /// Manage org members
@@ -545,10 +565,10 @@ pub mod cli {
         /// on the organization.
         #[derive(Parser)]
         struct Add {
-            /// The id of the user
+            /// The username or id of the user
             ///
-            /// User the user's UUID (e.g. "b18beb15-af3a-4696-98ea-f89e0cf6149a").
-            id: String,
+            /// Use the user's username (e.g. "mike21") or their id (e.g. "b18beb15-af3a-4696-98ea-f89e0cf6149a").
+            user: String,
 
             /// The role to give the user
             ///
@@ -566,15 +586,14 @@ pub mod cli {
             async fn run(&self) -> Result {
                 let org_id = self.org.resolve()?;
 
-                let member = members_create(&org_id, &self.id, &self.role).await?;
-                tracing::info!(
-                    "Successfully added user #{} as {} of org #{}",
-                    member.user.id,
-                    member.role,
-                    org_id
-                );
+                let (user_id, user_name) = if UUID_REGEX.is_match(&self.user) {
+                    (Some(self.user.as_str()), None)
+                } else {
+                    (None, Some(self.user.as_str()))
+                };
 
-                result::value(member)
+                let member = members_create(&org_id, user_id, user_name, &self.role).await?;
+                result::invisible(member)
             }
         }
 
@@ -602,17 +621,8 @@ pub mod cli {
         impl Run for Change {
             async fn run(&self) -> Result {
                 let org_id = &self.org.resolve()?;
-
                 let member = members_update(org_id, &self.id, &self.role).await?;
-
-                tracing::info!(
-                    "Successfully changed role of user #{} to {} on org #{}",
-                    member.user.id,
-                    member.role,
-                    org_id
-                );
-
-                result::value(member)
+                result::invisible(member)
             }
         }
 

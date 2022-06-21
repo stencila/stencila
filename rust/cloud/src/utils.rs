@@ -7,6 +7,8 @@ use cli_utils::{
 use common::{
     dirs,
     eyre::{bail, Result},
+    once_cell::sync::Lazy,
+    regex::Regex,
     serde_json, tracing,
 };
 use fs_utils::open_file_600;
@@ -55,6 +57,13 @@ impl WebArg {
         result::nothing()
     }
 }
+
+pub(crate) static UUID_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$",
+    )
+    .expect("Unable to created regex")
+});
 
 /// Get the path used to store `token.json`, `user.json`, and other files
 /// associated with this crate

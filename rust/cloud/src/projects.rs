@@ -122,6 +122,11 @@ pub async fn project_create(
         write("stencila.toml", toml)?;
     }
 
+    tracing::info!(
+        "Successfully created project #{}",
+        project.id.unwrap_or_default()
+    );
+
     Ok(project)
 }
 
@@ -248,6 +253,8 @@ pub async fn project_delete(project_id: &str) -> Result<()> {
         }
     }
 
+    tracing::info!("Successfully deleted project #{}", project_id);
+
     Ok(())
 }
 
@@ -285,7 +292,23 @@ pub async fn members_create(
         .send()
         .await?;
     if response.status().is_success() {
-        Ok(response.json().await?)
+        let member: ProjectMember = response.json().await?;
+        if let Some(user) = &member.user {
+            tracing::info!(
+                "Successfully added user #{} as {} of project #{}",
+                user.id,
+                member.role,
+                project_id
+            )
+        } else if let Some(team) = &member.team {
+            tracing::info!(
+                "Successfully added team #{} as {} of project #{}",
+                team.id,
+                member.role,
+                project_id
+            )
+        }
+        Ok(member)
     } else {
         Error::from_response(response).await
     }
@@ -304,7 +327,24 @@ pub async fn members_update(
         .send()
         .await?;
     if response.status().is_success() {
-        Ok(response.json().await?)
+        let member: ProjectMember = response.json().await?;
+        if let Some(user) = &member.user {
+            tracing::info!(
+                "Successfully changed role of user #{} to {} on project #{}",
+                user.id,
+                member.role,
+                project_id
+            )
+        }
+        if let Some(team) = &member.team {
+            tracing::info!(
+                "Successfully changed role of team #{} to {} on project #{}",
+                team.id,
+                member.role,
+                project_id
+            )
+        }
+        Ok(member)
     } else {
         Error::from_response(response).await
     }
@@ -518,12 +558,7 @@ pub mod cli {
                 self.public,
             )
             .await?;
-
-            if let Some(id) = project.id {
-                tracing::info!("Successfully created project #{}", id);
-            }
-
-            result::value(project)
+            result::invisible(project)
         }
     }
 
@@ -608,9 +643,6 @@ pub mod cli {
             }
 
             project_delete(project_id).await?;
-
-            tracing::info!("Successfully deleted project #{}", project_id);
-
             result::nothing()
         }
     }
@@ -696,32 +728,14 @@ pub mod cli {
         #[async_trait]
         impl Run for Add {
             async fn run(&self) -> Result {
-                let project_id = self.project.resolve()?;
-
-                // Determine if id is for a user or team
                 let (user_id, team_id) = match self.id.parse::<u64>() {
                     Ok(..) => (None, Some(self.id.as_str())),
                     Err(..) => (Some(self.id.as_str()), None),
                 };
 
-                let member = members_create(&project_id, user_id, team_id, &self.role).await?;
-
-                if let Some(user) = &member.user {
-                    tracing::info!(
-                        "Successfully added user #{} as {} of project #{}",
-                        user.id,
-                        member.role,
-                        project_id
-                    )
-                } else if let Some(team) = &member.team {
-                    tracing::info!(
-                        "Successfully added team #{} as {} of project #{}",
-                        team.id,
-                        member.role,
-                        project_id
-                    )
-                }
-                result::value(member)
+                let member =
+                    members_create(&self.project.resolve()?, user_id, team_id, &self.role).await?;
+                result::invisible(member)
             }
         }
 
@@ -748,27 +762,8 @@ pub mod cli {
         #[async_trait]
         impl Run for Change {
             async fn run(&self) -> Result {
-                let project_id = &self.project.resolve()?;
-
-                let member = members_update(project_id, &self.id, &self.role).await?;
-
-                if let Some(user) = &member.user {
-                    tracing::info!(
-                        "Successfully changed role of user #{} to {} on project #{}",
-                        user.id,
-                        member.role,
-                        project_id
-                    )
-                }
-                if let Some(team) = &member.team {
-                    tracing::info!(
-                        "Successfully changed role of team #{} to {} on project #{}",
-                        team.id,
-                        member.role,
-                        project_id
-                    )
-                }
-                result::value(member)
+                let member = members_update(&self.project.resolve()?, &self.id, &self.role).await?;
+                result::invisible(member)
             }
         }
 
