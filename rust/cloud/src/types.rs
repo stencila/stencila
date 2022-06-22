@@ -226,8 +226,38 @@ pub struct Team {
     #[table(title = "ID")]
     pub id: u64,
 
-    #[table(title = "Name", display_fn = "option_string")]
+    #[table(title = "Name", display_fn = "team_name_table_display")]
     pub name: Option<String>,
+
+    #[table(title = "Description", display_fn = "team_desc_table_display")]
+    pub description: Option<String>,
+
+    #[table(title = "Created", display_fn = "date_time_ago")]
+    pub created_at: DateTime<Utc>,
+}
+
+fn team_name_table_display(name: &Option<String>) -> &str {
+    name.as_deref().unwrap_or("*Unnamed*")
+}
+
+fn team_desc_table_display(name: &Option<String>) -> &str {
+    name.as_deref().unwrap_or("-")
+}
+
+#[skip_serializing_none]
+#[derive(Serialize, Deserialize, Table)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[table(crate = "cli_utils::cli_table")]
+pub struct TeamMember {
+    #[table(title = "ID")]
+    pub id: u64,
+
+    #[table(title = "User", display_fn = "team_member_table_display")]
+    pub user: User
+}
+
+fn team_member_table_display(user: &User) -> String {
+    format!("👤 {} (#{})", user.short_name.as_str(), user.id)
 }
 
 #[skip_serializing_none]
