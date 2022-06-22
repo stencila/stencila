@@ -642,9 +642,10 @@ pub mod cli {
             std::io::stdin().read_line(&mut input)?;
             if input.trim() != project.name {
                 tracing::error!("Inputted name is not the same as the project name. Cancelling project deletion.")
+            } else {
+                project_delete(project_id).await?;
             }
 
-            project_delete(project_id).await?;
             result::nothing()
         }
     }
