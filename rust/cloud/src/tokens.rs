@@ -69,7 +69,7 @@ pub mod cli {
 
     use super::*;
 
-    /// Manage your personal access tokens
+    /// Manage personal access tokens
     #[derive(Parser)]
     #[clap(alias = "token")]
     pub struct Command {
@@ -95,7 +95,7 @@ pub mod cli {
         }
     }
 
-    /// List your personal access tokens
+    /// List personal access tokens
     ///
     /// Use this command to retrieve the details of the tokens created by you
     /// or on your behalf when signing in using Stencila API clients. Note that
