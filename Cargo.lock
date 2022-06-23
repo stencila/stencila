@@ -984,6 +984,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "cli-docs"
+version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "stencila",
+]
+
+[[package]]
 name = "cli-table"
 version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
