@@ -16,7 +16,8 @@ fn main() -> Result<()> {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("..")
         .join("..")
-        .join("docs");
+        .join("docs")
+        .join("reference");
     create_dir_all(&dir)?;
 
     let app = Cli::augment_args(Command::new("cli"));
