@@ -146,6 +146,7 @@ validator = { version = "0.15.0", features = ["derive"] }
 
 binaries = { path = "../binaries" }
 buildpacks = { path = "../buildpacks" }
+cloud = { path = "../cloud" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 cron-utils = { path = "../cron-utils" }

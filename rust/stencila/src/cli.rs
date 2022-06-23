@@ -21,14 +21,14 @@ use crate::{
         config::{LoggingConfig, LoggingStdErrConfig},
         LoggingFormat, LoggingLevel,
     },
-    projects::{self, PROJECTS},
+    projects::PROJECTS,
     sources,
 };
 
 /// Stencila, in a terminal console, on your own machine
 ///
 /// Enter interactive mode by using the `--interact` option with any command.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 #[clap(
     version,
     infer_subcommands = true,
@@ -113,7 +113,7 @@ pub const GLOBAL_ARGS: [&str; 6] = [
     "--log-format",
 ];
 
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 #[clap(
     infer_subcommands = true,
     global_setting = AppSettings::DeriveDisplayOrder,
@@ -136,15 +136,14 @@ pub enum Command {
     // as the command prefix
     With(WithCommand),
 
-    // Module-specific commands defined in the `stencila` library
-    #[clap(aliases = &["project"])]
-    Projects(projects::commands::Command),
-
     #[clap(aliases = &["document", "docs", "doc"])]
     Documents(documents::commands::Command),
 
-    #[clap(aliases = &["source"])]
+    Projects(cloud::projects::cli::Command),
     Sources(sources::commands::Command),
+    Orgs(cloud::orgs::cli::Command),
+    Teams(cloud::teams::cli::Command),
+    Users(cloud::users::cli::Command),
 
     #[cfg(feature = "codecs-cli")]
     #[clap(aliases = &["codec"])]
@@ -184,6 +183,10 @@ pub enum Command {
 
     Config(config::commands::Command),
 
+    Login(cloud::users::cli::Login),
+    Logout(cloud::users::cli::Logout),
+    Tokens(cloud::tokens::cli::Command),
+
     #[cfg(feature = "upgrade")]
     Upgrade(crate::upgrade::commands::Command),
 }
@@ -202,8 +205,12 @@ impl Run for Command {
             Command::Merge(command) => command.run().await,
             Command::With(command) => command.run().await,
             Command::Documents(command) => command.run().await,
+
             Command::Projects(command) => command.run().await,
             Command::Sources(command) => command.run().await,
+            Command::Orgs(command) => command.run().await,
+            Command::Teams(command) => command.run().await,
+            Command::Users(command) => command.run().await,
 
             #[cfg(feature = "codecs-cli")]
             Command::Codecs(command) => command.run().await,
@@ -234,6 +241,10 @@ impl Run for Command {
 
             Command::Config(command) => command.run().await,
 
+            Command::Login(command) => command.run().await,
+            Command::Logout(command) => command.run().await,
+            Command::Tokens(command) => command.run().await,
+
             #[cfg(feature = "upgrade")]
             Command::Upgrade(command) => command.run().await,
         }
@@ -241,7 +252,7 @@ impl Run for Command {
 }
 
 // The clap args used in interactive mode
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 #[clap(no_binary_name = true)]
 pub struct Line {
     #[clap(subcommand)]

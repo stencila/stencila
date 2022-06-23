@@ -1,10 +1,10 @@
 mod errors;
-mod orgs;
-mod projects;
-mod teams;
-mod tokens;
 mod types;
-mod users;
 mod utils;
 
 pub mod cli;
+pub mod orgs;
+pub mod projects;
+pub mod teams;
+pub mod tokens;
+pub mod users;

@@ -6197,6 +6197,7 @@ dependencies = [
  "binaries",
  "buildpacks",
  "cli-utils",
+ "cloud",
  "codecs",
  "common",
  "cron-utils",
