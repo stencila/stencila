@@ -333,10 +333,12 @@ mod tests {
     /// when independently calculated)
     #[test]
     fn changes_layer() -> Result<()> {
-        skip_ci_os(
+        if skip_ci_os(
             "macos",
             "Currently failing with Error: No such file or directory (os error 2)",
-        );
+        ) {
+            return Ok(());
+        }
 
         let source_dir = tempdir()?;
         let layout_dir = tempdir()?;

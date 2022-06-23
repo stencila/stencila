@@ -424,10 +424,12 @@ mod tests {
     /// Test snap-shotting, calculation of changesets, and the generation of layers from them.
     #[test]
     fn snapshot_changes() -> Result<()> {
-        skip_ci_os(
+        if skip_ci_os(
             "macos",
             "Currently failing with Error: No such file or directory (os error 2)",
-        );
+        ) {
+            return Ok(());
+        }
 
         // Create a temporary directory as a text fixture and a tar file for writing / reading layers
 
