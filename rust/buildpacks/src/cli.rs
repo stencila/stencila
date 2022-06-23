@@ -83,7 +83,7 @@ impl Run for Show {
 ///
 /// This command is designed to be able to be used in a Cloud Native Buildpack (CNB)
 /// `bin/detect` script e.g
-/// 
+///
 /// ```bash
 /// #!/usr/bin/env bash
 /// set -eo pipefail

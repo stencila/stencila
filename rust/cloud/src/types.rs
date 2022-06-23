@@ -253,7 +253,7 @@ pub struct TeamMember {
     pub id: u64,
 
     #[table(title = "User", display_fn = "team_member_table_display")]
-    pub user: User
+    pub user: User,
 }
 
 fn team_member_table_display(user: &User) -> String {
