@@ -83,15 +83,17 @@ impl Run for Show {
 ///
 /// This command is designed to be able to be used in a Cloud Native Buildpack (CNB)
 /// `bin/detect` script e.g
-///
-///    #!/usr/bin/env bash
-///    set -eo pipefail
-///    
-///    stencila buildpacks detect . python <platform> <plan>
+/// 
+/// ```bash
+/// #!/usr/bin/env bash
+/// set -eo pipefail
+/// stencila buildpacks detect . python $CNB_PLATFORM_DIR $CNB_BUILD_PLAN_PATH
+/// ```
 ///
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#detection
 /// further details.
 #[derive(Debug, Parser)]
+#[clap(verbatim_doc_comment)]
 pub struct Detect {
     /// The working directory (defaults to the current directory)
     working: Option<PathBuf>,
@@ -213,14 +215,16 @@ impl Run for Plan {
 /// This command is designed to be able to be used in a Cloud Native Buildpack (CNB)
 /// `bin/build` script e.g
 ///
-///    #!/usr/bin/env bash
-///    set -eo pipefail
-///    
-///    stencila buildpacks build . python <layers> <platform> <plan>
+/// ```bash
+/// #!/usr/bin/env bash
+/// set -eo pipefail   
+/// stencila buildpacks build . python $CNB_LAYERS_DIR $CNB_PLATFORM_DIR $CNB_BP_PLAN_PATH
+/// ```
 ///
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#build for
 /// further details.
 #[derive(Debug, Parser)]
+#[clap(verbatim_doc_comment)]
 pub struct Build {
     /// The working directory (defaults to the current directory)
     working: Option<PathBuf>,

@@ -1775,21 +1775,27 @@ pub mod commands {
     /// Use the `--kernel` option to specify, by name, language or type, which kernel the code
     /// should be executed in e.g.,
     ///
+    /// ```stencila
     /// > kernels execute Math.PI --lang=javascript
+    /// ```
     ///
+    /// ```stencila
     /// > kernels execute Math.PI --lang javascript --kernel="type:jupyter"
+    /// ```
     ///
     /// In interactive mode, you can set the command prefix to "stay" in a particular
     /// language and mimic a REPL in that language e.g.,
     ///
-    /// > >> kernels execute --lang=javascript
+    /// ```stencila
+    /// > kernels execute --lang=javascript
     /// > let r = 10
     /// > 2 * Math.PI * r
+    /// ```
     ///
     /// If a kernel is not yet running for the language then one will be started
     /// (if installed on the machine).
     #[derive(Debug, Parser)]
-    #[clap(alias = "exec")]
+    #[clap(alias = "exec", verbatim_doc_comment)]
     pub struct Execute {
         /// Code to execute within the kernel space
         // Using a `Vec` and the `multiple_values` option allows for spaces in the code
@@ -1920,17 +1926,23 @@ pub mod commands {
     /// Mainly intended for interactive mode testing / inspection. Note that
     /// for a kernel to be in this list it must have either been started by Stencila,
     ///
+    /// ```stencila
     /// > kernels start r
+    /// ```
     ///
     /// or connected to from Stencila,
     ///  
+    /// ```stencila
     /// > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
+    /// ```
     ///
     /// To get a list of externally started Jupyter kernels that can be connected to run,
     ///
+    /// ```stencila
     /// > kernels external
+    /// ```
     #[derive(Debug, Parser)]
-    #[clap(alias = "kernels")]
+    #[clap(alias = "kernels", verbatim_doc_comment)]
     pub struct Running {}
     impl Running {
         pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
@@ -2004,17 +2016,24 @@ pub mod commands {
     ///
     /// To get a list of externally started kernels that can be connected to run,
     ///
+    /// ```stencila
     /// > kernels external
+    /// ```
     ///
     /// and then connect to a kernel using its Jupyter id e.g.,
     ///
+    /// ```stencila
     /// > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
+    /// ```
     ///
     /// Alternatively, use the path (relative or absolute) of the Jupyter notebook
     /// whose (already started) kernel you wish to connect to e.g.,
     ///
+    /// ```stencila
     /// > kernels connect ../main.ipynb
+    /// ```
     #[derive(Debug, Parser)]
+    #[clap(verbatim_doc_comment)]
     pub struct Connect {
         /// The id of the kernel e.g. `31248fc2-38d0-4d11-80a1-f8a1bd3842fb`
         /// or the relative path of the notebook

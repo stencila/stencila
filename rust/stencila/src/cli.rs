@@ -32,7 +32,7 @@ use crate::{
 #[clap(
     version,
     infer_subcommands = true,
-    global_setting = AppSettings::DeriveDisplayOrder,
+    global_setting = AppSettings::DeriveDisplayOrder
 )]
 pub struct Cli {
     /// The command to run
@@ -52,9 +52,8 @@ pub struct Cli {
 
     /// Print debug level log events and additional diagnostics
     ///
-    /// Equivalent to setting `--log-level=debug` and `--log-format=detail`.
-    /// Overrides the both of those options and any configuration settings
-    /// for logging on standard error stream.
+    /// Equivalent to setting `--log-level=debug` and `--log-format=detail` and
+    /// overrides the both.
     #[clap(long, global = true)]
     pub debug: bool,
 
@@ -70,22 +69,19 @@ pub struct Cli {
 #[derive(Debug, Default, Parser)]
 pub struct DisplayOptions {
     /// Format to display output values (if possible)
-    ///
-    /// If the command result can be displayed in the specified format
-    /// it will be. Display format preferences can be configured.
-    #[clap(long, global = true, alias = "as", conflicts_with_all = &["json", "yaml", "md"])]
+    #[clap(long = "as", name = "format", alias = "display", global = true, conflicts_with_all = &["json", "yaml", "md"])]
     pub display: Option<String>,
 
     /// Display output values as JSON (alias for `--as json`)
-    #[clap(long, global = true, conflicts_with_all = &["display", "yaml", "md"])]
+    #[clap(long, global = true, conflicts_with_all = &["format", "yaml", "md"])]
     pub json: bool,
 
     /// Display output values as YAML (alias for `--as yaml`)
-    #[clap(long, global = true, conflicts_with_all = &["display", "json", "md"])]
+    #[clap(long, global = true, conflicts_with_all = &["format", "json", "md"])]
     pub yaml: bool,
 
     /// Display output values as Markdown if possible (alias for `--as md`)
-    #[clap(long, global = true, conflicts_with_all = &["display", "json", "yaml"])]
+    #[clap(long, global = true, conflicts_with_all = &["format", "json", "yaml"])]
     pub md: bool,
 }
 

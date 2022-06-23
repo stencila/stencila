@@ -998,7 +998,7 @@ pub mod commands {
     /// installed you can view the graph by piping the output to them. e.g.
     ///
     /// ```sh
-    /// stencila documents graph mydoc.md | dot -Tpng | display
+    /// $ stencila documents graph mydoc.md | dot -Tpng | display
     /// ```
     #[derive(Debug, Parser)]
     #[clap(verbatim_doc_comment)]

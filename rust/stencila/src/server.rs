@@ -2016,15 +2016,21 @@ pub mod commands {
     ///
     /// For example, to serve on port 8000 instead of the default port,
     ///
-    ///    stencila server start :8000
+    /// ```sh
+    /// $ stencila server start :8000
+    /// ```
     ///
     /// To serve on all IPv4 addresses on the machine, instead of only `127.0.0.1`,
     ///
-    ///    stencila server start 0.0.0.0
+    /// ```sh
+    /// $ stencila server start 0.0.0.0
+    /// ```
     ///
     /// Or if you prefer, use a complete URL including the scheme e.g.
     ///
-    ///   stencila server start http://127.0.0.1:9000
+    ///```sh
+    /// $ stencila server start http://127.0.0.1:9000
+    /// ```
     ///
     /// ## Security
     ///
@@ -2038,6 +2044,7 @@ pub mod commands {
     ///
     /// Most of these options can be set in the Stencila configuration file. See `stencila config get serve`
     #[derive(Debug, Parser)]
+    #[clap(verbatim_doc_comment)]
     pub struct Start {
         /// The home directory for the server to serve from
         ///

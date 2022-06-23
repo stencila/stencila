@@ -2180,10 +2180,11 @@ pub mod commands {
     /// view a graph of the current project:
     ///
     /// ```sh
-    /// stencila documents graph | dot -Tpng | display
+    /// $ stencila documents graph | dot -Tpng | display
     /// ```
     ///
     #[derive(Debug, Parser)]
+    #[clap(verbatim_doc_comment)]
     pub struct Graph {
         #[clap(flatten)]
         file: File,
@@ -2390,7 +2391,9 @@ pub mod commands {
     /// This command can be used as a Git custom "merge driver".
     /// First, register Stencila as a merge driver,
     ///
-    /// git config merge.stencila.driver "stencila merge --git %O %A %B"
+    /// ```sh
+    /// $ git config merge.stencila.driver "stencila merge --git %O %A %B"
+    /// ```
     ///
     /// (The placeholders `%A` etc are used by `git` to pass arguments such
     /// as file paths and options to `stencila`.)
@@ -2398,10 +2401,13 @@ pub mod commands {
     /// Then, in your `.gitattributes` file assign the driver to specific
     /// types of files e.g.,
     ///
+    /// ```text
     /// *.{md|docx} merge=stencila
+    /// ```
     ///
     /// This can be done per project, or globally.
     #[derive(Debug, Parser)]
+    #[clap(verbatim_doc_comment)]
     // See https://git-scm.com/docs/gitattributes#_defining_a_custom_merge_driver and
     // https://www.julianburr.de/til/custom-git-merge-drivers/ for more examples of defining a
     // custom driver. In particular the meaning of the placeholders %O, %A etc

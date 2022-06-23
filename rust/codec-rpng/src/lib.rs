@@ -19,7 +19,7 @@ use std::{fs, path::Path};
 /// encoded image e.g.
 ///
 /// ```sh
-/// pnginfo my.png
+/// $ pnginfo my.png
 /// ```
 ///
 /// For reference, there is a previous implementation of this codec, written

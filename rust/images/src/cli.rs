@@ -158,9 +158,7 @@ struct Build {
     /// The directory to write the image to
     ///
     /// Defaults to a temporary directory. Use this option if you want to inspect the contents
-    /// of the image directory. e.g.
-    ///
-    ///   stencila images build ... --no-build --no-push --layout-dir temp
+    /// of the image directory. e.g. `stencila images build ... --no-build --no-push --layout-dir temp`.
     ///
     /// If the `layout_dir` already exists, its contents are deleted - so use with care!
     #[clap(long)]
