@@ -290,7 +290,7 @@ impl Run for Line {
 }
 
 /// List all open project and documents.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct ListCommand {}
 #[async_trait]
 impl Run for ListCommand {
@@ -310,7 +310,7 @@ impl Run for ListCommand {
 ///
 /// In the future this command will open the project/document
 /// in the Stencila Desktop if that is available.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct OpenCommand {
     /// The file or folder to open
     path: Option<PathBuf>,
@@ -371,7 +371,7 @@ impl Run for OpenCommand {
 /// If the path is a folder, the associated project (if any) will be closed.
 /// Closing a document or project just means that it is unloaded from memory
 /// and the file or folder is not longer watched for changes.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct CloseCommand {
     /// The file or folder to close
     #[clap(default_value = ".")]
@@ -394,7 +394,7 @@ impl Run for CloseCommand {
 ///
 /// If the path is a file, it will be opened as a document and displayed.
 /// If the path is a folder, it will be opened as a project and displayed.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct ShowCommand {
     /// The file or folder to close
     path: Option<PathBuf>,
@@ -420,7 +420,7 @@ type MergeCommand = documents::commands::Merge;
 
 /// Run commands interactively with a particular project or document
 ///
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct WithCommand {
     /// The file or folder to run command with
     path: PathBuf,

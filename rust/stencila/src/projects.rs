@@ -882,13 +882,13 @@ pub mod commands {
     use super::*;
 
     /// Manage projects
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Command {
         #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub enum Action {
         Init(Init),
         List(List),
@@ -914,7 +914,7 @@ pub mod commands {
     }
 
     /// Initialize a project in a new, or existing, folder
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Init {
         /// The path of the new, or existing, folder to initialize
         ///
@@ -934,7 +934,7 @@ pub mod commands {
     }
 
     /// List open projects
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct List {}
 
     #[async_trait]
@@ -946,7 +946,7 @@ pub mod commands {
     }
 
     /// Open a project
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Open {
         /// The path of the project folder (defaults to the current project)
         pub folder: Option<PathBuf>,
@@ -961,7 +961,7 @@ pub mod commands {
     }
 
     /// Close a project
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Close {
         /// The path of the project folder
         #[clap(default_value = ".")]
@@ -977,7 +977,7 @@ pub mod commands {
     }
 
     /// Show a project details
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Show {
         /// The path of the project folder (defaults to the current project)
         pub folder: Option<PathBuf>,
@@ -1000,7 +1000,7 @@ pub mod commands {
     /// ```sh
     /// $ stencila documents graph mydoc.md | dot -Tpng | display
     /// ```
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(verbatim_doc_comment)]
     pub struct Graph {
         /// The path of the project folder (defaults to the current project)

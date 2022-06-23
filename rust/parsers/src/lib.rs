@@ -147,13 +147,13 @@ pub mod commands {
     use super::*;
 
     /// Manage and use language parsers
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Command {
         #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub enum Action {
         List(List),
         Show(Show),
@@ -176,7 +176,7 @@ pub mod commands {
     ///
     /// The list of available parsers includes those that are built into the Stencila
     /// binary as well as any parsers provided by plugins.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct List {}
     #[async_trait]
     impl Run for List {
@@ -187,7 +187,7 @@ pub mod commands {
     }
 
     /// Show the specifications of a parser
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Show {
         /// The label of the parser
         ///
@@ -207,7 +207,7 @@ pub mod commands {
     /// The code is parsed into a set of graph `Relation`/`Resource` pairs using the
     /// parser that matches the filename extension (or specified using `--lang`).
     /// Useful for testing Stencila's static code analysis for a particular language.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Parse {
         /// The file (or code) to parse
         #[clap(multiple_values = true)]

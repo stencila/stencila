@@ -17,13 +17,13 @@ pub mod commands {
     use super::*;
 
     /// Manage and use project sources
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Command {
         #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub enum Action {
         List(List),
         Show(Show),
@@ -52,7 +52,7 @@ pub mod commands {
     }
 
     /// List the sources for a project
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct List {
         /// The project to list sources for (defaults to the current project)
         project: Option<PathBuf>,
@@ -69,7 +69,7 @@ pub mod commands {
     }
 
     /// Show a source for a project
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Show {
         /// An identifier for the source
         source: String,
@@ -91,7 +91,7 @@ pub mod commands {
     /// Add a source to a project
     ///
     /// Does not import the source use the `import` command for that.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Add {
         /// The URL (or "short URL" e.g github:owner/repo@v1.1) of the source to be added
         url: String,
@@ -162,7 +162,7 @@ pub mod commands {
     /// Remove a source from a project
     ///
     /// Note that this will remove all files imported from this source.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Remove {
         /// An identifier for the source
         source: String,
@@ -187,7 +187,7 @@ pub mod commands {
     }
 
     /// Import one or all of a project's sources
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Import {
         /// The project to import the source into (defaults to the current project)
         project: Option<PathBuf>,
@@ -220,7 +220,7 @@ pub mod commands {
     ///
     /// This command is only useful in interactive mode because otherwise the
     /// process will exit straight away.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Start {
         /// The project to start tasks for (defaults to the current project)
         project: Option<PathBuf>,
@@ -244,7 +244,7 @@ pub mod commands {
     ///
     /// This command is only useful in interactive mode. Use it to stop source tasks
     /// previously started using the `start` command.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Stop {
         /// The project to start tasks for (defaults to the current project)
         project: Option<PathBuf>,
@@ -264,7 +264,7 @@ pub mod commands {
     }
 
     /// Run cron and watch tasks for a project's sources
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Run_ {
         /// The project to run tasks for (defaults to the current project)
         project: Option<PathBuf>,

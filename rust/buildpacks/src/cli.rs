@@ -13,14 +13,14 @@ use crate::buildpacks::{Buildpacks, PACKS};
 /// In Stencila, a "buildpack" is a Cloud Native Buildpack (https://buildpacks.io)
 /// that is responsible for adding support for a programming language or other type of application
 /// to a container image.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 #[clap(alias = "buildpack")]
 pub struct Command {
     #[clap(subcommand)]
     pub action: Action,
 }
 
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub enum Action {
     List(List),
     Show(Show),
@@ -50,7 +50,7 @@ impl Run for Command {
 ///
 /// The list of available buildpacks includes those that are built into the Stencila
 /// binary (e.g. `python`) as well as any buildpacks provided by plugins.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct List {}
 
 #[async_trait]
@@ -63,7 +63,7 @@ impl Run for List {
 }
 
 /// Show the specifications of a buildpack
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct Show {
     /// The label of the buildpack
     ///
@@ -92,7 +92,7 @@ impl Run for Show {
 ///
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#detection
 /// further details.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 #[clap(verbatim_doc_comment)]
 pub struct Detect {
     /// The working directory (defaults to the current directory)
@@ -181,7 +181,7 @@ impl Run for Detect {
 }
 
 /// Show the build plan for a working directory
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct Plan {
     /// The working directory (defaults to the current directory)
     path: Option<PathBuf>,
@@ -223,7 +223,7 @@ impl Run for Plan {
 ///
 /// See https://github.com/buildpacks/spec/blob/main/buildpack.md#build for
 /// further details.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 #[clap(verbatim_doc_comment)]
 pub struct Build {
     /// The working directory (defaults to the current directory)
@@ -344,7 +344,7 @@ impl Run for Build {
 /// Of course, you can use either `docker` or `pack` directly. This command just provides
 /// a convenient means of testing Stencila's image building logic locally an is mainly
 /// intended for developers.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct Pack {
     /// The working directory (defaults to the current directory)
     path: Option<PathBuf>,
@@ -361,7 +361,7 @@ impl Run for Pack {
 /// Remove buildpack related directories from the `.stencila` folder or a working directory
 ///
 /// At present the buildpack related directories are `.stencila/build` and `.stencila/layers`.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct Clean {
     /// The working directory (defaults to the current directory)
     working: Option<PathBuf>,

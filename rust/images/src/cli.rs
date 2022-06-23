@@ -18,13 +18,13 @@ use crate::{
 /// This subcommand provides a limited version of the functionality provided by
 /// `docker` and `podman` CLI tools. It is not a general purpose container tool.
 /// Only those commands needed by Stencila have been implemented.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct Command {
     #[clap(subcommand)]
     action: Action,
 }
 
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 enum Action {
     List(List),
     Build(Build),
@@ -50,7 +50,7 @@ impl Run for Command {
 ///
 /// Similar to `docker images` or `podman images` but only includes
 /// container images that have been built or pulled by Stencila.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 struct List;
 
 #[async_trait]
@@ -63,7 +63,7 @@ impl Run for List {
 }
 
 /// Build an image
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 struct Build {
     /// The directory to build an image for
     ///
@@ -229,7 +229,7 @@ impl Run for Build {
 /// Pull an image from a registry
 ///
 /// Equivalent to `docker pull` and `podman pull`.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 struct Pull {
     /// The image to pull
     image: String,
@@ -247,7 +247,7 @@ impl Run for Pull {
 ///
 /// Similar to `podman pull` in that it allows an image to be pushed from
 /// one image reference to another (without having to tag first as with `docker`).
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 struct Push {
     /// The image to push
     image: String,
@@ -271,7 +271,7 @@ impl Run for Push {
 /// Remove an image from the local image store
 ///
 /// Equivalent to `docker rmi` and `podman rmi`.
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 struct Remove {
     /// The image to remove (a reference, id, or hash component of id)
     image: String,

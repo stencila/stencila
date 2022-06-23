@@ -364,13 +364,13 @@ pub mod commands {
     /// This command allows you to list the available codecs, see their
     /// specifications (e.g. which formats they support), and use them
     /// to convert content between formats.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Command {
         #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub enum Action {
         List(List),
         Show(Show),
@@ -392,7 +392,7 @@ pub mod commands {
     ///
     /// The list of available codecs includes those that are built into the Stencila
     /// binary (e.g. `html`) as well as any codecs provided by plugins.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct List {}
 
     #[async_trait]
@@ -405,7 +405,7 @@ pub mod commands {
     }
 
     /// Show the specifications of a codec
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Show {
         /// The label of the codec
         ///
@@ -422,7 +422,7 @@ pub mod commands {
     }
 
     /// Convert between formats
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Convert {
         /// The path of the input document
         ///

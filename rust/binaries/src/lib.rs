@@ -198,13 +198,13 @@ pub mod commands {
     use super::*;
 
     /// Manage and use helper binaries
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Command {
         #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub enum Action {
         List(List),
         Show(Show),
@@ -231,7 +231,7 @@ pub mod commands {
     /// List binaries that can be installed using Stencila
     ///
     /// The returned list is a list of the binaries/versions that Stencila knows how to install.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(alias = "installable")]
     pub struct List {}
 
@@ -260,7 +260,7 @@ pub mod commands {
     ///
     /// This command should find any binary that is on your PATH
     /// (i.e. including those not in the `stencila binaries installable` list).
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(alias = "which")]
     pub struct Show {
         /// The name of the binary e.g. pandoc
@@ -297,7 +297,7 @@ pub mod commands {
     }
 
     /// List the versions that can be installed for a binary
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Versions {
         /// The name of the binary e.g. pandoc
         pub name: String,
@@ -356,7 +356,7 @@ pub const VERSIONS: &[&str] = &[
     }
 
     /// Install a binary
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Install {
         /// The name of the binary (must be a registered binary name)
         pub name: String,
@@ -411,7 +411,7 @@ pub const VERSIONS: &[&str] = &[
     /// Removes the binary (optionally, just a specific version) from the Stencila
     /// "binaries" folder. No other installations of the binary on the system will
     /// will be removed.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Uninstall {
         /// The name of the binary (must be a registered binary name)
         pub name: String,
@@ -435,7 +435,7 @@ pub const VERSIONS: &[&str] = &[
     /// Run a command using a binary
     ///
     /// Pass arguments and options to the binary after the `--` flag.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Run_ {
         /// The name of the binary e.g. node
         pub name: String,

@@ -1900,7 +1900,7 @@ pub mod commands {
     use cli_utils::{result, Result, Run};
     use clap::Parser;
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(
         about = "Manage plugins",
         
@@ -1911,7 +1911,7 @@ pub mod commands {
         pub action: Action,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(
         setting = AppSettings::DeriveDisplayOrder
     )]
@@ -1953,7 +1953,7 @@ pub mod commands {
         Schema,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(
         about = "Show the details of an installed plugin",
         setting = AppSettings::DeriveDisplayOrder,
@@ -2001,7 +2001,7 @@ pub mod commands {
         pub plugins: Vec<String>,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(
         about = "Link to a local plugins",
         setting = AppSettings::DeriveDisplayOrder,
@@ -2013,7 +2013,7 @@ pub mod commands {
         pub path: String,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(
         about = "Upgrade one of more plugins",
         setting = AppSettings::DeriveDisplayOrder,
@@ -2026,7 +2026,7 @@ pub mod commands {
         pub plugins: Vec<String>,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(
         about = "Uninstall one or more plugins",
         setting = AppSettings::DeriveDisplayOrder,
@@ -2038,7 +2038,7 @@ pub mod commands {
         pub plugins: Vec<String>,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(
         about = "Unlink a local plugins",
         setting = AppSettings::DeriveDisplayOrder,
@@ -2050,7 +2050,7 @@ pub mod commands {
         pub plugin: String,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(
         about = "Refresh details of one or more plugins",
         setting = AppSettings::DeriveDisplayOrder,
@@ -2062,7 +2062,7 @@ pub mod commands {
         pub plugins: Vec<String>,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(
         about = "List methods and the plugins that implement them",
         setting = AppSettings::DeriveDisplayOrder,
@@ -2085,7 +2085,7 @@ pub mod commands {
         }
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(
         about = "Delegate a method call to any, or a particular, plugin",
         setting = AppSettings::DeriveDisplayOrder,

@@ -6,7 +6,7 @@ use common::async_trait::async_trait;
 
 use crate::server::Server;
 
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub enum Command {
     Start(Start),
 }
@@ -20,7 +20,7 @@ impl Run for Command {
     }
 }
 
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 pub struct Start {}
 
 #[async_trait]

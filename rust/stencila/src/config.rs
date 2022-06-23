@@ -288,13 +288,13 @@ pub mod commands {
     use super::*;
 
     /// Manage configuration settings
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Command {
         #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub enum Action {
         Get(Get),
         Set(Set),
@@ -304,7 +304,7 @@ pub mod commands {
     }
 
     /// Get configuration properties
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(alias = "show")]
     pub struct Get {
         /// A pointer to a config property e.g. `upgrade.auto`
@@ -312,7 +312,7 @@ pub mod commands {
     }
 
     /// Set configuration properties
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Set {
         /// A pointer to a config property e.g. `upgrade.auto`
         pub pointer: String,
@@ -322,7 +322,7 @@ pub mod commands {
     }
 
     /// Reset configuration properties to their defaults
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Reset {
         /// The config property to reset. Use 'all' to reset the entire config.
         pub property: String,

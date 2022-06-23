@@ -188,7 +188,7 @@ pub mod commands {
     use super::*;
 
     /// Upgrade to the latest (or other) version
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Command {
         /// Version to upgrade (or downgrade) to (defaults to the latest)
         #[clap(short, long)]

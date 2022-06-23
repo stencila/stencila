@@ -1980,13 +1980,13 @@ pub mod commands {
     use super::*;
 
     /// Manage document server
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Command {
         #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub enum Action {
         Start(Start),
         Stop(Stop),
@@ -2043,7 +2043,7 @@ pub mod commands {
     /// Use the `--root` option, with extreme caution, to allow to be run as root.
     ///
     /// Most of these options can be set in the Stencila configuration file. See `stencila config get serve`
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(verbatim_doc_comment)]
     pub struct Start {
         /// The home directory for the server to serve from
@@ -2127,7 +2127,7 @@ pub mod commands {
     }
 
     /// Stop the server
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Stop {}
 
     #[async_trait]
@@ -2140,7 +2140,7 @@ pub mod commands {
     }
 
     /// Show details of the server
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Show {}
 
     #[async_trait]
@@ -2160,7 +2160,7 @@ pub mod commands {
     }
 
     /// List the clients connected to the server
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Clients {}
 
     #[async_trait]

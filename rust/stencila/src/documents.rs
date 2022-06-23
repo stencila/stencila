@@ -1863,13 +1863,13 @@ pub mod commands {
     use super::*;
 
     /// Manage documents
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Command {
         #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub enum Action {
         List(List),
         Open(Open),
@@ -1936,7 +1936,7 @@ pub mod commands {
 
     // The arguments used to specify the document file path and format
     // Reused (with flatten) below
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     struct File {
         /// The path of the document file
         path: String,
@@ -1957,7 +1957,7 @@ pub mod commands {
     }
 
     /// List open documents
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct List {}
     #[async_trait]
     impl Run for List {
@@ -1968,7 +1968,7 @@ pub mod commands {
     }
 
     /// Open a document
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Open {
         #[clap(flatten)]
         file: File,
@@ -1982,7 +1982,7 @@ pub mod commands {
     }
 
     /// Close a document
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Close {
         /// The path of the document file
         pub path: String,
@@ -1996,7 +1996,7 @@ pub mod commands {
     }
 
     /// Show a document
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Show {
         #[clap(flatten)]
         file: File,
@@ -2036,7 +2036,7 @@ pub mod commands {
     mod kernel_commands {
         use super::*;
 
-        #[derive(Debug, Parser)]
+        #[derive(Parser)]
         #[clap(alias = "exec")]
         pub struct Execute {
             #[clap(flatten)]
@@ -2057,7 +2057,7 @@ pub mod commands {
             }
         }
 
-        #[derive(Debug, Parser)]
+        #[derive(Parser)]
         pub struct Kernels {
             #[clap(flatten)]
             file: File,
@@ -2076,7 +2076,7 @@ pub mod commands {
             }
         }
 
-        #[derive(Debug, Parser)]
+        #[derive(Parser)]
         pub struct Tasks {
             #[clap(flatten)]
             file: File,
@@ -2095,7 +2095,7 @@ pub mod commands {
             }
         }
 
-        #[derive(Debug, Parser)]
+        #[derive(Parser)]
         pub struct Queues {
             #[clap(flatten)]
             file: File,
@@ -2114,7 +2114,7 @@ pub mod commands {
             }
         }
 
-        #[derive(Debug, Parser)]
+        #[derive(Parser)]
         pub struct Cancel {
             #[clap(flatten)]
             file: File,
@@ -2134,7 +2134,7 @@ pub mod commands {
             }
         }
 
-        #[derive(Debug, Parser)]
+        #[derive(Parser)]
         pub struct Symbols {
             #[clap(flatten)]
             file: File,
@@ -2153,7 +2153,7 @@ pub mod commands {
             }
         }
 
-        #[derive(Debug, Parser)]
+        #[derive(Parser)]
         pub struct Restart {
             #[clap(flatten)]
             file: File,
@@ -2183,7 +2183,7 @@ pub mod commands {
     /// $ stencila documents graph | dot -Tpng | display
     /// ```
     ///
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(verbatim_doc_comment)]
     pub struct Graph {
         #[clap(flatten)]
@@ -2205,7 +2205,7 @@ pub mod commands {
     }
 
     /// Run a document
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Runn {
         /// The path of the document to execute
         pub input: PathBuf,
@@ -2305,7 +2305,7 @@ pub mod commands {
     }
 
     /// Query a document
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Query {
         /// The path of the document file
         file: String,
@@ -2344,7 +2344,7 @@ pub mod commands {
     }
 
     /// Display the structural differences between two documents
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Diff {
         /// The path of the first document
         first: PathBuf,
@@ -2406,7 +2406,7 @@ pub mod commands {
     /// ```
     ///
     /// This can be done per project, or globally.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(verbatim_doc_comment)]
     // See https://git-scm.com/docs/gitattributes#_defining_a_custom_merge_driver and
     // https://www.julianburr.de/til/custom-git-merge-drivers/ for more examples of defining a
@@ -2450,7 +2450,7 @@ pub mod commands {
     }
 
     /// Detect entities within a document
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Detect {
         /// The path of the document file
         pub file: String,

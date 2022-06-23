@@ -1648,13 +1648,13 @@ pub mod commands {
     use super::*;
 
     /// Manage and use execution kernels
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Command {
         #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub enum Action {
         Available(Available),
         Languages(Languages),
@@ -1701,7 +1701,7 @@ pub mod commands {
                         Action::Symbols(action) => action.run(kernel_space).await,
                         Action::Restart(action) => action.run(kernel_space).await,
 
-                        _ => bail!("Unhandled action: {:?}", action),
+                        _ => bail!("Unhandled action"),
                     }
                 }
             }
@@ -1713,7 +1713,7 @@ pub mod commands {
     /// The list of available kernels includes those that are built into the Stencila
     /// binary (e.g. `calc`), Jupyter kernels installed on the machine, and Microkernels
     /// for which a supporting runtime (e.g. `python`) is installed.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(alias = "avail")]
     pub struct Available {}
     #[async_trait]
@@ -1726,7 +1726,7 @@ pub mod commands {
     /// List the languages supported by the kernels available on this machine
     ///
     /// Returns a unique list of languages across all kernels available.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(alias = "langs")]
     pub struct Languages {}
     #[async_trait]
@@ -1741,7 +1741,7 @@ pub mod commands {
     /// This command scans the Jupyter `runtime` directory to get a list of running
     /// Jupyter notebook servers. It then gets a list of kernels from the REST API
     /// of each of those servers.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct External {}
     #[async_trait]
     impl Run for External {
@@ -1752,7 +1752,7 @@ pub mod commands {
 
     /// List the directories on this machine that will be searched for Jupyter kernel specs
     /// and running kernels
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(alias = "dirs")]
     pub struct Directories {}
     #[async_trait]
@@ -1794,7 +1794,7 @@ pub mod commands {
     ///
     /// If a kernel is not yet running for the language then one will be started
     /// (if installed on the machine).
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(alias = "exec", verbatim_doc_comment)]
     pub struct Execute {
         /// Code to execute within the kernel space
@@ -1833,7 +1833,7 @@ pub mod commands {
     }
 
     /// List the code execution tasks in a document kernel space
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Tasks {
         /// The maximum number of tasks to show
         #[clap(short, long, default_value = "100")]
@@ -1872,7 +1872,7 @@ pub mod commands {
     }
 
     /// Show the code execution queues in a document kernel space
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Queues {
         /// Only show the queue for a specific kernel
         #[clap(short, long)]
@@ -1890,7 +1890,7 @@ pub mod commands {
     }
 
     /// Show the code symbols in a document kernel space
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Symbols {}
     impl Symbols {
         pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
@@ -1903,7 +1903,7 @@ pub mod commands {
     ///
     /// Use an integer to cancel a task by it's number.
     /// Use "all" to cancel all unfinished tasks.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Cancel {
         /// The task number or id, or "all"
         task: String,
@@ -1941,7 +1941,7 @@ pub mod commands {
     /// ```stencila
     /// > kernels external
     /// ```
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(alias = "kernels", verbatim_doc_comment)]
     pub struct Running {}
     impl Running {
@@ -1955,7 +1955,7 @@ pub mod commands {
     ///
     /// Mainly intended for testing that kernels that rely on external files or processes
     /// (i.e. a Jupyter kernel or a Microkernel) can be started successfully.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Start {
         /// The name or programming language of the kernel
         selector: String,
@@ -1979,7 +1979,7 @@ pub mod commands {
     /// Only kernels that were started by Stencila can be stopped. A kernel
     /// that were started externally by a Jupyter server and then connected to
     /// will still run but Stencila will clone any connections to it.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Stop {
         /// The id of the kernel
         id: String,
@@ -1993,7 +1993,7 @@ pub mod commands {
     }
 
     /// Restart one or all of the kernels
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Restart {
         /// The id of the kernel (defaults to all)
         id: Option<String>,
@@ -2032,7 +2032,7 @@ pub mod commands {
     /// ```stencila
     /// > kernels connect ../main.ipynb
     /// ```
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     #[clap(verbatim_doc_comment)]
     pub struct Connect {
         /// The id of the kernel e.g. `31248fc2-38d0-4d11-80a1-f8a1bd3842fb`
@@ -2051,7 +2051,7 @@ pub mod commands {
     /// Show the details of a current kernel
     ///
     /// Mainly intended for interactive mode testing / inspection.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Show {
         /// The id of the kernel (see `kernels status`)
         id: KernelId,

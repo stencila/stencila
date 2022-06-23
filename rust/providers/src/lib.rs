@@ -234,13 +234,13 @@ pub mod commands {
     use super::*;
 
     /// Manage and use source providers
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Command {
         #[clap(subcommand)]
         pub action: Action,
     }
 
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub enum Action {
         List(List),
         Show(Show),
@@ -270,7 +270,7 @@ pub mod commands {
     ///
     /// The list of available providers includes those that are built into the Stencila
     /// binary as well as those provided by plugins.
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct List {}
 
     #[async_trait]
@@ -282,7 +282,7 @@ pub mod commands {
     }
 
     /// Show the specifications of a provider
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Show {
         /// The name of the provider
         ///
@@ -299,7 +299,7 @@ pub mod commands {
     }
 
     /// Detect nodes within a file or string
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Detect {
         /// The path to the file (or the string value if the `--string` flag is used)
         path: PathBuf,
@@ -332,7 +332,7 @@ pub mod commands {
     }
 
     /// Enrich nodes within a file or string
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Enrich {
         /// The path to the file (or the string value if the `--string` flag is used)
         path: PathBuf,
@@ -383,7 +383,7 @@ pub mod commands {
     }
 
     /// Import content from a remote source to a local path
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Import {
         /// The source identifier e.g. `github:org/name@v1.2.0`
         source: String,
@@ -416,7 +416,7 @@ pub mod commands {
     }
 
     /// Export content from a local path to a remote source
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Export {
         /// The source identifier e.g. `github:org/name@v1.2.0`
         source: String,
@@ -449,7 +449,7 @@ pub mod commands {
     }
 
     /// Schedule import and/or export between remote source and a local path
-    #[derive(Debug, Parser)]
+    #[derive(Parser)]
     pub struct Cron {
         /// The action to take at the scheduled time
         #[clap(possible_values=provider::ACTIONS)]
