@@ -71,6 +71,6 @@ buildpack-%: FORCE
 	cd buildpack-$* && cargo libcnb package --release
 FORCE:
 
+# Generate docs for CLI
 docs:
-	cargo doc
-.PHONY: docs
+	cargo run -p cli-docs
