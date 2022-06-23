@@ -65,7 +65,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "fs-extra": "10.1.0",
     "globby": "11.1.0",
-    "got": "11.8.3",
+    "got": "11.8.5",
     "jest": "28.1.1",
     "jest-file-snapshot": "0.5.0",
     "js-yaml": "4.1.0",
