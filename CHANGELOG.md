@@ -1,3 +1,33 @@
+# [1.13.0](https://github.com/stencila/stencila/compare/v1.12.0...v1.13.0) (2022-06-23)
+
+
+### Bug Fixes
+
+* **Filesystem utils:** Use `create` and `truncate` options for usual behaviour ([abb38a4](https://github.com/stencila/stencila/commit/abb38a4438a47a5e79aa26fc6c2217a3714ee9e6))
+* **Orgs:** Add fields available in `orgs show` command ([a0d91d9](https://github.com/stencila/stencila/commit/a0d91d9af6c1f6238f5a49dd381c61393e190aee))
+* **Projects:** Don't delete if invalid input ([cfead07](https://github.com/stencila/stencila/commit/cfead07013ae95d94bf7432078d9d61f5363ec3b))
+
+
+### Features
+
+* **CLI utilities:** Use `cli-table` crate for displaying tables of structs ([6edf465](https://github.com/stencila/stencila/commit/6edf46509e46668927357d8a1c4ca9d22e78b3a6))
+* **Cloud integration:** Add commands for managing API access tokens ([a648d12](https://github.com/stencila/stencila/commit/a648d120e0ef3623984c9308e0b762cbedd84e76))
+* **Cloud integration:** Add project and project members commands ([15f1dd6](https://github.com/stencila/stencila/commit/15f1dd6378bd192497a1e121ebecbf233b5e2589))
+* **Cloud projects:** Add `clone`, `pull`, and `push` actions for projects ([15c845d](https://github.com/stencila/stencila/commit/15c845d421bb27a7b79b128ae8048c7aa92f9891))
+* **Cloud projects:** Add ability to create projects; improve other commands ([67c271f](https://github.com/stencila/stencila/commit/67c271f7c4691de134dd34334be21eecb612c2ee))
+* **Filesystem utilities:** Add `open_file_600` function ([a81d8bb](https://github.com/stencila/stencila/commit/a81d8bbd1421c3ff3419649a331b6f52e0c0e33b))
+* **Organizations:** Initial iteration of `orgs` command for CLI ([31f2556](https://github.com/stencila/stencila/commit/31f2556e178833bad64c97618658f1b641791f5f))
+* **Orgs:** Add `orgs plan` command ([d88a9d6](https://github.com/stencila/stencila/commit/d88a9d6af4b68bf6fbcdaa6a9fc8f64ea477f4f2))
+* **Orgs:** Add `orgs usage` command ([0d51cff](https://github.com/stencila/stencila/commit/0d51cffcde3a823ba0f84435c303c3434e322eea))
+* **Orgs:** Add org activity logs ([2adb096](https://github.com/stencila/stencila/commit/2adb096061a1fbdd2157a3d5d3c1dcf3e681d2c8))
+* **Orgs:** Allow setting of default org ([89d9711](https://github.com/stencila/stencila/commit/89d9711e96365b655b7232a675bbd8bcda66e2de))
+* **Project members:** Improve table layout ([eeb0c0f](https://github.com/stencila/stencila/commit/eeb0c0fdebc94da9dd0dbd3d951dc56896c8eaac))
+* **Projects:** Allow members to be added using their username ([d28afb6](https://github.com/stencila/stencila/commit/d28afb66a2492bda76b5f5f37501d014544b08b2))
+* **Rust:** Add `cloud` crate ([8c8c414](https://github.com/stencila/stencila/commit/8c8c41421c2f11d937111d9337a463bef4673921))
+* **Teams:** Add `teams` CLI subcommand ([040bab7](https://github.com/stencila/stencila/commit/040bab74d045bd960b7be567e8fa0af03e3f6077))
+* **Users:** Add `users find` CLI command ([6e43872](https://github.com/stencila/stencila/commit/6e438725f8f73f6834a7b027e9741379f17a32b2))
+* **Users:** Add `uses invite` CLI command ([0b2c301](https://github.com/stencila/stencila/commit/0b2c301372d06baa136bff65b8b9e48f7d1d1e7d))
+
 # [1.12.0](https://github.com/stencila/stencila/compare/v1.11.0...v1.12.0) (2022-06-16)
 
 
