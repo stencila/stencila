@@ -1,6 +1,10 @@
 ///! File system utilities, particularly functionality that requires
 ///! alternative implementations for alternative operating systems.
-use std::{fs, io, os, path::Path};
+use std::{
+    fs::{self, File},
+    io, os,
+    path::Path,
+};
 
 use common::eyre::{eyre, Result};
 
@@ -101,4 +105,28 @@ pub fn move_dir_all(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> Result<()>
     copy_dir_all(&src, &dest)?;
     fs::remove_dir_all(&src)?;
     Ok(())
+}
+
+/// Open a file in 600 mode (only read and writeable by current user)
+pub fn open_file_600(path: impl AsRef<Path>) -> Result<File> {
+    let mut options = fs::OpenOptions::new();
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
+    }
+    #[cfg(any(target_os = "windows"))]
+    {
+        use std::os::windows::fs::OpenOptionsExt;
+        options.share_mode(0);
+    }
+
+    let file = options
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(&path)?;
+
+    Ok(file)
 }

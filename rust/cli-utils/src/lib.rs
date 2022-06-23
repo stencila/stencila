@@ -17,10 +17,11 @@ pub mod interact;
 mod outputs;
 pub use outputs::*;
 
-// Note: this structopt can not actually be used for macros yet.
-// See https://github.com/TeXitoi/structopt/issues/339
+pub mod table;
+
 pub use ansi_term;
 pub use clap;
+pub use cli_table;
 pub use color_eyre;
 pub use common;
 pub use tracing_subscriber;

@@ -22,15 +22,14 @@ use crate::{
 
 /// Get the directory where configuration data is stored
 pub fn dir(ensure: bool) -> Result<PathBuf> {
-    let config_base = dirs::config_dir().unwrap_or_else(|| env::current_dir().unwrap());
-    let dir = match env::consts::OS {
-        "macos" => config_base.join("Stencila"),
-        "windows" => config_base.join("Stencila").join("Config"),
-        _ => config_base.join("stencila"),
-    };
+    let dir = dirs::config_dir()
+        .unwrap_or_else(|| env::current_dir().unwrap())
+        .join("stencila");
+
     if ensure {
         fs::create_dir_all(&dir)?;
     }
+
     Ok(dir)
 }
 

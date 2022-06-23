@@ -573,6 +573,7 @@ dependencies = [
  "lazy_static",
  "memchr",
  "regex-automata",
+ "serde",
 ]
 
 [[package]]
@@ -983,12 +984,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "cli-table"
+version = "0.4.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "adfbb116d9e2c4be7011360d0c0bee565712c11e969c9609b25b619366dc379d"
+dependencies = [
+ "cli-table-derive",
+ "csv",
+ "termcolor",
+ "unicode-width",
+]
+
+[[package]]
+name = "cli-table-derive"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2af3bfb9da627b0a6c467624fb7963921433774ed435493b5c08a3053e829ad4"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "cli-utils"
 version = "0.0.0"
 dependencies = [
  "ansi_term",
  "atty",
  "clap",
+ "cli-table",
  "color-eyre",
  "common",
  "events",
@@ -1010,6 +1035,18 @@ dependencies = [
  "error-code",
  "str-buf",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "cloud"
+version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "common",
+ "fs-utils",
+ "http-utils",
+ "key-utils",
+ "webbrowser",
 ]
 
 [[package]]
@@ -1573,6 +1610,28 @@ checksum = "dfae75de57f2b2e85e8768c3ea840fd159c8f33e2b6522c7835b7abac81be16e"
 dependencies = [
  "quote",
  "syn",
+]
+
+[[package]]
+name = "csv"
+version = "1.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22813a6dc45b335f9bade10bf7271dc477e81113e89eb251a0bc2a8a81c536e1"
+dependencies = [
+ "bstr",
+ "csv-core",
+ "itoa 0.4.8",
+ "ryu",
+ "serde",
+]
+
+[[package]]
+name = "csv-core"
+version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b2466559f260f48ad25fe6317b3c8dac77b5bdb5763ac7d9d6103530663bc90"
+dependencies = [
+ "memchr",
 ]
 
 [[package]]
@@ -3223,6 +3282,7 @@ version = "0.0.0"
 dependencies = [
  "codec-ipynb",
  "derivative",
+ "fs-utils",
  "hex 0.4.3",
  "hmac",
  "kernel",

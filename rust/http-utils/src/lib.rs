@@ -6,7 +6,7 @@
 //! the number of network requests for the client, several APIs ask clients
 //! to implement caching to reduce load on their servers.
 
-use std::{env, fs::create_dir_all, fs::File, io, io::Write, path::Path};
+use std::{env, fs::create_dir_all, fs::File, io, io::Write, path::Path, path::PathBuf};
 
 use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
 use reqwest::header::{self, HeaderMap, HeaderName, HeaderValue};
@@ -32,14 +32,11 @@ pub use urlencoding;
 pub static USER_AGENT: &str = concat!("stencila/", env!("CARGO_PKG_VERSION"),);
 
 /// Get the directory of the HTTP cache
-pub fn cache_dir() -> String {
-    let user_cache_dir = dirs::cache_dir().unwrap_or_else(|| env::current_dir().unwrap());
-    match env::consts::OS {
-        "macos" | "windows" => user_cache_dir.join("Stencila").join("HTTP-Cache"),
-        _ => user_cache_dir.join("stencila").join("http"),
-    }
-    .to_string_lossy()
-    .to_string()
+pub fn cache_dir() -> PathBuf {
+    dirs::cache_dir()
+        .unwrap_or_else(|| env::current_dir().unwrap())
+        .join("stencila")
+        .join("http")
 }
 
 pub static CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
@@ -49,7 +46,9 @@ pub static CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
         .expect("Should be able to build HTTP client");
     let caching_middleware = Cache(HttpCache {
         mode: CacheMode::Default,
-        manager: CACacheManager { path: cache_dir() },
+        manager: CACacheManager {
+            path: cache_dir().to_string_lossy().to_string(),
+        },
         options: None,
     });
     ClientBuilder::new(client).with(caching_middleware).build()
