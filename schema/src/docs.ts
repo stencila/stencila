@@ -1,11 +1,10 @@
 /**
  * Generate Markdown documentation from JSON Schema files.
  *
- * Note that this script requires `public/*.schema.json`
- * and `./types.ts` files. To generate those:
+ * Note that this script requires `public/*.schema.json` files. To generate those and
+ * generate Markdown docs:
  *
- *     npm run build:jsonschema
- *     npm run build:ts
+ *   npm run build:jsonschema && npm run docs:md
  */
 
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
@@ -14,6 +13,7 @@ import fs from 'fs-extra'
 import yaml from 'js-yaml'
 import { flatten, flow, groupBy, sortBy, startCase, uniq } from 'lodash'
 import path from 'path'
+import prettier from 'prettier'
 import { JsonSchema } from './JsonSchema'
 import { readSchemas } from './util/helpers'
 
@@ -26,7 +26,14 @@ if (require.main) build()
 /**
  * The destination directory for generated `*.md` files
  */
-const DOCS_DEST_DIR = path.join(__dirname, '..', 'docs')
+const DOCS_DEST_DIR = path.join(
+  __dirname,
+  '..',
+  '..',
+  'docs',
+  'reference',
+  'schema'
+)
 
 /**
  * All the schemas as a map
@@ -51,6 +58,9 @@ async function build(): Promise<void> {
   )
 
   // Ensure output directory exists
+  if (fs.existsSync(DOCS_DEST_DIR)) {
+    fs.removeSync(DOCS_DEST_DIR)
+  }
   fs.ensureDirSync(DOCS_DEST_DIR)
 
   // Generate articles for each schema
@@ -66,7 +76,7 @@ async function build(): Promise<void> {
   )
 
   // This determines the order in which Schema categories are listed in the
-  // index.md & categories.json files
+  // README.md file
   const orderedCategories = uniq([
     'Works',
     'Text',
@@ -95,15 +105,10 @@ async function build(): Promise<void> {
       ),
   ])(schemas) as { [category: string]: JsonSchema[] }
 
-  // Generate index.md
+  // Generate README.md
   const indexPage = article({
-    title: 'Index',
     content: [
-      paragraph([
-        'All the schemas in ',
-        link('Stencila Schema', 'https://schema.stenci.la'),
-        ' by category.',
-      ]),
+      heading('Stencila Schema', 1),
       ...Object.entries(groupedSchemas).reduce(
         (prev: string[], [group, items]) => [
           ...prev,
@@ -120,21 +125,7 @@ async function build(): Promise<void> {
       ),
     ],
   })
-  await fs.writeFile(path.join(DOCS_DEST_DIR, 'index.md'), indexPage)
-
-  // Generate categories.json for use by Docusaurus
-  const categories = Object.entries(groupedSchemas).map(
-    ([category, schemas]) => {
-      return {
-        type: 'category',
-        label: category,
-        items: schemas.map((schema) => `schema/docs/${schema.title}`),
-      }
-    }
-  )
-  await fs.writeJSON(path.join(DOCS_DEST_DIR, 'categories.json'), categories, {
-    spaces: 2,
-  })
+  await fs.writeFile(path.join(DOCS_DEST_DIR, 'README.md'), indexPage)
 }
 
 /**
@@ -242,7 +233,6 @@ function schema2Article(schema: JsonSchema): string {
     '@id': id = '',
     anyOf = [],
     status = 'experimental',
-    description = '',
     properties = {},
     required = [],
     extends: parent,
@@ -256,6 +246,11 @@ function schema2Article(schema: JsonSchema): string {
   // According to https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.5
   // this should always be an array
   const examples = schema.examples as Array<unknown>
+
+  const description = (schema.description ?? '')
+    .split('\n')
+    .filter((line) => line.trim().length > 0)
+    .join(' ')
 
   const hasProperties = Object.keys(properties).length > 0
 
@@ -280,7 +275,7 @@ function schema2Article(schema: JsonSchema): string {
 
   let membersTable
   if (anyOf.length > 0) {
-    const tableHeader = tableRow(['@id', 'Type', 'Description'])
+    const tableHeader = tableRow([codeFragment('@id'), 'Type', 'Description'])
     const tableData = anyOf.map((memberSchema) => {
       let { $ref, '@id': id, description = '' } = memberSchema
       if ($ref !== undefined) {
@@ -361,13 +356,7 @@ function schema2Article(schema: JsonSchema): string {
     )
   }
 
-  return article({
-    category: startCase(category),
-    slug: `/schema/${title}`,
-    custom_edit_url:
-      source !== undefined
-        ? source.replace('/blob/', '/edit/')
-        : `https://github.com/stencila/schema`,
+  const md = article({
     // Main article content
     content: [
       heading(startCase(title), 1),
@@ -448,16 +437,22 @@ function schema2Article(schema: JsonSchema): string {
         : []),
     ],
   })
+
+  return prettier.format(md, { parser: 'markdown' })
 }
 
 // Functions for generating Markdown, same naming and similar
 // args (in some cases) as Schema constructor functions but generating
-// Markdown directly instead of using Encoda (which causes a somewhat
+// Markdown directly instead of using Stencila schema functions (which causes a somewhat
 // unwieldy circular dependency, albeit a dev dependency)
 
 function article(node: { content: string[]; [key: string]: unknown }): string {
   const { content, ...rest } = node
-  return `---\n${yaml.dump(rest).trim()}\n---\n\n${content.join('')}\n`
+  if (Object.keys(rest).length > 0) {
+    return `---\n${yaml.dump(rest).trim()}\n---\n\n${content.join('')}\n`
+  } else {
+    return content.join('')
+  }
 }
 
 function heading(content: string, depth: number): string {
@@ -474,7 +469,7 @@ function table(rows: string[]): string {
 }
 
 function tableRow(cells: string[]): string {
-  return cells.join(' | ')
+  return `| ${cells.join(' | ')} |`
 }
 
 function list(items: string[], ordering = 'Unordered'): string {
