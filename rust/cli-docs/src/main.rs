@@ -1,7 +1,7 @@
 //! Generate documentation from the Stencila `clap` CLI application
 
 use std::{
-    fs::{create_dir_all, write},
+    fs::{create_dir_all, remove_dir_all, write},
     path::{Path, PathBuf},
 };
 
@@ -13,16 +13,21 @@ use cli_utils::{
 use stencila::cli::Cli;
 
 fn main() -> Result<()> {
-    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+    let ref_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("..")
         .join("..")
         .join("docs")
         .join("reference");
-    create_dir_all(&dir)?;
+    create_dir_all(&ref_dir)?;
+
+    let cli_dir = ref_dir.join("cli");
+    if cli_dir.exists() {
+        remove_dir_all(&cli_dir)?;
+    }
 
     let app = Cli::augment_args(Command::new("cli"));
     let global_options = get_options(&app, true);
-    render_app(&dir, &app, "stencila", &global_options)
+    render_app(&ref_dir, &app, "stencila", &global_options)
 }
 
 fn render_app(dir: &Path, app: &App, command: &str, global_options: &str) -> Result<()> {
@@ -47,7 +52,7 @@ fn render_app(dir: &Path, app: &App, command: &str, global_options: &str) -> Res
         create_dir_all(&dir)?;
 
         let subcommands = render_subcommands(app, &dir, command, global_options)?;
-        (subcommands, dir.join("index.md"))
+        (subcommands, dir.join("README.md"))
     } else {
         (String::new(), dir.join(format!("{}.md", name)))
     };
@@ -132,8 +137,13 @@ fn render_subcommands(
     md += "| Name | Description |\n| --- | --- |\n";
     for subcommand in app.get_subcommands() {
         let name = subcommand.get_name();
+        let path = if subcommand.get_subcommands().count() > 0 {
+            [name, "/README.md"].concat()
+        } else {
+            [name, ".md"].concat()
+        };
         let title = subcommand.get_about().unwrap_or_default();
-        md += &format!("| [`{name}`]({name}) | {title} |\n");
+        md += &format!("| [`{name}`]({path}) | {title} |\n");
 
         render_app(
             dir,

@@ -25,7 +25,7 @@ use crate::{
     sources,
 };
 
-/// Stencila, in a terminal console, on your own machine
+/// Stencila command line tool
 ///
 /// Enter interactive mode by using the `--interact` option with any command.
 #[derive(Parser)]
