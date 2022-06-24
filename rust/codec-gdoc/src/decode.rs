@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use async_recursion::async_recursion;
 use codec::{
-    eyre::Result,
+    common::{eyre::Result, once_cell::sync::Lazy, regex::Regex, serde_json},
     stencila_schema::{
         Article, BlockContent, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObjectSimple,
         InlineContent, Link, ListItem, Node, NontextualAnnotation, Note, NoteNoteType, Paragraph,
@@ -10,8 +10,6 @@ use codec::{
         ThingIdentifiers,
     },
 };
-use once_cell::sync::Lazy;
-use regex::Regex;
 
 use crate::gdoc;
 
@@ -175,8 +173,8 @@ async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Opt
     }
 
     if let Some(bullet) = para.bullet {
-        if let Some(list_id) = bullet.list_id {
-            let list_level = bullet.nesting_level.unwrap_or(0);
+        if let Some(_list_id) = bullet.list_id {
+            let _list_level = bullet.nesting_level.unwrap_or(0);
         }
     }
 
@@ -370,7 +368,7 @@ async fn inline_object_element_to_inline(
         let title = embedded_object
             .title
             .map(|title| Box::new(CreativeWorkTitle::String(title)));
-        let caption = embedded_object.description;
+        let _caption = embedded_object.description;
 
         embedded_object.image_properties.map(|image_properties| {
             InlineContent::ImageObject(ImageObjectSimple {

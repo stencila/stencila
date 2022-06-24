@@ -1117,8 +1117,6 @@ dependencies = [
  "async-recursion 1.0.0",
  "codec",
  "futures",
- "once_cell",
- "regex",
  "schemafy",
  "serde",
  "serde_json",
@@ -5932,6 +5930,17 @@ dependencies = [
  "itoa 1.0.2",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serde_repr"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2ad84e47328a31223de7fed7a4f5087f2d6ddfe586cf3ca25b7a165bc0a5aed"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

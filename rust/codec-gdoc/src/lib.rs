@@ -1,6 +1,8 @@
 use codec::{
-    async_trait::async_trait, eyre::Result, stencila_schema::Node, utils::vec_string, Codec,
-    CodecTrait, DecodeOptions,
+    common::{async_trait::async_trait, eyre::Result},
+    stencila_schema::Node,
+    utils::vec_string,
+    Codec, CodecTrait, DecodeOptions,
 };
 
 mod decode;
