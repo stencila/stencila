@@ -122,4 +122,4 @@ requirements and status.
 
 ## Source
 
-This documentation was generated from [Node.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Node.schema.yaml).
+This documentation was generated from [Node.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Node.schema.yaml).

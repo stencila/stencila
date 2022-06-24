@@ -55,4 +55,4 @@ This type is an implementation of [schema:Brand](https://schema.org/Brand).
 
 ## Source
 
-This documentation was generated from [Brand.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Brand.schema.yaml).
+This documentation was generated from [Brand.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Brand.schema.yaml).

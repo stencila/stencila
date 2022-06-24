@@ -48,4 +48,4 @@ Adds properties to the base `Code` node type that are necessary, or useful, for 
 
 ## Source
 
-This documentation was generated from [CodeExecutable.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/CodeExecutable.schema.yaml).
+This documentation was generated from [CodeExecutable.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/CodeExecutable.schema.yaml).

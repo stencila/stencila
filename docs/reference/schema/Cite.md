@@ -88,4 +88,4 @@ This schema type is marked as **unstable** ⚠️ and is subject to change.
 
 ## Source
 
-This documentation was generated from [Cite.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Cite.schema.yaml).
+This documentation was generated from [Cite.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Cite.schema.yaml).

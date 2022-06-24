@@ -9,4 +9,4 @@
 
 ## Source
 
-This documentation was generated from [String.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/String.schema.yaml).
+This documentation was generated from [String.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/String.schema.yaml).

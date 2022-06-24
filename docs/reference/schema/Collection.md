@@ -67,4 +67,4 @@ This is an implementation of schema.org [`Collection`](https://schema.org/Collec
 
 ## Source
 
-This documentation was generated from [Collection.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Collection.schema.yaml).
+This documentation was generated from [Collection.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Collection.schema.yaml).

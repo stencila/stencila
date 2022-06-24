@@ -38,4 +38,4 @@ This type is an implementation of [schema:Enumeration](https://schema.org/Enumer
 
 ## Source
 
-This documentation was generated from [Enumeration.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Enumeration.schema.yaml).
+This documentation was generated from [Enumeration.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Enumeration.schema.yaml).

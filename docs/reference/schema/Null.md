@@ -9,4 +9,4 @@
 
 ## Source
 
-This documentation was generated from [Null.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Null.schema.yaml).
+This documentation was generated from [Null.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Null.schema.yaml).

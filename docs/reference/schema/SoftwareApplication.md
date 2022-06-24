@@ -69,4 +69,4 @@
 
 ## Source
 
-This documentation was generated from [SoftwareApplication.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/SoftwareApplication.schema.yaml).
+This documentation was generated from [SoftwareApplication.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/SoftwareApplication.schema.yaml).

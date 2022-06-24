@@ -84,4 +84,4 @@ Often embedded as the `isPartOf` property in a [`PublicationIssue`](./Publicatio
 
 ## Source
 
-This documentation was generated from [PublicationVolume.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/PublicationVolume.schema.yaml).
+This documentation was generated from [PublicationVolume.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/PublicationVolume.schema.yaml).

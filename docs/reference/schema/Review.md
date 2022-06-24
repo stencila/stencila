@@ -69,4 +69,4 @@ Use the `content` property for the structured content of the review in preferenc
 
 ## Source
 
-This documentation was generated from [Review.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Review.schema.yaml).
+This documentation was generated from [Review.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Review.schema.yaml).

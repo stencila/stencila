@@ -26,4 +26,4 @@
 
 ## Source
 
-This documentation was generated from [Superscript.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Superscript.schema.yaml).
+This documentation was generated from [Superscript.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Superscript.schema.yaml).

@@ -92,4 +92,4 @@ This is an implementation, and extension, of schema.org [`Article`](https://sche
 
 ## Source
 
-This documentation was generated from [Article.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Article.schema.yaml).
+This documentation was generated from [Article.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Article.schema.yaml).

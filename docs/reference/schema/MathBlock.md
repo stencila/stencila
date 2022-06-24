@@ -33,4 +33,4 @@
 
 ## Source
 
-This documentation was generated from [MathBlock.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/MathBlock.schema.yaml).
+This documentation was generated from [MathBlock.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/MathBlock.schema.yaml).

@@ -87,4 +87,4 @@ This type is an implementation of [schema:MediaObject](https://schema.org/MediaO
 
 ## Source
 
-This documentation was generated from [MediaObject.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/MediaObject.schema.yaml).
+This documentation was generated from [MediaObject.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/MediaObject.schema.yaml).

@@ -32,4 +32,4 @@ This schema type is marked as **unstable** ⚠️ and is subject to change.
 
 ## Source
 
-This documentation was generated from [ArrayValidator.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/ArrayValidator.schema.yaml).
+This documentation was generated from [ArrayValidator.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/ArrayValidator.schema.yaml).

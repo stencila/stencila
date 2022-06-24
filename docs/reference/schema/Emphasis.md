@@ -43,4 +43,4 @@ Analogues of `Delete` in other schema include: - HTML [`<em>`](https://developer
 
 ## Source
 
-This documentation was generated from [Emphasis.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Emphasis.schema.yaml).
+This documentation was generated from [Emphasis.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Emphasis.schema.yaml).

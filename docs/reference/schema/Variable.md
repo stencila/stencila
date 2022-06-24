@@ -36,4 +36,4 @@ This schema type is marked as **experimental** 🧪 and is subject to change.
 
 ## Source
 
-This documentation was generated from [Variable.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Variable.schema.yaml).
+This documentation was generated from [Variable.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Variable.schema.yaml).

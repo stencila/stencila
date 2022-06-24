@@ -29,4 +29,4 @@
 
 ## Source
 
-This documentation was generated from [BlockContent.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/BlockContent.schema.yaml).
+This documentation was generated from [BlockContent.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/BlockContent.schema.yaml).

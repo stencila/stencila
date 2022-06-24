@@ -32,4 +32,4 @@
 
 ## Source
 
-This documentation was generated from [CodeBlock.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/CodeBlock.schema.yaml).
+This documentation was generated from [CodeBlock.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/CodeBlock.schema.yaml).

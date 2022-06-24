@@ -32,4 +32,4 @@
 
 ## Source
 
-This documentation was generated from [CodeFragment.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/CodeFragment.schema.yaml).
+This documentation was generated from [CodeFragment.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/CodeFragment.schema.yaml).

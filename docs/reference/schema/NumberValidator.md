@@ -42,4 +42,4 @@ This schema type is marked as **unstable** ⚠️ and is subject to change.
 
 ## Source
 
-This documentation was generated from [NumberValidator.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/NumberValidator.schema.yaml).
+This documentation was generated from [NumberValidator.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/NumberValidator.schema.yaml).

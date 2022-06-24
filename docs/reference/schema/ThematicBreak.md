@@ -35,4 +35,4 @@ Analogues of `ThematicBreak` in other schema include: - JATS XML [`<hr>`](https:
 
 ## Source
 
-This documentation was generated from [ThematicBreak.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/ThematicBreak.schema.yaml).
+This documentation was generated from [ThematicBreak.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/ThematicBreak.schema.yaml).

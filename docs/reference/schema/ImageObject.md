@@ -92,4 +92,4 @@ This type is an implementation of [schema:ImageObject](https://schema.org/ImageO
 
 ## Source
 
-This documentation was generated from [ImageObject.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/ImageObject.schema.yaml).
+This documentation was generated from [ImageObject.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/ImageObject.schema.yaml).

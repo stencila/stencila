@@ -40,4 +40,4 @@ This schema type is marked as **experimental** 🧪 and is subject to change.
 
 ## Source
 
-This documentation was generated from [Parameter.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Parameter.schema.yaml).
+This documentation was generated from [Parameter.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Parameter.schema.yaml).

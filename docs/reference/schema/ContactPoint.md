@@ -52,4 +52,4 @@ This is an implementation of schema.org [`ContactPoint`](https://schema.org/Cont
 
 ## Source
 
-This documentation was generated from [ContactPoint.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/ContactPoint.schema.yaml).
+This documentation was generated from [ContactPoint.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/ContactPoint.schema.yaml).

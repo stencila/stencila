@@ -34,4 +34,4 @@ This is a base type for `MathFragment` and `MathBlock` and should not normally b
 
 ## Source
 
-This documentation was generated from [Math.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Math.schema.yaml).
+This documentation was generated from [Math.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Math.schema.yaml).

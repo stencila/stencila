@@ -42,4 +42,4 @@ This schema type is marked as **experimental** 🧪 and is subject to change.
 
 ## Source
 
-This documentation was generated from [VolumeMount.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/VolumeMount.schema.yaml).
+This documentation was generated from [VolumeMount.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/VolumeMount.schema.yaml).

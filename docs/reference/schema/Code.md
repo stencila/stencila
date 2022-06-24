@@ -34,4 +34,4 @@ The most important, and only required, property of a `Code` node is `text`, a `s
 
 ## Source
 
-This documentation was generated from [Code.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Code.schema.yaml).
+This documentation was generated from [Code.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Code.schema.yaml).

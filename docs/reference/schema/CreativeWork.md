@@ -67,4 +67,4 @@ This is an implementation, and extension, of schema.org [`CreativeWork`](https:/
 
 ## Source
 
-This documentation was generated from [CreativeWork.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/CreativeWork.schema.yaml).
+This documentation was generated from [CreativeWork.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/CreativeWork.schema.yaml).

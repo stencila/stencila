@@ -89,4 +89,4 @@ This type is an implementation of [schema:AudioObject](https://schema.org/AudioO
 
 ## Source
 
-This documentation was generated from [AudioObject.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/AudioObject.schema.yaml).
+This documentation was generated from [AudioObject.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/AudioObject.schema.yaml).

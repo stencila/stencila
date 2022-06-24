@@ -21,4 +21,4 @@
 
 ## Source
 
-This documentation was generated from [Primitive.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Primitive.schema.yaml).
+This documentation was generated from [Primitive.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Primitive.schema.yaml).

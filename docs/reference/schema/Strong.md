@@ -26,4 +26,4 @@
 
 ## Source
 
-This documentation was generated from [Strong.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Strong.schema.yaml).
+This documentation was generated from [Strong.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Strong.schema.yaml).

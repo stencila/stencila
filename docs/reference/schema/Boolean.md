@@ -9,4 +9,4 @@
 
 ## Source
 
-This documentation was generated from [Boolean.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Boolean.schema.yaml).
+This documentation was generated from [Boolean.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Boolean.schema.yaml).

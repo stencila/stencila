@@ -38,4 +38,4 @@ This type is an implementation of [schema:Thing](https://schema.org/Thing).
 
 ## Source
 
-This documentation was generated from [Thing.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Thing.schema.yaml).
+This documentation was generated from [Thing.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Thing.schema.yaml).

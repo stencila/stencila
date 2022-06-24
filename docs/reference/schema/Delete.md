@@ -44,4 +44,4 @@ Analogues of `Delete` in other schema include: - HTML [`<del>`](https://develope
 
 ## Source
 
-This documentation was generated from [Delete.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Delete.schema.yaml).
+This documentation was generated from [Delete.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Delete.schema.yaml).

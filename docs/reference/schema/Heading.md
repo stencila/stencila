@@ -39,4 +39,4 @@ Analogues of `Delete` in other schema include: - HTML [`<h1>` to `<h6>`](https:/
 
 ## Source
 
-This documentation was generated from [Heading.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Heading.schema.yaml).
+This documentation was generated from [Heading.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Heading.schema.yaml).

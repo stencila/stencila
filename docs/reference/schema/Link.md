@@ -49,4 +49,4 @@ This schema type is marked as **unstable** ⚠️ and is subject to change.
 
 ## Source
 
-This documentation was generated from [Link.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Link.schema.yaml).
+This documentation was generated from [Link.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Link.schema.yaml).

@@ -39,4 +39,4 @@ The order of these types is important because it determines the order of attempt
 
 ## Source
 
-This documentation was generated from [InlineContent.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/InlineContent.schema.yaml).
+This documentation was generated from [InlineContent.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/InlineContent.schema.yaml).

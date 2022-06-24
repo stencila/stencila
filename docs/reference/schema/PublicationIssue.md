@@ -90,4 +90,4 @@ This type is an implementation of [schema:PublicationIssue](https://schema.org/P
 
 ## Source
 
-This documentation was generated from [PublicationIssue.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/PublicationIssue.schema.yaml).
+This documentation was generated from [PublicationIssue.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/PublicationIssue.schema.yaml).

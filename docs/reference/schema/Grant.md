@@ -42,4 +42,4 @@ This type is an implementation of [schema:Grant](https://schema.org/Grant).
 
 ## Source
 
-This documentation was generated from [Grant.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Grant.schema.yaml).
+This documentation was generated from [Grant.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Grant.schema.yaml).

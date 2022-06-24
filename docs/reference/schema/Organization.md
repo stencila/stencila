@@ -108,4 +108,4 @@ This is an implementation of schema.org [`Organization`](https://schema.org/Orga
 
 ## Source
 
-This documentation was generated from [Organization.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Organization.schema.yaml).
+This documentation was generated from [Organization.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Organization.schema.yaml).

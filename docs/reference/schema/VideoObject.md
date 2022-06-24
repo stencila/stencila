@@ -90,4 +90,4 @@ The `VideoObject` type allows you to provide details such as caption and transcr
 
 ## Source
 
-This documentation was generated from [VideoObject.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/VideoObject.schema.yaml).
+This documentation was generated from [VideoObject.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/VideoObject.schema.yaml).

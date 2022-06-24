@@ -11,4 +11,4 @@ Note that keys are strings and values are restricted to primitive node types inc
 
 ## Source
 
-This documentation was generated from [Object.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Object.schema.yaml).
+This documentation was generated from [Object.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Object.schema.yaml).

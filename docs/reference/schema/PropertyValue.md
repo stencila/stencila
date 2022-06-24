@@ -41,4 +41,4 @@ Always use specific properties when they exist and you can populate them. Using 
 
 ## Source
 
-This documentation was generated from [PropertyValue.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/PropertyValue.schema.yaml).
+This documentation was generated from [PropertyValue.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/PropertyValue.schema.yaml).

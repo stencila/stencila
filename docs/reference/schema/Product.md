@@ -60,4 +60,4 @@ The `Product` type allows you to provide details about a product such as the pro
 
 ## Source
 
-This documentation was generated from [Product.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Product.schema.yaml).
+This documentation was generated from [Product.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Product.schema.yaml).

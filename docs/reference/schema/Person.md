@@ -63,4 +63,4 @@ This type is an implementation of [schema:Person](https://schema.org/Person).
 
 ## Source
 
-This documentation was generated from [Person.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Person.schema.yaml).
+This documentation was generated from [Person.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Person.schema.yaml).

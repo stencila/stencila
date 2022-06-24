@@ -27,4 +27,4 @@ This type exists mainly to have a more simple base class than schema.org's `Thin
 
 ## Source
 
-This documentation was generated from [Entity.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Entity.schema.yaml).
+This documentation was generated from [Entity.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Entity.schema.yaml).

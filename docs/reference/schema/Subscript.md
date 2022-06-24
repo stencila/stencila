@@ -26,4 +26,4 @@
 
 ## Source
 
-This documentation was generated from [Subscript.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Subscript.schema.yaml).
+This documentation was generated from [Subscript.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Subscript.schema.yaml).

@@ -9,4 +9,4 @@
 
 ## Source
 
-This documentation was generated from [Integer.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Integer.schema.yaml).
+This documentation was generated from [Integer.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Integer.schema.yaml).

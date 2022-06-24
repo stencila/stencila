@@ -11,4 +11,4 @@ Note that the items in the array are restricted to primitive node types includin
 
 ## Source
 
-This documentation was generated from [Array.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Array.schema.yaml).
+This documentation was generated from [Array.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Array.schema.yaml).

@@ -75,4 +75,4 @@ This is an implementation, and extension, of schema.org [`ListItem`](https://sch
 
 ## Source
 
-This documentation was generated from [ListItem.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/ListItem.schema.yaml).
+This documentation was generated from [ListItem.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/ListItem.schema.yaml).

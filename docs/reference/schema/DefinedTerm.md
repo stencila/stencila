@@ -39,4 +39,4 @@ Often used in the context of category or subject classification, glossaries or d
 
 ## Source
 
-This documentation was generated from [DefinedTerm.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/DefinedTerm.schema.yaml).
+This documentation was generated from [DefinedTerm.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/DefinedTerm.schema.yaml).

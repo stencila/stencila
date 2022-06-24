@@ -9,4 +9,4 @@
 
 ## Source
 
-This documentation was generated from [Number.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Number.schema.yaml).
+This documentation was generated from [Number.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Number.schema.yaml).

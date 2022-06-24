@@ -27,7 +27,7 @@ const ID_BASE_URL = `${SCHEMA_DEST_URL}/v${versionMajor}`
 /**
  * The base URL for source files.
  */
-const SOURCE_BASE_URL = `https://github.com/stencila/stencila/blob/master/schema`
+const SOURCE_BASE_URL = `https://github.com/stencila/stencila/blob/master/schema/schema`
 
 // Create a validation function for JSON Schema for use in `checkSchema`
 const ajv = new Ajv()

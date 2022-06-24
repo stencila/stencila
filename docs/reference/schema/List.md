@@ -109,4 +109,4 @@ This is an implementation, and renaming, of schema.org [`ItemList`](https://sche
 
 ## Source
 
-This documentation was generated from [List.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/List.schema.yaml).
+This documentation was generated from [List.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/List.schema.yaml).

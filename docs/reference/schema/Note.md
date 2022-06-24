@@ -35,4 +35,4 @@ This schema type is marked as **unstable** ⚠️ and is subject to change.
 
 ## Source
 
-This documentation was generated from [Note.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Note.schema.yaml).
+This documentation was generated from [Note.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Note.schema.yaml).

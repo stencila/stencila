@@ -28,4 +28,4 @@ Use cases include annotating spelling errors, denoting proper names in Chinese t
 
 ## Source
 
-This documentation was generated from [NontextualAnnotation.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/NontextualAnnotation.schema.yaml).
+This documentation was generated from [NontextualAnnotation.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/NontextualAnnotation.schema.yaml).

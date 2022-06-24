@@ -46,4 +46,4 @@ This type is an implementation of [schema:MonetaryGrant](https://schema.org/Mone
 
 ## Source
 
-This documentation was generated from [MonetaryGrant.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/MonetaryGrant.schema.yaml).
+This documentation was generated from [MonetaryGrant.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/MonetaryGrant.schema.yaml).

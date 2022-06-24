@@ -55,4 +55,4 @@ Analogues of `Paragraph` in other schema include: - HTML [`<p>`](https://develop
 
 ## Source
 
-This documentation was generated from [Paragraph.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Paragraph.schema.yaml).
+This documentation was generated from [Paragraph.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Paragraph.schema.yaml).

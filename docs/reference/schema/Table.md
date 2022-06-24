@@ -73,4 +73,4 @@ This schema type is marked as **unstable** ⚠️ and is subject to change.
 
 ## Source
 
-This documentation was generated from [Table.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Table.schema.yaml).
+This documentation was generated from [Table.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Table.schema.yaml).

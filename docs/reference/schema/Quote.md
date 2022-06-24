@@ -27,4 +27,4 @@
 
 ## Source
 
-This documentation was generated from [Quote.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Quote.schema.yaml).
+This documentation was generated from [Quote.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Quote.schema.yaml).

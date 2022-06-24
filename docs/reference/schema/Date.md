@@ -28,4 +28,4 @@ This type serves mainly to disambiguate an ISO 8601 date string from a plain str
 
 ## Source
 
-This documentation was generated from [Date.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Date.schema.yaml).
+This documentation was generated from [Date.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Date.schema.yaml).

@@ -70,4 +70,4 @@ Use the `about` property to define the item that a comment is on and `commentAsp
 
 ## Source
 
-This documentation was generated from [Comment.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/Comment.schema.yaml).
+This documentation was generated from [Comment.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/Comment.schema.yaml).

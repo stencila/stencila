@@ -52,4 +52,4 @@ This type is an implementation of [schema:PostalAddress](https://schema.org/Post
 
 ## Source
 
-This documentation was generated from [PostalAddress.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/PostalAddress.schema.yaml).
+This documentation was generated from [PostalAddress.schema.yaml](https://github.com/stencila/stencila/blob/master/schema/schema/PostalAddress.schema.yaml).
