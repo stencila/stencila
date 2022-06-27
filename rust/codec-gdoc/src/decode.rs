@@ -19,24 +19,19 @@ use crate::gdoc;
 // See https://developers.google.com/docs/api/reference/rest/v1/documents#Document
 // for browse-able schema for Google Docs.
 
-/**
- * Decode the JSON content of a Google Doc into a Stencila `Node`
- */
+/// Decode the JSON content of a Google Doc into a Stencila `Node`
 pub(crate) async fn decode_async(content: &str) -> Result<Node> {
     let doc: gdoc::Document = serde_json::from_str(content)?;
     let article = document_to_article(doc).await;
     Ok(Node::Article(article))
 }
 
-/**
- * Decode the JSON content of a Google Doc into a Stencila `Node` synchronously
- */
+/// Decode the JSON content of a Google Doc into a Stencila `Node` synchronously
 pub(crate) fn decode_sync(content: &str) -> Result<Node> {
     futures::executor::block_on(async { decode_async(content).await })
 }
 
 /// The decoding context
-///
 /// Note that the `inline_objects`, `footnotes` and `lists` properties all directly
 /// correspond to properties of the Google Doc schema. They are passed down the call stack
 /// in this context for dereferencing of lists, foot notes and inline object.
@@ -55,9 +50,7 @@ struct Context {
     list_stack: VecDeque<List>,
 }
 
-/**
- * Transform a Google Doc `Document` to a vector of Stencila `Article`
- */
+/// Transform a Google Doc `Document` to a vector of Stencila `Article`
 async fn document_to_article(doc: gdoc::Document) -> Article {
     let identifiers = doc.document_id.map(|id| {
         vec![ThingIdentifiers::String(
@@ -89,12 +82,10 @@ async fn document_to_article(doc: gdoc::Document) -> Article {
     }
 }
 
-/**
- * Transform a Google Doc `Body` to Stencila `BlockContent` nodes
- *
- * Note: the first element in the body is always a section break so we
- * exclude it.
- */
+/// Transform a Google Doc `Body` to Stencila `BlockContent` nodes
+//
+/// Note: the first element in the body is always a section break so we
+/// exclude it.
 async fn body_to_blocks(body: gdoc::Body, context: &mut Context) -> Vec<BlockContent> {
     let mut blocks: Vec<BlockContent> = Vec::new();
     for elem in body.content.into_iter().flatten() {
@@ -117,11 +108,9 @@ async fn body_to_blocks(body: gdoc::Body, context: &mut Context) -> Vec<BlockCon
     }
 }
 
-/**
- * Transform a Google Doc `StructuralElement` to Stencila `BlockContent` nodes
- *
- * Note that table of content elements are ignored.
- */
+/// Transform a Google Doc `StructuralElement` to Stencila `BlockContent` nodes
+//
+/// Note that table of content elements are ignored.
 #[async_recursion]
 async fn structural_element_to_block(
     elem: gdoc::StructuralElement,
@@ -141,14 +130,12 @@ async fn structural_element_to_block(
     }
 }
 
-/**
- * Transform a Google Doc `Paragraph` to one or more Stencila `BlockContent` nodes
- *
- * Usually, the paragraph will be decoded to a `Paragraph`, `Heading` or `List`.
- * However, if the paragraph contains only one element and that element
- * is a reproducible image, then it will be decoded to the entity in that image
- * e.g. `CodeChunk`.
- */
+/// Transform a Google Doc `Paragraph` to one or more Stencila `BlockContent` nodes
+//
+/// Usually, the paragraph will be decoded to a `Paragraph`, `Heading` or `List`.
+/// However, if the paragraph contains only one element and that element
+/// is a reproducible image, then it will be decoded to the entity in that image
+/// e.g. `CodeChunk`.
 async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Option<BlockContent> {
     let mut inlines = Vec::new();
     for elem in para.elements.into_iter().flatten() {
@@ -235,16 +222,12 @@ async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Opt
     }))
 }
 
-/**
- * Transform a Google Doc `SectionBreak` to a Stencila `ThematicBreak`
- */
+/// Transform a Google Doc `SectionBreak` to a Stencila `ThematicBreak`
 fn section_break_to_block() -> Option<BlockContent> {
     Some(BlockContent::ThematicBreak(ThematicBreak::default()))
 }
 
-/**
- * Transform a Google Doc `Table` to a Stencila `Table`
- */
+/// Transform a Google Doc `Table` to a Stencila `Table`
 async fn table_to_block(table: gdoc::Table, context: &mut Context) -> Option<BlockContent> {
     let mut rows: Vec<TableRow> = Vec::new();
     for row in table.table_rows.into_iter().flatten() {
@@ -258,9 +241,7 @@ async fn table_to_block(table: gdoc::Table, context: &mut Context) -> Option<Blo
     }))
 }
 
-/**
- * Transform a Google Doc `TableRow` to a Stencila `TableRow`
- */
+/// Transform a Google Doc `TableRow` to a Stencila `TableRow`
 async fn table_row_to_table_row(table_row: gdoc::TableRow, context: &mut Context) -> TableRow {
     let mut cells: Vec<TableCell> = Vec::new();
     for cell in table_row.table_cells.into_iter().flatten() {
@@ -274,9 +255,7 @@ async fn table_row_to_table_row(table_row: gdoc::TableRow, context: &mut Context
     }
 }
 
-/**
- * Transform a Google Doc `TableCell` to a Stencila `TableCell`
- */
+/// Transform a Google Doc `TableCell` to a Stencila `TableCell`
 async fn table_cell_to_table_cell(table_cell: gdoc::TableCell, context: &mut Context) -> TableCell {
     let mut blocks: Vec<BlockContent> = Vec::new();
     for elem in table_cell.content.into_iter().flatten() {
@@ -303,9 +282,7 @@ async fn table_cell_to_table_cell(table_cell: gdoc::TableCell, context: &mut Con
     }
 }
 
-/**
- * Transform a Google Doc `ParagraphElement` to a Stencila `InlineContent` node
- */
+/// Transform a Google Doc `ParagraphElement` to a Stencila `InlineContent` node
 #[allow(clippy::if_same_then_else)]
 async fn paragraph_element_to_inline(
     elem: gdoc::ParagraphElement,
@@ -335,14 +312,12 @@ async fn paragraph_element_to_inline(
     }
 }
 
-/**
- * Transform a Google Doc `TextRun` to a `string`, `Emphasis`, `Strong`, `Delete`,
- * `Link`, `Subscript` or `Superscript` node.
- *
- * A `TextRun` can have multiple styles and this function nests them in
- * a the order they are listed at https://developers.google.com/docs/api/reference/rest/v1/documents#TextStyle
- * (i.e. with `Link` as the outer node)
- */
+/// Transform a Google Doc `TextRun` to a `string`, `Emphasis`, `Strong`, `Delete`,
+/// `Link`, `Subscript` or `Superscript` node.
+//
+/// A `TextRun` can have multiple styles and this function nests them in
+/// a the order they are listed at https://developers.google.com/docs/api/reference/rest/v1/documents#TextStyle
+/// (i.e. with `Link` as the outer node)
 fn text_run_to_inline(text_run: gdoc::TextRun) -> Option<InlineContent> {
     let mut string = text_run.content.unwrap_or_default();
     if string.ends_with('\n') {
@@ -409,9 +384,7 @@ fn text_run_to_inline(text_run: gdoc::TextRun) -> Option<InlineContent> {
     Some(inline)
 }
 
-/**
- * Transform a Google Doc `InlineObjectElement` to a Stencila `ImageObjectSimple`.
- */
+/// Transform a Google Doc `InlineObjectElement` to a Stencila `ImageObjectSimple`.
 async fn inline_object_element_to_inline(
     inline_object_element: gdoc::InlineObjectElement,
     context: &mut Context,
@@ -438,9 +411,7 @@ async fn inline_object_element_to_inline(
     })
 }
 
-/**
- * Transform a Google Doc `FootnoteReference` to a Stencila `Note`.
- */
+/// Transform a Google Doc `FootnoteReference` to a Stencila `Note`.
 async fn footnote_reference_to_inline(
     footnote_reference: gdoc::FootnoteReference,
     context: &mut Context,
@@ -465,9 +436,7 @@ async fn footnote_reference_to_inline(
     }
 }
 
-/**
- * Transform a Google Doc `Person` to a Stencila `String`.
- */
+/// Transform a Google Doc `Person` to a Stencila `String`.
 fn person_to_inline(person: gdoc::Person) -> Option<InlineContent> {
     person.person_properties.map(|props| {
         let mut repr = String::new();
@@ -484,12 +453,10 @@ fn person_to_inline(person: gdoc::Person) -> Option<InlineContent> {
     })
 }
 
-/**
- * Transform a Google Doc `RichLink` to a Stencila `Link`.
- *
- * According to https://developers.google.com/docs/api/reference/rest/v1/documents#RichLinkProperties
- * `uri` and `target` are always present.
- */
+/// Transform a Google Doc `RichLink` to a Stencila `Link`.
+//
+/// According to https://developers.google.com/docs/api/reference/rest/v1/documents#RichLinkProperties
+/// `uri` and `target` are always present.
 fn rich_link_to_inline(rich_link: gdoc::RichLink) -> Option<InlineContent> {
     rich_link.rich_link_properties.map(|props| {
         let target = props.uri.unwrap_or_default();
