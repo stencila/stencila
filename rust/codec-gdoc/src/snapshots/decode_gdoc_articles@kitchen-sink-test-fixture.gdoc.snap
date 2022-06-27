@@ -106,7 +106,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
       "content": [
         {
           "type": "ImageObject",
-          "contentUrl": "https://lh4.googleusercontent.com/Jj9OD36j7Jmp4kqAZMHmdMd5noYs8M4GPda08QM844Bz2xHRahUzx5zE14WrzkMrlLYiMWxiVEUAZprfHpyCDvGqw5VXFEegEQK9xRXfpqlLrUGdoo3PvejRVC2sbRqNSvDxdiG2J74IryHFBmRaw3jr7dU"
+          "contentUrl": "kitchen-sink-test-fixture.gdoc.media/00002.png"
         }
       ]
     },
@@ -132,7 +132,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
       "content": [
         {
           "type": "ImageObject",
-          "contentUrl": "https://lh4.googleusercontent.com/RY5CvLuk-5bGkyUpv0lKRoP4Aqep8CAVpkmqJiUCx-p6Mw9193mdKOIl-88IgxDI3YJACMTDbIdQ972NWhtUDDQGWYQ5TdKJM1jre9JFNve5TIoQtKaPP3K7HW5L3XlPhzta22a6hwX4De9op8zynO_Z49A"
+          "contentUrl": "kitchen-sink-test-fixture.gdoc.media/00001.png"
         }
       ]
     },
@@ -154,7 +154,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
       "content": [
         {
           "type": "ImageObject",
-          "contentUrl": "https://lh3.googleusercontent.com/H8svrL2XllY4DwENnF6fbsQu2Z4AlBKjG-13RDkrkEq2PMDNsbnxqqbpSJ-JitidBAxhk_Aiz1SZ6jJ3l5ZToCiZ0Z19sWq7slg3_w4J6mtyJDjsa68PPt8FHFYL0aZJoc20kMzEErZhAYbjfFRWFQVZqGY"
+          "contentUrl": "kitchen-sink-test-fixture.gdoc.media/00004.png"
         }
       ]
     },
@@ -928,7 +928,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
       "content": [
         {
           "type": "ImageObject",
-          "contentUrl": "https://lh4.googleusercontent.com/wXr-145LQdEY0qCQvvJ-nXD9kURIeU2PbB6C8XXk0GhRRo35YwUmkn_iGNudLJ8BGPlcOgwu-4j0MajAMbPbkKgsLfKDTzhDnqCZ8JefQvzjo1dzggPw3O58gzalRYz_yagpXC7sdcftDxEbjP22z2eVqDE",
+          "contentUrl": "kitchen-sink-test-fixture.gdoc.media/00003.png",
           "title": "Photo by Joel Filipe on Unsplash"
         }
       ]
@@ -951,7 +951,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
       "content": [
         {
           "type": "ImageObject",
-          "contentUrl": "https://lh3.googleusercontent.com/AcNmZp44Bk6VwGq-ry3guSjjLxFNvKMMJdk4rcgMZzxbIpiPHQEx4A5ERm83RrTIxDSX34zfX3tEhaUg5dnk6Z6Qy15uwdc_r4WnVF9BrE4blBaP8roTUP3WO7w92S8swZjQSBKnaA-vMSVUAtEidbBbf7Q",
+          "contentUrl": "kitchen-sink-test-fixture.gdoc.media/00005.png",
           "title": "Points scored"
         }
       ]

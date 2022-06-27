@@ -8,4 +8,4 @@
 all: kitchen-sink-test-fixture.gdoc
      
 kitchen-sink-test-fixture.gdoc:
-	stencila providers import gdrive:doc/1BePN1If6tUAr1eMg32MJMFKjbuuEkzwBiOxsYp3XqoU $@
+	cargo run --bin providers -- import gdrive:doc/1BePN1If6tUAr1eMg32MJMFKjbuuEkzwBiOxsYp3XqoU $@

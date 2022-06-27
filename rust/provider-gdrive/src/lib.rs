@@ -1,5 +1,5 @@
 use std::{
-    fs::{metadata, remove_file},
+    fs::{metadata, read_to_string, remove_file, write},
     path::{Path, PathBuf},
     str::FromStr,
     time::UNIX_EPOCH,
@@ -12,7 +12,7 @@ use provider::{
         eyre::{bail, eyre, Result},
         futures::future,
         once_cell::sync::Lazy,
-        regex::Regex,
+        regex::{Captures, Regex},
         serde_json,
         strum::{AsRefStr, EnumString},
         tokio, tracing,
@@ -146,10 +146,7 @@ impl GoogleDriveClient {
                     download_with(&url, &path, &headers_clone).await
                 })
             });
-            let results = future::join_all(futures).await;
-            for result in results {
-                result??;
-            }
+            future::try_join_all(futures).await?;
         } else {
             // The destination path does not have an extension so use the default for the kind
             // The list of available export formats: https://developers.google.com/drive/api/v3/ref-export-formats
@@ -181,6 +178,51 @@ impl GoogleDriveClient {
             download_with(&url, &dest, &headers)
                 .await
                 .map_err(enhance_error)?;
+
+            // If the file is a doc, then we need to fetch the Google hosted images in it as well since
+            // those are ephemeral (last for ~30 minutes?)
+            if matches!(file_kind, FileKind::Doc) && dest.exists() {
+                static REGEX: Lazy<Regex> = Lazy::new(|| {
+                    Regex::new("\"(https://[a-z0-9]+\\.googleusercontent\\.com/[A-Za-z0-9_-]+)\"")
+                        .expect("Unable to create regex")
+                });
+
+                let media_dir = dest
+                    .file_name()
+                    .map(|name| PathBuf::from(format!("{}.media", name.to_string_lossy())))
+                    .unwrap_or_else(|| PathBuf::from("media"));
+
+                let gdoc = read_to_string(&dest)?;
+
+                // Replace temporary image URL with file paths in media dir
+                let mut index = 1;
+                let mut images = Vec::new();
+                let gdoc = REGEX
+                    .replace_all(&gdoc, |captures: &Captures| -> String {
+                        let image_url = match captures.get(1) {
+                            Some(mat) => mat.as_str().to_string(),
+                            None => return "".to_string(),
+                        };
+
+                        let image_file = media_dir.join(format!("{:05}.png", index));
+
+                        images.push((image_url, image_file.clone()));
+                        index += 1;
+
+                        let image_file = image_file.to_string_lossy().to_string();
+                        ["\"", &image_file, "\""].concat()
+                    })
+                    .to_string();
+
+                // Download in parallel
+                let futures = images.into_iter().map(|(url, path)| {
+                    let headers_clone = headers.clone();
+                    tokio::spawn(async move { download_with(&url, &path, &headers_clone).await })
+                });
+                future::try_join_all(futures).await?;
+
+                write(dest, gdoc)?;
+            }
         }
 
         Ok(())
