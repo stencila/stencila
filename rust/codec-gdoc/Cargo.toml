@@ -7,7 +7,6 @@ edition = "2021"
 [dependencies]
 async-recursion = "1.0.0"
 codec = { path = "../codec" }
-futures = { version = "0.3.19", features = ["executor"] }
 schemafy = "0.6.0"
 
 # Although these are available via codec::common they seem to be necessary

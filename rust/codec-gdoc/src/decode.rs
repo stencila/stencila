@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, VecDeque};
 
 use async_recursion::async_recursion;
 use codec::{
-    common::{eyre::Result, once_cell::sync::Lazy, regex::Regex, serde_json},
+    common::{eyre::Result, futures, once_cell::sync::Lazy, regex::Regex, serde_json},
     stencila_schema::{
         Article, BlockContent, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObjectSimple,
         InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,

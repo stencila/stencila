@@ -1116,7 +1116,6 @@ version = "0.0.0"
 dependencies = [
  "async-recursion 1.0.0",
  "codec",
- "futures",
  "schemafy",
  "serde",
  "serde_json",
