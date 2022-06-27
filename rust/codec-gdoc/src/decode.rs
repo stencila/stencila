@@ -2,12 +2,12 @@ use std::collections::{BTreeMap, VecDeque};
 
 use async_recursion::async_recursion;
 use codec::{
-    common::{eyre::Result, once_cell::sync::Lazy, regex::Regex, serde_json, tracing},
+    common::{eyre::Result, once_cell::sync::Lazy, regex::Regex, serde_json},
     stencila_schema::{
         Article, BlockContent, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObjectSimple,
-        InlineContent, Link, List, ListItem, ListItemContent, Node, NontextualAnnotation, Note,
-        NoteNoteType, Paragraph, Strong, TableCell, TableCellContent, TableRow, TableSimple,
-        ThematicBreak, ThingIdentifiers,
+        InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
+        NontextualAnnotation, Note, NoteNoteType, Paragraph, Strong, TableCell, TableCellContent,
+        TableRow, TableSimple, ThematicBreak, ThingIdentifiers,
     },
 };
 
@@ -182,6 +182,20 @@ async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Opt
 
             let list_level = bullet.nesting_level.unwrap_or(0) as usize;
 
+            // It seems that the only way to tell if a list is ordered on unordered is to look at
+            // the glyphType.
+            // See https://developers.google.com/docs/api/reference/rest/v1/ListProperties#NestingLevel
+            let order = context
+                .lists
+                .get(&list_id)
+                .and_then(|list| list.list_properties.as_ref())
+                .and_then(|properties| properties.nesting_levels.as_ref())
+                .and_then(|levels| levels.get(list_level))
+                .and_then(|level| match level.glyph_type.as_deref() {
+                    Some("GLYPH_TYPE_UNSPECIFIED") | None => None,
+                    _ => Some(ListOrder::Ascending),
+                });
+
             use std::cmp::Ordering;
             match (list_level + 1).cmp(&context.list_stack.len()) {
                 Ordering::Equal => {
@@ -190,6 +204,7 @@ async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Opt
                         Some(list) => list.items.push(list_item),
                         None => context.list_stack.push_back(List {
                             items: vec![list_item],
+                            order,
                             ..Default::default()
                         }),
                     }
@@ -199,6 +214,7 @@ async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Opt
                     // push it onto the list stack
                     context.list_stack.push_back(List {
                         items: vec![list_item],
+                        order,
                         ..Default::default()
                     });
                 }
@@ -490,7 +506,7 @@ fn merge_list_stack(list_stack: &mut VecDeque<List>, wanted_size: usize) {
                 }
             }
         } else {
-            break
+            break;
         }
     }
 }

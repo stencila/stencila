@@ -1,6 +1,6 @@
 ---
 source: rust/codec-gdoc/src/decode.rs
-assertion_line: 538
+assertion_line: 522
 expression: decode_sync(content).unwrap()
 input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
 ---
@@ -98,14 +98,15 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             }
           ]
         }
-      ]
+      ],
+      "order": "Ascending"
     },
     {
       "type": "Paragraph",
       "content": [
         {
           "type": "ImageObject",
-          "contentUrl": "https://lh3.googleusercontent.com/zqQVf6osWt0vaZgA2my4_de4Dv5jhBzZYOlELgiX4hd9427nUIwZuEgmGlx8ci3o7V4KsZVY9XDh5-koFhaHMnAIwCvBPCI-oS8VxwdP5XkoMiargSnLQsH6kThYRnnfV5FuR6ym1cvtvZsMmuHB52M-ZUE"
+          "contentUrl": "https://lh4.googleusercontent.com/Jj9OD36j7Jmp4kqAZMHmdMd5noYs8M4GPda08QM844Bz2xHRahUzx5zE14WrzkMrlLYiMWxiVEUAZprfHpyCDvGqw5VXFEegEQK9xRXfpqlLrUGdoo3PvejRVC2sbRqNSvDxdiG2J74IryHFBmRaw3jr7dU"
         }
       ]
     },
@@ -123,14 +124,15 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             }
           ]
         }
-      ]
+      ],
+      "order": "Ascending"
     },
     {
       "type": "Paragraph",
       "content": [
         {
           "type": "ImageObject",
-          "contentUrl": "https://lh3.googleusercontent.com/53_jHlJuaplqiZYAWbz_B6bSEounTw02OS58NGg0brqkjcoK0vIqwL2hyDOQw_L9P8v36zX845mN1YXSd4BaqvUs866OMIg8eUvxE-VanV19d_WjEAquD1ruiRL8gfnLc-ThsKPnCV5rGJusyJ3rqUBgysI"
+          "contentUrl": "https://lh4.googleusercontent.com/RY5CvLuk-5bGkyUpv0lKRoP4Aqep8CAVpkmqJiUCx-p6Mw9193mdKOIl-88IgxDI3YJACMTDbIdQ972NWhtUDDQGWYQ5TdKJM1jre9JFNve5TIoQtKaPP3K7HW5L3XlPhzta22a6hwX4De9op8zynO_Z49A"
         }
       ]
     },
@@ -152,7 +154,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
       "content": [
         {
           "type": "ImageObject",
-          "contentUrl": "https://lh6.googleusercontent.com/Liykqw6KFOKboJzCv2xxwCC6UjRbXGMYE8CXxzcosTkweTCwVJh97ULQTKwkAvehChVwY2ISH2JUL4zMfSHsIjIqG6Vxf7f5IgzOnLGwW9qaESv0pRpPxETMXCihS6-6_2uSylEvQhHh6tGKUH9MV7EaL_U"
+          "contentUrl": "https://lh3.googleusercontent.com/H8svrL2XllY4DwENnF6fbsQu2Z4AlBKjG-13RDkrkEq2PMDNsbnxqqbpSJ-JitidBAxhk_Aiz1SZ6jJ3l5ZToCiZ0Z19sWq7slg3_w4J6mtyJDjsa68PPt8FHFYL0aZJoc20kMzEErZhAYbjfFRWFQVZqGY"
         }
       ]
     },
@@ -488,7 +490,8 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             }
           ]
         }
-      ]
+      ],
+      "order": "Ascending"
     },
     {
       "type": "Paragraph",
@@ -519,6 +522,34 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                       "content": [
                         "Apple"
                       ]
+                    },
+                    {
+                      "type": "List",
+                      "items": [
+                        {
+                          "type": "ListItem",
+                          "content": [
+                            {
+                              "type": "Paragraph",
+                              "content": [
+                                "Braeburn"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ListItem",
+                          "content": [
+                            {
+                              "type": "Paragraph",
+                              "content": [
+                                "Golden Delicious"
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "order": "Ascending"
                     }
                   ]
                 },
@@ -544,7 +575,8 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                     }
                   ]
                 }
-              ]
+              ],
+              "order": "Ascending"
             }
           ]
         },
@@ -577,7 +609,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                     {
                       "type": "Paragraph",
                       "content": [
-                        "Cheese"
+                        "Milk"
                       ]
                     }
                   ]
@@ -588,16 +620,46 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                     {
                       "type": "Paragraph",
                       "content": [
-                        "Milk"
+                        "Cheese"
                       ]
+                    },
+                    {
+                      "type": "List",
+                      "items": [
+                        {
+                          "type": "ListItem",
+                          "content": [
+                            {
+                              "type": "Paragraph",
+                              "content": [
+                                "Blue"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ListItem",
+                          "content": [
+                            {
+                              "type": "Paragraph",
+                              "content": [
+                                "Cheddar"
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "order": "Ascending"
                     }
                   ]
                 }
-              ]
+              ],
+              "order": "Ascending"
             }
           ]
         }
-      ]
+      ],
+      "order": "Ascending"
     },
     {
       "type": "Paragraph",
@@ -866,7 +928,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
       "content": [
         {
           "type": "ImageObject",
-          "contentUrl": "https://lh4.googleusercontent.com/j2R26eWZ3B4uaGha-PFk5l8xNp7_lZjY_TSINKJf6b7GtVKcnQYdxb_9DTDzDiLuwsnJjfXouh0VqTRRfZt0sAZ3rA9Ds_h7QjC_9UOpMlLjZ7iu5CQkR844dPi5Xyg-jOdp9meanf-WH9DL7lBNOsghPd8",
+          "contentUrl": "https://lh4.googleusercontent.com/wXr-145LQdEY0qCQvvJ-nXD9kURIeU2PbB6C8XXk0GhRRo35YwUmkn_iGNudLJ8BGPlcOgwu-4j0MajAMbPbkKgsLfKDTzhDnqCZ8JefQvzjo1dzggPw3O58gzalRYz_yagpXC7sdcftDxEbjP22z2eVqDE",
           "title": "Photo by Joel Filipe on Unsplash"
         }
       ]
@@ -889,7 +951,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
       "content": [
         {
           "type": "ImageObject",
-          "contentUrl": "https://lh4.googleusercontent.com/oHRgeygkltZ4aMmKZevHGv3cA6XATn1DPFEGcmCF4t9axPxci3iT5kqdA6DLbB9f5LSO6v1P2fjH5Yb1d4ei_T9oLVH-EpM2Xx8xIoi_mT9PfAKS_DmtiLFxBZTaUJMbLDGqtbjS7WrcTFDM-00EfAhcUiw",
+          "contentUrl": "https://lh3.googleusercontent.com/AcNmZp44Bk6VwGq-ry3guSjjLxFNvKMMJdk4rcgMZzxbIpiPHQEx4A5ERm83RrTIxDSX34zfX3tEhaUg5dnk6Z6Qy15uwdc_r4WnVF9BrE4blBaP8roTUP3WO7w92S8swZjQSBKnaA-vMSVUAtEidbBbf7Q",
           "title": "Points scored"
         }
       ]
