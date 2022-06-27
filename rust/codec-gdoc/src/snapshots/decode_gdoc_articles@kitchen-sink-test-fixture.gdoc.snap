@@ -1,6 +1,6 @@
 ---
 source: rust/codec-gdoc/src/decode.rs
-assertion_line: 517
+assertion_line: 524
 expression: decode_sync(content).unwrap()
 input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
 ---
@@ -36,12 +36,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             {
               "type": "Link",
               "content": [
-                {
-                  "type": "NontextualAnnotation",
-                  "content": [
-                    "fixtures/articles/gdoc"
-                  ]
-                }
+                "fixtures/articles/gdoc"
               ],
               "target": "https://github.com/stencila/stencila/tree/HEAD/fixtures/articles/gdoc"
             },
@@ -57,12 +52,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             {
               "type": "Link",
               "content": [
-                {
-                  "type": "NontextualAnnotation",
-                  "content": [
-                    "rust/codec-gdoc"
-                  ]
-                }
+                "rust/codec-gdoc"
               ],
               "target": "https://github.com/stencila/stencila/tree/HEAD/rust/codec-gdoc"
             },

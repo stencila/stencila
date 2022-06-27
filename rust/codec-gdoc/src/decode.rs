@@ -330,7 +330,7 @@ async fn paragraph_element_to_inline(
     } else if let Some(person) = elem.person {
         person_to_inline(person)
     } else if let Some(rich_link) = elem.rich_link {
-        rick_link_to_inline(rich_link)
+        rich_link_to_inline(rich_link)
     } else if matches!(elem.page_break, Some(..))
         || matches!(elem.column_break, Some(..))
         || matches!(elem.horizontal_rule, Some(..))
@@ -394,6 +394,12 @@ fn text_run_to_inline(text_run: gdoc::TextRun) -> Option<InlineContent> {
         }
 
         if let Some(link) = text_style.link {
+            // Remove unnecessary underline of link content
+            let content = match inline {
+                InlineContent::NontextualAnnotation(inline) => inline.content,
+                _ => vec![inline],
+            };
+
             // A `Link` has one of the following
             // https://developers.google.com/docs/api/reference/rest/v1/documents#Link
             let target = link
@@ -401,8 +407,9 @@ fn text_run_to_inline(text_run: gdoc::TextRun) -> Option<InlineContent> {
                 .or_else(|| link.bookmark_id.map(|id| ["#", &id].concat()))
                 .or_else(|| link.heading_id.map(|id| ["#", &id].concat()))
                 .unwrap_or_default();
+
             inline = InlineContent::Link(Link {
-                content: vec![inline],
+                content,
                 target,
                 ..Default::default()
             });
@@ -493,7 +500,7 @@ fn person_to_inline(person: gdoc::Person) -> Option<InlineContent> {
  * According to https://developers.google.com/docs/api/reference/rest/v1/documents#RichLinkProperties
  * `uri` and `target` are always present.
  */
-fn rick_link_to_inline(rich_link: gdoc::RichLink) -> Option<InlineContent> {
+fn rich_link_to_inline(rich_link: gdoc::RichLink) -> Option<InlineContent> {
     rich_link.rich_link_properties.map(|props| {
         let target = props.uri.unwrap_or_default();
         let title = props.title.unwrap_or_else(|| "untitled".to_string());
