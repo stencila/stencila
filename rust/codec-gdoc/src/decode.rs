@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, VecDeque};
 
 use async_recursion::async_recursion;
 use codec::{
-    common::{eyre::Result, once_cell::sync::Lazy, regex::Regex, serde_json},
+    common::{eyre::Result, once_cell::sync::Lazy, regex::Regex, serde_json, tracing},
     stencila_schema::{
         Article, BlockContent, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObjectSimple,
         InlineContent, Link, List, ListItem, ListItemContent, Node, NontextualAnnotation, Note,
@@ -99,17 +99,11 @@ async fn body_to_blocks(body: gdoc::Body, context: &mut Context) -> Vec<BlockCon
     let mut blocks: Vec<BlockContent> = Vec::new();
     for elem in body.content.into_iter().flatten() {
         if let Some(block) = structural_element_to_block(elem, context).await {
-            // If there are any lists on the stack then pop them off, including sub-lists
-            if let Some(mut list) = context.list_stack.pop_front() {
-                while let Some(sub_list) = context.list_stack.pop_front() {
-                    list.items.push(ListItem {
-                        content: Some(ListItemContent::VecBlockContent(vec![BlockContent::List(
-                            sub_list,
-                        )])),
-                        ..Default::default()
-                    })
+            if !context.list_stack.is_empty() {
+                merge_list_stack(&mut context.list_stack, 1);
+                if let Some(list) = context.list_stack.pop_front() {
+                    blocks.push(BlockContent::List(list));
                 }
-                blocks.push(BlockContent::List(list));
             }
 
             blocks.push(block)
@@ -189,8 +183,13 @@ async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Opt
 
     if let Some(bullet) = para.bullet {
         if let Some(list_id) = bullet.list_id {
+            let para = vec![BlockContent::Paragraph(Paragraph {
+                content: inlines,
+                ..Default::default()
+            })];
+
             let list_item = ListItem {
-                content: Some(ListItemContent::VecInlineContent(inlines)),
+                content: Some(ListItemContent::VecBlockContent(para)),
                 ..Default::default()
             };
 
@@ -218,17 +217,8 @@ async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Opt
                 }
                 Ordering::Less => {
                     // Decrease in level so pop the last list off the stack and add
-                    // it as an item to the next list up
-                    if let Some(last) = context.list_stack.pop_back() {
-                        if let Some(above) = context.list_stack.back_mut() {
-                            above.items.push(ListItem {
-                                content: Some(ListItemContent::VecBlockContent(vec![
-                                    BlockContent::List(last),
-                                ])),
-                                ..Default::default()
-                            })
-                        }
-                    }
+                    // it to the content of the previous item
+                    merge_list_stack(&mut context.list_stack, list_level + 1);
                     //...and push the item onto the one above
                     if let Some(list) = context.list_stack.back_mut() {
                         list.items.push(list_item)
@@ -511,6 +501,31 @@ fn rich_link_to_inline(rich_link: gdoc::RichLink) -> Option<InlineContent> {
             ..Default::default()
         })
     })
+}
+
+/// Merge the stack on lists "into itself" up to a wanted size
+fn merge_list_stack(list_stack: &mut VecDeque<List>, wanted_size: usize) {
+    while list_stack.len() > wanted_size {
+        if let Some(last_list) = list_stack.pop_back() {
+            if let Some(parent_list) = list_stack.back_mut() {
+                if let Some(last_item) = parent_list.items.last_mut() {
+                    if let Some(ListItemContent::VecBlockContent(content)) = &mut last_item.content
+                    {
+                        content.push(BlockContent::List(last_list));
+                    }
+                } else {
+                    parent_list.items.push(ListItem {
+                        content: Some(ListItemContent::VecBlockContent(vec![BlockContent::List(
+                            last_list,
+                        )])),
+                        ..Default::default()
+                    })
+                }
+            }
+        } else {
+            break
+        }
+    }
 }
 
 #[cfg(test)]

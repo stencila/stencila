@@ -1746,12 +1746,86 @@
       },
       {
         "startIndex": 2503,
-        "endIndex": 2508,
+        "endIndex": 2512,
         "paragraph": {
           "elements": [
             {
               "startIndex": 2503,
-              "endIndex": 2508,
+              "endIndex": 2512,
+              "textRun": {
+                "content": "Braeburn\n",
+                "textStyle": {}
+              }
+            }
+          ],
+          "paragraphStyle": {
+            "namedStyleType": "NORMAL_TEXT",
+            "direction": "LEFT_TO_RIGHT",
+            "spacingMode": "COLLAPSE_LISTS",
+            "indentFirstLine": {
+              "magnitude": 90,
+              "unit": "PT"
+            },
+            "indentStart": {
+              "magnitude": 108,
+              "unit": "PT"
+            },
+            "pageBreakBefore": false
+          },
+          "bullet": {
+            "listId": "kix.aofunbihzbg6",
+            "nestingLevel": 2,
+            "textStyle": {
+              "underline": false
+            }
+          }
+        }
+      },
+      {
+        "startIndex": 2512,
+        "endIndex": 2529,
+        "paragraph": {
+          "elements": [
+            {
+              "startIndex": 2512,
+              "endIndex": 2529,
+              "textRun": {
+                "content": "Golden Delicious\n",
+                "textStyle": {}
+              }
+            }
+          ],
+          "paragraphStyle": {
+            "namedStyleType": "NORMAL_TEXT",
+            "direction": "LEFT_TO_RIGHT",
+            "spacingMode": "COLLAPSE_LISTS",
+            "indentFirstLine": {
+              "magnitude": 90,
+              "unit": "PT"
+            },
+            "indentStart": {
+              "magnitude": 108,
+              "unit": "PT"
+            },
+            "pageBreakBefore": false
+          },
+          "bullet": {
+            "listId": "kix.aofunbihzbg6",
+            "nestingLevel": 2,
+            "textStyle": {
+              "underline": false
+            }
+          }
+        }
+      },
+      {
+        "startIndex": 2529,
+        "endIndex": 2534,
+        "paragraph": {
+          "elements": [
+            {
+              "startIndex": 2529,
+              "endIndex": 2534,
               "textRun": {
                 "content": "Pear\n",
                 "textStyle": {}
@@ -1782,13 +1856,13 @@
         }
       },
       {
-        "startIndex": 2508,
-        "endIndex": 2514,
+        "startIndex": 2534,
+        "endIndex": 2540,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2508,
-              "endIndex": 2514,
+              "startIndex": 2534,
+              "endIndex": 2540,
               "textRun": {
                 "content": "Peach\n",
                 "textStyle": {}
@@ -1819,13 +1893,13 @@
         }
       },
       {
-        "startIndex": 2514,
-        "endIndex": 2520,
+        "startIndex": 2540,
+        "endIndex": 2546,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2514,
-              "endIndex": 2520,
+              "startIndex": 2540,
+              "endIndex": 2546,
               "textRun": {
                 "content": "Dairy\n",
                 "textStyle": {}
@@ -1853,13 +1927,13 @@
         }
       },
       {
-        "startIndex": 2520,
-        "endIndex": 2527,
+        "startIndex": 2546,
+        "endIndex": 2553,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2520,
-              "endIndex": 2527,
+              "startIndex": 2546,
+              "endIndex": 2553,
               "textRun": {
                 "content": "Butter\n",
                 "textStyle": {}
@@ -1888,48 +1962,13 @@
         }
       },
       {
-        "startIndex": 2527,
-        "endIndex": 2534,
+        "startIndex": 2553,
+        "endIndex": 2558,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2527,
-              "endIndex": 2534,
-              "textRun": {
-                "content": "Cheese\n",
-                "textStyle": {}
-              }
-            }
-          ],
-          "paragraphStyle": {
-            "namedStyleType": "NORMAL_TEXT",
-            "direction": "LEFT_TO_RIGHT",
-            "spacingMode": "COLLAPSE_LISTS",
-            "indentFirstLine": {
-              "magnitude": 54,
-              "unit": "PT"
-            },
-            "indentStart": {
-              "magnitude": 72,
-              "unit": "PT"
-            },
-            "pageBreakBefore": false
-          },
-          "bullet": {
-            "listId": "kix.aofunbihzbg6",
-            "nestingLevel": 1,
-            "textStyle": {}
-          }
-        }
-      },
-      {
-        "startIndex": 2534,
-        "endIndex": 2539,
-        "paragraph": {
-          "elements": [
-            {
-              "startIndex": 2534,
-              "endIndex": 2539,
+              "startIndex": 2553,
+              "endIndex": 2558,
               "textRun": {
                 "content": "Milk\n",
                 "textStyle": {}
@@ -1958,21 +1997,128 @@
         }
       },
       {
-        "startIndex": 2539,
-        "endIndex": 2594,
+        "startIndex": 2558,
+        "endIndex": 2565,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2539,
-              "endIndex": 2593,
+              "startIndex": 2558,
+              "endIndex": 2565,
+              "textRun": {
+                "content": "Cheese\n",
+                "textStyle": {}
+              }
+            }
+          ],
+          "paragraphStyle": {
+            "namedStyleType": "NORMAL_TEXT",
+            "direction": "LEFT_TO_RIGHT",
+            "spacingMode": "COLLAPSE_LISTS",
+            "indentFirstLine": {
+              "magnitude": 54,
+              "unit": "PT"
+            },
+            "indentStart": {
+              "magnitude": 72,
+              "unit": "PT"
+            },
+            "pageBreakBefore": false
+          },
+          "bullet": {
+            "listId": "kix.aofunbihzbg6",
+            "nestingLevel": 1,
+            "textStyle": {}
+          }
+        }
+      },
+      {
+        "startIndex": 2565,
+        "endIndex": 2570,
+        "paragraph": {
+          "elements": [
+            {
+              "startIndex": 2565,
+              "endIndex": 2570,
+              "textRun": {
+                "content": "Blue\n",
+                "textStyle": {}
+              }
+            }
+          ],
+          "paragraphStyle": {
+            "namedStyleType": "NORMAL_TEXT",
+            "direction": "LEFT_TO_RIGHT",
+            "spacingMode": "COLLAPSE_LISTS",
+            "indentFirstLine": {
+              "magnitude": 90,
+              "unit": "PT"
+            },
+            "indentStart": {
+              "magnitude": 108,
+              "unit": "PT"
+            },
+            "pageBreakBefore": false
+          },
+          "bullet": {
+            "listId": "kix.aofunbihzbg6",
+            "nestingLevel": 2,
+            "textStyle": {}
+          }
+        }
+      },
+      {
+        "startIndex": 2570,
+        "endIndex": 2578,
+        "paragraph": {
+          "elements": [
+            {
+              "startIndex": 2570,
+              "endIndex": 2578,
+              "textRun": {
+                "content": "Cheddar\n",
+                "textStyle": {}
+              }
+            }
+          ],
+          "paragraphStyle": {
+            "namedStyleType": "NORMAL_TEXT",
+            "direction": "LEFT_TO_RIGHT",
+            "spacingMode": "COLLAPSE_LISTS",
+            "indentFirstLine": {
+              "magnitude": 90,
+              "unit": "PT"
+            },
+            "indentStart": {
+              "magnitude": 108,
+              "unit": "PT"
+            },
+            "pageBreakBefore": false
+          },
+          "bullet": {
+            "listId": "kix.aofunbihzbg6",
+            "nestingLevel": 2,
+            "textStyle": {
+              "underline": false
+            }
+          }
+        }
+      },
+      {
+        "startIndex": 2578,
+        "endIndex": 2633,
+        "paragraph": {
+          "elements": [
+            {
+              "startIndex": 2578,
+              "endIndex": 2632,
               "textRun": {
                 "content": "Note that the style of bullet or numbering is ignored.",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 2593,
-              "endIndex": 2594,
+              "startIndex": 2632,
+              "endIndex": 2633,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -1993,13 +2139,13 @@
         }
       },
       {
-        "startIndex": 2594,
-        "endIndex": 2601,
+        "startIndex": 2633,
+        "endIndex": 2640,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2594,
-              "endIndex": 2601,
+              "startIndex": 2633,
+              "endIndex": 2640,
               "textRun": {
                 "content": "Tables\n",
                 "textStyle": {}
@@ -2015,13 +2161,13 @@
         }
       },
       {
-        "startIndex": 2601,
-        "endIndex": 2701,
+        "startIndex": 2640,
+        "endIndex": 2740,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2601,
-              "endIndex": 2701,
+              "startIndex": 2640,
+              "endIndex": 2740,
               "textRun": {
                 "content": "Google Docs supports simple inline tables, meaning that it does not support formulas or functions. \n",
                 "textStyle": {}
@@ -2036,28 +2182,28 @@
         }
       },
       {
-        "startIndex": 2701,
-        "endIndex": 2969,
+        "startIndex": 2740,
+        "endIndex": 3008,
         "table": {
           "rows": 5,
           "columns": 4,
           "tableRows": [
             {
-              "startIndex": 2702,
-              "endIndex": 2753,
+              "startIndex": 2741,
+              "endIndex": 2792,
               "tableCells": [
                 {
-                  "startIndex": 2703,
-                  "endIndex": 2711,
+                  "startIndex": 2742,
+                  "endIndex": 2750,
                   "content": [
                     {
-                      "startIndex": 2704,
-                      "endIndex": 2711,
+                      "startIndex": 2743,
+                      "endIndex": 2750,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2704,
-                            "endIndex": 2711,
+                            "startIndex": 2743,
+                            "endIndex": 2750,
                             "textRun": {
                               "content": "Planet\n",
                               "textStyle": {
@@ -2172,17 +2318,17 @@
                   }
                 },
                 {
-                  "startIndex": 2711,
-                  "endIndex": 2739,
+                  "startIndex": 2750,
+                  "endIndex": 2778,
                   "content": [
                     {
-                      "startIndex": 2712,
-                      "endIndex": 2739,
+                      "startIndex": 2751,
+                      "endIndex": 2778,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2712,
-                            "endIndex": 2739,
+                            "startIndex": 2751,
+                            "endIndex": 2778,
                             "textRun": {
                               "content": "Avg. Distance from the Sun\n",
                               "textStyle": {
@@ -2297,17 +2443,17 @@
                   }
                 },
                 {
-                  "startIndex": 2739,
-                  "endIndex": 2747,
+                  "startIndex": 2778,
+                  "endIndex": 2786,
                   "content": [
                     {
-                      "startIndex": 2740,
-                      "endIndex": 2747,
+                      "startIndex": 2779,
+                      "endIndex": 2786,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2740,
-                            "endIndex": 2747,
+                            "startIndex": 2779,
+                            "endIndex": 2786,
                             "textRun": {
                               "content": "Radius\n",
                               "textStyle": {
@@ -2422,17 +2568,17 @@
                   }
                 },
                 {
-                  "startIndex": 2747,
-                  "endIndex": 2753,
+                  "startIndex": 2786,
+                  "endIndex": 2792,
                   "content": [
                     {
-                      "startIndex": 2748,
-                      "endIndex": 2753,
+                      "startIndex": 2787,
+                      "endIndex": 2792,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2748,
-                            "endIndex": 2753,
+                            "startIndex": 2787,
+                            "endIndex": 2792,
                             "textRun": {
                               "content": "Mass\n",
                               "textStyle": {
@@ -2554,21 +2700,21 @@
               }
             },
             {
-              "startIndex": 2753,
-              "endIndex": 2806,
+              "startIndex": 2792,
+              "endIndex": 2845,
               "tableCells": [
                 {
-                  "startIndex": 2754,
-                  "endIndex": 2763,
+                  "startIndex": 2793,
+                  "endIndex": 2802,
                   "content": [
                     {
-                      "startIndex": 2755,
-                      "endIndex": 2763,
+                      "startIndex": 2794,
+                      "endIndex": 2802,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2755,
-                            "endIndex": 2763,
+                            "startIndex": 2794,
+                            "endIndex": 2802,
                             "textRun": {
                               "content": "Mercury\n",
                               "textStyle": {
@@ -2683,17 +2829,17 @@
                   }
                 },
                 {
-                  "startIndex": 2763,
-                  "endIndex": 2778,
+                  "startIndex": 2802,
+                  "endIndex": 2817,
                   "content": [
                     {
-                      "startIndex": 2764,
-                      "endIndex": 2778,
+                      "startIndex": 2803,
+                      "endIndex": 2817,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2764,
-                            "endIndex": 2778,
+                            "startIndex": 2803,
+                            "endIndex": 2817,
                             "textRun": {
                               "content": "58,000,000 km\n",
                               "textStyle": {}
@@ -2806,17 +2952,17 @@
                   }
                 },
                 {
-                  "startIndex": 2778,
-                  "endIndex": 2788,
+                  "startIndex": 2817,
+                  "endIndex": 2827,
                   "content": [
                     {
-                      "startIndex": 2779,
-                      "endIndex": 2788,
+                      "startIndex": 2818,
+                      "endIndex": 2827,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2779,
-                            "endIndex": 2788,
+                            "startIndex": 2818,
+                            "endIndex": 2827,
                             "textRun": {
                               "content": "4,880 km\n",
                               "textStyle": {}
@@ -2929,25 +3075,25 @@
                   }
                 },
                 {
-                  "startIndex": 2788,
-                  "endIndex": 2806,
+                  "startIndex": 2827,
+                  "endIndex": 2845,
                   "content": [
                     {
-                      "startIndex": 2789,
-                      "endIndex": 2806,
+                      "startIndex": 2828,
+                      "endIndex": 2845,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2789,
-                            "endIndex": 2800,
+                            "startIndex": 2828,
+                            "endIndex": 2839,
                             "textRun": {
                               "content": "3.3011 × 10",
                               "textStyle": {}
                             }
                           },
                           {
-                            "startIndex": 2800,
-                            "endIndex": 2802,
+                            "startIndex": 2839,
+                            "endIndex": 2841,
                             "textRun": {
                               "content": "23",
                               "textStyle": {
@@ -2956,8 +3102,8 @@
                             }
                           },
                           {
-                            "startIndex": 2802,
-                            "endIndex": 2806,
+                            "startIndex": 2841,
+                            "endIndex": 2845,
                             "textRun": {
                               "content": " kg\n",
                               "textStyle": {}
@@ -3078,21 +3224,21 @@
               }
             },
             {
-              "startIndex": 2806,
-              "endIndex": 2861,
+              "startIndex": 2845,
+              "endIndex": 2900,
               "tableCells": [
                 {
-                  "startIndex": 2807,
-                  "endIndex": 2814,
+                  "startIndex": 2846,
+                  "endIndex": 2853,
                   "content": [
                     {
-                      "startIndex": 2808,
-                      "endIndex": 2814,
+                      "startIndex": 2847,
+                      "endIndex": 2853,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2808,
-                            "endIndex": 2814,
+                            "startIndex": 2847,
+                            "endIndex": 2853,
                             "textRun": {
                               "content": "Venus\n",
                               "textStyle": {
@@ -3207,17 +3353,17 @@
                   }
                 },
                 {
-                  "startIndex": 2814,
-                  "endIndex": 2830,
+                  "startIndex": 2853,
+                  "endIndex": 2869,
                   "content": [
                     {
-                      "startIndex": 2815,
-                      "endIndex": 2830,
+                      "startIndex": 2854,
+                      "endIndex": 2869,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2815,
-                            "endIndex": 2830,
+                            "startIndex": 2854,
+                            "endIndex": 2869,
                             "textRun": {
                               "content": "108,000,000 km\n",
                               "textStyle": {}
@@ -3265,17 +3411,17 @@
                   }
                 },
                 {
-                  "startIndex": 2830,
-                  "endIndex": 2843,
+                  "startIndex": 2869,
+                  "endIndex": 2882,
                   "content": [
                     {
-                      "startIndex": 2831,
-                      "endIndex": 2843,
+                      "startIndex": 2870,
+                      "endIndex": 2882,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2831,
-                            "endIndex": 2843,
+                            "startIndex": 2870,
+                            "endIndex": 2882,
                             "textRun": {
                               "content": "12,103.6 km\n",
                               "textStyle": {}
@@ -3323,25 +3469,25 @@
                   }
                 },
                 {
-                  "startIndex": 2843,
-                  "endIndex": 2861,
+                  "startIndex": 2882,
+                  "endIndex": 2900,
                   "content": [
                     {
-                      "startIndex": 2844,
-                      "endIndex": 2861,
+                      "startIndex": 2883,
+                      "endIndex": 2900,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2844,
-                            "endIndex": 2855,
+                            "startIndex": 2883,
+                            "endIndex": 2894,
                             "textRun": {
                               "content": "4.8675 × 10",
                               "textStyle": {}
                             }
                           },
                           {
-                            "startIndex": 2855,
-                            "endIndex": 2857,
+                            "startIndex": 2894,
+                            "endIndex": 2896,
                             "textRun": {
                               "content": "24",
                               "textStyle": {
@@ -3350,8 +3496,8 @@
                             }
                           },
                           {
-                            "startIndex": 2857,
-                            "endIndex": 2861,
+                            "startIndex": 2896,
+                            "endIndex": 2900,
                             "textRun": {
                               "content": " kg\n",
                               "textStyle": {}
@@ -3406,21 +3552,21 @@
               }
             },
             {
-              "startIndex": 2861,
-              "endIndex": 2916,
+              "startIndex": 2900,
+              "endIndex": 2955,
               "tableCells": [
                 {
-                  "startIndex": 2862,
-                  "endIndex": 2869,
+                  "startIndex": 2901,
+                  "endIndex": 2908,
                   "content": [
                     {
-                      "startIndex": 2863,
-                      "endIndex": 2869,
+                      "startIndex": 2902,
+                      "endIndex": 2908,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2863,
-                            "endIndex": 2869,
+                            "startIndex": 2902,
+                            "endIndex": 2908,
                             "textRun": {
                               "content": "Earth\n",
                               "textStyle": {
@@ -3535,17 +3681,17 @@
                   }
                 },
                 {
-                  "startIndex": 2869,
-                  "endIndex": 2885,
+                  "startIndex": 2908,
+                  "endIndex": 2924,
                   "content": [
                     {
-                      "startIndex": 2870,
-                      "endIndex": 2885,
+                      "startIndex": 2909,
+                      "endIndex": 2924,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2870,
-                            "endIndex": 2885,
+                            "startIndex": 2909,
+                            "endIndex": 2924,
                             "textRun": {
                               "content": "119,600,000 km\n",
                               "textStyle": {}
@@ -3658,25 +3804,25 @@
                   }
                 },
                 {
-                  "startIndex": 2885,
-                  "endIndex": 2897,
+                  "startIndex": 2924,
+                  "endIndex": 2936,
                   "content": [
                     {
-                      "startIndex": 2886,
-                      "endIndex": 2897,
+                      "startIndex": 2925,
+                      "endIndex": 2936,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2886,
-                            "endIndex": 2896,
+                            "startIndex": 2925,
+                            "endIndex": 2935,
                             "textRun": {
                               "content": "6,371.0 km",
                               "textStyle": {}
                             }
                           },
                           {
-                            "startIndex": 2896,
-                            "endIndex": 2897,
+                            "startIndex": 2935,
+                            "endIndex": 2936,
                             "textRun": {
                               "content": "\n",
                               "textStyle": {}
@@ -3722,25 +3868,25 @@
                   }
                 },
                 {
-                  "startIndex": 2897,
-                  "endIndex": 2916,
+                  "startIndex": 2936,
+                  "endIndex": 2955,
                   "content": [
                     {
-                      "startIndex": 2898,
-                      "endIndex": 2916,
+                      "startIndex": 2937,
+                      "endIndex": 2955,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2898,
-                            "endIndex": 2910,
+                            "startIndex": 2937,
+                            "endIndex": 2949,
                             "textRun": {
                               "content": "5.97237 × 10",
                               "textStyle": {}
                             }
                           },
                           {
-                            "startIndex": 2910,
-                            "endIndex": 2912,
+                            "startIndex": 2949,
+                            "endIndex": 2951,
                             "textRun": {
                               "content": "24",
                               "textStyle": {
@@ -3749,8 +3895,8 @@
                             }
                           },
                           {
-                            "startIndex": 2912,
-                            "endIndex": 2916,
+                            "startIndex": 2951,
+                            "endIndex": 2955,
                             "textRun": {
                               "content": " kg\n",
                               "textStyle": {}
@@ -3870,21 +4016,21 @@
               }
             },
             {
-              "startIndex": 2916,
-              "endIndex": 2968,
+              "startIndex": 2955,
+              "endIndex": 3007,
               "tableCells": [
                 {
-                  "startIndex": 2917,
-                  "endIndex": 2923,
+                  "startIndex": 2956,
+                  "endIndex": 2962,
                   "content": [
                     {
-                      "startIndex": 2918,
-                      "endIndex": 2923,
+                      "startIndex": 2957,
+                      "endIndex": 2962,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2918,
-                            "endIndex": 2923,
+                            "startIndex": 2957,
+                            "endIndex": 2962,
                             "textRun": {
                               "content": "Mars\n",
                               "textStyle": {
@@ -3999,17 +4145,17 @@
                   }
                 },
                 {
-                  "startIndex": 2923,
-                  "endIndex": 2939,
+                  "startIndex": 2962,
+                  "endIndex": 2978,
                   "content": [
                     {
-                      "startIndex": 2924,
-                      "endIndex": 2939,
+                      "startIndex": 2963,
+                      "endIndex": 2978,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2924,
-                            "endIndex": 2939,
+                            "startIndex": 2963,
+                            "endIndex": 2978,
                             "textRun": {
                               "content": "230,000,000 km\n",
                               "textStyle": {}
@@ -4122,17 +4268,17 @@
                   }
                 },
                 {
-                  "startIndex": 2939,
-                  "endIndex": 2950,
+                  "startIndex": 2978,
+                  "endIndex": 2989,
                   "content": [
                     {
-                      "startIndex": 2940,
-                      "endIndex": 2950,
+                      "startIndex": 2979,
+                      "endIndex": 2989,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2940,
-                            "endIndex": 2950,
+                            "startIndex": 2979,
+                            "endIndex": 2989,
                             "textRun": {
                               "content": "3389.5 km\n",
                               "textStyle": {}
@@ -4245,25 +4391,25 @@
                   }
                 },
                 {
-                  "startIndex": 2950,
-                  "endIndex": 2968,
+                  "startIndex": 2989,
+                  "endIndex": 3007,
                   "content": [
                     {
-                      "startIndex": 2951,
-                      "endIndex": 2968,
+                      "startIndex": 2990,
+                      "endIndex": 3007,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2951,
-                            "endIndex": 2962,
+                            "startIndex": 2990,
+                            "endIndex": 3001,
                             "textRun": {
                               "content": "6.4171 × 10",
                               "textStyle": {}
                             }
                           },
                           {
-                            "startIndex": 2962,
-                            "endIndex": 2964,
+                            "startIndex": 3001,
+                            "endIndex": 3003,
                             "textRun": {
                               "content": "23",
                               "textStyle": {
@@ -4272,8 +4418,8 @@
                             }
                           },
                           {
-                            "startIndex": 2964,
-                            "endIndex": 2968,
+                            "startIndex": 3003,
+                            "endIndex": 3007,
                             "textRun": {
                               "content": " kg\n",
                               "textStyle": {}
@@ -4420,13 +4566,13 @@
         }
       },
       {
-        "startIndex": 2969,
-        "endIndex": 2970,
+        "startIndex": 3008,
+        "endIndex": 3009,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2969,
-              "endIndex": 2970,
+              "startIndex": 3008,
+              "endIndex": 3009,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -4441,13 +4587,13 @@
         }
       },
       {
-        "startIndex": 2970,
-        "endIndex": 3055,
+        "startIndex": 3009,
+        "endIndex": 3094,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2970,
-              "endIndex": 3055,
+              "startIndex": 3009,
+              "endIndex": 3094,
               "textRun": {
                 "content": "Note that table styles such as color, width, and other visual formatting is ignored.\n",
                 "textStyle": {}
@@ -4462,13 +4608,13 @@
         }
       },
       {
-        "startIndex": 3055,
-        "endIndex": 3062,
+        "startIndex": 3094,
+        "endIndex": 3101,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3055,
-              "endIndex": 3062,
+              "startIndex": 3094,
+              "endIndex": 3101,
               "textRun": {
                 "content": "Images\n",
                 "textStyle": {}
@@ -4484,13 +4630,13 @@
         }
       },
       {
-        "startIndex": 3062,
-        "endIndex": 3257,
+        "startIndex": 3101,
+        "endIndex": 3296,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3062,
-              "endIndex": 3257,
+              "startIndex": 3101,
+              "endIndex": 3296,
               "textRun": {
                 "content": "Images and other figures can play a vital role in helping readers gain understanding of new and complex subject matter. As such, Stencila fully supports working with images found in Google Docs.\n",
                 "textStyle": {}
@@ -4505,13 +4651,13 @@
         }
       },
       {
-        "startIndex": 3257,
-        "endIndex": 3596,
+        "startIndex": 3296,
+        "endIndex": 3635,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3257,
-              "endIndex": 3596,
+              "startIndex": 3296,
+              "endIndex": 3635,
               "textRun": {
                 "content": "When converting between file formats, Stencila will attempt to embed the image in the target document format if possible, otherwise it will output media assets next to the converted file in a directory suffixed with “.media”.  For example, converting this document to HTML will result with a folder called “Google Docs and Stencila.media”\n",
                 "textStyle": {}
@@ -4526,21 +4672,21 @@
         }
       },
       {
-        "startIndex": 3596,
-        "endIndex": 3598,
+        "startIndex": 3635,
+        "endIndex": 3637,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3596,
-              "endIndex": 3597,
+              "startIndex": 3635,
+              "endIndex": 3636,
               "inlineObjectElement": {
                 "inlineObjectId": "kix.b15n6zwx5j17",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 3597,
-              "endIndex": 3598,
+              "startIndex": 3636,
+              "endIndex": 3637,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -4556,13 +4702,13 @@
         }
       },
       {
-        "startIndex": 3598,
-        "endIndex": 3599,
+        "startIndex": 3637,
+        "endIndex": 3638,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3598,
-              "endIndex": 3599,
+              "startIndex": 3637,
+              "endIndex": 3638,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -4577,13 +4723,13 @@
         }
       },
       {
-        "startIndex": 3599,
-        "endIndex": 3606,
+        "startIndex": 3638,
+        "endIndex": 3645,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3599,
-              "endIndex": 3606,
+              "startIndex": 3638,
+              "endIndex": 3645,
               "textRun": {
                 "content": "Charts\n",
                 "textStyle": {}
@@ -4599,13 +4745,13 @@
         }
       },
       {
-        "startIndex": 3606,
-        "endIndex": 3947,
+        "startIndex": 3645,
+        "endIndex": 3986,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3606,
-              "endIndex": 3947,
+              "startIndex": 3645,
+              "endIndex": 3986,
               "textRun": {
                 "content": "Charts and other graphs generated inside Google Docs behave similarly to Images as outlined above. An important thing to note is that while charts will be converted to images when converting between file formats, the underlying data will not be embedded in the resulting document, thus breaking reproducible characteristics of the document.\n",
                 "textStyle": {}
@@ -4620,21 +4766,21 @@
         }
       },
       {
-        "startIndex": 3947,
-        "endIndex": 3949,
+        "startIndex": 3986,
+        "endIndex": 3988,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3947,
-              "endIndex": 3948,
+              "startIndex": 3986,
+              "endIndex": 3987,
               "inlineObjectElement": {
                 "inlineObjectId": "kix.ox0hkdjvnovy",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 3948,
-              "endIndex": 3949,
+              "startIndex": 3987,
+              "endIndex": 3988,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -7797,7 +7943,7 @@
       }
     }
   },
-  "revisionId": "ALm37BVzO8sqBvyM5B1-1QfFdKG5HJwiTxn6R1eHnowdAN38fp1dyX4_-KL-Lv_hAOMmPL3iyUzvzr3sMIRXRw",
+  "revisionId": "ALm37BWPM7xnaQbym-_MlnuRV29cmJxFjuBHoPjBS87Hy5JOKnzqdB4JcQRsusuykOLMWzP2YfTXMUCcBEypDg",
   "suggestionsViewMode": "SUGGESTIONS_INLINE",
   "inlineObjects": {
     "kix.4p4ttv3ngjlm": {
@@ -7805,7 +7951,7 @@
       "inlineObjectProperties": {
         "embeddedObject": {
           "imageProperties": {
-            "contentUri": "https://lh3.googleusercontent.com/53_jHlJuaplqiZYAWbz_B6bSEounTw02OS58NGg0brqkjcoK0vIqwL2hyDOQw_L9P8v36zX845mN1YXSd4BaqvUs866OMIg8eUvxE-VanV19d_WjEAquD1ruiRL8gfnLc-ThsKPnCV5rGJusyJ3rqUBgysI",
+            "contentUri": "https://lh4.googleusercontent.com/RY5CvLuk-5bGkyUpv0lKRoP4Aqep8CAVpkmqJiUCx-p6Mw9193mdKOIl-88IgxDI3YJACMTDbIdQ972NWhtUDDQGWYQ5TdKJM1jre9JFNve5TIoQtKaPP3K7HW5L3XlPhzta22a6hwX4De9op8zynO_Z49A",
             "cropProperties": {}
           },
           "embeddedObjectBorder": {
@@ -7854,7 +8000,7 @@
       "inlineObjectProperties": {
         "embeddedObject": {
           "imageProperties": {
-            "contentUri": "https://lh3.googleusercontent.com/zqQVf6osWt0vaZgA2my4_de4Dv5jhBzZYOlELgiX4hd9427nUIwZuEgmGlx8ci3o7V4KsZVY9XDh5-koFhaHMnAIwCvBPCI-oS8VxwdP5XkoMiargSnLQsH6kThYRnnfV5FuR6ym1cvtvZsMmuHB52M-ZUE",
+            "contentUri": "https://lh4.googleusercontent.com/Jj9OD36j7Jmp4kqAZMHmdMd5noYs8M4GPda08QM844Bz2xHRahUzx5zE14WrzkMrlLYiMWxiVEUAZprfHpyCDvGqw5VXFEegEQK9xRXfpqlLrUGdoo3PvejRVC2sbRqNSvDxdiG2J74IryHFBmRaw3jr7dU",
             "cropProperties": {}
           },
           "embeddedObjectBorder": {
@@ -7903,7 +8049,7 @@
       "inlineObjectProperties": {
         "embeddedObject": {
           "imageProperties": {
-            "contentUri": "https://lh4.googleusercontent.com/j2R26eWZ3B4uaGha-PFk5l8xNp7_lZjY_TSINKJf6b7GtVKcnQYdxb_9DTDzDiLuwsnJjfXouh0VqTRRfZt0sAZ3rA9Ds_h7QjC_9UOpMlLjZ7iu5CQkR844dPi5Xyg-jOdp9meanf-WH9DL7lBNOsghPd8",
+            "contentUri": "https://lh4.googleusercontent.com/wXr-145LQdEY0qCQvvJ-nXD9kURIeU2PbB6C8XXk0GhRRo35YwUmkn_iGNudLJ8BGPlcOgwu-4j0MajAMbPbkKgsLfKDTzhDnqCZ8JefQvzjo1dzggPw3O58gzalRYz_yagpXC7sdcftDxEbjP22z2eVqDE",
             "cropProperties": {}
           },
           "title": "Photo by Joel Filipe on Unsplash",
@@ -7954,7 +8100,7 @@
       "inlineObjectProperties": {
         "embeddedObject": {
           "imageProperties": {
-            "contentUri": "https://lh6.googleusercontent.com/Liykqw6KFOKboJzCv2xxwCC6UjRbXGMYE8CXxzcosTkweTCwVJh97ULQTKwkAvehChVwY2ISH2JUL4zMfSHsIjIqG6Vxf7f5IgzOnLGwW9qaESv0pRpPxETMXCihS6-6_2uSylEvQhHh6tGKUH9MV7EaL_U",
+            "contentUri": "https://lh3.googleusercontent.com/H8svrL2XllY4DwENnF6fbsQu2Z4AlBKjG-13RDkrkEq2PMDNsbnxqqbpSJ-JitidBAxhk_Aiz1SZ6jJ3l5ZToCiZ0Z19sWq7slg3_w4J6mtyJDjsa68PPt8FHFYL0aZJoc20kMzEErZhAYbjfFRWFQVZqGY",
             "cropProperties": {}
           },
           "embeddedObjectBorder": {
@@ -8003,7 +8149,7 @@
       "inlineObjectProperties": {
         "embeddedObject": {
           "imageProperties": {
-            "contentUri": "https://lh4.googleusercontent.com/oHRgeygkltZ4aMmKZevHGv3cA6XATn1DPFEGcmCF4t9axPxci3iT5kqdA6DLbB9f5LSO6v1P2fjH5Yb1d4ei_T9oLVH-EpM2Xx8xIoi_mT9PfAKS_DmtiLFxBZTaUJMbLDGqtbjS7WrcTFDM-00EfAhcUiw",
+            "contentUri": "https://lh3.googleusercontent.com/AcNmZp44Bk6VwGq-ry3guSjjLxFNvKMMJdk4rcgMZzxbIpiPHQEx4A5ERm83RrTIxDSX34zfX3tEhaUg5dnk6Z6Qy15uwdc_r4WnVF9BrE4blBaP8roTUP3WO7w92S8swZjQSBKnaA-vMSVUAtEidbBbf7Q",
             "cropProperties": {}
           },
           "title": "Points scored",
@@ -8072,7 +8218,7 @@
         },
         "embeddedObject": {
           "imageProperties": {
-            "contentUri": "https://lh3.googleusercontent.com/i6owzvvx7Jn1dza-5vXgroBqrZsusoenTafg_AW-1DDTWw3YHtbDIAsWqB_u2RThLBENshqxSgtlpq5VkAgBg58Krtw_Ie77mVGaZOsDkEHu2561eU4OEQFXXzlgobMDDUHfK0yN71PiY7gvNqZ7XKJG41Y",
+            "contentUri": "https://lh3.googleusercontent.com/mnfXOsZG4Ob5YjoTIbMks_SZJdLKFqGCPJx1jKq4iwTsHp0hQHluPhJk5s2m7pbCP9Yi0HbE6phqmZjyrOpAl-Q5uMJ7l-Kx9WkRpWQ4Y3IUAMrC6bWaOJ1zyG2MFbSNpvg-K-w-mS6PhjmflnVybr_Uvf0",
             "cropProperties": {}
           },
           "embeddedObjectBorder": {
