@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process::Stdio};
+use std::{path::{PathBuf, Path}, process::Stdio};
 
 use pandoc_types::definition as pandoc;
 
@@ -122,7 +122,7 @@ pub async fn from_pandoc(
 /// Call Pandoc binary to convert Pandoc JSON to some output format
 pub async fn to_pandoc(
     doc: pandoc::Pandoc,
-    path: Option<PathBuf>,
+    path: Option<&Path>,
     format: &str,
     args: &[String],
 ) -> Result<String> {

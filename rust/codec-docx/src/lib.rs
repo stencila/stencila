@@ -38,7 +38,6 @@ impl CodecTrait for DocxCodec {
     }
 
     async fn to_path(node: &Node, path: &Path, _options: Option<EncodeOptions>) -> Result<()> {
-        let path = PathBuf::from(path);
         encode(node, Some(path), "docx", &[]).await?;
         Ok(())
     }

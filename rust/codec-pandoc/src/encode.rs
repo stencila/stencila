@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::HashMap, path::Path};
 
 use pandoc_types::definition as pandoc;
 
@@ -18,7 +18,7 @@ use crate::to_pandoc;
 /// Intended primarily for use by other internal codec crates e.g. `codec-docx`, `codec-latex`
 pub async fn encode(
     node: &Node,
-    path: Option<PathBuf>,
+    path: Option<&Path>,
     format: &str,
     args: &[String],
 ) -> Result<String> {
