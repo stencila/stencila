@@ -1,13 +1,13 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, VecDeque};
 
 use async_recursion::async_recursion;
 use codec::{
     common::{eyre::Result, once_cell::sync::Lazy, regex::Regex, serde_json},
     stencila_schema::{
         Article, BlockContent, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObjectSimple,
-        InlineContent, Link, ListItem, Node, NontextualAnnotation, Note, NoteNoteType, Paragraph,
-        Strong, TableCell, TableCellContent, TableRow, TableSimple, ThematicBreak,
-        ThingIdentifiers,
+        InlineContent, Link, List, ListItem, ListItemContent, Node, NontextualAnnotation, Note,
+        NoteNoteType, Paragraph, Strong, TableCell, TableCellContent, TableRow, TableSimple,
+        ThematicBreak, ThingIdentifiers,
     },
 };
 
@@ -36,6 +36,10 @@ pub(crate) fn decode_sync(content: &str) -> Result<Node> {
 }
 
 /// The decoding context
+///
+/// Note that the `inline_objects`, `footnotes` and `lists` properties all directly
+/// correspond to properties of the Google Doc schema. They are passed down the call stack
+/// in this context for dereferencing of lists, foot notes and inline object.
 struct Context {
     /// The map of Google Docs inline objects (e.g. images)
     inline_objects: BTreeMap<String, gdoc::InlineObject>,
@@ -45,15 +49,10 @@ struct Context {
 
     /// The map of Google Docs lists containing metadata such as bullet styles
     /// and nesting depth
-    list_map: BTreeMap<String, gdoc::List>,
+    lists: BTreeMap<String, gdoc::List>,
 
-    /// The Stencila list items for the current list (needed to be able to collect
-    /// paragraphs into lists)
-    list_items: BTreeMap<String, Vec<ListItem>>,
-
-    /// The current nesting depth of lists (used to determine if we need to pop
-    /// the items into a new list)
-    list_depth: u64,
+    /// A stack of lists within the current (used to implement nested lists)
+    list_stack: VecDeque<List>,
 }
 
 /**
@@ -74,9 +73,8 @@ async fn document_to_article(doc: gdoc::Document) -> Article {
         let mut context = Context {
             inline_objects: doc.inline_objects.unwrap_or_default(),
             footnotes: doc.footnotes.unwrap_or_default(),
-            list_map: doc.lists.unwrap_or_default(),
-            list_items: BTreeMap::new(),
-            list_depth: 0,
+            lists: doc.lists.unwrap_or_default(),
+            list_stack: VecDeque::new(),
         };
         Some(body_to_blocks(body, &mut context).await)
     } else {
@@ -101,6 +99,19 @@ async fn body_to_blocks(body: gdoc::Body, context: &mut Context) -> Vec<BlockCon
     let mut blocks: Vec<BlockContent> = Vec::new();
     for elem in body.content.into_iter().flatten() {
         if let Some(block) = structural_element_to_block(elem, context).await {
+            // If there are any lists on the stack then pop them off, including sub-lists
+            if let Some(mut list) = context.list_stack.pop_front() {
+                while let Some(sub_list) = context.list_stack.pop_front() {
+                    list.items.push(ListItem {
+                        content: Some(ListItemContent::VecBlockContent(vec![BlockContent::List(
+                            sub_list,
+                        )])),
+                        ..Default::default()
+                    })
+                }
+                blocks.push(BlockContent::List(list));
+            }
+
             blocks.push(block)
         }
     }
@@ -152,6 +163,10 @@ async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Opt
         }
     }
 
+    if inlines.is_empty() {
+        return None;
+    }
+
     if let Some(style) = para.paragraph_style {
         if let Some(style_name) = style.named_style_type {
             static REGEX: Lazy<Regex> =
@@ -173,8 +188,54 @@ async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Opt
     }
 
     if let Some(bullet) = para.bullet {
-        if let Some(_list_id) = bullet.list_id {
-            let _list_level = bullet.nesting_level.unwrap_or(0);
+        if let Some(list_id) = bullet.list_id {
+            let list_item = ListItem {
+                content: Some(ListItemContent::VecInlineContent(inlines)),
+                ..Default::default()
+            };
+
+            let list_level = bullet.nesting_level.unwrap_or(0) as usize;
+
+            use std::cmp::Ordering;
+            match (list_level + 1).cmp(&context.list_stack.len()) {
+                Ordering::Equal => {
+                    // Same level so just push item onto current list
+                    match context.list_stack.back_mut() {
+                        Some(list) => list.items.push(list_item),
+                        None => context.list_stack.push_back(List {
+                            items: vec![list_item],
+                            ..Default::default()
+                        }),
+                    }
+                }
+                Ordering::Greater => {
+                    // Increase in level so create a new list with the item and
+                    // push it onto the list stack
+                    context.list_stack.push_back(List {
+                        items: vec![list_item],
+                        ..Default::default()
+                    });
+                }
+                Ordering::Less => {
+                    // Decrease in level so pop the last list off the stack and add
+                    // it as an item to the next list up
+                    if let Some(last) = context.list_stack.pop_back() {
+                        if let Some(above) = context.list_stack.back_mut() {
+                            above.items.push(ListItem {
+                                content: Some(ListItemContent::VecBlockContent(vec![
+                                    BlockContent::List(last),
+                                ])),
+                                ..Default::default()
+                            })
+                        }
+                    }
+                    //...and push the item onto the one above
+                    if let Some(list) = context.list_stack.back_mut() {
+                        list.items.push(list_item)
+                    }
+                }
+            }
+            return None;
         }
     }
 
@@ -373,7 +434,6 @@ async fn inline_object_element_to_inline(
         embedded_object.image_properties.map(|image_properties| {
             InlineContent::ImageObject(ImageObjectSimple {
                 title,
-                //caption,
                 content_url: image_properties.content_uri.unwrap_or_default(),
                 ..Default::default()
             })

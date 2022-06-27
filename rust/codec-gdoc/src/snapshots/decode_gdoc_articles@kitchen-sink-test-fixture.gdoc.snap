@@ -1,0 +1,772 @@
+---
+source: rust/codec-gdoc/src/decode.rs
+assertion_line: 517
+expression: decode_sync(content).unwrap()
+input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Heading",
+      "content": [
+        "Introduction"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "This is the “kitchen sink” Google Doc used for testing conversion between Google Docs and Stencila Articles. Secondarily, it provides documentation on that conversion and instructions for using Google Docs with Stencila."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Please be aware that any changes made in this document should normally be followed up with updates to:"
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            "the downloaded JSON version of this document in the  ",
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "NontextualAnnotation",
+                  "content": [
+                    "fixtures/articles/gdoc"
+                  ]
+                }
+              ],
+              "target": "https://github.com/stencila/stencila/tree/HEAD/fixtures/articles/gdoc"
+            },
+            " folder"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "the test snapshots based on that JSON by running ",
+            "cargo insta test",
+            " in ",
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "NontextualAnnotation",
+                  "content": [
+                    "rust/codec-gdoc"
+                  ]
+                }
+              ],
+              "target": "https://github.com/stencila/stencila/tree/HEAD/rust/codec-gdoc"
+            },
+            " "
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Title"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "There are two ways to define the title of an article: using the “Title” style or using the name of your GDoc."
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            "You can use the paragraph style “Title” to mark a paragraph as the title of your article. Usually, but not necessarily, this paragraph will be the first one in your article. Click on the paragraph and select the “Title” style from the styles menu:"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "https://lh3.googleusercontent.com/zqQVf6osWt0vaZgA2my4_de4Dv5jhBzZYOlELgiX4hd9427nUIwZuEgmGlx8ci3o7V4KsZVY9XDh5-koFhaHMnAIwCvBPCI-oS8VxwdP5XkoMiargSnLQsH6kThYRnnfV5FuR6ym1cvtvZsMmuHB52M-ZUE"
+        }
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            "If a GDoc does not have any title paragraph, Stencila will fall back to using the name of the document. You can set the name by clicking on it in the top left of the GDoc interface:"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "https://lh3.googleusercontent.com/53_jHlJuaplqiZYAWbz_B6bSEounTw02OS58NGg0brqkjcoK0vIqwL2hyDOQw_L9P8v36zX845mN1YXSd4BaqvUs866OMIg8eUvxE-VanV19d_WjEAquD1ruiRL8gfnLc-ThsKPnCV5rGJusyJ3rqUBgysI"
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Headings"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Use heading styles to structure your document into sections. Use the style menu to select the level of heading for a piece of text:"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "https://lh6.googleusercontent.com/Liykqw6KFOKboJzCv2xxwCC6UjRbXGMYE8CXxzcosTkweTCwVJh97ULQTKwkAvehChVwY2ISH2JUL4zMfSHsIjIqG6Vxf7f5IgzOnLGwW9qaESv0pRpPxETMXCihS6-6_2uSylEvQhHh6tGKUH9MV7EaL_U"
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Google Docs only has three levels of headings in the styles toolbar item, but you can select more in the ",
+        {
+          "type": "Strong",
+          "content": [
+            "Format > Paragraph Styles"
+          ]
+        },
+        " menu",
+        ". To maintain consistency with other formats and table of contents generators, the top level heading should always use the “Heading 1” style."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Text"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stencila will interpret the following text styles in your Google Doc:"
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Emphasis",
+              "content": [
+                "Italic text"
+              ]
+            },
+            " as a Emphasis node"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Strong",
+              "content": [
+                "Bold text"
+              ]
+            },
+            " as a Strong emphasis node"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Text with ",
+            {
+              "type": "Delete",
+              "content": [
+                "a strikethrough"
+              ]
+            },
+            " as a Striked node"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Text that is ",
+            {
+              "type": "NontextualAnnotation",
+              "content": [
+                "underlined"
+              ]
+            },
+            " as an Underlined node"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Subscripted text as a Subscript node e.g. p",
+            "1"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Superscripted text as a Superscript node e.g. x",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "In addition, Stencila will convert text that has multiple styles into nested inline nodes e.g."
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    "Bolded italic"
+                  ]
+                }
+              ]
+            },
+            " text as Emphasis nested within Strong"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Delete",
+              "content": [
+                "Strikethrough subscript"
+              ]
+            },
+            " as Delete nested within Subscript"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stencila will ignore all other text styling, including colors, fonts and text sizes. For example, all of the following list items should appear as plain text when opened with Stencila:"
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            "Colored",
+            " text"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Text with a ",
+            "highlight",
+            " color"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Text in a ",
+            "different",
+            " font face"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Larger",
+            " or ",
+            "smaller",
+            " font sizes"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Lists"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stencila recognises lists in Google Docs including unordered (bulleted) lists like this:"
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            "Apple"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Pear"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Peach"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "And ordered lists like this:"
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            "Butter"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Cheese"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Milk"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Nested lists are supported too:"
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            "Fruit"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "List",
+              "items": [
+                {
+                  "type": "ListItem",
+                  "content": [
+                    "Apple"
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    "Pear"
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    "Peach"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Dairy"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "List",
+              "items": [
+                {
+                  "type": "ListItem",
+                  "content": [
+                    "Butter"
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    "Cheese"
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    "Milk"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Note that the style of bullet or numbering is ignored."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Tables"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Google Docs supports simple inline tables, meaning that it does not support formulas or functions. "
+      ]
+    },
+    {
+      "type": "Table",
+      "rows": [
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    "Planet"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    "Avg. Distance from the Sun"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    "Radius"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    "Mass"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    "Mercury"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "58,000,000 km"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "4,880 km"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    "3.3011 × 10",
+                    "23",
+                    " kg"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    "Venus"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "108,000,000 km"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "12,103.6 km"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    "4.8675 × 10",
+                    "24",
+                    " kg"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    "Earth"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "119,600,000 km"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "6,371.0 km"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    "5.97237 × 10",
+                    "24",
+                    " kg"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    "Mars"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "230,000,000 km"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "3389.5 km"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    "6.4171 × 10",
+                    "23",
+                    " kg"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Note that table styles such as color, width, and other visual formatting is ignored."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Images"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Images and other figures can play a vital role in helping readers gain understanding of new and complex subject matter. As such, Stencila fully supports working with images found in Google Docs."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "When converting between file formats, Stencila will attempt to embed the image in the target document format if possible, otherwise it will output media assets next to the converted file in a directory suffixed with “.media”.  For example, converting this document to HTML will result with a folder called “Google Docs and Stencila.media”"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "https://lh4.googleusercontent.com/j2R26eWZ3B4uaGha-PFk5l8xNp7_lZjY_TSINKJf6b7GtVKcnQYdxb_9DTDzDiLuwsnJjfXouh0VqTRRfZt0sAZ3rA9Ds_h7QjC_9UOpMlLjZ7iu5CQkR844dPi5Xyg-jOdp9meanf-WH9DL7lBNOsghPd8",
+          "title": "Photo by Joel Filipe on Unsplash"
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Charts"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Charts and other graphs generated inside Google Docs behave similarly to Images as outlined above. An important thing to note is that while charts will be converted to images when converting between file formats, the underlying data will not be embedded in the resulting document, thus breaking reproducible characteristics of the document."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "https://lh4.googleusercontent.com/oHRgeygkltZ4aMmKZevHGv3cA6XATn1DPFEGcmCF4t9axPxci3iT5kqdA6DLbB9f5LSO6v1P2fjH5Yb1d4ei_T9oLVH-EpM2Xx8xIoi_mT9PfAKS_DmtiLFxBZTaUJMbLDGqtbjS7WrcTFDM-00EfAhcUiw",
+          "title": "Points scored"
+        }
+      ]
+    }
+  ],
+  "identifiers": [
+    "https://docs.google.com/document/d/1BePN1If6tUAr1eMg32MJMFKjbuuEkzwBiOxsYp3XqoU"
+  ],
+  "title": "Stencila Google Docs Kitchen Sink Test Fixture"
+}
