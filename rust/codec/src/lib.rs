@@ -192,7 +192,7 @@ pub struct DecodeOptions {
 ///
 /// Encoding functions (including those in plugins) are encouraged to respect these options
 /// but are not required to. Indeed, some options do not apply for some formats.
-/// For example, a PDF is always `standalone` (so if that option is set to `false` is it will be ignored).
+/// For example, a PDF is always `standalone` (so if that option is set to `false`, it will be ignored).
 /// Futhermore, some combinations of options are ineffectual e.g. a `theme` when `standalone: false`
 #[derive(Clone)]
 pub struct EncodeOptions {
@@ -213,6 +213,15 @@ pub struct EncodeOptions {
     /// Some formats (e.g. DOCX, PDF) always bundle. For HTML, bundling means
     /// including media as data URIs rather than links to files.
     pub bundle: bool,
+
+    /// Whether to use Stencila Cloud as a remote storage for document nodes
+    /// that can not be wholly represented within the format
+    ///
+    /// Some formats (e.g. Google Docs) are not able to fully represent some types
+    /// of nodes (e.g. CodeChunks). In these cases we store the node on Stencila Cloud
+    /// with a unique id and key and insert a link to it from within the format.
+    pub rpng_content: bool,
+    pub rpng_link: bool,
 
     /// The theme to apply to the encoded document
     ///
@@ -237,6 +246,8 @@ impl Default for EncodeOptions {
             compact: true,
             standalone: false,
             bundle: false,
+            rpng_content: false,
+            rpng_link: false,
             theme: None,
             components: true,
             format: None,

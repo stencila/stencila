@@ -1116,6 +1116,7 @@ version = "0.0.0"
 dependencies = [
  "async-recursion 1.0.0",
  "codec",
+ "codec-pandoc",
  "schemafy",
  "serde",
  "serde_json",
@@ -1216,6 +1217,7 @@ name = "codec-pandoc"
 version = "0.0.0"
 dependencies = [
  "binaries",
+ "cloud",
  "codec",
  "codec-json",
  "codec-rpng",
@@ -1228,6 +1230,7 @@ dependencies = [
  "test-props",
  "test-snaps",
  "test-utils",
+ "uuids",
 ]
 
 [[package]]

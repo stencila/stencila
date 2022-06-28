@@ -1,9 +1,13 @@
-use std::{collections::HashMap, path::Path};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
+use cloud::nodes::{node_create, node_url};
 use pandoc_types::definition as pandoc;
 
 use codec::{
-    common::{eyre::Result, tempfile},
+    common::{eyre::Result, futures, tempfile},
     stencila_schema::*,
     CodecTrait, EncodeOptions,
 };
@@ -21,10 +25,11 @@ pub async fn encode(
     path: Option<&Path>,
     format: &str,
     args: &[String],
+    options: Option<EncodeOptions>,
 ) -> Result<String> {
-    let mut context = EncodeContext::new()?;
+    let mut context = EncodeContext::new(options)?;
     let pandoc = node.to_pandoc(&mut context);
-    context.generate_rpngs().await?;
+    context.finalize().await?;
     to_pandoc(pandoc, path, format, args).await
 }
 
@@ -33,26 +38,33 @@ pub async fn encode(
 /// Compared to the `encode` function this function does not spawn a Pandoc
 /// process, or create RPNGs and returns a `pandoc_types` definition instead.
 /// It intended mainly for generative testing.
-pub fn encode_node(node: &Node) -> Result<pandoc::Pandoc> {
-    let mut context = EncodeContext::new()?;
+pub fn encode_node(node: &Node, options: Option<EncodeOptions>) -> Result<pandoc::Pandoc> {
+    let mut context = EncodeContext::new(options)?;
     let pandoc = node.to_pandoc(&mut context);
     Ok(pandoc)
 }
 
 /// The encoding context.
 struct EncodeContext {
+    /// Encoding options
+    options: EncodeOptions,
+
     /// The directory where any temporary files are placed
+    ///
+    /// Note: this will get cleaned up when the context is destroyed (ie. encoding finished)
     temp_dir: tempfile::TempDir,
 
     /// The nodes that should be encoded as RPNGs
-    rpng_nodes: Vec<(String, Node)>,
+    rpng_nodes: Vec<(String, PathBuf, Node)>,
 }
 
 impl EncodeContext {
-    fn new() -> Result<Self> {
+    fn new(options: Option<EncodeOptions>) -> Result<Self> {
+        let options = options.unwrap_or_default();
         let temp_dir = tempfile::tempdir()?;
         let rpng_nodes = Vec::new();
         Ok(EncodeContext {
+            options,
             temp_dir,
             rpng_nodes,
         })
@@ -60,12 +72,14 @@ impl EncodeContext {
 
     /// Push a node to be encoded as an RPNG
     fn push_rpng(&mut self, type_name: &str, node: Node) -> pandoc::Inline {
-        let path = self
-            .temp_dir
-            .path()
-            .join([&self.rpng_nodes.len().to_string(), ".png"].concat())
-            .to_slash_lossy()
-            .into_owned();
+        let prefix = match node {
+            Node::CodeChunk(..) => "cc",
+            Node::CodeExpression(..) => "ce",
+            _ => "no",
+        };
+        let id = uuids::generate_num(prefix, 32);
+
+        let path = self.temp_dir.path().join(format!("{}.png", id));
 
         let json = JsonCodec::to_string(
             &node,
@@ -76,25 +90,67 @@ impl EncodeContext {
         )
         .expect("Should be able to encode as JSON");
 
-        self.rpng_nodes.push((path.clone(), node));
+        self.rpng_nodes.push((id.to_string(), path.clone(), node));
 
-        pandoc::Inline::Image(
+        let inlines = match self.options.rpng_content {
+            true => vec![pandoc::Inline::Str(json)],
+            false => Vec::new(),
+        };
+
+        let image = pandoc::Inline::Image(
             attrs_empty(),
-            vec![pandoc::Inline::Str(json)],
+            inlines,
             pandoc::Target {
-                url: path,
+                url: path.to_slash_lossy(),
+                title: type_name.into(),
+            },
+        );
+
+        if !self.options.rpng_link {
+            return image;
+        }
+
+        let url = node_url(&id);
+
+        pandoc::Inline::Link(
+            attrs_empty(),
+            vec![image],
+            pandoc::Target {
+                url,
                 title: type_name.into(),
             },
         )
     }
 
-    /// Generate all the RPNGS
+    /// Generate all the RPNGs that have been pushed to this context
+    ///
+    /// This is called once, after all nodes have been encoded, thereby avoiding having to have all
+    /// async functions, as well as being faster.
     async fn generate_rpngs(&self) -> Result<()> {
-        let nodes: Vec<&Node> = self.rpng_nodes.iter().map(|(_id, node)| node).collect();
+        let nodes: Vec<&Node> = self.rpng_nodes.iter().map(|(.., node)| node).collect();
         let rpngs = codec_rpng::nodes_to_bytes(&nodes, None).await?;
         for (index, bytes) in rpngs.iter().enumerate() {
-            let (path, ..) = &self.rpng_nodes[index];
+            let (_id, path, ..) = &self.rpng_nodes[index];
             std::fs::write(path, bytes)?;
+        }
+        Ok(())
+    }
+
+    /// Post all the RPNGs to Stencila Cloud
+    async fn post_nodes(&self) -> Result<()> {
+        let futures = self
+            .rpng_nodes
+            .iter()
+            .map(|(id, .., node)| node_create(id, node, None, None));
+        futures::future::try_join_all(futures).await?;
+        Ok(())
+    }
+
+    /// Finalize the encoding
+    async fn finalize(&self) -> Result<()> {
+        self.generate_rpngs().await?;
+        if self.options.rpng_link {
+            self.post_nodes().await?;
         }
         Ok(())
     }

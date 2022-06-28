@@ -10,7 +10,7 @@ proptest! {
         PandocCodec::spec().unsupported_types,
         PandocCodec::spec().unsupported_properties,
     )) {
-        let pandoc = encode_node(&input).unwrap();
+        let pandoc = encode_node(&input, None).unwrap();
         let output = decode_pandoc(pandoc).unwrap();
         assert_json_eq!(input, output);
     }

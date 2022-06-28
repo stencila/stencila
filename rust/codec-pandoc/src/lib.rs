@@ -1,4 +1,7 @@
-use std::{path::{PathBuf, Path}, process::Stdio};
+use std::{
+    path::{Path, PathBuf},
+    process::Stdio,
+};
 
 use pandoc_types::definition as pandoc;
 
@@ -61,8 +64,8 @@ impl CodecTrait for PandocCodec {
     }
 
     #[cfg(feature = "encode")]
-    async fn to_string_async(node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
-        encode(node, None, "pandoc", &[]).await
+    async fn to_string_async(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+        encode(node, None, "pandoc", &[], options).await
     }
 }
 
