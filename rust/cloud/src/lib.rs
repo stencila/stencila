@@ -3,6 +3,7 @@ mod types;
 mod utils;
 
 pub mod cli;
+pub mod nodes;
 pub mod orgs;
 pub mod projects;
 pub mod sources;
