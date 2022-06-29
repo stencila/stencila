@@ -11,6 +11,7 @@ use archive_utils::{flate2, tar, zstd};
 use common::{
     chrono::Utc,
     eyre::{bail, eyre, Result},
+    itertools::Itertools,
     tracing,
 };
 use hash_utils::{sha2::Digest, sha2::Sha256};
@@ -21,7 +22,7 @@ use crate::{blob_writer::BlobWriter, storage::digest_to_parts};
 ///
 /// This enum represents the [Change Types](https://github.com/opencontainers/image-spec/blob/main/layer.md#change-types)
 /// described in the OCI spec.
-#[derive(Debug, PartialEq, Ord, PartialOrd, Eq)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd)]
 pub enum Change {
     Added(String),
     Modified(String),
@@ -79,7 +80,7 @@ impl ChangeSet {
     ///
     /// - `layout_dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
     pub fn write_layer<P: AsRef<Path>>(
-        mut self,
+        self,
         media_type: &MediaType,
         layout_dir: P,
     ) -> Result<(String, Descriptor)> {
@@ -162,9 +163,10 @@ impl ChangeSet {
                 path = path.join(part);
                 archive.append_path_with_name(&self.source_dir, &path)?;
             }
-            self.items.sort();
-            // Add each change
-            for change in self.items {
+
+            // Add each change in sorted order so that the digest of the generated archive
+            // does not change for a given change set
+            for change in self.items.into_iter().sorted() {
                 match change {
                     Change::Added(ref path) | Change::Modified(ref path) => {
                         let source_path = self.source_dir.join(path);
