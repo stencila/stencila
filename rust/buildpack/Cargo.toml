@@ -8,5 +8,5 @@ edition = "2021"
 common = { path = "../common" }
 fs-utils = { path = "../fs-utils" }
 hash-utils = { path = "../hash-utils" }
-libcnb = "0.7.0"
+libcnb = "0.8.0"
 tracing-subscriber = "0.3.11"

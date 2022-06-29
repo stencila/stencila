@@ -8,7 +8,7 @@ default = ["cli"]
 cli = ["cli-utils"]
 
 [dependencies]
-axum = "0.5.7"
+axum = "0.5.10"
 common = { path = "../common" }
 mime_guess = "2.0.4"
 portpicker = "0.1.1"
