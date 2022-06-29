@@ -8,7 +8,7 @@ use common::{
     tracing,
 };
 use fs_utils::remove_if_exists;
-use http_utils::CLIENT;
+use http_utils::{reqwest, CLIENT};
 
 use crate::{
     api,
@@ -160,6 +160,59 @@ pub async fn token_delete(id: u64) -> Result<()> {
     }
 }
 
+pub async fn provider_list() -> Result<Vec<Provider>> {
+    let response = CLIENT
+        .get(api!("oauth/providers"))
+        .bearer_auth(token_read()?)
+        .send()
+        .await?;
+    if response.status().is_success() {
+        Ok(response.json().await?)
+    } else {
+        Error::from_response(response).await
+    }
+}
+
+pub async fn provider_create(provider: &str) -> Result<()> {
+    let client = reqwest::ClientBuilder::new()
+        .redirect(reqwest::redirect::Policy::none())
+        .build()?;
+    let response = client
+        .post(api!("oauth/providers?provider={}", provider.to_lowercase()))
+        .bearer_auth(token_read()?)
+        .send()
+        .await?;
+    if response.status() == 302 {
+        let url = response.text().await?;
+        tracing::info!(
+            "Opening authorization page for provider `{}`: {}",
+            provider,
+            url
+        );
+        webbrowser::open(&url)?;
+        Ok(())
+    } else {
+        Error::from_response(response).await
+    }
+}
+
+pub async fn provider_delete(provider: &str) -> Result<()> {
+    let response = CLIENT
+        .delete(api!("oauth/providers?provider={}", provider.to_lowercase()))
+        .bearer_auth(token_read()?)
+        .send()
+        .await?;
+    if response.status().is_success() {
+        tracing::info!(
+            "Successfully disconnected account for provider `{}`",
+            provider
+        );
+        Ok(())
+    } else {
+        Error::from_response(response).await
+    }
+}
+
 pub mod cli {
     use cli_utils::{
         clap::{self, Parser},
@@ -183,6 +236,7 @@ pub mod cli {
         Logout(Logout),
         Me(Me),
         Tokens(tokens::Command),
+        Providers(providers::Command),
     }
 
     #[async_trait]
@@ -193,6 +247,7 @@ pub mod cli {
                 Action::Login(action) => action.run().await,
                 Action::Logout(action) => action.run().await,
                 Action::Tokens(action) => action.run().await,
+                Action::Providers(action) => action.run().await,
             }
         }
     }
@@ -350,6 +405,110 @@ pub mod cli {
             async fn run(&self) -> Result {
                 token_delete(self.id).await?;
                 result::nothing()
+            }
+        }
+    }
+
+    mod providers {
+        use crate::{page, utils::WebArg};
+
+        use super::*;
+
+        /// Manage authentication providers
+        #[derive(Parser)]
+        #[clap(alias = "provider")]
+        pub struct Command {
+            #[clap(subcommand)]
+            action: Action,
+        }
+
+        #[derive(Parser)]
+        enum Action {
+            List(List),
+            Connect(Connect),
+            Disconnect(Disconnect),
+        }
+
+        #[async_trait]
+        impl Run for Command {
+            async fn run(&self) -> Result {
+                match &self.action {
+                    Action::List(action) => action.run().await,
+                    Action::Connect(action) => action.run().await,
+                    Action::Disconnect(action) => action.run().await,
+                }
+            }
+        }
+
+        /// List external accounts connected to your Stencila account
+        #[derive(Parser)]
+        struct List {
+            #[clap(flatten)]
+            web: WebArg,
+        }
+
+        #[async_trait]
+        impl Run for List {
+            async fn run(&self) -> Result {
+                if self.web.yes {
+                    self.web.open(page!("settings/integrations"))
+                } else {
+                    let providers = provider_list().await?;
+                    result::table(providers, Provider::title())
+                }
+            }
+        }
+
+        #[derive(Parser)]
+        pub(crate) struct ProviderArg {
+            /// The name of the authentication provider
+            #[clap(possible_values = ["github", "gitlab","google"], ignore_case = true)]
+            pub provider: String,
+        }
+
+        /// Connect an external account to your Stencila account
+        #[derive(Parser)]
+        #[clap(alias = "add")]
+        struct Connect {
+            #[clap(flatten)]
+            provider: ProviderArg,
+
+            #[clap(flatten)]
+            web: WebArg,
+        }
+
+        #[async_trait]
+        impl Run for Connect {
+            async fn run(&self) -> Result {
+                if self.web.yes {
+                    self.web.open(page!("settings/integrations"))
+                } else {
+                    provider_create(&self.provider.provider).await?;
+                    result::nothing()
+                }
+            }
+        }
+
+        /// Disconnect an external account from your Stencila account
+        #[derive(Parser)]
+        #[clap(alias = "remove")]
+        struct Disconnect {
+            #[clap(flatten)]
+            provider: ProviderArg,
+
+            #[clap(flatten)]
+            web: WebArg,
+        }
+
+        #[async_trait]
+        impl Run for Disconnect {
+            async fn run(&self) -> Result {
+                if self.web.yes {
+                    self.web.open(page!("settings/integrations"))
+                } else {
+                    provider_delete(&self.provider.provider).await?;
+                    result::nothing()
+                }
             }
         }
     }

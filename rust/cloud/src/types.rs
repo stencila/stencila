@@ -45,6 +45,21 @@ pub struct ApiToken {
 #[derive(Serialize, Deserialize, Table)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[table(crate = "cli_utils::cli_table")]
+pub struct Provider {
+    #[table(title = "Provider", display_fn = "title_case")]
+    pub provider: String,
+
+    #[table(title = "Connected", display_fn = "date_time_ago")]
+    pub first_received_at: DateTime<Utc>,
+
+    #[table(title = "Updated", display_fn = "date_time_ago")]
+    pub last_received_at: DateTime<Utc>,
+}
+
+#[skip_serializing_none]
+#[derive(Serialize, Deserialize, Table)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[table(crate = "cli_utils::cli_table")]
 pub struct LogEntry {
     #[table(title = "User", display_fn = "log_entry_user_table_display")]
     pub user: Option<OrgPersonal>,
