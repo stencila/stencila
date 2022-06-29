@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/stencila/stencila/compare/v1.13.0...v1.13.1) (2022-06-29)
+
+
+### Bug Fixes
+
+* **Rust:** Update dependencies ([187c3fe](https://github.com/stencila/stencila/commit/187c3feb65bbb291c0962c5c4c7d48a2c17a888a))
+
 # [1.13.0](https://github.com/stencila/stencila/compare/v1.12.0...v1.13.0) (2022-06-23)
 
 
