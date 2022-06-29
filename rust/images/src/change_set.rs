@@ -21,7 +21,7 @@ use crate::{blob_writer::BlobWriter, storage::digest_to_parts};
 ///
 /// This enum represents the [Change Types](https://github.com/opencontainers/image-spec/blob/main/layer.md#change-types)
 /// described in the OCI spec.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Ord, PartialOrd, Eq)]
 pub enum Change {
     Added(String),
     Modified(String),
@@ -79,7 +79,7 @@ impl ChangeSet {
     ///
     /// - `layout_dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
     pub fn write_layer<P: AsRef<Path>>(
-        self,
+        mut self,
         media_type: &MediaType,
         layout_dir: P,
     ) -> Result<(String, Descriptor)> {
@@ -162,7 +162,7 @@ impl ChangeSet {
                 path = path.join(part);
                 archive.append_path_with_name(&self.source_dir, &path)?;
             }
-
+            self.items.sort();
             // Add each change
             for change in self.items {
                 match change {

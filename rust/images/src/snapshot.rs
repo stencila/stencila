@@ -337,7 +337,7 @@ impl Snapshot {
                 changes.push(Change::Added(path.into()))
             }
         }
-        ChangeSet::new(&self.source_dir, &self.dest_dir, changes)
+        ChangeSet::new(&other.source_dir, &other.dest_dir, changes)
     }
 
     /// Create a set of changes by repeating the current snapshot
