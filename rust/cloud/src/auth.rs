@@ -1,10 +1,10 @@
-use std::fs::read_to_string;
+use std::{env, fs::read_to_string};
 
 use common::{
     chrono::{self, Utc},
     eyre::{bail, Result},
     serde_json::{self, json},
-    tokio::time::{sleep, Duration},
+    tokio::time::{sleep, Duration, Instant},
     tracing,
 };
 use fs_utils::remove_if_exists;
@@ -210,6 +210,63 @@ pub async fn provider_delete(provider: &str) -> Result<()> {
         Ok(())
     } else {
         Error::from_response(response).await
+    }
+}
+
+/// Get a token for a provider
+///
+/// Attempts to get a token for the provider, in order of preference
+///
+/// - an environment variable e.g. `GITHUB_TOKEN`
+/// - an existing connection `api/oauth/token?provider=<provider>` (will be refreshed if necessary)
+/// - a new connection: calls the `provider_create` function and polls for up to a minute for
+///   a token
+pub async fn provider_token(provider: &str) -> Result<ProviderToken> {
+    // Check for env var
+    if let Ok(token) = env::var([provider, "_TOKEN"].concat().to_uppercase()) {
+        return Ok(ProviderToken {
+            provider: provider.to_lowercase(),
+            access_token: token,
+            expires_at: None,
+        });
+    }
+
+    // Attempt to fetch token
+    async fn fetch(provider: &str) -> Result<ProviderToken> {
+        let response = CLIENT
+            .get(api!("oauth/token?provider={}", provider.to_lowercase()))
+            .bearer_auth(token_read()?)
+            .send()
+            .await?;
+        if response.status().is_success() {
+            Ok(response.json().await?)
+        } else {
+            Error::from_response(response).await
+        }
+    }
+    match fetch(provider).await {
+        Ok(token) => return Ok(token),
+        Err(error) => {
+            tracing::warn!("{}", error)
+        }
+    }
+
+    // Prompt user to add provider and poll for a token
+    provider_create(provider).await?;
+    tracing::info!("Waiting for you to connect your account to `{}`", provider);
+    let deadline = Instant::now() + Duration::from_secs(300);
+    loop {
+        sleep(Duration::from_millis(1500)).await;
+        if let Ok(token) = fetch(provider).await {
+            eprint!("\n\n");
+            return Ok(token);
+        }
+
+        eprint!(".");
+
+        if Instant::now() >= deadline {
+            tracing::error!("Giving up waiting for access token for `{}`", provider)
+        }
     }
 }
 
@@ -427,6 +484,7 @@ pub mod cli {
             List(List),
             Connect(Connect),
             Disconnect(Disconnect),
+            Token(Token),
         }
 
         #[async_trait]
@@ -436,6 +494,7 @@ pub mod cli {
                     Action::List(action) => action.run().await,
                     Action::Connect(action) => action.run().await,
                     Action::Disconnect(action) => action.run().await,
+                    Action::Token(action) => action.run().await,
                 }
             }
         }
@@ -509,6 +568,24 @@ pub mod cli {
                     provider_delete(&self.provider.provider).await?;
                     result::nothing()
                 }
+            }
+        }
+
+        /// Obtain an access token for a provider
+        ///
+        /// This command is generally only used during testing or debugging.
+        #[derive(Parser)]
+        #[clap(hide = true)]
+        struct Token {
+            #[clap(flatten)]
+            provider: ProviderArg,
+        }
+
+        #[async_trait]
+        impl Run for Token {
+            async fn run(&self) -> Result {
+                let token = provider_token(&self.provider.provider).await?;
+                result::value(token)
             }
         }
     }

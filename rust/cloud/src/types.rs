@@ -57,6 +57,17 @@ pub struct Provider {
 }
 
 #[skip_serializing_none]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub struct ProviderToken {
+    pub provider: String,
+
+    pub access_token: String,
+
+    pub expires_at: Option<i64>,
+}
+
+#[skip_serializing_none]
 #[derive(Serialize, Deserialize, Table)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[table(crate = "cli_utils::cli_table")]
