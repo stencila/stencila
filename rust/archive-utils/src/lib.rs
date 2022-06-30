@@ -56,6 +56,8 @@ pub fn extract_tar(
     strip: usize,
     subdir: Option<&str>,
 ) -> Result<()> {
+    use std::fs::create_dir_all;
+
     let file = fs::File::open(&archive)?;
     let mut archive = tar::Archive::new(match ext {
         "tar" => Box::new(file) as Box<dyn io::Read>,
@@ -101,6 +103,11 @@ pub fn extract_tar(
         let out_path = dest.join(&components.join("/")).lexiclean();
         if out_path.strip_prefix(dest).is_err() {
             continue;
+        }
+
+        // Ensure the parent directories of the output path exist
+        if let Some(parent) = out_path.parent() {
+            create_dir_all(&parent)?;
         }
 
         // Unpack to destination
