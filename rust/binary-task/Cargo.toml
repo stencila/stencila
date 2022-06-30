@@ -1,0 +1,11 @@
+[package]
+name = "binary-task"
+description = "A binary specification for Task (https://taskfile.dev/)"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binary = { path = "../binary", features = [
+    "download-zip",
+    "download-tar-gz"
+] }

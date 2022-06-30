@@ -391,6 +391,7 @@ dependencies = [
  "binary-python",
  "binary-r",
  "binary-stencila",
+ "binary-task",
  "cli-utils",
  "test-utils",
 ]
@@ -482,6 +483,13 @@ dependencies = [
 
 [[package]]
 name = "binary-stencila"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-task"
 version = "0.0.0"
 dependencies = [
  "binary",

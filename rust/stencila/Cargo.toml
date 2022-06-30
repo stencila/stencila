@@ -96,6 +96,7 @@ default = [
   "binaries/binary-poetry",
   "binaries/binary-python",
   "binaries/binary-r",
+  "binaries/binary-task",
 
   # Providers
   "providers-cli",

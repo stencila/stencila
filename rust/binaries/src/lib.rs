@@ -47,6 +47,7 @@ static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
     binary_new!("binary-python", binary_python::PythonBinary {});
     binary_new!("binary-r", binary_r::RBinary {});
     binary_new!("binary-stencila", binary_stencila::StencilaBinary {});
+    binary_new!("binary-task", binary_task::TaskBinary {});
 
     map
 });

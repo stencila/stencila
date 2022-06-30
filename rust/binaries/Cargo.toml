@@ -26,6 +26,7 @@ binary-poetry = { path = "../binary-poetry", optional = true }
 binary-python = { path = "../binary-python", optional = true }
 binary-r = { path = "../binary-r", optional = true }
 binary-stencila = { path = "../binary-stencila", optional = true }
+binary-task = { path = "../binary-task", optional = true }
 
 [dev-dependencies]
 test-utils = { path = "../test-utils" }
