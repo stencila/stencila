@@ -8,7 +8,6 @@ use octorust::types::{ContentFile, ReposGetContentResponseOneOf};
 
 use archive_utils::extract_tar;
 use provider::{
-    codecs,
     common::{
         async_trait::async_trait,
         base64,

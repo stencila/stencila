@@ -17,7 +17,6 @@ use node_pointer::{walk, Visitor};
 use stencila_schema::{InlineContent, Node};
 
 // Export and re-export for the convenience of crates that implement a provider
-pub use ::codecs;
 pub use ::common;
 pub use ::http_utils;
 pub use ::stencila_schema;
@@ -105,8 +104,9 @@ pub trait ProviderTrait {
     }
 
     /// Export content from a local path to a remote [`Node`] (e.g. an `Article` or `SoftwareSourceCode` repository)
-    async fn export(_node: &Node, _path: &Path, _options: Option<ExportOptions>) -> Result<()> {
-        Ok(())
+    async fn export(node: &Node, _path: &Path, _options: Option<ExportOptions>) -> Result<Node> {
+        tracing::error!("Export not implemented for provider");
+        Ok(node.clone())
     }
 
     /// Synchronize changes between a remote [`Node`] (e.g. a `SoftwareSourceCode` repository) and a local

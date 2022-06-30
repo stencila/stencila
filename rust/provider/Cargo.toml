@@ -11,12 +11,3 @@ http-utils = { path = "../http-utils" }
 node-address = { path = "../node-address" }
 node-pointer = { path = "../node-pointer" }
 stencila-schema = { path = "../schema" }
-
-# To keep build times down, only enable a limited number of lightweight codecs
-# here for testing using the mini-CLI in `providers/src/main.rs`. In the main
-# `stencila` binary, all codecs are included.
-codecs = { path = "../codecs", features = [
-    "codec-json",
-    "codec-txt",
-    "codec-yaml",
-] }

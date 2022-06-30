@@ -1,7 +1,6 @@
 use std::{path::Path, sync::Arc};
 
 use provider::{
-    codecs,
     common::{
         eyre::{bail, eyre, Result},
         once_cell::sync::Lazy,
@@ -43,7 +42,7 @@ pub async fn import(node: &Node, path: &Path, options: Option<ImportOptions>) ->
     PROVIDERS.import(node, path, options).await
 }
 
-pub async fn export(node: &Node, path: &Path, options: Option<ExportOptions>) -> Result<()> {
+pub async fn export(node: &Node, path: &Path, options: Option<ExportOptions>) -> Result<Node> {
     PROVIDERS.export(node, path, options).await
 }
 
@@ -180,7 +179,12 @@ impl Providers {
     }
 
     /// Export content from a local path to a remote [`Node`]
-    async fn export(&self, node: &Node, path: &Path, options: Option<ExportOptions>) -> Result<()> {
+    async fn export(
+        &self,
+        node: &Node,
+        path: &Path,
+        options: Option<ExportOptions>,
+    ) -> Result<Node> {
         let provider = self.provider_for(node)?;
         dispatch_builtins!(provider.name, export, node, path, options.clone()).await
     }
@@ -442,9 +446,9 @@ pub mod commands {
             let options = ExportOptions {
                 token: self.token.clone(),
             };
-            export(&node, &self.path, Some(options)).await?;
+            let node = export(&node, &self.path, Some(options)).await?;
 
-            result::nothing()
+            result::value(node)
         }
     }
 
