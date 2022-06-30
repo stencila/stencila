@@ -1117,6 +1117,7 @@ dependencies = [
  "async-recursion 1.0.0",
  "codec",
  "codec-pandoc",
+ "provider-gdrive",
  "schemafy",
  "serde",
  "serde_json",
@@ -4966,7 +4967,6 @@ checksum = "cf7e6d18738ecd0902d30d1ad232c9125985a3422929b16c65517b38adc14f96"
 name = "provider"
 version = "0.0.0"
 dependencies = [
- "codecs",
  "common",
  "cron-utils",
  "http-utils",
@@ -4996,6 +4996,7 @@ dependencies = [
 name = "provider-gdrive"
 version = "0.0.0"
 dependencies = [
+ "cloud",
  "google-drive",
  "provider",
  "test-utils",
@@ -5007,6 +5008,7 @@ name = "provider-github"
 version = "0.0.0"
 dependencies = [
  "archive-utils",
+ "codecs",
  "octorust",
  "provider",
  "test-utils",
@@ -5018,6 +5020,7 @@ name = "provider-gitlab"
 version = "0.0.0"
 dependencies = [
  "archive-utils",
+ "codecs",
  "provider",
  "test-utils",
  "uuids",
@@ -5038,6 +5041,7 @@ name = "providers"
 version = "0.0.0"
 dependencies = [
  "cli-utils",
+ "codecs",
  "events",
  "provider",
  "provider-doi",

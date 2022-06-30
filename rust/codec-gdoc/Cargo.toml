@@ -8,6 +8,7 @@ edition = "2021"
 async-recursion = "1.0.0"
 codec = { path = "../codec" }
 codec-pandoc = { path = "../codec-pandoc" }
+provider-gdrive = { path = "../provider-gdrive" }
 schemafy = "0.6.0"
 
 # Although these are available via codec::common they seem to be necessary
