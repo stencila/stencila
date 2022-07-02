@@ -44,3 +44,6 @@ The [`fragments`](fragments) folder contains many small examples of parts of doc
 
 The [`nodes`](nodes) folder contains examples of Stencila Schema node types as JSON or YAML files (because these are lossless formats capable of representing all the properties of nodes). These are useful for tests where you do not want to be concerned about potential decoding (i.e. conversion) errors or loss when reading a node into memory.
 
+## 💪 Taskfiles
+
+The [`taskfile`](taskfiles) folder contains examples of [`Taskfiles`](https://taskfile.dev) which Stencila uses for orchestrating tasks for your projects.

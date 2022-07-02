@@ -1,0 +1,5 @@
+version: 3
+
+includes:
+  python: taskfiles/python.yaml
+  pip: taskfiles/pip.yaml

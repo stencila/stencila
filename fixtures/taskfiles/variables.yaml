@@ -1,0 +1,21 @@
+# Example of a Taskfile with variables and environment variables
+# See https://taskfile.dev/usage/#environment-variables and https://taskfile.dev/usage/#variables
+
+version: '3'
+
+vars:
+  STATIC_VAR: This is a static var
+  DYNAMIC_VAR:
+    sh: echo "This is a dynamic var $(date)"
+
+env:
+  STATIC_ENV_VAR: This is a static env var
+  DYNAMIC_ENV_VAR:
+    sh: echo "This is a dynamic env var $(date)"
+
+tasks:
+  default:
+    - echo "{{.STATIC_VAR}}"
+    - echo "{{.DYNAMIC_VAR}}"
+    - echo "$STATIC_ENV_VAR"
+    - echo "$DYNAMIC_ENV_VAR"

@@ -1385,6 +1385,7 @@ dependencies = [
  "eyre",
  "futures",
  "glob",
+ "indexmap",
  "itertools",
  "maplit",
  "once_cell",
@@ -6439,6 +6440,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "36794203e10c86e5998179e260869d156e0674f02d5451b4a3fb9fd86d02aaab"
 dependencies = [
  "tokio",
+]
+
+[[package]]
+name = "tasks"
+version = "0.0.0"
+dependencies = [
+ "binary-task",
+ "cli-utils",
+ "common",
+ "test-snaps",
+ "test-utils",
 ]
 
 [[package]]

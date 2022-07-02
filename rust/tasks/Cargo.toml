@@ -1,0 +1,17 @@
+[package]
+name = "tasks"
+version = "0.0.0"
+edition = "2021"
+
+[features]
+default = ["cli"]
+cli = []
+
+[dependencies]
+binary-task = { path = "../binary-task" }
+cli-utils = { path = "../cli-utils"}
+common = { path = "../common" }
+
+[dev-dependencies]
+test-snaps = { path = "../test-snaps" }
+test-utils = { path = "../test-utils" }
