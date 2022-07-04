@@ -67,12 +67,19 @@ impl Run for Analyze {
 /// Use this command to quickly get a list of all the tasks in a Taskfile.
 #[derive(Parser)]
 pub struct List {
+    /// List all tasks, including those in included Taskfiles
+    ///
+    /// By default only task that are defined in the root Taskfile are listed.
+    /// Use this option to show all tasks, including those from included Taskfiles.
+    #[clap(short, long)]
+    all: bool,
+
     /// Filter tasks by tool e.g. 'python', 'git'
     #[clap(short, long)]
     tool: Option<String>,
 
     /// Filter tasks by action e.g. 'add', 'remove'
-    #[clap(short, long)]
+    #[clap(short = 'c', long)]
     action: Option<String>,
 
     #[clap(flatten)]
@@ -87,6 +94,15 @@ impl Run for List {
             .tasks
             .into_iter()
             .filter(|(.., task)| !task.hide)
+            .filter(
+                |(name, ..)| {
+                    if self.all {
+                        true
+                    } else {
+                        !name.contains(':')
+                    }
+                },
+            )
             .filter(|(name, ..)| {
                 if let Some(tool) = &self.tool {
                     name.starts_with(&[tool, ":"].concat())
