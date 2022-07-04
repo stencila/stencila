@@ -17,7 +17,7 @@ tasks:
     desc: Ensure Git is installed on Debian-based Linux using Apt
     hide: true
     cmds:
-      - task: apt:add
+      - task: apt:install-packages
         vars:
           PACKAGES: git
 

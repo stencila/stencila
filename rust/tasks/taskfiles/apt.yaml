@@ -1,17 +1,61 @@
 version: '3'
 
+vars:
+  SUDO:
+    sh: which sudo || true
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+
 tasks:
   add:
-    desc: Add system packages using Apt
+    desc: Add a system package using Apt
     summary: |
-      Checks that all the packages specified in variable `PACKAGES` are installed
-      and if not installs them using `apt-get`. If `sudo` is available, then it
-      is used when running `apt-get`.
-    vars:
-      SUDO:
-        sh: which sudo || true
-    env:
-      DEBIAN_FRONTEND: noninteractive
+      Installs the system package and adds it the the project's `Aptfile` (creating
+      one if necessary).
+    status:
+      - grep '^{{.PACKAGE}} ' Aptfile
+    cmds:
+      - '{{.SUDO}} apt-get -y install {{.PACKAGE}}'
+      - touch Aptfile
+      - grep '^{{.PACKAGE}}' Aptfile || echo {{.PACKAGE}} >> Aptfile
+
+  remove:
+    desc: Remove a system package using Apt
+    summary: |
+      Uninstalls the system package and removes it from the project's `Aptfile`.
+    cmds:
+      - '{{.SUDO}} apt-get -y remove {{.PACKAGE}}'
+      - sed -i '/^{{.PACKAGE}}\.*/d' Aptfile
+
+  install:
+    desc: Install all Apt packages in `Aptfile`
+    summary: |
+      Installs the packages specified on each line of the `Aptfile`.
+    silent: true
+    sources:
+      - Aptfile
+    cmds:
+      - |
+        if [ -f Aptfile ]
+        then
+          cat Aptfile | while read LINE 
+          do
+            dpkg --status $PACKAGE > /dev/null
+            INSTALLED=$?
+            if [ $INSTALLED -ne 0 ]; then
+             {{.SUDO}} apt-get -y install $PACKAGE
+            fi
+          done
+        fi
+
+  install-packages:
+    desc: Install a list of system packages using Apt
+    summary: |
+      Installs the packages without affecting the project `Aptfile`.
+      Intended for use by other task to install their system dependencies.
+    hide: true
+    silent: true
     status:
       - |
         for PACKAGE in {{.PACKAGES}}

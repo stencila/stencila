@@ -20,7 +20,7 @@ tasks:
     desc: Ensure Python is installed on Debian-based Linux
     hide: true
     cmds:
-      - task: apt:add
+      - task: apt:install-packages
         vars:
           # From https://github.com/pyenv/pyenv/wiki#suggested-build-environment
           PACKAGES: >
