@@ -1,0 +1,50 @@
+version: '3'
+
+includes:
+  asdf: asdf.yaml
+  node: node.yaml
+
+tasks:
+  ensure:
+    desc: Ensure PNPM is installed
+    cmds:
+      - task: node:ensure
+      - task: asdf:add
+        vars:
+          PACKAGE: pnpm
+
+  init:
+    desc: Initialize PNPM in a directory
+    summary: |
+      Checks for a `package.json` file, and if none exists, runs `pnpm init`.
+    status:
+      - test -f package.json
+    cmds:
+      - task: ensure
+      - pnpm init
+
+  add:
+    desc: Add a Node.js package using PNPM
+    cmds:
+      - task: init
+      - pnpm add {{.PACKAGE}}@{{.VERSION | default "latest"}}
+
+  remove:
+    desc: Remove a Node.js package using PNPM
+    cmds:
+      - task: init
+      - pnpm remove {{.PACKAGE}}
+
+  install:
+    desc: Install all Node.js packages in `package.json` using PNPM
+    sources:
+      - package.json
+    cmds:
+      - task: init
+      - pnpm install
+
+  update:
+    desc: Update all Node.js packages in `package.json` using PNPM
+    cmds:
+      - task: init
+      - pnpm update

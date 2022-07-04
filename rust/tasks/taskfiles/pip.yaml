@@ -1,0 +1,44 @@
+version: '3'
+
+includes:
+  python: python.yaml
+  venv: venv.yaml
+
+tasks:
+  ensure:
+    desc: Ensure that Pip is installed
+    summary: |
+      Pip is a popular Python package manager. This task ensures that Pip
+      (and by extension, Python) is installed. It checks that the `pip` module is
+      installed, and if not, installs it using the `ensurepip` module.
+    status:
+      - python -m pip
+    cmds:
+      - task: python:ensure
+      - python -m ensurepip
+
+  add:
+    silent: true
+    cmds:
+      - task: venv:ensure
+      - |
+        if [ -z {{.VERSION}} ]
+        then
+          .venv/bin/pip install {{.PACKAGE}}
+        else
+          .venv/bin/pip install {{.PACKAGE}}=={{.VERSION}}
+        fi
+      - .venv/bin/pip freeze > requirements.txt
+
+  remove:
+    cmds:
+      - task: venv:ensure
+      - .venv/bin/pip uninstall {{.PACKAGE}}
+      - .venv/bin/pip freeze > requirements.txt
+
+  install:
+    sources:
+      - requirements.txt
+    cmds:
+      - task: venv:ensure
+      - .venv/bin/pip install -r requirements.txt

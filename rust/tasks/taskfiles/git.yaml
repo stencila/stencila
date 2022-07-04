@@ -1,0 +1,28 @@
+version: '3'
+
+includes:
+  apt: apt.yaml
+
+tasks:
+  ensure:
+    desc: Ensure that Git is installed
+    summary: |
+      Checks for `git` on the `PATH` and installs it if it is not.
+    status:
+      - which git
+    cmds:
+      - task: install-{{OS}}
+
+  install-linux:
+    desc: Install Git on Debian-based Linux using Apt
+    cmds:
+      - task: apt:add
+        vars:
+          PACKAGES: git
+
+  install-darwin:
+    desc: Install Git on MacOS using Homebrew
+    cmds:
+      - task: brew:add
+        vars:
+          PACKAGES: git

@@ -1,0 +1,17 @@
+version: '3'
+
+includes:
+  apt: apt.yaml
+  asdf: asdf.yaml
+  brew: brew.yaml
+  curl: curl.yaml
+  git: git.yaml
+  node: node.yaml
+  npm: npm.yaml
+  pip: pip.yaml
+  pnpm: pnpm.yaml
+  poetry: poetry.yaml
+  python: python.yaml
+  r: r.yaml
+  renv: renv.yaml
+  venv: venv.yaml

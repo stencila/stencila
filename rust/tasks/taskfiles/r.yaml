@@ -1,0 +1,39 @@
+version: '3'
+
+includes:
+  apt: apt.yaml
+  asdf: asdf.yaml
+
+tasks:
+  ensure:
+    desc: Ensure that R is installed
+    cmds:
+      - task: ensure-{{OS}}
+        vars:
+          VERSION: '{{.VERSION}}'
+
+  ensure-linux:
+    desc: Install R on Debian-based Linux using `apt` and `asdf`
+    cmds:
+      - task: apt:add
+        vars:
+          # From https://github.com/asdf-community/asdf-R#ubuntu--debian
+          PACKAGES: >
+            build-essential gfortran libbz2-1.0 libbz2-dev libcurl3-dev 
+            liblzma-dev liblzma5 libpcre2-dev libreadline-dev xorg-dev
+      - task: asdf:add
+        vars:
+          PACKAGE: R
+          VERSION: '{{.VERSION}}'
+
+  ensure-darwin:
+    desc: Install R on MacOS using `brew` and `asdf`
+    cmds:
+      - task: brew:add
+        vars:
+          # From https://github.com/asdf-community/asdf-R#mac
+          PACKAGES: gcc xz libxt cairo
+      - task: asdf:add
+        vars:
+          PACKAGE: R
+          VERSION: '{{.VERSION}}'

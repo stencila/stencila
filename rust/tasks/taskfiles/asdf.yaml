@@ -1,0 +1,85 @@
+version: '3'
+
+includes:
+  curl: curl.yaml
+  git: git.yaml
+
+tasks:
+  ensure:
+    desc: Ensures that `asdf` is available
+    summary: |
+      Checks that `asdf` is installed (and on `PATH`) and installs it using `git` if it is not.
+    status:
+      - which asdf
+    vars:
+      VERSION: 0.10.2
+    cmds:
+      - task: curl:ensure
+      - task: git:ensure
+      - git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v{{.VERSION}}
+
+  ensure-plugin:
+    desc: Ensure an `asdf` plugin is installed
+    status:
+      - asdf plugin list | grep '^{{.PLUGIN}}$'
+    cmds:
+      - task: ensure
+      - asdf plugin add {{.PLUGIN}}
+
+  ensure-package:
+    desc: Ensure an `asdf` package version is installed
+    status:
+      # If version specified then can check status, otherwise user
+      # wants latest and we need to let `asdf` determine that (slightly slower)
+      - |
+        if [ "{{.VERSION}}" != "" -a "{{.VERSION}}" != "latest" ]
+        then
+          asdf list {{.PACKAGE}} {{.VERSION}}
+        else
+          exit 1
+        fi
+    cmds:
+      - task: ensure-plugin
+        vars:
+          PLUGIN: '{{.PACKAGE}}'
+      - asdf install {{.PACKAGE}} {{.VERSION | default "latest"}}
+
+  add:
+    desc: Add a tool to `.tool-versions` and ensure it is installed
+    summary: |
+      Ensures that the corresponding `asdf` plugin is installed and that
+      the tool version is installed.
+    status:
+      - grep '^{{.PACKAGE}} ' .tool-versions
+    cmds:
+      - task: ensure-package
+        vars:
+          PACKAGE: '{{.PACKAGE}}'
+          VERSION: '{{.VERSION}}'
+      - asdf local {{.PACKAGE}} {{.VERSION | default "latest"}}
+
+  remove:
+    desc: Remove a tool from `.tool-versions`
+    summary: |
+      Removes the tool from `.tool-versions` but does not uninstall it
+      from the `asdf` directory.
+    cmds:
+      - sed -i '/{{.PACKAGE}} /d' .tool-versions
+
+  install:
+    desc: Install all tools listed in `.tool-versions`
+    summary: |
+      For each tool listed in `.tool-versions`, ensures that the corresponding `asdf`
+      plugin is installed, and that the tool version itself is installed.
+    silent: true
+    cmds:
+      - task: ensure
+      - |
+        if [ -f .tool-versions ]
+        then
+          cat .tool-versions | while read LINE 
+          do
+            asdf plugin add $(echo $LINE | cut -d' ' -f1) || true
+          done
+        fi
+      - asdf install

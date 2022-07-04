@@ -1,0 +1,26 @@
+version: '3'
+
+tasks:
+  add:
+    desc: Add system packages using Apt
+    summary: |
+      Checks that all the packages specified in variable `PACKAGES` are installed
+      and if not installs them using `apt-get`. If `sudo` is available, then it
+      is used when running `apt-get`.
+    vars:
+      SUDO:
+        sh: which sudo || true
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    status:
+      - |
+        for PACKAGE in {{.PACKAGES}}
+        do
+          dpkg --status $PACKAGE > /dev/null
+          INSTALLED=$?
+          if [ $INSTALLED -ne 0 ]; then
+            exit 1
+          fi
+        done
+    cmds:
+      - '{{.SUDO}} apt-get -y install {{.PACKAGES}}'

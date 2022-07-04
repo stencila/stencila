@@ -1,0 +1,16 @@
+version: '3'
+
+includes:
+  asdf: asdf.yaml
+
+tasks:
+  ensure:
+    desc: Install Node.js
+    summary: |
+      Installs Node.js at the version specified (or latest version none specified). 
+      The version installed will be added to the `.tool-versions` file in the current directory.
+    cmds:
+      - task: asdf:add
+        vars:
+          PACKAGE: nodejs
+          VERSION: '{{.VERSION}}'

@@ -1,0 +1,50 @@
+version: '3'
+
+includes:
+  r: r.yaml
+
+tasks:
+  ensure:
+    desc: Require the `renv` package manager for R
+    summary: |
+      Checks whether the R package `renv` is installed and installs it if necessary.
+    status:
+      - R --slave -e "quit(status=!nzchar(system.file(package='renv')))"
+    cmds:
+      - task: r:ensure
+      - R --slave -e "install.packages('renv', repos = 'https://cloud.r-project.org')"
+
+  init:
+    status:
+      - test -f renv.lock
+    cmds:
+      - task: ensure
+      - >
+        R --slave -e "renv::init(repos = c(
+          RSPM = 'https://packagemanager.rstudio.com/all/latest',
+          CRAN = 'https://cloud.r-project.org'
+        ))"
+
+  add:
+    desc: Add an R package using `renv`
+    cmds:
+      - task: init
+      - R --slave -e "renv::install('{{.PACKAGE}}'); renv::snapshot(type='all')"
+
+  remove:
+    desc: Remove an R package using `renv`
+    cmds:
+      - task: init
+      - R --slave -e "renv::remove('{{.PACKAGE}}'); renv::snapshot(type='all')"
+
+  install:
+    desc: Install all R packages using `renv`
+    cmds:
+      - task: init
+      - R --slave -e "renv::install()"
+
+  update:
+    desc: Update all R packages using `renv`
+    cmds:
+      - task: init
+      - R --slave -e "renv::update()"

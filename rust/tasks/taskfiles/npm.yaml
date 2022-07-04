@@ -1,0 +1,47 @@
+version: '3'
+
+includes:
+  asdf: asdf.yaml
+  node: node.yaml
+
+tasks:
+  ensure:
+    desc: Ensure NPM is installed (via Node.js)
+    cmds:
+      - task: node:ensure
+
+  init:
+    desc: Initialize NPM in a directory
+    summary: |
+      Checks for a `package.json` file, and if none exists, runs `npm init`.
+    status:
+      - test -f package.json
+    cmds:
+      - task: ensure
+      - npm init --yes
+
+  add:
+    desc: Add a Node.js package using NPM
+    cmds:
+      - task: init
+      - npm install --save {{.PACKAGE}}@{{.VERSION | default "latest"}}
+
+  remove:
+    desc: Remove a Node.js package using NPM
+    cmds:
+      - task: init
+      - npm uninstall --save {{.PACKAGE}}
+
+  install:
+    desc: Install all Node.js packages in `package.json` using NPM
+    sources:
+      - package.json
+    cmds:
+      - task: init
+      - npm install
+
+  update:
+    desc: Update all Node.js packages in `package.json` using NPM
+    cmds:
+      - task: init
+      - npm update

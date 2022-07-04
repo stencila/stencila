@@ -1,0 +1,16 @@
+version: '3'
+
+includes:
+  python: python.yaml
+
+tasks:
+  ensure:
+    desc: Ensure that a Python virtual environment is present in the current directory
+    summary:
+      Checks that there is a `.venv/bin/python` present and executable in the current
+      directory, and if there is not, creates a new virtual environment in `.venv`.
+    status:
+      - .venv/bin/python --version
+    cmds:
+      - task: python:ensure
+      - python3 -m venv .venv

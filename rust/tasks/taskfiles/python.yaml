@@ -1,0 +1,44 @@
+version: '3'
+
+includes:
+  apt: apt.yaml
+  asdf: asdf.yaml
+
+tasks:
+  ensure:
+    desc: Install Python
+    summary: |
+      Installs Python at the version specified (or latest version none specified). 
+      The version installed will be added to the `.tool-versions` file in the current directory.
+      Install Python on Linux and MacOS using `asdf`
+    cmds:
+      - task: ensure-{{OS}}
+        vars:
+          VERSION: '{{.VERSION}}'
+
+  ensure-linux:
+    desc: Install Python on Debian-based Linux using `apt` and `asdf`
+    cmds:
+      - task: apt:add
+        vars:
+          # From https://github.com/pyenv/pyenv/wiki#suggested-build-environment
+          PACKAGES: >
+            make build-essential libssl-dev zlib1g-dev
+            libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm
+            libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+      - task: asdf:add
+        vars:
+          PACKAGE: python
+          VERSION: '{{.VERSION}}'
+
+  ensure-darwin:
+    desc: Install Python on MacOS using `brew` and `asdf`
+    cmds:
+      - task: brew:add
+        vars:
+          # From https://github.com/pyenv/pyenv/wiki#suggested-build-environment
+          PACKAGES: openssl readline sqlite3 xz zlib tcl-tk
+      - task: asdf:add
+        vars:
+          PACKAGE: python
+          VERSION: '{{.VERSION}}'
