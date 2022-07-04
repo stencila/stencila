@@ -1,6 +1,9 @@
 version: '3'
 
 includes:
+  project: project.yaml
+  sources: sources.yaml
+
   apt: apt.yaml
   asdf: asdf.yaml
   brew: brew.yaml

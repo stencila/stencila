@@ -1,0 +1,10 @@
+version: '3'
+
+tasks:
+  pull:
+    desc: Pull the current project from Stencila Cloud
+    summary: |
+      Use this task to update the local project configuration file (e.g. `stencila.yaml`) from Stencila Cloud.
+      The file must have a project id.
+    cmds:
+      - stencila projects pull

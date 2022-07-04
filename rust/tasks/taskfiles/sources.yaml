@@ -1,0 +1,9 @@
+version: '3'
+
+tasks:
+  pull:
+    desc: Pull all the sources of the current project
+    summary: |
+      Use this task to pull each of the sources listed in the project configuration file (e.g. `stencila.yaml`).
+    cmds:
+      - stencila sources pull

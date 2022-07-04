@@ -74,9 +74,9 @@ pub struct List {
     #[clap(short, long)]
     all: bool,
 
-    /// Filter tasks by tool e.g. 'python', 'git'
+    /// Filter tasks by topic e.g. 'python', 'git'
     #[clap(short, long)]
-    tool: Option<String>,
+    topic: Option<String>,
 
     /// Filter tasks by action e.g. 'add', 'remove'
     #[clap(short = 'c', long)]
@@ -104,8 +104,8 @@ impl Run for List {
                 },
             )
             .filter(|(name, ..)| {
-                if let Some(tool) = &self.tool {
-                    name.starts_with(&[tool, ":"].concat())
+                if let Some(topic) = &self.topic {
+                    name.starts_with(&[topic, ":"].concat())
                 } else {
                     true
                 }
