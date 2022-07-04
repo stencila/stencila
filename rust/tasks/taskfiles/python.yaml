@@ -6,7 +6,7 @@ includes:
 
 tasks:
   ensure:
-    desc: Install Python
+    desc: Ensure Python is installed
     summary: |
       Installs Python at the version specified (or latest version none specified). 
       The version installed will be added to the `.tool-versions` file in the current directory.
@@ -17,7 +17,7 @@ tasks:
           VERSION: '{{.VERSION}}'
 
   ensure-linux:
-    desc: Install Python on Debian-based Linux using `apt` and `asdf`
+    desc: Ensure Python is installed on Debian-based Linux
     cmds:
       - task: apt:add
         vars:
@@ -32,7 +32,7 @@ tasks:
           VERSION: '{{.VERSION}}'
 
   ensure-darwin:
-    desc: Install Python on MacOS using `brew` and `asdf`
+    desc: Ensure Python is installed on MacOS
     cmds:
       - task: brew:add
         vars:

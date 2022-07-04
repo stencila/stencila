@@ -5,7 +5,7 @@ includes:
 
 tasks:
   ensure:
-    desc: Install Node.js
+    desc: Ensure Node.js is installed
     summary: |
       Installs Node.js at the version specified (or latest version none specified). 
       The version installed will be added to the `.tool-versions` file in the current directory.

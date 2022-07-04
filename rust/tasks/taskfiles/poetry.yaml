@@ -9,7 +9,7 @@ env:
 
 tasks:
   ensure:
-    desc: Require the Poetry package manager for Python
+    desc: Ensure Poetry is installed
     summary: |
       Checks whether Poetry is installed, and if not, installs it.
     cmds:

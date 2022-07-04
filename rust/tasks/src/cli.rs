@@ -41,6 +41,7 @@ impl Run for Command {
 #[derive(Parser)]
 struct TaskfileArg {
     /// The Taskfile to use (defaults to the current)
+    #[clap(short = 'f', long)]
     taskfile: Option<PathBuf>,
 }
 
@@ -66,6 +67,14 @@ impl Run for Analyze {
 /// Use this command to quickly get a list of all the tasks in a Taskfile.
 #[derive(Parser)]
 pub struct List {
+    /// Filter tasks by tool e.g. 'python', 'git'
+    #[clap(short, long)]
+    tool: Option<String>,
+
+    /// Filter tasks by action e.g. 'add', 'remove'
+    #[clap(short, long)]
+    action: Option<String>,
+
     #[clap(flatten)]
     taskfile: TaskfileArg,
 }
@@ -74,10 +83,26 @@ pub struct List {
 impl Run for List {
     async fn run(&self) -> Result {
         let taskfile = Taskfile::read(self.taskfile.taskfile.as_deref())?;
-        result::table(
-            taskfile.tasks.into_iter().map(TaskRow::from).collect_vec(),
-            TaskRow::title(),
-        )
+        let tasks = taskfile
+            .tasks
+            .into_iter()
+            .filter(|(name, ..)| {
+                if let Some(tool) = &self.tool {
+                    name.starts_with(&[tool, ":"].concat())
+                } else {
+                    true
+                }
+            })
+            .filter(|(name, ..)| {
+                if let Some(action) = &self.action {
+                    name.ends_with(&[":", action].concat())
+                } else {
+                    true
+                }
+            })
+            .map(TaskRow::from)
+            .collect_vec();
+        result::table(tasks, TaskRow::title())
     }
 }
 

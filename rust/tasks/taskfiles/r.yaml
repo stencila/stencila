@@ -6,14 +6,14 @@ includes:
 
 tasks:
   ensure:
-    desc: Ensure that R is installed
+    desc: Ensure R is installed
     cmds:
       - task: ensure-{{OS}}
         vars:
           VERSION: '{{.VERSION}}'
 
   ensure-linux:
-    desc: Install R on Debian-based Linux using `apt` and `asdf`
+    desc: Ensure R is installed on Debian-based Linux
     cmds:
       - task: apt:add
         vars:
@@ -27,7 +27,7 @@ tasks:
           VERSION: '{{.VERSION}}'
 
   ensure-darwin:
-    desc: Install R on MacOS using `brew` and `asdf`
+    desc: Ensure R is installed on MacOS
     cmds:
       - task: brew:add
         vars:

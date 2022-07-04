@@ -5,7 +5,7 @@ includes:
 
 tasks:
   ensure:
-    desc: Require the `renv` package manager for R
+    desc: Ensure `renv` is installed
     summary: |
       Checks whether the R package `renv` is installed and installs it if necessary.
     status:
@@ -15,6 +15,7 @@ tasks:
       - R --slave -e "install.packages('renv', repos = 'https://cloud.r-project.org')"
 
   init:
+    desc: Initialize `renv` in a directory
     status:
       - test -f renv.lock
     cmds:
@@ -38,13 +39,13 @@ tasks:
       - R --slave -e "renv::remove('{{.PACKAGE}}'); renv::snapshot(type='all')"
 
   install:
-    desc: Install all R packages using `renv`
+    desc: Install all R packages in `renv.lock` using `renv`
     cmds:
       - task: init
       - R --slave -e "renv::install()"
 
   update:
-    desc: Update all R packages using `renv`
+    desc: Update all R packages in `renv.lock` using `renv`
     cmds:
       - task: init
       - R --slave -e "renv::update()"

@@ -6,7 +6,7 @@ includes:
 
 tasks:
   ensure:
-    desc: Ensures that `asdf` is available
+    desc: Ensure `asdf` is installed
     summary: |
       Checks that `asdf` is installed (and on `PATH`) and installs it using `git` if it is not.
     status:
@@ -45,7 +45,7 @@ tasks:
       - asdf install {{.PACKAGE}} {{.VERSION | default "latest"}}
 
   add:
-    desc: Add a tool to `.tool-versions` and ensure it is installed
+    desc: Add a tool using `asdf`
     summary: |
       Ensures that the corresponding `asdf` plugin is installed and that
       the tool version is installed.
@@ -59,7 +59,7 @@ tasks:
       - asdf local {{.PACKAGE}} {{.VERSION | default "latest"}}
 
   remove:
-    desc: Remove a tool from `.tool-versions`
+    desc: Remove a tool using `asdf`
     summary: |
       Removes the tool from `.tool-versions` but does not uninstall it
       from the `asdf` directory.
@@ -67,7 +67,7 @@ tasks:
       - sed -i '/{{.PACKAGE}} /d' .tool-versions
 
   install:
-    desc: Install all tools listed in `.tool-versions`
+    desc: Install all tools listed in `.tool-versions` using `asdf`
     summary: |
       For each tool listed in `.tool-versions`, ensures that the corresponding `asdf`
       plugin is installed, and that the tool version itself is installed.

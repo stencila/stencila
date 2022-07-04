@@ -5,7 +5,7 @@ includes:
 
 tasks:
   ensure:
-    desc: Ensure that a Python virtual environment is present in the current directory
+    desc: Ensure a Python virtual environment is present
     summary:
       Checks that there is a `.venv/bin/python` present and executable in the current
       directory, and if there is not, creates a new virtual environment in `.venv`.

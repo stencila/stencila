@@ -6,7 +6,7 @@ includes:
 
 tasks:
   ensure:
-    desc: Ensure that Curl is installed
+    desc: Ensure Curl is installed
     summary: |
       Checks for `curl` on the `PATH` and installs it if it is not.
     status:
@@ -14,15 +14,15 @@ tasks:
     cmds:
       - task: install-{{OS}}
 
-  install-linux:
-    desc: Install Curl on Debian-based Linux using Apt
+  ensure-linux:
+    desc: Ensure Curl is installed on Debian-based Linux using Apt
     cmds:
       - task: apt:add
         vars:
           PACKAGES: curl
 
-  install-darwin:
-    desc: Install Curl on MacOS using Homebrew
+  ensure-darwin:
+    desc: Ensure Curl is installed on MacOS using Homebrew
     cmds:
       - task: brew:add
         vars:

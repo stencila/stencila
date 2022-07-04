@@ -6,7 +6,7 @@ includes:
 
 tasks:
   ensure:
-    desc: Ensure that Pip is installed
+    desc: Ensure Pip is installed
     summary: |
       Pip is a popular Python package manager. This task ensures that Pip
       (and by extension, Python) is installed. It checks that the `pip` module is
@@ -18,6 +18,7 @@ tasks:
       - python -m ensurepip
 
   add:
+    desc: Add a Python package using Pip
     silent: true
     cmds:
       - task: venv:ensure
@@ -31,12 +32,14 @@ tasks:
       - .venv/bin/pip freeze > requirements.txt
 
   remove:
+    desc: Remove a Python package using Pip
     cmds:
       - task: venv:ensure
       - .venv/bin/pip uninstall {{.PACKAGE}}
       - .venv/bin/pip freeze > requirements.txt
 
   install:
+    desc: Install all Python packages in `requirements.txt` using Pip
     sources:
       - requirements.txt
     cmds:

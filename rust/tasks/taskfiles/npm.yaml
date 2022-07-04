@@ -6,7 +6,7 @@ includes:
 
 tasks:
   ensure:
-    desc: Ensure NPM is installed (via Node.js)
+    desc: Ensure NPM is installed
     cmds:
       - task: node:ensure
 
