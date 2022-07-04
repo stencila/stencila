@@ -15,6 +15,7 @@ tasks:
 
   install-linux:
     desc: Ensure Git is installed on Debian-based Linux using Apt
+    hide: true
     cmds:
       - task: apt:add
         vars:
@@ -22,6 +23,7 @@ tasks:
 
   install-darwin:
     desc: Ensure Git is installed on MacOS using Homebrew
+    hide: true
     cmds:
       - task: brew:add
         vars:

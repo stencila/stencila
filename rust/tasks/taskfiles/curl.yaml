@@ -16,6 +16,7 @@ tasks:
 
   ensure-linux:
     desc: Ensure Curl is installed on Debian-based Linux using Apt
+    hide: true
     cmds:
       - task: apt:add
         vars:
@@ -23,6 +24,7 @@ tasks:
 
   ensure-darwin:
     desc: Ensure Curl is installed on MacOS using Homebrew
+    hide: true
     cmds:
       - task: brew:add
         vars:

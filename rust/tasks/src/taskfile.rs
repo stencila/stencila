@@ -386,6 +386,12 @@ pub struct Task {
     /// Continue execution if errors happen while executing the commands
     ignore_error: bool,
 
+    /// Whether the task should be hidden from task lists
+    /// 
+    /// Defaults to `false`. Used to hide helper tasks e.g. OS-specific tasks
+    /// from lists.
+    pub hide: bool,
+
     /// Whether the task is automatically generated
     ///
     /// Defaults to `false`. If `true`, then Stencila will automatically update the
@@ -460,6 +466,9 @@ enum TaskSyntax {
         #[serde(default, skip_serializing_if = "is_false")]
         autogen: bool,
 
+        #[serde(default, skip_serializing_if = "is_false")]
+        hide: bool,
+
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         sources: Vec<String>,
 
@@ -522,6 +531,7 @@ impl From<TaskSyntax> for Task {
                 desc,
                 summary,
                 autogen,
+                hide,
                 sources,
                 dir,
                 method,
@@ -540,6 +550,7 @@ impl From<TaskSyntax> for Task {
                 desc,
                 summary,
                 autogen,
+                hide,
                 sources,
                 dir,
                 method,
@@ -574,6 +585,7 @@ impl From<Task> for TaskSyntax {
             desc,
             summary,
             autogen,
+            hide,
             sources,
             dir,
             method,
@@ -593,6 +605,7 @@ impl From<Task> for TaskSyntax {
             desc,
             summary,
             autogen,
+            hide,
             sources,
             dir,
             method,

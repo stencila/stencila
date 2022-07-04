@@ -20,6 +20,7 @@ tasks:
 
   ensure-plugin:
     desc: Ensure an `asdf` plugin is installed
+    hide: true
     status:
       - asdf plugin list | grep '^{{.PLUGIN}}$'
     cmds:
@@ -28,6 +29,7 @@ tasks:
 
   ensure-package:
     desc: Ensure an `asdf` package version is installed
+    hide: true
     status:
       # If version specified then can check status, otherwise user
       # wants latest and we need to let `asdf` determine that (slightly slower)

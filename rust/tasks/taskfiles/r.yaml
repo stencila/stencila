@@ -14,6 +14,7 @@ tasks:
 
   ensure-linux:
     desc: Ensure R is installed on Debian-based Linux
+    hide: true
     cmds:
       - task: apt:add
         vars:
@@ -28,6 +29,7 @@ tasks:
 
   ensure-darwin:
     desc: Ensure R is installed on MacOS
+    hide: true
     cmds:
       - task: brew:add
         vars:

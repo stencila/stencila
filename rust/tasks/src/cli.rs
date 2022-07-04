@@ -86,6 +86,7 @@ impl Run for List {
         let tasks = taskfile
             .tasks
             .into_iter()
+            .filter(|(.., task)| !task.hide)
             .filter(|(name, ..)| {
                 if let Some(tool) = &self.tool {
                     name.starts_with(&[tool, ":"].concat())
