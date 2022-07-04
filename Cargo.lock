@@ -6254,6 +6254,7 @@ dependencies = [
  "sources",
  "stencila-schema",
  "sudo",
+ "tasks",
  "test-utils",
  "thiserror",
  "tokio-stream",
@@ -6449,6 +6450,7 @@ dependencies = [
  "binary-task",
  "cli-utils",
  "common",
+ "rust-embed",
  "test-snaps",
  "test-utils",
 ]

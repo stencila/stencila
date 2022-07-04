@@ -1,20 +1,22 @@
 use std::{
     env::current_dir,
-    fs::{read_to_string, write},
-    path::Path,
+    fs::{create_dir_all, read_to_string, write},
+    path::{Path, PathBuf},
 };
 
+use binary_task::{BinaryTrait, TaskBinary};
 use common::{
     defaults::Defaults,
-    eyre::Result,
+    eyre::{bail, eyre, Result},
     indexmap::IndexMap,
     itertools::Itertools,
     once_cell::sync::Lazy,
     regex::Regex,
-    serde::{Deserialize, Serialize},
+    serde::{Deserialize, Deserializer, Serialize},
     serde_with::skip_serializing_none,
-    serde_yaml,
+    serde_yaml, tracing,
 };
+use rust_embed::RustEmbed;
 
 #[skip_serializing_none]
 #[derive(Defaults, Deserialize, Serialize)]
@@ -22,26 +24,26 @@ use common::{
 pub struct Taskfile {
     /// The version of the Taskfile schema
     #[def = "\"3\".to_string()"]
-    pub(crate) version: String,
+    pub version: String,
 
     /// Additional Taskfiles to be included
     ///
     /// See https://taskfile.dev/usage/#including-other-taskfiles.
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
-    pub(crate) includes: IndexMap<String, Include>,
+    pub includes: IndexMap<String, Include>,
 
     /// The mode for controlling task output
     ///
     /// Available options: `interleaved` (default), `group` and `prefixed`.
     /// See https://taskfile.dev/usage/#output-syntax.
-    pub(crate) output: Option<String>,
+    pub output: Option<String>,
 
     /// Method for determining the status of tasks
     ///
     /// Available options: `checksum` (default), `timestamp` and none.
     /// Can be overridden on a task by task basis.
     /// See https://taskfile.dev/usage/#prevent-unnecessary-work.
-    pub(crate) method: Option<String>,
+    pub method: Option<String>,
 
     /// Do not print task execution lines
     ///
@@ -49,38 +51,52 @@ pub struct Taskfile {
     /// Note that `stdout` and `stderr` of command will always be shown.
     /// See https://taskfile.dev/usage/#silent-mode.
     #[serde(skip_serializing_if = "is_false")]
-    pub(crate) silent: bool,
+    pub silent: bool,
 
     /// Whether the task should be run again or not if called more than once
     ///
     /// Available options: `always` (default), `once` and `when_changed`.
     /// Can be overridden on a task by task basis.
-    pub(crate) run: Option<String>,
+    pub run: Option<String>,
 
     /// Variables that can be used in all tasks
     ///
     /// See https://taskfile.dev/usage/#variables.
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
-    pub(crate) vars: IndexMap<String, Variable>,
+    pub vars: IndexMap<String, Variable>,
 
     /// Environment variables used for all tasks
     ///
     /// See https://taskfile.dev/usage/#task.
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
-    pub(crate) env: IndexMap<String, Variable>,
+    pub env: IndexMap<String, Variable>,
 
     /// Environment variable files to be used for all tasks
     ///
     /// See https://taskfile.dev/usage/#env-files.
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub(crate) dotenv: Vec<String>,
+    pub dotenv: Vec<String>,
 
     /// Task definitions
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
-    pub(crate) tasks: IndexMap<String, Task>,
+    pub tasks: IndexMap<String, Task>,
 }
 
 impl Taskfile {
+    /// Resolve a Taskfile for a path
+    fn resolve(path: Option<&Path>) -> Result<PathBuf> {
+        Ok(match path {
+            Some(path) => {
+                if path.is_dir() {
+                    path.join("Taskfile.yaml")
+                } else {
+                    path.into()
+                }
+            }
+            None => current_dir()?.join("Taskfile.yaml"),
+        })
+    }
+
     /// Load a Taskfile from a YAML string
     fn load(yaml: &str) -> Result<Self> {
         let taskfile = serde_yaml::from_str(yaml)?;
@@ -88,15 +104,41 @@ impl Taskfile {
     }
 
     /// Read a Taskfile from a filesystem path
-    pub(crate) fn read(path: &Path) -> Result<Self> {
-        let yaml = read_to_string(path)?;
-        Self::load(&yaml)
-    }
+    ///
+    /// In addition to deserializing the Taskfile, will resolve its `includes`
+    /// and add those to the task list.
+    pub fn read(path: Option<&Path>) -> Result<Self> {
+        let path = Self::resolve(path)?;
+        let yaml = read_to_string(&path)?;
 
-    /// Read a taskfile from the current directory
-    pub(crate) fn read_current() -> Result<Self> {
-        let path = current_dir()?.join("Taskfile.yaml");
-        Self::read(&path)
+        let mut taskfile = match Self::load(&yaml) {
+            Ok(taskfile) => taskfile,
+            Err(error) => bail!("While reading Taskfile `{}`: {}", path.display(), error),
+        };
+
+        let dir = path.parent().expect("Should always have a parent");
+        for (include_name, include) in &taskfile.includes {
+            let include_path = dir.join(&include.taskfile);
+            let include_path = Self::resolve(Some(&include_path))?;
+            if !include.optional && !include_path.exists() {
+                bail!(
+                    "Included Taskfile does not exist: {}",
+                    include_path.display()
+                )
+            };
+
+            let include_taskfile = Self::read(Some(&include_path))?;
+            for (task_name, task) in include_taskfile.tasks {
+                // Do not include tasks that themselves were included
+                if !task_name.contains(':') {
+                    taskfile
+                        .tasks
+                        .insert([include_name, ":", &task_name].concat(), task);
+                }
+            }
+        }
+
+        Ok(taskfile)
     }
 
     /// Dump the Taskfile to a YAML string
@@ -143,16 +185,57 @@ impl Taskfile {
     }
 
     /// Write the Taskfile to a filesystem path
-    fn write(&self, path: &Path) -> Result<()> {
+    pub fn write(&self, path: Option<&Path>) -> Result<()> {
         let yaml = self.dump()?;
+        let path = Self::resolve(path).or_else(|_| current_dir())?;
         write(path, yaml)?;
         Ok(())
     }
 
-    /// Write the Taskfile to the current directory
-    pub(crate) fn write_current(&self) -> Result<()> {
-        let path = current_dir()?.join("Taskfile.yaml");
-        self.write(&path)
+    /// Analyze the content of the project and add tasks to its Taskfile
+    pub async fn analyze(dir: Option<&Path>) -> Result<()> {
+        let dir = match dir {
+            Some(dir) => dir.to_path_buf(),
+            None => current_dir()?,
+        };
+
+        let path = dir.join("Taskfile.yaml");
+        let mut taskfile = match path.exists() {
+            true => Taskfile::read(Some(&path))?,
+            false => Taskfile::default(),
+        };
+
+        // Remove any existing tasks `autogen` includes and tasks
+        // If this is not done they may accumulate even if not needed
+        taskfile.includes.retain(|_name, include| !include.autogen);
+        taskfile.tasks.retain(|_name, task| !task.autogen);
+
+        // TODO: add tasks needed based on dependencies
+
+        taskfile.write(Some(&path))
+    }
+
+    /// Run a task in the Taskfile
+    pub async fn run(task: &str, path: Option<&Path>) -> Result<()> {
+        let path = Self::resolve(path)?;
+
+        // Check that task is in taskfile. This will be done by the `task` binary
+        // but doing it here is a fail early and produces a more explicit error message
+        let taskfile = Taskfile::read(Some(&path))?;
+        if !taskfile.tasks.contains_key(task) {
+            bail!("Task `{}` not found in Taskfile `{}`", task, path.display());
+        }
+
+        let binary = TaskBinary {}.ensure().await?;
+        binary
+            .run_with(
+                [task, "--taskfile", &path.display().to_string()],
+                Some(tracing::Level::INFO),
+                Some(tracing::Level::INFO),
+            )
+            .await?;
+
+        Ok(())
     }
 }
 
@@ -177,6 +260,12 @@ pub struct Include {
     ///
     /// If true, no errors will be thrown if the specified file does not exist.
     optional: bool,
+
+    /// Whether the include was automatically generated
+    ///
+    /// Defaults to `false`. If `true`, then Stencila will automatically remove it, if based on
+    /// file changes and dependency analysis, it is no longer needed.
+    autogen: bool,
 }
 
 /// YAML syntax for `Include`
@@ -195,6 +284,9 @@ enum IncludeSyntax {
 
         #[serde(default, skip_serializing_if = "is_false")]
         optional: bool,
+
+        #[serde(default, skip_serializing_if = "is_false")]
+        autogen: bool,
     },
 }
 
@@ -209,10 +301,12 @@ impl From<IncludeSyntax> for Include {
                 taskfile,
                 dir,
                 optional,
+                autogen,
             } => Include {
                 taskfile,
                 dir,
                 optional,
+                autogen,
             },
         }
     }
@@ -220,18 +314,20 @@ impl From<IncludeSyntax> for Include {
 
 impl From<Include> for IncludeSyntax {
     fn from(include: Include) -> Self {
-        if include.dir.is_none() && !include.optional {
+        if include.dir.is_none() && !include.optional && !include.autogen {
             IncludeSyntax::String(include.taskfile)
         } else {
             let Include {
                 taskfile,
                 dir,
                 optional,
+                autogen,
             } = include;
             IncludeSyntax::Object {
                 taskfile,
                 dir,
                 optional,
+                autogen,
             }
         }
     }
@@ -241,6 +337,7 @@ impl From<Include> for IncludeSyntax {
 #[serde(untagged, crate = "common::serde")]
 pub enum Variable {
     /// A static value that will be assigned to the variable.
+    #[serde(deserialize_with = "deserialize_string_from_bool_or_number")]
     Static(String),
 
     /// A shell command whose output (STDOUT) will be assigned to the variable.
@@ -251,16 +348,10 @@ pub enum Variable {
 #[serde(from = "TaskSyntax", into = "TaskSyntax", crate = "common::serde")]
 pub struct Task {
     /// A short description of the task
-    desc: Option<String>,
+    pub desc: Option<String>,
 
     /// A longer description of the task
     summary: Option<String>,
-
-    /// Whether the task is automatically updated
-    ///
-    /// Defaults to `false`. If `true`, then Stencila will automatically update the
-    /// task (including potentially removing it) based on file changes and dependency analysis.
-    auto: bool,
 
     /// A list of files that this task is dependent upon
     ///
@@ -295,6 +386,12 @@ pub struct Task {
     /// Continue execution if errors happen while executing the commands
     ignore_error: bool,
 
+    /// Whether the task is automatically generated
+    ///
+    /// Defaults to `false`. If `true`, then Stencila will automatically update the
+    /// task (including potentially removing it) based on file changes and dependency analysis.
+    pub autogen: bool,
+
     /// A list of files that this task is generates
     ///
     /// Relevant for `timestamp` methods. Can be file paths or star globs.
@@ -326,7 +423,7 @@ impl Task {
     fn is_simple(&self) -> bool {
         self.desc.is_none()
             && self.summary.is_none()
-            && !self.auto
+            && !self.autogen
             && self.sources.is_empty()
             && self.dir.is_none()
             && self.method.is_none()
@@ -361,7 +458,7 @@ enum TaskSyntax {
         summary: Option<String>,
 
         #[serde(default, skip_serializing_if = "is_false")]
-        auto: bool,
+        autogen: bool,
 
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         sources: Vec<String>,
@@ -424,7 +521,7 @@ impl From<TaskSyntax> for Task {
             TaskSyntax::Object {
                 desc,
                 summary,
-                auto,
+                autogen,
                 sources,
                 dir,
                 method,
@@ -442,7 +539,7 @@ impl From<TaskSyntax> for Task {
             } => Task {
                 desc,
                 summary,
-                auto,
+                autogen,
                 sources,
                 dir,
                 method,
@@ -476,7 +573,7 @@ impl From<Task> for TaskSyntax {
         let Task {
             desc,
             summary,
-            auto,
+            autogen,
             sources,
             dir,
             method,
@@ -495,7 +592,7 @@ impl From<Task> for TaskSyntax {
         TaskSyntax::Object {
             desc,
             summary,
-            auto,
+            autogen,
             sources,
             dir,
             method,
@@ -759,6 +856,31 @@ impl From<Command> for CommandSyntax {
 fn is_false(value: &bool) -> bool {
     !value
 }
+
+fn deserialize_string_from_bool_or_number<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged, crate = "common::serde")]
+    enum AnyOf {
+        Boolean(bool),
+        Number(i64),
+        Float(f64),
+        String(String),
+    }
+
+    match AnyOf::deserialize(deserializer)? {
+        AnyOf::Boolean(b) => Ok(b.to_string()),
+        AnyOf::Number(i) => Ok(i.to_string()),
+        AnyOf::Float(f) => Ok(f.to_string()),
+        AnyOf::String(s) => Ok(s),
+    }
+}
+
+#[derive(RustEmbed)]
+#[folder = "taskfiles"]
+struct Taskfiles;
 
 #[cfg(test)]
 mod test {

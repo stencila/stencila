@@ -5,12 +5,14 @@ edition = "2021"
 
 [features]
 default = ["cli"]
-cli = []
+cli = ["cli-utils"]
 
 [dependencies]
 binary-task = { path = "../binary-task" }
-cli-utils = { path = "../cli-utils"}
 common = { path = "../common" }
+rust-embed = { version = "6.4.0", features = ["compression"] }
+
+cli-utils = { path = "../cli-utils", optional = true}
 
 [dev-dependencies]
 test-snaps = { path = "../test-snaps" }

@@ -139,6 +139,9 @@ pub enum Command {
     #[clap(aliases = &["document", "docs", "doc"])]
     Documents(documents::commands::Command),
 
+    #[clap(aliases = &["tasks"])]
+    Tasks(tasks::cli::Command),
+
     Projects(cloud::projects::cli::Command),
     Sources(sources::commands::Command),
     Orgs(cloud::orgs::cli::Command),
@@ -211,6 +214,9 @@ impl Run for Command {
             Command::Orgs(command) => command.run().await,
             Command::Teams(command) => command.run().await,
             Command::Users(command) => command.run().await,
+
+            #[cfg(feature = "tasks-cli")]
+            Command::Tasks(command) => command.run().await,
 
             #[cfg(feature = "codecs-cli")]
             Command::Codecs(command) => command.run().await,
