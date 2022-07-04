@@ -3,6 +3,9 @@ version: '3'
 includes:
   r: r.yaml
 
+vars:
+  RENV_ARTIFACTS: renv
+
 tasks:
   ensure:
     desc: Ensure `renv` is installed
@@ -14,12 +17,23 @@ tasks:
       - task: r:ensure
       - R --slave -e "install.packages('renv', repos = 'https://cloud.r-project.org')"
 
+  gitignore:
+    desc: Update `.gitignore` for use with `renv`
+    summary: |
+      Adds a line to the local `.gitignore` file (creating one if necessary) so that
+      the `renv` folder is ignored by Git.
+    cmds:
+      - task: gitignore:add
+        vars:
+          PATTERNS: '{{.RENV_ARTIFACTS}}'
+
   init:
     desc: Initialize `renv` in a directory
     status:
       - test -f renv.lock
     cmds:
       - task: ensure
+      - task: gitignore
       - >
         R --slave -e "renv::init(repos = c(
           RSPM = 'https://packagemanager.rstudio.com/all/latest',
@@ -30,6 +44,7 @@ tasks:
     desc: Add an R package using `renv`
     cmds:
       - task: init
+      - task: gitignore
       - R --slave -e "renv::install('{{.PACKAGE}}'); renv::snapshot(type='all')"
 
   remove:
@@ -42,10 +57,12 @@ tasks:
     desc: Install all R packages in `renv.lock` using `renv`
     cmds:
       - task: init
+      - task: gitignore
       - R --slave -e "renv::install()"
 
   update:
     desc: Update all R packages in `renv.lock` using `renv`
     cmds:
       - task: init
+      - task: gitignore
       - R --slave -e "renv::update()"

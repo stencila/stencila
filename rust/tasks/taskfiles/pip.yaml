@@ -21,7 +21,7 @@ tasks:
     desc: Add a Python package using Pip
     silent: true
     cmds:
-      - task: venv:ensure
+      - task: venv:init
       - |
         if [ -z {{.VERSION}} ]
         then
@@ -34,7 +34,7 @@ tasks:
   remove:
     desc: Remove a Python package using Pip
     cmds:
-      - task: venv:ensure
+      - task: venv:init
       - .venv/bin/pip uninstall {{.PACKAGE}}
       - .venv/bin/pip freeze > requirements.txt
 
@@ -43,5 +43,5 @@ tasks:
     sources:
       - requirements.txt
     cmds:
-      - task: venv:ensure
+      - task: venv:init
       - .venv/bin/pip install -r requirements.txt

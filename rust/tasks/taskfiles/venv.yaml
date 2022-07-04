@@ -1,11 +1,25 @@
 version: '3'
 
 includes:
+  gitignore: gitignore.yaml
   python: python.yaml
 
+vars:
+  VENV_ARTIFACTS: .venv
+
 tasks:
-  ensure:
-    desc: Ensure a Python virtual environment is present
+  gitignore:
+    desc: Update `.gitignore` for use with a Python virtual environment
+    summary: |
+      Adds a line to the local `.gitignore` file (creating one if necessary) so that
+      the virtual environment is ignored.
+    cmds:
+      - task: gitignore:add
+        vars:
+          PATTERNS: '{{.VENV_ARTIFACTS}}'
+
+  init:
+    desc: Initialize a Python virtual environment is present
     summary:
       Checks that there is a `.venv/bin/python` present and executable in the current
       directory, and if there is not, creates a new virtual environment in `.venv`.
@@ -13,4 +27,5 @@ tasks:
       - .venv/bin/python --version
     cmds:
       - task: python:ensure
+      - task: gitignore
       - python3 -m venv .venv

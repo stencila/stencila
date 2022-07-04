@@ -1,0 +1,15 @@
+version: '3'
+
+tasks:
+  add:
+    desc: Add patterns to `.gitignore`
+    summary: |
+      Adds each pattern in the variable `PATTERNS` as a line in the local `.gitignore` file
+      (if the line is not already present). Creates a `.gitignore` file if necessary.
+    silent: true
+    cmds:
+      - |
+        touch .gitignore
+        for PATTERN in {{.PATTERNS}}; do
+          grep --quiet --line-regexp --fixed-strings $PATTERN .gitignore || echo $PATTERN >> .gitignore
+        done

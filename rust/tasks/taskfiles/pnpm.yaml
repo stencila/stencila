@@ -2,7 +2,11 @@ version: '3'
 
 includes:
   asdf: asdf.yaml
+  gitignore: gitignore.yaml
   node: node.yaml
+
+vars:
+  PNPM_ARTIFACTS: node_modules
 
 tasks:
   ensure:
@@ -13,6 +17,16 @@ tasks:
         vars:
           PACKAGE: pnpm
 
+  gitignore:
+    desc: Update `.gitignore` for use with PNPM
+    summary: |
+      Adds a line to the local `.gitignore` file (creating one if necessary) so that
+      the `node_modules` folder is ignored by Git.
+    cmds:
+      - task: gitignore:add
+        vars:
+          PATTERNS: '{{.PNPM_ARTIFACTS}}'
+
   init:
     desc: Initialize PNPM in a directory
     summary: |
@@ -21,17 +35,21 @@ tasks:
       - test -f package.json
     cmds:
       - task: ensure
+      - task: gitignore
       - pnpm init
 
   add:
     desc: Add a Node.js package using PNPM
     cmds:
+      - task: ensure
       - task: init
+      - task: gitignore
       - pnpm add {{.PACKAGE}}@{{.VERSION | default "latest"}}
 
   remove:
     desc: Remove a Node.js package using PNPM
     cmds:
+      - task: ensure
       - task: init
       - pnpm remove {{.PACKAGE}}
 
@@ -40,11 +58,15 @@ tasks:
     sources:
       - package.json
     cmds:
+      - task: ensure
       - task: init
+      - task: gitignore
       - pnpm install
 
   update:
     desc: Update all Node.js packages in `package.json` using PNPM
     cmds:
+      - task: ensure
       - task: init
+      - task: gitignore
       - pnpm update

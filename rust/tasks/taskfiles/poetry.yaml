@@ -3,6 +3,7 @@ version: '3'
 includes:
   asdf: asdf.yaml
   python: python.yaml
+  venv: venv.yaml
 
 env:
   POETRY_VIRTUALENVS_IN_PROJECT: true
@@ -28,19 +29,21 @@ tasks:
       - grep '^\[tool.poetry\]$' pyproject.toml
     silent: true
     cmds:
-      - task: python:ensure
       - task: ensure
       - poetry init --no-interaction
 
   add:
     desc: Add a Python package using Poetry
     cmds:
+      - task: ensure
       - task: init
+      - task: venv:gitignore
       - poetry add {{.PACKAGE}}@{{.VERSION | default "latest"}}
 
   remove:
     desc: Remove a Python package using Poetry
     cmds:
+      - task: ensure
       - task: init
       - poetry remove {{.PACKAGE}}
 
@@ -49,11 +52,15 @@ tasks:
     sources:
       - pyproject.toml
     cmds:
+      - task: ensure
       - task: init
+      - task: venv:gitignore
       - poetry install
 
   update:
     desc: Update all Python packages in `pyproject.toml` using Poetry
     cmds:
+      - task: ensure
       - task: init
+      - task: venv:gitignore
       - poetry update

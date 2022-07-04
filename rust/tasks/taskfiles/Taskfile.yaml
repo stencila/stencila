@@ -6,6 +6,7 @@ includes:
   brew: brew.yaml
   curl: curl.yaml
   git: git.yaml
+  gitignore: gitignore.yaml
   node: node.yaml
   npm: npm.yaml
   pip: pip.yaml

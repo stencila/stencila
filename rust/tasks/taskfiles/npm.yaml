@@ -2,13 +2,27 @@ version: '3'
 
 includes:
   asdf: asdf.yaml
+  gitignore: gitignore.yaml
   node: node.yaml
+
+vars:
+  NPM_ARTIFACTS: node_modules
 
 tasks:
   ensure:
     desc: Ensure NPM is installed
     cmds:
       - task: node:ensure
+
+  gitignore:
+    desc: Update `.gitignore` for use with NPM
+    summary: |
+      Adds a line to the local `.gitignore` file (creating one if necessary) so that
+      the `node_modules` folder is ignored by Git.
+    cmds:
+      - task: gitignore:add
+        vars:
+          PATTERNS: '{{.NPM_ARTIFACTS}}'
 
   init:
     desc: Initialize NPM in a directory
@@ -23,12 +37,15 @@ tasks:
   add:
     desc: Add a Node.js package using NPM
     cmds:
+      - task: ensure
       - task: init
+      - task: gitignore
       - npm install --save {{.PACKAGE}}@{{.VERSION | default "latest"}}
 
   remove:
     desc: Remove a Node.js package using NPM
     cmds:
+      - task: ensure
       - task: init
       - npm uninstall --save {{.PACKAGE}}
 
@@ -37,11 +54,15 @@ tasks:
     sources:
       - package.json
     cmds:
+      - task: ensure
       - task: init
+      - task: gitignore
       - npm install
 
   update:
     desc: Update all Node.js packages in `package.json` using NPM
     cmds:
+      - task: ensure
       - task: init
+      - task: gitignore
       - npm update
