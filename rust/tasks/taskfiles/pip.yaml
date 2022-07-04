@@ -45,3 +45,17 @@ tasks:
     cmds:
       - task: venv:init
       - .venv/bin/pip install -r requirements.txt
+
+  clean:
+    desc: Delete package installation artifacts created by Pip
+    summary: Removes the `.venv` directory.
+    cmds:
+      - task: venv:clean
+
+  purge:
+    desc: Remove Pip and associated files from the project
+    summary: |
+      Deletes `.venv`. Does NOT remove `python` from `.tool-versions` or delete
+      `requirements.txt`.
+    cmds:
+      - task: clean

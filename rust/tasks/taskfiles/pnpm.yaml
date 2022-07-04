@@ -5,9 +5,6 @@ includes:
   gitignore: gitignore.yaml
   node: node.yaml
 
-vars:
-  PNPM_ARTIFACTS: node_modules
-
 tasks:
   ensure:
     desc: Ensure PNPM is installed
@@ -25,7 +22,7 @@ tasks:
     cmds:
       - task: gitignore:add
         vars:
-          PATTERNS: '{{.PNPM_ARTIFACTS}}'
+          PATTERNS: node_modules
 
   init:
     desc: Initialize PNPM in a directory
@@ -70,3 +67,21 @@ tasks:
       - task: init
       - task: gitignore
       - pnpm update
+
+  clean:
+    desc: Delete package installation artifacts created by PNPM
+    summary: Removes the `node_modules` directory.
+    cmds:
+      - rm -rf node_modules
+
+  purge:
+    desc: Remove PNPM and associated files from the project
+    summary: |
+      Removes `pnpm` from `.tool-versions` and deletes `pnpm-lock.yaml` and `node_modules`.
+      Does NOT remove `nodejs` from `.tool-versions` or delete `package.json`.
+    cmds:
+      - rm -f pnpm-lock.yaml
+      - task: clean
+      - task: asdf:remove
+        vars:
+          PACKAGE: pnpm

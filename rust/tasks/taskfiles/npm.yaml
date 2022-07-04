@@ -1,12 +1,8 @@
 version: '3'
 
 includes:
-  asdf: asdf.yaml
   gitignore: gitignore.yaml
   node: node.yaml
-
-vars:
-  NPM_ARTIFACTS: node_modules
 
 tasks:
   ensure:
@@ -22,7 +18,7 @@ tasks:
     cmds:
       - task: gitignore:add
         vars:
-          PATTERNS: '{{.NPM_ARTIFACTS}}'
+          PATTERNS: node_modules
 
   init:
     desc: Initialize NPM in a directory
@@ -66,3 +62,18 @@ tasks:
       - task: init
       - task: gitignore
       - npm update
+
+  clean:
+    desc: Delete package installation artifacts created by NPM
+    summary: Deletes the `node_modules` directory.
+    cmds:
+      - rm -rf node_modules
+
+  purge:
+    desc: Remove files associated with NPM from the project
+    summary: |
+      Deletes `package-lock.json` and `node_modules`.
+      Does NOT remove `nodejs` from `.tool-versions` or delete `package.json`.
+    cmds:
+      - rm -f package-lock.json
+      - task: clean

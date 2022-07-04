@@ -4,9 +4,6 @@ includes:
   gitignore: gitignore.yaml
   python: python.yaml
 
-vars:
-  VENV_ARTIFACTS: .venv
-
 tasks:
   gitignore:
     desc: Update `.gitignore` for use with a Python virtual environment
@@ -16,7 +13,7 @@ tasks:
     cmds:
       - task: gitignore:add
         vars:
-          PATTERNS: '{{.VENV_ARTIFACTS}}'
+          PATTERNS: .venv
 
   init:
     desc: Initialize a Python virtual environment is present
@@ -29,3 +26,9 @@ tasks:
       - task: python:ensure
       - task: gitignore
       - python3 -m venv .venv
+
+  clean:
+    desc: Delete the virtual environment
+    summary: Removes the `.venv` directory.
+    cmds:
+      - rm -rf .venv

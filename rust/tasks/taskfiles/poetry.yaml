@@ -64,3 +64,21 @@ tasks:
       - task: init
       - task: venv:gitignore
       - poetry update
+
+  clean:
+    desc: Delete package installation artifacts created by Poetry
+    summary: Removes the `.venv` directory.
+    cmds:
+      - task: venv:clean
+
+  purge:
+    desc: Remove Poetry and associated files from the project
+    summary: |
+      Removes `poetry` from `.tool-versions` and deletes `poetry.lock` and `.venv`.
+      Does NOT delete `pyproject.toml` or remove Poetry sections from it.
+    cmds:
+      - rm -f poetry.lock
+      - task: clean
+      - task: asdf:remove
+        vars:
+          PACKAGE: poetry

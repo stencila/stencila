@@ -3,9 +3,6 @@ version: '3'
 includes:
   r: r.yaml
 
-vars:
-  RENV_ARTIFACTS: renv
-
 tasks:
   ensure:
     desc: Ensure `renv` is installed
@@ -25,7 +22,7 @@ tasks:
     cmds:
       - task: gitignore:add
         vars:
-          PATTERNS: '{{.RENV_ARTIFACTS}}'
+          PATTERNS: renv
 
   init:
     desc: Initialize `renv` in a directory
@@ -66,3 +63,17 @@ tasks:
       - task: init
       - task: gitignore
       - R --slave -e "renv::update()"
+
+  clean:
+    desc: Delete package installation artifacts created by `renv`
+    summary: Removes the `renv` directory.
+    cmds:
+      - rm -rf renv
+
+  purge:
+    desc: Remove `renv` and associated files from the project
+    summary: |
+      Deletes `renv.lock` and `renv`.
+    cmds:
+      - rm -f renv.lock
+      - task: clean
