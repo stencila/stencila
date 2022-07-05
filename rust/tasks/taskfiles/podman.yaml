@@ -1,0 +1,35 @@
+version: '3'
+
+includes:
+  asdf: asdf.yaml
+
+tasks:
+  detect:
+    desc: Detect which Podman related tasks are needed
+    summary: |
+      Adds the `podman:install` task if there is a `Dockerfile` in the root of the project.
+    ignore_error: true
+    cmds:
+      - test -f Dockerfile && echo podman:install >> .tasks
+
+  ensure:
+    desc: Ensure Podman is installed for the project
+    summary: |
+      Checks whether Podman is installed, and if is not, installs it using `asdf`.
+    cmds:
+      - task: asdf:ensure-plugin
+        vars:
+          NAME: podman
+          URL: https://github.com/nokome/asdf-podman
+      - task: asdf:add
+        vars:
+          PACKAGE: podman
+          VERSION: 3.4.4
+
+  install:
+    desc: Build the `Dockerfile`
+    sources:
+      - Dockerfile
+    cmds:
+      - task: ensure
+      - podman build .

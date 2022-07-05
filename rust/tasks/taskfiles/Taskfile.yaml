@@ -14,6 +14,7 @@ includes:
   npm: npm.yaml
   pip: pip.yaml
   pnpm: pnpm.yaml
+  podman: podman.yaml
   poetry: poetry.yaml
   python: python.yaml
   r: r.yaml
@@ -24,6 +25,8 @@ tasks:
   detect:
     desc: Detect which tasks are required for a project
     cmds:
+      - task: podman:detect
+
       - task: apt:detect
       - task: asdf:detect
 

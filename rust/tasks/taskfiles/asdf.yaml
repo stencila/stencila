@@ -30,10 +30,10 @@ tasks:
     desc: Ensure an `asdf` plugin is installed
     hide: true
     status:
-      - asdf plugin list | grep '^{{.PLUGIN}}$'
+      - asdf plugin list | grep '^{{.NAME}}$'
     cmds:
       - task: ensure
-      - asdf plugin add {{.PLUGIN}}
+      - asdf plugin add {{.NAME}} {{.URL}}
 
   ensure-package:
     desc: Ensure an `asdf` package version is installed
@@ -51,7 +51,7 @@ tasks:
     cmds:
       - task: ensure-plugin
         vars:
-          PLUGIN: '{{.PACKAGE}}'
+          NAME: '{{.PACKAGE}}'
       - asdf install {{.PACKAGE}} {{.VERSION | default "latest"}}
 
   add:
