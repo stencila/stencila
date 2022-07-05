@@ -7,7 +7,11 @@ use std::{
 
 use oci_spec::image::{Descriptor, DescriptorBuilder, MediaType};
 
-use archive_utils::{flate2, tar, zstd};
+use archive_utils::{
+    flate2,
+    tar::{self, HeaderMode},
+    zstd,
+};
 use common::{
     chrono::Utc,
     eyre::{bail, eyre, Result},
@@ -154,7 +158,7 @@ impl ChangeSet {
             };
 
             let mut archive = tar::Builder::new(&mut layer_writer);
-
+            archive.mode(HeaderMode::Deterministic);
             // Add an entry for the `dest_dir` (and any of its parent) so that ownership (and other
             // metadata) of `source_dir` is maintained. If not done then there are issues with non-root
             // users writing to the `workspace` and `layers` directories and  their subdirectories.
