@@ -5,19 +5,28 @@ includes:
   asdf: asdf.yaml
 
 tasks:
-  ensure:
-    desc: Ensure Python is installed
+  detect:
+    desc: Detect which Python related tasks are needed
+    summary: |
+      Adds the `python:install` task if there are any Python files in the
+      project (including in subdirectories).
+    ignore_error: true
+    cmds:
+      - test $(find . -type f -iname '*.py' -print -quit) && echo python:install >> .tasks
+
+  install:
+    desc: Install Python for the project
     summary: |
       Installs Python at the version specified (or latest version none specified). 
       The version installed will be added to the `.tool-versions` file in the current directory.
       Install Python on Linux and MacOS using `asdf`
     cmds:
-      - task: ensure-{{OS}}
+      - task: install-{{OS}}
         vars:
           VERSION: '{{.VERSION}}'
 
-  ensure-linux:
-    desc: Ensure Python is installed on Debian-based Linux
+  install-linux:
+    desc: Install Python on Debian-based Linux
     hide: true
     cmds:
       - task: apt:install-packages
@@ -32,8 +41,8 @@ tasks:
           PACKAGE: python
           VERSION: '{{.VERSION}}'
 
-  ensure-darwin:
-    desc: Ensure Python is installed on MacOS
+  install-darwin:
+    desc: Install Python on MacOS
     hide: true
     cmds:
       - task: brew:add

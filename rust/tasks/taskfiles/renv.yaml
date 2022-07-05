@@ -1,9 +1,18 @@
 version: '3'
 
 includes:
+  gitignore: gitignore.yaml
   r: r.yaml
 
 tasks:
+  detect:
+    desc: Detect which `renv` related tasks are needed
+    summary: |
+      Adds the `renv:install` task if there is a `renv.lock` file.
+    ignore_error: true
+    cmds:
+      - test -f renv.lock && echo renv:install >> .tasks
+
   ensure:
     desc: Ensure `renv` is installed
     summary: |
@@ -11,7 +20,7 @@ tasks:
     status:
       - R --slave -e "quit(status=!nzchar(system.file(package='renv')))"
     cmds:
-      - task: r:ensure
+      - task: r:install
       - R --slave -e "install.packages('renv', repos = 'https://cloud.r-project.org')"
 
   gitignore:

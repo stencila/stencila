@@ -5,15 +5,23 @@ includes:
   asdf: asdf.yaml
 
 tasks:
-  ensure:
-    desc: Ensure R is installed
+  detect:
+    desc: Detect which R related tasks are needed
+    summary: |
+      Adds the `r:install` task if there are any R files in the project (including in subdirectories).
+    ignore_error: true
     cmds:
-      - task: ensure-{{OS}}
+      - test $(find . -type f -iname '*.r' -print -quit) && echo r:install >> .tasks
+
+  install:
+    desc: Install R for the project
+    cmds:
+      - task: install-{{OS}}
         vars:
           VERSION: '{{.VERSION}}'
 
-  ensure-linux:
-    desc: Ensure R is installed on Debian-based Linux
+  install-linux:
+    desc: Install R on Debian-based Linux
     hide: true
     cmds:
       - task: apt:install-packages
@@ -27,8 +35,8 @@ tasks:
           PACKAGE: R
           VERSION: '{{.VERSION}}'
 
-  ensure-darwin:
-    desc: Ensure R is installed on MacOS
+  install-darwin:
+    desc: Install R on MacOS
     hide: true
     cmds:
       - task: brew:add

@@ -4,11 +4,20 @@ includes:
   asdf: asdf.yaml
 
 tasks:
-  ensure:
-    desc: Ensure Node.js is installed
+  detect:
+    desc: Detect which Node.js related tasks are needed
+    summary: |
+      Adds the `node:install` task if there are any JavaScript files in the
+      project (including in subdirectories).
+    ignore_error: true
+    cmds:
+      - test $(find . -type f -iname '*.js' -print -quit) && echo node:install >> .tasks
+
+  install:
+    desc: Install Node.js for the project
     summary: |
       Installs Node.js at the version specified (or latest version none specified). 
-      The version installed will be added to the `.tool-versions` file in the current directory.
+      The version installed will be added to `.tool-versions`.
     cmds:
       - task: asdf:add
         vars:

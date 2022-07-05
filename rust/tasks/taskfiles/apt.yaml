@@ -8,6 +8,14 @@ env:
   DEBIAN_FRONTEND: noninteractive
 
 tasks:
+  detect:
+    desc: Detect which Apt tasks are needed for the project
+    summary: |
+      Adds the `apt:install` task if there is an `Aptfile` in the root of the project.
+    ignore_error: true
+    cmds:
+      - test -f Aptfile && echo apt:install >> .tasks
+
   add:
     desc: Add a system package using Apt
     summary: |

@@ -19,3 +19,20 @@ includes:
   r: r.yaml
   renv: renv.yaml
   venv: venv.yaml
+
+tasks:
+  detect:
+    desc: Detect which tasks are required for a project
+    cmds:
+      - task: apt:detect
+      - task: asdf:detect
+
+      - task: node:detect
+      - task: pnpm:detect
+
+      - task: python:detect
+      - task: pip:detect
+      - task: poetry:detect
+
+      - task: r:detect
+      - task: renv:detect

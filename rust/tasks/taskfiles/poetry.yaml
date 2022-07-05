@@ -9,12 +9,21 @@ env:
   POETRY_VIRTUALENVS_IN_PROJECT: true
 
 tasks:
+  detect:
+    desc: Detect which Poetry related tasks are needed
+    summary: |
+      Adds the `poetry:install` task if there is a `pyproject.toml` file in the root
+      of the project with a `tools.poetry` section.
+    ignore_error: true
+    cmds:
+      - grep '^\[tool.poetry\]$' pyproject.toml && echo poetry:install >> .tasks
+
   ensure:
     desc: Ensure Poetry is installed
     summary: |
       Checks whether Poetry is installed, and if not, installs it.
     cmds:
-      - task: python:ensure
+      - task: python:install
       - task: asdf:add
         vars:
           PACKAGE: poetry

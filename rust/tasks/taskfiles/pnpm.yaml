@@ -6,10 +6,18 @@ includes:
   node: node.yaml
 
 tasks:
+  detect:
+    desc: Detect which PNPM related tasks are needed
+    summary: |
+      Adds the `pnpm:install` task if there is a `package.json` file.
+    ignore_error: true
+    cmds:
+      - test -f package.json && echo npm:install >> .tasks
+
   ensure:
     desc: Ensure PNPM is installed
     cmds:
-      - task: node:ensure
+      - task: node:install
       - task: asdf:add
         vars:
           PACKAGE: pnpm

@@ -5,10 +5,18 @@ includes:
   node: node.yaml
 
 tasks:
+  detect:
+    desc: Detect which NPM related tasks are needed
+    summary: |
+      Adds the `npm:install` task if there is a `package.json` file.
+    ignore_error: true
+    cmds:
+      - test -f package.json && echo npm:install >> .tasks
+
   ensure:
     desc: Ensure NPM is installed
     cmds:
-      - task: node:ensure
+      - task: node:install
 
   gitignore:
     desc: Update `.gitignore` for use with NPM

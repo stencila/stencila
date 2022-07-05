@@ -23,7 +23,7 @@ tasks:
     status:
       - .venv/bin/python --version
     cmds:
-      - task: python:ensure
+      - task: python:install
       - task: gitignore
       - python3 -m venv .venv
 

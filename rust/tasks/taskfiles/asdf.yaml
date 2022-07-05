@@ -5,6 +5,14 @@ includes:
   git: git.yaml
 
 tasks:
+  detect:
+    desc: Detect which `asdf` tasks are needed for the project
+    summary: |
+      Adds the `asdf:install` task if there is an `.tool-versions` file in the root of the project.
+    ignore_error: true
+    cmds:
+      - test -f .tool-versions && echo asdf:install >> .tasks
+
   ensure:
     desc: Ensure `asdf` is installed
     summary: |
@@ -14,8 +22,8 @@ tasks:
     vars:
       VERSION: 0.10.2
     cmds:
-      - task: curl:ensure
-      - task: git:ensure
+      - task: curl:install
+      - task: git:install
       - git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v{{.VERSION}}
 
   ensure-plugin:

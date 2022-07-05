@@ -5,6 +5,15 @@ includes:
   venv: venv.yaml
 
 tasks:
+  detect:
+    desc: Detect which Pip related tasks are needed
+    summary: |
+      Adds the `pip:install` task if there is a `requirements.txt` file in the root
+      of the project.
+    ignore_error: true
+    cmds:
+      - test -f requirements.txt && echo pip:install >> .tasks
+
   ensure:
     desc: Ensure Pip is installed
     summary: |
@@ -14,7 +23,7 @@ tasks:
     status:
       - python -m pip
     cmds:
-      - task: python:ensure
+      - task: python:install
       - python -m ensurepip
 
   add:
