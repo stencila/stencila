@@ -21,18 +21,20 @@ pub struct Command {
 
 #[derive(Parser)]
 pub enum Action {
-    Analyze(Analyze),
+    Refresh(Refresh),
     List(List),
     Run(Run_),
+    Docs(Docs),
 }
 
 #[async_trait]
 impl Run for Command {
     async fn run(&self) -> Result {
         match &self.action {
-            Action::Analyze(action) => action.run().await,
+            Action::Refresh(action) => action.run().await,
             Action::List(action) => action.run().await,
             Action::Run(action) => action.run().await,
+            Action::Docs(action) => action.run().await,
         }
     }
 }
@@ -45,19 +47,19 @@ struct TaskfileArg {
     taskfile: Option<PathBuf>,
 }
 
-/// Analyze a directory contents and update its Taskfile
+/// Refresh the Taskfile for a directory
 #[derive(Parser)]
-pub struct Analyze {
-    /// The directory to analyze
+pub struct Refresh {
+    /// The directory to refresh the Taskfile for
     ///
     /// If the directory does not yet have a Taskfile one will be created
     dir: Option<PathBuf>,
 }
 
 #[async_trait]
-impl Run for Analyze {
+impl Run for Refresh {
     async fn run(&self) -> Result {
-        Taskfile::analyze(self.dir.as_deref()).await?;
+        Taskfile::refresh(self.dir.as_deref()).await?;
         result::nothing()
     }
 }
@@ -160,5 +162,21 @@ impl From<(String, Task)> for TaskRow {
             name,
             desc: task.desc,
         }
+    }
+}
+
+/// Generate docs for Taskfiles
+///
+/// This is currently hidden but in the future may be exposed so users
+/// can generate docs for their own Taskfiles.
+#[derive(Parser)]
+#[clap(hide = true)]
+pub struct Docs;
+
+#[async_trait]
+impl Run for Docs {
+    async fn run(&self) -> Result {
+        Taskfile::docs_all()?;
+        result::nothing()
     }
 }
