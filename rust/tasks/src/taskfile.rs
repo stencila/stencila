@@ -716,7 +716,8 @@ impl Task {
     /// Generate Markdown documentation
     fn docs(&self, name: &str) -> String {
         let heading = format!(
-            "### `{}`: {}\n\n",
+            "### <a id='{}'>`{}`</a> : {}\n\n",
+            name,
             name,
             self.desc.clone().unwrap_or_default()
         );
