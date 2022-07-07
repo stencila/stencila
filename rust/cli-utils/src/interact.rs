@@ -93,15 +93,19 @@ where
 
                 // Handle prefix inspection / manipulation shortcuts
                 if line.starts_with('^') {
-                    tracing::info!("Command prefix is: `{}`", prefix.join(" "));
+                    if prefix.is_empty() {
+                        tracing::info!("No command prefix set");
+                    } else {
+                        tracing::info!("Command prefix is: {}", prefix.join(" "));
+                    }
                     continue;
                 } else if line.starts_with(">>") {
                     prefix = args[1..].into();
-                    tracing::info!("Command prefix was set to: `{}`", prefix.join(" "));
+                    tracing::info!("Command prefix was set to: {}", prefix.join(" "));
                     continue;
                 } else if line.starts_with('>') {
                     prefix = [prefix, args[1..].into()].concat();
-                    tracing::info!("Command prefix was appended to: `{}`", prefix.join(" "));
+                    tracing::info!("Command prefix was extend to be: {}", prefix.join(" "));
                     continue;
                 } else if line.starts_with("<<") {
                     prefix.clear();
@@ -109,7 +113,7 @@ where
                     continue;
                 } else if line.starts_with('<') {
                     prefix.truncate(std::cmp::max(1, prefix.len()) - 1);
-                    tracing::info!("Command prefix was truncated to: `{}`", prefix.join(" "));
+                    tracing::info!("Command prefix was truncated to be: {}", prefix.join(" "));
                     continue;
                 } else if line.starts_with('?') {
                     tracing::info!("{}", help());
