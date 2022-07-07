@@ -18,6 +18,108 @@ use common::{
 };
 use rust_embed::RustEmbed;
 
+/// Run a task in the Taskfile
+///
+/// Reads the Taskfile, including included tasks, to be able to check that the
+/// desired task is available before spawning `task`. If not present, then attempts
+/// to resolve it by pre-pending `lib:` to the name.
+pub async fn run(args: &Vec<String>, path: Option<&Path>) -> Result<()> {
+    let path = Taskfile::resolve(path)?;
+
+    if args.is_empty() {
+        bail!("No arguments provided to `task run`")
+    }
+
+    let taskfile = Taskfile::read(Some(&path), 2)?;
+
+    let mut task_args = vec![format!("--taskfile={}", path.display())];
+    for arg in args {
+        let arg = if let Some((name, value)) = arg.splitn(2, '=').collect_tuple() {
+            format!("{}={}", name.to_uppercase(), value)
+        } else if !taskfile.tasks.contains_key(arg) {
+            let lib_task = ["lib:", arg].concat();
+            if taskfile.tasks.contains_key(&lib_task) {
+                lib_task
+            } else {
+                bail!(
+                    "Taskfile does not have a task named `{}` or `lib:{}`",
+                    arg,
+                    arg
+                )
+            }
+        } else {
+            arg.to_string()
+        };
+
+        task_args.push(arg);
+    }
+
+    let binary = TaskBinary {}.ensure().await?;
+    binary
+        .run_with(
+            task_args,
+            Some(tracing::Level::INFO),
+            Some(tracing::Level::INFO),
+        )
+        .await?;
+
+    Ok(())
+}
+
+/// Generate Markdown documentation for all Taskfiles in the library
+pub fn docs() -> Result<()> {
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..")
+        .join("docs")
+        .join("reference")
+        .join("tasks");
+    create_dir_all(&dir)?;
+
+    let taskfiles = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("taskfiles")
+        .read_dir()?
+        .flatten()
+        .filter(|entry| {
+            let name = entry.file_name();
+            let name = name.to_string_lossy();
+            entry.path().is_file() && name.ends_with(".yaml") && name != "Taskfile.yaml"
+        })
+        .sorted_by(|a, b| a.file_name().cmp(&b.file_name()));
+
+    let mut table = "| Topic | Description |\n| --- | --- |\n".to_string();
+    for taskfile in taskfiles {
+        let path = taskfile.path();
+        let name = path
+            .file_stem()
+            .ok_or_else(|| eyre!("File has no stem"))?
+            .to_string_lossy();
+
+        let taskfile = Taskfile::read(Some(&path), 0)?;
+        let md = taskfile.doc(&name)?;
+        let path = dir.join(format!("{}.md", name));
+        write(path, md.trim())?;
+
+        table += &format!(
+            "| [`{}`]({}.md) | {} |\n",
+            name,
+            name,
+            taskfile.desc.unwrap_or_default()
+        );
+    }
+
+    let readme = dir.join("README.md");
+    let mut content = read_to_string(&readme)?;
+    content.replace_range(
+        (content.find("<!-- TASKS-START -->").unwrap_or_default() + 21)
+            ..content.find("<!-- TASKS-FINISH -->").unwrap_or_default(),
+        &table,
+    );
+    write(readme, content)?;
+
+    Ok(())
+}
+
 #[skip_serializing_none]
 #[derive(Defaults, Deserialize, Serialize)]
 #[serde(default, crate = "common::serde")]
@@ -111,9 +213,8 @@ impl Taskfile {
 
     /// Read a Taskfile from a filesystem path
     ///
-    /// In addition to deserializing the Taskfile, will resolve its `includes`
-    /// and add those to the task list.
-    pub fn read(path: Option<&Path>) -> Result<Self> {
+    /// If `inclusion_depth` is greater than zero, will add tasks from `includes` to the Taskfile's `tasks`.
+    pub fn read(path: Option<&Path>, inclusion_depth: usize) -> Result<Self> {
         let path = Self::resolve(path)?;
         let yaml = read_to_string(&path)?;
 
@@ -122,7 +223,10 @@ impl Taskfile {
             Err(error) => bail!("While reading Taskfile `{}`: {}", path.display(), error),
         };
 
-        /*
+        if inclusion_depth == 0 {
+            return Ok(taskfile);
+        }
+
         let dir = path.parent().expect("Should always have a parent");
         for (include_name, include) in &taskfile.includes {
             let include_path = dir.join(&include.taskfile);
@@ -134,17 +238,13 @@ impl Taskfile {
                 )
             };
 
-            let include_taskfile = Self::read(Some(&include_path))?;
+            let include_taskfile = Self::read(Some(&include_path), inclusion_depth - 1)?;
             for (task_name, task) in include_taskfile.tasks {
-                // Do not include tasks that themselves were included
-                if !task_name.contains(':') {
-                    taskfile
-                        .tasks
-                        .insert([include_name, ":", &task_name].concat(), task);
-                }
+                taskfile
+                    .tasks
+                    .insert([include_name, ":", &task_name].concat(), task);
             }
         }
-        */
 
         Ok(taskfile)
     }
@@ -164,7 +264,7 @@ impl Taskfile {
             Lazy::new(|| Regex::new("(?m)^  [\\w\\-_]+:").expect("Unable to create regex"));
 
         let mut task_count = -1;
-        let yaml = yaml
+        let mut yaml = yaml
             .lines()
             .into_iter()
             .map(|line| {
@@ -189,6 +289,10 @@ impl Taskfile {
             .trim_start()
             .to_string();
 
+        if !yaml.ends_with('\n') {
+            yaml.push('\n');
+        }
+
         Ok(yaml)
     }
 
@@ -201,7 +305,7 @@ impl Taskfile {
     }
 
     /// Update a a Taskfile for a directory
-    pub async fn refresh(dir: Option<&Path>) -> Result<()> {
+    pub async fn detect(dir: Option<&Path>) -> Result<()> {
         let dir = match dir {
             Some(dir) => dir.to_path_buf(),
             None => current_dir()?,
@@ -211,19 +315,19 @@ impl Taskfile {
         // We do this, rather than use some other location, so it is easier to commit the taskfiles
         // or bundle up the whole project without breaking running of tasks.
         // Do it before reading the Taskfile to avoid error if included file is missing.
-        let all = dir.join(".stencila").join("tasks");
-        create_dir_all(&all)?;
+        let lib = dir.join(".stencila").join("tasks");
+        create_dir_all(&lib)?;
         for name in Taskfiles::iter() {
             let name = name.to_string();
             if let Some(file) = Taskfiles::get(&name) {
-                let path = all.join(&name);
+                let path = lib.join(&name);
                 write(&path, file.data)?;
             }
         }
 
         let path = dir.join("Taskfile.yaml");
         let mut taskfile = match path.exists() {
-            true => Taskfile::read(Some(&path))?,
+            true => Taskfile::read(Some(&path), 0)?,
             false => Taskfile::default(),
         };
 
@@ -232,10 +336,14 @@ impl Taskfile {
         taskfile.includes.retain(|_name, include| !include.autogen);
         taskfile.tasks.retain(|_name, task| !task.autogen);
 
-        // Ensure that there is an include entry for those tasks.
-        if taskfile.includes.get("all").is_none() {
+        // Ensure that there is an include entry for the library
+        // Previously we also added individual includes for the lib modules e;.g. `python`, `asdf`.
+        // This avoids having to append `lib:` when running tasks.
+        // However this pollutes the Taskfile and is sensitive to the order of includes - for some
+        // reason `task` crashes when a yaml that includes another yaml is included before the first.
+        if taskfile.includes.get("lib").is_none() {
             taskfile.includes.insert(
-                "all".to_string(),
+                "lib".to_string(),
                 Include {
                     taskfile: ".stencila/tasks".to_string(),
                     autogen: true,
@@ -244,114 +352,70 @@ impl Taskfile {
             );
         }
 
-        // Ensure there is a `detect` task and if there is not then add one and
-        // write the Taskfile.
-        if taskfile.tasks.get("detect").is_none() {
-            taskfile.tasks.insert(
-                "detect".to_string(),
-                Task {
-                    desc: Some("Detect which tasks are required".to_string()),
-                    summary: Some("An autogenerated task which runs all the detect tasks in the local task library.".to_string()),
-                    autogen: true,
-                    cmds: vec![Command {
-                        task: Some("all:detect".to_string()),
-                        ..Default::default()
-                    }],
-                    ..Default::default()
-                },
-            );
-            taskfile.write(Some(&path))?;
-        }
+        // Write the Taskfile for the `lib:detect` task
+        taskfile.write(Some(&path))?;
 
-        // Run the detect task, first removing any stale .tasks file
-        let tasks = dir.join(".tasks");
-        if tasks.exists() {
-            remove_file(&tasks)?;
-        }
-        Self::run("detect", Some(&path)).await?;
+        // Remove any existing version of files that will be appended to in detect
+        let tasks_file = dir.join(".stencila-tasks");
+        remove_file(&tasks_file).ok();
 
-        // Read the tasks file and collect into 'pull', 'install', 'run', 'push', and 'build' meta tasks
-        // and add necessary includes for Taskfiles.
-        let tasks = read_to_string(tasks)?;
-        let mut build_cmds = Vec::new();
+        // Run the library detect task
+        run(&vec!["lib:detect".to_string()], Some(&dir)).await?;
+
+        // Read any generated files and cleanup
+        let tasks = read_to_string(&tasks_file).unwrap_or_default();
+        remove_file(tasks_file).ok();
+
         let mut install_cmds = Vec::new();
         for task in tasks.lines() {
-            if let Some((topic, action)) = task.splitn(2, ':').collect_tuple() {
-                if !taskfile.includes.contains_key("topic") {
-                    taskfile.includes.insert(
-                        topic.to_string(),
-                        Include {
-                            taskfile: format!(".stencila/tasks/{}.yaml", topic),
-                            autogen: true,
-                            ..Default::default()
-                        },
-                    );
-                }
+            if let Some((_name, action)) = task.splitn(2, ':').collect_tuple() {
                 if action == "install" {
                     install_cmds.push(Command {
-                        task: Some(task.to_string()),
-                        ..Default::default()
-                    })
-                }
-                if action == "build" {
-                    build_cmds.push(Command {
-                        task: Some(task.to_string()),
+                        task: Some(["lib:", task].concat()),
                         ..Default::default()
                     })
                 }
             }
         }
-        taskfile.tasks.insert(
-            "install".to_string(),
-            Task {
-                desc: Some("Install tools and packages".to_string()),
-                summary: Some(
-                    "An autogenerated task which runs all the install tasks that were detected."
-                        .to_string(),
-                ),
-                autogen: true,
-                cmds: install_cmds,
+
+        let mut build_cmds = Vec::new();
+
+        if !install_cmds.is_empty() && !taskfile.tasks.contains_key("install") {
+            taskfile.tasks.insert(
+                "install".to_string(),
+                Task {
+                    desc: Some("Install tools and packages for the project".to_string()),
+                    summary: Some(
+                        "Autogenerated task to run all install tasks that were detected."
+                            .to_string(),
+                    ),
+                    autogen: true,
+                    cmds: install_cmds,
+                    ..Default::default()
+                },
+            );
+            build_cmds.push(Command {
+                task: Some("install".to_string()),
                 ..Default::default()
-            },
-        );
-        taskfile.tasks.insert(
-            "build".to_string(),
-            Task {
-                desc: Some("Build the project".to_string()),
-                summary: Some(
-                    "An autogenerated task which runs the usual tasks for building a project."
-                        .to_string(),
-                ),
-                autogen: true,
-                cmds: build_cmds,
-                ..Default::default()
-            },
-        );
+            })
+        }
+
+        if !build_cmds.is_empty() && !taskfile.tasks.contains_key("build") {
+            taskfile.tasks.insert(
+                "build".to_string(),
+                Task {
+                    desc: Some("Build the project".to_string()),
+                    summary: Some(
+                        "Autogenerated task to run other tasks to build the project.".to_string(),
+                    ),
+                    autogen: true,
+                    cmds: build_cmds,
+                    ..Default::default()
+                },
+            );
+        }
 
         taskfile.write(Some(&path))
-    }
-
-    /// Run a task in the Taskfile
-    pub async fn run(task: &str, path: Option<&Path>) -> Result<()> {
-        let path = Self::resolve(path)?;
-
-        // Check that task is in taskfile. This will be done by the `task` binary
-        // but doing it here is a fail early and produces a more explicit error message
-        //let taskfile = Taskfile::read(Some(&path))?;
-        //if !taskfile.tasks.contains_key(task) {
-        //    bail!("Task `{}` not found in Taskfile `{}`", task, path.display());
-        //}
-
-        let binary = TaskBinary {}.ensure().await?;
-        binary
-            .run_with(
-                [task, "--taskfile", &path.display().to_string()],
-                Some(tracing::Level::INFO),
-                Some(tracing::Level::INFO),
-            )
-            .await?;
-
-        Ok(())
     }
 
     /// Generated Markdown documentation for the Taskfile
@@ -437,60 +501,6 @@ impl Taskfile {
         );
 
         Ok(md)
-    }
-
-    /// Generate Markdown documentation for all Taskfiles in the library
-    pub fn docs_all() -> Result<()> {
-        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("..")
-            .join("docs")
-            .join("reference")
-            .join("tasks");
-        create_dir_all(&dir)?;
-
-        let taskfiles = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("taskfiles")
-            .read_dir()?
-            .flatten()
-            .filter(|entry| {
-                let name = entry.file_name();
-                let name = name.to_string_lossy();
-                entry.path().is_file() && name.ends_with(".yaml") && name != "Taskfile.yaml"
-            })
-            .sorted_by(|a, b| a.file_name().cmp(&b.file_name()));
-
-        let mut table = "| Topic | Description |\n| --- | --- |\n".to_string();
-        for taskfile in taskfiles {
-            let path = taskfile.path();
-            let name = path
-                .file_stem()
-                .ok_or_else(|| eyre!("File has no stem"))?
-                .to_string_lossy();
-
-            let taskfile = Taskfile::read(Some(&path))?;
-            let md = taskfile.doc(&name)?;
-            let path = dir.join(format!("{}.md", name));
-            write(path, md.trim())?;
-
-            table += &format!(
-                "| [`{}`]({}.md) | {} |\n",
-                name,
-                name,
-                taskfile.desc.unwrap_or_default()
-            );
-        }
-
-        let readme = dir.join("README.md");
-        let mut content = read_to_string(&readme)?;
-        content.replace_range(
-            (content.find("<!-- TASKS-START -->").unwrap_or_default() + 21)
-                ..content.find("<!-- TASKS-FINISH -->").unwrap_or_default(),
-            &table,
-        );
-        write(readme, content)?;
-
-        Ok(())
     }
 }
 
@@ -728,7 +738,7 @@ impl Task {
             String::new()
         } else {
             format!(
-                "#### Sources\n\n{}",
+                "#### Sources\n\n{}\n",
                 self.sources
                     .iter()
                     .map(|source| format!("- `{}`", source))

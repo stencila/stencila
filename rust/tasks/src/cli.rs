@@ -9,7 +9,7 @@ use cli_utils::{
 };
 use common::{itertools::Itertools, serde::Serialize};
 
-use crate::taskfile::{Task, Taskfile};
+use crate::taskfile::{self, Task, Taskfile};
 
 /// Manage and run project tasks
 #[derive(Parser)]
@@ -21,7 +21,7 @@ pub struct Command {
 
 #[derive(Parser)]
 pub enum Action {
-    Refresh(Refresh),
+    Detect(Detect),
     List(List),
     Run(Run_),
     Docs(Docs),
@@ -31,7 +31,7 @@ pub enum Action {
 impl Run for Command {
     async fn run(&self) -> Result {
         match &self.action {
-            Action::Refresh(action) => action.run().await,
+            Action::Detect(action) => action.run().await,
             Action::List(action) => action.run().await,
             Action::Run(action) => action.run().await,
             Action::Docs(action) => action.run().await,
@@ -47,9 +47,9 @@ struct TaskfileArg {
     taskfile: Option<PathBuf>,
 }
 
-/// Refresh the Taskfile for a directory
+/// Detect which dependencies and tasks are required
 #[derive(Parser)]
-pub struct Refresh {
+pub struct Detect {
     /// The directory to refresh the Taskfile for
     ///
     /// If the directory does not yet have a Taskfile one will be created
@@ -57,9 +57,9 @@ pub struct Refresh {
 }
 
 #[async_trait]
-impl Run for Refresh {
+impl Run for Detect {
     async fn run(&self) -> Result {
-        Taskfile::refresh(self.dir.as_deref()).await?;
+        Taskfile::detect(self.dir.as_deref()).await?;
         result::nothing()
     }
 }
@@ -91,7 +91,7 @@ pub struct List {
 #[async_trait]
 impl Run for List {
     async fn run(&self) -> Result {
-        let taskfile = Taskfile::read(self.taskfile.taskfile.as_deref())?;
+        let taskfile = Taskfile::read(self.taskfile.taskfile.as_deref(), 2)?;
         let tasks = taskfile
             .tasks
             .into_iter()
@@ -108,13 +108,14 @@ impl Run for List {
             .filter(|(name, ..)| {
                 if let Some(topic) = &self.topic {
                     name.starts_with(&[topic, ":"].concat())
+                        || name.starts_with(&["lib:", topic, ":"].concat())
                 } else {
                     true
                 }
             })
             .filter(|(name, ..)| {
                 if let Some(action) = &self.action {
-                    name.ends_with(&[":", action].concat())
+                    name == action || name.ends_with(&[":", action].concat())
                 } else {
                     true
                 }
@@ -131,7 +132,8 @@ impl Run for List {
 #[derive(Parser)]
 pub struct Run_ {
     /// The name of the task to run
-    task: String,
+    #[clap(required = true)]
+    tasks: Vec<String>,
 
     #[clap(flatten)]
     taskfile: TaskfileArg,
@@ -140,7 +142,7 @@ pub struct Run_ {
 #[async_trait]
 impl Run for Run_ {
     async fn run(&self) -> Result {
-        Taskfile::run(&self.task, self.taskfile.taskfile.as_deref()).await?;
+        taskfile::run(&self.tasks, self.taskfile.taskfile.as_deref()).await?;
         result::nothing()
     }
 }
@@ -176,7 +178,7 @@ pub struct Docs;
 #[async_trait]
 impl Run for Docs {
     async fn run(&self) -> Result {
-        Taskfile::docs_all()?;
+        taskfile::docs()?;
         result::nothing()
     }
 }
