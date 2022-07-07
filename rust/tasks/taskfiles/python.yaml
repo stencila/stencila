@@ -11,15 +11,15 @@ tasks:
       Adds the `python:install` task if there are any Python files in the
       project (including in subdirectories).
     ignore_error: true
+    silent: true
     cmds:
-      - test $(find . -type f -iname '*.py' -print -quit) && echo python:install >> .tasks
+      - test $(find . -type f -iname '*.py' -print -quit) && echo python:install >> .stencila-tasks
 
   install:
     desc: Install Python for the project
     summary: |
-      Installs Python at the version specified (or latest version none specified). 
-      The version installed will be added to the `.tool-versions` file in the current directory.
-      Install Python on Linux and MacOS using `asdf`
+      Installs Python at the version specified (or the latest version if none specified). 
+      The version installed will be added to the project's `.tool-versions` file.
     cmds:
       - task: install-{{OS}}
         vars:
@@ -53,3 +53,12 @@ tasks:
         vars:
           PACKAGE: python
           VERSION: '{{.VERSION}}'
+
+  upgrade:
+    desc: Upgrade Python to the latest version
+    summary: |
+      Installs the latest version of Python and adds it to the project's `.tool-versions` file.
+    cmds:
+      - task: install
+        vars:
+          VERSION: latest

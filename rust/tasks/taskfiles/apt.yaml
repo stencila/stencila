@@ -1,5 +1,14 @@
 version: '3'
 
+desc: Tasks related to Apt, the package manager used on Debian-based Linux
+
+summary: |
+  This `Taskfile` includes tasks for `add`-ing and `remove`-ing system packages (e.g. `git`) using `apt-get`.
+  It will also `detect` if there is an `Aptfile` in your project and `install` the system packages declared in it.
+
+  Note that, in contrast to most of the other tasks in this library, `add`, `remove` and `install` will alter the
+  system and as such will use `sudo` (if present).
+
 vars:
   SUDO:
     sh: which sudo || true
@@ -11,10 +20,11 @@ tasks:
   detect:
     desc: Detect which Apt tasks are needed for the project
     summary: |
-      Adds the `apt:install` task if there is an `Aptfile` in the root of the project.
+      Detects if there is an `Aptfile` in the root of the project and require thee `apt:install` if it is.
     ignore_error: true
+    silent: true
     cmds:
-      - test -f Aptfile && echo apt:install >> .tasks
+      - test -f Aptfile && echo apt:install >> .stencila-tasks
 
   add:
     desc: Add a system package using Apt
@@ -25,8 +35,7 @@ tasks:
       - grep '^{{.PACKAGE}} ' Aptfile
     cmds:
       - '{{.SUDO}} apt-get -y install {{.PACKAGE}}'
-      - touch Aptfile
-      - grep '^{{.PACKAGE}}' Aptfile || echo {{.PACKAGE}} >> Aptfile
+      - touch Aptfile && grep '^{{.PACKAGE}}' Aptfile || echo {{.PACKAGE}} >> Aptfile
 
   remove:
     desc: Remove a system package using Apt

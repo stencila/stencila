@@ -10,8 +10,9 @@ tasks:
     summary: |
       Adds the `r:install` task if there are any R files in the project (including in subdirectories).
     ignore_error: true
+    silent: true
     cmds:
-      - test $(find . -type f -iname '*.r' -print -quit) && echo r:install >> .tasks
+      - test $(find . -type f -iname '*.r' -print -quit) && echo r:install >> .stencila-tasks
 
   install:
     desc: Install R for the project

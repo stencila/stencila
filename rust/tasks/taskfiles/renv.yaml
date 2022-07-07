@@ -10,8 +10,9 @@ tasks:
     summary: |
       Adds the `renv:install` task if there is a `renv.lock` file.
     ignore_error: true
+    silent: true
     cmds:
-      - test -f renv.lock && echo renv:install >> .tasks
+      - test -f renv.lock && echo renv:install >> .stencila-tasks
 
   ensure:
     desc: Ensure `renv` is installed
@@ -49,6 +50,7 @@ tasks:
   add:
     desc: Add an R package using `renv`
     cmds:
+      - task: ensure
       - task: init
       - task: gitignore
       - R --slave -e "renv::install('{{.PACKAGE}}'); renv::snapshot(type='all')"
@@ -56,12 +58,14 @@ tasks:
   remove:
     desc: Remove an R package using `renv`
     cmds:
+      - task: ensure
       - task: init
       - R --slave -e "renv::remove('{{.PACKAGE}}'); renv::snapshot(type='all')"
 
   install:
     desc: Install all R packages in `renv.lock` using `renv`
     cmds:
+      - task: ensure
       - task: init
       - task: gitignore
       - R --slave -e "renv::install()"
@@ -69,6 +73,7 @@ tasks:
   update:
     desc: Update all R packages in `renv.lock` using `renv`
     cmds:
+      - task: ensure
       - task: init
       - task: gitignore
       - R --slave -e "renv::update()"

@@ -9,8 +9,9 @@ tasks:
     summary: |
       Adds the `podman:install` task if there is a `Dockerfile` in the root of the project.
     ignore_error: true
+    silent: true
     cmds:
-      - test -f Dockerfile && echo podman:install >> .tasks
+      - test -f Dockerfile && echo podman:install >> .stencila-tasks
 
   ensure:
     desc: Ensure Podman is installed for the project

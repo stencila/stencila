@@ -10,8 +10,9 @@ tasks:
     summary: |
       Adds the `npm:install` task if there is a `package.json` file.
     ignore_error: true
+    silent: true
     cmds:
-      - test -f package.json && echo npm:install >> .tasks
+      - test -f package.json && echo npm:install >> .stencila-tasks
 
   ensure:
     desc: Ensure NPM is installed

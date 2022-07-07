@@ -24,7 +24,10 @@ includes:
 tasks:
   detect:
     desc: Detect which tasks are required for a project
+    silent: true
     cmds:
+      - echo "Detecting tasks for $PWD"
+
       - task: podman:detect
 
       - task: apt:detect

@@ -11,8 +11,9 @@ tasks:
       Adds the `pip:install` task if there is a `requirements.txt` file in the root
       of the project.
     ignore_error: true
+    silent: true
     cmds:
-      - test -f requirements.txt && echo pip:install >> .tasks
+      - test -f requirements.txt && echo pip:install >> .stencila-tasks
 
   ensure:
     desc: Ensure Pip is installed

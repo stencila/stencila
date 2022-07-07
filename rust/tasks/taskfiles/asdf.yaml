@@ -10,8 +10,9 @@ tasks:
     summary: |
       Adds the `asdf:install` task if there is an `.tool-versions` file in the root of the project.
     ignore_error: true
+    silent: true
     cmds:
-      - test -f .tool-versions && echo asdf:install >> .tasks
+      - test -f .tool-versions && echo asdf:install >> .stencila-tasks
 
   ensure:
     desc: Ensure `asdf` is installed
@@ -60,7 +61,13 @@ tasks:
       Ensures that the corresponding `asdf` plugin is installed and that
       the tool version is installed.
     status:
-      - grep '^{{.PACKAGE}} ' .tool-versions
+      - |
+        if [ -n '{{.VERSION}}' ]
+        then
+          grep '^{{.PACKAGE}} {{.VERSION}}' .tool-versions
+        else
+          grep '^{{.PACKAGE}} ' .tool-versions
+        fi
     cmds:
       - task: ensure-package
         vars:
