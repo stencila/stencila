@@ -7,7 +7,7 @@ use cli_utils::{
     table::{option_string, Table, Title},
     Result, Run,
 };
-use common::{itertools::Itertools, serde::Serialize};
+use common::{eyre::bail, itertools::Itertools, serde::Serialize};
 
 use crate::taskfile::{self, Task, Taskfile};
 
@@ -126,27 +126,6 @@ impl Run for List {
     }
 }
 
-/// Run a task in a Taskfile
-///
-/// Use this command to run one of the tasks in a Taskfile.
-#[derive(Parser)]
-pub struct Run_ {
-    /// The name of the task to run
-    #[clap(required = true)]
-    tasks: Vec<String>,
-
-    #[clap(flatten)]
-    taskfile: TaskfileArg,
-}
-
-#[async_trait]
-impl Run for Run_ {
-    async fn run(&self) -> Result {
-        taskfile::run(&self.tasks, self.taskfile.taskfile.as_deref()).await?;
-        result::nothing()
-    }
-}
-
 #[derive(Default, Serialize, Table)]
 #[serde(crate = "common::serde")]
 #[table(crate = "cli_utils::cli_table")]
@@ -163,6 +142,35 @@ impl From<(String, Task)> for TaskRow {
         TaskRow {
             name,
             desc: task.desc,
+        }
+    }
+}
+
+/// Run a task in a Taskfile
+///
+/// Use this command to run one of the tasks in a Taskfile.
+#[derive(Parser)]
+pub struct Run_ {
+    /// The name of the task to run
+    #[clap(required = true)]
+    tasks: Vec<String>,
+
+    #[clap(flatten)]
+    taskfile: TaskfileArg,
+
+    #[clap(long, hide = true)]
+    error_prefix: Option<String>,
+}
+
+#[async_trait]
+impl Run for Run_ {
+    async fn run(&self) -> Result {
+        match taskfile::run(&self.tasks, self.taskfile.taskfile.as_deref()).await {
+            Ok(..) => result::nothing(),
+            Err(error) => match &self.error_prefix {
+                Some(prefix) => bail!("{} {}", prefix, error.to_string()),
+                None => Err(error),
+            },
         }
     }
 }

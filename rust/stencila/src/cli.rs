@@ -27,7 +27,8 @@ use crate::{
 
 /// Stencila command line tool
 ///
-/// Enter interactive mode by using the `--interact` option with any command.
+/// Enter interactive mode by using the `interact` command, the `--interact` option with
+/// any other command (will be set as 'prefix'), or not supply any command.
 #[derive(Parser)]
 #[clap(
     version,
@@ -37,7 +38,7 @@ use crate::{
 pub struct Cli {
     /// The command to run
     #[clap(subcommand)]
-    pub command: Option<Command>,
+    pub command: Command,
 
     /// Format to display results of commands (e.g. json, yaml, md)
     ///
@@ -192,6 +193,9 @@ pub enum Command {
 
     #[cfg(feature = "upgrade")]
     Upgrade(crate::upgrade::commands::Command),
+
+    /// Enter interactive mode (if not yet in it)
+    Interact,
 }
 
 #[async_trait]
@@ -253,6 +257,8 @@ impl Run for Command {
 
             #[cfg(feature = "upgrade")]
             Command::Upgrade(command) => command.run().await,
+
+            Command::Interact => result::nothing(),
         }
     }
 }
@@ -448,7 +454,9 @@ pub async fn main() -> eyre::Result<()> {
 
     let args: Vec<String> = std::env::args().collect();
 
-    // Parse args into a command
+    // Parse args into a command.
+    // We extend the normal clap parsing by falling back to `tasks run` if there was at least one
+    // arg by they are unrecognized and to interactive mode if there are no arguments at all.
     let parsed_args = Cli::try_parse_from(args.clone());
     let Cli {
         command,
@@ -456,32 +464,59 @@ pub async fn main() -> eyre::Result<()> {
         debug,
         log_level,
         log_format,
-        interact,
+        mut interact,
         ..
     } = match parsed_args {
-        Ok(args) => args,
+        Ok(cmd) => cmd,
         Err(error) => {
-            // An argument parsing error happened, possibly because the user
-            // provided incomplete command prefix to interactive mode. Handle that.
-            if args.contains(&"-i".to_string())
-                || args.contains(&"--interact".to_string())
-                || args.contains(&"--interactive".to_string())
-            {
-                Cli {
-                    command: None,
-                    display: DisplayOptions::default(),
-                    debug: args.contains(&"--debug".to_string()),
-                    log_level: None,
-                    log_format: None,
-                    interact: true,
+            if matches!(
+                error.kind(),
+                clap::ErrorKind::InvalidSubcommand | clap::ErrorKind::UnrecognizedSubcommand
+            ) {
+                // Count the number of tasks (args that are not options)?
+                // The minus one accounts for the leading binary name
+                let tasks = args.iter().filter(|arg| !arg.starts_with('-')).count() - 1;
+
+                // Inserting args and re-parsing like the following may seem a bit hacky but it
+                // allows for args such as --debug etc to be captured
+                if tasks == 0 {
+                    // If no tasks, then go into interactive mode
+                    let mut args = args.clone();
+                    args.insert(1, "interact".to_string());
+                    Cli::parse_from(args)
+                } else if PathBuf::from("Taskfile.yaml").exists() {
+                    // If are tasks (and potentially their parameters) and there is a Taskfile
+                    // then run the tasks
+                    let mut args = args.clone();
+                    args.insert(1, "tasks".to_string());
+                    args.insert(2, "run".to_string());
+                    args.insert(
+                        3,
+                        "--error-prefix=Command not recognized and when attempting to run as task:"
+                            .to_string(),
+                    );
+                    Cli::parse_from(args)
+                } else {
+                    // Otherwise print claps message which for `InvalidSubcommand`
+                    // will be a suggestion
+                    error.print()?;
+                    std::process::exit(exitcode::USAGE);
                 }
             } else {
-                // Print the error `clap` help or usage message and exit
+                // Note that this branch includes `clap::ErrorKind::DisplayHelp` (--help) and
+                // `clap::ErrorKind::DisplayVersion` (--version)
                 error.print()?;
-                std::process::exit(exitcode::USAGE);
+                std::process::exit(match error.kind() {
+                    clap::ErrorKind::DisplayHelp | clap::ErrorKind::DisplayVersion => exitcode::OK,
+                    _ => exitcode::USAGE,
+                });
             }
         }
     };
+
+    if matches!(command, Command::Interact) {
+        interact = true
+    }
 
     // Create a preliminary logging subscriber to be able to log any issues
     // when reading the logging config.
@@ -536,7 +571,7 @@ pub async fn main() -> eyre::Result<()> {
     // If not explicitly upgrading then run an upgrade check in the background
     #[cfg(feature = "upgrade")]
     let upgrade_thread = {
-        if let Some(Command::Upgrade(_)) = command {
+        if let Command::Upgrade(_) = command {
             None
         } else {
             Some(crate::upgrade::upgrade_auto())
@@ -553,7 +588,7 @@ pub async fn main() -> eyre::Result<()> {
     // if projects or documents module
     #[allow(unused_variables)]
     let (interact, module) = match &command {
-        Some(Command::With(WithCommand { path })) => (
+        Command::With(WithCommand { path }) => (
             true,
             if path.is_dir() {
                 "projects".to_string()
@@ -565,7 +600,7 @@ pub async fn main() -> eyre::Result<()> {
     };
 
     // Run the command and print result
-    if let (false, Some(command)) = (interact, command) {
+    if !interact {
         let error_format =
             if matches!(logging_config.stderr.format, LoggingFormat::Json) || !stderr_isatty() {
                 "json"
@@ -580,8 +615,9 @@ pub async fn main() -> eyre::Result<()> {
                 .into_iter()
                 // Remove executable name
                 .skip(1)
-                // Remove the global args which can not be applied to each interactive line
-                .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
+                // Remove the 'interact' command and any global args which can not be applied
+                // to each interactive line
+                .filter(|arg| arg != "interact" && !GLOBAL_ARGS.contains(&arg.as_str()))
                 .collect();
 
             // Insert the module if this is the `with` command

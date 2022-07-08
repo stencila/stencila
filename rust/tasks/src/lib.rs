@@ -1,5 +1,5 @@
 mod taskfile;
-pub use taskfile::run as run;
+pub use taskfile::run;
 
 #[cfg(feature = "cli")]
 pub mod cli;

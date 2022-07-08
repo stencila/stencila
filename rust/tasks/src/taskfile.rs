@@ -42,7 +42,7 @@ pub async fn run(args: &Vec<String>, path: Option<&Path>) -> Result<()> {
                 lib_task
             } else {
                 bail!(
-                    "Taskfile does not have a task named `{}` or `lib:{}`",
+                    "Taskfile does not have task named `{}` or `lib:{}`",
                     arg,
                     arg
                 )
@@ -216,6 +216,13 @@ impl Taskfile {
     /// If `inclusion_depth` is greater than zero, will add tasks from `includes` to the Taskfile's `tasks`.
     pub fn read(path: Option<&Path>, inclusion_depth: usize) -> Result<Self> {
         let path = Self::resolve(path)?;
+        if !path.exists() {
+            bail!(
+                "Could not find taskfile at `{}`; perhaps create one using `stencila tasks detect`",
+                path.display()
+            )
+        }
+
         let yaml = read_to_string(&path)?;
 
         let mut taskfile = match Self::load(&yaml) {
