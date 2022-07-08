@@ -2,18 +2,13 @@ use std::{env, path::Path};
 
 use common::{
     async_trait::async_trait,
-    chrono::Utc,
     eyre::Result,
     once_cell::sync::Lazy,
     regex::Regex,
     serde::{Deserialize, Serialize},
     serde_json,
     strum::{AsRefStr, EnumString, EnumVariantNames},
-    tokio::{
-        self,
-        sync::mpsc,
-        time::{timeout, Duration},
-    },
+    tokio::sync::mpsc,
     tracing,
 };
 use http_utils::http::{Request, Response, StatusCode};
@@ -308,58 +303,4 @@ impl Visitor for Detector {
             true
         }
     }
-}
-
-/// Schedule import and/or export to/from a remove [`Node`] and a local path
-pub async fn run_schedule(
-    schedule: &str,
-    sender: mpsc::Sender<()>,
-    mut canceller: mpsc::Receiver<()>,
-) -> Result<()> {
-    let (schedules, timezone) = cron_utils::parse(schedule)?;
-    tracing::info!(
-        "Running cron schedule `{}` in timezone `{}`",
-        schedules
-            .iter()
-            .map(|schedule| schedule.to_string())
-            .collect::<Vec<String>>()
-            .join("; "),
-        timezone
-    );
-
-    tokio::spawn(async move {
-        let interval = Duration::from_secs(1);
-        let mut next = cron_utils::next(&schedules, &timezone);
-        if let Some(time) = next {
-            tracing::debug!("First action scheduled for {}", time);
-        }
-
-        loop {
-            if let Err(..) = timeout(interval, canceller.recv()).await {
-                match next {
-                    Some(time) => {
-                        if Utc::now() >= time {
-                            if let Err(error) = sender.send(()).await {
-                                tracing::error!("When sending schedule message: {}", error);
-                            }
-                            next = cron_utils::next(&schedules, &timezone);
-                            if let Some(time) = next {
-                                tracing::debug!("Next action scheduled for {}", time);
-                            }
-                        }
-                    }
-                    None => {
-                        tracing::info!("No more scheduled actions");
-                        break;
-                    }
-                }
-            } else {
-                tracing::info!("Schedule was cancelled");
-                break;
-            }
-        }
-    })
-    .await?;
-
-    Ok(())
 }

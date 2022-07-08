@@ -11,6 +11,7 @@ archive-utils = { path = "../archive-utils", features = [
     "tar-xz",
     "zip",
 ] }
+cron-utils = { path = "../cron-utils" }
 provider = { path = "../provider" }
 
 [dev-dependencies]

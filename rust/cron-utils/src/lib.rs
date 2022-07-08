@@ -19,6 +19,8 @@ use nom::{
 use common::{
     chrono::{DateTime, Utc},
     eyre::{bail, Result},
+    tokio::{self, sync::mpsc, time::sleep},
+    tracing,
 };
 
 mod tz_abbreviations;
@@ -618,6 +620,57 @@ pub fn next(schedules: &[Schedule], tz: &Tz) -> Option<DateTime<Utc>> {
         .collect::<Vec<_>>();
     times.sort();
     times.first().map(|time| time.with_timezone(&Utc))
+}
+
+/// Run a schedule
+pub async fn run(schedule: &str, sender: mpsc::Sender<()>) -> Result<()> {
+    let (schedules, timezone) = parse(schedule)?;
+    tracing::info!(
+        "Running cron schedule `{}` in timezone `{}`",
+        schedules
+            .iter()
+            .map(|schedule| schedule.to_string())
+            .collect::<Vec<String>>()
+            .join("; "),
+        timezone
+    );
+
+    tokio::spawn(async move {
+        let mut next_time = next(&schedules, &timezone);
+        if let Some(time) = next_time {
+            tracing::debug!("First action scheduled for {}", time);
+        }
+
+        loop {
+            match next_time {
+                Some(time) => {
+                    if Utc::now() >= time {
+                        if let Err(error) = sender.send(()).await {
+                            tracing::error!("When sending schedule message: {}", error);
+                        }
+                        next_time = next(&schedules, &timezone);
+                        if let Some(time) = next_time {
+                            tracing::debug!("Next action scheduled for {}", time);
+                            let duration = time - Utc::now();
+                            sleep(
+                                duration
+                                    .to_std()
+                                    .unwrap_or_else(|_| std::time::Duration::from_secs(1)),
+                            )
+                            .await;
+                        }
+                    }
+                }
+                None => {
+                    tracing::info!("No more scheduled times");
+                    break;
+                }
+            }
+        }
+    })
+    .await?;
+
+    Ok(())
 }
 
 #[cfg(test)]
