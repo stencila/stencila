@@ -10,6 +10,9 @@ cli = ["cli-utils"]
 [dependencies]
 binary-task = { path = "../binary-task" }
 common = { path = "../common" }
+cron-utils = { path = "../cron-utils" }
+fs2 = "0.4.3"
+notify = "4.0.17"
 rust-embed = { version = "6.4.0", features = ["compression"] }
 
 cli-utils = { path = "../cli-utils", optional = true}

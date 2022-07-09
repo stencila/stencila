@@ -20,7 +20,7 @@ tasks:
       - >
         test -f pyproject.toml &&
         grep '^\[tool.poetry\]$' pyproject.toml &&
-        echo poetry:install >> .stencila-tasks
+        echo poetry:install >> .stencila/tasks/detected
 
   ensure:
     desc: Ensure Poetry is installed

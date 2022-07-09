@@ -12,7 +12,7 @@ tasks:
     ignore_error: true
     silent: true
     cmds:
-      - test $(find . -type f -iname '*.r' -print -quit) && echo r:install >> .stencila-tasks
+      - test $(find . -type f -iname '*.r' -print -quit) && echo r:install >> .stencila/tasks/detected
 
   install:
     desc: Install R for the project

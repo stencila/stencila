@@ -13,7 +13,7 @@ tasks:
     ignore_error: true
     silent: true
     cmds:
-      - test -f requirements.txt && echo pip:install >> .stencila-tasks
+      - test -f requirements.txt && echo pip:install >> .stencila/tasks/detected
 
   ensure:
     desc: Ensure Pip is installed

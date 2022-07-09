@@ -13,7 +13,7 @@ tasks:
     ignore_error: true
     silent: true
     cmds:
-      - test $(find . -type f -iname '*.py' -print -quit) && echo python:install >> .stencila-tasks
+      - test $(find . -type f -iname '*.py' -print -quit) && echo python:install >> .stencila/tasks/detected
 
   install:
     desc: Install Python for the project

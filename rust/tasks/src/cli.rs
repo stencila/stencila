@@ -9,7 +9,7 @@ use cli_utils::{
 };
 use common::{eyre::bail, itertools::Itertools, serde::Serialize};
 
-use crate::taskfile::{self, Task, Taskfile};
+use crate::taskfile::{Task, Taskfile};
 
 /// Manage and run project tasks
 #[derive(Parser)]
@@ -151,13 +151,35 @@ impl From<(String, Task)> for TaskRow {
 /// Use this command to run one of the tasks in a Taskfile.
 #[derive(Parser)]
 pub struct Run_ {
-    /// The name of the task to run
+    /// The names and variables of the tasks to run
     #[clap(required = true)]
     tasks: Vec<String>,
+
+    /// Run the tasks once, immediately and ignore `schedule` or `watches`
+    #[clap(short, long, conflicts_with_all = &["schedule", "watch"])]
+    now: bool,
+
+    /// Run the tasks on a time schedule
+    #[clap(short, long)]
+    schedule: Option<String>,
+
+    /// Run the tasks when files matching this pattern change
+    #[clap(short, long)]
+    watch: Option<String>,
+
+    /// Ignore changes to files matching this pattern
+    #[clap(short, long)]
+    ignore: Option<String>,
+
+    /// Number of seconds to delay running tasks after file changes
+    #[clap(short, long)]
+    delay: Option<u64>,
 
     #[clap(flatten)]
     taskfile: TaskfileArg,
 
+    /// An internal, hidden option used to contextualize error messages
+    /// when used as a fallback command
     #[clap(long, hide = true)]
     error_prefix: Option<String>,
 }
@@ -165,7 +187,17 @@ pub struct Run_ {
 #[async_trait]
 impl Run for Run_ {
     async fn run(&self) -> Result {
-        match taskfile::run(&self.tasks, self.taskfile.taskfile.as_deref()).await {
+        match Taskfile::run(
+            &self.tasks,
+            self.taskfile.taskfile.as_deref(),
+            self.now,
+            self.schedule.as_deref(),
+            self.watch.as_deref(),
+            self.ignore.as_deref(),
+            self.delay,
+        )
+        .await
+        {
             Ok(..) => result::nothing(),
             Err(error) => match &self.error_prefix {
                 Some(prefix) => bail!("{} {}", prefix, error.to_string()),
@@ -186,7 +218,7 @@ pub struct Docs;
 #[async_trait]
 impl Run for Docs {
     async fn run(&self) -> Result {
-        taskfile::docs()?;
+        Taskfile::docs_all()?;
         result::nothing()
     }
 }

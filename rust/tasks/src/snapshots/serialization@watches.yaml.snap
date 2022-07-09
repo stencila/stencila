@@ -1,0 +1,28 @@
+---
+source: rust/tasks/src/taskfile.rs
+assertion_line: 1759
+expression: yaml
+input_file: fixtures/taskfiles/watches.yaml
+---
+version: "3"
+
+tasks:
+  default:
+    watches: watches.yaml
+    cmds:
+      - ls -lt
+
+  with-options:
+    watches:
+      files: watches.yaml
+      delay: 1
+    cmds:
+      - ls -lt
+
+  multi:
+    watches:
+      - "./README.md"
+      - watches.yaml
+    cmds:
+      - ls -lt
+

@@ -12,7 +12,7 @@ tasks:
     ignore_error: true
     silent: true
     cmds:
-      - test -f .tool-versions && echo asdf:install >> .stencila-tasks
+      - test -f .tool-versions && echo asdf:install >> .stencila/tasks/detected
 
   ensure:
     desc: Ensure `asdf` is installed

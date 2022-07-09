@@ -1,124 +1,31 @@
 use std::{
     env::current_dir,
-    fs::{create_dir_all, read_to_string, remove_file, write},
+    fs::{create_dir_all, read_to_string, remove_file, write, File},
     path::{Path, PathBuf},
+    time::Duration,
 };
+
+use fs2::FileExt;
+use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
+use rust_embed::RustEmbed;
 
 use binary_task::{BinaryTrait, TaskBinary};
 use common::{
     defaults::Defaults,
     eyre::{bail, eyre, Result},
+    futures::future,
+    glob,
     indexmap::IndexMap,
     itertools::Itertools,
     once_cell::sync::Lazy,
     regex::Regex,
     serde::{Deserialize, Deserializer, Serialize},
     serde_with::skip_serializing_none,
-    serde_yaml, tracing,
+    serde_yaml,
+    slug::slugify,
+    tokio::{self, sync::mpsc::error::TrySendError},
+    tracing,
 };
-use rust_embed::RustEmbed;
-
-/// Run a task in the Taskfile
-///
-/// Reads the Taskfile, including included tasks, to be able to check that the
-/// desired task is available before spawning `task`. If not present, then attempts
-/// to resolve it by pre-pending `lib:` to the name.
-pub async fn run(args: &Vec<String>, path: Option<&Path>) -> Result<()> {
-    let path = Taskfile::resolve(path)?;
-
-    if args.is_empty() {
-        bail!("No arguments provided to `task run`")
-    }
-
-    let taskfile = Taskfile::read(Some(&path), 2)?;
-
-    let mut task_args = vec![format!("--taskfile={}", path.display())];
-    for arg in args {
-        let arg = if let Some((name, value)) = arg.splitn(2, '=').collect_tuple() {
-            format!("{}={}", name.to_uppercase(), value)
-        } else if !taskfile.tasks.contains_key(arg) {
-            let lib_task = ["lib:", arg].concat();
-            if taskfile.tasks.contains_key(&lib_task) {
-                lib_task
-            } else {
-                bail!(
-                    "Taskfile does not have task named `{}` or `lib:{}`",
-                    arg,
-                    arg
-                )
-            }
-        } else {
-            arg.to_string()
-        };
-
-        task_args.push(arg);
-    }
-
-    let binary = TaskBinary {}.ensure().await?;
-    binary
-        .run_with(
-            task_args,
-            Some(tracing::Level::INFO),
-            Some(tracing::Level::INFO),
-        )
-        .await?;
-
-    Ok(())
-}
-
-/// Generate Markdown documentation for all Taskfiles in the library
-pub fn docs() -> Result<()> {
-    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("..")
-        .join("docs")
-        .join("reference")
-        .join("tasks");
-    create_dir_all(&dir)?;
-
-    let taskfiles = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("taskfiles")
-        .read_dir()?
-        .flatten()
-        .filter(|entry| {
-            let name = entry.file_name();
-            let name = name.to_string_lossy();
-            entry.path().is_file() && name.ends_with(".yaml") && name != "Taskfile.yaml"
-        })
-        .sorted_by(|a, b| a.file_name().cmp(&b.file_name()));
-
-    let mut table = "| Topic | Description |\n| --- | --- |\n".to_string();
-    for taskfile in taskfiles {
-        let path = taskfile.path();
-        let name = path
-            .file_stem()
-            .ok_or_else(|| eyre!("File has no stem"))?
-            .to_string_lossy();
-
-        let taskfile = Taskfile::read(Some(&path), 0)?;
-        let md = taskfile.doc(&name)?;
-        let path = dir.join(format!("{}.md", name));
-        write(path, md.trim())?;
-
-        table += &format!(
-            "| [`{}`]({}.md) | {} |\n",
-            name,
-            name,
-            taskfile.desc.unwrap_or_default()
-        );
-    }
-
-    let readme = dir.join("README.md");
-    let mut content = read_to_string(&readme)?;
-    content.replace_range(
-        (content.find("<!-- TASKS-START -->").unwrap_or_default() + 21)
-            ..content.find("<!-- TASKS-FINISH -->").unwrap_or_default(),
-        &table,
-    );
-    write(readme, content)?;
-
-    Ok(())
-}
 
 #[skip_serializing_none]
 #[derive(Defaults, Deserialize, Serialize)]
@@ -322,7 +229,7 @@ impl Taskfile {
         // We do this, rather than use some other location, so it is easier to commit the taskfiles
         // or bundle up the whole project without breaking running of tasks.
         // Do it before reading the Taskfile to avoid error if included file is missing.
-        let lib = dir.join(".stencila").join("tasks");
+        let lib = dir.join(".stencila").join("tasks").join("lib");
         create_dir_all(&lib)?;
         for name in Taskfiles::iter() {
             let name = name.to_string();
@@ -352,7 +259,7 @@ impl Taskfile {
             taskfile.includes.insert(
                 "lib".to_string(),
                 Include {
-                    taskfile: ".stencila/tasks".to_string(),
+                    taskfile: ".stencila/tasks/lib".to_string(),
                     autogen: true,
                     ..Default::default()
                 },
@@ -362,16 +269,10 @@ impl Taskfile {
         // Write the Taskfile for the `lib:detect` task
         taskfile.write(Some(&path))?;
 
-        // Remove any existing version of files that will be appended to in detect
-        let tasks_file = dir.join(".stencila-tasks");
-        remove_file(&tasks_file).ok();
-
-        // Run the library detect task
-        run(&vec!["lib:detect".to_string()], Some(&dir)).await?;
-
-        // Read any generated files and cleanup
-        let tasks = read_to_string(&tasks_file).unwrap_or_default();
-        remove_file(tasks_file).ok();
+        // Run the library detect task and read the list of detected tasks
+        Task::run_now(&dir, "lib:detect", Vec::new()).await?;
+        let detected = dir.join(".stencila").join("tasks").join("detected");
+        let tasks = read_to_string(&detected).unwrap_or_default();
 
         let mut install_cmds = Vec::new();
         for task in tasks.lines() {
@@ -425,8 +326,93 @@ impl Taskfile {
         taskfile.write(Some(&path))
     }
 
+    /// Run one or more tasks in the Taskfile
+    ///
+    /// Reads the Taskfile, including included tasks, to be able to check that the
+    /// desired task is available before spawning `task`. If not present, then attempts
+    /// to resolve it by pre-pending `lib:` to the name.
+    pub async fn run(
+        args: &Vec<String>,
+        path: Option<&Path>,
+        now: bool,
+        schedule: Option<&str>,
+        watch: Option<&str>,
+        ignore: Option<&str>,
+        delay: Option<u64>,
+    ) -> Result<()> {
+        let path = Taskfile::resolve(path)?;
+
+        if args.is_empty() {
+            bail!("No arguments provided to `task run`")
+        }
+
+        let taskfile = Taskfile::read(Some(&path), 2)?;
+
+        // Parse the args into name of task and its vars
+        let mut task: String = String::new();
+        let mut next_task: String = String::new();
+        let mut vars: Vec<String> = Vec::new();
+        for index in 0..(args.len() + 1) {
+            let arg = args.get(index);
+            if let Some(arg) = arg {
+                if let Some((name, value)) = arg.splitn(2, '=').collect_tuple() {
+                    let var = format!("{}={}", name.to_uppercase(), value);
+                    vars.push(var);
+                } else if task.is_empty() {
+                    task = arg.to_string();
+                } else {
+                    next_task = arg.to_string();
+                }
+            }
+
+            if !next_task.is_empty() || index == args.len() {
+                let name = if !taskfile.tasks.contains_key(&task) {
+                    let lib_task = ["lib:", &task].concat();
+                    let lib_util_task = ["lib:util:", &task].concat();
+                    if taskfile.tasks.contains_key(&lib_task) {
+                        lib_task
+                    } else if taskfile.tasks.contains_key(&lib_util_task) {
+                        lib_util_task
+                    } else {
+                        bail!(
+                            "Taskfile does not have task named `{}`, `{}`, or `{}`",
+                            task,
+                            lib_task,
+                            lib_util_task
+                        )
+                    }
+                } else {
+                    task.to_string()
+                };
+
+                if let Some(task) = taskfile.tasks.get(&name) {
+                    task.run(
+                        &path,
+                        &name,
+                        vars.clone(),
+                        now,
+                        schedule,
+                        watch,
+                        ignore,
+                        delay,
+                    )
+                    .await?;
+                } else {
+                    // This should never be reached!
+                    bail!("Taskfile does not have task named `{}`", name);
+                }
+
+                task = next_task.clone();
+                next_task = String::new();
+                vars.clear();
+            }
+        }
+
+        Ok(())
+    }
+
     /// Generated Markdown documentation for the Taskfile
-    fn doc(&self, name: &str) -> Result<String> {
+    fn docs(&self, name: &str) -> Result<String> {
         let title = format!(
             "# `{}`: {}",
             name,
@@ -508,6 +494,60 @@ impl Taskfile {
         );
 
         Ok(md)
+    }
+
+    /// Generate Markdown documentation for all Taskfiles in the library
+    pub fn docs_all() -> Result<()> {
+        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("..")
+            .join("docs")
+            .join("reference")
+            .join("tasks");
+        create_dir_all(&dir)?;
+
+        let taskfiles = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("taskfiles")
+            .read_dir()?
+            .flatten()
+            .filter(|entry| {
+                let name = entry.file_name();
+                let name = name.to_string_lossy();
+                entry.path().is_file() && name.ends_with(".yaml") && name != "Taskfile.yaml"
+            })
+            .sorted_by(|a, b| a.file_name().cmp(&b.file_name()));
+
+        let mut table = "| Topic | Description |\n| --- | --- |\n".to_string();
+        for taskfile in taskfiles {
+            let path = taskfile.path();
+            let name = path
+                .file_stem()
+                .ok_or_else(|| eyre!("File has no stem"))?
+                .to_string_lossy();
+
+            let taskfile = Taskfile::read(Some(&path), 0)?;
+            let md = taskfile.docs(&name)?;
+            let path = dir.join(format!("{}.md", name));
+            write(path, md.trim())?;
+
+            table += &format!(
+                "| [`{}`]({}.md) | {} |\n",
+                name,
+                name,
+                taskfile.desc.unwrap_or_default()
+            );
+        }
+
+        let readme = dir.join("README.md");
+        let mut content = read_to_string(&readme)?;
+        content.replace_range(
+            (content.find("<!-- TASKS-START -->").unwrap_or_default() + 21)
+                ..content.find("<!-- TASKS-FINISH -->").unwrap_or_default(),
+            &table,
+        );
+        write(readme, content)?;
+
+        Ok(())
     }
 }
 
@@ -638,11 +678,6 @@ pub struct Task {
     /// A longer description of the task
     summary: Option<String>,
 
-    /// A list of files that this task is dependent upon
-    ///
-    /// Relevant for `checksum` and `timestamp` methods. Can be file paths or star globs.
-    sources: Vec<String>,
-
     /// The directory which this task should run in
     dir: Option<String>,
 
@@ -683,6 +718,20 @@ pub struct Task {
     /// task (including potentially removing it) based on file changes and dependency analysis.
     pub autogen: bool,
 
+    /// A schedule for running the task
+    schedule: Vec<Schedule>,
+
+    /// A list of files that this task watches for changes
+    ///
+    /// Can be file paths or star globs. Use an empty list if the task has sources
+    /// but you do not want these to be watched
+    watches: Vec<Watch>,
+
+    /// A list of files that this task is dependent upon
+    ///
+    /// Relevant for `checksum` and `timestamp` methods. Can be file paths or star globs.
+    sources: Vec<String>,
+
     /// A list of files that this task is generates
     ///
     /// Relevant for `timestamp` methods. Can be file paths or star globs.
@@ -715,19 +764,263 @@ impl Task {
         self.desc.is_none()
             && self.summary.is_none()
             && !self.autogen
-            && self.sources.is_empty()
             && self.dir.is_none()
             && self.method.is_none()
             && !self.silent
             && self.run.is_none()
             && self.prefix.is_none()
             && !self.ignore_error
+            && self.schedule.is_empty()
+            && self.watches.is_empty()
+            && self.sources.is_empty()
             && self.generates.is_empty()
             && self.status.is_empty()
             && self.preconditions.is_empty()
             && self.vars.is_empty()
             && self.env.is_empty()
             && self.deps.is_empty()
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    async fn run(
+        &self,
+        path: &Path,
+        name: &str,
+        vars: Vec<String>,
+        now: bool,
+        schedule: Option<&str>,
+        watch: Option<&str>,
+        ignore: Option<&str>,
+        delay: Option<u64>,
+    ) -> Result<()> {
+        let dir = path
+            .parent()
+            .expect("Taskfile should always have parent directory");
+
+        if now && schedule.is_some() {
+            tracing::warn!("Ignoring `schedule` because `now` option used")
+        }
+        if now && watch.is_some() {
+            tracing::warn!("Ignoring `watch` because `now` option used")
+        }
+
+        let schedules = schedule
+            .map(|when| {
+                vec![Schedule {
+                    when: when.to_string(),
+                    ..Default::default()
+                }]
+            })
+            .unwrap_or_else(|| self.schedule.clone());
+
+        let watches = watch
+            .map(|files| {
+                vec![Watch {
+                    pattern: files.to_string(),
+                    ignore: ignore.map(String::from),
+                    delay,
+                }]
+            })
+            .unwrap_or_else(|| self.watches.clone());
+
+        if now || (schedules.is_empty() && watches.is_empty()) {
+            return Task::run_now(path, name, vars).await;
+        }
+
+        // Start a thread that will run the task when notified by a schedule or by a watch
+        let (run_sender, mut run_receiver) = tokio::sync::mpsc::channel(1);
+        let path_clone = path.to_path_buf();
+        let name_clone = name.to_string();
+        tokio::spawn(async move {
+            while let Some(..) = run_receiver.recv().await {
+                tracing::info!("Received run event for task `{}`", name_clone);
+                if let Err(error) = Task::run_now(&path_clone, &name_clone, vars.clone()).await {
+                    tracing::error!("While running task {}: {}", name_clone, error)
+                }
+            }
+        });
+
+        let mut handles = Vec::new();
+
+        // Run each of the schedules asynchronously
+        for schedule in schedules {
+            let run_sender_clone = run_sender.clone();
+            let handle = tokio::spawn(async move {
+                let Schedule { when, tz } = schedule;
+                if let Err(error) = cron_utils::run(&when, tz, run_sender_clone).await {
+                    tracing::error!("While running schedule `{}`: {}", when, error)
+                }
+            });
+            handles.push(handle);
+        }
+
+        // Run file watches
+        for watch in watches {
+            // Determine the path that should be watched from the glob by taking chars up to first glob special character
+            let watch_path = watch
+                .pattern
+                .chars()
+                .take_while(|&char| char != '*' && char != '?' && char != '[' && char != ']')
+                .collect::<String>();
+            let watch_path = dir.join(watch_path);
+
+            if !watch_path.exists() {
+                bail!("Path to watch does not exist: {}", watch_path.display());
+            }
+
+            let watch_pattern = match glob::Pattern::new(&watch.pattern) {
+                Ok(pattern) => pattern,
+                Err(error) => bail!("While parsing watch pattern: {}", error),
+            };
+
+            let mut ignores = watch.ignore.map(|ignore| vec![ignore]).unwrap_or_default();
+            ignores.push(".stencila/tasks/**/*".to_string());
+
+            let mut ignore_patterns = Vec::new();
+            for ignore in ignores {
+                let pattern = match glob::Pattern::new(&ignore) {
+                    Ok(pattern) => pattern,
+                    Err(error) => bail!("While parsing ignore pattern: {}", error),
+                };
+                ignore_patterns.push(pattern);
+            }
+
+            let (event_sender, mut event_receiver) = tokio::sync::mpsc::channel(10);
+
+            // A standard synchronous thread for running watcher
+            // This needs to be in a separate thread because `watch_receiver.recv()` is blocking an so prevents proper
+            // functioning of `event_sender` async send (we use blocking send instead)
+            let dir_clone = dir.to_path_buf();
+            let ignores_clone = ignore_patterns.clone();
+            std::thread::spawn(move || {
+                let (watch_sender, watch_receiver) = std::sync::mpsc::channel();
+                let mut watcher = watcher(watch_sender, Duration::from_millis(100)).unwrap();
+                watcher.watch(watch_path, RecursiveMode::Recursive).unwrap();
+
+                'events: loop {
+                    let path = match watch_receiver.recv() {
+                        Ok(event) => match event {
+                            DebouncedEvent::Chmod(path)
+                            | DebouncedEvent::Create(path)
+                            | DebouncedEvent::Remove(path)
+                            | DebouncedEvent::Write(path) => path,
+                            _ => continue,
+                        },
+                        Err(error) => {
+                            tracing::error!("While receiving watch event: {}", error);
+                            continue;
+                        }
+                    };
+
+                    tracing::debug!("Watch event: {}", path.display());
+                    let path = match path.strip_prefix(&dir_clone) {
+                        Ok(path) => path,
+                        Err(error) => {
+                            tracing::error!("While stripping prefix: {}", error);
+                            continue;
+                        }
+                    };
+
+                    if !watch_pattern.matches_path(path) {
+                        tracing::debug!("Watch does not include path: {}", path.display());
+                        continue;
+                    }
+
+                    for ignore in &ignores_clone {
+                        if ignore.matches_path(path) {
+                            tracing::debug!(
+                                "Pattern `{}` ignores path: {}",
+                                ignore,
+                                path.display()
+                            );
+                            continue 'events;
+                        }
+                    }
+
+                    if let Err(error) = event_sender.blocking_send(path.to_path_buf()) {
+                        tracing::error!("While sending watch event: {}", error);
+                    }
+                }
+            });
+
+            // Async task to receive event paths and debounce them
+            // The watcher thread debounces events for a particular file. This debounces for all watched files.
+            let run_sender_clone = run_sender.clone();
+            let delay = watch.delay.unwrap_or(0);
+            let duration = Duration::from_secs(delay);
+            let handle = tokio::spawn(async move {
+                let mut events = false;
+                loop {
+                    match tokio::time::timeout(duration, event_receiver.recv()).await {
+                        Ok(Some(..)) => {
+                            // Watch event happened
+                            events = true;
+                        }
+                        Ok(None) => {
+                            // Event receiver dropped
+                            break;
+                        }
+                        Err(..) => {
+                            // Timeout happened so trigger task if events since last here
+                            if events {
+                                tracing::info!("Sending watch event");
+                                if let Err(error) = run_sender_clone.try_send(()) {
+                                    match error {
+                                        TrySendError::Full(..) => tracing::debug!(
+                                            "Task is running and a re-run is already queued"
+                                        ),
+                                        TrySendError::Closed(..) => break,
+                                    }
+                                }
+                                events = false;
+                            }
+                        }
+                    };
+                }
+            });
+            handles.push(handle);
+        }
+
+        future::join_all(handles).await;
+
+        Ok(())
+    }
+
+    async fn run_now(path: &Path, name: &str, mut vars: Vec<String>) -> Result<()> {
+        tracing::debug!("Running task `{}` of `{}`", name, path.display());
+
+        let binary = TaskBinary {}.ensure().await?;
+
+        let mut task_args = vec![format!("--taskfile={}", path.display()), name.to_string()];
+        task_args.append(&mut vars);
+
+        let locks = path
+            .parent()
+            .expect("Should have parent")
+            .join(".stencila")
+            .join("tasks")
+            .join("locks");
+        create_dir_all(&locks)?;
+
+        let lock_path = locks.join(slugify(name));
+        let lock = File::create(&lock_path)?;
+        if let Err(..) = lock.try_lock_exclusive() {
+            tracing::info!("Task is already running, skipping a re-run");
+            return Ok(());
+        }
+
+        let result = binary
+            .run_with(
+                task_args,
+                Some(tracing::Level::INFO),
+                Some(tracing::Level::INFO),
+            )
+            .await;
+
+        lock.unlock()?;
+        remove_file(lock_path)?;
+
+        result
     }
 
     /// Generate Markdown documentation
@@ -827,6 +1120,16 @@ enum TaskSyntax {
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         generates: Vec<String>,
 
+        #[serde(
+            default,
+            alias = "schedules",
+            skip_serializing_if = "OneOrMany::is_empty"
+        )]
+        schedule: OneOrMany<Schedule>,
+
+        #[serde(default, alias = "watch", skip_serializing_if = "OneOrMany::is_empty")]
+        watches: OneOrMany<Watch>,
+
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         status: Vec<String>,
 
@@ -873,6 +1176,8 @@ impl From<TaskSyntax> for Task {
                 run,
                 prefix,
                 ignore_error,
+                schedule,
+                watches,
                 generates,
                 status,
                 preconditions,
@@ -892,6 +1197,8 @@ impl From<TaskSyntax> for Task {
                 run,
                 prefix,
                 ignore_error,
+                schedule: schedule.into(),
+                watches: watches.into(),
                 generates,
                 status,
                 preconditions,
@@ -920,13 +1227,15 @@ impl From<Task> for TaskSyntax {
             summary,
             autogen,
             hide,
-            sources,
             dir,
             method,
             silent,
             run,
             prefix,
             ignore_error,
+            schedule,
+            watches,
+            sources,
             generates,
             status,
             preconditions,
@@ -940,13 +1249,15 @@ impl From<Task> for TaskSyntax {
             summary,
             autogen,
             hide,
-            sources,
             dir,
             method,
             silent,
             run,
             prefix,
             ignore_error,
+            schedule: schedule.into(),
+            watches: watches.into(),
+            sources,
             generates,
             status,
             preconditions,
@@ -954,6 +1265,176 @@ impl From<Task> for TaskSyntax {
             env,
             deps,
             cmds,
+        }
+    }
+}
+
+/// YAML syntax for one or many of a type
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(untagged, crate = "common::serde")]
+enum OneOrMany<T> {
+    One(T),
+    Many(Vec<T>),
+}
+
+impl<T> OneOrMany<T> {
+    fn is_empty(&self) -> bool {
+        match self {
+            Self::One(..) => false,
+            Self::Many(many) => many.is_empty(),
+        }
+    }
+}
+
+impl<T> Default for OneOrMany<T> {
+    fn default() -> Self {
+        Self::Many(Vec::new())
+    }
+}
+
+impl<T> From<OneOrMany<T>> for Vec<T> {
+    fn from(syntax: OneOrMany<T>) -> Self {
+        match syntax {
+            OneOrMany::One(one) => vec![one],
+            OneOrMany::Many(many) => many,
+        }
+    }
+}
+
+impl<T> From<Vec<T>> for OneOrMany<T> {
+    fn from(mut many: Vec<T>) -> Self {
+        match many.len() == 1 {
+            true => Self::One(many.remove(0)),
+            false => Self::Many(many),
+        }
+    }
+}
+
+#[derive(Clone, Defaults, Deserialize, Serialize)]
+#[serde(
+    from = "ScheduleSyntax",
+    into = "ScheduleSyntax",
+    crate = "common::serde"
+)]
+pub struct Schedule {
+    /// A cron expression or phrase
+    when: String,
+
+    /// Optional message to print if the precondition isn't met.
+    tz: Option<String>,
+}
+
+/// YAML syntax for `Schedule`
+///
+/// Allows for string or object.
+#[skip_serializing_none]
+#[derive(Deserialize, Serialize)]
+#[serde(untagged, crate = "common::serde")]
+enum ScheduleSyntax {
+    String(String),
+    Object {
+        when: String,
+
+        #[serde(default)]
+        tz: Option<String>,
+    },
+}
+
+impl From<ScheduleSyntax> for Schedule {
+    fn from(syntax: ScheduleSyntax) -> Self {
+        match syntax {
+            ScheduleSyntax::String(when) => Schedule {
+                when,
+                ..Default::default()
+            },
+            ScheduleSyntax::Object { when, tz } => Schedule { when, tz },
+        }
+    }
+}
+
+impl From<Schedule> for ScheduleSyntax {
+    fn from(schedule: Schedule) -> Self {
+        if schedule.tz.is_none() {
+            ScheduleSyntax::String(schedule.when)
+        } else {
+            let Schedule { when, tz } = schedule;
+            ScheduleSyntax::Object { when, tz }
+        }
+    }
+}
+
+#[derive(Clone, Defaults, Deserialize, Serialize)]
+#[serde(
+    from = "WatchesSyntax",
+    into = "WatchesSyntax",
+    crate = "common::serde"
+)]
+pub struct Watch {
+    /// A cron expression or phrase
+    pattern: String,
+
+    /// Optional message to print if the precondition isn't met.
+    ignore: Option<String>,
+
+    /// Optional message to print if the precondition isn't met.
+    delay: Option<u64>,
+}
+
+/// YAML syntax for `Watches`
+///
+/// Allows for string or object.
+#[skip_serializing_none]
+#[derive(Deserialize, Serialize)]
+#[serde(untagged, crate = "common::serde")]
+enum WatchesSyntax {
+    String(String),
+    Object {
+        files: String,
+
+        #[serde(default)]
+        ignores: Option<String>,
+
+        #[serde(default)]
+        delay: Option<u64>,
+    },
+}
+
+impl From<WatchesSyntax> for Watch {
+    fn from(syntax: WatchesSyntax) -> Self {
+        match syntax {
+            WatchesSyntax::String(files) => Watch {
+                pattern: files,
+                ..Default::default()
+            },
+            WatchesSyntax::Object {
+                files,
+                ignores,
+                delay,
+            } => Watch {
+                pattern: files,
+                ignore: ignores,
+                delay,
+            },
+        }
+    }
+}
+
+impl From<Watch> for WatchesSyntax {
+    fn from(watches: Watch) -> Self {
+        if watches.ignore.is_none() && watches.delay.is_none() {
+            WatchesSyntax::String(watches.pattern)
+        } else {
+            let Watch {
+                pattern: files,
+                ignore: ignores,
+                delay,
+            } = watches;
+            WatchesSyntax::Object {
+                files,
+                ignores,
+                delay,
+            }
         }
     }
 }

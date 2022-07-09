@@ -12,7 +12,7 @@ tasks:
     ignore_error: true
     silent: true
     cmds:
-      - test $(find . -type f -iname '*.js' -print -quit) && echo node:install >> .stencila-tasks
+      - test $(find . -type f -iname '*.js' -print -quit) && echo node:install >> .stencila/tasks/detected
 
   install:
     desc: Install Node.js for the project

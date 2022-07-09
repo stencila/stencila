@@ -2239,6 +2239,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "fs2"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9564fc758e15025b46aa6643b1b77d047d1a56a1aea6e01002ac0c7026876213"
+dependencies = [
+ "libc",
+ "winapi 0.3.9",
+]
+
+[[package]]
 name = "fsevent"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5007,6 +5017,7 @@ name = "provider-http"
 version = "0.0.0"
 dependencies = [
  "archive-utils",
+ "cron-utils",
  "provider",
  "test-utils",
 ]
@@ -6450,6 +6461,9 @@ dependencies = [
  "binary-task",
  "cli-utils",
  "common",
+ "cron-utils",
+ "fs2",
+ "notify",
  "rust-embed",
  "test-snaps",
  "test-utils",

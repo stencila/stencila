@@ -19,6 +19,7 @@ includes:
   python: python.yaml
   r: r.yaml
   renv: renv.yaml
+  util: util.yaml
   venv: venv.yaml
 
 tasks:
@@ -27,6 +28,8 @@ tasks:
     silent: true
     cmds:
       - echo "Detecting tasks for $PWD"
+      - rm -f .stencila/tasks/detected
+      - mkdir -p .stencila/tasks
 
       - task: podman:detect
 
