@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::str::FromStr;
 
-use chrono_tz::{Tz, TZ_VARIANTS, UTC};
+use chrono_tz::{Tz, TZ_VARIANTS};
 use cron::Schedule;
 use nom::{
     branch::alt,
@@ -93,8 +93,9 @@ impl Cron {
         .to_string()
     }
 }
+
 /// Parse a string into a list of cron schedules in a specific timezone
-pub fn parse(input: &str) -> Result<(Vec<Schedule>, Tz)> {
+pub fn parse(input: &str) -> Result<(Vec<Schedule>, Option<Tz>)> {
     let (crons, tz) = main(input.trim())?;
     let mut schedules = Vec::new();
     for cron in crons {
@@ -108,8 +109,16 @@ pub fn parse(input: &str) -> Result<(Vec<Schedule>, Tz)> {
     Ok((schedules, tz))
 }
 
+/// Parse a string into a timezone
+fn parse_timezone(input: &str) -> Result<Tz> {
+    match timezone(input) {
+        Ok((.., tz)) => Ok(tz),
+        Err(_) => bail!("Unable to parse input as timezone"),
+    }
+}
+
 /// Parse a list of cron phrases or expressions and optional timezone
-fn main(input: &str) -> Result<(Vec<Cron>, Tz)> {
+fn main(input: &str) -> Result<(Vec<Cron>, Option<Tz>)> {
     match tuple((
         separated_list1(
             delimited(multispace1, tag("and"), multispace1),
@@ -124,7 +133,7 @@ fn main(input: &str) -> Result<(Vec<Cron>, Tz)> {
     {
         Ok((remaining, (crons, tz))) => {
             if remaining.is_empty() {
-                Ok((crons, tz.unwrap_or(UTC)))
+                Ok((crons, tz))
             } else {
                 bail!(
                     "Unable to parse input as cron schedule; unrecognized fragment: {}",
@@ -623,8 +632,22 @@ pub fn next(schedules: &[Schedule], tz: &Tz) -> Option<DateTime<Utc>> {
 }
 
 /// Run a schedule
-pub async fn run(schedule: &str, sender: mpsc::Sender<()>) -> Result<()> {
+pub async fn run(
+    schedule: &str,
+    default_timezone: Option<String>,
+    sender: mpsc::Sender<()>,
+) -> Result<()> {
+    let default_timezone = match default_timezone {
+        Some(tz) => parse_timezone(&tz)?,
+        None => Tz::UTC,
+    };
+
     let (schedules, timezone) = parse(schedule)?;
+    let timezone = match timezone {
+        Some(tz) => tz,
+        None => default_timezone,
+    };
+
     tracing::info!(
         "Running cron schedule `{}` in timezone `{}`",
         schedules
@@ -680,6 +703,7 @@ mod tests {
         Europe::Madrid,
         Pacific::Auckland,
         US::{Central, Eastern},
+        UTC,
     };
 
     use super::*;
@@ -946,9 +970,9 @@ mod tests {
         assert_eq!(timezone("ET")?.1, Eastern);
         assert_eq!(timezone("US/Eastern")?.1, Eastern);
 
-        assert_eq!(parse("3am Kathmandu time")?.1, Kathmandu);
-        assert_eq!(parse("3:00 kathmandu time zone")?.1, Kathmandu);
-        assert_eq!(parse("3 Asia/Kathmandu timezone")?.1, Kathmandu);
+        assert_eq!(parse("3am Kathmandu time")?.1, Some(Kathmandu));
+        assert_eq!(parse("3:00 kathmandu time zone")?.1, Some(Kathmandu));
+        assert_eq!(parse("3 Asia/Kathmandu timezone")?.1, Some(Kathmandu));
 
         Ok(())
     }
@@ -962,27 +986,27 @@ mod tests {
 
         let (schedules, tz) = parse("on tue at 1pm and at 09:12:01 on fri")?;
         assert_eq!(schedules, target);
-        assert_eq!(tz, UTC);
+        assert_eq!(tz, None);
 
         let (schedules, tz) = parse("tue at 13 and fri at 09:12:01 ct")?;
         assert_eq!(schedules, target);
-        assert_eq!(tz, Central);
+        assert_eq!(tz, Some(Central));
 
         let (schedules, tz) = parse("13:00 tue and 09:12:01 fri NPT")?;
         assert_eq!(schedules, target);
-        assert_eq!(tz, Kathmandu);
+        assert_eq!(tz, Some(Kathmandu));
 
         let (schedules, tz) = parse("At 1pm Tuesday and on Friday at 09:12:01 Kathmandu")?;
         assert_eq!(schedules, target);
-        assert_eq!(tz, Kathmandu);
+        assert_eq!(tz, Some(Kathmandu));
 
         let (schedules, tz) = parse("1pm Tuesday and 09:12:01 Friday Auckland time")?;
         assert_eq!(schedules, target);
-        assert_eq!(tz, Auckland);
+        assert_eq!(tz, Some(Auckland));
 
         let (schedules, tz) = parse("tue at 13:00 and fri at 09:12:01 auckland time")?;
         assert_eq!(schedules, target);
-        assert_eq!(tz, Auckland);
+        assert_eq!(tz, Some(Auckland));
 
         Ok(())
     }
@@ -998,7 +1022,7 @@ mod tests {
     #[test]
     fn iterate() -> Result<()> {
         let (schedules, timezone) = parse("every minute and every day")?;
-        let time = next(&schedules, &timezone);
+        let time = next(&schedules, &timezone.unwrap_or(Tz::UTC));
         //println!("{:?}", time);
         assert!(time.is_some());
 

@@ -141,7 +141,7 @@ impl ProviderTrait for HttpProvider {
                 }
             }
         });
-        cron_utils::run(schedule, sender).await?;
+        cron_utils::run(schedule, None, sender).await?;
 
         Ok(())
     }
