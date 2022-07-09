@@ -6,14 +6,14 @@ Welcome to the reference documentation for Stencila Tasks. This document provide
 
 ## Introduction
 
-Stencila Tasks provide a way for you do define what gets done, and when, in your project. They are built on top of the [`Taskfile`](https://taskfile.dev/usage) format and [`task`](https://github.com/go-task/task), a `Taskfile` runner implemented in Go. Stencila Tasks is a library of `Taskfiles` containing tasks commonly used for running and publishing executable documents. Stencila Tasks also include extensions to the `Taskfile` format to support auto-generation of tasks, running them (or not) based on file changes, and running them according to a time schedule.
+Stencila Tasks provide a way for you do define what gets done, and when, in your project. They are built on top of the [`Taskfile`](https://taskfile.dev/usage) format and [`task`](https://github.com/go-task/task), a `Taskfile` runner implemented in Go. Stencila Tasks is a library of `Taskfiles` containing tasks commonly used for running and publishing executable documents. Stencila Tasks also include extensions to the `Taskfile` format to support auto-generation of tasks, automatically running tasks in response to file changes, and running them according to a time schedule.
 
 The Stencila CLI has a [`tasks` command](../cli/tasks) which provides subcommands for working with `Taskfiles` including:
 
-- `list`: list, filter, and search for, tasks within the Stencila Tasks library or a project `Taskfile`
 - `detect`: automatically detect which tasks are required for a project and add them to a project `Taskfile`
+- `list`: list, filter, and search for, tasks within the Stencila Tasks library or a project `Taskfile`
 - `run`: manually run one or more tasks within a project `Taskfile`
-- `watch`: automatically run tasks within a project `Taskfile` when there are changes in the project
+- `watch`: automatically run tasks within a project `Taskfile` when there are changes to files, or when they are scheduled
 
 The Stencila Rust library has a [`tasks` crate](https://github.com/stencila/stencila/tree/master/rust/tasks) provides Rust `struct`s and functions for working with the `Taskfile` format and interfacing with the `task` Go binary.
 
@@ -133,7 +133,11 @@ tasks:
       - echo "This is command 2 of task A"
 ```
 
-The task `schedule` can be defined using
+The task `schedule` can be defined as an array of cron phrases or expressions or a phrase using `and`. For example,
+
+```yaml
+
+```
 
 ### Dependency
 

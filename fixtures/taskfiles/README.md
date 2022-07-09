@@ -1,17 +1,15 @@
 # Taskfile examples
 
-These examples are mainly used as test fixtures for Stencila's internal `tasks` Rust crate. We use them to ensure that the `Taskfile` syntax can be parsed (and serialized) by Stencila as well as to confirm expected behavior from the `task` binary.
+These examples are mainly used as test fixtures for Stencila's internal `tasks` Rust crate. We use them to ensure that the `Taskfile` format can be parsed (and serialized) by Stencila and to test extensions to the `Taskfile` format, such as `schedule` and `watches` operate as expected.
 
 Most of the `Taskfile`s have a `default` task. You can run them using:
 
 ```sh
-task --taskfile variables.yaml
+stencila tasks run default --taskfile variables.yaml
 ```
 
-or
+or, using `task` directly:
 
 ```sh
-stencila binary run task -- --taskfile variables.yaml
+task --taskfile variables.yaml
 ```
-
-if you installed the `task` binary using Stencila.
