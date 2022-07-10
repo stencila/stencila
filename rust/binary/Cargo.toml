@@ -14,7 +14,7 @@ download-tar-xz = ["download-tar", "archive-utils/tar-xz"]
 
 [dependencies]
 common = { path = "../common" }
-semver = "1.0.11"
+semver = "1.0.12"
 which = "4.2.2"
 
 archive-utils = { path = "../archive-utils", optional = true }

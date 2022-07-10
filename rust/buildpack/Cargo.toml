@@ -9,4 +9,4 @@ common = { path = "../common" }
 fs-utils = { path = "../fs-utils" }
 hash-utils = { path = "../hash-utils" }
 libcnb = "0.8.0"
-tracing-subscriber = "0.3.11"
+tracing-subscriber = "0.3.14"

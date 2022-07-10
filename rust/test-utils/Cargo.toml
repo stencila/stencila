@@ -7,4 +7,4 @@ edition = "2021"
 [dependencies]
 common = { path = "../common" }
 pretty_assertions = "1.0.0"
-tracing-subscriber = "0.3.11"
+tracing-subscriber = "0.3.14"
