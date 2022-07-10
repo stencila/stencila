@@ -158,7 +158,11 @@ impl ChangeSet {
             };
 
             let mut archive = tar::Builder::new(&mut layer_writer);
+
+            // Must use deterministic mode to ensure that DiffID does not change when `modified`
+            // timestamp of files / folders differs
             archive.mode(HeaderMode::Deterministic);
+
             // Add an entry for the `dest_dir` (and any of its parent) so that ownership (and other
             // metadata) of `source_dir` is maintained. If not done then there are issues with non-root
             // users writing to the `workspace` and `layers` directories and  their subdirectories.
@@ -329,7 +333,7 @@ impl ChangeSet {
 #[cfg(test)]
 mod tests {
     use hash_utils::file_sha256_hex;
-    use test_utils::{common::tempfile::tempdir, skip_ci_os};
+    use test_utils::{common::tempfile::tempdir, pretty_assertions::assert_eq, skip_ci_os};
 
     use crate::{snapshot::Snapshot, storage::digest_to_parts};
 
@@ -338,7 +342,7 @@ mod tests {
     /// Test that the descriptor for a layer is accurate (SHA256 and size are same as
     /// when independently calculated)
     #[test]
-    fn changes_layer() -> Result<()> {
+    fn descriptor_ok() -> Result<()> {
         if skip_ci_os(
             "macos",
             "Currently failing with Error: No such file or directory (os error 2)",
@@ -369,6 +373,38 @@ mod tests {
 
         let digest = format!("sha256:{}", file_sha256_hex(&archive)?);
         assert_eq!(descriptor.digest(), &digest);
+
+        Ok(())
+    }
+
+    /// Create a DiffId for a change set for the filesystem operations in func,
+    /// each time this is called the DiffID should be the same. Used in tests of
+    /// determinism below.
+    fn create_diff_id(func: fn(&Path)) -> Result<String> {
+        let dir = tempdir()?;
+
+        let snapshot = Snapshot::new(&dir, "");
+        func(dir.path());
+
+        let (diff_id, ..) = snapshot
+            .changes()
+            .write_layer(&MediaType::ImageLayerGzip, &tempdir()?)?;
+        Ok(diff_id)
+    }
+
+    /// Test that the DiffID for a layer does not differ between time of filesystem changes
+    #[test]
+    fn deterministic_over_time() -> Result<()> {
+        let func = |dir: &Path| fs::write(&dir.join("file.txt"), "Hello").unwrap();
+
+        let diff_id_1 = create_diff_id(func)?;
+
+        // Sleep for long enough that the timestamp of the file will change
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+
+        let diff_id_2 = create_diff_id(func)?;
+
+        assert_eq!(diff_id_1, diff_id_2);
 
         Ok(())
     }
