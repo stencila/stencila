@@ -290,7 +290,7 @@ impl JupyterKernel {
                             .notebook_dir
                             .join(notebook.as_str().unwrap_or_default())
                             .canonicalize()
-                            .map(|path| path.to_slash_lossy())
+                            .map(|path| path.to_slash_lossy().into_owned())
                         {
                             kernel["notebook"] = serde_json::to_value(notebook)?;
                         }

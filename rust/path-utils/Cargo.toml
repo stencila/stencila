@@ -1,10 +1,10 @@
 [package]
 name = "path-utils"
-description = "Utitlity functions and macros for working with filesystem paths"
+description = "Utility functions and macros for working with filesystem paths"
 version = "0.0.0"
 edition = "2021"
 
 [dependencies]
 lexiclean = "0.0.1"
-path-slash = "0.1.5"
+path-slash = "0.2.0"
 pathdiff = "0.2.1"

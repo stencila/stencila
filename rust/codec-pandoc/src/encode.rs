@@ -64,7 +64,8 @@ impl EncodeContext {
             .temp_dir
             .path()
             .join([&self.rpng_nodes.len().to_string(), ".png"].concat())
-            .to_slash_lossy();
+            .to_slash_lossy()
+            .into_owned();
 
         let json = JsonCodec::to_string(
             &node,

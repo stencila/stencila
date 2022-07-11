@@ -940,7 +940,8 @@ impl Graph {
                 let path = path
                     .strip_prefix(&self.path)
                     .unwrap_or(&path)
-                    .to_slash_lossy();
+                    .to_slash_lossy()
+                    .into_owned();
 
                 let (shape, fill_color, label) = match resource {
                     Resource::Symbol(symbol) => (
