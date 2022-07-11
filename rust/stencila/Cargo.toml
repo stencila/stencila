@@ -1,6 +1,6 @@
 [package]
 name = "stencila"
-version = "1.13.1"
+version = "1.13.2"
 authors = ["Stencila <hello@stenci.la>"]
 edition = "2021"
 

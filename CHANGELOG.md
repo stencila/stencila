@@ -1,3 +1,16 @@
+## [1.13.2](https://github.com/stencila/stencila/compare/v1.13.1...v1.13.2) (2022-07-11)
+
+
+### Bug Fixes
+
+* **Python parser:** Upgrade `tree-sitter-python` crate ([a1ac6c0](https://github.com/stencila/stencila/commit/a1ac6c076b0c415aab1dffd48d57f4ddc370b98f))
+* **R microkernel:** Avoid issue with creating `png` graph devices in forks ([267efaf](https://github.com/stencila/stencila/commit/267efaf3426693d11ea301fa6c0b488df60be7b6))
+* **Rust:** Update dependencies ([f463faa](https://github.com/stencila/stencila/commit/f463faac57aeb8899af8838577450e3d53a8aacb))
+* **Rust:** Upgrade `google-drive` crate ([fbf5a7f](https://github.com/stencila/stencila/commit/fbf5a7f2d74470209fb3af2bea90870f6b71ca7c))
+* **Rust:** Upgrade `once_cell` and `regex` crates ([873ac56](https://github.com/stencila/stencila/commit/873ac5643b2ff37b9bd7b6521dfee323edbbdc49))
+* **Rust:** Upgrade `path-slash` crate ([386387d](https://github.com/stencila/stencila/commit/386387d41e9731b0c1ecb0595452197c597df1d3))
+* **Rust:** Upgrade transitive dependencies using `cargo update` ([b06db74](https://github.com/stencila/stencila/commit/b06db74018d761854ce21d6ef899675bec0df297))
+
 ## [1.13.1](https://github.com/stencila/stencila/compare/v1.13.0...v1.13.1) (2022-06-29)
 
 
