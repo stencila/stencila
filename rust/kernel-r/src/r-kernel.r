@@ -7,7 +7,7 @@ requires <- function () {
   # so we don't try to install it as with other packages
   if (.Platform$OS.type == "unix") library(parallel)
 
-  pkgs <- c("jsonlite", "base64enc", "Cairo")
+  pkgs <- c("jsonlite", "base64enc")
 
   install <- NULL
   for (pkg in pkgs) {
@@ -137,10 +137,15 @@ while (!is.null(stdin)) {
         error(compiled, "SyntaxError")
       } else {  
         # Default graphics device to avoid window popping up or `Rplot.pdf` polluting
-        # local directory. `CairoPNG` is needed instead of `png` to avoid "a forked child should not open a graphics device"
+        # local directory. 
+        # `CairoPNG` is preferred instead of `png` to avoid "a forked child should not open a graphics device"
         # which arises because X11 can not be used in a forked environment.
         # The tempdir `check` is needed when forking.
-        Cairo::CairoPNG(tempfile(tmpdir = tempdir(check=TRUE)))
+        file <- tempfile(tmpdir = tempdir(check=TRUE))
+        tryCatch(
+          Cairo::CairoPNG(file),
+          error = function(cond) png(file)
+        )
         # Recording must be enabled for recordPlot() to work
         dev.control("enable")
 

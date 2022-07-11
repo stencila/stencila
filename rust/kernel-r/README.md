@@ -1,10 +1,8 @@
 # Stencila R Microkernel
 
-This is a Stencila 'microkernel' for R.
-
 ## Installation
 
-On Linux requires the `Cairo` package which in turn requires `libcairo2` and `libcairo2-dev`. In the future, `Cairo` might be made optional, but for now it is necessary for creating a kernel in forks.
+On Linux and MacOS, the microkernel is forkable only if the `Cairo` package is available (the `fork` system call is not available on Windows). This is because some graphics backends (e.g. X11) can not be used from within forks. See https://www.cairographics.org/download/ for installation instructions.
 
 ## Development
 

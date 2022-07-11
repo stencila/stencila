@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use kernel_micro::{include_file, MicroKernel};
 
 /// A microkernel for R
@@ -7,7 +9,7 @@ pub fn new() -> MicroKernel {
         &["r"],
         true,
         cfg!(not(target_os = "windows")),
-        cfg!(any(target_os = "linux", target_os = "macos")),
+        is_forkable(),
         ("Rscript", "*"),
         &["{{script}}"],
         include_file!("r-kernel.r"),
@@ -15,6 +17,26 @@ pub fn new() -> MicroKernel {
         "{{name}} <- decode_value('{{json}}')",
         "cat(encode_value({{name}}, unbox = TRUE))",
     )
+}
+
+/// Check to see if the installation of R allows for forking of microkernel
+fn is_forkable() -> bool {
+    if cfg!(target_os = "windows") {
+        false
+    } else {
+        // Attempt to run R and see if Cairo package is installed.
+        // If this fails, or if it is not, returns false
+        Command::new("R")
+            .args([
+                "--slave",
+                "-e",
+                "quit(status=!nzchar(system.file(package='Cairo')))",
+            ])
+            .spawn()
+            .and_then(|mut child| child.wait())
+            .map(|status| status.success())
+            .unwrap_or(false)
+    }
 }
 
 #[cfg(test)]
