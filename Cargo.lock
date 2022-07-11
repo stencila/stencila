@@ -2503,9 +2503,9 @@ dependencies = [
 
 [[package]]
 name = "google-drive"
-version = "0.3.1"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50648eebc0293698930e7fbf646971e1997827c463ce9ff912b33f5903bc0343"
+checksum = "db2f42bc8504117a673c85c590e7ac7c17d75a9f15da1656bf493b89fa33f41b"
 dependencies = [
  "anyhow",
  "async-recursion 0.3.2",
@@ -2518,11 +2518,14 @@ dependencies = [
  "jsonwebtoken 7.2.0",
  "log",
  "mime",
+ "pem 0.8.3",
  "percent-encoding",
  "reqwest",
+ "reqwest-conditional-middleware",
  "reqwest-middleware",
  "reqwest-retry",
  "reqwest-tracing",
+ "ring",
  "schemars",
  "serde",
  "serde_json",
