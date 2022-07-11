@@ -512,7 +512,7 @@ impl Image {
     ///
     /// Note that the `blobs/sha256` subdirectory may not have blobs for the base image (these
     /// are only pulled into that directory if necessary i.e. if the registry does not yet have them).
-    pub async fn write(&mut self) -> Result<()> {
+    pub async fn write(&mut self) -> Result<(String, String)> {
         use tokio::fs;
 
         // Create a temporary OCI layout directory
@@ -529,9 +529,11 @@ impl Image {
 
         // Add an entry in the images map
         let mut images = IMAGES_MAP.write().await;
-        images.insert(&self.reference.to_string_tag_or_latest(), config_digest)?;
+        let reference = self.reference.to_string_tag_or_latest();
+        let id = config_digest;
+        images.insert(&reference, id)?;
 
-        Ok(())
+        Ok((reference, id.to_owned()))
     }
 }
 
@@ -556,11 +558,15 @@ mod tests {
             None,
         )?;
 
-        image.write().await?;
+        let (reference, id) = image.write().await?;
 
-        //assert!(image.layout_dir.join("oci-layout").is_file());
-        //assert!(image.layout_dir.join("index.json").is_file());
-        //assert!(image.layout_dir.join("blobs").join("sha256").is_dir());
+        let layout_dir = image_path(&id);
+        assert!(layout_dir.join("oci-layout").is_file());
+        assert!(layout_dir.join("index.json").is_file());
+        assert!(layout_dir.join("blobs").join("sha256").is_dir());
+
+        let mut image_map = IMAGES_MAP.write().await;
+        image_map.remove(&reference)?;
 
         Ok(())
     }

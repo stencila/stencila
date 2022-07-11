@@ -3,7 +3,7 @@
 use std::{
     collections::HashMap,
     env,
-    fs::{create_dir_all, read_to_string, write},
+    fs::{create_dir_all, read_to_string, remove_dir_all, write},
     path::{Path, PathBuf},
 };
 
@@ -14,6 +14,7 @@ use common::{
     eyre::{bail, eyre, Result},
     itertools::Itertools,
     once_cell::sync::Lazy,
+    regex::Regex,
     serde::{Deserialize, Serialize},
     serde_json,
     tokio::sync::RwLock,
@@ -176,35 +177,47 @@ impl ImagesMap {
     }
 
     /// Remove an entry from the images map
-    pub fn remove(&mut self, reference: &str) -> Result<Option<String>> {
+    pub fn remove(&mut self, reference: &str) -> Result<Vec<String>> {
+        let mut removed_refs = Vec::new();
+        let mut removed_ids = Vec::new();
+
+        let mut matched = false;
         if let Ok(reference) = reference.parse::<ImageReference>() {
-            if let Some(info) = self.inner.remove(&reference.to_string_tag_or_latest()) {
-                self.write()?;
-                return Ok(Some(info.id));
+            // Try to match ref exactly
+            let reference = &reference.to_string_tag_or_latest();
+            if self.inner.contains_key(reference) {
+                removed_refs.push(reference.clone());
+                matched = true;
+            }
+        }
+        
+        if !matched {
+            // Try to match id or ref with regex
+            let (algo, hash) = digest_to_parts(reference);
+            let id = [algo, ":", hash].concat();
+            if hash.len() < 2 {
+                bail!("Please provide a valid image reference or at least two characters of image id hash")
+            }
+
+            let regex = Regex::new(reference)?;
+
+            for (reference, info) in &self.inner {
+                if info.id.starts_with(&id) || regex.is_match(reference) {
+                    removed_refs.push(reference.clone())
+                }
             }
         }
 
-        let (algo, hash) = digest_to_parts(reference);
-        let id = [algo, ":", hash].concat();
-        if hash.len() < 2 {
-            bail!("Please provide a valid image reference or at least two characters of image id hash")
-        }
-
-        let mut remove_reference = String::new();
-        for (reference, info) in &self.inner {
-            if info.id.starts_with(&id) {
-                remove_reference = reference.clone();
-                break;
+        for reference in removed_refs {
+            if let Some(info) = self.inner.remove(&reference) {
+                let image_path = image_path(&info.id);
+                remove_dir_all(image_path)?;
+                removed_ids.push(info.id);
             }
         }
-        if !remove_reference.is_empty() {
-            if let Some(info) = self.inner.remove(&remove_reference) {
-                self.write()?;
-                return Ok(Some(info.id));
-            }
-        }
+        self.write()?;
 
-        Ok(None)
+        Ok(removed_ids)
     }
 
     /// Get the image info

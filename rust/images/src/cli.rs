@@ -5,12 +5,12 @@ use cli_utils::{
     common::async_trait::async_trait,
     result, Result, Run,
 };
-use common::{tokio::fs::remove_dir_all, tracing};
+use common::tracing;
 
 use crate::{
     distribution::{pull, push},
     image::Image,
-    storage::{image_path, IMAGES_MAP},
+    storage::IMAGES_MAP,
 };
 
 /// Build and distribute container images
@@ -281,14 +281,13 @@ struct Remove {
 impl Run for Remove {
     async fn run(&self) -> Result {
         let mut image_map = IMAGES_MAP.write().await;
-        if let Some(digest) = image_map.remove(&self.image)? {
-            let image_path = image_path(&digest);
-            remove_dir_all(image_path).await?;
-            tracing::info!("Image {} removed", digest)
+        let ids = image_map.remove(&self.image)?;
+        if ids.is_empty() {
+            tracing::warn!("No images matching `{}` to remove", self.image);
+            result::nothing()
         } else {
-            tracing::warn!("No image matching {} to remove", self.image)
+            tracing::info!("Removed {} images", ids.len());
+            result::value(ids)
         }
-
-        result::nothing()
     }
 }
