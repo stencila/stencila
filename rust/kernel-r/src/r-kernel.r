@@ -7,7 +7,7 @@ requires <- function () {
   # so we don't try to install it as with other packages
   if (.Platform$OS.type == "unix") library(parallel)
 
-  pkgs <- c("jsonlite", "base64enc")
+  pkgs <- c("jsonlite", "base64enc", "Cairo")
 
   install <- NULL
   for (pkg in pkgs) {
@@ -43,10 +43,18 @@ dir <- gsub("\\~\\+\\~", " ", dirname(file))
 
 source(file.path(dir, "r-codec.r"))
 
-READY <- "\U0010ACDC"
-RESULT <- "\U0010CB40"
-TASK <- "\U0010ABBA"
-FORK <- "\U0010DE70"
+# Use easier-to-type flags during development manual testing
+if (isatty(stdin())) {
+  READY <- "READY"
+  RESULT <- "RESULT"
+  TASK <- "TASK"
+  FORK <- "FORK"
+} else {
+  READY <- "\U0010ACDC"
+  RESULT <-  "\U0010CB40"
+  TASK <- "\U0010ABBA"
+  FORK <- "\U0010DE70"
+}
 
 stdin <- file("stdin", "r")
 stdout <- stdout()
@@ -77,7 +85,7 @@ while (!is.null(stdin)) {
   tryCatch(
     {
       # A SIGINT does not interrupt `readLines` but instead gets fired just after it when the next
-      # line is read. So, we have to save the task in case interrupt was inadvertantly called during
+      # line is read. So, we have to save the task in case interrupt was inadvertently called during
       # readline and then "replay" it on the next loop.
       if (is.null(saved_task)) {
         task <<- readLines(stdin, n=1)
@@ -116,8 +124,11 @@ while (!is.null(stdin)) {
         stdin <- NULL
 
         # Replace stdout and stderr with pipes
-        stdout <- file(new_stdout, open = "w", raw = TRUE)
-        stderr <- file(new_stderr, open = "w", raw = TRUE)
+        # These will normally be not NA except when using the FORK flag during manual testing
+        if (!is.na(new_stdout) && !is.na(new_stderr)) {
+          stdout <- file(new_stdout, open = "w", raw = TRUE)
+          stderr <- file(new_stderr, open = "w", raw = TRUE)
+        }
       }
 
       code <- paste0(lines, collapse = "\n")
@@ -126,8 +137,10 @@ while (!is.null(stdin)) {
         error(compiled, "SyntaxError")
       } else {  
         # Default graphics device to avoid window popping up or `Rplot.pdf` polluting
-        # local directory. The tempdir check is needed when forking.
-        png(tempfile(tmpdir = tempdir(check=TRUE)))
+        # local directory. `CairoPNG` is needed instead of `png` to avoid "a forked child should not open a graphics device"
+        # which arises because X11 can not be used in a forked environment.
+        # The tempdir `check` is needed when forking.
+        Cairo::CairoPNG(tempfile(tmpdir = tempdir(check=TRUE)))
         # Recording must be enabled for recordPlot() to work
         dev.control("enable")
 
