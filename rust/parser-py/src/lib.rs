@@ -146,31 +146,41 @@ impl ParserTrait for PyParser {
                                     }
                                 }
                             }
-                            // Skip identifiers that are the `alias` of a with clause
-                            "with_clause" => {
-                                if Some(node) == parent_node.child_by_field_name("alias") {
-                                    return None;
-                                }
-                            }
-                            // Skip references to the `alias` of a with clause
-                            "with_statement" => {
-                                if let Some(alias) = parent_node
-                                    .child(1) // "with_clause"
-                                    .and_then(|node| node.child(0)) // "with_item"
-                                    .and_then(|node| node.child_by_field_name("alias"))
-                                    .and_then(|node| node.utf8_text(code).ok())
-                                {
-                                    if symbol == alias {
-                                        return None;
-                                    }
-                                }
-                            }
                             // Skip identifiers within these...
                             "import_statement"
                             | "import_from_statement"
                             | "function_definition"
                             | "lambda" => return None,
-                            _ => {}
+                            // Skip identifiers that are the identifier in an `as_pattern_target`
+                            "as_pattern_target" => {
+                                return None;
+                            }
+                            // Skip any references to the `as_pattern_target` within `with` statements.
+                            // This requires use to walk up the ancestors looking for a `with_statement`
+                            // and then checking if the alias is the same as the identifier.
+                            _ => {
+                                let mut ancestor = parent_node;
+                                loop {
+                                    if ancestor.kind() == "with_statement" {
+                                        if let Some(alias) = ancestor
+                                            .child(1) // "with_clause"
+                                            .and_then(|node| node.child(0)) // "with_item"
+                                            .and_then(|node| node.child_by_field_name("value")) // "as_pattern"
+                                            .and_then(|node| node.child_by_field_name("alias")) // "as_pattern_target"
+                                            .and_then(|node| node.utf8_text(code).ok())
+                                        {
+                                            if symbol == alias {
+                                                return None;
+                                            }
+                                        }
+                                    }
+                                    if let Some(parent) = ancestor.parent() {
+                                        ancestor = parent;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
                         }
                         parent = parent_node.parent();
                     }

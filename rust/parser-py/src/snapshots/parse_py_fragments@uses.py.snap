@@ -1,9 +1,8 @@
 ---
 source: rust/parser-py/src/lib.rs
-assertion_line: 213
+assertion_line: 234
 expression: resource_info
 input_file: fixtures/fragments/py/uses.py
-
 ---
 {
   "resource": {
@@ -406,5 +405,5 @@ input_file: fixtures/fragments/py/uses.py
       }
     ]
   ],
-  "compile_digest": "TKqHeLF3mZOpCm-XweiP3nAMN_j2Lfm7_k2A7NMGhFQ.Bi9YOzZoZvS15qmTZTQNNV7eRupqeTJ-lgtmamcz1aw..0.0"
+  "compile_digest": "TKqHeLF3mZOpCm-XweiP3nAMN_j2Lfm7_k2A7NMGhFQ.hPbnVBlahSbFUy8VUMTTukWlJQY2ZzMKbRSNhkV4qwE..0.0"
 }

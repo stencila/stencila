@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 parser-treesitter = { path = "../parser-treesitter" }
-tree-sitter-python = { version = "0.19.1" }
+tree-sitter-python = { version = "0.20.2" }
 
 [dev-dependencies]
 test-snaps = { path = "../test-snaps" }
