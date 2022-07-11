@@ -782,7 +782,7 @@ impl Task {
     }
 
     #[allow(clippy::too_many_arguments)]
-    async fn run(
+    pub async fn run(
         &self,
         path: &Path,
         name: &str,
@@ -986,7 +986,7 @@ impl Task {
         Ok(())
     }
 
-    async fn run_now(path: &Path, name: &str, mut vars: Vec<String>) -> Result<()> {
+    pub async fn run_now(path: &Path, name: &str, mut vars: Vec<String>) -> Result<()> {
         tracing::debug!("Running task `{}` of `{}`", name, path.display());
 
         let binary = TaskBinary {}.ensure().await?;
