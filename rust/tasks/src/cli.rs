@@ -21,6 +21,7 @@ pub struct Command {
 
 #[derive(Parser)]
 pub enum Action {
+    Init(Init),
     Detect(Detect),
     List(List),
     Run(Run_),
@@ -31,11 +32,29 @@ pub enum Action {
 impl Run for Command {
     async fn run(&self) -> Result {
         match &self.action {
+            Action::Init(action) => action.run().await,
             Action::Detect(action) => action.run().await,
             Action::List(action) => action.run().await,
             Action::Run(action) => action.run().await,
             Action::Docs(action) => action.run().await,
         }
+    }
+}
+
+/// Initialize a tasks for a directory
+#[derive(Parser)]
+pub struct Init {
+    /// The directory to initialize tasks for
+    ///
+    /// If the directory does not yet have a Taskfile one will be created
+    dir: Option<PathBuf>,
+}
+
+#[async_trait]
+impl Run for Init {
+    async fn run(&self) -> Result {
+        let taskfile = Taskfile::init(self.dir.as_deref(), 0)?;
+        result::value(taskfile)
     }
 }
 
@@ -91,7 +110,7 @@ pub struct List {
 #[async_trait]
 impl Run for List {
     async fn run(&self) -> Result {
-        let taskfile = Taskfile::read(self.taskfile.taskfile.as_deref(), 2)?;
+        let taskfile = Taskfile::init(self.taskfile.taskfile.as_deref(), 2)?;
         let tasks = taskfile
             .tasks
             .into_iter()
@@ -168,7 +187,7 @@ pub struct Run_ {
     watch: Option<String>,
 
     /// Ignore changes to files matching this pattern
-    #[clap(short, long)]
+    #[clap(long)]
     ignore: Option<String>,
 
     /// Number of seconds to delay running tasks after file changes

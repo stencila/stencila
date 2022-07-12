@@ -95,9 +95,21 @@ pub struct Taskfile {
     /// Task definitions
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
     pub tasks: IndexMap<String, Task>,
+
+    /// The path of the Taskfile
+    #[serde(skip)]
+    path: PathBuf,
 }
 
 impl Taskfile {
+    /// Create a new Taskfile at a path
+    fn new(path: PathBuf) -> Self {
+        Self {
+            path,
+            ..Default::default()
+        }
+    }
+
     /// Resolve a Taskfile for a path
     fn resolve(path: Option<&Path>) -> Result<PathBuf> {
         Ok(match path {
@@ -112,6 +124,18 @@ impl Taskfile {
         })
     }
 
+    /// Get the path of the Taskfile
+    pub fn path(&self) -> &Path {
+        self.path.as_path()
+    }
+
+    /// Get the directory of the Taskfile
+    pub fn dir(&self) -> &Path {
+        self.path
+            .parent()
+            .expect("Taskfiles should always have a parent directory")
+    }
+
     /// Load a Taskfile from a YAML string
     fn load(yaml: &str) -> Result<Self> {
         let taskfile = serde_yaml::from_str(yaml)?;
@@ -121,11 +145,11 @@ impl Taskfile {
     /// Read a Taskfile from a filesystem path
     ///
     /// If `inclusion_depth` is greater than zero, will add tasks from `includes` to the Taskfile's `tasks`.
-    pub fn read(path: Option<&Path>, inclusion_depth: usize) -> Result<Self> {
-        let path = Self::resolve(path)?;
+    pub fn read(path: &Path, inclusion_depth: usize) -> Result<Self> {
+        let path = Self::resolve(Some(path))?;
         if !path.exists() {
             bail!(
-                "Could not find taskfile at `{}`; perhaps create one using `stencila tasks detect`",
+                "Could not find taskfile at `{}`; perhaps create one using `stencila tasks init`",
                 path.display()
             )
         }
@@ -136,12 +160,13 @@ impl Taskfile {
             Ok(taskfile) => taskfile,
             Err(error) => bail!("While reading Taskfile `{}`: {}", path.display(), error),
         };
+        taskfile.path = path;
 
         if inclusion_depth == 0 {
             return Ok(taskfile);
         }
 
-        let dir = path.parent().expect("Should always have a parent");
+        let dir = taskfile.dir().to_path_buf();
         for (include_name, include) in &taskfile.includes {
             let include_path = dir.join(&include.taskfile);
             let include_path = Self::resolve(Some(&include_path))?;
@@ -152,7 +177,7 @@ impl Taskfile {
                 )
             };
 
-            let include_taskfile = Self::read(Some(&include_path), inclusion_depth - 1)?;
+            let include_taskfile = Self::read(&include_path, inclusion_depth - 1)?;
             for (task_name, task) in include_taskfile.tasks {
                 taskfile
                     .tasks
@@ -211,67 +236,83 @@ impl Taskfile {
     }
 
     /// Write the Taskfile to a filesystem path
-    pub fn write(&self, path: Option<&Path>) -> Result<()> {
+    pub fn write(&self) -> Result<()> {
         let yaml = self.dump()?;
-        let path = Self::resolve(path).or_else(|_| current_dir())?;
-        write(path, yaml)?;
+        write(self.path(), yaml)?;
         Ok(())
     }
 
-    /// Update a a Taskfile for a directory
-    pub async fn detect(dir: Option<&Path>) -> Result<()> {
-        let dir = match dir {
-            Some(dir) => dir.to_path_buf(),
-            None => current_dir()?,
+    /// Initialize tasks in a directory
+    /// 
+    /// Creates a `Taskfile.yaml` if one does not yet exist, and a `.stencila/tasks/lib` if one does not
+    /// yet exist.
+    pub fn init(path: Option<&Path>, inclusion_depth: usize) -> Result<Taskfile> {
+        let path = Self::resolve(path)?;
+
+        let taskfile = match path.exists() {
+            true => Taskfile::read(&path, inclusion_depth)?,
+            false => {
+                let mut taskfile = Taskfile::new(path);
+
+                // Ensure that there is an include entry for the library
+                // Previously we also added individual includes for the lib modules e;.g. `python`, `asdf`.
+                // This avoids having to append `lib:` when running tasks.
+                // However this pollutes the Taskfile and is sensitive to the order of includes - for some
+                // reason `task` crashes when a yaml that includes another yaml is included before the first.
+                if taskfile.includes.get("lib").is_none() {
+                    taskfile.includes.insert(
+                        "lib".to_string(),
+                        Include {
+                            taskfile: ".stencila/tasks/lib".to_string(),
+                            ..Default::default()
+                        },
+                    );
+                }
+
+                // Write the taskfile and then re-read it so that `inclusion_depth` is respected
+                taskfile.write()?;
+                Taskfile::read(taskfile.path(), inclusion_depth)?
+            }
         };
 
         // Copy all of the embedded taskfiles to .stencila/tasks in the directory
         // We do this, rather than use some other location, so it is easier to commit the taskfiles
         // or bundle up the whole project without breaking running of tasks.
         // Do it before reading the Taskfile to avoid error if included file is missing.
-        let lib = dir.join(".stencila").join("tasks").join("lib");
-        create_dir_all(&lib)?;
-        for name in Taskfiles::iter() {
-            let name = name.to_string();
-            if let Some(file) = Taskfiles::get(&name) {
-                let path = lib.join(&name);
-                write(&path, file.data)?;
+        let lib = taskfile.dir().join(".stencila").join("tasks").join("lib");
+        if !lib.exists() {
+            create_dir_all(&lib)?;
+            for name in Taskfiles::iter() {
+                let name = name.to_string();
+                if let Some(file) = Taskfiles::get(&name) {
+                    let path = lib.join(&name);
+                    write(&path, file.data)?;
+                }
             }
         }
 
-        let path = dir.join("Taskfile.yaml");
-        let mut taskfile = match path.exists() {
-            true => Taskfile::read(Some(&path), 0)?,
-            false => Taskfile::default(),
-        };
+        Ok(taskfile)
+    }
+
+    /// Detect the tasks needed for a directory
+    /// 
+    /// Updates the Taskfile in the directory (creating one if necessary) with tasks detected
+    /// by running the `lib:detect` task.
+    pub async fn detect(dir: Option<&Path>) -> Result<()> {
+        let mut taskfile = Self::init(dir, 0)?;
 
         // Remove any existing tasks `autogen` includes and tasks
         // If this is not done they may accumulate even if not needed
         taskfile.includes.retain(|_name, include| !include.autogen);
         taskfile.tasks.retain(|_name, task| !task.autogen);
 
-        // Ensure that there is an include entry for the library
-        // Previously we also added individual includes for the lib modules e;.g. `python`, `asdf`.
-        // This avoids having to append `lib:` when running tasks.
-        // However this pollutes the Taskfile and is sensitive to the order of includes - for some
-        // reason `task` crashes when a yaml that includes another yaml is included before the first.
-        if taskfile.includes.get("lib").is_none() {
-            taskfile.includes.insert(
-                "lib".to_string(),
-                Include {
-                    taskfile: ".stencila/tasks/lib".to_string(),
-                    autogen: true,
-                    ..Default::default()
-                },
-            );
-        }
-
-        // Write the Taskfile for the `lib:detect` task
-        taskfile.write(Some(&path))?;
-
         // Run the library detect task and read the list of detected tasks
-        Task::run_now(&dir, "lib:detect", Vec::new()).await?;
-        let detected = dir.join(".stencila").join("tasks").join("detected");
+        Task::run_now(taskfile.path(), "lib:detect", Vec::new()).await?;
+        let detected = taskfile
+            .dir()
+            .join(".stencila")
+            .join("tasks")
+            .join("detected");
         let tasks = read_to_string(&detected).unwrap_or_default();
 
         let mut install_cmds = Vec::new();
@@ -323,7 +364,7 @@ impl Taskfile {
             );
         }
 
-        taskfile.write(Some(&path))
+        taskfile.write()
     }
 
     /// Run one or more tasks in the Taskfile
@@ -340,13 +381,11 @@ impl Taskfile {
         ignore: Option<&str>,
         delay: Option<u64>,
     ) -> Result<()> {
-        let path = Taskfile::resolve(path)?;
-
         if args.is_empty() {
             bail!("No arguments provided to `task run`")
         }
 
-        let taskfile = Taskfile::read(Some(&path), 2)?;
+        let taskfile = Self::init(path, 2)?;
 
         // Parse the args into name of task and its vars
         let mut task: String = String::new();
@@ -387,7 +426,7 @@ impl Taskfile {
 
                 if let Some(task) = taskfile.tasks.get(&name) {
                     task.run(
-                        &path,
+                        taskfile.path(),
                         &name,
                         vars.clone(),
                         now,
@@ -525,7 +564,7 @@ impl Taskfile {
                 .ok_or_else(|| eyre!("File has no stem"))?
                 .to_string_lossy();
 
-            let taskfile = Taskfile::read(Some(&path), 0)?;
+            let taskfile = Taskfile::read(&path, 0)?;
             let md = taskfile.docs(&name)?;
             let path = dir.join(format!("{}.md", name));
             write(path, md.trim())?;
