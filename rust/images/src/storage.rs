@@ -190,7 +190,7 @@ impl ImagesMap {
                 matched = true;
             }
         }
-        
+
         if !matched {
             // Try to match id or ref with regex
             let (algo, hash) = digest_to_parts(reference);

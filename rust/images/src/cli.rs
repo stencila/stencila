@@ -10,6 +10,7 @@ use common::tracing;
 use crate::{
     distribution::{pull, push},
     image::Image,
+    snapshot::Snapshot,
     storage::IMAGES_MAP,
 };
 
@@ -31,6 +32,7 @@ enum Action {
     Pull(Pull),
     Push(Push),
     Remove(Remove),
+    Snap(Snap),
 }
 
 #[async_trait]
@@ -42,6 +44,7 @@ impl Run for Command {
             Action::Pull(action) => action.run().await,
             Action::Push(action) => action.run().await,
             Action::Remove(action) => action.run().await,
+            Action::Snap(action) => action.run().await,
         }
     }
 }
@@ -289,5 +292,69 @@ impl Run for Remove {
             tracing::info!("Removed {} images", ids.len());
             result::value(ids)
         }
+    }
+}
+
+/// Take a snapshot of the filesystem
+///
+/// This command is used create a snapshot of the filesystem that can be used
+/// by the `save` command to generate an image layer based on the changes since the snapshot.
+///
+/// Defaults to creating a snapshot of the entire filesystem but a directory can be specified.
+/// Creates a `.snap` file next to the directory that is snap shotted (i.e. defaults to `/root.snap`)
+///
+/// Snapshots are usually made within a container or virtual machine and may be slow if run
+/// on a large filesystem. To avoid inadvertent snapshots users are asked for confirmation
+/// (this can be skipped by using the `--yes` option).
+#[derive(Parser)]
+struct Snap {
+    /// Path of the directory to snapshot
+    #[clap(default_value = "/")]
+    dir: PathBuf,
+
+    /// Do not ask for confirmation
+    #[clap(short, long)]
+    yes: bool,
+}
+
+#[async_trait]
+impl Run for Snap {
+    async fn run(&self) -> Result {
+        let filename = self
+            .dir
+            .file_name()
+            .map(|name| name.to_string_lossy().to_string())
+            .unwrap_or_else(|| "root".to_string())
+            + ".snap";
+        let path = self
+            .dir
+            .parent()
+            .map(|parent| parent.to_path_buf())
+            .unwrap_or_else(|| PathBuf::from("/"))
+            .join(filename);
+
+        if !self.yes {
+            println!(
+                "Are you sure you want to snapshot directory `{}`? (y/n)",
+                self.dir.display()
+            );
+            let mut input = String::new();
+            std::io::stdin().read_line(&mut input)?;
+            if input.trim().to_lowercase() != "y" {
+                tracing::info!("Cancelling snapshot");
+                return result::nothing();
+            }
+        }
+
+        let snapshot = Snapshot::new(self.dir.clone());
+        snapshot.write(&path)?;
+
+        tracing::info!(
+            "Successfully created snapshot `{}` of directory `{}`",
+            path.display(),
+            self.dir.display()
+        );
+
+        result::nothing()
     }
 }

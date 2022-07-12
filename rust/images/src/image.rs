@@ -135,7 +135,7 @@ impl Image {
 
         let mut layer_snapshots = Vec::new();
         if let Some(working_dir) = working_dir.as_ref() {
-            layer_snapshots.push(Snapshot::new(working_dir.clone(), "/workspace"));
+            layer_snapshots.push(Snapshot::new(working_dir.clone()));
         }
         for subdir in layers_dir.read_dir()?.flatten().filter_map(|entry| {
             if entry.path().is_dir() {
@@ -144,10 +144,7 @@ impl Image {
                 None
             }
         }) {
-            layer_snapshots.push(Snapshot::new(
-                &subdir.0,
-                PathBuf::from("/layers").join(subdir.1),
-            ));
+            layer_snapshots.push(Snapshot::new(&subdir.0));
         }
 
         let layer_diffs = layer_diffs.unwrap_or(true);
@@ -221,7 +218,7 @@ impl Image {
 
         for snapshot in &self.layer_snapshots {
             let (diff_id, layer) =
-                snapshot.write_layer(layout_dir, self.layer_diffs, &self.layer_format)?;
+                snapshot.write_layer(&self.layer_format, layout_dir, self.layer_diffs)?;
 
             if diff_id == "<empty>" {
                 continue;
