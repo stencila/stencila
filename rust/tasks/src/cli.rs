@@ -154,7 +154,7 @@ impl From<(String, Task)> for TaskRow {
 #[derive(Parser)]
 pub struct Run_ {
     /// The names and variables of the tasks to run
-    #[clap(required = true)]
+    #[clap(default_value = "default")]
     tasks: Vec<String>,
 
     /// Run the tasks once, immediately and ignore `schedule` or `watches`
