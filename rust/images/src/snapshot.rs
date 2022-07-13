@@ -7,7 +7,6 @@ use std::{
 };
 
 use jwalk::WalkDirGeneric;
-use oci_spec::image::{Descriptor, MediaType};
 use seahash::SeaHasher;
 
 use common::{
@@ -284,6 +283,11 @@ impl Snapshot {
         snapshot
     }
 
+    /// Get the number of entries in the snapshot
+    pub fn size(&self) -> usize {
+        self.entries.len()
+    }
+
     /// Create a new snapshot by repeating the current one
     pub fn repeat(&self) -> Self {
         let mut snapshot = Self::new(&self.source_dir);
@@ -338,7 +342,7 @@ impl Snapshot {
     }
 
     /// Create a set of changes that replicate the current snapshot using only additions
-    fn replicate(&self) -> ChangeSet {
+    pub fn replicate(&self) -> ChangeSet {
         let changes = self
             .entries
             .keys()
@@ -374,34 +378,12 @@ impl Snapshot {
     pub fn changes(&self) -> ChangeSet {
         self.diff(&self.repeat())
     }
-
-    /// Create a layer by repeating the current snapshot
-    ///
-    /// # Arguments
-    ///
-    /// - `media_type`: The OCI [`MediaType`] to write the layer as
-    /// - `layout_dir`: The OCI layout directory to write the layer to
-    /// - `diff`: Whether to create the layer as the difference to the original snapshot
-    ///           (the usual) or as a replicate.
-    pub fn write_layer<P: AsRef<Path>>(
-        &self,
-        media_type: &MediaType,
-        layout_dir: P,
-        diff: bool,
-    ) -> Result<(String, Descriptor)> {
-        let new = self.repeat();
-        let changeset = if diff {
-            self.diff(&new)
-        } else {
-            new.replicate()
-        };
-        changeset.write_layer(media_type, layout_dir)
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use common::{eyre::eyre, tempfile::tempdir};
+    use oci_spec::image::MediaType;
 
     use test_snaps::fixtures;
     use test_utils::skip_ci_os;

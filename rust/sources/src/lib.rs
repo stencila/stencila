@@ -146,7 +146,7 @@ impl Source {
                             .map(|schedule| schedule.to_string())
                             .collect(),
                     ),
-                    timezone.map(|tz| tz.to_string())
+                    timezone.map(|tz| tz.to_string()),
                 )
             } else {
                 (None, None)

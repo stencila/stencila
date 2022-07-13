@@ -2999,7 +2999,6 @@ name = "images"
 version = "0.0.0"
 dependencies = [
  "archive-utils",
- "buildpacks",
  "bytecheck",
  "bytes",
  "bytesize",

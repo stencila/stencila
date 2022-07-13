@@ -4,7 +4,7 @@ use bytes::{Bytes, BytesMut};
 use bytesize::MIB;
 use oci_spec::image::{
     Descriptor, ImageConfiguration, ImageIndex, ImageIndexBuilder, ImageManifest, MediaType,
-    SCHEMA_VERSION,
+    ToDockerV2S2, SCHEMA_VERSION,
 };
 
 use common::{
@@ -25,7 +25,6 @@ use http_utils::{reqwest::Method, reqwest_middleware::RequestBuilder, CLIENT};
 use crate::{
     blob_writer::BlobWriter,
     image_reference::ImageReference,
-    media_types::ToDockerV2S2,
     storage::{
         blob_path, blob_path_safe, blob_symlink, image_path, image_path_safe,
         write_oci_layout_file, BLOBS_MAP, IMAGES_MAP,

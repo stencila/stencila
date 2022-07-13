@@ -1,5 +1,5 @@
 mod taskfile;
-pub use taskfile::{Taskfile, Task};
+pub use taskfile::{Task, Taskfile};
 
 #[cfg(feature = "cli")]
 pub mod cli;

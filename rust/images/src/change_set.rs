@@ -39,10 +39,13 @@ pub enum Change {
 /// [OCI Image Layer Filesystem Changeset](https://github.com/opencontainers/image-spec/blob/main/layer.md)
 pub struct ChangeSet {
     /// The source directory, on the local filesystem, for the changes
-    source_dir: PathBuf,
+    pub(crate) source_dir: PathBuf,
 
     /// The destination directory, within the image's root filesystem, for the changes
-    dest_dir: PathBuf,
+    pub(crate) dest_dir: PathBuf,
+
+    /// A comment added to history entry corresponding to the layer generated for this changeset
+    pub(crate) comment: Option<String>,
 
     /// The change items
     pub(crate) items: Vec<Change>,
@@ -78,7 +81,23 @@ impl ChangeSet {
             source_dir,
             dest_dir,
             items,
+            comment: None,
         }
+    }
+
+    /// Generate a summary of the number of changes by type
+    pub fn summarize(&self) -> (usize, usize, usize) {
+        let mut additions = 0;
+        let mut deletions = 0;
+        let mut modifications = 0;
+        for change in &self.items {
+            match change {
+                Change::Added(..) => additions += 1,
+                Change::Removed(..) => deletions += 1,
+                Change::Modified(..) => modifications += 1,
+            }
+        }
+        (additions, deletions, modifications)
     }
 
     /// Creates an OCI layer for the set of changes
@@ -99,7 +118,7 @@ impl ChangeSet {
     /// - `media_type`: The OCI [`MediaType`] to write the layer as
     /// - `layout_dir`: the OCI layout directory to write the layer to
     pub fn write_layer<P: AsRef<Path>>(
-        self,
+        &self,
         media_type: &MediaType,
         layout_dir: P,
     ) -> Result<(String, Descriptor)> {
@@ -189,7 +208,7 @@ impl ChangeSet {
 
             // Add each change in sorted order so that the digest of the generated archive
             // does not change for a given change set
-            for change in self.items.into_iter().sorted() {
+            for change in self.items.iter().sorted() {
                 match change {
                     Change::Added(ref path) | Change::Modified(ref path) => {
                         let source_path = self.source_dir.join(path);
@@ -223,7 +242,7 @@ impl ChangeSet {
                         };
 
                         if let Err(error) = result {
-                            tracing::debug!(
+                            tracing::warn!(
                                 "While appending item for added or modified path `{}`: {}",
                                 path,
                                 error
@@ -262,7 +281,7 @@ impl ChangeSet {
                                 error
                             )
                         } else {
-                            deletions.push(path)
+                            deletions.push(path.to_string())
                         }
                     }
                 };
