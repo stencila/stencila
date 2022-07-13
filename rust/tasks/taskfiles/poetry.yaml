@@ -27,10 +27,15 @@ tasks:
     summary: |
       Checks whether Poetry is installed, and if not, installs it.
     cmds:
+      # Set version to blank here to avoid a package version being
+      # used for python or poetry
       - task: python:install
+        vars:
+          VERSION: ''
       - task: asdf:add
         vars:
           PACKAGE: poetry
+          VERSION: ''
 
   init:
     desc: Initialize Poetry in a directory
