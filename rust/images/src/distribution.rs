@@ -79,11 +79,14 @@ pub async fn push(from: &str, to: Option<&str>, force_direct: bool) -> Result<Im
 /// A client that implements the [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec/blob/main/spec.md)
 /// for pulling and pushing images from a container registry
 pub struct Client {
-    /// URL of the image registry e.g. `registry.fly.io`, `localhost:5000`
+    /// An identifier for the image registry e.g. `registry.fly.io`, `localhost:5000`
     registry: String,
 
     /// Name of the image repository e.g. `library/hello-world`
     repository: String,
+
+    /// The fully resolved URL of the repository's v2 API
+    api_url: String,
 
     /// Token used to authenticate requests
     token: Option<String>,
@@ -101,6 +104,19 @@ struct DockerAuthToken {
 impl Client {
     /// Create a new client
     pub async fn new(registry: &str, repository: &str, token: Option<&str>) -> Result<Self> {
+        let api_url = if registry.starts_with("https://") {
+            registry.to_string()
+        } else if registry.starts_with("localhost") {
+            ["http://", registry].concat()
+        } else if registry == "docker.io" {
+            "https://registry.hub.docker.com".to_string()
+        } else if registry == "fly.io" {
+            "https://registry.fly.io".to_string()
+        } else {
+            ["https://", registry].concat()
+        };
+        let api_url = [&api_url, "/v2/", repository].concat();
+
         let token = match token {
             None => match registry {
                 "docker.io" => {
@@ -132,6 +148,7 @@ impl Client {
         Ok(Self {
             registry: registry.to_string(),
             repository: repository.to_string(),
+            api_url,
             token,
         })
     }
@@ -660,18 +677,7 @@ impl Client {
         let url = if path.starts_with("http") {
             path.to_string()
         } else {
-            let registry_url = if self.registry.starts_with("https://") {
-                self.registry.clone()
-            } else if self.registry.starts_with("localhost") {
-                ["http://", &self.registry].concat()
-            } else if self.registry == "docker.io" {
-                "https://registry.hub.docker.com".to_string()
-            } else if self.registry == "fly.io" {
-                "https://registry.fly.io".to_string()
-            } else {
-                ["https://", &self.registry].concat()
-            };
-            [&registry_url, "/v2/", &self.repository, path].concat()
+            [&self.api_url, path].concat()
         };
 
         // Because we implement a caching mechanism for blobs, to avoid "double storing"
