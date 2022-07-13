@@ -7,13 +7,13 @@ tasks:
   detect:
     desc: Detect which Podman related tasks are needed
     summary: |
-      Adds the `podman:install` task if there is a `Dockerfile` in the root of the project.
+      Adds the `podman:build` task if there is a `Dockerfile` in the root of the project.
     ignore_error: true
     silent: true
     cmds:
-      - test -f Dockerfile && echo podman:install >> .stencila/tasks/detected
+      - test -f Dockerfile && echo podman:build >> .stencila/tasks/detected
 
-  ensure:
+  install:
     desc: Ensure Podman is installed for the project
     summary: |
       Checks whether Podman is installed, and if is not, installs it using `asdf`.
@@ -27,10 +27,10 @@ tasks:
           PACKAGE: podman
           VERSION: 3.4.4
 
-  install:
+  build:
     desc: Build the `Dockerfile`
     sources:
       - Dockerfile
     cmds:
-      - task: ensure
+      - task: install
       - podman build .
