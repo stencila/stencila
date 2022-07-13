@@ -13,9 +13,14 @@ common = { path = "../common" }
 cron-utils = { path = "../cron-utils" }
 fs2 = "0.4.3"
 notify = "4.0.17"
-rust-embed = { version = "6.4.0", features = ["compression"] }
+rust-embed = { version = "6.4.0", features = [
+    "compression",
+    # It can be useful to turn on the `debug-embed` feature so that even in debug mode the 
+    # taskfiles are embedded (e.g. when using the debug binary in a container)
+    # "debug-embed"
+] }
 
-cli-utils = { path = "../cli-utils", optional = true}
+cli-utils = { path = "../cli-utils", optional = true }
 
 [dev-dependencies]
 test-snaps = { path = "../test-snaps" }
