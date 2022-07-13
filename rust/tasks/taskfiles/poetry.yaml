@@ -19,7 +19,7 @@ tasks:
     cmds:
       - >
         test -f pyproject.toml &&
-        grep '^\[tool.poetry\]$' pyproject.toml &&
+        grep -q '^\[tool.poetry\]$' pyproject.toml &&
         echo poetry:install >> .stencila/tasks/detected
 
   ensure:
