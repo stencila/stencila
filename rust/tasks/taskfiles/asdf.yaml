@@ -4,6 +4,11 @@ includes:
   curl: curl.yaml
   git: git.yaml
 
+vars:
+  # Refer to ASDF using full path so that, for example, the `ensure-plugin` task
+  # will work straight after the `ensure` task installs asdf (and before PATH is updated)
+  ASDF: $HOME/.asdf/bin/asdf
+
 tasks:
   detect:
     desc: Detect which `asdf` tasks are needed for the project
@@ -31,10 +36,10 @@ tasks:
     desc: Ensure an `asdf` plugin is installed
     hide: true
     status:
-      - asdf plugin list | grep '^{{.NAME}}$'
+      - '{{.ASDF}} plugin list | grep "^{{.NAME}}$"'
     cmds:
       - task: ensure
-      - asdf plugin add {{.NAME}} {{.URL}}
+      - '{{.ASDF}} plugin add {{.NAME}} {{.URL}}'
 
   ensure-package:
     desc: Ensure an `asdf` package version is installed
@@ -53,7 +58,7 @@ tasks:
       - task: ensure-plugin
         vars:
           NAME: '{{.PACKAGE}}'
-      - asdf install {{.PACKAGE}} {{.VERSION | default "latest"}}
+      - '{{.ASDF}} install {{.PACKAGE}} {{.VERSION | default "latest"}}'
 
   add:
     desc: Add a tool using `asdf`
@@ -73,7 +78,7 @@ tasks:
         vars:
           PACKAGE: '{{.PACKAGE}}'
           VERSION: '{{.VERSION}}'
-      - asdf local {{.PACKAGE}} {{.VERSION | default "latest"}}
+      - '{{.ASDF}} local {{.PACKAGE}} {{.VERSION | default "latest"}}'
 
   remove:
     desc: Remove a tool using `asdf`
@@ -96,7 +101,7 @@ tasks:
         then
           cat .tool-versions | while read LINE 
           do
-            asdf plugin add $(echo $LINE | cut -d' ' -f1) || true
+            {{.ASDF}} plugin add $(echo $LINE | cut -d' ' -f1) || true
           done
         fi
-      - asdf install
+      - '{{.ASDF}} install'
