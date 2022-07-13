@@ -136,7 +136,7 @@ impl Image {
         }
 
         for change_set in &self.change_sets {
-            let (diff_id, layer) = change_set.write_layer(&self.layer_format, layout_dir)?;
+            let (diff_id, layer) = change_set.write_layer(&self.layer_format, layout_dir, false)?;
 
             if diff_id == "<empty>" {
                 continue;

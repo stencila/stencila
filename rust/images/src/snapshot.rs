@@ -471,7 +471,8 @@ mod tests {
         assert_eq!(changes.items.len(), 1);
         assert_eq!(changes.items[0], Change::Added(a_txt.clone()));
 
-        let (.., descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
+        let (.., descriptor) =
+            changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir, false)?;
 
         let mut layer = ChangeSet::read_layer(&layout_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
@@ -514,7 +515,8 @@ mod tests {
         assert_eq!(changes.items.len(), 1);
         assert_eq!(changes.items[0], Change::Removed(a_txt));
 
-        let (.., descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
+        let (.., descriptor) =
+            changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir, false)?;
         let mut layer = ChangeSet::read_layer(&layout_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
         let entry = entries.nth(1).unwrap()?;
@@ -534,7 +536,8 @@ mod tests {
         assert_eq!(changes.items.len(), 1);
         assert_eq!(changes.items[0], Change::Modified(b_txt.clone()));
 
-        let (.., descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
+        let (.., descriptor) =
+            changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir, false)?;
         let mut archive = ChangeSet::read_layer(&layout_dir, descriptor.digest())?;
         let mut entries = archive.entries()?;
         let entry = entries.nth(1).unwrap()?;

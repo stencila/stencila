@@ -116,11 +116,14 @@ impl ChangeSet {
     /// # Arguments
     ///
     /// - `media_type`: The OCI [`MediaType`] to write the layer as
-    /// - `layout_dir`: the OCI layout directory to write the layer to
+    /// - `layout_dir`: The OCI layout directory to write the layer to
+    /// - `deterministic`: Whether the layer should be deterministic (i.e. ignore filesystem metadata such as
+    ///                    modification times and ownership).
     pub fn write_layer<P: AsRef<Path>>(
         &self,
         media_type: &MediaType,
         layout_dir: P,
+        deterministic: bool,
     ) -> Result<(String, Descriptor)> {
         if self.items.is_empty() {
             return Ok((
@@ -193,9 +196,9 @@ impl ChangeSet {
 
             let mut archive = tar::Builder::new(&mut layer_writer);
 
-            // Must use deterministic mode to ensure that DiffID does not change when `modified`
-            // timestamp of files / folders differs
-            archive.mode(HeaderMode::Deterministic);
+            if deterministic {
+                archive.mode(HeaderMode::Deterministic);
+            }
 
             // Add an entry for the `dest_dir` (and any of its parent) so that ownership (and other
             // metadata) of `source_dir` is maintained. If not done then there are issues with non-root
@@ -393,7 +396,8 @@ mod tests {
 
         // Create a layer archive, diffid and descriptor
         let changes = snap.changes();
-        let (diff_id, descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
+        let (diff_id, descriptor) =
+            changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir, false)?;
 
         assert_eq!(diff_id.len(), 7 + 64);
         assert!(diff_id.starts_with("sha256:"));
@@ -411,9 +415,8 @@ mod tests {
         Ok(())
     }
 
-    /// Create a DiffID for a change set for the filesystem operations in func,
-    /// each time this is called the DiffID should be the same. Used in tests of
-    /// determinism below.
+    /// Create a DiffID for a change set for the filesystem operations in func, with `deterministic = true`.
+    /// Each time this is called the DiffID should be the same.
     fn create_diff_id(func: fn(&Path)) -> Result<String> {
         let dir = tempdir()?;
 
@@ -422,9 +425,10 @@ mod tests {
         let snapshot = Snapshot::new_with(&dir, "/");
         func(dir.path());
 
-        let (diff_id, ..) = snapshot
-            .changes()
-            .write_layer(&MediaType::ImageLayerGzip, &tempdir()?)?;
+        let (diff_id, ..) =
+            snapshot
+                .changes()
+                .write_layer(&MediaType::ImageLayerGzip, &tempdir()?, true)?;
         Ok(diff_id)
     }
 
