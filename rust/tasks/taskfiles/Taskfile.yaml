@@ -26,6 +26,7 @@ tasks:
   detect:
     desc: Detect which tasks are required for a project
     silent: true
+    ignore_error: true
     cmds:
       - echo "Detecting tasks for $PWD"
       - rm -f .stencila/tasks/detected
@@ -45,3 +46,6 @@ tasks:
 
       - task: r:detect
       - task: renv:detect
+
+      - echo "Detected $(cat .stencila/tasks/detected | wc -l) tasks"
+      - stencila tasks detect --no-run

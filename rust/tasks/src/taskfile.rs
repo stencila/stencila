@@ -243,43 +243,18 @@ impl Taskfile {
     }
 
     /// Initialize tasks in a directory
-    /// 
+    ///
     /// Creates a `Taskfile.yaml` if one does not yet exist, and a `.stencila/tasks/lib` if one does not
     /// yet exist.
-    pub fn init(path: Option<&Path>, inclusion_depth: usize) -> Result<Taskfile> {
+    pub async fn init(path: Option<&Path>, inclusion_depth: usize) -> Result<Taskfile> {
         let path = Self::resolve(path)?;
-
-        let taskfile = match path.exists() {
-            true => Taskfile::read(&path, inclusion_depth)?,
-            false => {
-                let mut taskfile = Taskfile::new(path);
-
-                // Ensure that there is an include entry for the library
-                // Previously we also added individual includes for the lib modules e;.g. `python`, `asdf`.
-                // This avoids having to append `lib:` when running tasks.
-                // However this pollutes the Taskfile and is sensitive to the order of includes - for some
-                // reason `task` crashes when a yaml that includes another yaml is included before the first.
-                if taskfile.includes.get("lib").is_none() {
-                    taskfile.includes.insert(
-                        "lib".to_string(),
-                        Include {
-                            taskfile: ".stencila/tasks/lib".to_string(),
-                            ..Default::default()
-                        },
-                    );
-                }
-
-                // Write the taskfile and then re-read it so that `inclusion_depth` is respected
-                taskfile.write()?;
-                Taskfile::read(taskfile.path(), inclusion_depth)?
-            }
-        };
 
         // Copy all of the embedded taskfiles to .stencila/tasks in the directory
         // We do this, rather than use some other location, so it is easier to commit the taskfiles
         // or bundle up the whole project without breaking running of tasks.
         // Do it before reading the Taskfile to avoid error if included file is missing.
-        let lib = taskfile.dir().join(".stencila").join("tasks").join("lib");
+        let dir = path.parent().expect("Taskfile should always have a parent");
+        let lib = dir.join(".stencila").join("tasks").join("lib");
         if !lib.exists() {
             create_dir_all(&lib)?;
             for name in Taskfiles::iter() {
@@ -291,51 +266,124 @@ impl Taskfile {
             }
         }
 
+        let taskfile = match path.exists() {
+            true => Taskfile::read(&path, inclusion_depth)?,
+            false => {
+                let mut taskfile = Taskfile::new(path);
+
+                // Initialize the taskfile by doing a detect on in.
+                taskfile.detect(true).await?;
+
+                // Write the taskfile and then re-read it so that `inclusion_depth` is respected
+                // e.g. when running tasks for a newly created taskfile
+                taskfile.write()?;
+                Taskfile::read(taskfile.path(), inclusion_depth)?
+            }
+        };
+
         Ok(taskfile)
     }
 
     /// Detect the tasks needed for a directory
-    /// 
+    ///
     /// Updates the Taskfile in the directory (creating one if necessary) with tasks detected
     /// by running the `lib:detect` task.
-    pub async fn detect(dir: Option<&Path>) -> Result<()> {
-        let mut taskfile = Self::init(dir, 0)?;
-
+    pub async fn detect(&mut self, run_task: bool) -> Result<()> {
         // Remove any existing tasks `autogen` includes and tasks
         // If this is not done they may accumulate even if not needed
-        taskfile.includes.retain(|_name, include| !include.autogen);
-        taskfile.tasks.retain(|_name, task| !task.autogen);
+        self.includes.retain(|_name, include| !include.autogen);
+        self.tasks.retain(|_name, task| !task.autogen);
 
-        // Run the library detect task and read the list of detected tasks
-        Task::run_now(taskfile.path(), "lib:detect", Vec::new()).await?;
-        let detected = taskfile
-            .dir()
-            .join(".stencila")
-            .join("tasks")
-            .join("detected");
+        // Ensure that there is an include entry for the library
+        // Previously we also added individual includes for the lib modules e;.g. `python`, `asdf`.
+        // This avoids having to append `lib:` when running tasks.
+        // However, this pollutes the Taskfile and is sensitive to the order of includes - for some
+        // reason `task` crashes when a yaml that includes another yaml is included before the first.
+        if self.includes.get("lib").is_none() {
+            self.includes.insert(
+                "lib".to_string(),
+                Include {
+                    taskfile: ".stencila/tasks/lib".to_string(),
+                    autogen: true,
+                    ..Default::default()
+                },
+            );
+        }
+
+        // Add a `detect` command if necessary
+        if !self.tasks.contains_key("detect") {
+            self
+                .tasks
+                .insert("detect".to_string(), Task {
+                    desc: Some("Detect which tasks are required".to_string()),
+                    summary: Some(
+                        "Autogenerated task which analyzes the files in the project and determines which tasks are required to build it."
+                            .to_string(),
+                    ),
+                    autogen: true,
+                    cmds: vec![
+                        Command::task("lib:detect")
+                    ],
+                    ..Default::default()
+                });
+        }
+
+        // Run the Taskfile's detect task
+        if run_task {
+            self.write()?;
+            Task::run_now(self.path(), "detect", Vec::new()).await?;
+        }
+
+        // Read in the detected tasks
+        let detected = self.dir().join(".stencila").join("tasks").join("detected");
         let tasks = read_to_string(&detected).unwrap_or_default();
 
+        // Group detected tasks into "meta" tasks
+        let mut pull_cmds = Vec::new();
         let mut install_cmds = Vec::new();
         for task in tasks.lines() {
-            if let Some((_name, action)) = task.splitn(2, ':').collect_tuple() {
-                if action == "install" {
-                    install_cmds.push(Command {
-                        task: Some(["lib:", task].concat()),
-                        ..Default::default()
-                    })
+            if let Some((_namespace, action)) = task.splitn(2, ':').collect_tuple() {
+                if action == "pull" {
+                    pull_cmds.push(Command::task(&["lib:", task].concat()))
+                } else if action == "install" {
+                    install_cmds.push(Command::task(&["lib:", task].concat()))
                 }
             }
         }
 
         let mut build_cmds = Vec::new();
 
-        if !install_cmds.is_empty() && !taskfile.tasks.contains_key("install") {
-            taskfile.tasks.insert(
+        // Add a `pull` command if necessary
+        if !pull_cmds.is_empty() && !self.tasks.contains_key("install") {
+            self.tasks.insert(
+                "pull".to_string(),
+                Task {
+                    desc: Some("Pull the project and its sources".to_string()),
+                    summary: Some(
+                        "Autogenerated task which pulls the project, and any sources, from providers."
+                            .to_string(),
+                    ),
+                    autogen: true,
+                    cmds: pull_cmds,
+                    ..Default::default()
+                },
+            );
+            build_cmds.push(Command::task("pull"))
+        }
+
+        // If there is a detect task, all it to the build commands, after `pull`
+        if self.tasks.contains_key("detect") {
+            build_cmds.push(Command::task("detect"))
+        }
+
+        // Add an `install` command if necessary
+        if !install_cmds.is_empty() && !self.tasks.contains_key("install") {
+            self.tasks.insert(
                 "install".to_string(),
                 Task {
-                    desc: Some("Install tools and packages for the project".to_string()),
+                    desc: Some("Install tools and packages".to_string()),
                     summary: Some(
-                        "Autogenerated task to run all install tasks that were detected."
+                        "Autogenerated task which runs all install tasks that were detected for the project."
                             .to_string(),
                     ),
                     autogen: true,
@@ -343,28 +391,29 @@ impl Taskfile {
                     ..Default::default()
                 },
             );
-            build_cmds.push(Command {
-                task: Some("install".to_string()),
-                ..Default::default()
-            })
+            build_cmds.push(Command::task("install"))
         }
 
-        if !build_cmds.is_empty() && !taskfile.tasks.contains_key("build") {
-            taskfile.tasks.insert(
+        let mut run_cmds = Vec::new();
+
+        // Add a `build` command if necessary
+        if !build_cmds.is_empty() && !self.tasks.contains_key("build") {
+            self.tasks.insert(
                 "build".to_string(),
                 Task {
                     desc: Some("Build the project".to_string()),
                     summary: Some(
-                        "Autogenerated task to run other tasks to build the project.".to_string(),
+                        "Autogenerated task which runs all build tasks that were detected for the project.".to_string(),
                     ),
                     autogen: true,
                     cmds: build_cmds,
                     ..Default::default()
                 },
             );
+            run_cmds.push(Command::task("build"))
         }
 
-        taskfile.write()
+        self.write()
     }
 
     /// Run one or more tasks in the Taskfile
@@ -385,7 +434,7 @@ impl Taskfile {
             bail!("No arguments provided to `task run`")
         }
 
-        let taskfile = Self::init(path, 2)?;
+        let taskfile = Self::init(path, 2).await?;
 
         // Parse the args into name of task and its vars
         let mut task: String = String::new();
@@ -820,6 +869,7 @@ impl Task {
             && self.deps.is_empty()
     }
 
+    /// Run this task
     #[allow(clippy::too_many_arguments)]
     pub async fn run(
         &self,
@@ -1627,6 +1677,14 @@ pub struct Command {
 }
 
 impl Command {
+    /// Create a new command with only the `task` attribute
+    fn task(task: &str) -> Self {
+        Self {
+            task: Some(task.to_string()),
+            ..Default::default()
+        }
+    }
+
     /// Is this command simple (only has `cmd`)?
     fn is_simple(&self) -> bool {
         self.cmd.is_some()

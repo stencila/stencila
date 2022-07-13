@@ -22,9 +22,9 @@ pub struct Command {
 #[derive(Parser)]
 pub enum Action {
     Init(Init),
-    Detect(Detect),
     List(List),
     Run(Run_),
+    Detect(Detect),
     Docs(Docs),
 }
 
@@ -33,12 +33,20 @@ impl Run for Command {
     async fn run(&self) -> Result {
         match &self.action {
             Action::Init(action) => action.run().await,
-            Action::Detect(action) => action.run().await,
             Action::List(action) => action.run().await,
             Action::Run(action) => action.run().await,
+            Action::Detect(action) => action.run().await,
             Action::Docs(action) => action.run().await,
         }
     }
+}
+
+/// Reusable argument for the path of the Taskfile
+#[derive(Parser)]
+struct TaskfileOption {
+    /// The Taskfile to use (defaults to the current)
+    #[clap(short = 'f', long)]
+    taskfile: Option<PathBuf>,
 }
 
 /// Initialize a tasks for a directory
@@ -53,33 +61,8 @@ pub struct Init {
 #[async_trait]
 impl Run for Init {
     async fn run(&self) -> Result {
-        let taskfile = Taskfile::init(self.dir.as_deref(), 0)?;
+        let taskfile = Taskfile::init(self.dir.as_deref(), 0).await?;
         result::value(taskfile)
-    }
-}
-
-/// Reusable argument for the path of the Taskfile
-#[derive(Parser)]
-struct TaskfileArg {
-    /// The Taskfile to use (defaults to the current)
-    #[clap(short = 'f', long)]
-    taskfile: Option<PathBuf>,
-}
-
-/// Detect which dependencies and tasks are required
-#[derive(Parser)]
-pub struct Detect {
-    /// The directory to refresh the Taskfile for
-    ///
-    /// If the directory does not yet have a Taskfile one will be created
-    dir: Option<PathBuf>,
-}
-
-#[async_trait]
-impl Run for Detect {
-    async fn run(&self) -> Result {
-        Taskfile::detect(self.dir.as_deref()).await?;
-        result::nothing()
     }
 }
 
@@ -104,13 +87,13 @@ pub struct List {
     action: Option<String>,
 
     #[clap(flatten)]
-    taskfile: TaskfileArg,
+    taskfile: TaskfileOption,
 }
 
 #[async_trait]
 impl Run for List {
     async fn run(&self) -> Result {
-        let taskfile = Taskfile::init(self.taskfile.taskfile.as_deref(), 2)?;
+        let taskfile = Taskfile::init(self.taskfile.taskfile.as_deref(), 2).await?;
         let tasks = taskfile
             .tasks
             .into_iter()
@@ -195,7 +178,7 @@ pub struct Run_ {
     delay: Option<u64>,
 
     #[clap(flatten)]
-    taskfile: TaskfileArg,
+    taskfile: TaskfileOption,
 
     /// An internal, hidden option used to contextualize error messages
     /// when used as a fallback command
@@ -223,6 +206,31 @@ impl Run for Run_ {
                 None => Err(error),
             },
         }
+    }
+}
+
+/// Detect which tasks are required by a project
+///
+/// This command is equivalent to `stencila tasks run detect`. It is mostly used
+/// internally as a "callback" to update the Taskfile at the end of the `detect`
+/// task with the `--no-run` option to avoid recursively running the task.
+#[derive(Parser)]
+pub struct Detect {
+    #[clap(flatten)]
+    taskfile: TaskfileOption,
+
+    /// Do not run the `detect` task, only read the detect tasks produced by
+    /// a previous run of that task.
+    #[clap(long)]
+    no_run: bool,
+}
+
+#[async_trait]
+impl Run for Detect {
+    async fn run(&self) -> Result {
+        let mut taskfile = Taskfile::init(self.taskfile.taskfile.as_deref(), 0).await?;
+        taskfile.detect(!self.no_run).await?;
+        result::nothing()
     }
 }
 
