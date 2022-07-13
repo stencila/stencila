@@ -28,10 +28,6 @@ use crate::{
 #[derive(Serialize)]
 #[serde(crate = "common::serde")]
 pub struct Image {
-    /// The [`ChangeSet`]s used to generate each image layer
-    #[serde(skip)]
-    change_sets: Vec<ChangeSet>,
-
     /// The image reference for this image
     reference: ImageReference,
 
@@ -40,7 +36,22 @@ pub struct Image {
     /// Equivalent to the `FROM` directive of a Dockerfile.
     base: ImageReference,
 
-    /// The format used when writing layers
+    /// The [`ChangeSet`]s used to generate each image layer
+    #[serde(skip)]
+    change_sets: Vec<ChangeSet>,
+
+    /// Whether to pull and write layers of the base image when writing this image
+    ///
+    /// Defaults to `false` as an optimization: the image is usually pushed to a registry that 
+    /// will usually already have the base layers and if it does not, only then
+    /// will the base layers be pulled and forwarded to the registry.
+    pull_base: bool,
+
+    /// Whether to make the layers for each change set deterministic (i.e. ignore file
+    /// modification time and other metadata)
+    deterministic_layers: bool,
+
+    /// The format used when writing layers for each change set
     layer_format: MediaType,
 
     /// The format for the image manifest
@@ -88,6 +99,8 @@ impl Image {
             change_sets,
             reference,
             base,
+            pull_base: false,
+            deterministic_layers: false,
             layer_format,
             manifest_format,
         })
@@ -130,13 +143,19 @@ impl Image {
         let mut diff_ids = base_config.rootfs().diff_ids().clone();
         let mut histories = base_config.history().clone();
 
-        let client = Client::new(&self.base.registry, &self.base.repository, None).await?;
-        for layer in &layers {
-            client.pull_blob_via(layer, None).await?
+        if self.pull_base {
+            let client = Client::new(&self.base.registry, &self.base.repository, None).await?;
+            for layer in &layers {
+                client.pull_blob_via(layer, Some(layout_dir)).await?
+            }
         }
 
         for change_set in &self.change_sets {
-            let (diff_id, layer) = change_set.write_layer(&self.layer_format, layout_dir, false)?;
+            let (diff_id, layer) = change_set.write_layer(
+                &self.layer_format,
+                layout_dir,
+                self.deterministic_layers,
+            )?;
 
             if diff_id == "<empty>" {
                 continue;
