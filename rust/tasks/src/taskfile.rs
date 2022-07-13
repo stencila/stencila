@@ -422,8 +422,8 @@ impl Taskfile {
     /// desired task is available before spawning `task`. If not present, then attempts
     /// to resolve it by pre-pending `lib:` to the name.
     pub async fn run(
+        &self,
         args: &Vec<String>,
-        path: Option<&Path>,
         now: bool,
         schedule: Option<&str>,
         watch: Option<&str>,
@@ -433,8 +433,6 @@ impl Taskfile {
         if args.is_empty() {
             bail!("No arguments provided to `task run`")
         }
-
-        let taskfile = Self::init(path, 2).await?;
 
         // Parse the args into name of task and its vars
         let mut task: String = String::new();
@@ -454,12 +452,12 @@ impl Taskfile {
             }
 
             if !next_task.is_empty() || index == args.len() {
-                let name = if !taskfile.tasks.contains_key(&task) {
+                let name = if !self.tasks.contains_key(&task) {
                     let lib_task = ["lib:", &task].concat();
                     let lib_util_task = ["lib:util:", &task].concat();
-                    if taskfile.tasks.contains_key(&lib_task) {
+                    if self.tasks.contains_key(&lib_task) {
                         lib_task
-                    } else if taskfile.tasks.contains_key(&lib_util_task) {
+                    } else if self.tasks.contains_key(&lib_util_task) {
                         lib_util_task
                     } else {
                         bail!(
@@ -473,9 +471,9 @@ impl Taskfile {
                     task.to_string()
                 };
 
-                if let Some(task) = taskfile.tasks.get(&name) {
+                if let Some(task) = self.tasks.get(&name) {
                     task.run(
-                        taskfile.path(),
+                        self.path(),
                         &name,
                         vars.clone(),
                         now,
@@ -922,7 +920,7 @@ impl Task {
         let name_clone = name.to_string();
         tokio::spawn(async move {
             while let Some(..) = run_receiver.recv().await {
-                tracing::info!("Received run event for task `{}`", name_clone);
+                tracing::debug!("Received run event for task `{}`", name_clone);
                 if let Err(error) = Task::run_now(&path_clone, &name_clone, vars.clone()).await {
                     tracing::error!("While running task {}: {}", name_clone, error)
                 }
@@ -1078,7 +1076,8 @@ impl Task {
     pub async fn run_now(path: &Path, name: &str, mut vars: Vec<String>) -> Result<()> {
         tracing::debug!("Running task `{}` of `{}`", name, path.display());
 
-        let binary = TaskBinary {}.ensure().await?;
+        let mut binary = TaskBinary {}.ensure().await?;
+        binary.env_list(&[("TASK_TEMP_DIR", "./.stencila/tasks")]);
 
         let mut task_args = vec![format!("--taskfile={}", path.display()), name.to_string()];
         task_args.append(&mut vars);

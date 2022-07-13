@@ -189,16 +189,17 @@ pub struct Run_ {
 #[async_trait]
 impl Run for Run_ {
     async fn run(&self) -> Result {
-        match Taskfile::run(
-            &self.tasks,
-            self.taskfile.taskfile.as_deref(),
-            self.now,
-            self.schedule.as_deref(),
-            self.watch.as_deref(),
-            self.ignore.as_deref(),
-            self.delay,
-        )
-        .await
+        let taskfile = Taskfile::init(self.taskfile.taskfile.as_deref(), 2).await?;
+        match taskfile
+            .run(
+                &self.tasks,
+                self.now,
+                self.schedule.as_deref(),
+                self.watch.as_deref(),
+                self.ignore.as_deref(),
+                self.delay,
+            )
+            .await
         {
             Ok(..) => result::nothing(),
             Err(error) => match &self.error_prefix {
