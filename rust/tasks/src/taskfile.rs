@@ -11,7 +11,7 @@ use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use rust_embed::RustEmbed;
 
 use binary_task::{BinaryTrait, TaskBinary};
-use cloud::projects::project_read;
+use cloud::ProjectLocal;
 use common::{
     defaults::Defaults,
     eyre::{bail, eyre, Result},
@@ -295,16 +295,18 @@ impl Taskfile {
             .append(true)
             .open(dir.join(".stencila").join("tasks").join("detected"))?;
 
-        let project_maybe = match project_read(dir) {
+        let project_maybe = match ProjectLocal::read(dir) {
             Ok(option) => option,
             Err(error) => {
                 tracing::warn!("While attempting to read project file: {}", error);
                 None
             }
         };
-        if let Some((.., project)) = project_maybe {
+        if let Some(project) = project_maybe {
             if project.id.is_some() {
                 detected.write_all("stencila project pull\n".as_bytes())?;
+                // Always pull sources (do not make conditional on if there were sources)
+                detected.write_all("stencila sources pull\n".as_bytes())?;
             }
         }
 

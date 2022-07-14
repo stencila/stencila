@@ -660,14 +660,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "buildpack-sources"
-version = "0.0.0"
-dependencies = [
- "buildpack",
- "sources",
-]
-
-[[package]]
 name = "buildpack-stencila"
 version = "0.0.0"
 dependencies = [
@@ -686,7 +678,6 @@ dependencies = [
  "buildpack-node",
  "buildpack-python",
  "buildpack-r",
- "buildpack-sources",
  "buildpack-stencila",
  "bytes",
  "cli-utils",
@@ -1055,9 +1046,13 @@ version = "0.0.0"
 dependencies = [
  "cli-utils",
  "common",
+ "cron-utils",
+ "files",
  "fs-utils",
  "http-utils",
  "key-utils",
+ "providers",
+ "stencila-schema",
  "webbrowser",
 ]
 
@@ -6172,18 +6167,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sources"
-version = "0.0.0"
-dependencies = [
- "common",
- "cron-utils",
- "files",
- "graph-triples",
- "providers",
- "stencila-schema",
-]
-
-[[package]]
 name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6222,7 +6205,6 @@ version = "1.13.2"
 dependencies = [
  "async-recursion 1.0.0",
  "binaries",
- "buildpacks",
  "cli-utils",
  "cloud",
  "codecs",
@@ -6261,7 +6243,6 @@ dependencies = [
  "schemars",
  "self_update",
  "server-next",
- "sources",
  "stencila-schema",
  "sudo",
  "tasks",

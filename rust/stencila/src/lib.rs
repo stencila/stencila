@@ -9,7 +9,6 @@ pub mod documents;
 pub use kernels;
 pub mod projects;
 pub mod sessions;
-pub mod sources;
 
 // Features
 //

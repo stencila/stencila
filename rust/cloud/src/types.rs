@@ -2,6 +2,8 @@
 //!
 //! To avoid drift, prefer to only only add properties that are needed here to these structs.
 
+use std::path::PathBuf;
+
 use cli_utils::table::{date_time_ago, option_date_time_ago, option_string, Table};
 use common::{
     chrono::{DateTime, Utc},
@@ -9,6 +11,8 @@ use common::{
     serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
 };
+
+use crate::sources::Sources;
 
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize, Table)]
@@ -261,9 +265,12 @@ fn team_member_table_display(user: &User) -> String {
 }
 
 #[skip_serializing_none]
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[derive(Default, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase", crate = "common::serde")]
 pub struct ProjectLocal {
+    #[serde(skip)]
+    pub(crate) path: PathBuf,
+
     pub id: Option<u64>,
 
     pub name: Option<String>,
@@ -275,6 +282,9 @@ pub struct ProjectLocal {
     /// Uses `public` rather than `isPublic` as used on Stencila Cloud.
     #[serde(alias = "isPublic")]
     pub public: Option<bool>,
+
+    #[serde(skip_serializing_if = "Sources::is_empty")]
+    pub sources: Sources,
 }
 
 #[skip_serializing_none]

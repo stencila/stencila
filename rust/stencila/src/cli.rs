@@ -21,8 +21,7 @@ use crate::{
         config::{LoggingConfig, LoggingStdErrConfig},
         LoggingFormat, LoggingLevel,
     },
-    projects::PROJECTS,
-    sources,
+    projects::PROJECTS
 };
 
 /// Stencila command line tool
@@ -140,11 +139,15 @@ pub enum Command {
     #[clap(aliases = &["document", "docs", "doc"])]
     Documents(documents::commands::Command),
 
+    #[clap(aliases = &["project"])]
+    Projects(cloud::projects::cli::Command),
+    
+    #[clap(aliases = &["source"])]
+    Sources(cloud::sources::cli::Command),
+
     #[clap(aliases = &["tasks"])]
     Tasks(tasks::cli::Command),
 
-    Projects(cloud::projects::cli::Command),
-    Sources(sources::commands::Command),
     Orgs(cloud::orgs::cli::Command),
     Teams(cloud::teams::cli::Command),
     Users(cloud::users::cli::Command),
@@ -168,10 +171,6 @@ pub enum Command {
     #[cfg(feature = "providers-cli")]
     #[clap(aliases = &["provider"])]
     Providers(providers::commands::Command),
-
-    #[cfg(feature = "buildpacks-cli")]
-    #[clap(aliases = &["buildpack"])]
-    Buildpacks(buildpacks::cli::Command),
 
     #[cfg(feature = "images-cli")]
     #[clap(aliases = &["image"])]

@@ -7,21 +7,18 @@ use std::{
 use common::{
     defaults::Defaults,
     eyre::{bail, Result},
-    futures,
     futures::future,
     serde::{Deserialize, Serialize},
     serde_json,
     serde_with::skip_serializing_none,
-    tokio::{self, sync::mpsc},
+    strum::VariantNames,
     tracing,
 };
 use files::{File, Files};
-use graph_triples::{
-    relations::{self, NULL_RANGE},
-    resources, Resource, Triple,
-};
 use providers::provider::{ImportOptions, WatchMode};
 use stencila_schema::Node;
+
+use crate::types::ProjectLocal;
 
 /// A source-destination combination
 ///
@@ -68,11 +65,6 @@ pub struct Source {
     /// A list of file paths currently associated with the source (relative to the project root)
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub files: Vec<PathBuf>,
-
-    /// A running cron task
-    #[serde(skip)]
-    #[def = "None"]
-    cron_task: Option<SourceTask>,
 }
 
 #[skip_serializing_none]
@@ -100,16 +92,6 @@ pub struct SourceCron {
 pub struct SourceWatch {
     /// The synchronization mode
     mode: Option<WatchMode>,
-}
-
-#[derive(Debug, Clone)]
-struct SourceTask {
-    /// The channel sender used to cancel the source task
-    ///
-    /// Note that if the source is dropped (ie. removed from a list of sources) with a running task
-    /// then this canceller will be dropped and so the task will also end (an explicit `.send()`
-    /// is not required).
-    canceller: mpsc::Sender<()>,
 }
 
 impl Source {
@@ -226,26 +208,6 @@ impl Source {
         Ok(())
     }
 
-    /// Create a graph resource for the source
-    pub fn resource(&self) -> Resource {
-        resources::url(&self.url)
-    }
-
-    /// Create a set of graph triples describing relation between the source it's associated files.
-    pub fn triples(&self, project: &Path) -> Vec<Triple> {
-        let this = self.resource();
-        self.files
-            .iter()
-            .map(|file| {
-                (
-                    this.clone(),
-                    relations::imports(NULL_RANGE),
-                    resources::file(&project.join(file)),
-                )
-            })
-            .collect()
-    }
-
     /// Import the source
     ///
     /// # Arguments
@@ -285,38 +247,6 @@ impl Source {
 
         Ok(files.collect())
     }
-
-    /// Start a cron for the source
-    pub async fn start(&mut self, dest: &Path) -> Result<()> {
-        let cron = match (&self.cron, &self.cron_task) {
-            (Some(cron), None) => cron,
-            _ => return Ok(()),
-        };
-
-        tracing::info!("Starting cron task for source `{}`", self.label());
-        let action = cron.action.clone().unwrap_or_default();
-        let schedule = cron.schedule.clone();
-        let (.., node) = providers::resolve(&self.url).await?;
-        let dest = dest.to_path_buf();
-        let (canceller, cancellee) = mpsc::channel(1);
-        tokio::spawn(
-            async move { providers::cron(&node, &dest, &action, &schedule, cancellee).await },
-        );
-        self.cron_task = Some(SourceTask { canceller });
-
-        Ok(())
-    }
-
-    /// Stop the cron task for the source (if started)
-    pub async fn stop(&mut self) -> Result<()> {
-        if let Some(task) = &self.cron_task {
-            tracing::info!("Stopping cron task for source `{}`", self.label());
-            task.canceller.send(()).await?
-        }
-        self.cron_task = None;
-
-        Ok(())
-    }
 }
 
 /// A set of sources, usually associated with a project
@@ -325,16 +255,14 @@ impl Source {
 pub struct Sources {
     /// The list of sources
     pub inner: Vec<Source>,
-
-    /// If in a running state, the path that cron and watch tasks were started with
-    ///
-    /// If tasks are running then any new sources that are added will have
-    /// tasks automatically started for them.
-    #[serde(skip)]
-    running: Option<PathBuf>,
 }
 
 impl Sources {
+    /// Are there any sources?
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
+
     /// Return a list of sources
     pub fn list(&self) -> Vec<String> {
         self.inner.iter().map(|source| source.label()).collect()
@@ -366,7 +294,7 @@ impl Sources {
     ///
     /// If the `start` method has been called previously then the sources are in a "running"
     /// state and the `start` will be called on the source.
-    pub async fn add(&mut self, mut source: Source) -> Result<()> {
+    pub async fn add(&mut self, source: Source) -> Result<()> {
         let source_dest = source.dest.clone().unwrap_or_else(|| PathBuf::from("."));
         for existing in self.inner.iter() {
             if let (Some(existing_name), Some(source_name)) = (&existing.name, &source.name) {
@@ -385,9 +313,6 @@ impl Sources {
             if existing.url == source.url {
                 tracing::warn!("There is already a source with the URL `{}`", source.url);
             }
-        }
-        if let Some(path) = &self.running {
-            source.start(path).await?;
         }
         self.inner.push(source);
 
@@ -410,8 +335,7 @@ impl Sources {
             .iter()
             .position(|source| source.matches(identifier))
         {
-            let mut removed = self.inner.remove(index);
-            removed.stop().await?;
+            let removed = self.inner.remove(index);
             return Ok(removed);
         }
 
@@ -429,45 +353,209 @@ impl Sources {
         let futures = self.inner.iter().map(|source| {
             let source = source.clone();
             let path = path.to_path_buf();
-            tokio::spawn(async move { source.import(&path).await })
+            async move { source.import(&path).await }
         });
         future::try_join_all(futures).await?;
 
         Ok(())
     }
+}
 
-    /// Import all sources synchronously
-    ///
-    /// # Arguments
-    ///
-    /// - `path`: The path to import the sources into (usually a project directory)
-    ///
-    /// Imports sources in parallel but blocks until all are complete.
-    pub fn import_sync(&self, path: &Path) -> Result<()> {
-        futures::executor::block_on(async { self.import(path).await })
+pub mod cli {
+    use super::*;
+
+    use cli_utils::{
+        clap::{self, Parser},
+        result, Result, Run,
+    };
+    use common::{async_trait::async_trait, serde_json, tempfile, tracing};
+
+    /// Manage and use project sources
+    #[derive(Parser)]
+    pub struct Command {
+        #[clap(subcommand)]
+        pub action: Action,
     }
 
-    /// Start cron and/or watch tasks for each source
-    pub async fn start(&mut self, path: &Path) -> Result<()> {
-        for source in self.inner.iter_mut() {
-            let dest = match &source.dest {
-                Some(dest) => path.join(dest),
-                None => path.to_path_buf(),
+    #[derive(Parser)]
+    pub enum Action {
+        List(List),
+        Show(Show),
+        Add(Add),
+        Remove(Remove),
+        Pull(Pull),
+    }
+
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
+            match &self.action {
+                Action::List(action) => action.run().await,
+                Action::Show(action) => action.run().await,
+                Action::Add(action) => action.run().await,
+                Action::Remove(action) => action.run().await,
+                Action::Pull(action) => action.run().await,
+            }
+        }
+    }
+
+    /// List the sources for a project
+    #[derive(Parser)]
+    pub struct List {
+        /// The project to list sources for (defaults to the current project)
+        project: Option<PathBuf>,
+    }
+
+    #[async_trait]
+    impl Run for List {
+        async fn run(&self) -> Result {
+            let project = ProjectLocal::current()?;
+            let sources = project.sources.list();
+
+            result::value(sources)
+        }
+    }
+
+    /// Show a source for a project
+    #[derive(Parser)]
+    pub struct Show {
+        /// An identifier for the source
+        source: String,
+
+        /// The project that the source belongs to (defaults to the current project)
+        project: Option<PathBuf>,
+    }
+
+    #[async_trait]
+    impl Run for Show {
+        async fn run(&self) -> Result {
+            let project = ProjectLocal::current()?;
+            let source = project.sources.find(&self.source)?;
+
+            result::value(source)
+        }
+    }
+
+    /// Add a source to a project
+    ///
+    /// Does not import the source use the `import` command for that.
+    #[derive(Parser)]
+    pub struct Add {
+        /// The URL (or "short URL" e.g github:owner/repo@v1.1) of the source to be added
+        url: String,
+
+        /// The path to import the source to
+        dest: Option<PathBuf>,
+
+        /// The project to add the source to (defaults to the current project)
+        project: Option<PathBuf>,
+
+        /// The name to give the source
+        #[clap(long, short)]
+        name: Option<String>,
+
+        /// A cron schedule for the source
+        #[clap(long, short)]
+        cron: Option<String>,
+
+        /// A watch mode for the source
+        #[clap(long, short, possible_values = WatchMode::VARIANTS)]
+        watch: Option<WatchMode>,
+
+        /// Do a dry run of adding the source
+        ///
+        /// Parses the input URL and other arguments into a source but does not add it, or the
+        /// files that it imports, to the project. Useful for checking URL and cron formats
+        /// and previewing the files that will be imported.
+        #[clap(long)]
+        dry_run: bool,
+    }
+
+    #[async_trait]
+    impl Run for Add {
+        async fn run(&self) -> Result {
+            let mut project = ProjectLocal::current()?;
+
+            let source = Source::new(
+                self.url.clone(),
+                self.name.clone(),
+                self.dest.clone(),
+                self.cron.clone(),
+                self.watch.clone(),
+            )
+            .await?;
+
+            let temp_dir = tempfile::tempdir()?;
+            let path = match self.dry_run {
+                true => temp_dir.path(),
+                false => project.dir(),
             };
-            source.start(&dest).await?;
-        }
-        self.running = Some(path.to_path_buf());
+            let files = source.import(path).await?;
 
-        Ok(())
+            if !self.dry_run {
+                project.sources.add(source.clone()).await?;
+                project.write()?;
+            }
+
+            tracing::info!("Added source to project");
+            result::value(serde_json::json!({
+                "source": source,
+                "files": files
+            }))
+        }
     }
 
-    /// Stop any cron or watch tasks for each source
-    pub async fn stop(&mut self) -> Result<()> {
-        for source in self.inner.iter_mut() {
-            source.stop().await?;
-        }
-        self.running = None;
+    /// Remove a source from a project
+    ///
+    /// Note that this will remove all files imported from this source.
+    #[derive(Parser)]
+    pub struct Remove {
+        /// An identifier for the source
+        source: String,
 
-        Ok(())
+        /// The project to remove the source from (defaults to the current project)
+        project: Option<PathBuf>,
+    }
+
+    #[async_trait]
+    impl Run for Remove {
+        async fn run(&self) -> Result {
+            let mut project = ProjectLocal::current()?;
+            let source = project.sources.remove(&self.source).await?;
+            project.write()?;
+
+            tracing::info!("Removed source from project");
+            result::value(source)
+        }
+    }
+
+    /// Pull one or all of a project's sources
+    #[derive(Parser)]
+    pub struct Pull {
+        /// The project to import the source into (defaults to the current project)
+        project: Option<PathBuf>,
+
+        /// An identifier for the source to import
+        ///
+        /// Only the first source matching this identifier will be imported.
+        #[clap(long, short)]
+        source: Option<String>,
+    }
+
+    #[async_trait]
+    impl Run for Pull {
+        async fn run(&self) -> Result {
+            let project = ProjectLocal::current()?;
+            if let Some(source) = &self.source {
+                let source = project.sources.find(source)?;
+                source.import(project.dir()).await?;
+                tracing::info!("Imported source `{}`", source.label());
+            } else {
+                project.sources.import(project.dir()).await?;
+                tracing::info!("Imported all sources");
+            }
+
+            result::nothing()
+        }
     }
 }

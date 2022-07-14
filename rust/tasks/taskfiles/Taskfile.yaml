@@ -1,9 +1,6 @@
 version: '3'
 
 includes:
-  project: project.yaml
-  sources: sources.yaml
-
   apt: apt.yaml
   asdf: asdf.yaml
   brew: brew.yaml
@@ -32,6 +29,8 @@ tasks:
       - rm -f .stencila/tasks/detected
       - mkdir -p .stencila/tasks
 
+      - stencila tasks detect
+
       - task: podman:detect
 
       - task: apt:detect
@@ -47,5 +46,5 @@ tasks:
       - task: r:detect
       - task: renv:detect
 
-      - echo "Detected $(cat .stencila/tasks/detected | wc -l) tasks"
-      - stencila tasks detect --no-run
+      - echo "Detected $(cat .stencila/tasks/detected | wc -l) tasks, updating Taskfile"
+      - stencila tasks update
