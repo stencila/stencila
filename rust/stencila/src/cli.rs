@@ -21,7 +21,7 @@ use crate::{
         config::{LoggingConfig, LoggingStdErrConfig},
         LoggingFormat, LoggingLevel,
     },
-    projects::PROJECTS
+    projects::PROJECTS,
 };
 
 /// Stencila command line tool
@@ -58,11 +58,11 @@ pub struct Cli {
     pub debug: bool,
 
     /// The minimum log level to print
-    #[clap(long, global = true, possible_values = LoggingLevel::VARIANTS, ignore_case = true)]
+    #[clap(long, global = true, possible_values = LoggingLevel::VARIANTS, ignore_case = true, env = "STENCILA_LOG_LEVEL")]
     pub log_level: Option<LoggingLevel>,
 
     /// The format to print log events
-    #[clap(long, global = true, possible_values = LoggingFormat::VARIANTS, ignore_case = true)]
+    #[clap(long, global = true, possible_values = LoggingFormat::VARIANTS, ignore_case = true, env = "STENCILA_LOG_FORMAT")]
     pub log_format: Option<LoggingFormat>,
 }
 
@@ -141,7 +141,7 @@ pub enum Command {
 
     #[clap(aliases = &["project"])]
     Projects(cloud::projects::cli::Command),
-    
+
     #[clap(aliases = &["source"])]
     Sources(cloud::sources::cli::Command),
 
@@ -534,7 +534,13 @@ pub async fn main() -> eyre::Result<()> {
             format: if debug {
                 LoggingFormat::Detail
             } else {
-                log_format.unwrap_or(logging_config.stderr.format)
+                log_format.unwrap_or_else(|| {
+                    if !stderr_isatty() {
+                        LoggingFormat::Json
+                    } else {
+                        logging_config.stderr.format
+                    }
+                })
             },
         },
         ..logging_config

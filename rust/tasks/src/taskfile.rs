@@ -1133,7 +1133,10 @@ impl Task {
         tracing::debug!("Running task `{}` of `{}`", name, path.display());
 
         let mut binary = TaskBinary {}.ensure().await?;
-        binary.env_list(&[("TASK_TEMP_DIR", "./.stencila/tasks")]);
+        binary.env_list(&[
+            ("STENCILA_LOG_FORMAT", "json"),
+            ("TASK_TEMP_DIR", "./.stencila/tasks"),
+        ]);
 
         let mut task_args = vec![format!("--taskfile={}", path.display()), name.to_string()];
         task_args.append(&mut vars);
@@ -1157,6 +1160,8 @@ impl Task {
             .run_with(
                 task_args,
                 Some(tracing::Level::INFO),
+                // The `task` binary output diagnostics such as which task is running
+                // so the default level here should be INFO, not ERROR
                 Some(tracing::Level::INFO),
             )
             .await;

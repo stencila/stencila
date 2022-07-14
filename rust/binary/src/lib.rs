@@ -19,6 +19,7 @@ use common::{
     dirs,
     eyre::{bail, eyre, Context, Result},
     glob,
+    once_cell::sync::Lazy,
     regex::Regex,
     serde::{self, Serialize},
     serde_json,
@@ -1118,7 +1119,8 @@ impl BinaryInstallation {
             let name = self.name.clone();
             tokio::spawn(async move {
                 while let Ok(Some(line)) = stderr_reader.next_line().await {
-                    // Attempt to parse the line as a JSON log object and get the level and message from there
+                    // Attempt to parse the line as a JSON log object and get the level and message from there.
+                    // If that fails then attempt to determine the log level from presence of 'error', 'warn' etc
                     // This allows for better integration with tools such as Stencila itself which output
                     // structured logs when stderr is not a TTY.
                     let (level, message) = match serde_json::from_str::<serde_json::Value>(&line) {
@@ -1144,7 +1146,30 @@ impl BinaryInstallation {
                                 .unwrap_or_else(|| line.clone());
                             (level, message)
                         }
-                        Err(..) => (level, line),
+                        Err(..) => {
+                            static ERROR_REGEX: Lazy<Regex> = Lazy::new(|| {
+                                Regex::new(r"^[^\w]*(?i)error[^\w]+(.*)")
+                                    .expect("Unable to create regex")
+                            });
+                            static WARN_REGEX: Lazy<Regex> = Lazy::new(|| {
+                                Regex::new(r"^[^\w]*(?i)(?:warn|warning)[^\w]+(.*)")
+                                    .expect("Unable to create regex")
+                            });
+                            static INFO_REGEX: Lazy<Regex> = Lazy::new(|| {
+                                Regex::new(r"^[^\w]*(?i)info[^\w]+(.*)")
+                                    .expect("Unable to create regex")
+                            });
+
+                            if let Some(captures) = ERROR_REGEX.captures(&line) {
+                                (tracing::Level::ERROR, captures[1].to_string())
+                            } else if let Some(captures) = WARN_REGEX.captures(&line) {
+                                (tracing::Level::WARN, captures[1].to_string())
+                            } else if let Some(captures) = INFO_REGEX.captures(&line) {
+                                (tracing::Level::INFO, captures[1].to_string())
+                            } else {
+                                (level, line)
+                            }
+                        }
                     };
 
                     match level {
