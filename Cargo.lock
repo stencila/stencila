@@ -6459,6 +6459,7 @@ version = "0.0.0"
 dependencies = [
  "binary-task",
  "cli-utils",
+ "cloud",
  "common",
  "cron-utils",
  "fs2",

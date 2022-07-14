@@ -9,6 +9,7 @@ cli = ["cli-utils"]
 
 [dependencies]
 binary-task = { path = "../binary-task" }
+cloud = { path = "../cloud" }
 common = { path = "../common" }
 cron-utils = { path = "../cron-utils" }
 fs2 = "0.4.3"

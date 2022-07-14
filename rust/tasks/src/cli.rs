@@ -22,9 +22,10 @@ pub struct Command {
 #[derive(Parser)]
 pub enum Action {
     Init(Init),
-    List(List),
+    List(List), 
     Run(Run_),
     Detect(Detect),
+    Update(Update),
     Docs(Docs),
 }
 
@@ -36,6 +37,7 @@ impl Run for Command {
             Action::List(action) => action.run().await,
             Action::Run(action) => action.run().await,
             Action::Detect(action) => action.run().await,
+            Action::Update(action) => action.run().await,
             Action::Docs(action) => action.run().await,
         }
     }
@@ -210,27 +212,41 @@ impl Run for Run_ {
     }
 }
 
-/// Detect which tasks are required by a project
+/// Detect dependencies and tasks for a project
 ///
-/// This command is equivalent to `stencila tasks run detect`. It is mostly used
-/// internally as a "callback" to update the Taskfile at the end of the `detect`
-/// task with the `--no-run` option to avoid recursively running the task.
+/// This command is usually called as part of a Taskfile`s `detect` task. It generates entries in
+/// `.stencila/tasks/detected` as do tasks such as `lib:poetry:detect` but deals with Stencila related
+/// entities such as projects, and sources.
 #[derive(Parser)]
 pub struct Detect {
     #[clap(flatten)]
     taskfile: TaskfileOption,
-
-    /// Do not run the `detect` task, only read the detect tasks produced by
-    /// a previous run of that task.
-    #[clap(long)]
-    no_run: bool,
 }
 
 #[async_trait]
 impl Run for Detect {
     async fn run(&self) -> Result {
+        let taskfile = Taskfile::init(self.taskfile.taskfile.as_deref(), 0).await?;
+        Taskfile::detect(taskfile.dir())?;
+        result::nothing()
+    }
+}
+
+/// Update a Taskfile to include detected tasks
+///
+/// This command is usually only used internally as a "callback" to update the Taskfile at the
+/// end of the `detect` task.
+#[derive(Parser)]
+pub struct Update {
+    #[clap(flatten)]
+    taskfile: TaskfileOption,
+}
+
+#[async_trait]
+impl Run for Update {
+    async fn run(&self) -> Result {
         let mut taskfile = Taskfile::init(self.taskfile.taskfile.as_deref(), 0).await?;
-        taskfile.detect(!self.no_run).await?;
+        taskfile.update(false).await?;
         result::nothing()
     }
 }

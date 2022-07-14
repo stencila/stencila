@@ -1,6 +1,7 @@
 use std::{
     env::current_dir,
-    fs::{create_dir_all, read_to_string, remove_file, write, File},
+    fs::{create_dir_all, read_to_string, remove_file, write, File, OpenOptions},
+    io::Write,
     path::{Path, PathBuf},
     time::Duration,
 };
@@ -10,6 +11,7 @@ use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use rust_embed::RustEmbed;
 
 use binary_task::{BinaryTrait, TaskBinary};
+use cloud::projects::project_read;
 use common::{
     defaults::Defaults,
     eyre::{bail, eyre, Result},
@@ -271,8 +273,8 @@ impl Taskfile {
             false => {
                 let mut taskfile = Taskfile::new(path);
 
-                // Initialize the taskfile by doing a detect on in.
-                taskfile.detect(true).await?;
+                // Initialize the taskfile with an initial detection
+                taskfile.update(true).await?;
 
                 // Write the taskfile and then re-read it so that `inclusion_depth` is respected
                 // e.g. when running tasks for a newly created taskfile
@@ -284,11 +286,36 @@ impl Taskfile {
         Ok(taskfile)
     }
 
-    /// Detect the tasks needed for a directory
+    /// Detect tasks required for a project
+    ///
+    /// This handles detecting tasks related to Stencila entities such as project and sources.
+    pub fn detect(dir: &Path) -> Result<()> {
+        let mut detected = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(dir.join(".stencila").join("tasks").join("detected"))?;
+
+        let project_maybe = match project_read(dir) {
+            Ok(option) => option,
+            Err(error) => {
+                tracing::warn!("While attempting to read project file: {}", error);
+                None
+            }
+        };
+        if let Some((.., project)) = project_maybe {
+            if project.id.is_some() {
+                detected.write_all("stencila project pull\n".as_bytes())?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Update the Taskfile with detected tasks
     ///
     /// Updates the Taskfile in the directory (creating one if necessary) with tasks detected
-    /// by running the `lib:detect` task.
-    pub async fn detect(&mut self, run_task: bool) -> Result<()> {
+    /// by running its `detect` task.
+    pub async fn update(&mut self, detect: bool) -> Result<()> {
         // Remove any existing tasks `autogen` includes and tasks
         // If this is not done they may accumulate even if not needed
         self.includes.retain(|_name, include| !include.autogen);
@@ -329,7 +356,7 @@ impl Taskfile {
         }
 
         // Run the Taskfile's detect task
-        if run_task {
+        if detect {
             self.write()?;
             Task::run_now(self.path(), "detect", Vec::new()).await?;
         }
@@ -341,20 +368,24 @@ impl Taskfile {
         // Group detected tasks into "meta" tasks
         let mut pull_cmds = Vec::new();
         let mut install_cmds = Vec::new();
-        for task in tasks.lines() {
-            if let Some((_namespace, action)) = task.splitn(2, ':').collect_tuple() {
-                if action == "pull" {
+        for line in tasks.lines() {
+            if let Some((_namespace, task)) = line.splitn(2, ':').collect_tuple() {
+                if task == "pull" {
                     pull_cmds.push(Command::task(&["lib:", task].concat()))
-                } else if action == "install" {
+                } else if task == "install" {
                     install_cmds.push(Command::task(&["lib:", task].concat()))
                 }
+            } else if line.ends_with(" pull") {
+                pull_cmds.push(Command::cmd(line))
+            } else if line.ends_with(" install") {
+                install_cmds.push(Command::cmd(line))
             }
         }
 
         let mut build_cmds = Vec::new();
 
         // Add a `pull` command if necessary
-        if !pull_cmds.is_empty() && !self.tasks.contains_key("install") {
+        if !pull_cmds.is_empty() && !self.tasks.contains_key("pull") {
             self.tasks.insert(
                 "pull".to_string(),
                 Task {
