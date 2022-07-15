@@ -1,6 +1,6 @@
 ---
 source: rust/tasks/src/taskfile.rs
-assertion_line: 1759
+assertion_line: 2005
 expression: yaml
 input_file: fixtures/taskfiles/watches.yaml
 ---
@@ -8,21 +8,24 @@ version: "3"
 
 tasks:
   default:
+    silent: true
     watches: watches.yaml
     cmds:
-      - ls -lt
+      - "echo \"This is {{.TASK}} at $(date)\""
 
   with-options:
+    silent: true
     watches:
-      files: watches.yaml
+      files: "*"
       delay: 1
     cmds:
-      - ls -lt
+      - "echo \"This is {{.TASK}} at $(date)\""
 
   multi:
+    silent: true
     watches:
-      - "./README.md"
+      - README.md
       - watches.yaml
     cmds:
-      - ls -lt
+      - "echo \"This is {{.TASK}} at $(date)\""
 
