@@ -1,40 +1,17 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `detect`: Detect whether a buildpack should build the working directory
+# `docs`: Generate docs for Taskfiles
 
 ## Usage
 
 ```sh
-stencila buildpacks detect [options] [working] [label] [platform] [plan]
+stencila tasks docs [options]
 ```
 
-This command is designed to be able to be used in a Cloud Native Buildpack (CNB)
-`bin/detect` script e.g
-
-```bash
-#!/usr/bin/env bash
-set -eo pipefail
-stencila buildpacks detect . python $CNB_PLATFORM_DIR $CNB_BUILD_PLAN_PATH
-```
-
-See https://github.com/buildpacks/spec/blob/main/buildpack.md#detection
-further details.
+This is currently hidden but in the future may be exposed so users can generate docs for their own Taskfiles.
 
 
-## Arguments
 
-| Name | Description |
-| --- | --- |
-| `working` | The working directory (defaults to the current directory) |
-| `label` | The id or label of the buildpack to detect with |
-| `platform` | A directory containing platform provided configuration, such as environment variables |
-| `plan` | A path to a file containing the Build Plan |
-
-## Options
-
-| Name | Description |
-| --- | --- |
-| `--cnb` | Simulate detection on a CNB platform such as Pack. |
 
 ## Global options
 

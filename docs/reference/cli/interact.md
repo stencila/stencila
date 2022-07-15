@@ -1,28 +1,17 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `plan`: Show the build plan for a working directory
+# `interact`: Enter interactive mode (if not yet in it)
 
 ## Usage
 
 ```sh
-stencila buildpacks plan [options] [path]
+stencila interact [options]
 ```
 
 
 
 
-## Arguments
 
-| Name | Description |
-| --- | --- |
-| `path` | The working directory (defaults to the current directory) |
-
-## Options
-
-| Name | Description |
-| --- | --- |
-| `--all -a` | Show all buildpacks, including those that failed to match against the working directory. |
-| `--cnb` | Simulate plan on a CNB platform such as Pack. |
 
 ## Global options
 

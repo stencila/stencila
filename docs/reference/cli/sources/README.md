@@ -4,10 +4,7 @@ parts:
   - show
   - add
   - remove
-  - import
-  - start
-  - stop
-  - run
+  - pull
 ---
 
 
@@ -31,10 +28,7 @@ stencila sources [options] <subcommand>
 | [`show`](show.md) | Show a source for a project |
 | [`add`](add.md) | Add a source to a project |
 | [`remove`](remove.md) | Remove a source from a project |
-| [`import`](import.md) | Import one or all of a project's sources |
-| [`start`](start.md) | Start cron and watch tasks for a project's sources |
-| [`stop`](stop.md) | Stop any cron and watch tasks for a project's sources |
-| [`run`](run.md) | Run cron and watch tasks for a project's sources |
+| [`pull`](pull.md) | Pull one or all of a project's sources |
 | `help` | Print help information |
 
 

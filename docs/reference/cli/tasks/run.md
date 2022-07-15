@@ -1,22 +1,32 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `stop`: Stop any cron and watch tasks for a project's sources
+# `run`: Run a task in a Taskfile
 
 ## Usage
 
 ```sh
-stencila sources stop [options] [project]
+stencila tasks run [options] [tasks]
 ```
 
-This command is only useful in interactive mode. Use it to stop source tasks previously started using the `start` command.
+Use this command to run one of the tasks in a Taskfile.
 
 
 ## Arguments
 
 | Name | Description |
 | --- | --- |
-| `project` | The project to start tasks for (defaults to the current project) |
+| `tasks` | The names and variables of the tasks to run |
 
+## Options
+
+| Name | Description |
+| --- | --- |
+| `--schedule -s <schedule>` | Run the tasks on a time schedule. |
+| `--watch -w <watch>` | Run the tasks when files matching this pattern change. |
+| `--ignore <ignore>` | Ignore changes to files matching this pattern. |
+| `--delay -d <delay>` | Number of seconds to delay running tasks after file changes. |
+| `--taskfile -f <taskfile>` | The Taskfile to use (defaults to the current). |
+| `--error-prefix <error-prefix>` | An internal, hidden option used to contextualize error messages when used as a fallback command. |
 
 ## Global options
 

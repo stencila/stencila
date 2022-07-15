@@ -231,5 +231,24 @@ Stencila includes a [library of `Taskfiles`](https://github.com/stencila/stencil
 
 <!-- prettier-ignore-start -->
 <!-- TASKS-START -->
+| Topic | Description |
+| --- | --- |
+| [`apt`](apt.md) | Tasks related to Apt, the package manager used on Debian-based Linux |
+| [`asdf`](asdf.md) |  |
+| [`brew`](brew.md) |  |
+| [`curl`](curl.md) |  |
+| [`git`](git.md) |  |
+| [`gitignore`](gitignore.md) |  |
+| [`node`](node.md) |  |
+| [`npm`](npm.md) |  |
+| [`pip`](pip.md) |  |
+| [`pnpm`](pnpm.md) |  |
+| [`podman`](podman.md) |  |
+| [`poetry`](poetry.md) |  |
+| [`python`](python.md) |  |
+| [`r`](r.md) |  |
+| [`renv`](renv.md) |  |
+| [`util`](util.md) | Utility tasks |
+| [`venv`](venv.md) |  |
 <!-- TASKS-FINISH -->
 <!-- prettier-ignore-end -->

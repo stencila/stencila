@@ -1,22 +1,31 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `start`: Start cron and watch tasks for a project's sources
+# `snap`: Take a snapshot of the filesystem
 
 ## Usage
 
 ```sh
-stencila sources start [options] [project]
+stencila images snap [options] [dir]
 ```
 
-This command is only useful in interactive mode because otherwise the process will exit straight away.
+This command is used create a snapshot of the filesystem that can be used by the `save` command to generate an image layer based on the changes since the snapshot.
+
+Defaults to creating a snapshot of the entire filesystem but a directory can be specified. Creates a `.snap` file next to the directory that is snap shotted (i.e. defaults to `/root.snap`)
+
+Snapshots are usually made within a container or virtual machine and may be slow if run on a large filesystem. To avoid inadvertent snapshots users are asked for confirmation (this can be skipped by using the `--yes` option).
 
 
 ## Arguments
 
 | Name | Description |
 | --- | --- |
-| `project` | The project to start tasks for (defaults to the current project) |
+| `dir` | Path of the directory to snapshot |
 
+## Options
+
+| Name | Description |
+| --- | --- |
+| `--yes -y` | Do not ask for confirmation. |
 
 ## Global options
 

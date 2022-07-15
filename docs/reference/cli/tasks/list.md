@@ -1,27 +1,25 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `clean`: Remove buildpack related directories from the `.stencila` folder or a working directory
+# `list`: List tasks in a Taskfile
 
 ## Usage
 
 ```sh
-stencila buildpacks clean [options] [working]
+stencila tasks list [options]
 ```
 
-At present the buildpack related directories are `.stencila/build` and `.stencila/layers`.
+Use this command to quickly get a list of all the tasks in a Taskfile.
 
 
-## Arguments
-
-| Name | Description |
-| --- | --- |
-| `working` | The working directory (defaults to the current directory) |
 
 ## Options
 
 | Name | Description |
 | --- | --- |
-| `--buildpack -b <buildpack>` | The label of the Stencila buildpack to clean. If not supplied, or "all", will perform clean for all buildpacks. |
+| `--all -a` | List all tasks, including those in included Taskfiles. By default only task that are defined in the root Taskfile are listed. Use this option to show all tasks, including those from included Taskfiles. |
+| `--topic -t <topic>` | Filter tasks by topic e.g. 'python', 'git'. |
+| `--action -c <action>` | Filter tasks by action e.g. 'add', 'remove'. |
+| `--taskfile -f <taskfile>` | The Taskfile to use (defaults to the current). |
 
 ## Global options
 

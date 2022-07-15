@@ -1,41 +1,27 @@
----
-parts:
-  - list
-  - show
-  - detect
-  - plan
-  - build
-  - pack
-  - clean
----
-
-
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `buildpacks`: Manage and use container buildpacks
+# `pull`: Pull one or all of a project's sources
 
 ## Usage
 
 ```sh
-stencila buildpacks [options] <subcommand>
+stencila sources pull [options] [project]
 ```
 
-In Stencila, a "buildpack" is a Cloud Native Buildpack (https://buildpacks.io) that is responsible for adding support for a programming language or other type of application to a container image.
 
-## Subcommands
+
+
+## Arguments
 
 | Name | Description |
 | --- | --- |
-| [`list`](list.md) | List the buildpacks available |
-| [`show`](show.md) | Show the specifications of a buildpack |
-| [`detect`](detect.md) | Detect whether a buildpack should build the working directory |
-| [`plan`](plan.md) | Show the build plan for a working directory |
-| [`build`](build.md) | Build image layers for the working directory using a buildpack |
-| [`pack`](pack.md) | Create a container image for a working directory |
-| [`clean`](clean.md) | Remove buildpack related directories from the `.stencila` folder or a working directory |
-| `help` | Print help information |
+| `project` | The project to import the source into (defaults to the current project) |
 
+## Options
 
+| Name | Description |
+| --- | --- |
+| `--source -s <source>` | An identifier for the source to import. Only the first source matching this identifier will be imported. |
 
 ## Global options
 

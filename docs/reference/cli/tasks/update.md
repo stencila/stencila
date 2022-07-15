@@ -1,22 +1,22 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `run`: Run cron and watch tasks for a project's sources
+# `update`: Update a Taskfile to include detected tasks
 
 ## Usage
 
 ```sh
-stencila sources run [options] [project]
+stencila tasks update [options]
 ```
 
+This command is usually only used internally as a "callback" to update the Taskfile at the end of the `detect` task.
 
 
 
-## Arguments
+## Options
 
 | Name | Description |
 | --- | --- |
-| `project` | The project to run tasks for (defaults to the current project) |
-
+| `--taskfile -f <taskfile>` | The Taskfile to use (defaults to the current). |
 
 ## Global options
 

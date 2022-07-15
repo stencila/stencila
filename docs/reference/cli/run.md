@@ -1,35 +1,87 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `run`: Run a document
+# `run`: Run documents, tasks, and/or server
 
 ## Usage
 
 ```sh
-stencila run [options] <input> [output]
+stencila run [options] [args]
 ```
 
+Use this command to quickly run one or more documents, tasks or the server.
+It provides a short cut to the `documents run`, `tasks run`, and `server run`
+subcommands and allows you to chain those together.
 
+## Tasks
+
+Given a `Taskfile.yaml` in the current directory with a task named `simulation`,
+the command,
+
+```sh
+stencila run simulation n=100
+```
+
+is equivalent to `stencila tasks run simulation n=100`.
+
+All tasks in the `Taskfile.yaml` with a `schedule` or `watches` can be
+run concurrently using,
+
+```sh
+stencila run tasks
+```
+
+which is equivalent to `stencila tasks run`.
+
+## Documents
+
+If the current directory does not have a `Taskfile.yaml`, or the argument does not
+match a task in the current Taskfile, the argument will be assumed to be a filename.
+
+The command,
+
+```sh
+stencila run report.md
+```
+
+is equivalent to `stencila documents run report.md`.
+
+## Server
+
+The argument `server` will run the server with default options e.g.
+
+```sh
+stencila run server
+```
+
+is equivalent to `stencila server run`.
+
+## Backgrounding
+
+Things can be run in the background by adding a tilde `~`. For example, to run a task
+and a document concurrently,
+
+```sh
+stencila run simulation~ n=100 report.md~
+```
+
+## Default
+
+If no arguments are supplied, the default is to run all tasks with a `schedule` or `watches`
+in the background (if a `Taskfile.yaml` is present), and to run the server i.e.
+
+```sh
+stencila run
+```
+
+is equivalent to `stencila run tasks~ server`.
 
 
 ## Arguments
 
 | Name | Description |
 | --- | --- |
-| `input` | The path of the document to execute |
-| `output` | The path to save the executed document |
+| `args` | Run arguments |
 
-## Options
-
-| Name | Description |
-| --- | --- |
-| `--from -f <from>` | The format of the input (defaults to being inferred from the file extension or content type). |
-| `--to -t <to>` | The format of the output (defaults to being inferred from the file extension). |
-| `--theme -e <theme>` | The theme to apply to the output (only for HTML and PDF). |
-| `--start -s <start>` | The id of the node to start execution from. |
-| `--ordering -o <ordering>` | Ordering for the execution plan. |
-| `--concurrency -c <concurrency>` | Maximum concurrency for the execution plan. A maximum concurrency of 2 means that no more than two tasks will run at the same time (ie. in the same stage). Defaults to the number of CPUs on the machine. |
-| `--dry-run -d` | Generate execution plan but do not execute it. |
-| `--quiet -q` | Do not display execution plan or progress. |
 
 ## Global options
 

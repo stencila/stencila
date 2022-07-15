@@ -1,23 +1,21 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `pack`: Create a container image for a working directory
+# `init`: Initialize a tasks for a directory
 
 ## Usage
 
 ```sh
-stencila buildpacks pack [options] [path]
+stencila tasks init [options] [dir]
 ```
 
-If the directory has a `Dockerfile` (or `Containerfile`) then the image will be built directly from that. Otherwise, the image will be built using using [`pack`](https://buildpacks.io/docs/tools/pack/) and the Stencila `builder` container image which include the buildpacks listed at `stencila buildpacks list`.
 
-Of course, you can use either `docker` or `pack` directly. This command just provides a convenient means of testing Stencila's image building logic locally an is mainly intended for developers.
 
 
 ## Arguments
 
 | Name | Description |
 | --- | --- |
-| `path` | The working directory (defaults to the current directory) |
+| `dir` | The directory to initialize tasks for |
 
 
 ## Global options

@@ -1,11 +1,11 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `start`: Start the server
+# `run`: Start the server
 
 ## Usage
 
 ```sh
-stencila server start [options] [home]
+stencila server run [options] [home]
 ```
 
 ## Ports and addresses

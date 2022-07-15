@@ -23,7 +23,7 @@ Use this command to a add a user or team to a project. When you add a team to a 
 
 | Name | Description |
 | --- | --- |
-| `--project -p <project>` | The id of the project. If this option is not supplied, Stencila will use the current project. The current project is determined by searching upwards, from the current directory, for a `stencila.toml`, `stencila.yaml`, or `stencila.json` file. |
+| `--project -p <project>` | The id of the project. If this option is not supplied, Stencila will use the current project. The current project is determined by searching upwards, from the current directory, for a `stencila.yaml`, `stencila.toml`, or `stencila.json` file. |
 
 ## Global options
 

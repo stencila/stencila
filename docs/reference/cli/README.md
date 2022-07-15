@@ -12,6 +12,7 @@ parts:
   - documents
   - projects
   - sources
+  - tasks
   - orgs
   - teams
   - users
@@ -20,7 +21,6 @@ parts:
   - kernels
   - binaries
   - providers
-  - buildpacks
   - images
   - server
   - config
@@ -28,6 +28,7 @@ parts:
   - logout
   - tokens
   - upgrade
+  - interact
 ---
 
 
@@ -41,7 +42,7 @@ parts:
 stencila [options] <subcommand>
 ```
 
-Enter interactive mode by using the `--interact` option with any command.
+Enter interactive mode by using the `interact` command, the `--interact` option with any other command (will be set as 'prefix'), or not supply any command.
 
 ## Subcommands
 
@@ -51,7 +52,7 @@ Enter interactive mode by using the `--interact` option with any command.
 | [`open`](open.md) | Open a project or document using a web browser |
 | [`close`](close.md) | Close a project or document |
 | [`show`](show.md) | Show a project or document |
-| [`run`](run.md) | Run a document |
+| [`run`](run.md) | Run documents, tasks, and/or server |
 | [`convert`](convert.md) | Convert between formats |
 | [`diff`](diff.md) | Display the structural differences between two documents |
 | [`merge`](merge.md) | Merge changes from two or more derived versions of a document |
@@ -59,6 +60,7 @@ Enter interactive mode by using the `--interact` option with any command.
 | [`documents`](documents/README.md) | Manage documents |
 | [`projects`](projects/README.md) | Manage projects |
 | [`sources`](sources/README.md) | Manage and use project sources |
+| [`tasks`](tasks/README.md) | Manage and run project tasks |
 | [`orgs`](orgs/README.md) | Manage organizations |
 | [`teams`](teams/README.md) | Manage teams |
 | [`users`](users/README.md) | Find and invite users |
@@ -67,7 +69,6 @@ Enter interactive mode by using the `--interact` option with any command.
 | [`kernels`](kernels/README.md) | Manage and use execution kernels |
 | [`binaries`](binaries/README.md) | Manage and use helper binaries |
 | [`providers`](providers/README.md) | Manage and use source providers |
-| [`buildpacks`](buildpacks/README.md) | Manage and use container buildpacks |
 | [`images`](images/README.md) | Build and distribute container images |
 | [`server`](server/README.md) | Manage document server |
 | [`config`](config/README.md) | Manage configuration settings |
@@ -75,6 +76,7 @@ Enter interactive mode by using the `--interact` option with any command.
 | [`logout`](logout.md) | Logout from your Stencila account |
 | [`tokens`](tokens/README.md) | Manage personal access tokens |
 | [`upgrade`](upgrade.md) | Upgrade to the latest (or other) version |
+| [`interact`](interact.md) | Enter interactive mode (if not yet in it) |
 | `help` | Print help information |
 
 

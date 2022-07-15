@@ -1,21 +1,38 @@
+---
+parts:
+  - init
+  - list
+  - run
+  - detect
+  - update
+  - docs
+---
+
+
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `show`: Show the specifications of a buildpack
+# `tasks`: Manage and run project tasks
 
 ## Usage
 
 ```sh
-stencila buildpacks show [options] <label>
+stencila tasks [options] <subcommand>
 ```
 
 
 
-
-## Arguments
+## Subcommands
 
 | Name | Description |
 | --- | --- |
-| `label` | The label of the buildpack |
+| [`init`](init.md) | Initialize a tasks for a directory |
+| [`list`](list.md) | List tasks in a Taskfile |
+| [`run`](run.md) | Run a task in a Taskfile |
+| [`detect`](detect.md) | Detect dependencies and tasks for a project |
+| [`update`](update.md) | Update a Taskfile to include detected tasks |
+| [`docs`](docs.md) | Generate docs for Taskfiles |
+| `help` | Print help information |
+
 
 
 ## Global options

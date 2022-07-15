@@ -1,27 +1,22 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `import`: Import one or all of a project's sources
+# `detect`: Detect dependencies and tasks for a project
 
 ## Usage
 
 ```sh
-stencila sources import [options] [project]
+stencila tasks detect [options]
 ```
 
+This command is usually called as part of a Taskfile`s `detect` task. It generates entries in `.stencila/tasks/detected` as do tasks such as `lib:poetry:detect` but deals with Stencila related entities such as projects, and sources.
 
 
-
-## Arguments
-
-| Name | Description |
-| --- | --- |
-| `project` | The project to import the source into (defaults to the current project) |
 
 ## Options
 
 | Name | Description |
 | --- | --- |
-| `--source -s <source>` | An identifier for the source to import. Only the first source matching this identifier will be imported. |
+| `--taskfile -f <taskfile>` | The Taskfile to use (defaults to the current). |
 
 ## Global options
 
