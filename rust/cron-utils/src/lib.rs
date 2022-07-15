@@ -648,7 +648,7 @@ pub async fn run(
         None => default_timezone,
     };
 
-    tracing::info!(
+    tracing::debug!(
         "Running cron schedule `{}` in timezone `{}`",
         schedules
             .iter()
@@ -660,28 +660,21 @@ pub async fn run(
 
     tokio::spawn(async move {
         let mut next_time = next(&schedules, &timezone);
-        if let Some(time) = next_time {
-            tracing::debug!("First action scheduled for {}", time);
-        }
-
         loop {
             match next_time {
                 Some(time) => {
+                    tracing::debug!("Next time scheduled for {}", time);
+                    let duration = time - Utc::now();
+                    let duration = duration
+                        .to_std()
+                        .unwrap_or_else(|_| std::time::Duration::from_secs(1));
+                    sleep(duration).await;
+
                     if Utc::now() >= time {
                         if let Err(error) = sender.send(()).await {
                             tracing::error!("When sending schedule message: {}", error);
                         }
                         next_time = next(&schedules, &timezone);
-                        if let Some(time) = next_time {
-                            tracing::debug!("Next action scheduled for {}", time);
-                            let duration = time - Utc::now();
-                            sleep(
-                                duration
-                                    .to_std()
-                                    .unwrap_or_else(|_| std::time::Duration::from_secs(1)),
-                            )
-                            .await;
-                        }
                     }
                 }
                 None => {
