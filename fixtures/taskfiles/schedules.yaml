@@ -8,8 +8,8 @@ tasks:
 
   cron-expressions:
     schedule:
-      - '* 03,13 * * *'
-      - '* 33 * * *'
+      - '* 03,13 * * * *'
+      - '* 33 * * * *'
     cmds:
       - echo "It is $(date)"
 
@@ -21,7 +21,7 @@ tasks:
 
   multiple-timezones:
     schedule:
-      - 9am Mon-Fri New York
+      - 9am Mon-Fri ET
       - when: 10:15am Tue,Wed
         tz: UTC
     cmds:

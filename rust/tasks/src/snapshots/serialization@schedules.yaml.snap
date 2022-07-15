@@ -1,6 +1,6 @@
 ---
 source: rust/tasks/src/taskfile.rs
-assertion_line: 1759
+assertion_line: 1975
 expression: yaml
 input_file: fixtures/taskfiles/schedules.yaml
 ---
@@ -14,8 +14,8 @@ tasks:
 
   cron-expressions:
     schedule:
-      - "* 03,13 * * *"
-      - "* 33 * * *"
+      - "* 03,13 * * * *"
+      - "* 33 * * * *"
     cmds:
       - "echo \"It is $(date)\""
 
@@ -26,7 +26,7 @@ tasks:
 
   multiple-timezones:
     schedule:
-      - 9am Mon-Fri New York
+      - 9am Mon-Fri ET
       - when: "10:15am Tue,Wed"
         tz: UTC
     cmds:
