@@ -3,21 +3,23 @@ version: '3'
 tasks:
   default:
     watch: watches.yaml
+    silent: true
     cmds:
-      - ls -lt
+      - echo "This is {{.TASK}} at $(date)"
 
   with-options:
     watch:
-      files: watches.yaml
+      files: '*'
       ignore: '*.md'
       delay: 1
+    silent: true
     cmds:
-      - ls -lt
+      - echo "This is {{.TASK}} at $(date)"
 
   multi:
     watch:
-      - ./README.md
-      - files: watches.yaml
-        ignore: '*.md'
+      - README.md
+      - watches.yaml
+    silent: true
     cmds:
-      - ls -lt
+      - echo "This is {{.TASK}} at $(date)"

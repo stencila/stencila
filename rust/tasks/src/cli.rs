@@ -156,12 +156,7 @@ impl From<(String, Task)> for TaskRow {
 #[derive(Parser)]
 pub struct Run_ {
     /// The names and variables of the tasks to run
-    #[clap(default_value = "default")]
     tasks: Vec<String>,
-
-    /// Run the tasks once, immediately and ignore `schedule` or `watches`
-    #[clap(short, long, conflicts_with_all = &["schedule", "watch"])]
-    now: bool,
 
     /// Run the tasks on a time schedule
     #[clap(short, long)]
@@ -195,7 +190,6 @@ impl Run for Run_ {
         match taskfile
             .run(
                 &self.tasks,
-                self.now,
                 self.schedule.as_deref(),
                 self.watch.as_deref(),
                 self.ignore.as_deref(),

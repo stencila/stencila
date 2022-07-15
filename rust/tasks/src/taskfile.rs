@@ -10,7 +10,6 @@ use fs2::FileExt;
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use rust_embed::RustEmbed;
 
-use binary_task::{BinaryTrait, TaskBinary};
 use cloud::ProjectLocal;
 use common::{
     defaults::Defaults,
@@ -28,6 +27,7 @@ use common::{
     tokio::{self, sync::mpsc::error::TrySendError},
     tracing,
 };
+use path_utils::lexiclean::Lexiclean;
 
 #[skip_serializing_none]
 #[derive(Defaults, Deserialize, Serialize)]
@@ -155,6 +155,7 @@ impl Taskfile {
                 path.display()
             )
         }
+        let path = path.canonicalize()?;
 
         let yaml = read_to_string(&path)?;
 
@@ -472,20 +473,30 @@ impl Taskfile {
 
     /// Run one or more tasks in the Taskfile
     ///
-    /// Reads the Taskfile, including included tasks, to be able to check that the
-    /// desired task is available before spawning `task`. If not present, then attempts
+    /// If task with matching name is not in the Taskfile, then attempts
     /// to resolve it by pre-pending `lib:` to the name.
+    ///
+    /// If no args are supplied then will run all tasks that have `schedule`
+    /// or `watches` in the background.
     pub async fn run(
         &self,
         args: &Vec<String>,
-        now: bool,
         schedule: Option<&str>,
         watch: Option<&str>,
         ignore: Option<&str>,
         delay: Option<u64>,
     ) -> Result<()> {
         let args = if args.is_empty() {
-            vec!["default".to_string()]
+            self.tasks
+                .iter()
+                .filter_map(|(name, task)| {
+                    if !task.schedule.is_empty() || !task.watches.is_empty() {
+                        Some(name.to_owned())
+                    } else {
+                        None
+                    }
+                })
+                .collect_vec()
         } else {
             args.clone()
         };
@@ -494,6 +505,7 @@ impl Taskfile {
         let mut task: String = String::new();
         let mut next_task: String = String::new();
         let mut vars: Vec<String> = Vec::new();
+        let mut background_tasks = Vec::new();
         for index in 0..(args.len() + 1) {
             let arg = args.get(index);
             if let Some(arg) = arg {
@@ -508,9 +520,19 @@ impl Taskfile {
             }
 
             if !next_task.is_empty() || index == args.len() {
-                let name = if !self.tasks.contains_key(&task) {
-                    let lib_task = ["lib:", &task].concat();
-                    let lib_util_task = ["lib:util:", &task].concat();
+                let (name, background, now) = match task.strip_suffix('~') {
+                    Some(name) => (name.to_string(), true, false),
+                    None => match task.strip_suffix('!') {
+                        Some(name) => (name.to_string(), false, true),
+                        None => (task, false, false),
+                    },
+                };
+
+                let name = if self.tasks.contains_key(&name) {
+                    name
+                } else {
+                    let lib_task = ["lib:", &name].concat();
+                    let lib_util_task = ["lib:util:", &name].concat();
                     if self.tasks.contains_key(&lib_task) {
                         lib_task
                     } else if self.tasks.contains_key(&lib_util_task) {
@@ -518,27 +540,51 @@ impl Taskfile {
                     } else {
                         bail!(
                             "Taskfile does not have task named `{}`, `{}`, or `{}`",
-                            task,
+                            name,
                             lib_task,
                             lib_util_task
                         )
                     }
-                } else {
-                    task.to_string()
                 };
 
                 if let Some(task) = self.tasks.get(&name) {
-                    task.run(
-                        self.path(),
-                        &name,
-                        vars.clone(),
-                        now,
-                        schedule,
-                        watch,
-                        ignore,
-                        delay,
-                    )
-                    .await?;
+                    let vars = vars.clone();
+                    if (background || !task.schedule.is_empty() || !task.watches.is_empty()) && !now
+                    {
+                        // Run the task in the background
+                        let task = task.clone();
+                        let path = self.path().to_path_buf();
+                        let schedule = schedule.map(String::from);
+                        let watch = watch.map(String::from);
+                        let ignore = ignore.map(String::from);
+                        let handle = tokio::spawn(async move {
+                            task.run(
+                                &path,
+                                &name,
+                                vars,
+                                now,
+                                schedule.as_deref(),
+                                watch.as_deref(),
+                                ignore.as_deref(),
+                                delay,
+                            )
+                            .await
+                        });
+                        background_tasks.push(handle)
+                    } else {
+                        // Run the task now
+                        task.run(
+                            self.path(),
+                            &name,
+                            vars,
+                            now,
+                            schedule,
+                            watch,
+                            ignore,
+                            delay,
+                        )
+                        .await?;
+                    }
                 } else {
                     // This should never be reached!
                     bail!("Taskfile does not have task named `{}`", name);
@@ -547,6 +593,13 @@ impl Taskfile {
                 task = next_task.clone();
                 next_task = String::new();
                 vars.clear();
+            }
+        }
+
+        // Wait for background tasks to finish
+        for result in future::try_join_all(background_tasks).await? {
+            if let Err(error) = result {
+                tracing::error!("{}", error);
             }
         }
 
@@ -936,9 +989,13 @@ impl Task {
         ignore: Option<&str>,
         delay: Option<u64>,
     ) -> Result<()> {
-        let dir = path
-            .parent()
-            .expect("Taskfile should always have parent directory");
+        let dir = match path.parent() {
+            Some(dir) => dir,
+            None => bail!(
+                "Unable to resolve a directory for Taskfile with path `{}`",
+                path.display()
+            ),
+        };
 
         if now && schedule.is_some() {
             tracing::warn!("Ignoring `schedule` because `now` option used")
@@ -987,11 +1044,18 @@ impl Task {
 
         // Run each of the schedules asynchronously
         for schedule in schedules {
+            let name_clone = name.to_string();
             let run_sender_clone = run_sender.clone();
             let handle = tokio::spawn(async move {
                 let Schedule { when, tz } = schedule;
+                tracing::info!("Running schedule '{}' for task `{}`", when, name_clone);
                 if let Err(error) = cron_utils::run(&when, tz, run_sender_clone).await {
-                    tracing::error!("While running schedule `{}`: {}", when, error)
+                    tracing::error!(
+                        "While running schedule `{}` for task `{}`: {}",
+                        when,
+                        name_clone,
+                        error
+                    )
                 }
             });
             handles.push(handle);
@@ -1005,7 +1069,7 @@ impl Task {
                 .chars()
                 .take_while(|&char| char != '*' && char != '?' && char != '[' && char != ']')
                 .collect::<String>();
-            let watch_path = dir.join(watch_path);
+            let watch_path = dir.join(watch_path).lexiclean();
 
             if !watch_path.exists() {
                 bail!("Path to watch does not exist: {}", watch_path.display());
@@ -1033,9 +1097,16 @@ impl Task {
             // A standard synchronous thread for running watcher
             // This needs to be in a separate thread because `watch_receiver.recv()` is blocking an so prevents proper
             // functioning of `event_sender` async send (we use blocking send instead)
+            let name_clone = name.to_string();
             let dir_clone = dir.to_path_buf();
             let ignores_clone = ignore_patterns.clone();
             std::thread::spawn(move || {
+                tracing::info!(
+                    "Watching `{}` for task `{}`",
+                    watch_path.display(),
+                    name_clone
+                );
+
                 let (watch_sender, watch_receiver) = std::sync::mpsc::channel();
                 let mut watcher = watcher(watch_sender, Duration::from_millis(100)).unwrap();
                 watcher.watch(watch_path, RecursiveMode::Recursive).unwrap();
@@ -1065,7 +1136,11 @@ impl Task {
                     };
 
                     if !watch_pattern.matches_path(path) {
-                        tracing::debug!("Watch does not include path: {}", path.display());
+                        tracing::debug!(
+                            "Watch pattern `{}` does not include path: {}",
+                            watch_pattern,
+                            path.display()
+                        );
                         continue;
                     }
 
@@ -1106,7 +1181,7 @@ impl Task {
                         Err(..) => {
                             // Timeout happened so trigger task if events since last here
                             if events {
-                                tracing::info!("Sending watch event");
+                                tracing::trace!("Sending watch event");
                                 if let Err(error) = run_sender_clone.try_send(()) {
                                     match error {
                                         TrySendError::Full(..) => tracing::debug!(
@@ -1132,7 +1207,9 @@ impl Task {
     pub async fn run_now(path: &Path, name: &str, mut vars: Vec<String>) -> Result<()> {
         tracing::debug!("Running task `{}` of `{}`", name, path.display());
 
-        let mut binary = TaskBinary {}.ensure().await?;
+        // Use `binaries` crate, rather that `binary-task` crate directly because the former caches
+        // the discovered installation (rather than search for suitable binary each call)
+        let mut binary = binaries::ensure("task", "*").await?;
         binary.env_list(&[
             ("STENCILA_LOG_FORMAT", "json"),
             ("TASK_TEMP_DIR", "./.stencila/tasks"),
@@ -1470,7 +1547,7 @@ pub struct Schedule {
     /// A cron expression or phrase
     when: String,
 
-    /// Optional message to print if the precondition isn't met.
+    /// The timezone that the schedule wil be run in
     tz: Option<String>,
 }
 

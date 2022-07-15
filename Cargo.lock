@@ -6438,13 +6438,14 @@ dependencies = [
 name = "tasks"
 version = "0.0.0"
 dependencies = [
- "binary-task",
+ "binaries",
  "cli-utils",
  "cloud",
  "common",
  "cron-utils",
  "fs2",
  "notify",
+ "path-utils",
  "rust-embed",
  "test-snaps",
  "test-utils",

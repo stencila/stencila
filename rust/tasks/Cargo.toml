@@ -8,12 +8,13 @@ default = ["cli"]
 cli = ["cli-utils"]
 
 [dependencies]
-binary-task = { path = "../binary-task" }
+binaries = { path = "../binaries" }
 cloud = { path = "../cloud" }
 common = { path = "../common" }
 cron-utils = { path = "../cron-utils" }
 fs2 = "0.4.3"
 notify = "4.0.17"
+path-utils = { path = "../path-utils" }
 rust-embed = { version = "6.4.0", features = [
     "compression",
     # It can be useful to turn on the `debug-embed` feature so that even in debug mode the 
