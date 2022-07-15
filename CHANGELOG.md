@@ -1,3 +1,46 @@
+# [1.14.0](https://github.com/stencila/stencila/compare/v1.13.2...v1.14.0) (2022-07-15)
+
+
+### Bug Fixes
+
+* **Archive utilities:** Ensure parent directories are present ([da3466b](https://github.com/stencila/stencila/commit/da3466b060c619147330ede4483d7636aeeb7d27))
+* **Cron utilities:** Sleep for each iteration of loop to avoid excessive spin ([63f2647](https://github.com/stencila/stencila/commit/63f2647a6877110a8ce76c707711eced82b6ea43))
+* **Images:** Do not pull and write base layers by default ([1bd4213](https://github.com/stencila/stencila/commit/1bd4213ab34817f2eb67af8837842e273724c63f))
+* **R kernel:** Make `Cairo` package optional ([2a9dae2](https://github.com/stencila/stencila/commit/2a9dae2a0877486845fb44db0f30764a00a9bda1))
+* **Tasks:** Default to run all tasks with watches or schedules; allow backgrounding ([7ee173e](https://github.com/stencila/stencila/commit/7ee173ea67b333e5a25a88d9148cc2df88de54c4))
+* **Tasks:** Do not let version pass though in `poetry:ensure` task ([7558299](https://github.com/stencila/stencila/commit/7558299aaa16aba71fc2e687c24afaf953ee6147))
+* **Tasks:** Improve display of task logs ([c5703ac](https://github.com/stencila/stencila/commit/c5703ac93b0c2871ca0d011cd4481a40e0f58add))
+* **Tasks:** Run tasks in background as well as `server` ([85fc569](https://github.com/stencila/stencila/commit/85fc56995430e7fe27046c31ce8e9c15c431b07d))
+* **Tasks:** Use full path to asdf ([45d42ff](https://github.com/stencila/stencila/commit/45d42ffd47d997f0dc83451f6166c5ec4b68e3dd))
+
+
+### Features
+
+* **CLI:** Add `run` command for running tasks, documents and/or server ([011414d](https://github.com/stencila/stencila/commit/011414d4088e5569ab0ccb97cfa11503629f2d6c))
+* **CLI:** Fallback to running a task if subcommand is unrecognized ([934626e](https://github.com/stencila/stencila/commit/934626e7d33d9dc6b2b5725ff78b38f6c1d895c6))
+* **Images CLI:** Allow more than one image to be removed at a time ([6668a71](https://github.com/stencila/stencila/commit/6668a713c151de1d15dc662af816cf8cca5f0069))
+* **Images:** Add `images save` subcommand ([a044147](https://github.com/stencila/stencila/commit/a04414738079ead1110c519c27741487b51e1ed1))
+* **Images:** Add `images snap` subcommand ([aff445f](https://github.com/stencila/stencila/commit/aff445f4dbcd6d23a388141fb6ed5877c84389a9))
+* **Task binary:** Enable installation of `task` ([3b6fc1f](https://github.com/stencila/stencila/commit/3b6fc1f3c69a6ad3c0739993ca5778542deb076a))
+* **Tasks CLI:** Add an `-all` flag for listing all tasks ([19e1d0f](https://github.com/stencila/stencila/commit/19e1d0f9f2a0dbea24cbadda99eac81f77575e9c))
+* **Tasks CLI:** Allow for tasks to be hidden from lists ([7f19060](https://github.com/stencila/stencila/commit/7f19060871bae6ce6c871f0f918a86757130e91d))
+* **Tasks CLI:** Allow taks to be filtered by tool and action ([50944bd](https://github.com/stencila/stencila/commit/50944bd2270772e00749cffead9efff648c3a7c9))
+* **Tasks:** Add `clean` and `purge` tasks ([95f4ca5](https://github.com/stencila/stencila/commit/95f4ca5acd1158df9be30dd9c78dc179123aa838))
+* **Tasks:** Add `detect` tasks ([69b3866](https://github.com/stencila/stencila/commit/69b3866c083c6735b6ee48e86153442081b4cf61))
+* **Tasks:** Add `tasks run` and `tasks analyze` commands and integrate ([973ecee](https://github.com/stencila/stencila/commit/973ecee4d8bab8f4d52f318617a4c9fe40788966))
+* **Tasks:** Add a `default` tasks during detection and fallback to it ([d9710f1](https://github.com/stencila/stencila/commit/d9710f1310b3cef01f0fede1605793f5034e88c2))
+* **Tasks:** Add a `tasks init` subcommand and ensure a `Taskfile` is present for `detect` and `run` ([7538713](https://github.com/stencila/stencila/commit/7538713ea782af70635df1d46f2b9a4f30e13c32))
+* **Tasks:** Add generation of docs and tasks ([9d9244d](https://github.com/stencila/stencila/commit/9d9244d10a019cc874710653a27985937cf9ad2c))
+* **Tasks:** Add support for `Aptfile`s ([2a51604](https://github.com/stencila/stencila/commit/2a51604daee111c050ad1bc027222e5191a94bb4))
+* **Tasks:** Add tasks for updating `.gitignore` ([e6f9ae2](https://github.com/stencila/stencila/commit/e6f9ae26a6d5755b16ea436da3093a9c42952bfa))
+* **Tasks:** Allow for custom `detect` tasks and for `detect` to be called in `build` ([3df1d9c](https://github.com/stencila/stencila/commit/3df1d9cc287d4fb34dc89a8fe938e6281142f9e5))
+* **Tasks:** First iteration of task schedules and file watches ([d62767e](https://github.com/stencila/stencila/commit/d62767e889797aa9652d5bd0965f3f418f944e94))
+* **Tasks:** Improve UX for running tasks ([170500a](https://github.com/stencila/stencila/commit/170500a8652f879fda1c876084bf9ddc9d68a975))
+* **Tasks:** Inital versions of `Taskfile`s for dependency installation ([200f6b4](https://github.com/stencila/stencila/commit/200f6b4055c20745fc67c411ee2f7c89f5d7e551))
+* **Tasks:** Initial iteration of a `podman` related tasks for handling projects with Dockerfiles ([05a928f](https://github.com/stencila/stencila/commit/05a928f1f8c36f7ec0060c433f901e4b9f196eb1))
+* **Tasks:** Initial support for `Taskfile`s ([0f4f14c](https://github.com/stencila/stencila/commit/0f4f14c247faf5d177b6502a4e72f5b9575203b5))
+* **Tasks:** Initial versions of project and sources tasks ([6cdb58a](https://github.com/stencila/stencila/commit/6cdb58aed0cc794f3d64712c5e5c4d38494f515a))
+
 ## [1.13.2](https://github.com/stencila/stencila/compare/v1.13.1...v1.13.2) (2022-07-11)
 
 
