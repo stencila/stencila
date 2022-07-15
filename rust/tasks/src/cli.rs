@@ -22,7 +22,7 @@ pub struct Command {
 #[derive(Parser)]
 pub enum Action {
     Init(Init),
-    List(List), 
+    List(List),
     Run(Run_),
     Detect(Detect),
     Update(Update),

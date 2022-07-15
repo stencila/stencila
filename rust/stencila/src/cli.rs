@@ -10,7 +10,13 @@ use cli_utils::{
     clap::{self, AppSettings, Parser},
     result, stderr_isatty, Result, Run,
 };
-use common::{async_trait::async_trait, eyre, strum::VariantNames, tokio, tracing};
+use common::{
+    async_trait::async_trait,
+    eyre::{self, bail},
+    strum::VariantNames,
+    tokio, tracing,
+};
+use tasks::Taskfile;
 use utils::some_string;
 
 use crate::{
@@ -302,7 +308,8 @@ impl Run for Line {
 
 /// List all open project and documents.
 #[derive(Parser)]
-pub struct ListCommand {}
+pub struct ListCommand;
+
 #[async_trait]
 impl Run for ListCommand {
     async fn run(&self) -> Result {
@@ -326,6 +333,7 @@ pub struct OpenCommand {
     /// The file or folder to open
     path: Option<PathBuf>,
 }
+
 #[async_trait]
 impl Run for OpenCommand {
     #[cfg(feature = "server")]
@@ -388,6 +396,7 @@ pub struct CloseCommand {
     #[clap(default_value = ".")]
     path: PathBuf,
 }
+
 #[async_trait]
 impl Run for CloseCommand {
     async fn run(&self) -> Result {
@@ -410,6 +419,7 @@ pub struct ShowCommand {
     /// The file or folder to close
     path: Option<PathBuf>,
 }
+
 #[async_trait]
 impl Run for ShowCommand {
     async fn run(&self) -> Result {
@@ -424,21 +434,183 @@ impl Run for ShowCommand {
 }
 
 /// Currently, these top-level commands simply delegate to those in other modules
-type RunCommand = documents::commands::Runn;
 type ConvertCommand = codecs::commands::Convert;
 type DiffCommand = documents::commands::Diff;
 type MergeCommand = documents::commands::Merge;
 
 /// Run commands interactively with a particular project or document
-///
 #[derive(Parser)]
 pub struct WithCommand {
     /// The file or folder to run command with
     path: PathBuf,
 }
+
 #[async_trait]
 impl Run for WithCommand {
     async fn run(&self) -> Result {
+        result::nothing()
+    }
+}
+
+/// Run documents, tasks, and/or server
+///
+/// Use this command to quickly run one or more documents, tasks or the server.
+/// It provides a short cut to the `documents run`, `tasks run`, and `server run`
+/// subcommands and allows you to chain those together.
+///
+/// ## Tasks
+///
+/// Given a `Taskfile.yaml` in the current directory with a task named `simulation`,
+/// the command,
+///
+/// ```sh
+/// stencila run simulation n=100
+/// ```
+///
+/// is equivalent to `stencila tasks run simulation n=100`.
+///
+/// All tasks in the `Taskfile.yaml` with a `schedule` or `watches` can be
+/// run concurrently using,
+///
+/// ```sh
+/// stencila run tasks
+/// ```
+///
+/// which is equivalent to `stencila tasks run`.
+///
+/// ## Documents
+///
+/// If the current directory does not have a `Taskfile.yaml`, or the argument does not
+/// match a task in the current Taskfile, the argument will be assumed to be a filename.
+///
+/// The command,
+///
+/// ```sh
+/// stencila run report.md
+/// ```
+///
+/// is equivalent to `stencila documents run report.md`.
+///
+/// ## Server
+///
+/// The argument `server` will run the server with default options e.g.
+///
+/// ```sh
+/// stencila run server
+/// ```
+///
+/// is equivalent to `stencila server run`.
+///
+/// ## Backgrounding
+///
+/// Things can be run in the background by adding a tilde `~`. For example, to run a task
+/// and a document concurrently,
+///
+/// ```sh
+/// stencila run simulation~ n=100 report.md~
+/// ```
+///
+/// ## Default
+///
+/// If no arguments are supplied, the default is to run all tasks with a `schedule` or `watches`
+/// in the background (if a `Taskfile.yaml` is present), and to run the server i.e.
+///
+/// ```sh
+/// stencila run
+/// ```
+///
+/// is equivalent to `stencila run tasks~ server`.
+#[derive(Parser)]
+#[clap(verbatim_doc_comment)]
+pub struct RunCommand {
+    /// Run arguments
+    args: Vec<String>,
+}
+
+#[async_trait]
+impl Run for RunCommand {
+    async fn run(&self) -> Result {
+        let taskfile = PathBuf::from("Taskfile.yaml");
+        let taskfile = match taskfile.exists() {
+            true => Some(Taskfile::read(&taskfile, 2)?),
+            false => None,
+        };
+
+        let args = if self.args.is_empty() {
+            let mut args = Vec::new();
+            if taskfile.is_some() {
+                args.push("tasks~".to_string());
+            }
+            args.push("server".to_string());
+            args
+        } else {
+            self.args.clone()
+        };
+
+        let mut module = String::new();
+        let mut module_args = Vec::new();
+        let mut background = false;
+        for index in 0..args.len() {
+            let arg = &args[index];
+
+            if arg.contains('=') {
+                module_args.push(arg.clone());
+            } else {
+                let (name, back) = match arg.strip_suffix('~') {
+                    Some(name) => (name.to_string(), true),
+                    None => (arg.to_string(), false),
+                };
+
+                module = if name == "server" || name == "tasks" {
+                    name
+                } else if taskfile
+                    .as_ref()
+                    .map(|taskfile| taskfile.tasks.contains_key(&name))
+                    .unwrap_or(false)
+                {
+                    module_args.insert(0, name);
+                    "tasks".to_string()
+                } else {
+                    module_args.insert(0, name);
+                    "documents".to_string()
+                };
+
+                background = back;
+            }
+
+            if let Some(next) = args.get(index + 1) {
+                if next.contains('=') {
+                    continue;
+                }
+            }
+
+            let mut args = module_args.clone();
+            args.insert(0, "run".to_string());
+
+            // Macro to avoid boxing and associated compiler warning with dealing with different
+            // commands in the following match
+            macro_rules! run {
+                ($cmd: expr) => {
+                    if background {
+                        tracing::debug!("Running `{} {}` in background", module, args.join(" "));
+                        tokio::spawn(async move { $cmd.run().await });
+                    } else {
+                        tracing::debug!("Running `{} {}`", module, args.join(" "));
+                        $cmd.run().await?;
+                    }
+                };
+            }
+
+            match module.as_str() {
+                "tasks" => run!(tasks::cli::Run_::try_parse_from(&args)?),
+                "documents" => run!(documents::commands::Runn::try_parse_from(&args)?),
+                "server" => run!(crate::server::commands::Start::try_parse_from(&args)?),
+                _ => bail!("Unhandled module: {}", module),
+            };
+
+            module_args.clear();
+        }
+
         result::nothing()
     }
 }
@@ -482,18 +654,6 @@ pub async fn main() -> eyre::Result<()> {
                     // If no tasks, then go into interactive mode
                     let mut args = args.clone();
                     args.insert(1, "interact".to_string());
-                    Cli::parse_from(args)
-                } else if PathBuf::from("Taskfile.yaml").exists() {
-                    // If are tasks (and potentially their parameters) and there is a Taskfile
-                    // then run the tasks
-                    let mut args = args.clone();
-                    args.insert(1, "tasks".to_string());
-                    args.insert(2, "run".to_string());
-                    args.insert(
-                        3,
-                        "--error-prefix=Command not recognized and when attempting to run as task:"
-                            .to_string(),
-                    );
                     Cli::parse_from(args)
                 } else {
                     // Otherwise print claps message which for `InvalidSubcommand`

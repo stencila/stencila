@@ -42,7 +42,7 @@ pub struct Image {
 
     /// Whether to pull and write layers of the base image when writing this image
     ///
-    /// Defaults to `false` as an optimization: the image is usually pushed to a registry that 
+    /// Defaults to `false` as an optimization: the image is usually pushed to a registry that
     /// will usually already have the base layers and if it does not, only then
     /// will the base layers be pulled and forwarded to the registry.
     pull_base: bool,
