@@ -8,7 +8,7 @@
 stencila projects push [options]
 ```
 
-Updates the project on Stencila Cloud based on the local configuration file (e.g. `stencila.toml`). The file must have a project id. You can create a new project from a file with no id using `stencila projects create --from <file>`.
+Updates the project on Stencila Cloud based on the local configuration file (e.g. `stencila.yaml`). The file must have a project id. You can create a new project from a file with no id using `stencila projects create --from <file>`.
 
 
 

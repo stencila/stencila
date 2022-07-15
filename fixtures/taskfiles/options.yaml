@@ -1,0 +1,11 @@
+# Example of setting various Taskfile options
+
+version: '3'
+
+output: group
+
+method: timestamp
+
+silent: true
+
+run: once

@@ -3,10 +3,23 @@ name = "cloud"
 version = "0.0.0"
 edition = "2021"
 
+[features]
+doi = ["providers/provider-doi"]
+elife = ["providers/provider-elife"]
+gdrive = ["providers/provider-gdrive"]
+github = ["providers/provider-github"]
+gitlab = ["providers/provider-gitlab"]
+http = ["providers/provider-http"]
+default = ["doi", "elife", "gdrive", "github", "gitlab", "http"]
+
 [dependencies]
 cli-utils = { path = "../cli-utils", features = ["pretty"] }
 common = { path = "../common" }
+cron-utils = { path = "../cron-utils" }
+files = { path = "../files" }
 fs-utils = { path = "../fs-utils" }
 http-utils = { path = "../http-utils" }
 key-utils = { path = "../key-utils" }
+providers = { path = "../providers" }
+stencila-schema = { path = "../schema" }
 webbrowser = "0.7.1"

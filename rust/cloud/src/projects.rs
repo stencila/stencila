@@ -18,38 +18,79 @@ use crate::{
     utils::token_read,
 };
 
-/// Resolve the current project
-pub fn project_current() -> Result<(PathBuf, ProjectLocal)> {
-    let mut dir = env::current_dir()?;
-    loop {
-        for filename in ["stencila.toml", "stencila.yaml", "stencila.json"] {
+impl ProjectLocal {
+    /// Resolve the current project
+    ///
+    /// Walks up the directory tree until a project file e.g. `stencila.yaml` is found.
+    /// Returns the path of the project file and the local representation of the project.
+    pub fn current() -> Result<Self> {
+        let mut dir = env::current_dir()?;
+        loop {
+            if let Some(project) = Self::read(&dir)? {
+                return Ok(project);
+            }
+            if let Some(parent) = dir.parent() {
+                dir = parent.to_path_buf();
+            } else {
+                break;
+            }
+        }
+        bail!("Unable to determine the current project. Could not find a `stencila.yaml`, `stencila.toml` or `stencila.json` file in the current directory or any of its parents")
+    }
+
+    /// Read the project in a directory, if any
+    ///
+    /// Returns the path of the project file and the local representation of the project.
+    pub fn read(dir: &Path) -> Result<Option<Self>> {
+        for filename in ["stencila.yaml", "stencila.toml", "stencila.json"] {
             let path = dir.join(filename);
             if path.exists() {
                 let content = read_to_string(&path)?;
                 let path_str = path.to_string_lossy();
-                let project = if path_str.ends_with(".toml") {
-                    toml::from_str(&content)?
-                } else if path_str.ends_with(".yaml") {
+                let mut project: ProjectLocal = if path_str.ends_with(".yaml") {
                     serde_yaml::from_str(&content)?
+                } else if path_str.ends_with(".toml") {
+                    toml::from_str(&content)?
                 } else if path_str.ends_with(".json") {
                     serde_json::from_str(&content)?
                 } else {
                     unreachable!()
                 };
-                return Ok((path, project));
+                project.path = path;
+                return Ok(Some(project));
             }
         }
-        if let Some(parent) = dir.parent() {
-            dir = parent.to_path_buf();
-        } else {
-            break;
-        }
+        Ok(None)
     }
 
-    bail!("Unable to determine the current project. Could not find a `stencila.toml`, `stencila.yaml` or `stencila.json` file in the current directory or any of its parents")
-}
+    /// Get the path of a project file
+    pub fn path(&self) -> &Path {
+        self.path.as_path()
+    }
 
-impl ProjectLocal {
+    /// Get the directory of a project
+    pub fn dir(&self) -> &Path {
+        self.path
+            .parent()
+            .expect("Project file should always have a parent")
+    }
+
+    /// Write the project back to a path
+    pub fn write(&self) -> Result<()> {
+        let path_str = self.path.to_string_lossy();
+        let contents = if path_str.ends_with(".yaml") {
+            serde_yaml::to_string(&self)?
+        } else if path_str.ends_with(".toml") {
+            toml::to_string_pretty(&self)?
+        } else if path_str.ends_with(".json") {
+            serde_json::to_string_pretty(&self)?
+        } else {
+            bail!("Unsupported extension for project file: {}", path_str)
+        };
+        write(&self.path, contents)?;
+        Ok(())
+    }
+
     /// Convert a local project to a JSON payload suitable for a `PATCH /projects/<id>` request
     fn to_json(&self) -> Result<serde_json::Value> {
         Ok(json!({
@@ -117,9 +158,9 @@ pub async fn project_create(
         return Error::from_response(response).await;
     };
 
-    if project_current().is_err() {
-        let toml = toml::to_string_pretty(&project)?;
-        write("stencila.toml", toml)?;
+    if ProjectLocal::current().is_err() {
+        let yaml = serde_yaml::to_string(&project)?;
+        write("stencila.yaml", yaml)?;
     }
 
     tracing::info!(
@@ -144,14 +185,11 @@ pub async fn project_clone(project_id: u64, dir: Option<&Path>) -> Result<()> {
         let dir = dir
             .map(PathBuf::from)
             .unwrap_or_else(|| PathBuf::from(project.name));
-        if dir.exists() {
-            bail!("Directory `{}` already exists", dir.display())
-        }
         create_dir_all(&dir)?;
 
         let project: ProjectLocal = serde_json::from_value(value)?;
-        let toml = toml::to_string_pretty(&project)?;
-        write(dir.join("stencila.toml"), toml)?;
+        let yaml = serde_yaml::to_string(&project)?;
+        write(dir.join("stencila.yaml"), yaml)?;
 
         tracing::info!(
             "Successfully cloned project #{} into `{}`",
@@ -179,7 +217,7 @@ pub async fn project_retrieve(project_id: &str) -> Result<ProjectRemote> {
 }
 
 pub async fn project_pull() -> Result<()> {
-    let (path, project) = project_current()?;
+    let project = ProjectLocal::current()?;
 
     let id = match project.id {
         Some(id) => id,
@@ -194,14 +232,15 @@ pub async fn project_pull() -> Result<()> {
         .send()
         .await?;
     if response.status().is_success() {
-        let project: ProjectLocal = response.json().await?;
-        let toml = toml::to_string_pretty(&project)?;
-        write(&path, toml)?;
+        let path = project.path();
+        let mut project: ProjectLocal = response.json().await?;
+        project.path = path.to_path_buf();
+        project.write()?;
 
         tracing::info!(
-            "Successfully pulled project #{} to file `{}`",
+            "Successfully pulled project #{} from Stencila Cloud to file `{}`",
             id,
-            path.display()
+            project.path().display()
         );
 
         Ok(())
@@ -211,7 +250,7 @@ pub async fn project_pull() -> Result<()> {
 }
 
 pub async fn project_push() -> Result<()> {
-    let (.., project) = project_current()?;
+    let project = ProjectLocal::current()?;
 
     let id = match project.id {
         Some(id) => id,
@@ -229,6 +268,12 @@ pub async fn project_push() -> Result<()> {
         .send()
         .await?;
     if response.status().is_success() {
+        tracing::info!(
+            "Successfully pushed project  #{} from file `{}` to Stencila Cloud",
+            id,
+            project.path().display()
+        );
+
         Ok(())
     } else {
         Error::from_response(response).await
@@ -245,10 +290,10 @@ pub async fn project_delete(project_id: &str) -> Result<()> {
         return Error::from_response(response).await;
     }
 
-    if let Ok((path, project)) = project_current() {
+    if let Ok(project) = ProjectLocal::current() {
         if let Some(id) = project.id {
             if id.to_string() == project_id {
-                remove_file(path)?;
+                remove_file(project.path())?;
             }
         }
     }
@@ -383,7 +428,7 @@ pub mod cli {
         ///
         /// If this option is not supplied, Stencila will use the current project.
         /// The current project is determined by searching upwards, from the current directory,
-        /// for a `stencila.toml`, `stencila.yaml`, or `stencila.json` file.
+        /// for a `stencila.yaml`, `stencila.toml`, or `stencila.json` file.
         #[clap(long, short)]
         project: Option<String>,
     }
@@ -392,7 +437,7 @@ pub mod cli {
         pub fn resolve(&self) -> eyre::Result<String> {
             match &self.project {
                 Some(id) => Ok(id.to_string()),
-                None => match project_current()?.1.id {
+                None => match ProjectLocal::current()?.id {
                     Some(id) => Ok(id.to_string()),
                     None => bail!("Stencila project file does not have an id"),
                 },
@@ -520,7 +565,7 @@ pub mod cli {
     /// Create a project
     ///
     /// Use this command to create a new Stencila project. A new project will be created on Stencila Cloud
-    /// and a `stencila.toml` file will be created, with the new project's id, in the current folder.
+    /// and a `stencila.yaml` file will be created, with the new project's id, in the current folder.
     ///
     /// Use the `--org` option to select the organization for the project.
     #[derive(Parser)]
@@ -588,7 +633,7 @@ pub mod cli {
 
     /// Pull the current project
     ///
-    /// Updates the local project configuration file (e.g. `stencila.toml`) from Stencila Cloud.
+    /// Updates the local project configuration file (e.g. `stencila.yaml`) from Stencila Cloud.
     /// The file must have a project id.
     #[derive(Parser)]
     struct Pull;
@@ -603,7 +648,7 @@ pub mod cli {
 
     /// Push the current project
     ///
-    /// Updates the project on Stencila Cloud based on the local configuration file (e.g. `stencila.toml`).
+    /// Updates the project on Stencila Cloud based on the local configuration file (e.g. `stencila.yaml`).
     /// The file must have a project id. You can create a new project from a file with no id using `stencila projects create --from <file>`.
     #[derive(Parser)]
     struct Push;

@@ -1,0 +1,15 @@
+---
+source: rust/tasks/src/taskfile.rs
+assertion_line: 756
+expression: yaml
+input_file: fixtures/taskfiles/options.yaml
+---
+version: "3"
+
+output: group
+
+method: timestamp
+
+silent: true
+
+run: once

@@ -25,7 +25,6 @@ buildpack-dockerfile = { path = "../buildpack-dockerfile", optional = true }
 buildpack-node = { path = "../buildpack-node", optional = true }
 buildpack-python = { path = "../buildpack-python", optional = true }
 buildpack-r = { path = "../buildpack-r", optional = true }
-buildpack-sources = { path = "../buildpack-sources", optional = true }
 buildpack-stencila = { path = "../buildpack-stencila", optional = true }
 
 [dev-dependencies]

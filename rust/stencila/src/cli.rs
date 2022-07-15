@@ -10,7 +10,13 @@ use cli_utils::{
     clap::{self, AppSettings, Parser},
     result, stderr_isatty, Result, Run,
 };
-use common::{async_trait::async_trait, eyre, strum::VariantNames, tokio, tracing};
+use common::{
+    async_trait::async_trait,
+    eyre::{self, bail},
+    strum::VariantNames,
+    tokio, tracing,
+};
+use tasks::Taskfile;
 use utils::some_string;
 
 use crate::{
@@ -22,12 +28,12 @@ use crate::{
         LoggingFormat, LoggingLevel,
     },
     projects::PROJECTS,
-    sources,
 };
 
 /// Stencila command line tool
 ///
-/// Enter interactive mode by using the `--interact` option with any command.
+/// Enter interactive mode by using the `interact` command, the `--interact` option with
+/// any other command (will be set as 'prefix'), or not supply any command.
 #[derive(Parser)]
 #[clap(
     version,
@@ -37,7 +43,7 @@ use crate::{
 pub struct Cli {
     /// The command to run
     #[clap(subcommand)]
-    pub command: Option<Command>,
+    pub command: Command,
 
     /// Format to display results of commands (e.g. json, yaml, md)
     ///
@@ -58,11 +64,11 @@ pub struct Cli {
     pub debug: bool,
 
     /// The minimum log level to print
-    #[clap(long, global = true, possible_values = LoggingLevel::VARIANTS, ignore_case = true)]
+    #[clap(long, global = true, possible_values = LoggingLevel::VARIANTS, ignore_case = true, env = "STENCILA_LOG_LEVEL")]
     pub log_level: Option<LoggingLevel>,
 
     /// The format to print log events
-    #[clap(long, global = true, possible_values = LoggingFormat::VARIANTS, ignore_case = true)]
+    #[clap(long, global = true, possible_values = LoggingFormat::VARIANTS, ignore_case = true, env = "STENCILA_LOG_FORMAT")]
     pub log_format: Option<LoggingFormat>,
 }
 
@@ -139,8 +145,15 @@ pub enum Command {
     #[clap(aliases = &["document", "docs", "doc"])]
     Documents(documents::commands::Command),
 
+    #[clap(aliases = &["project"])]
     Projects(cloud::projects::cli::Command),
-    Sources(sources::commands::Command),
+
+    #[clap(aliases = &["source"])]
+    Sources(cloud::sources::cli::Command),
+
+    #[clap(aliases = &["tasks"])]
+    Tasks(tasks::cli::Command),
+
     Orgs(cloud::orgs::cli::Command),
     Teams(cloud::teams::cli::Command),
     Users(cloud::users::cli::Command),
@@ -165,10 +178,6 @@ pub enum Command {
     #[clap(aliases = &["provider"])]
     Providers(providers::commands::Command),
 
-    #[cfg(feature = "buildpacks-cli")]
-    #[clap(aliases = &["buildpack"])]
-    Buildpacks(buildpacks::cli::Command),
-
     #[cfg(feature = "images-cli")]
     #[clap(aliases = &["image"])]
     Images(images::cli::Command),
@@ -189,6 +198,9 @@ pub enum Command {
 
     #[cfg(feature = "upgrade")]
     Upgrade(crate::upgrade::commands::Command),
+
+    /// Enter interactive mode (if not yet in it)
+    Interact,
 }
 
 #[async_trait]
@@ -211,6 +223,9 @@ impl Run for Command {
             Command::Orgs(command) => command.run().await,
             Command::Teams(command) => command.run().await,
             Command::Users(command) => command.run().await,
+
+            #[cfg(feature = "tasks-cli")]
+            Command::Tasks(command) => command.run().await,
 
             #[cfg(feature = "codecs-cli")]
             Command::Codecs(command) => command.run().await,
@@ -247,6 +262,8 @@ impl Run for Command {
 
             #[cfg(feature = "upgrade")]
             Command::Upgrade(command) => command.run().await,
+
+            Command::Interact => result::nothing(),
         }
     }
 }
@@ -291,7 +308,8 @@ impl Run for Line {
 
 /// List all open project and documents.
 #[derive(Parser)]
-pub struct ListCommand {}
+pub struct ListCommand;
+
 #[async_trait]
 impl Run for ListCommand {
     async fn run(&self) -> Result {
@@ -315,6 +333,7 @@ pub struct OpenCommand {
     /// The file or folder to open
     path: Option<PathBuf>,
 }
+
 #[async_trait]
 impl Run for OpenCommand {
     #[cfg(feature = "server")]
@@ -377,6 +396,7 @@ pub struct CloseCommand {
     #[clap(default_value = ".")]
     path: PathBuf,
 }
+
 #[async_trait]
 impl Run for CloseCommand {
     async fn run(&self) -> Result {
@@ -399,6 +419,7 @@ pub struct ShowCommand {
     /// The file or folder to close
     path: Option<PathBuf>,
 }
+
 #[async_trait]
 impl Run for ShowCommand {
     async fn run(&self) -> Result {
@@ -413,21 +434,183 @@ impl Run for ShowCommand {
 }
 
 /// Currently, these top-level commands simply delegate to those in other modules
-type RunCommand = documents::commands::Runn;
 type ConvertCommand = codecs::commands::Convert;
 type DiffCommand = documents::commands::Diff;
 type MergeCommand = documents::commands::Merge;
 
 /// Run commands interactively with a particular project or document
-///
 #[derive(Parser)]
 pub struct WithCommand {
     /// The file or folder to run command with
     path: PathBuf,
 }
+
 #[async_trait]
 impl Run for WithCommand {
     async fn run(&self) -> Result {
+        result::nothing()
+    }
+}
+
+/// Run documents, tasks, and/or server
+///
+/// Use this command to quickly run one or more documents, tasks or the server.
+/// It provides a short cut to the `documents run`, `tasks run`, and `server run`
+/// subcommands and allows you to chain those together.
+///
+/// ## Tasks
+///
+/// Given a `Taskfile.yaml` in the current directory with a task named `simulation`,
+/// the command,
+///
+/// ```sh
+/// stencila run simulation n=100
+/// ```
+///
+/// is equivalent to `stencila tasks run simulation n=100`.
+///
+/// All tasks in the `Taskfile.yaml` with a `schedule` or `watches` can be
+/// run concurrently using,
+///
+/// ```sh
+/// stencila run tasks
+/// ```
+///
+/// which is equivalent to `stencila tasks run`.
+///
+/// ## Documents
+///
+/// If the current directory does not have a `Taskfile.yaml`, or the argument does not
+/// match a task in the current Taskfile, the argument will be assumed to be a filename.
+///
+/// The command,
+///
+/// ```sh
+/// stencila run report.md
+/// ```
+///
+/// is equivalent to `stencila documents run report.md`.
+///
+/// ## Server
+///
+/// The argument `server` will run the server with default options e.g.
+///
+/// ```sh
+/// stencila run server
+/// ```
+///
+/// is equivalent to `stencila server run`.
+///
+/// ## Backgrounding
+///
+/// Things can be run in the background by adding a tilde `~`. For example, to run a task
+/// and a document concurrently,
+///
+/// ```sh
+/// stencila run simulation~ n=100 report.md~
+/// ```
+///
+/// ## Default
+///
+/// If no arguments are supplied, the default is to run all tasks with a `schedule` or `watches`
+/// in the background (if a `Taskfile.yaml` is present), and to run the server i.e.
+///
+/// ```sh
+/// stencila run
+/// ```
+///
+/// is equivalent to `stencila run tasks~ server`.
+#[derive(Parser)]
+#[clap(verbatim_doc_comment)]
+pub struct RunCommand {
+    /// Run arguments
+    args: Vec<String>,
+}
+
+#[async_trait]
+impl Run for RunCommand {
+    async fn run(&self) -> Result {
+        let taskfile = PathBuf::from("Taskfile.yaml");
+        let taskfile = match taskfile.exists() {
+            true => Some(Taskfile::read(&taskfile, 2)?),
+            false => None,
+        };
+
+        let args = if self.args.is_empty() {
+            let mut args = Vec::new();
+            if taskfile.is_some() {
+                args.push("tasks~".to_string());
+            }
+            args.push("server".to_string());
+            args
+        } else {
+            self.args.clone()
+        };
+
+        let mut module = String::new();
+        let mut module_args = Vec::new();
+        let mut background = false;
+        for index in 0..args.len() {
+            let arg = &args[index];
+
+            if arg.contains('=') {
+                module_args.push(arg.clone());
+            } else {
+                let (name, back) = match arg.strip_suffix('~') {
+                    Some(name) => (name.to_string(), true),
+                    None => (arg.to_string(), false),
+                };
+
+                module = if name == "server" || name == "tasks" {
+                    name
+                } else if taskfile
+                    .as_ref()
+                    .map(|taskfile| taskfile.tasks.contains_key(&name))
+                    .unwrap_or(false)
+                {
+                    module_args.insert(0, name);
+                    "tasks".to_string()
+                } else {
+                    module_args.insert(0, name);
+                    "documents".to_string()
+                };
+
+                background = back;
+            }
+
+            if let Some(next) = args.get(index + 1) {
+                if next.contains('=') {
+                    continue;
+                }
+            }
+
+            let mut args = module_args.clone();
+            args.insert(0, "run".to_string());
+
+            // Macro to avoid boxing and associated compiler warning with dealing with different
+            // commands in the following match
+            macro_rules! run {
+                ($cmd: expr) => {
+                    if background {
+                        tracing::debug!("Running `{} {}` in background", module, args.join(" "));
+                        tokio::spawn(async move { $cmd.run().await });
+                    } else {
+                        tracing::debug!("Running `{} {}`", module, args.join(" "));
+                        $cmd.run().await?;
+                    }
+                };
+            }
+
+            match module.as_str() {
+                "tasks" => run!(tasks::cli::Run_::try_parse_from(&args)?),
+                "documents" => run!(documents::commands::Runn::try_parse_from(&args)?),
+                "server" => run!(crate::server::commands::Start::try_parse_from(&args)?),
+                _ => bail!("Unhandled module: {}", module),
+            };
+
+            module_args.clear();
+        }
+
         result::nothing()
     }
 }
@@ -442,7 +625,9 @@ pub async fn main() -> eyre::Result<()> {
 
     let args: Vec<String> = std::env::args().collect();
 
-    // Parse args into a command
+    // Parse args into a command.
+    // We extend the normal clap parsing by falling back to `tasks run` if there was at least one
+    // arg by they are unrecognized and to interactive mode if there are no arguments at all.
     let parsed_args = Cli::try_parse_from(args.clone());
     let Cli {
         command,
@@ -450,32 +635,47 @@ pub async fn main() -> eyre::Result<()> {
         debug,
         log_level,
         log_format,
-        interact,
+        mut interact,
         ..
     } = match parsed_args {
-        Ok(args) => args,
+        Ok(cmd) => cmd,
         Err(error) => {
-            // An argument parsing error happened, possibly because the user
-            // provided incomplete command prefix to interactive mode. Handle that.
-            if args.contains(&"-i".to_string())
-                || args.contains(&"--interact".to_string())
-                || args.contains(&"--interactive".to_string())
-            {
-                Cli {
-                    command: None,
-                    display: DisplayOptions::default(),
-                    debug: args.contains(&"--debug".to_string()),
-                    log_level: None,
-                    log_format: None,
-                    interact: true,
+            if matches!(
+                error.kind(),
+                clap::ErrorKind::InvalidSubcommand | clap::ErrorKind::UnrecognizedSubcommand
+            ) {
+                // Count the number of tasks (args that are not options)?
+                // The minus one accounts for the leading binary name
+                let tasks = args.iter().filter(|arg| !arg.starts_with('-')).count() - 1;
+
+                // Inserting args and re-parsing like the following may seem a bit hacky but it
+                // allows for args such as --debug etc to be captured
+                if tasks == 0 {
+                    // If no tasks, then go into interactive mode
+                    let mut args = args.clone();
+                    args.insert(1, "interact".to_string());
+                    Cli::parse_from(args)
+                } else {
+                    // Otherwise print claps message which for `InvalidSubcommand`
+                    // will be a suggestion
+                    error.print()?;
+                    std::process::exit(exitcode::USAGE);
                 }
             } else {
-                // Print the error `clap` help or usage message and exit
+                // Note that this branch includes `clap::ErrorKind::DisplayHelp` (--help) and
+                // `clap::ErrorKind::DisplayVersion` (--version)
                 error.print()?;
-                std::process::exit(exitcode::USAGE);
+                std::process::exit(match error.kind() {
+                    clap::ErrorKind::DisplayHelp | clap::ErrorKind::DisplayVersion => exitcode::OK,
+                    _ => exitcode::USAGE,
+                });
             }
         }
     };
+
+    if matches!(command, Command::Interact) {
+        interact = true
+    }
 
     // Create a preliminary logging subscriber to be able to log any issues
     // when reading the logging config.
@@ -494,7 +694,13 @@ pub async fn main() -> eyre::Result<()> {
             format: if debug {
                 LoggingFormat::Detail
             } else {
-                log_format.unwrap_or(logging_config.stderr.format)
+                log_format.unwrap_or_else(|| {
+                    if !stderr_isatty() {
+                        LoggingFormat::Json
+                    } else {
+                        logging_config.stderr.format
+                    }
+                })
             },
         },
         ..logging_config
@@ -530,7 +736,7 @@ pub async fn main() -> eyre::Result<()> {
     // If not explicitly upgrading then run an upgrade check in the background
     #[cfg(feature = "upgrade")]
     let upgrade_thread = {
-        if let Some(Command::Upgrade(_)) = command {
+        if let Command::Upgrade(_) = command {
             None
         } else {
             Some(crate::upgrade::upgrade_auto())
@@ -547,7 +753,7 @@ pub async fn main() -> eyre::Result<()> {
     // if projects or documents module
     #[allow(unused_variables)]
     let (interact, module) = match &command {
-        Some(Command::With(WithCommand { path })) => (
+        Command::With(WithCommand { path }) => (
             true,
             if path.is_dir() {
                 "projects".to_string()
@@ -559,7 +765,7 @@ pub async fn main() -> eyre::Result<()> {
     };
 
     // Run the command and print result
-    if let (false, Some(command)) = (interact, command) {
+    if !interact {
         let error_format =
             if matches!(logging_config.stderr.format, LoggingFormat::Json) || !stderr_isatty() {
                 "json"
@@ -574,8 +780,9 @@ pub async fn main() -> eyre::Result<()> {
                 .into_iter()
                 // Remove executable name
                 .skip(1)
-                // Remove the global args which can not be applied to each interactive line
-                .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
+                // Remove the 'interact' command and any global args which can not be applied
+                // to each interactive line
+                .filter(|arg| arg != "interact" && !GLOBAL_ARGS.contains(&arg.as_str()))
                 .collect();
 
             // Insert the module if this is the `with` command

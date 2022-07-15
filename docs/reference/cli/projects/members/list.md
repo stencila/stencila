@@ -16,7 +16,7 @@ Use this command to retrieve a list of a projects members and their role on the 
 
 | Name | Description |
 | --- | --- |
-| `--project -p <project>` | The id of the project. If this option is not supplied, Stencila will use the current project. The current project is determined by searching upwards, from the current directory, for a `stencila.toml`, `stencila.yaml`, or `stencila.json` file. |
+| `--project -p <project>` | The id of the project. If this option is not supplied, Stencila will use the current project. The current project is determined by searching upwards, from the current directory, for a `stencila.yaml`, `stencila.toml`, or `stencila.json` file. |
 
 ## Global options
 

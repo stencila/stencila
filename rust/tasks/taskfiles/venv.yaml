@@ -1,0 +1,34 @@
+version: '3'
+
+includes:
+  gitignore: gitignore.yaml
+  python: python.yaml
+
+tasks:
+  gitignore:
+    desc: Update `.gitignore` for use with a Python virtual environment
+    summary: |
+      Adds a line to the local `.gitignore` file (creating one if necessary) so that
+      the virtual environment is ignored.
+    cmds:
+      - task: gitignore:add
+        vars:
+          PATTERNS: .venv
+
+  init:
+    desc: Initialize a Python virtual environment is present
+    summary:
+      Checks that there is a `.venv/bin/python` present and executable in the current
+      directory, and if there is not, creates a new virtual environment in `.venv`.
+    status:
+      - .venv/bin/python --version
+    cmds:
+      - task: python:install
+      - task: gitignore
+      - python3 -m venv .venv
+
+  clean:
+    desc: Delete the virtual environment
+    summary: Removes the `.venv` directory.
+    cmds:
+      - rm -rf .venv

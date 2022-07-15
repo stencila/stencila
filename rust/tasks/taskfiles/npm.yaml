@@ -1,0 +1,88 @@
+version: '3'
+
+includes:
+  gitignore: gitignore.yaml
+  node: node.yaml
+
+tasks:
+  detect:
+    desc: Detect which NPM related tasks are needed
+    summary: |
+      Adds the `npm:install` task if there is a `package.json` file.
+    ignore_error: true
+    silent: true
+    cmds:
+      - test -f package.json && echo npm:install >> .stencila/tasks/detected
+
+  ensure:
+    desc: Ensure NPM is installed
+    cmds:
+      - task: node:install
+
+  gitignore:
+    desc: Update `.gitignore` for use with NPM
+    summary: |
+      Adds a line to the local `.gitignore` file (creating one if necessary) so that
+      the `node_modules` folder is ignored by Git.
+    cmds:
+      - task: gitignore:add
+        vars:
+          PATTERNS: node_modules
+
+  init:
+    desc: Initialize NPM in a directory
+    summary: |
+      Checks for a `package.json` file, and if none exists, runs `npm init`.
+    status:
+      - test -f package.json
+    cmds:
+      - task: ensure
+      - npm init --yes
+
+  add:
+    desc: Add a Node.js package using NPM
+    cmds:
+      - task: ensure
+      - task: init
+      - task: gitignore
+      - npm install --save {{.PACKAGE}}@{{.VERSION | default "latest"}}
+
+  remove:
+    desc: Remove a Node.js package using NPM
+    cmds:
+      - task: ensure
+      - task: init
+      - npm uninstall --save {{.PACKAGE}}
+
+  install:
+    desc: Install all Node.js packages in `package.json` using NPM
+    sources:
+      - package.json
+    cmds:
+      - task: ensure
+      - task: init
+      - task: gitignore
+      - npm install
+
+  update:
+    desc: Update all Node.js packages in `package.json` using NPM
+    cmds:
+      - task: ensure
+      - task: init
+      - task: gitignore
+      - npm update
+
+  clean:
+    desc: Delete package installation artifacts created by NPM
+    summary: Deletes the `node_modules` directory.
+    cmds:
+      - rm -rf node_modules
+
+  purge:
+    desc: Remove files associated with NPM from the project
+    summary: |
+      Deletes `package-lock.json` and `node_modules`.
+      Does NOT remove `nodejs` from `.tool-versions` or delete `package.json`.
+    cmds:
+      - rm -f package-lock.json
+      - task: clean

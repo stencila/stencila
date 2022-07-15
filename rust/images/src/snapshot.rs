@@ -7,7 +7,6 @@ use std::{
 };
 
 use jwalk::WalkDirGeneric;
-use oci_spec::image::{Descriptor, MediaType};
 use seahash::SeaHasher;
 
 use common::{
@@ -16,6 +15,7 @@ use common::{
 };
 
 // Serialization framework defaults to `rkyv` with fallback to `serde` JSON
+// if feature `rkyv` is not enabled
 
 #[cfg(feature = "rkyv")]
 use rkyv::{Archive, Deserialize, Serialize};
@@ -56,7 +56,7 @@ pub struct SnapshotEntry {
 
 /// Filesystem metadata for a snapshot entry
 ///
-/// Only includes the metadata that needs to be differences. For that reason,
+/// Only includes the metadata that needs to be diffed. For that reason,
 /// does not record `modified` time since that would create a false positive
 /// difference (if all other attributes were the same).
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -129,8 +129,7 @@ impl SnapshotEntry {
 
     /// Generate a hash of a file's content
     ///
-    /// Used to generate a fingerprint
-    ///
+    /// Used to generate a fingerprint of a file for detecting changes to it.
     /// Based on https://github.com/jRimbault/yadf/blob/04205a57882ffa7d6a9ca05016e18214a38079b6/src/fs/hash.rs#L29
     fn file_fingerprint<H>(path: &Path) -> io::Result<u64>
     where
@@ -163,11 +162,14 @@ impl SnapshotEntry {
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
 pub struct Snapshot {
-    /// The source directory, on the local filesystem, for the snapshot
+    /// The source directory for the snapshot
     pub source_dir: String,
 
-    /// The destination directory, on the image's root filesystem, for the snapshot
-    pub dest_dir: String,
+    /// The destination directory for the snapshot
+    ///
+    /// Allows a snapshot to be created for one path and mapped to a changeset
+    /// for another path.
+    pub dest_dir: Option<String>,
 
     /// Entries in the snapshot
     entries: HashMap<String, SnapshotEntry>,
@@ -176,11 +178,25 @@ pub struct Snapshot {
 impl Snapshot {
     /// Create a new snapshot of a directory
     ///
+    /// If the source directory is "/" (i.e. the filesystem root), then the following directories in
+    /// the [Filesystem Hierarchy Standard](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard)
+    /// will be ignored: /boot, /dev, /media, /mnt, /proc, /run, /sys, /tmp, /var.
+    ///
     /// If there is a `.dockerignore` or `.containerignore` file in source directory then it will be
     /// used to exclude paths, including those in child sub-directories.
-    pub fn new<S: AsRef<Path>, D: AsRef<Path>>(source_dir: S, dest_dir: D) -> Self {
+    pub fn new<S: AsRef<Path>>(source_dir: S) -> Self {
         let source_dir = source_dir.as_ref().to_path_buf();
-        let dest_dir = dest_dir.as_ref().to_path_buf();
+
+        let skip_dirs = if source_dir == PathBuf::from("/") {
+            vec![
+                "/boot", "/dev", "/media", "/mnt", "/proc", "/run", "/sys", "/tmp", "/var",
+            ]
+            .iter()
+            .map(PathBuf::from)
+            .collect()
+        } else {
+            Vec::new()
+        };
 
         let docker_ignore = source_dir.join(".dockerignore");
         let container_ignore = source_dir.join(".containerignore");
@@ -207,9 +223,12 @@ impl Snapshot {
 
         let entries = WalkDirGeneric::<((), SnapshotEntry)>::new(&source_dir)
             .skip_hidden(false)
-            .process_read_dir(|_depth, _path, _read_dir_state, children| {
+            .process_read_dir(move |_depth, _path, _read_dir_state, children| {
                 children.iter_mut().flatten().for_each(|dir_entry| {
-                    if !dir_entry.file_type.is_dir() {
+                    if !skip_dirs.is_empty() && skip_dirs.contains(&dir_entry.path()) {
+                        tracing::debug!("Skipping {}", dir_entry.path().display());
+                        dir_entry.read_children_path = None;
+                    } else if !dir_entry.file_type.is_dir() {
                         dir_entry.client_state = SnapshotEntry::new(
                             &dir_entry.path(),
                             &dir_entry.file_type(),
@@ -223,7 +242,8 @@ impl Snapshot {
                 Ok(entry) => {
                     let path = entry.path();
 
-                    // Check that the file should not be ignored
+                    // Check whether the file should be ignored (unfortunately, due to lifetimes in `gitignore::File` we
+                    // cant seem to do this earlier in `process_read_dir`)
                     if let Some(true) = ignore_file
                         .as_ref()
                         .and_then(|ignore_file| ignore_file.is_excluded(&path).ok())
@@ -249,18 +269,30 @@ impl Snapshot {
             })
             .collect();
 
-        let source_dir = source_dir.to_string_lossy().to_string();
-        let dest_dir = dest_dir.to_string_lossy().to_string();
         Self {
-            source_dir,
-            dest_dir,
+            source_dir: source_dir.to_string_lossy().to_string(),
+            dest_dir: None,
             entries,
         }
     }
 
+    /// Create a new snapshot with a destination that is different to the source
+    pub fn new_with<S: AsRef<Path>, D: AsRef<Path>>(source: S, dest: D) -> Self {
+        let mut snapshot = Self::new(source);
+        snapshot.dest_dir = Some(dest.as_ref().to_string_lossy().to_string());
+        snapshot
+    }
+
+    /// Get the number of entries in the snapshot
+    pub fn size(&self) -> usize {
+        self.entries.len()
+    }
+
     /// Create a new snapshot by repeating the current one
     pub fn repeat(&self) -> Self {
-        Self::new(&self.source_dir, &self.dest_dir)
+        let mut snapshot = Self::new(&self.source_dir);
+        snapshot.dest_dir = self.dest_dir.clone();
+        snapshot
     }
 
     /// Write a snapshot to a file
@@ -310,13 +342,13 @@ impl Snapshot {
     }
 
     /// Create a set of changes that replicate the current snapshot using only additions
-    fn replicate(&self) -> ChangeSet {
+    pub fn replicate(&self) -> ChangeSet {
         let changes = self
             .entries
             .keys()
             .map(|path| Change::Added(path.into()))
             .collect();
-        ChangeSet::new(&self.source_dir, &self.dest_dir, changes)
+        ChangeSet::new(&self.source_dir, self.dest_dir.as_ref(), changes)
     }
 
     /// Create a set of changes by determining the difference between two snapshots
@@ -337,7 +369,7 @@ impl Snapshot {
                 changes.push(Change::Added(path.into()))
             }
         }
-        ChangeSet::new(&other.source_dir, &other.dest_dir, changes)
+        ChangeSet::new(&other.source_dir, other.dest_dir.as_ref(), changes)
     }
 
     /// Create a set of changes by repeating the current snapshot
@@ -346,32 +378,12 @@ impl Snapshot {
     pub fn changes(&self) -> ChangeSet {
         self.diff(&self.repeat())
     }
-
-    /// Create a layer by repeating the current snapshot
-    ///
-    /// # Arguments
-    ///
-    /// - `diff`: Whether to create the layer as the difference to the original snapshot
-    ///           (the usual) or as a replicate.
-    pub fn write_layer<P: AsRef<Path>>(
-        &self,
-        layout_dir: P,
-        diff: bool,
-        media_type: &MediaType,
-    ) -> Result<(String, Descriptor)> {
-        let new = self.repeat();
-        let changeset = if diff {
-            self.diff(&new)
-        } else {
-            new.replicate()
-        };
-        changeset.write_layer(media_type, layout_dir)
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use common::{eyre::eyre, tempfile::tempdir};
+    use oci_spec::image::MediaType;
 
     use test_snaps::fixtures;
     use test_utils::skip_ci_os;
@@ -385,7 +397,7 @@ mod tests {
 
         let temp = tempdir()?;
         let snapshot_path = temp.path().join("test.snap");
-        let snapshot1 = Snapshot::new(working_dir, "/workspace");
+        let snapshot1 = Snapshot::new(working_dir);
 
         snapshot1.write(&snapshot_path)?;
 
@@ -402,19 +414,19 @@ mod tests {
         let source_dir = temp.path();
 
         fs::write(source_dir.join("a.txt"), "A")?;
-        assert!(Snapshot::new(source_dir, "").entries.contains_key("a.txt"));
+        assert!(Snapshot::new(source_dir).entries.contains_key("a.txt"));
 
         fs::write(source_dir.join(".dockerignore"), "*\n")?;
-        assert!(!Snapshot::new(source_dir, "").entries.contains_key("a.txt"));
+        assert!(!Snapshot::new(source_dir).entries.contains_key("a.txt"));
 
         fs::remove_file(source_dir.join(".dockerignore"))?;
         fs::write(source_dir.join(".containerignore"), "*.txt\n")?;
-        assert!(!Snapshot::new(source_dir, "").entries.contains_key("a.txt"));
+        assert!(!Snapshot::new(source_dir).entries.contains_key("a.txt"));
 
         fs::remove_file(source_dir.join(".containerignore"))?;
         fs::write(source_dir.join("b.txt"), "B")?;
         fs::write(source_dir.join(".dockerignore"), "!a.txt\n")?;
-        let snapshot = Snapshot::new(source_dir, "");
+        let snapshot = Snapshot::new(source_dir);
         assert!(snapshot.entries.contains_key("a.txt"));
         assert!(snapshot.entries.contains_key("b.txt"));
 
@@ -439,7 +451,7 @@ mod tests {
 
         // Create an initial snapshot which should be empty and has no changes with self
 
-        let snap1 = Snapshot::new(source_dir.path(), &dest_dir);
+        let snap1 = Snapshot::new_with(source_dir.path(), &dest_dir);
         assert_eq!(snap1.entries.len(), 0);
 
         let changes = snap1.diff(&snap1);
@@ -459,7 +471,8 @@ mod tests {
         assert_eq!(changes.items.len(), 1);
         assert_eq!(changes.items[0], Change::Added(a_txt.clone()));
 
-        let (.., descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
+        let (.., descriptor) =
+            changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir, false)?;
 
         let mut layer = ChangeSet::read_layer(&layout_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
@@ -502,7 +515,8 @@ mod tests {
         assert_eq!(changes.items.len(), 1);
         assert_eq!(changes.items[0], Change::Removed(a_txt));
 
-        let (.., descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
+        let (.., descriptor) =
+            changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir, false)?;
         let mut layer = ChangeSet::read_layer(&layout_dir, descriptor.digest())?;
         let mut entries = layer.entries()?;
         let entry = entries.nth(1).unwrap()?;
@@ -522,7 +536,8 @@ mod tests {
         assert_eq!(changes.items.len(), 1);
         assert_eq!(changes.items[0], Change::Modified(b_txt.clone()));
 
-        let (.., descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
+        let (.., descriptor) =
+            changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir, false)?;
         let mut archive = ChangeSet::read_layer(&layout_dir, descriptor.digest())?;
         let mut entries = archive.entries()?;
         let entry = entries.nth(1).unwrap()?;

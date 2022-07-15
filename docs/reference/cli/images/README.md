@@ -1,10 +1,11 @@
 ---
 parts:
   - list
-  - build
   - pull
   - push
   - remove
+  - snap
+  - save
 ---
 
 
@@ -25,10 +26,11 @@ This subcommand provides a limited version of the functionality provided by `doc
 | Name | Description |
 | --- | --- |
 | [`list`](list.md) | List images in the local image store |
-| [`build`](build.md) | Build an image |
 | [`pull`](pull.md) | Pull an image from a registry |
 | [`push`](push.md) | Push an image to a registry |
 | [`remove`](remove.md) | Remove an image from the local image store |
+| [`snap`](snap.md) | Take a snapshot of the filesystem |
+| [`save`](save.md) | Save a container as an image layer |
 | `help` | Print help information |
 
 

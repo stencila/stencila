@@ -1,0 +1,22 @@
+# Example of specifying dependencies between tasks
+# See https://taskfile.dev/usage/#task-dependencies
+
+version: '3'
+
+tasks:
+  default:
+    deps:
+      - a
+      - task: b
+      - task: c
+        vars:
+          VAR: 'Var for c'
+
+  a:
+    cmds:
+      - echo 'This is task {{.TASK}}'
+    deps: [b]
+
+  b: echo 'This is task {{.TASK}}'
+
+  c: echo 'This is task c {{.VAR}}'

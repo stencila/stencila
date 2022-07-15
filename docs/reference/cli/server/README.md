@@ -1,6 +1,6 @@
 ---
 parts:
-  - start
+  - run
   - stop
   - show
   - clients
@@ -23,7 +23,7 @@ stencila server [options] <subcommand>
 
 | Name | Description |
 | --- | --- |
-| [`start`](start.md) | Start the server |
+| [`run`](run.md) | Start the server |
 | [`stop`](stop.md) | Stop the server |
 | [`show`](show.md) | Show details of the server |
 | [`clients`](clients.md) | List the clients connected to the server |

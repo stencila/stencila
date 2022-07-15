@@ -7,7 +7,7 @@
 //! created_at
 //! ```
 
-pub use cli_table::Table;
+pub use cli_table::{Table, Title};
 
 use common::{
     chrono::{DateTime, Utc},

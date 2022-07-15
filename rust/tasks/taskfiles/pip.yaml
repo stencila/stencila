@@ -1,0 +1,71 @@
+version: '3'
+
+includes:
+  python: python.yaml
+  venv: venv.yaml
+
+tasks:
+  detect:
+    desc: Detect which Pip related tasks are needed
+    summary: |
+      Adds the `pip:install` task if there is a `requirements.txt` file in the root
+      of the project.
+    ignore_error: true
+    silent: true
+    cmds:
+      - test -f requirements.txt && echo pip:install >> .stencila/tasks/detected
+
+  ensure:
+    desc: Ensure Pip is installed
+    summary: |
+      Pip is a popular Python package manager. This task ensures that Pip
+      (and by extension, Python) is installed. It checks that the `pip` module is
+      installed, and if not, installs it using the `ensurepip` module.
+    status:
+      - python -m pip
+    cmds:
+      - task: python:install
+      - python -m ensurepip
+
+  add:
+    desc: Add a Python package using Pip
+    silent: true
+    cmds:
+      - task: venv:init
+      - |
+        if [ -z {{.VERSION}} ]
+        then
+          .venv/bin/pip install {{.PACKAGE}}
+        else
+          .venv/bin/pip install {{.PACKAGE}}=={{.VERSION}}
+        fi
+      - .venv/bin/pip freeze > requirements.txt
+
+  remove:
+    desc: Remove a Python package using Pip
+    cmds:
+      - task: venv:init
+      - .venv/bin/pip uninstall {{.PACKAGE}}
+      - .venv/bin/pip freeze > requirements.txt
+
+  install:
+    desc: Install all Python packages in `requirements.txt` using Pip
+    sources:
+      - requirements.txt
+    cmds:
+      - task: venv:init
+      - .venv/bin/pip install -r requirements.txt
+
+  clean:
+    desc: Delete package installation artifacts created by Pip
+    summary: Removes the `.venv` directory.
+    cmds:
+      - task: venv:clean
+
+  purge:
+    desc: Remove Pip and associated files from the project
+    summary: |
+      Deletes `.venv`. Does NOT remove `python` from `.tool-versions` or delete
+      `requirements.txt`.
+    cmds:
+      - task: clean

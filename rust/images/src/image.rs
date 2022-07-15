@@ -1,29 +1,23 @@
-use std::{
-    collections::HashMap,
-    env,
-    path::{Path, PathBuf},
-};
+use std::{collections::HashMap, env, path::Path};
 
 use oci_spec::image::{
     Descriptor, History, HistoryBuilder, ImageConfiguration, ImageConfigurationBuilder,
-    ImageIndexBuilder, ImageManifestBuilder, MediaType, RootFsBuilder, SCHEMA_VERSION,
+    ImageIndexBuilder, ImageManifestBuilder, MediaType, RootFsBuilder, ToDockerV2S2,
+    SCHEMA_VERSION,
 };
 
 use common::{
     chrono::Utc,
-    eyre::{bail, eyre, Result},
-    glob,
+    eyre::{bail, Result},
     serde::Serialize,
-    serde_json, tokio, tracing,
+    serde_json, tokio,
 };
-use hash_utils::str_sha256_hex;
 
 use crate::{
     blob_writer::BlobWriter,
-    distribution::Client,
+    change_set::ChangeSet,
+    distribution::{push, Client},
     image_reference::ImageReference,
-    media_types::ToDockerV2S2,
-    snapshot::Snapshot,
     storage::{image_path, image_path_safe, write_oci_layout_file, IMAGES_MAP},
     utils::unique_string,
 };
@@ -31,15 +25,9 @@ use crate::{
 /// A container image
 ///
 /// This is serializable mainly so that it can be inspected as JSON or YAML output from a CLI command.
-#[derive(Debug, Serialize)]
+#[derive(Serialize)]
 #[serde(crate = "common::serde")]
 pub struct Image {
-    /// The working directory to build an image for
-    ///
-    /// Buildpacks will build layers based on the source code within this directory. Usually
-    /// the home directory of a project. Defaults to the current directory.
-    working_dir: Option<PathBuf>,
-
     /// The image reference for this image
     reference: ImageReference,
 
@@ -48,20 +36,23 @@ pub struct Image {
     /// Equivalent to the `FROM` directive of a Dockerfile.
     base: ImageReference,
 
-    /// The directory that contains the buildpack layers
-    ///
-    /// Defaults to `/layers` or `<working_dir>/.stencila/layers` (in order of priority).
-    layers_dir: PathBuf,
-
-    /// Whether snapshots should be diffed or replicated
-    layer_diffs: bool,
-
-    /// The format used when writing layers
-    layer_format: MediaType,
-
-    /// The snapshots for each layer directory, used to generated [`ChangeSet`]s and image layers
+    /// The [`ChangeSet`]s used to generate each image layer
     #[serde(skip)]
-    layer_snapshots: Vec<Snapshot>,
+    change_sets: Vec<ChangeSet>,
+
+    /// Whether to pull and write layers of the base image when writing this image
+    ///
+    /// Defaults to `false` as an optimization: the image is usually pushed to a registry that
+    /// will usually already have the base layers and if it does not, only then
+    /// will the base layers be pulled and forwarded to the registry.
+    pull_base: bool,
+
+    /// Whether to make the layers for each change set deterministic (i.e. ignore file
+    /// modification time and other metadata)
+    deterministic_layers: bool,
+
+    /// The format used when writing layers for each change set
+    layer_format: MediaType,
 
     /// The format for the image manifest
     ///
@@ -74,83 +65,22 @@ pub struct Image {
 impl Image {
     /// Create a new image
     pub fn new(
-        working_dir: Option<&Path>,
-        ref_: Option<&str>,
+        reference: &str,
         base: Option<&str>,
-        layers_dir: Option<&Path>,
-        layer_diffs: Option<bool>,
+        change_sets: Vec<ChangeSet>,
         layer_format: Option<&str>,
         manifest_format: Option<&str>,
     ) -> Result<Self> {
-        let working_dir = working_dir.map(PathBuf::from);
+        let reference = reference.parse()?;
 
-        let ref_ = match ref_ {
-            Some(reference) => reference.parse::<ImageReference>()?,
-            None => {
-                let registry = "localhost".to_string();
-
-                let name = working_dir
-                    .as_ref()
-                    .and_then(|dir| dir.file_name())
-                    .map(|name| name.to_string_lossy().to_string())
-                    .unwrap_or_else(|| "unnamed".to_string());
-                let hash = working_dir
-                    .as_ref()
-                    .map(|dir| str_sha256_hex(&dir.to_string_lossy().to_string()))
-                    .unwrap_or_else(unique_string);
-                let repository = [&name, "-", &hash[..12]].concat();
-
-                ImageReference {
-                    registry,
-                    repository,
-                    ..Default::default()
-                }
-            }
-        };
-
-        let base = base
+        let base = match base
             .map(String::from)
+            .or_else(|| std::env::var("STENCILA_IMAGE_BASE").ok())
             .or_else(|| std::env::var("STENCILA_IMAGE_REF").ok())
-            .unwrap_or_else(|| "ubuntu".to_string())
-            .parse()?;
-
-        let layers_dir = layers_dir
-            .map(|path| path.to_path_buf())
-            .unwrap_or_else(|| {
-                let layers_top = PathBuf::from("/layers");
-                if layers_top.exists() {
-                    layers_top
-                } else if let Some(working_dir) = working_dir.as_ref() {
-                    let dir = working_dir.join(".stencila").join("layers");
-                    std::fs::create_dir_all(&dir).expect("Unable to create layers dir");
-                    dir
-                } else {
-                    std::env::temp_dir().join(["stencila-", &unique_string()].concat())
-                }
-            });
-
-        // Before creating snapshots do a "prebuild" so that the directories
-        // that may need to be snapshotted are present and picked up in `layers_dir.read_dir()` call below.
-        buildpacks::PACKS.prebuild_all(&layers_dir)?;
-
-        let mut layer_snapshots = Vec::new();
-        if let Some(working_dir) = working_dir.as_ref() {
-            layer_snapshots.push(Snapshot::new(working_dir.clone(), "/workspace"));
-        }
-        for subdir in layers_dir.read_dir()?.flatten().filter_map(|entry| {
-            if entry.path().is_dir() {
-                Some((entry.path(), entry.file_name()))
-            } else {
-                None
-            }
-        }) {
-            layer_snapshots.push(Snapshot::new(
-                &subdir.0,
-                PathBuf::from("/layers").join(subdir.1),
-            ));
-        }
-
-        let layer_diffs = layer_diffs.unwrap_or(true);
+        {
+            Some(var) => var.parse()?,
+            None => bail!("Unable to resolve the base image"),
+        };
 
         let layer_format = match layer_format {
             None | Some("tar+gzip") | Some("tgz") => MediaType::ImageLayerGzip,
@@ -166,12 +96,11 @@ impl Image {
         };
 
         Ok(Self {
-            working_dir,
-            reference: ref_,
+            change_sets,
+            reference,
             base,
-            layers_dir,
-            layer_snapshots,
-            layer_diffs,
+            pull_base: false,
+            deterministic_layers: false,
             layer_format,
             manifest_format,
         })
@@ -214,14 +143,19 @@ impl Image {
         let mut diff_ids = base_config.rootfs().diff_ids().clone();
         let mut histories = base_config.history().clone();
 
-        let client = Client::new(&self.base.registry, &self.base.repository, None).await?;
-        for layer in &layers {
-            client.pull_blob_via(layer, None).await?
+        if self.pull_base {
+            let client = Client::new(&self.base.registry, &self.base.repository, None).await?;
+            for layer in &layers {
+                client.pull_blob_via(layer, Some(layout_dir)).await?
+            }
         }
 
-        for snapshot in &self.layer_snapshots {
-            let (diff_id, layer) =
-                snapshot.write_layer(layout_dir, self.layer_diffs, &self.layer_format)?;
+        for change_set in &self.change_sets {
+            let (diff_id, layer) = change_set.write_layer(
+                &self.layer_format,
+                layout_dir,
+                self.deterministic_layers,
+            )?;
 
             if diff_id == "<empty>" {
                 continue;
@@ -230,13 +164,17 @@ impl Image {
             diff_ids.push(diff_id);
             layers.push(layer);
 
+            let (additions, deletions, modifications) = change_set.summarize();
+            let comment = change_set.comment.clone().unwrap_or_else(|| {
+                format!("Change set for {} with {additions} additions, {deletions} deletions, and {modifications} modifications.", change_set.source_dir.display())
+            });
             let history = HistoryBuilder::default()
                 .created(Utc::now().to_rfc3339())
                 .created_by(format!(
                     "stencila {}",
                     env::args().skip(1).collect::<Vec<String>>().join(" ")
                 ))
-                .comment(format!("Layer for directory {}", snapshot.source_dir))
+                .comment(comment)
                 .build()?;
             histories.push(history)
         }
@@ -257,13 +195,8 @@ impl Image {
         // Start with the config of the base image and override as necessary
         let mut config = base_config.config().clone().unwrap_or_default();
 
-        // Working directory is represented in image as /workspace. Override it
-        config.set_working_dir(Some("/workspace".to_string()));
-
-        let layers_dir = self
-            .layers_dir
-            .to_str()
-            .ok_or_else(|| eyre!("Layers dir is none"))?;
+        // Set working directory
+        config.set_working_dir(Some("/work".to_string()));
 
         // Get the environment variables in the base images
         let mut env: HashMap<String, String> = config
@@ -280,94 +213,6 @@ impl Image {
             })
             .collect();
 
-        // Update the env vars with those that are expected to be provided by the `launcher` lifecycle
-        // See https://github.com/buildpacks/spec/blob/main/buildpack.md#provided-by-the-lifecycle
-        let layer_dirs = glob::glob(&[layers_dir, "/*/*/"].concat())?.flatten();
-        for layer_dir in layer_dirs {
-            let path = [
-                layer_dir.join("bin").to_string_lossy().to_string(),
-                ":".to_string(),
-                env.get("PATH").cloned().unwrap_or_default(),
-            ]
-            .concat();
-            env.insert("PATH".to_string(), path);
-
-            let lid_library_path = [
-                layer_dir.join("lib").to_string_lossy().to_string(),
-                ":".to_string(),
-                env.get("LD_LIBRARY_PATH").cloned().unwrap_or_default(),
-            ]
-            .concat();
-            env.insert("LD_LIBRARY_PATH".to_string(), lid_library_path);
-        }
-
-        // Update the env vars with those provided by buildpacks
-        // See https://github.com/buildpacks/spec/blob/main/buildpack.md#provided-by-the-buildpacks
-        let var_files = glob::glob(&[layers_dir, "/*/*/env/*"].concat())?.flatten();
-        for var_file in var_files {
-            let action = match var_file.extension() {
-                Some(ext) => ext.to_string_lossy().to_string(),
-                None => continue,
-            };
-            let name = match var_file.file_stem() {
-                Some(name) => name.to_string_lossy().to_string(),
-                None => continue,
-            };
-            let mut value = match env.get(&name) {
-                Some(value) => value.clone(),
-                None => String::new(),
-            };
-            let new_value = std::fs::read_to_string(&var_file)?;
-
-            // Apply modification action
-            //
-            // Because the base image may have been built with Stencila buildpacks, for
-            // prepend and append the value is only added if it is not present (this avoid
-            // having env vars such as PATH that grow very long).
-            //
-            // Because prepend and append are almost always associated with paths, and need
-            // to have separator, these are added if necessary.
-            match action.as_str() {
-                "default" => {
-                    if value.is_empty() {
-                        value = new_value;
-                    }
-                }
-                "prepend" => {
-                    if !value.contains(&new_value) {
-                        let sep = if new_value.ends_with(':')
-                            || value.is_empty()
-                            || value.starts_with(':')
-                        {
-                            ""
-                        } else {
-                            ":"
-                        };
-                        value = [new_value, sep.to_string(), value].concat()
-                    }
-                }
-                "append" => {
-                    if !value.contains(&new_value) {
-                        let sep = if new_value.starts_with(':')
-                            || value.is_empty()
-                            || value.ends_with(':')
-                        {
-                            ""
-                        } else {
-                            ":"
-                        };
-                        value = [value, sep.to_string(), new_value].concat()
-                    }
-                }
-                "override" => {
-                    value = new_value;
-                }
-                _ => tracing::warn!("ignoring env var file {}", var_file.display()),
-            }
-
-            env.insert(name, value);
-        }
-
         // Add an env var for the ref of the image (used as the default `--from` image when building another image from this)
         env.insert("STENCILA_IMAGE_REF".to_string(), self.reference.to_string());
 
@@ -383,18 +228,6 @@ impl Image {
             "io.stencila.version".to_string(),
             env!("CARGO_PKG_VERSION").to_string(),
         );
-        if let Some(content) = self
-            .working_dir
-            .as_ref()
-            .and_then(|dir| std::fs::read_to_string(dir.join(".image-labels")).ok())
-        {
-            for line in content.lines() {
-                if let Some((name, value)) = line.split_once(' ') {
-                    labels.insert(name.into(), value.into());
-                }
-            }
-        }
-        config.set_labels(Some(labels));
 
         // Rootfs DiffIDs calculated above
         let rootfs = RootFsBuilder::default().diff_ids(diff_ids).build()?;
@@ -494,25 +327,13 @@ impl Image {
         Ok(config_descriptor)
     }
 
-    pub async fn build(&self) -> Result<()> {
-        if let Some(working_dir) = &self.working_dir {
-            // Because buildpacks will change directories into the working dir. It is safest to use absolute paths here.
-            let working_dir = working_dir.canonicalize()?;
-            let layers_dir = self.layers_dir.canonicalize()?;
-
-            buildpacks::PACKS.build_all(Some(&working_dir), Some(&layers_dir), None)?;
-        }
-
-        Ok(())
-    }
-
-    /// Write the image to `layout_dir`
+    /// Write the image to the local image store
     ///
     /// Implements the [OCI Image Layout Specification](https://github.com/opencontainers/image-spec/blob/main/image-layout.md).
     ///
     /// Note that the `blobs/sha256` subdirectory may not have blobs for the base image (these
     /// are only pulled into that directory if necessary i.e. if the registry does not yet have them).
-    pub async fn write(&mut self) -> Result<()> {
+    pub async fn write(&mut self) -> Result<(String, String)> {
         use tokio::fs;
 
         // Create a temporary OCI layout directory
@@ -529,38 +350,38 @@ impl Image {
 
         // Add an entry in the images map
         let mut images = IMAGES_MAP.write().await;
-        images.insert(&self.reference.to_string_tag_or_latest(), config_digest)?;
+        let reference = self.reference.to_string_tag_or_latest();
+        let id = config_digest;
+        images.insert(&reference, id)?;
 
+        Ok((reference, id.to_owned()))
+    }
+
+    /// Push the image to a repository
+    pub async fn push(&mut self) -> Result<()> {
+        push(&self.reference.to_string_tag_or_latest(), None, false).await?;
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use test_utils::common::tempfile::tempdir;
-
     use super::*;
 
     /// Test that when an image is written to a directory that they directory conforms to
     /// the OCI Image Layout spec
     #[tokio::test]
     async fn image_write() -> Result<()> {
-        let working_dir = tempdir()?;
-        let mut image = Image::new(
-            Some(working_dir.path()),
-            None,
-            Some("ubuntu"),
-            None,
-            None,
-            None,
-            None,
-        )?;
+        let mut image = Image::new("test", Some("ubuntu"), vec![], None, None)?;
+        let (reference, id) = image.write().await?;
 
-        image.write().await?;
+        let layout_dir = image_path(&id);
+        assert!(layout_dir.join("oci-layout").is_file());
+        assert!(layout_dir.join("index.json").is_file());
+        assert!(layout_dir.join("blobs").join("sha256").is_dir());
 
-        //assert!(image.layout_dir.join("oci-layout").is_file());
-        //assert!(image.layout_dir.join("index.json").is_file());
-        //assert!(image.layout_dir.join("blobs").join("sha256").is_dir());
+        let mut image_map = IMAGES_MAP.write().await;
+        image_map.remove(&reference)?;
 
         Ok(())
     }

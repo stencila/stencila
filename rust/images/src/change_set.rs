@@ -39,10 +39,13 @@ pub enum Change {
 /// [OCI Image Layer Filesystem Changeset](https://github.com/opencontainers/image-spec/blob/main/layer.md)
 pub struct ChangeSet {
     /// The source directory, on the local filesystem, for the changes
-    source_dir: PathBuf,
+    pub(crate) source_dir: PathBuf,
 
     /// The destination directory, within the image's root filesystem, for the changes
-    dest_dir: PathBuf,
+    pub(crate) dest_dir: PathBuf,
+
+    /// A comment added to history entry corresponding to the layer generated for this changeset
+    pub(crate) comment: Option<String>,
 
     /// The change items
     pub(crate) items: Vec<Change>,
@@ -50,11 +53,25 @@ pub struct ChangeSet {
 
 impl ChangeSet {
     /// Create a new set of snapshot changes
-    pub fn new<P: AsRef<Path>>(source_dir: P, dest_dir: P, items: Vec<Change>) -> Self {
+    ///
+    /// # Arguments
+    ///
+    /// - `source_dir`: The source directory of the change set
+    /// - `dest_dir`: The destination directory of the change set (defaults to the source directory)
+    /// - `items`: The [`Change`] items in the change set
+    pub fn new<S: AsRef<Path>, D: AsRef<Path>>(
+        source_dir: S,
+        dest_dir: Option<D>,
+        items: Vec<Change>,
+    ) -> Self {
         let source_dir = source_dir.as_ref().to_path_buf();
 
-        // Parths in tar archive must be relative so stri any leading slash
-        let dest_dir = dest_dir.as_ref().to_path_buf();
+        let dest_dir = match dest_dir {
+            Some(dest_dir) => dest_dir.as_ref().to_path_buf(),
+            None => source_dir.clone(),
+        };
+
+        // Paths in tar archive must be relative so strip any leading slash
         let dest_dir = match dest_dir.strip_prefix("/") {
             Ok(dir) => dir.to_owned(),
             Err(_) => dest_dir,
@@ -64,7 +81,23 @@ impl ChangeSet {
             source_dir,
             dest_dir,
             items,
+            comment: None,
         }
+    }
+
+    /// Generate a summary of the number of changes by type
+    pub fn summarize(&self) -> (usize, usize, usize) {
+        let mut additions = 0;
+        let mut deletions = 0;
+        let mut modifications = 0;
+        for change in &self.items {
+            match change {
+                Change::Added(..) => additions += 1,
+                Change::Removed(..) => deletions += 1,
+                Change::Modified(..) => modifications += 1,
+            }
+        }
+        (additions, deletions, modifications)
     }
 
     /// Creates an OCI layer for the set of changes
@@ -82,11 +115,15 @@ impl ChangeSet {
     ///
     /// # Arguments
     ///
-    /// - `layout_dir`: the image directory to write the layer to (to the `blob/sha256` subdirectory)
+    /// - `media_type`: The OCI [`MediaType`] to write the layer as
+    /// - `layout_dir`: The OCI layout directory to write the layer to
+    /// - `deterministic`: Whether the layer should be deterministic (i.e. ignore filesystem metadata such as
+    ///                    modification times and ownership).
     pub fn write_layer<P: AsRef<Path>>(
-        self,
+        &self,
         media_type: &MediaType,
         layout_dir: P,
+        deterministic: bool,
     ) -> Result<(String, Descriptor)> {
         if self.items.is_empty() {
             return Ok((
@@ -159,13 +196,13 @@ impl ChangeSet {
 
             let mut archive = tar::Builder::new(&mut layer_writer);
 
-            // Must use deterministic mode to ensure that DiffID does not change when `modified`
-            // timestamp of files / folders differs
-            archive.mode(HeaderMode::Deterministic);
+            if deterministic {
+                archive.mode(HeaderMode::Deterministic);
+            }
 
             // Add an entry for the `dest_dir` (and any of its parent) so that ownership (and other
             // metadata) of `source_dir` is maintained. If not done then there are issues with non-root
-            // users writing to the `workspace` and `layers` directories and  their subdirectories.
+            // users writing to the `workspace` and `layers` directories and their subdirectories.
             let mut path = PathBuf::new();
             for part in self.dest_dir.components() {
                 path = path.join(part);
@@ -174,7 +211,7 @@ impl ChangeSet {
 
             // Add each change in sorted order so that the digest of the generated archive
             // does not change for a given change set
-            for change in self.items.into_iter().sorted() {
+            for change in self.items.iter().sorted() {
                 match change {
                     Change::Added(ref path) | Change::Modified(ref path) => {
                         let source_path = self.source_dir.join(path);
@@ -208,7 +245,7 @@ impl ChangeSet {
                         };
 
                         if let Err(error) = result {
-                            tracing::debug!(
+                            tracing::warn!(
                                 "While appending item for added or modified path `{}`: {}",
                                 path,
                                 error
@@ -247,7 +284,7 @@ impl ChangeSet {
                                 error
                             )
                         } else {
-                            deletions.push(path)
+                            deletions.push(path.to_string())
                         }
                     }
                 };
@@ -299,30 +336,30 @@ impl ChangeSet {
         Ok((diff_id, descriptor))
     }
 
-    /// Get the path of a layer blob within an image directory
+    /// Get the path of a layer blob within an OCI layout directory
     ///
     /// # Arguments
     ///
-    /// - `image_dir`: the image directory
+    /// - `layout_dir`: the OCI layout directory
     /// - `digest`: the digest of the layer (with or without the "sha256:" prefix)
-    fn layer_path<P: AsRef<Path>>(image_dir: P, digest: &str) -> PathBuf {
+    fn layer_path<P: AsRef<Path>>(layout_dir: P, digest: &str) -> PathBuf {
         let (algo, hash) = digest_to_parts(digest);
-        image_dir.as_ref().join("blobs").join(algo).join(hash)
+        layout_dir.as_ref().join("blobs").join(algo).join(hash)
     }
 
-    /// Read a layer blob (a compressed tar archive) from an image directory
+    /// Read a layer blob (a compressed tar archive) from an OCI layout directory
     ///
     /// At this stage, mainly just used for testing.
     ///
     /// # Arguments
     ///
-    /// - `image_dir`: the image directory
+    /// - `layout_dir`: the OCI layout directory
     /// - `digest`: the digest of the layer (with or without the "sha256:" prefix)
     pub fn read_layer<P: AsRef<Path>>(
-        image_dir: P,
+        layout_dir: P,
         digest: &str,
     ) -> Result<tar::Archive<flate2::read::GzDecoder<std::fs::File>>> {
-        let path = Self::layer_path(image_dir, digest);
+        let path = Self::layer_path(layout_dir, digest);
         let file = fs::File::open(&path)?;
         let decoder = flate2::read::GzDecoder::new(file);
         let archive = tar::Archive::new(decoder);
@@ -353,13 +390,14 @@ mod tests {
         let source_dir = tempdir()?;
         let layout_dir = tempdir()?;
 
-        let snap = Snapshot::new(&source_dir, "workspace");
+        let snap = Snapshot::new(&source_dir);
 
         fs::write(&source_dir.path().join("some-file.txt"), "Hello")?;
 
         // Create a layer archive, diffid and descriptor
         let changes = snap.changes();
-        let (diff_id, descriptor) = changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir)?;
+        let (diff_id, descriptor) =
+            changes.write_layer(&MediaType::ImageLayerGzip, &layout_dir, false)?;
 
         assert_eq!(diff_id.len(), 7 + 64);
         assert!(diff_id.starts_with("sha256:"));
@@ -377,18 +415,20 @@ mod tests {
         Ok(())
     }
 
-    /// Create a DiffId for a change set for the filesystem operations in func,
-    /// each time this is called the DiffID should be the same. Used in tests of
-    /// determinism below.
+    /// Create a DiffID for a change set for the filesystem operations in func, with `deterministic = true`.
+    /// Each time this is called the DiffID should be the same.
     fn create_diff_id(func: fn(&Path)) -> Result<String> {
         let dir = tempdir()?;
 
-        let snapshot = Snapshot::new(&dir, "");
+        // Use new_with so that the dest is always the same and not the name of the temporary source dir
+        // (which of course changes each time this function is run)
+        let snapshot = Snapshot::new_with(&dir, "/");
         func(dir.path());
 
-        let (diff_id, ..) = snapshot
-            .changes()
-            .write_layer(&MediaType::ImageLayerGzip, &tempdir()?)?;
+        let (diff_id, ..) =
+            snapshot
+                .changes()
+                .write_layer(&MediaType::ImageLayerGzip, &tempdir()?, true)?;
         Ok(diff_id)
     }
 

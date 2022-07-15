@@ -8,7 +8,7 @@
 stencila projects pull [options]
 ```
 
-Updates the local project configuration file (e.g. `stencila.toml`) from Stencila Cloud. The file must have a project id.
+Updates the local project configuration file (e.g. `stencila.yaml`) from Stencila Cloud. The file must have a project id.
 
 
 

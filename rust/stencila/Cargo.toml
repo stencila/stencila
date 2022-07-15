@@ -14,12 +14,12 @@ cli-interact = ["cli-utils/interact"]
 # These features are needed for use in `cfg` attributes
 # because features of dependencies e.g `codecs/cli` are
 # not recognised there (it needs to be a feature of this crate)
+tasks-cli = ["tasks/cli"]
 codecs-cli = ["codecs/cli"]
 parsers-cli = ["parsers/cli"]
 kernels-cli = ["kernels/cli"]
 binaries-cli = ["binaries/cli"]
 providers-cli = ["providers/cli"]
-buildpacks-cli = ["buildpacks/cli"]
 images-cli = ["images/cli"]
 
 server = [
@@ -44,6 +44,9 @@ default = [
   "cli-progress",
   "cli-pretty",
   "cli-interact",
+
+  # Tasks
+  "tasks-cli",
 
   # Codecs
   "codecs-cli",
@@ -96,6 +99,7 @@ default = [
   "binaries/binary-poetry",
   "binaries/binary-python",
   "binaries/binary-r",
+  "binaries/binary-task",
 
   # Providers
   "providers-cli",
@@ -105,16 +109,6 @@ default = [
   "providers/provider-github",
   "providers/provider-gitlab",
   "providers/provider-http",
-
-  # Buildpacks
-  "buildpacks-cli",
-  "buildpacks/buildpack-apt",
-  "buildpacks/buildpack-dockerfile",
-  "buildpacks/buildpack-node",
-  "buildpacks/buildpack-python",
-  "buildpacks/buildpack-r",
-  "buildpacks/buildpack-sources",
-  "buildpacks/buildpack-stencila",
 
   # Images
   "images-cli",
@@ -145,7 +139,6 @@ validator = { version = "0.15.0", features = ["derive"] }
 # Required internal crates
 
 binaries = { path = "../binaries" }
-buildpacks = { path = "../buildpacks" }
 cloud = { path = "../cloud" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
@@ -168,7 +161,7 @@ node-reshape = { path = "../node-reshape" }
 parsers = { path = "../parsers" }
 path-utils = { path = "../path-utils" }
 providers = { path = "../providers" }
-sources = { path = "../sources" }
+tasks = { path = "../tasks" }
 utils = { path = "../utils" }
 uuids = { path = "../uuids" }
 

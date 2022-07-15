@@ -1988,6 +1988,7 @@ pub mod commands {
 
     #[derive(Parser)]
     pub enum Action {
+        #[clap(name = "run", alias = "start")]
         Start(Start),
         Stop(Stop),
         Show(Show),

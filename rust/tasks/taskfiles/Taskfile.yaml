@@ -1,0 +1,50 @@
+version: '3'
+
+includes:
+  apt: apt.yaml
+  asdf: asdf.yaml
+  brew: brew.yaml
+  curl: curl.yaml
+  git: git.yaml
+  gitignore: gitignore.yaml
+  node: node.yaml
+  npm: npm.yaml
+  pip: pip.yaml
+  pnpm: pnpm.yaml
+  podman: podman.yaml
+  poetry: poetry.yaml
+  python: python.yaml
+  r: r.yaml
+  renv: renv.yaml
+  util: util.yaml
+  venv: venv.yaml
+
+tasks:
+  detect:
+    desc: Detect which tasks are required for a project
+    silent: true
+    ignore_error: true
+    cmds:
+      - echo "Detecting tasks for $PWD"
+      - rm -f .stencila/tasks/detected
+      - mkdir -p .stencila/tasks
+
+      - stencila tasks detect
+
+      - task: podman:detect
+
+      - task: apt:detect
+      - task: asdf:detect
+
+      - task: node:detect
+      - task: pnpm:detect
+
+      - task: python:detect
+      - task: pip:detect
+      - task: poetry:detect
+
+      - task: r:detect
+      - task: renv:detect
+
+      - echo "Detected $(cat .stencila/tasks/detected | wc -l) tasks, updating Taskfile"
+      - stencila tasks update

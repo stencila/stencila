@@ -391,6 +391,7 @@ dependencies = [
  "binary-python",
  "binary-r",
  "binary-stencila",
+ "binary-task",
  "cli-utils",
  "test-utils",
 ]
@@ -482,6 +483,13 @@ dependencies = [
 
 [[package]]
 name = "binary-stencila"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-task"
 version = "0.0.0"
 dependencies = [
  "binary",
@@ -652,14 +660,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "buildpack-sources"
-version = "0.0.0"
-dependencies = [
- "buildpack",
- "sources",
-]
-
-[[package]]
 name = "buildpack-stencila"
 version = "0.0.0"
 dependencies = [
@@ -678,7 +678,6 @@ dependencies = [
  "buildpack-node",
  "buildpack-python",
  "buildpack-r",
- "buildpack-sources",
  "buildpack-stencila",
  "bytes",
  "cli-utils",
@@ -1047,9 +1046,13 @@ version = "0.0.0"
 dependencies = [
  "cli-utils",
  "common",
+ "cron-utils",
+ "files",
  "fs-utils",
  "http-utils",
  "key-utils",
+ "providers",
+ "stencila-schema",
  "webbrowser",
 ]
 
@@ -1377,6 +1380,7 @@ dependencies = [
  "eyre",
  "futures",
  "glob",
+ "indexmap",
  "itertools",
  "maplit",
  "once_cell",
@@ -2230,6 +2234,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "fs2"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9564fc758e15025b46aa6643b1b77d047d1a56a1aea6e01002ac0c7026876213"
+dependencies = [
+ "libc",
+ "winapi 0.3.9",
+]
+
+[[package]]
 name = "fsevent"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2980,7 +2994,6 @@ name = "images"
 version = "0.0.0"
 dependencies = [
  "archive-utils",
- "buildpacks",
  "bytecheck",
  "bytes",
  "bytesize",
@@ -4998,6 +5011,7 @@ name = "provider-http"
 version = "0.0.0"
 dependencies = [
  "archive-utils",
+ "cron-utils",
  "provider",
  "test-utils",
 ]
@@ -6153,18 +6167,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sources"
-version = "0.0.0"
-dependencies = [
- "common",
- "cron-utils",
- "files",
- "graph-triples",
- "providers",
- "stencila-schema",
-]
-
-[[package]]
 name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6203,7 +6205,6 @@ version = "1.13.2"
 dependencies = [
  "async-recursion 1.0.0",
  "binaries",
- "buildpacks",
  "cli-utils",
  "cloud",
  "codecs",
@@ -6242,9 +6243,9 @@ dependencies = [
  "schemars",
  "self_update",
  "server-next",
- "sources",
  "stencila-schema",
  "sudo",
+ "tasks",
  "test-utils",
  "thiserror",
  "tokio-stream",
@@ -6431,6 +6432,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "36794203e10c86e5998179e260869d156e0674f02d5451b4a3fb9fd86d02aaab"
 dependencies = [
  "tokio",
+]
+
+[[package]]
+name = "tasks"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "cli-utils",
+ "cloud",
+ "common",
+ "cron-utils",
+ "fs2",
+ "notify",
+ "path-utils",
+ "rust-embed",
+ "test-snaps",
+ "test-utils",
 ]
 
 [[package]]

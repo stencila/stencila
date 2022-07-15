@@ -1,0 +1,24 @@
+---
+source: rust/tasks/src/taskfile.rs
+assertion_line: 756
+expression: yaml
+input_file: fixtures/taskfiles/variables.yaml
+---
+version: "3"
+
+vars:
+  STATIC_VAR: This is a static var
+  DYNAMIC_VAR:
+    sh: "echo \"This is a dynamic var $(date)\""
+
+env:
+  STATIC_ENV_VAR: This is a static env var
+  DYNAMIC_ENV_VAR:
+    sh: "echo \"This is a dynamic env var $(date)\""
+
+tasks:
+  default:
+    - "echo \"{{.STATIC_VAR}}\""
+    - "echo \"{{.DYNAMIC_VAR}}\""
+    - "echo \"$STATIC_ENV_VAR\""
+    - "echo \"$DYNAMIC_ENV_VAR\""

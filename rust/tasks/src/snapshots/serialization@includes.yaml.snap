@@ -1,0 +1,17 @@
+---
+source: rust/tasks/src/taskfile.rs
+assertion_line: 756
+expression: yaml
+input_file: fixtures/taskfiles/includes.yaml
+---
+version: "3"
+
+includes:
+  include-as-string: hello.yaml
+  include-as-object: hello.yaml
+  include-with-dir:
+    taskfile: hello.yaml
+    dir: subdir
+  include-with-optional:
+    taskfile: does-no-exist.yaml
+    optional: true

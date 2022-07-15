@@ -1,0 +1,87 @@
+version: '3'
+
+desc: Tasks related to Apt, the package manager used on Debian-based Linux
+
+summary: |
+  This `Taskfile` includes tasks for `add`-ing and `remove`-ing system packages (e.g. `git`) using `apt-get`.
+  It will also `detect` if there is an `Aptfile` in your project and `install` the system packages declared in it.
+
+  Note that, in contrast to most of the other tasks in this library, `add`, `remove` and `install` will alter the
+  system and as such will use `sudo` (if present).
+
+vars:
+  SUDO:
+    sh: which sudo || true
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+
+tasks:
+  detect:
+    desc: Detect which Apt tasks are needed for the project
+    summary: |
+      Detects if there is an `Aptfile` in the root of the project and require thee `apt:install` if it is.
+    ignore_error: true
+    silent: true
+    cmds:
+      - test -f Aptfile && echo apt:install >> .stencila/tasks/detected
+
+  add:
+    desc: Add a system package using Apt
+    summary: |
+      Installs the system package and adds it the the project's `Aptfile` (creating
+      one if necessary).
+    status:
+      - grep '^{{.PACKAGE}} ' Aptfile
+    cmds:
+      - '{{.SUDO}} apt-get -y install {{.PACKAGE}}'
+      - touch Aptfile && grep '^{{.PACKAGE}}' Aptfile || echo {{.PACKAGE}} >> Aptfile
+
+  remove:
+    desc: Remove a system package using Apt
+    summary: |
+      Uninstalls the system package and removes it from the project's `Aptfile`.
+    cmds:
+      - '{{.SUDO}} apt-get -y remove {{.PACKAGE}}'
+      - sed -i '/^{{.PACKAGE}}\.*/d' Aptfile
+
+  install:
+    desc: Install all Apt packages in `Aptfile`
+    summary: |
+      Installs the packages specified on each line of the `Aptfile`.
+    silent: true
+    sources:
+      - Aptfile
+    cmds:
+      - |
+        if [ -f Aptfile ]
+        then
+          cat Aptfile | while read LINE 
+          do
+            dpkg --status $PACKAGE > /dev/null
+            INSTALLED=$?
+            if [ $INSTALLED -ne 0 ]; then
+             {{.SUDO}} apt-get -y install $PACKAGE
+            fi
+          done
+        fi
+
+  install-packages:
+    desc: Install a list of system packages using Apt
+    summary: |
+      Installs the packages without affecting the project `Aptfile`.
+      Intended for use by other task to install their system dependencies.
+    hide: true
+    silent: true
+    status:
+      - |
+        for PACKAGE in {{.PACKAGES}}
+        do
+          dpkg --status $PACKAGE > /dev/null
+          INSTALLED=$?
+          if [ $INSTALLED -ne 0 ]; then
+            exit 1
+          fi
+        done
+    cmds:
+      - '{{.SUDO}} apt-get -y install {{.PACKAGES}}'

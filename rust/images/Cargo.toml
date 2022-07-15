@@ -4,30 +4,18 @@ version = "0.0.0"
 edition = "2021"
 
 [features]
-default = [
-    "cli",
-    "rkyv-safe",
-
-    "buildpacks/buildpack-apt",
-    "buildpacks/buildpack-dockerfile",
-    "buildpacks/buildpack-node",
-    "buildpacks/buildpack-python",
-    "buildpacks/buildpack-r",
-    "buildpacks/buildpack-sources",
-    "buildpacks/buildpack-stencila",
-]
+default = ["cli", "rkyv-safe"]
 
 cli = ["cli-utils"]
 rkyv-safe = ["rkyv", "bytecheck"]
 
 [dependencies]
 archive-utils = { path = "../archive-utils", features = ["tar-gz", "tar-zst"] }
-buildpacks = { path = "../buildpacks" }
 bytes = "1.1.0"
 bytesize = "1.1.0"
 common = { path = "../common" }
-gitignore = "1.0.7"
 fs-utils = { path = "../fs-utils" }
+gitignore = "1.0.7"
 hash-utils = { path = "../hash-utils" }
 http-utils = { path = "../http-utils" }
 jwalk = "0.6.0"

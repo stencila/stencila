@@ -8,7 +8,7 @@
 stencila projects create [options]
 ```
 
-Use this command to create a new Stencila project. A new project will be created on Stencila Cloud and a `stencila.toml` file will be created, with the new project's id, in the current folder.
+Use this command to create a new Stencila project. A new project will be created on Stencila Cloud and a `stencila.yaml` file will be created, with the new project's id, in the current folder.
 
 Use the `--org` option to select the organization for the project.
 

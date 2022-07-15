@@ -15,7 +15,6 @@ use provider::{
         tracing,
     },
     http_utils::{download, download_temp, url},
-    run_schedule,
     stencila_schema::{Node, Thing},
     ImportOptions, ParseItem, Provider, ProviderTrait, IMPORT,
 };
@@ -124,7 +123,7 @@ impl ProviderTrait for HttpProvider {
         path: &Path,
         action: &str,
         schedule: &str,
-        canceller: mpsc::Receiver<()>,
+        _canceller: mpsc::Receiver<()>,
     ) -> Result<()> {
         let url = Self::get_url(node)?;
 
@@ -142,7 +141,7 @@ impl ProviderTrait for HttpProvider {
                 }
             }
         });
-        run_schedule(schedule, sender, canceller).await?;
+        cron_utils::run(schedule, None, sender).await?;
 
         Ok(())
     }

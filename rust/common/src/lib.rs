@@ -19,6 +19,7 @@ pub use dirs;
 pub use eyre;
 pub use futures;
 pub use glob;
+pub use indexmap;
 pub use inflector;
 pub use itertools;
 pub use maplit;

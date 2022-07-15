@@ -1,0 +1,28 @@
+version: '3'
+
+tasks:
+  default:
+    schedule: Every 15 seconds
+    cmds:
+      - echo "It is $(date)"
+
+  cron-expressions:
+    schedule:
+      - '* 03,13 * * * *'
+      - '* 33 * * * *'
+    cmds:
+      - echo "It is $(date)"
+
+  cron-phrase-with-timezone:
+    schedule:
+      when: 9am Monday to Friday Auckland time
+    cmds:
+      - echo "It is $(date)"
+
+  multiple-timezones:
+    schedule:
+      - 9am Mon-Fri ET
+      - when: 10:15am Tue,Wed
+        tz: UTC
+    cmds:
+      - echo "It is $(date)"

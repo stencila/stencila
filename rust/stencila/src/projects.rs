@@ -26,7 +26,6 @@ use files::{File, FileEvent, Files};
 use graph::{Graph, GraphEvent, GraphEventType};
 use graph_triples::{resources, Resource};
 use path_utils::pathdiff;
-use sources::Sources;
 
 use crate::config::CONFIG;
 use crate::documents::DOCUMENTS;
@@ -107,10 +106,6 @@ pub struct Project {
     /// If not specified, will default to the default theme in the
     /// configuration settings.
     theme: Option<String>,
-
-    /// A list of project sources and their destination within the project
-    #[schemars(skip)]
-    pub sources: Sources,
 
     /// Glob patterns for paths to be excluded from file watching
     ///
@@ -202,7 +197,6 @@ impl Project {
             project.image = overrides.image;
             project.main = overrides.main;
             project.theme = overrides.theme;
-            project.sources = overrides.sources;
             project.watch_exclude_patterns = overrides.watch_exclude_patterns;
         }
 
@@ -328,7 +322,6 @@ impl Project {
             self.main = updates.main;
             self.image = updates.image;
             self.theme = updates.theme;
-            self.sources = updates.sources;
             self.watch_exclude_patterns = updates.watch_exclude_patterns;
         }
 
@@ -431,12 +424,6 @@ impl Project {
         if let Some(path) = self.main_path.as_ref() {
             graph.add_resource(resources::file(path), None);
             walk(&mut Vec::new(), path, &mut graph).await?;
-        }
-
-        // Add sources and relations with associated files
-        for source in self.sources.inner.iter() {
-            graph.add_resource(source.resource(), None);
-            graph.add_triples(source.triples(&self.path))
         }
 
         // Publish a "graph updated" event

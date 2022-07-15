@@ -1,0 +1,31 @@
+version: '3'
+
+includes:
+  apt: apt.yaml
+  brew: brew.yaml
+
+tasks:
+  install:
+    desc: Install Curl
+    summary: |
+      Checks for `curl` on the `PATH` and installs it if it is not.
+    status:
+      - which curl
+    cmds:
+      - task: install-{{OS}}
+
+  install-linux:
+    desc: Install Curl on Debian-based Linux using Apt
+    hide: true
+    cmds:
+      - task: apt:install-packages
+        vars:
+          PACKAGES: curl
+
+  install-darwin:
+    desc: Install Curl on MacOS using Homebrew
+    hide: true
+    cmds:
+      - task: brew:add
+        vars:
+          PACKAGES: curl

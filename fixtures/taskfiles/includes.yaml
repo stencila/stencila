@@ -1,0 +1,15 @@
+# Example of including other Taskfiles using alternative syntaxes and options
+# See https://taskfile.dev/usage/#including-other-taskfiles
+
+version: '3'
+
+includes:
+  include-as-string: hello.yaml
+  include-as-object:
+    taskfile: hello.yaml
+  include-with-dir:
+    taskfile: hello.yaml
+    dir: subdir
+  include-with-optional:
+    taskfile: does-no-exist.yaml
+    optional: true
