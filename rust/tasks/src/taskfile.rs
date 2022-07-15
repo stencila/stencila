@@ -450,7 +450,7 @@ impl Taskfile {
         // Add a `default` command if necessary
         if !self.tasks.contains_key("default") {
             default_cmds.append(&mut vec![
-                Command::cmd("stencila server start"),
+                Command::cmd("stencila run tasks~ server"),
                 Command::cmd("stencila image save"),
             ]);
 
@@ -500,6 +500,10 @@ impl Taskfile {
         } else {
             args.clone()
         };
+
+        if args.is_empty() {
+            return Ok(());
+        }
 
         // Parse the args into name of task and its vars
         let mut task: String = String::new();
