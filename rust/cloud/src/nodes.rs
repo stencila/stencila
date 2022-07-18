@@ -2,7 +2,7 @@ use common::{eyre::Result, serde_json::json};
 use http_utils::CLIENT;
 use stencila_schema::Node;
 
-use crate::{api, errors::*, orgs::org_default, projects::project_current, utils::token_read};
+use crate::{api, errors::*, orgs::org_default, types::ProjectLocal, utils::token_read};
 
 pub fn node_url(id: &str) -> String {
     api!("nodes/{id}")
@@ -17,7 +17,7 @@ pub async fn node_create(
     let org_id = org_id.or_else(|| org_default().ok());
 
     let project_id =
-        project_id.or_else(|| project_current().ok().and_then(|(.., project)| project.id));
+        project_id.or_else(|| ProjectLocal::current().ok().and_then(|project| project.id));
 
     let response = CLIENT
         .post(api!("nodes"))

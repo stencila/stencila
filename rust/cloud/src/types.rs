@@ -4,7 +4,7 @@
 
 use std::path::PathBuf;
 
-use cli_utils::table::{date_time_ago, option_date_time_ago, option_string, Table};
+use cli_utils::table::{date_time_ago, option_date_time_ago, option_string, title_case, Table};
 use common::{
     chrono::{DateTime, Utc},
     inflector::Inflector,

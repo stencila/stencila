@@ -101,7 +101,7 @@ impl EncodeContext {
             attrs_empty(),
             inlines,
             pandoc::Target {
-                url: path.to_slash_lossy(),
+                url: path.to_slash_lossy().to_string(),
                 title: type_name.into(),
             },
         );
