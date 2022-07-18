@@ -1051,7 +1051,6 @@ dependencies = [
  "fs-utils",
  "http-utils",
  "key-utils",
- "providers",
  "stencila-schema",
  "webbrowser",
 ]
