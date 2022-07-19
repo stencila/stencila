@@ -19,6 +19,7 @@ formats = { path = "../formats" }
 key-utils = { path = "../key-utils" }
 pandoc_types = "0.5.0"
 path-utils = { path = "../path-utils" }
+uuids = { path = "../uuids" }
 
 codec-txt = { path = "../codec-txt", optional = true }
 node-coerce = { path = "../node-coerce", optional = true }
