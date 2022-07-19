@@ -1223,6 +1223,7 @@ dependencies = [
  "codec-rpng",
  "codec-txt",
  "formats",
+ "key-utils",
  "node-coerce",
  "node-transform",
  "pandoc_types",
@@ -1230,7 +1231,6 @@ dependencies = [
  "test-props",
  "test-snaps",
  "test-utils",
- "uuids",
 ]
 
 [[package]]

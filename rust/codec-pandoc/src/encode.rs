@@ -72,14 +72,9 @@ impl EncodeContext {
 
     /// Push a node to be encoded as an RPNG
     fn push_rpng(&mut self, type_name: &str, node: Node) -> pandoc::Inline {
-        let prefix = match node {
-            Node::CodeChunk(..) => "cc",
-            Node::CodeExpression(..) => "ce",
-            _ => "no",
-        };
-        let id = uuids::generate_num(prefix, 32);
+        let key = key_utils::generate("snk");
 
-        let path = self.temp_dir.path().join(format!("{}.png", id));
+        let path = self.temp_dir.path().join(format!("{}.png", key));
 
         let json = JsonCodec::to_string(
             &node,
@@ -90,7 +85,7 @@ impl EncodeContext {
         )
         .expect("Should be able to encode as JSON");
 
-        self.rpng_nodes.push((id.to_string(), path.clone(), node));
+        self.rpng_nodes.push((key.to_string(), path.clone(), node));
 
         let inlines = match self.options.rpng_content {
             true => vec![pandoc::Inline::Str(json)],
@@ -110,7 +105,7 @@ impl EncodeContext {
             return image;
         }
 
-        let url = node_url(&id);
+        let url = node_url(&key);
 
         pandoc::Inline::Link(
             attrs_empty(),

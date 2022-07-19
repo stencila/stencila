@@ -4,12 +4,14 @@ use stencila_schema::Node;
 
 use crate::{api, errors::*, orgs::org_default, types::ProjectLocal, utils::token_read};
 
-pub fn node_url(id: &str) -> String {
-    api!("nodes/{id}")
+/// Get the URL of a node
+pub fn node_url(key: &str) -> String {
+    api!("nodes/{key}")
 }
 
+/// Create a new node
 pub async fn node_create(
-    id: &str,
+    key: &str,
     node: &Node,
     org_id: Option<u64>,
     project_id: Option<u64>,
@@ -23,7 +25,7 @@ pub async fn node_create(
         .post(api!("nodes"))
         .bearer_auth(token_read()?)
         .json(&json!({
-            "id": id,
+            "key": key,
             "json": node,
             "org_id": org_id,
             "project_id": project_id,
@@ -38,9 +40,10 @@ pub async fn node_create(
     }
 }
 
-pub async fn node_retrieve(id: &str) -> Result<Node> {
+/// Retrieve a node
+pub async fn node_retrieve(key: &str) -> Result<Node> {
     let response = CLIENT
-        .get(node_url(id))
+        .get(node_url(key))
         .bearer_auth(token_read()?)
         .send()
         .await?;
