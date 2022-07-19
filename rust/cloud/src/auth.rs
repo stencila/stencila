@@ -1,20 +1,31 @@
-use std::{env, fs::read_to_string};
+use std::{
+    collections::HashMap,
+    env,
+    fs::{create_dir_all, read_to_string},
+    io::Write,
+    path::PathBuf,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use common::{
     chrono::{self, Utc},
-    eyre::{bail, Result},
+    eyre::{bail, eyre, Result},
+    once_cell::sync::Lazy,
     serde_json::{self, json},
-    tokio::time::{sleep, Duration, Instant},
+    tokio::{
+        sync::RwLock,
+        time::{sleep, Duration, Instant},
+    },
     tracing,
 };
-use fs_utils::remove_if_exists;
+use fs_utils::{open_file_600, remove_if_exists};
 use http_utils::{reqwest, CLIENT};
 
 use crate::{
     api,
     errors::*,
     types::*,
-    utils::{token_path, token_read, token_write, user_path, user_write},
+    utils::{config_dir, token_path, token_read, token_write, user_path, user_write},
 };
 
 /// Get the currently authenticated user, if any
@@ -213,11 +224,67 @@ pub async fn provider_delete(provider: &str) -> Result<()> {
     }
 }
 
+static PROVIDER_TOKENS: Lazy<RwLock<ProviderTokens>> =
+    Lazy::new(|| RwLock::new(ProviderTokens::read()));
+
+struct ProviderTokens {
+    pub inner: HashMap<String, ProviderToken>,
+}
+
+impl ProviderTokens {
+    /// Get the path of the provider tokens
+    fn path() -> PathBuf {
+        config_dir().join("provider-tokens.json")
+    }
+
+    /// Read the provider tokens from disk
+    fn read() -> Self {
+        let path = Self::path();
+
+        let inner = if path.exists() {
+            match read_to_string(&path)
+                .map_err(|error| eyre!(error))
+                .and_then(|json| serde_json::from_str(&json).map_err(|error| eyre!(error)))
+            {
+                Ok(inner) => inner,
+                Err(error) => {
+                    tracing::warn!("While reading {}: {}", path.display(), error);
+                    HashMap::new()
+                }
+            }
+        } else {
+            HashMap::new()
+        };
+
+        ProviderTokens { inner }
+    }
+
+    /// Write the provider tokens to disk
+    fn write(&self) -> Result<()> {
+        let path = Self::path();
+        create_dir_all(path.parent().expect("Path should always have a parent"))?;
+
+        let json = serde_json::to_string_pretty(&self.inner)?;
+        let mut file = open_file_600(path)?;
+        file.write_all(json.as_bytes())?;
+
+        Ok(())
+    }
+
+    /// Insert a token
+    fn insert(&mut self, provider: &str, token: ProviderToken) -> Result<()> {
+        self.inner.insert(provider.to_string(), token);
+        self.write()?;
+        Ok(())
+    }
+}
+
 /// Get a token for a provider
 ///
 /// Attempts to get a token for the provider, in order of preference
 ///
 /// - an environment variable e.g. `GITHUB_TOKEN`
+/// - a cached token previously fetched
 /// - an existing connection `api/oauth/token?provider=<provider>` (will be refreshed if necessary)
 /// - a new connection: calls the `provider_create` function and polls for up to a minute for
 ///   a token
@@ -231,6 +298,22 @@ pub async fn provider_token(provider: &str) -> Result<ProviderToken> {
         });
     }
 
+    // Check for one in cache that is not about to expire
+    let tokens = PROVIDER_TOKENS.read().await;
+    if let Some(token) = tokens.inner.get(provider) {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("Time should not go backwards");
+        if token
+            .expires_at
+            .map(|expires_at| (expires_at - now.as_secs() as i64) > 60)
+            .unwrap_or(true)
+        {
+            return Ok(token.clone());
+        }
+    }
+    drop(tokens);
+
     // Attempt to fetch token
     async fn fetch(provider: &str) -> Result<ProviderToken> {
         let response = CLIENT
@@ -239,7 +322,12 @@ pub async fn provider_token(provider: &str) -> Result<ProviderToken> {
             .send()
             .await?;
         if response.status().is_success() {
-            Ok(response.json().await?)
+            let token: ProviderToken = response.json().await?;
+
+            let mut tokens = PROVIDER_TOKENS.write().await;
+            tokens.insert(provider, token.clone())?;
+
+            Ok(token)
         } else {
             Error::from_response(response).await
         }

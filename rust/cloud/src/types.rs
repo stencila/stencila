@@ -57,7 +57,7 @@ pub struct Provider {
 }
 
 #[skip_serializing_none]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ProviderToken {
     pub provider: String,
