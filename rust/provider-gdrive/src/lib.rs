@@ -67,7 +67,7 @@ static URL_REGEX_2: Lazy<Regex> = Lazy::new(|| {
 /// Note: the final serialization variants below allow parsing from the URL_REGEX above
 #[derive(Display, Clone, AsRefStr, EnumString)]
 #[strum(serialize_all = "lowercase", crate = "provider::common::strum")]
-enum FileKind {
+pub enum FileKind {
     #[strum(serialize = "folder", serialize = "drive")]
     Folder,
     File,
@@ -280,15 +280,18 @@ impl GoogleDriveClient {
             .send()
             .await?;
         if !response.status().is_success() {
-            let json: serde_json::Value = response.json().await?;
-            let message = json
-                .get("error")
-                .and_then(|error| error.get("message"))
-                .and_then(|msg| msg.as_str())
-                .map(|msg| msg.to_string())
-                .unwrap_or_else(|| {
-                    serde_json::to_string(&json).unwrap_or_else(|_| "Unknown error".to_string())
-                });
+            let text = response.text().await?;
+            let message = match serde_json::from_str::<serde_json::Value>(&text) {
+                Ok(value) => value
+                    .get("error")
+                    .and_then(|error| error.get("message"))
+                    .and_then(|msg| msg.as_str())
+                    .map(|msg| msg.to_string())
+                    .unwrap_or_else(|| {
+                        serde_json::to_string(&text).unwrap_or_else(|_| "Unknown error".to_string())
+                    }),
+                Err(..) => text,
+            };
             bail!("While uploading file: {}", message)
         }
 
@@ -301,7 +304,7 @@ pub struct GoogleDriveProvider;
 
 impl GoogleDriveProvider {
     /// Create an URL for a Google Drive resource (usually to store in a [`CreativeWork`] node)
-    fn create_url(kind: &FileKind, id: &str) -> String {
+    pub fn create_url(kind: &FileKind, id: &str) -> String {
         let prefix = match kind {
             FileKind::Folder => "https://drive.google.com/drive/folders/",
             FileKind::File => "https://drive.google.com/file/d/",

@@ -5,10 +5,12 @@ use schemars::JsonSchema;
 use common::{
     inflector::Inflector,
     serde::{Deserialize, Serialize},
-    strum::{EnumIter, EnumString, IntoEnumIterator},
+    strum::{Display, EnumIter, EnumString, IntoEnumIterator},
 };
 
-#[derive(Debug, Clone, PartialEq, EnumIter, Serialize, Deserialize, JsonSchema, EnumString)]
+#[derive(
+    Debug, Clone, PartialEq, EnumIter, Serialize, Deserialize, JsonSchema, Display, EnumString,
+)]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum Format {
