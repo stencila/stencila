@@ -14,7 +14,7 @@ use common::{
     strum::{Display, EnumString, EnumVariantNames, VariantNames},
     tracing,
 };
-use files::{File};
+use files::File;
 // use providers::provider::{ImportOptions, WatchMode};
 use stencila_schema::Node;
 
