@@ -61,7 +61,7 @@ struct Context {
     ///
     /// The `startIndex` and `endIndex` fields are available on Google Doc types
     /// `StructuralElement`, `ParagraphElement`, `TableRow`, `TableCell`.
-    /// 
+    ///
     /// At present this is not completely reliable (list handling messes it up).
     node_ranges: NodeRanges,
 }

@@ -1,12 +1,12 @@
 //! # Pull and push from a node to a Google Doc
 //!
 //! ## Pulling
-//! 
+//!
 //! Pulling from a Google Doc to a local file is implemented. It simply uses `GoogleDriveProvider::import`
 //! to do a complete replacement of the local mirror file.
-//! 
+//!
 //! ## Pushing
-//! 
+//!
 //! It is not possible to do a wholesale update of an entire Google Doc. That is also probably
 //! undesirable anyway, particularly if it is currently being edited.
 //!
