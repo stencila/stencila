@@ -125,7 +125,7 @@ default = [
 
 async-recursion = "1.0.0"
 derivative = "2.2.0"
-handlebars = "4.3.1"
+handlebars = "4.3.3"
 humantime = "2.1.0"
 notify = "4.0.17"
 schemars = { version = "0.8.8", features = ["preserve_order", "chrono"] }
@@ -134,7 +134,7 @@ thiserror = "1.0.31"
 tracing-appender = "0.2.2"
 tracing-error = "0.2.0"
 tracing-serde = "0.1.2"
-tracing-subscriber = { version = "0.3.14", features = ["env-filter", "json"] }
+tracing-subscriber = { version = "0.3.15", features = ["env-filter", "json"] }
 validator = { version = "0.15.0", features = ["derive"] }
 
 # Required internal crates
