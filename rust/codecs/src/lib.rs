@@ -585,7 +585,7 @@ pub mod commands {
 
                 let content = to_string(&node, &format, options).await?;
                 result::content(&format, &content)
-            } else if self.no_push {
+            } else if !self.output.exists() || self.no_push {
                 to_path(&node, &self.output, self.to.as_deref(), options).await?;
                 result::nothing()
             } else {

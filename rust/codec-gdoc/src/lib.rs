@@ -54,6 +54,6 @@ impl CodecTrait for GdocCodec {
     }
 
     async fn to_remote(_node: &Node, _path: &Path, _options: Option<EncodeOptions>) -> Result<()> {
-        bail!("Unable to push changes to an existing Google Doc")
+        bail!("Unable to push changes to an existing Google Doc. Perhaps use a different file name?")
     }
 }
