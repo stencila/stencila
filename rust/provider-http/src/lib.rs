@@ -16,7 +16,7 @@ use provider::{
     },
     http_utils::{download, download_temp, url},
     stencila_schema::{Node, Thing},
-    ImportOptions, ParseItem, Provider, ProviderTrait, IMPORT,
+    PullOptions, ParseItem, Provider, ProviderTrait, PULL,
 };
 
 pub struct HttpProvider;
@@ -67,7 +67,7 @@ impl ProviderTrait for HttpProvider {
         Self::get_url(node).is_ok()
     }
 
-    async fn import(node: &Node, dest: &Path, _options: Option<ImportOptions>) -> Result<()> {
+    async fn pull(node: &Node, dest: &Path, _options: Option<PullOptions>) -> Result<()> {
         let url = Self::get_url(node)?;
 
         let dest_ext = dest
@@ -127,8 +127,8 @@ impl ProviderTrait for HttpProvider {
     ) -> Result<()> {
         let url = Self::get_url(node)?;
 
-        if !action.is_empty() && action != IMPORT {
-            bail!("Only the import action is supported for `http` resources")
+        if !action.is_empty() && action != PULL {
+            bail!("Only the pull action is supported for `http` resources")
         }
 
         let (sender, mut receiver) = mpsc::channel(1);
@@ -136,8 +136,8 @@ impl ProviderTrait for HttpProvider {
         let path = path.to_owned();
         tokio::spawn(async move {
             while let Some(..) = receiver.recv().await {
-                if let Err(error) = Self::import(&node, &path, None).await {
-                    tracing::error!("While importing from `{}`: {}", url, error);
+                if let Err(error) = Self::pull(&node, &path, None).await {
+                    tracing::error!("While pulling from `{}`: {}", url, error);
                 }
             }
         });

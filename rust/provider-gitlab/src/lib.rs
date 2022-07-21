@@ -30,7 +30,7 @@ use provider::{
         CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date, Node, Organization,
         SoftwareSourceCode, ThingDescription,
     },
-    EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
+    EnrichOptions, PullOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
 };
 
 /// The base URL for API requests
@@ -247,7 +247,7 @@ impl ProviderTrait for GitlabProvider {
         Ok(Node::SoftwareSourceCode(ssc))
     }
 
-    async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) -> Result<()> {
+    async fn pull(node: &Node, dest: &Path, options: Option<PullOptions>) -> Result<()> {
         let ssc = match node {
             Node::SoftwareSourceCode(ssc) => ssc,
             _ => bail!("Unrecognized node type"),

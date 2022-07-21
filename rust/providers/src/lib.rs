@@ -12,7 +12,7 @@ use provider::{
     EnrichOptions, ProviderTrait,
 };
 
-pub use provider::{DetectItem, ExportOptions, ImportOptions, Provider, SyncOptions, WatchMode};
+pub use provider::{DetectItem, PushOptions, PullOptions, Provider, SyncOptions, WatchMode};
 
 // Re-exports for consumers of this crate
 pub use ::provider;
@@ -38,12 +38,12 @@ pub async fn enrich(node: Node, options: Option<EnrichOptions>) -> Result<Node> 
     PROVIDERS.enrich(node, options).await
 }
 
-pub async fn import(node: &Node, path: &Path, options: Option<ImportOptions>) -> Result<()> {
-    PROVIDERS.import(node, path, options).await
+pub async fn pull(node: &Node, path: &Path, options: Option<PullOptions>) -> Result<()> {
+    PROVIDERS.pull(node, path, options).await
 }
 
-pub async fn export(node: &Node, path: &Path, options: Option<ExportOptions>) -> Result<Node> {
-    PROVIDERS.export(node, path, options).await
+pub async fn push(node: &Node, path: &Path, options: Option<PushOptions>) -> Result<Node> {
+    PROVIDERS.push(node, path, options).await
 }
 
 pub async fn sync(
@@ -172,21 +172,21 @@ impl Providers {
         Ok(node)
     }
 
-    /// Import content from a remote [`Node`] to a local path
-    async fn import(&self, node: &Node, path: &Path, options: Option<ImportOptions>) -> Result<()> {
+    /// Pull content from a remote [`Node`] to a local path
+    async fn pull(&self, node: &Node, path: &Path, options: Option<PullOptions>) -> Result<()> {
         let provider = self.provider_for(node)?;
-        dispatch_builtins!(provider.name, import, node, path, options.clone()).await
+        dispatch_builtins!(provider.name, pull, node, path, options.clone()).await
     }
 
-    /// Export content from a local path to a remote [`Node`]
-    async fn export(
+    /// Push content from a local path to a remote [`Node`]
+    async fn push(
         &self,
         node: &Node,
         path: &Path,
-        options: Option<ExportOptions>,
+        options: Option<PushOptions>,
     ) -> Result<Node> {
         let provider = self.provider_for(node)?;
-        dispatch_builtins!(provider.name, export, node, path, options.clone()).await
+        dispatch_builtins!(provider.name, push, node, path, options.clone()).await
     }
 
     /// Synchronize changes between a remote [`Node`] and a local path
@@ -205,7 +205,7 @@ impl Providers {
         dispatch_builtins!(provider.name, sync, &resolved, path, request, options).await
     }
 
-    /// Schedule import and/or export to/from a remove [`Node`] and a local path
+    /// Schedule pull and/or push to/from a remove [`Node`] and a local path
     async fn cron(
         &self,
         node: &Node,
@@ -250,8 +250,10 @@ pub mod commands {
         Show(Show),
         Detect(Detect),
         Enrich(Enrich),
-        Import(Import),
-        Export(Export),
+        #[clap(alias = "import")]
+        Pull(Pull),
+        #[clap(alias = "export")]
+        Push(Push),
         Cron(Cron),
     }
 
@@ -263,8 +265,8 @@ pub mod commands {
                 Action::Show(action) => action.run().await,
                 Action::Detect(action) => action.run().await,
                 Action::Enrich(action) => action.run().await,
-                Action::Import(action) => action.run().await,
-                Action::Export(action) => action.run().await,
+                Action::Pull(action) => action.run().await,
+                Action::Push(action) => action.run().await,
                 Action::Cron(action) => action.run().await,
             }
         }
@@ -386,9 +388,9 @@ pub mod commands {
         }
     }
 
-    /// Import content from a remote source to a local path
+    /// Pull files or content from a remote source to a local path
     #[derive(Parser)]
-    pub struct Import {
+    pub struct Pull {
         /// The source identifier e.g. `github:org/name@v1.2.0`
         source: String,
 
@@ -406,22 +408,22 @@ pub mod commands {
     }
 
     #[async_trait]
-    impl Run for Import {
+    impl Run for Pull {
         async fn run(&self) -> Result {
             let (.., node) = resolve(&self.source).await?;
 
-            let options = ImportOptions {
+            let options = PullOptions {
                 token: self.token.clone(),
             };
-            import(&node, &self.path, Some(options)).await?;
+            pull(&node, &self.path, Some(options)).await?;
 
             result::nothing()
         }
     }
 
-    /// Export content from a local path to a remote source
+    /// Push files or content from a local path to a remote source
     #[derive(Parser)]
-    pub struct Export {
+    pub struct Push {
         /// The source identifier e.g. `github:org/name@v1.2.0`
         source: String,
 
@@ -439,20 +441,20 @@ pub mod commands {
     }
 
     #[async_trait]
-    impl Run for Export {
+    impl Run for Push {
         async fn run(&self) -> Result {
             let (.., node) = resolve(&self.source).await?;
 
-            let options = ExportOptions {
+            let options = PushOptions {
                 token: self.token.clone(),
             };
-            let node = export(&node, &self.path, Some(options)).await?;
+            let node = push(&node, &self.path, Some(options)).await?;
 
             result::value(node)
         }
     }
 
-    /// Schedule import and/or export between remote source and a local path
+    /// Schedule pull and/or push between remote source and a local path
     #[derive(Parser)]
     pub struct Cron {
         /// The action to take at the scheduled time

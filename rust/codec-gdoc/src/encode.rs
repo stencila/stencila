@@ -40,13 +40,13 @@ pub(crate) async fn encode(node: &Node, path: &Path, options: Option<EncodeOptio
     .await?;
 
     // Create new Google Doc from docx
-    let gdoc = GoogleDriveProvider::export(&Node::Article(Article::default()), &docx, None).await?;
+    let gdoc = GoogleDriveProvider::push(&Node::Article(Article::default()), &docx, None).await?;
     if let Node::Article(Article { url: Some(url), .. }) = &gdoc {
         tracing::info!("Successfully created Google Doc: {}", url);
     }
 
     // Pull the new Google Doc
-    GoogleDriveProvider::import(&gdoc, path, None).await?;
+    GoogleDriveProvider::pull(&gdoc, path, None).await?;
 
     Ok(())
 }

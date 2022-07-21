@@ -62,7 +62,7 @@ async fn pull_gdoc(path: &Path) -> Result<()> {
         url: Some(Box::new(url)),
         ..Default::default()
     });
-    GoogleDriveProvider::import(&node, path, None).await?;
+    GoogleDriveProvider::pull(&node, path, None).await?;
 
     Ok(())
 }

@@ -31,7 +31,7 @@ use provider::{
         CreativeWorkAuthors, CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date,
         Node, Organization, Person, SoftwareSourceCode, ThingDescription,
     },
-    EnrichOptions, ImportOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
+    EnrichOptions, PullOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
 };
 
 /// The default name for the token used to authenticate with the API
@@ -284,7 +284,7 @@ impl ProviderTrait for GithubProvider {
         Ok(Node::SoftwareSourceCode(ssc))
     }
 
-    async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) -> Result<()> {
+    async fn pull(node: &Node, dest: &Path, options: Option<PullOptions>) -> Result<()> {
         let ssc = match node {
             Node::SoftwareSourceCode(ssc) => ssc,
             _ => bail!("Unrecognized node type"),

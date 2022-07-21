@@ -29,7 +29,7 @@ use provider::{
     },
     resolve_token,
     stencila_schema::{Article, CreativeWork, Node},
-    ExportOptions, ImportOptions, ParseItem, Provider, SyncOptions, WatchMode,
+    PushOptions, PullOptions, ParseItem, Provider, SyncOptions, WatchMode,
 };
 
 pub use provider::ProviderTrait;
@@ -408,7 +408,7 @@ impl ProviderTrait for GoogleDriveProvider {
         Self::file_kind_id(node).is_ok()
     }
 
-    async fn import(node: &Node, dest: &Path, options: Option<ImportOptions>) -> Result<()> {
+    async fn pull(node: &Node, dest: &Path, options: Option<PullOptions>) -> Result<()> {
         let (file_kind, file_id) = Self::file_kind_id(node)?;
 
         let options = options.unwrap_or_default();
@@ -422,7 +422,7 @@ impl ProviderTrait for GoogleDriveProvider {
         client.download(&file_kind, &file_id, dest).await
     }
 
-    async fn export(node: &Node, path: &Path, options: Option<ExportOptions>) -> Result<Node> {
+    async fn push(node: &Node, path: &Path, options: Option<PushOptions>) -> Result<Node> {
         let file_kind = Self::file_kind(node);
 
         let options = options.unwrap_or_default();

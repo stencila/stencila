@@ -21,10 +21,10 @@ pub use ::common;
 pub use ::http_utils;
 pub use ::stencila_schema;
 
-pub const IMPORT: &str = "import";
-pub const EXPORT: &str = "export";
-pub const IMPORT_EXPORT: &str = "import/export";
-pub const ACTIONS: &[&str] = &[IMPORT, EXPORT, IMPORT_EXPORT];
+pub const PULL: &str = "pull";
+pub const PUSH: &str = "push";
+pub const PULL_PUSH: &str = "pull/push";
+pub const ACTIONS: &[&str] = &[PULL, PUSH, PULL_PUSH];
 
 /// A specification for providers
 ///
@@ -98,14 +98,14 @@ pub trait ProviderTrait {
         Ok(node)
     }
 
-    /// Import content from a remote [`Node`] (e.g. an `Article` or `SoftwareSourceCode` repository) to a local path
-    async fn import(_node: &Node, _path: &Path, _options: Option<ImportOptions>) -> Result<()> {
+    /// Pull content from a remote [`Node`] (e.g. an `Article` or `SoftwareSourceCode` repository) to a local path
+    async fn pull(_node: &Node, _path: &Path, _options: Option<PullOptions>) -> Result<()> {
         Ok(())
     }
 
-    /// Export content from a local path to a remote [`Node`] (e.g. an `Article` or `SoftwareSourceCode` repository)
-    async fn export(node: &Node, _path: &Path, _options: Option<ExportOptions>) -> Result<Node> {
-        tracing::error!("Export not implemented for provider");
+    /// Push content from a local path to a remote [`Node`] (e.g. an `Article` or `SoftwareSourceCode` repository)
+    async fn push(node: &Node, _path: &Path, _options: Option<PushOptions>) -> Result<Node> {
+        tracing::error!("Push not implemented for provider");
         Ok(node.clone())
     }
 
@@ -127,7 +127,7 @@ pub trait ProviderTrait {
         Ok(response)
     }
 
-    /// Schedule import and/or export to/from a remove [`Node`] and a local path
+    /// Schedule pull and/or pull to/from a remove [`Node`] and a local path
     async fn cron(
         _node: &Node,
         _path: &Path,
@@ -168,7 +168,7 @@ pub struct EnrichOptions {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
-pub struct ImportOptions {
+pub struct PullOptions {
     /// The token required to access the resource (or the `ALL_CAPS` name of the
     /// environment variable containing the token)
     pub token: Option<String>,
@@ -176,7 +176,7 @@ pub struct ImportOptions {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
-pub struct ExportOptions {
+pub struct PushOptions {
     /// The token required to access the resource (or the `ALL_CAPS` name of the
     /// environment variable containing the token)
     pub token: Option<String>,
