@@ -10,7 +10,7 @@ use codec::{
     Codec, CodecTrait,
 };
 use codec_format::FormatCodec;
-use formats::{match_name, Format};
+use formats::{match_name, Format, FormatSpec};
 
 // Re-exports for use in other crates that call the following functions
 pub use codec::{DecodeOptions, EncodeOptions};
@@ -33,6 +33,15 @@ pub async fn from_path(
     CODECS.from_path(path, format, options).await
 }
 
+/// Update a local file representing a remote document
+pub async fn from_remote(
+    path: &Path,
+    format: Option<&str>,
+    options: Option<DecodeOptions>,
+) -> Result<Node> {
+    CODECS.from_remote(path, format, options).await
+}
+
 /// Encode a document node to a string
 pub async fn to_string(
     node: &Node,
@@ -50,6 +59,16 @@ pub async fn to_path(
     options: Option<EncodeOptions>,
 ) -> Result<()> {
     CODECS.to_path(node, path, format, options).await
+}
+
+/// Update a remote document represented by a local file
+pub async fn to_remote(
+    node: &Node,
+    path: &Path,
+    format: Option<&str>,
+    options: Option<EncodeOptions>,
+) -> Result<()> {
+    CODECS.to_remote(node, path, format, options).await
 }
 
 /// Convert a string in one format to a string in another
@@ -220,6 +239,22 @@ impl Codecs {
         }
     }
 
+    /// Get a format from a path and supplied optional format
+    fn format_from_path(path: &Path, format: Option<&str>) -> Result<(Format, FormatSpec)> {
+        let format = format
+            .map(|str| str.to_string())
+            .or_else(|| {
+                path.extension()
+                    .map(|os_str| os_str.to_string_lossy().into())
+            })
+            .ok_or_else(|| eyre!("No format supplied and path has no extension"))?;
+        let format = match_name(&format);
+
+        let format_spec = format.spec();
+
+        Ok((format, format_spec))
+    }
+
     /// Decode a document node from a string
     #[allow(clippy::wrong_self_convention, clippy::needless_update)]
     async fn from_str(
@@ -258,15 +293,7 @@ impl Codecs {
         format: Option<&str>,
         options: Option<DecodeOptions>,
     ) -> Result<Node> {
-        let format = format
-            .map(|str| str.to_string())
-            .or_else(|| {
-                path.extension()
-                    .map(|os_str| os_str.to_string_lossy().into())
-            })
-            .ok_or_else(|| eyre!("No format supplied and path has no extension"))?;
-        let format = match_name(&format);
-        let format_spec = format.spec();
+        let (format, format_spec) = Self::format_from_path(path, format)?;
 
         let options = Some(DecodeOptions {
             format: Some(format_spec.extension.clone()),
@@ -279,6 +306,31 @@ impl Codecs {
 
         bail!(
             "Unable to decode from path with format `{}`: no matching codec found",
+            format_spec.title
+        )
+    }
+
+    /// Update a local file representing a remote document
+    #[allow(clippy::wrong_self_convention, clippy::needless_update)]
+    async fn from_remote(
+        &self,
+        path: &Path,
+        format: Option<&str>,
+        options: Option<DecodeOptions>,
+    ) -> Result<Node> {
+        let (format, format_spec) = Self::format_from_path(path, format)?;
+
+        let options = Some(DecodeOptions {
+            format: Some(format_spec.extension.clone()),
+            ..options.unwrap_or_default()
+        });
+
+        if let Some(future) = dispatch_builtins!(format, from_remote, path, options) {
+            return future.await;
+        }
+
+        bail!(
+            "Unable to update local file from remote state `{}`: no matching codec found",
             format_spec.title
         )
     }
@@ -316,15 +368,7 @@ impl Codecs {
         format: Option<&str>,
         options: Option<EncodeOptions>,
     ) -> Result<()> {
-        let format = format
-            .map(|str| str.to_string())
-            .or_else(|| {
-                path.extension()
-                    .map(|os_str| os_str.to_string_lossy().into())
-            })
-            .ok_or_else(|| eyre!("No format supplied and path has no extension"))?;
-        let format = match_name(&format);
-        let format_spec = format.spec();
+        let (format, format_spec) = Self::format_from_path(path, format)?;
 
         let options = Some(EncodeOptions {
             format: Some(format_spec.extension.clone()),
@@ -332,6 +376,26 @@ impl Codecs {
         });
 
         if let Some(future) = dispatch_builtins!(format, to_path, node, path, options) {
+            return future.await;
+        }
+
+        bail!(
+            "Unable to encode to path with format `{}`: no matching codec found",
+            format_spec.title
+        )
+    }
+
+    /// Update a remote document represented by a local file
+    async fn to_remote(
+        &self,
+        node: &Node,
+        path: &Path,
+        format: Option<&str>,
+        options: Option<EncodeOptions>,
+    ) -> Result<()> {
+        let (format, format_spec) = Self::format_from_path(path, format)?;
+
+        if let Some(future) = dispatch_builtins!(format, to_remote, node, path, options) {
             return future.await;
         }
 
@@ -447,6 +511,14 @@ pub mod commands {
         #[clap(short, long)]
         to: Option<String>,
 
+        /// Do not pull from the remote document for the input (if applicable to the format)
+        #[clap(long)]
+        no_pull: bool,
+
+        /// Do not push to the remote document for the output (if applicable to the format)
+        #[clap(long)]
+        no_push: bool,
+
         /// Whether to encode in compact form
         ///
         /// Some formats (e.g HTML and JSON) can be encoded in either compact
@@ -491,8 +563,10 @@ pub mod commands {
                 };
 
                 from_str(&content, &format, options).await?
-            } else {
+            } else if self.no_pull {
                 from_path(&self.input, self.from.as_deref(), options).await?
+            } else {
+                from_remote(&self.input, self.from.as_deref(), options).await?
             };
 
             let options = Some(EncodeOptions {
@@ -511,8 +585,11 @@ pub mod commands {
 
                 let content = to_string(&node, &format, options).await?;
                 result::content(&format, &content)
-            } else {
+            } else if self.no_push {
                 to_path(&node, &self.output, self.to.as_deref(), options).await?;
+                result::nothing()
+            } else {
+                to_remote(&node, &self.output, self.to.as_deref(), options).await?;
                 result::nothing()
             }
         }

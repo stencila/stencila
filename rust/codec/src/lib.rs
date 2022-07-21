@@ -42,6 +42,13 @@ pub struct Codec {
     /// Whether the codec supports encoding to a file system path
     pub to_path: bool,
 
+    /// Whether the codec supports has a remote state
+    ///
+    /// Some formats (e.g. Google Docs) have their canonical state in a remote
+    /// location (e.g. Google's servers) and Stencila only "mirrors" them in a local
+    /// file containing an id or URL linking the file to the remote state.
+    pub has_remote: bool,
+
     /// A list of root node types that the codec can encode / decode
     ///
     /// Most codecs usually only handle one root type e.g. `Article`.
@@ -74,6 +81,7 @@ impl Default for Codec {
             from_path: true,
             to_string: true,
             to_path: true,
+            has_remote: false,
             root_types: vec_string!["Article"],
             unsupported_types: vec![],
             unsupported_properties: vec![],
@@ -134,6 +142,11 @@ pub trait CodecTrait {
         Self::from_file(&mut file, options).await
     }
 
+    /// Update the local file from the remote document
+    async fn from_remote(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
+        Self::from_path(path, options).await
+    }
+
     /// Encode a document node to a string
     fn to_string(_node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
         bail!("Encoding to string is not implemented for this format")
@@ -172,6 +185,11 @@ pub trait CodecTrait {
         }
         let mut file = File::create(path).await?;
         Self::to_file(node, &mut file, options).await
+    }
+
+    /// Update the remote document from the local file
+    async fn to_remote(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
+        Self::to_path(node, path, options).await
     }
 }
 
