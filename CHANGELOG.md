@@ -1,3 +1,32 @@
+# [1.15.0](https://github.com/stencila/stencila/compare/v1.14.0...v1.15.0) (2022-07-21)
+
+
+### Bug Fixes
+
+* **Cloud integration:** Use node keys, rather than ids ([78c9fab](https://github.com/stencila/stencila/commit/78c9fab4d058ca907887fcbaff1bdc605a00ea07))
+* **Google Doc codec:** Decode `order` of `List`s ([5efcc01](https://github.com/stencila/stencila/commit/5efcc01d3704041375d914a854639345dca24794))
+* **Google Doc codec:** Fix handling of nested lists ([af4ea1e](https://github.com/stencila/stencila/commit/af4ea1e542d1b7b00b96fe535949e9a8b2a336ef))
+* **Google Doc codec:** Remove unessary underlining of  links ([2184cab](https://github.com/stencila/stencila/commit/2184cabfae1293eb599c945358c6ed68d8a49a86))
+* **Google Drive provider:** Pull images from temporary URLs ([a3ee671](https://github.com/stencila/stencila/commit/a3ee671418e42cf233f5981e76d8a37428b7a53d))
+* **Goolge Doc codec:** Fix handling of superscripts and subscripts, and adjacent strings ([15baf7f](https://github.com/stencila/stencila/commit/15baf7f42b5e096d9e46f009c0094d1ec392fe0d))
+* **Markdown codec:** Ensure table cells have no newlines ([a5c88cd](https://github.com/stencila/stencila/commit/a5c88cda194bb628788cfbcd9409f4514ad15659))
+* **Pandoc codec:** Add node id of `CodeChunk`s and `CodeExpression`s ([e55c05c](https://github.com/stencila/stencila/commit/e55c05c6d2f5d172711b7cf5da2379dadf324595))
+* **Rust:** Update dependencies ([5f12aa5](https://github.com/stencila/stencila/commit/5f12aa55a7b371679299d10de4b05b0cecea8260))
+* **Word codec:** Add fallback to decode `CodeChunk`s and `CodeExpression`` from RPNG files ([62d8dbe](https://github.com/stencila/stencila/commit/62d8dbe882a977ee7cf3b73f5661ff81895e1c13))
+
+
+### Features
+
+* **Auth:** Add `provider_token` function ([3a5d0a3](https://github.com/stencila/stencila/commit/3a5d0a3b1a0cdb84501328d4b6ed490b328401ef))
+* **Cloud integration:** Add `auth providers` subcommand ([263a524](https://github.com/stencila/stencila/commit/263a5244d37621e949166d1ed6e4c4ffaf013743))
+* **Cloud integration:** Add functions for posting and retrieving nodes ([4aab9e9](https://github.com/stencila/stencila/commit/4aab9e9dd1373c9adfe9da932eb89a37142177a6))
+* **Cloud integration:** Cache provider tokens to avoid additional requests ([f993501](https://github.com/stencila/stencila/commit/f99350110608d986578a53374fe67b51e2683f30))
+* **Google Doc codec:** Decoding of lists including nested lists ([cc0d89c](https://github.com/stencila/stencila/commit/cc0d89cdc85633aa5db5abd26a5198f0d122b2fa))
+* **Google Doc codec:** Implement encoding to Google Doc compatible `docx` ([5a35a37](https://github.com/stencila/stencila/commit/5a35a37aa3c825962ccb1efff0e12d171609e065))
+* **Google Docs codec:** Create a new Google Doc when encoding ([f151f27](https://github.com/stencila/stencila/commit/f151f27fdd8f3012ccac3a085a6dd6747965a3c5))
+* **Google Docs:** Initial version of `GdocCodec` for decoding Google Docs to Stencila `Article`s ([01d22c7](https://github.com/stencila/stencila/commit/01d22c79b5b581b379ba0d7e9ea26fde66b9bd43))
+* **Pandoc codec:** Add `rpng_link` encoding option ([ea0bbb2](https://github.com/stencila/stencila/commit/ea0bbb2744449b8dd3bdc50fae6ac1fd09856ab0))
+
 # [1.14.0](https://github.com/stencila/stencila/compare/v1.13.2...v1.14.0) (2022-07-15)
 
 
