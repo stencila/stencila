@@ -1114,8 +1114,11 @@ name = "codec-gdoc"
 version = "0.0.0"
 dependencies = [
  "async-recursion 1.0.0",
+ "cloud",
  "codec",
  "codec-pandoc",
+ "node-address",
+ "node-transform",
  "provider-gdrive",
  "schemafy",
  "serde",
@@ -1231,6 +1234,7 @@ dependencies = [
  "test-props",
  "test-snaps",
  "test-utils",
+ "uuids",
 ]
 
 [[package]]

@@ -2,16 +2,21 @@ use std::collections::{BTreeMap, VecDeque};
 
 use async_recursion::async_recursion;
 use codec::{
-    common::{eyre::Result, futures, once_cell::sync::Lazy, regex::Regex, serde_json},
+    common::{
+        eyre::Result, futures, itertools::Itertools, once_cell::sync::Lazy, regex::Regex,
+        serde_json,
+    },
     stencila_schema::{
-        Article, BlockContent, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObjectSimple,
+        Article, BlockContent, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObject,
         InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
-        NontextualAnnotation, Note, NoteNoteType, Paragraph, Strong, TableCell, TableCellContent,
-        TableRow, TableSimple, ThematicBreak, ThingIdentifiers,
+        NontextualAnnotation, Note, NoteNoteType, Paragraph, Strong, Subscript, Superscript,
+        TableCell, TableCellContent, TableRow, TableSimple, ThematicBreak,
     },
 };
+use node_address::Address;
+use node_transform::Transform;
 
-use crate::gdoc;
+use crate::{gdoc, NodeRanges};
 
 // See https://github.com/stencila/encoda/blob/master/src/codecs/gdoc/index.ts
 // for a previous TypeScript implementation.
@@ -20,14 +25,14 @@ use crate::gdoc;
 // for browse-able schema for Google Docs.
 
 /// Decode the JSON content of a Google Doc into a Stencila `Node`
-pub(crate) async fn decode_async(content: &str) -> Result<Node> {
+pub(crate) async fn decode_async(content: &str) -> Result<(Node, NodeRanges)> {
     let doc: gdoc::Document = serde_json::from_str(content)?;
-    let article = document_to_article(doc).await;
-    Ok(Node::Article(article))
+    let (article, node_ranges) = document_to_article(doc).await;
+    Ok((Node::Article(article), node_ranges))
 }
 
 /// Decode the JSON content of a Google Doc into a Stencila `Node` synchronously
-pub(crate) fn decode_sync(content: &str) -> Result<Node> {
+pub(crate) fn decode_sync(content: &str) -> Result<(Node, NodeRanges)> {
     futures::executor::block_on(async { decode_async(content).await })
 }
 
@@ -48,64 +53,92 @@ struct Context {
 
     /// A stack of lists within the current (used to implement nested lists)
     list_stack: VecDeque<List>,
+
+    /// A map of node address to their start and end index in the Google Doc.
+    ///
+    /// Intended to be used to apply Stencila document patches as Google Doc batch update requests
+    /// such as `deleteContentRange`, `insertText`, `deleteTableRow`.
+    ///
+    /// The `startIndex` and `endIndex` fields are available on Google Doc types
+    /// `StructuralElement`, `ParagraphElement`, `TableRow`, `TableCell`.
+    /// 
+    /// At present this is not completely reliable (list handling messes it up).
+    node_ranges: NodeRanges,
+}
+
+impl Context {
+    fn node_ranges_insert(
+        &mut self,
+        address: &Address,
+        start_index: Option<i64>,
+        end_index: Option<i64>,
+    ) {
+        self.node_ranges.insert(
+            address.clone(),
+            (
+                start_index.unwrap_or_default(),
+                end_index.unwrap_or_default(),
+            ),
+        );
+    }
 }
 
 /// Transform a Google Doc `Document` to a vector of Stencila `Article`
-async fn document_to_article(doc: gdoc::Document) -> Article {
-    let identifiers = doc.document_id.map(|id| {
-        vec![ThingIdentifiers::String(
-            ["https://docs.google.com/document/d/", &id].concat(),
-        )]
-    });
-
+pub(crate) async fn document_to_article(doc: gdoc::Document) -> (Article, NodeRanges) {
     let title = doc
         .title
         .map(|string| Box::new(CreativeWorkTitle::String(string)));
 
+    let mut context = Context {
+        inline_objects: doc.inline_objects.unwrap_or_default(),
+        footnotes: doc.footnotes.unwrap_or_default(),
+        lists: doc.lists.unwrap_or_default(),
+        list_stack: VecDeque::new(),
+        node_ranges: BTreeMap::new(),
+    };
+
     let content = if let Some(body) = doc.body {
-        let mut context = Context {
-            inline_objects: doc.inline_objects.unwrap_or_default(),
-            footnotes: doc.footnotes.unwrap_or_default(),
-            lists: doc.lists.unwrap_or_default(),
-            list_stack: VecDeque::new(),
-        };
-        Some(body_to_blocks(body, &mut context).await)
+        Some(body_to_blocks(body, &mut context, &mut Address::from("content")).await)
     } else {
         None
     };
 
-    Article {
-        identifiers,
+    let article = Article {
         title,
         content,
         ..Default::default()
-    }
+    };
+
+    (article, context.node_ranges)
 }
 
 /// Transform a Google Doc `Body` to Stencila `BlockContent` nodes
 //
-/// Note: the first element in the body is always a section break so we
-/// exclude it.
-async fn body_to_blocks(body: gdoc::Body, context: &mut Context) -> Vec<BlockContent> {
+/// Note: the first element in the body is always a section break (translated to
+/// a `ThematicBreak`) so we exclude it.
+async fn body_to_blocks(
+    body: gdoc::Body,
+    context: &mut Context,
+    address: &mut Address,
+) -> Vec<BlockContent> {
     let mut blocks: Vec<BlockContent> = Vec::new();
-    for elem in body.content.into_iter().flatten() {
-        if let Some(block) = structural_element_to_block(elem, context).await {
-            if !context.list_stack.is_empty() {
-                merge_list_stack(&mut context.list_stack, 1);
-                if let Some(list) = context.list_stack.pop_front() {
-                    blocks.push(BlockContent::List(list));
+    for (index, elem) in body.content.into_iter().flatten().enumerate() {
+        if let Some(block) =
+            structural_element_to_block(elem, context, &mut address.add_index(blocks.len())).await
+        {
+            if !(index == 0 && matches!(block, BlockContent::ThematicBreak(..))) {
+                if !context.list_stack.is_empty() {
+                    merge_list_stack(&mut context.list_stack, 1);
+                    if let Some(list) = context.list_stack.pop_front() {
+                        blocks.push(BlockContent::List(list));
+                    }
                 }
+                blocks.push(block)
             }
-
-            blocks.push(block)
         }
     }
 
-    if let Some(BlockContent::ThematicBreak(..)) = blocks.first() {
-        blocks[1..].to_vec()
-    } else {
-        blocks
-    }
+    blocks
 }
 
 /// Transform a Google Doc `StructuralElement` to Stencila `BlockContent` nodes
@@ -115,19 +148,26 @@ async fn body_to_blocks(body: gdoc::Body, context: &mut Context) -> Vec<BlockCon
 async fn structural_element_to_block(
     elem: gdoc::StructuralElement,
     context: &mut Context,
+    address: &mut Address,
 ) -> Option<BlockContent> {
-    if let Some(paragraph) = elem.paragraph {
-        paragraph_to_block(paragraph, context).await
+    let block = if let Some(paragraph) = elem.paragraph {
+        paragraph_to_block(paragraph, context, address).await
     } else if let Some(..) = elem.section_break {
         section_break_to_block()
     } else if let Some(table) = elem.table {
-        table_to_block(table, context).await
+        table_to_block(table, context, address).await
     } else if let Some(..) = elem.table_of_contents {
         // Ignore table of contents
         None
     } else {
         unreachable!("A `StructuralElement` should have one of the above properties")
+    };
+
+    if block.is_some() {
+        context.node_ranges_insert(address, elem.start_index, elem.end_index)
     }
+
+    block
 }
 
 /// Transform a Google Doc `Paragraph` to one or more Stencila `BlockContent` nodes
@@ -136,13 +176,56 @@ async fn structural_element_to_block(
 /// However, if the paragraph contains only one element and that element
 /// is a reproducible image, then it will be decoded to the entity in that image
 /// e.g. `CodeChunk`.
-async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Option<BlockContent> {
+async fn paragraph_to_block(
+    para: gdoc::Paragraph,
+    context: &mut Context,
+    address: &mut Address,
+) -> Option<BlockContent> {
+    if let Some(inline_object_element) = para
+        .elements
+        .as_ref()
+        .and_then(|elems| elems.first())
+        .and_then(|elem| elem.inline_object_element.as_ref())
+    {
+        if let Some(Node::CodeChunk(code_chunk)) =
+            inline_object_element_to_node(inline_object_element, context).await
+        {
+            return Some(BlockContent::CodeChunk(code_chunk));
+        }
+    };
+
+    let content = if para.bullet.is_some() {
+        let item = context
+            .list_stack
+            .back()
+            .map(|list| list.items.len())
+            .unwrap_or_default();
+        address
+            .add_name("items")
+            .add_index(item)
+            .add_name("content")
+            .add_index(0)
+            .add_name("content")
+    } else {
+        address.add_name("content")
+    };
+
     let mut inlines = Vec::new();
     for elem in para.elements.into_iter().flatten() {
-        if let Some(inline) = paragraph_element_to_inline(elem, context).await {
+        let index = inlines.len();
+        if let Some(inline) = paragraph_element_to_inline(
+            elem,
+            inlines.last_mut(),
+            context,
+            &mut content.add_index(index),
+        )
+        .await
+        {
             inlines.push(inline)
         }
     }
+
+    if para.bullet.is_some() {}
 
     if inlines.is_empty() {
         return None;
@@ -182,7 +265,7 @@ async fn paragraph_to_block(para: gdoc::Paragraph, context: &mut Context) -> Opt
 
             let list_level = bullet.nesting_level.unwrap_or(0) as usize;
 
-            // It seems that the only way to tell if a list is ordered on unordered is to look at
+            // It seems that the only way to tell if a list is ordered or unordered is to look at
             // the glyphType.
             // See https://developers.google.com/docs/api/reference/rest/v1/ListProperties#NestingLevel
             let order = context
@@ -244,11 +327,16 @@ fn section_break_to_block() -> Option<BlockContent> {
 }
 
 /// Transform a Google Doc `Table` to a Stencila `Table`
-async fn table_to_block(table: gdoc::Table, context: &mut Context) -> Option<BlockContent> {
+async fn table_to_block(
+    table: gdoc::Table,
+    context: &mut Context,
+    address: &mut Address,
+) -> Option<BlockContent> {
+    let address = address.add_name("rows");
     let mut rows: Vec<TableRow> = Vec::new();
-    for row in table.table_rows.into_iter().flatten() {
-        let row = table_row_to_table_row(row, context).await;
-        rows.push(row)
+    for (index, row) in table.table_rows.into_iter().flatten().enumerate() {
+        let row = table_row_to_table_row(row, context, &mut address.add_index(index)).await;
+        rows.push(row);
     }
 
     Some(BlockContent::Table(TableSimple {
@@ -258,11 +346,16 @@ async fn table_to_block(table: gdoc::Table, context: &mut Context) -> Option<Blo
 }
 
 /// Transform a Google Doc `TableRow` to a Stencila `TableRow`
-async fn table_row_to_table_row(table_row: gdoc::TableRow, context: &mut Context) -> TableRow {
+async fn table_row_to_table_row(
+    table_row: gdoc::TableRow,
+    context: &mut Context,
+    address: &mut Address,
+) -> TableRow {
+    let address = address.add_name("cells");
     let mut cells: Vec<TableCell> = Vec::new();
-    for cell in table_row.table_cells.into_iter().flatten() {
-        let cell = table_cell_to_table_cell(cell, context).await;
-        cells.push(cell)
+    for (index, cell) in table_row.table_cells.into_iter().flatten().enumerate() {
+        let cell = table_cell_to_table_cell(cell, context, &mut address.add_index(index)).await;
+        cells.push(cell);
     }
 
     TableRow {
@@ -272,10 +365,17 @@ async fn table_row_to_table_row(table_row: gdoc::TableRow, context: &mut Context
 }
 
 /// Transform a Google Doc `TableCell` to a Stencila `TableCell`
-async fn table_cell_to_table_cell(table_cell: gdoc::TableCell, context: &mut Context) -> TableCell {
+async fn table_cell_to_table_cell(
+    table_cell: gdoc::TableCell,
+    context: &mut Context,
+    address: &mut Address,
+) -> TableCell {
+    let address = address.add_name("content");
     let mut blocks: Vec<BlockContent> = Vec::new();
-    for elem in table_cell.content.into_iter().flatten() {
-        if let Some(block) = structural_element_to_block(elem, context).await {
+    for (index, elem) in table_cell.content.into_iter().flatten().enumerate() {
+        if let Some(block) =
+            structural_element_to_block(elem, context, &mut address.add_index(index)).await
+        {
             blocks.push(block)
         }
     }
@@ -302,14 +402,18 @@ async fn table_cell_to_table_cell(table_cell: gdoc::TableCell, context: &mut Con
 #[allow(clippy::if_same_then_else)]
 async fn paragraph_element_to_inline(
     elem: gdoc::ParagraphElement,
+    last: Option<&mut InlineContent>,
     context: &mut Context,
+    address: &mut Address,
 ) -> Option<InlineContent> {
-    if let Some(text_run) = elem.text_run {
-        text_run_to_inline(text_run)
+    let inline = if let Some(text_run) = elem.text_run {
+        text_run_to_inline(text_run, last)
     } else if let Some(inline_object_element) = elem.inline_object_element {
-        inline_object_element_to_inline(inline_object_element, context).await
+        inline_object_element_to_node(&inline_object_element, context)
+            .await
+            .map(|node| node.to_inline())
     } else if let Some(footnote_reference) = elem.footnote_reference {
-        footnote_reference_to_inline(footnote_reference, context).await
+        footnote_reference_to_inline(footnote_reference, context, address).await
     } else if let Some(person) = elem.person {
         person_to_inline(person)
     } else if let Some(rich_link) = elem.rich_link {
@@ -325,7 +429,13 @@ async fn paragraph_element_to_inline(
         None
     } else {
         unreachable!("A `ParagraphElement` should have one of the above properties")
+    };
+
+    if inline.is_some() {
+        context.node_ranges_insert(address, elem.start_index, elem.end_index)
     }
+
+    inline
 }
 
 /// Transform a Google Doc `TextRun` to a `string`, `Emphasis`, `Strong`, `Delete`,
@@ -334,7 +444,10 @@ async fn paragraph_element_to_inline(
 /// A `TextRun` can have multiple styles and this function nests them in
 /// a the order they are listed at https://developers.google.com/docs/api/reference/rest/v1/documents#TextStyle
 /// (i.e. with `Link` as the outer node)
-fn text_run_to_inline(text_run: gdoc::TextRun) -> Option<InlineContent> {
+fn text_run_to_inline(
+    text_run: gdoc::TextRun,
+    last: Option<&mut InlineContent>,
+) -> Option<InlineContent> {
     let mut string = text_run.content.unwrap_or_default();
     if string.ends_with('\n') {
         string.pop();
@@ -374,6 +487,20 @@ fn text_run_to_inline(text_run: gdoc::TextRun) -> Option<InlineContent> {
             });
         }
 
+        if let Some(offset) = text_style.baseline_offset {
+            if offset == "SUBSCRIPT" {
+                inline = InlineContent::Subscript(Subscript {
+                    content: vec![inline],
+                    ..Default::default()
+                });
+            } else if offset == "SUPERSCRIPT" {
+                inline = InlineContent::Superscript(Superscript {
+                    content: vec![inline],
+                    ..Default::default()
+                });
+            }
+        }
+
         if let Some(link) = text_style.link {
             // Remove unnecessary underline of link content
             let content = match inline {
@@ -397,40 +524,67 @@ fn text_run_to_inline(text_run: gdoc::TextRun) -> Option<InlineContent> {
         }
     }
 
+    // If the last inline was a plain string and this is a plain string (e.g. text run with
+    // ignored formatting) then append to previous and return None
+    if let InlineContent::String(string) = &inline {
+        if let Some(InlineContent::String(last)) = last {
+            last.push_str(string);
+            return None;
+        }
+    }
+
     Some(inline)
 }
 
-/// Transform a Google Doc `InlineObjectElement` to a Stencila `ImageObjectSimple`.
-async fn inline_object_element_to_inline(
-    inline_object_element: gdoc::InlineObjectElement,
+/// Transform a Google Doc `InlineObjectElement` to a Stencila `Node`.
+///
+/// This needs to be async because we may need to fetch the JSON for the URL if it is not
+/// in the description.
+async fn inline_object_element_to_node(
+    inline_object_element: &gdoc::InlineObjectElement,
     context: &mut Context,
-) -> Option<InlineContent> {
-    let embedded_object = inline_object_element
+) -> Option<Node> {
+    inline_object_element
         .inline_object_id
-        .and_then(|id| context.inline_objects.get(&id).cloned())
+        .as_ref()
+        .and_then(|id| context.inline_objects.get(id).cloned())
         .and_then(|inline_object| inline_object.inline_object_properties)
-        .and_then(|inline_object_props| inline_object_props.embedded_object);
-
-    embedded_object.and_then(|embedded_object| {
-        let title = embedded_object
-            .title
-            .map(|title| Box::new(CreativeWorkTitle::String(title)));
-        let _caption = embedded_object.description;
-
-        embedded_object.image_properties.map(|image_properties| {
-            InlineContent::ImageObject(ImageObjectSimple {
-                title,
-                content_url: image_properties.content_uri.unwrap_or_default(),
-                ..Default::default()
-            })
+        .and_then(|inline_object_props| inline_object_props.embedded_object)
+        .and_then(|embedded_object| {
+            embedded_object
+                .title
+                .as_ref()
+                .and_then(|title| title.splitn(2, ' ').collect_tuple())
+                .and_then(|(node_type, _id)| {
+                    let node_type = node_type.trim();
+                    embedded_object
+                        .description
+                        .and_then(|desc| match node_type {
+                            "CodeChunk" | "CodeExpression" => {
+                                serde_json::from_str::<Node>(&desc).ok()
+                            }
+                            _ => None,
+                        })
+                })
+                .or_else(|| {
+                    embedded_object.image_properties.map(|image_properties| {
+                        Node::ImageObject(ImageObject {
+                            title: embedded_object
+                                .title
+                                .map(|title| Box::new(CreativeWorkTitle::String(title))),
+                            content_url: image_properties.content_uri.unwrap_or_default(),
+                            ..Default::default()
+                        })
+                    })
+                })
         })
-    })
 }
 
 /// Transform a Google Doc `FootnoteReference` to a Stencila `Note`.
 async fn footnote_reference_to_inline(
     footnote_reference: gdoc::FootnoteReference,
     context: &mut Context,
+    address: &mut Address,
 ) -> Option<InlineContent> {
     if let Some(footnote) = footnote_reference
         .footnote_id
@@ -438,7 +592,7 @@ async fn footnote_reference_to_inline(
     {
         let mut content: Vec<BlockContent> = Vec::new();
         for elem in footnote.content.into_iter().flatten() {
-            if let Some(block) = structural_element_to_block(elem, context).await {
+            if let Some(block) = structural_element_to_block(elem, context, address).await {
                 content.push(block)
             }
         }
@@ -519,7 +673,7 @@ mod test {
     #[test]
     fn decode_gdoc_articles() {
         snapshot_fixtures_content("articles/gdoc/*.gdoc", |content| {
-            assert_json_snapshot!(decode_sync(content).unwrap());
+            assert_json_snapshot!(decode_sync(content).unwrap().0);
         });
     }
 }

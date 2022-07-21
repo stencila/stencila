@@ -1,7 +1,7 @@
 ---
 source: rust/codec-gdoc/src/decode.rs
-assertion_line: 522
-expression: decode_sync(content).unwrap()
+assertion_line: 674
+expression: decode_sync(content).unwrap().0
 input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
 ---
 {
@@ -54,9 +54,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             {
               "type": "Paragraph",
               "content": [
-                "the test snapshots based on that JSON by running ",
-                "cargo insta test",
-                " in ",
+                "the test snapshots based on that JSON by running cargo insta test in ",
                 {
                   "type": "Link",
                   "content": [
@@ -168,8 +166,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             "Format > Paragraph Styles"
           ]
         },
-        " menu",
-        ". To maintain consistency with other formats and table of contents generators, the top level heading should always use the “Heading 1” style."
+        " menu. To maintain consistency with other formats and table of contents generators, the top level heading should always use the “Heading 1” style."
       ]
     },
     {
@@ -265,7 +262,12 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
               "type": "Paragraph",
               "content": [
                 "Subscripted text as a Subscript node e.g. p",
-                "1"
+                {
+                  "type": "Subscript",
+                  "content": [
+                    "1"
+                  ]
+                }
               ]
             }
           ]
@@ -277,7 +279,12 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
               "type": "Paragraph",
               "content": [
                 "Superscripted text as a Superscript node e.g. x",
-                "2"
+                {
+                  "type": "Superscript",
+                  "content": [
+                    "2"
+                  ]
+                }
               ]
             }
           ]
@@ -322,9 +329,14 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
               "type": "Paragraph",
               "content": [
                 {
-                  "type": "Delete",
+                  "type": "Subscript",
                   "content": [
-                    "Strikethrough subscript"
+                    {
+                      "type": "Delete",
+                      "content": [
+                        "Strikethrough subscript"
+                      ]
+                    }
                   ]
                 },
                 " as Delete nested within Subscript"
@@ -349,8 +361,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             {
               "type": "Paragraph",
               "content": [
-                "Colored",
-                " text"
+                "Colored text"
               ]
             }
           ]
@@ -361,9 +372,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             {
               "type": "Paragraph",
               "content": [
-                "Text with a ",
-                "highlight",
-                " color"
+                "Text with a highlight color"
               ]
             }
           ]
@@ -374,9 +383,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             {
               "type": "Paragraph",
               "content": [
-                "Text in a ",
-                "different",
-                " font face"
+                "Text in a different font face"
               ]
             }
           ]
@@ -387,10 +394,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             {
               "type": "Paragraph",
               "content": [
-                "Larger",
-                " or ",
-                "smaller",
-                " font sizes"
+                "Larger or smaller font sizes"
               ]
             }
           ]
@@ -765,7 +769,12 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                   "type": "Paragraph",
                   "content": [
                     "3.3011 × 10",
-                    "23",
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        "23"
+                      ]
+                    },
                     " kg"
                   ]
                 }
@@ -806,7 +815,12 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                   "type": "Paragraph",
                   "content": [
                     "4.8675 × 10",
-                    "24",
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        "24"
+                      ]
+                    },
                     " kg"
                   ]
                 }
@@ -847,7 +861,12 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                   "type": "Paragraph",
                   "content": [
                     "5.97237 × 10",
-                    "24",
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        "24"
+                      ]
+                    },
                     " kg"
                   ]
                 }
@@ -888,7 +907,12 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                   "type": "Paragraph",
                   "content": [
                     "6.4171 × 10",
-                    "23",
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        "23"
+                      ]
+                    },
                     " kg"
                   ]
                 }
@@ -956,9 +980,6 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
         }
       ]
     }
-  ],
-  "identifiers": [
-    "https://docs.google.com/document/d/1BePN1If6tUAr1eMg32MJMFKjbuuEkzwBiOxsYp3XqoU"
   ],
   "title": "Stencila Google Docs Kitchen Sink Test Fixture"
 }

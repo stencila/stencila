@@ -36,7 +36,9 @@ use common::{
 /// In contrast to JSON Patch, which uses a [JSON Pointer](http://tools.ietf.org/html/rfc6901)
 /// to describe the location of additions and removals, slots offer improved performance and
 /// type safety.
-#[derive(Debug, Clone, JsonSchema, Serialize, Deserialize, AsRefStr)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize, Deserialize, AsRefStr,
+)]
 #[serde(untagged, crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub enum Slot {
@@ -53,6 +55,18 @@ impl fmt::Display for Slot {
     }
 }
 
+impl From<usize> for Slot {
+    fn from(index: usize) -> Slot {
+        Slot::Index(index)
+    }
+}
+
+impl From<&str> for Slot {
+    fn from(name: &str) -> Slot {
+        Slot::Name(name.to_string())
+    }
+}
+
 /// The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
 ///
 /// Implemented as a double-ended queue. Given that addresses usually have less than
@@ -60,7 +74,20 @@ impl fmt::Display for Slot {
 ///
 /// Note: This could instead have be called a "Path", but that name was avoided because
 /// of potential confusion with file system paths.
-#[derive(Debug, Clone, Default, Constructor, Deref, DerefMut, JsonSchema)]
+#[derive(
+    Debug,
+    Clone,
+    Default,
+    Constructor,
+    Deref,
+    DerefMut,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    JsonSchema,
+)]
 #[schemars(deny_unknown_fields)]
 pub struct Address(VecDeque<Slot>);
 
