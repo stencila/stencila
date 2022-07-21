@@ -4,7 +4,7 @@ use cli_utils::{
     Result, Run,
 };
 
-use crate::{orgs, projects, teams, tokens, users};
+use crate::{auth, orgs, projects, teams, users};
 
 #[derive(Parser)]
 pub struct Command {
@@ -21,9 +21,9 @@ pub struct Command {
 enum Action {
     Projects(projects::cli::Command),
     Orgs(orgs::cli::Command),
-    Users(users::cli::Command),
     Teams(teams::cli::Command),
-    Tokens(tokens::cli::Command),
+    Users(users::cli::Command),
+    Auth(auth::cli::Command),
 }
 
 #[async_trait]
@@ -34,7 +34,7 @@ impl Run for Command {
             Action::Orgs(action) => action.run().await,
             Action::Teams(action) => action.run().await,
             Action::Users(action) => action.run().await,
-            Action::Tokens(action) => action.run().await,
+            Action::Auth(action) => action.run().await,
         }
     }
 }

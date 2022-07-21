@@ -8,6 +8,7 @@ edition = "2021"
 archive-utils = { path = "../archive-utils", features = [
     "tar-gz",
 ] }
+codecs = { path = "../codecs" }
 provider = { path = "../provider" }
 uuids = { path = "../uuids" }
 

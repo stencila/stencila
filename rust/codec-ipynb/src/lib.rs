@@ -31,6 +31,7 @@ impl CodecTrait for IpynbCodec {
             to_path: cfg!(feature = "encode"),
             unsupported_types: md_codec.unsupported_types,
             unsupported_properties: md_codec.unsupported_properties,
+            ..Default::default()
         }
     }
 

@@ -5,6 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+cloud = { path = "../cloud" }
 google-drive = "0.4.0"
 provider = { path = "../provider" }
 uuids = { path = "../uuids" }

@@ -4,7 +4,7 @@
 
 use std::path::PathBuf;
 
-use cli_utils::table::{date_time_ago, option_date_time_ago, option_string, Table};
+use cli_utils::table::{date_time_ago, option_date_time_ago, option_string, title_case, Table};
 use common::{
     chrono::{DateTime, Utc},
     inflector::Inflector,
@@ -39,6 +39,32 @@ pub struct ApiToken {
 
     #[table(title = "Created", display_fn = "date_time_ago")]
     pub created_at: DateTime<Utc>,
+}
+
+#[skip_serializing_none]
+#[derive(Serialize, Deserialize, Table)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[table(crate = "cli_utils::cli_table")]
+pub struct Provider {
+    #[table(title = "Provider", display_fn = "title_case")]
+    pub provider: String,
+
+    #[table(title = "Connected", display_fn = "date_time_ago")]
+    pub first_received_at: DateTime<Utc>,
+
+    #[table(title = "Updated", display_fn = "date_time_ago")]
+    pub last_received_at: DateTime<Utc>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub struct ProviderToken {
+    pub provider: String,
+
+    pub access_token: String,
+
+    pub expires_at: Option<i64>,
 }
 
 #[skip_serializing_none]

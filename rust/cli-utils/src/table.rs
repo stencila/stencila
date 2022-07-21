@@ -12,7 +12,12 @@ pub use cli_table::{Table, Title};
 use common::{
     chrono::{DateTime, Utc},
     chrono_humanize::HumanTime,
+    inflector::Inflector,
 };
+
+pub fn title_case(value: &str) -> String {
+    value.to_title_case()
+}
 
 pub fn date_time_ago(value: &DateTime<Utc>) -> String {
     HumanTime::from(*value).to_string()

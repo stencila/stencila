@@ -317,7 +317,12 @@ impl ToMd for TableSimple {
                 .iter()
                 .enumerate()
                 .map(|(column, content)| {
-                    format!("{:width$}", content, width = column_widths[column])
+                    format!(
+                        "{:width$}",
+                        // Ensure cell has no newlines which will break table
+                        content.replace("\r\n", " ").replace('\n', " "),
+                        width = column_widths[column]
+                    )
                 })
                 .join(" | ")
         };

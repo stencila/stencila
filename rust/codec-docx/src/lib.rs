@@ -37,9 +37,18 @@ impl CodecTrait for DocxCodec {
         decode("", Some(path), "docx", &["--extract-media", &media]).await
     }
 
-    async fn to_path(node: &Node, path: &Path, _options: Option<EncodeOptions>) -> Result<()> {
-        let path = PathBuf::from(path);
-        encode(node, Some(path), "docx", &[]).await?;
+    async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
+        encode(
+            node,
+            Some(path),
+            "docx",
+            &[],
+            Some(EncodeOptions {
+                rpng_content: true,
+                ..options.unwrap_or_default()
+            }),
+        )
+        .await?;
         Ok(())
     }
 }

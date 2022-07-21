@@ -11,11 +11,11 @@ use common::{
     serde::{Deserialize, Serialize},
     serde_json,
     serde_with::skip_serializing_none,
-    strum::VariantNames,
+    strum::{Display, EnumString, EnumVariantNames, VariantNames},
     tracing,
 };
-use files::{File, Files};
-use providers::provider::{ImportOptions, WatchMode};
+use files::File;
+// use providers::provider::{ImportOptions, WatchMode};
 use stencila_schema::Node;
 
 use crate::types::ProjectLocal;
@@ -86,6 +86,12 @@ pub struct SourceCron {
     action: Option<String>,
 }
 
+// TODO: This, and `todo!()`s below are temporary, pending moving these into their own crate.
+#[derive(Debug, Clone, Deserialize, Serialize, Display, EnumString, EnumVariantNames)]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[strum(crate = "common::strum")]
+pub enum WatchMode {}
+
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(crate = "common::serde")]
@@ -101,12 +107,15 @@ impl Source {
     /// Ensures that `dest` is a relative path and does not include any traversal (i.e. `..`).
     /// Parses the `cron` into an expression and timezone.
     pub async fn new(
-        url: String,
-        name: Option<String>,
-        dest: Option<PathBuf>,
-        cron: Option<String>,
-        watch: Option<WatchMode>,
+        _url: String,
+        _name: Option<String>,
+        _dest: Option<PathBuf>,
+        _cron: Option<String>,
+        _watch: Option<WatchMode>,
     ) -> Result<Source> {
+        todo!("Reimplement in separate crate?");
+
+        /*
         let (provider, node) = providers::resolve(&url).await?;
 
         if let Some(dest) = dest.as_ref() {
@@ -156,6 +165,7 @@ impl Source {
             watch,
             ..Default::default()
         })
+        */
     }
 
     /// Generate a label for the source
@@ -217,7 +227,10 @@ impl Source {
     /// # Returns
     ///
     /// A map of the [`File`]s that were imported by the source.
-    pub async fn import(&self, path: &Path) -> Result<BTreeMap<PathBuf, File>> {
+    pub async fn import(&self, _path: &Path) -> Result<BTreeMap<PathBuf, File>> {
+        todo!("Reimplement in separate crate?");
+
+        /*
         let (.., node) = providers::resolve(&self.url).await?;
         let dest = match &self.dest {
             Some(dest) => path.join(dest),
@@ -246,6 +259,7 @@ impl Source {
             });
 
         Ok(files.collect())
+        */
     }
 }
 

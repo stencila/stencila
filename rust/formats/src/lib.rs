@@ -5,10 +5,12 @@ use schemars::JsonSchema;
 use common::{
     inflector::Inflector,
     serde::{Deserialize, Serialize},
-    strum::{EnumIter, EnumString, IntoEnumIterator},
+    strum::{Display, EnumIter, EnumString, IntoEnumIterator},
 };
 
-#[derive(Debug, Clone, PartialEq, EnumIter, Serialize, Deserialize, JsonSchema, EnumString)]
+#[derive(
+    Debug, Clone, PartialEq, EnumIter, Serialize, Deserialize, JsonSchema, Display, EnumString,
+)]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum Format {
@@ -19,6 +21,7 @@ pub enum Format {
     Dockerfile,
     Docx,
     Flac,
+    Gdoc,
     Gif,
     Html,
     Ipynb,
@@ -86,6 +89,7 @@ impl Format {
 
             // Article formats
             Format::Docx => FormatSpec::new("Microsoft Word", "docx", &[], true, true, FormatNodeType::Article),
+            Format::Gdoc => FormatSpec::new("Google Docs", "gdoc", &[], false, true, FormatNodeType::Article),
             Format::Html => FormatSpec::new("HTML", "html", &[], false, true, FormatNodeType::Article),
             Format::Ipynb => FormatSpec::new("Jupyter Notebook", "ipynb", &[], false, true, FormatNodeType::Article),
             Format::Markdown => FormatSpec::new("Markdown", "md", &[], false, true, FormatNodeType::Article),

@@ -1,9 +1,13 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
+use cloud::nodes::{node_create, node_url};
 use pandoc_types::definition as pandoc;
 
 use codec::{
-    common::{eyre::Result, tempfile},
+    common::{eyre::Result, futures, tempfile},
     stencila_schema::*,
     CodecTrait, EncodeOptions,
 };
@@ -18,13 +22,14 @@ use crate::to_pandoc;
 /// Intended primarily for use by other internal codec crates e.g. `codec-docx`, `codec-latex`
 pub async fn encode(
     node: &Node,
-    path: Option<PathBuf>,
+    path: Option<&Path>,
     format: &str,
     args: &[String],
+    options: Option<EncodeOptions>,
 ) -> Result<String> {
-    let mut context = EncodeContext::new()?;
+    let mut context = EncodeContext::new(options)?;
     let pandoc = node.to_pandoc(&mut context);
-    context.generate_rpngs().await?;
+    context.finalize().await?;
     to_pandoc(pandoc, path, format, args).await
 }
 
@@ -33,39 +38,43 @@ pub async fn encode(
 /// Compared to the `encode` function this function does not spawn a Pandoc
 /// process, or create RPNGs and returns a `pandoc_types` definition instead.
 /// It intended mainly for generative testing.
-pub fn encode_node(node: &Node) -> Result<pandoc::Pandoc> {
-    let mut context = EncodeContext::new()?;
+pub fn encode_node(node: &Node, options: Option<EncodeOptions>) -> Result<pandoc::Pandoc> {
+    let mut context = EncodeContext::new(options)?;
     let pandoc = node.to_pandoc(&mut context);
     Ok(pandoc)
 }
 
 /// The encoding context.
 struct EncodeContext {
+    /// Encoding options
+    options: EncodeOptions,
+
     /// The directory where any temporary files are placed
+    ///
+    /// Note: this will get cleaned up when the context is destroyed (ie. encoding finished)
     temp_dir: tempfile::TempDir,
 
     /// The nodes that should be encoded as RPNGs
-    rpng_nodes: Vec<(String, Node)>,
+    rpng_nodes: Vec<(String, PathBuf, Node)>,
 }
 
 impl EncodeContext {
-    fn new() -> Result<Self> {
+    fn new(options: Option<EncodeOptions>) -> Result<Self> {
+        let options = options.unwrap_or_default();
         let temp_dir = tempfile::tempdir()?;
         let rpng_nodes = Vec::new();
         Ok(EncodeContext {
+            options,
             temp_dir,
             rpng_nodes,
         })
     }
 
     /// Push a node to be encoded as an RPNG
-    fn push_rpng(&mut self, type_name: &str, node: Node) -> pandoc::Inline {
-        let path = self
-            .temp_dir
-            .path()
-            .join([&self.rpng_nodes.len().to_string(), ".png"].concat())
-            .to_slash_lossy()
-            .into_owned();
+    fn push_rpng(&mut self, type_name: &str, id: &str, node: Node) -> pandoc::Inline {
+        let path = self.temp_dir.path().join(format!("{}.png", id));
+
+        let title = format!("{} {}", type_name, id);
 
         let json = JsonCodec::to_string(
             &node,
@@ -76,25 +85,61 @@ impl EncodeContext {
         )
         .expect("Should be able to encode as JSON");
 
-        self.rpng_nodes.push((path.clone(), node));
+        let key = key_utils::generate("snk");
+        self.rpng_nodes.push((key.clone(), path.clone(), node));
 
-        pandoc::Inline::Image(
+        let inlines = match self.options.rpng_content {
+            true => vec![pandoc::Inline::Str(json)],
+            false => Vec::new(),
+        };
+
+        let image = pandoc::Inline::Image(
             attrs_empty(),
-            vec![pandoc::Inline::Str(json)],
+            inlines,
             pandoc::Target {
-                url: path,
-                title: type_name.into(),
+                url: path.to_slash_lossy().to_string(),
+                title: title.clone(),
             },
-        )
+        );
+
+        if !self.options.rpng_link {
+            return image;
+        }
+
+        let url = node_url(&key);
+
+        pandoc::Inline::Link(attrs_empty(), vec![image], pandoc::Target { url, title })
     }
 
-    /// Generate all the RPNGS
+    /// Generate all the RPNGs that have been pushed to this context
+    ///
+    /// This is called once, after all nodes have been encoded, thereby avoiding having to have all
+    /// async functions, as well as being faster.
     async fn generate_rpngs(&self) -> Result<()> {
-        let nodes: Vec<&Node> = self.rpng_nodes.iter().map(|(_id, node)| node).collect();
+        let nodes: Vec<&Node> = self.rpng_nodes.iter().map(|(.., node)| node).collect();
         let rpngs = codec_rpng::nodes_to_bytes(&nodes, None).await?;
         for (index, bytes) in rpngs.iter().enumerate() {
-            let (path, ..) = &self.rpng_nodes[index];
+            let (_key, path, ..) = &self.rpng_nodes[index];
             std::fs::write(path, bytes)?;
+        }
+        Ok(())
+    }
+
+    /// Post all the RPNGs to Stencila Cloud
+    async fn post_nodes(&self) -> Result<()> {
+        let futures = self
+            .rpng_nodes
+            .iter()
+            .map(|(key, .., node)| node_create(key, node, None, None));
+        futures::future::try_join_all(futures).await?;
+        Ok(())
+    }
+
+    /// Finalize the encoding
+    async fn finalize(&self) -> Result<()> {
+        self.generate_rpngs().await?;
+        if self.options.rpng_link {
+            self.post_nodes().await?;
         }
         Ok(())
     }
@@ -210,7 +255,12 @@ unimplemented_to_pandoc!(CiteGroup);
 
 impl ToPandoc for CodeExpression {
     fn to_pandoc_inline(&self, context: &mut EncodeContext) -> pandoc::Inline {
-        context.push_rpng("CodeExpression", Node::CodeExpression(self.clone()))
+        let id = self
+            .id
+            .as_deref()
+            .cloned()
+            .unwrap_or_else(|| uuids::generate("ce").to_string());
+        context.push_rpng("CodeExpression", &id, Node::CodeExpression(self.clone()))
     }
 }
 
@@ -323,7 +373,12 @@ impl ToPandoc for CodeChunk {
         stripped.label = None;
         stripped.caption = None;
 
-        let image = context.push_rpng("CodeChunk", Node::CodeChunk(stripped));
+        let id = self
+            .id
+            .as_deref()
+            .cloned()
+            .unwrap_or_else(|| uuids::generate("cc").to_string());
+        let image = context.push_rpng("CodeChunk", &id, Node::CodeChunk(stripped));
         let image_para = pandoc::Block::Para(vec![image]);
 
         let blocks = if label.is_some() || caption.is_some() {

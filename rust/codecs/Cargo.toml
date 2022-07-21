@@ -13,10 +13,11 @@ codec = { path = "../codec" }
 codec-format = { path = "../codec-format" }
 formats = { path = "../formats" }
 
-cli-utils = { path = "../cli-utils", features = ["pretty"], optional = true}
+cli-utils = { path = "../cli-utils", features = ["pretty"], optional = true }
 
 codec-date = { path = "../codec-date", optional = true }
 codec-docx = { path = "../codec-docx", optional = true }
+codec-gdoc = { path = "../codec-gdoc", optional = true }
 codec-html = { path = "../codec-html", optional = true }
 codec-ipynb = { path = "../codec-ipynb", optional = true }
 codec-json = { path = "../codec-json", optional = true }

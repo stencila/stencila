@@ -5,6 +5,7 @@ use pandoc_types::definition as pandoc;
 use codec::{
     common::{
         eyre::{bail, Result},
+        futures::executor,
         serde_json,
         slug::slugify,
     },
@@ -634,9 +635,7 @@ fn try_code_expression(inline: &InlineContent) -> Option<InlineContent> {
                     Some(title) => title.clone(),
                     None => "".to_string(),
                 };
-                if title == "CodeExpression"
-                    || link.target.starts_with("https://hub.stenci.la/api/nodes")
-                {
+                if title == "CodeExpression" {
                     if let InlineContent::CodeExpression(expr) = &link.content[0] {
                         return Some(InlineContent::CodeExpression(expr.clone()));
                     }
@@ -648,6 +647,7 @@ fn try_code_expression(inline: &InlineContent) -> Option<InlineContent> {
             }
             // Fallback to fetching code expression from the link's URL
             // TODO
+            None
         }
         InlineContent::ImageObject(image) => {
             // Try to get the code expression from the caption
@@ -656,14 +656,24 @@ fn try_code_expression(inline: &InlineContent) -> Option<InlineContent> {
                     return Some(InlineContent::CodeExpression(expr));
                 }
             }
-            // Fallback to getting from the image
-            if let Ok(Node::CodeExpression(expr)) = RpngCodec::from_str(&image.content_url, None) {
-                return Some(InlineContent::CodeExpression(expr));
+            // Fallback to getting from the image, either a data URI, or a file
+            let url = &image.content_url;
+            if url.starts_with("data:image/png;") {
+                if let Ok(Node::CodeExpression(chunk)) = RpngCodec::from_str(url, None) {
+                    return Some(InlineContent::CodeExpression(chunk));
+                }
             }
+            let file = PathBuf::from(url);
+            if file.exists() {
+                let result = executor::block_on(RpngCodec::from_path(&file, None));
+                if let Ok(Node::CodeExpression(chunk)) = result {
+                    return Some(InlineContent::CodeExpression(chunk));
+                }
+            }
+            None
         }
-        _ => (),
-    };
-    None
+        _ => None,
+    }
 }
 
 /// Try to extract a `CodeChunk` from an RPNG representation
@@ -678,6 +688,7 @@ fn try_code_chunk(inline: &InlineContent) -> Option<BlockContent> {
             }
             // Fallback to fetching code chunk from the link's URL
             // TODO
+            None
         }
         InlineContent::ImageObject(image) => {
             // Try to get the code chunk from the caption
@@ -686,14 +697,24 @@ fn try_code_chunk(inline: &InlineContent) -> Option<BlockContent> {
                     return Some(BlockContent::CodeChunk(chunk));
                 }
             }
-            // Fallback to getting from the image
-            if let Ok(Node::CodeChunk(chunk)) = RpngCodec::from_str(&image.content_url, None) {
-                return Some(BlockContent::CodeChunk(chunk));
+            // Fallback to getting from the image, either a data URI, or a file
+            let url = &image.content_url;
+            if url.starts_with("data:image/png;") {
+                if let Ok(Node::CodeChunk(chunk)) = RpngCodec::from_str(url, None) {
+                    return Some(BlockContent::CodeChunk(chunk));
+                }
             }
+            let file = PathBuf::from(url);
+            if file.exists() {
+                let result = executor::block_on(RpngCodec::from_path(&file, None));
+                if let Ok(Node::CodeChunk(chunk)) = result {
+                    return Some(BlockContent::CodeChunk(chunk));
+                }
+            }
+            None
         }
-        _ => (),
-    };
-    None
+        _ => None,
+    }
 }
 
 #[cfg(test)]

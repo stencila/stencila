@@ -19,7 +19,7 @@ use crate::types::{ApiToken, User};
 pub(crate) const BASE_URL: &str = if cfg!(debug_assertions) {
     "http://localhost:3000"
 } else {
-    "https://stencila.fly.dev"
+    "https://cloud.stencila.io"
 };
 
 #[macro_export]

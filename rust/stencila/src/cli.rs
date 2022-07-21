@@ -192,9 +192,9 @@ pub enum Command {
 
     Config(config::commands::Command),
 
-    Login(cloud::users::cli::Login),
-    Logout(cloud::users::cli::Logout),
-    Tokens(cloud::tokens::cli::Command),
+    Login(cloud::auth::cli::Login),
+    Logout(cloud::auth::cli::Logout),
+    Auth(cloud::auth::cli::Command),
 
     #[cfg(feature = "upgrade")]
     Upgrade(crate::upgrade::commands::Command),
@@ -258,7 +258,7 @@ impl Run for Command {
 
             Command::Login(command) => command.run().await,
             Command::Logout(command) => command.run().await,
-            Command::Tokens(command) => command.run().await,
+            Command::Auth(command) => command.run().await,
 
             #[cfg(feature = "upgrade")]
             Command::Upgrade(command) => command.run().await,

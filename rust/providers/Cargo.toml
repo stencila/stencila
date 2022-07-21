@@ -8,6 +8,7 @@ edition = "2021"
 cli = ["cli-utils"]
 
 [dependencies]
+codecs = { path = "../codecs" }
 events = { path = "../events" }
 provider = { path = "../provider" }
 

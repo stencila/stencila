@@ -34,7 +34,7 @@ impl CodecTrait for LatexCodec {
         decode(str, None, "latex", &[]).await
     }
 
-    async fn to_string_async(node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
-        encode(node, None, "latex", &[]).await
+    async fn to_string_async(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+        encode(node, None, "latex", &[], options).await
     }
 }
