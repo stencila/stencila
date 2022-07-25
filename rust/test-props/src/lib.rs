@@ -173,6 +173,22 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a math fragment node with arbitrary LaTeX
+    pub fn math_fragment(freedom: Freedom)(
+        text in match freedom {
+            Freedom::Min => r"2 \\pi r\^2",
+            Freedom::Low => r"[A-Za-z0-9-_]*",
+            _ => any::<String>()
+        },
+    ) -> InlineContent {
+        InlineContent::MathFragment(MathFragment{
+            text,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
     /// Generate a delete node with arbitrary content
     pub fn delete(freedom: Freedom)(
         content in inline_inner_content(freedom)
@@ -290,6 +306,7 @@ pub fn inline_content(
         ("Delete", delete(freedom).boxed()),
         ("Emphasis", emphasis(freedom).boxed()),
         ("Link", link(freedom).boxed()),
+        ("MathFragment", math_fragment(freedom).boxed()),
         (
             "NontextualAnnotation",
             nontextual_annotation(freedom).boxed(),
@@ -458,6 +475,22 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a math block node with arbitrary LaTeX
+    pub fn math_block(freedom: Freedom)(
+        text in match freedom {
+            Freedom::Min => r"2 \\pi r\^2",
+            Freedom::Low => r"[A-Za-z0-9-_]*",
+            _ => any::<String>()
+        },
+    ) -> BlockContent {
+        BlockContent::MathBlock(MathBlock{
+            text,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
     /// Generate a quote block with arbitrary block content.
     /// Does no allow for quote blocks (because that would be a recursive
     /// strategy), or lists or thematic breaks (because they need filtering, see below)
@@ -586,6 +619,9 @@ pub fn block_content(
     }
     if !exclude_types.contains(&"List".to_string()) {
         strategies.push(list(freedom, exclude_types.clone()).boxed())
+    }
+    if !exclude_types.contains(&"MathBlock".to_string()) {
+        strategies.push(math_block(freedom).boxed())
     }
     if !exclude_types.contains(&"Paragraph".to_string()) {
         strategies.push(paragraph(freedom, exclude_types.clone()).boxed())
