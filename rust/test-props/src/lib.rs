@@ -176,7 +176,7 @@ prop_compose! {
     /// Generate a math fragment node with arbitrary LaTeX
     pub fn math_fragment(freedom: Freedom)(
         text in match freedom {
-            Freedom::Min => r"2 \\pi r\^2",
+            Freedom::Min => r"E = mc\^\{2\}",
             Freedom::Low => r"[A-Za-z0-9-_]*",
             _ => any::<String>()
         },
@@ -478,7 +478,7 @@ prop_compose! {
     /// Generate a math block node with arbitrary LaTeX
     pub fn math_block(freedom: Freedom)(
         text in match freedom {
-            Freedom::Min => r"2 \\pi r\^2",
+            Freedom::Min => r"E = mc\^\{2\}",
             Freedom::Low => r"[A-Za-z0-9-_]*",
             _ => any::<String>()
         },

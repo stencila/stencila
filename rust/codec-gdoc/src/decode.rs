@@ -2,10 +2,7 @@ use std::collections::{BTreeMap, VecDeque};
 
 use async_recursion::async_recursion;
 use codec::{
-    common::{
-        eyre::Result, futures, itertools::Itertools, once_cell::sync::Lazy, regex::Regex,
-        serde_json,
-    },
+    common::{eyre::Result, futures, once_cell::sync::Lazy, regex::Regex, serde_json},
     stencila_schema::{
         Article, BlockContent, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObject,
         InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
@@ -554,13 +551,12 @@ async fn inline_object_element_to_node(
             embedded_object
                 .title
                 .as_ref()
-                .and_then(|title| title.splitn(2, ' ').collect_tuple())
-                .and_then(|(node_type, _id)| {
+                .and_then(|node_type| {
                     let node_type = node_type.trim();
                     embedded_object
                         .description
                         .and_then(|desc| match node_type {
-                            "CodeChunk" | "CodeExpression" => {
+                            "CodeChunk" | "CodeExpression" | "MathFragment" | "MathBlock" => {
                                 serde_json::from_str::<Node>(&desc).ok()
                             }
                             _ => None,

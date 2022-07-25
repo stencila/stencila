@@ -44,7 +44,7 @@ impl CodecTrait for DocxCodec {
             "docx",
             &[],
             Some(EncodeOptions {
-                rpng_content: true,
+                rpng_text: true,
                 ..options.unwrap_or_default()
             }),
         )

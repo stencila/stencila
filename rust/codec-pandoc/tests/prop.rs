@@ -11,7 +11,7 @@ proptest! {
         PandocCodec::spec().unsupported_properties,
     )) {
         let pandoc = encode_node(&input, Some(EncodeOptions{
-            rpng_content: true,
+            rpng_text: true,
             ..Default::default()
         })).unwrap();
         let output = decode_pandoc(pandoc).unwrap();

@@ -71,10 +71,10 @@ impl EncodeContext {
     }
 
     /// Push a node to be encoded as an RPNG
-    fn push_rpng(&mut self, type_name: &str, id: &str, node: Node) -> pandoc::Inline {
-        let path = self.temp_dir.path().join(format!("{}.png", id));
+    fn push_rpng(&mut self, type_name: &str, node: Node) -> pandoc::Inline {
+        let key = key_utils::generate("snk");
 
-        let title = format!("{} {}", type_name, id);
+        let path = self.temp_dir.path().join(format!("{}.png", key));
 
         let json = JsonCodec::to_string(
             &node,
@@ -85,13 +85,14 @@ impl EncodeContext {
         )
         .expect("Should be able to encode as JSON");
 
-        let key = key_utils::generate("snk");
         self.rpng_nodes.push((key.clone(), path.clone(), node));
 
-        let inlines = match self.options.rpng_content {
+        let inlines = match self.options.rpng_text {
             true => vec![pandoc::Inline::Str(json)],
             false => Vec::new(),
         };
+
+        let title = type_name.to_string();
 
         let image = pandoc::Inline::Image(
             attrs_empty(),
@@ -255,12 +256,7 @@ unimplemented_to_pandoc!(CiteGroup);
 
 impl ToPandoc for CodeExpression {
     fn to_pandoc_inline(&self, context: &mut EncodeContext) -> pandoc::Inline {
-        let id = self
-            .id
-            .as_deref()
-            .cloned()
-            .unwrap_or_else(|| uuids::generate("ce").to_string());
-        context.push_rpng("CodeExpression", &id, Node::CodeExpression(self.clone()))
+        context.push_rpng("CodeExpression", Node::CodeExpression(self.clone()))
     }
 }
 
@@ -287,8 +283,16 @@ impl ToPandoc for Link {
 }
 
 impl ToPandoc for MathFragment {
-    fn to_pandoc_inline(&self, _context: &mut EncodeContext) -> pandoc::Inline {
-        pandoc::Inline::Math(pandoc::MathType::InlineMath, self.text.clone())
+    fn to_pandoc_inline(&self, context: &mut EncodeContext) -> pandoc::Inline {
+        if context
+            .options
+            .rpng_types
+            .contains(&"MathFragment".to_string())
+        {
+            context.push_rpng("MathFragment", Node::MathFragment(self.clone()))
+        } else {
+            pandoc::Inline::Math(pandoc::MathType::InlineMath, self.text.clone())
+        }
     }
 }
 
@@ -373,12 +377,7 @@ impl ToPandoc for CodeChunk {
         stripped.label = None;
         stripped.caption = None;
 
-        let id = self
-            .id
-            .as_deref()
-            .cloned()
-            .unwrap_or_else(|| uuids::generate("cc").to_string());
-        let image = context.push_rpng("CodeChunk", &id, Node::CodeChunk(stripped));
+        let image = context.push_rpng("CodeChunk", Node::CodeChunk(stripped));
         let image_para = pandoc::Block::Para(vec![image]);
 
         let blocks = if label.is_some() || caption.is_some() {
@@ -453,7 +452,20 @@ impl ToPandoc for List {
     }
 }
 
-unimplemented_to_pandoc!(MathBlock);
+impl ToPandoc for MathBlock {
+    fn to_pandoc_block(&self, context: &mut EncodeContext) -> pandoc::Block {
+        let inline = if context
+            .options
+            .rpng_types
+            .contains(&"MathBlock".to_string())
+        {
+            context.push_rpng("MathBlock", Node::MathBlock(self.clone()))
+        } else {
+            pandoc::Inline::Math(pandoc::MathType::DisplayMath, self.text.clone())
+        };
+        pandoc::Block::Para(vec![inline])
+    }
+}
 
 impl ToPandoc for Paragraph {
     fn to_pandoc_block(&self, context: &mut EncodeContext) -> pandoc::Block {

@@ -232,13 +232,19 @@ pub struct EncodeOptions {
     /// including media as data URIs rather than links to files.
     pub bundle: bool,
 
-    /// Whether to use Stencila Cloud as a remote storage for document nodes
-    /// that can not be wholly represented within the format
+    /// Which node types to represent as RPNGs
     ///
-    /// Some formats (e.g. Google Docs) are not able to fully represent some types
-    /// of nodes (e.g. CodeChunks). In these cases we store the node on Stencila Cloud
-    /// with a unique id and key and insert a link to it from within the format.
-    pub rpng_content: bool,
+    /// Some formats (e.g. Microsoft Word) are not able to fully represent some types
+    /// of nodes (e.g. CodeChunks). Use this list to specify which node types should be
+    /// represented as RPNGs.
+    pub rpng_types: Vec<String>,
+
+    /// Whether to store the JSON representation of a document node as the alt text
+    /// of a RPNG image
+    pub rpng_text: bool,
+
+    /// Whether to surround RPNGs in a link to the JSON representation of the document
+    /// node on Stencila Cloud.
     pub rpng_link: bool,
 
     /// The theme to apply to the encoded document
@@ -264,7 +270,8 @@ impl Default for EncodeOptions {
             compact: true,
             standalone: false,
             bundle: false,
-            rpng_content: false,
+            rpng_types: Vec::new(),
+            rpng_text: false,
             rpng_link: false,
             theme: None,
             components: true,

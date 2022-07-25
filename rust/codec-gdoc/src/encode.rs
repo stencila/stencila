@@ -32,7 +32,13 @@ pub(crate) async fn encode(node: &Node, path: &Path, options: Option<EncodeOptio
         "docx",
         &[],
         Some(EncodeOptions {
-            rpng_content: true,
+            rpng_types: vec![
+                "CodeExpression".to_string(),
+                "CodeChunk".to_string(),
+                "MathBlock".to_string(),
+                "MathFragment".to_string(),
+            ],
+            rpng_text: true,
             rpng_link: true,
             ..options.unwrap_or_default()
         }),

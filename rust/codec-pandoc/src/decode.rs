@@ -167,6 +167,12 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
                 if let Some(translated) = try_code_chunk(&content[0]) {
                     return vec![translated];
                 }
+                if let InlineContent::MathFragment(MathFragment { text, .. }) = &content[0] {
+                    return vec![BlockContent::MathBlock(MathBlock {
+                        text: text.to_owned(),
+                        ..Default::default()
+                    })];
+                }
             }
             vec![BlockContent::Paragraph(Paragraph {
                 content,
