@@ -28,6 +28,11 @@ impl CodecTrait for HtmlCodec {
             from_path: cfg!(feature = "decode"),
             to_string: cfg!(feature = "encode"),
             to_path: cfg!(feature = "encode"),
+            unsupported_types: vec_string![
+                // TODO: Add support for these types
+                "MathFragment",
+                "MathBlock"
+            ],
             ..Default::default()
         }
     }
