@@ -51,7 +51,14 @@ impl CodecTrait for PandocCodec {
             to_path: cfg!(feature = "encode"),
             unsupported_types: vec_string![
                 // TODO: Implement support for these
-                "Table",
+                // This list is all types which use `unimplemented_to_pandoc` in `encode.rs`
+                "Cite",
+                "CiteGroup",
+                "Claim",
+                "Collection",
+                "Figure",
+                "Include",
+                "Note",
                 "Parameter"
             ],
             ..Default::default()

@@ -7,7 +7,7 @@ use cloud::nodes::{node_create, node_url};
 use pandoc_types::definition as pandoc;
 
 use codec::{
-    common::{eyre::Result, futures, tempfile},
+    common::{eyre::Result, futures, itertools::Itertools, tempfile},
     stencila_schema::*,
     CodecTrait, EncodeOptions,
 };
@@ -490,7 +490,11 @@ impl ToPandoc for TableSimple {
         let mut head = vec![];
         let mut body = vec![];
         let mut foot = vec![];
+        let mut cols = 0;
         for row in &self.rows {
+            if row.cells.len() > cols {
+                cols = row.cells.len();
+            }
             let cells = row
                 .cells
                 .iter()
@@ -526,13 +530,19 @@ impl ToPandoc for TableSimple {
             }
         }
 
+        let colspecs = (0..cols)
+            .map(|_| pandoc::ColSpec {
+                ..Default::default()
+            })
+            .collect_vec();
+
         pandoc::Block::Table(pandoc::Table {
             attr: attrs_empty(),
             caption: pandoc::Caption {
                 short: None,
                 long: vec![],
             },
-            colspecs: vec![],
+            colspecs,
             head: pandoc::TableHead {
                 attr: attrs_empty(),
                 rows: head,
