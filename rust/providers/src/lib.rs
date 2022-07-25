@@ -12,7 +12,7 @@ use provider::{
     EnrichOptions, ProviderTrait,
 };
 
-pub use provider::{DetectItem, PushOptions, PullOptions, Provider, SyncOptions, WatchMode};
+pub use provider::{DetectItem, Provider, PullOptions, PushOptions, SyncOptions, WatchMode};
 
 // Re-exports for consumers of this crate
 pub use ::provider;
@@ -179,12 +179,7 @@ impl Providers {
     }
 
     /// Push content from a local path to a remote [`Node`]
-    async fn push(
-        &self,
-        node: &Node,
-        path: &Path,
-        options: Option<PushOptions>,
-    ) -> Result<Node> {
+    async fn push(&self, node: &Node, path: &Path, options: Option<PushOptions>) -> Result<Node> {
         let provider = self.provider_for(node)?;
         dispatch_builtins!(provider.name, push, node, path, options.clone()).await
     }

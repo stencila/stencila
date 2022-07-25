@@ -29,7 +29,7 @@ use provider::{
     },
     resolve_token,
     stencila_schema::{Article, CreativeWork, Node},
-    PushOptions, PullOptions, ParseItem, Provider, SyncOptions, WatchMode,
+    ParseItem, Provider, PullOptions, PushOptions, SyncOptions, WatchMode,
 };
 
 pub use provider::ProviderTrait;

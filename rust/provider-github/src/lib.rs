@@ -31,7 +31,7 @@ use provider::{
         CreativeWorkAuthors, CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date,
         Node, Organization, Person, SoftwareSourceCode, ThingDescription,
     },
-    EnrichOptions, PullOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
+    EnrichOptions, ParseItem, Provider, ProviderTrait, PullOptions, SyncOptions,
 };
 
 /// The default name for the token used to authenticate with the API

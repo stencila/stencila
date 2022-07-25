@@ -30,7 +30,7 @@ use provider::{
         CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date, Node, Organization,
         SoftwareSourceCode, ThingDescription,
     },
-    EnrichOptions, PullOptions, ParseItem, Provider, ProviderTrait, SyncOptions,
+    EnrichOptions, ParseItem, Provider, ProviderTrait, PullOptions, SyncOptions,
 };
 
 /// The base URL for API requests

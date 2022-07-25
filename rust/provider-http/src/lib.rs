@@ -16,7 +16,7 @@ use provider::{
     },
     http_utils::{download, download_temp, url},
     stencila_schema::{Node, Thing},
-    PullOptions, ParseItem, Provider, ProviderTrait, PULL,
+    ParseItem, Provider, ProviderTrait, PullOptions, PULL,
 };
 
 pub struct HttpProvider;
