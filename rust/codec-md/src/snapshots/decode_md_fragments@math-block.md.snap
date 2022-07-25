@@ -1,0 +1,23 @@
+---
+source: rust/codec-md/src/decode.rs
+assertion_line: 1294
+expression: "decode_fragment(content, None)"
+input_file: fixtures/fragments/md/math-block.md
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Math blocks are paragraphs starting and ending with ",
+      {
+        "type": "CodeFragment",
+        "text": "$$"
+      },
+      " (no blank lines between them)"
+    ]
+  },
+  {
+    "type": "MathBlock",
+    "text": "2 \\pi r^2"
+  }
+]

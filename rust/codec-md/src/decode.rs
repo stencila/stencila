@@ -267,10 +267,20 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         ..Default::default()
                     }))
                 }
-                Tag::Paragraph => blocks.push_node(BlockContent::Paragraph(Paragraph {
-                    content: inlines.pop_all(),
-                    ..Default::default()
-                })),
+                Tag::Paragraph => {
+                    let node = if inlines.text.starts_with("$$") && inlines.text.ends_with("$$") {
+                        BlockContent::MathBlock(MathBlock {
+                            text: inlines.text[2..inlines.text.len() - 2].trim().to_string(),
+                            ..Default::default()
+                        })
+                    } else {
+                        BlockContent::Paragraph(Paragraph {
+                            content: inlines.pop_all(),
+                            ..Default::default()
+                        })
+                    };
+                    blocks.push_node(node);
+                }
                 Tag::CodeBlock(kind) => {
                     let (mut lang, exec) = match kind {
                         CodeBlockKind::Fenced(lang) => {

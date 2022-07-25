@@ -190,6 +190,12 @@ impl ToMd for CodeChunk {
     }
 }
 
+impl ToMd for MathBlock {
+    fn to_md(&self) -> String {
+        ["$$\n", &self.text, "\n$$\n\n"].concat()
+    }
+}
+
 impl ToMd for List {
     fn to_md(&self) -> String {
         let ordered = matches!(&self.order, Some(ListOrder::Ascending));
@@ -447,7 +453,7 @@ impl ToMd for BlockContent {
             BlockContent::CodeChunk(node) => node.to_md(),
             BlockContent::Heading(node) => node.to_md(),
             BlockContent::List(node) => node.to_md(),
-            //BlockContent::MathBlock(node) => node.to_md(),
+            BlockContent::MathBlock(node) => node.to_md(),
             BlockContent::Paragraph(node) => node.to_md(),
             BlockContent::QuoteBlock(node) => node.to_md(),
             BlockContent::Table(node) => node.to_md(),
