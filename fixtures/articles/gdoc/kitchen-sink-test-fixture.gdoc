@@ -738,20 +738,76 @@
       },
       {
         "startIndex": 1623,
-        "endIndex": 1667,
+        "endIndex": 1849,
         "paragraph": {
           "elements": [
             {
               "startIndex": 1623,
-              "endIndex": 1633,
+              "endIndex": 1640,
+              "textRun": {
+                "content": "Text that uses a ",
+                "textStyle": {}
+              }
+            },
+            {
+              "startIndex": 1640,
+              "endIndex": 1654,
+              "textRun": {
+                "content": "monospace font",
+                "textStyle": {
+                  "weightedFontFamily": {
+                    "fontFamily": "Roboto Mono",
+                    "weight": 400
+                  }
+                }
+              }
+            },
+            {
+              "startIndex": 1654,
+              "endIndex": 1849,
+              "textRun": {
+                "content": " (any font with the word “Mono” or “Code”, or “Courier”, “Inconsolata”, or “Consolas”) and which is part of a paragraph, or is a whole paragraph but 25 characters or less, as a CodeFragment node\n",
+                "textStyle": {}
+              }
+            }
+          ],
+          "paragraphStyle": {
+            "namedStyleType": "NORMAL_TEXT",
+            "direction": "LEFT_TO_RIGHT",
+            "spacingMode": "COLLAPSE_LISTS",
+            "indentFirstLine": {
+              "magnitude": 18,
+              "unit": "PT"
+            },
+            "indentStart": {
+              "magnitude": 36,
+              "unit": "PT"
+            }
+          },
+          "bullet": {
+            "listId": "kix.8w8wm4ymc0f7",
+            "textStyle": {
+              "underline": false
+            }
+          }
+        }
+      },
+      {
+        "startIndex": 1849,
+        "endIndex": 1893,
+        "paragraph": {
+          "elements": [
+            {
+              "startIndex": 1849,
+              "endIndex": 1859,
               "textRun": {
                 "content": "Text with ",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 1633,
-              "endIndex": 1648,
+              "startIndex": 1859,
+              "endIndex": 1874,
               "textRun": {
                 "content": "a strikethrough",
                 "textStyle": {
@@ -760,8 +816,8 @@
               }
             },
             {
-              "startIndex": 1648,
-              "endIndex": 1667,
+              "startIndex": 1874,
+              "endIndex": 1893,
               "textRun": {
                 "content": " as a Striked node\n",
                 "textStyle": {}
@@ -788,21 +844,21 @@
         }
       },
       {
-        "startIndex": 1667,
-        "endIndex": 1713,
+        "startIndex": 1893,
+        "endIndex": 1939,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 1667,
-              "endIndex": 1680,
+              "startIndex": 1893,
+              "endIndex": 1906,
               "textRun": {
                 "content": "Text that is ",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 1680,
-              "endIndex": 1690,
+              "startIndex": 1906,
+              "endIndex": 1916,
               "textRun": {
                 "content": "underlined",
                 "textStyle": {
@@ -811,16 +867,16 @@
               }
             },
             {
-              "startIndex": 1690,
-              "endIndex": 1712,
+              "startIndex": 1916,
+              "endIndex": 1938,
               "textRun": {
                 "content": " as an Underlined node",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 1712,
-              "endIndex": 1713,
+              "startIndex": 1938,
+              "endIndex": 1939,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -847,21 +903,21 @@
         }
       },
       {
-        "startIndex": 1713,
-        "endIndex": 1758,
+        "startIndex": 1939,
+        "endIndex": 1984,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 1713,
-              "endIndex": 1756,
+              "startIndex": 1939,
+              "endIndex": 1982,
               "textRun": {
                 "content": "Subscripted text as a Subscript node e.g. p",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 1756,
-              "endIndex": 1757,
+              "startIndex": 1982,
+              "endIndex": 1983,
               "textRun": {
                 "content": "1",
                 "textStyle": {
@@ -870,8 +926,8 @@
               }
             },
             {
-              "startIndex": 1757,
-              "endIndex": 1758,
+              "startIndex": 1983,
+              "endIndex": 1984,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -898,21 +954,21 @@
         }
       },
       {
-        "startIndex": 1758,
-        "endIndex": 1807,
+        "startIndex": 1984,
+        "endIndex": 2033,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 1758,
-              "endIndex": 1805,
+              "startIndex": 1984,
+              "endIndex": 2031,
               "textRun": {
                 "content": "Superscripted text as a Superscript node e.g. x",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 1805,
-              "endIndex": 1806,
+              "startIndex": 2031,
+              "endIndex": 2032,
               "textRun": {
                 "content": "2",
                 "textStyle": {
@@ -921,8 +977,8 @@
               }
             },
             {
-              "startIndex": 1806,
-              "endIndex": 1807,
+              "startIndex": 2032,
+              "endIndex": 2033,
               "textRun": {
                 "content": "\n",
                 "textStyle": {
@@ -951,33 +1007,13 @@
         }
       },
       {
-        "startIndex": 1807,
-        "endIndex": 1808,
+        "startIndex": 2033,
+        "endIndex": 2128,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 1807,
-              "endIndex": 1808,
-              "textRun": {
-                "content": "\n",
-                "textStyle": {}
-              }
-            }
-          ],
-          "paragraphStyle": {
-            "namedStyleType": "NORMAL_TEXT",
-            "direction": "LEFT_TO_RIGHT"
-          }
-        }
-      },
-      {
-        "startIndex": 1808,
-        "endIndex": 1903,
-        "paragraph": {
-          "elements": [
-            {
-              "startIndex": 1808,
-              "endIndex": 1903,
+              "startIndex": 2033,
+              "endIndex": 2128,
               "textRun": {
                 "content": "In addition, Stencila will convert text that has multiple styles into nested inline nodes e.g.\n",
                 "textStyle": {}
@@ -991,13 +1027,13 @@
         }
       },
       {
-        "startIndex": 1903,
-        "endIndex": 1955,
+        "startIndex": 2128,
+        "endIndex": 2180,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 1903,
-              "endIndex": 1916,
+              "startIndex": 2128,
+              "endIndex": 2141,
               "textRun": {
                 "content": "Bolded italic",
                 "textStyle": {
@@ -1007,8 +1043,8 @@
               }
             },
             {
-              "startIndex": 1916,
-              "endIndex": 1955,
+              "startIndex": 2141,
+              "endIndex": 2180,
               "textRun": {
                 "content": " text as Emphasis nested within Strong\n",
                 "textStyle": {}
@@ -1037,13 +1073,13 @@
         }
       },
       {
-        "startIndex": 1955,
-        "endIndex": 2013,
+        "startIndex": 2180,
+        "endIndex": 2238,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 1955,
-              "endIndex": 1978,
+              "startIndex": 2180,
+              "endIndex": 2203,
               "textRun": {
                 "content": "Strikethrough subscript",
                 "textStyle": {
@@ -1053,8 +1089,8 @@
               }
             },
             {
-              "startIndex": 1978,
-              "endIndex": 2013,
+              "startIndex": 2203,
+              "endIndex": 2238,
               "textRun": {
                 "content": " as Delete nested within Subscript\n",
                 "textStyle": {}
@@ -1083,13 +1119,13 @@
         }
       },
       {
-        "startIndex": 2013,
-        "endIndex": 2198,
+        "startIndex": 2238,
+        "endIndex": 2423,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2013,
-              "endIndex": 2198,
+              "startIndex": 2238,
+              "endIndex": 2423,
               "textRun": {
                 "content": "Stencila will ignore all other text styling, including colors, fonts and text sizes. For example, all of the following list items should appear as plain text when opened with Stencila:\n",
                 "textStyle": {}
@@ -1103,13 +1139,13 @@
         }
       },
       {
-        "startIndex": 2198,
-        "endIndex": 2211,
+        "startIndex": 2423,
+        "endIndex": 2436,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2198,
-              "endIndex": 2205,
+              "startIndex": 2423,
+              "endIndex": 2430,
               "textRun": {
                 "content": "Colored",
                 "textStyle": {
@@ -1124,8 +1160,8 @@
               }
             },
             {
-              "startIndex": 2205,
-              "endIndex": 2211,
+              "startIndex": 2430,
+              "endIndex": 2436,
               "textRun": {
                 "content": " text\n",
                 "textStyle": {}
@@ -1152,21 +1188,21 @@
         }
       },
       {
-        "startIndex": 2211,
-        "endIndex": 2239,
+        "startIndex": 2436,
+        "endIndex": 2464,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2211,
-              "endIndex": 2223,
+              "startIndex": 2436,
+              "endIndex": 2448,
               "textRun": {
                 "content": "Text with a ",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 2223,
-              "endIndex": 2232,
+              "startIndex": 2448,
+              "endIndex": 2457,
               "textRun": {
                 "content": "highlight",
                 "textStyle": {
@@ -1182,8 +1218,8 @@
               }
             },
             {
-              "startIndex": 2232,
-              "endIndex": 2239,
+              "startIndex": 2457,
+              "endIndex": 2464,
               "textRun": {
                 "content": " color\n",
                 "textStyle": {}
@@ -1210,21 +1246,21 @@
         }
       },
       {
-        "startIndex": 2239,
-        "endIndex": 2269,
+        "startIndex": 2464,
+        "endIndex": 2494,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2239,
-              "endIndex": 2249,
+              "startIndex": 2464,
+              "endIndex": 2474,
               "textRun": {
                 "content": "Text in a ",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 2249,
-              "endIndex": 2258,
+              "startIndex": 2474,
+              "endIndex": 2483,
               "textRun": {
                 "content": "different",
                 "textStyle": {
@@ -1236,8 +1272,8 @@
               }
             },
             {
-              "startIndex": 2258,
-              "endIndex": 2269,
+              "startIndex": 2483,
+              "endIndex": 2494,
               "textRun": {
                 "content": " font face\n",
                 "textStyle": {}
@@ -1264,13 +1300,13 @@
         }
       },
       {
-        "startIndex": 2269,
-        "endIndex": 2298,
+        "startIndex": 2494,
+        "endIndex": 2523,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2269,
-              "endIndex": 2275,
+              "startIndex": 2494,
+              "endIndex": 2500,
               "textRun": {
                 "content": "Larger",
                 "textStyle": {
@@ -1282,16 +1318,16 @@
               }
             },
             {
-              "startIndex": 2275,
-              "endIndex": 2279,
+              "startIndex": 2500,
+              "endIndex": 2504,
               "textRun": {
                 "content": " or ",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 2279,
-              "endIndex": 2286,
+              "startIndex": 2504,
+              "endIndex": 2511,
               "textRun": {
                 "content": "smaller",
                 "textStyle": {
@@ -1303,8 +1339,8 @@
               }
             },
             {
-              "startIndex": 2286,
-              "endIndex": 2298,
+              "startIndex": 2511,
+              "endIndex": 2523,
               "textRun": {
                 "content": " font sizes\n",
                 "textStyle": {}
@@ -1331,13 +1367,13 @@
         }
       },
       {
-        "startIndex": 2298,
-        "endIndex": 2299,
+        "startIndex": 2523,
+        "endIndex": 2524,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2298,
-              "endIndex": 2299,
+              "startIndex": 2523,
+              "endIndex": 2524,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -1359,13 +1395,13 @@
         }
       },
       {
-        "startIndex": 2299,
-        "endIndex": 2305,
+        "startIndex": 2524,
+        "endIndex": 2530,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2299,
-              "endIndex": 2305,
+              "startIndex": 2524,
+              "endIndex": 2530,
               "textRun": {
                 "content": "Lists\n",
                 "textStyle": {}
@@ -1381,13 +1417,13 @@
         }
       },
       {
-        "startIndex": 2305,
-        "endIndex": 2394,
+        "startIndex": 2530,
+        "endIndex": 2619,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2305,
-              "endIndex": 2394,
+              "startIndex": 2530,
+              "endIndex": 2619,
               "textRun": {
                 "content": "Stencila recognises lists in Google Docs including unordered (bulleted) lists like this:\n",
                 "textStyle": {}
@@ -1402,13 +1438,13 @@
         }
       },
       {
-        "startIndex": 2394,
-        "endIndex": 2400,
+        "startIndex": 2619,
+        "endIndex": 2625,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2394,
-              "endIndex": 2400,
+              "startIndex": 2619,
+              "endIndex": 2625,
               "textRun": {
                 "content": "Apple\n",
                 "textStyle": {}
@@ -1438,13 +1474,13 @@
         }
       },
       {
-        "startIndex": 2400,
-        "endIndex": 2405,
+        "startIndex": 2625,
+        "endIndex": 2630,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2400,
-              "endIndex": 2405,
+              "startIndex": 2625,
+              "endIndex": 2630,
               "textRun": {
                 "content": "Pear\n",
                 "textStyle": {}
@@ -1474,13 +1510,13 @@
         }
       },
       {
-        "startIndex": 2405,
-        "endIndex": 2411,
+        "startIndex": 2630,
+        "endIndex": 2636,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2405,
-              "endIndex": 2411,
+              "startIndex": 2630,
+              "endIndex": 2636,
               "textRun": {
                 "content": "Peach\n",
                 "textStyle": {}
@@ -1510,13 +1546,13 @@
         }
       },
       {
-        "startIndex": 2411,
-        "endIndex": 2440,
+        "startIndex": 2636,
+        "endIndex": 2665,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2411,
-              "endIndex": 2440,
+              "startIndex": 2636,
+              "endIndex": 2665,
               "textRun": {
                 "content": "And ordered lists like this:\n",
                 "textStyle": {}
@@ -1537,13 +1573,13 @@
         }
       },
       {
-        "startIndex": 2440,
-        "endIndex": 2447,
+        "startIndex": 2665,
+        "endIndex": 2672,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2440,
-              "endIndex": 2447,
+              "startIndex": 2665,
+              "endIndex": 2672,
               "textRun": {
                 "content": "Butter\n",
                 "textStyle": {}
@@ -1573,13 +1609,13 @@
         }
       },
       {
-        "startIndex": 2447,
-        "endIndex": 2454,
+        "startIndex": 2672,
+        "endIndex": 2679,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2447,
-              "endIndex": 2454,
+              "startIndex": 2672,
+              "endIndex": 2679,
               "textRun": {
                 "content": "Cheese\n",
                 "textStyle": {}
@@ -1609,13 +1645,13 @@
         }
       },
       {
-        "startIndex": 2454,
-        "endIndex": 2459,
+        "startIndex": 2679,
+        "endIndex": 2684,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2454,
-              "endIndex": 2459,
+              "startIndex": 2679,
+              "endIndex": 2684,
               "textRun": {
                 "content": "Milk\n",
                 "textStyle": {}
@@ -1645,13 +1681,13 @@
         }
       },
       {
-        "startIndex": 2459,
-        "endIndex": 2491,
+        "startIndex": 2684,
+        "endIndex": 2716,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2459,
-              "endIndex": 2491,
+              "startIndex": 2684,
+              "endIndex": 2716,
               "textRun": {
                 "content": "Nested lists are supported too:\n",
                 "textStyle": {}
@@ -1672,13 +1708,13 @@
         }
       },
       {
-        "startIndex": 2491,
-        "endIndex": 2497,
+        "startIndex": 2716,
+        "endIndex": 2722,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2491,
-              "endIndex": 2497,
+              "startIndex": 2716,
+              "endIndex": 2722,
               "textRun": {
                 "content": "Fruit\n",
                 "textStyle": {}
@@ -1708,13 +1744,13 @@
         }
       },
       {
-        "startIndex": 2497,
-        "endIndex": 2503,
+        "startIndex": 2722,
+        "endIndex": 2728,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2497,
-              "endIndex": 2503,
+              "startIndex": 2722,
+              "endIndex": 2728,
               "textRun": {
                 "content": "Apple\n",
                 "textStyle": {}
@@ -1745,13 +1781,13 @@
         }
       },
       {
-        "startIndex": 2503,
-        "endIndex": 2512,
+        "startIndex": 2728,
+        "endIndex": 2737,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2503,
-              "endIndex": 2512,
+              "startIndex": 2728,
+              "endIndex": 2737,
               "textRun": {
                 "content": "Braeburn\n",
                 "textStyle": {}
@@ -1782,13 +1818,13 @@
         }
       },
       {
-        "startIndex": 2512,
-        "endIndex": 2529,
+        "startIndex": 2737,
+        "endIndex": 2754,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2512,
-              "endIndex": 2529,
+              "startIndex": 2737,
+              "endIndex": 2754,
               "textRun": {
                 "content": "Golden Delicious\n",
                 "textStyle": {}
@@ -1819,13 +1855,13 @@
         }
       },
       {
-        "startIndex": 2529,
-        "endIndex": 2534,
+        "startIndex": 2754,
+        "endIndex": 2759,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2529,
-              "endIndex": 2534,
+              "startIndex": 2754,
+              "endIndex": 2759,
               "textRun": {
                 "content": "Pear\n",
                 "textStyle": {}
@@ -1856,13 +1892,13 @@
         }
       },
       {
-        "startIndex": 2534,
-        "endIndex": 2540,
+        "startIndex": 2759,
+        "endIndex": 2765,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2534,
-              "endIndex": 2540,
+              "startIndex": 2759,
+              "endIndex": 2765,
               "textRun": {
                 "content": "Peach\n",
                 "textStyle": {}
@@ -1893,13 +1929,13 @@
         }
       },
       {
-        "startIndex": 2540,
-        "endIndex": 2546,
+        "startIndex": 2765,
+        "endIndex": 2771,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2540,
-              "endIndex": 2546,
+              "startIndex": 2765,
+              "endIndex": 2771,
               "textRun": {
                 "content": "Dairy\n",
                 "textStyle": {}
@@ -1927,13 +1963,13 @@
         }
       },
       {
-        "startIndex": 2546,
-        "endIndex": 2553,
+        "startIndex": 2771,
+        "endIndex": 2778,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2546,
-              "endIndex": 2553,
+              "startIndex": 2771,
+              "endIndex": 2778,
               "textRun": {
                 "content": "Butter\n",
                 "textStyle": {}
@@ -1962,13 +1998,13 @@
         }
       },
       {
-        "startIndex": 2553,
-        "endIndex": 2558,
+        "startIndex": 2778,
+        "endIndex": 2783,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2553,
-              "endIndex": 2558,
+              "startIndex": 2778,
+              "endIndex": 2783,
               "textRun": {
                 "content": "Milk\n",
                 "textStyle": {}
@@ -1997,13 +2033,13 @@
         }
       },
       {
-        "startIndex": 2558,
-        "endIndex": 2565,
+        "startIndex": 2783,
+        "endIndex": 2790,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2558,
-              "endIndex": 2565,
+              "startIndex": 2783,
+              "endIndex": 2790,
               "textRun": {
                 "content": "Cheese\n",
                 "textStyle": {}
@@ -2032,13 +2068,13 @@
         }
       },
       {
-        "startIndex": 2565,
-        "endIndex": 2570,
+        "startIndex": 2790,
+        "endIndex": 2795,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2565,
-              "endIndex": 2570,
+              "startIndex": 2790,
+              "endIndex": 2795,
               "textRun": {
                 "content": "Blue\n",
                 "textStyle": {}
@@ -2067,13 +2103,13 @@
         }
       },
       {
-        "startIndex": 2570,
-        "endIndex": 2578,
+        "startIndex": 2795,
+        "endIndex": 2803,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2570,
-              "endIndex": 2578,
+              "startIndex": 2795,
+              "endIndex": 2803,
               "textRun": {
                 "content": "Cheddar\n",
                 "textStyle": {}
@@ -2104,21 +2140,21 @@
         }
       },
       {
-        "startIndex": 2578,
-        "endIndex": 2633,
+        "startIndex": 2803,
+        "endIndex": 2858,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2578,
-              "endIndex": 2632,
+              "startIndex": 2803,
+              "endIndex": 2857,
               "textRun": {
                 "content": "Note that the style of bullet or numbering is ignored.",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 2632,
-              "endIndex": 2633,
+              "startIndex": 2857,
+              "endIndex": 2858,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -2139,13 +2175,13 @@
         }
       },
       {
-        "startIndex": 2633,
-        "endIndex": 2640,
+        "startIndex": 2858,
+        "endIndex": 2865,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2633,
-              "endIndex": 2640,
+              "startIndex": 2858,
+              "endIndex": 2865,
               "textRun": {
                 "content": "Tables\n",
                 "textStyle": {}
@@ -2161,13 +2197,13 @@
         }
       },
       {
-        "startIndex": 2640,
-        "endIndex": 2740,
+        "startIndex": 2865,
+        "endIndex": 2965,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 2640,
-              "endIndex": 2740,
+              "startIndex": 2865,
+              "endIndex": 2965,
               "textRun": {
                 "content": "Google Docs supports simple inline tables, meaning that it does not support formulas or functions. \n",
                 "textStyle": {}
@@ -2182,28 +2218,28 @@
         }
       },
       {
-        "startIndex": 2740,
-        "endIndex": 3008,
+        "startIndex": 2965,
+        "endIndex": 3233,
         "table": {
           "rows": 5,
           "columns": 4,
           "tableRows": [
             {
-              "startIndex": 2741,
-              "endIndex": 2792,
+              "startIndex": 2966,
+              "endIndex": 3017,
               "tableCells": [
                 {
-                  "startIndex": 2742,
-                  "endIndex": 2750,
+                  "startIndex": 2967,
+                  "endIndex": 2975,
                   "content": [
                     {
-                      "startIndex": 2743,
-                      "endIndex": 2750,
+                      "startIndex": 2968,
+                      "endIndex": 2975,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2743,
-                            "endIndex": 2750,
+                            "startIndex": 2968,
+                            "endIndex": 2975,
                             "textRun": {
                               "content": "Planet\n",
                               "textStyle": {
@@ -2318,17 +2354,17 @@
                   }
                 },
                 {
-                  "startIndex": 2750,
-                  "endIndex": 2778,
+                  "startIndex": 2975,
+                  "endIndex": 3003,
                   "content": [
                     {
-                      "startIndex": 2751,
-                      "endIndex": 2778,
+                      "startIndex": 2976,
+                      "endIndex": 3003,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2751,
-                            "endIndex": 2778,
+                            "startIndex": 2976,
+                            "endIndex": 3003,
                             "textRun": {
                               "content": "Avg. Distance from the Sun\n",
                               "textStyle": {
@@ -2443,17 +2479,17 @@
                   }
                 },
                 {
-                  "startIndex": 2778,
-                  "endIndex": 2786,
+                  "startIndex": 3003,
+                  "endIndex": 3011,
                   "content": [
                     {
-                      "startIndex": 2779,
-                      "endIndex": 2786,
+                      "startIndex": 3004,
+                      "endIndex": 3011,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2779,
-                            "endIndex": 2786,
+                            "startIndex": 3004,
+                            "endIndex": 3011,
                             "textRun": {
                               "content": "Radius\n",
                               "textStyle": {
@@ -2568,17 +2604,17 @@
                   }
                 },
                 {
-                  "startIndex": 2786,
-                  "endIndex": 2792,
+                  "startIndex": 3011,
+                  "endIndex": 3017,
                   "content": [
                     {
-                      "startIndex": 2787,
-                      "endIndex": 2792,
+                      "startIndex": 3012,
+                      "endIndex": 3017,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2787,
-                            "endIndex": 2792,
+                            "startIndex": 3012,
+                            "endIndex": 3017,
                             "textRun": {
                               "content": "Mass\n",
                               "textStyle": {
@@ -2700,21 +2736,21 @@
               }
             },
             {
-              "startIndex": 2792,
-              "endIndex": 2845,
+              "startIndex": 3017,
+              "endIndex": 3070,
               "tableCells": [
                 {
-                  "startIndex": 2793,
-                  "endIndex": 2802,
+                  "startIndex": 3018,
+                  "endIndex": 3027,
                   "content": [
                     {
-                      "startIndex": 2794,
-                      "endIndex": 2802,
+                      "startIndex": 3019,
+                      "endIndex": 3027,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2794,
-                            "endIndex": 2802,
+                            "startIndex": 3019,
+                            "endIndex": 3027,
                             "textRun": {
                               "content": "Mercury\n",
                               "textStyle": {
@@ -2829,17 +2865,17 @@
                   }
                 },
                 {
-                  "startIndex": 2802,
-                  "endIndex": 2817,
+                  "startIndex": 3027,
+                  "endIndex": 3042,
                   "content": [
                     {
-                      "startIndex": 2803,
-                      "endIndex": 2817,
+                      "startIndex": 3028,
+                      "endIndex": 3042,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2803,
-                            "endIndex": 2817,
+                            "startIndex": 3028,
+                            "endIndex": 3042,
                             "textRun": {
                               "content": "58,000,000 km\n",
                               "textStyle": {}
@@ -2952,17 +2988,17 @@
                   }
                 },
                 {
-                  "startIndex": 2817,
-                  "endIndex": 2827,
+                  "startIndex": 3042,
+                  "endIndex": 3052,
                   "content": [
                     {
-                      "startIndex": 2818,
-                      "endIndex": 2827,
+                      "startIndex": 3043,
+                      "endIndex": 3052,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2818,
-                            "endIndex": 2827,
+                            "startIndex": 3043,
+                            "endIndex": 3052,
                             "textRun": {
                               "content": "4,880 km\n",
                               "textStyle": {}
@@ -3075,25 +3111,25 @@
                   }
                 },
                 {
-                  "startIndex": 2827,
-                  "endIndex": 2845,
+                  "startIndex": 3052,
+                  "endIndex": 3070,
                   "content": [
                     {
-                      "startIndex": 2828,
-                      "endIndex": 2845,
+                      "startIndex": 3053,
+                      "endIndex": 3070,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2828,
-                            "endIndex": 2839,
+                            "startIndex": 3053,
+                            "endIndex": 3064,
                             "textRun": {
                               "content": "3.3011 × 10",
                               "textStyle": {}
                             }
                           },
                           {
-                            "startIndex": 2839,
-                            "endIndex": 2841,
+                            "startIndex": 3064,
+                            "endIndex": 3066,
                             "textRun": {
                               "content": "23",
                               "textStyle": {
@@ -3102,8 +3138,8 @@
                             }
                           },
                           {
-                            "startIndex": 2841,
-                            "endIndex": 2845,
+                            "startIndex": 3066,
+                            "endIndex": 3070,
                             "textRun": {
                               "content": " kg\n",
                               "textStyle": {}
@@ -3224,21 +3260,21 @@
               }
             },
             {
-              "startIndex": 2845,
-              "endIndex": 2900,
+              "startIndex": 3070,
+              "endIndex": 3125,
               "tableCells": [
                 {
-                  "startIndex": 2846,
-                  "endIndex": 2853,
+                  "startIndex": 3071,
+                  "endIndex": 3078,
                   "content": [
                     {
-                      "startIndex": 2847,
-                      "endIndex": 2853,
+                      "startIndex": 3072,
+                      "endIndex": 3078,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2847,
-                            "endIndex": 2853,
+                            "startIndex": 3072,
+                            "endIndex": 3078,
                             "textRun": {
                               "content": "Venus\n",
                               "textStyle": {
@@ -3353,17 +3389,17 @@
                   }
                 },
                 {
-                  "startIndex": 2853,
-                  "endIndex": 2869,
+                  "startIndex": 3078,
+                  "endIndex": 3094,
                   "content": [
                     {
-                      "startIndex": 2854,
-                      "endIndex": 2869,
+                      "startIndex": 3079,
+                      "endIndex": 3094,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2854,
-                            "endIndex": 2869,
+                            "startIndex": 3079,
+                            "endIndex": 3094,
                             "textRun": {
                               "content": "108,000,000 km\n",
                               "textStyle": {}
@@ -3411,17 +3447,17 @@
                   }
                 },
                 {
-                  "startIndex": 2869,
-                  "endIndex": 2882,
+                  "startIndex": 3094,
+                  "endIndex": 3107,
                   "content": [
                     {
-                      "startIndex": 2870,
-                      "endIndex": 2882,
+                      "startIndex": 3095,
+                      "endIndex": 3107,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2870,
-                            "endIndex": 2882,
+                            "startIndex": 3095,
+                            "endIndex": 3107,
                             "textRun": {
                               "content": "12,103.6 km\n",
                               "textStyle": {}
@@ -3469,25 +3505,25 @@
                   }
                 },
                 {
-                  "startIndex": 2882,
-                  "endIndex": 2900,
+                  "startIndex": 3107,
+                  "endIndex": 3125,
                   "content": [
                     {
-                      "startIndex": 2883,
-                      "endIndex": 2900,
+                      "startIndex": 3108,
+                      "endIndex": 3125,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2883,
-                            "endIndex": 2894,
+                            "startIndex": 3108,
+                            "endIndex": 3119,
                             "textRun": {
                               "content": "4.8675 × 10",
                               "textStyle": {}
                             }
                           },
                           {
-                            "startIndex": 2894,
-                            "endIndex": 2896,
+                            "startIndex": 3119,
+                            "endIndex": 3121,
                             "textRun": {
                               "content": "24",
                               "textStyle": {
@@ -3496,8 +3532,8 @@
                             }
                           },
                           {
-                            "startIndex": 2896,
-                            "endIndex": 2900,
+                            "startIndex": 3121,
+                            "endIndex": 3125,
                             "textRun": {
                               "content": " kg\n",
                               "textStyle": {}
@@ -3552,21 +3588,21 @@
               }
             },
             {
-              "startIndex": 2900,
-              "endIndex": 2955,
+              "startIndex": 3125,
+              "endIndex": 3180,
               "tableCells": [
                 {
-                  "startIndex": 2901,
-                  "endIndex": 2908,
+                  "startIndex": 3126,
+                  "endIndex": 3133,
                   "content": [
                     {
-                      "startIndex": 2902,
-                      "endIndex": 2908,
+                      "startIndex": 3127,
+                      "endIndex": 3133,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2902,
-                            "endIndex": 2908,
+                            "startIndex": 3127,
+                            "endIndex": 3133,
                             "textRun": {
                               "content": "Earth\n",
                               "textStyle": {
@@ -3681,17 +3717,17 @@
                   }
                 },
                 {
-                  "startIndex": 2908,
-                  "endIndex": 2924,
+                  "startIndex": 3133,
+                  "endIndex": 3149,
                   "content": [
                     {
-                      "startIndex": 2909,
-                      "endIndex": 2924,
+                      "startIndex": 3134,
+                      "endIndex": 3149,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2909,
-                            "endIndex": 2924,
+                            "startIndex": 3134,
+                            "endIndex": 3149,
                             "textRun": {
                               "content": "119,600,000 km\n",
                               "textStyle": {}
@@ -3804,25 +3840,25 @@
                   }
                 },
                 {
-                  "startIndex": 2924,
-                  "endIndex": 2936,
+                  "startIndex": 3149,
+                  "endIndex": 3161,
                   "content": [
                     {
-                      "startIndex": 2925,
-                      "endIndex": 2936,
+                      "startIndex": 3150,
+                      "endIndex": 3161,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2925,
-                            "endIndex": 2935,
+                            "startIndex": 3150,
+                            "endIndex": 3160,
                             "textRun": {
                               "content": "6,371.0 km",
                               "textStyle": {}
                             }
                           },
                           {
-                            "startIndex": 2935,
-                            "endIndex": 2936,
+                            "startIndex": 3160,
+                            "endIndex": 3161,
                             "textRun": {
                               "content": "\n",
                               "textStyle": {}
@@ -3868,25 +3904,25 @@
                   }
                 },
                 {
-                  "startIndex": 2936,
-                  "endIndex": 2955,
+                  "startIndex": 3161,
+                  "endIndex": 3180,
                   "content": [
                     {
-                      "startIndex": 2937,
-                      "endIndex": 2955,
+                      "startIndex": 3162,
+                      "endIndex": 3180,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2937,
-                            "endIndex": 2949,
+                            "startIndex": 3162,
+                            "endIndex": 3174,
                             "textRun": {
                               "content": "5.97237 × 10",
                               "textStyle": {}
                             }
                           },
                           {
-                            "startIndex": 2949,
-                            "endIndex": 2951,
+                            "startIndex": 3174,
+                            "endIndex": 3176,
                             "textRun": {
                               "content": "24",
                               "textStyle": {
@@ -3895,8 +3931,8 @@
                             }
                           },
                           {
-                            "startIndex": 2951,
-                            "endIndex": 2955,
+                            "startIndex": 3176,
+                            "endIndex": 3180,
                             "textRun": {
                               "content": " kg\n",
                               "textStyle": {}
@@ -4016,21 +4052,21 @@
               }
             },
             {
-              "startIndex": 2955,
-              "endIndex": 3007,
+              "startIndex": 3180,
+              "endIndex": 3232,
               "tableCells": [
                 {
-                  "startIndex": 2956,
-                  "endIndex": 2962,
+                  "startIndex": 3181,
+                  "endIndex": 3187,
                   "content": [
                     {
-                      "startIndex": 2957,
-                      "endIndex": 2962,
+                      "startIndex": 3182,
+                      "endIndex": 3187,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2957,
-                            "endIndex": 2962,
+                            "startIndex": 3182,
+                            "endIndex": 3187,
                             "textRun": {
                               "content": "Mars\n",
                               "textStyle": {
@@ -4145,17 +4181,17 @@
                   }
                 },
                 {
-                  "startIndex": 2962,
-                  "endIndex": 2978,
+                  "startIndex": 3187,
+                  "endIndex": 3203,
                   "content": [
                     {
-                      "startIndex": 2963,
-                      "endIndex": 2978,
+                      "startIndex": 3188,
+                      "endIndex": 3203,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2963,
-                            "endIndex": 2978,
+                            "startIndex": 3188,
+                            "endIndex": 3203,
                             "textRun": {
                               "content": "230,000,000 km\n",
                               "textStyle": {}
@@ -4268,17 +4304,17 @@
                   }
                 },
                 {
-                  "startIndex": 2978,
-                  "endIndex": 2989,
+                  "startIndex": 3203,
+                  "endIndex": 3214,
                   "content": [
                     {
-                      "startIndex": 2979,
-                      "endIndex": 2989,
+                      "startIndex": 3204,
+                      "endIndex": 3214,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2979,
-                            "endIndex": 2989,
+                            "startIndex": 3204,
+                            "endIndex": 3214,
                             "textRun": {
                               "content": "3389.5 km\n",
                               "textStyle": {}
@@ -4391,25 +4427,25 @@
                   }
                 },
                 {
-                  "startIndex": 2989,
-                  "endIndex": 3007,
+                  "startIndex": 3214,
+                  "endIndex": 3232,
                   "content": [
                     {
-                      "startIndex": 2990,
-                      "endIndex": 3007,
+                      "startIndex": 3215,
+                      "endIndex": 3232,
                       "paragraph": {
                         "elements": [
                           {
-                            "startIndex": 2990,
-                            "endIndex": 3001,
+                            "startIndex": 3215,
+                            "endIndex": 3226,
                             "textRun": {
                               "content": "6.4171 × 10",
                               "textStyle": {}
                             }
                           },
                           {
-                            "startIndex": 3001,
-                            "endIndex": 3003,
+                            "startIndex": 3226,
+                            "endIndex": 3228,
                             "textRun": {
                               "content": "23",
                               "textStyle": {
@@ -4418,8 +4454,8 @@
                             }
                           },
                           {
-                            "startIndex": 3003,
-                            "endIndex": 3007,
+                            "startIndex": 3228,
+                            "endIndex": 3232,
                             "textRun": {
                               "content": " kg\n",
                               "textStyle": {}
@@ -4566,13 +4602,13 @@
         }
       },
       {
-        "startIndex": 3008,
-        "endIndex": 3009,
+        "startIndex": 3233,
+        "endIndex": 3234,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3008,
-              "endIndex": 3009,
+              "startIndex": 3233,
+              "endIndex": 3234,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -4587,13 +4623,13 @@
         }
       },
       {
-        "startIndex": 3009,
-        "endIndex": 3094,
+        "startIndex": 3234,
+        "endIndex": 3319,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3009,
-              "endIndex": 3094,
+              "startIndex": 3234,
+              "endIndex": 3319,
               "textRun": {
                 "content": "Note that table styles such as color, width, and other visual formatting is ignored.\n",
                 "textStyle": {}
@@ -4608,13 +4644,13 @@
         }
       },
       {
-        "startIndex": 3094,
-        "endIndex": 3101,
+        "startIndex": 3319,
+        "endIndex": 3326,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3094,
-              "endIndex": 3101,
+              "startIndex": 3319,
+              "endIndex": 3326,
               "textRun": {
                 "content": "Images\n",
                 "textStyle": {}
@@ -4630,13 +4666,13 @@
         }
       },
       {
-        "startIndex": 3101,
-        "endIndex": 3296,
+        "startIndex": 3326,
+        "endIndex": 3521,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3101,
-              "endIndex": 3296,
+              "startIndex": 3326,
+              "endIndex": 3521,
               "textRun": {
                 "content": "Images and other figures can play a vital role in helping readers gain understanding of new and complex subject matter. As such, Stencila fully supports working with images found in Google Docs.\n",
                 "textStyle": {}
@@ -4651,13 +4687,13 @@
         }
       },
       {
-        "startIndex": 3296,
-        "endIndex": 3635,
+        "startIndex": 3521,
+        "endIndex": 3860,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3296,
-              "endIndex": 3635,
+              "startIndex": 3521,
+              "endIndex": 3860,
               "textRun": {
                 "content": "When converting between file formats, Stencila will attempt to embed the image in the target document format if possible, otherwise it will output media assets next to the converted file in a directory suffixed with “.media”.  For example, converting this document to HTML will result with a folder called “Google Docs and Stencila.media”\n",
                 "textStyle": {}
@@ -4672,21 +4708,21 @@
         }
       },
       {
-        "startIndex": 3635,
-        "endIndex": 3637,
+        "startIndex": 3860,
+        "endIndex": 3862,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3635,
-              "endIndex": 3636,
+              "startIndex": 3860,
+              "endIndex": 3861,
               "inlineObjectElement": {
                 "inlineObjectId": "kix.b15n6zwx5j17",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 3636,
-              "endIndex": 3637,
+              "startIndex": 3861,
+              "endIndex": 3862,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -4702,13 +4738,13 @@
         }
       },
       {
-        "startIndex": 3637,
-        "endIndex": 3638,
+        "startIndex": 3862,
+        "endIndex": 3863,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3637,
-              "endIndex": 3638,
+              "startIndex": 3862,
+              "endIndex": 3863,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -4723,13 +4759,13 @@
         }
       },
       {
-        "startIndex": 3638,
-        "endIndex": 3645,
+        "startIndex": 3863,
+        "endIndex": 3870,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3638,
-              "endIndex": 3645,
+              "startIndex": 3863,
+              "endIndex": 3870,
               "textRun": {
                 "content": "Charts\n",
                 "textStyle": {}
@@ -4745,13 +4781,13 @@
         }
       },
       {
-        "startIndex": 3645,
-        "endIndex": 3986,
+        "startIndex": 3870,
+        "endIndex": 4211,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3645,
-              "endIndex": 3986,
+              "startIndex": 3870,
+              "endIndex": 4211,
               "textRun": {
                 "content": "Charts and other graphs generated inside Google Docs behave similarly to Images as outlined above. An important thing to note is that while charts will be converted to images when converting between file formats, the underlying data will not be embedded in the resulting document, thus breaking reproducible characteristics of the document.\n",
                 "textStyle": {}
@@ -4766,21 +4802,21 @@
         }
       },
       {
-        "startIndex": 3986,
-        "endIndex": 3988,
+        "startIndex": 4211,
+        "endIndex": 4213,
         "paragraph": {
           "elements": [
             {
-              "startIndex": 3986,
-              "endIndex": 3987,
+              "startIndex": 4211,
+              "endIndex": 4212,
               "inlineObjectElement": {
                 "inlineObjectId": "kix.ox0hkdjvnovy",
                 "textStyle": {}
               }
             },
             {
-              "startIndex": 3987,
-              "endIndex": 3988,
+              "startIndex": 4212,
+              "endIndex": 4213,
               "textRun": {
                 "content": "\n",
                 "textStyle": {}
@@ -7943,7 +7979,7 @@
       }
     }
   },
-  "revisionId": "ALm37BWPM7xnaQbym-_MlnuRV29cmJxFjuBHoPjBS87Hy5JOKnzqdB4JcQRsusuykOLMWzP2YfTXMUCcBEypDg",
+  "revisionId": "ACp5tXjVtMT8tsE3_NmJW5KHA_rl6JndNO-pXiCOGtkVqSNQ2QnXC9XZGHz6CmdzzDcO_wfqPiViQeCC_fgUrg",
   "suggestionsViewMode": "SUGGESTIONS_INLINE",
   "inlineObjects": {
     "kix.4p4ttv3ngjlm": {

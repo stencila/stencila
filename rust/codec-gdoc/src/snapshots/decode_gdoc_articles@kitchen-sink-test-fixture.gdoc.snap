@@ -1,6 +1,6 @@
 ---
 source: rust/codec-gdoc/src/decode.rs
-assertion_line: 674
+assertion_line: 696
 expression: decode_sync(content).unwrap().0
 input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
 ---
@@ -54,7 +54,12 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
             {
               "type": "Paragraph",
               "content": [
-                "the test snapshots based on that JSON by running cargo insta test in ",
+                "the test snapshots based on that JSON by running ",
+                {
+                  "type": "CodeFragment",
+                  "text": "cargo insta test"
+                },
+                " in ",
                 {
                   "type": "Link",
                   "content": [
@@ -215,6 +220,22 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                   ]
                 },
                 " as a Strong emphasis node"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "Text that uses a ",
+                {
+                  "type": "CodeFragment",
+                  "text": "monospace font"
+                },
+                " (any font with the word “Mono” or “Code”, or “Courier”, “Inconsolata”, or “Consolas”) and which is part of a paragraph, or is a whole paragraph but 25 characters or less, as a CodeFragment node"
               ]
             }
           ]

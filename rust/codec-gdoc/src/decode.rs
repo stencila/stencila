@@ -4,8 +4,8 @@ use async_recursion::async_recursion;
 use codec::{
     common::{eyre::Result, futures, once_cell::sync::Lazy, regex::Regex, serde_json},
     stencila_schema::{
-        Article, BlockContent, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObject,
-        InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
+        Article, BlockContent, CodeFragment, CreativeWorkTitle, Delete, Emphasis, Heading,
+        ImageObject, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
         NontextualAnnotation, Note, NoteNoteType, Paragraph, Strong, Subscript, Superscript,
         TableCell, TableCellContent, TableRow, TableSimple, ThematicBreak,
     },
@@ -212,6 +212,7 @@ async fn paragraph_to_block(
         let index = inlines.len();
         if let Some(inline) = paragraph_element_to_inline(
             elem,
+            inlines.len(),
             inlines.last_mut(),
             context,
             &mut content.add_index(index),
@@ -399,12 +400,13 @@ async fn table_cell_to_table_cell(
 #[allow(clippy::if_same_then_else)]
 async fn paragraph_element_to_inline(
     elem: gdoc::ParagraphElement,
+    count: usize,
     last: Option<&mut InlineContent>,
     context: &mut Context,
     address: &mut Address,
 ) -> Option<InlineContent> {
     let inline = if let Some(text_run) = elem.text_run {
-        text_run_to_inline(text_run, last)
+        text_run_to_inline(text_run, count, last)
     } else if let Some(inline_object_element) = elem.inline_object_element {
         inline_object_element_to_node(&inline_object_element, context)
             .await
@@ -443,6 +445,7 @@ async fn paragraph_element_to_inline(
 /// (i.e. with `Link` as the outer node)
 fn text_run_to_inline(
     text_run: gdoc::TextRun,
+    count: usize,
     last: Option<&mut InlineContent>,
 ) -> Option<InlineContent> {
     let mut string = text_run.content.unwrap_or_default();
@@ -453,7 +456,8 @@ fn text_run_to_inline(
         return None;
     }
 
-    let mut inline = InlineContent::String(string);
+    let chars = string.len();
+    let mut inline = InlineContent::String(string.clone());
 
     if let Some(text_style) = text_run.text_style {
         if let Some(true) = text_style.bold {
@@ -518,6 +522,26 @@ fn text_run_to_inline(
                 target,
                 ..Default::default()
             });
+        }
+
+        if chars <= 25 || count > 1 {
+            if let Some(font) = text_style
+                .weighted_font_family
+                .and_then(|wff| wff.font_family)
+            {
+                if font.contains("Code")
+                    || font.contains("Coding")
+                    || font.contains("Mono")
+                    || font.contains("Courier")
+                    || font == "Inconsolata"
+                    || font == "Consolas"
+                {
+                    inline = InlineContent::CodeFragment(CodeFragment {
+                        text: string,
+                        ..Default::default()
+                    })
+                }
+            }
         }
     }
 
