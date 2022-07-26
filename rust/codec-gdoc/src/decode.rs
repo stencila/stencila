@@ -4,10 +4,10 @@ use async_recursion::async_recursion;
 use codec::{
     common::{eyre::Result, futures, once_cell::sync::Lazy, regex::Regex, serde_json},
     stencila_schema::{
-        Article, BlockContent, CodeFragment, CreativeWorkTitle, Delete, Emphasis, Heading,
-        ImageObject, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
-        NontextualAnnotation, Note, NoteNoteType, Paragraph, Strong, Subscript, Superscript,
-        TableCell, TableCellContent, TableRow, TableSimple, ThematicBreak,
+        Article, BlockContent, CodeFragment, CreativeWorkTitle, Emphasis, Heading, ImageObject,
+        InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node, Note, NoteNoteType,
+        Paragraph, Strikeout, Strong, Subscript, Superscript, TableCell, TableCellContent,
+        TableRow, TableSimple, ThematicBreak, Underline,
     },
 };
 use node_address::Address;
@@ -437,8 +437,7 @@ async fn paragraph_element_to_inline(
     inline
 }
 
-/// Transform a Google Doc `TextRun` to a `string`, `Emphasis`, `Strong`, `Delete`,
-/// `Link`, `Subscript` or `Superscript` node.
+/// Transform a Google Doc `TextRun` to an `InlineContent` node.
 //
 /// A `TextRun` can have multiple styles and this function nests them in
 /// a the order they are listed at https://developers.google.com/docs/api/reference/rest/v1/documents#TextStyle
@@ -475,14 +474,14 @@ fn text_run_to_inline(
         }
 
         if let Some(true) = text_style.underline {
-            inline = InlineContent::NontextualAnnotation(NontextualAnnotation {
+            inline = InlineContent::Underline(Underline {
                 content: vec![inline],
                 ..Default::default()
             });
         }
 
         if let Some(true) = text_style.strikethrough {
-            inline = InlineContent::Delete(Delete {
+            inline = InlineContent::Strikeout(Strikeout {
                 content: vec![inline],
                 ..Default::default()
             });
@@ -505,7 +504,7 @@ fn text_run_to_inline(
         if let Some(link) = text_style.link {
             // Remove unnecessary underline of link content
             let content = match inline {
-                InlineContent::NontextualAnnotation(inline) => inline.content,
+                InlineContent::Underline(inline) => inline.content,
                 _ => vec![inline],
             };
 

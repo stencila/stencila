@@ -77,10 +77,12 @@ impl Transform for Node {
             Node::Number(node) => InlineContent::Number(node),
             Node::Parameter(node) => InlineContent::Parameter(node),
             Node::Quote(node) => InlineContent::Quote(node),
+            Node::Strikeout(node) => InlineContent::Strikeout(node),
             Node::String(node) => InlineContent::String(node),
             Node::Strong(node) => InlineContent::Strong(node),
             Node::Subscript(node) => InlineContent::Subscript(node),
             Node::Superscript(node) => InlineContent::Superscript(node),
+            Node::Underline(node) => InlineContent::Underline(node),
             Node::VideoObject(node) => {
                 let VideoObject {
                     bitrate,
@@ -124,9 +126,11 @@ impl Transform for Node {
             Node::NontextualAnnotation(node) => node.content,
             Node::Paragraph(node) => node.content,
             Node::Quote(node) => node.content,
+            Node::Strikeout(node) => node.content,
             Node::Strong(node) => node.content,
             Node::Subscript(node) => node.content,
             Node::Superscript(node) => node.content,
+            Node::Underline(node) => node.content,
 
             // Variants with block content
             Node::Article(Article { content, .. }) => match content {
@@ -252,9 +256,11 @@ impl Transform for Node {
             Node::NontextualAnnotation(node) => node.content.to_blocks(),
             Node::Paragraph(node) => node.content.to_blocks(),
             Node::Quote(node) => node.content.to_blocks(),
+            Node::Strikeout(node) => node.content.to_blocks(),
             Node::Strong(node) => node.content.to_blocks(),
             Node::Subscript(node) => node.content.to_blocks(),
             Node::Superscript(node) => node.content.to_blocks(),
+            Node::Underline(node) => node.content.to_blocks(),
 
             // Fallback to a single item vector of self converted
             _ => vec![self.to_block()],

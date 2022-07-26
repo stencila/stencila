@@ -1,6 +1,6 @@
 ---
 source: rust/codec-gdoc/src/decode.rs
-assertion_line: 696
+assertion_line: 695
 expression: decode_sync(content).unwrap().0
 input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
 ---
@@ -248,12 +248,12 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
               "content": [
                 "Text with ",
                 {
-                  "type": "Delete",
+                  "type": "Strikeout",
                   "content": [
                     "a strikethrough"
                   ]
                 },
-                " as a Striked node"
+                " as a Strikeout node"
               ]
             }
           ]
@@ -266,12 +266,12 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
               "content": [
                 "Text that is ",
                 {
-                  "type": "NontextualAnnotation",
+                  "type": "Underline",
                   "content": [
                     "underlined"
                   ]
                 },
-                " as an Underlined node"
+                " as an Underline node"
               ]
             }
           ]
@@ -353,14 +353,14 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                   "type": "Subscript",
                   "content": [
                     {
-                      "type": "Delete",
+                      "type": "Strikeout",
                       "content": [
                         "Strikethrough subscript"
                       ]
                     }
                   ]
                 },
-                " as Delete nested within Subscript"
+                " as Strikeout nested within Subscript"
               ]
             }
           ]

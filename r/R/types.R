@@ -3945,6 +3945,32 @@ SoftwareSourceCode <- function(
 }
 
 
+#' Content that is marked as struck out
+#'
+#' @name Strikeout
+#' @param content The content that is marked. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @return A `list` of class `Strikeout`
+#' @seealso \code{\link{Mark}}
+#' @export
+Strikeout <- function(
+  content,
+  id,
+  meta
+){
+  self <- Mark(
+    content = content,
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Strikeout")
+
+  class(self) <- c(class(self), "Strikeout")
+  self
+}
+
+
 #' A schema specifying constraints on a string node.
 #'
 #' @name StringValidator
@@ -4285,6 +4311,32 @@ TupleValidator <- function(
 }
 
 
+#' Inline text that is underlined.
+#'
+#' @name Underline
+#' @param content The content that is marked. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @return A `list` of class `Underline`
+#' @seealso \code{\link{Mark}}
+#' @export
+Underline <- function(
+  content,
+  id,
+  meta
+){
+  self <- Mark(
+    content = content,
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Underline")
+
+  class(self) <- c(class(self), "Underline")
+  self
+}
+
+
 #' A variable representing a name / value pair.
 #'
 #' @name Variable
@@ -4551,7 +4603,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Claim, Collection
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Validator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Enumeration
@@ -4572,14 +4624,14 @@ GrantTypes <- Union(Grant, MonetaryGrant)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-InlineContent <- Union(AudioObject, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Note, Parameter, Quote, Strong, Subscript, Superscript, VideoObject, "NULL", "logical", "numeric", "character")
+InlineContent <- Union(AudioObject, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Note, Parameter, Quote, Strikeout, Strong, Subscript, Superscript, Underline, VideoObject, "NULL", "logical", "numeric", "character")
 
 
 #' All type schemas that are derived from Mark
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-MarkTypes <- Union(Mark, Delete, Emphasis, NontextualAnnotation, Quote, Strong, Subscript, Superscript)
+MarkTypes <- Union(Mark, Delete, Emphasis, NontextualAnnotation, Quote, Strikeout, Strong, Subscript, Superscript, Underline)
 
 
 #' All type schemas that are derived from Math
@@ -4600,7 +4652,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
+Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
 
 
 #' Union type for all primitives values

@@ -806,11 +806,13 @@ executable_content_for!(
     Paragraph,
     Quote,
     QuoteBlock,
+    Strikeout,
     Strong,
     Subscript,
     Superscript,
     Table,
-    TableSimple
+    TableSimple,
+    Underline
 );
 
 /// Compile variants of an enum

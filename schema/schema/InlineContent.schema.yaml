@@ -21,9 +21,11 @@ anyOf:
   - $ref: Note
   - $ref: Parameter
   - $ref: Quote
+  - $ref: Strikeout
   - $ref: Strong
   - $ref: Subscript
   - $ref: Superscript
+  - $ref: Underline
   - $ref: VideoObject
   # Primitive types in the order that coercion from
   # string should be attempted (for example by Ajv, or by serde_json).

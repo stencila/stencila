@@ -9,7 +9,12 @@ proptest! {
     #[test]
     fn test(input in article(
         Freedom::Min,
-        IpynbCodec::spec().unsupported_types,
+        [
+            IpynbCodec::spec().unsupported_types,
+            // Markdown parser does not decode double tilde's without
+            // surrounding spaces, so exclude from these tests.
+            vec!["Strikeout".to_string()]
+        ].concat(),
         IpynbCodec::spec().unsupported_properties,
     )) {
         let string = IpynbCodec::to_string(&input, None).unwrap();

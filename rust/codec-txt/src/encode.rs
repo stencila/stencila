@@ -55,15 +55,15 @@ macro_rules! inline_content_to_txt {
     };
 }
 
-inline_content_to_txt!(Delete);
 inline_content_to_txt!(Emphasis);
 inline_content_to_txt!(Link);
-inline_content_to_txt!(NontextualAnnotation);
 inline_content_to_txt!(Note);
 inline_content_to_txt!(Quote);
+inline_content_to_txt!(Strikeout);
 inline_content_to_txt!(Strong);
 inline_content_to_txt!(Subscript);
 inline_content_to_txt!(Superscript);
+inline_content_to_txt!(Underline);
 
 macro_rules! block_content_to_txt {
     ($type:ty) => {
@@ -132,12 +132,10 @@ impl ToTxt for Node {
             Node::Cite(node) => node.to_txt(),
             Node::CodeBlock(node) => node.to_txt(),
             Node::CodeFragment(node) => node.to_txt(),
-            Node::Delete(node) => node.to_txt(),
             Node::Emphasis(node) => node.to_txt(),
             Node::Heading(node) => node.to_txt(),
             Node::Integer(node) => node.to_txt(),
             Node::Link(node) => node.to_txt(),
-            Node::NontextualAnnotation(node) => node.to_txt(),
             Node::Note(node) => node.to_txt(),
             Node::Null(node) => node.to_txt(),
             Node::Number(node) => node.to_txt(),
@@ -145,10 +143,12 @@ impl ToTxt for Node {
             Node::Paragraph(node) => node.to_txt(),
             Node::Quote(node) => node.to_txt(),
             Node::QuoteBlock(node) => node.to_txt(),
+            Node::Strikeout(node) => node.to_txt(),
             Node::String(node) => node.to_txt(),
             Node::Strong(node) => node.to_txt(),
             Node::Subscript(node) => node.to_txt(),
             Node::Superscript(node) => node.to_txt(),
+            Node::Underline(node) => node.to_txt(),
             _ => "".to_string(),
         }
     }
@@ -160,20 +160,20 @@ impl ToTxt for InlineContent {
             InlineContent::Boolean(node) => node.to_txt(),
             InlineContent::Cite(node) => node.to_txt(),
             InlineContent::CodeFragment(node) => node.to_txt(),
-            InlineContent::Delete(node) => node.to_txt(),
             InlineContent::Emphasis(node) => node.to_txt(),
             InlineContent::Integer(node) => node.to_txt(),
             InlineContent::Link(node) => node.to_txt(),
-            InlineContent::NontextualAnnotation(node) => node.to_txt(),
+            InlineContent::MathFragment(node) => node.to_txt(),
             InlineContent::Note(node) => node.to_txt(),
             InlineContent::Null(node) => node.to_txt(),
             InlineContent::Number(node) => node.to_txt(),
-            InlineContent::MathFragment(node) => node.to_txt(),
             InlineContent::Quote(node) => node.to_txt(),
+            InlineContent::Strikeout(node) => node.to_txt(),
             InlineContent::String(node) => node.to_txt(),
             InlineContent::Strong(node) => node.to_txt(),
             InlineContent::Subscript(node) => node.to_txt(),
             InlineContent::Superscript(node) => node.to_txt(),
+            InlineContent::Underline(node) => node.to_txt(),
             _ => "".to_string(),
         }
     }

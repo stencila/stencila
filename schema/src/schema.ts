@@ -167,7 +167,7 @@ const checkSchema = (
     error(`${title}.description is too long`)
 
   // Should have a valid status
-  const validStatuses = ['stable', 'unstable', 'experimental']
+  const validStatuses = ['stable', 'unstable', 'experimental', 'deprecated']
   if (status === undefined) error(`${title} schema is missing status`)
   else if (!validStatuses.includes(status))
     error(`${title}.status should be in ${validStatuses}`)

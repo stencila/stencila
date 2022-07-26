@@ -101,6 +101,7 @@ export interface Types {
   SoftwareEnvironment: SoftwareEnvironment
   SoftwareSession: SoftwareSession
   SoftwareSourceCode: SoftwareSourceCode
+  Strikeout: Strikeout
   String: string
   StringValidator: StringValidator
   Strong: Strong
@@ -113,6 +114,7 @@ export interface Types {
   Thing: Thing
   ThingTypes: ThingTypes
   TupleValidator: TupleValidator
+  Underline: Underline
   Validator: Validator
   ValidatorTypes: ValidatorTypes
   Variable: Variable
@@ -191,6 +193,7 @@ export type Entity = {
     | 'SoftwareEnvironment'
     | 'SoftwareSession'
     | 'SoftwareSourceCode'
+    | 'Strikeout'
     | 'StringValidator'
     | 'Strong'
     | 'Subscript'
@@ -201,6 +204,7 @@ export type Entity = {
     | 'ThematicBreak'
     | 'Thing'
     | 'TupleValidator'
+    | 'Underline'
     | 'Validator'
     | 'Variable'
     | 'VideoObject'
@@ -466,9 +470,11 @@ export type Mark = Entity & {
     | 'Emphasis'
     | 'NontextualAnnotation'
     | 'Quote'
+    | 'Strikeout'
     | 'Strong'
     | 'Subscript'
     | 'Superscript'
+    | 'Underline'
   content: Array<InlineContent>
 }
 
@@ -1738,6 +1744,23 @@ export const softwareSourceCode = (
 })
 
 /**
+ * Content that is marked as struck out
+ */
+export type Strikeout = Mark & {
+  type: 'Strikeout'
+}
+
+/**
+ * Create a `Strikeout` node
+ * @param props Object containing Strikeout schema properties as key/value pairs
+ * @returns {Strikeout} Strikeout schema node
+ */
+export const strikeout = (props: Omit<Strikeout, 'type'>): Strikeout => ({
+  ...compact(props),
+  type: 'Strikeout',
+})
+
+/**
  * A schema specifying constraints on a string node.
  */
 export type StringValidator = Validator & {
@@ -1908,6 +1931,23 @@ export const tupleValidator = (
 ): TupleValidator => ({
   ...compact(props),
   type: 'TupleValidator',
+})
+
+/**
+ * Inline text that is underlined.
+ */
+export type Underline = Mark & {
+  type: 'Underline'
+}
+
+/**
+ * Create a `Underline` node
+ * @param props Object containing Underline schema properties as key/value pairs
+ * @returns {Underline} Underline schema node
+ */
+export const underline = (props: Omit<Underline, 'type'>): Underline => ({
+  ...compact(props),
+  type: 'Underline',
 })
 
 /**
@@ -2104,6 +2144,7 @@ export type EntityTypes =
   | SoftwareEnvironment
   | SoftwareSession
   | SoftwareSourceCode
+  | Strikeout
   | StringValidator
   | Strong
   | Subscript
@@ -2114,6 +2155,7 @@ export type EntityTypes =
   | ThematicBreak
   | Thing
   | TupleValidator
+  | Underline
   | Validator
   | Variable
   | VideoObject
@@ -2147,9 +2189,11 @@ export type InlineContent =
   | Note
   | Parameter
   | Quote
+  | Strikeout
   | Strong
   | Subscript
   | Superscript
+  | Underline
   | VideoObject
   | null
   | boolean
@@ -2166,9 +2210,11 @@ export type MarkTypes =
   | Emphasis
   | NontextualAnnotation
   | Quote
+  | Strikeout
   | Strong
   | Subscript
   | Superscript
+  | Underline
 
 /**
  * All type schemas that are derived from Math
@@ -2254,6 +2300,7 @@ export type Node =
   | SoftwareEnvironment
   | SoftwareSession
   | SoftwareSourceCode
+  | Strikeout
   | StringValidator
   | Strong
   | Subscript
@@ -2264,6 +2311,7 @@ export type Node =
   | ThematicBreak
   | Thing
   | TupleValidator
+  | Underline
   | Validator
   | Variable
   | VideoObject
@@ -2913,6 +2961,7 @@ export const entityTypes: TypeMap<Exclude<EntityTypes, Primitive>> = {
   SoftwareEnvironment: 'SoftwareEnvironment',
   SoftwareSession: 'SoftwareSession',
   SoftwareSourceCode: 'SoftwareSourceCode',
+  Strikeout: 'Strikeout',
   StringValidator: 'StringValidator',
   Strong: 'Strong',
   Subscript: 'Subscript',
@@ -2923,6 +2972,7 @@ export const entityTypes: TypeMap<Exclude<EntityTypes, Primitive>> = {
   ThematicBreak: 'ThematicBreak',
   Thing: 'Thing',
   TupleValidator: 'TupleValidator',
+  Underline: 'Underline',
   Validator: 'Validator',
   Variable: 'Variable',
   VideoObject: 'VideoObject',
@@ -2942,9 +2992,11 @@ export const markTypes: TypeMap<Exclude<MarkTypes, Primitive>> = {
   Emphasis: 'Emphasis',
   NontextualAnnotation: 'NontextualAnnotation',
   Quote: 'Quote',
+  Strikeout: 'Strikeout',
   Strong: 'Strong',
   Subscript: 'Subscript',
   Superscript: 'Superscript',
+  Underline: 'Underline',
 }
 export const mathTypes: TypeMap<Exclude<MathTypes, Primitive>> = {
   Math: 'Math',
@@ -3036,9 +3088,11 @@ export const inlineContentTypes: TypeMap<Exclude<InlineContent, Primitive>> = {
   Note: 'Note',
   Parameter: 'Parameter',
   Quote: 'Quote',
+  Strikeout: 'Strikeout',
   Strong: 'Strong',
   Subscript: 'Subscript',
   Superscript: 'Superscript',
+  Underline: 'Underline',
   VideoObject: 'VideoObject',
 }
 

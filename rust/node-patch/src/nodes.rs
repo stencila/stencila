@@ -96,11 +96,13 @@ patchable_node_variants!(
     Node::Parameter
     Node::Quote
     Node::QuoteBlock
+    Node::Strikeout
     Node::String
     Node::Strong
     Node::Subscript
     Node::Superscript
     Node::Table
     Node::ThematicBreak
+    Node::Underline
     Node::VideoObject
 );

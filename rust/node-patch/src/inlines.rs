@@ -63,7 +63,7 @@ fn diff_transform(differ: &mut Differ, from: &InlineContent, to: &InlineContent)
     match from {
         InlineContent::String(string) => match to {
             InlineContent::Emphasis(Emphasis { content, .. })
-            | InlineContent::Delete(Delete { content, .. })
+            | InlineContent::Strikeout(Strikeout { content, .. })
             | InlineContent::Strong(Strong { content, .. })
             | InlineContent::Subscript(Subscript { content, .. })
             | InlineContent::Superscript(Superscript { content, .. }) => {
@@ -74,7 +74,7 @@ fn diff_transform(differ: &mut Differ, from: &InlineContent, to: &InlineContent)
             _ => (),
         },
         InlineContent::Emphasis(Emphasis { content, .. })
-        | InlineContent::Delete(Delete { content, .. })
+        | InlineContent::Strikeout(Strikeout { content, .. })
         | InlineContent::Strong(Strong { content, .. })
         | InlineContent::Subscript(Subscript { content, .. })
         | InlineContent::Superscript(Superscript { content, .. }) => match to {
@@ -84,7 +84,7 @@ fn diff_transform(differ: &mut Differ, from: &InlineContent, to: &InlineContent)
                 }
             }
             InlineContent::Emphasis(Emphasis { content: to_c, .. })
-            | InlineContent::Delete(Delete { content: to_c, .. })
+            | InlineContent::Strikeout(Strikeout { content: to_c, .. })
             | InlineContent::Strong(Strong { content: to_c, .. })
             | InlineContent::Subscript(Subscript { content: to_c, .. })
             | InlineContent::Superscript(Superscript { content: to_c, .. }) => {
@@ -108,7 +108,7 @@ fn apply_transform(from: &InlineContent, to: &str) -> InlineContent {
                     content,
                     ..Default::default()
                 }),
-                "Delete" => InlineContent::Delete(Delete {
+                "Strikeout" => InlineContent::Strikeout(Strikeout {
                     content,
                     ..Default::default()
                 }),
@@ -124,11 +124,15 @@ fn apply_transform(from: &InlineContent, to: &str) -> InlineContent {
                     content,
                     ..Default::default()
                 }),
+                "Underline" => InlineContent::Underline(Underline {
+                    content,
+                    ..Default::default()
+                }),
                 _ => unreachable!(),
             }
         }
         InlineContent::Emphasis(Emphasis { content, .. })
-        | InlineContent::Delete(Delete { content, .. })
+        | InlineContent::Strikeout(Strikeout { content, .. })
         | InlineContent::Strong(Strong { content, .. })
         | InlineContent::Subscript(Subscript { content, .. })
         | InlineContent::Superscript(Superscript { content, .. }) => {
@@ -139,7 +143,7 @@ fn apply_transform(from: &InlineContent, to: &str) -> InlineContent {
                     content,
                     ..Default::default()
                 }),
-                "Delete" => InlineContent::Delete(Delete {
+                "Strikeout" => InlineContent::Strikeout(Strikeout {
                     content,
                     ..Default::default()
                 }),
@@ -152,6 +156,10 @@ fn apply_transform(from: &InlineContent, to: &str) -> InlineContent {
                     ..Default::default()
                 }),
                 "Superscript" => InlineContent::Superscript(Superscript {
+                    content,
+                    ..Default::default()
+                }),
+                "Underline" => InlineContent::Underline(Underline {
                     content,
                     ..Default::default()
                 }),
@@ -207,9 +215,11 @@ patchable_struct!(MathFragment, math_language, text);
 patchable_struct!(NontextualAnnotation, content);
 patchable_struct!(Note, content);
 patchable_struct!(Quote, content);
+patchable_struct!(Strikeout, content);
 patchable_struct!(Strong, content);
 patchable_struct!(Subscript, content);
 patchable_struct!(Superscript, content);
+patchable_struct!(Underline, content);
 
 /// Generate a `impl Patchable` for a `MediaObject` `struct` which avoids creating
 /// a very large number of operations when diffing a base64 encoded images (which
@@ -287,11 +297,11 @@ mod tests {
         assert_json_eq!(apply_new(&a, &patch)?, b);
 
         // Nested
-        let a = InlineContent::Delete(Delete {
+        let a = InlineContent::Strikeout(Strikeout {
             content: vec![InlineContent::String("abcd".to_string())],
             ..Default::default()
         });
-        let b = InlineContent::Delete(Delete {
+        let b = InlineContent::Strikeout(Strikeout {
             content: vec![InlineContent::String("ab".to_string())],
             ..Default::default()
         });

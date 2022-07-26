@@ -91,13 +91,13 @@ macro_rules! delimited_inline_content_to_md {
     };
 }
 
-delimited_inline_content_to_md!(Delete, "~~");
 delimited_inline_content_to_md!(Emphasis, "_");
+delimited_inline_content_to_md!(Strikeout, "~~");
 delimited_inline_content_to_md!(Strong, "**");
 delimited_inline_content_to_md!(Subscript, "~");
 delimited_inline_content_to_md!(Superscript, "^");
 
-impl ToMd for NontextualAnnotation {
+impl ToMd for Underline {
     fn to_md(&self) -> String {
         ["<u>", &self.content.to_md(), "</u>"].concat()
     }
@@ -394,23 +394,23 @@ impl ToMd for Node {
             Node::CodeBlock(node) => node.to_md(),
             Node::CodeFragment(node) => node.to_md(),
             Node::CreativeWork(node) => node.to_md(),
-            Node::Delete(node) => node.to_md(),
             Node::Emphasis(node) => node.to_md(),
             Node::Heading(node) => node.to_md(),
             Node::Integer(node) => node.to_md(),
             Node::Link(node) => node.to_md(),
             Node::List(node) => node.to_md(),
-            Node::NontextualAnnotation(node) => node.to_md(),
             //Node::Note(node) => node.to_md(),
             Node::Null(node) => node.to_md(),
             Node::Number(node) => node.to_md(),
             Node::Paragraph(node) => node.to_md(),
             Node::Quote(node) => node.to_md(),
             Node::QuoteBlock(node) => node.to_md(),
+            Node::Strikeout(node) => node.to_md(),
             Node::String(node) => node.to_md(),
             Node::Strong(node) => node.to_md(),
             Node::Subscript(node) => node.to_md(),
             Node::Superscript(node) => node.to_md(),
+            Node::Underline(node) => node.to_md(),
             _ => "<!-- unsupported type -->".to_string(),
         }
     }
@@ -424,21 +424,21 @@ impl ToMd for InlineContent {
             //InlineContent::Cite(node) => node.to_md(),
             InlineContent::CodeExpression(node) => node.to_md(),
             InlineContent::CodeFragment(node) => node.to_md(),
-            InlineContent::Delete(node) => node.to_md(),
             InlineContent::Emphasis(node) => node.to_md(),
             InlineContent::ImageObject(node) => node.to_md(),
             InlineContent::Integer(node) => node.to_md(),
             InlineContent::Link(node) => node.to_md(),
-            InlineContent::NontextualAnnotation(node) => node.to_md(),
             //InlineContent::Note(node) => node.to_md(),
             InlineContent::Null(node) => node.to_md(),
             InlineContent::Number(node) => node.to_md(),
             InlineContent::MathFragment(node) => node.to_md(),
             InlineContent::Quote(node) => node.to_md(),
+            InlineContent::Strikeout(node) => node.to_md(),
             InlineContent::String(node) => node.to_md(),
             InlineContent::Strong(node) => node.to_md(),
             InlineContent::Subscript(node) => node.to_md(),
             InlineContent::Superscript(node) => node.to_md(),
+            InlineContent::Underline(node) => node.to_md(),
             InlineContent::VideoObject(node) => node.to_md(),
             _ => "<!-- unsupported type -->".to_string(),
         }

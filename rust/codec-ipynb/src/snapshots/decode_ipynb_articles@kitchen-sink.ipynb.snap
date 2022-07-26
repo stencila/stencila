@@ -1,8 +1,8 @@
 ---
 source: rust/codec-ipynb/src/decode.rs
+assertion_line: 244
 expression: decode(content).unwrap()
 input_file: fixtures/articles/kitchen-sink.ipynb
-
 ---
 {
   "type": "Article",
@@ -119,7 +119,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         },
         ", ",
         {
-          "type": "Delete",
+          "type": "Strikeout",
           "content": [
             "delete"
           ]

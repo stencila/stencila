@@ -443,7 +443,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
             ..Default::default()
         })],
         pandoc::Inline::Underline(inlines) => {
-            vec![InlineContent::NontextualAnnotation(NontextualAnnotation {
+            vec![InlineContent::Underline(Underline {
                 content: translate_inlines(inlines, context),
                 ..Default::default()
             })]
@@ -452,7 +452,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
             content: translate_inlines(inlines, context),
             ..Default::default()
         })],
-        pandoc::Inline::Strikeout(inlines) => vec![InlineContent::Delete(Delete {
+        pandoc::Inline::Strikeout(inlines) => vec![InlineContent::Strikeout(Strikeout {
             content: translate_inlines(inlines, context),
             ..Default::default()
         })],

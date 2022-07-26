@@ -3813,6 +3813,27 @@ pub enum SoftwareSourceCode_ {
   SoftwareSourceCode
 }
 
+/// Content that is marked as struck out
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Strikeout {
+    /// The name of this type
+    #[def = "Strikeout_::Strikeout"]
+    pub type_: Strikeout_,
+
+    /// The content that is marked.
+    pub content: Vec<InlineContent>,
+
+    /// The identifier for this item.
+    pub id: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Strikeout_ {
+  Strikeout
+}
+
 /// A schema specifying constraints on a string node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4146,6 +4167,27 @@ pub struct TupleValidator {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum TupleValidator_ {
   TupleValidator
+}
+
+/// Inline text that is underlined.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Underline {
+    /// The name of this type
+    #[def = "Underline_::Underline"]
+    pub type_: Underline_,
+
+    /// The content that is marked.
+    pub content: Vec<InlineContent>,
+
+    /// The identifier for this item.
+    pub id: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Underline_ {
+  Underline
 }
 
 /// A variable representing a name / value pair.
@@ -5183,6 +5225,7 @@ pub enum EntityTypes {
     SoftwareEnvironment(SoftwareEnvironment),
     SoftwareSession(SoftwareSession),
     SoftwareSourceCode(SoftwareSourceCode),
+    Strikeout(Strikeout),
     StringValidator(StringValidator),
     Strong(Strong),
     Subscript(Subscript),
@@ -5193,6 +5236,7 @@ pub enum EntityTypes {
     ThematicBreak(ThematicBreak),
     Thing(Thing),
     TupleValidator(TupleValidator),
+    Underline(Underline),
     Validator(Validator),
     Variable(Variable),
     VideoObject(VideoObject),
@@ -5233,9 +5277,11 @@ pub enum InlineContent {
     Note(Note),
     Parameter(Parameter),
     Quote(Quote),
+    Strikeout(Strikeout),
     Strong(Strong),
     Subscript(Subscript),
     Superscript(Superscript),
+    Underline(Underline),
     VideoObject(VideoObjectSimple),
     Null(Null),
     Boolean(Boolean),
@@ -5253,9 +5299,11 @@ pub enum MarkTypes {
     Emphasis(Emphasis),
     NontextualAnnotation(NontextualAnnotation),
     Quote(Quote),
+    Strikeout(Strikeout),
     Strong(Strong),
     Subscript(Subscript),
     Superscript(Superscript),
+    Underline(Underline),
 }
 
 /// All type schemas that are derived from Math
@@ -5347,6 +5395,7 @@ pub enum Node {
     SoftwareEnvironment(SoftwareEnvironment),
     SoftwareSession(SoftwareSession),
     SoftwareSourceCode(SoftwareSourceCode),
+    Strikeout(Strikeout),
     StringValidator(StringValidator),
     Strong(Strong),
     Subscript(Subscript),
@@ -5357,6 +5406,7 @@ pub enum Node {
     ThematicBreak(ThematicBreak),
     Thing(Thing),
     TupleValidator(TupleValidator),
+    Underline(Underline),
     Validator(Validator),
     Variable(Variable),
     VideoObject(VideoObject),

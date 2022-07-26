@@ -1,9 +1,8 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 455
+assertion_line: 475
 expression: encoded
-input_file: fixtures/fragments/html/delete.html
-
+input_file: fixtures/fragments/html/strikeout.html
 ---
 <article data-root itemtype="https://schema.org/Article" itemscope>
   <stencila-document-toolbar>
@@ -11,7 +10,7 @@ input_file: fixtures/fragments/html/delete.html
   <div data-prop="content">
     <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
       <span>Some</span>
-      <del itemtype="https://schema.stenci.la/Delete" itemscope>
+      <del itemtype="https://schema.stenci.la/Strikeout" itemscope>
         <span>deleted</span>
       </del>
       <span>text.</span>

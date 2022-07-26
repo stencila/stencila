@@ -94,10 +94,12 @@ impl Transform for InlineContent {
             InlineContent::Number(node) => Node::Number(node),
             InlineContent::Parameter(node) => Node::Parameter(node),
             InlineContent::Quote(node) => Node::Quote(node),
+            InlineContent::Strikeout(node) => Node::Strikeout(node),
             InlineContent::String(node) => Node::String(node),
             InlineContent::Strong(node) => Node::Strong(node),
             InlineContent::Subscript(node) => Node::Subscript(node),
             InlineContent::Superscript(node) => Node::Superscript(node),
+            InlineContent::Underline(node) => Node::Underline(node),
             InlineContent::VideoObject(node) => {
                 let VideoObjectSimple {
                     bitrate,

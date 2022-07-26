@@ -3684,6 +3684,23 @@ Python2.3, .Net Framework 3.0).
             self.targetProducts = targetProducts
 
 
+class Strikeout(Mark):
+    """Content that is marked as struck out"""
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            id=id,
+            meta=meta
+        )
+
+
+
 class StringValidator(Validator):
     """A schema specifying constraints on a string node."""
 
@@ -3973,6 +3990,23 @@ class TupleValidator(Validator):
         )
         if items is not None:
             self.items = items
+
+
+class Underline(Mark):
+    """Inline text that is underlined."""
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            id=id,
+            meta=meta
+        )
+
 
 
 class Variable(Entity):
@@ -4478,7 +4512,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Co
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Validator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -4496,13 +4530,13 @@ GrantTypes = Union["Grant", "MonetaryGrant"]
 """
 Union type for valid inline content.
 """
-InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Parameter", "Quote", "Strong", "Subscript", "Superscript", "VideoObject", None, "Boolean", "Integer", "Number", "String"]
+InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Parameter", "Quote", "Strikeout", "Strong", "Subscript", "Superscript", "Underline", "VideoObject", None, "Boolean", "Integer", "Number", "String"]
 
 
 """
 All type schemas that are derived from Mark
 """
-MarkTypes = Union["Mark", "Delete", "Emphasis", "NontextualAnnotation", "Quote", "Strong", "Subscript", "Superscript"]
+MarkTypes = Union["Mark", "Delete", "Emphasis", "NontextualAnnotation", "Quote", "Strikeout", "Strong", "Subscript", "Superscript", "Underline"]
 
 
 """
@@ -4521,7 +4555,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 Union type for all types of nodes in this schema, including primitives and
     entities
 """
-Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
+Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
 
 
 """

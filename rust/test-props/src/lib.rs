@@ -189,11 +189,11 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a delete node with arbitrary content
-    pub fn delete(freedom: Freedom)(
+    /// Generate a strikeout node with arbitrary content
+    pub fn strikeout(freedom: Freedom)(
         content in inline_inner_content(freedom)
     ) -> InlineContent {
-        InlineContent::Delete(Delete{
+        InlineContent::Strikeout(Strikeout{
             content:vec![content],
             ..Default::default()
         })
@@ -231,11 +231,11 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a nontextual annotation node with arbitrary content
-    pub fn nontextual_annotation(freedom: Freedom)(
+    /// Generate a underline node with arbitrary content
+    pub fn underline(freedom: Freedom)(
         content in inline_inner_content(freedom)
     ) -> InlineContent {
-        InlineContent::NontextualAnnotation(NontextualAnnotation{
+        InlineContent::Underline(Underline{
             content:vec![content],
             ..Default::default()
         })
@@ -303,18 +303,15 @@ pub fn inline_content(
         ("VideoObject", video_object_simple(freedom).boxed()),
         ("CodeExpression", code_expression(freedom).boxed()),
         ("CodeFragment", code_fragment(freedom).boxed()),
-        ("Delete", delete(freedom).boxed()),
         ("Emphasis", emphasis(freedom).boxed()),
         ("Link", link(freedom).boxed()),
         ("MathFragment", math_fragment(freedom).boxed()),
-        (
-            "NontextualAnnotation",
-            nontextual_annotation(freedom).boxed(),
-        ),
         ("Quote", quote(freedom).boxed()),
+        ("Strikeout", strikeout(freedom).boxed()),
         ("Strong", strong(freedom).boxed()),
         ("Subscript", subscript(freedom).boxed()),
         ("Superscript", superscript(freedom).boxed()),
+        ("Underline", underline(freedom).boxed()),
     ] {
         if !exclude_types.contains(&name.to_string()) {
             types.push(strategy)

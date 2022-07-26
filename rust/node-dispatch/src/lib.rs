@@ -52,6 +52,7 @@ macro_rules! dispatch_node {
             Node::Review(node) => node.$method($($arg),*),
             Node::SoftwareApplication(node) => node.$method($($arg),*),
             Node::SoftwareSourceCode(node) => node.$method($($arg),*),
+            Node::Strikeout(node) => node.$method($($arg),*),
             Node::String(node) => node.$method($($arg),*),
             Node::StringValidator(node) => node.$method($($arg),*),
             Node::Strong(node) => node.$method($($arg),*),
@@ -60,6 +61,7 @@ macro_rules! dispatch_node {
             Node::Table(node) => node.$method($($arg),*),
             Node::ThematicBreak(node) => node.$method($($arg),*),
             Node::TupleValidator(node) => node.$method($($arg),*),
+            Node::Underline(node) => node.$method($($arg),*),
             Node::Validator(node) => node.$method($($arg),*),
             Node::VideoObject(node) => node.$method($($arg),*),
             _ => $default
@@ -120,10 +122,12 @@ macro_rules! dispatch_inline {
             InlineContent::Number(node) => node.$method($($arg),*),
             InlineContent::Parameter(node) => node.$method($($arg),*),
             InlineContent::Quote(node) => node.$method($($arg),*),
+            InlineContent::Strikeout(node) => node.$method($($arg),*),
             InlineContent::String(node) => node.$method($($arg),*),
             InlineContent::Strong(node) => node.$method($($arg),*),
             InlineContent::Subscript(node) => node.$method($($arg),*),
             InlineContent::Superscript(node) => node.$method($($arg),*),
+            InlineContent::Underline(node) => node.$method($($arg),*),
             InlineContent::VideoObject(node) => node.$method($($arg),*),
         }
     }
@@ -151,10 +155,12 @@ macro_rules! dispatch_inline_pair {
             (InlineContent::Number(node), InlineContent::Number(other)) => node.$method(other, $($arg),*),
             (InlineContent::Parameter(node), InlineContent::Parameter(other)) => node.$method(other, $($arg),*),
             (InlineContent::Quote(node), InlineContent::Quote(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Strikeout(node), InlineContent::Strikeout(other)) => node.$method(other, $($arg),*),
             (InlineContent::String(node), InlineContent::String(other)) => node.$method(other, $($arg),*),
             (InlineContent::Strong(node), InlineContent::Strong(other)) => node.$method(other, $($arg),*),
             (InlineContent::Subscript(node), InlineContent::Subscript(other)) => node.$method(other, $($arg),*),
             (InlineContent::Superscript(node), InlineContent::Superscript(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Underline(node), InlineContent::Underline(other)) => node.$method(other, $($arg),*),
             (InlineContent::VideoObject(node), InlineContent::VideoObject(other)) => node.$method(other, $($arg),*),
             _ => $default
         }

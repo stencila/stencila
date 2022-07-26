@@ -1,8 +1,5 @@
 {
-  "pandoc-api-version": [
-    1,
-    22
-  ],
+  "pandoc-api-version": [1, 22],
   "meta": {},
   "blocks": [
     {
@@ -20,7 +17,7 @@
           "c": [
             {
               "t": "Str",
-              "c": "deleted"
+              "c": "striked-out"
             }
           ]
         },

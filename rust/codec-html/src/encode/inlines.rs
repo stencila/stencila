@@ -42,9 +42,11 @@ impl ToHtml for InlineContent {
             // To reduce the size of the generated HTML a little, unlike for `Node::String`,
             // the `itemtype` attribute is not used.
             InlineContent::String(node) => elem("span", &[], &node.to_html(context)),
+            InlineContent::Strikeout(node) => node.to_html(context),
             InlineContent::Strong(node) => node.to_html(context),
             InlineContent::Subscript(node) => node.to_html(context),
             InlineContent::Superscript(node) => node.to_html(context),
+            InlineContent::Underline(node) => node.to_html(context),
             InlineContent::VideoObject(node) => node.to_html(context),
         }
     }
@@ -64,12 +66,14 @@ macro_rules! mark_to_html {
     };
 }
 
-mark_to_html!(Delete, "del");
 mark_to_html!(Emphasis, "em");
-mark_to_html!(NontextualAnnotation, "u");
+mark_to_html!(Strikeout, "del");
+mark_to_html!(Delete, "del");
 mark_to_html!(Strong, "strong");
 mark_to_html!(Subscript, "sub");
 mark_to_html!(Superscript, "sup");
+mark_to_html!(Underline, "u");
+mark_to_html!(NontextualAnnotation, "u");
 
 /// Convert a file:// URL to a data:// URI
 ///

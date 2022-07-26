@@ -1,9 +1,8 @@
 ---
 source: rust/codec-html/src/decode.rs
-assertion_line: 632
+assertion_line: 635
 expression: "decode_fragment(content, None)"
-input_file: fixtures/fragments/html/delete.html
-
+input_file: fixtures/fragments/html/strikeout.html
 ---
 [
   {
@@ -11,7 +10,7 @@ input_file: fixtures/fragments/html/delete.html
     "content": [
       "Some ",
       {
-        "type": "Delete",
+        "type": "Strikeout",
         "content": [
           "deleted"
         ]

@@ -332,7 +332,7 @@ fn decode_inline(node: &NodeRef, context: &DecodeContext) -> Vec<InlineContent> 
                 })]
             }
             local_name!("del") => {
-                vec![InlineContent::Delete(Delete {
+                vec![InlineContent::Strikeout(Strikeout {
                     content: decode_inlines(node, context),
                     ..Default::default()
                 })]
@@ -374,7 +374,7 @@ fn decode_inline(node: &NodeRef, context: &DecodeContext) -> Vec<InlineContent> 
             }
             // TODO: MathFragment
             local_name!("u") => {
-                vec![InlineContent::NontextualAnnotation(NontextualAnnotation {
+                vec![InlineContent::Underline(Underline {
                     content: decode_inlines(node, context),
                     ..Default::default()
                 })]

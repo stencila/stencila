@@ -339,7 +339,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 }
                 Tag::Strikethrough => {
                     let content = inlines.pop_tail();
-                    inlines.push_node(InlineContent::Delete(Delete {
+                    inlines.push_node(InlineContent::Strikeout(Strikeout {
                         content,
                         ..Default::default()
                     }))
@@ -1030,7 +1030,7 @@ pub fn math(input: &str) -> IResult<&str, InlineContent> {
 pub fn subscript(input: &str) -> IResult<&str, InlineContent> {
     map_res(
         delimited(
-            // Only match single tilde, because doubles are for `Delete`
+            // Only match single tilde, because doubles are for `Strikeout`
             tuple((char('~'), peek(not(char('~'))))),
             take_until("~"),
             char('~'),

@@ -49,14 +49,12 @@ fn transform_inlines(inlines: &mut Vec<InlineContent>) {
                 })
             }
             // Recursively transform other inlines
-            InlineContent::Delete(Delete { content, .. })
+            InlineContent::Strikeout(Strikeout { content, .. })
             | InlineContent::Emphasis(Emphasis { content, .. })
             | InlineContent::Subscript(Subscript { content, .. })
             | InlineContent::Superscript(Superscript { content, .. })
             | InlineContent::Strong(Strong { content, .. })
-            | InlineContent::NontextualAnnotation(NontextualAnnotation { content, .. }) => {
-                transform_inlines(content)
-            }
+            | InlineContent::Underline(Underline { content, .. }) => transform_inlines(content),
             _ => (),
         }
     }

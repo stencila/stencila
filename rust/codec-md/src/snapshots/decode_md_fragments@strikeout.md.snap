@@ -1,8 +1,8 @@
 ---
 source: rust/codec-md/src/decode.rs
+assertion_line: 1294
 expression: "decode_fragment(content, None)"
-input_file: fixtures/fragments/md/delete.md
-
+input_file: fixtures/fragments/md/strikeout.md
 ---
 [
   {
@@ -10,9 +10,9 @@ input_file: fixtures/fragments/md/delete.md
     "content": [
       "Some ",
       {
-        "type": "Delete",
+        "type": "Strikeout",
         "content": [
-          "deleted"
+          "striked out"
         ]
       },
       " text."
@@ -23,7 +23,7 @@ input_file: fixtures/fragments/md/delete.md
     "content": [
       "Or ",
       {
-        "type": "Delete",
+        "type": "Strikeout",
         "content": [
           "like this"
         ]

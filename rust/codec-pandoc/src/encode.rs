@@ -218,12 +218,14 @@ macro_rules! inline_content_to_pandoc_inline {
     };
 }
 
-inline_content_to_pandoc_inline!(Delete, pandoc::Inline::Strikeout);
 inline_content_to_pandoc_inline!(Emphasis, pandoc::Inline::Emph);
-inline_content_to_pandoc_inline!(NontextualAnnotation, pandoc::Inline::Underline);
+inline_content_to_pandoc_inline!(Strikeout, pandoc::Inline::Strikeout);
+inline_content_to_pandoc_inline!(Delete, pandoc::Inline::Strikeout);
 inline_content_to_pandoc_inline!(Strong, pandoc::Inline::Strong);
 inline_content_to_pandoc_inline!(Subscript, pandoc::Inline::Subscript);
 inline_content_to_pandoc_inline!(Superscript, pandoc::Inline::Superscript);
+inline_content_to_pandoc_inline!(Underline, pandoc::Inline::Underline);
+inline_content_to_pandoc_inline!(NontextualAnnotation, pandoc::Inline::Underline);
 
 macro_rules! inline_media_to_pandoc_image {
     ($type:ty) => {
@@ -329,10 +331,12 @@ impl ToPandoc for InlineContent {
             InlineContent::Number(node) => node.to_pandoc_inline(context),
             InlineContent::Parameter(node) => node.to_pandoc_inline(context),
             InlineContent::Quote(node) => node.to_pandoc_inline(context),
+            InlineContent::Strikeout(node) => node.to_pandoc_inline(context),
             InlineContent::String(node) => node.to_pandoc_inline(context),
             InlineContent::Strong(node) => node.to_pandoc_inline(context),
             InlineContent::Subscript(node) => node.to_pandoc_inline(context),
             InlineContent::Superscript(node) => node.to_pandoc_inline(context),
+            InlineContent::Underline(node) => node.to_pandoc_inline(context),
             InlineContent::VideoObject(node) => node.to_pandoc_inline(context),
         }
     }
