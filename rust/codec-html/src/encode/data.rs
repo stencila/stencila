@@ -180,6 +180,16 @@ impl ToHtml for Parameter {
                 None => "".to_string(),
             };
 
+            // Add a size attribute which will expand the horizontal with of the input to match the content.
+            // This is useful when generating RPNGs to avoid extra whitespace. There is not an easy way to do this
+            // using CSS, see https://css-tricks.com/auto-growing-inputs-textareas/
+            let size_attr = self
+                .value
+                .as_ref()
+                .or(self.default.as_ref())
+                .map(|node| attr("size", &(node.to_txt().len() + 1).to_string()))
+                .unwrap_or_default();
+
             // If a `BooleanValidator` then need to set the `checked` attribute if true
             let checked_attr =
                 if let (Some(ValidatorTypes::BooleanValidator(..)), Some(Node::Boolean(true))) =
@@ -198,6 +208,7 @@ impl ToHtml for Parameter {
                     validator_attrs.join(" "),
                     placeholder_attr,
                     value_attr,
+                    size_attr,
                     checked_attr,
                 ],
             )

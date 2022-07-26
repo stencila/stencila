@@ -1,14 +1,13 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 438
+assertion_line: 458
 expression: html
 input_file: fixtures/nodes/parameter-integer.json
-
 ---
 <stencila-parameter data-root itemtype="https://schema.stenci.la/Parameter" itemscope>
   <label data-prop="name" slot="name" for="input-id">par</label>
   <meta itemprop="validator" itemtype="https://schema.stenci.la/IntegerValidator" itemscope/>
   <meta itemprop="defaultValue" itemtype="https://schema.org/Integer" itemscope content="42"/>
   <meta itemprop="value" itemtype="https://schema.org/Integer" itemscope content="50"/>
-  <input id="input-id" slot="value" type="number" placeholder="42" value="50"/>
+  <input id="input-id" slot="value" type="number" placeholder="42" value="50" size="3"/>
 </stencila-parameter>
