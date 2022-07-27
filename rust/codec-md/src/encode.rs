@@ -126,7 +126,15 @@ macro_rules! delimited_inline_text_to_md {
 }
 
 delimited_inline_text_to_md!(CodeFragment, "`");
-delimited_inline_text_to_md!(MathFragment, "$");
+
+impl ToMd for MathFragment {
+    fn to_md(&self) -> String {
+        match self.math_language.as_ref().map(|string| string.as_str()) {
+            Some("asciimath") => ["`", &self.text, "`{asciimath}"].concat(),
+            _ => ["$", &self.text, "$"].concat(),
+        }
+    }
+}
 
 impl ToMd for Link {
     fn to_md(&self) -> String {
@@ -192,7 +200,10 @@ impl ToMd for CodeChunk {
 
 impl ToMd for MathBlock {
     fn to_md(&self) -> String {
-        ["$$\n", &self.text, "\n$$\n\n"].concat()
+        match self.math_language.as_ref().map(|string| string.as_str()) {
+            Some("asciimath") => ["```asciimath\n", &self.text, "\n```\n\n"].concat(),
+            _ => ["$$\n", &self.text, "\n$$\n\n"].concat(),
+        }
     }
 }
 

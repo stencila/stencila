@@ -271,6 +271,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                     let node = if inlines.text.starts_with("$$") && inlines.text.ends_with("$$") {
                         BlockContent::MathBlock(MathBlock {
                             text: inlines.text[2..inlines.text.len() - 2].trim().to_string(),
+                            math_language: Some(Box::new("tex".to_string())),
                             ..Default::default()
                         })
                     } else {
@@ -312,11 +313,20 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                             programming_language: lang.unwrap_or_default(),
                             ..Default::default()
                         }),
-                        false => BlockContent::CodeBlock(CodeBlock {
-                            text,
-                            programming_language: lang.map(Box::new),
-                            ..Default::default()
-                        }),
+                        false => match lang.as_deref() {
+                            Some("asciimath") | Some("latex") | Some("tex") => {
+                                BlockContent::MathBlock(MathBlock {
+                                    text,
+                                    math_language: lang.map(Box::new),
+                                    ..Default::default()
+                                })
+                            }
+                            _ => BlockContent::CodeBlock(CodeBlock {
+                                text,
+                                programming_language: lang.map(Box::new),
+                                ..Default::default()
+                            }),
+                        },
                     };
 
                     blocks.push_node(node)
@@ -718,7 +728,8 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
 }
 
 /// Parse inline code with attributes in curly braces
-/// e.g. `\`code\`{attr1 attr2}` into a `CodeFragment` or `CodeExpression` node
+/// e.g. `\`code\`{attr1 attr2}` into a `CodeFragment`, `CodeExpression`
+/// or `MathFragment` node
 pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
     map_res(
         pair(
@@ -748,11 +759,20 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
                     programming_language: lang.unwrap_or_default(),
                     ..Default::default()
                 }),
-                _ => InlineContent::CodeFragment(CodeFragment {
-                    text,
-                    programming_language: lang.map(Box::new),
-                    ..Default::default()
-                }),
+                _ => match lang.as_deref() {
+                    Some("asciimath") | Some("latex") | Some("tex") => {
+                        InlineContent::MathFragment(MathFragment {
+                            text,
+                            math_language: lang.map(Box::new),
+                            ..Default::default()
+                        })
+                    }
+                    _ => InlineContent::CodeFragment(CodeFragment {
+                        text,
+                        programming_language: lang.map(Box::new),
+                        ..Default::default()
+                    }),
+                },
             };
             Ok(node)
         },
@@ -1020,6 +1040,7 @@ pub fn math(input: &str) -> IResult<&str, InlineContent> {
         |res: &str| -> Result<InlineContent> {
             Ok(InlineContent::MathFragment(MathFragment {
                 text: res.into(),
+                math_language: Some(Box::new("tex".to_string())),
                 ..Default::default()
             }))
         },

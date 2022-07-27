@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 1294
+assertion_line: 1315
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/math-block.md
 ---
@@ -8,16 +8,60 @@ input_file: fixtures/fragments/md/math-block.md
   {
     "type": "Paragraph",
     "content": [
-      "Math blocks are paragraphs starting and ending with ",
+      "TeX math blocks are paragraphs starting and ending with ",
       {
         "type": "CodeFragment",
         "text": "$$"
       },
-      " (no blank lines between them)"
+      " (no blank lines between them). e.g."
     ]
   },
   {
     "type": "MathBlock",
-    "text": "2 \\pi r^2"
+    "text": "2 \\pi r^2",
+    "mathLanguage": "tex"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Alternatively, code blocks with one of ",
+      {
+        "type": "CodeFragment",
+        "text": "asciimath"
+      },
+      ", ",
+      {
+        "type": "CodeFragment",
+        "text": "latex"
+      },
+      ", or ",
+      {
+        "type": "CodeFragment",
+        "text": "tex"
+      },
+      " as the language are interpreted as math blocks. e.g."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "AsciiMath:"
+    ]
+  },
+  {
+    "type": "MathBlock",
+    "text": "2 pi r^2",
+    "mathLanguage": "asciimath"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "TeX:"
+    ]
+  },
+  {
+    "type": "MathBlock",
+    "text": "2 \\pi r^2",
+    "mathLanguage": "tex"
   }
 ]

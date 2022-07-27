@@ -173,7 +173,7 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a math fragment node with arbitrary LaTeX
+    /// Generate a math fragment node with arbitrary TeX
     pub fn math_fragment(freedom: Freedom)(
         text in match freedom {
             Freedom::Min => r"E = mc\^\{2\}",
@@ -183,6 +183,7 @@ prop_compose! {
     ) -> InlineContent {
         InlineContent::MathFragment(MathFragment{
             text,
+            math_language: Some(Box::new("tex".to_string())),
             ..Default::default()
         })
     }
@@ -472,7 +473,7 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a math block node with arbitrary LaTeX
+    /// Generate a math block node with arbitrary TeX
     pub fn math_block(freedom: Freedom)(
         text in match freedom {
             Freedom::Min => r"E = mc\^\{2\}",
@@ -482,6 +483,7 @@ prop_compose! {
     ) -> BlockContent {
         BlockContent::MathBlock(MathBlock{
             text,
+            math_language: Some(Box::new("tex".to_string())),
             ..Default::default()
         })
     }

@@ -2,8 +2,6 @@
 
 use std::{fs, path::PathBuf};
 
-use html_escape::encode_safe;
-
 use codec::common::{base64, tracing};
 use stencila_schema::*;
 
@@ -487,16 +485,6 @@ impl ToHtml for Link {
                 attr("href", &self.target),
             ],
             &self.content.to_html(context),
-        )
-    }
-}
-
-impl ToHtml for MathFragment {
-    fn to_html(&self, _context: &EncodeContext) -> String {
-        elem(
-            "code",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &encode_safe(&self.text),
         )
     }
 }

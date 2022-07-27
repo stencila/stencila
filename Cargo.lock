@@ -94,6 +94,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8da52d66c7071e2e3fa2a1e5c6d088fec47b593032b254f5e980de8ea54454d6"
 
 [[package]]
+name = "asciimath-rs"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d27d6c6c7003a9a615132ad629b6d928ef7f24d5eb7ec254a56d7b142c1392b"
+dependencies = [
+ "charred",
+ "htmlescape",
+ "lazy_static",
+ "maplit",
+]
+
+[[package]]
 name = "async-attributes"
 version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -830,6 +842,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "charred"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4163b788273102d5de1aaf35a76b1c0e347844842f5278d4d738ad08170e0ea8"
+
+[[package]]
 name = "chromiumoxide"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1131,10 +1149,12 @@ dependencies = [
 name = "codec-html"
 version = "0.0.0"
 dependencies = [
+ "asciimath-rs",
  "codec",
  "codec-txt",
  "html-escape",
  "kuchiki",
+ "latex2mathml",
  "markup5ever",
  "mime_guess",
  "node-dispatch",
@@ -2737,6 +2757,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "htmlescape"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9025058dae765dee5070ec375f591e2ba14638c63feff74f13805a72e523163"
+
+[[package]]
 name = "http"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3466,6 +3492,12 @@ name = "language-tags"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4345964bb142484797b161f473a503a434de77149dd8c7427788c6e13379388"
+
+[[package]]
+name = "latex2mathml"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "678cf5bdb3ba63a264e6e0c9eee36538ca1d2da0afa4dd801c1f96309e710765"
 
 [[package]]
 name = "lazy_static"

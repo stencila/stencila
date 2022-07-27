@@ -1,30 +1,64 @@
 ---
-source: rust/src/methods/decode/md.rs
-expression: decode_fragment(&content)
+source: rust/codec-md/src/decode.rs
+assertion_line: 1315
+expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/math-fragment.md
-
 ---
 [
   {
     "type": "Paragraph",
     "content": [
-      "Some math like ",
+      "TeX inline math fragments are delimited by ",
+      {
+        "type": "CodeFragment",
+        "text": "$"
+      },
+      " signed e.g. some math like ",
       {
         "type": "MathFragment",
-        "text": "\\pi"
+        "text": "\\pi",
+        "mathLanguage": "tex"
       },
       ", and ",
       {
         "type": "MathFragment",
-        "text": "1+1"
+        "text": "1 + \\sqrt 1",
+        "mathLanguage": "tex"
       },
-      "."
+      ", but not $1 and $2."
     ]
   },
   {
     "type": "Paragraph",
     "content": [
-      "But not $1 and $2."
+      "In addition, inline code with one of ",
+      {
+        "type": "CodeFragment",
+        "text": "asciimath"
+      },
+      ", ",
+      {
+        "type": "CodeFragment",
+        "text": "latex"
+      },
+      ", or ",
+      {
+        "type": "CodeFragment",
+        "text": "tex"
+      },
+      " are interpreted as math fragments. e.g. AsciiMath ",
+      {
+        "type": "MathFragment",
+        "text": "2 pi r^2",
+        "mathLanguage": "asciimath"
+      },
+      " and TeX ",
+      {
+        "type": "MathFragment",
+        "text": "2 \\pi r^2",
+        "mathLanguage": "tex"
+      },
+      "."
     ]
   }
 ]

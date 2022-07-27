@@ -1,7 +1,5 @@
 //! Encode a `BlockContent` nodes to HTML
 
-use html_escape::encode_safe;
-
 use stencila_schema::*;
 
 use super::{
@@ -430,20 +428,6 @@ impl ToHtml for ListItem {
             "li",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &content,
-        )
-    }
-}
-
-impl ToHtml for MathBlock {
-    fn to_html(&self, _context: &EncodeContext) -> String {
-        elem(
-            "pre",
-            &[
-                attr_itemtype::<Self>(),
-                attr_id(&self.id),
-                attr("class", "todo"),
-            ],
-            &encode_safe(&self.text),
         )
     }
 }

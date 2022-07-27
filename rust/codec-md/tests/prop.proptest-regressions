@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 37f7412b2d93c275b2c66d509c520a32d821a334931c88f6b5c534cc896b28dd # shrinks to input = Article(Article { type_: Article, about: None, alternate_names: None, authors: None, comments: None, content: Some([QuoteBlock(QuoteBlock { type_: QuoteBlock, content: [Paragraph(Paragraph { type_: Paragraph, content: [String("string"), MathFragment(MathFragment { type_: MathFragment, text: "E = mc^{2}", errors: None, id: None, math_language: None }), String("string")], id: None })], cite: None, id: None })]), date_accepted: None, date_created: None, date_modified: None, date_published: None, date_received: None, description: None, editors: None, funded_by: None, funders: None, genre: None, id: None, identifiers: None, images: None, is_part_of: None, keywords: None, licenses: None, maintainers: None, name: None, page_end: None, page_start: None, pagination: None, parts: None, publisher: None, references: None, text: None, title: None, url: None, version: None })
