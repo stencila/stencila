@@ -119,7 +119,7 @@ pub async fn nodes_to_bytes(
         "PngCodec",
         r"
         body {{
-            width: 640px; /* Avoid having images of block node that are too wide */
+            width: 640px; /* Avoid having images of block nodes that are too wide */
         }}
         div.node {{
             margin: 10px; /* Mainly to improve spacing when previewing HTML during development */
@@ -128,6 +128,9 @@ pub async fn nodes_to_bytes(
         }}",
     );
 
+    // It can be useful to insect the generated HTML during development. Uncomment this to do so..
+    // std::fs::write("rpng.html", &html)?;
+
     // Launch the browser
     let chrome = binaries::require_any(&[("chrome", "*"), ("chromium", "*")]).await?;
     let config = BrowserConfig::builder()
@@ -135,6 +138,9 @@ pub async fn nodes_to_bytes(
         .viewport(Viewport {
             // Increase the scale for higher resolution images. See https://github.com/puppeteer/puppeteer/issues/571#issuecomment-325404760
             device_scale_factor: Some(2.0),
+            // Increase size of viewport to be able to encompass the largest images
+            height: 10000,
+            width: 10000,
             ..Default::default()
         })
         .build()
@@ -157,7 +163,7 @@ pub async fn nodes_to_bytes(
     let mut pngs = Vec::with_capacity(nodes.len());
     for index in 0..nodes.len() {
         let element = page
-            .find_element(&format!("#node-{} *:first-child", index))
+            .find_element(&format!("#node-{} :first-child", index))
             .await?;
         let bytes = element.screenshot(CaptureScreenshotFormat::Png).await?;
         pngs.push(bytes)
