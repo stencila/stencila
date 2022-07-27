@@ -5,13 +5,13 @@ use test_utils::assert_json_eq;
 
 proptest! {
     // Given that `Freedom::Max` creates large complex documents,
-    // reduce number of test cases to keepn runtime below 5s
+    // reduce number of test cases to keep runtime below 5s
     #![proptest_config(ProptestConfig::with_cases(30))]
 
     #[test]
     fn test(input in article(
         Freedom::Max,
-        HtmlCodec::spec().unsupported_types,
+        [HtmlCodec::spec().unsupported_types, vec!["Parameter".to_string()]].concat(),
         HtmlCodec::spec().unsupported_properties
     )) {
         let string = HtmlCodec::to_string(&input, None).unwrap();

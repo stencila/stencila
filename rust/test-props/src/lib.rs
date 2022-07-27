@@ -194,8 +194,7 @@ prop_compose! {
     pub fn parameter(freedom: Freedom)(
         name in match freedom {
             Freedom::Min => r"name",
-            Freedom::Low => r"[A-Za-z0-9-_]*",
-            _ => any::<String>()
+            _ => r"[a-z_][A-z0-9_]*", // Note that this is regex allowed by the schema
         },
     ) -> InlineContent {
         InlineContent::Parameter(Parameter{

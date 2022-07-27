@@ -22,7 +22,8 @@ impl CodecTrait for LatexCodec {
                 vec_string![
                     // TODO: Add support for these. See https://github.com/stencila/encoda/blob/master/src/codecs/latex/__fixtures__/code.tex
                     "CodeChunk",
-                    "CodeExpression"
+                    "CodeExpression",
+                    "Parameter"
                 ],
             ]
             .concat(),
