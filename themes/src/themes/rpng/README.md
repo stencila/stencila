@@ -4,6 +4,13 @@ A theme for reproducible PNGs (rPNGs). This theme is used in Encoda when generat
 
 ## Notes
 
+When testing this theme locally be sure to add `components=none` to the URL to ensure that Web Components are not loaded (as is the case when screenshotting via Chromium) e.g.
+
+```sh
+
+http://127.0.0.1:9000/fixtures/articles/interactive/distributions.md?theme=rpng&components=none
+```
+
 - This theme is used for parts of documents e.g. `MathBlocks`, `CodeFragments` in different contexts that the demo pages here. e.g. in a Google Doc
 
 - In the future, if necessary, we _may_ have different RPNG themes for those different contexts.
