@@ -1,8 +1,8 @@
 ---
 source: rust/codec-pandoc/src/decode.rs
+assertion_line: 731
 expression: json
 input_file: fixtures/fragments/pandoc/math-fragment.json
-
 ---
 [
   {
@@ -11,12 +11,14 @@ input_file: fixtures/fragments/pandoc/math-fragment.json
       "Some math like ",
       {
         "type": "MathFragment",
-        "text": "\\pi"
+        "text": "\\pi",
+        "mathLanguage": "tex"
       },
       ", and ",
       {
         "type": "MathFragment",
-        "text": "1+1"
+        "text": "1+1",
+        "mathLanguage": "tex"
       },
       "."
     ]
