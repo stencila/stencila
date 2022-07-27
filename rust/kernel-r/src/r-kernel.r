@@ -170,8 +170,12 @@ while (!is.null(stdin)) {
         dev.off()  
 
         if (!is.null(value)) {
-          assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", tail(lines, 1))
-          if (!assignment) write(paste0(encode_value(value), RESULT), stdout)
+          # Only return value if last line is not blank, a comment, or an assignment
+          last <- tail(lines, 1)
+          blank <- nchar(trimws(last)) == 0
+          comment <- startsWith(last, "#")
+          assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", last)
+          if (!blank && !comment && !assignment) write(paste0(encode_value(value), RESULT), stdout)
         }
       }
 
