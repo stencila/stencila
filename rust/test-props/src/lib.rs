@@ -190,6 +190,22 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a parameter node
+    pub fn parameter(freedom: Freedom)(
+        name in match freedom {
+            Freedom::Min => r"name",
+            Freedom::Low => r"[A-Za-z0-9-_]*",
+            _ => any::<String>()
+        },
+    ) -> InlineContent {
+        InlineContent::Parameter(Parameter{
+            name,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
     /// Generate a strikeout node with arbitrary content
     pub fn strikeout(freedom: Freedom)(
         content in inline_inner_content(freedom)
@@ -307,6 +323,7 @@ pub fn inline_content(
         ("Emphasis", emphasis(freedom).boxed()),
         ("Link", link(freedom).boxed()),
         ("MathFragment", math_fragment(freedom).boxed()),
+        ("Parameter", parameter(freedom).boxed()),
         ("Quote", quote(freedom).boxed()),
         ("Strikeout", strikeout(freedom).boxed()),
         ("Strong", strong(freedom).boxed()),

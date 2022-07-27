@@ -3,6 +3,11 @@ use codec_txt::ToTxt;
 use stencila_schema::*;
 
 impl Transform for InlineContent {
+    /// Is a node an `InlineContent` variant e.g. a `Node:Strong`
+    fn is_inline(&self) -> bool {
+        true
+    }
+
     /// Transform an `InlineContent` variant to a `InlineContent` variant
     ///
     /// Returns self.

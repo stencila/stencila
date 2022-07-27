@@ -11,6 +11,11 @@
 use stencila_schema::{BlockContent, InlineContent, Node};
 
 pub trait Transform {
+    /// Is a node an `InlineContent` variant e.g. a `Node:Strong`
+    fn is_inline(&self) -> bool {
+        false
+    }
+
     /// Transform a value to a `InlineContent` variant
     fn to_inline(&self) -> InlineContent;
 
@@ -20,6 +25,11 @@ pub trait Transform {
     /// the result in a vector.
     fn to_inlines(&self) -> Vec<InlineContent> {
         vec![self.to_inline()]
+    }
+
+    /// Is a node a `BlockContent` variant e.g. a `Node:CodeChunk`
+    fn is_block(&self) -> bool {
+        false
     }
 
     /// Transform a value to a `BlockContent` variant

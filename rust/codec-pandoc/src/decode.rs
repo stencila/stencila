@@ -1,5 +1,6 @@
 use std::{collections::HashMap, path::PathBuf};
 
+use node_transform::Transform;
 use pandoc_types::definition as pandoc;
 
 use codec::{
@@ -164,8 +165,8 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
         pandoc::Block::Para(inlines) => {
             let content = translate_inlines(inlines, context);
             if content.len() == 1 {
-                if let Some(translated) = try_code_chunk(&content[0]) {
-                    return vec![translated];
+                if let Some(block) = transform_to_block(&content[0]) {
+                    return vec![block];
                 }
                 if let InlineContent::MathFragment(MathFragment { text, .. }) = &content[0] {
                     return vec![BlockContent::MathBlock(MathBlock {
@@ -587,13 +588,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
     // Try to transform inline nodes as needed
     inlines
         .into_iter()
-        .map(|inline| {
-            if let Some(code_expression) = try_code_expression(&inline) {
-                code_expression
-            } else {
-                inline
-            }
-        })
+        .map(|inline| transform_to_inline(&inline).unwrap_or(inline))
         .collect()
 }
 
@@ -633,49 +628,43 @@ fn get_id(attrs: &pandoc::Attr) -> Option<String> {
 }
 
 /// Try to extract a `CodeExpression` from an RPNG representation
-fn try_code_expression(inline: &InlineContent) -> Option<InlineContent> {
+fn transform_to_inline(inline: &InlineContent) -> Option<InlineContent> {
     match inline {
         InlineContent::Link(link) => {
             if link.content.len() == 1 {
-                // If this is a link around a code expression and the it has a
-                // matching title then return that code expression
-                let title = match link.title.as_deref() {
-                    Some(title) => title.clone(),
-                    None => "".to_string(),
-                };
-                if title == "CodeExpression" {
-                    if let InlineContent::CodeExpression(expr) = &link.content[0] {
-                        return Some(InlineContent::CodeExpression(expr.clone()));
-                    }
-                }
-                // Try to get a code expression from the inner content
-                if let Some(expr) = try_code_expression(&link.content[0]) {
-                    return Some(expr);
+                // Try to get a node from the inner content
+                if let Some(inline) = transform_to_inline(&link.content[0]) {
+                    return Some(inline);
                 }
             }
-            // Fallback to fetching code expression from the link's URL
+            // Fallback to fetching node from the link's URL
             // TODO
             None
         }
         InlineContent::ImageObject(image) => {
-            // Try to get the code expression from the caption
+            // Try to get the node from the caption
             if let Some(caption) = image.caption.as_deref() {
-                if let Ok(Node::CodeExpression(expr)) = JsonCodec::from_str(caption, None) {
-                    return Some(InlineContent::CodeExpression(expr));
+                if let Ok(node) = JsonCodec::from_str(caption, None) {
+                    if node.is_inline() {
+                        return Some(node.to_inline());
+                    }
                 }
             }
             // Fallback to getting from the image, either a data URI, or a file
             let url = &image.content_url;
             if url.starts_with("data:image/png;") {
-                if let Ok(Node::CodeExpression(chunk)) = RpngCodec::from_str(url, None) {
-                    return Some(InlineContent::CodeExpression(chunk));
+                if let Ok(node) = RpngCodec::from_str(url, None) {
+                    if node.is_inline() {
+                        return Some(node.to_inline());
+                    }
                 }
             }
             let file = PathBuf::from(url);
             if file.exists() {
-                let result = executor::block_on(RpngCodec::from_path(&file, None));
-                if let Ok(Node::CodeExpression(chunk)) = result {
-                    return Some(InlineContent::CodeExpression(chunk));
+                if let Ok(node) = executor::block_on(RpngCodec::from_path(&file, None)) {
+                    if node.is_inline() {
+                        return Some(node.to_inline());
+                    }
                 }
             }
             None
@@ -684,39 +673,44 @@ fn try_code_expression(inline: &InlineContent) -> Option<InlineContent> {
     }
 }
 
-/// Try to extract a `CodeChunk` from an RPNG representation
-fn try_code_chunk(inline: &InlineContent) -> Option<BlockContent> {
+/// Try to transform inline content (potentially containing an RPNG) to block content
+fn transform_to_block(inline: &InlineContent) -> Option<BlockContent> {
     match inline {
         InlineContent::Link(link) => {
-            // Try to get a code chunk from the inner content
+            // Try to get a node from the inner content
             if link.content.len() == 1 {
-                if let Some(chunk) = try_code_chunk(&link.content[0]) {
-                    return Some(chunk);
+                if let Some(block) = transform_to_block(&link.content[0]) {
+                    return Some(block);
                 }
             }
-            // Fallback to fetching code chunk from the link's URL
+            // Fallback to fetching node from the link's URL
             // TODO
             None
         }
         InlineContent::ImageObject(image) => {
-            // Try to get the code chunk from the caption
+            // Try to get the node from the caption
             if let Some(caption) = image.caption.as_deref() {
-                if let Ok(Node::CodeChunk(chunk)) = JsonCodec::from_str(caption, None) {
-                    return Some(BlockContent::CodeChunk(chunk));
+                if let Ok(node) = JsonCodec::from_str(caption, None) {
+                    if node.is_block() {
+                        return Some(node.to_block());
+                    }
                 }
             }
             // Fallback to getting from the image, either a data URI, or a file
             let url = &image.content_url;
             if url.starts_with("data:image/png;") {
-                if let Ok(Node::CodeChunk(chunk)) = RpngCodec::from_str(url, None) {
-                    return Some(BlockContent::CodeChunk(chunk));
+                if let Ok(node) = RpngCodec::from_str(url, None) {
+                    if node.is_block() {
+                        return Some(node.to_block());
+                    }
                 }
             }
             let file = PathBuf::from(url);
             if file.exists() {
-                let result = executor::block_on(RpngCodec::from_path(&file, None));
-                if let Ok(Node::CodeChunk(chunk)) = result {
-                    return Some(BlockContent::CodeChunk(chunk));
+                if let Ok(node) = executor::block_on(RpngCodec::from_path(&file, None)) {
+                    if node.is_block() {
+                        return Some(node.to_block());
+                    }
                 }
             }
             None

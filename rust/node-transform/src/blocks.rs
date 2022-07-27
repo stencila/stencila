@@ -66,6 +66,11 @@ impl Transform for BlockContent {
         }
     }
 
+    /// Is a node a `BlockContent` variant e.g. a `Node:CodeChunk`
+    fn is_block(&self) -> bool {
+        true
+    }
+
     /// Transform a `BlockContent` variant to a `BlockContent` variant
     ///
     /// Returns self.

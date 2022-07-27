@@ -58,8 +58,7 @@ impl CodecTrait for PandocCodec {
                 "Collection",
                 "Figure",
                 "Include",
-                "Note",
-                "Parameter"
+                "Note"
             ],
             ..Default::default()
         }

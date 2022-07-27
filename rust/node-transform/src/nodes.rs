@@ -2,6 +2,38 @@ use super::Transform;
 use stencila_schema::*;
 
 impl Transform for Node {
+    /// Is a node an `InlineContent` variant e.g. a `Node:Strong`
+    fn is_inline(&self) -> bool {
+        matches!(
+            self,
+            Node::AudioObject(..)
+                | Node::Boolean(..)
+                | Node::Cite(..)
+                | Node::CiteGroup(..)
+                | Node::CodeExpression(..)
+                | Node::CodeFragment(..)
+                | Node::Delete(..)
+                | Node::Emphasis(..)
+                | Node::ImageObject(..)
+                | Node::Integer(..)
+                | Node::Link(..)
+                | Node::MathFragment(..)
+                | Node::NontextualAnnotation(..)
+                | Node::Note(..)
+                | Node::Null(..)
+                | Node::Number(..)
+                | Node::Parameter(..)
+                | Node::Quote(..)
+                | Node::Strikeout(..)
+                | Node::String(..)
+                | Node::Strong(..)
+                | Node::Subscript(..)
+                | Node::Superscript(..)
+                | Node::Underline(..)
+                | Node::VideoObject(..)
+        )
+    }
+
     /// Transform a `Node` variant to a `InlineContent` variant
     ///
     /// Most inline variants can be converted directly. However, `CreativeWork` types that have
@@ -141,6 +173,26 @@ impl Transform for Node {
             // Fallback to a single item vector of self converted
             _ => vec![self.to_inline()],
         }
+    }
+
+    /// Is a node a `BlockContent` variant e.g. a `Node:CodeChunk`
+    fn is_block(&self) -> bool {
+        matches!(
+            self,
+            Node::Claim(..)
+                | Node::CodeBlock(..)
+                | Node::CodeChunk(..)
+                | Node::Collection(..)
+                | Node::Figure(..)
+                | Node::Heading(..)
+                | Node::Include(..)
+                | Node::List(..)
+                | Node::MathBlock(..)
+                | Node::Paragraph(..)
+                | Node::QuoteBlock(..)
+                | Node::Table(..)
+                | Node::ThematicBreak(..)
+        )
     }
 
     /// Transform a `Node` variant to a `BlockContent` variant

@@ -299,7 +299,12 @@ impl ToPandoc for MathFragment {
 }
 
 unimplemented_to_pandoc!(Note);
-unimplemented_to_pandoc!(Parameter);
+
+impl ToPandoc for Parameter {
+    fn to_pandoc_inline(&self, context: &mut EncodeContext) -> pandoc::Inline {
+        context.push_rpng("Parameter", Node::Parameter(self.clone()))
+    }
+}
 
 impl ToPandoc for Quote {
     fn to_pandoc_inline(&self, context: &mut EncodeContext) -> pandoc::Inline {

@@ -136,6 +136,34 @@ impl ToMd for MathFragment {
     }
 }
 
+impl ToMd for Parameter {
+    fn to_md(&self) -> String {
+        let mut options = String::new();
+
+        if let Some(validator) = &self.validator {
+            let type_ = match validator.as_ref() {
+                ValidatorTypes::BooleanValidator(..) => "boolean",
+                ValidatorTypes::IntegerValidator(..) => "integer",
+                ValidatorTypes::NumberValidator(..) => "number",
+                ValidatorTypes::StringValidator(..) => "string",
+                ValidatorTypes::EnumValidator(..) => "enum",
+                _ => "<unhandled>",
+            };
+            options += &["type=", type_].concat();
+        }
+
+        // TODO: Add support for other options. See decode.rs for options for each validator type
+
+        let attrs = if options.is_empty() {
+            String::new()
+        } else {
+            ["/", &options, "/"].concat()
+        };
+
+        ["/", &self.name, "/", &attrs].concat()
+    }
+}
+
 impl ToMd for Link {
     fn to_md(&self) -> String {
         ["[", &self.content.to_md(), "](", &self.target, ")"].concat()
@@ -414,6 +442,7 @@ impl ToMd for Node {
             Node::Null(node) => node.to_md(),
             Node::Number(node) => node.to_md(),
             Node::Paragraph(node) => node.to_md(),
+            Node::Parameter(node) => node.to_md(),
             Node::Quote(node) => node.to_md(),
             Node::QuoteBlock(node) => node.to_md(),
             Node::Strikeout(node) => node.to_md(),
@@ -443,6 +472,7 @@ impl ToMd for InlineContent {
             InlineContent::Null(node) => node.to_md(),
             InlineContent::Number(node) => node.to_md(),
             InlineContent::MathFragment(node) => node.to_md(),
+            InlineContent::Parameter(node) => node.to_md(),
             InlineContent::Quote(node) => node.to_md(),
             InlineContent::Strikeout(node) => node.to_md(),
             InlineContent::String(node) => node.to_md(),
