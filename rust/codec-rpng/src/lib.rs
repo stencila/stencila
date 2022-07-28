@@ -104,10 +104,52 @@ fn bytes_to_node(bytes: &[u8], options: Option<DecodeOptions>) -> Result<Node> {
             false => None,
         });
 
-    match json {
-        Some(json) => codec_json::JsonCodec::from_str(&json, options),
+    let json = match json {
+        Some(json) => json,
         None => bail!("The PNG does not have an embedded Stencila node"),
+    };
+
+    let mut node = codec_json::JsonCodec::from_str(&json, options)?;
+
+    // If the node is a `CodeChunk` with one output that is an image, we need to replace
+    // `data:self` dataURIs with the image. But first crop it to remove the indicator and
+    // any padding that was added during screen-shotting
+    if let Node::CodeChunk(chunk) = &mut node {
+        if let Some(outputs) = &mut chunk.outputs {
+            for output in outputs {
+                if let Node::ImageObject(image) = output {
+                    if image.content_url == "data:self" {
+                        use image::{io::Reader, ImageFormat};
+                        use std::io::Cursor;
+
+                        let rpng =
+                            Reader::with_format(Cursor::new(bytes), ImageFormat::Png).decode()?;
+
+                        // The padding pixels must be the values for `CodeChunk` outputs in `stencila/themes/src/themes/rpng/styles.css`
+                        const PADDING_TOP: u32 = 21;
+                        // This adjustment is necessary to avoid the image growing in height after several iterations.
+                        // It is not clear where this extra space is coming from and this value was obtained
+                        // through experimentation.
+                        const ADJUST_HEIGHT: u32 = 4;
+                        let rpng = rpng.crop_imm(
+                            0,
+                            PADDING_TOP,
+                            rpng.width(),
+                            rpng.height() - PADDING_TOP - ADJUST_HEIGHT,
+                        );
+
+                        let mut bytes: Vec<u8> = Vec::new();
+                        rpng.write_to(&mut Cursor::new(&mut bytes), ImageFormat::Png)?;
+                        let b64 = base64::encode(&bytes);
+
+                        image.content_url = ["data:image/png;base64,", &b64].concat()
+                    }
+                }
+            }
+        }
     }
+
+    Ok(node)
 }
 
 /// Encode a set of document nodes to RPNGs as bytes
@@ -132,16 +174,34 @@ pub async fn nodes_to_bytes(
     // Transform each PNG into an RPNG...
     let mut rpngs = Vec::with_capacity(nodes.len());
     for index in 0..nodes.len() {
+        let mut node = nodes[index].clone();
+
+        // If the node is a `CodeChunk` and it has only one `ImageObject` in its outputs
+        // then replace its `content_url` with a special dataURI with refer to itself. This avoid
+        // "doubling up" the image data. This is also done by the `PandocCodec` for the image
+        // description JSON.
+        let mut is_code_chunk = false;
+        if let Node::CodeChunk(chunk) = &mut node {
+            is_code_chunk = true;
+            if let Some(outputs) = &mut chunk.outputs {
+                if outputs.len() == 1 {
+                    if let Node::ImageObject(image) = &mut outputs[0] {
+                        image.content_url = "data:self".to_string();
+                    }
+                }
+            }
+        }
+
         // Encode the node to JSON for embedding in the PNG
         let json = JsonCodec::to_string(
-            nodes[index],
+            &node,
             Some(EncodeOptions {
                 compact: true,
                 ..Default::default()
             }),
         )?;
 
-        // Encode the node to a PNG, as bytes, and decode the image to get its size etc
+        // Decode the image to get its size etc
         let image_bytes = &pngs[index];
         let decoder = png::Decoder::new(image_bytes.as_slice());
         let mut reader = decoder.read_info()?;
@@ -161,9 +221,12 @@ pub async fn nodes_to_bytes(
         // This is necessary because, for higher resolution images, we scale by two when
         // taking screenshots in the PNG codec. Unless specified, Pandoc assumes
         // images are 96dpi and thus they appear twice as big in DOCX and other formats.
+        // Note that for code chunks the RPNG theme scales the node to 50% so the effective
+        // scaling is 1.0 (this is done to be able to accurately crop out the image from the
+        // RPNG image and to avoid very large images).
         // Implementation based on https://github.com/image-rs/image-png/pull/124/files
-        // 96 pixels-per-inch x 2 resolution to pixels per meter
-        let ppm = 7559; // = 96.0 / 0.0254 * 2.0;
+        // 96 pixels-per-inch is converted to pixels per meter
+        let ppm = (96.0 / 0.0254 * if is_code_chunk { 1.0 } else { 2.0 }) as u32;
         let pixel_dims = PixelDimensions {
             xppu: ppm,
             yppu: ppm,

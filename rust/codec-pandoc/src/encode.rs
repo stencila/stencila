@@ -71,25 +71,46 @@ impl EncodeContext {
     }
 
     /// Push a node to be encoded as an RPNG
-    fn push_rpng(&mut self, type_name: &str, node: Node) -> pandoc::Inline {
+    fn push_rpng(&mut self, type_name: &str, mut node: Node) -> pandoc::Inline {
         let key = key_utils::generate("snk");
-
         let path = self.temp_dir.path().join(format!("{}.png", key));
 
-        let json = JsonCodec::to_string(
-            &node,
-            Some(EncodeOptions {
-                compact: true,
-                ..Default::default()
-            }),
-        )
-        .expect("Should be able to encode as JSON");
+        self.rpng_nodes
+            .push((key.clone(), path.clone(), node.clone()));
 
-        self.rpng_nodes.push((key.clone(), path.clone(), node));
+        let inlines = if self.options.rpng_text {
+            // If the node is a `CodeChunk` and it has only one `ImageObject` in its outputs
+            // then, for JSON generation, replace its `content_url` with a special dataURI with
+            // refer to itself. This avoid "doubling up" the image data. This is also done
+            // for the RPNG's text chunk by the `RpngCodec`.
+            if let Node::CodeChunk(chunk) = &mut node {
+                if let Some(outputs) = &mut chunk.outputs {
+                    if outputs.len() == 1 {
+                        if let Node::ImageObject(image) = &mut outputs[0] {
+                            image.content_url = "data:self".to_string();
+                        }
+                    }
+                }
+            }
 
-        let inlines = match self.options.rpng_text {
-            true => vec![pandoc::Inline::Str(json)],
-            false => Vec::new(),
+            let json = JsonCodec::to_string(
+                &node,
+                Some(EncodeOptions {
+                    compact: true,
+                    ..Default::default()
+                }),
+            )
+            .expect("Should be able to encode as JSON");
+
+            // Only add JSON as image caption if it is not too big (5000 is the limit
+            // for image alt text in Google Docs for example).
+            if json.len() <= 5000 {
+                vec![pandoc::Inline::Str(json)]
+            } else {
+                Vec::new()
+            }
+        } else {
+            Vec::new()
         };
 
         let title = type_name.to_string();

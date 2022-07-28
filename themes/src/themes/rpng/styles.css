@@ -57,19 +57,32 @@
 
   /* Hide code etc */
   [slot='text'],
-  [slot='code-dependencies'] [slot='code-dependents'] {
+  [slot='code-dependencies'],
+  [slot='code-dependents'] {
     display: none !important;
   }
 
-  /* Push first child down so indicator does not overlap it */
-  :first-child {
+  /* Push outputs and errors down so indicator does not overlap them and give some space */
+  [slot='outputs'],
+  [slot='errors'] {
     margin: 21px 0 0 0 !important;
   }
 
-  /* Give a little space around outputs */
-  [slot='outputs'] {
-    padding: 2px;
+  /* Avoid elements taking up vertical space unnecessarily */
+  [slot='outputs']:empty,
+  [slot='errors']:empty,
+  [slot='label']:empty,
+  [slot='caption']:empty {
+    display: none;
   }
+
+  /* Scale the whole element so that it it can be screen-shotted with a 
+  times two scaling factor and maintain size. This is necessary for "reconstituting"
+  image outputs from "data:self" dataURIs (see Rust code).
+  WARNING: Avoid changing padding, margins etc as current values are taken into account
+  for cropping in this reconstitution process.
+  */
+  transform: scale(0.5);
 }
 
 :--CodeExpression {
@@ -85,8 +98,8 @@
     display: none !important;
   }
 
-  /* Push first child right so indicator does not overlap it */
-  :first-child {
+  /* Push output right so indicator does not overlap it */
+  [slot='output'] {
     margin: 0 0 0 21px !important;
   }
 

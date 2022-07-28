@@ -8,6 +8,7 @@ edition = "2021"
 codec-json = { path = "../codec-json" }
 codec-png = { path = "../codec-png" }
 codec = { path = "../codec" }
+image = "0.24.3"
 png = "0.17.2"
 
 [dev-dependencies]

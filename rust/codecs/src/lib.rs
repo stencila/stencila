@@ -556,14 +556,14 @@ pub mod commands {
 
         /// Whether to store the JSON representation of a document node as the alt text
         /// of a RPNG image
-        /// 
+        ///
         /// May always be enabled if the format requires it for reproducibility.
         #[clap(long)]
         rpng_text: bool,
 
         /// Whether to surround RPNGs in a link to the JSON representation of the document
         /// node on Stencila Cloud.
-        /// 
+        ///
         /// May always be enabled if the format requires it for reproducibility.
         #[clap(long)]
         rpng_link: bool,
