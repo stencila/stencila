@@ -545,6 +545,28 @@ pub mod commands {
         /// Only applies to some formats (e.g. HTML, PDF, PNG).
         #[clap(long, short = 'e')]
         theme: Option<String>,
+
+        /// The document node types (e.g `CodeChunk`, `MathFragment`) to encode as
+        /// ReproduciblePNGs.
+        ///
+        /// The encoding codec may not always respect these types i.e. it may always
+        /// encode a certain type of node as a RPNG.
+        #[clap(long)]
+        rpng_types: Vec<String>,
+
+        /// Whether to store the JSON representation of a document node as the alt text
+        /// of a RPNG image
+        /// 
+        /// May always be enabled if the format requires it for reproducibility.
+        #[clap(long)]
+        rpng_text: bool,
+
+        /// Whether to surround RPNGs in a link to the JSON representation of the document
+        /// node on Stencila Cloud.
+        /// 
+        /// May always be enabled if the format requires it for reproducibility.
+        #[clap(long)]
+        rpng_link: bool,
     }
     #[async_trait]
     impl Run for Convert {
@@ -575,6 +597,9 @@ pub mod commands {
                 bundle: self.bundle,
                 theme: self.theme.clone(),
                 format: self.to.clone(),
+                rpng_types: self.rpng_types.clone(),
+                rpng_link: self.rpng_link,
+                rpng_text: self.rpng_text,
                 ..Default::default()
             });
             if self.output.display().to_string() == "-" {
