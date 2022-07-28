@@ -1,0 +1,39 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 79
+expression: node
+input_file: fixtures/fragments/org/link.org
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "A ",
+        {
+          "type": "Link",
+          "content": [
+            "link"
+          ],
+          "target": "https://stenci.la"
+        },
+        "."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A ",
+        {
+          "type": "Link",
+          "content": [
+            "link"
+          ],
+          "target": ""
+        },
+        " with no target."
+      ]
+    }
+  ]
+}

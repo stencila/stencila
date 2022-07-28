@@ -1,0 +1,44 @@
+- apple
+- pear
+- orange
+
+1. first
+2. second
+3. third
+
+- nested
+  - 2a
+    - 3a
+  - 2b
+  - 2c
+    - 3b
+      - 4a
+
+1. [ ] first
+2. [X] second
+3. [ ] third
+
+- [X] done
+- [ ] todo
+- [ ] still todo
+
+A paragraph to keep the previous and following lists separate (otherwise
+they get merged).
+
+- an item with an image [[file:image.png]], see!
+- an item with /emphasis/
+- an item with HTML underlined
+
+A list with multiple paragraphs in each item
+
+- para 1a
+
+  para 1b
+
+  para 1c
+
+- para 2a
+
+  para 2b
+
+- para 3

@@ -1,0 +1,35 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 79
+expression: node
+input_file: fixtures/fragments/org/cite.org
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "Narrative (in text) citations like ",
+        {
+          "type": "Cite",
+          "target": "smith",
+          "citationMode": "Narrative"
+        },
+        ", ",
+        {
+          "type": "Cite",
+          "target": "jones",
+          "citationMode": "Narrative"
+        },
+        ", and ",
+        {
+          "type": "Cite",
+          "target": "singh",
+          "citationMode": "Narrative"
+        },
+        "."
+      ]
+    }
+  ]
+}

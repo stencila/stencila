@@ -1,0 +1,37 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 79
+expression: node
+input_file: fixtures/fragments/org/math-fragment.org
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "If ",
+        {
+          "type": "MathFragment",
+          "text": "a^2=b"
+        },
+        " and ",
+        {
+          "type": "MathFragment",
+          "text": " b=2 "
+        },
+        ", then the solution must be either ",
+        {
+          "type": "MathFragment",
+          "text": " a=+\\sqrt{2} "
+        },
+        " or ",
+        {
+          "type": "MathFragment",
+          "text": " a=-\\sqrt{2} "
+        },
+        "."
+      ]
+    }
+  ]
+}

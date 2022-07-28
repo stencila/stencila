@@ -1,0 +1,24 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 79
+expression: node
+input_file: fixtures/fragments/org/code-block.org
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "CodeBlock",
+      "text": "Some plain text"
+    },
+    {
+      "type": "CodeBlock",
+      "text": "# Some Python code\n1 + 1\n",
+      "programmingLanguage": "python"
+    },
+    {
+      "type": "CodeBlock",
+      "text": "An indented code block\nin unspecified language."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+#+begin_example
+Some plain text
+#+end_example
+
+#+begin_src python
+# Some Python code
+1 + 1
+#+end_src
+
+#+begin_example
+An indented code block
+in unspecified language.
+#+end_example

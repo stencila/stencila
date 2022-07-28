@@ -24,6 +24,7 @@ codec-json = { path = "../codec-json", optional = true }
 codec-json5 = { path = "../codec-json5", optional = true }
 codec-latex = { path = "../codec-latex", optional = true }
 codec-md = { path = "../codec-md", optional = true }
+codec-org = { path = "../codec-org", optional = true }
 codec-pandoc = { path = "../codec-pandoc", optional = true }
 codec-pdf = { path = "../codec-pdf", optional = true }
 codec-person = { path = "../codec-person", optional = true }

@@ -1151,6 +1151,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-org"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-pandoc",
+ "test-props",
+ "test-snaps",
+ "test-utils",
+]
+
+[[package]]
 name = "codec-pandoc"
 version = "0.0.0"
 dependencies = [
@@ -1287,6 +1298,7 @@ dependencies = [
  "codec-json5",
  "codec-latex",
  "codec-md",
+ "codec-org",
  "codec-pandoc",
  "codec-pdf",
  "codec-person",

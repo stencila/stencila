@@ -1,0 +1,2 @@
+Narrative (in text) citations like [cite/t:@smith], [cite/t:@jones], and
+[cite/t:@singh].

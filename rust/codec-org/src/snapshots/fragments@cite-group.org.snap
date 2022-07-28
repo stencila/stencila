@@ -1,0 +1,54 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 79
+expression: node
+input_file: fixtures/fragments/org/cite-group.org
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "A group of citations like ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "vincent",
+              "citationMode": "Parenthetical"
+            },
+            {
+              "type": "Cite",
+              "target": "van",
+              "citationMode": "Parenthetical"
+            }
+          ]
+        },
+        " or ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "vincent",
+              "citationMode": "Parenthetical"
+            },
+            {
+              "type": "Cite",
+              "target": "van",
+              "citationMode": "Parenthetical"
+            },
+            {
+              "type": "Cite",
+              "target": "goh",
+              "citationMode": "Parenthetical"
+            }
+          ]
+        },
+        "."
+      ]
+    }
+  ]
+}

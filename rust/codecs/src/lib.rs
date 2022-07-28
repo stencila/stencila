@@ -116,6 +116,8 @@ macro_rules! dispatch_builtins {
             Format::LaTeX => Some(codec_latex::LatexCodec::$method($($arg),*)),
             #[cfg(feature = "codec-md")]
             Format::Markdown => Some(codec_md::MdCodec::$method($($arg),*)),
+            #[cfg(feature = "codec-org")]
+            Format::Org => Some(codec_org::OrgCodec::$method($($arg),*)),
             #[cfg(feature = "codec-pandoc")]
             Format::Pandoc => Some(codec_pandoc::PandocCodec::$method($($arg),*)),
             #[cfg(feature = "codec-pdf")]
@@ -181,6 +183,8 @@ impl Codecs {
             ("latex", codec_latex::LatexCodec::spec()),
             #[cfg(feature = "codec-md")]
             ("md", codec_md::MdCodec::spec()),
+            #[cfg(feature = "codec-org")]
+            ("org", codec_org::OrgCodec::spec()),
             #[cfg(feature = "codec-pandoc")]
             ("pandoc", codec_pandoc::PandocCodec::spec()),
             #[cfg(feature = "codec-pdf")]
