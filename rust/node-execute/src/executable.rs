@@ -573,7 +573,7 @@ impl Executable for Include {
     }
 }
 
-// Nodes types that simply need an `id` assigned so that custom web component events to have a target
+// Nodes types that simply need an `id` assigned so that custom web component patch events have a target
 
 macro_rules! executable_identify_only {
     ($type:ty, $prefix:expr) => {
@@ -768,10 +768,18 @@ macro_rules! executable_fields {
 }
 
 executable_fields!(CiteGroup, items);
+
 executable_fields!(Collection, parts);
 executable_fields!(CollectionSimple, parts);
+
 executable_fields!(List, items);
 executable_fields!(ListItem, item, content);
+
+executable_fields!(Table, rows, caption);
+executable_fields!(TableSimple, rows, caption);
+executable_fields!(TableRow, cells);
+executable_fields!(TableCell, content);
+
 
 /// Compile the content field of a struct only
 macro_rules! executable_content {
@@ -810,8 +818,6 @@ executable_content_for!(
     Strong,
     Subscript,
     Superscript,
-    Table,
-    TableSimple,
     Underline
 );
 
@@ -841,4 +847,16 @@ executable_variants!(
     ListItemContent,
     ListItemContent::VecInlineContent,
     ListItemContent::VecBlockContent
+);
+
+executable_variants!(
+    TableCaption,
+    TableCaption::String,
+    TableCaption::VecBlockContent
+);
+
+executable_variants!(
+    TableCellContent,
+    TableCellContent::VecInlineContent,
+    TableCellContent::VecBlockContent
 );
