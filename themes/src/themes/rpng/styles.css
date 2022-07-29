@@ -4,9 +4,9 @@
 /* stylelint-disable scale-unlimited/declaration-strict-value, xi/selector-pattern */
 
 :--root {
-  --color-parameter: hsl(50, 80%, 70%);
-  --color-code: hsl(100, 80%, 70%);
-  --color-math: hsl(200, 80%, 70%);
+  --color-parameter: hsl(50deg 80% 70%);
+  --color-code: hsl(100deg 80% 70%);
+  --color-math: hsl(200deg 80% 70%);
 
   /* Use system UI font an 10pt so <input> and <select> text of Parameters is same font as outputs
   of CodeChunk and CodeExpressions */
@@ -36,7 +36,7 @@
     color: #444;
     font-family: 'Courier New', Courier, monospace;
     font-size: 11px;
-    padding: 5px 3px 3px 3px;
+    padding: 5px 3px 3px;
     height: 13px;
     width: 13px;
     left: 0;
@@ -65,7 +65,7 @@
   /* Push outputs and errors down so indicator does not overlap them */
   [slot='outputs'],
   [slot='errors'] {
-    margin: 21px 0 0 0 !important;
+    margin: 21px 0 0 !important;
   }
 
   /* Avoid elements taking up vertical space unnecessarily */
@@ -113,7 +113,6 @@
   [slot='output'] {
     padding: 2px 2px 1px 0;
     display: flex;
-    vertical-align: middle;
   }
 }
 
@@ -132,7 +131,7 @@
   /* Push math (pre fallback) down so indicator does not overlap it and give some space */
   math,
   pre {
-    margin: 21px 0 0 0 !important;
+    margin: 21px 0 0 !important;
     padding: 2px;
   }
 }
@@ -179,18 +178,18 @@
 
   /* Hide number <input> "spin" arrows */
   input[type='number'] {
-    -moz-appearance: textfield;
+    appearance: textfield;
   }
+
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
+    appearance: none;
   }
 
   /* Hide <select> background and dropdown */
   select {
     background: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
+    appearance: none;
   }
 }
 
