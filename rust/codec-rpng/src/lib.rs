@@ -178,8 +178,7 @@ pub async fn nodes_to_bytes(
 
         // If the node is a `CodeChunk` and it has only one `ImageObject` in its outputs
         // then replace its `content_url` with a special dataURI with refer to itself. This avoid
-        // "doubling up" the image data. This is also done by the `PandocCodec` for the image
-        // description JSON.
+        // "doubling up" the image data.
         let mut is_code_chunk = false;
         if let Node::CodeChunk(chunk) = &mut node {
             is_code_chunk = true;

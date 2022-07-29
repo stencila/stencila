@@ -2,14 +2,21 @@ use std::collections::{BTreeMap, VecDeque};
 
 use async_recursion::async_recursion;
 use codec::{
-    common::{eyre::Result, futures, once_cell::sync::Lazy, regex::Regex, serde_json},
+    common::{
+        eyre::{bail, Result},
+        futures,
+        once_cell::sync::Lazy,
+        regex::Regex,
+        serde_json, tracing,
+    },
     stencila_schema::{
         Article, BlockContent, CodeFragment, CreativeWorkTitle, Emphasis, Heading, ImageObject,
         InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node, Note, NoteNoteType,
         Paragraph, Strikeout, Strong, Subscript, Superscript, TableCell, TableCellContent,
-        TableRow, TableSimple, ThematicBreak, Underline,
+        TableRow, TableSimple, ThematicBreak, Underline, Null,
     },
 };
+use http_utils::CLIENT;
 use node_address::Address;
 use node_transform::Transform;
 
@@ -564,39 +571,74 @@ async fn inline_object_element_to_node(
     inline_object_element: &gdoc::InlineObjectElement,
     context: &mut Context,
 ) -> Option<Node> {
-    inline_object_element
+    let embedded_object = match inline_object_element
         .inline_object_id
         .as_ref()
         .and_then(|id| context.inline_objects.get(id).cloned())
         .and_then(|inline_object| inline_object.inline_object_properties)
         .and_then(|inline_object_props| inline_object_props.embedded_object)
-        .and_then(|embedded_object| {
-            embedded_object
+    {
+        Some(eo) => eo,
+        None => return None,
+    };
+
+    if let Some(desc) = embedded_object.title.as_ref().and_then(|node_type| {
+        embedded_object
+            .description
+            .and_then(|desc| match node_type.trim() {
+                "CodeChunk" | "CodeExpression" | "MathFragment" | "MathBlock" | "Parameter" => {
+                    Some(desc)
+                }
+                _ => None,
+            })
+    }) {
+        if let Some(node) = node_from_embedded_object_desc(&desc).await {
+            return Some(node);
+        }
+    }
+
+    embedded_object.image_properties.map(|image_properties| {
+        Node::ImageObject(ImageObject {
+            title: embedded_object
                 .title
-                .as_ref()
-                .and_then(|node_type| {
-                    let node_type = node_type.trim();
-                    embedded_object
-                        .description
-                        .and_then(|desc| match node_type {
-                            "CodeChunk" | "CodeExpression" | "MathFragment" | "MathBlock" | "Parameter" => {
-                                serde_json::from_str::<Node>(&desc).ok()
-                            }
-                            _ => None,
-                        })
-                })
-                .or_else(|| {
-                    embedded_object.image_properties.map(|image_properties| {
-                        Node::ImageObject(ImageObject {
-                            title: embedded_object
-                                .title
-                                .map(|title| Box::new(CreativeWorkTitle::String(title))),
-                            content_url: image_properties.content_uri.unwrap_or_default(),
-                            ..Default::default()
-                        })
-                    })
-                })
+                .map(|title| Box::new(CreativeWorkTitle::String(title))),
+            content_url: image_properties.content_uri.unwrap_or_default(),
+            ..Default::default()
         })
+    })
+}
+
+// Get the node from an embedded_object description
+async fn node_from_embedded_object_desc(desc: &str) -> Option<Node> {
+    async fn fetch(url: &str) -> Result<String> {
+        let response = CLIENT.get(url).send().await?;
+        match response.status().is_success() {
+            true => Ok(response.text().await?),
+            false => bail!("{}", response.status()),
+        }
+    }
+    let json = if desc.starts_with("http") {
+        match fetch(desc).await {
+            Ok(json) => json,
+            Err(error) => {
+                tracing::warn!("Error getting JSON for embedded object which appears to be a reproducible node: {}", error);
+                return None;
+            }
+        }
+    } else {
+        desc.to_owned()
+    };
+
+    match serde_json::from_str::<Node>(&json) {
+        Ok(node) => Some(node),
+        Err(error) => {
+            tracing::warn!(
+                "Error parsing JSON from embedded object which appears to be a reproducible node: {}",
+                error
+            );
+            None
+        }
+    }
 }
 
 /// Transform a Google Doc `FootnoteReference` to a Stencila `Note`.

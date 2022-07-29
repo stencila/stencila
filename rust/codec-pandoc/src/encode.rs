@@ -77,28 +77,15 @@ impl EncodeContext {
     }
 
     /// Push a node to be encoded as an RPNG
-    fn push_rpng(&mut self, type_name: &str, mut node: Node) -> pandoc::Inline {
+    fn push_rpng(&mut self, type_name: &str, node: Node) -> pandoc::Inline {
         let key = key_utils::generate("snk");
+        let url = node_url(&key);
         let path = self.temp_dir.path().join(format!("{}.png", key));
 
-        self.rpng_nodes
-            .push((key.clone(), path.clone(), node.clone()));
+        self.rpng_nodes.push((key, path.clone(), node.clone()));
 
         let inlines = if self.options.rpng_text {
-            // If the node is a `CodeChunk` and it has only one `ImageObject` in its outputs
-            // then, for JSON generation, replace its `content_url` with a special dataURI with
-            // refer to itself. This avoid "doubling up" the image data. This is also done
-            // for the RPNG's text chunk by the `RpngCodec`.
-            if let Node::CodeChunk(chunk) = &mut node {
-                if let Some(outputs) = &mut chunk.outputs {
-                    if outputs.len() == 1 {
-                        if let Node::ImageObject(image) = &mut outputs[0] {
-                            image.content_url = "data:self".to_string();
-                        }
-                    }
-                }
-            }
-
+            // Generate compact JSON for the node
             let json = JsonCodec::to_string(
                 &node,
                 Some(EncodeOptions {
@@ -108,10 +95,13 @@ impl EncodeContext {
             )
             .expect("Should be able to encode as JSON");
 
-            // Only add JSON as image caption if it is not too big (5000 is the limit
-            // for image alt text in Google Docs for example).
+            // If the JSON is small enough (e.g 5000 is the limit
+            // for image alt text in Google Docs) then use it, otherwise
+            // if rpng_link is enabled, use its URL.
             if json.len() <= 5000 {
                 vec![pandoc::Inline::Str(json)]
+            } else if self.options.rpng_link {
+                vec![pandoc::Inline::Str([&url, "/json"].concat())]
             } else {
                 Vec::new()
             }
@@ -130,13 +120,11 @@ impl EncodeContext {
             },
         );
 
-        if !self.options.rpng_link {
-            return image;
+        if self.options.rpng_link {
+            pandoc::Inline::Link(attrs_empty(), vec![image], pandoc::Target { url, title })
+        } else {
+            image
         }
-
-        let url = node_url(&key);
-
-        pandoc::Inline::Link(attrs_empty(), vec![image], pandoc::Target { url, title })
     }
 
     /// Generate all the RPNGs that have been pushed to this context

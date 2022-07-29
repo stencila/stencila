@@ -9,6 +9,7 @@ async-recursion = "1.0.0"
 cloud = { path = "../cloud" }
 codec = { path = "../codec" }
 codec-pandoc = { path = "../codec-pandoc" }
+http-utils = { path = "../http-utils" }
 node-address = { path = "../node-address" }
 node-transform = { path = "../node-transform" }
 provider-gdrive = { path = "../provider-gdrive" }
