@@ -1,8 +1,8 @@
 ---
 source: rust/codec-md/src/decode.rs
+assertion_line: 1314
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/parameter.md
-
 ---
 [
   {
@@ -152,7 +152,7 @@ input_file: fixtures/fragments/md/parameter.md
         "type": "Parameter",
         "name": "par10"
       },
-      "."
+      ". The curly braces are required to avoid forward slash file paths e.g. /some/path, /another/path/ being parsed as parameters."
     ]
   }
 ]

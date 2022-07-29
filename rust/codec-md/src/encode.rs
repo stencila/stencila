@@ -155,9 +155,9 @@ impl ToMd for Parameter {
         // TODO: Add support for other options. See decode.rs for options for each validator type
 
         let attrs = if options.is_empty() {
-            String::new()
+            "{}".to_string()
         } else {
-            ["/", &options, "/"].concat()
+            ["{", &options, "}"].concat()
         };
 
         ["/", &self.name, "/", &attrs].concat()

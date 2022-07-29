@@ -4,7 +4,7 @@ use nom::{
     branch::alt,
     bytes::complete::{escaped, tag, take, take_till, take_until, take_while1},
     character::complete::{alphanumeric1, char, digit1, multispace0, multispace1, none_of},
-    combinator::{map_res, not, opt, peek},
+    combinator::{map, map_res, not, opt, peek},
     multi::{fold_many0, separated_list0, separated_list1},
     sequence::{delimited, pair, preceded, tuple},
     IResult,
@@ -782,13 +782,9 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
 /// Parse forward slash pairs into a `Parameter`.
 pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
     map_res(
-        pair(
-            delimited(tag("/"), alphanumeric1, tag("/")),
-            opt(curly_attrs),
-        ),
-        |(name, pairs): (&str, Option<Attrs>)| -> Result<InlineContent> {
-            let options: HashMap<String, Option<String>> =
-                pairs.unwrap_or_default().into_iter().collect();
+        pair(delimited(char('/'), alphanumeric1, char('/')), curly_attrs),
+        |(name, pairs)| -> Result<InlineContent> {
+            let options: HashMap<String, Option<String>> = pairs.into_iter().collect();
 
             let typ = options
                 .get("type")
@@ -1089,11 +1085,14 @@ type Attrs = Vec<(String, Option<String>)>;
 /// until the closing bracket. Attribute names are converted to snake_case
 /// (so that users don't have to remember which case to use).
 fn curly_attrs(input: &str) -> IResult<&str, Attrs> {
-    delimited(
-        char('{'),
-        separated_list0(multispace1, curly_attr),
-        char('}'),
-    )(input)
+    alt((
+        map(tag("{}"), |_| Vec::new()),
+        delimited(
+            char('{'),
+            separated_list0(multispace1, curly_attr),
+            char('}'),
+        ),
+    ))(input)
 }
 
 /// Parse an attribute inside a set of curly braced attributes.
