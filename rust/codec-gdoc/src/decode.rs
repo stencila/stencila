@@ -579,7 +579,7 @@ async fn inline_object_element_to_node(
                     embedded_object
                         .description
                         .and_then(|desc| match node_type {
-                            "CodeChunk" | "CodeExpression" | "MathFragment" | "MathBlock" => {
+                            "CodeChunk" | "CodeExpression" | "MathFragment" | "MathBlock" | "Parameter" => {
                                 serde_json::from_str::<Node>(&desc).ok()
                             }
                             _ => None,
