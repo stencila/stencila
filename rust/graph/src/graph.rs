@@ -522,6 +522,33 @@ impl Graph {
         Ok(())
     }
 
+    /// Determine whether a task should be run in a kernel fork or not
+    ///
+    /// Execute the task in a fork if,
+    /// - the kernel is forkable, and
+    /// - the node is a `CodeChunk`
+    /// - the node's code is `@pure` (inferred or declared), and
+    /// - the maximum concurrency has not been exceeded, and
+    fn should_run_in_fork(
+        kernel_forkable: bool,
+        resource_info: &ResourceInfo,
+        stage_tasks: usize,
+        options: &PlanOptions,
+    ) -> bool {
+        kernel_forkable
+            && resource_info.resource.node_type() == Some("CodeChunk")
+            && resource_info.is_pure()
+            && stage_tasks < options.max_concurrency.saturating_sub(1)
+    }
+
+    /// Determine whether a task needs to be run in a new stage
+    ///
+    /// Execute the task in a new stage if any of the existing tasks
+    /// are not in a fork
+    fn needs_new_stage(tasks: &[PlanTask]) -> bool {
+        tasks.iter().any(|task| !task.is_fork)
+    }
+
     /// Generate an execution plan for the graph
     ///
     /// # Arguments
@@ -593,7 +620,7 @@ impl Graph {
             None => bail!("There is no kernel available capable of executing the code"),
         };
 
-        let is_fork = kernel_forkable && resource_info.is_pure();
+        let is_fork = Self::should_run_in_fork(kernel_forkable, &resource_info, 0, &options);
 
         Ok(Plan {
             options: PlanOptions {
@@ -671,11 +698,13 @@ impl Graph {
                 break;
             }
 
-            // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
-            // and (c) the maximum concurrency has not been exceeded then execute the task in a fork
-            let is_fork = kernel_forkable
-                && resource_info.is_pure()
-                && stage.tasks.len() < options.max_concurrency.saturating_sub(1);
+            // Determine if the taks should run in a fork
+            let is_fork = Self::should_run_in_fork(
+                kernel_forkable,
+                resource_info,
+                stage.tasks.len(),
+                &options,
+            );
 
             // Create the task
             let task = PlanTask {
@@ -684,20 +713,15 @@ impl Graph {
                 is_fork,
             };
 
-            if is_fork {
-                // Fork tasks can be added to the current stage along side other
-                // fork tasks (possibly)
-                stage.tasks.push(task);
-            } else {
-                // Non-forked tasks must have their own stage to ensure they are
-                // executed before downstream dependents
-
+            // Add the task to a new, or the current, stage
+            if Self::needs_new_stage(&stage.tasks) {
                 if !stage.tasks.is_empty() {
                     stages.push(stage);
                     stage = PlanStage::default();
                 }
-
                 stages.push(PlanStage { tasks: vec![task] });
+            } else {
+                stage.tasks.push(task);
             }
         }
 
@@ -869,11 +893,13 @@ impl Graph {
 
             let resource_info = self.get_resource_info(resource)?;
 
-            // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
-            // and (c) the maximum concurrency has not been exceeded then execute the task in a fork
-            let is_fork = kernel_forkable
-                && resource_info.is_pure()
-                && stage.tasks.len() < options.max_concurrency.saturating_sub(1);
+            // Determine if the taks should run in a fork
+            let is_fork = Self::should_run_in_fork(
+                kernel_forkable,
+                resource_info,
+                stage.tasks.len(),
+                &options,
+            );
 
             // Create the task
             let task = PlanTask {
@@ -882,20 +908,15 @@ impl Graph {
                 is_fork,
             };
 
-            if is_fork {
-                // Fork tasks can be added to the current stage along side other
-                // fork tasks (possibly)
-                stage.tasks.push(task);
-            } else {
-                // Non-forked tasks must have their own stage to ensure they are
-                // executed before downstream dependents
-
+            // Add the task to a new, or the current, stage
+            if Self::needs_new_stage(&stage.tasks) {
                 if !stage.tasks.is_empty() {
                     stages.push(stage);
                     stage = PlanStage::default();
                 }
-
                 stages.push(PlanStage { tasks: vec![task] });
+            } else {
+                stage.tasks.push(task);
             }
         }
 
