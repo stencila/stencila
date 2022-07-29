@@ -59,6 +59,7 @@ struct EncodeContext {
 }
 
 impl EncodeContext {
+    /// Create a new encoding context
     fn new(options: Option<EncodeOptions>) -> Result<Self> {
         let options = options.unwrap_or_default();
         let temp_dir = tempfile::tempdir()?;
@@ -68,6 +69,11 @@ impl EncodeContext {
             temp_dir,
             rpng_nodes,
         })
+    }
+
+    /// Should a node type be encoded as an RPNG, based on provided options
+    fn should_rpng(&mut self, node_type: &str) -> bool {
+        !self.options.lossy && self.options.rpng_types.contains(&node_type.to_string())
     }
 
     /// Push a node to be encoded as an RPNG
@@ -278,8 +284,20 @@ unimplemented_to_pandoc!(Cite);
 unimplemented_to_pandoc!(CiteGroup);
 
 impl ToPandoc for CodeExpression {
+    /// Encode a `CodeExpression` to a Pandoc inline element
+    ///
+    /// Lossless encoding represents the entire expression as an RPNG.
+    /// Lossy encoding represents the expression `output`, falling back to `text` if no output.
     fn to_pandoc_inline(&self, context: &mut EncodeContext) -> pandoc::Inline {
-        context.push_rpng("CodeExpression", Node::CodeExpression(self.clone()))
+        if context.should_rpng("CodeExpression") {
+            context.push_rpng("CodeExpression", Node::CodeExpression(self.clone()))
+        } else {
+            self.output
+                .as_ref()
+                .map(|node| node.to_inline())
+                .map(|inline| inline.to_pandoc_inline(context))
+                .unwrap_or_else(|| pandoc::Inline::Code(attrs_empty(), self.text.clone()))
+        }
     }
 }
 
@@ -307,11 +325,7 @@ impl ToPandoc for Link {
 
 impl ToPandoc for MathFragment {
     fn to_pandoc_inline(&self, context: &mut EncodeContext) -> pandoc::Inline {
-        if context
-            .options
-            .rpng_types
-            .contains(&"MathFragment".to_string())
-        {
+        if context.should_rpng("MathFragment") {
             context.push_rpng("MathFragment", Node::MathFragment(self.clone()))
         } else {
             pandoc::Inline::Math(pandoc::MathType::InlineMath, self.text.clone())
@@ -322,8 +336,21 @@ impl ToPandoc for MathFragment {
 unimplemented_to_pandoc!(Note);
 
 impl ToPandoc for Parameter {
+    /// Encode a `Parameter` to a Pandoc inline element
+    ///
+    /// Lossless encoding represents the entire parameter as an RPNG.
+    /// Lossy encoding represents the `value` (or `default`) only.
     fn to_pandoc_inline(&self, context: &mut EncodeContext) -> pandoc::Inline {
-        context.push_rpng("Parameter", Node::Parameter(self.clone()))
+        if context.should_rpng("Parameter") {
+            context.push_rpng("Parameter", Node::Parameter(self.clone()))
+        } else {
+            self.value
+                .as_ref()
+                .or(self.default.as_ref())
+                .map(|node| node.to_inline())
+                .map(|inline| inline.to_pandoc_inline(context))
+                .unwrap_or_else(|| pandoc::Inline::Str("".to_string()))
+        }
     }
 }
 
@@ -397,43 +424,60 @@ impl ToPandoc for CodeBlock {
 impl ToPandoc for CodeChunk {
     /// Encode a `CodeChunk` to a Pandoc block element
     ///
-    /// Encodes the code chunk as a RPNG.
-    /// Places any label and figure after the code chunk normal text, rather than as screenshotted content.
-    /// Note that these are re-constituted into the code chunk in the reshape function.
+    /// Lossless encoding represents the entire code chunk as an RPNG.
+    /// Any label or caption are put in a paragraph after the code chunk, rather than as screenshotted content.
+    /// This allows them to be endit. Note that these are re-constituted into the code chunk in the reshape function.
+    ///
+    /// Lossy encoding represents `outputs` (if any) only. Each output is represented as a Pandoc block
+    /// element (e.g. an image wrapped in a paragraph)
     fn to_pandoc_block(&self, context: &mut EncodeContext) -> pandoc::Block {
-        let CodeChunk { label, caption, .. } = self;
+        if context.should_rpng("CodeChunk") {
+            let mut stripped = self.clone();
+            stripped.label = None;
+            stripped.caption = None;
 
-        let mut stripped = self.clone();
-        stripped.label = None;
-        stripped.caption = None;
+            let image = context.push_rpng("CodeChunk", Node::CodeChunk(stripped));
+            let image_para = pandoc::Block::Para(vec![image]);
 
-        let image = context.push_rpng("CodeChunk", Node::CodeChunk(stripped));
-        let image_para = pandoc::Block::Para(vec![image]);
+            let CodeChunk { label, caption, .. } = self;
+            let blocks = if label.is_some() || caption.is_some() {
+                let mut inlines = vec![];
+                if let Some(label) = label.as_deref() {
+                    let mut label = label.to_string();
+                    label.push_str(". ");
+                    inlines.push(pandoc::Inline::Strong(vec![pandoc::Inline::Str(label)]))
+                }
+                if let Some(caption) = caption.as_deref() {
+                    match caption {
+                        CodeChunkCaption::String(string) => {
+                            inlines.push(pandoc::Inline::Str(string.clone()))
+                        }
+                        CodeChunkCaption::VecBlockContent(blocks) => {
+                            let mut blocks_as_inlines =
+                                blocks.to_inlines().to_pandoc_inlines(context);
+                            inlines.append(&mut blocks_as_inlines);
+                        }
+                    };
+                }
+                vec![image_para, pandoc::Block::Para(inlines)]
+            } else {
+                vec![image_para]
+            };
 
-        let blocks = if label.is_some() || caption.is_some() {
-            let mut inlines = vec![];
-            if let Some(label) = label.as_deref() {
-                let mut label = label.to_string();
-                label.push_str(". ");
-                inlines.push(pandoc::Inline::Strong(vec![pandoc::Inline::Str(label)]))
-            }
-            if let Some(caption) = caption.as_deref() {
-                match caption {
-                    CodeChunkCaption::String(string) => {
-                        inlines.push(pandoc::Inline::Str(string.clone()))
-                    }
-                    CodeChunkCaption::VecBlockContent(blocks) => {
-                        let mut blocks_as_inlines = blocks.to_inlines().to_pandoc_inlines(context);
-                        inlines.append(&mut blocks_as_inlines);
-                    }
-                };
-            }
-            vec![image_para, pandoc::Block::Para(inlines)]
+            pandoc::Block::Div(attrs_empty(), blocks)
         } else {
-            vec![image_para]
-        };
-
-        pandoc::Block::Div(attrs_empty(), blocks)
+            match &self.outputs {
+                Some(nodes) => pandoc::Block::Div(
+                    attrs_empty(),
+                    nodes
+                        .iter()
+                        .map(|node| node.to_block())
+                        .map(|node| node.to_pandoc_block(context))
+                        .collect_vec(),
+                ),
+                None => pandoc::Block::Null,
+            }
+        }
     }
 }
 
@@ -484,11 +528,7 @@ impl ToPandoc for List {
 
 impl ToPandoc for MathBlock {
     fn to_pandoc_block(&self, context: &mut EncodeContext) -> pandoc::Block {
-        let inline = if context
-            .options
-            .rpng_types
-            .contains(&"MathBlock".to_string())
-        {
+        let inline = if context.should_rpng("MathBlock") {
             context.push_rpng("MathBlock", Node::MathBlock(self.clone()))
         } else {
             pandoc::Inline::Math(pandoc::MathType::DisplayMath, self.text.clone())

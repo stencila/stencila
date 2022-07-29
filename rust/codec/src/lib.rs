@@ -232,11 +232,19 @@ pub struct EncodeOptions {
     /// including media as data URIs rather than links to files.
     pub bundle: bool,
 
+    /// Whether to encode with loss of information
+    ///
+    /// For some formats Stencila uses extensions to minimize the loss of
+    /// information (e.g. RPNGs in DOCX, metadata in PDFs). This option disables those
+    /// extensions which will usually mean that the document is no longer
+    /// reproducible.
+    pub lossy: bool,
+
     /// Which node types to represent as RPNGs
     ///
-    /// Some formats (e.g. Microsoft Word) are not able to fully represent some types
-    /// of nodes (e.g. CodeChunks). Use this list to specify which node types should be
-    /// represented as RPNGs.
+    /// Use this list to specify which node types should be represented as RPNGs.
+    /// If this list is empty, codecs may use a standard set of node types for the
+    /// particular format.
     pub rpng_types: Vec<String>,
 
     /// Whether to store the JSON representation of a document node as the alt text
@@ -270,6 +278,7 @@ impl Default for EncodeOptions {
             compact: true,
             standalone: false,
             bundle: false,
+            lossy: false,
             rpng_types: Vec::new(),
             rpng_text: false,
             rpng_link: false,

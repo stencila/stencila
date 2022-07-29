@@ -627,7 +627,7 @@ fn get_id(attrs: &pandoc::Attr) -> Option<String> {
     get_attr(attrs, "id").and_then(|value| get_string_prop(&value))
 }
 
-/// Try to extract a `CodeExpression` from an RPNG representation
+/// Try to transform inline content (potentially containing an RPNG) to another type of inline content
 fn transform_to_inline(inline: &InlineContent) -> Option<InlineContent> {
     match inline {
         InlineContent::Link(link) => {

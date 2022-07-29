@@ -546,11 +546,18 @@ pub mod commands {
         #[clap(long, short = 'e')]
         theme: Option<String>,
 
+        /// Whether to convert to the target format with loss
+        ///
+        /// This option disables Stencila's extensions to make formats such as
+        /// DOCX and PDF reproducible.
+        #[clap(long, short)]
+        lossy: bool,
+
         /// The document node types (e.g `CodeChunk`, `MathFragment`) to encode as
         /// ReproduciblePNGs.
         ///
-        /// The encoding codec may not always respect these types i.e. it may always
-        /// encode a certain type of node as a RPNG.
+        /// If no types are provided, a standard set of types will be used for the
+        /// particular format.
         #[clap(long)]
         rpng_types: Vec<String>,
 
@@ -597,6 +604,7 @@ pub mod commands {
                 bundle: self.bundle,
                 theme: self.theme.clone(),
                 format: self.to.clone(),
+                lossy: self.lossy,
                 rpng_types: self.rpng_types.clone(),
                 rpng_link: self.rpng_link,
                 rpng_text: self.rpng_text,

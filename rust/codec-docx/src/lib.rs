@@ -31,14 +31,37 @@ impl CodecTrait for DocxCodec {
         }
     }
 
+    /// Decode a document node from a DOCX file
     async fn from_path(path: &Path, _options: Option<DecodeOptions>) -> Result<Node> {
         let path = PathBuf::from(path);
         let media = [&path.to_string_lossy(), ".media"].concat();
         decode("", Some(path), "docx", &["--extract-media", &media]).await
     }
 
+    /// Encode a document node to a DOCX file
+    ///
+    /// If `options.rpng_types` is empty, defaults to a standard set of types for this format.
     async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
-        encode(node, Some(path), "docx", &[], options).await?;
+        let mut rpng_types = options
+            .as_ref()
+            .map(|options| options.rpng_types.clone())
+            .unwrap_or_default();
+        if rpng_types.is_empty() {
+            rpng_types = vec_string!["CodeExpression", "CodeChunk", "Parameter"]
+        }
+
+        encode(
+            node,
+            Some(path),
+            "docx",
+            &[],
+            Some(EncodeOptions {
+                rpng_types,
+                ..options.unwrap_or_default()
+            }),
+        )
+        .await?;
+
         Ok(())
     }
 }
