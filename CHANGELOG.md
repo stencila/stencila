@@ -1,3 +1,36 @@
+# [1.16.0](https://github.com/stencila/stencila/compare/v1.15.0...v1.16.0) (2022-07-29)
+
+
+### Bug Fixes
+
+* **Codecs:** Only call `to_remote` if file already exists ([25644ca](https://github.com/stencila/stencila/commit/25644ca7be60ed2e2164c7b9a40d508e6050cb16))
+* **Google Docs codec:** Enable decoding of `Parameter` nodes from RPNGs ([f590252](https://github.com/stencila/stencila/commit/f590252b5e9409a8c2ff013e20781988f8d9f3fb))
+* **Google Docs codec:** Use remote JSON when necessary ([d6b3de0](https://github.com/stencila/stencila/commit/d6b3de091d51ec7a12613f19110cc8d840b4776d))
+* **HTML codec:** Add `size` attribute for inputs ([d6e40f1](https://github.com/stencila/stencila/commit/d6e40f18d2136e6603bb7e8e05eeceae30211313))
+* **Pandoc codec:** Enable support for `Table`s ([8fb6507](https://github.com/stencila/stencila/commit/8fb6507a9658ab0db1e2828a4e11ac5440eb478d))
+* **Pandoc codec:** Make `tex` the default language for math ([f7f4b37](https://github.com/stencila/stencila/commit/f7f4b371530157f970f5649793f9b31a1caf2976))
+* **PNG codec:** Increase viewport size ([920e0c8](https://github.com/stencila/stencila/commit/920e0c84666def16c10ec7a7f6154fe5d553464a))
+* **PNG codec:** Remove unecessary brace escapes ([7425a25](https://github.com/stencila/stencila/commit/7425a25d1e41bba72859116e8c63f9dfb4be6e52))
+* **R kernel:** Improve tests for whether an output should be returned ([86ee0e1](https://github.com/stencila/stencila/commit/86ee0e12eafa9fa6760bbc3d4adddb3d9a45eecd))
+
+
+### Features
+
+* **Codecs CLI:** Add RPNG related options to `convert` command ([636b019](https://github.com/stencila/stencila/commit/636b01946263da716afe22d09056a64846709ab3))
+* **Codecs:** Add a `--lossy` option to disable use of RPNGs ([053cf0d](https://github.com/stencila/stencila/commit/053cf0dc26f7bddabefb56de82e9efd2c0ef55f4))
+* **Google Docs codec:** Add support for `MathFragment` and `MathBlock` ([2d129c4](https://github.com/stencila/stencila/commit/2d129c47f01767526b27612850187ab937f7a649))
+* **Google Docs codec:** Add support for decoding `CodeFragment` nodes ([c042c1d](https://github.com/stencila/stencila/commit/c042c1db5fd8f516e2e65d8a7f5f6394f5b9b7ef))
+* **Markdown and HTML codecs:** Support LaTeX and AsciiMath `MathFragment`s and `MathBlock`s ([9c16019](https://github.com/stencila/stencila/commit/9c1601973c1af37f908a0023ceca45a3bd102a73))
+* **Markdown codec:** Add support for math blocks ([ce132bc](https://github.com/stencila/stencila/commit/ce132bc59e19f2bf99811a3e3fdcf4f8332eb2ae))
+* **Pandoc and Markdown codecs:** Add initial support for bi-di conversion of `Parameter` nodes ([12fa6c3](https://github.com/stencila/stencila/commit/12fa6c38060f90d413f2629f20b6ec9edc887e75))
+* **RPNG theme:** Use different indicators for each node type and support `Parameter` ([2376df1](https://github.com/stencila/stencila/commit/2376df1f8831963b42f75962f1e4656ef8d3e392))
+* **Schema:** Add `Strikeout` and `Underline` inline content types ([c6d7753](https://github.com/stencila/stencila/commit/c6d7753ba8dc7888f9cfed0397b5d3fc4c8885a3))
+
+
+### Performance Improvements
+
+* **RPNG codec:** Use `data:self` dataURI to avoid duplication of image data for `CodeChunk` outputs ([491808d](https://github.com/stencila/stencila/commit/491808d33035f7a7037826488dec6494edb91185))
+
 # [1.15.0](https://github.com/stencila/stencila/compare/v1.14.0...v1.15.0) (2022-07-21)
 
 
