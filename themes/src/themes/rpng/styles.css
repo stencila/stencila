@@ -62,7 +62,7 @@
     display: none !important;
   }
 
-  /* Push outputs and errors down so indicator does not overlap them and give some space */
+  /* Push outputs and errors down so indicator does not overlap them */
   [slot='outputs'],
   [slot='errors'] {
     margin: 21px 0 0 0 !important;
@@ -98,8 +98,9 @@
     display: none !important;
   }
 
-  /* Push output right so indicator does not overlap it */
-  [slot='output'] {
+  /* Push output and errors right so indicator does not overlap them */
+  [slot='output'],
+  [slot='errors'] {
     margin: 0 0 0 21px !important;
   }
 
