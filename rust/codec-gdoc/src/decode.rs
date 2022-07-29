@@ -13,7 +13,7 @@ use codec::{
         Article, BlockContent, CodeFragment, CreativeWorkTitle, Emphasis, Heading, ImageObject,
         InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node, Note, NoteNoteType,
         Paragraph, Strikeout, Strong, Subscript, Superscript, TableCell, TableCellContent,
-        TableRow, TableSimple, ThematicBreak, Underline, Null,
+        TableRow, TableSimple, ThematicBreak, Underline,
     },
 };
 use http_utils::CLIENT;
