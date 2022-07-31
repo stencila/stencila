@@ -293,6 +293,10 @@ impl Codecs {
         format: Option<&str>,
         options: Option<DecodeOptions>,
     ) -> Result<Node> {
+        if !path.exists() {
+            bail!("Input path `{}` does not exist", path.display())
+        }
+        
         let (format, format_spec) = Self::format_from_path(path, format)?;
 
         let options = Some(DecodeOptions {
@@ -318,6 +322,10 @@ impl Codecs {
         format: Option<&str>,
         options: Option<DecodeOptions>,
     ) -> Result<Node> {
+        if !path.exists() {
+            bail!("Input path `{}` does not exist", path.display())
+        }
+
         let (format, format_spec) = Self::format_from_path(path, format)?;
 
         let options = Some(DecodeOptions {
@@ -330,7 +338,7 @@ impl Codecs {
         }
 
         bail!(
-            "Unable to update local file from remote state `{}`: no matching codec found",
+            "Unable to update local file from remote document `{}`: no matching codec found",
             format_spec.title
         )
     }
