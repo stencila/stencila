@@ -38,7 +38,7 @@ async fn md_articles() -> Result<()> {
 
     let mut settings = insta::Settings::clone_current();
     settings.set_prepend_module_to_snapshot(false);
-    settings.bind_to_thread();
+    settings.bind_to_scope();
 
     for name in ["code.md", "code-relations.md"] {
         let path = fixtures.join("articles").join(name);
