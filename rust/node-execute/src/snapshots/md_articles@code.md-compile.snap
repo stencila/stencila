@@ -1,8 +1,7 @@
 ---
-source: rust/node-execute/src/lib.rs
-assertion_line: 69
+source: rust/node-execute/src/tests.rs
+assertion_line: 63
 expression: "(&addresses, &graph)"
-
 ---
 [
   {
@@ -109,7 +108,7 @@ expression: "(&addresses, &graph)"
         "language": "R",
         "dependencies": 0,
         "depth": 0,
-        "compile_digest": "Shsh2HauAMjtXE0c3gnGH4phtQ_jcKgBsQwzmDHzcKs.p80zpLdo3MsUboJGvN8lKiu78RQGLGzldVKFUfbfAqk..0.0",
+        "compile_digest": "16022657009924536748.5281476481088129800.0.0.0",
         "index": 0
       },
       {
@@ -120,7 +119,7 @@ expression: "(&addresses, &graph)"
         "language": "Python",
         "dependencies": 0,
         "depth": 0,
-        "compile_digest": "Gs-GImxowUhco5OYhMQ-2Zq-6jROgGVIr37oE8HAz_M.1BJlv1qBTWlNFU__XAii4Nc7L-sk0o2Xsjs4zll3yOY..0.0",
+        "compile_digest": "12904300673988594286.6811386310936119001.0.0.0",
         "index": 1
       },
       {
@@ -131,7 +130,7 @@ expression: "(&addresses, &graph)"
         "language": "Python",
         "dependencies": 0,
         "depth": 0,
-        "compile_digest": "8Jcxdr_uog8nU85IWbSHJ67aACMkRhrjSlNq4U87zOI.dPC5FFL3eij3lxrU1xEsIHYbQ2bI5ls2MYCD5LfCBI8..0.0",
+        "compile_digest": "6453152692411696678.6096491578995229440.0.0.0",
         "index": 2
       },
       {
@@ -142,7 +141,7 @@ expression: "(&addresses, &graph)"
         "language": "Python",
         "dependencies": 0,
         "depth": 0,
-        "compile_digest": "XUtGPLFdg6rE1pkK7-JI2cakP-0Ki9b8TYR2NTft0ZA.4A0Up4hHe3EwA5TO8PQaq2Vy8vh5ez5mqaxMQmidKUY..0.0",
+        "compile_digest": "1609925644024088361.15766924228632792825.0.0.0",
         "index": 3
       },
       {
@@ -153,7 +152,7 @@ expression: "(&addresses, &graph)"
         "language": "Python",
         "dependencies": 0,
         "depth": 0,
-        "compile_digest": "_96yTo2JTflYPz0EBhfBXfpPM6NXAWo_v6z40mH8bmU.kcRhg1FAbm-DQ6S1x8r2EFSt_amhYXGGuDwpxW_UKrQ..0.0",
+        "compile_digest": "17072206937161055418.3130444595839626671.0.0.0",
         "index": 4
       },
       {
@@ -164,7 +163,7 @@ expression: "(&addresses, &graph)"
         "language": "R",
         "dependencies": 0,
         "depth": 0,
-        "compile_digest": "-KtuBR2wWR4ttUqNGXPxRbTt2Ih80SP9gCuOCnmdMt4.NbRiugxjKwUFQaagfFSTrbK68Q5GCcfqZkD2vgO0B5w..0.0",
+        "compile_digest": "15204122772155796248.11300830894147400802.0.0.0",
         "index": 5
       }
     ],

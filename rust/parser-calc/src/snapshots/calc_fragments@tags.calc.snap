@@ -1,9 +1,8 @@
 ---
 source: rust/parser-calc/src/lib.rs
-assertion_line: 134
+assertion_line: 133
 expression: resource_info
 input_file: fixtures/fragments/calc/tags.calc
-
 ---
 {
   "resource": {
@@ -50,5 +49,5 @@ input_file: fixtures/fragments/calc/tags.calc
     ]
   ],
   "execute_pure": false,
-  "compile_digest": "afxa8qF04b5SdIj5ksufSKhlN_HjVlnLa0Wauk-M0A4.8s1J1YcykkWZDK0WFV8TJi_s54lrR5bBUwu-i69Zs3o..0.0"
+  "compile_digest": "626009382929379198.14539668640094265315.0.0.0"
 }

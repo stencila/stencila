@@ -3,7 +3,6 @@ source: rust/parser-ts/src/lib.rs
 assertion_line: 136
 expression: resource_info
 input_file: fixtures/fragments/js/writes.js
-
 ---
 {
   "resource": {
@@ -194,5 +193,5 @@ input_file: fixtures/fragments/js/writes.js
       }
     ]
   ],
-  "compile_digest": "dUv2N2LKVsyW1NHsKHq9_Dhzd2_PiXTi4goqIOQ2vyI.olfttVq3ZZvjIXF-sLtcdP2vmBBgppxEINGBkpGm-64..0.0"
+  "compile_digest": "12927841084470903993.3761178951351669820.0.0.0"
 }

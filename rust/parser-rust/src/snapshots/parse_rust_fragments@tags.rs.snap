@@ -3,7 +3,6 @@ source: rust/parser-rust/src/lib.rs
 assertion_line: 104
 expression: resource_info
 input_file: fixtures/fragments/rust/tags.rs
-
 ---
 {
   "resource": {
@@ -177,5 +176,5 @@ input_file: fixtures/fragments/rust/tags.rs
   ],
   "execute_auto": "Never",
   "execute_pure": false,
-  "compile_digest": "42H_co3JmISPYQV7G5J21RvgkRCvEBLQvWW7IMmBOQU.8CZ53cECr8E4VqOMLhDmMdInTQGuQ99MTGxeyKZf3O8..0.0"
+  "compile_digest": "233062591600640095.13741806697853602266.0.0.0"
 }

@@ -38,7 +38,9 @@ async fn md_articles() -> Result<()> {
 
     let mut settings = insta::Settings::clone_current();
     settings.set_prepend_module_to_snapshot(false);
-    settings.bind_to_thread(); // Although this fn is deprecated, don't change it as that leads to renaming of snapshot files
+    
+    #[allow(deprecated)] // Using bind_to_scope leads to renaming of snapshot files
+    settings.bind_to_thread();
 
     for name in ["code.md", "code-relations.md"] {
         let path = fixtures.join("articles").join(name);

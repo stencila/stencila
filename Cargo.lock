@@ -2727,6 +2727,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "hmac",
+ "seahash",
  "sha2 0.10.2",
 ]
 
@@ -3142,7 +3143,6 @@ dependencies = [
  "oci-spec",
  "path-utils",
  "rkyv",
- "seahash",
  "test-snaps",
  "test-utils",
 ]
@@ -4669,7 +4669,6 @@ dependencies = [
 name = "parser-treesitter"
 version = "0.0.0"
 dependencies = [
- "hash-utils",
  "parser",
  "path-utils",
  "tree-sitter",

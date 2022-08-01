@@ -3,7 +3,6 @@ source: rust/parser-bash/src/lib.rs
 assertion_line: 96
 expression: resource_info
 input_file: fixtures/fragments/bash/uses.bash
-
 ---
 {
   "resource": {
@@ -100,5 +99,5 @@ input_file: fixtures/fragments/bash/uses.bash
       }
     ]
   ],
-  "compile_digest": "ayqRDZhUeQvDwXshoJolu_1Z1f66soOQLe0awoo4nSA.2_zxjBgpigXHGzsy6RNJFldIc1YdoqjDUA7ydn0iXKI..0.0"
+  "compile_digest": "13708025511074419382.2957275543647306678.0.0.0"
 }

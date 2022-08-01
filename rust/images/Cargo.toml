@@ -21,7 +21,6 @@ http-utils = { path = "../http-utils" }
 jwalk = "0.6.0"
 oci-spec = "0.5.7"
 path-utils = { path = "../path-utils" }
-seahash = "4.1.0"
 
 cli-utils = { path = "../cli-utils", optional = true, features = ["pretty"] }
 

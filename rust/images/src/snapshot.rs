@@ -1,13 +1,11 @@
 use std::{
     collections::HashMap,
     fs,
-    hash::Hasher,
-    io,
     path::{Path, PathBuf},
 };
 
+use hash_utils::file_seahash;
 use jwalk::WalkDirGeneric;
-use seahash::SeaHasher;
 
 use common::{
     eyre::{bail, Result},
@@ -93,7 +91,7 @@ impl SnapshotEntry {
         });
 
         let fingerprint = if file_type.is_file() {
-            match Self::file_fingerprint::<SeaHasher>(path) {
+            match file_seahash(path) {
                 Ok(fingerprint) => Some(fingerprint),
                 Err(error) => {
                     tracing::error!("While fingerprinting file `{}`: {}", path.display(), error);
@@ -125,31 +123,6 @@ impl SnapshotEntry {
             fingerprint,
             target,
         }
-    }
-
-    /// Generate a hash of a file's content
-    ///
-    /// Used to generate a fingerprint of a file for detecting changes to it.
-    /// Based on https://github.com/jRimbault/yadf/blob/04205a57882ffa7d6a9ca05016e18214a38079b6/src/fs/hash.rs#L29
-    fn file_fingerprint<H>(path: &Path) -> io::Result<u64>
-    where
-        H: Hasher + Default,
-    {
-        struct HashWriter<H>(H);
-        impl<H: Hasher> io::Write for HashWriter<H> {
-            fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-                self.0.write(buf);
-                Ok(buf.len())
-            }
-
-            fn flush(&mut self) -> io::Result<()> {
-                Ok(())
-            }
-        }
-
-        let mut hasher = HashWriter(H::default());
-        io::copy(&mut std::fs::File::open(path)?, &mut hasher)?;
-        Ok(hasher.0.finish())
     }
 }
 

@@ -1,9 +1,8 @@
 ---
 source: rust/parser-py/src/lib.rs
-assertion_line: 213
+assertion_line: 223
 expression: resource_info
 input_file: fixtures/fragments/py/assigns.py
-
 ---
 {
   "resource": {
@@ -202,5 +201,5 @@ input_file: fixtures/fragments/py/assigns.py
       }
     ]
   ],
-  "compile_digest": "lFl8F7nj2Vd0LgrmhHrAb4L3INeq5gngpU3bukHNKp8.vGXPZR06wBQzfijtT8sB3R99IlZv78rnOMb_YgBsUNg..0.0"
+  "compile_digest": "12060311432052402604.1233639623729888515.0.0.0"
 }

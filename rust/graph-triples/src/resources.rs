@@ -1,5 +1,6 @@
 use std::{
     fmt::Display,
+    fs::read_to_string,
     path::{Path, PathBuf},
 };
 
@@ -7,12 +8,11 @@ use derivative::Derivative;
 use schemars::JsonSchema;
 
 use common::{
-    base64,
     eyre::Result,
     serde::{self, Serialize},
     serde_with::skip_serializing_none,
 };
-use hash_utils::{file_sha256, str_sha256};
+use hash_utils::str_seahash;
 use path_utils::path_slash::PathExt;
 use stencila_schema::{CodeChunkExecuteAuto, CodeExecutableExecuteStatus};
 
@@ -119,19 +119,19 @@ impl Resource {
 pub struct ResourceDigest {
     /// A digest that captures the content of the resource (e.g the `text`
     /// of a `CodeChunk`, or the bytes of a file).
-    pub content_digest: String,
+    pub content_digest: u64,
 
     /// A digest that captures the "semantic intent" of the resource
     /// with respect to the dependency graph.
     ///
     /// For example, for `Code` resources it is preferably derived from the AST
     /// of the code and should only change when the semantics of the code change.
-    pub semantic_digest: String,
+    pub semantic_digest: u64,
 
     /// A digest of the `dependencies_digest`s of the dependencies of a resource.
     ///
     /// If there are no dependencies then `dependencies_digest` is an empty string.
-    pub dependencies_digest: String,
+    pub dependencies_digest: u64,
 
     /// The count of the number of code dependencies that are stale (i.e. are out of sync with the `KernelSpace`).
     ///
@@ -150,9 +150,15 @@ impl ResourceDigest {
     /// Create a new `ResourceDigest` from its string representation
     pub fn from_string(string: &str) -> Self {
         let parts: Vec<&str> = string.split('.').collect();
-        let content_digest = parts.get(0).map_or_else(String::new, |str| str.to_string());
-        let semantic_digest = parts.get(1).map_or_else(String::new, |str| str.to_string());
-        let dependencies_digest = parts.get(2).map_or_else(String::new, |str| str.to_string());
+        let content_digest = parts
+            .get(0)
+            .map_or(0, |str| str.parse().unwrap_or_default());
+        let semantic_digest = parts
+            .get(1)
+            .map_or(0, |str| str.parse().unwrap_or_default());
+        let dependencies_digest = parts
+            .get(2)
+            .map_or(0, |str| str.parse().unwrap_or_default());
         let dependencies_stale = parts
             .get(3)
             .map_or(0, |str| str.parse().unwrap_or_default());
@@ -173,10 +179,10 @@ impl ResourceDigest {
     /// Before generating the hash of strings remove carriage returns from strings to avoid
     /// cross platform differences in generated digests.
     pub fn from_strings(content_str: &str, semantic_str: Option<&str>) -> Self {
-        let content_digest = Self::base64_encode(&str_sha256(&Self::strip_chars(content_str)));
-        let semantic_digest = semantic_str.map_or_else(String::default, |str| {
-            Self::base64_encode(&str_sha256(&Self::strip_chars(str)))
-        });
+        let content_digest = str_seahash(&Self::strip_chars(content_str)).unwrap_or_default();
+        let semantic_digest = semantic_str
+            .and_then(|str| str_seahash(&Self::strip_chars(str)).ok())
+            .unwrap_or_default();
         Self {
             content_digest,
             semantic_digest,
@@ -188,37 +194,18 @@ impl ResourceDigest {
     ///
     /// If there is an error when hashing the file, a default (empty) digest is returned.
     pub fn from_file(path: &Path) -> Self {
-        match file_sha256(path) {
-            Ok(bytes) => Self::from_bytes(&bytes, None),
+        match read_to_string(path) {
+            Ok(content) => Self::from_strings(&content, None),
             Err(..) => Self::default(),
         }
     }
 
-    /// Create a new `ResourceDigest` from bytes for content and semantics
+    /// Strip carriage returns from strings
     ///
-    /// To minimize the size of the digest while maintaining uniqueness, the bytes are usually,
-    /// but not necessarily, the output of a hashing function.
-    pub fn from_bytes(content_bytes: &[u8], semantic_bytes: Option<&[u8]>) -> Self {
-        let content_digest = Self::base64_encode(content_bytes);
-        let semantic_digest = semantic_bytes.map_or_else(String::default, Self::base64_encode);
-        Self {
-            content_digest,
-            semantic_digest,
-            ..Default::default()
-        }
-    }
-
-    /// Strip carriage returns (and possibly other problematic characters) from strings
+    /// Because the use of carriage returns differs between *nix and Windows, we
+    /// strip them so that content digest does not change between platforms.
     pub fn strip_chars(bytes: &str) -> String {
         bytes.replace('\r', "")
-    }
-
-    /// Encode bytes as Base64
-    ///
-    /// Uses a URL safe (https://tools.ietf.org/html/rfc3548#section-4) character set
-    /// and does not include padding (because it is unnecessary in this use case).
-    pub fn base64_encode(bytes: &[u8]) -> String {
-        base64::encode_config(bytes, base64::URL_SAFE_NO_PAD)
     }
 }
 

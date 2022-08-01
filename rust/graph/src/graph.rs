@@ -1,6 +1,7 @@
 use std::{
     cmp::Ordering,
     collections::{BTreeMap, HashMap, HashSet},
+    hash::Hasher,
     path::{Path, PathBuf},
 };
 
@@ -25,10 +26,10 @@ use common::{
     strum::Display,
 };
 use graph_triples::{
-    direction, relations, resources::ResourceDigest, stencila_schema::CodeChunkExecuteAuto,
+    direction, relations, stencila_schema::CodeChunkExecuteAuto,
     Direction, Pairs, Relation, Resource, ResourceInfo, Triple,
 };
-use hash_utils::{sha2, sha2::Digest};
+use hash_utils::seahash;
 use kernels::{Kernel, KernelSelector};
 use path_utils::path_slash::PathExt;
 use utils::some_string;
@@ -371,7 +372,7 @@ impl Graph {
             let incomings = graph.neighbors_directed(node_index, Incoming);
             let mut dependencies = Vec::new();
             let mut depth = 0;
-            let mut dependencies_digest = sha2::Sha256::new();
+            let mut dependencies_digest = seahash::SeaHasher::new();
             let mut dependencies_stale = 0;
             let mut dependencies_failed = 0;
             for incoming_index in incomings {
@@ -401,17 +402,13 @@ impl Graph {
                     .as_ref()
                     .ok_or_else(|| eyre!("Dependency has no compile_digest"))?;
 
-                // Update the digest of dependencies using a concatenation of semantic digest
+                // Update the digest of dependencies using semantic digest
                 // (or content digest if that is empty) and dependencies digest.
-                let digest = [
-                    match !compile_digest.semantic_digest.is_empty() {
-                        true => compile_digest.semantic_digest.as_str(),
-                        false => compile_digest.content_digest.as_str(),
-                    },
-                    compile_digest.dependencies_digest.as_str(),
-                ]
-                .concat();
-                dependencies_digest.update(digest);
+                dependencies_digest.write_u64(match compile_digest.semantic_digest != 0 {
+                    true => compile_digest.semantic_digest,
+                    false => compile_digest.content_digest,
+                });
+                dependencies_digest.write_u64(compile_digest.dependencies_digest);
 
                 // Update the number of `Code` dependencies that are stale and failed. This is transitive,
                 // so if the resource is not code (e.g. a `Symbol`) then add its value.
@@ -430,8 +427,8 @@ impl Graph {
 
             // If there are no dependencies then `dependencies_digest` is an empty string
             let dependencies_digest = match !dependencies.is_empty() {
-                true => ResourceDigest::base64_encode(&dependencies_digest.finalize()),
-                false => String::default(),
+                true => dependencies_digest.finish(),
+                false => 0,
             };
 
             // Get the resource info we're about to update

@@ -1,4 +1,3 @@
-use hash_utils::sha2::{Digest, Sha256};
 use parser::{
     graph_triples::{relations::Range, resources::ResourceDigest, Pairs, Resource, ResourceInfo},
     utils::apply_tags,
@@ -226,9 +225,9 @@ pub fn resource_info(
         Some(relations),
         None,
         None,
-        Some(ResourceDigest::from_bytes(
-            &content_digest(code),
-            Some(&semantic_digest(tree, code, semantics_exclude)),
+        Some(ResourceDigest::from_strings(
+            &String::from_utf8_lossy(code),
+            Some(&semantic_content(tree, code, semantics_exclude)),
         )),
         None,
         None,
@@ -255,29 +254,13 @@ pub fn resource_info(
     resource_info
 }
 
-/// Generate a content digest of the code (just a SHA256 of the content)
-///
-/// Strips carriage returns to avoid different digests on Windows.
-fn content_digest(code: &[u8]) -> [u8; 32] {
-    let mut sha256 = Sha256::new();
-    let text = String::from_utf8_lossy(code).replace('\r', "");
-    sha256.update(&text);
-    sha256
-        .finalize()
-        .as_slice()
-        .try_into()
-        .expect("Should always convert to 32 bytes")
-}
-
-/// Generate a semantic digest of a Tree-sitter tree
+/// Generate a digest of the "semantic content" of a Tree-sitter tree
 ///
 /// The digest excludes "anonymous" nodes and some "named" nodes.
 /// See https://tree-sitter.github.io/tree-sitter/using-parsers#named-vs-anonymous-nodes
 /// for a discussion of the distinction between the two.
-///
-/// Strips carriage returns to avoid different digests on Windows.
-fn semantic_digest(tree: &Tree, code: &[u8], exclude: &[&str]) -> [u8; 32] {
-    let mut sha256 = Sha256::new();
+fn semantic_content(tree: &Tree, code: &[u8], exclude: &[&str]) -> String {
+    let mut digest = String::new();
 
     // Traverse tree adding the text of named leaf nodes.
     //
@@ -290,10 +273,10 @@ fn semantic_digest(tree: &Tree, code: &[u8], exclude: &[&str]) -> [u8; 32] {
         let node = cursor.node();
         let kind = node.kind();
         if node.is_named() && !exclude.contains(&kind) {
-            sha256.update(&kind);
+            digest.push_str(kind);
             if node.child_count() == 0 {
-                let text = node.utf8_text(code).unwrap().replace('\r', "");
-                sha256.update(&text);
+                let text = node.utf8_text(code).unwrap_or_default();
+                digest.push_str(text);
             }
         }
 
@@ -316,9 +299,5 @@ fn semantic_digest(tree: &Tree, code: &[u8], exclude: &[&str]) -> [u8; 32] {
         }
     }
 
-    sha256
-        .finalize()
-        .as_slice()
-        .try_into()
-        .expect("Should always convert to 32 bytes")
+    digest
 }

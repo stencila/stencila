@@ -3,7 +3,6 @@ source: rust/parser-r/src/lib.rs
 assertion_line: 210
 expression: resource_info
 input_file: fixtures/fragments/r/reads.R
-
 ---
 {
   "resource": {
@@ -94,5 +93,5 @@ input_file: fixtures/fragments/r/reads.R
       }
     ]
   ],
-  "compile_digest": "4bVzPMyTMv1leRvjla__0xS8E229BO1yKlLaokPOAnU.i6oAGSviC0L80u6EH1eQlcOLDj90exJbhT6chwIoIFI..0.0"
+  "compile_digest": "4070031409373294044.14306524640697689833.0.0.0"
 }
