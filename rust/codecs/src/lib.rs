@@ -296,7 +296,7 @@ impl Codecs {
         if !path.exists() {
             bail!("Input path `{}` does not exist", path.display())
         }
-        
+
         let (format, format_spec) = Self::format_from_path(path, format)?;
 
         let options = Some(DecodeOptions {
