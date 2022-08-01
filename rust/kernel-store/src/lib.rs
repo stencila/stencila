@@ -75,7 +75,7 @@ impl KernelTrait for StoreKernel {
 
 #[cfg(test)]
 mod tests {
-    use kernel::{common::tokio, KernelStatus, KernelTrait};
+    use kernel::{common::tokio, stencila_schema::Number, KernelStatus, KernelTrait};
 
     use super::*;
 
@@ -98,7 +98,7 @@ mod tests {
         };
 
         kernel.set("a", Node::String("A".to_string())).await?;
-        kernel.set("b", Node::Number(1.23)).await?;
+        kernel.set("b", Node::Number(Number(1.23))).await?;
 
         let a = kernel.get("a").await?;
         assert!(matches!(a, Node::String(..)));

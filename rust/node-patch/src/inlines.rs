@@ -463,7 +463,7 @@ mod tests {
             ..Default::default()
         });
         let b = InlineContent::Parameter(Parameter {
-            value: Some(Box::new(Node::Number(1.23))),
+            value: Some(Box::new(Node::Number(Number(1.23)))),
             ..Default::default()
         });
 

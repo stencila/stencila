@@ -68,7 +68,10 @@ mod tests {
     use std::collections::BTreeMap;
 
     use super::*;
-    use codec::{common::eyre::bail, stencila_schema::Primitive};
+    use codec::{
+        common::eyre::bail,
+        stencila_schema::{Number, Primitive},
+    };
     use test_utils::assert_json_eq;
 
     #[test]
@@ -110,7 +113,7 @@ mod tests {
     fn numbers() -> Result<()> {
         assert!(matches!(TxtCodec::from_str("1", None)?, Node::Integer(1)));
         match TxtCodec::from_str("1.23", None)? {
-            Node::Number(value) => assert_eq!(value, 1.23),
+            Node::Number(value) => assert_eq!(value, Number(1.23)),
             _ => bail!("Wrong type"),
         }
         Ok(())

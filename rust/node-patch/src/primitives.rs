@@ -65,7 +65,7 @@ impl Patchable for Primitive {
         } else if let Some(value) = value.downcast_ref::<Integer>() {
             Primitive::Integer(*value)
         } else if let Some(value) = value.downcast_ref::<Number>() {
-            Primitive::Number(*value)
+            Primitive::Number(value.clone())
         } else if let Some(value) = value.downcast_ref::<String>() {
             Primitive::String(value.clone())
         } else if let Some(value) = value.downcast_ref::<Object>() {
@@ -98,7 +98,7 @@ impl Patchable for Null {
 
 /// Macro to generate `impl Patchable` for atomic types
 macro_rules! patchable_atomic {
-    ($type:ty, $hash:ident) => {
+    ($type:ty) => {
         impl Patchable for $type {
             fn is_equal(&self, other: &Self) -> Result<()> {
                 #[allow(clippy::float_cmp)]
@@ -109,7 +109,7 @@ macro_rules! patchable_atomic {
             }
 
             fn make_hash<H: Hasher>(&self, state: &mut H) {
-                $hash(self, state)
+                self.hash(state)
             }
 
             fn diff(&self, other: &Self, differ: &mut Differ) {
@@ -132,34 +132,22 @@ macro_rules! patchable_atomic {
     };
 }
 
-/// Hash an atomic
-fn hash<T: Hash, H: Hasher>(value: &T, state: &mut H) {
-    value.hash(state)
-}
-
-/// Hash a float
-///
-/// See caveats to this approach: https://stackoverflow.com/a/39647997
-fn hash_float<H: Hasher>(value: &f64, state: &mut H) {
-    value.to_bits().hash(state)
-}
-
 // Implementations for types used in some struct fields
 // instead of the Stencila primitives (usually as optimizations)
 
-patchable_atomic!(u8, hash);
-patchable_atomic!(i32, hash);
-patchable_atomic!(u32, hash);
+patchable_atomic!(u8);
+patchable_atomic!(i32);
+patchable_atomic!(u32);
 
 // Implementations for Stencila primitive types
 
-patchable_atomic!(Boolean, hash);
-patchable_atomic!(Integer, hash);
-patchable_atomic!(Number, hash_float);
+patchable_atomic!(Boolean);
+patchable_atomic!(Integer);
+patchable_atomic!(Number);
 
 // A `Cord` is a `String` that is intended to be replaced wholly
 // rather than diffed. So treat it as an atomic.
-patchable_atomic!(Cord, hash);
+patchable_atomic!(Cord);
 
 #[cfg(test)]
 mod tests {
@@ -187,7 +175,7 @@ mod tests {
         }));
         let obj3 = Primitive::Object(obj!({
             "a": Primitive::String("a".to_string()),
-            "b": Primitive::Number(1.23)
+            "b": Primitive::Number(Number(1.23))
         }));
 
         let patch = diff(&null, &bool);
@@ -273,13 +261,16 @@ mod tests {
 
     #[test]
     fn numbers() -> Result<()> {
-        assert!(equal(&1.23, &1.23));
-        assert!(!equal(&1.23, &1e6));
+        assert!(equal(&Number(1.23), &Number(1.23)));
+        assert!(!equal(&Number(1.23), &Number(1e6)));
 
-        assert_json_is!(diff(&1.23, &1.23).ops, []);
-        assert_json_is!(diff(&1.23, &1e6).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1e6, "length": 1}]);
+        assert_json_is!(diff(&Number(1.23), &Number(1.23)).ops, []);
+        assert_json_is!(diff(&Number(1.23), &Number(1e6)).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1e6, "length": 1}]);
 
-        assert_json_is!(apply_new(&1e6, &diff(&1e6, &1.23))?, 1.23);
+        assert_json_is!(
+            apply_new(&Number(1e6), &diff(&Number(1e6), &Number(1.23)))?,
+            1.23
+        );
 
         Ok(())
     }

@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
-pub use defaults::Defaults;
+pub use derivative::Derivative;
+use float_cmp::approx_eq;
 pub use serde::{Deserialize, Serialize};
 pub use serde_json::Value;
 pub use serde_with::skip_serializing_none;
@@ -16,7 +17,7 @@ pub use strum::AsRefStr;
 /// This is a struct, rather than a unit variant of `Primitive`, so that
 /// it can be treated the same way as other variants when dispatching to
 /// trait methods.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Null {}
 
 impl Display for Null {
@@ -57,8 +58,56 @@ pub type Integer = i64;
 
 /// A floating point value (a.k.a real number)
 ///
-/// Uses `i64` for maximum precision.
-pub type Number = f64;
+/// Uses `f64` for maximum precision.
+///
+/// Needs to be a newtype so that we can implement `PartialEq` which is
+/// not implemented for f64.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct Number(pub f64);
+
+impl Number {
+    pub fn new(num: f64) -> Self {
+        Self(num)
+    }
+}
+
+impl PartialEq for Number {
+    fn eq(&self, other: &Self) -> bool {
+        approx_eq!(f64, self.0, other.0, ulps = 2)
+    }
+}
+
+impl Eq for Number {}
+
+impl std::hash::Hash for Number {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // See caveats to this approach: https://stackoverflow.com/a/39647997
+        self.0.to_bits().hash(state)
+    }
+}
+
+impl std::str::FromStr for Number {
+    type Err = Box<dyn std::error::Error>;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Number(f64::from_str(s)?))
+    }
+}
+
+impl std::fmt::Display for Number {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::ops::Deref for Number {
+    type Target = f64;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 /// An array value (a.k.a. vector)
 pub type Array = Vec<Primitive>;
@@ -69,7 +118,7 @@ pub type Array = Vec<Primitive>;
 pub type Object = BTreeMap<String, Primitive>;
 
 /// The set of primitive (non-Entity) node types
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Primitive {
     Null(Null),

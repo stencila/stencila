@@ -5,7 +5,7 @@ use maplit::btreemap;
 use serde_json::{json, Result, Value};
 use stencila_schema::{
     Article, BlockContent, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle, InlineContent,
-    Null, Paragraph, Person, Primitive,
+    Null, Number, Paragraph, Person, Primitive,
 };
 
 #[test]
@@ -76,7 +76,7 @@ fn primitives_serialize() -> Result<()> {
     let integer = Primitive::Integer(42);
     assert_eq!(serde_json::to_string(&integer)?, "42");
 
-    let number = Primitive::Number(3.14);
+    let number = Primitive::Number(Number(3.14));
     assert_eq!(serde_json::to_string(&number)?, "3.14");
 
     let string = Primitive::String("string".to_string());
@@ -86,7 +86,7 @@ fn primitives_serialize() -> Result<()> {
         Primitive::Null(Null {}),
         Primitive::Boolean(false),
         Primitive::Integer(42),
-        Primitive::Number(3.14),
+        Primitive::Number(Number(3.14)),
         Primitive::String("string".to_string()),
     ]);
     assert_eq!(
@@ -98,7 +98,7 @@ fn primitives_serialize() -> Result<()> {
         "a".to_string() => Primitive::Null(Null{}),
         "b".to_string() => Primitive::Boolean(false),
         "c".to_string() => Primitive::Integer(42),
-        "d".to_string() => Primitive::Number(3.14),
+        "d".to_string() => Primitive::Number(Number(3.14)),
         "e".to_string() => Primitive::String("string".to_string())
     });
     assert_eq!(

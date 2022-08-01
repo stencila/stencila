@@ -49,7 +49,7 @@ mod tests {
             once_cell::sync::Lazy,
             tokio::{self, sync::Mutex},
         },
-        stencila_schema::{Array, Node, Object, Primitive},
+        stencila_schema::{Array, Node, Number, Object, Primitive},
         KernelTrait, TaskResult,
     };
     use test_utils::{assert_json_eq, assert_json_is};
@@ -139,7 +139,7 @@ mod tests {
             ("var1", Node::Boolean(true)),
             ("var2", Node::Boolean(false)),
             ("var3", Node::Integer(123)),
-            ("var4", Node::Number(1.23)),
+            ("var4", Node::Number(Number(1.23))),
             (
                 "var5",
                 Node::Array(Array::from([

@@ -339,7 +339,7 @@ impl ToHtml for NumberValidator {
         let minimum = elem_placeholder(
             "span",
             &[attr_prop("minimum"), attr_slot("minimum")],
-            &self.minimum.map(|value| value.to_string()),
+            &self.minimum.as_ref().map(|value| value.to_string()),
             context,
         );
 
@@ -349,14 +349,17 @@ impl ToHtml for NumberValidator {
                 attr_prop("exclusive_minimum"),
                 attr_slot("exclusive-minimum"),
             ],
-            &self.exclusive_minimum.map(|value| value.to_string()),
+            &self
+                .exclusive_minimum
+                .as_ref()
+                .map(|value| value.to_string()),
             context,
         );
 
         let maximum = elem_placeholder(
             "span",
             &[attr_prop("maximum"), attr_slot("maximum")],
-            &self.maximum.map(|value| value.to_string()),
+            &self.maximum.as_ref().map(|value| value.to_string()),
             context,
         );
 
@@ -366,14 +369,17 @@ impl ToHtml for NumberValidator {
                 attr_prop("exclusive_maximum"),
                 attr_slot("exclusive-maximum"),
             ],
-            &self.exclusive_maximum.map(|value| value.to_string()),
+            &self
+                .exclusive_maximum
+                .as_ref()
+                .map(|value| value.to_string()),
             context,
         );
 
         let multiple_of = elem_placeholder(
             "span",
             &[attr_prop("multiple_of"), attr_slot("multiple-of")],
-            &self.multiple_of.map(|value| value.to_string()),
+            &self.multiple_of.as_ref().map(|value| value.to_string()),
             context,
         );
 
@@ -396,13 +402,13 @@ impl ToHtml for NumberValidator {
         // attributes supported here.
         let mut attrs = Vec::with_capacity(4);
         attrs.push(attr("type", "number"));
-        if let Some(min) = self.minimum {
+        if let Some(min) = &self.minimum {
             attrs.push(attr("min", &min.to_string()))
         }
-        if let Some(max) = self.maximum {
+        if let Some(max) = &self.maximum {
             attrs.push(attr("max", &max.to_string()))
         }
-        if let Some(step) = self.multiple_of {
+        if let Some(step) = &self.multiple_of {
             attrs.push(attr("step", &step.to_string()))
         }
         attrs

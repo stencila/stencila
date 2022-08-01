@@ -36,7 +36,7 @@ impl CodecTrait for JsonCodec {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use codec::stencila_schema::{Paragraph, Primitive};
+    use codec::stencila_schema::{Number, Paragraph, Primitive};
     use std::collections::BTreeMap;
     use test_utils::assert_json_eq;
 
@@ -54,7 +54,7 @@ mod tests {
 
         #[allow(clippy::float_cmp)]
         if let Node::Number(num) = JsonCodec::from_str("1.23", None).unwrap() {
-            assert_eq!(num, 1.23_f64)
+            assert_eq!(num, Number(1.23))
         }
 
         assert!(matches!(
@@ -94,7 +94,7 @@ mod tests {
         );
 
         assert_eq!(
-            JsonCodec::to_string(&Node::Number(1.23), None).unwrap(),
+            JsonCodec::to_string(&Node::Number(Number(1.23)), None).unwrap(),
             "1.23".to_string()
         );
 

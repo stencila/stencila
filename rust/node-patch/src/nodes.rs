@@ -1,5 +1,5 @@
 use common::serde_json;
-use stencila_schema::Node;
+use stencila_schema::{Node, Number};
 
 use super::prelude::*;
 
@@ -48,7 +48,7 @@ macro_rules! patchable_node_variants {
                         return Ok(Node::String(string.to_string()));
                     }
                     if let Some(number) = value.as_f64() {
-                        return Ok(Node::Number(number));
+                        return Ok(Node::Number(Number(number)));
                     }
                     if let Some(integer) = value.as_i64() {
                         return Ok(Node::Integer(integer));

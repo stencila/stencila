@@ -10,7 +10,7 @@ use kernel::{
         regex::Regex,
         serde::Serialize,
     },
-    stencila_schema::{CodeError, Node, Primitive},
+    stencila_schema::{CodeError, Node, Number, Primitive},
     Kernel, KernelStatus, KernelTrait, KernelType, Task, TaskResult,
 };
 
@@ -42,7 +42,7 @@ impl KernelTrait for CalcKernel {
 
     async fn get(&mut self, name: &str) -> Result<Node> {
         match self.symbols.get(name) {
-            Some(number) => Ok(Node::Number(*number)),
+            Some(number) => Ok(Node::Number(Number(*number))),
             None => bail!("Symbol `{}` does not exist in this kernel", name),
         }
     }
@@ -55,7 +55,7 @@ impl KernelTrait for CalcKernel {
                 false => 0.,
             },
             Node::Integer(integer) => integer as f64,
-            Node::Number(number) => number,
+            Node::Number(number) => number.0,
             Node::String(string) => match string.trim().parse() {
                 Ok(number) => number,
                 Err(..) => bail!("Unable to convert string `{}` to a number", string),
@@ -68,7 +68,7 @@ impl KernelTrait for CalcKernel {
                         false => 0.,
                     },
                     Primitive::Integer(integer) => *integer as f64,
-                    Primitive::Number(number) => *number,
+                    Primitive::Number(number) => number.0,
                     Primitive::String(string) => match string.trim().parse() {
                         Ok(number) => number,
                         Err(..) => bail!("Unable to convert string `{}` to a number", string),
@@ -125,7 +125,7 @@ impl KernelTrait for CalcKernel {
                     if let Some(symbol) = symbol {
                         self.symbols.insert(symbol.to_string(), num);
                     } else {
-                        outputs.push(Node::Number(num))
+                        outputs.push(Node::Number(Number(num)))
                     }
                 }
                 Err(error) => {
@@ -178,7 +178,7 @@ fn now() -> Option<f64> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernel::{common::tokio, KernelStatus, KernelTrait};
+    use kernel::{common::tokio, stencila_schema::Number, KernelStatus, KernelTrait};
     use test_utils::{assert_json_eq, common::serde_json::json};
 
     #[tokio::test]
@@ -206,7 +206,7 @@ mod tests {
                 .contains("Unable to convert string `A` to a number")),
         };
 
-        kernel.set("a", Node::Number(1.23)).await?;
+        kernel.set("a", Node::Number(Number(1.23))).await?;
 
         let a = kernel.get("a").await?;
         assert!(matches!(a, Node::Number(..)));

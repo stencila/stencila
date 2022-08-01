@@ -49,11 +49,16 @@ interface Context {
 
 // Custom attributes to add to particular properties
 const propertyAttributes: Record<string, string[]> = {
-  'Date.value': ['#[def = "chrono::Utc::now().to_rfc3339()"]'],
-  'PropertyValue.value': [
-    '#[def = "PropertyValueValue::String(String::new())"]',
+  '*.id': ['#[derivative(PartialEq = "ignore")]'],
+  'Date.value': [
+    '#[derivative(Default(value = "chrono::Utc::now().to_rfc3339()"))]',
   ],
-  'ConstantValidator.value': ['#[def = "Box::new(Node::Null(Null{}))"]'],
+  'PropertyValue.value': [
+    '#[derivative(Default(value = "PropertyValueValue::String(String::new())"))]',
+  ],
+  'ConstantValidator.value': [
+    '#[derivative(Default(value = "Box::new(Node::Null(Null{}))"))]',
+  ],
 }
 
 // Custom types for particular properties
@@ -294,28 +299,21 @@ ${attrs.map((attr) => `    ${attr}\n`).join('')}    pub ${snakeCase(
     })
     .join('\n\n')
 
-  const derives = [
-    'Clone',
-    'Debug',
-    'Defaults',
-    'Serialize',
-    'Deserialize',
-  ].join(', ')
-
   return `
 ${docComment(description)}
 #[skip_serializing_none]
-#[derive(${derives})]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ${title} {
     /// The name of this type
-    #[def = "${title}_::${typeName ?? title}"]
+    #[derivative(Default(value = "${title}_::${typeName ?? title}"))]
     pub type_: ${title}_,
 
 ${fields}
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ${title}_ {
   ${typeName ?? title}
 }`
@@ -377,7 +375,7 @@ export function enumSchemaToEnum(
     .join('')
 
   return `${docComment(description)}
-#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${title} {\n${variants}}`
 }
@@ -410,7 +408,7 @@ export function unionSchemaToEnum(
     .join('')
 
   return `${docComment(description)}
-#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${title} {\n${variants}}\n`
 }
@@ -455,7 +453,7 @@ function anyOfToEnum(anyOf: JsonSchema[], context: Context): string {
 
   const name = context.propertyTypeName ?? ''
   const definition = `/// Types permitted for the \`${context.propertyName}\` property of a \`${context.typeName}\` node.
-#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${name} {\n${variants}}\n`
   context.anonEnums[name] = definition
@@ -475,7 +473,7 @@ export function enumToEnum(enu: (string | number)[], context: Context): string {
     .join('')
 
   const name = context.propertyTypeName ?? ''
-  const definition = `#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+  const definition = `#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
 pub enum ${name} {\n${lines}}\n`
   context.anonEnums[name] = definition
 
