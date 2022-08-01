@@ -873,7 +873,8 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                                 .map(|item| Node::String(item.trim().to_string()))
                                 .collect(),
                         }
-                    });
+                    })
+                    .unwrap_or_default();
                 Some(ValidatorTypes::EnumValidator(EnumValidator {
                     values,
                     ..Default::default()

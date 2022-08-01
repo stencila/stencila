@@ -147,14 +147,11 @@ impl ToHtml for Parameter {
                 .map(|node| node.to_txt())
                 .unwrap_or_default();
 
-            let options = match validator.values.as_deref() {
-                Some(values) => concat(values, |node| {
-                    let txt = node.to_txt();
-                    let selected = if txt == value { "selected" } else { "" };
-                    elem("option", &[attr("value", &txt), selected.to_string()], &txt)
-                }),
-                None => nothing(),
-            };
+            let options = concat(&validator.values, |node| {
+                let txt = node.to_txt();
+                let selected = if txt == value { "selected" } else { "" };
+                elem("option", &[attr("value", &txt), selected.to_string()], &txt)
+            });
 
             elem(
                 "select",

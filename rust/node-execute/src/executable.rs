@@ -78,7 +78,7 @@ pub trait Executable {
     }
 
     async fn execute_begin(
-        &self,
+        &mut self,
         _kernel_space: &KernelSpace,
         _kernel_selector: &KernelSelector,
         _resource_info: &ResourceInfo,
@@ -246,6 +246,46 @@ executable_media_object!(MediaObject, "me");
 executable_media_object!(VideoObject, "vi");
 executable_media_object!(VideoObjectSimple, "vi");
 
+/// Get the value for a parameter
+///
+/// Uses the parameters `value`, falling back to it's `default`, falling back
+/// to a default based on the validator.
+fn parameter_value(param: &Parameter) -> Node {
+    param
+        .value
+        .as_deref()
+        .or(param.default.as_deref())
+        .cloned()
+        .unwrap_or_else(|| match param.validator.as_deref() {
+            // Default value based on validator
+
+            // Boolean validator => false
+            Some(ValidatorTypes::BooleanValidator(..)) => Node::Boolean(false),
+            // Number and integer validators => The minimum value or zero
+            Some(ValidatorTypes::IntegerValidator(IntegerValidator { minimum, .. })) => {
+                Node::Integer(minimum.map_or(0, |float| float as i64))
+            }
+            Some(ValidatorTypes::NumberValidator(NumberValidator { minimum, .. })) => {
+                Node::Number(minimum.unwrap_or(0.0))
+            }
+            // String validator => empty string
+            Some(ValidatorTypes::StringValidator(..)) => Node::String(String::new()),
+            // Array and typle validators => empty array
+            Some(ValidatorTypes::ArrayValidator(..)) => Node::Array(Vec::new()),
+            Some(ValidatorTypes::TupleValidator(..)) => Node::Array(Vec::new()),
+            // Enum validator => The first enum value or empty string
+            Some(ValidatorTypes::EnumValidator(validator)) => validator
+                .values
+                .first()
+                .cloned()
+                .unwrap_or_else(|| Node::String(String::new())),
+            // Constant value validator => The value
+            Some(ValidatorTypes::ConstantValidator(validator)) => (*validator.value).clone(),
+            // Unspecified validator or none at all => Empty string
+            Some(ValidatorTypes::Validator(..)) | None => Node::String(String::new()),
+        })
+}
+
 #[async_trait]
 impl Executable for Parameter {
     /// Compile a `Parameter` node
@@ -276,14 +316,10 @@ impl Executable for Parameter {
         let object = resources::symbol(&context.path, &self.name, kind);
         let relations = vec![(relations::assigns(NULL_RANGE), object)];
 
-        // For `ResourceDigest`, content is Debug repr of node value or default
-        // and semantic string adds name
-        let content_str = self
-            .value
-            .as_deref()
-            .or(self.default.as_deref())
-            .map(|node| format!("{:?}", node))
-            .unwrap_or_else(|| "".to_string());
+        // For `ResourceDigest`, content string is `Debug` representation of the parameter value
+        // and semantic string adds the parameter name
+        let value = parameter_value(self);
+        let content_str = format!("{:?}", value);
         let semantic_str = [self.name.as_str(), content_str.as_str()].concat();
 
         let resource_info = ResourceInfo::new(
@@ -304,7 +340,7 @@ impl Executable for Parameter {
     }
 
     async fn execute_begin(
-        &self,
+        &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         _resource_info: &ResourceInfo,
@@ -312,10 +348,12 @@ impl Executable for Parameter {
     ) -> Result<Option<TaskInfo>> {
         tracing::debug!("Executing `Parameter`");
 
-        if let Some(value) = self.value.as_deref().or(self.default.as_deref()) {
-            kernel_space
-                .set(&self.name, value.clone(), kernel_selector)
-                .await?;
+        let value = parameter_value(self);
+
+        kernel_space.set(&self.name, value, kernel_selector).await?;
+
+        if self.value.is_none() {
+            self.value = Some(Box::new(parameter_value(self)));
         }
 
         Ok(None)
@@ -377,7 +415,7 @@ impl Executable for CodeChunk {
     }
 
     async fn execute_begin(
-        &self,
+        &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         resource_info: &ResourceInfo,
@@ -478,7 +516,7 @@ impl Executable for CodeExpression {
     }
 
     async fn execute_begin(
-        &self,
+        &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         resource_info: &ResourceInfo,
@@ -645,7 +683,7 @@ impl Executable for Node {
     }
 
     async fn execute_begin(
-        &self,
+        &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         resource_info: &ResourceInfo,
@@ -681,7 +719,7 @@ macro_rules! executable_enum {
             }
 
             async fn execute_begin(
-                &self,
+                &mut self,
                 kernel_space: &KernelSpace,
                 kernel_selector: &KernelSelector,
                 resource_info: &ResourceInfo,
@@ -779,7 +817,6 @@ executable_fields!(Table, rows, caption);
 executable_fields!(TableSimple, rows, caption);
 executable_fields!(TableRow, cells);
 executable_fields!(TableCell, content);
-
 
 /// Compile the content field of a struct only
 macro_rules! executable_content {
