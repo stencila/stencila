@@ -1757,7 +1757,7 @@ pub struct ConstantValidator {
     pub type_: ConstantValidator_,
 
     /// The value that the node must have.
-    #[def = "Box::new(Node::Null{Null{}})"]
+    #[def = "Box::new(Node::Null(Null{}))"]
     pub value: Box<Node>,
 
     /// The identifier for this item.
