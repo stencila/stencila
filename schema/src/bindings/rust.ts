@@ -53,6 +53,7 @@ const propertyAttributes: Record<string, string[]> = {
   'PropertyValue.value': [
     '#[def = "PropertyValueValue::String(String::new())"]',
   ],
+  'ConstantValidator.value': ['#[def = "Box::new(Node::Null{Null{}})"]'],
 }
 
 // Custom types for particular properties

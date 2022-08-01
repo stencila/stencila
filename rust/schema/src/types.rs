@@ -1756,11 +1756,12 @@ pub struct ConstantValidator {
     #[def = "ConstantValidator_::ConstantValidator"]
     pub type_: ConstantValidator_,
 
+    /// The value that the node must have.
+    #[def = "Box::new(Node::Null{Null{}})"]
+    pub value: Box<Node>,
+
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// The value that the node must have.
-    pub value: Option<Box<Node>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1777,11 +1778,11 @@ pub struct EnumValidator {
     #[def = "EnumValidator_::EnumValidator"]
     pub type_: EnumValidator_,
 
+    /// A node is valid if it is equal to any of these values.
+    pub values: Vec<Node>,
+
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// A node is valid if it is equal to any of these values.
-    pub values: Option<Vec<Node>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2258,6 +2259,39 @@ pub enum Include_ {
   Include
 }
 
+/// A validator specifying the constraints on a numeric node.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct NumberValidator {
+    /// The name of this type
+    #[def = "NumberValidator_::NumberValidator"]
+    pub type_: NumberValidator_,
+
+    /// The exclusive upper limit for a numeric node.
+    pub exclusive_maximum: Option<Number>,
+
+    /// The exclusive lower limit for a numeric node.
+    pub exclusive_minimum: Option<Number>,
+
+    /// The identifier for this item.
+    pub id: Option<Box<String>>,
+
+    /// The inclusive upper limit for a numeric node.
+    pub maximum: Option<Number>,
+
+    /// The inclusive lower limit for a numeric node.
+    pub minimum: Option<Number>,
+
+    /// A number that a numeric node must be a multiple of.
+    pub multiple_of: Option<Number>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum NumberValidator_ {
+  NumberValidator
+}
+
 /// A validator specifying the constraints on an integer node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2267,8 +2301,23 @@ pub struct IntegerValidator {
     #[def = "IntegerValidator_::IntegerValidator"]
     pub type_: IntegerValidator_,
 
+    /// The exclusive upper limit for a numeric node.
+    pub exclusive_maximum: Option<Number>,
+
+    /// The exclusive lower limit for a numeric node.
+    pub exclusive_minimum: Option<Number>,
+
     /// The identifier for this item.
     pub id: Option<Box<String>>,
+
+    /// The inclusive upper limit for a numeric node.
+    pub maximum: Option<Number>,
+
+    /// The inclusive lower limit for a numeric node.
+    pub minimum: Option<Number>,
+
+    /// A number that a numeric node must be a multiple of.
+    pub multiple_of: Option<Number>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2559,39 +2608,6 @@ pub struct Note {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Note_ {
   Note
-}
-
-/// A validator specifying the constraints on a numeric node.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
-pub struct NumberValidator {
-    /// The name of this type
-    #[def = "NumberValidator_::NumberValidator"]
-    pub type_: NumberValidator_,
-
-    /// The exclusive upper limit for a numeric node.
-    pub exclusive_maximum: Option<Number>,
-
-    /// The exclusive lower limit for a numeric node.
-    pub exclusive_minimum: Option<Number>,
-
-    /// The identifier for this item.
-    pub id: Option<Box<String>>,
-
-    /// The inclusive upper limit for a numeric node.
-    pub maximum: Option<Number>,
-
-    /// The inclusive lower limit for a numeric node.
-    pub minimum: Option<Number>,
-
-    /// A number that a numeric node must be a multiple of.
-    pub multiple_of: Option<Number>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum NumberValidator_ {
-  NumberValidator
 }
 
 /// An organization such as a school, NGO, corporation, club, etc.
@@ -5418,6 +5434,14 @@ pub enum Node {
     String(String),
     Object(Object),
     Array(Array),
+}
+
+/// All type schemas that are derived from NumberValidator
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum NumberValidatorTypes {
+    NumberValidator(NumberValidator),
+    IntegerValidator(IntegerValidator),
 }
 
 /// Union type for all primitives values

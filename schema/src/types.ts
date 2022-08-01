@@ -82,6 +82,7 @@ export interface Types {
   Null: null
   Number: number
   NumberValidator: NumberValidator
+  NumberValidatorTypes: NumberValidatorTypes
   Object: { [property: string]: Primitive }
   Organization: Organization
   Paragraph: Paragraph
@@ -945,7 +946,7 @@ export const booleanValidator = (
  */
 export type ConstantValidator = Validator & {
   type: 'ConstantValidator'
-  value?: Node
+  value: Node
 }
 
 /**
@@ -954,7 +955,7 @@ export type ConstantValidator = Validator & {
  * @returns {ConstantValidator} ConstantValidator schema node
  */
 export const constantValidator = (
-  props: Omit<ConstantValidator, 'type'> = {}
+  props: Omit<ConstantValidator, 'type'>
 ): ConstantValidator => ({
   ...compact(props),
   type: 'ConstantValidator',
@@ -965,7 +966,7 @@ export const constantValidator = (
  */
 export type EnumValidator = Validator & {
   type: 'EnumValidator'
-  values?: Array<Node>
+  values: Array<Node>
 }
 
 /**
@@ -974,7 +975,7 @@ export type EnumValidator = Validator & {
  * @returns {EnumValidator} EnumValidator schema node
  */
 export const enumValidator = (
-  props: Omit<EnumValidator, 'type'> = {}
+  props: Omit<EnumValidator, 'type'>
 ): EnumValidator => ({
   ...compact(props),
   type: 'EnumValidator',
@@ -1117,9 +1118,33 @@ export const include = (props: Omit<Include, 'type'>): Include => ({
 })
 
 /**
+ * A validator specifying the constraints on a numeric node.
+ */
+export type NumberValidator = Validator & {
+  type: 'NumberValidator' | 'IntegerValidator'
+  exclusiveMaximum?: number
+  exclusiveMinimum?: number
+  maximum?: number
+  minimum?: number
+  multipleOf?: number
+}
+
+/**
+ * Create a `NumberValidator` node
+ * @param props Object containing NumberValidator schema properties as key/value pairs
+ * @returns {NumberValidator} NumberValidator schema node
+ */
+export const numberValidator = (
+  props: Omit<NumberValidator, 'type'> = {}
+): NumberValidator => ({
+  ...compact(props),
+  type: 'NumberValidator',
+})
+
+/**
  * A validator specifying the constraints on an integer node.
  */
-export type IntegerValidator = Validator & {
+export type IntegerValidator = NumberValidator & {
   type: 'IntegerValidator'
 }
 
@@ -1312,30 +1337,6 @@ export type Note = Entity & {
 export const note = (props: Omit<Note, 'type'>): Note => ({
   ...compact(props),
   type: 'Note',
-})
-
-/**
- * A validator specifying the constraints on a numeric node.
- */
-export type NumberValidator = Validator & {
-  type: 'NumberValidator'
-  exclusiveMaximum?: number
-  exclusiveMinimum?: number
-  maximum?: number
-  minimum?: number
-  multipleOf?: number
-}
-
-/**
- * Create a `NumberValidator` node
- * @param props Object containing NumberValidator schema properties as key/value pairs
- * @returns {NumberValidator} NumberValidator schema node
- */
-export const numberValidator = (
-  props: Omit<NumberValidator, 'type'> = {}
-): NumberValidator => ({
-  ...compact(props),
-  type: 'NumberValidator',
 })
 
 /**
@@ -2325,6 +2326,11 @@ export type Node =
   | Array<Primitive>
 
 /**
+ * All type schemas that are derived from NumberValidator
+ */
+export type NumberValidatorTypes = NumberValidator | IntegerValidator
+
+/**
  * Union type for all primitives values
  */
 export type Primitive =
@@ -3009,6 +3015,12 @@ export const mediaObjectTypes: TypeMap<Exclude<MediaObjectTypes, Primitive>> = {
   ImageObject: 'ImageObject',
   VideoObject: 'VideoObject',
 }
+export const numberValidatorTypes: TypeMap<
+  Exclude<NumberValidatorTypes, Primitive>
+> = {
+  NumberValidator: 'NumberValidator',
+  IntegerValidator: 'IntegerValidator',
+}
 export const thingTypes: TypeMap<Exclude<ThingTypes, Primitive>> = {
   Thing: 'Thing',
   Article: 'Article',
@@ -3107,6 +3119,7 @@ export interface Unions {
   MarkTypes: MarkTypes
   MathTypes: MathTypes
   MediaObjectTypes: MediaObjectTypes
+  NumberValidatorTypes: NumberValidatorTypes
   ThingTypes: ThingTypes
   ValidatorTypes: ValidatorTypes
   BlockContent: BlockContent
@@ -3124,6 +3137,7 @@ export const unions = {
   MarkTypes: markTypes,
   MathTypes: mathTypes,
   MediaObjectTypes: mediaObjectTypes,
+  NumberValidatorTypes: numberValidatorTypes,
   ThingTypes: thingTypes,
   ValidatorTypes: validatorTypes,
   BlockContent: blockContentTypes,

@@ -1797,23 +1797,23 @@ BooleanValidator <- function(
 #' A validator specifying a constant value that a node must have.
 #'
 #' @name ConstantValidator
+#' @param value The value that the node must have. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
-#' @param value The value that the node must have.
 #' @return A `list` of class `ConstantValidator`
 #' @seealso \code{\link{Validator}}
 #' @export
 ConstantValidator <- function(
+  value,
   id,
-  meta,
-  value
+  meta
 ){
   self <- Validator(
     id = id,
     meta = meta
   )
   self$type <- as_scalar("ConstantValidator")
-  self[["value"]] <- check_property("ConstantValidator", "value", FALSE, missing(value), Node, value)
+  self[["value"]] <- check_property("ConstantValidator", "value", TRUE, missing(value), Node, value)
   class(self) <- c(class(self), "ConstantValidator")
   self
 }
@@ -1822,23 +1822,23 @@ ConstantValidator <- function(
 #' A schema specifying that a node must be one of several values.
 #'
 #' @name EnumValidator
+#' @param values A node is valid if it is equal to any of these values. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
-#' @param values A node is valid if it is equal to any of these values.
 #' @return A `list` of class `EnumValidator`
 #' @seealso \code{\link{Validator}}
 #' @export
 EnumValidator <- function(
+  values,
   id,
-  meta,
-  values
+  meta
 ){
   self <- Validator(
     id = id,
     meta = meta
   )
   self$type <- as_scalar("EnumValidator")
-  self[["values"]] <- check_property("EnumValidator", "values", FALSE, missing(values), Array(Node), values)
+  self[["values"]] <- check_property("EnumValidator", "values", TRUE, missing(values), Array(Node), values)
   class(self) <- c(class(self), "EnumValidator")
   self
 }
@@ -2269,21 +2269,73 @@ Include <- function(
 }
 
 
-#' A validator specifying the constraints on an integer node.
+#' A validator specifying the constraints on a numeric node.
 #'
-#' @name IntegerValidator
+#' @name NumberValidator
+#' @param exclusiveMaximum The exclusive upper limit for a numeric node.
+#' @param exclusiveMinimum The exclusive lower limit for a numeric node.
 #' @param id The identifier for this item.
+#' @param maximum The inclusive upper limit for a numeric node.
 #' @param meta Metadata associated with this item.
-#' @return A `list` of class `IntegerValidator`
+#' @param minimum The inclusive lower limit for a numeric node.
+#' @param multipleOf A number that a numeric node must be a multiple of.
+#' @return A `list` of class `NumberValidator`
 #' @seealso \code{\link{Validator}}
 #' @export
-IntegerValidator <- function(
+NumberValidator <- function(
+  exclusiveMaximum,
+  exclusiveMinimum,
   id,
-  meta
+  maximum,
+  meta,
+  minimum,
+  multipleOf
 ){
   self <- Validator(
     id = id,
     meta = meta
+  )
+  self$type <- as_scalar("NumberValidator")
+  self[["exclusiveMaximum"]] <- check_property("NumberValidator", "exclusiveMaximum", FALSE, missing(exclusiveMaximum), "numeric", exclusiveMaximum)
+  self[["exclusiveMinimum"]] <- check_property("NumberValidator", "exclusiveMinimum", FALSE, missing(exclusiveMinimum), "numeric", exclusiveMinimum)
+  self[["maximum"]] <- check_property("NumberValidator", "maximum", FALSE, missing(maximum), "numeric", maximum)
+  self[["minimum"]] <- check_property("NumberValidator", "minimum", FALSE, missing(minimum), "numeric", minimum)
+  self[["multipleOf"]] <- check_property("NumberValidator", "multipleOf", FALSE, missing(multipleOf), "numeric", multipleOf)
+  class(self) <- c(class(self), "NumberValidator")
+  self
+}
+
+
+#' A validator specifying the constraints on an integer node.
+#'
+#' @name IntegerValidator
+#' @param exclusiveMaximum The exclusive upper limit for a numeric node.
+#' @param exclusiveMinimum The exclusive lower limit for a numeric node.
+#' @param id The identifier for this item.
+#' @param maximum The inclusive upper limit for a numeric node.
+#' @param meta Metadata associated with this item.
+#' @param minimum The inclusive lower limit for a numeric node.
+#' @param multipleOf A number that a numeric node must be a multiple of.
+#' @return A `list` of class `IntegerValidator`
+#' @seealso \code{\link{NumberValidator}}
+#' @export
+IntegerValidator <- function(
+  exclusiveMaximum,
+  exclusiveMinimum,
+  id,
+  maximum,
+  meta,
+  minimum,
+  multipleOf
+){
+  self <- NumberValidator(
+    exclusiveMaximum = exclusiveMaximum,
+    exclusiveMinimum = exclusiveMinimum,
+    id = id,
+    maximum = maximum,
+    meta = meta,
+    minimum = minimum,
+    multipleOf = multipleOf
   )
   self$type <- as_scalar("IntegerValidator")
 
@@ -2611,43 +2663,6 @@ Note <- function(
   self[["content"]] <- check_property("Note", "content", TRUE, missing(content), Array(BlockContent), content)
   self[["noteType"]] <- check_property("Note", "noteType", FALSE, missing(noteType), Enum("Footnote", "Endnote", "Sidenote"), noteType)
   class(self) <- c(class(self), "Note")
-  self
-}
-
-
-#' A validator specifying the constraints on a numeric node.
-#'
-#' @name NumberValidator
-#' @param exclusiveMaximum The exclusive upper limit for a numeric node.
-#' @param exclusiveMinimum The exclusive lower limit for a numeric node.
-#' @param id The identifier for this item.
-#' @param maximum The inclusive upper limit for a numeric node.
-#' @param meta Metadata associated with this item.
-#' @param minimum The inclusive lower limit for a numeric node.
-#' @param multipleOf A number that a numeric node must be a multiple of.
-#' @return A `list` of class `NumberValidator`
-#' @seealso \code{\link{Validator}}
-#' @export
-NumberValidator <- function(
-  exclusiveMaximum,
-  exclusiveMinimum,
-  id,
-  maximum,
-  meta,
-  minimum,
-  multipleOf
-){
-  self <- Validator(
-    id = id,
-    meta = meta
-  )
-  self$type <- as_scalar("NumberValidator")
-  self[["exclusiveMaximum"]] <- check_property("NumberValidator", "exclusiveMaximum", FALSE, missing(exclusiveMaximum), "numeric", exclusiveMaximum)
-  self[["exclusiveMinimum"]] <- check_property("NumberValidator", "exclusiveMinimum", FALSE, missing(exclusiveMinimum), "numeric", exclusiveMinimum)
-  self[["maximum"]] <- check_property("NumberValidator", "maximum", FALSE, missing(maximum), "numeric", maximum)
-  self[["minimum"]] <- check_property("NumberValidator", "minimum", FALSE, missing(minimum), "numeric", minimum)
-  self[["multipleOf"]] <- check_property("NumberValidator", "multipleOf", FALSE, missing(multipleOf), "numeric", multipleOf)
-  class(self) <- c(class(self), "NumberValidator")
   self
 }
 
@@ -4653,6 +4668,13 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
+
+
+#' All type schemas that are derived from NumberValidator
+#'
+#' @return A `list` of class `Union` describing valid subtypes of this type
+#' @export
+NumberValidatorTypes <- Union(NumberValidator, IntegerValidator)
 
 
 #' Union type for all primitives values

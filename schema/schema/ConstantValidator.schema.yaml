@@ -14,3 +14,5 @@ properties:
     description: The value that the node must have.
     allOf:
       - $ref: Node
+required:
+  - value

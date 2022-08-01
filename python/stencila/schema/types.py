@@ -1679,15 +1679,15 @@ class BooleanValidator(Validator):
 class ConstantValidator(Validator):
     """A validator specifying a constant value that a node must have."""
 
-    value: Optional[Any] = None
+    value: Any
     """The value that the node must have."""
 
 
     def __init__(
         self,
+        value: Any,
         id: Optional[String] = None,
-        meta: Optional[Object] = None,
-        value: Optional[Any] = None
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1700,15 +1700,15 @@ class ConstantValidator(Validator):
 class EnumValidator(Validator):
     """A schema specifying that a node must be one of several values."""
 
-    values: Optional[Array[Any]] = None
+    values: Array[Any]
     """A node is valid if it is equal to any of these values."""
 
 
     def __init__(
         self,
+        values: Array[Any],
         id: Optional[String] = None,
-        meta: Optional[Object] = None,
-        values: Optional[Array[Any]] = None
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2072,17 +2072,72 @@ class Include(Entity):
             self.mediaType = mediaType
 
 
-class IntegerValidator(Validator):
-    """A validator specifying the constraints on an integer node."""
+class NumberValidator(Validator):
+    """A validator specifying the constraints on a numeric node."""
+
+    exclusiveMaximum: Optional[Number] = None
+    """The exclusive upper limit for a numeric node."""
+
+    exclusiveMinimum: Optional[Number] = None
+    """The exclusive lower limit for a numeric node."""
+
+    maximum: Optional[Number] = None
+    """The inclusive upper limit for a numeric node."""
+
+    minimum: Optional[Number] = None
+    """The inclusive lower limit for a numeric node."""
+
+    multipleOf: Optional[Number] = None
+    """A number that a numeric node must be a multiple of."""
+
 
     def __init__(
         self,
+        exclusiveMaximum: Optional[Number] = None,
+        exclusiveMinimum: Optional[Number] = None,
         id: Optional[String] = None,
-        meta: Optional[Object] = None
+        maximum: Optional[Number] = None,
+        meta: Optional[Object] = None,
+        minimum: Optional[Number] = None,
+        multipleOf: Optional[Number] = None
     ) -> None:
         super().__init__(
             id=id,
             meta=meta
+        )
+        if exclusiveMaximum is not None:
+            self.exclusiveMaximum = exclusiveMaximum
+        if exclusiveMinimum is not None:
+            self.exclusiveMinimum = exclusiveMinimum
+        if maximum is not None:
+            self.maximum = maximum
+        if minimum is not None:
+            self.minimum = minimum
+        if multipleOf is not None:
+            self.multipleOf = multipleOf
+
+
+class IntegerValidator(NumberValidator):
+    """A validator specifying the constraints on an integer node."""
+
+    def __init__(
+        self,
+        exclusiveMaximum: Optional[Number] = None,
+        exclusiveMinimum: Optional[Number] = None,
+        id: Optional[String] = None,
+        maximum: Optional[Number] = None,
+        meta: Optional[Object] = None,
+        minimum: Optional[Number] = None,
+        multipleOf: Optional[Number] = None
+    ) -> None:
+        super().__init__(
+            exclusiveMaximum=exclusiveMaximum,
+            exclusiveMinimum=exclusiveMinimum,
+            id=id,
+            maximum=maximum,
+            meta=meta,
+            minimum=minimum,
+            multipleOf=multipleOf
         )
 
 
@@ -2394,51 +2449,6 @@ class Note(Entity):
             self.content = content
         if noteType is not None:
             self.noteType = noteType
-
-
-class NumberValidator(Validator):
-    """A validator specifying the constraints on a numeric node."""
-
-    exclusiveMaximum: Optional[Number] = None
-    """The exclusive upper limit for a numeric node."""
-
-    exclusiveMinimum: Optional[Number] = None
-    """The exclusive lower limit for a numeric node."""
-
-    maximum: Optional[Number] = None
-    """The inclusive upper limit for a numeric node."""
-
-    minimum: Optional[Number] = None
-    """The inclusive lower limit for a numeric node."""
-
-    multipleOf: Optional[Number] = None
-    """A number that a numeric node must be a multiple of."""
-
-
-    def __init__(
-        self,
-        exclusiveMaximum: Optional[Number] = None,
-        exclusiveMinimum: Optional[Number] = None,
-        id: Optional[String] = None,
-        maximum: Optional[Number] = None,
-        meta: Optional[Object] = None,
-        minimum: Optional[Number] = None,
-        multipleOf: Optional[Number] = None
-    ) -> None:
-        super().__init__(
-            id=id,
-            meta=meta
-        )
-        if exclusiveMaximum is not None:
-            self.exclusiveMaximum = exclusiveMaximum
-        if exclusiveMinimum is not None:
-            self.exclusiveMinimum = exclusiveMinimum
-        if maximum is not None:
-            self.maximum = maximum
-        if minimum is not None:
-            self.minimum = minimum
-        if multipleOf is not None:
-            self.multipleOf = multipleOf
 
 
 class Organization(Thing):
@@ -4556,6 +4566,12 @@ Union type for all types of nodes in this schema, including primitives and
     entities
 """
 Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
+
+
+"""
+All type schemas that are derived from NumberValidator
+"""
+NumberValidatorTypes = Union["NumberValidator", "IntegerValidator"]
 
 
 """

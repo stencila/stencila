@@ -161,6 +161,10 @@
       "url": "./public/Include.schema.json"
     },
     {
+      "fileMatch": ["*.NumberValidator.json"],
+      "url": "./public/NumberValidator.schema.json"
+    },
+    {
       "fileMatch": ["*.IntegerValidator.json"],
       "url": "./public/IntegerValidator.schema.json"
     },
@@ -199,10 +203,6 @@
     {
       "fileMatch": ["*.Note.json"],
       "url": "./public/Note.schema.json"
-    },
-    {
-      "fileMatch": ["*.NumberValidator.json"],
-      "url": "./public/NumberValidator.schema.json"
     },
     {
       "fileMatch": ["*.Organization.json"],
