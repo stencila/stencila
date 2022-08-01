@@ -1,8 +1,7 @@
 ---
-source: rust/node-execute/src/lib.rs
-assertion_line: 115
+source: rust/node-execute/src/tests.rs
+assertion_line: 103
 expression: "&plan"
-
 ---
 {
   "options": {
@@ -180,7 +179,11 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "is_fork": true
-        },
+        }
+      ]
+    },
+    {
+      "tasks": [
         {
           "resource_info": {
             "resource": {
@@ -228,8 +231,12 @@ expression: "&plan"
             "compile_digest": "5vFFLK9PlUPQ_3BqZ6mmkwOS6N3mAbgK2RgSSmMFCJ0.v8xJ_Bw14WouYXGUyTn2bePyCsd7eCYvhEmLHNimv10.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1.0"
           },
           "kernel_name": "calc",
-          "is_fork": true
-        },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
         {
           "resource_info": {
             "resource": {
@@ -277,7 +284,7 @@ expression: "&plan"
             "compile_digest": "MbSHMsqe4WgCFlwGviQpo7ie6BFo2eJXiebtlL8MBbI.u-ZxGlUEKMqo4UdU997v5JUeHzEbqxrxpiqqqKEjgBo.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1.0"
           },
           "kernel_name": "calc",
-          "is_fork": true
+          "is_fork": false
         }
       ]
     },
@@ -460,8 +467,12 @@ expression: "&plan"
             "compile_digest": "4wxAgWB65X0l0qR31Eezb9f6FRJ3J2VJATd5amdGD1o.NEwPns0Ln5AvblNQiOxE55WuSp3Lq1AcFVodSUvJiL8.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1.0"
           },
           "kernel_name": "calc",
-          "is_fork": true
-        },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
         {
           "resource_info": {
             "resource": {
@@ -522,7 +533,7 @@ expression: "&plan"
             "compile_digest": "QKuMwjpkYoQH-jlp9EcheEeb38xk_Rf0UhOxgNmnnAk.G34cpLFC4Fi3PXZ5ql3bZ5_qpNPh7QGanFH7UBmOA7g.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1.0"
           },
           "kernel_name": "calc",
-          "is_fork": true
+          "is_fork": false
         }
       ]
     },
