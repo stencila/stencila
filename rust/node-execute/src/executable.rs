@@ -326,7 +326,7 @@ impl Executable for Parameter {
         _resource_info: &ResourceInfo,
         _is_fork: bool,
     ) -> Result<Option<TaskInfo>> {
-        tracing::debug!("Executing `Parameter`");
+        tracing::trace!("Executing `Parameter`");
 
         let value = parameter_value(self);
 

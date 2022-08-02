@@ -154,7 +154,7 @@ pub async fn execute(
             break;
         }
 
-        tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
+        tracing::trace!("Starting stage {}/{}", stage_index + 1, stage_count);
 
         let task_count = stage.tasks.len();
         let mut patches = Vec::with_capacity(task_count);
@@ -220,7 +220,7 @@ pub async fn execute(
 
             // Create a future for the task that will be spawned later
             let future = async move {
-                tracing::debug!(
+                tracing::trace!(
                     "Starting task {}/{} of stage {}/{}",
                     task_index + 1,
                     task_count,
@@ -356,7 +356,7 @@ pub async fn execute(
                     };
 
                     if let Some((task_index, resource_info, mut node_info, patch)) = result {
-                        tracing::debug!(
+                        tracing::trace!(
                             "Finished task {}/{} of stage {}/{}",
                             task_index + 1,
                             task_count,
@@ -400,7 +400,7 @@ pub async fn execute(
             }
         }
 
-        tracing::debug!("Finished stage {}/{}", stage_index + 1, stage_count);
+        tracing::trace!("Finished stage {}/{}", stage_index + 1, stage_count);
     }
 
     // For nodes that were scheduled but never got to run (e.g. because dependencies did not succeed
