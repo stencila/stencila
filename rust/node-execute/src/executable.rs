@@ -428,9 +428,15 @@ impl Executable for CodeChunk {
         self.execute_digest = digest;
 
         // Update execution status, etc
-        // Do not update `execute_required` here since that is done in `compile()` based on
-        // dependency analysis
-        self.execute_status = Some(code_execute_status(&task_info, &errors));
+        let execute_status = code_execute_status(&task_info, &errors);
+        self.execute_required = Some(
+            if matches!(execute_status, CodeExecutableExecuteStatus::Succeeded) {
+                CodeExecutableExecuteRequired::No
+            } else {
+                CodeExecutableExecuteRequired::Failed
+            },
+        );
+        self.execute_status = Some(execute_status);
         self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
         self.execute_duration = task_info.duration().map(Number);
 
@@ -529,9 +535,15 @@ impl Executable for CodeExpression {
         self.execute_digest = digest;
 
         // Update execution status, etc
-        // Do not update `execute_required` here since that is done in `compile()` based on
-        // dependency analysis
-        self.execute_status = Some(code_execute_status(&task_info, &errors));
+        let execute_status = code_execute_status(&task_info, &errors);
+        self.execute_required = Some(
+            if matches!(execute_status, CodeExecutableExecuteStatus::Succeeded) {
+                CodeExecutableExecuteRequired::No
+            } else {
+                CodeExecutableExecuteRequired::Failed
+            },
+        );
+        self.execute_status = Some(execute_status);
         self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
         self.execute_duration = task_info.duration().map(Number);
 

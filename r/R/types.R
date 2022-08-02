@@ -217,7 +217,7 @@ CodeExecutable <- function(
   self[["executeDigest"]] <- check_property("CodeExecutable", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
   self[["executeDuration"]] <- check_property("CodeExecutable", "executeDuration", FALSE, missing(executeDuration), "numeric", executeDuration)
   self[["executeEnded"]] <- check_property("CodeExecutable", "executeEnded", FALSE, missing(executeEnded), Date, executeEnded)
-  self[["executeRequired"]] <- check_property("CodeExecutable", "executeRequired", FALSE, missing(executeRequired), Enum("No", "NeverExecuted", "SemanticsChanged", "DependenciesChanged", "DependenciesFailed"), executeRequired)
+  self[["executeRequired"]] <- check_property("CodeExecutable", "executeRequired", FALSE, missing(executeRequired), Enum("No", "NeverExecuted", "SemanticsChanged", "DependenciesChanged", "DependenciesFailed", "Failed"), executeRequired)
   self[["executeStatus"]] <- check_property("CodeExecutable", "executeStatus", FALSE, missing(executeStatus), Enum("Scheduled", "ScheduledPreviouslyFailed", "Running", "RunningPreviouslyFailed", "Succeeded", "Failed", "Cancelled"), executeStatus)
   class(self) <- c(class(self), "CodeExecutable")
   self

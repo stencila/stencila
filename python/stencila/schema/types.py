@@ -16,7 +16,7 @@ Object = Dict[str, Any]
 
 ECitationMode = Enum("CitationMode", ["Parenthetical", "Narrative", "NarrativeAuthor", "NarrativeYear", "normal", "suppressAuthor"])
 
-EExecuteRequired = Enum("ExecuteRequired", ["No", "NeverExecuted", "SemanticsChanged", "DependenciesChanged", "DependenciesFailed"])
+EExecuteRequired = Enum("ExecuteRequired", ["No", "NeverExecuted", "SemanticsChanged", "DependenciesChanged", "DependenciesFailed", "Failed"])
 
 EExecuteStatus = Enum("ExecuteStatus", ["Scheduled", "ScheduledPreviouslyFailed", "Running", "RunningPreviouslyFailed", "Succeeded", "Failed", "Cancelled"])
 

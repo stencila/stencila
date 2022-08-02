@@ -337,6 +337,7 @@ export type CodeExecutable = Code & {
     | 'SemanticsChanged'
     | 'DependenciesChanged'
     | 'DependenciesFailed'
+    | 'Failed'
   executeStatus?:
     | 'Scheduled'
     | 'ScheduledPreviouslyFailed'

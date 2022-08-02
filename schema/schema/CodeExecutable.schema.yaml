@@ -57,6 +57,7 @@ properties:
       - SemanticsChanged
       - DependenciesChanged
       - DependenciesFailed
+      - Failed
     $comment: |
       Derived from a comparison of `compileDigest` and `executeDigest` and the `executeStatus`
       of dependencies.
@@ -70,6 +71,7 @@ properties:
       changed since it was last executed.
       `DependenciesFailed`: one or more dependencies (including transitive dependencies) failed when it was
       last executed.
+      `Failed`: re-execution is required because the code failed last time it was executed.
   executeStatus:
     '@id': stencila:executeStatus
     description: Status of the most recent, including any current, execution of the code.
