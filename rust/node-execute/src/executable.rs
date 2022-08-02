@@ -14,6 +14,7 @@ use graph_triples::{
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, AddressMap, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
+use node_validate::Validator as _;
 use path_utils::merge;
 use stencila_schema::*;
 
@@ -256,34 +257,13 @@ fn parameter_value(param: &Parameter) -> Node {
         .as_deref()
         .or(param.default.as_deref())
         .cloned()
-        .unwrap_or_else(|| match param.validator.as_deref() {
-            // Default value based on validator
-
-            // Boolean validator => false
-            Some(ValidatorTypes::BooleanValidator(..)) => Node::Boolean(false),
-            // Number and integer validators => The minimum value or zero
-            Some(ValidatorTypes::IntegerValidator(IntegerValidator { minimum, .. })) => {
-                Node::Integer(minimum.map_or(0, |float| float as i64))
-            }
-            Some(ValidatorTypes::NumberValidator(NumberValidator { minimum, .. })) => {
-                Node::Number(minimum.unwrap_or(0.0))
-            }
-            // String validator => empty string
-            Some(ValidatorTypes::StringValidator(..)) => Node::String(String::new()),
-            // Array and typle validators => empty array
-            Some(ValidatorTypes::ArrayValidator(..)) => Node::Array(Vec::new()),
-            Some(ValidatorTypes::TupleValidator(..)) => Node::Array(Vec::new()),
-            // Enum validator => The first enum value or empty string
-            Some(ValidatorTypes::EnumValidator(validator)) => validator
-                .values
-                .first()
-                .cloned()
-                .unwrap_or_else(|| Node::String(String::new())),
-            // Constant value validator => The value
-            Some(ValidatorTypes::ConstantValidator(validator)) => (*validator.value).clone(),
-            // Unspecified validator or none at all => Empty string
-            Some(ValidatorTypes::Validator(..)) | None => Node::String(String::new()),
+        .or_else(|| {
+            param
+                .validator
+                .as_ref()
+                .map(|validator| validator.default_())
         })
+        .unwrap_or_else(|| Node::String(String::new()))
 }
 
 #[async_trait]
@@ -350,10 +330,12 @@ impl Executable for Parameter {
 
         let value = parameter_value(self);
 
-        kernel_space.set(&self.name, value, kernel_selector).await?;
+        kernel_space
+            .set(&self.name, value.clone(), kernel_selector)
+            .await?;
 
         if self.value.is_none() {
-            self.value = Some(Box::new(parameter_value(self)));
+            self.value = Some(Box::new(value));
         }
 
         Ok(None)
@@ -450,7 +432,7 @@ impl Executable for CodeChunk {
         // dependency analysis
         self.execute_status = Some(code_execute_status(&task_info, &errors));
         self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
-        self.execute_duration = task_info.duration();
+        self.execute_duration = task_info.duration().map(Number);
 
         // Update outputs and errors
         self.outputs = if outputs.is_empty() {
@@ -551,7 +533,7 @@ impl Executable for CodeExpression {
         // dependency analysis
         self.execute_status = Some(code_execute_status(&task_info, &errors));
         self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
-        self.execute_duration = task_info.duration();
+        self.execute_duration = task_info.duration().map(Number);
 
         // Update output and errors
         self.output = outputs.get(0).map(|output| Box::new(output.clone()));

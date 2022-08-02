@@ -1,0 +1,9 @@
+[package]
+name = "node-validate"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+node-dispatch = { path = "../node-dispatch" }
+stencila-schema = { path = "../schema" }

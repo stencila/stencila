@@ -14,6 +14,7 @@ node-address = { path = "../node-address" }
 node-dispatch = { path = "../node-dispatch" }
 node-patch = { path = "../node-patch" }
 node-pointer = { path = "../node-pointer" }
+node-validate = { path = "../node-validate" }
 parsers = { path = "../parsers" }
 path-utils = { path = "../path-utils" }
 stencila-schema = { path = "../schema" }

@@ -14,8 +14,7 @@ use common::{
     serde_json::{self, json, Value as JsonValue},
     tracing,
 };
-use stencila_schema::{self, Node, Null, Object, Primitive, ValidatorTypes};
-use utils::some_string;
+use stencila_schema::{self, Node, Null, Number, Object, Primitive};
 
 /// Coerce a JSON value to a Stencila document `Node`
 ///
@@ -58,68 +57,6 @@ pub fn coerce(value: JsonValue, type_: Option<String>) -> Result<Node> {
     })
 }
 
-/// Coerce a Stencila `Node` to a Stencila `Validator`
-///
-/// This converts the `node` to JSON and and the `validator` to JSON Schema,
-/// and then converts the coerced JSON back to a `Node`. This is somewhat
-/// inefficient but avoid having to re-implement a lot of the logic in this
-/// crate.
-pub fn coerce_to_validator(node: &Node, validator: &ValidatorTypes) -> Result<Node> {
-    let schema = match validator {
-        ValidatorTypes::Validator(..) => JsonSchema::default(),
-        ValidatorTypes::ArrayValidator(validator) => JsonSchema {
-            r#type: some_string!("array"),
-            min_items: validator.min_items.map(|num| num as usize),
-            max_items: validator.max_items.map(|num| num as usize),
-            ..Default::default()
-        },
-        ValidatorTypes::BooleanValidator(..) => JsonSchema {
-            r#type: some_string!("boolean"),
-            ..Default::default()
-        },
-        ValidatorTypes::ConstantValidator(..) => JsonSchema {
-            r#type: some_string!("const"),
-            ..Default::default()
-        },
-        ValidatorTypes::EnumValidator(..) => JsonSchema {
-            r#type: some_string!("enum"),
-            ..Default::default()
-        },
-        ValidatorTypes::IntegerValidator(..) => JsonSchema {
-            r#type: some_string!("integer"),
-            ..Default::default()
-        },
-        ValidatorTypes::NumberValidator(validator) => JsonSchema {
-            r#type: some_string!("number"),
-            minimum: validator.minimum,
-            exclusive_minimum: validator.exclusive_minimum,
-            maximum: validator.maximum,
-            exclusive_maximum: validator.exclusive_maximum,
-            ..Default::default()
-        },
-        ValidatorTypes::StringValidator(validator) => JsonSchema {
-            r#type: some_string!("string"),
-            min_length: validator.min_length.map(|num| num as usize),
-            max_length: validator.max_length.map(|num| num as usize),
-            pattern: validator
-                .pattern
-                .as_ref()
-                .map(|pattern| pattern.to_string()),
-            ..Default::default()
-        },
-        ValidatorTypes::TupleValidator(..) => JsonSchema {
-            r#type: some_string!("tuple"),
-            ..Default::default()
-        },
-    };
-
-    let mut value = serde_json::to_value(node)?;
-    coerce_to_schema(&mut value, &schema);
-
-    let node = serde_json::from_value(value)?;
-    Ok(node)
-}
-
 /// A JSON Schema object
 ///
 /// Only implements properties of JSON Schema used in coercion or
@@ -127,7 +64,7 @@ pub fn coerce_to_validator(node: &Node, validator: &ValidatorTypes) -> Result<No
 #[derive(Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[allow(dead_code)]
-struct JsonSchema {
+pub struct JsonSchema {
     #[serde(rename = "type")]
     r#type: Option<String>,
 
@@ -224,7 +161,7 @@ fn coerce_to_primitive(value: JsonValue) -> Primitive {
             if value.is_i64() {
                 Primitive::Integer(value.as_i64().unwrap())
             } else {
-                Primitive::Number(value.as_f64().unwrap())
+                Primitive::Number(Number(value.as_f64().unwrap()))
             }
         }
         JsonValue::String(value) => Primitive::String(value),

@@ -2265,6 +2265,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "float-cmp"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "98de4bbd547a563b716d8dfa9aad1cb19bfab00f4fa09a6a4ed21dbcf44ce9c4"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "flume"
 version = "0.10.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4157,6 +4166,7 @@ dependencies = [
  "node-dispatch",
  "node-patch",
  "node-pointer",
+ "node-validate",
  "parsers",
  "path-utils",
  "stencila-schema",
@@ -4177,6 +4187,7 @@ dependencies = [
  "node-coerce",
  "node-dispatch",
  "node-pointer",
+ "node-validate",
  "schemars",
  "similar",
  "stencila-schema",
@@ -4227,6 +4238,15 @@ name = "node-transform"
 version = "0.0.0"
 dependencies = [
  "codec-txt",
+ "stencila-schema",
+]
+
+[[package]]
+name = "node-validate"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "node-dispatch",
  "stencila-schema",
 ]
 
@@ -6472,7 +6492,6 @@ dependencies = [
  "codecs",
  "common",
  "cron-utils",
- "derivative",
  "events",
  "exitcode",
  "files",
@@ -6527,7 +6546,8 @@ name = "stencila-schema"
 version = "1.16.1"
 dependencies = [
  "chrono",
- "defaults",
+ "derivative",
+ "float-cmp",
  "maplit",
  "serde",
  "serde_json",

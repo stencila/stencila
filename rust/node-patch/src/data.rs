@@ -1,6 +1,7 @@
-use super::prelude::*;
-use node_coerce::coerce_to_validator;
+use node_validate::Validator;
 use stencila_schema::*;
+
+use super::prelude::*;
 
 impl Patchable for Datatable {
     patchable_struct_is_equal!(columns);
@@ -40,27 +41,25 @@ impl Patchable for Parameter {
                 "value" => self.value.apply_replace(address, items, value),
                 _ => bail!(invalid_slot_name::<Self>(&name)),
             }?;
-            parameter_coerce(self)
+
+            // Ensure that the parameters `value` and `default` are valid for any
+            // validator by coercing them to it
+            if let Some(validator) = self.validator.as_deref() {
+                if let Some(value) = self.value.as_deref() {
+                    let node = validator.coerce(value);
+                    self.value = Some(Box::new(node));
+                }
+                if let Some(default) = self.default.as_deref() {
+                    let node = validator.coerce(default);
+                    self.default = Some(Box::new(node));
+                }
+            }
+
+            Ok(())
         } else {
             bail!(invalid_address::<Self>("first slot should be a name"))
         }
     }
-}
-
-// This may get moved into a `Coerceable` trait and `.coerce()` called in all
-// of the `apply_*` methods of the `Patchable` trait.
-fn parameter_coerce(par: &mut Parameter) -> Result<()> {
-    if let Some(validator) = par.validator.as_deref() {
-        if let Some(value) = par.value.as_deref() {
-            let node = coerce_to_validator(value, validator)?;
-            par.value = Some(Box::new(node));
-        }
-        if let Some(default) = par.default.as_deref() {
-            let node = coerce_to_validator(default, validator)?;
-            par.default = Some(Box::new(node));
-        }
-    }
-    Ok(())
 }
 
 patchable_variants!(
