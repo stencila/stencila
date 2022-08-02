@@ -26,8 +26,8 @@ use common::{
     strum::Display,
 };
 use graph_triples::{
-    direction, relations, stencila_schema::CodeChunkExecuteAuto,
-    Direction, Pairs, Relation, Resource, ResourceInfo, Triple,
+    direction, relations, stencila_schema::CodeChunkExecuteAuto, Direction, Pairs, Relation,
+    Resource, ResourceInfo, Triple,
 };
 use hash_utils::seahash;
 use kernels::{Kernel, KernelSelector};

@@ -38,7 +38,7 @@ async fn md_articles() -> Result<()> {
 
     let mut settings = insta::Settings::clone_current();
     settings.set_prepend_module_to_snapshot(false);
-    
+
     #[allow(deprecated)] // Using bind_to_scope leads to renaming of snapshot files
     settings.bind_to_thread();
 

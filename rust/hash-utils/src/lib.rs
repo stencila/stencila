@@ -8,8 +8,8 @@ use common::eyre::Result;
 
 // Re-exports for consumers of this crate
 pub use hmac;
-pub use sha2;
 pub use seahash;
+pub use sha2;
 
 /// Get a SHA-256 digest of a string as a hex string
 pub fn str_sha256_hex(str: &str) -> String {
