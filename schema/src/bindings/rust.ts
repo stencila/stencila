@@ -49,7 +49,7 @@ interface Context {
 
 // Custom attributes to add to particular properties
 const propertyAttributes: Record<string, string[]> = {
-  '*.id': ['#[derivative(PartialEq = "ignore")]'],
+  '*.id': ['#[derivative(PartialEq = "ignore", Hash = "ignore")]'],
   'Date.value': [
     '#[derivative(Default(value = "chrono::Utc::now().to_rfc3339()"))]',
   ],
@@ -303,7 +303,7 @@ ${attrs.map((attr) => `    ${attr}\n`).join('')}    pub ${snakeCase(
 ${docComment(description)}
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ${title} {
     /// The name of this type
@@ -313,7 +313,7 @@ pub struct ${title} {
 ${fields}
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ${title}_ {
   ${typeName ?? title}
 }`
@@ -375,7 +375,7 @@ export function enumSchemaToEnum(
     .join('')
 
   return `${docComment(description)}
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${title} {\n${variants}}`
 }
@@ -408,7 +408,7 @@ export function unionSchemaToEnum(
     .join('')
 
   return `${docComment(description)}
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${title} {\n${variants}}\n`
 }
@@ -453,7 +453,7 @@ function anyOfToEnum(anyOf: JsonSchema[], context: Context): string {
 
   const name = context.propertyTypeName ?? ''
   const definition = `/// Types permitted for the \`${context.propertyName}\` property of a \`${context.typeName}\` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${name} {\n${variants}}\n`
   context.anonEnums[name] = definition
@@ -473,7 +473,7 @@ export function enumToEnum(enu: (string | number)[], context: Context): string {
     .join('')
 
   const name = context.propertyTypeName ?? ''
-  const definition = `#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+  const definition = `#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 pub enum ${name} {\n${lines}}\n`
   context.anonEnums[name] = definition
 

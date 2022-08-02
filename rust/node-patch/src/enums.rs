@@ -1,18 +1,3 @@
-/// Generate the `make_hash` method for an `enum` having variants of different types
-macro_rules! patchable_variants_hash {
-    ($( $variant:path )*) => {
-        fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
-            match self {
-                $(
-                    $variant(me) => me.make_hash(state),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => common::tracing::error!("Unhandled variant `{}` of `{}` in `Patchable::hash`", self.as_ref(), type_name::<Self>())
-            }
-        }
-    };
-}
-
 /// Generate the `diff` method for an `enum` having variants of different types
 macro_rules! patchable_variants_diff {
     ($( $variant:path )*) => {
@@ -107,11 +92,6 @@ macro_rules! patchable_variants_apply_transform {
 macro_rules! patchable_enum {
     ($type:ty) => {
         impl Patchable for $type {
-            fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
-                use std::hash::Hash;
-                std::mem::discriminant(self).hash(state)
-            }
-
             fn diff(&self, other: &Self, differ: &mut Differ) {
                 if std::mem::discriminant(self) != std::mem::discriminant(other) {
                     differ.replace(other)
@@ -135,7 +115,6 @@ macro_rules! patchable_enum {
 macro_rules! patchable_variants {
     ($type:ty $(, $variant:path )*) => {
         impl Patchable for $type {
-            patchable_variants_hash!($( $variant )*);
             patchable_variants_diff!($( $variant )*);
             patchable_variants_apply_add!($( $variant )*);
             patchable_variants_apply_remove!($( $variant )*);

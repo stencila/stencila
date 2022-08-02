@@ -19,14 +19,8 @@ const DIFF_TIMEOUT_SECS: u64 = 1;
 /// Implements patching for vectors
 impl<Type: Patchable> Patchable for Vec<Type>
 where
-    Type: Clone + PartialEq + DeserializeOwned + Send + 'static,
+    Type: Clone + PartialEq + Hash + DeserializeOwned + Send + 'static,
 {
-    fn make_hash<H: Hasher>(&self, state: &mut H) {
-        for item in self {
-            item.make_hash(state)
-        }
-    }
-
     /// Generate the difference between two vectors.
     ///
     /// If both vectors are zero length, will generate no operations.
@@ -471,10 +465,10 @@ where
 
 impl<'lt, Type> Hash for Item<'lt, Type>
 where
-    Type: Patchable,
+    Type: Patchable + Hash,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.item.make_hash(state)
+        self.item.hash(state)
     }
 }
 
@@ -493,7 +487,7 @@ impl<'lt, Type> Eq for Item<'lt, Type> where Type: Patchable + PartialEq {}
 /// the `make_hash` trait property.
 fn unique_items<Type>(a: &[Type], b: &[Type]) -> (Vec<u32>, Vec<u32>)
 where
-    Type: Patchable + PartialEq,
+    Type: Patchable + PartialEq + Hash,
 {
     let mut map = HashMap::new();
     let mut id = 0;

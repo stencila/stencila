@@ -1,7 +1,4 @@
-use std::{
-    hash::Hasher,
-    ops::{Deref, DerefMut},
-};
+use std::ops::{Deref, DerefMut};
 
 use common::serde::de::DeserializeOwned;
 
@@ -14,10 +11,6 @@ impl<Type: Patchable> Patchable for Box<Type>
 where
     Type: Clone + DeserializeOwned + Send + 'static,
 {
-    fn make_hash<H: Hasher>(&self, state: &mut H) {
-        self.deref().make_hash(state)
-    }
-
     fn diff(&self, other: &Self, differ: &mut Differ) {
         self.deref().diff(other, differ)
     }

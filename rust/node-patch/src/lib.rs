@@ -1,7 +1,6 @@
 use std::{
     any::{type_name, Any},
     fmt::Debug,
-    hash::Hasher,
 };
 
 use schemars::JsonSchema;
@@ -733,11 +732,6 @@ impl Differ {
 }
 
 pub trait Patchable {
-    /// Generate a hash of the patchable content of a node
-    ///
-    /// Used for identifying unique values, particularly when diffing sequences.
-    fn make_hash<H: Hasher>(&self, state: &mut H);
-
     /// Generate the operations needed to mutate this node so that it is equal
     /// to a node of the same type.
     fn diff(&self, other: &Self, differ: &mut Differ);

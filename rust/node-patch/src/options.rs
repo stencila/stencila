@@ -1,5 +1,3 @@
-use std::hash::Hasher;
-
 use common::serde::de::DeserializeOwned;
 
 use super::prelude::*;
@@ -15,12 +13,6 @@ impl<Type: Patchable> Patchable for Option<Type>
 where
     Type: Clone + DeserializeOwned + Send + 'static,
 {
-    fn make_hash<H: Hasher>(&self, state: &mut H) {
-        if let Some(value) = self {
-            value.make_hash(state)
-        }
-    }
-
     fn diff(&self, other: &Self, differ: &mut Differ) {
         match (self, other) {
             (None, None) => (),

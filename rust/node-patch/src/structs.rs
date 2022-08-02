@@ -1,20 +1,3 @@
-/// Generate the `make_hash` method for a `struct`
-macro_rules! patchable_struct_hash {
-    ($($field:ident),* $(,)?) => {
-        fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
-            // Include the type name in the hash (to avoid clash when structs
-            // of different types have the same values for different fields)
-            use std::hash::Hash;
-            type_name::<Self>().hash(state);
-            // Include the hash of supplied fields. Because we include the type
-            // name in the hash, we do no need to include the field names.
-            $(
-                self.$field.make_hash(state);
-            )*
-        }
-    };
-}
-
 /// Generate the `diff` method for a `struct`
 macro_rules! patchable_struct_diff {
     ($($field:ident),* $(,)?) => {
@@ -127,7 +110,6 @@ macro_rules! patchable_struct_apply_transform {
 macro_rules! patchable_struct {
     ($type:ty $(,$field:ident)* $(,)?) => {
         impl Patchable for $type {
-            patchable_struct_hash!($($field,)*);
             patchable_struct_diff!($($field,)*);
             patchable_struct_apply_add!($($field,)*);
             patchable_struct_apply_remove!($($field,)*);
@@ -149,8 +131,6 @@ macro_rules! patchable_struct {
 macro_rules! replaceable_struct {
     ($type:ty $(,$field:ident)* $(,)?) => {
         impl Patchable for $type {
-            patchable_struct_hash!($($field,)*);
-
             fn diff(&self, other: &Self, differ: &mut Differ) {
                 if self != other {
                     differ.replace(other)

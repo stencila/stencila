@@ -5,8 +5,6 @@
 //! - `Array`: is covered by `impl Patchable for Vec<Primitive>` in `vecs.rs`
 //! - `Object`: is covered by `impl Patchable for BTreeMap<String, Primitive>` in `maps.rs`
 
-use std::hash::{Hash, Hasher};
-
 use common::{serde::de::DeserializeOwned, serde_json};
 use node_dispatch::{dispatch_primitive, dispatch_primitive_pair};
 use stencila_schema::*;
@@ -14,10 +12,6 @@ use stencila_schema::*;
 use super::prelude::*;
 
 impl Patchable for Primitive {
-    fn make_hash<H: Hasher>(&self, state: &mut H) {
-        dispatch_primitive!(self, make_hash, state)
-    }
-
     fn diff(&self, other: &Self, differ: &mut Differ) {
         dispatch_primitive_pair!(self, other, differ.replace(other), diff, differ)
     }
@@ -78,10 +72,6 @@ impl Patchable for Primitive {
 }
 
 impl Patchable for Null {
-    fn make_hash<H: Hasher>(&self, state: &mut H) {
-        self.to_string().hash(state);
-    }
-
     fn diff(&self, _other: &Self, _differ: &mut Differ) {
         // By definition, no difference
     }
@@ -91,10 +81,6 @@ impl Patchable for Null {
 macro_rules! patchable_atomic {
     ($type:ty) => {
         impl Patchable for $type {
-            fn make_hash<H: Hasher>(&self, state: &mut H) {
-                self.hash(state)
-            }
-
             fn diff(&self, other: &Self, differ: &mut Differ) {
                 #[allow(clippy::float_cmp)]
                 if self != other {

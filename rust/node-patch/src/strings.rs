@@ -1,7 +1,4 @@
-use std::{
-    hash::{Hash, Hasher},
-    time::Duration,
-};
+use std::time::Duration;
 
 use similar::{ChangeTag, TextDiff};
 use unicode_segmentation::UnicodeSegmentation;
@@ -26,10 +23,6 @@ const DIFF_TIMEOUT_SECS: u64 = 1;
 /// The `Move` operation, whilst possible for strings, adds complexity
 /// and a performance hit to diffing so is not used.
 impl Patchable for String {
-    fn make_hash<H: Hasher>(&self, state: &mut H) {
-        self.hash(state)
-    }
-
     fn diff(&self, other: &Self, differ: &mut Differ) {
         if self == other {
             return;

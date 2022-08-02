@@ -1,6 +1,5 @@
 use super::prelude::*;
 use node_dispatch::{dispatch_block, dispatch_block_pair};
-use std::hash::Hasher;
 use stencila_schema::*;
 
 /// Implements patching for `BlockContent`
@@ -8,10 +7,6 @@ use stencila_schema::*;
 /// Generates and applies `Replace` and `Transform` operations between variants of block content.
 /// All other operations are passed through to variants.
 impl Patchable for BlockContent {
-    fn make_hash<H: Hasher>(&self, state: &mut H) {
-        dispatch_block!(self, make_hash, state)
-    }
-
     fn diff(&self, other: &Self, differ: &mut Differ) {
         dispatch_block_pair!(
             self,

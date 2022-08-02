@@ -12,7 +12,7 @@ use crate::prelude::*;
 /// The most simple compound (ie. non-atomic like `number`, `string` etc) type.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Entity {
     /// The name of this type
@@ -20,11 +20,11 @@ pub struct Entity {
     pub type_: Entity_,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Entity_ {
   Entity
 }
@@ -32,7 +32,7 @@ pub enum Entity_ {
 /// A reference to a CreativeWork that is cited in another CreativeWork.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Cite {
     /// The name of this type
@@ -58,7 +58,7 @@ pub struct Cite {
     pub content: Option<Vec<InlineContent>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// The page on which the work ends; for example "138" or "xvi".
@@ -71,7 +71,7 @@ pub struct Cite {
     pub pagination: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Cite_ {
   Cite
 }
@@ -79,7 +79,7 @@ pub enum Cite_ {
 /// A group of Cite nodes.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CiteGroup {
     /// The name of this type
@@ -90,11 +90,11 @@ pub struct CiteGroup {
     pub items: Vec<Cite>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CiteGroup_ {
   CiteGroup
 }
@@ -102,7 +102,7 @@ pub enum CiteGroup_ {
 /// Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Code {
     /// The name of this type
@@ -113,7 +113,7 @@ pub struct Code {
     pub text: String,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Media type, typically expressed using a MIME format, of the code.
@@ -123,7 +123,7 @@ pub struct Code {
     pub programming_language: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Code_ {
   Code
 }
@@ -131,7 +131,7 @@ pub enum Code_ {
 /// A code block.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeBlock {
     /// The name of this type
@@ -142,7 +142,7 @@ pub struct CodeBlock {
     pub text: String,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Media type, typically expressed using a MIME format, of the code.
@@ -152,7 +152,7 @@ pub struct CodeBlock {
     pub programming_language: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CodeBlock_ {
   CodeBlock
 }
@@ -160,7 +160,7 @@ pub enum CodeBlock_ {
 /// Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeExecutable {
     /// The name of this type
@@ -204,14 +204,14 @@ pub struct CodeExecutable {
     pub execute_status: Option<CodeExecutableExecuteStatus>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CodeExecutable_ {
   CodeExecutable
 }
@@ -219,7 +219,7 @@ pub enum CodeExecutable_ {
 /// A executable chunk of code.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeChunk {
     /// The name of this type
@@ -272,7 +272,7 @@ pub struct CodeChunk {
     pub execute_status: Option<CodeExecutableExecuteStatus>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// A short label for the CodeChunk.
@@ -285,7 +285,7 @@ pub struct CodeChunk {
     pub outputs: Option<Vec<Node>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CodeChunk_ {
   CodeChunk
 }
@@ -293,7 +293,7 @@ pub enum CodeChunk_ {
 /// An executable programming code expression.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeExpression {
     /// The name of this type
@@ -337,7 +337,7 @@ pub struct CodeExpression {
     pub execute_status: Option<CodeExecutableExecuteStatus>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Media type, typically expressed using a MIME format, of the code.
@@ -347,7 +347,7 @@ pub struct CodeExpression {
     pub output: Option<Box<Node>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CodeExpression_ {
   CodeExpression
 }
@@ -355,7 +355,7 @@ pub enum CodeExpression_ {
 /// Inline code.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeFragment {
     /// The name of this type
@@ -366,7 +366,7 @@ pub struct CodeFragment {
     pub text: String,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Media type, typically expressed using a MIME format, of the code.
@@ -376,7 +376,7 @@ pub struct CodeFragment {
     pub programming_language: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CodeFragment_ {
   CodeFragment
 }
@@ -384,7 +384,7 @@ pub enum CodeFragment_ {
 /// An error that occurred when parsing, compiling or executing a Code node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeError {
     /// The name of this type
@@ -398,14 +398,14 @@ pub struct CodeError {
     pub error_type: Option<Box<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Stack trace leading up to the error.
     pub stack_trace: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CodeError_ {
   CodeError
 }
@@ -413,7 +413,7 @@ pub enum CodeError_ {
 /// A date encoded as a ISO 8601 string.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Date {
     /// The name of this type
@@ -425,11 +425,11 @@ pub struct Date {
     pub value: String,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Date_ {
   Date
 }
@@ -437,7 +437,7 @@ pub enum Date_ {
 /// A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Mark {
     /// The name of this type
@@ -448,11 +448,11 @@ pub struct Mark {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Mark_ {
   Mark
 }
@@ -460,7 +460,7 @@ pub enum Mark_ {
 /// Content that is marked for deletion
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Delete {
     /// The name of this type
@@ -471,11 +471,11 @@ pub struct Delete {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Delete_ {
   Delete
 }
@@ -483,7 +483,7 @@ pub enum Delete_ {
 /// Emphasised content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Emphasis {
     /// The name of this type
@@ -494,11 +494,11 @@ pub struct Emphasis {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Emphasis_ {
   Emphasis
 }
@@ -506,7 +506,7 @@ pub enum Emphasis_ {
 /// The most generic type of item.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Thing {
     /// The name of this type
@@ -520,7 +520,7 @@ pub struct Thing {
     pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -536,7 +536,7 @@ pub struct Thing {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Thing_ {
   Thing
 }
@@ -544,7 +544,7 @@ pub enum Thing_ {
 /// A brand used by an organization or person for labeling a product, product group, or similar.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Brand {
     /// The name of this type
@@ -561,7 +561,7 @@ pub struct Brand {
     pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -580,7 +580,7 @@ pub struct Brand {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Brand_ {
   Brand
 }
@@ -588,7 +588,7 @@ pub enum Brand_ {
 /// A contact point, usually within an organization.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ContactPoint {
     /// The name of this type
@@ -608,7 +608,7 @@ pub struct ContactPoint {
     pub emails: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -627,7 +627,7 @@ pub struct ContactPoint {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ContactPoint_ {
   ContactPoint
 }
@@ -635,7 +635,7 @@ pub enum ContactPoint_ {
 /// A creative work, including books, movies, photographs, software programs, etc.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CreativeWork {
     /// The name of this type
@@ -688,7 +688,7 @@ pub struct CreativeWork {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -734,7 +734,7 @@ pub struct CreativeWork {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CreativeWork_ {
   CreativeWork
 }
@@ -742,7 +742,7 @@ pub enum CreativeWork_ {
 /// An article, including news and scholarly articles.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Article {
     /// The name of this type
@@ -795,7 +795,7 @@ pub struct Article {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -850,7 +850,7 @@ pub struct Article {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Article_ {
   Article
 }
@@ -858,7 +858,7 @@ pub enum Article_ {
 /// A claim represents specific reviewable facts or statements.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Claim {
     /// The name of this type
@@ -914,7 +914,7 @@ pub struct Claim {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -963,14 +963,14 @@ pub struct Claim {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Claim_ {
   Claim
 }
 /// A claim represents specific reviewable facts or statements.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ClaimSimple {
     /// The name of this type
@@ -984,7 +984,7 @@ pub struct ClaimSimple {
     pub claim_type: Option<ClaimClaimType>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// A short label for the claim.
@@ -997,7 +997,7 @@ pub struct ClaimSimple {
     pub title: Option<Box<CreativeWorkTitle>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ClaimSimple_ {
   Claim
 }
@@ -1005,7 +1005,7 @@ pub enum ClaimSimple_ {
 /// A collection of CreativeWorks or other artifacts.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Collection {
     /// The name of this type
@@ -1061,7 +1061,7 @@ pub struct Collection {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -1104,14 +1104,14 @@ pub struct Collection {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Collection_ {
   Collection
 }
 /// A collection of CreativeWorks or other artifacts.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CollectionSimple {
     /// The name of this type
@@ -1125,14 +1125,14 @@ pub struct CollectionSimple {
     pub content: Option<Box<CreativeWorkContent>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// The title of the creative work.
     pub title: Option<Box<CreativeWorkTitle>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CollectionSimple_ {
   Collection
 }
@@ -1140,7 +1140,7 @@ pub enum CollectionSimple_ {
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Comment {
     /// The name of this type
@@ -1196,7 +1196,7 @@ pub struct Comment {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -1245,7 +1245,7 @@ pub struct Comment {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Comment_ {
   Comment
 }
@@ -1253,7 +1253,7 @@ pub enum Comment_ {
 /// A table of data.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Datatable {
     /// The name of this type
@@ -1309,7 +1309,7 @@ pub struct Datatable {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -1355,7 +1355,7 @@ pub struct Datatable {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Datatable_ {
   Datatable
 }
@@ -1363,7 +1363,7 @@ pub enum Datatable_ {
 /// A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MediaObject {
     /// The name of this type
@@ -1428,7 +1428,7 @@ pub struct MediaObject {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -1477,7 +1477,7 @@ pub struct MediaObject {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MediaObject_ {
   MediaObject
 }
@@ -1485,7 +1485,7 @@ pub enum MediaObject_ {
 /// An audio file
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct AudioObject {
     /// The name of this type
@@ -1553,7 +1553,7 @@ pub struct AudioObject {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -1605,14 +1605,14 @@ pub struct AudioObject {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum AudioObject_ {
   AudioObject
 }
 /// An audio file
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct AudioObjectSimple {
     /// The name of this type
@@ -1635,7 +1635,7 @@ pub struct AudioObjectSimple {
     pub embed_url: Option<Box<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// IANA media type (MIME type).
@@ -1648,7 +1648,7 @@ pub struct AudioObjectSimple {
     pub transcript: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum AudioObjectSimple_ {
   AudioObject
 }
@@ -1656,7 +1656,7 @@ pub enum AudioObjectSimple_ {
 /// A column of data within a Datatable.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct DatatableColumn {
     /// The name of this type
@@ -1676,7 +1676,7 @@ pub struct DatatableColumn {
     pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -1692,7 +1692,7 @@ pub struct DatatableColumn {
     pub validator: Option<Box<ArrayValidator>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DatatableColumn_ {
   DatatableColumn
 }
@@ -1700,7 +1700,7 @@ pub enum DatatableColumn_ {
 /// A word, name, acronym, phrase, etc. with a formal definition.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct DefinedTerm {
     /// The name of this type
@@ -1717,7 +1717,7 @@ pub struct DefinedTerm {
     pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -1733,7 +1733,7 @@ pub struct DefinedTerm {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DefinedTerm_ {
   DefinedTerm
 }
@@ -1741,7 +1741,7 @@ pub enum DefinedTerm_ {
 /// A base for all validator types.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Validator {
     /// The name of this type
@@ -1749,11 +1749,11 @@ pub struct Validator {
     pub type_: Validator_,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Validator_ {
   Validator
 }
@@ -1761,7 +1761,7 @@ pub enum Validator_ {
 /// A validator specifying constraints on an array node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ArrayValidator {
     /// The name of this type
@@ -1772,7 +1772,7 @@ pub struct ArrayValidator {
     pub contains: Option<Box<ValidatorTypes>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Another validator node specifying the constraints on all items in the array.
@@ -1788,7 +1788,7 @@ pub struct ArrayValidator {
     pub unique_items: Option<Boolean>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ArrayValidator_ {
   ArrayValidator
 }
@@ -1796,7 +1796,7 @@ pub enum ArrayValidator_ {
 /// A schema specifying that a node must be a boolean value.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct BooleanValidator {
     /// The name of this type
@@ -1804,11 +1804,11 @@ pub struct BooleanValidator {
     pub type_: BooleanValidator_,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BooleanValidator_ {
   BooleanValidator
 }
@@ -1816,7 +1816,7 @@ pub enum BooleanValidator_ {
 /// A validator specifying a constant value that a node must have.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ConstantValidator {
     /// The name of this type
@@ -1828,11 +1828,11 @@ pub struct ConstantValidator {
     pub value: Box<Node>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ConstantValidator_ {
   ConstantValidator
 }
@@ -1840,7 +1840,7 @@ pub enum ConstantValidator_ {
 /// A schema specifying that a node must be one of several values.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct EnumValidator {
     /// The name of this type
@@ -1851,11 +1851,11 @@ pub struct EnumValidator {
     pub values: Vec<Node>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum EnumValidator_ {
   EnumValidator
 }
@@ -1863,7 +1863,7 @@ pub enum EnumValidator_ {
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Enumeration {
     /// The name of this type
@@ -1877,7 +1877,7 @@ pub struct Enumeration {
     pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -1893,7 +1893,7 @@ pub struct Enumeration {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Enumeration_ {
   Enumeration
 }
@@ -1901,7 +1901,7 @@ pub enum Enumeration_ {
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Figure {
     /// The name of this type
@@ -1957,7 +1957,7 @@ pub struct Figure {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -2006,14 +2006,14 @@ pub struct Figure {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Figure_ {
   Figure
 }
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct FigureSimple {
     /// The name of this type
@@ -2027,7 +2027,7 @@ pub struct FigureSimple {
     pub content: Option<Box<CreativeWorkContent>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// A short label for the figure.
@@ -2040,7 +2040,7 @@ pub struct FigureSimple {
     pub title: Option<Box<CreativeWorkTitle>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum FigureSimple_ {
   Figure
 }
@@ -2048,7 +2048,7 @@ pub enum FigureSimple_ {
 /// A function with a name, which might take Parameters and return a value of a certain type.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Function {
     /// The name of this type
@@ -2056,7 +2056,7 @@ pub struct Function {
     pub type_: Function_,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// The name of the function.
@@ -2069,7 +2069,7 @@ pub struct Function {
     pub returns: Option<Box<ValidatorTypes>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Function_ {
   Function
 }
@@ -2077,7 +2077,7 @@ pub enum Function_ {
 /// A grant, typically financial or otherwise quantifiable, of resources.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Grant {
     /// The name of this type
@@ -2094,7 +2094,7 @@ pub struct Grant {
     pub funded_items: Option<Vec<Thing>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -2113,7 +2113,7 @@ pub struct Grant {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Grant_ {
   Grant
 }
@@ -2121,7 +2121,7 @@ pub enum Grant_ {
 /// A heading.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Heading {
     /// The name of this type
@@ -2135,11 +2135,11 @@ pub struct Heading {
     pub depth: Option<u8>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Heading_ {
   Heading
 }
@@ -2147,7 +2147,7 @@ pub enum Heading_ {
 /// An image file.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ImageObject {
     /// The name of this type
@@ -2215,7 +2215,7 @@ pub struct ImageObject {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -2267,14 +2267,14 @@ pub struct ImageObject {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ImageObject_ {
   ImageObject
 }
 /// An image file.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ImageObjectSimple {
     /// The name of this type
@@ -2297,7 +2297,7 @@ pub struct ImageObjectSimple {
     pub embed_url: Option<Box<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// IANA media type (MIME type).
@@ -2310,7 +2310,7 @@ pub struct ImageObjectSimple {
     pub title: Option<Box<CreativeWorkTitle>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ImageObjectSimple_ {
   ImageObject
 }
@@ -2318,7 +2318,7 @@ pub enum ImageObjectSimple_ {
 /// Include content from an external source (e.g. file, URL).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Include {
     /// The name of this type
@@ -2335,14 +2335,14 @@ pub struct Include {
     pub content: Option<Vec<BlockContent>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Media type of the source content.
     pub media_type: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Include_ {
   Include
 }
@@ -2350,7 +2350,7 @@ pub enum Include_ {
 /// A validator specifying the constraints on a numeric node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct NumberValidator {
     /// The name of this type
@@ -2364,7 +2364,7 @@ pub struct NumberValidator {
     pub exclusive_minimum: Option<Number>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// The inclusive upper limit for a numeric node.
@@ -2377,7 +2377,7 @@ pub struct NumberValidator {
     pub multiple_of: Option<Number>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum NumberValidator_ {
   NumberValidator
 }
@@ -2385,7 +2385,7 @@ pub enum NumberValidator_ {
 /// A validator specifying the constraints on an integer node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct IntegerValidator {
     /// The name of this type
@@ -2399,7 +2399,7 @@ pub struct IntegerValidator {
     pub exclusive_minimum: Option<Number>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// The inclusive upper limit for a numeric node.
@@ -2412,7 +2412,7 @@ pub struct IntegerValidator {
     pub multiple_of: Option<Number>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum IntegerValidator_ {
   IntegerValidator
 }
@@ -2420,7 +2420,7 @@ pub enum IntegerValidator_ {
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Link {
     /// The name of this type
@@ -2437,7 +2437,7 @@ pub struct Link {
     pub export_from: Option<Box<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// A compilation directive giving the name of the variable to import the link target as.
@@ -2450,7 +2450,7 @@ pub struct Link {
     pub title: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Link_ {
   Link
 }
@@ -2458,7 +2458,7 @@ pub enum Link_ {
 /// A list of items.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct List {
     /// The name of this type
@@ -2469,14 +2469,14 @@ pub struct List {
     pub items: Vec<ListItem>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Type of ordering.
     pub order: Option<ListOrder>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum List_ {
   List
 }
@@ -2484,7 +2484,7 @@ pub enum List_ {
 /// A single item in a list.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ListItem {
     /// The name of this type
@@ -2501,7 +2501,7 @@ pub struct ListItem {
     pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -2526,7 +2526,7 @@ pub struct ListItem {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ListItem_ {
   ListItem
 }
@@ -2534,7 +2534,7 @@ pub enum ListItem_ {
 /// A mathematical variable or equation.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Math {
     /// The name of this type
@@ -2548,14 +2548,14 @@ pub struct Math {
     pub errors: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
     pub math_language: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Math_ {
   Math
 }
@@ -2563,7 +2563,7 @@ pub enum Math_ {
 /// A block of math, e.g an equation, to be treated as block content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MathBlock {
     /// The name of this type
@@ -2577,7 +2577,7 @@ pub struct MathBlock {
     pub errors: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// A short label for the math block.
@@ -2587,7 +2587,7 @@ pub struct MathBlock {
     pub math_language: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MathBlock_ {
   MathBlock
 }
@@ -2595,7 +2595,7 @@ pub enum MathBlock_ {
 /// A fragment of math, e.g a variable name, to be treated as inline content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MathFragment {
     /// The name of this type
@@ -2609,14 +2609,14 @@ pub struct MathFragment {
     pub errors: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
     pub math_language: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MathFragment_ {
   MathFragment
 }
@@ -2624,7 +2624,7 @@ pub enum MathFragment_ {
 /// A monetary grant.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MonetaryGrant {
     /// The name of this type
@@ -2647,7 +2647,7 @@ pub struct MonetaryGrant {
     pub funders: Option<Vec<MonetaryGrantFunders>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -2666,7 +2666,7 @@ pub struct MonetaryGrant {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MonetaryGrant_ {
   MonetaryGrant
 }
@@ -2674,7 +2674,7 @@ pub enum MonetaryGrant_ {
 /// Inline text that has a non-textual annotation.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct NontextualAnnotation {
     /// The name of this type
@@ -2685,11 +2685,11 @@ pub struct NontextualAnnotation {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum NontextualAnnotation_ {
   NontextualAnnotation
 }
@@ -2697,7 +2697,7 @@ pub enum NontextualAnnotation_ {
 /// Additional content which is not part of the main content of a document.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Note {
     /// The name of this type
@@ -2708,14 +2708,14 @@ pub struct Note {
     pub content: Vec<BlockContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Determines where the note content is displayed within the document.
     pub note_type: Option<NoteNoteType>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Note_ {
   Note
 }
@@ -2723,7 +2723,7 @@ pub enum Note_ {
 /// An organization such as a school, NGO, corporation, club, etc.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Organization {
     /// The name of this type
@@ -2752,7 +2752,7 @@ pub struct Organization {
     pub funders: Option<Vec<OrganizationFunders>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -2780,7 +2780,7 @@ pub struct Organization {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Organization_ {
   Organization
 }
@@ -2788,7 +2788,7 @@ pub enum Organization_ {
 /// Paragraph
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Paragraph {
     /// The name of this type
@@ -2799,11 +2799,11 @@ pub struct Paragraph {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Paragraph_ {
   Paragraph
 }
@@ -2811,7 +2811,7 @@ pub enum Paragraph_ {
 /// A parameter of a document or function.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Parameter {
     /// The name of this type
@@ -2828,7 +2828,7 @@ pub struct Parameter {
     pub execute_digest: Option<Box<Cord>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Indicates that this parameter is variadic and can accept multiple named arguments.
@@ -2847,7 +2847,7 @@ pub struct Parameter {
     pub value: Option<Box<Node>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Parameter_ {
   Parameter
 }
@@ -2855,7 +2855,7 @@ pub enum Parameter_ {
 /// A periodical publication.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Periodical {
     /// The name of this type
@@ -2914,7 +2914,7 @@ pub struct Periodical {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -2963,7 +2963,7 @@ pub struct Periodical {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Periodical_ {
   Periodical
 }
@@ -2971,7 +2971,7 @@ pub enum Periodical_ {
 /// A person (alive, dead, undead, or fictional).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Person {
     /// The name of this type
@@ -3009,7 +3009,7 @@ pub struct Person {
     pub honorific_suffix: Option<Box<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -3034,7 +3034,7 @@ pub struct Person {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Person_ {
   Person
 }
@@ -3042,7 +3042,7 @@ pub enum Person_ {
 /// A physical mailing address.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PostalAddress {
     /// The name of this type
@@ -3071,7 +3071,7 @@ pub struct PostalAddress {
     pub emails: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -3099,7 +3099,7 @@ pub struct PostalAddress {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PostalAddress_ {
   PostalAddress
 }
@@ -3107,7 +3107,7 @@ pub enum PostalAddress_ {
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Product {
     /// The name of this type
@@ -3124,7 +3124,7 @@ pub struct Product {
     pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -3146,7 +3146,7 @@ pub struct Product {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Product_ {
   Product
 }
@@ -3154,7 +3154,7 @@ pub enum Product_ {
 /// A property-value pair.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PropertyValue {
     /// The name of this type
@@ -3172,7 +3172,7 @@ pub struct PropertyValue {
     pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -3191,7 +3191,7 @@ pub struct PropertyValue {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PropertyValue_ {
   PropertyValue
 }
@@ -3199,7 +3199,7 @@ pub enum PropertyValue_ {
 /// A part of a successively published publication such as a periodical or publication volume, often numbered.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PublicationIssue {
     /// The name of this type
@@ -3252,7 +3252,7 @@ pub struct PublicationIssue {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -3310,7 +3310,7 @@ pub struct PublicationIssue {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PublicationIssue_ {
   PublicationIssue
 }
@@ -3318,7 +3318,7 @@ pub enum PublicationIssue_ {
 /// A part of a successively published publication such as a periodical or multi-volume work.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PublicationVolume {
     /// The name of this type
@@ -3371,7 +3371,7 @@ pub struct PublicationVolume {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -3429,7 +3429,7 @@ pub struct PublicationVolume {
     pub volume_number: Option<Box<PublicationVolumeVolumeNumber>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PublicationVolume_ {
   PublicationVolume
 }
@@ -3437,7 +3437,7 @@ pub enum PublicationVolume_ {
 /// Inline, quoted content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Quote {
     /// The name of this type
@@ -3451,11 +3451,11 @@ pub struct Quote {
     pub cite: Option<Box<QuoteCite>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Quote_ {
   Quote
 }
@@ -3463,7 +3463,7 @@ pub enum Quote_ {
 /// A section quoted from somewhere else.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct QuoteBlock {
     /// The name of this type
@@ -3477,11 +3477,11 @@ pub struct QuoteBlock {
     pub cite: Option<Box<QuoteBlockCite>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum QuoteBlock_ {
   QuoteBlock
 }
@@ -3489,7 +3489,7 @@ pub enum QuoteBlock_ {
 /// A review of an item, e.g of an Article, or SoftwareSourceCode.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Review {
     /// The name of this type
@@ -3542,7 +3542,7 @@ pub struct Review {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -3594,7 +3594,7 @@ pub struct Review {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Review_ {
   Review
 }
@@ -3602,7 +3602,7 @@ pub enum Review_ {
 /// A software application.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareApplication {
     /// The name of this type
@@ -3655,7 +3655,7 @@ pub struct SoftwareApplication {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -3707,7 +3707,7 @@ pub struct SoftwareApplication {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SoftwareApplication_ {
   SoftwareApplication
 }
@@ -3715,7 +3715,7 @@ pub enum SoftwareApplication_ {
 /// A computational environment.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareEnvironment {
     /// The name of this type
@@ -3738,7 +3738,7 @@ pub struct SoftwareEnvironment {
     pub extends: Option<Vec<SoftwareEnvironment>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -3754,7 +3754,7 @@ pub struct SoftwareEnvironment {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SoftwareEnvironment_ {
   SoftwareEnvironment
 }
@@ -3762,7 +3762,7 @@ pub enum SoftwareEnvironment_ {
 /// Definition of a compute session, including its software and compute resource requirements and status.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareSession {
     /// The name of this type
@@ -3803,7 +3803,7 @@ pub struct SoftwareSession {
     pub environment: Option<Box<SoftwareEnvironment>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -3843,7 +3843,7 @@ pub struct SoftwareSession {
     pub volume_mounts: Option<Vec<VolumeMount>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SoftwareSession_ {
   SoftwareSession
 }
@@ -3851,7 +3851,7 @@ pub enum SoftwareSession_ {
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareSourceCode {
     /// The name of this type
@@ -3910,7 +3910,7 @@ pub struct SoftwareSourceCode {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -3968,7 +3968,7 @@ pub struct SoftwareSourceCode {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SoftwareSourceCode_ {
   SoftwareSourceCode
 }
@@ -3976,7 +3976,7 @@ pub enum SoftwareSourceCode_ {
 /// Content that is marked as struck out
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Strikeout {
     /// The name of this type
@@ -3987,11 +3987,11 @@ pub struct Strikeout {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Strikeout_ {
   Strikeout
 }
@@ -3999,7 +3999,7 @@ pub enum Strikeout_ {
 /// A schema specifying constraints on a string node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct StringValidator {
     /// The name of this type
@@ -4007,7 +4007,7 @@ pub struct StringValidator {
     pub type_: StringValidator_,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// The maximum length for a string node.
@@ -4020,7 +4020,7 @@ pub struct StringValidator {
     pub pattern: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum StringValidator_ {
   StringValidator
 }
@@ -4028,7 +4028,7 @@ pub enum StringValidator_ {
 /// Strongly emphasised content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Strong {
     /// The name of this type
@@ -4039,11 +4039,11 @@ pub struct Strong {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Strong_ {
   Strong
 }
@@ -4051,7 +4051,7 @@ pub enum Strong_ {
 /// Subscripted content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Subscript {
     /// The name of this type
@@ -4062,11 +4062,11 @@ pub struct Subscript {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Subscript_ {
   Subscript
 }
@@ -4074,7 +4074,7 @@ pub enum Subscript_ {
 /// Superscripted content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Superscript {
     /// The name of this type
@@ -4085,11 +4085,11 @@ pub struct Superscript {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Superscript_ {
   Superscript
 }
@@ -4097,7 +4097,7 @@ pub enum Superscript_ {
 /// A table.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Table {
     /// The name of this type
@@ -4156,7 +4156,7 @@ pub struct Table {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -4205,14 +4205,14 @@ pub struct Table {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Table_ {
   Table
 }
 /// A table.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct TableSimple {
     /// The name of this type
@@ -4229,7 +4229,7 @@ pub struct TableSimple {
     pub content: Option<Box<CreativeWorkContent>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// A short label for the table.
@@ -4242,7 +4242,7 @@ pub struct TableSimple {
     pub title: Option<Box<CreativeWorkTitle>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TableSimple_ {
   Table
 }
@@ -4250,7 +4250,7 @@ pub enum TableSimple_ {
 /// A cell within a `Table`.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct TableCell {
     /// The name of this type
@@ -4267,7 +4267,7 @@ pub struct TableCell {
     pub content: Option<TableCellContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// The name of the cell.
@@ -4277,7 +4277,7 @@ pub struct TableCell {
     pub rowspan: Option<u32>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TableCell_ {
   TableCell
 }
@@ -4285,7 +4285,7 @@ pub enum TableCell_ {
 /// A row within a Table.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct TableRow {
     /// The name of this type
@@ -4296,14 +4296,14 @@ pub struct TableRow {
     pub cells: Vec<TableCell>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// If present, indicates that all cells in this row should be treated as header cells.
     pub row_type: Option<TableRowRowType>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TableRow_ {
   TableRow
 }
@@ -4311,7 +4311,7 @@ pub enum TableRow_ {
 /// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ThematicBreak {
     /// The name of this type
@@ -4319,11 +4319,11 @@ pub struct ThematicBreak {
     pub type_: ThematicBreak_,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ThematicBreak_ {
   ThematicBreak
 }
@@ -4331,7 +4331,7 @@ pub enum ThematicBreak_ {
 /// A validator specifying constraints on an array of heterogeneous items.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct TupleValidator {
     /// The name of this type
@@ -4339,14 +4339,14 @@ pub struct TupleValidator {
     pub type_: TupleValidator_,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// An array of validators specifying the constraints on each successive item in the array.
     pub items: Option<Vec<ValidatorTypes>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TupleValidator_ {
   TupleValidator
 }
@@ -4354,7 +4354,7 @@ pub enum TupleValidator_ {
 /// Inline text that is underlined.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Underline {
     /// The name of this type
@@ -4365,11 +4365,11 @@ pub struct Underline {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Underline_ {
   Underline
 }
@@ -4377,7 +4377,7 @@ pub enum Underline_ {
 /// A variable representing a name / value pair.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Variable {
     /// The name of this type
@@ -4388,7 +4388,7 @@ pub struct Variable {
     pub name: String,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Whether or not a property is mutable. Default is false.
@@ -4401,7 +4401,7 @@ pub struct Variable {
     pub value: Option<Box<Node>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Variable_ {
   Variable
 }
@@ -4409,7 +4409,7 @@ pub enum Variable_ {
 /// A video file.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct VideoObject {
     /// The name of this type
@@ -4477,7 +4477,7 @@ pub struct VideoObject {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -4532,14 +4532,14 @@ pub struct VideoObject {
     pub version: Option<Box<CreativeWorkVersion>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum VideoObject_ {
   VideoObject
 }
 /// A video file.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct VideoObjectSimple {
     /// The name of this type
@@ -4562,7 +4562,7 @@ pub struct VideoObjectSimple {
     pub embed_url: Option<Box<String>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// IANA media type (MIME type).
@@ -4578,7 +4578,7 @@ pub struct VideoObjectSimple {
     pub transcript: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum VideoObjectSimple_ {
   VideoObject
 }
@@ -4586,7 +4586,7 @@ pub enum VideoObjectSimple_ {
 /// Describes a volume mount from a host to container.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq)]
+#[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct VolumeMount {
     /// The name of this type
@@ -4603,7 +4603,7 @@ pub struct VolumeMount {
     pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -4628,7 +4628,7 @@ pub struct VolumeMount {
     pub url: Option<Box<String>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum VolumeMount_ {
   VolumeMount
 }
@@ -4637,7 +4637,7 @@ pub enum VolumeMount_ {
  * Enums for struct properties which use JSON Schema 'enum' or 'anyOf'
  ********************************************************************/
 
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 pub enum CiteCitationMode {
     Parenthetical,
     Narrative,
@@ -4648,7 +4648,7 @@ pub enum CiteCitationMode {
 }
 
 /// Types permitted for the `pageEnd` property of a `Cite` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CitePageEnd {
     Integer(Integer),
@@ -4656,7 +4656,7 @@ pub enum CitePageEnd {
 }
 
 /// Types permitted for the `pageStart` property of a `Cite` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CitePageStart {
     Integer(Integer),
@@ -4664,7 +4664,7 @@ pub enum CitePageStart {
 }
 
 /// Types permitted for the `codeDependencies` property of a `CodeExecutable` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeExecutableCodeDependencies {
     CodeChunk(CodeChunk),
@@ -4672,14 +4672,14 @@ pub enum CodeExecutableCodeDependencies {
 }
 
 /// Types permitted for the `codeDependents` property of a `CodeExecutable` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeExecutableCodeDependents {
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 pub enum CodeExecutableExecuteRequired {
     No,
     NeverExecuted,
@@ -4688,7 +4688,7 @@ pub enum CodeExecutableExecuteRequired {
     DependenciesFailed,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 pub enum CodeExecutableExecuteStatus {
     Scheduled,
     ScheduledPreviouslyFailed,
@@ -4700,14 +4700,14 @@ pub enum CodeExecutableExecuteStatus {
 }
 
 /// Types permitted for the `caption` property of a `CodeChunk` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkCaption {
     VecBlockContent(Vec<BlockContent>),
     String(String),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 pub enum CodeChunkExecuteAuto {
     Never,
     Needed,
@@ -4715,7 +4715,7 @@ pub enum CodeChunkExecuteAuto {
 }
 
 /// Types permitted for the `description` property of a `Thing` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -4724,7 +4724,7 @@ pub enum ThingDescription {
 }
 
 /// Types permitted for the `identifiers` property of a `Thing` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingIdentifiers {
     PropertyValue(PropertyValue),
@@ -4732,7 +4732,7 @@ pub enum ThingIdentifiers {
 }
 
 /// Types permitted for the `images` property of a `Thing` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingImages {
     ImageObject(ImageObject),
@@ -4740,7 +4740,7 @@ pub enum ThingImages {
 }
 
 /// Types permitted for the `logo` property of a `Brand` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BrandLogo {
     ImageObject(ImageObject),
@@ -4748,7 +4748,7 @@ pub enum BrandLogo {
 }
 
 /// Types permitted for the `authors` property of a `CreativeWork` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkAuthors {
     Person(Person),
@@ -4756,7 +4756,7 @@ pub enum CreativeWorkAuthors {
 }
 
 /// Types permitted for the `content` property of a `CreativeWork` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkContent {
     VecNode(Vec<Node>),
@@ -4764,7 +4764,7 @@ pub enum CreativeWorkContent {
 }
 
 /// Types permitted for the `fundedBy` property of a `CreativeWork` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkFundedBy {
     Grant(Grant),
@@ -4772,7 +4772,7 @@ pub enum CreativeWorkFundedBy {
 }
 
 /// Types permitted for the `funders` property of a `CreativeWork` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkFunders {
     Person(Person),
@@ -4780,7 +4780,7 @@ pub enum CreativeWorkFunders {
 }
 
 /// Types permitted for the `licenses` property of a `CreativeWork` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
@@ -4788,7 +4788,7 @@ pub enum CreativeWorkLicenses {
 }
 
 /// Types permitted for the `maintainers` property of a `CreativeWork` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkMaintainers {
     Person(Person),
@@ -4796,7 +4796,7 @@ pub enum CreativeWorkMaintainers {
 }
 
 /// Types permitted for the `publisher` property of a `CreativeWork` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkPublisher {
     Person(Person),
@@ -4804,7 +4804,7 @@ pub enum CreativeWorkPublisher {
 }
 
 /// Types permitted for the `references` property of a `CreativeWork` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkReferences {
     CreativeWorkTypes(CreativeWorkTypes),
@@ -4812,7 +4812,7 @@ pub enum CreativeWorkReferences {
 }
 
 /// Types permitted for the `title` property of a `CreativeWork` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkTitle {
     VecInlineContent(Vec<InlineContent>),
@@ -4820,7 +4820,7 @@ pub enum CreativeWorkTitle {
 }
 
 /// Types permitted for the `version` property of a `CreativeWork` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkVersion {
     String(String),
@@ -4828,7 +4828,7 @@ pub enum CreativeWorkVersion {
 }
 
 /// Types permitted for the `pageEnd` property of a `Article` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticlePageEnd {
     Integer(Integer),
@@ -4836,14 +4836,14 @@ pub enum ArticlePageEnd {
 }
 
 /// Types permitted for the `pageStart` property of a `Article` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticlePageStart {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 pub enum ClaimClaimType {
     Statement,
     Theorem,
@@ -4856,7 +4856,7 @@ pub enum ClaimClaimType {
 }
 
 /// Types permitted for the `caption` property of a `Figure` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureCaption {
     VecBlockContent(Vec<BlockContent>),
@@ -4864,14 +4864,14 @@ pub enum FigureCaption {
 }
 
 /// Types permitted for the `sponsors` property of a `Grant` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantSponsors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 pub enum ListOrder {
     Ascending,
     Descending,
@@ -4879,7 +4879,7 @@ pub enum ListOrder {
 }
 
 /// Types permitted for the `content` property of a `ListItem` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ListItemContent {
     VecBlockContent(Vec<BlockContent>),
@@ -4887,14 +4887,14 @@ pub enum ListItemContent {
 }
 
 /// Types permitted for the `funders` property of a `MonetaryGrant` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 pub enum NoteNoteType {
     Footnote,
     Endnote,
@@ -4902,7 +4902,7 @@ pub enum NoteNoteType {
 }
 
 /// Types permitted for the `address` property of a `Organization` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationAddress {
     PostalAddress(PostalAddress),
@@ -4910,7 +4910,7 @@ pub enum OrganizationAddress {
 }
 
 /// Types permitted for the `funders` property of a `Organization` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationFunders {
     Organization(Organization),
@@ -4918,7 +4918,7 @@ pub enum OrganizationFunders {
 }
 
 /// Types permitted for the `logo` property of a `Organization` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationLogo {
     ImageObject(ImageObject),
@@ -4926,7 +4926,7 @@ pub enum OrganizationLogo {
 }
 
 /// Types permitted for the `members` property of a `Organization` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationMembers {
     Organization(Organization),
@@ -4934,7 +4934,7 @@ pub enum OrganizationMembers {
 }
 
 /// Types permitted for the `address` property of a `Person` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonAddress {
     PostalAddress(PostalAddress),
@@ -4942,7 +4942,7 @@ pub enum PersonAddress {
 }
 
 /// Types permitted for the `funders` property of a `Person` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonFunders {
     Organization(Organization),
@@ -4950,7 +4950,7 @@ pub enum PersonFunders {
 }
 
 /// Types permitted for the `logo` property of a `Product` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProductLogo {
     ImageObject(ImageObject),
@@ -4958,7 +4958,7 @@ pub enum ProductLogo {
 }
 
 /// Types permitted for the `value` property of a `PropertyValue` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValueValue {
     Boolean(Boolean),
@@ -4968,7 +4968,7 @@ pub enum PropertyValueValue {
 }
 
 /// Types permitted for the `issueNumber` property of a `PublicationIssue` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueIssueNumber {
     Integer(Integer),
@@ -4976,7 +4976,7 @@ pub enum PublicationIssueIssueNumber {
 }
 
 /// Types permitted for the `pageEnd` property of a `PublicationIssue` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssuePageEnd {
     Integer(Integer),
@@ -4984,7 +4984,7 @@ pub enum PublicationIssuePageEnd {
 }
 
 /// Types permitted for the `pageStart` property of a `PublicationIssue` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssuePageStart {
     Integer(Integer),
@@ -4992,7 +4992,7 @@ pub enum PublicationIssuePageStart {
 }
 
 /// Types permitted for the `pageEnd` property of a `PublicationVolume` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumePageEnd {
     Integer(Integer),
@@ -5000,7 +5000,7 @@ pub enum PublicationVolumePageEnd {
 }
 
 /// Types permitted for the `pageStart` property of a `PublicationVolume` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumePageStart {
     Integer(Integer),
@@ -5008,7 +5008,7 @@ pub enum PublicationVolumePageStart {
 }
 
 /// Types permitted for the `volumeNumber` property of a `PublicationVolume` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeVolumeNumber {
     Integer(Integer),
@@ -5016,7 +5016,7 @@ pub enum PublicationVolumeVolumeNumber {
 }
 
 /// Types permitted for the `cite` property of a `Quote` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum QuoteCite {
     Cite(Cite),
@@ -5024,14 +5024,14 @@ pub enum QuoteCite {
 }
 
 /// Types permitted for the `cite` property of a `QuoteBlock` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum QuoteBlockCite {
     Cite(Cite),
     String(String),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 pub enum SoftwareSessionStatus {
     Unknown,
     Starting,
@@ -5042,7 +5042,7 @@ pub enum SoftwareSessionStatus {
 }
 
 /// Types permitted for the `softwareRequirements` property of a `SoftwareSourceCode` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeSoftwareRequirements {
     SoftwareSourceCode(SoftwareSourceCode),
@@ -5051,28 +5051,28 @@ pub enum SoftwareSourceCodeSoftwareRequirements {
 }
 
 /// Types permitted for the `caption` property of a `Table` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableCaption {
     VecBlockContent(Vec<BlockContent>),
     String(String),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 pub enum TableCellCellType {
     Data,
     Header,
 }
 
 /// Types permitted for the `content` property of a `TableCell` node.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableCellContent {
     VecBlockContent(Vec<BlockContent>),
     VecInlineContent(Vec<InlineContent>),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 pub enum TableRowRowType {
     Header,
     Footer,
@@ -5084,7 +5084,7 @@ pub enum TableRowRowType {
  ********************************************************************/
 
 /// The type or nature of a citation, both factually and rhetorically.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CitationIntentEnumeration {
     /// The citing entity agrees with statements, ideas or conclusions presented in the cited entity
@@ -5276,7 +5276,7 @@ pub enum CitationIntentEnumeration {
  ********************************************************************/
   
 /// Union type for valid block content.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BlockContent {
     Claim(ClaimSimple),
@@ -5295,7 +5295,7 @@ pub enum BlockContent {
 }
 
 /// All type schemas that are derived from CodeExecutable
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeExecutableTypes {
     CodeExecutable(CodeExecutable),
@@ -5304,7 +5304,7 @@ pub enum CodeExecutableTypes {
 }
 
 /// All type schemas that are derived from Code
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeTypes {
     Code(Code),
@@ -5316,7 +5316,7 @@ pub enum CodeTypes {
 }
 
 /// All type schemas that are derived from ContactPoint
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointTypes {
     ContactPoint(ContactPoint),
@@ -5324,7 +5324,7 @@ pub enum ContactPointTypes {
 }
 
 /// All type schemas that are derived from CreativeWork
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkTypes {
     CreativeWork(CreativeWork),
@@ -5348,7 +5348,7 @@ pub enum CreativeWorkTypes {
 }
 
 /// All type schemas that are derived from Entity
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EntityTypes {
     Entity(Entity),
@@ -5436,7 +5436,7 @@ pub enum EntityTypes {
 }
 
 /// All type schemas that are derived from Enumeration
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnumerationTypes {
     Enumeration(Enumeration),
@@ -5444,7 +5444,7 @@ pub enum EnumerationTypes {
 }
 
 /// All type schemas that are derived from Grant
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantTypes {
     Grant(Grant),
@@ -5452,7 +5452,7 @@ pub enum GrantTypes {
 }
 
 /// Union type for valid inline content.
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineContent {
     AudioObject(AudioObjectSimple),
@@ -5483,7 +5483,7 @@ pub enum InlineContent {
 }
 
 /// All type schemas that are derived from Mark
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MarkTypes {
     Mark(Mark),
@@ -5499,7 +5499,7 @@ pub enum MarkTypes {
 }
 
 /// All type schemas that are derived from Math
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MathTypes {
     Math(Math),
@@ -5508,7 +5508,7 @@ pub enum MathTypes {
 }
 
 /// All type schemas that are derived from MediaObject
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectTypes {
     MediaObject(MediaObject),
@@ -5518,7 +5518,7 @@ pub enum MediaObjectTypes {
 }
 
 /// Union type for all types of nodes in this schema, including primitives and entities
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Node {
     Entity(Entity),
@@ -5613,7 +5613,7 @@ pub enum Node {
 }
 
 /// All type schemas that are derived from NumberValidator
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum NumberValidatorTypes {
     NumberValidator(NumberValidator),
@@ -5621,7 +5621,7 @@ pub enum NumberValidatorTypes {
 }
 
 /// Union type for all primitives values
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Primitive {
     Null(Null),
@@ -5634,7 +5634,7 @@ pub enum Primitive {
 }
 
 /// All type schemas that are derived from Thing
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingTypes {
     Thing(Thing),
@@ -5676,7 +5676,7 @@ pub enum ThingTypes {
 }
 
 /// All type schemas that are derived from Validator
-#[derive(Clone, Debug, PartialEq, Eq, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ValidatorTypes {
     Validator(Validator),

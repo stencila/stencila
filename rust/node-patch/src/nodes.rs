@@ -7,7 +7,6 @@ use super::prelude::*;
 macro_rules! patchable_node_variants {
     ($( $variant:path )*) => {
         impl Patchable for Node {
-            patchable_variants_hash!($( $variant )*);
             patchable_variants_apply_add!($( $variant )*);
             patchable_variants_apply_remove!($( $variant )*);
             patchable_variants_apply_replace!($( $variant )*);

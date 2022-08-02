@@ -4,8 +4,6 @@ use stencila_schema::*;
 use super::prelude::*;
 
 impl Patchable for Datatable {
-    patchable_struct_hash!(columns);
-
     fn diff(&self, other: &Self, differ: &mut Differ) {
         // TODO: Implement diffing optimized (semantically and computationally) for datatables
         // e.g. `Add` and `Remove` for entire columns and entire rows,
@@ -20,7 +18,6 @@ patchable_struct!(DatatableColumn, name, validator, values);
 /// `default` and `value` fields (which can be any `Node`) meet the
 /// requirements of the `validator`.
 impl Patchable for Parameter {
-    patchable_struct_hash!(name, validator, default, value);
     patchable_struct_diff!(name, validator, default, value);
 
     // Presently, only `apply_replace` is overridden (because those are the operations sent

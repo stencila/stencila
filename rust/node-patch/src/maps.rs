@@ -1,7 +1,4 @@
-use std::{
-    collections::BTreeMap,
-    hash::{Hash, Hasher},
-};
+use std::collections::BTreeMap;
 
 use common::serde::de::DeserializeOwned;
 
@@ -14,13 +11,6 @@ impl<Type: Patchable> Patchable for BTreeMap<String, Type>
 where
     Type: Clone + PartialEq + DeserializeOwned + Send + 'static,
 {
-    fn make_hash<H: Hasher>(&self, state: &mut H) {
-        for (key, value) in self {
-            key.hash(state);
-            value.make_hash(state);
-        }
-    }
-
     fn diff(&self, other: &Self, differ: &mut Differ) {
         // Shortcuts
         if self.is_empty() && other.is_empty() {

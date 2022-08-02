@@ -17,7 +17,7 @@ pub use strum::AsRefStr;
 /// This is a struct, rather than a unit variant of `Primitive`, so that
 /// it can be treated the same way as other variants when dispatching to
 /// trait methods.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Null {}
 
 impl Display for Null {
@@ -118,7 +118,7 @@ pub type Array = Vec<Primitive>;
 pub type Object = BTreeMap<String, Primitive>;
 
 /// The set of primitive (non-Entity) node types
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Primitive {
     Null(Null),

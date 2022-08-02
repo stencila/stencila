@@ -1,7 +1,6 @@
 use super::prelude::*;
 use codec_txt::ToTxt;
 use node_dispatch::{dispatch_inline, dispatch_inline_pair};
-use std::hash::Hasher;
 use stencila_schema::*;
 
 /// Implements patching for `InlineContent`
@@ -9,10 +8,6 @@ use stencila_schema::*;
 /// Generates and applies `Replace` and `Transform` operations between variants of inline content.
 /// All other operations are passed through to variants.
 impl Patchable for InlineContent {
-    fn make_hash<H: Hasher>(&self, state: &mut H) {
-        dispatch_inline!(self, make_hash, state)
-    }
-
     fn diff(&self, other: &Self, differ: &mut Differ) {
         dispatch_inline_pair!(
             self,
@@ -223,8 +218,6 @@ patchable_struct!(Underline, content);
 macro_rules! patchable_media_object {
     ($type:ty $(,$field:ident)* $(,)?) => {
         impl Patchable for $type {
-            patchable_struct_hash!($($field,)*);
-
             fn diff(&self, other: &Self, differ: &mut Differ) {
                 $(
                     let field = stringify!($field);
