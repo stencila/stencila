@@ -26,14 +26,6 @@ const DIFF_TIMEOUT_SECS: u64 = 1;
 /// The `Move` operation, whilst possible for strings, adds complexity
 /// and a performance hit to diffing so is not used.
 impl Patchable for String {
-    fn is_equal(&self, other: &Self) -> Result<()> {
-        if self == other {
-            Ok(())
-        } else {
-            bail!(Error::NotEqual)
-        }
-    }
-
     fn make_hash<H: Hasher>(&self, state: &mut H) {
         self.hash(state)
     }
@@ -180,7 +172,7 @@ mod tests {
     use test_utils::assert_json_is;
 
     use super::*;
-    use crate::{apply_new, diff, equal};
+    use crate::{apply_new, diff};
 
     #[test]
     fn basic() -> Result<()> {
@@ -190,12 +182,6 @@ mod tests {
         let c = "a2b3".to_string();
         let d = "abcdef".to_string();
         let e = "adbcfe".to_string();
-
-        assert!(equal(&empty, &empty));
-        assert!(equal(&a, &a));
-        assert!(equal(&b, &b));
-        assert!(equal(&c, &c));
-        assert!(equal(&d, &d));
 
         // No diff
 

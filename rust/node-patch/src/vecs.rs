@@ -19,18 +19,8 @@ const DIFF_TIMEOUT_SECS: u64 = 1;
 /// Implements patching for vectors
 impl<Type: Patchable> Patchable for Vec<Type>
 where
-    Type: Clone + DeserializeOwned + Send + 'static,
+    Type: Clone + PartialEq + DeserializeOwned + Send + 'static,
 {
-    fn is_equal(&self, other: &Self) -> Result<()> {
-        if self.len() != other.len() {
-            bail!(Error::NotEqual)
-        }
-        for index in 0..self.len() {
-            self[index].is_equal(&other[index])?
-        }
-        Ok(())
-    }
-
     fn make_hash<H: Hasher>(&self, state: &mut H) {
         for item in self {
             item.make_hash(state)
@@ -115,7 +105,7 @@ where
                                         .expect("To have an entry for all removes");
                                     let removed_value =
                                         self[removed.0..(removed.0 + removed.1)].to_vec();
-                                    if added_value.is_equal(&removed_value).is_ok() {
+                                    if added_value == removed_value {
                                         ops[prev] = Operation::Move {
                                             from: address.clone(),
                                             items: *items,
@@ -173,7 +163,7 @@ where
                                         .deref()
                                         .downcast_ref::<Self>()
                                         .expect("To be a Vec<Type>");
-                                    if added_value.is_equal(&removed_value).is_ok() {
+                                    if *added_value == removed_value {
                                         ops[prev] = Operation::Move {
                                             from: Address::from((index as i32 + shift) as usize),
                                             items: old_len,
@@ -490,18 +480,21 @@ where
 
 impl<'lt, Type> PartialEq for Item<'lt, Type>
 where
-    Type: Patchable,
+    Type: Patchable + PartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
-        self.item.is_equal(other.item).is_ok()
+        self.item == other.item
     }
 }
 
-impl<'lt, Type> Eq for Item<'lt, Type> where Type: Patchable {}
+impl<'lt, Type> Eq for Item<'lt, Type> where Type: Patchable + PartialEq {}
 
 /// Generate unique integer ids for items across two vectors using the
 /// the `make_hash` trait property.
-fn unique_items<Type: Patchable>(a: &[Type], b: &[Type]) -> (Vec<u32>, Vec<u32>) {
+fn unique_items<Type>(a: &[Type], b: &[Type]) -> (Vec<u32>, Vec<u32>)
+where
+    Type: Patchable + PartialEq,
+{
     let mut map = HashMap::new();
     let mut id = 0;
     let mut a_ids = Vec::new();
@@ -535,7 +528,7 @@ fn unique_items<Type: Patchable>(a: &[Type], b: &[Type]) -> (Vec<u32>, Vec<u32>)
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{apply_new, diff, equal};
+    use crate::{apply_new, diff};
     use stencila_schema::{Emphasis, InlineContent, Integer, Strong};
     use test_utils::assert_json_is;
 
@@ -544,16 +537,8 @@ mod tests {
     #[test]
     fn basic() -> Result<()> {
         let empty: Vec<Integer> = vec![];
-        let a: Vec<Integer> = vec![1];
+        let _a: Vec<Integer> = vec![1];
         let b: Vec<Integer> = vec![1, 2];
-
-        assert!(equal(&empty, &empty));
-        assert!(equal(&a, &a));
-        assert!(equal(&b, &b));
-
-        assert!(!equal(&empty, &a));
-        assert!(!equal(&empty, &b));
-        assert!(!equal(&a, &b));
 
         // Add / replace all
 

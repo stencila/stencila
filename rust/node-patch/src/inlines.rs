@@ -9,10 +9,6 @@ use stencila_schema::*;
 /// Generates and applies `Replace` and `Transform` operations between variants of inline content.
 /// All other operations are passed through to variants.
 impl Patchable for InlineContent {
-    fn is_equal(&self, other: &Self) -> Result<()> {
-        dispatch_inline_pair!(self, other, bail!(Error::NotEqual), is_equal)
-    }
-
     fn make_hash<H: Hasher>(&self, state: &mut H) {
         dispatch_inline!(self, make_hash, state)
     }
@@ -88,7 +84,7 @@ fn diff_transform(differ: &mut Differ, from: &InlineContent, to: &InlineContent)
             | InlineContent::Strong(Strong { content: to_c, .. })
             | InlineContent::Subscript(Subscript { content: to_c, .. })
             | InlineContent::Superscript(Superscript { content: to_c, .. }) => {
-                if content.is_equal(to_c).is_ok() {
+                if content == to_c {
                     return differ.transform(from.as_ref(), to.as_ref());
                 }
             }
@@ -227,7 +223,6 @@ patchable_struct!(Underline, content);
 macro_rules! patchable_media_object {
     ($type:ty $(,$field:ident)* $(,)?) => {
         impl Patchable for $type {
-            patchable_struct_is_equal!($($field,)*);
             patchable_struct_hash!($($field,)*);
 
             fn diff(&self, other: &Self, differ: &mut Differ) {
@@ -270,7 +265,7 @@ patchable_media_object!(VideoObjectSimple, content_url, media_type);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{apply_new, diff, equal};
+    use crate::{apply_new, diff};
     use stencila_schema::Node;
     use test_utils::{
         assert_json_eq, assert_json_is,
@@ -284,9 +279,9 @@ mod tests {
         let a = InlineContent::String("abcd".to_string());
         let b = InlineContent::String("eacp".to_string());
 
-        assert!(equal(&a, &a));
-        assert!(!equal(&a, &b));
-        assert!(!equal(&a, &InlineContent::Boolean(true)));
+        assert_eq!(a, a);
+        assert!(a != b);
+        assert!(a != InlineContent::Boolean(true));
 
         let patch = diff(&a, &b);
         assert_json_is!(patch.ops, [
@@ -306,8 +301,8 @@ mod tests {
             ..Default::default()
         });
 
-        assert!(equal(&a, &a));
-        assert!(!equal(&a, &b));
+        assert_eq!(a, a);
+        assert!(a != b);
 
         let patch = diff(&a, &b);
         assert_json_is!(patch.ops, [

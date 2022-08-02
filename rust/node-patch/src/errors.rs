@@ -14,11 +14,6 @@ use common::serde::Serialize;
 #[serde(tag = "type", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub enum Error {
-    /// Used to indicate that two values are not equal (rather than
-    /// return `false`, this error allows for convenient early return via `?`).
-    #[error("Values are not equal (type is equal but their value differs")]
-    NotEqual,
-
     /// The user attempted to apply a patch operation that is invalid for
     /// the type.
     #[error("Invalid patch operation `{op}` for type `{type_name}`")]

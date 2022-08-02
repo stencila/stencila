@@ -1,16 +1,3 @@
-/// Generate the `is_equal` method for a `struct`
-macro_rules! patchable_struct_is_equal {
-    ($($field:ident),* $(,)?) => {
-        #[allow(unused_variables)]
-        fn is_equal(&self, other: &Self) -> Result<()> {
-            $(
-                self.$field.is_equal(&other.$field)?;
-            )*
-            Ok(())
-        }
-    };
-}
-
 /// Generate the `make_hash` method for a `struct`
 macro_rules! patchable_struct_hash {
     ($($field:ident),* $(,)?) => {
@@ -140,7 +127,6 @@ macro_rules! patchable_struct_apply_transform {
 macro_rules! patchable_struct {
     ($type:ty $(,$field:ident)* $(,)?) => {
         impl Patchable for $type {
-            patchable_struct_is_equal!($($field,)*);
             patchable_struct_hash!($($field,)*);
             patchable_struct_diff!($($field,)*);
             patchable_struct_apply_add!($($field,)*);
@@ -163,11 +149,10 @@ macro_rules! patchable_struct {
 macro_rules! replaceable_struct {
     ($type:ty $(,$field:ident)* $(,)?) => {
         impl Patchable for $type {
-            patchable_struct_is_equal!($($field,)*);
             patchable_struct_hash!($($field,)*);
 
             fn diff(&self, other: &Self, differ: &mut Differ) {
-                if !self.is_equal(other).is_ok() {
+                if self != other {
                     differ.replace(other)
                 }
             }

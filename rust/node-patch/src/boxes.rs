@@ -14,10 +14,6 @@ impl<Type: Patchable> Patchable for Box<Type>
 where
     Type: Clone + DeserializeOwned + Send + 'static,
 {
-    fn is_equal(&self, other: &Self) -> Result<()> {
-        self.deref().is_equal(other)
-    }
-
     fn make_hash<H: Hasher>(&self, state: &mut H) {
         self.deref().make_hash(state)
     }
@@ -63,14 +59,12 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{apply_new, diff, equal};
-    use stencila_schema::{CodeBlock, Integer};
+    use crate::{apply_new, diff};
+    use stencila_schema::CodeBlock;
     use test_utils::{assert_json_eq, assert_json_is};
 
     #[test]
     fn basic() -> Result<()> {
-        assert!(equal::<Box<Integer>>(&Box::new(1), &Box::new(1)));
-
         // Add, remove, replace
         let a = Box::new("abcd".to_string());
         let b = Box::new("eacp".to_string());

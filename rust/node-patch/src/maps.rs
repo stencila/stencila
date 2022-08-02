@@ -12,26 +12,8 @@ use super::prelude::*;
 /// This is mainly provided for `impl Patchable for Object`.
 impl<Type: Patchable> Patchable for BTreeMap<String, Type>
 where
-    Type: Clone + DeserializeOwned + Send + 'static,
+    Type: Clone + PartialEq + DeserializeOwned + Send + 'static,
 {
-    fn is_equal(&self, other: &Self) -> Result<()> {
-        if self.len() != other.len() {
-            bail!(Error::NotEqual)
-        }
-
-        for (key, value) in self {
-            if let Some(other_value) = other.get(key) {
-                if value.is_equal(other_value).is_err() {
-                    bail!(Error::NotEqual)
-                }
-            } else {
-                bail!(Error::NotEqual)
-            }
-        }
-
-        Ok(())
-    }
-
     fn make_hash<H: Hasher>(&self, state: &mut H) {
         for (key, value) in self {
             key.hash(state);
@@ -76,7 +58,7 @@ where
                     continue;
                 }
 
-                if remove_value.is_equal(add_value).is_ok() {
+                if remove_value == add_value {
                     differ.push(Operation::Move {
                         from: Address::from(remove_key.as_str()),
                         to: Address::from(add_key.as_str()),

@@ -15,14 +15,6 @@ impl<Type: Patchable> Patchable for Option<Type>
 where
     Type: Clone + DeserializeOwned + Send + 'static,
 {
-    fn is_equal(&self, other: &Self) -> Result<()> {
-        match (self, other) {
-            (None, None) => Ok(()),
-            (None, Some(_)) | (Some(_), None) => bail!(Error::NotEqual),
-            (Some(me), Some(other)) => me.is_equal(other),
-        }
-    }
-
     fn make_hash<H: Hasher>(&self, state: &mut H) {
         if let Some(value) = self {
             value.make_hash(state)
@@ -101,18 +93,12 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{apply_new, diff, equal};
+    use crate::{apply_new, diff};
     use stencila_schema::Integer;
     use test_utils::assert_json_is;
 
     #[test]
     fn basic() -> Result<()> {
-        assert!(equal::<Option<Integer>>(&None, &None));
-        assert!(equal(&Some(1), &Some(1)));
-
-        assert!(!equal(&None, &Some(1)));
-        assert!(!equal(&Some(1), &Some(2)));
-
         // No diff
 
         assert_json_is!(diff::<Option<Integer>>(&None, &None).ops, []);

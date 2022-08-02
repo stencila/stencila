@@ -7,7 +7,6 @@ use super::prelude::*;
 macro_rules! patchable_node_variants {
     ($( $variant:path )*) => {
         impl Patchable for Node {
-            patchable_variants_is_equal!($( $variant )*);
             patchable_variants_hash!($( $variant )*);
             patchable_variants_apply_add!($( $variant )*);
             patchable_variants_apply_remove!($( $variant )*);
@@ -24,7 +23,7 @@ macro_rules! patchable_node_variants {
                     (Node::Boolean(..), Node::Boolean(..)) |
                     (Node::Integer(..), Node::Integer(..)) |
                     (Node::Number(..), Node::Number(..)) => {
-                        if !self.is_equal(other).is_ok() {
+                        if self != other {
                             differ.replace(other)
                         }
                     },

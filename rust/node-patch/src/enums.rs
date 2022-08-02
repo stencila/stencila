@@ -1,17 +1,3 @@
-/// Generate the `is_equal` method for an `enum` having variants of different types
-macro_rules! patchable_variants_is_equal {
-    ($( $variant:path )*) => {
-        fn is_equal(&self, other: &Self) -> Result<()> {
-            match (self, other) {
-                $(
-                    ($variant(me), $variant(other)) => me.is_equal(other),
-                )*
-                _ => bail!(Error::NotEqual),
-            }
-        }
-    };
-}
-
 /// Generate the `make_hash` method for an `enum` having variants of different types
 macro_rules! patchable_variants_hash {
     ($( $variant:path )*) => {
@@ -121,13 +107,6 @@ macro_rules! patchable_variants_apply_transform {
 macro_rules! patchable_enum {
     ($type:ty) => {
         impl Patchable for $type {
-            fn is_equal(&self, other: &Self) -> Result<()> {
-                match std::mem::discriminant(self) == std::mem::discriminant(other) {
-                    true => Ok(()),
-                    false => bail!(Error::NotEqual),
-                }
-            }
-
             fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
                 use std::hash::Hash;
                 std::mem::discriminant(self).hash(state)
@@ -156,7 +135,6 @@ macro_rules! patchable_enum {
 macro_rules! patchable_variants {
     ($type:ty $(, $variant:path )*) => {
         impl Patchable for $type {
-            patchable_variants_is_equal!($( $variant )*);
             patchable_variants_hash!($( $variant )*);
             patchable_variants_diff!($( $variant )*);
             patchable_variants_apply_add!($( $variant )*);

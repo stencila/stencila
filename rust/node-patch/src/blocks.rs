@@ -8,10 +8,6 @@ use stencila_schema::*;
 /// Generates and applies `Replace` and `Transform` operations between variants of block content.
 /// All other operations are passed through to variants.
 impl Patchable for BlockContent {
-    fn is_equal(&self, other: &Self) -> Result<()> {
-        dispatch_block_pair!(self, other, bail!(Error::NotEqual), is_equal)
-    }
-
     fn make_hash<H: Hasher>(&self, state: &mut H) {
         dispatch_block!(self, make_hash, state)
     }

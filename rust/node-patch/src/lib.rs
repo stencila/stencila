@@ -20,14 +20,6 @@ use node_address::{Address, Slot};
 use node_pointer::{resolve_mut, Pointable};
 use stencila_schema::*;
 
-/// Do two nodes of the same type have equal value?
-pub fn equal<Type>(node1: &Type, node2: &Type) -> bool
-where
-    Type: Patchable,
-{
-    node1.is_equal(node2).is_ok()
-}
-
 /// Generate a [`Patch`] describing the difference between two nodes of the same type.
 #[tracing::instrument(skip(node1, node2))]
 pub fn diff<Type>(node1: &Type, node2: &Type) -> Patch
@@ -741,9 +733,6 @@ impl Differ {
 }
 
 pub trait Patchable {
-    /// Test whether a node is equal to (i.e. equal value) a node of the same type.
-    fn is_equal(&self, other: &Self) -> Result<()>;
-
     /// Generate a hash of the patchable content of a node
     ///
     /// Used for identifying unique values, particularly when diffing sequences.
@@ -877,25 +866,8 @@ mod works;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use stencila_schema::{Article, Emphasis, InlineContent, Integer, Paragraph};
+    use stencila_schema::{Article, Emphasis, InlineContent, Paragraph};
     use test_utils::{assert_json_eq, assert_json_is};
-
-    #[test]
-    fn test_equal() {
-        let int_a: Integer = 1;
-        let int_b: Integer = 2;
-        let opt_a: Option<Integer> = None;
-        let opt_b: Option<Integer> = Some(1);
-        let vec_a: Vec<Integer> = vec![1, 2, 3];
-        let vec_b: Vec<Integer> = vec![3, 2, 1];
-
-        assert!(equal(&int_a, &int_a));
-        assert!(!equal(&int_a, &int_b));
-        assert!(equal(&opt_a, &opt_a));
-        assert!(!equal(&opt_a, &opt_b));
-        assert!(equal(&vec_a, &vec_a));
-        assert!(!equal(&vec_a, &vec_b));
-    }
 
     #[test]
     fn test_diff_apply() -> Result<()> {

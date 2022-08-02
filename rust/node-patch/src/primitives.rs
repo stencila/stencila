@@ -14,10 +14,6 @@ use stencila_schema::*;
 use super::prelude::*;
 
 impl Patchable for Primitive {
-    fn is_equal(&self, other: &Self) -> Result<()> {
-        dispatch_primitive_pair!(self, other, bail!(Error::NotEqual), is_equal)
-    }
-
     fn make_hash<H: Hasher>(&self, state: &mut H) {
         dispatch_primitive!(self, make_hash, state)
     }
@@ -82,11 +78,6 @@ impl Patchable for Primitive {
 }
 
 impl Patchable for Null {
-    fn is_equal(&self, _other: &Self) -> Result<()> {
-        // By definition, equal
-        Ok(())
-    }
-
     fn make_hash<H: Hasher>(&self, state: &mut H) {
         self.to_string().hash(state);
     }
@@ -100,14 +91,6 @@ impl Patchable for Null {
 macro_rules! patchable_atomic {
     ($type:ty) => {
         impl Patchable for $type {
-            fn is_equal(&self, other: &Self) -> Result<()> {
-                #[allow(clippy::float_cmp)]
-                match self == other {
-                    true => Ok(()),
-                    false => bail!(Error::NotEqual),
-                }
-            }
-
             fn make_hash<H: Hasher>(&self, state: &mut H) {
                 self.hash(state)
             }
@@ -152,7 +135,7 @@ patchable_atomic!(Cord);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{apply_new, diff, equal};
+    use crate::{apply_new, diff};
     use test_utils::{assert_json_eq, assert_json_is};
 
     macro_rules! obj {
@@ -224,7 +207,6 @@ mod tests {
     #[test]
     fn nulls() -> Result<()> {
         let null = Null {};
-        assert!(equal(&null, &null));
         assert_json_is!(diff(&null, &null).ops, []);
 
         Ok(())
@@ -232,10 +214,6 @@ mod tests {
 
     #[test]
     fn booleans() -> Result<()> {
-        assert!(equal(&true, &true));
-        assert!(equal(&false, &false));
-        assert!(!equal(&true, &false));
-
         assert_json_is!(diff(&true, &true).ops, []);
         assert_json_is!(diff(&false, &false).ops, []);
         assert_json_is!(diff(&true, &false).ops, [{"type": "Replace", "address": [], "items": 1, "value": false, "length": 1}]);
@@ -248,9 +226,6 @@ mod tests {
 
     #[test]
     fn integers() -> Result<()> {
-        assert!(equal(&42, &42));
-        assert!(!equal(&42, &1));
-
         assert_json_is!(diff(&42, &42).ops, []);
         assert_json_is!(diff(&42, &1).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1, "length": 1}]);
 
@@ -261,9 +236,6 @@ mod tests {
 
     #[test]
     fn numbers() -> Result<()> {
-        assert!(equal(&Number(1.23), &Number(1.23)));
-        assert!(!equal(&Number(1.23), &Number(1e6)));
-
         assert_json_is!(diff(&Number(1.23), &Number(1.23)).ops, []);
         assert_json_is!(diff(&Number(1.23), &Number(1e6)).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1e6, "length": 1}]);
 
