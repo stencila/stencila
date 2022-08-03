@@ -14,7 +14,7 @@ use common::{
 };
 use hash_utils::str_seahash;
 use path_utils::path_slash::PathExt;
-use stencila_schema::{CodeChunkExecuteAuto, CodeExecutableExecuteStatus};
+use stencila_schema::CodeChunkExecuteAuto;
 
 use crate::{Pairs, Relation};
 
@@ -333,7 +333,7 @@ pub struct ResourceInfo {
     pub execute_digest: Option<ResourceDigest>,
 
     /// Whether the last execution of the resource succeeded
-    pub execute_status: Option<CodeExecutableExecuteStatus>,
+    pub execute_succeeded: Option<bool>,
 }
 
 impl ResourceInfo {
@@ -349,7 +349,7 @@ impl ResourceInfo {
             execute_pure: None,
             compile_digest: None,
             execute_digest: None,
-            execute_status: None,
+            execute_succeeded: None,
         }
     }
 
@@ -361,7 +361,7 @@ impl ResourceInfo {
         execute_pure: Option<bool>,
         compile_digest: Option<ResourceDigest>,
         execute_digest: Option<ResourceDigest>,
-        execute_status: Option<CodeExecutableExecuteStatus>,
+        execute_succeeded: Option<bool>,
     ) -> Self {
         Self {
             resource,
@@ -373,7 +373,7 @@ impl ResourceInfo {
             execute_pure,
             compile_digest,
             execute_digest,
-            execute_status,
+            execute_succeeded,
         }
     }
 
@@ -453,17 +453,18 @@ impl ResourceInfo {
     /// Returns `false` if the resource has not been executed or was executed
     /// and succeeded.
     pub fn is_fail(&self) -> bool {
-        matches!(
-            self.execute_status,
-            Some(CodeExecutableExecuteStatus::Failed)
-        )
+        if let Some(succeeded) = self.execute_succeeded {
+            !succeeded
+        } else {
+            false
+        }
     }
 
     /// The resource was executed, so update the `execute_digest` to the `compile_digest`,
     /// and `execute_succeeded` property.
-    pub fn did_execute(&mut self, execute_status: Option<CodeExecutableExecuteStatus>) {
+    pub fn did_execute(&mut self, execute_succeeded: bool) {
         self.execute_digest = self.compile_digest.clone();
-        self.execute_status = execute_status;
+        self.execute_succeeded = Some(execute_succeeded);
     }
 }
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]

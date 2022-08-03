@@ -1392,8 +1392,10 @@ export const paragraph = (props: Omit<Paragraph, 'type'>): Paragraph => ({
 export type Parameter = Entity & {
   type: 'Parameter'
   name: string
+  compileDigest?: string
   default?: Node
   executeDigest?: string
+  executeRequired?: 'No' | 'NeverExecuted' | 'SemanticsChanged'
   isExtensible?: boolean
   isRequired?: boolean
   isVariadic?: boolean

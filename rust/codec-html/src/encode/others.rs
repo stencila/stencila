@@ -60,16 +60,21 @@ impl ToHtml for CodeExecutableCodeDependencies {
                 execute_auto
                     .as_ref()
                     .map_or("Needed", |value| value.as_ref()),
-                execute_required,
+                execute_required.as_ref().map_or("", |value| value.as_ref()),
                 execute_status,
             ),
-            CodeExecutableCodeDependencies::Parameter(Parameter { id, name, .. }) => (
+            CodeExecutableCodeDependencies::Parameter(Parameter {
+                id,
+                name,
+                execute_required,
+                ..
+            }) => (
                 "Parameter",
                 id,
                 Some(name.as_str()),
                 None,
                 "Needed",
-                &None,
+                execute_required.as_ref().map_or("", |value| value.as_ref()),
                 &None,
             ),
         };
@@ -86,9 +91,7 @@ impl ToHtml for CodeExecutableCodeDependencies {
                     .as_ref()
                     .map_or("".to_string(), |value| attr("programming-language", value)),
                 attr("execute-auto", execute_auto),
-                execute_required.as_ref().map_or("".to_string(), |value| {
-                    attr("execute-required", value.as_ref())
-                }),
+                attr("execute-required", execute_required),
                 execute_status.as_ref().map_or("".to_string(), |value| {
                     attr("execute-status", value.as_ref())
                 }),

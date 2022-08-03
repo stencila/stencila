@@ -18,14 +18,54 @@ patchable_struct!(DatatableColumn, name, validator, values);
 /// `default` and `value` fields (which can be any `Node`) meet the
 /// requirements of the `validator`.
 impl Patchable for Parameter {
-    patchable_struct_diff!(name, validator, default, value);
+    patchable_struct_diff!(
+        name,
+        validator,
+        default,
+        value,
+        compile_digest,
+        execute_digest,
+        execute_required
+    );
 
     // Presently, only `apply_replace` is overridden (because those are the operations sent
     // by the web client). In the future, the other apply_* operations probably need overriding.
-    patchable_struct_apply_add!(name, validator, default, value);
-    patchable_struct_apply_remove!(name, validator, default, value);
-    patchable_struct_apply_move!(name, validator, default, value);
-    patchable_struct_apply_transform!(name, validator, default, value);
+    patchable_struct_apply_add!(
+        name,
+        validator,
+        default,
+        value,
+        compile_digest,
+        execute_digest,
+        execute_required
+    );
+    patchable_struct_apply_remove!(
+        name,
+        validator,
+        default,
+        value,
+        compile_digest,
+        execute_digest,
+        execute_required
+    );
+    patchable_struct_apply_move!(
+        name,
+        validator,
+        default,
+        value,
+        compile_digest,
+        execute_digest,
+        execute_required
+    );
+    patchable_struct_apply_transform!(
+        name,
+        validator,
+        default,
+        value,
+        compile_digest,
+        execute_digest,
+        execute_required
+    );
 
     fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
         if let Some(Slot::Name(name)) = address.pop_front() {
@@ -34,6 +74,9 @@ impl Patchable for Parameter {
                 "validator" => self.validator.apply_replace(address, items, value),
                 "default" => self.default.apply_replace(address, items, value),
                 "value" => self.value.apply_replace(address, items, value),
+                "compile_digest" => self.compile_digest.apply_replace(address, items, value),
+                "execute_digest" => self.execute_digest.apply_replace(address, items, value),
+                "execute_required" => self.execute_required.apply_replace(address, items, value),
                 _ => bail!(invalid_slot_name::<Self>(&name)),
             }?;
 
@@ -56,6 +99,8 @@ impl Patchable for Parameter {
         }
     }
 }
+
+patchable_enum!(ParameterExecuteRequired);
 
 patchable_variants!(
     ValidatorTypes,

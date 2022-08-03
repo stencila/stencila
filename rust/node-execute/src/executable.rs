@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use common::{async_trait::async_trait, eyre::Result, tracing};
+use common::{async_trait::async_trait, eyre::Result, serde_json, tracing};
 use formats::normalize_title;
 use graph_triples::{
     relations,
@@ -266,6 +266,16 @@ fn parameter_value(param: &Parameter) -> Node {
         .unwrap_or_else(|| Node::String(String::new()))
 }
 
+/// Generate a `ResourceDigest` for a parameter
+///
+/// The content string is the JSON representation of the parameter value
+/// and semantic string adds the parameter name
+fn parameter_digest(param: &Parameter, value: &Node) -> ResourceDigest {
+    let content_str = serde_json::to_string(&value).unwrap_or_default();
+    let semantic_str = [param.name.as_str(), content_str.as_str()].concat();
+    ResourceDigest::from_strings(&content_str, Some(&semantic_str))
+}
+
 #[async_trait]
 impl Executable for Parameter {
     /// Compile a `Parameter` node
@@ -296,23 +306,19 @@ impl Executable for Parameter {
         let object = resources::symbol(&context.path, &self.name, kind);
         let relations = vec![(relations::assigns(NULL_RANGE), object)];
 
-        // For `ResourceDigest`, content string is `Debug` representation of the parameter value
-        // and semantic string adds the parameter name
         let value = parameter_value(self);
-        let content_str = format!("{:?}", value);
-        let semantic_str = [self.name.as_str(), content_str.as_str()].concat();
+        let compile_digest = parameter_digest(self, &value);
 
         let resource_info = ResourceInfo::new(
             resource,
             Some(relations),
             None,
-            None,
-            Some(ResourceDigest::from_strings(
-                &content_str,
-                Some(&semantic_str),
-            )),
-            None,
-            None,
+            Some(false),
+            Some(compile_digest),
+            self.execute_digest
+                .as_ref()
+                .map(|cord| ResourceDigest::from_string(&cord.0)),
+            Some(true),
         );
         context.resource_infos.push(resource_info);
 
@@ -334,9 +340,12 @@ impl Executable for Parameter {
             .set(&self.name, value.clone(), kernel_selector)
             .await?;
 
-        if self.value.is_none() {
-            self.value = Some(Box::new(value));
-        }
+        let digest = Box::new(Cord(parameter_digest(self, &value).to_string()));
+
+        self.value = Some(Box::new(value));
+        self.compile_digest = Some(digest.clone());
+        self.execute_digest = Some(digest);
+        self.execute_required = Some(ParameterExecuteRequired::No);
 
         Ok(None)
     }
@@ -389,7 +398,10 @@ impl Executable for CodeChunk {
             .execute_digest
             .as_ref()
             .map(|cord| ResourceDigest::from_string(&cord.0));
-        resource_info.execute_status = self.execute_status.clone();
+        resource_info.execute_succeeded = Some(matches!(
+            self.execute_status,
+            Some(CodeExecutableExecuteStatus::Succeeded)
+        ));
 
         context.resource_infos.push(resource_info);
 
@@ -491,7 +503,10 @@ impl Executable for CodeExpression {
             .execute_digest
             .as_ref()
             .map(|cord| ResourceDigest::from_string(&cord.0));
-        resource_info.execute_status = self.execute_status.clone();
+        resource_info.execute_succeeded = Some(matches!(
+            self.execute_status,
+            Some(CodeExecutableExecuteStatus::Succeeded)
+        ));
 
         // Force code expression execution semantics (in case `@impure` or `@autorun` tags
         // where inadvertently used in code) by setting to `None`

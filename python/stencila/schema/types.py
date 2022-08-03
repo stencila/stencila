@@ -28,6 +28,8 @@ EItemListOrder = Enum("ItemListOrder", ["Ascending", "Descending", "Unordered"])
 
 ENoteType = Enum("NoteType", ["Footnote", "Endnote", "Sidenote"])
 
+EExecuteRequired = Enum("ExecuteRequired", ["No", "NeverExecuted", "SemanticsChanged"])
+
 ESessionStatus = Enum("SessionStatus", ["Unknown", "Starting", "Started", "Stopping", "Stopped", "Failed"])
 
 ECellType = Enum("CellType", ["Data", "Header"])
@@ -2567,11 +2569,17 @@ class Parameter(Entity):
     name: String
     """The name of the parameter."""
 
+    compileDigest: Optional[String] = None
+    """A digest of the value of the parameter."""
+
     default: Optional[Any] = None
     """The default value of the parameter."""
 
     executeDigest: Optional[String] = None
-    """The SHA-256 digest of the `value` property the last time the node was executed."""
+    """The `compileDigest` of the parameter when it was last executed."""
+
+    executeRequired: Optional["EExecuteRequired"] = None
+    """Whether, and why, the parameter need execution or re-execution."""
 
     isExtensible: Optional[Boolean] = None
     """Indicates that this parameter is variadic and can accept multiple named arguments."""
@@ -2592,8 +2600,10 @@ class Parameter(Entity):
     def __init__(
         self,
         name: String,
+        compileDigest: Optional[String] = None,
         default: Optional[Any] = None,
         executeDigest: Optional[String] = None,
+        executeRequired: Optional["EExecuteRequired"] = None,
         id: Optional[String] = None,
         isExtensible: Optional[Boolean] = None,
         isRequired: Optional[Boolean] = None,
@@ -2608,10 +2618,14 @@ class Parameter(Entity):
         )
         if name is not None:
             self.name = name
+        if compileDigest is not None:
+            self.compileDigest = compileDigest
         if default is not None:
             self.default = default
         if executeDigest is not None:
             self.executeDigest = executeDigest
+        if executeRequired is not None:
+            self.executeRequired = executeRequired
         if isExtensible is not None:
             self.isExtensible = isExtensible
         if isRequired is not None:

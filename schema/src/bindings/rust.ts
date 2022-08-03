@@ -104,6 +104,7 @@ const noBoxTypes = [
   'CodeExecutableExecuteStatus',
   'CodeChunkExecuteAuto',
   'ListOrder',
+  'ParameterExecuteRequired',
   'NoteNoteType',
   'SoftwareSessionStatus',
   'TableCellCellType',

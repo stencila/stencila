@@ -12,7 +12,7 @@ use node_patch::diff_address;
 use node_pointer::resolve;
 use stencila_schema::{
     CodeChunk, CodeExecutableCodeDependencies, CodeExecutableCodeDependents,
-    CodeExecutableExecuteRequired, CodeExpression, Cord, Node, Parameter,
+    CodeExecutableExecuteRequired, CodeExpression, Cord, Node, Parameter, ParameterExecuteRequired,
 };
 
 use crate::{utils::send_patches, CompileContext, Executable, PatchRequest};
@@ -201,9 +201,18 @@ fn compile_patches_and_send(
                                 }))
                             }
                             Node::Parameter(dependency) => {
+                                let execute_required = if dependency.execute_digest.is_none() {
+                                    ParameterExecuteRequired::NeverExecuted
+                                } else if dependency.execute_digest == dependency.compile_digest {
+                                    ParameterExecuteRequired::No
+                                } else {
+                                    ParameterExecuteRequired::SemanticsChanged
+                                };
+
                                 Some(CodeExecutableCodeDependencies::Parameter(Parameter {
                                     id: dependency.id.clone(),
                                     name: dependency.name.clone(),
+                                    execute_required: Some(execute_required),
                                     ..Default::default()
                                 }))
                             }

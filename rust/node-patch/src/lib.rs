@@ -334,6 +334,7 @@ impl Operation {
             CodeExecutableCodeDependents
             CodeExecutableExecuteRequired
             CodeExecutableExecuteStatus
+            ParameterExecuteRequired
 
             // Child types of the above
             ListItem

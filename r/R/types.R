@@ -2763,8 +2763,10 @@ Paragraph <- function(
 #'
 #' @name Parameter
 #' @param name The name of the parameter. \bold{Required}.
+#' @param compileDigest A digest of the value of the parameter.
 #' @param default The default value of the parameter.
-#' @param executeDigest The SHA-256 digest of the `value` property the last time the node was executed.
+#' @param executeDigest The `compileDigest` of the parameter when it was last executed.
+#' @param executeRequired Whether, and why, the parameter need execution or re-execution.
 #' @param id The identifier for this item.
 #' @param isExtensible Indicates that this parameter is variadic and can accept multiple named arguments.
 #' @param isRequired Is this parameter required, if not it should have a default or default is assumed to be null.
@@ -2777,8 +2779,10 @@ Paragraph <- function(
 #' @export
 Parameter <- function(
   name,
+  compileDigest,
   default,
   executeDigest,
+  executeRequired,
   id,
   isExtensible,
   isRequired,
@@ -2793,8 +2797,10 @@ Parameter <- function(
   )
   self$type <- as_scalar("Parameter")
   self[["name"]] <- check_property("Parameter", "name", TRUE, missing(name), "character", name)
+  self[["compileDigest"]] <- check_property("Parameter", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
   self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), Node, default)
   self[["executeDigest"]] <- check_property("Parameter", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
+  self[["executeRequired"]] <- check_property("Parameter", "executeRequired", FALSE, missing(executeRequired), Enum("No", "NeverExecuted", "SemanticsChanged"), executeRequired)
   self[["isExtensible"]] <- check_property("Parameter", "isExtensible", FALSE, missing(isExtensible), "logical", isExtensible)
   self[["isRequired"]] <- check_property("Parameter", "isRequired", FALSE, missing(isRequired), "logical", isRequired)
   self[["isVariadic"]] <- check_property("Parameter", "isVariadic", FALSE, missing(isVariadic), "logical", isVariadic)

@@ -2821,11 +2821,17 @@ pub struct Parameter {
     /// The name of the parameter.
     pub name: String,
 
+    /// A digest of the value of the parameter.
+    pub compile_digest: Option<Box<Cord>>,
+
     /// The default value of the parameter.
     pub default: Option<Box<Node>>,
 
-    /// The SHA-256 digest of the `value` property the last time the node was executed.
+    /// The `compileDigest` of the parameter when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
+
+    /// Whether, and why, the parameter need execution or re-execution.
+    pub execute_required: Option<ParameterExecuteRequired>,
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
@@ -4686,6 +4692,7 @@ pub enum CodeExecutableExecuteRequired {
     SemanticsChanged,
     DependenciesChanged,
     DependenciesFailed,
+    Failed,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
@@ -4931,6 +4938,13 @@ pub enum OrganizationLogo {
 pub enum OrganizationMembers {
     Organization(Organization),
     Person(Person),
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+pub enum ParameterExecuteRequired {
+    No,
+    NeverExecuted,
+    SemanticsChanged,
 }
 
 /// Types permitted for the `address` property of a `Person` node.

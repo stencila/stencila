@@ -29,13 +29,28 @@ properties:
     description: The validator that the value is validated against.
     allOf:
       - $ref: ValidatorTypes
+  compileDigest:
+    '@id': stencila:compileDigest
+    description: A digest of the value of the parameter.
+    type: string
   executeDigest:
     '@id': stencila:executeDigest
-    description: The SHA-256 digest of the `value` property the last time the node was executed.
+    description: The `compileDigest` of the parameter when it was last executed.
     type: string
+  executeRequired:
+    '@id': stencila:executeRequired
+    description: Whether, and why, the parameter need execution or re-execution.
+    enum:
+      - 'No'
+      - NeverExecuted
+      - SemanticsChanged
     $comment: |
-      Used to determine whether it is necessary to re-execute the node (i.e to assign a variable
-      within the document session having `name` and `value`).
+      `No`: no re-execution is required, the semantics of the parameter has not changed
+      since it was last executed.
+      `NeverExecuted`: execution is required because the parameter has never been executed (or any previous
+      execution was not persisted in its state).
+      `SemanticsChanged`: re-execution is required because the semantics of the parameter has changed since it was
+      last executed (name or value changed).
   isRequired:
     '@id': schema:valueRequired
     description: Is this parameter required, if not it should have a default or default is assumed to be null.
