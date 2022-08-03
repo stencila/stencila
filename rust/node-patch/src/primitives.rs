@@ -55,7 +55,7 @@ impl Patchable for Primitive {
         } else if let Some(value) = value.downcast_ref::<Integer>() {
             Primitive::Integer(*value)
         } else if let Some(value) = value.downcast_ref::<Number>() {
-            Primitive::Number(value.clone())
+            Primitive::Number(*value)
         } else if let Some(value) = value.downcast_ref::<String>() {
             Primitive::String(value.clone())
         } else if let Some(value) = value.downcast_ref::<Object>() {

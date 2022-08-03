@@ -223,11 +223,11 @@ impl Validator for IntegerValidator {
     fn validate(&self, node: &Node) -> Result<()> {
         if matches!(node, Node::Integer(..)) {
             NumberValidator {
-                minimum: self.minimum.clone(),
-                exclusive_minimum: self.exclusive_minimum.clone(),
-                maximum: self.maximum.clone(),
-                exclusive_maximum: self.exclusive_maximum.clone(),
-                multiple_of: self.multiple_of.clone(),
+                minimum: self.minimum,
+                exclusive_minimum: self.exclusive_minimum,
+                maximum: self.maximum,
+                exclusive_maximum: self.exclusive_maximum,
+                multiple_of: self.multiple_of,
                 ..Default::default()
             }
             .validate(node)
