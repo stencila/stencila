@@ -395,7 +395,7 @@ async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscr
         .await?
         .lock()
         .await
-        .execute(node_id, ordering)
+        .execute(node_id, ordering, None)
         .await?;
     Ok((json!(true), Subscription::None))
 }

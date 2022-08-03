@@ -62,7 +62,7 @@ pub type Integer = i64;
 ///
 /// Needs to be a newtype so that we can implement `PartialEq` which is
 /// not implemented for f64.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct Number(pub f64);
 

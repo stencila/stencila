@@ -603,7 +603,7 @@ impl Run for RunCommand {
 
             match module.as_str() {
                 "tasks" => run!(tasks::cli::Run_::try_parse_from(&args)?),
-                "documents" => run!(documents::commands::Runn::try_parse_from(&args)?),
+                "documents" => run!(documents::commands::Run_::try_parse_from(&args)?),
                 "server" => run!(crate::server::commands::Start::try_parse_from(&args)?),
                 _ => bail!("Unhandled module: {}", module),
             };

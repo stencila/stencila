@@ -12,6 +12,8 @@ use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 
 use common::{
     eyre::{self, bail, Result},
+    indexmap::IndexMap,
+    itertools::Itertools,
     maplit::hashset,
     once_cell::sync::Lazy,
     serde::Serialize,
@@ -20,27 +22,28 @@ use common::{
     strum::Display,
     tokio::{
         self,
-        sync::{mpsc, watch, Mutex, RwLock},
+        sync::{broadcast, mpsc, Mutex, RwLock},
         task::JoinHandle,
     },
     tracing,
 };
 use events::publish;
 use formats::FormatSpec;
-use graph::{Graph, Plan, PlanOptions, PlanOrdering, PlanScope};
+use graph::{Graph, PlanOptions, PlanOrdering, PlanScope};
 use graph_triples::{resources, Relations};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
-use node_address::AddressMap;
+use node_address::{Address, AddressMap};
 use node_execute::{
     compile, execute, CancelRequest, CancelResponse, CompileRequest, CompileResponse,
     ExecuteRequest, ExecuteResponse, PatchRequest, PatchResponse, RequestId,
 };
 use node_patch::{apply, diff, merge, Patch};
-use node_pointer::resolve;
+use node_pointer::{resolve, resolve_mut};
 use node_reshape::reshape;
+use node_validate::Validator;
 use path_utils::pathdiff;
 use providers::DetectItem;
-use stencila_schema::{Article, Node};
+use stencila_schema::{Article, InlineContent, Node, Parameter};
 
 use crate::utils::schemas;
 
@@ -258,25 +261,25 @@ pub struct Document {
     patch_request_sender: mpsc::UnboundedSender<PatchRequest>,
 
     #[serde(skip)]
-    patch_response_receiver: watch::Receiver<PatchResponse>,
+    patch_response_receiver: broadcast::Receiver<PatchResponse>,
 
     #[serde(skip)]
     compile_request_sender: mpsc::Sender<CompileRequest>,
 
     #[serde(skip)]
-    compile_response_receiver: watch::Receiver<CompileResponse>,
+    compile_response_receiver: broadcast::Receiver<CompileResponse>,
 
     #[serde(skip)]
     execute_request_sender: mpsc::Sender<ExecuteRequest>,
 
     #[serde(skip)]
-    execute_response_receiver: watch::Receiver<ExecuteResponse>,
+    execute_response_receiver: broadcast::Receiver<ExecuteResponse>,
 
     #[serde(skip)]
     cancel_request_sender: mpsc::Sender<CancelRequest>,
 
     #[serde(skip)]
-    cancel_response_receiver: watch::Receiver<CancelResponse>,
+    cancel_response_receiver: broadcast::Receiver<CancelResponse>,
 }
 
 #[allow(unused)]
@@ -359,22 +362,22 @@ impl Document {
         let (patch_request_sender, mut patch_request_receiver) =
             mpsc::unbounded_channel::<PatchRequest>();
         let (patch_response_sender, mut patch_response_receiver) =
-            watch::channel::<PatchResponse>(PatchResponse::null());
+            broadcast::channel::<PatchResponse>(10);
 
         let (compile_request_sender, mut compile_request_receiver) =
             mpsc::channel::<CompileRequest>(100);
         let (compile_response_sender, mut compile_response_receiver) =
-            watch::channel::<CompileResponse>(CompileResponse::null());
+            broadcast::channel::<CompileResponse>(10);
 
         let (execute_request_sender, mut execute_request_receiver) =
             mpsc::channel::<ExecuteRequest>(100);
         let (execute_response_sender, mut execute_response_receiver) =
-            watch::channel::<ExecuteResponse>(ExecuteResponse::null());
+            broadcast::channel::<ExecuteResponse>(10);
 
         let (cancel_request_sender, mut cancel_request_receiver) =
             mpsc::channel::<CancelRequest>(100);
         let (cancel_response_sender, mut cancel_response_receiver) =
-            watch::channel::<CancelResponse>(CancelResponse::null());
+            broadcast::channel::<CancelResponse>(10);
 
         let id_clone = id.clone();
         let root_clone = root.clone();
@@ -506,16 +509,16 @@ impl Document {
             root: Arc::new(RwLock::new(Node::Article(Article::default()))),
 
             patch_request_sender: self.patch_request_sender.clone(),
-            patch_response_receiver: self.patch_response_receiver.clone(),
+            patch_response_receiver: self.patch_response_receiver.resubscribe(),
 
             compile_request_sender: self.compile_request_sender.clone(),
-            compile_response_receiver: self.compile_response_receiver.clone(),
+            compile_response_receiver: self.compile_response_receiver.resubscribe(),
 
             execute_request_sender: self.execute_request_sender.clone(),
-            execute_response_receiver: self.execute_response_receiver.clone(),
+            execute_response_receiver: self.execute_response_receiver.resubscribe(),
 
             cancel_request_sender: self.cancel_request_sender.clone(),
-            cancel_response_receiver: self.cancel_response_receiver.clone(),
+            cancel_response_receiver: self.cancel_response_receiver.resubscribe(),
         }
     }
 
@@ -835,7 +838,7 @@ impl Document {
         addresses: &Arc<RwLock<AddressMap>>,
         compile_sender: &mpsc::Sender<CompileRequest>,
         request_receiver: &mut mpsc::UnboundedReceiver<PatchRequest>,
-        response_sender: &watch::Sender<PatchResponse>,
+        response_sender: &broadcast::Sender<PatchResponse>,
     ) {
         while let Some(request) = request_receiver.recv().await {
             tracing::trace!("Patching document `{}` for request `{}`", &id, request.id);
@@ -882,14 +885,6 @@ impl Document {
                 },
             );
 
-            // Send response
-            if let Err(..) = response_sender.send(PatchResponse::new(request.id.clone())) {
-                tracing::error!(
-                    "While sending patch response for document `{}`: channel closed",
-                    id
-                );
-            }
-
             // Possibly compile
             if request.compile {
                 tracing::trace!(
@@ -899,7 +894,7 @@ impl Document {
                 );
                 if let Err(error) = compile_sender
                     .send(CompileRequest {
-                        id: request.id,
+                        id: RequestId::new(),
                         execute: request.execute,
                         start,
                     })
@@ -911,6 +906,15 @@ impl Document {
                         error
                     );
                 }
+            }
+
+            // Send response
+            if let Err(error) = response_sender.send(PatchResponse::new(request.id)) {
+                tracing::debug!(
+                    "While sending patch response for document `{}`: {}",
+                    id,
+                    error
+                );
             }
         }
     }
@@ -977,15 +981,17 @@ impl Document {
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
         request_receiver: &mut mpsc::Receiver<CompileRequest>,
-        response_sender: &watch::Sender<CompileResponse>,
+        response_sender: &broadcast::Sender<CompileResponse>,
     ) {
         let duration = Duration::from_millis(300);
-        let mut last_request = None;
+        let mut request_ids = Vec::new();
+        let mut should_execute = false;
         loop {
             match tokio::time::timeout(duration, request_receiver.recv()).await {
                 // Compile request received, so record it and continue to wait for timeout
                 Ok(Some(request)) => {
-                    last_request = Some(request);
+                    request_ids.push(request.id);
+                    should_execute |= request.execute;
                     continue;
                 }
                 // Sender dropped, end of task
@@ -994,8 +1000,16 @@ impl Document {
                 Err(..) => {}
             };
 
-            if let Some(request) = last_request {
-                tracing::trace!("Compiling document `{}` for request `{}`", &id, request.id);
+            if !request_ids.is_empty() {
+                tracing::trace!(
+                    "Compiling document `{}` for requests `{}`",
+                    id,
+                    request_ids
+                        .as_slice()
+                        .iter()
+                        .map(|id| id.to_string())
+                        .join(",")
+                );
 
                 // Compile the root node
                 match compile(path, project, root, patch_sender).await {
@@ -1006,26 +1020,23 @@ impl Document {
                     Err(error) => tracing::error!("While compiling document `{}`: {}", id, error),
                 }
 
-                // Send response
-                if let Err(..) = response_sender.send(CompileResponse::new(request.id.clone())) {
-                    tracing::error!(
-                        "While sending patch response for document `{}`: channel closed",
-                        id
-                    );
-                }
-
                 // Possibly execute
-                if request.execute {
+                if should_execute {
                     tracing::trace!(
-                        "Sending execute request for document `{}` for request `{}`",
+                        "Sending execute request for document `{}` for requests `{}`",
                         &id,
-                        request.id
+                        request_ids
+                            .as_slice()
+                            .iter()
+                            .map(|id| id.to_string())
+                            .join(",")
                     );
                     if let Err(error) = execute_sender
                         .send(ExecuteRequest {
-                            id: request.id.clone(),
-                            start: request.start.clone(),
+                            id: RequestId::new(),
+                            start: None,
                             ordering: None,
+                            max_concurrency: None,
                         })
                         .await
                     {
@@ -1037,7 +1048,26 @@ impl Document {
                     }
                 }
 
-                last_request = None;
+                // Send responses for each request
+                for request_id in &request_ids {
+                    tracing::trace!(
+                        "Sending compile response for document `{}` for request `{}`",
+                        id,
+                        request_id
+                    );
+                    if let Err(error) =
+                        response_sender.send(CompileResponse::new(request_id.clone()))
+                    {
+                        tracing::debug!(
+                            "While sending compile response for document `{}`: {}",
+                            id,
+                            error
+                        );
+                    }
+                }
+
+                request_ids.clear();
+                should_execute = false;
             }
         }
     }
@@ -1076,10 +1106,13 @@ impl Document {
             self.id,
             request_id
         );
-        loop {
-            self.compile_response_receiver.changed().await?;
-            let response = self.compile_response_receiver.borrow();
+        while let Ok(response) = self.compile_response_receiver.recv().await {
             if response.id == request_id {
+                tracing::trace!(
+                    "Received compile response for document `{}` for request `{}`",
+                    self.id,
+                    request_id
+                );
                 break;
             }
             tracing::trace!(
@@ -1124,20 +1157,27 @@ impl Document {
         patch_request_sender: &mpsc::UnboundedSender<PatchRequest>,
         cancel_request_receiver: &mut mpsc::Receiver<CancelRequest>,
         execute_request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
-        execute_response_sender: &watch::Sender<ExecuteResponse>,
+        execute_response_sender: &broadcast::Sender<ExecuteResponse>,
     ) {
         while let Some(request) = execute_request_receiver.recv().await {
             tracing::trace!("Executing document `{}` for request `{}`", &id, request.id);
 
-            // Generate the execution plan
+            // Resolve options
             let start = request
                 .start
                 .map(|node_id| resources::code(path, &node_id, "", None));
-            let ordering = request.ordering.unwrap_or(PlanOrdering::Topological);
+            let ordering = request
+                .ordering
+                .unwrap_or_else(PlanOptions::default_ordering);
+            let max_concurrency = request
+                .max_concurrency
+                .unwrap_or_else(PlanOptions::default_max_concurrency);
             let options = PlanOptions {
                 ordering,
-                ..Default::default()
+                max_concurrency,
             };
+
+            // Generate the execution plan
             let plan = match graph.read().await.plan(start, None, Some(options)).await {
                 Ok(plan) => plan,
                 Err(error) => {
@@ -1158,11 +1198,13 @@ impl Document {
             .await;
 
             // Send response
-            if let Err(..) = execute_response_sender.send(ExecuteResponse::new(request.id.clone()))
+            if let Err(error) =
+                execute_response_sender.send(ExecuteResponse::new(request.id.clone()))
             {
-                tracing::error!(
-                    "While sending patch response for document `{}`: channel closed",
-                    id
+                tracing::debug!(
+                    "While sending execute response for document `{}`: {}",
+                    id,
+                    error
                 );
             }
         }
@@ -1174,10 +1216,11 @@ impl Document {
         &self,
         start: Option<String>,
         ordering: Option<PlanOrdering>,
+        max_concurrency: Option<usize>,
     ) -> Result<RequestId> {
         tracing::debug!("Executing document `{}`", self.id);
 
-        let request = ExecuteRequest::new(start, ordering);
+        let request = ExecuteRequest::new(start, ordering, max_concurrency);
         let request_id = request.id.clone();
         self.execute_request_sender
             .send(request)
@@ -1194,7 +1237,7 @@ impl Document {
 
     /// Execute the root node of the document and wait until finished
     ///
-    /// This method is the same as `execute` but will wait for the compilation to finish
+    /// This method is the same as `execute` but will wait for the execution to finish
     /// before returning. This is useful in some circumstances, such as ensuring the document
     /// is executed before saving it to file.
     #[tracing::instrument(skip(self))]
@@ -1202,18 +1245,24 @@ impl Document {
         &mut self,
         start: Option<String>,
         ordering: Option<PlanOrdering>,
+        max_concurrency: Option<usize>,
     ) -> Result<()> {
-        let request_id = self.execute(start, ordering).await?;
+        // Execute the document
+        let request_id = self.execute(start, ordering, max_concurrency).await?;
 
+        // Wait for execution to finish
         tracing::trace!(
             "Waiting for execute response for document `{}` for request `{}`",
             self.id,
             request_id
         );
-        loop {
-            self.execute_response_receiver.changed().await?;
-            let response = self.execute_response_receiver.borrow();
+        while let Ok(response) = self.execute_response_receiver.recv().await {
             if response.id == request_id {
+                tracing::trace!(
+                    "Received execute response for document `{}` for request `{}`",
+                    self.id,
+                    request_id
+                );
                 break;
             }
             tracing::trace!(
@@ -1223,29 +1272,78 @@ impl Document {
             );
         }
 
+        // Recompile the document to ensure properties such as `code_dependencies` reflect the
+        // new state of the document
+        self.compile_wait(false, None).await?;
+
         Ok(())
     }
 
-    /// Execute the document using an existing plan
-    ///
-    /// This method is currently only used from the CLI's `run` command where we also want to be
-    /// able to display the execution plan.
-    #[tracing::instrument(skip(self, plan))]
-    pub async fn execute_plan(&self, plan: &Plan) -> Result<()> {
-        tracing::debug!("Executing plan for document `{}`", self.id);
+    /// Get the parameters of the document
+    pub async fn params(&mut self) -> Result<IndexMap<String, (String, Address, Parameter)>> {
+        // Compile the document to ensure its `addresses` are up to date
+        self.compile_wait(false, None).await?;
 
-        let (_cancel_request_sender, mut cancel_request_receiver) =
-            mpsc::channel::<CancelRequest>(1);
+        // Collect parameters fro addresses
+        let addresses = self.addresses.read().await;
+        let root = &*self.root.read().await;
+        let params = addresses
+            .iter()
+            .filter_map(|(id, address)| {
+                if let Ok(pointer) = resolve(root, Some(address.clone()), Some(id.clone())) {
+                    if let Some(InlineContent::Parameter(param)) = pointer.as_inline() {
+                        return Some((
+                            param.name.clone(),
+                            (id.clone(), address.clone(), param.clone()),
+                        ));
+                    }
+                }
+                None
+            })
+            .collect();
 
-        execute(
-            plan,
-            &self.root,
-            &self.addresses,
-            &self.kernels,
-            &self.patch_request_sender,
-            &mut cancel_request_receiver,
-        )
-        .await
+        Ok(params)
+    }
+
+    /// Call the document with a set of parameters
+    pub async fn call(&mut self, args: HashMap<String, String>) -> Result<()> {
+        // Get the document's params
+        let mut params = self.params().await?;
+
+        // Attempt to set params based on args
+        {
+            let root = &mut *self.root.write().await;
+            for (name, value) in args {
+                if let Some((id, address, param)) = params.remove(&name) {
+                    if let Some(validator) = param.validator.as_deref() {
+                        match validator.parse(&value) {
+                            Ok(value) => {
+                                if let Ok(mut pointer) = resolve_mut(root, Some(address), Some(id))
+                                {
+                                    if let Some(InlineContent::Parameter(param)) =
+                                        pointer.as_inline_mut()
+                                    {
+                                        param.value = Some(Box::new(value));
+                                    }
+                                }
+                            }
+                            Err(error) => bail!(
+                                "While attempting to set document parameter `{}`: {}",
+                                name,
+                                error
+                            ),
+                        }
+                    }
+                } else {
+                    bail!("Document does not have a parameter named `{}`", name)
+                }
+            }
+        }
+
+        // Now execute the document
+        self.execute_wait(None, None, None).await?;
+
+        Ok(())
     }
 
     /// Cancel the execution of the document
@@ -1328,20 +1426,20 @@ impl Document {
         let format = &self.format.extension;
         let mut root = if self.format.binary {
             if self.path.exists() {
-                tracing::debug!("Decoding document root from path");
+                tracing::debug!("Decoding document `{}` root from path", self.id);
                 codecs::from_path(&self.path, Some(format), None).await?
             } else {
                 self.root.read().await.clone()
             }
         } else if !self.content.is_empty() {
             if decode_content {
-                tracing::debug!("Decoding document root from content");
+                tracing::debug!("Decoding document `{}` root from content", self.id);
                 codecs::from_str(&self.content, format, None).await?
             } else {
                 self.root.read().await.clone()
             }
         } else {
-            tracing::debug!("Setting document root to  empty article");
+            tracing::debug!("Setting document `{}` root to empty article", self.id);
             Node::Article(Article::default())
         };
 
@@ -1851,12 +1949,18 @@ pub mod commands {
     use std::str::FromStr;
 
     use cli_utils::{
+        args::params,
         clap::{self, Parser},
-        result, Result, Run,
+        result,
+        table::{Table, Title},
+        Result, Run,
     };
-    use common::async_trait::async_trait;
+    use common::{async_trait::async_trait, itertools::Itertools};
     use graph::{PlanOptions, PlanOrdering};
     use node_patch::diff_display;
+    use stencila_schema::{
+        EnumValidator, IntegerValidator, NumberValidator, StringValidator, ValidatorTypes,
+    };
 
     use crate::utils::json;
 
@@ -1892,7 +1996,10 @@ pub mod commands {
         Restart(kernel_commands::Restart),
 
         Graph(Graph),
-        Run(Runn),
+        #[clap(alias = "pars")]
+        Params(Params),
+        Run(Run_),
+        Plan(Plan),
         Query(Query),
         Diff(Diff),
         Merge(Merge),
@@ -1925,7 +2032,9 @@ pub mod commands {
                 Action::Restart(action) => action.run().await,
 
                 Action::Graph(action) => action.run().await,
+                Action::Params(action) => action.run().await,
                 Action::Run(action) => action.run().await,
+                Action::Plan(action) => action.run().await,
                 Action::Query(action) => action.run().await,
                 Action::Diff(action) => action.run().await,
                 Action::Merge(action) => action.run().await,
@@ -2204,14 +2313,155 @@ pub mod commands {
         }
     }
 
+    /// Show the parameters of a document
+    #[derive(Parser)]
+    #[clap(verbatim_doc_comment)]
+    pub struct Params {
+        #[clap(flatten)]
+        file: File,
+    }
+
+    /// A row in the table of parameters
+    #[derive(Serialize, Table)]
+    #[serde(crate = "common::serde")]
+    #[table(crate = "cli_utils::cli_table")]
+    struct Param {
+        #[table(title = "Name")]
+        name: String,
+
+        #[table(title = "Id")]
+        id: String,
+
+        #[table(skip)]
+        address: Address,
+
+        #[table(title = "Validation", display_fn = "option_validator")]
+        validator: Option<ValidatorTypes>,
+
+        #[table(title = "Default", display_fn = "option_node")]
+        default: Option<Node>,
+    }
+
+    fn option_validator(validator: &Option<ValidatorTypes>) -> String {
+        let validator = match validator {
+            Some(validator) => validator,
+            None => return String::new(),
+        };
+        match validator {
+            ValidatorTypes::BooleanValidator(..) => "Boolean".to_string(),
+            ValidatorTypes::NumberValidator(NumberValidator {
+                minimum,
+                maximum,
+                multiple_of,
+                ..
+            }) => format!(
+                "Number {} {} {}",
+                minimum
+                    .map(|min| format!("min:{}", min))
+                    .unwrap_or_default(),
+                maximum
+                    .map(|max| format!("max:{}", max))
+                    .unwrap_or_default(),
+                multiple_of
+                    .as_ref()
+                    .map(|mult| format!("multiple-of:{}", mult))
+                    .unwrap_or_default()
+            )
+            .trim()
+            .to_string(),
+            ValidatorTypes::IntegerValidator(IntegerValidator {
+                minimum,
+                maximum,
+                multiple_of,
+                ..
+            }) => format!(
+                "Integer {} {} {}",
+                minimum
+                    .map(|min| format!("min:{}", min))
+                    .unwrap_or_default(),
+                maximum
+                    .map(|max| format!("max:{}", max))
+                    .unwrap_or_default(),
+                multiple_of
+                    .as_ref()
+                    .map(|mult| format!("multiple-of:{}", mult))
+                    .unwrap_or_default()
+            )
+            .trim()
+            .to_string(),
+            ValidatorTypes::StringValidator(StringValidator {
+                min_length,
+                max_length,
+                pattern,
+                ..
+            }) => format!(
+                "String {} {} {}",
+                min_length
+                    .map(|min| format!("min-length:{}", min))
+                    .unwrap_or_default(),
+                max_length
+                    .map(|max| format!("max-length:{}", max))
+                    .unwrap_or_default(),
+                pattern
+                    .as_ref()
+                    .map(|pattern| format!("pattern:{}", pattern))
+                    .unwrap_or_default()
+            )
+            .trim()
+            .to_string(),
+            ValidatorTypes::EnumValidator(EnumValidator { values, .. }) => format!(
+                "One of {}",
+                values
+                    .iter()
+                    .map(|value| serde_json::to_string(value).unwrap_or_default())
+                    .join(", ")
+            )
+            .trim()
+            .to_string(),
+            _ => "*other*".to_string(),
+        }
+    }
+
+    fn option_node(validator: &Option<Node>) -> String {
+        let node = match validator {
+            Some(node) => node,
+            None => return String::new(),
+        };
+        serde_json::to_string(node).unwrap_or_default()
+    }
+
+    #[async_trait]
+    impl Run for Params {
+        async fn run(&self) -> Result {
+            let document = self.file.get().await?;
+            let mut document = document.lock().await;
+            let params = document.params().await?;
+            let params = params
+                .into_iter()
+                .map(|(name, (id, address, param))| Param {
+                    name,
+                    id,
+                    address,
+                    validator: param.validator.map(|boxed| *boxed),
+                    default: param.default.map(|boxed| *boxed),
+                })
+                .collect_vec();
+            result::table(params, Param::title())
+        }
+    }
+
     /// Run a document
     #[derive(Parser)]
-    pub struct Runn {
+    pub struct Run_ {
         /// The path of the document to execute
         pub input: PathBuf,
 
+        /// Parameter `name=value` pairs
+        args: Vec<String>,
+
         /// The path to save the executed document
-        pub output: Option<PathBuf>,
+        #[clap(short, long, alias = "out")]
+        output: Option<PathBuf>,
 
         /// The format of the input (defaults to being inferred from the file extension or content type)
         #[clap(short, long)]
@@ -2230,7 +2480,7 @@ pub mod commands {
         start: Option<String>,
 
         /// Ordering for the execution plan
-        #[clap(short, long, parse(try_from_str = PlanOrdering::from_str), ignore_case = true)]
+        #[clap(long, parse(try_from_str = PlanOrdering::from_str), ignore_case = true)]
         ordering: Option<PlanOrdering>,
 
         /// Maximum concurrency for the execution plan
@@ -2240,51 +2490,25 @@ pub mod commands {
         /// Defaults to the number of CPUs on the machine.
         #[clap(short, long)]
         concurrency: Option<usize>,
-
-        /// Generate execution plan but do not execute it
-        #[clap(short, long)]
-        dry_run: bool,
-
-        /// Do not display execution plan or progress
-        #[clap(short, long)]
-        quiet: bool,
     }
 
     #[async_trait]
-    impl Run for Runn {
+    impl Run for Run_ {
         async fn run(&self) -> Result {
             // Open document
-            let document = Document::open(&self.input, self.from.clone()).await?;
+            let mut document = Document::open(&self.input, self.from.clone()).await?;
 
-            // Generate plan
-            let start = self
-                .start
-                .as_ref()
-                .map(|node_id| resources::code(&document.path, node_id, "", None));
-            let options = PlanOptions {
-                ordering: self
-                    .ordering
-                    .clone()
-                    .unwrap_or_else(PlanOptions::default_ordering),
-                max_concurrency: self
-                    .concurrency
-                    .unwrap_or_else(PlanOptions::default_max_concurrency),
-            };
-            let plan = {
-                let graph = document.graph.write().await;
-                graph.plan(start, None, Some(options)).await?
-            };
-
-            // Represent plan in Markdown and exit here if dry run
-            let plan_md = plan.to_markdown();
-            if self.dry_run {
-                return result::new("md", &plan_md, &plan);
-            } else if !self.quiet {
-                cli_utils::result::print::markdown(&plan_md)?;
+            // Call with args, or just execute
+            if !self.args.is_empty() {
+                let args = params(&self.args);
+                document.call(args).await?;
+            } else {
+                document
+                    .execute_wait(self.start.clone(), self.ordering.clone(), self.concurrency)
+                    .await?;
             }
 
-            // Execute plan
-            document.execute_plan(&plan).await?;
+            tracing::info!("Finished running document");
 
             // Display or write output
             if let Some(output) = &self.output {
@@ -2301,6 +2525,63 @@ pub mod commands {
             }
 
             result::nothing()
+        }
+    }
+
+    /// Generate an execution plan for a document
+    #[derive(Parser)]
+    pub struct Plan {
+        /// The path of the document to execute
+        pub input: PathBuf,
+
+        /// The format of the input (defaults to being inferred from the file extension or content type)
+        #[clap(short, long)]
+        from: Option<String>,
+
+        /// The id of the node to start execution from
+        #[clap(short, long)]
+        start: Option<String>,
+
+        /// Ordering for the execution plan
+        #[clap(short, long, parse(try_from_str = PlanOrdering::from_str), ignore_case = true)]
+        ordering: Option<PlanOrdering>,
+
+        /// Maximum concurrency for the execution plan
+        ///
+        /// A maximum concurrency of 2 means that no more than two tasks will
+        /// run at the same time (ie. in the same stage).
+        /// Defaults to the number of CPUs on the machine.
+        #[clap(short, long)]
+        concurrency: Option<usize>,
+    }
+
+    #[async_trait]
+    impl Run for Plan {
+        async fn run(&self) -> Result {
+            // Open document
+            let document = Document::open(&self.input, self.from.clone()).await?;
+
+            let start = self
+                .start
+                .as_ref()
+                .map(|node_id| resources::code(&document.path, node_id, "", None));
+
+            let options = PlanOptions {
+                ordering: self
+                    .ordering
+                    .clone()
+                    .unwrap_or_else(PlanOptions::default_ordering),
+                max_concurrency: self
+                    .concurrency
+                    .unwrap_or_else(PlanOptions::default_max_concurrency),
+            };
+
+            let plan = {
+                let graph = document.graph.write().await;
+                graph.plan(start, None, Some(options)).await?
+            };
+
+            result::new("md", &plan.to_markdown(), &plan)
         }
     }
 

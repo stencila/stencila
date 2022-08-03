@@ -3,6 +3,7 @@ use node_patch::Patch;
 use uuids::uuid_family;
 
 uuid_family!(RequestId, "re");
+
 /// An internal request to patch a document
 #[derive(Debug)]
 pub struct PatchRequest {
@@ -24,7 +25,7 @@ impl PatchRequest {
 }
 
 /// A response to an internal request to patch a document
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PatchResponse {
     pub id: RequestId,
 }
@@ -60,7 +61,7 @@ impl CompileRequest {
 }
 
 /// A response to an internal request to compile a document
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CompileResponse {
     pub id: RequestId,
 }
@@ -83,20 +84,26 @@ pub struct ExecuteRequest {
     pub id: RequestId,
     pub start: Option<String>,
     pub ordering: Option<PlanOrdering>,
+    pub max_concurrency: Option<usize>,
 }
 
 impl ExecuteRequest {
-    pub fn new(start: Option<String>, ordering: Option<PlanOrdering>) -> Self {
+    pub fn new(
+        start: Option<String>,
+        ordering: Option<PlanOrdering>,
+        max_concurrency: Option<usize>,
+    ) -> Self {
         Self {
             id: RequestId::new(),
             start,
             ordering,
+            max_concurrency,
         }
     }
 }
 
 /// A response to an internal request to execute a document
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ExecuteResponse {
     pub id: RequestId,
 }
@@ -132,7 +139,7 @@ impl CancelRequest {
 }
 
 /// A response to an internal request to cancel execution of a document
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CancelResponse {
     pub id: RequestId,
 }

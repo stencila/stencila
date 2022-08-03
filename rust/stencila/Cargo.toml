@@ -158,6 +158,7 @@ node-patch = { path = "../node-patch" }
 node-pointer = { path = "../node-pointer" }
 node-query = { path = "../node-query" }
 node-reshape = { path = "../node-reshape" }
+node-validate = { path = "../node-validate" }
 parsers = { path = "../parsers" }
 path-utils = { path = "../path-utils" }
 providers = { path = "../providers" }

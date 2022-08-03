@@ -6513,6 +6513,7 @@ dependencies = [
  "node-pointer",
  "node-query",
  "node-reshape",
+ "node-validate",
  "notify",
  "parsers",
  "path-utils",
