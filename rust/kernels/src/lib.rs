@@ -1,9 +1,10 @@
 use std::{
     collections::{hash_map::Entry, BTreeMap, HashMap, HashSet, VecDeque},
     sync::Arc,
-    time::Duration,
+    time::{Duration, Instant},
 };
 
+use common::{once_cell::sync::Lazy, tokio::sync::RwLock};
 use graph_triples::ResourceInfo;
 #[allow(unused_imports)]
 use kernel::{
@@ -193,6 +194,8 @@ impl KernelMap {
     ///
     /// Returns the kernel's id.
     async fn ensure(&mut self, selector: &KernelSelector) -> Result<KernelId> {
+        tracing::trace!("Ensuring kernel matching selector `{}`", selector);
+
         // Is there already a running kernel that matches the selector?
         for (kernel_id, kernel) in self.iter_mut() {
             if let Some(id) = &selector.id {
@@ -235,6 +238,8 @@ impl KernelMap {
 
     /// Start a kernel for a selector
     async fn start(&mut self, selector: &KernelSelector) -> Result<KernelId> {
+        tracing::trace!("Starting kernel matching selector `{}`", selector);
+
         let mut kernel = MetaKernel::new(selector).await?;
         kernel.start().await?;
 
@@ -257,6 +262,8 @@ impl KernelMap {
 
     /// Stop one of the kernels and remove it from the kernel space
     async fn stop(&mut self, id: &str) -> Result<()> {
+        tracing::trace!("Stopping kernel `{}`", id);
+
         self.get_mut(id)?.stop().await?;
         self.remove(id);
         Ok(())
@@ -265,6 +272,8 @@ impl KernelMap {
     /// Connect to a running kernel
     #[allow(unused_variables)]
     async fn connect(&mut self, id_or_path: &str) -> Result<KernelId> {
+        tracing::trace!("Connecting to kernel `{}`", id_or_path);
+
         #[cfg(feature = "kernel-jupyter")]
         {
             let (kernel_id, kernel) = kernel_jupyter::JupyterKernel::connect(id_or_path).await?;
@@ -1405,7 +1414,7 @@ impl KernelSpace {
         is_fork: bool,
     ) -> cli_utils::Result {
         use cli_utils::result;
-        use common::{once_cell::sync::Lazy, regex::Regex};
+        use common::regex::Regex;
         use events::{subscribe, unsubscribe, Subscriber};
         use graph_triples::resources;
         use std::path::PathBuf;
@@ -1526,8 +1535,26 @@ impl KernelSpace {
 }
 
 /// List the kernels that are available on this machine
+///
+/// This is a relatively expensive function, mainly because it involves searching PATH
+/// for binaries. Therefore, as an optimization, the return value is memoized and
+/// only updated after a certain duration (we still what updates so it a kernel is enabled
+/// (by installing a language runtime) while the server is running, it will get reflected in the list)
+static AVAILABLE_LIST: Lazy<RwLock<Vec<Kernel>>> = Lazy::new(|| RwLock::new(Vec::new()));
+static AVAILABLE_UPDATED: Lazy<RwLock<Instant>> = Lazy::new(|| RwLock::new(Instant::now()));
 #[allow(clippy::vec_init_then_push, unused_mut)]
-pub async fn available() -> Result<Vec<Kernel>> {
+pub async fn available() -> Vec<Kernel> {
+    let available = AVAILABLE_LIST.read().await;
+    if !available.is_empty()
+        && Instant::now().saturating_duration_since(*AVAILABLE_UPDATED.read().await)
+            < Duration::from_secs(60)
+    {
+        return available.clone();
+    }
+    drop(available);
+
+    tracing::debug!("Updating list of available kernels");
+
     let mut available: Vec<Kernel> = Vec::new();
 
     #[cfg(feature = "kernel-store")]
@@ -1557,7 +1584,10 @@ pub async fn available() -> Result<Vec<Kernel>> {
     #[cfg(feature = "kernel-jupyter")]
     available.append(&mut kernel_jupyter::JupyterKernel::available().await?);
 
-    Ok(available)
+    *AVAILABLE_LIST.write().await = available.clone();
+    *AVAILABLE_UPDATED.write().await = Instant::now();
+
+    available
 }
 
 /// List the languages supported by the kernels available on this machine
@@ -1566,7 +1596,7 @@ pub async fn available() -> Result<Vec<Kernel>> {
 #[allow(clippy::vec_init_then_push)]
 pub async fn languages() -> Result<Vec<String>> {
     let mut languages: HashSet<String> = HashSet::new();
-    let kernels = available().await?;
+    let kernels = available().await;
     for kernel in kernels {
         for lang in kernel.languages {
             let format = formats::match_name(&lang);
@@ -1719,7 +1749,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Available {
         async fn run(&self) -> Result {
-            result::value(available().await?)
+            result::value(available().await)
         }
     }
 

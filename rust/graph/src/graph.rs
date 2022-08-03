@@ -562,7 +562,7 @@ impl Graph {
     ) -> Result<Plan> {
         let kernels = match kernels {
             Some(kernels) => kernels,
-            None => kernels::available().await?,
+            None => kernels::available().await,
         };
 
         let options = options.unwrap_or_default();

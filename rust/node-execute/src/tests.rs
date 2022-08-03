@@ -31,7 +31,7 @@ async fn md_articles() -> Result<()> {
     // So that test results are not dependant upon the the machine the test is run on or how
     // the test is compiled only use built-in kernels
     let kernels: Vec<Kernel> = kernels::available()
-        .await?
+        .await
         .into_iter()
         .filter(|kernel| matches!(kernel.r#type, KernelType::Builtin))
         .collect();
