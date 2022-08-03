@@ -24,24 +24,6 @@ impl PatchRequest {
     }
 }
 
-/// A response to an internal request to patch a document
-#[derive(Debug, Clone)]
-pub struct PatchResponse {
-    pub id: RequestId,
-}
-
-impl PatchResponse {
-    pub fn null() -> Self {
-        Self {
-            id: RequestId("".into()),
-        }
-    }
-
-    pub fn new(id: RequestId) -> Self {
-        Self { id }
-    }
-}
-
 /// An internal request to compile a document
 #[derive(Debug)]
 pub struct CompileRequest {
@@ -57,24 +39,6 @@ impl CompileRequest {
             execute,
             start,
         }
-    }
-}
-
-/// A response to an internal request to compile a document
-#[derive(Debug, Clone)]
-pub struct CompileResponse {
-    pub id: RequestId,
-}
-
-impl CompileResponse {
-    pub fn null() -> Self {
-        Self {
-            id: RequestId("".into()),
-        }
-    }
-
-    pub fn new(id: RequestId) -> Self {
-        Self { id }
     }
 }
 
@@ -102,24 +66,6 @@ impl ExecuteRequest {
     }
 }
 
-/// A response to an internal request to execute a document
-#[derive(Debug, Clone)]
-pub struct ExecuteResponse {
-    pub id: RequestId,
-}
-
-impl ExecuteResponse {
-    pub fn null() -> Self {
-        Self {
-            id: RequestId("".into()),
-        }
-    }
-
-    pub fn new(id: RequestId) -> Self {
-        Self { id }
-    }
-}
-
 /// An internal request to cancel execution of a document
 #[derive(Debug)]
 pub struct CancelRequest {
@@ -138,20 +84,10 @@ impl CancelRequest {
     }
 }
 
-/// A response to an internal request to cancel execution of a document
 #[derive(Debug, Clone)]
-pub struct CancelResponse {
-    pub id: RequestId,
-}
-
-impl CancelResponse {
-    pub fn null() -> Self {
-        Self {
-            id: RequestId("".into()),
-        }
-    }
-
-    pub fn new(id: RequestId) -> Self {
-        Self { id }
-    }
+pub enum Response {
+    PatchResponse(RequestId),
+    CompileResponse(RequestId),
+    ExecuteResponse(RequestId),
+    CancelResponse(RequestId),
 }

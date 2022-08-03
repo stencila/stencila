@@ -34,8 +34,8 @@ use graph_triples::{resources, Relations};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
 use node_address::{Address, AddressMap};
 use node_execute::{
-    compile, execute, CancelRequest, CancelResponse, CompileRequest, CompileResponse,
-    ExecuteRequest, ExecuteResponse, PatchRequest, PatchResponse, RequestId,
+    compile, execute, CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, RequestId,
+    Response,
 };
 use node_patch::{apply, diff, merge, Patch};
 use node_pointer::{resolve, resolve_mut};
@@ -261,25 +261,16 @@ pub struct Document {
     patch_request_sender: mpsc::UnboundedSender<PatchRequest>,
 
     #[serde(skip)]
-    patch_response_receiver: broadcast::Receiver<PatchResponse>,
-
-    #[serde(skip)]
     compile_request_sender: mpsc::Sender<CompileRequest>,
-
-    #[serde(skip)]
-    compile_response_receiver: broadcast::Receiver<CompileResponse>,
 
     #[serde(skip)]
     execute_request_sender: mpsc::Sender<ExecuteRequest>,
 
     #[serde(skip)]
-    execute_response_receiver: broadcast::Receiver<ExecuteResponse>,
-
-    #[serde(skip)]
     cancel_request_sender: mpsc::Sender<CancelRequest>,
 
     #[serde(skip)]
-    cancel_response_receiver: broadcast::Receiver<CancelResponse>,
+    response_receiver: broadcast::Receiver<Response>,
 }
 
 #[allow(unused)]
@@ -361,28 +352,23 @@ impl Document {
 
         let (patch_request_sender, mut patch_request_receiver) =
             mpsc::unbounded_channel::<PatchRequest>();
-        let (patch_response_sender, mut patch_response_receiver) =
-            broadcast::channel::<PatchResponse>(10);
 
         let (compile_request_sender, mut compile_request_receiver) =
             mpsc::channel::<CompileRequest>(100);
-        let (compile_response_sender, mut compile_response_receiver) =
-            broadcast::channel::<CompileResponse>(10);
 
         let (execute_request_sender, mut execute_request_receiver) =
             mpsc::channel::<ExecuteRequest>(100);
-        let (execute_response_sender, mut execute_response_receiver) =
-            broadcast::channel::<ExecuteResponse>(10);
 
         let (cancel_request_sender, mut cancel_request_receiver) =
             mpsc::channel::<CancelRequest>(100);
-        let (cancel_response_sender, mut cancel_response_receiver) =
-            broadcast::channel::<CancelResponse>(10);
+
+        let (response_sender, mut response_receiver) = broadcast::channel::<Response>(1);
 
         let id_clone = id.clone();
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
         let compile_sender_clone = compile_request_sender.clone();
+        let response_sender_clone = response_sender.clone();
         tokio::spawn(async move {
             Self::patch_task(
                 &id_clone,
@@ -390,7 +376,7 @@ impl Document {
                 &addresses_clone,
                 &compile_sender_clone,
                 &mut patch_request_receiver,
-                &patch_response_sender,
+                &response_sender_clone,
             )
             .await
         });
@@ -403,6 +389,7 @@ impl Document {
         let graph_clone = graph.clone();
         let patch_sender_clone = patch_request_sender.clone();
         let execute_sender_clone = execute_request_sender.clone();
+        let response_sender_clone = response_sender.clone();
         tokio::spawn(async move {
             Self::compile_task(
                 &id_clone,
@@ -414,7 +401,7 @@ impl Document {
                 &patch_sender_clone,
                 &execute_sender_clone,
                 &mut compile_request_receiver,
-                &compile_response_sender,
+                &response_sender_clone,
             )
             .await
         });
@@ -439,7 +426,7 @@ impl Document {
                 &patch_sender_clone,
                 &mut cancel_request_receiver,
                 &mut execute_request_receiver,
-                &execute_response_sender,
+                &response_sender,
             )
             .await
         });
@@ -466,16 +453,10 @@ impl Document {
             subscriptions: Default::default(),
 
             patch_request_sender,
-            patch_response_receiver,
-
             compile_request_sender,
-            compile_response_receiver,
-
             execute_request_sender,
-            execute_response_receiver,
-
             cancel_request_sender,
-            cancel_response_receiver,
+            response_receiver,
         }
     }
 
@@ -509,16 +490,10 @@ impl Document {
             root: Arc::new(RwLock::new(Node::Article(Article::default()))),
 
             patch_request_sender: self.patch_request_sender.clone(),
-            patch_response_receiver: self.patch_response_receiver.resubscribe(),
-
             compile_request_sender: self.compile_request_sender.clone(),
-            compile_response_receiver: self.compile_response_receiver.resubscribe(),
-
             execute_request_sender: self.execute_request_sender.clone(),
-            execute_response_receiver: self.execute_response_receiver.resubscribe(),
-
             cancel_request_sender: self.cancel_request_sender.clone(),
-            cancel_response_receiver: self.cancel_response_receiver.resubscribe(),
+            response_receiver: self.response_receiver.resubscribe(),
         }
     }
 
@@ -822,7 +797,7 @@ impl Document {
     ///
     /// Use an unbounded channel for sending patches, so that sending threads never
     /// block (if there are lots of patches) and thereby hold on to locks causing a
-    /// deadlock (because `patch_impl` needs them)
+    /// deadlock.
     ///
     /// # Arguments
     ///
@@ -832,13 +807,19 @@ impl Document {
     ///
     /// - `addresses`: The [`AddressMap`] to use to locate nodes within the root
     ///                node (will be read locked)
+    ///
+    /// - `compile_sender`: The channel to send any [`CompileRequest`]s after a patch is applied
+    ///
+    /// - `request_receiver`: The channel to receive [`PatchRequest`]s on
+    ///
+    /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
     async fn patch_task(
         id: &str,
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
         compile_sender: &mpsc::Sender<CompileRequest>,
         request_receiver: &mut mpsc::UnboundedReceiver<PatchRequest>,
-        response_sender: &broadcast::Sender<PatchResponse>,
+        response_sender: &broadcast::Sender<Response>,
     ) {
         while let Some(request) = request_receiver.recv().await {
             tracing::trace!("Patching document `{}` for request `{}`", &id, request.id);
@@ -846,7 +827,7 @@ impl Document {
             let mut patch = request.patch;
             let start = patch.target.clone();
 
-            // If the patch is empty then continue early rather than take locks etc
+            // If the patch is empty then continue early rather than obtain locks etc
             if patch.is_empty() {
                 continue;
             }
@@ -867,7 +848,7 @@ impl Document {
                 // Apply the patch to the root node
                 apply(root, &patch);
 
-                // Publish the patch
+                // Pre-publish the patch
                 patch.prepublish(root);
             }
 
@@ -893,11 +874,7 @@ impl Document {
                     request.id
                 );
                 if let Err(error) = compile_sender
-                    .send(CompileRequest {
-                        id: RequestId::new(),
-                        execute: request.execute,
-                        start,
-                    })
+                    .send(CompileRequest::new(request.execute, start))
                     .await
                 {
                     tracing::error!(
@@ -909,7 +886,7 @@ impl Document {
             }
 
             // Send response
-            if let Err(error) = response_sender.send(PatchResponse::new(request.id)) {
+            if let Err(error) = response_sender.send(Response::PatchResponse(request.id)) {
                 tracing::debug!(
                     "While sending patch response for document `{}`: {}",
                     id,
@@ -919,7 +896,7 @@ impl Document {
         }
     }
 
-    /// Apply a [`Patch`] to the root node of the document
+    /// Request that a [`Patch`] be applied to the root node of the document
     ///
     /// # Arguments
     ///
@@ -930,20 +907,24 @@ impl Document {
     /// - `execute`: Should the document be executed after the patch is applied and it is compiled?
     ///              If the patch as a `target` then the document will be executed from that
     ///              node, otherwise the entire document will be executed.
-    ///
-    /// This function will trigger a recompile of the document
     #[tracing::instrument(skip(self, patch))]
-    pub async fn patch(&self, patch: Patch, compile: bool, execute: bool) -> Result<RequestId> {
-        tracing::debug!("Patching document `{}`", self.id);
+    pub async fn patch_request(
+        &self,
+        patch: Patch,
+        compile: bool,
+        execute: bool,
+    ) -> Result<RequestId> {
+        tracing::debug!("Sending patch request for document `{}`", self.id);
 
         let request = PatchRequest::new(patch, compile, execute);
         let request_id = request.id.clone();
-        self.patch_request_sender.send(request).or_else(|_| {
+        if let Err(error) = self.patch_request_sender.send(request) {
             bail!(
-                "When sending patch request for document `{}`: the receiver has dropped",
-                self.id
+                "When sending patch request for document `{}`: {}",
+                self.id,
+                error
             )
-        });
+        };
 
         Ok(request_id)
     }
@@ -964,12 +945,15 @@ impl Document {
     ///
     /// - `graph`:  The [`Graph`] to be updated
     ///
-    /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
+    /// - `patch_sender`: A [`PatchRequest`] channel to send patches describing the changes to
     ///                   compiled nodes
     ///
-    /// - `execute_sender`: An [`ExecuteMessage`] sender
+    /// - `execute_sender`: An [`ExecuteRequest`] channel to send any requests to execute the
+    ///                     document after it has been compiled
     ///
-    /// - `compile_receiver`: An [`CompileMessage`] receiver
+    /// - `request_receiver`: The channel to receive [`CompileRequest`]s on
+    ///
+    /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
     #[allow(clippy::too_many_arguments)]
     pub async fn compile_task(
         id: &str,
@@ -981,7 +965,7 @@ impl Document {
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
         request_receiver: &mut mpsc::Receiver<CompileRequest>,
-        response_sender: &broadcast::Sender<CompileResponse>,
+        response_sender: &broadcast::Sender<Response>,
     ) {
         let duration = Duration::from_millis(300);
         let mut request_ids = Vec::new();
@@ -1032,12 +1016,7 @@ impl Document {
                             .join(",")
                     );
                     if let Err(error) = execute_sender
-                        .send(ExecuteRequest {
-                            id: RequestId::new(),
-                            start: None,
-                            ordering: None,
-                            max_concurrency: None,
-                        })
+                        .send(ExecuteRequest::new(None, None, None))
                         .await
                     {
                         tracing::error!(
@@ -1056,7 +1035,7 @@ impl Document {
                         request_id
                     );
                     if let Err(error) =
-                        response_sender.send(CompileResponse::new(request_id.clone()))
+                        response_sender.send(Response::CompileResponse(request_id.clone()))
                     {
                         tracing::debug!(
                             "While sending compile response for document `{}`: {}",
@@ -1072,54 +1051,49 @@ impl Document {
         }
     }
 
-    /// Compile the root node of the document in the background
+    /// Request that the the document be compiled
     #[tracing::instrument(skip(self))]
-    pub async fn compile(&self, execute: bool, start: Option<String>) -> Result<RequestId> {
-        tracing::debug!("Compiling document `{}`", self.id);
+    pub async fn compile_request(&self, execute: bool, start: Option<String>) -> Result<RequestId> {
+        tracing::debug!("Sending request to compile document `{}`", self.id);
 
         let request = CompileRequest::new(execute, start);
         let request_id = request.id.clone();
-        self.compile_request_sender
-            .send(request)
-            .await
-            .or_else(|_| {
-                bail!(
-                    "When sending patch request for document `{}`: the receiver has dropped",
-                    self.id
-                )
-            });
+        if let Err(error) = self.compile_request_sender.send(request).await {
+            bail!(
+                "When sending compile request for document `{}`: {}",
+                self.id,
+                error
+            )
+        };
 
         Ok(request_id)
     }
 
-    /// Compile the root node of the document and wait until finished
+    /// Compile the document
     ///
-    /// This method is the same as `compile` but will wait for the compilation to finish
+    /// This method is the same as `compile_request` but will wait for the compilation to finish
     /// before returning. This is useful in some circumstances, such as ensuring the document
     /// is compiled before HTML is encoded for it on initial opening.
     #[tracing::instrument(skip(self))]
-    pub async fn compile_wait(&mut self, execute: bool, start: Option<String>) -> Result<()> {
-        let request_id = self.compile(execute, start).await?;
+    pub async fn compile(&mut self, execute: bool, start: Option<String>) -> Result<()> {
+        let request_id = self.compile_request(execute, start).await?;
 
         tracing::trace!(
             "Waiting for compile response for document `{}` for request `{}`",
             self.id,
             request_id
         );
-        while let Ok(response) = self.compile_response_receiver.recv().await {
-            if response.id == request_id {
-                tracing::trace!(
-                    "Received compile response for document `{}` for request `{}`",
-                    self.id,
-                    request_id
-                );
-                break;
+        while let Ok(response) = self.response_receiver.recv().await {
+            if let Response::CompileResponse(id) = response {
+                if id == request_id {
+                    tracing::trace!(
+                        "Received compile response for document `{}` for request `{}`",
+                        self.id,
+                        request_id
+                    );
+                    break;
+                }
             }
-            tracing::trace!(
-                "Ignoring compile response for document `{}` for request `{}`",
-                self.id,
-                response.id
-            );
         }
 
         Ok(())
@@ -1141,10 +1115,16 @@ impl Document {
     ///
     /// - `graph`:  The [`Graph`] to be updated
     ///
-    /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
-    ///                   compiled nodes
+    /// - `kernel_space`:  The [`KernelSpace`] to use for execution
     ///
-    /// - `execute_receiver`: An [`ExecuteMessage`] receiver
+    /// - `patch_sender`: A [`PatchRequest`] channel sender to send patches describing the changes to
+    ///                   executed nodes
+    ///
+    /// - `cancel_receiver`: The channel to receive [`CancelRequest`]s on
+    ///
+    /// - `request_receiver`: The channel to receive [`ExecuteRequest`]s on
+    ///
+    /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
     #[allow(clippy::too_many_arguments)]
     pub async fn execute_task(
         id: &str,
@@ -1154,12 +1134,12 @@ impl Document {
         addresses: &Arc<RwLock<AddressMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<RwLock<KernelSpace>>,
-        patch_request_sender: &mpsc::UnboundedSender<PatchRequest>,
-        cancel_request_receiver: &mut mpsc::Receiver<CancelRequest>,
-        execute_request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
-        execute_response_sender: &broadcast::Sender<ExecuteResponse>,
+        patch_sender: &mpsc::UnboundedSender<PatchRequest>,
+        cancel_receiver: &mut mpsc::Receiver<CancelRequest>,
+        request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
+        response_sender: &broadcast::Sender<Response>,
     ) {
-        while let Some(request) = execute_request_receiver.recv().await {
+        while let Some(request) = request_receiver.recv().await {
             tracing::trace!("Executing document `{}` for request `{}`", &id, request.id);
 
             // Resolve options
@@ -1192,14 +1172,13 @@ impl Document {
                 root,
                 addresses,
                 kernel_space,
-                patch_request_sender,
-                cancel_request_receiver,
+                patch_sender,
+                cancel_receiver,
             )
             .await;
 
             // Send response
-            if let Err(error) =
-                execute_response_sender.send(ExecuteResponse::new(request.id.clone()))
+            if let Err(error) = response_sender.send(Response::ExecuteResponse(request.id.clone()))
             {
                 tracing::debug!(
                     "While sending execute response for document `{}`: {}",
@@ -1210,45 +1189,45 @@ impl Document {
         }
     }
 
-    /// Execute the root node of the document
+    /// Request that the document be executed
     #[tracing::instrument(skip(self))]
-    pub async fn execute(
+    pub async fn execute_request(
         &self,
         start: Option<String>,
         ordering: Option<PlanOrdering>,
         max_concurrency: Option<usize>,
     ) -> Result<RequestId> {
-        tracing::debug!("Executing document `{}`", self.id);
+        tracing::debug!("Sending request to execute document `{}`", self.id);
 
         let request = ExecuteRequest::new(start, ordering, max_concurrency);
         let request_id = request.id.clone();
-        self.execute_request_sender
-            .send(request)
-            .await
-            .or_else(|_| {
-                bail!(
-                    "When sending execute request for document `{}`: the receiver has dropped",
-                    self.id
-                )
-            });
+        if let Err(error) = self.execute_request_sender.send(request).await {
+            bail!(
+                "When sending execute request for document `{}`: {}",
+                self.id,
+                error
+            )
+        };
 
         Ok(request_id)
     }
 
-    /// Execute the root node of the document and wait until finished
+    /// Execute the document
     ///
-    /// This method is the same as `execute` but will wait for the execution to finish
+    /// This method is the same as `execute_request` but will wait for the execution to finish
     /// before returning. This is useful in some circumstances, such as ensuring the document
     /// is executed before saving it to file.
     #[tracing::instrument(skip(self))]
-    pub async fn execute_wait(
+    pub async fn execute(
         &mut self,
         start: Option<String>,
         ordering: Option<PlanOrdering>,
         max_concurrency: Option<usize>,
     ) -> Result<()> {
         // Execute the document
-        let request_id = self.execute(start, ordering, max_concurrency).await?;
+        let request_id = self
+            .execute_request(start, ordering, max_concurrency)
+            .await?;
 
         // Wait for execution to finish
         tracing::trace!(
@@ -1256,25 +1235,22 @@ impl Document {
             self.id,
             request_id
         );
-        while let Ok(response) = self.execute_response_receiver.recv().await {
-            if response.id == request_id {
-                tracing::trace!(
-                    "Received execute response for document `{}` for request `{}`",
-                    self.id,
-                    request_id
-                );
-                break;
+        while let Ok(response) = self.response_receiver.recv().await {
+            if let Response::ExecuteResponse(id) = response {
+                if id == request_id {
+                    tracing::trace!(
+                        "Received execute response for document `{}` for request `{}`",
+                        self.id,
+                        request_id
+                    );
+                    break;
+                }
             }
-            tracing::trace!(
-                "Ignoring execute response for document `{}` for request `{}`",
-                self.id,
-                response.id
-            );
         }
 
         // Recompile the document to ensure properties such as `code_dependencies` reflect the
         // new state of the document
-        self.compile_wait(false, None).await?;
+        self.compile(false, None).await?;
 
         Ok(())
     }
@@ -1282,9 +1258,9 @@ impl Document {
     /// Get the parameters of the document
     pub async fn params(&mut self) -> Result<IndexMap<String, (String, Address, Parameter)>> {
         // Compile the document to ensure its `addresses` are up to date
-        self.compile_wait(false, None).await?;
+        self.compile(false, None).await?;
 
-        // Collect parameters fro addresses
+        // Collect parameters from addresses
         let addresses = self.addresses.read().await;
         let root = &*self.root.read().await;
         let params = addresses
@@ -1341,7 +1317,7 @@ impl Document {
         }
 
         // Now execute the document
-        self.execute_wait(None, None, None).await?;
+        self.execute(None, None, None).await?;
 
         Ok(())
     }
@@ -1460,7 +1436,7 @@ impl Document {
         // Set the root and compile
         // TODO: Reconsider this in refactoring of alternative format representations of docs
         *self.root.write().await = root;
-        self.compile_wait(false, None).await?;
+        self.compile(false, None).await?;
 
         // Publish any events for which there are subscriptions (this will probably go elsewhere)
         for subscription in self.subscriptions.keys() {
@@ -2504,7 +2480,7 @@ pub mod commands {
                 document.call(args).await?;
             } else {
                 document
-                    .execute_wait(self.start.clone(), self.ordering.clone(), self.concurrency)
+                    .execute(self.start.clone(), self.ordering.clone(), self.concurrency)
                     .await?;
             }
 

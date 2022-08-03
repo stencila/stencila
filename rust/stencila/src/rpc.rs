@@ -377,7 +377,7 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
         .await?
         .lock()
         .await
-        .patch(patch, true, execute)
+        .patch_request(patch, true, execute)
         .await?;
     Ok((json!(true), Subscription::None))
 }
@@ -395,7 +395,7 @@ async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscr
         .await?
         .lock()
         .await
-        .execute(node_id, ordering, None)
+        .execute_request(node_id, ordering, None)
         .await?;
     Ok((json!(true), Subscription::None))
 }
