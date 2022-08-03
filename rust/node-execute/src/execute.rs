@@ -98,9 +98,9 @@ pub async fn execute(
     drop(root_guard);
     drop(address_map_guard);
 
-    // Set the `execute_status` of all nodes in stages other thatn the first
+    // Set the `execute_status` of all nodes in stages other than the first
     // to `Scheduled` or `ScheduledPreviouslyFailed` and send the resulting patch.
-    // Do not do this for first stage as an optimization to avoid unecessary patches
+    // Do not do this for first stage as an optimization to avoid unnecessary patches
     // (they will go directly to `Running` or `RunningPreviouslyFailed`)
     send_patches(
         patch_request_sender,
