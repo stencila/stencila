@@ -104,6 +104,12 @@
     margin: 0 0 0 21px !important;
   }
 
+  /* Avoid elements taking up vertical space unnecessarily */
+  [slot='outputs']:empty,
+  [slot='errors']:empty {
+    display: none;
+  }
+
   /* Force output to be inline */
   [slot='output'] * {
     display: inline;
