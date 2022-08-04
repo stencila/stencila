@@ -11,15 +11,17 @@ pub struct PatchRequest {
     pub patch: Patch,
     pub compile: bool,
     pub execute: bool,
+    pub write: bool,
 }
 
 impl PatchRequest {
-    pub fn new(patch: Patch, compile: bool, execute: bool) -> Self {
+    pub fn new(patch: Patch, compile: bool, execute: bool, write: bool) -> Self {
         Self {
             id: RequestId::new(),
             patch,
             compile,
             execute,
+            write,
         }
     }
 }
@@ -29,14 +31,16 @@ impl PatchRequest {
 pub struct CompileRequest {
     pub id: RequestId,
     pub execute: bool,
+    pub write: bool,
     pub start: Option<String>,
 }
 
 impl CompileRequest {
-    pub fn new(execute: bool, start: Option<String>) -> Self {
+    pub fn new(execute: bool, write: bool, start: Option<String>) -> Self {
         Self {
             id: RequestId::new(),
             execute,
+            write,
             start,
         }
     }
@@ -46,6 +50,7 @@ impl CompileRequest {
 #[derive(Debug)]
 pub struct ExecuteRequest {
     pub id: RequestId,
+    pub write: bool,
     pub start: Option<String>,
     pub ordering: Option<PlanOrdering>,
     pub max_concurrency: Option<usize>,
@@ -53,12 +58,14 @@ pub struct ExecuteRequest {
 
 impl ExecuteRequest {
     pub fn new(
+        write: bool,
         start: Option<String>,
         ordering: Option<PlanOrdering>,
         max_concurrency: Option<usize>,
     ) -> Self {
         Self {
             id: RequestId::new(),
+            write,
             start,
             ordering,
             max_concurrency,
@@ -84,10 +91,27 @@ impl CancelRequest {
     }
 }
 
+/// An internal request to write the document (e.g. after patching)
+#[derive(Debug)]
+pub struct WriteRequest {
+    pub id: RequestId,
+    pub now: bool,
+}
+
+impl WriteRequest {
+    pub fn new(now: bool) -> Self {
+        Self {
+            id: RequestId::new(),
+            now,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum Response {
     PatchResponse(RequestId),
     CompileResponse(RequestId),
     ExecuteResponse(RequestId),
     CancelResponse(RequestId),
+    WriteResponse(RequestId),
 }

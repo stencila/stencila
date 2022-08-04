@@ -61,7 +61,8 @@ pub(crate) fn send_patch(
             "Sending patch request with `{}` operations",
             patch.ops.len()
         );
-        if let Err(..) = patch_sender.send(PatchRequest::new(patch, compile, false)) {
+        // Note: this patch requests do not execute or write after the patch is applied
+        if let Err(..) = patch_sender.send(PatchRequest::new(patch, compile, false, false)) {
             tracing::debug!("When sending patch: receiver dropped");
         }
     }
