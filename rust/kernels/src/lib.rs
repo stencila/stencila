@@ -1582,7 +1582,11 @@ pub async fn available() -> Vec<Kernel> {
     microkernel_available!("kernel-zsh", kernel_zsh, available);
 
     #[cfg(feature = "kernel-jupyter")]
-    available.append(&mut kernel_jupyter::JupyterKernel::available().await?);
+    available.append(
+        &mut kernel_jupyter::JupyterKernel::available()
+            .await
+            .unwrap_or_default(),
+    );
 
     *AVAILABLE_LIST.write().await = available.clone();
     *AVAILABLE_UPDATED.write().await = Instant::now();
