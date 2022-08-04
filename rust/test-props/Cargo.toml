@@ -6,5 +6,6 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
+node-validate = { path = "../node-validate" }
 proptest = "1.0.0"
 stencila-schema = { path = "../schema" }

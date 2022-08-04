@@ -4187,7 +4187,6 @@ dependencies = [
  "node-coerce",
  "node-dispatch",
  "node-pointer",
- "node-validate",
  "schemars",
  "similar",
  "stencila-schema",
@@ -6797,6 +6796,7 @@ name = "test-props"
 version = "0.0.0"
 dependencies = [
  "common",
+ "node-validate",
  "proptest",
  "stencila-schema",
 ]

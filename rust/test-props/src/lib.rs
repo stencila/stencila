@@ -1,8 +1,14 @@
 ///! Utility functions and strategies for property testing
-use common::itertools::interleave;
-use proptest::collection::{size_range, vec};
-use proptest::prelude::*;
-use proptest::strategy::Union;
+use proptest::{
+    collection::{size_range, vec},
+    option::of,
+    prelude::*,
+    sample::select,
+    strategy::Union,
+};
+
+use common::itertools::{interleave, Itertools};
+use node_validate::Validator;
 use stencila_schema::*;
 
 // Export proptest for use in other internal crates
@@ -194,11 +200,92 @@ prop_compose! {
     pub fn parameter(freedom: Freedom)(
         name in match freedom {
             Freedom::Min => r"name",
-            _ => r"[a-z_][A-z0-9_]*", // Note that this is regex allowed by the schema
+            _ => r"[a-z_][A-z0-9_]*", // Note that this is the regex allowed by the schema
         },
+        validator in parameter_validator(),
+        default in select(vec![true, false])
     ) -> InlineContent {
+        let default = default.then(|| validator.default_()).map(Box::new);
         InlineContent::Parameter(Parameter{
             name,
+            validator: Some(Box::new(validator)),
+            default,
+            ..Default::default()
+        })
+    }
+}
+
+/// Generate a validator for a parameter
+pub fn parameter_validator() -> impl Strategy<Value = ValidatorTypes> {
+    prop_oneof![
+        boolean_validator(),
+        integer_validator(),
+        number_validator(),
+        string_validator(),
+        enum_validator()
+    ]
+}
+
+/// Generate a boolean validator
+pub fn boolean_validator() -> impl Strategy<Value = ValidatorTypes> {
+    Just(ValidatorTypes::BooleanValidator(BooleanValidator::default()))
+}
+
+prop_compose! {
+    /// Generate an integer validator
+    pub fn integer_validator()(
+        min in of(-10..10i32),
+        max in of(-10..10i32),
+        mult in of(1..10u32),
+    )-> ValidatorTypes {
+        ValidatorTypes::IntegerValidator(IntegerValidator{
+            minimum: min.map(|val| Number(val as f64)),
+            maximum: max.map(|val| Number(val as f64)),
+            multiple_of: mult.map(|val| Number(val as f64)),
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate a number validator
+    pub fn number_validator()(
+        min in of(-10..10i32),
+        max in of(-10..10i32),
+        mult in of(1..10u32),
+    )-> ValidatorTypes {
+        ValidatorTypes::NumberValidator(NumberValidator{
+            minimum: min.map(|val| Number(val as f64)),
+            maximum: max.map(|val| Number(val as f64)),
+            multiple_of: mult.map(|val| Number(val as f64)),
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate a string validator
+    pub fn string_validator()(
+        min in of(0..10u32),
+        max in of(0..100u32),
+        pattern in of(r"[A-Za-z0-9]+"),
+    )-> ValidatorTypes {
+        ValidatorTypes::StringValidator(StringValidator{
+            min_length: min,
+            max_length: max,
+            pattern: pattern.map(Box::new),
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate a enum validator
+    pub fn enum_validator()(
+        values in vec(r"[A-Za-z0-9_-]+", 0..10),
+    )-> ValidatorTypes {
+        ValidatorTypes::EnumValidator(EnumValidator{
+            values: values.into_iter().map(Node::String).collect_vec(),
             ..Default::default()
         })
     }
