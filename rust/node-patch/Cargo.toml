@@ -13,7 +13,6 @@ node-address = { path = "../node-address" }
 node-coerce = { path = "../node-coerce" }
 node-dispatch = { path = "../node-dispatch" }
 node-pointer = { path = "../node-pointer" }
-node-validate = { path = "../node-validate" }
 schemars = { version = "0.8.8", features = ["preserve_order", "chrono"] }
 similar = { version = "2.1.0", features = ["unicode"] }
 stencila-schema = { path = "../schema" }

@@ -1,4 +1,3 @@
-use node_validate::Validator;
 use stencila_schema::*;
 
 use super::prelude::*;
@@ -14,91 +13,20 @@ impl Patchable for Datatable {
 
 patchable_struct!(DatatableColumn, name, validator, values);
 
-/// Implement `Patchable` for `Parameter` to ensure that values of
-/// `default` and `value` fields (which can be any `Node`) meet the
-/// requirements of the `validator`.
-impl Patchable for Parameter {
-    patchable_struct_diff!(
-        name,
-        validator,
-        default,
-        value,
-        compile_digest,
-        execute_digest,
-        execute_required
-    );
-
-    // Presently, only `apply_replace` is overridden (because those are the operations sent
-    // by the web client). In the future, the other apply_* operations probably need overriding.
-    patchable_struct_apply_add!(
-        name,
-        validator,
-        default,
-        value,
-        compile_digest,
-        execute_digest,
-        execute_required
-    );
-    patchable_struct_apply_remove!(
-        name,
-        validator,
-        default,
-        value,
-        compile_digest,
-        execute_digest,
-        execute_required
-    );
-    patchable_struct_apply_move!(
-        name,
-        validator,
-        default,
-        value,
-        compile_digest,
-        execute_digest,
-        execute_required
-    );
-    patchable_struct_apply_transform!(
-        name,
-        validator,
-        default,
-        value,
-        compile_digest,
-        execute_digest,
-        execute_required
-    );
-
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
-        if let Some(Slot::Name(name)) = address.pop_front() {
-            match name.as_str() {
-                "name" => self.name.apply_replace(address, items, value),
-                "validator" => self.validator.apply_replace(address, items, value),
-                "default" => self.default.apply_replace(address, items, value),
-                "value" => self.value.apply_replace(address, items, value),
-                "compile_digest" => self.compile_digest.apply_replace(address, items, value),
-                "execute_digest" => self.execute_digest.apply_replace(address, items, value),
-                "execute_required" => self.execute_required.apply_replace(address, items, value),
-                _ => bail!(invalid_slot_name::<Self>(&name)),
-            }?;
-
-            // Ensure that the parameters `value` and `default` are valid for any
-            // validator by coercing them to it
-            if let Some(validator) = self.validator.as_deref() {
-                if let Some(value) = self.value.as_deref() {
-                    let node = validator.coerce(value);
-                    self.value = Some(Box::new(node));
-                }
-                if let Some(default) = self.default.as_deref() {
-                    let node = validator.coerce(default);
-                    self.default = Some(Box::new(node));
-                }
-            }
-
-            Ok(())
-        } else {
-            bail!(invalid_address::<Self>("first slot should be a name"))
-        }
-    }
-}
+// Previously we implemented a custom `Patchable` for `Parameter` to ensure that values of
+// `default` and `value` fields (which can be any `Node`) meet the requirements of the `validator`.
+// However, doing that here causes a lot of inconsistencies, especially in the UI. For that
+// reason we revert to using standard struct macro here.
+patchable_struct!(
+    Parameter,
+    name,
+    validator,
+    default,
+    value,
+    compile_digest,
+    execute_digest,
+    execute_required
+);
 
 patchable_enum!(ParameterExecuteRequired);
 
@@ -116,7 +44,14 @@ patchable_variants!(
 patchable_struct!(ArrayValidator);
 patchable_struct!(BooleanValidator);
 patchable_struct!(ConstantValidator, value);
-patchable_struct!(IntegerValidator);
+patchable_struct!(
+    IntegerValidator,
+    minimum,
+    maximum,
+    exclusive_minimum,
+    exclusive_maximum,
+    multiple_of
+);
 patchable_struct!(
     NumberValidator,
     minimum,

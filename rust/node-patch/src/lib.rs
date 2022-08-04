@@ -489,6 +489,8 @@ impl Operation {
                 nodes.to_html(&context)
             } else if let Ok(nodes) = serde_json::from_value::<Vec<ListItem>>(value.clone()) {
                 nodes.to_html(&context)
+            } else if let Ok(nodes) = serde_json::from_value::<ValidatorTypes>(value.clone()) {
+                nodes.to_html(&context)
             } else {
                 tracing::error!(
                     "Unhandled JSON value type when generating HTML for patch operation: {}",

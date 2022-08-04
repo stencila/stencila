@@ -1,4 +1,5 @@
-use common::serde::de::DeserializeOwned;
+use common::{serde::de::DeserializeOwned, serde_json};
+use stencila_schema::Null;
 
 use super::prelude::*;
 
@@ -78,7 +79,18 @@ where
     }
 
     fn from_value(value: &Value) -> Result<Self> {
-        Ok(Some(Type::from_value(value)?))
+        // If value is `Null`, or JSON `null` then set `Option` to `None`
+        Ok(if let Some(..) = value.downcast_ref::<Null>() {
+            None
+        } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
+            if matches!(value, serde_json::Value::Null) {
+                None
+            } else {
+                Some(Type::from_json_value(value)?)
+            }
+        } else {
+            Some(Type::from_value(value)?)
+        })
     }
 }
 
