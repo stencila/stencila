@@ -718,9 +718,9 @@ impl Document {
     /// # Arguments
     ///
     /// - `root`: The root [`Node`] to write (will be read locked)
-    /// 
+    ///
     /// - `path`: The filesystem path to write to
-    /// 
+    ///
     /// - `format`: The format to write (defaults to the path extension)
     ///
     /// - `request_receiver`: The channel to receive [`WriteRequest`]s on
