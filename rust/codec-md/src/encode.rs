@@ -1,7 +1,7 @@
 use std::cmp::max;
 
 use codec::{
-    common::{eyre::Result, itertools::Itertools},
+    common::{eyre::Result, itertools::Itertools, serde_json},
     stencila_schema::*,
     EncodeOptions,
 };
@@ -141,18 +141,73 @@ impl ToMd for Parameter {
         let mut options = String::new();
 
         if let Some(validator) = &self.validator {
-            let type_ = match validator.as_ref() {
-                ValidatorTypes::BooleanValidator(..) => "boolean",
-                ValidatorTypes::IntegerValidator(..) => "integer",
-                ValidatorTypes::NumberValidator(..) => "number",
-                ValidatorTypes::StringValidator(..) => "string",
-                ValidatorTypes::EnumValidator(..) => "enum",
-                _ => "<unhandled>",
+            match validator.as_ref() {
+                ValidatorTypes::BooleanValidator(..) => {
+                    options += "bool";
+                }
+                ValidatorTypes::IntegerValidator(validator) => {
+                    options += "int";
+                    if let Some(min) = validator.minimum {
+                        options += " min=";
+                        options += &min.to_string();
+                    }
+                    if let Some(max) = validator.maximum {
+                        options += " max=";
+                        options += &max.to_string();
+                    }
+                    if let Some(mult) = validator.multiple_of {
+                        options += " mult=";
+                        options += &mult.to_string();
+                    }
+                }
+                ValidatorTypes::NumberValidator(validator) => {
+                    options += "num";
+                    if let Some(min) = validator.minimum {
+                        options += " min=";
+                        options += &min.to_string();
+                    }
+                    if let Some(max) = validator.maximum {
+                        options += " max=";
+                        options += &max.to_string();
+                    }
+                    if let Some(mult) = validator.multiple_of {
+                        options += " mult=";
+                        options += &mult.to_string();
+                    }
+                }
+                ValidatorTypes::StringValidator(validator) => {
+                    options += "str";
+                    if let Some(min) = validator.min_length {
+                        options += " min=";
+                        options += &min.to_string();
+                    }
+                    if let Some(max) = validator.max_length {
+                        options += " max=";
+                        options += &max.to_string();
+                    }
+                    if let Some(pattern) = validator.pattern.as_deref() {
+                        options += &[" pattern=\"", pattern, "\""].concat();
+                    }
+                }
+                ValidatorTypes::EnumValidator(validator) => {
+                    options += &[
+                        "enum vals=",
+                        &serde_json::to_string(&validator.values)
+                            .unwrap_or_else(|_| "[]".to_string()),
+                    ]
+                    .concat();
+                }
+                _ => {}
             };
-            options += &["type=", type_].concat();
         }
 
-        // TODO: Add support for other options. See decode.rs for options for each validator type
+        if let Some(default) = &self.default {
+            options += &[
+                " def=",
+                &serde_json::to_string(&default).unwrap_or_else(|_| "null".to_string()),
+            ]
+            .concat();
+        }
 
         let attrs = if options.is_empty() {
             "{}".to_string()

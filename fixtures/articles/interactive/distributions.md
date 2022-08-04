@@ -3,16 +3,16 @@ This example illustrates the use of several node types that are encoded as RPNGs
 The probability density function for the Normal distribution is,
 
 $$
-f(x) = \frac{1}{\sigma\sqrt{2\pi}}\exp\left( -\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^{\!2}\right)
+f(x) = \frac{1}{\sigma\sqrt{2\pi}}\exp\left( -\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^{!2}\right)
 $$
 
 Change the following parameters to generate random numbers drawn from the Normal distribution or other distributions.
 
-The probability distribution: /dist/{type=enum default=Normal values=['Normal', 'Lognormal', 'Poisson']}
+The probability distribution: /dist/{enum vals=["Normal","Lognormal","Poisson"] def="Normal"}
 
-The sample size: /n/{type=number default=100 min=1 max=10000}.
+The sample size: /n/{int min=1 max=10000 def=100}.
 
-The number of histogram breaks: /breaks/{type=number default=30 min=3 max=100}.
+The number of histogram breaks: /breaks/{int min=3 max=100 def=30}.
 
 ```r exec
 rfunc <- switch(dist,

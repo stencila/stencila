@@ -783,32 +783,18 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
 pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
     map_res(
         pair(delimited(char('/'), alphanumeric1, char('/')), curly_attrs),
-        |(name, pairs)| -> Result<InlineContent> {
-            let options: HashMap<String, Option<String>> = pairs.into_iter().collect();
+        |(name, attrs)| -> Result<InlineContent> {
+            let first = attrs.first().map(|(name, ..)| Some(name.clone()));
+            let options: HashMap<String, Option<String>> = attrs.into_iter().collect();
 
             let typ = options
                 .get("type")
-                .and_then(|value| value.as_ref())
-                .map(|value| value.as_str());
+                .or(first.as_ref())
+                .and_then(|value| value.as_deref());
 
-            let validator = if matches!(typ, Some("boolean"))
-                || matches!(typ, Some("bool"))
-                || options.get("boolean").is_some()
-                || options.get("bool").is_some()
-            {
+            let validator = if matches!(typ, Some("boolean")) || matches!(typ, Some("bool")) {
                 Some(ValidatorTypes::BooleanValidator(BooleanValidator::default()))
-            } else if matches!(typ, Some("integer"))
-                || matches!(typ, Some("int"))
-                || options.get("integer").is_some()
-                || options.get("int").is_some()
-            {
-                // TODO: Add properties to `IntegerValidator`
-                Some(ValidatorTypes::IntegerValidator(IntegerValidator::default()))
-            } else if matches!(typ, Some("number"))
-                || matches!(typ, Some("num"))
-                || options.get("number").is_some()
-                || options.get("num").is_some()
-            {
+            } else if matches!(typ, Some("integer")) || matches!(typ, Some("int")) {
                 let minimum = options
                     .get("minimum")
                     .or_else(|| options.get("min"))
@@ -821,7 +807,30 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .and_then(|value| value.parse().ok());
                 let multiple_of = options
                     .get("multiple_of")
+                    .or_else(|| options.get("mult"))
                     .or_else(|| options.get("step"))
+                    .and_then(|value| value.as_ref())
+                    .and_then(|value| value.parse().ok());
+                Some(ValidatorTypes::IntegerValidator(IntegerValidator {
+                    minimum,
+                    maximum,
+                    multiple_of,
+                    ..Default::default()
+                }))
+            } else if matches!(typ, Some("number")) || matches!(typ, Some("num")) {
+                let minimum = options
+                    .get("minimum")
+                    .or_else(|| options.get("min"))
+                    .and_then(|value| value.as_ref())
+                    .and_then(|value| value.parse().ok());
+                let maximum = options
+                    .get("maximum")
+                    .or_else(|| options.get("max"))
+                    .and_then(|value| value.as_ref())
+                    .and_then(|value| value.parse().ok());
+                let multiple_of = options
+                    .get("multiple_of")
+                    .or_else(|| options.get("mult"))
                     .and_then(|value| value.as_ref())
                     .and_then(|value| value.parse().ok());
                 Some(ValidatorTypes::NumberValidator(NumberValidator {
@@ -830,19 +839,17 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     multiple_of,
                     ..Default::default()
                 }))
-            } else if matches!(typ, Some("string"))
-                || matches!(typ, Some("str"))
-                || options.get("string").is_some()
-                || options.get("str").is_some()
-            {
+            } else if matches!(typ, Some("string")) || matches!(typ, Some("str")) {
                 let min_length = options
                     .get("min_length")
                     .or_else(|| options.get("minlength"))
+                    .or_else(|| options.get("min"))
                     .and_then(|value| value.as_ref())
                     .and_then(|value| value.parse().ok());
                 let max_length = options
                     .get("max_length")
                     .or_else(|| options.get("maxlength"))
+                    .or_else(|| options.get("max"))
                     .and_then(|value| value.as_ref())
                     .and_then(|value| value.parse().ok());
                 let pattern = options
@@ -856,7 +863,7 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     pattern,
                     ..Default::default()
                 }))
-            } else if matches!(typ, Some("enum")) || options.get("enum").is_some() {
+            } else if matches!(typ, Some("enum")) {
                 let values = options
                     .get("values")
                     .or_else(|| options.get("vals"))
@@ -886,6 +893,7 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
 
             let default = options
                 .get("default")
+                .or_else(|| options.get("def"))
                 .and_then(|value| value.as_ref())
                 .map(|string| {
                     json5::from_str::<Node>(string).unwrap_or_else(|_| Node::String(string.clone()))
@@ -1103,7 +1111,7 @@ fn curly_attrs(input: &str) -> IResult<&str, Attrs> {
 fn curly_attr(input: &str) -> IResult<&str, (String, Option<String>)> {
     map_res(
         tuple((
-            take_till(|c| c == ' ' || c == '=' || c == ':'),
+            take_till(|c| c == ' ' || c == '=' || c == ':' || c == '}'),
             opt(preceded(
                 tuple((multispace0, alt((tag("="), tag(":"))), multispace0)),
                 alt((
@@ -1295,11 +1303,42 @@ mod tests {
 
     #[test]
     fn test_curly_attrs() {
-        let res = curly_attrs(r#"{a=1 b='2' c:3 d = 4}"#).unwrap();
-        assert_eq!(res.1[0], ("a".to_string(), Some("1".to_string())));
-        assert_eq!(res.1[1], ("b".to_string(), Some("2".to_string())));
-        assert_eq!(res.1[2], ("c".to_string(), Some("3".to_string())));
-        assert_eq!(res.1[3], ("d".to_string(), Some("4".to_string())));
+        assert_eq!(
+            curly_attrs(r#"{a}"#).unwrap().1,
+            vec![("a".to_string(), None),]
+        );
+
+        assert_eq!(
+            curly_attrs(r#"{a=1 b='2' c:3 d = 4}"#).unwrap().1,
+            vec![
+                ("a".to_string(), Some("1".to_string())),
+                ("b".to_string(), Some("2".to_string())),
+                ("c".to_string(), Some("3".to_string())),
+                ("d".to_string(), Some("4".to_string()))
+            ]
+        );
+    }
+
+    #[test]
+    fn test_parameters() {
+        assert_eq!(
+            parameter(r#"/name/{}"#).unwrap().1,
+            InlineContent::Parameter(Parameter {
+                name: "name".to_string(),
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(
+            parameter(r#"/name/{bool}"#).unwrap().1,
+            InlineContent::Parameter(Parameter {
+                name: "name".to_string(),
+                validator: Some(Box::new(ValidatorTypes::BooleanValidator(
+                    BooleanValidator::default()
+                ))),
+                ..Default::default()
+            })
+        );
     }
 
     #[test]
