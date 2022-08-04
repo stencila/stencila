@@ -310,108 +310,138 @@ impl ToHtml for EnumValidator {
     }
 }
 
+fn numeric_validator_content(
+    context: &EncodeContext,
+    minimum: &Option<Number>,
+    exclusive_minimum: &Option<Number>,
+    maximum: &Option<Number>,
+    exclusive_maximum: &Option<Number>,
+    multiple_of: &Option<Number>,
+) -> String {
+    // We use `.map(|value| value.to_string())` for properties so they get
+    // rendered as text, not wrapped as a `<span itemtype="https://schema.org/Number"...`
+
+    let minimum = elem_placeholder(
+        "span",
+        &[attr_prop("minimum"), attr_slot("minimum")],
+        &minimum.as_ref().map(|value| value.to_string()),
+        context,
+    );
+
+    let exclusive_minimum = elem_placeholder(
+        "span",
+        &[
+            attr_prop("exclusive_minimum"),
+            attr_slot("exclusive-minimum"),
+        ],
+        &exclusive_minimum.as_ref().map(|value| value.to_string()),
+        context,
+    );
+
+    let maximum = elem_placeholder(
+        "span",
+        &[attr_prop("maximum"), attr_slot("maximum")],
+        &maximum.as_ref().map(|value| value.to_string()),
+        context,
+    );
+
+    let exclusive_maximum = elem_placeholder(
+        "span",
+        &[
+            attr_prop("exclusive_maximum"),
+            attr_slot("exclusive-maximum"),
+        ],
+        &exclusive_maximum.as_ref().map(|value| value.to_string()),
+        context,
+    );
+
+    let multiple_of = elem_placeholder(
+        "span",
+        &[attr_prop("multiple_of"), attr_slot("multiple-of")],
+        &multiple_of.as_ref().map(|value| value.to_string()),
+        context,
+    );
+
+    [
+        minimum,
+        exclusive_minimum,
+        maximum,
+        exclusive_maximum,
+        multiple_of,
+    ]
+    .concat()
+}
+
+fn numeric_validator_attrs(
+    min: &Option<Number>,
+    max: &Option<Number>,
+    step: &Option<Number>,
+) -> Vec<String> {
+    // See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/number for
+    // attributes supported here.
+    let mut attrs = Vec::with_capacity(4);
+    attrs.push(attr("type", "number"));
+    if let Some(min) = &min {
+        attrs.push(attr("min", &min.to_string()))
+    }
+    if let Some(max) = &max {
+        attrs.push(attr("max", &max.to_string()))
+    }
+    if let Some(step) = &step {
+        attrs.push(attr("step", &step.to_string()))
+    }
+    attrs
+}
+
 /// Encode a `IntegerValidator`
-///
-/// No properties, so just an empty element used to indicate the type.
-/// It is probable that in the future, this will have properties such as
-/// `minimum` and `maximum` like `NumberValidator`.
 impl ToHtml for IntegerValidator {
-    fn to_html(&self, _context: &EncodeContext) -> String {
-        elem_empty(
+    fn to_html(&self, context: &EncodeContext) -> String {
+        elem(
             "stencila-integer-validator",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &numeric_validator_content(
+                context,
+                &self.minimum,
+                &self.exclusive_minimum,
+                &self.maximum,
+                &self.exclusive_maximum,
+                &self.multiple_of,
+            ),
         )
     }
 
     fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
-        vec![attr("type", "number")]
+        numeric_validator_attrs(
+            &self.minimum.or(self.exclusive_minimum),
+            &self.maximum.or(self.exclusive_maximum),
+            &self.multiple_of.or(Some(Number(1f64))),
+        )
     }
 }
 
 /// Encode a `NumberValidator`
-///
-/// Encodes all properties
 impl ToHtml for NumberValidator {
     fn to_html(&self, context: &EncodeContext) -> String {
-        // We use `.map(|value| value.to_string())` for properties so they get
-        // rendered as text, not wrapped as a `<span itemtype="https://schema.org/Number"...`
-
-        let minimum = elem_placeholder(
-            "span",
-            &[attr_prop("minimum"), attr_slot("minimum")],
-            &self.minimum.as_ref().map(|value| value.to_string()),
-            context,
-        );
-
-        let exclusive_minimum = elem_placeholder(
-            "span",
-            &[
-                attr_prop("exclusive_minimum"),
-                attr_slot("exclusive-minimum"),
-            ],
-            &self
-                .exclusive_minimum
-                .as_ref()
-                .map(|value| value.to_string()),
-            context,
-        );
-
-        let maximum = elem_placeholder(
-            "span",
-            &[attr_prop("maximum"), attr_slot("maximum")],
-            &self.maximum.as_ref().map(|value| value.to_string()),
-            context,
-        );
-
-        let exclusive_maximum = elem_placeholder(
-            "span",
-            &[
-                attr_prop("exclusive_maximum"),
-                attr_slot("exclusive-maximum"),
-            ],
-            &self
-                .exclusive_maximum
-                .as_ref()
-                .map(|value| value.to_string()),
-            context,
-        );
-
-        let multiple_of = elem_placeholder(
-            "span",
-            &[attr_prop("multiple_of"), attr_slot("multiple-of")],
-            &self.multiple_of.as_ref().map(|value| value.to_string()),
-            context,
-        );
-
         elem(
             "stencila-number-validator",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[
-                minimum,
-                exclusive_minimum,
-                maximum,
-                exclusive_maximum,
-                multiple_of,
-            ]
-            .concat(),
+            &numeric_validator_content(
+                context,
+                &self.minimum,
+                &self.exclusive_minimum,
+                &self.maximum,
+                &self.exclusive_maximum,
+                &self.multiple_of,
+            ),
         )
     }
 
     fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
-        // See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/number for
-        // attributes supported here.
-        let mut attrs = Vec::with_capacity(4);
-        attrs.push(attr("type", "number"));
-        if let Some(min) = &self.minimum {
-            attrs.push(attr("min", &min.to_string()))
-        }
-        if let Some(max) = &self.maximum {
-            attrs.push(attr("max", &max.to_string()))
-        }
-        if let Some(step) = &self.multiple_of {
-            attrs.push(attr("step", &step.to_string()))
-        }
-        attrs
+        numeric_validator_attrs(
+            &self.minimum.or(self.exclusive_minimum),
+            &self.maximum.or(self.exclusive_maximum),
+            &self.multiple_of,
+        )
     }
 }
 
