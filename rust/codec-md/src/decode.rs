@@ -26,6 +26,8 @@ use formats::{match_path, FormatNodeType};
 use node_coerce::coerce;
 use node_transform::Transform;
 
+use crate::utils::unescape;
+
 /// Decode a Markdown document to a `Node`
 ///
 /// Intended for decoding an entire document, this function extracts
@@ -856,7 +858,7 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .get("pattern")
                     .or_else(|| options.get("regex"))
                     .and_then(|value| value.as_ref())
-                    .map(|value| Box::new(value.clone()));
+                    .map(|value| Box::new(unescape(value)));
                 Some(ValidatorTypes::StringValidator(StringValidator {
                     min_length,
                     max_length,
@@ -869,9 +871,10 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .or_else(|| options.get("vals"))
                     .and_then(|value| value.as_ref())
                     .map(|string| {
+                        let string = unescape(string);
                         let json = match string.starts_with('[') && string.ends_with('[') {
                             true => string.clone(),
-                            false => ["[", string, "]"].concat(),
+                            false => ["[", &string, "]"].concat(),
                         };
                         match json5::from_str::<Vec<Node>>(&json) {
                             Ok(array) => array,
@@ -896,7 +899,9 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 .or_else(|| options.get("def"))
                 .and_then(|value| value.as_ref())
                 .map(|string| {
-                    json5::from_str::<Node>(string).unwrap_or_else(|_| Node::String(string.clone()))
+                    let string = unescape(string);
+                    json5::from_str::<Node>(&string)
+                        .unwrap_or_else(|_| Node::String(string.clone()))
                 })
                 .map(Box::new);
 
@@ -904,7 +909,9 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 .get("value")
                 .and_then(|value| value.as_ref())
                 .map(|string| {
-                    json5::from_str::<Node>(string).unwrap_or_else(|_| Node::String(string.clone()))
+                    let string = unescape(string);
+                    json5::from_str::<Node>(&string)
+                        .unwrap_or_else(|_| Node::String(string.clone()))
                 })
                 .map(Box::new);
 

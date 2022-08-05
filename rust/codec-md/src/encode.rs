@@ -6,6 +6,8 @@ use codec::{
     EncodeOptions,
 };
 
+use crate::utils::escape;
+
 /// Encode a `Node` to Markdown
 pub fn encode(node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
     Ok(node.to_md().trim().to_string())
@@ -186,27 +188,21 @@ impl ToMd for Parameter {
                         options += &max.to_string();
                     }
                     if let Some(pattern) = validator.pattern.as_deref() {
-                        options += &[" pattern=\"", pattern, "\""].concat();
+                        options += &[" pattern=\"", &escape(pattern), "\""].concat();
                     }
                 }
                 ValidatorTypes::EnumValidator(validator) => {
-                    options += &[
-                        "enum vals=",
-                        &serde_json::to_string(&validator.values)
-                            .unwrap_or_else(|_| "[]".to_string()),
-                    ]
-                    .concat();
+                    let json = serde_json::to_string(&validator.values)
+                        .unwrap_or_else(|_| "[]".to_string());
+                    options += &["enum vals=", &escape(&json)].concat();
                 }
                 _ => {}
             };
         }
 
         if let Some(default) = &self.default {
-            options += &[
-                " def=",
-                &serde_json::to_string(&default).unwrap_or_else(|_| "null".to_string()),
-            ]
-            .concat();
+            let json = serde_json::to_string(&default).unwrap_or_else(|_| "null".to_string());
+            options += &[" def=", &escape(&json)].concat();
         }
 
         let attrs = if options.is_empty() {

@@ -3,6 +3,8 @@ use codec::{
     DecodeOptions, EncodeOptions,
 };
 
+mod utils;
+
 #[cfg(feature = "decode")]
 mod decode;
 

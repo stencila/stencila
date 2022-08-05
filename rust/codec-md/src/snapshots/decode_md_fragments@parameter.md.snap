@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 1314
+assertion_line: 1354
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/parameter.md
 ---
@@ -38,10 +38,39 @@ input_file: fixtures/fragments/md/parameter.md
   {
     "type": "Paragraph",
     "content": [
+      "Integer parameters ",
+      {
+        "type": "Parameter",
+        "name": "parA",
+        "default": 2,
+        "validator": {
+          "type": "IntegerValidator",
+          "maximum": 100.0,
+          "minimum": 1.0,
+          "multipleOf": 2.0
+        }
+      },
+      " and ",
+      {
+        "type": "Parameter",
+        "name": "parB",
+        "default": 42,
+        "validator": {
+          "type": "IntegerValidator",
+          "maximum": 100.0
+        }
+      },
+      "."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
       "Number parameters ",
       {
         "type": "Parameter",
         "name": "par3",
+        "default": 22,
         "validator": {
           "type": "NumberValidator",
           "maximum": 100.0,
@@ -53,7 +82,7 @@ input_file: fixtures/fragments/md/parameter.md
       {
         "type": "Parameter",
         "name": "par4",
-        "default": 0,
+        "default": 3.0,
         "validator": {
           "type": "NumberValidator",
           "maximum": 4.0,
@@ -82,9 +111,10 @@ input_file: fixtures/fragments/md/parameter.md
         "name": "par6",
         "validator": {
           "type": "StringValidator",
-          "pattern": "[a-z]+"
-        },
-        "value": "Hello world"
+          "maxLength": 20,
+          "minLength": 1,
+          "pattern": "[A-Za-z ]+"
+        }
       },
       "."
     ]
