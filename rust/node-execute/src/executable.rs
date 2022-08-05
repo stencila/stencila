@@ -318,7 +318,7 @@ impl Executable for Parameter {
             self.execute_digest
                 .as_ref()
                 .map(|cord| ResourceDigest::from_string(&cord.0)),
-                Some(true), // Assumes that always successfully set parameter in kernel
+            Some(true), // Assumes that always successfully set parameter in kernel
         );
         context.resource_infos.push(resource_info);
 
