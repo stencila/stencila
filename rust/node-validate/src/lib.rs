@@ -6,7 +6,7 @@ use common::{
 use node_dispatch::dispatch_validator;
 use stencila_schema::{
     self, ArrayValidator, BooleanValidator, ConstantValidator, EnumValidator, IntegerValidator,
-    Node, Null, Number, NumberValidator, StringValidator, TupleValidator, ValidatorTypes,
+    Node, Number, NumberValidator, StringValidator, TupleValidator, ValidatorTypes,
 };
 
 /// A trait for applying different [`ValidatorTypes`] to other nodes
@@ -70,7 +70,7 @@ impl Validator for stencila_schema::Validator {
     }
 
     fn default_(&self) -> Node {
-        Node::Null(Null {})
+        Node::String(String::new())
     }
 }
 
@@ -109,7 +109,13 @@ impl Validator for EnumValidator {
     }
 
     fn default_(&self) -> Node {
-        self.values.first().cloned().unwrap_or(Node::Null(Null {}))
+        // Previously we used `Null` if there were no `values`. However, that is
+        // problematic for serialization-deserialization (e.g. JSON) as `null` implies
+        // the property is `None`.
+        self.values
+            .first()
+            .cloned()
+            .unwrap_or(Node::String(String::new()))
     }
 }
 
