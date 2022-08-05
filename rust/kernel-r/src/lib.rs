@@ -68,7 +68,7 @@ mod tests {
             eprintln!("R not available on this machine");
             bail!("Skipping")
         } else {
-            kernel.start().await?;
+            kernel.start_here().await?;
         }
 
         Ok(kernel)

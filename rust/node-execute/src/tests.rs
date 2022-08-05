@@ -146,7 +146,7 @@ async fn md_articles() -> Result<()> {
             &plan,
             &root,
             &Arc::new(RwLock::new(addresses)),
-            &Arc::new(RwLock::new(KernelSpace::new())),
+            &Arc::new(RwLock::new(KernelSpace::new(None))),
             &patch_request_sender,
             &mut cancel_request_receiver,
         )
@@ -235,7 +235,7 @@ async fn compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
         &plan,
         &root,
         &Arc::new(RwLock::new(addresses)),
-        &Arc::new(RwLock::new(KernelSpace::new())),
+        &Arc::new(RwLock::new(KernelSpace::new(None))),
         &patch_request_sender,
         &mut cancel_request_receiver,
     )

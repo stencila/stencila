@@ -739,7 +739,7 @@ impl KernelTrait for JupyterKernel {
         self.name != "<unavailable>"
     }
 
-    async fn start(&mut self) -> Result<()> {
+    async fn start(&mut self, _directory: &Path) -> Result<()> {
         let connection = JupyterConnection::new(&self.id);
         connection.write_file()?;
 

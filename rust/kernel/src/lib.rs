@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, path::Path};
 
 use common::{
     async_trait::async_trait,
@@ -593,8 +593,15 @@ pub trait KernelTrait {
     /// Start the kernel
     ///
     /// Will usually be overridden by [`KernelTrait`] implementations.
-    async fn start(&mut self) -> Result<()> {
+    /// Should set the working directory to `directory`.
+    async fn start(&mut self, _directory: &Path) -> Result<()> {
         Ok(())
+    }
+
+    /// Start the kernel in the current working directory
+    async fn start_here(&mut self) -> Result<()> {
+        let cwd = std::env::current_dir()?;
+        self.start(&cwd).await
     }
 
     /// Stop the kernel

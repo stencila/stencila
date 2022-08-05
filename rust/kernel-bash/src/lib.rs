@@ -46,7 +46,7 @@ mod tests {
         if !kernel.is_available().await {
             return Ok(());
         } else {
-            kernel.start().await?;
+            kernel.start_here().await?;
         }
 
         // Assign a variable and output it
@@ -91,7 +91,7 @@ mod tests {
         if !kernel.is_available().await {
             return Ok(());
         } else {
-            kernel.start().await?;
+            kernel.start_here().await?;
         }
 
         let (outputs, messages) = kernel.exec("date +%s").await?;

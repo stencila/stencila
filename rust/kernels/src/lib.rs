@@ -1,5 +1,7 @@
 use std::{
     collections::{hash_map::Entry, BTreeMap, HashMap, HashSet, VecDeque},
+    env::current_dir,
+    path::{Path, PathBuf},
     sync::Arc,
     time::{Duration, Instant},
 };
@@ -133,8 +135,8 @@ impl KernelTrait for MetaKernel {
         dispatch_variants!(self, is_forkable).await
     }
 
-    async fn start(&mut self) -> Result<()> {
-        dispatch_variants!(self, start).await
+    async fn start(&mut self, directory: &Path) -> Result<()> {
+        dispatch_variants!(self, start, directory).await
     }
 
     async fn stop(&mut self) -> Result<()> {
@@ -193,7 +195,7 @@ impl KernelMap {
     /// Ensure that a kernel exists for a selector
     ///
     /// Returns the kernel's id.
-    async fn ensure(&mut self, selector: &KernelSelector) -> Result<KernelId> {
+    async fn ensure(&mut self, selector: &KernelSelector, directory: &Path) -> Result<KernelId> {
         tracing::trace!("Ensuring kernel matching selector `{}`", selector);
 
         // Is there already a running kernel that matches the selector?
@@ -233,15 +235,15 @@ impl KernelMap {
 
         // If unable to set in an existing kernel then start a new kernel
         // for the selector.
-        self.start(selector).await
+        self.start(selector, directory).await
     }
 
     /// Start a kernel for a selector
-    async fn start(&mut self, selector: &KernelSelector) -> Result<KernelId> {
+    async fn start(&mut self, selector: &KernelSelector, directory: &Path) -> Result<KernelId> {
         tracing::trace!("Starting kernel matching selector `{}`", selector);
 
         let mut kernel = MetaKernel::new(selector).await?;
-        kernel.start().await?;
+        kernel.start(directory).await?;
 
         // Generate the kernel id from the selector, adding a numeric suffix if necessary
         let kernel_id = slug::slugify(kernel.spec().await.name);
@@ -804,6 +806,9 @@ fn display_queue(queues: &KernelQueues, kernel_id: &str, tasks: &KernelTasks) ->
 
 #[derive(Debug, Default)]
 pub struct KernelSpace {
+    /// The working directory of the kernel space
+    directory: PathBuf,
+
     /// The kernels in the kernel space
     kernels: Arc<Mutex<KernelMap>>,
 
@@ -823,6 +828,7 @@ pub struct KernelSpace {
 impl Drop for KernelSpace {
     fn drop(&mut self) {
         if let Some(monitoring) = &self.monitoring {
+            tracing::trace!("Ending kernel space monitoring");
             monitoring.abort()
         }
     }
@@ -832,8 +838,11 @@ pub type KernelInfos = HashMap<KernelId, KernelInfo>;
 
 impl KernelSpace {
     /// Create a new kernel space and start its monitoring task
-    pub fn new() -> Self {
+    pub fn new(dir: Option<&Path>) -> Self {
         let mut kernel_space = Self::default();
+        kernel_space.directory = dir
+            .map(PathBuf::from)
+            .unwrap_or_else(|| current_dir().expect("Should be able to get current dir"));
 
         let kernels = kernel_space.kernels.clone();
         let queue = kernel_space.queues.clone();
@@ -857,7 +866,7 @@ impl KernelSpace {
     ) {
         const PERIOD: Duration = Duration::from_millis(100);
 
-        tracing::trace!("Began kernel space monitoring");
+        tracing::trace!("Beginning kernel space monitoring");
         loop {
             KernelSpace::dispatch_queue(queues, tasks, kernels, symbols).await;
             KernelSpace::clean_tasks(tasks).await;
@@ -880,7 +889,7 @@ impl KernelSpace {
     /// Start a kernel
     pub async fn start(&self, selector: &KernelSelector) -> Result<KernelId> {
         let kernels = &mut *self.kernels.lock().await;
-        kernels.start(selector).await
+        kernels.start(selector, &self.directory).await
     }
 
     /// Stop a kernel
@@ -911,7 +920,7 @@ impl KernelSpace {
 
             kernels.stop(id).await?;
             purge_kernel_from_symbols(symbols, id);
-            kernels.start(&selector).await?;
+            kernels.start(&selector, &self.directory).await?;
         }
 
         Ok(())
@@ -933,7 +942,7 @@ impl KernelSpace {
     pub async fn set(&self, name: &str, value: Node, selector: &KernelSelector) -> Result<()> {
         let kernels = &mut *self.kernels.lock().await;
 
-        let kernel_id = kernels.ensure(selector).await?;
+        let kernel_id = kernels.ensure(selector, &self.directory).await?;
         tracing::debug!("Setting symbol `{}` in kernel `{}`", name, kernel_id);
 
         let kernel = kernels.get_mut(&kernel_id)?;
@@ -965,7 +974,7 @@ impl KernelSpace {
         let kernels = &mut *self.kernels.lock().await;
 
         // Determine the kernel to execute in
-        let kernel_id = kernels.ensure(selector).await?;
+        let kernel_id = kernels.ensure(selector, &self.directory).await?;
 
         // If the kernel is busy then defer the task, otherwise dispatch to the kernel now
         let kernel = kernels.get(&kernel_id)?;
@@ -1417,7 +1426,6 @@ impl KernelSpace {
         use common::regex::Regex;
         use events::{subscribe, unsubscribe, Subscriber};
         use graph_triples::resources;
-        use std::path::PathBuf;
 
         static SYMBOL: Lazy<Regex> =
             Lazy::new(|| Regex::new(r"^[a-zA-Z]\w*$").expect("Unable to create regex"));
@@ -1799,7 +1807,8 @@ pub mod commands {
     /// A lazily initialized kernel space for the execute command. Required so that
     /// kernel state is maintained in successive calls to `Execute::run` when in
     /// interactive mode
-    static KERNEL_SPACE: Lazy<Mutex<KernelSpace>> = Lazy::new(|| Mutex::new(KernelSpace::new()));
+    static KERNEL_SPACE: Lazy<Mutex<KernelSpace>> =
+        Lazy::new(|| Mutex::new(KernelSpace::new(None)));
 
     /// Execute code within a document kernel space
     ///

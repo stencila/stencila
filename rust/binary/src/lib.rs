@@ -1218,7 +1218,7 @@ impl BinaryInstallation {
     }
 
     /// Run the binary and connect to stdin, stdout and stderr streams
-    pub fn interact(&self, args: &[&str]) -> Result<tokio::process::Child> {
+    pub fn interact(&self, args: &[&str], dir: &Path) -> Result<tokio::process::Child> {
         tracing::trace!("Interacting with binary installation {:?}", self);
 
         let result = self
@@ -1227,6 +1227,7 @@ impl BinaryInstallation {
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
+            .current_dir(dir)
             .spawn();
 
         Ok(result?)

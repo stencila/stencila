@@ -1,4 +1,4 @@
-use std::{env, fs, sync::Arc};
+use std::{env, fs, path::Path, sync::Arc};
 
 use kernel::{
     common::{
@@ -300,7 +300,7 @@ impl KernelTrait for MicroKernel {
     /// An override of `KernelTrait::start` that searches for the preferred executable
     /// and runs it using specified commands, including the kernel script file if specified
     /// in the arguments.
-    async fn start(&mut self) -> Result<()> {
+    async fn start(&mut self, directory: &Path) -> Result<()> {
         // Resolve the directory where kernels are run
         let user_data_dir = dirs::data_dir().unwrap_or_else(|| {
             env::current_dir().expect("Should always be able to get current dir")
@@ -334,7 +334,7 @@ impl KernelTrait for MicroKernel {
         // Start child process
         let (name, semver) = &self.runtime;
         let binary = binaries::installation(name, semver).await?;
-        let mut child = binary.interact(&args)?;
+        let mut child = binary.interact(&args, directory)?;
 
         let stdin = child
             .stdin
