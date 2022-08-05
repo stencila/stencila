@@ -1,8 +1,18 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 438
+assertion_line: 459
 expression: html
 input_file: fixtures/nodes/integer-validator.json
-
 ---
-<stencila-integer-validator data-root itemtype="https://schema.stenci.la/IntegerValidator" itemscope/>
+<stencila-integer-validator data-root itemtype="https://schema.stenci.la/IntegerValidator" itemscope>
+  <span data-prop="minimum" slot="minimum">
+  </span>
+  <span data-prop="exclusiveMinimum" slot="exclusive-minimum">
+  </span>
+  <span data-prop="maximum" slot="maximum">
+  </span>
+  <span data-prop="exclusiveMaximum" slot="exclusive-maximum">
+  </span>
+  <span data-prop="multipleOf" slot="multiple-of">
+  </span>
+</stencila-integer-validator>
