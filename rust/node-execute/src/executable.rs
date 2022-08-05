@@ -313,12 +313,12 @@ impl Executable for Parameter {
             resource,
             Some(relations),
             None,
-            Some(false),
+            Some(false), // Always impure because affects the kernel space
             Some(compile_digest),
             self.execute_digest
                 .as_ref()
                 .map(|cord| ResourceDigest::from_string(&cord.0)),
-            Some(true),
+                Some(true), // Assumes that always successfully set parameter in kernel
         );
         context.resource_infos.push(resource_info);
 
@@ -398,10 +398,10 @@ impl Executable for CodeChunk {
             .execute_digest
             .as_ref()
             .map(|cord| ResourceDigest::from_string(&cord.0));
-        resource_info.execute_succeeded = Some(matches!(
-            self.execute_status,
-            Some(CodeExecutableExecuteStatus::Succeeded)
-        ));
+        resource_info.execute_succeeded = self
+            .execute_status
+            .as_ref()
+            .map(|status| matches!(status, CodeExecutableExecuteStatus::Succeeded));
 
         context.resource_infos.push(resource_info);
 
@@ -503,10 +503,10 @@ impl Executable for CodeExpression {
             .execute_digest
             .as_ref()
             .map(|cord| ResourceDigest::from_string(&cord.0));
-        resource_info.execute_succeeded = Some(matches!(
-            self.execute_status,
-            Some(CodeExecutableExecuteStatus::Succeeded)
-        ));
+        resource_info.execute_succeeded = self
+            .execute_status
+            .as_ref()
+            .map(|status| matches!(status, CodeExecutableExecuteStatus::Succeeded));
 
         // Force code expression execution semantics (in case `@impure` or `@autorun` tags
         // where inadvertently used in code) by setting to `None`

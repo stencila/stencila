@@ -1,6 +1,6 @@
 ---
 source: rust/node-execute/src/tests.rs
-assertion_line: 63
+assertion_line: 65
 expression: "(&addresses, &graph)"
 ---
 [
@@ -244,7 +244,8 @@ expression: "(&addresses, &graph)"
         "dependencies": 0,
         "dependents": 2,
         "depth": 0,
-        "compile_digest": "3641248069507844374.6814561532454605397.0.0.0",
+        "execute_pure": false,
+        "compile_digest": "2929670310044459792.6473431330112736658.0.0.0",
         "index": 9
       },
       {
@@ -255,7 +256,7 @@ expression: "(&addresses, &graph)"
         "dependencies": 1,
         "dependents": 1,
         "depth": 1,
-        "compile_digest": "0.0.15353163775206484852.1.0",
+        "compile_digest": "0.0.16269303063320466662.1.0",
         "index": 10
       },
       {
@@ -266,7 +267,7 @@ expression: "(&addresses, &graph)"
         "language": "Calc",
         "dependencies": 6,
         "depth": 4,
-        "compile_digest": "3894522473690053649.77074787185374047.8214405811242769784.3.0",
+        "compile_digest": "3894522473690053649.77074787185374047.16743740572555155447.3.0",
         "index": 11
       }
     ],
