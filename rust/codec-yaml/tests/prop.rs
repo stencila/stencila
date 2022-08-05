@@ -7,7 +7,7 @@ proptest! {
     #![proptest_config(ProptestConfig::with_cases(30))]
 
     #[test]
-    fn test(input in node(Freedom::Max)) {
+    fn test(input in node(Freedom::Max, vec![])) {
         let string = YamlCodec::to_string(&input, None).unwrap();
         let output = YamlCodec::from_str(&string, None).unwrap();
         assert_json_eq!(input, output)

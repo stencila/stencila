@@ -268,7 +268,7 @@ prop_compose! {
     pub fn string_validator()(
         min in of(0..10u32),
         max in of(0..100u32),
-        pattern in of(r"[A-Za-z0-9]+"),
+        pattern in of(r"[A-Za-z0-9_]+"),
     )-> ValidatorTypes {
         ValidatorTypes::StringValidator(StringValidator{
             min_length: min,
@@ -282,7 +282,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a enum validator
     pub fn enum_validator()(
-        values in vec(r"[A-Za-z0-9_-]+", 0..10),
+        values in vec(r"[A-Za-z0-9_\- ]+", 1..10),
     )-> ValidatorTypes {
         ValidatorTypes::EnumValidator(EnumValidator{
             values: values.into_iter().map(Node::String).collect_vec(),
@@ -794,6 +794,6 @@ prop_compose! {
 }
 
 /// Generate an arbitrary node
-pub fn node(freedom: Freedom) -> impl Strategy<Value = Node> {
-    Union::new(vec![article(freedom, vec![], vec![]).boxed()])
+pub fn node(freedom: Freedom, exclude_types: Vec<String>) -> impl Strategy<Value = Node> {
+    Union::new(vec![article(freedom, exclude_types, vec![]).boxed()])
 }
