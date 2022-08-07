@@ -221,10 +221,10 @@ class CodeExecutable(Code):
     programmingLanguage: String # type: ignore
     """The programming language of the code."""
 
-    codeDependencies: Optional[Array[Union["CodeChunk", "Parameter"]]] = None
+    codeDependencies: Optional[Array[Union["CodeChunk", "Parameter", "File"]]] = None
     """The upstream dependencies of the code."""
 
-    codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None
+    codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression", "File"]]] = None
     """The downstream dependents of the code."""
 
     compileDigest: Optional[String] = None
@@ -256,8 +256,8 @@ class CodeExecutable(Code):
         self,
         programmingLanguage: String,
         text: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None,
+        codeDependencies: Optional[Array[Union["CodeChunk", "Parameter", "File"]]] = None,
+        codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression", "File"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeCount: Optional[Integer] = None,
@@ -328,8 +328,8 @@ class CodeChunk(CodeExecutable):
         programmingLanguage: String,
         text: String,
         caption: Optional[Union[Array["BlockContent"], String]] = None,
-        codeDependencies: Optional[Array[Union["CodeChunk", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None,
+        codeDependencies: Optional[Array[Union["CodeChunk", "Parameter", "File"]]] = None,
+        codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression", "File"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["EExecuteAuto"] = None,
@@ -391,8 +391,8 @@ class CodeExpression(CodeExecutable):
         self,
         programmingLanguage: String,
         text: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None,
+        codeDependencies: Optional[Array[Union["CodeChunk", "Parameter", "File"]]] = None,
+        codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression", "File"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeCount: Optional[Integer] = None,
@@ -1836,6 +1836,85 @@ class Figure(CreativeWork):
             self.caption = caption
         if label is not None:
             self.label = label
+
+
+class File(CreativeWork):
+    """A file on the filesystem"""
+
+    path: String
+    """The path (absolute or relative) of the file on the filesystem"""
+
+
+    def __init__(
+        self,
+        path: String,
+        about: Optional[Array["ThingTypes"]] = None,
+        alternateNames: Optional[Array[String]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
+        dateAccepted: Optional["Date"] = None,
+        dateCreated: Optional["Date"] = None,
+        dateModified: Optional["Date"] = None,
+        datePublished: Optional["Date"] = None,
+        dateReceived: Optional["Date"] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
+    ) -> None:
+        super().__init__(
+            about=about,
+            alternateNames=alternateNames,
+            authors=authors,
+            comments=comments,
+            content=content,
+            dateAccepted=dateAccepted,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            dateReceived=dateReceived,
+            description=description,
+            editors=editors,
+            fundedBy=fundedBy,
+            funders=funders,
+            genre=genre,
+            id=id,
+            identifiers=identifiers,
+            images=images,
+            isPartOf=isPartOf,
+            keywords=keywords,
+            licenses=licenses,
+            maintainers=maintainers,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            references=references,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if path is not None:
+            self.path = path
 
 
 class Function(Entity):
@@ -4530,13 +4609,13 @@ ContactPointTypes = Union["ContactPoint", "PostalAddress"]
 """
 All type schemas that are derived from CreativeWork
 """
-CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Collection", "Comment", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
+CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Collection", "Comment", "Datatable", "Figure", "File", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
 
 
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -4579,7 +4658,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 Union type for all types of nodes in this schema, including primitives and
     entities
 """
-Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
+Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
 
 
 """
@@ -4597,7 +4676,7 @@ Primitive = Union[None, "Boolean", "Integer", "Number", "String", "Object", "Arr
 """
 All type schemas that are derived from Thing
 """
-ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "CitationIntentEnumeration", "Claim", "Collection", "Comment", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Enumeration", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
+ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "CitationIntentEnumeration", "Claim", "Collection", "Comment", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Enumeration", "Figure", "File", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
 
 
 """

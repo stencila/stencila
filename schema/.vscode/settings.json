@@ -141,6 +141,10 @@
       "url": "./public/Figure.schema.json"
     },
     {
+      "fileMatch": ["*.File.json"],
+      "url": "./public/File.schema.json"
+    },
+    {
       "fileMatch": ["*.Function.json"],
       "url": "./public/Function.schema.json"
     },

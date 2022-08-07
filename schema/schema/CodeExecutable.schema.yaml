@@ -17,6 +17,7 @@ properties:
       anyOf:
         - $ref: CodeChunk
         - $ref: Parameter
+        - $ref: File
     $comment: |
       Note that this excludes `CodeExpression` nodes since they should not have side effects
       (e.g. assigning variables) that would cause another node to be dependent upon them.
@@ -28,6 +29,7 @@ properties:
       anyOf:
         - $ref: CodeChunk
         - $ref: CodeExpression
+        - $ref: File
     $comment: |
       Note that in comparison to `codeDependencies`, this property does not allow for `Parameter`
       dependents (because parameters are never dependent upon others).

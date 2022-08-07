@@ -55,6 +55,7 @@ export interface Types {
   Enumeration: Enumeration
   EnumerationTypes: EnumerationTypes
   Figure: Figure
+  File: File
   Function: Function
   Grant: Grant
   GrantTypes: GrantTypes
@@ -159,6 +160,7 @@ export type Entity = {
     | 'EnumValidator'
     | 'Enumeration'
     | 'Figure'
+    | 'File'
     | 'Function'
     | 'Grant'
     | 'Heading'
@@ -323,8 +325,8 @@ export const codeBlock = (props: Omit<CodeBlock, 'type'>): CodeBlock => ({
 export type CodeExecutable = Code & {
   type: 'CodeExecutable' | 'CodeChunk' | 'CodeExpression'
   programmingLanguage: string
-  codeDependencies?: Array<CodeChunk | Parameter>
-  codeDependents?: Array<CodeChunk | CodeExpression>
+  codeDependencies?: Array<CodeChunk | Parameter | File>
+  codeDependents?: Array<CodeChunk | CodeExpression | File>
   compileDigest?: string
   errors?: Array<CodeError>
   executeCount?: Integer
@@ -544,6 +546,7 @@ export type Thing = Entity & {
     | 'DefinedTerm'
     | 'Enumeration'
     | 'Figure'
+    | 'File'
     | 'Grant'
     | 'ImageObject'
     | 'ListItem'
@@ -639,6 +642,7 @@ export type CreativeWork = Thing & {
     | 'Comment'
     | 'Datatable'
     | 'Figure'
+    | 'File'
     | 'ImageObject'
     | 'MediaObject'
     | 'Periodical'
@@ -1018,6 +1022,24 @@ export type Figure = CreativeWork & {
 export const figure = (props: Omit<Figure, 'type'> = {}): Figure => ({
   ...compact(props),
   type: 'Figure',
+})
+
+/**
+ * A file on the filesystem
+ */
+export type File = CreativeWork & {
+  type: 'File'
+  path: string
+}
+
+/**
+ * Create a `File` node
+ * @param props Object containing File schema properties as key/value pairs
+ * @returns {File} File schema node
+ */
+export const file = (props: Omit<File, 'type'>): File => ({
+  ...compact(props),
+  type: 'File',
 })
 
 /**
@@ -2067,6 +2089,7 @@ export type CreativeWorkTypes =
   | Comment
   | Datatable
   | Figure
+  | File
   | ImageObject
   | MediaObject
   | Periodical
@@ -2113,6 +2136,7 @@ export type EntityTypes =
   | EnumValidator
   | Enumeration
   | Figure
+  | File
   | Function
   | Grant
   | Heading
@@ -2269,6 +2293,7 @@ export type Node =
   | EnumValidator
   | Enumeration
   | Figure
+  | File
   | Function
   | Grant
   | Heading
@@ -2364,6 +2389,7 @@ export type ThingTypes =
   | DefinedTerm
   | Enumeration
   | Figure
+  | File
   | Grant
   | ImageObject
   | ListItem
@@ -2892,6 +2918,7 @@ export const creativeWorkTypes: TypeMap<Exclude<CreativeWorkTypes, Primitive>> =
     Comment: 'Comment',
     Datatable: 'Datatable',
     Figure: 'Figure',
+    File: 'File',
     ImageObject: 'ImageObject',
     MediaObject: 'MediaObject',
     Periodical: 'Periodical',
@@ -2935,6 +2962,7 @@ export const entityTypes: TypeMap<Exclude<EntityTypes, Primitive>> = {
   EnumValidator: 'EnumValidator',
   Enumeration: 'Enumeration',
   Figure: 'Figure',
+  File: 'File',
   Function: 'Function',
   Grant: 'Grant',
   Heading: 'Heading',
@@ -3040,6 +3068,7 @@ export const thingTypes: TypeMap<Exclude<ThingTypes, Primitive>> = {
   DefinedTerm: 'DefinedTerm',
   Enumeration: 'Enumeration',
   Figure: 'Figure',
+  File: 'File',
   Grant: 'Grant',
   ImageObject: 'ImageObject',
   ListItem: 'ListItem',

@@ -50,6 +50,7 @@ pub const IDS: &[(&str, &str)] = &[
     ("EnumValidator", "https://schema.stenci.la/EnumValidator"),
     ("Enumeration", "https://schema.org/Enumeration"),
     ("Figure", "https://schema.stenci.la/Figure"),
+    ("File", "https://schema.stenci.la/File"),
     ("Function", "https://schema.stenci.la/Function"),
     ("Grant", "https://schema.org/Grant"),
     ("fundedItems", "fundedItem"),

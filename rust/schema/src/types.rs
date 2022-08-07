@@ -2045,6 +2045,116 @@ pub enum FigureSimple_ {
   Figure
 }
 
+/// A file on the filesystem
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct File {
+    /// The name of this type
+    #[derivative(Default(value = "File_::File"))]
+    pub type_: File_,
+
+    /// The path (absolute or relative) of the file on the filesystem
+    pub path: String,
+
+    /// The subject matter of the content.
+    pub about: Option<Vec<ThingTypes>>,
+
+    /// Alternate names (aliases) for the item.
+    pub alternate_names: Option<Vec<String>>,
+
+    /// The authors of this creative work.
+    pub authors: Option<Vec<CreativeWorkAuthors>>,
+
+    /// Comments about this creative work.
+    pub comments: Option<Vec<Comment>>,
+
+    /// The structured content of this creative work c.f. property `text`.
+    pub content: Option<Box<CreativeWorkContent>>,
+
+    /// Date/time of acceptance.
+    pub date_accepted: Option<Box<Date>>,
+
+    /// Date/time of creation.
+    pub date_created: Option<Box<Date>>,
+
+    /// Date/time of most recent modification.
+    pub date_modified: Option<Box<Date>>,
+
+    /// Date of first publication.
+    pub date_published: Option<Box<Date>>,
+
+    /// Date/time that work was received.
+    pub date_received: Option<Box<Date>>,
+
+    /// A description of the item.
+    pub description: Option<Box<ThingDescription>>,
+
+    /// People who edited the `CreativeWork`.
+    pub editors: Option<Vec<Person>>,
+
+    /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+    pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
+
+    /// People or organizations that funded the `CreativeWork`.
+    pub funders: Option<Vec<CreativeWorkFunders>>,
+
+    /// Genre of the creative work, broadcast channel or group.
+    pub genre: Option<Vec<String>>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Any kind of identifier for any kind of Thing.
+    pub identifiers: Option<Vec<ThingIdentifiers>>,
+
+    /// Images of the item.
+    pub images: Option<Vec<ThingImages>>,
+
+    /// An item or other CreativeWork that this CreativeWork is a part of.
+    pub is_part_of: Option<Box<CreativeWorkTypes>>,
+
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+    pub keywords: Option<Vec<String>>,
+
+    /// License documents that applies to this content, typically indicated by URL.
+    pub licenses: Option<Vec<CreativeWorkLicenses>>,
+
+    /// The people or organizations who maintain this CreativeWork.
+    pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
+
+    /// The name of the item.
+    pub name: Option<Box<String>>,
+
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    pub parts: Option<Vec<CreativeWorkTypes>>,
+
+    /// A publisher of the CreativeWork.
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
+
+    /// References to other creative works, such as another publication, web page, scholarly article, etc.
+    pub references: Option<Vec<CreativeWorkReferences>>,
+
+    /// The textual content of this creative work.
+    pub text: Option<Box<String>>,
+
+    /// The title of the creative work.
+    pub title: Option<Box<CreativeWorkTitle>>,
+
+    /// The URL of the item.
+    pub url: Option<Box<String>>,
+
+    /// The version of the creative work.
+    pub version: Option<Box<CreativeWorkVersion>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum File_ {
+  File
+}
+
 /// A function with a name, which might take Parameters and return a value of a certain type.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
@@ -4675,6 +4785,7 @@ pub enum CitePageStart {
 pub enum CodeExecutableCodeDependencies {
     CodeChunk(CodeChunk),
     Parameter(Parameter),
+    File(File),
 }
 
 /// Types permitted for the `codeDependents` property of a `CodeExecutable` node.
@@ -4683,6 +4794,7 @@ pub enum CodeExecutableCodeDependencies {
 pub enum CodeExecutableCodeDependents {
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
+    File(File),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
@@ -5349,6 +5461,7 @@ pub enum CreativeWorkTypes {
     Comment(Comment),
     Datatable(Datatable),
     Figure(Figure),
+    File(File),
     ImageObject(ImageObject),
     MediaObject(MediaObject),
     Periodical(Periodical),
@@ -5396,6 +5509,7 @@ pub enum EntityTypes {
     EnumValidator(EnumValidator),
     Enumeration(Enumeration),
     Figure(Figure),
+    File(File),
     Function(Function),
     Grant(Grant),
     Heading(Heading),
@@ -5566,6 +5680,7 @@ pub enum Node {
     EnumValidator(EnumValidator),
     Enumeration(Enumeration),
     Figure(Figure),
+    File(File),
     Function(Function),
     Grant(Grant),
     Heading(Heading),
@@ -5666,6 +5781,7 @@ pub enum ThingTypes {
     DefinedTerm(DefinedTerm),
     Enumeration(Enumeration),
     Figure(Figure),
+    File(File),
     Grant(Grant),
     ImageObject(ImageObject),
     ListItem(ListItem),

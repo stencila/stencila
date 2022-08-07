@@ -67,6 +67,7 @@ pointable_struct!(Collection, parts);
 pointable_struct!(Comment);
 pointable_struct!(CreativeWork, content);
 pointable_struct!(Figure);
+pointable_struct!(File, path);
 pointable_struct!(ImageObject);
 pointable_struct!(MediaObject);
 pointable_struct!(Periodical);

@@ -209,8 +209,8 @@ CodeExecutable <- function(
   )
   self$type <- as_scalar("CodeExecutable")
   self[["programmingLanguage"]] <- check_property("CodeExecutable", "programmingLanguage", TRUE, missing(programmingLanguage), "character", programmingLanguage)
-  self[["codeDependencies"]] <- check_property("CodeExecutable", "codeDependencies", FALSE, missing(codeDependencies), Array(Union(CodeChunk, Parameter)), codeDependencies)
-  self[["codeDependents"]] <- check_property("CodeExecutable", "codeDependents", FALSE, missing(codeDependents), Array(Union(CodeChunk, CodeExpression)), codeDependents)
+  self[["codeDependencies"]] <- check_property("CodeExecutable", "codeDependencies", FALSE, missing(codeDependencies), Array(Union(CodeChunk, Parameter, File)), codeDependencies)
+  self[["codeDependents"]] <- check_property("CodeExecutable", "codeDependents", FALSE, missing(codeDependents), Array(Union(CodeChunk, CodeExpression, File)), codeDependents)
   self[["compileDigest"]] <- check_property("CodeExecutable", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
   self[["errors"]] <- check_property("CodeExecutable", "errors", FALSE, missing(errors), Array(CodeError), errors)
   self[["executeCount"]] <- check_property("CodeExecutable", "executeCount", FALSE, missing(executeCount), "numeric", executeCount)
@@ -1996,6 +1996,118 @@ Figure <- function(
   self[["caption"]] <- check_property("Figure", "caption", FALSE, missing(caption), Union(Array(BlockContent), "character"), caption)
   self[["label"]] <- check_property("Figure", "label", FALSE, missing(label), "character", label)
   class(self) <- c(class(self), "Figure")
+  self
+}
+
+
+#' A file on the filesystem
+#'
+#' @name File
+#' @param path The path (absolute or relative) of the file on the filesystem \bold{Required}.
+#' @param about The subject matter of the content.
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param authors The authors of this creative work.
+#' @param comments Comments about this creative work.
+#' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
+#' @param dateCreated Date/time of creation.
+#' @param dateModified Date/time of most recent modification.
+#' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
+#' @param description A description of the item.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param images Images of the item.
+#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
+#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+#' @param licenses License documents that applies to this content, typically indicated by URL.
+#' @param maintainers The people or organizations who maintain this CreativeWork.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+#' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
+#' @param text The textual content of this creative work.
+#' @param title The title of the creative work.
+#' @param url The URL of the item.
+#' @param version The version of the creative work.
+#' @return A `list` of class `File`
+#' @seealso \code{\link{CreativeWork}}
+#' @export
+File <- function(
+  path,
+  about,
+  alternateNames,
+  authors,
+  comments,
+  content,
+  dateAccepted,
+  dateCreated,
+  dateModified,
+  datePublished,
+  dateReceived,
+  description,
+  editors,
+  fundedBy,
+  funders,
+  genre,
+  id,
+  identifiers,
+  images,
+  isPartOf,
+  keywords,
+  licenses,
+  maintainers,
+  meta,
+  name,
+  parts,
+  publisher,
+  references,
+  text,
+  title,
+  url,
+  version
+){
+  self <- CreativeWork(
+    about = about,
+    alternateNames = alternateNames,
+    authors = authors,
+    comments = comments,
+    content = content,
+    dateAccepted = dateAccepted,
+    dateCreated = dateCreated,
+    dateModified = dateModified,
+    datePublished = datePublished,
+    dateReceived = dateReceived,
+    description = description,
+    editors = editors,
+    fundedBy = fundedBy,
+    funders = funders,
+    genre = genre,
+    id = id,
+    identifiers = identifiers,
+    images = images,
+    isPartOf = isPartOf,
+    keywords = keywords,
+    licenses = licenses,
+    maintainers = maintainers,
+    meta = meta,
+    name = name,
+    parts = parts,
+    publisher = publisher,
+    references = references,
+    text = text,
+    title = title,
+    url = url,
+    version = version
+  )
+  self$type <- as_scalar("File")
+  self[["path"]] <- check_property("File", "path", TRUE, missing(path), "character", path)
+  class(self) <- c(class(self), "File")
   self
 }
 
@@ -4617,14 +4729,14 @@ ContactPointTypes <- Union(ContactPoint, PostalAddress)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Claim, Collection, Comment, Datatable, Figure, ImageObject, MediaObject, Periodical, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
+CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Claim, Collection, Comment, Datatable, Figure, File, ImageObject, MediaObject, Periodical, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
 
 
 #' All type schemas that are derived from Entity
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Enumeration
@@ -4673,7 +4785,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
+Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
 
 
 #' All type schemas that are derived from NumberValidator
@@ -4694,7 +4806,7 @@ Primitive <- Union("NULL", "logical", "numeric", "character", "list", Array(Any(
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-ThingTypes <- Union(Thing, Article, AudioObject, Brand, CitationIntentEnumeration, Claim, Collection, Comment, ContactPoint, CreativeWork, Datatable, DatatableColumn, DefinedTerm, Enumeration, Figure, Grant, ImageObject, ListItem, MediaObject, MonetaryGrant, Organization, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
+ThingTypes <- Union(Thing, Article, AudioObject, Brand, CitationIntentEnumeration, Claim, Collection, Comment, ContactPoint, CreativeWork, Datatable, DatatableColumn, DefinedTerm, Enumeration, Figure, File, Grant, ImageObject, ListItem, MediaObject, MonetaryGrant, Organization, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Validator

@@ -679,7 +679,9 @@ executable_nothing!(
     IntegerValidator,
     NumberValidator,
     StringValidator,
-    TupleValidator
+    TupleValidator,
+    // External resources
+    File
 );
 
 // The following are "enum variant dispatching" implementations of `Executable` for

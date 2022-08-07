@@ -222,6 +222,7 @@ macro_rules! dispatch_work {
             CreativeWorkTypes::CreativeWork(node) => node.$method($($arg),*),
             CreativeWorkTypes::Datatable(node) => node.$method($($arg),*),
             CreativeWorkTypes::Figure(node) => node.$method($($arg),*),
+            CreativeWorkTypes::File(node) => node.$method($($arg),*),
             CreativeWorkTypes::ImageObject(node) => node.$method($($arg),*),
             CreativeWorkTypes::MediaObject(node) => node.$method($($arg),*),
             CreativeWorkTypes::Periodical(node) => node.$method($($arg),*),
