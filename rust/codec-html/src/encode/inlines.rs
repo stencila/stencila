@@ -405,7 +405,10 @@ impl ToHtml for CodeExpression {
             "output",
             &[attr_prop("output"), attr_slot("output")],
             &self.output,
-            context,
+            &EncodeContext {
+                inline: true,
+                ..*context
+            },
         );
 
         let errors = elem_placeholder(

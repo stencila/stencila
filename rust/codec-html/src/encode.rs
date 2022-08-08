@@ -39,7 +39,11 @@ pub fn encode_root(node: &Node, options: Option<EncodeOptions>) -> String {
         bundle, compact, ..
     } = options.unwrap_or_default();
 
-    let context = EncodeContext { root: node, bundle };
+    let context = EncodeContext {
+        root: node,
+        bundle,
+        ..Default::default()
+    };
     let html = node.to_html(&context);
 
     // Add the `data-root` attribute.
@@ -156,6 +160,9 @@ pub struct EncodeContext<'a> {
 
     /// Whether <img>, <audio> and <video> elements should use dataURIs
     pub bundle: bool,
+
+    /// Whether currently within inline content
+    pub inline: bool,
 }
 
 impl<'a> Default for EncodeContext<'a> {
@@ -163,6 +170,7 @@ impl<'a> Default for EncodeContext<'a> {
         EncodeContext {
             root: &Node::Null(Null {}),
             bundle: false,
+            inline: false,
         }
     }
 }
