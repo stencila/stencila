@@ -60,8 +60,13 @@ rl.on('line', (task) => {
   try {
     const output = vm.runInContext(unescaped, context)
     if (output !== undefined) {
-      const json = encodeValue(output)
-      stdout.write(json + RESULT)
+      // Ignore the output that is associated with assignment on the last line
+      const lines = unescaped.split('\n')
+      const last = lines[lines.length - 1] || ''
+      if (!/^\s*[\w_]+\s*=/.test(last)) {
+        const json = encodeValue(output)
+        stdout.write(json + RESULT)
+      }
     }
   } catch (error) {
     const json = encodeError(error)
