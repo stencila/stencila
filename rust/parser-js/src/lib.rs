@@ -16,7 +16,7 @@ static PARSER: Lazy<TreesitterParser> =
 /// Tree-sitter AST query for JavaScript
 ///
 /// Made public for use by `parser-ts`.
-pub const QUERY: &str = include_str!("query.txt");
+pub const QUERY: &str = include_str!("query.scm");
 
 /// A parser for JavaScript
 pub struct JsParser {}

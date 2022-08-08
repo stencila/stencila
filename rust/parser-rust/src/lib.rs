@@ -12,7 +12,7 @@ static PARSER: Lazy<TreesitterParser> =
     Lazy::new(|| TreesitterParser::new(tree_sitter_rust::language(), QUERY));
 
 /// Tree-sitter AST query
-const QUERY: &str = include_str!("query.txt");
+const QUERY: &str = include_str!("query.scm");
 
 /// A parser for Rust
 pub struct RustParser {}

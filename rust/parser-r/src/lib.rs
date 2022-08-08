@@ -15,7 +15,7 @@ static PARSER: Lazy<TreesitterParser> =
     Lazy::new(|| TreesitterParser::new(tree_sitter_r::language(), QUERY));
 
 /// Tree-sitter AST query
-const QUERY: &str = include_str!("query.txt");
+const QUERY: &str = include_str!("query.scm");
 
 mod ignores;
 use ignores::USE_IGNORE;

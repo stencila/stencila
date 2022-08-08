@@ -23,7 +23,7 @@ static PARSER_TS: Lazy<TreesitterParser> =
 ///
 /// These are query patterns that extend those for JavaScript defined
 /// in `parser-js`.
-const QUERY: &str = include_str!("query.txt");
+const QUERY: &str = include_str!("query.scm");
 
 /// A parser for TypeScript
 pub struct TsParser {}
