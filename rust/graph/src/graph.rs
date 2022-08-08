@@ -31,7 +31,7 @@ use graph_triples::{
 };
 use hash_utils::seahash;
 use kernels::{Kernel, KernelSelector};
-use path_utils::path_slash::PathExt;
+use path_utils::{path_slash::PathExt, pathdiff};
 use utils::some_string;
 
 use crate::{Plan, PlanOptions, PlanOrdering, PlanStage, PlanTask};
@@ -170,6 +170,15 @@ impl Graph {
             indices: HashMap::new(),
             graph: StableGraph::new(),
         }
+    }
+
+    /// Make a path relative to the path of the graph
+    pub fn relative_path(&self, path: &Path, is_doc: bool) -> PathBuf {
+        let base = match is_doc {
+            true => self.path.parent().unwrap_or(&self.path),
+            false => &self.path,
+        };
+        pathdiff::diff_paths(path, &base).unwrap_or_else(|| path.to_path_buf())
     }
 
     /// Create a graph from a set of [`ResourceInfo`] objects

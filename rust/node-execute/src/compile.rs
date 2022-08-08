@@ -215,7 +215,10 @@ fn compile_patches_and_send(
                             }
                         }
                         Resource::File(file) => Some(CodeExecutableCodeDependencies::File(File {
-                            path: file.path.to_slash_lossy().to_string(),
+                            path: graph
+                                .relative_path(&file.path, true)
+                                .to_slash_lossy()
+                                .to_string(),
                             ..Default::default()
                         })),
                         _ => None,
