@@ -82,7 +82,6 @@ default = [
   "kernels-cli",
   "kernels/kernel-bash",
   "kernels/kernel-calc",
-  "kernels/kernel-deno",
   "kernels/kernel-node",
   "kernels/kernel-python",
   "kernels/kernel-r",
