@@ -54,14 +54,12 @@ impl ToHtml for CodeExecutableCodeDependencies {
                 ..
             }) => (
                 "CodeChunk",
-                id,
-                label.as_ref().map(|label| label.as_str()),
+                id.as_deref(),
+                label.as_deref(),
                 Some(programming_language),
-                execute_auto
-                    .as_ref()
-                    .map_or("Needed", |value| value.as_ref()),
-                execute_required.as_ref().map_or("", |value| value.as_ref()),
-                execute_status,
+                execute_auto.clone(),
+                execute_required.as_ref().map(|value| value.as_ref()),
+                execute_status.clone(),
             ),
             CodeExecutableCodeDependencies::Parameter(Parameter {
                 id,
@@ -70,31 +68,35 @@ impl ToHtml for CodeExecutableCodeDependencies {
                 ..
             }) => (
                 "Parameter",
-                id,
-                Some(name.as_str()),
+                id.as_deref(),
+                Some(name),
                 None,
-                "Needed",
-                execute_required.as_ref().map_or("", |value| value.as_ref()),
-                &None,
+                None,
+                execute_required.as_ref().map(|value| value.as_ref()),
+                None,
             ),
+            CodeExecutableCodeDependencies::File(File { path, .. }) => {
+                ("File", None, Some(path), None, None, None, None)
+            }
         };
         elem(
             "stencila-code-dependency",
             &[
                 attr("node-kind", node_kind),
-                id.as_ref()
-                    .map_or("".to_string(), |value| attr("node-id", value.as_str())),
-                label
-                    .as_ref()
-                    .map_or("".to_string(), |value| attr("label", value)),
+                id.map(|value| attr("node-id", value)).unwrap_or_default(),
+                label.map(|value| attr("label", value)).unwrap_or_default(),
                 programming_language
-                    .as_ref()
-                    .map_or("".to_string(), |value| attr("programming-language", value)),
-                attr("execute-auto", execute_auto),
-                attr("execute-required", execute_required),
-                execute_status.as_ref().map_or("".to_string(), |value| {
-                    attr("execute-status", value.as_ref())
-                }),
+                    .map(|value| attr("programming-language", value))
+                    .unwrap_or_default(),
+                execute_auto
+                    .map(|value| attr("execute-auto", value.as_ref()))
+                    .unwrap_or_default(),
+                execute_required
+                    .map(|value| attr("execute-required", value))
+                    .unwrap_or_default(),
+                execute_status
+                    .map(|value| attr("execute-status", value.as_ref()))
+                    .unwrap_or_default(),
             ],
             "",
         )
@@ -123,14 +125,12 @@ impl ToHtml for CodeExecutableCodeDependents {
                 ..
             }) => (
                 "CodeChunk",
-                id,
-                label,
-                programming_language,
-                execute_auto
-                    .as_ref()
-                    .map_or("Needed", |value| value.as_ref()),
-                execute_required,
-                execute_status,
+                id.as_deref(),
+                label.as_deref(),
+                Some(programming_language),
+                execute_auto.as_ref().map(|value| value.as_ref()),
+                execute_required.as_ref().map(|value| value.as_ref()),
+                execute_status.as_ref().map(|value| value.as_ref()),
             ),
             CodeExecutableCodeDependents::CodeExpression(CodeExpression {
                 id,
@@ -140,31 +140,35 @@ impl ToHtml for CodeExecutableCodeDependents {
                 ..
             }) => (
                 "CodeExpression",
-                id,
-                &None,
-                programming_language,
-                "Needed",
-                execute_required,
-                execute_status,
+                id.as_deref(),
+                None,
+                Some(programming_language),
+                None,
+                execute_required.as_ref().map(|value| value.as_ref()),
+                execute_status.as_ref().map(|value| value.as_ref()),
             ),
+            CodeExecutableCodeDependents::File(File { path, .. }) => {
+                ("File", None, Some(path), None, None, None, None)
+            }
         };
         elem(
             "stencila-code-dependency",
             &[
                 attr("node-kind", node_kind),
-                id.as_ref()
-                    .map_or("".to_string(), |value| attr("node-id", value.as_str())),
-                label
-                    .as_ref()
-                    .map_or("".to_string(), |value| attr("label", value.as_ref())),
-                attr("programming-language", programming_language),
-                attr("execute-auto", execute_auto),
-                execute_required.as_ref().map_or("".to_string(), |value| {
-                    attr("execute-required", value.as_ref())
-                }),
-                execute_status.as_ref().map_or("".to_string(), |value| {
-                    attr("execute-status", value.as_ref())
-                }),
+                id.map(|value| attr("node-id", value)).unwrap_or_default(),
+                label.map(|value| attr("label", value)).unwrap_or_default(),
+                programming_language
+                    .map(|value| attr("programming-language", value))
+                    .unwrap_or_default(),
+                execute_auto
+                    .map(|value| attr("execute-auto", value))
+                    .unwrap_or_default(),
+                execute_required
+                    .map(|value| attr("execute-required", value))
+                    .unwrap_or_default(),
+                execute_status
+                    .map(|value| attr("execute-status", value))
+                    .unwrap_or_default(),
             ],
             "",
         )
