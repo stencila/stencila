@@ -162,4 +162,66 @@ console.error("Error message")
 
         Ok(())
     }
+
+    /// Test re-declarations of variables
+    #[tokio::test]
+    async fn redeclarations() -> Result<()> {
+        let mut kernel = new();
+        match kernel.is_available().await {
+            true => kernel.start_here().await?,
+            false => return Ok(()),
+        }
+
+        // A variable declared with `var`
+
+        let (outputs, messages) = kernel.exec("var a = 1\na").await?;
+        assert_eq!(messages, vec![]);
+        assert_json_eq!(outputs[0], json!(1));
+
+        let (outputs, messages) = kernel.exec("var a = 2\na").await?;
+        assert_eq!(messages, vec![]);
+        assert_json_eq!(outputs[0], json!(2));
+
+        let (outputs, messages) = kernel.exec("let a = 3\na").await?;
+        assert_eq!(messages, vec![]);
+        assert_json_eq!(outputs[0], json!(3));
+
+        let (outputs, messages) = kernel.exec("const a = 4\na").await?;
+        assert_eq!(messages, vec![]);
+        assert_json_eq!(outputs[0], json!(4));
+
+        // A variable declared with `let`
+
+        let (outputs, messages) = kernel.exec("let b = 1\nb").await?;
+        assert_eq!(messages, vec![]);
+        assert_json_eq!(outputs[0], json!(1));
+
+        let (outputs, messages) = kernel.exec("let b = 2\nb").await?;
+        assert_eq!(messages, vec![]);
+        assert_json_eq!(outputs[0], json!(2));
+
+        let (outputs, messages) = kernel.exec("b = 3\nb").await?;
+        assert_eq!(messages, vec![]);
+        assert_json_eq!(outputs[0], json!(3));
+
+        // A variable declared with `const`
+
+        let (outputs, messages) = kernel.exec("const c = 1\nc").await?;
+        assert_eq!(messages, vec![]);
+        assert_json_eq!(outputs[0], json!(1));
+
+        let (.., messages) = kernel.exec("const c = 2\nc").await?;
+        assert_eq!(
+            messages[0].error_message,
+            "Assignment to constant variable."
+        );
+
+        let (.., messages) = kernel.exec("c = 3\nc").await?;
+        assert_eq!(
+            messages[0].error_message,
+            "Assignment to constant variable."
+        );
+
+        Ok(())
+    }
 }
