@@ -65,7 +65,7 @@ def convert_value(value):
 
 def convert_ndarray(array):
     """Convert a numpy `ndarray` to an `Array`"""
-    array.tolist()
+    return array.tolist()
 
 
 def convert_dataframe(df):
