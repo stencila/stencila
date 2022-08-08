@@ -14,7 +14,7 @@ pub fn new() -> MicroKernel {
         &["{{script}}"],
         include_file!("r-kernel.r"),
         &[include_file!("r-codec.r")],
-        "{{name}} <- decode_value('{{json}}')",
+        "{{name}} <- decode_value(r\"({{json}})\")",
         "cat(encode_value({{name}}, unbox = TRUE))",
     )
 }
@@ -429,6 +429,19 @@ mod tests {
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
         assert_json_eq!(outputs[0], var);
+
+        Ok(())
+    }
+
+    /// Test setting and getting of vars of different types
+    #[tokio::test]
+    async fn set_get_vars() -> Result<()> {
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => kernel,
+            Err(..) => return Ok(()),
+        };
+
+        kernel_micro::tests::set_get_strings(&mut kernel).await?;
 
         Ok(())
     }

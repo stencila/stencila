@@ -12,7 +12,7 @@ pub fn new() -> MicroKernel {
         &["run", "--quiet", "--unstable", "{{script}}"],
         include_file!("deno-kernel.ts"),
         &[include_file!("deno-codec.ts")],
-        "{{name}} = JSON.parse('{{json}}')",
+        "{{name}} = decodeValue({{json}})",
         "{{name}}",
     )
 }
@@ -33,10 +33,9 @@ mod tests {
     #[tokio::test]
     async fn basics() -> Result<()> {
         let mut kernel = new();
-        if !kernel.is_available().await {
-            return Ok(());
-        } else {
-            kernel.start_here().await?;
+        match kernel.is_available().await {
+            true => kernel.start_here().await?,
+            false => return Ok(()),
         }
 
         // Assign a variable and output it
@@ -80,10 +79,9 @@ mod tests {
     #[tokio::test]
     async fn console_log() -> Result<()> {
         let mut kernel = new();
-        if !kernel.is_available().await {
-            return Ok(());
-        } else {
-            kernel.start_here().await?;
+        match kernel.is_available().await {
+            true => kernel.start_here().await?,
+            false => return Ok(()),
         }
 
         let (outputs, messages) = kernel.exec("console.log(1)").await?;
@@ -97,6 +95,20 @@ mod tests {
         let (outputs, messages) = kernel.exec("console.log([1, 2, 3], 4, 'str')").await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, json!([[1, 2, 3], 4, "str"]));
+
+        Ok(())
+    }
+
+    /// Test setting and getting of vars of different types
+    #[tokio::test]
+    async fn set_get_vars() -> Result<()> {
+        let mut kernel = new();
+        match kernel.is_available().await {
+            true => kernel.start_here().await?,
+            false => return Ok(()),
+        }
+
+        kernel_micro::tests::set_get_strings(&mut kernel).await?;
 
         Ok(())
     }

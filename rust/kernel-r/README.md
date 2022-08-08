@@ -6,7 +6,7 @@ On Linux and MacOS, the microkernel is forkable only if the `Cairo` package is a
 
 ## Development
 
-During development it can be useful to maually test / debug the microkernel. You should be able to type lines of R code and get back results. Use `FORK` to create a fork e.g.:
+During development it can be useful to manually test / debug the microkernel. You should be able to type lines of R code and get back results. Use `FORK` to create a fork e.g.:
 
 ```console
 > Rscript src/r-kernel.r

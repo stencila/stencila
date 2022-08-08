@@ -738,7 +738,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
                     Node::Object(object)
                 }
                 Ok(node) => node,
-                Err(..) => Node::String(output),
+                Err(..) => Node::String(output.strip_suffix('\n').unwrap_or(&output).to_string()),
             }
         })
         .collect();
@@ -808,3 +808,5 @@ fn handle_line(line: &str, current: &mut String, vec: &mut Vec<String>) -> bool 
         true
     }
 }
+
+pub mod tests;

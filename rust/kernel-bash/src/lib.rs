@@ -15,7 +15,7 @@ pub fn new() -> MicroKernel {
         &["{{script}}"],
         include_file!("bash-kernel.sh"),
         &[],
-        "{{name}}=\"{{json}}\"",
+        "{{name}}={{json}}",
         "echo ${{name}}",
     )
 }
@@ -43,10 +43,9 @@ mod tests {
         }
 
         let mut kernel = new();
-        if !kernel.is_available().await {
-            return Ok(());
-        } else {
-            kernel.start_here().await?;
+        match kernel.is_available().await {
+            true => kernel.start_here().await?,
+            false => return Ok(()),
         }
 
         // Assign a variable and output it
@@ -88,10 +87,9 @@ mod tests {
         }
 
         let mut kernel = new();
-        if !kernel.is_available().await {
-            return Ok(());
-        } else {
-            kernel.start_here().await?;
+        match kernel.is_available().await {
+            true => kernel.start_here().await?,
+            false => return Ok(()),
         }
 
         let (outputs, messages) = kernel.exec("date +%s").await?;

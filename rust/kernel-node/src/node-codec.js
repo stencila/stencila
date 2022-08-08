@@ -1,5 +1,5 @@
-function decodeValue(json) {
-  return JSON.parse(json)
+function decodeValue(value) {
+  return value
 }
 
 function encodeValue(value) {

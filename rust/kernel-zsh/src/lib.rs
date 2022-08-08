@@ -15,7 +15,7 @@ pub fn new() -> MicroKernel {
         &["{{script}}"],
         include_file!("zsh-kernel.sh"),
         &[],
-        "{{name}}=\"{{json}}\"",
+        "{{name}}={{json}}",
         "echo ${{name}}",
     )
 }
@@ -36,10 +36,9 @@ mod tests {
     #[tokio::test]
     async fn basics() -> Result<()> {
         let mut kernel = new();
-        if !kernel.is_available().await {
-            return Ok(());
-        } else {
-            kernel.start_here().await?;
+        match kernel.is_available().await {
+            true => kernel.start_here().await?,
+            false => return Ok(()),
         }
 
         // Assign a variable and output it

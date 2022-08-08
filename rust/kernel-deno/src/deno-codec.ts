@@ -1,5 +1,5 @@
-export function decodeValue(json: string) {
-  return JSON.parse(json)[0]
+export function decodeValue(value: any) {
+  return value
 }
 
 export function encodeValue(value: string) {
