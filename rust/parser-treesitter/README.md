@@ -8,9 +8,10 @@ See these sibling crates as examples:
 - [`parser-js`](../parser-js)
 - [`parser-py`](../parser-py)
 - [`parser-r`](../parser-r)
+- [`parser-rust`](../parser-rust)
 - [`parser-ts`](../parser-ts)
 
-When developing language queries the `tree-sitter` CLI is very useful:
+When developing language queries (usually in `query.scm` files) the `tree-sitter` CLI is very useful.
 
 1. Install and setup `tree-sitter` including running `tree-sitter init-config` (this is a [good guide](https://dcreager.net/tree-sitter/getting-started/) to that.)
 
@@ -31,5 +32,5 @@ When developing language queries the `tree-sitter` CLI is very useful:
 4. Create a query (you can `include_str!` or copy-paste it into Rust code later) and test it against the query files e.g.
 
    ```sh
-   tree-sitter query src/query.txt ../../fixtures/fragments/r/imports.R
+   tree-sitter query src/query.scm ../../fixtures/fragments/r/imports.R
    ```

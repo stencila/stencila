@@ -117,7 +117,7 @@ pub fn handle_patterns(
                 resources::symbol(path, &name, kind),
             ))
         }
-        8 => {
+        8 | 9 => {
             // Uses an identifier assigned elsewhere
             let node = captures[0].node;
             let range = captures[0].range;

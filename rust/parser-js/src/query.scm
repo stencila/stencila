@@ -86,3 +86,4 @@
 )
 
 ((identifier) @identifer)
+((shorthand_property_identifier) @identifer)

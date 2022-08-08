@@ -205,9 +205,9 @@ input_file: fixtures/fragments/js/uses.js
         "type": "Use",
         "range": [
           7,
-          13,
+          11,
           7,
-          18
+          16
         ]
       },
       {
@@ -219,11 +219,96 @@ input_file: fixtures/fragments/js/uses.js
     ],
     [
       {
+        "type": "Use",
+        "range": [
+          11,
+          7,
+          11,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/uses.js",
+        "name": "varA",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          11,
+          13,
+          11,
+          17
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/uses.js",
+        "name": "varB",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          11,
+          22,
+          11,
+          26
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/uses.js",
+        "name": "varC",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          15,
+          2,
+          15,
+          6
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/uses.js",
+        "name": "varD",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          15,
+          8,
+          15,
+          12
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/uses.js",
+        "name": "varE",
+        "kind": ""
+      }
+    ],
+    [
+      {
         "type": "Import",
         "range": [
-          12,
           19,
-          12,
+          19,
+          19,
           23
         ]
       },
@@ -237,10 +322,10 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Import",
         "range": [
-          13,
-          21,
-          13,
-          25
+          20,
+          23,
+          20,
+          27
         ]
       },
       {
@@ -253,9 +338,9 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Use",
         "range": [
-          17,
+          24,
           15,
-          17,
+          24,
           20
         ]
       },
@@ -270,10 +355,10 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Use",
         "range": [
-          18,
-          4,
-          18,
-          9
+          25,
+          2,
+          25,
+          7
         ]
       },
       {
@@ -287,10 +372,10 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Use",
         "range": [
-          21,
-          26,
-          21,
-          31
+          28,
+          30,
+          28,
+          35
         ]
       },
       {
@@ -304,9 +389,9 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Use",
         "range": [
-          27,
+          34,
           0,
-          27,
+          34,
           5
         ]
       },
@@ -321,9 +406,9 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Use",
         "range": [
-          28,
+          35,
           0,
-          28,
+          35,
           5
         ]
       },
@@ -338,9 +423,9 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Use",
         "range": [
-          29,
+          36,
           0,
-          29,
+          36,
           5
         ]
       },
@@ -355,9 +440,9 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Use",
         "range": [
-          29,
+          36,
           13,
-          29,
+          36,
           18
         ]
       },
@@ -372,9 +457,9 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Declare",
         "range": [
-          34,
+          45,
           9,
-          34,
+          45,
           14
         ]
       },
@@ -389,9 +474,9 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Declare",
         "range": [
-          38,
+          49,
           6,
-          38,
+          49,
           11
         ]
       },
@@ -406,9 +491,9 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Assign",
         "range": [
-          42,
+          55,
           0,
-          42,
+          55,
           6
         ]
       },
@@ -423,9 +508,9 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Declare",
         "range": [
-          43,
+          56,
           4,
-          43,
+          56,
           10
         ]
       },
@@ -440,9 +525,9 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Declare",
         "range": [
-          44,
+          57,
           4,
-          44,
+          57,
           10
         ]
       },
@@ -457,9 +542,9 @@ input_file: fixtures/fragments/js/uses.js
       {
         "type": "Declare",
         "range": [
-          45,
+          58,
           6,
-          45,
+          58,
           12
         ]
       },
@@ -471,5 +556,5 @@ input_file: fixtures/fragments/js/uses.js
       }
     ]
   ],
-  "compile_digest": "4886257548501732368.4634057205830114844.0.0.0"
+  "compile_digest": "16995413368316853061.10224667103078136263.0.0.0"
 }
