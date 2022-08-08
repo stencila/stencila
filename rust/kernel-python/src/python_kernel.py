@@ -10,6 +10,7 @@ READY = u"\U0010ACDC\n"
 RESULT = u"\U0010CB40\n"
 TASK = u"\U0010ABBA\n"
 FORK = u"\U0010DE70"
+NEWLINE = u"\U0010B522"
 
 
 # Monkey patch `print` to encode individual objects (if no options used)
@@ -35,7 +36,7 @@ stderr.flush()
 while True:
     try:
         task = stdin.readline()
-        lines = task.split("\\n")
+        lines = task.split(NEWLINE)
 
         if lines[0] == FORK:
             pid = os.fork()

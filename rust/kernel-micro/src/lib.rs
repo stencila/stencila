@@ -42,6 +42,9 @@ const FORK: &str = "\u{10DE70}";
 #[allow(dead_code)]
 const FORK_ALT: &str = "<U+0010DE70>";
 
+/// Indicates a newline in the code
+const NEWLINE: &str = "\u{10B522}";
+
 #[derive(Debug, Serialize)]
 #[serde(crate = "kernel::common::serde")]
 pub struct MicroKernel {
@@ -658,7 +661,7 @@ impl MicroKernel {
 /// Send a task to a kernel on stdin
 async fn send_task<W: AsyncWrite + Unpin>(task: &[String], stdin: &mut BufWriter<W>) -> Result<()> {
     let task = task.join("\n");
-    let task = task.replace('\n', "\\n");
+    let task = task.replace('\n', NEWLINE);
     let task = [&task, "\n"].concat();
     tracing::trace!("Sending task on stdin");
     if let Err(error) = stdin.write_all(task.as_bytes()).await {

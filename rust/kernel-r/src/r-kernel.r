@@ -49,11 +49,13 @@ if (isatty(stdin())) {
   RESULT <- "RESULT"
   TASK <- "TASK"
   FORK <- "FORK"
+  NEWLINE <- "NEWLINE"
 } else {
   READY <- "\U0010ACDC"
   RESULT <-  "\U0010CB40"
   TASK <- "\U0010ABBA"
   FORK <- "\U0010DE70"
+  NEWLINE <- "\U0010B522"
 }
 
 stdin <- file("stdin", "r")
@@ -97,7 +99,7 @@ while (!is.null(stdin)) {
       # If there is no task from `readLines` it means `stdin` was closed, so exit gracefully
       if (length(task) == 0) quit(save = "no")
 
-      lines <- strsplit(task, "\\n", fixed = TRUE)[[1]]
+      lines <- strsplit(task, NEWLINE, fixed = TRUE)[[1]]
 
       if (lines[1] == FORK) {
         # The `eval_safe` function of https://github.com/jeroen/unix provides an alternative 

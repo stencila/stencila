@@ -8,6 +8,7 @@ const { decodeValue, encodeValue, encodeError } = require('./node-codec')
 const READY = '\u{10ACDC}\n'
 const RESULT = '\u{10CB40}\n'
 const TASK = '\u{10ABBA}\n'
+const NEWLINE = new RegExp('\u{10B522}', 'g')
 
 const { stdin, stdout, stderr } = process
 
@@ -55,7 +56,7 @@ stdout.write(READY)
 stderr.write(READY)
 
 rl.on('line', (task) => {
-  const unescaped = task.replace(/\\n/g, '\n')
+  const unescaped = task.replace(NEWLINE, '\n')
   try {
     const output = vm.runInContext(unescaped, context)
     if (output !== undefined) {
