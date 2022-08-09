@@ -9,6 +9,7 @@ use common::{
     tracing,
 };
 use graph::{PlanOrdering, PlanScope};
+use node_execute::When;
 use node_patch::Patch;
 
 use crate::{documents::DOCUMENTS, sessions::SESSIONS};
@@ -368,22 +369,31 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
     let id = required_string(params, "documentId")?;
     let patch = required_value(params, "patch")?;
     let patch: Patch = serde_json::from_value(patch)?;
-    let execute = optional_value(params, "execute")
-        .and_then(|value| value.as_bool())
-        .unwrap_or(false);
+    let compile = optional_string(params, "compile")?
+        .and_then(|value| When::from_str(&value).ok())
+        .unwrap_or(When::Soon);
+    let execute = optional_string(params, "execute")?
+        .and_then(|value| When::from_str(&value).ok())
+        .unwrap_or(When::Soon);
+    let write = optional_string(params, "write")?
+        .and_then(|value| When::from_str(&value).ok())
+        .unwrap_or(When::Soon);
 
     DOCUMENTS
         .get(&id)
         .await?
         .lock()
         .await
-        .patch_request(patch, true, execute, true)
+        .patch_request(patch, compile, execute, write)
         .await?;
     Ok((json!(true), Subscription::None))
 }
 
 async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
+    let write = optional_string(params, "write")?
+        .and_then(|value| When::from_str(&value).ok())
+        .unwrap_or(When::Soon);
     let node_id = optional_string(params, "nodeId")?;
     let ordering = match optional_string(params, "ordering")? {
         Some(ordering) => Some(PlanOrdering::from_str(&ordering)?),
@@ -395,7 +405,7 @@ async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscr
         .await?
         .lock()
         .await
-        .execute_request(true, node_id, ordering, None)
+        .execute_request(write, node_id, ordering, None)
         .await?;
     Ok((json!(true), Subscription::None))
 }

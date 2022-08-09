@@ -190,6 +190,12 @@ export async function unsubscribe(
 }
 
 /**
+ * When compile, execute and write operations should
+ * be done after a patch
+ */
+type When = 'Now' | 'Soon' | 'Never'
+
+/**
  * Send a document patch to the server
  *
  * Will generate an error if the patch could not be applied e.g. no node with the id could
@@ -203,7 +209,9 @@ export async function sendPatch(
   client: Client,
   documentId: DocumentId,
   patch: Patch,
-  execute = false
+  compile: When = 'Soon',
+  execute: When = 'Soon',
+  write: When = 'Soon'
 ): Promise<void> {
   // During development it's very useful to see the patch operations being sent
   if (process.env.NODE_ENV !== 'production') {
@@ -215,7 +223,9 @@ export async function sendPatch(
   return client.call('documents.patch', {
     documentId,
     patch,
+    compile,
     execute,
+    write,
   }) as Promise<void>
 }
 
@@ -584,7 +594,7 @@ async function onParameterChange(
     ops: [op],
   }
 
-  return sendPatch(client, documentId, patch, true)
+  return sendPatch(client, documentId, patch, 'Now', 'Now', 'Soon')
 }
 
 /**

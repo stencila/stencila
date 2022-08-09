@@ -1,24 +1,36 @@
+use common::strum::EnumString;
 use graph::{PlanOrdering, PlanScope};
 use node_patch::Patch;
 use uuids::uuid_family;
 
 uuid_family!(RequestId, "re");
 
+/// When requests should be fulfilled
+#[derive(Debug, Clone, Copy, EnumString)]
+#[strum(crate = "common::strum")]
+pub enum When {
+    Now,
+    Soon,
+    Never,
+}
+
 /// An internal request to patch a document
 #[derive(Debug)]
 pub struct PatchRequest {
     pub id: RequestId,
     pub patch: Patch,
-    pub compile: bool,
-    pub execute: bool,
-    pub write: bool,
+    pub when: When,
+    pub compile: When,
+    pub execute: When,
+    pub write: When,
 }
 
 impl PatchRequest {
-    pub fn new(patch: Patch, compile: bool, execute: bool, write: bool) -> Self {
+    pub fn new(patch: Patch, when: When, compile: When, execute: When, write: When) -> Self {
         Self {
             id: RequestId::new(),
             patch,
+            when,
             compile,
             execute,
             write,
@@ -30,15 +42,17 @@ impl PatchRequest {
 #[derive(Debug)]
 pub struct CompileRequest {
     pub id: RequestId,
-    pub execute: bool,
-    pub write: bool,
+    pub when: When,
+    pub execute: When,
+    pub write: When,
     pub start: Option<String>,
 }
 
 impl CompileRequest {
-    pub fn new(execute: bool, write: bool, start: Option<String>) -> Self {
+    pub fn new(when: When, execute: When, write: When, start: Option<String>) -> Self {
         Self {
             id: RequestId::new(),
+            when,
             execute,
             write,
             start,
@@ -50,7 +64,8 @@ impl CompileRequest {
 #[derive(Debug)]
 pub struct ExecuteRequest {
     pub id: RequestId,
-    pub write: bool,
+    pub when: When,
+    pub write: When,
     pub start: Option<String>,
     pub ordering: Option<PlanOrdering>,
     pub max_concurrency: Option<usize>,
@@ -58,13 +73,15 @@ pub struct ExecuteRequest {
 
 impl ExecuteRequest {
     pub fn new(
-        write: bool,
+        when: When,
+        write: When,
         start: Option<String>,
         ordering: Option<PlanOrdering>,
         max_concurrency: Option<usize>,
     ) -> Self {
         Self {
             id: RequestId::new(),
+            when,
             write,
             start,
             ordering,
@@ -95,14 +112,14 @@ impl CancelRequest {
 #[derive(Debug)]
 pub struct WriteRequest {
     pub id: RequestId,
-    pub now: bool,
+    pub when: When,
 }
 
 impl WriteRequest {
-    pub fn new(now: bool) -> Self {
+    pub fn new(when: When) -> Self {
         Self {
             id: RequestId::new(),
-            now,
+            when,
         }
     }
 }

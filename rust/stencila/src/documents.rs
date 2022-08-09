@@ -35,7 +35,7 @@ use kernels::{KernelInfos, KernelSpace, KernelSymbols};
 use node_address::{Address, AddressMap};
 use node_execute::{
     compile, execute, CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, RequestId,
-    Response, WriteRequest,
+    Response, When, WriteRequest,
 };
 use node_patch::{apply, diff, merge, Patch};
 use node_pointer::{resolve, resolve_mut};
@@ -277,6 +277,18 @@ pub struct Document {
 
 #[allow(unused)]
 impl Document {
+    /// Milliseconds debounce delay for [`When::Soon`] compile requests
+    const COMPILE_DEBOUNCE_MILLIS: u64 = 250;
+
+    /// Milliseconds debounce delay for [`When::Soon`] execute requests
+    const EXECUTE_DEBOUNCE_MILLIS: u64 = 750;
+
+    /// Milliseconds debounce delay for [`When::Soon`] write requests
+    const WRITE_DEBOUNCE_MILLIS: u64 = 1000;
+
+    /// Milliseconds after writing document to ignore other events on its file
+    const WRITE_MUTE_MILLIS: u64 = 500;
+
     /// Generate the JSON Schema for the `format` property to avoid duplicated
     /// inline type.
     fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
@@ -739,14 +751,14 @@ impl Document {
         request_receiver: &mut mpsc::UnboundedReceiver<WriteRequest>,
         response_sender: &broadcast::Sender<Response>,
     ) {
-        let duration = Duration::from_millis(1000);
+        let duration = Duration::from_millis(Document::WRITE_DEBOUNCE_MILLIS);
         let mut write = false;
         loop {
             match tokio::time::timeout(duration, request_receiver.recv()).await {
-                // Request received: record and continue to wait for timeout
+                // Request received: record and continue to wait for timeout unless `when` is now
                 Ok(Some(request)) => {
                     write = true;
-                    if !request.now {
+                    if !matches!(request.when, When::Now) {
                         continue;
                     }
                 }
@@ -950,14 +962,19 @@ impl Document {
             );
 
             // Possibly compile, execute, and/or write
-            if request.compile {
+            if !matches!(request.compile, When::Never) {
                 tracing::trace!(
                     "Sending compile request for document `{}` for patch request `{}`",
                     &id,
                     request.id
                 );
                 if let Err(error) = compile_sender
-                    .send(CompileRequest::new(request.execute, request.write, start))
+                    .send(CompileRequest::new(
+                        request.compile,
+                        request.execute,
+                        request.write,
+                        start,
+                    ))
                     .await
                 {
                     tracing::error!(
@@ -966,13 +983,13 @@ impl Document {
                         error
                     );
                 }
-            } else if request.write {
+            } else if !matches!(request.write, When::Never) {
                 tracing::trace!(
                     "Sending write request for document `{}` for patch request `{}`",
                     &id,
                     request.id
                 );
-                if let Err(error) = write_sender.send(WriteRequest::new(false)) {
+                if let Err(error) = write_sender.send(WriteRequest::new(request.write)) {
                     tracing::error!(
                         "While sending write request for document `{}`: {}",
                         id,
@@ -1008,13 +1025,13 @@ impl Document {
     pub async fn patch_request(
         &self,
         patch: Patch,
-        compile: bool,
-        execute: bool,
-        write: bool,
+        compile: When,
+        execute: When,
+        write: When,
     ) -> Result<RequestId> {
         tracing::debug!("Sending patch request for document `{}`", self.id);
 
-        let request = PatchRequest::new(patch, compile, execute, write);
+        let request = PatchRequest::new(patch, When::Now, compile, execute, write);
         let request_id = request.id.clone();
         if let Err(error) = self.patch_request_sender.send(request) {
             bail!(
@@ -1068,20 +1085,22 @@ impl Document {
         request_receiver: &mut mpsc::Receiver<CompileRequest>,
         response_sender: &broadcast::Sender<Response>,
     ) {
-        let duration = Duration::from_millis(300);
+        let duration = Duration::from_millis(Document::COMPILE_DEBOUNCE_MILLIS);
         let mut request_ids = Vec::new();
         let mut execute = false;
         let mut write = false;
         loop {
             match tokio::time::timeout(duration, request_receiver.recv()).await {
-                // Compile request received, so record it and continue to wait for timeout
+                // Request received: record and continue to wait for timeout unless `when` is now
                 Ok(Some(request)) => {
                     request_ids.push(request.id);
-                    execute |= request.execute;
-                    write |= request.write;
-                    continue;
+                    execute |= !matches!(request.execute, When::Never);
+                    write |= !matches!(request.write, When::Never);
+                    if !matches!(request.when, When::Now) {
+                        continue;
+                    }
                 }
-                // Sender dropped, end of task
+                // Sender dropped: end of task
                 Ok(None) => break,
                 // Timeout so do the following with the last unhandled request, if any
                 Err(..) => {}
@@ -1121,7 +1140,7 @@ impl Document {
                     request_ids_display()
                 );
                 if let Err(error) = execute_sender
-                    .send(ExecuteRequest::new(write, None, None, None))
+                    .send(ExecuteRequest::new(When::Soon, When::Soon, None, None, None))
                     .await
                 {
                     tracing::error!(
@@ -1136,7 +1155,7 @@ impl Document {
                     &id,
                     request_ids_display()
                 );
-                if let Err(error) = write_sender.send(WriteRequest::new(false)) {
+                if let Err(error) = write_sender.send(WriteRequest::new(When::Soon)) {
                     tracing::error!(
                         "While sending write request for document `{}`: {}",
                         id,
@@ -1173,13 +1192,13 @@ impl Document {
     #[tracing::instrument(skip(self))]
     pub async fn compile_request(
         &self,
-        execute: bool,
-        write: bool,
+        execute: When,
+        write: When,
         start: Option<String>,
     ) -> Result<RequestId> {
         tracing::debug!("Sending compile request for document `{}`", self.id);
 
-        let request = CompileRequest::new(execute, write, start);
+        let request = CompileRequest::new(When::Now, execute, write, start);
         let request_id = request.id.clone();
         if let Err(error) = self.compile_request_sender.send(request).await {
             bail!(
@@ -1200,8 +1219,8 @@ impl Document {
     #[tracing::instrument(skip(self))]
     pub async fn compile(
         &mut self,
-        execute: bool,
-        write: bool,
+        execute: When,
+        write: When,
         start: Option<String>,
     ) -> Result<()> {
         let request_id = self.compile_request(execute, write, start).await?;
@@ -1270,15 +1289,39 @@ impl Document {
         request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
         response_sender: &broadcast::Sender<Response>,
     ) {
-        while let Some(request) = request_receiver.recv().await {
+        let duration = Duration::from_millis(Document::EXECUTE_DEBOUNCE_MILLIS);
+        let mut last_request = None;
+        loop {
+            match tokio::time::timeout(duration, request_receiver.recv()).await {
+                // Request received: record and continue to wait for timeout unless `now` is true
+                Ok(Some(request)) => {
+                    let now = matches!(request.when, When::Now);
+                    last_request = Some(request);
+                    if !now {
+                        continue;
+                    }
+                }
+                // Sender dropped: end of task
+                Ok(None) => break,
+                // Timeout so do the following with the last unhandled request, if any
+                Err(..) => {}
+            };
+
+            let request = match &last_request {
+                Some(request) => request,
+                None => continue,
+            };
+
             tracing::trace!("Executing document `{}` for request `{}`", &id, request.id);
 
             // Resolve options
             let start = request
                 .start
+                .clone()
                 .map(|node_id| resources::code(path, &node_id, "", None));
             let ordering = request
                 .ordering
+                .clone()
                 .unwrap_or_else(PlanOptions::default_ordering);
             let max_concurrency = request
                 .max_concurrency
@@ -1308,13 +1351,13 @@ impl Document {
             )
             .await;
 
-            if request.write {
+            if !matches!(request.write, When::Never) {
                 tracing::trace!(
                     "Sending write request for document `{}` for request `{}`",
                     &id,
                     request.id
                 );
-                if let Err(error) = write_sender.send(WriteRequest::new(false)) {
+                if let Err(error) = write_sender.send(WriteRequest::new(request.write)) {
                     tracing::error!(
                         "While sending write request for document `{}`: {}",
                         id,
@@ -1332,6 +1375,8 @@ impl Document {
                     error
                 );
             }
+
+            last_request = None;
         }
     }
 
@@ -1339,14 +1384,14 @@ impl Document {
     #[tracing::instrument(skip(self))]
     pub async fn execute_request(
         &self,
-        write: bool,
+        write: When,
         start: Option<String>,
         ordering: Option<PlanOrdering>,
         max_concurrency: Option<usize>,
     ) -> Result<RequestId> {
         tracing::debug!("Sending execute request for document `{}`", self.id);
 
-        let request = ExecuteRequest::new(write, start, ordering, max_concurrency);
+        let request = ExecuteRequest::new(When::Now, write, start, ordering, max_concurrency);
         let request_id = request.id.clone();
         if let Err(error) = self.execute_request_sender.send(request).await {
             bail!(
@@ -1367,14 +1412,14 @@ impl Document {
     #[tracing::instrument(skip(self))]
     pub async fn execute(
         &mut self,
-        write: bool,
+        write: When,
         start: Option<String>,
         ordering: Option<PlanOrdering>,
         max_concurrency: Option<usize>,
     ) -> Result<()> {
-        // Execute the document
+        // Execute the document. Do not write now; maybe at end of this func.
         let request_id = self
-            .execute_request(false, start, ordering, max_concurrency)
+            .execute_request(When::Never, start, ordering, max_concurrency)
             .await?;
 
         // Wait for execution to finish
@@ -1398,7 +1443,7 @@ impl Document {
 
         // Recompile the document to ensure properties such as `code_dependencies` reflect the
         // new state of the document, and write if necessary
-        self.compile(false, write, None).await?;
+        self.compile(When::Never, write, None).await?;
 
         Ok(())
     }
@@ -1419,7 +1464,7 @@ impl Document {
                 self.id,
                 path.display()
             );
-            if let Err(error) = self.compile_request(true, true, None).await {
+            if let Err(error) = self.compile_request(When::Soon, When::Soon, None).await {
                 tracing::error!(
                     "When sending compile request for document `{}`: {}",
                     self.id,
@@ -1432,7 +1477,7 @@ impl Document {
     /// Get the parameters of the document
     pub async fn params(&mut self) -> Result<IndexMap<String, (String, Address, Parameter)>> {
         // Compile the document to ensure its `addresses` are up to date
-        self.compile(false, false, None).await?;
+        self.compile(When::Never, When::Never, None).await?;
 
         // Collect parameters from addresses
         let addresses = self.addresses.read().await;
@@ -1491,7 +1536,7 @@ impl Document {
         }
 
         // Now execute the document
-        self.execute(false, None, None, None).await?;
+        self.execute(When::Never, None, None, None).await?;
 
         Ok(())
     }
@@ -1610,7 +1655,7 @@ impl Document {
         // Set the root and compile
         // TODO: Reconsider this in refactoring of alternative format representations of docs
         *self.root.write().await = root;
-        self.compile(false, false, None).await?;
+        self.compile(When::Never, When::Never, None).await?;
 
         // Publish any events for which there are subscriptions (this will probably go elsewhere)
         for subscription in self.subscriptions.keys() {
@@ -1749,8 +1794,6 @@ impl Document {
         self.publish(DocumentEventType::Renamed, None, None)
     }
 
-    const LAST_WRITE_MUTE_MILLIS: u64 = 300;
-
     /// Called when the file is modified
     ///
     /// Reads the file into `content` and emits a `Modified` event so that the user
@@ -1760,9 +1803,7 @@ impl Document {
     /// Will ignore any events within a small duration of `write()` being called to avoid
     /// reacting to file modifications initiated by this process
     async fn modified(&mut self, path: PathBuf) {
-        if self.last_write.read().await.elapsed()
-            < Duration::from_millis(Document::LAST_WRITE_MUTE_MILLIS)
-        {
+        if self.last_write.read().await.elapsed() < Duration::from_millis(Self::WRITE_MUTE_MILLIS) {
             return;
         }
 
@@ -2655,7 +2696,7 @@ pub mod commands {
             } else {
                 document
                     .execute(
-                        false,
+                        When::Never,
                         self.start.clone(),
                         self.ordering.clone(),
                         self.concurrency,

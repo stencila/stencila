@@ -9,7 +9,7 @@ use node_patch::Patch;
 use node_pointer::resolve;
 use stencila_schema::Node;
 
-use crate::PatchRequest;
+use crate::{PatchRequest, When};
 
 /// Get the [`Node`] corresponding to a [`Resource`]
 ///
@@ -54,7 +54,7 @@ pub(crate) fn resource_to_node(
 pub(crate) fn send_patch(
     patch_sender: &UnboundedSender<PatchRequest>,
     patch: Patch,
-    compile: bool,
+    compile: When,
 ) {
     if !patch.is_empty() {
         tracing::trace!(
@@ -62,7 +62,13 @@ pub(crate) fn send_patch(
             patch.ops.len()
         );
         // Note: this patch requests do not execute or write after the patch is applied
-        if let Err(..) = patch_sender.send(PatchRequest::new(patch, compile, false, false)) {
+        if let Err(..) = patch_sender.send(PatchRequest::new(
+            patch,
+            When::Now,
+            compile,
+            When::Never,
+            When::Never,
+        )) {
             tracing::debug!("When sending patch: receiver dropped");
         }
     }
@@ -72,7 +78,7 @@ pub(crate) fn send_patch(
 pub(crate) fn send_patches(
     patch_sender: &UnboundedSender<PatchRequest>,
     patches: Vec<Patch>,
-    compile: bool,
+    compile: When,
 ) {
     let patch = Patch::from_patches(patches);
     send_patch(patch_sender, patch, compile)

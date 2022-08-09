@@ -24,7 +24,7 @@ use stencila_schema::{CodeChunk, CodeExecutableExecuteStatus, CodeExpression, No
 
 use crate::{
     utils::{resource_to_node, send_patch, send_patches},
-    CancelRequest, Executable, PatchRequest,
+    CancelRequest, Executable, PatchRequest, When,
 };
 
 /// Execute a [`Plan`] on a [`Node`]
@@ -114,7 +114,7 @@ pub async fn execute(
                 }
             })
             .collect(),
-        true,
+        When::Soon,
     );
 
     // For each stage in plan...
@@ -313,7 +313,7 @@ pub async fn execute(
         }
 
         // Send patches for updated execution status
-        send_patches(patch_request_sender, patches, true);
+        send_patches(patch_request_sender, patches, When::Soon);
 
         if futures.is_empty() {
             tracing::debug!(
@@ -375,11 +375,11 @@ pub async fn execute(
                             send_patch(
                                 patch_request_sender,
                                 node_info.set_execute_status_cancelled(),
-                                true
+                                When::Soon
                             );
                         } else {
                             // Send the patch reflecting the changed state of the executed node
-                            send_patch(patch_request_sender, patch, true);
+                            send_patch(patch_request_sender, patch, When::Soon);
                         }
 
                         // Update the node_info record used elsewhere in this function (mainly for the new execution status of nodes)
@@ -411,7 +411,7 @@ pub async fn execute(
             .values_mut()
             .map(|node_info| node_info.reset_execute_status())
             .collect(),
-        true,
+        When::Soon,
     );
 
     Ok(())
@@ -590,7 +590,7 @@ fn handle_cancel_request(
                     send_patch(
                         patch_request_sender,
                         node_info.set_execute_status_cancelled(),
-                        true,
+                        When::Soon,
                     );
                 }
             }
@@ -621,7 +621,7 @@ fn handle_cancel_request(
                     }
                 }
             }
-            send_patches(patch_request_sender, patches, true);
+            send_patches(patch_request_sender, patches, When::Soon);
 
             // Add all nodes in the plan to list of cancelled nodes
             cancelled.append(&mut node_ids);

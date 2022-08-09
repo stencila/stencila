@@ -17,7 +17,7 @@ use stencila_schema::{
     ParameterExecuteRequired,
 };
 
-use crate::{utils::send_patches, CompileContext, Executable, PatchRequest};
+use crate::{utils::send_patches, CompileContext, Executable, PatchRequest, When};
 
 /// Compile a node, usually the `root` node of a document
 ///
@@ -300,5 +300,5 @@ fn compile_patches_and_send(
         )
         .collect();
 
-    send_patches(patch_sender, patches, false)
+    send_patches(patch_sender, patches, When::Never)
 }
