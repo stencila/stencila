@@ -1535,8 +1535,8 @@ async fn get_handler(
     } else {
         // Request for a document in some format (usually HTML)
         match DOCUMENTS.open(&fs_path, None).await {
-            Ok(document) => {
-                let document = DOCUMENTS.get(&document.id).await.unwrap();
+            Ok(document_id) => {
+                let document = DOCUMENTS.get(&document_id).await.unwrap();
                 let document = document.lock().await;
                 let content = match document.dump(Some(format.clone()), None).await {
                     Ok(content) => content,

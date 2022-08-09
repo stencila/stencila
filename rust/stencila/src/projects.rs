@@ -409,10 +409,12 @@ impl Project {
                 visited.push(path_buf);
             }
 
-            let document = DOCUMENTS.open(path, None).await?;
-            for (subject, pairs) in document.relations {
+            let document_id = DOCUMENTS.open(path, None).await?;
+            let document = DOCUMENTS.get(&document_id).await?;
+            let document = document.lock().await;
+            for (subject, pairs) in &document.relations {
                 for (relation, object) in pairs {
-                    graph.add_triple((subject.clone(), relation, object.clone()));
+                    graph.add_triple((subject.clone(), relation.clone(), object.clone()));
 
                     if let Resource::File(file) = object {
                         walk(visited, &file.path, graph).await?;

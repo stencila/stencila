@@ -8,7 +8,7 @@ use std::{
 };
 
 use notify::DebouncedEvent;
-use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use schemars::{schema::Schema, JsonSchema};
 
 use common::{
     eyre::{self, bail, Result},
@@ -67,35 +67,12 @@ struct DocumentEvent {
     #[serde(rename = "type")]
     type_: DocumentEventType,
 
-    /// The document associated with the event
-    #[schemars(schema_with = "DocumentEvent::schema_document")]
-    document: Document,
-
-    /// The content associated with the event, only provided for, `modified`
-    /// and `encoded` events.
-    content: Option<String>,
-
-    /// The format of the document, only provided for `modified` (the format
-    /// of the document) and `encoded` events (the format of the encoding).
-    #[schemars(schema_with = "DocumentEvent::schema_format")]
-    format: Option<FormatSpec>,
-
     /// The `Patch` associated with a `Patched` event
     #[schemars(schema_with = "DocumentEvent::schema_patch")]
     patch: Option<Patch>,
 }
 
 impl DocumentEvent {
-    /// Generate the JSON Schema for the `document` property to avoid nesting
-    fn schema_document(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("Document", true)
-    }
-
-    /// Generate the JSON Schema for the `format` property to avoid nesting
-    fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Format", false)
-    }
-
     /// Generate the JSON Schema for the `patch` property to avoid nesting
     fn schema_patch(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
         schemas::typescript("Patch", false)
@@ -497,43 +474,6 @@ impl Document {
             execute_request_sender,
             cancel_request_sender,
             response_receiver,
-        }
-    }
-
-    /// Create a representation of the document
-    ///
-    /// Used to represent the document in events and as the return value of functions without
-    /// to provide properties such as `path` and `status` without cloning things such as
-    /// its `kernels`.
-    ///
-    /// TODO: This function needs to be factored out of existence or create a lighter weight
-    /// repr / summary of a document for serialization.
-    pub fn repr(&self) -> Self {
-        Self {
-            id: self.id.clone(),
-            path: self.path.clone(),
-            project: self.project.clone(),
-            temporary: self.temporary,
-            status: self.status.clone(),
-            name: self.name.clone(),
-            format: self.format.clone(),
-            previewable: self.previewable,
-            addresses: self.addresses.clone(),
-            graph: self.graph.clone(),
-            subscriptions: self.subscriptions.clone(),
-            last_write: self.last_write.clone(),
-
-            content: Default::default(),
-            kernels: Default::default(),
-            relations: Default::default(),
-
-            root: Arc::new(RwLock::new(Node::Article(Article::default()))),
-
-            patch_request_sender: self.patch_request_sender.clone(),
-            compile_request_sender: self.compile_request_sender.clone(),
-            execute_request_sender: self.execute_request_sender.clone(),
-            cancel_request_sender: self.cancel_request_sender.clone(),
-            response_receiver: self.response_receiver.resubscribe(),
         }
     }
 
@@ -953,11 +893,6 @@ impl Document {
                 &DocumentEvent {
                     type_: DocumentEventType::Patched,
                     patch: Some(patch),
-                    // TODO: The following are made `None` to keep the size of the event smaller but really
-                    // should be removed from the event (`Document:new()` is particularly wasteful of compute)
-                    document: Document::new(None, None),
-                    content: None,
-                    format: None,
                 },
             );
 
@@ -1140,7 +1075,13 @@ impl Document {
                     request_ids_display()
                 );
                 if let Err(error) = execute_sender
-                    .send(ExecuteRequest::new(When::Soon, When::Soon, None, None, None))
+                    .send(ExecuteRequest::new(
+                        When::Soon,
+                        When::Soon,
+                        None,
+                        None,
+                        None,
+                    ))
                     .await
                 {
                     tracing::error!(
@@ -1732,22 +1673,14 @@ impl Document {
         let subtopic = match type_ {
             DocumentEventType::Encoded => format!(
                 "encoded:{}",
-                format
-                    .clone()
-                    .map_or_else(|| "undef".to_string(), |format| format.extension)
+                format.map_or_else(|| "undef".to_string(), |format| format.extension)
             ),
             _ => type_.to_string(),
         };
 
         publish(
             &self.topic(&subtopic),
-            &DocumentEvent {
-                type_,
-                document: self.repr(),
-                content,
-                format,
-                patch: None,
-            },
+            &DocumentEvent { type_, patch: None },
         )
     }
 
@@ -2018,14 +1951,16 @@ impl Documents {
         path: Option<P>,
         content: Option<String>,
         format: Option<String>,
-    ) -> Result<Document> {
+    ) -> Result<String> {
         let document = Document::create(path, content, format).await?;
         let document_id = document.id.clone();
-        let document_repr = document.repr();
         let handler = DocumentHandler::new(document, false);
-        self.registry.lock().await.insert(document_id, handler);
+        self.registry
+            .lock()
+            .await
+            .insert(document_id.clone(), handler);
 
-        Ok(document_repr)
+        Ok(document_id)
     }
 
     /// Open a document
@@ -2037,23 +1972,25 @@ impl Documents {
     ///
     /// If the document has already been opened, it will not be re-opened, but rather the existing
     /// in-memory instance will be returned.
-    pub async fn open<P: AsRef<Path>>(&self, path: P, format: Option<String>) -> Result<Document> {
+    pub async fn open<P: AsRef<Path>>(&self, path: P, format: Option<String>) -> Result<String> {
         let path = Path::new(path.as_ref()).canonicalize()?;
 
         for handler in self.registry.lock().await.values() {
             let document = handler.document.lock().await;
             if document.path == path {
-                return Ok(document.repr());
+                return Ok(document.id.clone());
             }
         }
 
         let document = Document::open(path, format).await?;
         let document_id = document.id.clone();
-        let document_repr = document.repr();
         let handler = DocumentHandler::new(document, true);
-        self.registry.lock().await.insert(document_id, handler);
+        self.registry
+            .lock()
+            .await
+            .insert(document_id.clone(), handler);
 
-        Ok(document_repr)
+        Ok(document_id)
     }
 
     /// Close a document
@@ -2065,7 +2002,7 @@ impl Documents {
     /// If `id_or_path` matches an existing document `id` then that document will
     /// be closed. Otherwise a search will be done and the first document with a matching
     /// path will be closed.
-    pub async fn close<P: AsRef<Path>>(&self, id_or_path: P) -> Result<()> {
+    pub async fn close<P: AsRef<Path>>(&self, id_or_path: P) -> Result<String> {
         let id_or_path_path = id_or_path.as_ref();
         let id_or_path_string = id_or_path_path.to_string_lossy().to_string();
         let mut id_to_remove = String::new();
@@ -2084,33 +2021,23 @@ impl Documents {
         };
         self.registry.lock().await.remove(&id_to_remove);
 
-        Ok(())
+        Ok(id_to_remove)
     }
 
     /// Subscribe a client to a topic for a document
-    pub async fn subscribe(
-        &self,
-        id: &str,
-        topic: &str,
-        client: &str,
-    ) -> Result<(Document, String)> {
+    pub async fn subscribe(&self, id: &str, topic: &str, client: &str) -> Result<String> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
         let topic = document_guard.subscribe(topic, client);
-        Ok((document_guard.repr(), topic))
+        Ok(topic)
     }
 
     /// Unsubscribe a client from a topic for a document
-    pub async fn unsubscribe(
-        &self,
-        id: &str,
-        topic: &str,
-        client: &str,
-    ) -> Result<(Document, String)> {
+    pub async fn unsubscribe(&self, id: &str, topic: &str, client: &str) -> Result<String> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
         let topic = document_guard.unsubscribe(topic, client);
-        Ok((document_guard.repr(), topic))
+        Ok(topic)
     }
 
     /// Get a document that has previously been opened
@@ -2246,13 +2173,13 @@ pub mod commands {
         format: Option<String>,
     }
     impl File {
-        async fn open(&self) -> eyre::Result<Document> {
+        async fn open(&self) -> eyre::Result<String> {
             DOCUMENTS.open(&self.path, self.format.clone()).await
         }
 
         async fn get(&self) -> eyre::Result<Arc<Mutex<Document>>> {
-            let document = self.open().await?;
-            DOCUMENTS.get(&document.id).await
+            let id = self.open().await?;
+            DOCUMENTS.get(&id).await
         }
     }
 
@@ -2310,7 +2237,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Show {
         async fn run(&self) -> Result {
-            let document = self.file.open().await?;
+            let document = Document::open(&self.file.path, self.file.format.clone()).await?;
             if let Some(pointer) = &self.pointer {
                 if pointer == "content" {
                     result::content(&document.format.extension, &document.content)
@@ -2813,7 +2740,9 @@ pub mod commands {
                 query,
                 lang,
             } = self;
-            let document = DOCUMENTS.open(file, format.clone()).await?;
+            let document_id = DOCUMENTS.open(file, format.clone()).await?;
+            let document = DOCUMENTS.get(&document_id).await?;
+            let document = document.lock().await;
             let node = &*document.root.read().await;
             let result = node_query::query(node, query, lang)?;
             result::value(result)
@@ -2936,7 +2865,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Detect {
         async fn run(&self) -> Result {
-            let mut document = DOCUMENTS.open(&self.file, None).await?;
+            let mut document = Document::open(&self.file, None).await?;
             document.read(true).await?;
             let nodes = document.detect().await?;
             result::value(nodes)

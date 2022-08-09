@@ -295,22 +295,22 @@ async fn documents_create(params: &Params) -> Result<(serde_json::Value, Subscri
     let content = optional_string(params, "content")?;
     let format = optional_string(params, "format")?;
 
-    let document = DOCUMENTS.create(path, content, format).await?;
-    Ok((json!(document), Subscription::None))
+    let id = DOCUMENTS.create(path, content, format).await?;
+    Ok((json!({ "id": id }), Subscription::None))
 }
 
 async fn documents_open(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let path = required_string(params, "path")?;
 
-    let document = DOCUMENTS.open(&path, None).await?;
-    Ok((json!(document), Subscription::None))
+    let id = DOCUMENTS.open(&path, None).await?;
+    Ok((json!({ "id": id }), Subscription::None))
 }
 
 async fn documents_close(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
 
-    let document = DOCUMENTS.close(&id).await?;
-    Ok((json!(document), Subscription::None))
+    let id = DOCUMENTS.close(&id).await?;
+    Ok((json!({ "id": id }), Subscription::None))
 }
 
 async fn documents_load(params: &Params) -> Result<(serde_json::Value, Subscription)> {
@@ -350,8 +350,8 @@ async fn documents_subscribe(
     let id = required_string(params, "documentId")?;
     let topic = required_string(params, "topic")?;
 
-    let (document, topic) = DOCUMENTS.subscribe(&id, &topic, client).await?;
-    Ok((json!(document), Subscription::Subscribe(topic)))
+    let topic = DOCUMENTS.subscribe(&id, &topic, client).await?;
+    Ok((json!({ "id": id }), Subscription::Subscribe(topic)))
 }
 
 async fn documents_unsubscribe(
@@ -361,8 +361,8 @@ async fn documents_unsubscribe(
     let id = required_string(params, "documentId")?;
     let topic = required_string(params, "topic")?;
 
-    let (document, topic) = DOCUMENTS.unsubscribe(&id, &topic, client).await?;
-    Ok((json!(document), Subscription::Unsubscribe(topic)))
+    let topic = DOCUMENTS.unsubscribe(&id, &topic, client).await?;
+    Ok((json!({ "id": id }), Subscription::Unsubscribe(topic)))
 }
 
 async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscription)> {
