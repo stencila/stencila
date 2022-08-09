@@ -30,6 +30,7 @@ mod tests {
     /// Tests of basic functionality
     /// This test is replicated in all the microkernels.
     /// Other test should be written for language specific quirks and regressions.
+    #[ignore]
     #[tokio::test]
     async fn basics() -> Result<()> {
         let mut kernel = new();
@@ -76,6 +77,7 @@ mod tests {
     }
 
     // Test that `console.log` arguments are treated as separate outputs
+    #[ignore]
     #[tokio::test]
     async fn console_log() -> Result<()> {
         let mut kernel = new();
@@ -100,6 +102,7 @@ mod tests {
     }
 
     /// Test setting and getting of vars of different types
+    #[ignore]
     #[tokio::test]
     async fn set_get_vars() -> Result<()> {
         let mut kernel = new();
