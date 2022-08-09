@@ -10,7 +10,7 @@ use crate::utils::escape;
 
 /// Encode a `Node` to Markdown
 pub fn encode(node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
-    Ok(node.to_md().trim().to_string())
+    Ok(format!("{}\n", node.to_md().trim()))
 }
 
 /// A trait to encode a `Node` as Markdown
@@ -269,7 +269,7 @@ impl ToMd for CodeChunk {
         [
             "```",
             &self.programming_language,
-            " exec \n",
+            " exec\n",
             &self.text,
             "\n```\n\n",
         ]
