@@ -583,7 +583,7 @@ pub trait BinaryTrait: Send + Sync {
         }
 
         if !dirs.is_empty() {
-            tracing::trace!("Found Stencila install dirs: {:?}", dirs);
+            tracing::trace!("Found `{}` Stencila install dirs", dirs.len());
         }
 
         // Collect the directories matching the globs
