@@ -1,9 +1,8 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 438
+assertion_line: 467
 expression: html
 input_file: fixtures/nodes/code-chunk.json
-
 ---
 <stencila-code-chunk data-root itemtype="https://schema.stenci.la/CodeChunk" itemscope programming-language="python">
   <meta itemprop="programmingLanguage" content="python"/>
@@ -17,7 +16,7 @@ input_file: fixtures/nodes/code-chunk.json
     </div>
   </stencila-code-dependencies>
   <div data-prop="outputs" slot="outputs">
-    <span itemtype="https://schema.org/Text" itemscope>a string output</span>
+    <pre itemtype="https://schema.org/Text" itemscope>a string output</pre>
     <span itemtype="https://schema.org/Boolean" itemscope>true</span>
     <span itemtype="https://schema.org/Integer" itemscope>42</span>
     <span itemtype="https://schema.org/Number" itemscope>1.23</span>
