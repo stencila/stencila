@@ -288,14 +288,14 @@ pub async fn execute(
                 }
 
                 // Update the resource to indicate that the resource was executed
-                let execute_succeeded = match &executed {
+                let execute_failed = match &executed {
                     Node::CodeChunk(CodeChunk { execute_status, .. })
                     | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                        matches!(execute_status, Some(CodeExecutableExecuteStatus::Succeeded))
+                        matches!(execute_status, Some(CodeExecutableExecuteStatus::Failed))
                     }
-                    _ => true,
+                    _ => false,
                 };
-                resource_info.did_execute(execute_succeeded);
+                resource_info.did_execute(execute_failed);
 
                 // Generate a patch for the differences resulting from execution
                 let mut patch = diff(&node_info.node, &executed);

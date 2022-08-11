@@ -318,7 +318,7 @@ impl Executable for Parameter {
             self.execute_digest
                 .as_ref()
                 .map(|cord| ResourceDigest::from_string(&cord.0)),
-            Some(true), // Assumes that always successfully set parameter in kernel
+            None,
         );
         context.resource_infos.push(resource_info);
 
@@ -398,10 +398,16 @@ impl Executable for CodeChunk {
             .execute_digest
             .as_ref()
             .map(|cord| ResourceDigest::from_string(&cord.0));
-        resource_info.execute_succeeded = self
-            .execute_status
-            .as_ref()
-            .map(|status| matches!(status, CodeExecutableExecuteStatus::Succeeded));
+        resource_info.execute_failed = self.execute_status.as_ref().map(|status| {
+            // This function can be called while the node is `Scheduled` so this needs to account for that
+            // by considering last execution status as well
+            matches!(
+                status,
+                CodeExecutableExecuteStatus::Failed
+                    | CodeExecutableExecuteStatus::ScheduledPreviouslyFailed
+                    | CodeExecutableExecuteStatus::RunningPreviouslyFailed
+            )
+        });
 
         context.resource_infos.push(resource_info);
 
@@ -503,10 +509,16 @@ impl Executable for CodeExpression {
             .execute_digest
             .as_ref()
             .map(|cord| ResourceDigest::from_string(&cord.0));
-        resource_info.execute_succeeded = self
-            .execute_status
-            .as_ref()
-            .map(|status| matches!(status, CodeExecutableExecuteStatus::Succeeded));
+        resource_info.execute_failed = self.execute_status.as_ref().map(|status| {
+            // This function can be called while the node is `Scheduled` so this needs to account for that
+            // by considering last execution status as well
+            matches!(
+                status,
+                CodeExecutableExecuteStatus::Failed
+                    | CodeExecutableExecuteStatus::ScheduledPreviouslyFailed
+                    | CodeExecutableExecuteStatus::RunningPreviouslyFailed
+            )
+        });
 
         // Force code expression execution semantics (in case `@impure` or `@autorun` tags
         // where inadvertently used in code) by setting to `None`

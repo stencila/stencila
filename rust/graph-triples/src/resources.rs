@@ -332,8 +332,11 @@ pub struct ResourceInfo {
     /// The [`ResourceDigest`] of the resource when it was last executed
     pub execute_digest: Option<ResourceDigest>,
 
-    /// Whether the last execution of the resource succeeded
-    pub execute_succeeded: Option<bool>,
+    /// Whether the last execution of the resource failed or not
+    ///
+    /// Used to determine if other resources should have `execute_required` set to `DependenciesFailed`.
+    /// Should be false if the resource has never executed or succeeded last time it was.
+    pub execute_failed: Option<bool>,
 }
 
 impl ResourceInfo {
@@ -349,7 +352,7 @@ impl ResourceInfo {
             execute_pure: None,
             compile_digest: None,
             execute_digest: None,
-            execute_succeeded: None,
+            execute_failed: None,
         }
     }
 
@@ -361,7 +364,7 @@ impl ResourceInfo {
         execute_pure: Option<bool>,
         compile_digest: Option<ResourceDigest>,
         execute_digest: Option<ResourceDigest>,
-        execute_succeeded: Option<bool>,
+        execute_failed: Option<bool>,
     ) -> Self {
         Self {
             resource,
@@ -373,7 +376,7 @@ impl ResourceInfo {
             execute_pure,
             compile_digest,
             execute_digest,
-            execute_succeeded,
+            execute_failed,
         }
     }
 
@@ -449,12 +452,9 @@ impl ResourceInfo {
     }
 
     /// Did execution fail the last time the resource was executed
-    ///
-    /// Returns `false` if the resource has not been executed or was executed
-    /// and succeeded.
     pub fn is_fail(&self) -> bool {
-        if let Some(succeeded) = self.execute_succeeded {
-            !succeeded
+        if let Some(failed) = self.execute_failed {
+            failed
         } else {
             false
         }
@@ -462,9 +462,9 @@ impl ResourceInfo {
 
     /// The resource was executed, so update the `execute_digest` to the `compile_digest`,
     /// and `execute_succeeded` property.
-    pub fn did_execute(&mut self, execute_succeeded: bool) {
+    pub fn did_execute(&mut self, execute_failed: bool) {
         self.execute_digest = self.compile_digest.clone();
-        self.execute_succeeded = Some(execute_succeeded);
+        self.execute_failed = Some(execute_failed);
     }
 }
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]

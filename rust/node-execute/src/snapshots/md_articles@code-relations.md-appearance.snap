@@ -585,8 +585,7 @@ expression: "&plan"
             ],
             "depth": 0,
             "execute_pure": false,
-            "compile_digest": "2929670310044459792.6473431330112736658.0.0.0",
-            "execute_succeeded": true
+            "compile_digest": "2929670310044459792.6473431330112736658.0.0.0"
           },
           "kernel_name": "calc",
           "is_fork": false
