@@ -64,10 +64,10 @@ stderr <- stderr()
 
 # Functions to encode messages as `CodeMessage`
 message <- function(msg, type) write(paste0(encode_message(msg, type), RESULT), stderr)
-info <- function(msg) message(msg, "CodeInfo")
-warning <- function(msg) message(msg, "CodeWarning")
+info <- function(msg) message(msg, "Info")
+warning <- function(msg) message(msg, "Warning")
 error <- function(error, type = "RuntimeError") message(error$message, type)
-interrupt <- function(condition, type = "CodeInterrupt") message("Code execution was interrupted", type)
+interrupt <- function(condition, type = "Interrupt") message("Code execution was interrupted", type)
 
 # Environment in which code will be executed
 envir <- new.env()
@@ -137,7 +137,7 @@ while (!is.null(stdin)) {
       compiled <- tryCatch(parse(text=code), error=identity)
       if (inherits(compiled, "simpleError")) {
         error(compiled, "SyntaxError")
-      } else {  
+      } else {
         # Default graphics device to avoid window popping up or `Rplot.pdf` polluting
         # local directory. 
         # `CairoPNG` is preferred instead of `png` to avoid "a forked child should not open a graphics device"

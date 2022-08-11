@@ -57,14 +57,14 @@ mod tests {
         let (outputs, messages) = kernel.exec("if").await?;
         assert!(messages[0]
             .error_message
-            .ends_with("syntax error: unexpected end of file\n"));
+            .ends_with("syntax error: unexpected end of file"));
         assert_json_eq!(outputs, json!([]));
 
         // Runtime error
         let (outputs, messages) = kernel.exec("foo").await?;
         assert!(messages[0]
             .error_message
-            .ends_with("foo: command not found\n"));
+            .ends_with("foo: command not found"));
         assert_json_eq!(outputs, json!([]));
 
         // Set and get another variable

@@ -5,6 +5,8 @@ use kernel::{
         async_trait::async_trait,
         dirs,
         eyre::{bail, eyre, Result},
+        once_cell::sync::Lazy,
+        regex::Regex,
         serde::Serialize,
         serde_json,
         tempfile::tempdir,
@@ -770,7 +772,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
         .iter()
         .map(|message| -> CodeError {
             serde_json::from_str(message).unwrap_or_else(|_| CodeError {
-                error_message: message.into(),
+                error_message: transform_message(message),
                 ..Default::default()
             })
         })
@@ -810,6 +812,38 @@ fn handle_line(line: &str, current: &mut String, vec: &mut Vec<String>) -> bool 
         current.push('\n');
         true
     }
+}
+
+/**
+ * Transform a string message
+ *
+ * This is used in instances when a message is returned from the kernel that
+ * can not be parsed as JSON. It allows use to do some transformations of the messages
+ * that are not possible, or would be complicated to do, in some microkernel scripts
+ * (particularly those for shells like Bash).
+ *
+ * It is ad-hoc dealing with kernels on a case-by-case basis here, but in the absence
+ * of a trait for microkernels is expedient.
+ */
+fn transform_message(message: &str) -> String {
+    // Bash microkernel: strip the leading filename and re-index the line number
+    static BASH_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"^.*?: line (\d+):(.*)").expect("Should create regex"));
+    if let Some(captures) = BASH_REGEX.captures(message) {
+        let line = captures[1].parse::<u32>().unwrap_or(17).saturating_sub(16);
+        let rest = &captures[2];
+        return format!("line {}:{}", line, rest);
+    }
+
+    // ZSH microkernel: starts with a leading '(eval):', repeated for each line there is an error
+    static ZSH_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"\(eval\):").expect("Should create regex"));
+    if message.starts_with("(eval):") {
+        return ZSH_REGEX.replace_all(message, "line ").trim().to_string();
+    }
+
+    // Default: unchanged message
+    message.to_string()
 }
 
 pub mod tests;

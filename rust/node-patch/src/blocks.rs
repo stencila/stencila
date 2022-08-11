@@ -97,7 +97,12 @@ patchable_variants!(
     CodeChunkCaption::VecBlockContent,
     CodeChunkCaption::String
 );
-patchable_struct!(CodeError, error_message, error_type, stack_trace);
+
+// Make `CodeError`s replaceable to avoid large patches associated with
+// changes in stack trace and to simplify Web Component development (no
+// need to observe for change in error level or presence/absence of stacktrace)
+replaceable_struct!(CodeError, error_message, error_type, stack_trace);
+
 patchable_variants!(
     CodeExecutableCodeDependencies,
     CodeExecutableCodeDependencies::CodeChunk,

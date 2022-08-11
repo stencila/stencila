@@ -50,14 +50,14 @@ mod tests {
         let (outputs, messages) = kernel.exec("if").await?;
         assert!(messages[0]
             .error_message
-            .ends_with("parse error near `if'\n"));
+            .ends_with("parse error near `if'"));
         assert_json_eq!(outputs, json!([]));
 
         // Runtime error
         let (outputs, messages) = kernel.exec("foo").await?;
         assert!(messages[0]
             .error_message
-            .ends_with("command not found: foo\n"));
+            .ends_with("command not found: foo"));
         assert_json_eq!(outputs, json!([]));
 
         // Set and get another variable

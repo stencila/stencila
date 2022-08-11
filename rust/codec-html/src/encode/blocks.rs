@@ -243,29 +243,31 @@ impl ToHtml for CodeChunkCaption {
 
 /// Encode a code error to HTML
 ///
-/// In the future the current `CodeError` is likely to be replaced by a `CodeMessage`
-/// (and `messages` added as a property of code elements).
+/// In the future the current `CodeError` is likely to be replaced by a `CodeNotification`
+/// (or similar) with a `level` property for info, warnings, errors etc.
 impl ToHtml for CodeError {
     fn to_html(&self, context: &EncodeContext) -> String {
-        let kind = if self.error_message.to_lowercase().contains("warning")
-            && self.stack_trace.is_none()
-        {
-            "warning"
-        } else {
-            "error"
-        };
-
-        let error_type =
-            elem_placeholder("span", &[attr_prop("errorType")], &self.error_type, context);
+        let error_type = elem(
+            "span",
+            &[attr_prop("errorType"), attr_slot("type")],
+            self.error_type
+                .as_deref()
+                .map(|value| value.as_str())
+                .unwrap_or("Error"),
+        );
 
         let error_message = elem(
             "span",
-            &[attr_prop("errorMessage")],
+            &[attr_prop("errorMessage"), attr_slot("message")],
             &self.error_message.to_html(context),
         );
 
+        // For inline `CodeExpression.errors` we need to use a span. In this context the stack traces are normally
+        // hidden but we include an element anyway for consistency (e.g. so any patches on `CodeError` nodes
+        // do not break unexpectedly). We can not rely on `context` inline since that is not populated when
+        // generating HTML for patches.
         let stack_trace = elem_placeholder(
-            "pre",
+            "span",
             &[attr_prop("stackTrace"), attr_slot("stacktrace")],
             &self.stack_trace,
             context,
@@ -273,11 +275,7 @@ impl ToHtml for CodeError {
 
         elem(
             "stencila-code-error",
-            &[
-                attr_itemtype::<Self>(),
-                attr_id(&self.id),
-                attr("kind", kind),
-            ],
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &[error_type, error_message, stack_trace].concat(),
         )
     }

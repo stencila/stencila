@@ -151,7 +151,12 @@ def encode_message(type, message, exception=None):
         stack_trace = stack_trace.getvalue()
         # Remove the first three lines (the header and where we where in `python_kernel.py`)
         # and the last line which repeats the message
-        code_message["stackTrace"] = "\n".join(stack_trace.split("\n")[3:-1])
+        stack_trace = "\n".join(stack_trace.split("\n")[3:-1])
+        # Remove the "double" exception that can be caused by re-throwing the exception
+        position = stack_trace.find("During handling of the above exception")
+        if position:
+            stack_trace = stack_trace[:position].strip()
+        code_message["stackTrace"] = stack_trace
     return json.dumps(code_message)
 
 

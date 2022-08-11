@@ -20,22 +20,22 @@ console.log = function (...args) {
 
 console.debug = (message) =>
   stderr.write(
-    `{"type":"CodeError","errorType":"CodeDebug","errorMessage":"${message}"}${RESULT}`
+    `{"type":"CodeError","errorType":"Debug","errorMessage":"${message}"}${RESULT}`
   )
 
 console.info = (message) =>
   stderr.write(
-    `{"type":"CodeError","errorType":"CodeInfo","errorMessage":"${message}"}${RESULT}`
+    `{"type":"CodeError","errorType":"Info","errorMessage":"${message}"}${RESULT}`
   )
 
 console.warn = (message) =>
   stderr.write(
-    `{"type":"CodeError","errorType":"CodeWarn","errorMessage":"${message}"}${RESULT}`
+    `{"type":"CodeError","errorType":"Warning","errorMessage":"${message}"}${RESULT}`
   )
 
 console.error = (message) =>
   stderr.write(
-    `{"type":"CodeError","errorType":"CodeError","errorMessage":"${message}"}${RESULT}`
+    `{"type":"CodeError","errorType":"Error","errorMessage":"${message}"}${RESULT}`
   )
 
 const rl = readline.createInterface({

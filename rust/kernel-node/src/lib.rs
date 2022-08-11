@@ -128,19 +128,19 @@ console.error("Error message")
             messages,
             json!([{
                 "type": "CodeError",
-                "errorType": "CodeDebug",
+                "errorType": "Debug",
                 "errorMessage": "Debug message",
             }, {
                 "type": "CodeError",
-                "errorType": "CodeInfo",
+                "errorType": "Info",
                 "errorMessage": "Info message",
             }, {
                 "type": "CodeError",
-                "errorType": "CodeWarn",
+                "errorType": "Warning",
                 "errorMessage": "Warn message",
             } , {
                 "type": "CodeError",
-                "errorType": "CodeError",
+                "errorType": "Error",
                 "errorMessage": "Error message",
             }])
         );

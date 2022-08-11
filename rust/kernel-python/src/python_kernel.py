@@ -56,7 +56,7 @@ while True:
             (new_stdout, new_stderr) = lines[1:3]
             lines = lines[3:]
 
-            # Close file descriptors so that we're not interfeering with
+            # Close file descriptors so that we're not interfering with
             # parent's file descriptors and so stdin, stdout and stderr get replaced below.
             # See https://gist.github.com/ionelmc/5038117 for a more sophisticated approach to this.
             os.closerange(0, 1024)
@@ -88,7 +88,7 @@ while True:
         except KeyboardInterrupt as interrupt:
             stderr.write(
                 encode_message(
-                    "CodeInterrupt", "Code execution was interrupted", interrupt
+                    "Interrupt", "Code execution was interrupted", interrupt
                 )
                 + RESULT
             )
