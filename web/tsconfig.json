@@ -1,14 +1,12 @@
 {
-  "extends": "@stencila/dev-config/tsconfig.json",
   "compilerOptions": {
-    "declaration": true,
-    "isolatedModules": true,
-    "noUncheckedIndexedAccess": true,
-    "baseUrl": ".",
-    "outDir": "dist",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "skipLibCheck": true
+    "esModuleInterop": true,
+    "target": "es6",
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "declaration": true,
+    "outDir": "dist"
   },
   "include": ["src"]
 }

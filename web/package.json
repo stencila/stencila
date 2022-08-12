@@ -4,10 +4,10 @@
   "description": "Web client for interacting with Stencila document server",
   "scripts": {
     "build": "npm run build:js && npm run build:browser && npm run build:ts",
-    "build:browser": "NODE_OPTIONS=--no-experimental-fetch parcel build . --no-autoinstall --target read --target view --target exec --target edit --target terminal",
+    "build:browser": "parcel build . --no-autoinstall --target read --target view --target exec --target edit --target terminal",
+    "build:watch": "parcel watch . --no-autoinstall --target read --target view --target exec --target edit --target terminal",
     "build:js": "microbundle",
     "build:ts": "tsc --emitDeclarationOnly",
-    "build:watch": "parcel watch",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cover": "jest --coverage",
@@ -59,8 +59,8 @@
     "url": "https://github.com/stencila/stencila"
   },
   "devDependencies": {
-    "@parcel/transformer-typescript-tsc": "^2.0.0-nightly.993",
-    "@parcel/transformer-typescript-types": "^2.0.0-nightly.993",
+    "@parcel/transformer-typescript-tsc": "2.7.0",
+    "@parcel/transformer-typescript-types": "2.7.0",
     "@stencila/dev-config": "3.0.4",
     "@stencila/eslint-config": "3.0.4",
     "@stencila/schema": "file:../schema",
@@ -78,12 +78,13 @@
     "@types/prosemirror-tables": "0.9.1",
     "@types/prosemirror-transform": "1.1.4",
     "@types/prosemirror-view": "1.19.1",
+    "buffer": "^6.0.3",
     "jest": "28.1.1",
     "jest-environment-jsdom": "28.1.1",
     "microbundle": "0.14.2",
-    "parcel": "^2.0.0-nightly.991",
+    "parcel": "2.7.0",
     "ts-jest": "28.0.4",
-    "typescript": "4.7.3"
+    "typescript": "4.7.4"
   },
   "peerDependencies": {
     "@stencila/schema": "^1.11.1"
