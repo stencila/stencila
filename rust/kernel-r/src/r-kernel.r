@@ -151,6 +151,10 @@ while (!is.null(stdin)) {
         # Recording must be enabled for recordPlot() to work
         dev.control("enable")
 
+        # Capture output to stdout so we can add a terminating flag
+        #output <- textConnection("out", "w", local = TRUE)
+        #sink(output, type = "output")
+
         value <- tryCatch(
           eval(compiled, envir, .GlobalEnv),
           message=info,
@@ -158,17 +162,25 @@ while (!is.null(stdin)) {
           error=error,
           interrupt=interrupt
         )
+
+        # Get any output and reset the sink
+        #output_text <- textConnectionValue(output)
+        #sink(type = "output")
+        #close(output)
+        #if (nzchar(output_text)) {
+        #  write(paste0(output_text, RESULT), stdout)
+        #}
         
+        # Ignore any values that are not visible
         if (!withVisible(value)$visible) {
           value <- NULL
         }
 
+        # Capture plot and clear device
         rec_plot <- recordPlot()
         if (!is.null(rec_plot[[1]])) {
           value <- rec_plot
         }
-        
-        # Clear the existing device
         dev.off()  
 
         if (!is.null(value)) {

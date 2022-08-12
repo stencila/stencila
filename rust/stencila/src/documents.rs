@@ -2105,8 +2105,6 @@ pub mod commands {
         #[cfg(feature = "kernels-cli")]
         Tasks(kernel_commands::Tasks),
         #[cfg(feature = "kernels-cli")]
-        Queues(kernel_commands::Queues),
-        #[cfg(feature = "kernels-cli")]
         Cancel(kernel_commands::Cancel),
         #[cfg(feature = "kernels-cli")]
         Symbols(kernel_commands::Symbols),
@@ -2140,8 +2138,6 @@ pub mod commands {
                 Action::Kernels(action) => action.run().await,
                 #[cfg(feature = "kernels-cli")]
                 Action::Tasks(action) => action.run().await,
-                #[cfg(feature = "kernels-cli")]
-                Action::Queues(action) => action.run().await,
                 #[cfg(feature = "kernels-cli")]
                 Action::Cancel(action) => action.run().await,
                 #[cfg(feature = "kernels-cli")]
@@ -2278,8 +2274,8 @@ pub mod commands {
             async fn run(&self) -> Result {
                 let document = self.file.get().await?;
                 let document = document.lock().await;
-                let _kernels = document.kernels.clone();
-                //self.execute.run(&mut kernels).await
+                let mut kernels = document.kernels.write().await;
+                self.execute.run(&mut kernels).await?;
                 result::nothing()
             }
         }
@@ -2323,25 +2319,6 @@ pub mod commands {
         }
 
         #[derive(Parser)]
-        pub struct Queues {
-            #[clap(flatten)]
-            file: File,
-
-            #[clap(flatten)]
-            queues: kernels::commands::Queues,
-        }
-
-        #[async_trait]
-        impl Run for Queues {
-            async fn run(&self) -> Result {
-                let document = self.file.get().await?;
-                let document = document.lock().await;
-                let kernels = document.kernels.read().await;
-                self.queues.run(&*kernels).await
-            }
-        }
-
-        #[derive(Parser)]
         pub struct Cancel {
             #[clap(flatten)]
             file: File,
@@ -2355,8 +2332,8 @@ pub mod commands {
             async fn run(&self) -> Result {
                 let document = self.file.get().await?;
                 let document = document.lock().await;
-                let _kernels = document.kernels.clone();
-                //self.cancel.run(&mut *kernels).await
+                let mut kernels = document.kernels.write().await;
+                self.cancel.run(&mut *kernels).await?;
                 result::nothing()
             }
         }

@@ -106,7 +106,7 @@ mod tests {
         Ok(())
     }
 
-    /// Test cancelling a task
+    /// Test interrupting a task
     #[tokio::test]
     async fn exec_async() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
@@ -121,14 +121,14 @@ mod tests {
             Err(..) => return Ok(()),
         };
 
-        // Start a long running task in the kernel that should get cancelled
+        // Start a long running task in the kernel that should get interrupted
         let mut task = kernel
             .exec_async("import time\nstarted = True\ntime.sleep(10)\nfinished = True")
             .await?;
 
-        // Sleep a little to allow the task to start, then cancel it
+        // Sleep a little to allow the task to start, then interrupt it
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-        task.cancel().await?;
+        task.interrupt().await?;
 
         // Check that was started but not finished
         let (outputs, messages) = kernel

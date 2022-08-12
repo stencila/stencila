@@ -48,9 +48,7 @@ mod tests {
 
         // Syntax error
         let (outputs, messages) = kernel.exec("if").await?;
-        assert!(messages[0]
-            .error_message
-            .ends_with("parse error near `if'"));
+        assert!(messages[0].error_message.ends_with("parse error near `if'"));
         assert_json_eq!(outputs, json!([]));
 
         // Runtime error

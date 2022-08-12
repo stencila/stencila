@@ -90,7 +90,7 @@ impl KernelTrait for CalcKernel {
             Regex::new(r"\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*=(.*)").expect("Unable to create regex")
         });
 
-        let mut task = Task::start_sync();
+        let mut task = Task::begin_sync();
         let mut outputs = Vec::new();
         let mut messages = Vec::new();
         for statement in STATEMENTS_REGEX.split(code) {
@@ -153,7 +153,7 @@ impl KernelTrait for CalcKernel {
                 }
             }
         }
-        task.finished(TaskResult::new(outputs, messages));
+        task.end(TaskResult::new(outputs, messages));
         Ok(task)
     }
 

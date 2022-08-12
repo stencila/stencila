@@ -361,10 +361,8 @@ pub type TaskSender = broadcast::Sender<TaskResult>;
 /// A [`broadcast::channel`] receiver of a [`TaskResult`]
 pub type TaskReceiver = broadcast::Receiver<TaskResult>;
 
-/// A [`mpsc::channel`] sender to cancel the task
-///
-/// Used to send a cancellation request to the the kernel that is running the task.
-pub type TaskCanceller = mpsc::Sender<()>;
+/// A [`mpsc::channel`] sender to interrupt the task
+pub type TaskInterrupter = mpsc::Sender<()>;
 
 /// A task running in a [`Kernel`]
 #[derive(Debug, Clone, Serialize)]
@@ -379,14 +377,14 @@ pub struct Task {
     /// The time that the task was started by the kernel
     ///
     /// If the task was placed on a queue then this is expected to be after `created`.
-    /// In this case, the task may also be cancelled before it is started.
+    /// In this case, the task may also be interrupted before it is started.
     pub started: Option<DateTime<Utc>>,
 
-    /// The time that the task ended (if it has)
+    /// The time that the task finished (successfully or not)
     pub finished: Option<DateTime<Utc>>,
 
-    /// The time that the task was cancelled
-    pub cancelled: Option<DateTime<Utc>>,
+    /// The time that the task was interrupted
+    pub interrupted: Option<DateTime<Utc>>,
 
     /// The result of the task (if it was completed immediately)
     pub result: Option<TaskResult>,
@@ -395,73 +393,35 @@ pub struct Task {
     #[serde(skip)]
     pub sender: Option<TaskSender>,
 
-    /// The canceller for the task (may be set after the task is started)
+    /// The interrupter for the task (may be set after the task is started)
     #[serde(skip)]
-    pub canceller: Option<TaskCanceller>,
+    pub interrupter: Option<TaskInterrupter>,
 }
 
 impl Task {
-    /// Create a task that will be deferred until later
-    ///
-    /// Used when a kernel is busy an tasks need to be queued.
-    /// Until the task is started, the `canceller` will be used to remove it from said queue.
-    pub fn defer(sender: Option<TaskSender>, canceller: Option<TaskCanceller>) -> Self {
-        Self {
-            id: TaskId::new(),
-            created: Utc::now(),
-            started: None,
-            finished: None,
-            cancelled: None,
-            result: None,
-            sender,
-            canceller,
-        }
-    }
-
-    /// Create a task that could not be dispatched to a kernel and give the reason for that
-    pub fn not_dispatched(message: &str) -> Self {
-        let now = Utc::now();
-        Self {
-            id: TaskId::new(),
-            created: now,
-            started: Some(now),
-            finished: Some(now),
-            cancelled: None,
-            result: Some(TaskResult::new(
-                Vec::new(),
-                vec![CodeError {
-                    error_message: message.to_string(),
-                    ..Default::default()
-                }],
-            )),
-            sender: None,
-            canceller: None,
-        }
-    }
-
-    /// Create and immeaditely start a task
-    pub fn start(sender: Option<TaskSender>, canceller: Option<TaskCanceller>) -> Self {
+    /// Create and immediately begin a kernel task
+    pub fn begin(sender: Option<TaskSender>, interrupter: Option<TaskInterrupter>) -> Self {
         let now = Utc::now();
         Self {
             id: TaskId::new(),
             created: now,
             started: Some(now),
             finished: None,
-            cancelled: None,
+            interrupted: None,
             result: None,
             sender,
-            canceller,
+            interrupter,
         }
     }
 
-    /// Create and immeadiately start a synchronous task
-    pub fn start_sync() -> Self {
-        Self::start(None, None)
+    /// Create and immediately begin a synchronous task
+    pub fn begin_sync() -> Self {
+        Self::begin(None, None)
     }
 
-    /// Create and immeaditely start an asynchronus task
-    pub fn start_async(sender: TaskSender) -> Self {
-        Self::start(Some(sender), None)
+    /// Create and immediately begin an asynchronous task
+    pub fn begin_async(sender: TaskSender) -> Self {
+        Self::begin(Some(sender), None)
     }
 
     /// Is the task an async task?
@@ -469,14 +429,14 @@ impl Task {
         self.sender.is_some()
     }
 
-    /// Is the task able to be cancelled?
-    pub fn is_cancellable(&self) -> bool {
-        self.canceller.is_some()
+    /// Is the task able to be interrupted?
+    pub fn is_interruptable(&self) -> bool {
+        self.interrupter.is_some()
     }
 
-    /// Is the task finished or cancelled?
-    pub fn is_done(&self) -> bool {
-        self.finished.is_some() || self.cancelled.is_some()
+    /// Is the task ended (i.e. finished or interrupted)?
+    pub fn is_ended(&self) -> bool {
+        self.finished.is_some() || self.interrupted.is_some()
     }
 
     /// Subscribe to the task
@@ -487,57 +447,59 @@ impl Task {
         }
     }
 
-    /// The task did finish
-    pub fn finished(&mut self, result: TaskResult) {
-        if self.cancelled.is_some() {
-            // The task can be cancelled but we still get a partial result
-            // (because, for example the stdout and stderr have been captured).
-            // In that case, store the result, but don't update anything else.
-            self.result = Some(result);
-        } else if let Some(finished) = self.finished {
-            // Log an error because this shouldn't really ever happen but
-            // don't returns an error because its not fatal if it does
+    /// End the tasks by passing a result
+    ///
+    /// This function determines if the result has a message with `error_type: Interrupt`
+    /// to determine if it was `interrupted`.
+    #[tracing::instrument]
+    pub fn end(&mut self, result: TaskResult) {
+        // Log an error because these shouldn't really ever happen; but
+        // if they do don't return an error because its not fatal if it does
+        if let Some(finished) = self.finished {
             tracing::error!("Task already finished at `{}`", finished);
+        } else if let Some(interrupted) = self.interrupted {
+            tracing::error!("Task already interrupted at `{}`", interrupted);
+        };
+
+        let was_interrupted = result.messages.iter().any(|msg| match &msg.error_type {
+            Some(type_) => type_.as_str() == "Interrupt",
+            None => false,
+        });
+        if was_interrupted {
+            self.interrupted = Some(Utc::now());
         } else {
-            self.result = Some(result);
             self.finished = Some(Utc::now());
-            self.canceller = None; // Ensure finish of the async cancellation task
         }
+
+        self.result = Some(result);
+        self.interrupter = None; // Ensure the async interrupt task ends by closing the channel
     }
 
-    /// The task was cancelled (potentially with partial results)
-    pub fn cancelled(&mut self, result: Option<TaskResult>) {
-        if let Some(cancelled) = self.cancelled {
-            // Log an error because this shouldn't really ever happen but
-            // don't returns an error because its not fatal if it does
-            tracing::error!("Task was already cancelled at `{}`", cancelled);
-        } else {
-            self.result = result;
-            self.cancelled = Some(Utc::now());
-            self.canceller = None; // Ensure finish of the async cancellation task
-        }
-    }
-
-    /// Cancel the task
-    pub async fn cancel(&mut self) -> Result<()> {
+    /// Interrupt the task by sending a message on its interrupt channel
+    ///
+    /// Note that this is not the only way to interrupt a task. Some code
+    /// elsewhere may send a message directly to the channel.
+    #[tracing::instrument]
+    pub async fn interrupt(&mut self) -> Result<()> {
         if let Some(finished) = self.finished {
             // Warn if the task already finished
             tracing::warn!("Task already finished at `{}`", finished);
             Ok(())
-        } else if let Some(cancelled) = self.cancelled {
+        } else if let Some(interrupted) = self.interrupted {
             // Just debug here since this is not really an error or warning
-            // (e.g. another client cancelled)
-            tracing::debug!("Task was already cancelled at `{}`", cancelled);
+            // (e.g. another client interrupted)
+            tracing::debug!("Task was already interrupted at `{}`", interrupted);
             Ok(())
-        } else if let Some(canceller) = &mut self.canceller {
-            if let Err(..) = canceller.send(()).await {
-                tracing::debug!("Cancellation receiver for task `{}` dropped", self.id);
+        } else if let Some(interrupter) = &mut self.interrupter {
+            if let Err(..) = interrupter.send(()).await {
+                tracing::debug!("Interruption receiver for task `{}` dropped", self.id);
             };
-            self.cancelled = Some(Utc::now());
-            self.canceller = None; // Ensure finish of the async cancellation task
+            tracing::info!("Task `{}` was interrupted", self.id);
+            self.interrupted = Some(Utc::now());
+            self.interrupter = None; // Ensure finish of the async interruption task
             Ok(())
         } else {
-            bail!("Task `{}` is not cancellable", self.id)
+            bail!("Task `{}` is not interruptable", self.id)
         }
     }
 
@@ -554,7 +516,7 @@ impl Task {
                 Ok(result) => result,
                 Err(..) => bail!("Result sender for task `{}` dropped", self.id),
             };
-            self.finished(result.clone());
+            self.end(result.clone());
             Ok(result)
         } else {
             bail!(
@@ -634,7 +596,7 @@ pub trait KernelTrait {
     /// Execute code in the kernel and get outputs and messages
     ///
     /// This is a convenience method when all you want to do is get [`Task`]
-    /// outputs and messages (and are not interested in task duration or cancellation).
+    /// outputs and messages (and are not interested in task duration or interruption).
     async fn exec(&mut self, code: &str) -> Result<(TaskOutputs, TaskMessages)> {
         let mut task = self.exec_sync(code).await?;
         let TaskResult { outputs, messages } = task.result().await?;
@@ -655,7 +617,7 @@ pub trait KernelTrait {
 
     /// Execute code in the kernel asynchronously
     ///
-    /// Should be overridden by [`KernelTrait`] implementations that are cancellable.
+    /// Should be overridden by [`KernelTrait`] implementations that are interruptable.
     /// The default implementation simply calls `exec_sync`.
     async fn exec_async(&mut self, code: &str) -> Result<Task> {
         self.exec_sync(code).await

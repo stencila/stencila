@@ -254,22 +254,22 @@ pub async fn execute(
                 };
 
                 // If a `TaskInfo` was returned, the execution is async, can potentially be
-                // cancelled, and need to be waited for...
+                // interrupted, and needs to be waited for...
                 if let Some(mut task_info) = task_info {
-                    // Hook the `cancel_receiver` to the task's `canceller`, if it has one
-                    // (i.e. if it is cancellable)
-                    if let Some(task_cancel_sender) = task_info.task.canceller.clone() {
-                        tracing::trace!("Task is `{}` cancellable", task_info.task.id);
+                    // Hook the `cancel_receiver` to the task's `interrupter`, if it has one
+                    // (i.e. if it is interruptable)
+                    if let Some(interrupter) = task_info.task.interrupter.clone() {
+                        tracing::trace!("Task is `{}` interruptable", task_info.task.id);
                         let task_id = task_info.task.id.clone();
                         tokio::spawn(async move {
                             if let Ok(..) = cancel_receiver.await {
                                 tracing::trace!(
-                                    "Attempting to cancel task `{}` in stage {}/{}",
+                                    "Attempting to interrupt task `{}` in stage {}/{}",
                                     task_id,
                                     stage_index + 1,
                                     stage_count
                                 );
-                                if let Err(error) = task_cancel_sender.send(()).await {
+                                if let Err(error) = interrupter.send(()).await {
                                     tracing::error!(
                                         "While attempting to cancel task `{}`: {}",
                                         task_id,
@@ -279,7 +279,7 @@ pub async fn execute(
                             }
                         });
                     } else {
-                        tracing::trace!("Task `{}` is not cancellable", task_info.task.id);
+                        tracing::trace!("Task `{}` is not interruptable", task_info.task.id);
                     };
 
                     // Wait for the task to finish (or be cancelled and update the executed node when it has

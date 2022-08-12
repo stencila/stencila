@@ -359,7 +359,7 @@ fn code_execute_status(task_info: &TaskInfo, errors: &[CodeError]) -> CodeExecut
         } else {
             CodeExecutableExecuteStatus::Failed
         }
-    } else if task_info.was_cancelled() {
+    } else if task_info.was_interrupted() {
         CodeExecutableExecuteStatus::Cancelled
     } else if task_info.was_started() {
         CodeExecutableExecuteStatus::Running

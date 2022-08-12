@@ -56,7 +56,7 @@ impl KernelTrait for StoreKernel {
     }
 
     async fn exec_sync(&mut self, code: &str) -> Result<Task> {
-        let mut task = Task::start_sync();
+        let mut task = Task::begin_sync();
         let mut outputs = Vec::new();
         let mut messages = Vec::new();
         for line in code.lines() {
@@ -68,7 +68,7 @@ impl KernelTrait for StoreKernel {
                 }),
             }
         }
-        task.finished(TaskResult::new(outputs, messages));
+        task.end(TaskResult::new(outputs, messages));
         Ok(task)
     }
 }

@@ -870,8 +870,8 @@ impl KernelTrait for JupyterKernel {
     }
 
     async fn exec_sync(&mut self, code: &str) -> Result<Task> {
-        // TODO: Use cancellable async task
-        let mut task = Task::start_sync();
+        // TODO: Use interruptable async task
+        let mut task = Task::begin_sync();
 
         let JupyterDetails {
             hmac,
@@ -911,7 +911,7 @@ impl KernelTrait for JupyterKernel {
             }
         };
 
-        task.finished(TaskResult::new(outputs, messages));
+        task.end(TaskResult::new(outputs, messages));
 
         Ok(task)
     }

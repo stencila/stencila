@@ -443,10 +443,10 @@ impl KernelTrait for MicroKernel {
 
     /// Execute code in the kernel synchronously
     async fn exec_sync(&mut self, code: &str) -> Result<Task> {
-        let mut task = Task::start_sync();
+        let mut task = Task::begin_sync();
         let (outputs, messages) = self.state().await.send_receive(&[code.to_string()]).await?;
         let result = TaskResult::new(outputs, messages);
-        task.finished(result);
+        task.end(result);
 
         Ok(task)
     }
@@ -455,13 +455,13 @@ impl KernelTrait for MicroKernel {
     async fn exec_async(&mut self, code: &str) -> Result<Task> {
         // Setup channels and execution task
         let (result_forwarder, ..) = broadcast::channel(1);
-        let (canceller, cancellee) = if self.interruptable {
-            let (canceller, cancellee) = mpsc::channel(1);
-            (Some(canceller), Some(cancellee))
+        let (interrupt_sender, interrupt_receiver) = if self.interruptable {
+            let (sender, receiver) = mpsc::channel(1);
+            (Some(sender), Some(receiver))
         } else {
             (None, None)
         };
-        let task = Task::start(Some(result_forwarder.clone()), canceller);
+        let task = Task::begin(Some(result_forwarder.clone()), interrupt_sender);
 
         // Start async task to wait for result and send on to receivers.
         let task_id = task.id.clone();
@@ -487,7 +487,7 @@ impl KernelTrait for MicroKernel {
             let result = TaskResult::new(outputs, messages);
             if let Err(error) = result_forwarder.send(result) {
                 // The result receiver at the other end of the channel was dropped
-                // (e.g. the task was cancelled) so just `debug!`
+                // (e.g. the task was interrupted) so just `debug!`
                 tracing::debug!(
                     "When sending result for exec_async task `{}`: {}",
                     task_id,
@@ -498,18 +498,18 @@ impl KernelTrait for MicroKernel {
             *status.write().await = KernelStatus::Idle;
         });
 
-        if let Some(mut cancellee) = cancellee {
-            // Start async task to listen for cancellation message
-            // This should finish when the `canceller` is either triggered or dropped
+        if let Some(mut interrupt_receiver) = interrupt_receiver {
+            // Start async task to listen for interruption message
+            // This should finish when the `interrupter` is either triggered or dropped
             let task_id = task.id.clone();
             let signaller = MicroKernelSignaller::new(self)?;
             tokio::spawn(async move {
-                tracing::trace!("Began canceller for exec_async task `{}", task_id);
-                if let Some(..) = cancellee.recv().await {
-                    tracing::debug!("Cancelling exec_async task `{}`", task_id);
+                tracing::trace!("Began interrupter for exec_async task `{}", task_id);
+                if let Some(..) = interrupt_receiver.recv().await {
+                    tracing::debug!("Interrupting exec_async task `{}`", task_id);
                     signaller.interrupt()
                 }
-                tracing::trace!("Ended canceller for exec_async task `{}`", task_id);
+                tracing::trace!("Ended interrupter for exec_async task `{}`", task_id);
             });
         }
 
@@ -525,8 +525,8 @@ impl KernelTrait for MicroKernel {
 
         // Setup channels and execution task
         let (sender, _receiver) = broadcast::channel(1);
-        let (canceller, mut cancellee) = mpsc::channel(1);
-        let task = Task::start(Some(sender.clone()), Some(canceller));
+        let (interrupt_sender, mut interrupt_receiver) = mpsc::channel(1);
+        let task = Task::begin(Some(sender.clone()), Some(interrupt_sender));
 
         // Start the fork and create signaller for it
         let mut fork = self.create_fork(code).await?;
@@ -561,16 +561,16 @@ impl KernelTrait for MicroKernel {
             tracing::trace!("Ended exec_fork task `{}`", task_id);
         });
 
-        // Start async task to listen for cancellation message
-        // This should finish when the `canceller` is either triggered or dropped
+        // Start async task to listen for interruption message
+        // This should finish when the `interrupter` is either triggered or dropped
         let task_id = task.id.clone();
         tokio::spawn(async move {
-            tracing::trace!("Began canceller for exec_fork task `{}` began", task_id);
-            if let Some(..) = cancellee.recv().await {
-                tracing::debug!("Cancelling exec_fork task `{}`", task_id);
+            tracing::trace!("Began interrupter for exec_fork task `{}` began", task_id);
+            if let Some(..) = interrupt_receiver.recv().await {
+                tracing::debug!("Interrupting exec_fork task `{}`", task_id);
                 signaller.kill()
             }
-            tracing::trace!("Ended canceller for exec_fork task `{}` ended", task_id);
+            tracing::trace!("Ended interrupter for exec_fork task `{}` ended", task_id);
         });
 
         Ok(task)
