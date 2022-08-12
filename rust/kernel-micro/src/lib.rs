@@ -260,10 +260,9 @@ impl MicroKernelSignaller {
             use nix::sys::signal::{self, Signal};
             use nix::unistd::Pid;
 
-            // Note that killing a microkernel this way may cause it to be
-            // a zombie process (<defunct>) if the parent kernel process is still waiting
-            // for its exit signal. This depends on how the parent kernel forks
-            // (in `r-kernel.r` we use the `estranged` flag to avoid this).
+            // Note that killing a microkernel this way may cause it to become a zombie process (shown as <defunct> by `ps`)
+            // if the parent kernel process is still waiting for its exit signal. This depends on how the kernel is
+            // implement (e.g. in `r-kernel.r` we use the `estranged` flag to avoid this).
             if let Err(error) = signal::kill(Pid::from_raw(self.pid as i32), Signal::SIGKILL) {
                 // Only warn if the error is not "No such process" (in case it already ended)
                 if error != ESRCH {

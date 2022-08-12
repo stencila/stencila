@@ -50,12 +50,14 @@ if (isatty(stdin())) {
   TASK <- "TASK"
   FORK <- "FORK"
   NEWLINE <- "NEWLINE"
+  EXIT <- "EXIT"
 } else {
   READY <- "\U0010ACDC"
   RESULT <-  "\U0010CB40"
   TASK <- "\U0010ABBA"
   FORK <- "\U0010DE70"
   NEWLINE <- "\U0010B522"
+  EXIT <- "\U0010CC00"
 }
 
 stdin <- file("stdin", "r")
@@ -101,6 +103,11 @@ while (!is.null(stdin)) {
 
       lines <- strsplit(task, NEWLINE, fixed = TRUE)[[1]]
 
+      if (lines[1] == EXIT) {
+        quit(save="no")
+      }
+
+      should_exit <- FALSE
       if (lines[1] == FORK) {
         # The `eval_safe` function of https://github.com/jeroen/unix provides an alternative 
         # implementation of fork-exec for R. We might use it in the future.
@@ -116,6 +123,7 @@ while (!is.null(stdin)) {
         }
 
         # Child process, so...
+        should_exit <- TRUE
 
         # Remove the FORK flag and the pipe paths from the front of lines
         new_stdout <- lines[2]
@@ -195,6 +203,10 @@ while (!is.null(stdin)) {
 
       write(TASK, stdout)
       write(TASK, stderr)
+
+      if (should_exit) {
+        quit(save="no")
+      }
     },
     interrupt=function(condition){
       saved_task <<- task
