@@ -6,6 +6,8 @@
  * that any inconsistency should trigger a "panic" to reset the state of the document.
  */
 
+import HtmlFragment from 'html-fragment'
+import { documents } from '..'
 import { Slot } from '../types'
 
 /**
@@ -22,8 +24,34 @@ import { Slot } from '../types'
  * Reloads the document to get a new DOM state and then throws an exception for
  * early exit from the calling function.
  */
-export function panic(message: string): Error {
-  // TODO reload the document
+export function panic(message: string) {
+  console.error(message)
+
+  // During development create an alert so developer can inspect DOM
+  // before it gets updated. This is intended to be annoying so that
+  // any bugs get fixed.
+  if (process.env.NODE_ENV === 'development') {
+    alert(`Panic while patching: ${message}`)
+  }
+
+  // Reset the root, if not already in the process of doing so
+  const client = window.stencilaWebClient
+  if (!client.resettingRoot) {
+    client.resettingRoot = true
+    documents
+      .dump(client.websocketClient, client.documentId, 'html')
+      .then((html) => {
+        const root = document.body.querySelector('[data-root]')
+        if (root) {
+          root.parentElement.insertBefore(HtmlFragment(html), root)
+          root.remove()
+
+          client.resettingRoot = false
+          client.patchSequence = undefined
+        }
+      })
+  }
+
   return new Error(message)
 }
 

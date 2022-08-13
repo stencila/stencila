@@ -542,10 +542,26 @@ pub struct Patch {
     pub address: Option<Address>,
 
     /// The id of the node to which to apply this patch
+    ///
+    /// If `target` is supplied, the `address` will be resolved starting
+    /// at the node with the id.
+    /// If `target` is `None`, the `address` will be resolved starting at
+    /// the root node of the document.
     pub target: Option<String>,
+
+    /// The sequence number of the patch
+    ///
+    /// Should be present on published patches.
+    /// Used by clients to check that they have received all patches
+    /// published for a document in the correct order (and to panic if they haven't).
+    pub sequence: Option<u32>,
 
     /// The id of the actor that generated this patch
     /// e.g. a web browser client, or file watcher
+    ///
+    /// Should be present on published patches.
+    /// Used so that actors can ignore patches that they created and
+    /// that hae already been applied.
     pub actor: Option<String>,
 }
 
@@ -554,9 +570,7 @@ impl Patch {
     pub fn from_ops(ops: Vec<Operation>) -> Self {
         Self {
             ops,
-            address: None,
-            target: None,
-            actor: None,
+            ..Default::default()
         }
     }
 
@@ -605,7 +619,8 @@ impl Patch {
     ///
     /// The main purpose of this function is to generate HTML for each `Add` and `Replace`
     /// operation in the patch before it is sent to clients.
-    pub fn prepublish(&mut self, root: &Node) -> &mut Self {
+    pub fn prepublish(&mut self, sequence: u32, root: &Node) -> &mut Self {
+        self.sequence = Some(sequence);
         for op in self.ops.iter_mut() {
             op.html_set(root);
         }
@@ -998,7 +1013,7 @@ mod tests {
 
         // one to two -> `Add` operation on the article's content
         let mut patch = diff(&one, &two);
-        patch.prepublish(&two);
+        patch.prepublish(0, &two);
         assert_json_is!(
             patch.ops,
             [{
@@ -1012,7 +1027,7 @@ mod tests {
 
         // two to three -> `Add` operation on the paragraph's content
         let mut patch = diff(&two, &three);
-        patch.prepublish(&three);
+        patch.prepublish(0, &three);
         assert_json_is!(
             patch.ops,
             [{
@@ -1026,7 +1041,7 @@ mod tests {
 
         // three to four -> `Replace` operation on a word
         let mut patch = diff(&three, &four);
-        patch.prepublish(&four);
+        patch.prepublish(0, &four);
         assert_json_is!(
             patch.ops,
             [{
@@ -1041,7 +1056,7 @@ mod tests {
 
         // four to five -> `Move` operation on the word
         let mut patch = diff(&four, &five);
-        patch.prepublish(&five);
+        patch.prepublish(0, &five);
         assert_json_is!(
             patch.ops,
             [{

@@ -48,6 +48,7 @@ export const main = (
 
     if (client === undefined) {
       client = await connect(clientId, origin, token, clientOptions)
+      window.stencilaWebClient.websocketClient = client
     }
 
     if (session === undefined) {
@@ -82,6 +83,7 @@ export const main = (
     }
 
     if (document !== undefined) {
+      window.stencilaWebClient.documentId = document.id
       documents.listen(client, clientId, document.id)
     }
 

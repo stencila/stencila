@@ -856,6 +856,7 @@ impl Document {
         request_receiver: &mut mpsc::UnboundedReceiver<PatchRequest>,
         response_sender: &broadcast::Sender<Response>,
     ) {
+        let mut counter = 0u32;
         while let Some(request) = request_receiver.recv().await {
             tracing::trace!("Patching document `{}` for request `{}`", &id, request.id);
 
@@ -867,7 +868,7 @@ impl Document {
                 continue;
             }
 
-            // Block for minimal longevity locks
+            // Block to ensure locks are retained for only as long as needed
             {
                 let root = &mut *root.write().await;
                 let addresses = &*addresses.read().await;
@@ -884,7 +885,8 @@ impl Document {
                 apply(root, &patch);
 
                 // Pre-publish the patch
-                patch.prepublish(root);
+                counter += 1;
+                patch.prepublish(counter, root);
             }
 
             // Publish the patch

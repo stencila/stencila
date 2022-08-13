@@ -1,4 +1,6 @@
 import { FileFormatUtils } from '@stencila/components'
+import { Client } from './client'
+import { DocumentId } from './documents'
 import { main } from './index'
 
 export type ElementId = string
@@ -7,7 +9,11 @@ declare global {
   interface Window {
     stencilaWebClient: {
       main: typeof main
+      websocketClient: Client
+      documentId: DocumentId
       executableLanguages: FileFormatUtils.FileFormatMap
+      patchSequence?: number
+      resettingRoot?: boolean
     }
     stencilaWebTerminal: {
       main: (elemId: string) => void
@@ -261,6 +267,7 @@ export interface Patch {
    */
   actor?: string
   address?: Slot[]
+  sequence?: number
 }
 /**
  * Add a value

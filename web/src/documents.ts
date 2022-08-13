@@ -7,7 +7,7 @@ import { ValidatorTypes } from '@stencila/schema'
 import { Address, Document, DocumentEvent, Operation, Patch } from './types'
 import { Client, ClientId } from './client'
 import { KernelId } from './kernels'
-import { JsonValue } from './patches/checks'
+import { JsonValue, panic } from './patches/checks'
 import * as codemirror from './patches/codemirror'
 import { applyPatch } from './patches/dom'
 
@@ -150,12 +150,12 @@ export async function dump(
   documentId: DocumentId,
   format?: string,
   nodeId?: NodeId
-): Promise<Document> {
+): Promise<string> {
   return client.call('documents.dump', {
     documentId,
     format,
     nodeId,
-  }) as Promise<Document>
+  }) as Promise<string>
 }
 
 /**
@@ -249,14 +249,32 @@ export function receivePatch(
     return
   }
 
-  const { actor, target, ops } = patch
+  const { sequence, actor, target, ops } = patch
+
+  // Check the patch sequence number and panic if out of order
+  const lastSequence = window.stencilaWebClient.patchSequence
+  if (sequence != undefined && lastSequence != undefined) {
+    if (sequence != lastSequence + 1) {
+      throw panic(
+        `Expected patch sequence ${lastSequence + 1}, got ${sequence}`
+      )
+    }
+  }
+
+  // Update the client's patch sequence
+  if (sequence != undefined) {
+    window.stencilaWebClient.patchSequence = sequence
+  }
 
   // Ignore any patches where this client was the actor
   if (actor === clientId) return
 
   // During development it's useful to see which patches are being received
   if (process.env.NODE_ENV !== 'production') {
-    console.log('📩 Received patch:', JSON.stringify({ actor, target }))
+    console.log(
+      '📩 Received patch:',
+      JSON.stringify({ sequence, actor, target })
+    )
     for (const op of ops) console.log('  ', JSON.stringify(op))
   }
 
