@@ -50,7 +50,7 @@ impl ToHtml for String {
     }
 }
 
-// Encode an `Array` to the HTML semantically equivalent `<ol>`.
+// Encode an `Array` to the HTML semantically equivalent `<ol>`, or if inline, to a `<span>`.
 //
 // We can't implement `ToHtml` for `Array` as that conflicts with `impl ToHtml for `Vec<Primitive>`.
 // Instead this function is used to provide necessary structure for patching to work on arrays. Note that
@@ -58,26 +58,34 @@ impl ToHtml for String {
 // will need concomitant changes there.
 #[allow(clippy::ptr_arg)]
 pub fn array_to_html(array: &Array, context: &EncodeContext) -> String {
-    let items = concat(array, |item| elem("li", &[], &item.to_html(context)));
+    let (container_tag, item_tag) = match context.inline {
+        true => ("span", "span"),
+        false => ("ol", "li"),
+    };
+    let items = concat(array, |item| elem(item_tag, &[], &item.to_html(context)));
     elem(
         "stencila-array",
         &[attr_itemtype_str("Array")],
-        &elem("ol", &[attr_slot("items")], &items),
+        &elem(container_tag, &[attr_slot("items")], &items),
     )
 }
 
-/// Encode an `Object` to the HTML semantically equivalent `<dl>`.
+/// Encode an `Object` to the HTML semantically equivalent `<dl>`, or if inline, to a `<span>`.
 ///
 /// Note that objects have special handling in the `../web/patches` TypeScript so changes made to
 /// the HTML structure will need concomitant changes there.
 impl ToHtml for Object {
     fn to_html(&self, context: &EncodeContext) -> String {
+        let (container_tag, key_tag, value_tag) = match context.inline {
+            true => ("span", "span", "span"),
+            false => ("dl", "dt", "dd"),
+        };
         let pairs = self
             .iter()
             .map(|(key, value)| {
                 [
-                    elem("dt", &[], &key.to_html(context)),
-                    elem("dd", &[], &value.to_html(context)),
+                    elem(key_tag, &[], &key.to_html(context)),
+                    elem(value_tag, &[], &value.to_html(context)),
                 ]
                 .concat()
             })
@@ -86,7 +94,7 @@ impl ToHtml for Object {
         elem(
             "stencila-object",
             &[attr_itemtype_str("Object")],
-            &elem("dl", &[attr_slot("pairs")], &pairs),
+            &elem(container_tag, &[attr_slot("pairs")], &pairs),
         )
     }
 }
