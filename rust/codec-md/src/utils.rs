@@ -2,13 +2,15 @@
 ///
 /// This only escapes characters that may be present in inline Markdown
 /// to avoid string in curly attributes etc from being parsed as
-/// emphasis, strong, links etc. The list of escaped characters may
+/// emphasis, strong etc. The list of escaped characters may
 /// need to be augmented in the future.
+///
+/// Previously we also escaped '[' but that is often used in JSON
+/// values for enum and array parameters so is now not escaped.
 pub(crate) fn escape(string: &str) -> String {
     string
         .replace('_', "\\_")
         .replace('*', "\\*")
-        .replace('[', "\\[")
         .replace('$', "\\$")
 }
 
@@ -19,6 +21,5 @@ pub(crate) fn unescape(string: &str) -> String {
     string
         .replace("\\_", "_")
         .replace("\\*", "*")
-        .replace("\\[", "[")
         .replace("\\$", "$")
 }
