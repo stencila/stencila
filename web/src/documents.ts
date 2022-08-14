@@ -210,7 +210,7 @@ export async function sendPatch(
   documentId: DocumentId,
   patch: Patch,
   compile: When = 'Soon',
-  execute: When = 'Soon',
+  execute: When = 'Never',
   write: When = 'Soon'
 ): Promise<void> {
   // During development it's very useful to see the patch operations being sent

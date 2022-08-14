@@ -374,7 +374,7 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
         .unwrap_or(When::Soon);
     let execute = optional_string(params, "execute")?
         .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Soon);
+        .unwrap_or(When::Never);
     let write = optional_string(params, "write")?
         .and_then(|value| When::from_str(&value).ok())
         .unwrap_or(When::Soon);
