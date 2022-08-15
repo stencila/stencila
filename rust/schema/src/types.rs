@@ -2432,8 +2432,8 @@ pub struct Include {
     /// The external source of the content, a file path or URL.
     pub source: String,
 
-    /// The SHA-256 digest of the `source` and `mediaType` properties the last time the node was built.
-    pub build_digest: Option<Box<Cord>>,
+    /// A digest of the `source` and `mediaType` properties the last time the node was compiled.
+    pub compile_digest: Option<Box<Cord>>,
 
     /// The structured content decoded from the source.
     pub content: Option<Vec<BlockContent>>,

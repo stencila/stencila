@@ -284,7 +284,7 @@ pub async fn execute(
 
                     // Wait for the task to finish (or be cancelled and update the executed node when it has
                     let task_result = task_info.result().await?;
-                    executed.execute_end(task_info, task_result)?;
+                    executed.execute_end(task_info, task_result).await?;
                 }
 
                 // Update the resource to indicate that the resource was executed

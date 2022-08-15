@@ -4157,6 +4157,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-md",
+ "codecs",
  "common",
  "formats",
  "graph",
@@ -4166,6 +4167,7 @@ dependencies = [
  "node-dispatch",
  "node-patch",
  "node-pointer",
+ "node-transform",
  "node-validate",
  "parsers",
  "path-utils",

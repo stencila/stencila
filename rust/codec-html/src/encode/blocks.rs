@@ -355,15 +355,37 @@ impl ToHtml for Heading {
 
 impl ToHtml for Include {
     fn to_html(&self, context: &EncodeContext) -> String {
-        let content = self
-            .content
-            .as_ref()
-            .map_or_else(|| "".to_string(), |content| content.to_html(context));
+        let source = attr_and_meta("source", &self.source);
+
+        let media_type = attr_and_meta_opt(
+            "media_type",
+            self.media_type.as_ref().map(|boxed| boxed.to_string()),
+        );
+
+        let compile_digest = attr_and_meta_opt(
+            "compile_digest",
+            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
+        );
+
+        let content = elem(
+            "div",
+            &[attr_prop("content"), attr_slot("content")],
+            &self
+                .content
+                .as_ref()
+                .map_or_else(|| "".to_string(), |content| content.to_html(context)),
+        );
 
         elem(
-            "div",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &content,
+            "stencila-include",
+            &[
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                source.0,
+                media_type.0,
+                compile_digest.0,
+            ],
+            &[source.1, media_type.1, compile_digest.1, content].concat(),
         )
     }
 }

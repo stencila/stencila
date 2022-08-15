@@ -2120,8 +2120,8 @@ class Include(Entity):
     source: String
     """The external source of the content, a file path or URL."""
 
-    buildDigest: Optional[String] = None
-    """The SHA-256 digest of the `source` and `mediaType` properties the last time the node was built."""
+    compileDigest: Optional[String] = None
+    """A digest of the `source` and `mediaType` properties the last time the node was compiled."""
 
     content: Optional[Array["BlockContent"]] = None
     """The structured content decoded from the source."""
@@ -2133,7 +2133,7 @@ class Include(Entity):
     def __init__(
         self,
         source: String,
-        buildDigest: Optional[String] = None,
+        compileDigest: Optional[String] = None,
         content: Optional[Array["BlockContent"]] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
@@ -2145,8 +2145,8 @@ class Include(Entity):
         )
         if source is not None:
             self.source = source
-        if buildDigest is not None:
-            self.buildDigest = buildDigest
+        if compileDigest is not None:
+            self.compileDigest = compileDigest
         if content is not None:
             self.content = content
         if mediaType is not None:

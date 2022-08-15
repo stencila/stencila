@@ -80,6 +80,7 @@ patchable_node_variants!(
     Node::Figure
     Node::Heading
     Node::ImageObject
+    Node::Include
     Node::Integer
     Node::Link
     Node::List

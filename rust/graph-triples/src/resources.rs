@@ -14,7 +14,7 @@ use common::{
 };
 use hash_utils::str_seahash;
 use path_utils::path_slash::PathExt;
-use stencila_schema::CodeChunkExecuteAuto;
+use stencila_schema::{CodeChunkExecuteAuto, Cord};
 
 use crate::{Pairs, Relation};
 
@@ -71,7 +71,7 @@ impl Resource {
     /// a default (empty) digest is returned.
     pub fn digest(&self) -> ResourceDigest {
         match self {
-            Resource::File(File { path }) => ResourceDigest::from_file(path),
+            Resource::File(File { path }) => ResourceDigest::from_path(path, None),
             _ => ResourceDigest::default(),
         }
     }
@@ -174,6 +174,11 @@ impl ResourceDigest {
         }
     }
 
+    /// Create a new `ResourceDigest` from a [`Cord`]
+    pub fn from_cord(cord: &Cord) -> Self {
+        Self::from_string(&cord.0)
+    }
+
     /// Create a new `ResourceDigest` from strings for content and semantics.
     ///
     /// Before generating the hash of strings remove carriage returns from strings to avoid
@@ -193,9 +198,12 @@ impl ResourceDigest {
     /// Create a new `ResourceDigest` from a file
     ///
     /// If there is an error when hashing the file, a default (empty) digest is returned.
-    pub fn from_file(path: &Path) -> Self {
+    pub fn from_path(path: &Path, media_type: Option<&str>) -> Self {
         match read_to_string(path) {
-            Ok(content) => Self::from_strings(&content, None),
+            Ok(content) => {
+                let semantic_str = media_type.map(|mt| [&content, mt].concat());
+                Self::from_strings(&content, semantic_str.as_deref())
+            }
             Err(..) => Self::default(),
         }
     }
@@ -206,6 +214,11 @@ impl ResourceDigest {
     /// strip them so that content digest does not change between platforms.
     pub fn strip_chars(bytes: &str) -> String {
         bytes.replace('\r', "")
+    }
+
+    /// Create a [`Cord`] from a `ResourceDigest`
+    pub fn to_cord(&self) -> Cord {
+        Cord(self.to_string())
     }
 }
 

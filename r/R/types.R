@@ -2351,7 +2351,7 @@ ImageObject <- function(
 #'
 #' @name Include
 #' @param source The external source of the content, a file path or URL. \bold{Required}.
-#' @param buildDigest The SHA-256 digest of the `source` and `mediaType` properties the last time the node was built.
+#' @param compileDigest A digest of the `source` and `mediaType` properties the last time the node was compiled.
 #' @param content The structured content decoded from the source.
 #' @param id The identifier for this item.
 #' @param mediaType Media type of the source content.
@@ -2361,7 +2361,7 @@ ImageObject <- function(
 #' @export
 Include <- function(
   source,
-  buildDigest,
+  compileDigest,
   content,
   id,
   mediaType,
@@ -2373,7 +2373,7 @@ Include <- function(
   )
   self$type <- as_scalar("Include")
   self[["source"]] <- check_property("Include", "source", TRUE, missing(source), "character", source)
-  self[["buildDigest"]] <- check_property("Include", "buildDigest", FALSE, missing(buildDigest), "character", buildDigest)
+  self[["compileDigest"]] <- check_property("Include", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
   self[["content"]] <- check_property("Include", "content", FALSE, missing(content), Array(BlockContent), content)
   self[["mediaType"]] <- check_property("Include", "mediaType", FALSE, missing(mediaType), "character", mediaType)
   class(self) <- c(class(self), "Include")

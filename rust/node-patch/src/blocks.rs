@@ -154,7 +154,7 @@ patchable_variants!(
     FigureCaption::String
 );
 
-patchable_struct!(Include, source);
+patchable_struct!(Include, source, media_type, compile_digest, content);
 
 patchable_struct!(ThematicBreak);
 

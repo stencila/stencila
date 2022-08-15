@@ -14,6 +14,8 @@ use graph_triples::{
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, AddressMap, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
+use node_patch::{diff_address, Patch};
+use node_transform::Transform;
 use node_validate::Validator as _;
 use path_utils::merge;
 use stencila_schema::*;
@@ -46,6 +48,9 @@ pub struct CompileContext {
 
     /// A list of resources compiles from the node
     pub(crate) resource_infos: Vec<ResourceInfo>,
+
+    /// A list of patch operations representing changes to compiled nodes.
+    pub(crate) patches: Vec<Patch>,
 }
 
 impl CompileContext {
@@ -74,7 +79,11 @@ impl CompileContext {
 /// This trait is implemented below for all (or at least most) node types.
 #[async_trait]
 pub trait Executable {
-    fn compile(&mut self, _address: &mut Address, _context: &mut CompileContext) -> Result<()> {
+    async fn compile(
+        &mut self,
+        _address: &mut Address,
+        _context: &mut CompileContext,
+    ) -> Result<()> {
         Ok(())
     }
 
@@ -88,7 +97,7 @@ pub trait Executable {
         Ok(None)
     }
 
-    fn execute_end(&mut self, _task_info: TaskInfo, _task_result: TaskResult) -> Result<()> {
+    async fn execute_end(&mut self, _task_info: TaskInfo, _task_result: TaskResult) -> Result<()> {
         Ok(())
     }
 }
@@ -139,8 +148,9 @@ macro_rules! langify {
 /// Compile a `Link` node
 ///
 /// Adds a `Link` relation
+#[async_trait]
 impl Executable for Link {
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("li", self, address, context);
 
         let resource = resources::node(&context.path, &id, "Link");
@@ -208,8 +218,9 @@ fn executable_content_url(content_url: &str, context: &mut CompileContext) -> St
 /// Compile a `MediaObject` node type
 macro_rules! executable_media_object {
     ($type:ty, $prefix:expr) => {
+        #[async_trait]
         impl Executable for $type {
-            fn compile(
+            async fn compile(
                 &mut self,
                 address: &mut Address,
                 context: &mut CompileContext,
@@ -284,7 +295,7 @@ impl Executable for Parameter {
     /// If the language of the parameter is not defined (currently schema does not allow for this
     /// anyway), then use the language of the last code node. By definition, a `Parameter` is always
     /// "impure" (has a side effect).
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("pa", self, address, context);
 
         let resource = resources::code(
@@ -375,7 +386,7 @@ impl Executable for CodeChunk {
     /// Performs semantic analysis of the code (if language is supported) and adds the resulting
     /// relations to the compilation context. If the `programming_language` is an empty string
     /// then use the current language of the context.
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("cc", self, address, context);
         let lang = langify!(self, context);
 
@@ -388,10 +399,6 @@ impl Executable for CodeChunk {
                 return Ok(());
             }
         };
-
-        // Update the node with properties from resource info derived from parsing it's code
-        self.execute_auto = resource_info.execute_auto.clone();
-        self.execute_pure = resource_info.execute_pure;
 
         // Update the resource info with properties from the node
         resource_info.execute_digest = self
@@ -430,7 +437,7 @@ impl Executable for CodeChunk {
         Ok(Some(task_info))
     }
 
-    fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
+    async fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
         let TaskResult {
             outputs,
             messages: errors,
@@ -484,7 +491,7 @@ impl Executable for CodeExpression {
     ///
     /// A `CodeExpression` is assumed to be pure (i.e. have no side effects and can be executed
     /// in a fork).
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("ce", self, address, context);
         let lang = langify!(self, context);
 
@@ -546,7 +553,7 @@ impl Executable for CodeExpression {
         Ok(Some(task_info))
     }
 
-    fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
+    async fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
         let TaskResult {
             outputs,
             messages: errors,
@@ -590,8 +597,9 @@ impl Executable for CodeExpression {
 ///
 /// Performs semantic analysis of the code (if necessary) and adds the resulting
 /// relations.
+#[async_trait]
 impl Executable for SoftwareSourceCode {
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("sc", self, address, context);
 
         if let (Some(code), Some(language)) =
@@ -611,22 +619,68 @@ impl Executable for SoftwareSourceCode {
     }
 }
 
-/// Compile an `Include` node
-///
-/// Adds an `Include` relation
+#[async_trait]
 impl Executable for Include {
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+        // Ensure the node has an id
         let id = identify!("in", self, address, context);
 
-        let resource = resources::node(&context.path, &id, "Include");
-
+        tracing::trace!("Compiling `Include` node {}", id);
+        
+        // Calculate compile digest of the source
         let path = merge(&context.path, &self.source);
+        let digest =
+            ResourceDigest::from_path(&path, self.media_type.as_ref().map(|str| str.as_str()));
+
+        // Add resource relations to the context
+        let resource = resources::node(&context.path, &id, "Include");
         let object = resources::file(&path);
         let relations = vec![(Relation::Include, object)];
-
-        let resource_info =
-            ResourceInfo::new(resource, Some(relations), None, None, None, None, None);
+        let resource_info = ResourceInfo::new(
+            resource,
+            Some(relations),
+            None,
+            None,
+            Some(digest.clone()),
+            None,
+            None,
+        );
         context.resource_infos.push(resource_info);
+
+        // Return early if there has been no change to the digest
+        if let Some(compile_digest) = self.compile_digest.as_deref() {
+            if *compile_digest == digest.to_cord() {
+                return Ok(());
+            }
+        }
+
+        // Decode block content from the source
+        let mut content = match codecs::from_path(
+            &path,
+            self.media_type
+                .as_ref()
+                .map(|media_type| media_type.as_str()),
+            None,
+        )
+        .await
+        {
+            Ok(content) => content.to_blocks(),
+            Err(error) => vec![BlockContent::Paragraph(Paragraph {
+                content: vec![InlineContent::String(error.to_string())],
+                ..Default::default()
+            })],
+        };
+
+        let address_of_content = address.add_name("content");
+
+        // Compile the included content (it will be part of the graph as well)
+        content
+            .compile(&mut address_of_content.clone(), context)
+            .await?;
+
+        // Generate a patch for changed content
+        let patch = diff_address(address_of_content, &self.content, &Some(content));
+        context.patches.push(patch);
 
         Ok(())
     }
@@ -638,7 +692,7 @@ macro_rules! executable_identify_only {
     ($type:ty, $prefix:expr) => {
         #[async_trait]
         impl Executable for $type {
-            fn compile(
+            async fn compile(
                 &mut self,
                 address: &mut Address,
                 context: &mut CompileContext,
@@ -701,8 +755,8 @@ executable_nothing!(
 
 #[async_trait]
 impl Executable for Node {
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        dispatch_node!(self, Ok(()), compile, address, context)
+    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+        dispatch_node!(self, Box::pin(async { Ok(()) }), compile, address, context).await
     }
 
     async fn execute_begin(
@@ -724,8 +778,15 @@ impl Executable for Node {
         .await
     }
 
-    fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
-        dispatch_node!(self, Ok(()), execute_end, task_info, task_result)
+    async fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
+        dispatch_node!(
+            self,
+            Box::pin(async { Ok(()) }),
+            execute_end,
+            task_info,
+            task_result
+        )
+        .await
     }
 }
 
@@ -733,12 +794,12 @@ macro_rules! executable_enum {
     ($type: ty, $dispatch_macro: ident) => {
         #[async_trait]
         impl Executable for $type {
-            fn compile(
+            async fn compile(
                 &mut self,
                 address: &mut Address,
                 context: &mut CompileContext,
             ) -> Result<()> {
-                $dispatch_macro!(self, compile, address, context)
+                $dispatch_macro!(self, compile, address, context).await
             }
 
             async fn execute_begin(
@@ -759,8 +820,12 @@ macro_rules! executable_enum {
                 .await
             }
 
-            fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
-                $dispatch_macro!(self, execute_end, task_info, task_result)
+            async fn execute_end(
+                &mut self,
+                task_info: TaskInfo,
+                task_result: TaskResult,
+            ) -> Result<()> {
+                $dispatch_macro!(self, execute_end, task_info, task_result).await
             }
         }
     };
@@ -776,11 +841,11 @@ executable_enum!(InlineContent, dispatch_inline);
 #[async_trait]
 impl<T> Executable for Option<T>
 where
-    T: Executable,
+    T: Executable + Send,
 {
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         match self {
-            Some(value) => value.compile(address, context),
+            Some(value) => value.compile(address, context).await,
             None => Ok(()),
         }
     }
@@ -789,22 +854,22 @@ where
 #[async_trait]
 impl<T> Executable for Box<T>
 where
-    T: Executable,
+    T: Executable + Send,
 {
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        (**self).compile(address, context)
+    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+        (**self).compile(address, context).await
     }
 }
 
 #[async_trait]
 impl<T> Executable for Vec<T>
 where
-    T: Executable,
+    T: Executable + Send,
 {
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         for (index, item) in self.iter_mut().enumerate() {
             address.push_back(Slot::Index(index));
-            item.compile(address, context)?;
+            item.compile(address, context).await?;
             address.pop_back();
         }
         Ok(())
@@ -816,10 +881,10 @@ macro_rules! executable_fields {
     ($type:ty $(, $field:ident)* ) => {
         #[async_trait]
         impl Executable for $type {
-            fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+            async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
                 $(
                     address.push_back(Slot::Name(stringify!($field).to_string()));
-                    self.$field.compile(address, context)?;
+                    self.$field.compile(address, context).await?;
                     address.pop_back();
                 )*
                 Ok(())
@@ -886,10 +951,10 @@ macro_rules! executable_variants {
     ( $type:ty $(, $variant:path )* ) => {
         #[async_trait]
         impl Executable for $type {
-            fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+            async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
                 match self {
                     $(
-                        $variant(node) => node.compile(address, context),
+                        $variant(node) => node.compile(address, context).await,
                     )*
                 }
             }

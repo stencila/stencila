@@ -5,6 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+codecs = { path = "../codecs" }
 common = { path = "../common" }
 formats = { path = "../formats" }
 graph = { path = "../graph" }
@@ -14,6 +15,7 @@ node-address = { path = "../node-address" }
 node-dispatch = { path = "../node-dispatch" }
 node-patch = { path = "../node-patch" }
 node-pointer = { path = "../node-pointer" }
+node-transform = { path = "../node-transform" }
 node-validate = { path = "../node-validate" }
 parsers = { path = "../parsers" }
 path-utils = { path = "../path-utils" }
@@ -27,5 +29,9 @@ node-patch = { path = "../node-patch" }
 test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }
 # Enable the parser and kernel for any languages used in tests
-parsers = { path = "../parsers", features = ["parser-calc", "parser-r", "parser-py"] }
+parsers = { path = "../parsers", features = [
+    "parser-calc",
+    "parser-r",
+    "parser-py",
+] }
 kernels = { path = "../kernels", features = ["kernel-store", "kernel-calc"] }

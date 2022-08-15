@@ -1125,7 +1125,7 @@ export const imageObject = (props: Omit<ImageObject, 'type'>): ImageObject => ({
 export type Include = Entity & {
   type: 'Include'
   source: string
-  buildDigest?: string
+  compileDigest?: string
   content?: Array<BlockContent>
   mediaType?: string
 }
