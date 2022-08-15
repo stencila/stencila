@@ -243,8 +243,6 @@ impl Transform for Node {
                     content,
                     id,
                     label,
-                    parts,
-                    title,
                     ..
                 } = node;
                 BlockContent::Figure(FigureSimple {
@@ -252,8 +250,6 @@ impl Transform for Node {
                     content,
                     id,
                     label,
-                    parts,
-                    title,
                     ..Default::default()
                 })
             }
@@ -266,22 +262,16 @@ impl Transform for Node {
             Node::Table(node) => {
                 let Table {
                     caption,
-                    content,
                     id,
                     label,
-                    parts,
                     rows,
-                    title,
                     ..
                 } = node;
                 BlockContent::Table(TableSimple {
                     caption,
-                    content,
                     id,
                     label,
-                    parts,
                     rows,
-                    title,
                     ..Default::default()
                 })
             }
@@ -324,6 +314,33 @@ impl Transform for Node {
     /// Returns self.
     fn to_node(&self) -> Node {
         self.to_owned()
+    }
+
+    /// Transform a `Node` variant to a vector of static `InlineContent` variants
+    fn to_static_inlines(&self) -> Vec<InlineContent> {
+        if self.is_inline() {
+            self.to_inline().to_static_inlines()
+        } else {
+            self.to_block().to_static_inlines()
+        }
+    }
+
+    /// Transform a `Node` variant to a vector of static `BlockContent` variants
+    fn to_static_blocks(&self) -> Vec<BlockContent> {
+        if self.is_inline() {
+            self.to_inline().to_static_blocks()
+        } else {
+            self.to_block().to_static_blocks()
+        }
+    }
+
+    /// Transform a `Node` variant to a vector of static `Node` variants
+    fn to_static_nodes(&self) -> Vec<Node> {
+        if self.is_inline() {
+            self.to_inline().to_static_inlines().to_nodes()
+        } else {
+            self.to_block().to_static_blocks().to_nodes()
+        }
     }
 }
 
@@ -374,7 +391,7 @@ impl Transform for Vec<Node> {
 
     /// Transform a vector of `Node` variants to a `Node` variant
     ///
-    /// Wraps self into a `CodeChunk`.
+    /// Wraps self into a `CodeChunk` with outputs being the vector of nodes.
     fn to_node(&self) -> Node {
         Node::CodeChunk(CodeChunk {
             outputs: Some(self.to_owned()),
@@ -387,5 +404,26 @@ impl Transform for Vec<Node> {
     /// Returns self.
     fn to_nodes(&self) -> Vec<Node> {
         self.to_owned()
+    }
+
+    /// Transform a vector of `Node` variants to a vector of static `InlineContent` variants
+    fn to_static_inlines(&self) -> Vec<InlineContent> {
+        self.iter()
+            .flat_map(|node| node.to_static_inlines())
+            .collect()
+    }
+
+    /// Transform a vector of `Node` variants to a vector of static `BlockContent` variants
+    fn to_static_blocks(&self) -> Vec<BlockContent> {
+        self.iter()
+            .flat_map(|node| node.to_static_blocks())
+            .collect()
+    }
+
+    /// Transform a vector of `Node` variants to a vector of static `Node` variants
+    fn to_static_nodes(&self) -> Vec<Node> {
+        self.iter()
+            .flat_map(|node| node.to_static_nodes())
+            .collect()
     }
 }

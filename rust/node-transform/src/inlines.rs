@@ -135,6 +135,65 @@ impl Transform for InlineContent {
             }
         }
     }
+
+    /// Transform an `InlineContent` variant to a vector of static `InlineContent` variants
+    fn to_static_inlines(&self) -> Vec<InlineContent> {
+        match self.to_owned() {
+            // Dynamic node types: only include their "outputs"
+            InlineContent::CodeExpression(node) => vec![node
+                .output
+                .as_ref()
+                .map(|value| value.to_inline())
+                .unwrap_or_else(|| InlineContent::String(String::new()))],
+            InlineContent::Parameter(node) => vec![node
+                .value
+                .as_ref()
+                .or(node.default.as_ref())
+                .map(|value| value.to_inline())
+                .unwrap_or_else(|| InlineContent::String(String::new()))],
+
+            // Non-dynamic node types: make their content static
+            InlineContent::Delete(node) => vec![InlineContent::Delete(Delete {
+                content: node.content.to_static_inlines(),
+                ..node
+            })],
+            InlineContent::Emphasis(node) => vec![InlineContent::Emphasis(Emphasis {
+                content: node.content.to_static_inlines(),
+                ..node
+            })],
+            InlineContent::NontextualAnnotation(node) => {
+                vec![InlineContent::NontextualAnnotation(NontextualAnnotation {
+                    content: node.content.to_static_inlines(),
+                    ..node
+                })]
+            }
+            InlineContent::Quote(node) => vec![InlineContent::Quote(Quote {
+                content: node.content.to_static_inlines(),
+                ..node
+            })],
+            InlineContent::Strikeout(node) => vec![InlineContent::Strikeout(Strikeout {
+                content: node.content.to_static_inlines(),
+                ..node
+            })],
+            InlineContent::Strong(node) => vec![InlineContent::Strong(Strong {
+                content: node.content.to_static_inlines(),
+                ..node
+            })],
+            InlineContent::Subscript(node) => vec![InlineContent::Subscript(Subscript {
+                content: node.content.to_static_inlines(),
+                ..node
+            })],
+            InlineContent::Superscript(node) => vec![InlineContent::Superscript(Superscript {
+                content: node.content.to_static_inlines(),
+                ..node
+            })],
+            InlineContent::Underline(node) => vec![InlineContent::Underline(Underline {
+                content: node.content.to_static_inlines(),
+                ..node
+            })],
+            _ => self.to_inlines(),
+        }
+    }
 }
 
 impl Transform for Vec<InlineContent> {
@@ -174,5 +233,26 @@ impl Transform for Vec<InlineContent> {
             content: self.to_owned(),
             ..Default::default()
         })
+    }
+
+    /// Transform a vector of `InlineContent` variants to a vector of static `InlineContent` variants
+    fn to_static_inlines(&self) -> Vec<InlineContent> {
+        self.iter()
+            .flat_map(|inline| inline.to_static_inlines())
+            .collect()
+    }
+
+    /// Transform a vector of `InlineContent` variants to a vector of static `BlockContent` variants
+    fn to_static_blocks(&self) -> Vec<BlockContent> {
+        self.iter()
+            .flat_map(|inline| inline.to_static_blocks())
+            .collect()
+    }
+
+    /// Transform a vector of `InlineContent` variants to a vector of static `Node` variants
+    fn to_static_nodes(&self) -> Vec<Node> {
+        self.iter()
+            .flat_map(|inline| inline.to_static_nodes())
+            .collect()
     }
 }

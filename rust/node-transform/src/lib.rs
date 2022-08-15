@@ -1,12 +1,21 @@
 //! Transform a Stencila document node to another node type
 //!
-//! It can be useful to transform document nodes between types.
-//! For example, Stencila documents use a content model where nodes
-//! are categorized into `BlockContent` and `InlineContent`.
-//! To ensure that content conforms to the Stencila schema, it may be necessary
-//! to transform between inline content and block content types and vice versa.
-//! It is also sometimes necessary to transform from the general `Node` type to
-//! the more specialized `InlineContent`, `BlockContent`, or `CreativeWorkTypes`.
+//! This crate provides a `Transform` trait and implements it for:
+//!
+//! - [`InlineContent`] and `Vec<InlineContent>`
+//! - [`BlockContent`] and `Vec<BlockContent>`
+//! - [`Node`] and `Vec<Node>`
+//!
+//! The trait has methods that allow for transformation between these types:
+//!
+//! - `to_inline`, `to_inlines`: transform to a [`InlineContent`] or `Vec<InlineContent>`
+//! - `to_block`, `to_blocks`: transform to a [`BlockContent`] or `Vec<BlockContent>`
+//! - `to_node`, `to_nodes`: transform to a [`Node`] or `Vec<Node>`
+//!
+//! In addition, the `to_static_inline` and `to_static_block` reduce dynamic, executable
+//! document nodes to their static content. This is an intentionally lossy transformation.
+//! For example, a `CodeExpresssion`, `to_static_inline` will only represent the `output`
+//! of the node.
 
 use stencila_schema::{BlockContent, InlineContent, Node};
 
@@ -26,6 +35,8 @@ pub trait Transform {
     fn to_inlines(&self) -> Vec<InlineContent> {
         vec![self.to_inline()]
     }
+
+    /// Transform a value to a static `InlineContent` variants
 
     /// Is a node a `BlockContent` variant e.g. a `Node:CodeChunk`
     fn is_block(&self) -> bool {
@@ -51,6 +62,21 @@ pub trait Transform {
     /// The default implementation simply calls `to_node` and wraps
     /// the result in a vector.
     fn to_nodes(&self) -> Vec<Node> {
+        vec![self.to_node()]
+    }
+
+    /// Transform a value to a vector of static inline content
+    fn to_static_inlines(&self) -> Vec<InlineContent> {
+        vec![self.to_inline()]
+    }
+
+    /// Transform a value to a vector of static block content
+    fn to_static_blocks(&self) -> Vec<BlockContent> {
+        vec![self.to_block()]
+    }
+
+    /// Transform a value to a vector of static nodes
+    fn to_static_nodes(&self) -> Vec<Node> {
         vec![self.to_node()]
     }
 }

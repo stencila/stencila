@@ -128,8 +128,6 @@ impl Transform for BlockContent {
                     content,
                     id,
                     label,
-                    parts,
-                    title,
                     type_: _type,
                 } = node;
                 Node::Figure(Figure {
@@ -137,8 +135,6 @@ impl Transform for BlockContent {
                     content,
                     id,
                     label,
-                    parts,
-                    title,
                     ..Default::default()
                 })
             }
@@ -151,26 +147,147 @@ impl Transform for BlockContent {
             BlockContent::Table(node) => {
                 let TableSimple {
                     caption,
-                    content,
                     id,
                     label,
-                    parts,
                     rows,
-                    title,
                     type_: _type,
                 } = node;
                 Node::Table(Table {
                     caption,
-                    content,
                     id,
                     label,
-                    parts,
                     rows,
-                    title,
                     ..Default::default()
                 })
             }
             BlockContent::ThematicBreak(node) => Node::ThematicBreak(node),
+        }
+    }
+
+    /// Transform a `BlockContent` variant to a vector of static `BlockContent` variants
+    fn to_static_blocks(&self) -> Vec<BlockContent> {
+        match self.to_owned() {
+            // Dynamic node types: only include their "outputs"
+            BlockContent::CodeChunk(chunk) => {
+                let outputs = match chunk.outputs {
+                    Some(outputs) => outputs,
+                    None => return vec![],
+                };
+
+                if outputs.len() == 1 {
+                    if let Node::Table(Table { rows, .. }) = outputs[0].to_owned() {
+                        return vec![BlockContent::Table(TableSimple {
+                            label: chunk.label,
+                            caption: chunk.caption.as_ref().map(|caption| {
+                                Box::new(match caption.as_ref() {
+                                    CodeChunkCaption::String(string) => {
+                                        TableCaption::String(string.to_owned())
+                                    }
+                                    CodeChunkCaption::VecBlockContent(blocks) => {
+                                        TableCaption::VecBlockContent(blocks.to_static_blocks())
+                                    }
+                                })
+                            }),
+                            rows,
+                            ..Default::default()
+                        })];
+                    }
+                }
+
+                vec![BlockContent::Figure(FigureSimple {
+                    label: chunk.label,
+                    caption: chunk.caption.as_ref().map(|caption| {
+                        Box::new(match caption.as_ref() {
+                            CodeChunkCaption::String(string) => {
+                                FigureCaption::String(string.to_owned())
+                            }
+                            CodeChunkCaption::VecBlockContent(blocks) => {
+                                FigureCaption::VecBlockContent(blocks.to_static_blocks())
+                            }
+                        })
+                    }),
+                    content: Some(Box::new(CreativeWorkContent::VecNode(outputs))),
+                    ..Default::default()
+                })]
+            }
+            BlockContent::Include(include) => include
+                .content
+                .iter()
+                .flat_map(Transform::to_static_blocks)
+                .collect(),
+
+            // Non-dynamic node types: make their content static
+            BlockContent::Figure(figure) => vec![BlockContent::Figure(FigureSimple {
+                caption: figure.caption.as_deref().map(|caption| match caption {
+                    FigureCaption::String(..) => Box::new(caption.to_owned()),
+                    FigureCaption::VecBlockContent(blocks) => {
+                        Box::new(FigureCaption::VecBlockContent(blocks.to_static_blocks()))
+                    }
+                }),
+                content: figure.content.map(|content| {
+                    Box::new(match content.as_ref() {
+                        CreativeWorkContent::String(string) => {
+                            CreativeWorkContent::String(string.to_owned())
+                        }
+                        CreativeWorkContent::VecNode(nodes) => {
+                            CreativeWorkContent::VecNode(nodes.to_static_nodes())
+                        }
+                    })
+                }),
+                ..figure
+            })],
+            BlockContent::Heading(heading) => vec![BlockContent::Heading(Heading {
+                content: heading.content.to_static_inlines(),
+                ..heading
+            })],
+            BlockContent::List(list) => vec![BlockContent::List(List {
+                items: list
+                    .items
+                    .into_iter()
+                    .map(|item| ListItem {
+                        content: item.content.map(|content| match content {
+                            ListItemContent::VecInlineContent(inlines) => {
+                                ListItemContent::VecInlineContent(inlines.to_static_inlines())
+                            }
+                            ListItemContent::VecBlockContent(blocks) => {
+                                ListItemContent::VecBlockContent(blocks.to_static_blocks())
+                            }
+                        }),
+                        ..item
+                    })
+                    .collect(),
+                ..list
+            })],
+            BlockContent::Paragraph(para) => vec![BlockContent::Paragraph(Paragraph {
+                content: para.content.to_static_inlines(),
+                ..para
+            })],
+            BlockContent::QuoteBlock(quote) => vec![BlockContent::QuoteBlock(QuoteBlock {
+                content: quote.content.to_static_blocks(),
+                ..quote
+            })],
+            BlockContent::Table(table) => vec![BlockContent::Table(TableSimple {
+                caption: table.caption.as_deref().map(|caption| match caption {
+                    TableCaption::String(..) => Box::new(caption.to_owned()),
+                    TableCaption::VecBlockContent(blocks) => {
+                        Box::new(TableCaption::VecBlockContent(blocks.to_static_blocks()))
+                    }
+                }),
+                rows: table
+                    .rows
+                    .into_iter()
+                    .map(|row| TableRow {
+                        cells: row
+                            .cells
+                            .into_iter()
+                            .map(|cell| TableCell { ..cell })
+                            .collect(),
+                        ..row
+                    })
+                    .collect(),
+                ..table
+            })],
+            _ => self.to_blocks(),
         }
     }
 }
@@ -235,5 +352,26 @@ impl Transform for Vec<BlockContent> {
     /// Returns self mapped into nodes.
     fn to_nodes(&self) -> Vec<Node> {
         self.iter().flat_map(|node| node.to_nodes()).collect()
+    }
+
+    /// Transform a vector of `BlockContent` variants to a vector of static `InlineContent` variants
+    fn to_static_inlines(&self) -> Vec<InlineContent> {
+        self.iter()
+            .flat_map(|block| block.to_static_inlines())
+            .collect()
+    }
+
+    /// Transform a vector of `BlockContent` variants to a vector of static `BlockContent` variants
+    fn to_static_blocks(&self) -> Vec<BlockContent> {
+        self.iter()
+            .flat_map(|block| block.to_static_blocks())
+            .collect()
+    }
+
+    /// Transform a vector of `BlockContent` variants to a vector of static `Node` variants
+    fn to_static_nodes(&self) -> Vec<Node> {
+        self.iter()
+            .flat_map(|block| block.to_static_nodes())
+            .collect()
     }
 }
