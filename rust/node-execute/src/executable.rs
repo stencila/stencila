@@ -911,10 +911,7 @@ macro_rules! executable_content {
     ($type:ty) => {
         executable_fields!($type, content);
     };
-}
 
-/// Compile content for several types
-macro_rules! executable_content_for {
     ( $( $type:ty ),* ) => {
         $(
             executable_content!($type);
@@ -922,7 +919,7 @@ macro_rules! executable_content_for {
     };
 }
 
-executable_content_for!(
+executable_content!(
     Article,
     Cite,
     Claim,

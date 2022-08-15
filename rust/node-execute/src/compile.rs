@@ -88,13 +88,21 @@ pub async fn compile(
 
             // Get the node from the document
             let address = address_map.get(node_id).cloned();
-            let node = if let Ok(node) = resolve(&*root, address.clone(), Some(node_id.clone()))
+            let node = match resolve(&*root, address.clone(), Some(node_id.clone()))
                 .and_then(|pointer| pointer.to_node())
             {
-                node
-            } else {
-                tracing::warn!("Unable to resolve node `{}`", node_id);
-                return None;
+                Ok(node) => node,
+                Err(error) => {
+                    tracing::warn!(
+                        "Unable to resolve node with id `{}` and address `{}`: {}",
+                        node_id,
+                        address
+                            .map(|address| address.to_string())
+                            .unwrap_or_default(),
+                        error
+                    );
+                    return None;
+                }
             };
 
             if let Resource::Code(resources::Code { id: node_id, .. }) = resource {
