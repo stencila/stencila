@@ -453,6 +453,24 @@ impl ToMd for ThematicBreak {
     }
 }
 
+impl ToMd for Include {
+    fn to_md(&self) -> String {
+        let mut options = Vec::new();
+
+        if let Some(media_type) = self.media_type.as_deref() {
+            options.push(["format=", media_type].concat())
+        }
+
+        let attrs = if options.is_empty() {
+            "".to_string()
+        } else {
+            ["{", &options.join(" "), "}"].concat()
+        };
+
+        ["+[", &self.source, "]", &attrs, "\n\n"].concat()
+    }
+}
+
 macro_rules! content_to_md {
     ($type:ty) => {
         impl ToMd for $type {
@@ -544,13 +562,14 @@ impl ToMd for BlockContent {
             BlockContent::CodeBlock(node) => node.to_md(),
             BlockContent::CodeChunk(node) => node.to_md(),
             BlockContent::Heading(node) => node.to_md(),
+            BlockContent::Include(node) => node.to_md(),
             BlockContent::List(node) => node.to_md(),
             BlockContent::MathBlock(node) => node.to_md(),
             BlockContent::Paragraph(node) => node.to_md(),
             BlockContent::QuoteBlock(node) => node.to_md(),
             BlockContent::Table(node) => node.to_md(),
             BlockContent::ThematicBreak(node) => node.to_md(),
-            _ => "<!-- unsupported type -->".to_string(),
+            _ => "<!-- unsupported type -->\n\n".to_string(),
         }
     }
 }

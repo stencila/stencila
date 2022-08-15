@@ -276,6 +276,8 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                             math_language: Some(Box::new("tex".to_string())),
                             ..Default::default()
                         })
+                    } else if let Ok((.., include)) = include(&inlines.text) {
+                        BlockContent::Include(include)
                     } else {
                         BlockContent::Paragraph(Paragraph {
                             content: inlines.pop_all(),
@@ -1176,6 +1178,27 @@ fn character(input: &str) -> IResult<&str, InlineContent> {
     map_res(take(1usize), |res: &str| -> Result<InlineContent> {
         Ok(InlineContent::String(String::from(res)))
     })(input)
+}
+
+/// Parse a string into an `Include` node
+fn include(input: &str) -> IResult<&str, Include> {
+    map_res(
+        tuple((
+            delimited(tag("+["), take_till(|c| c == ']'), char(']')),
+            opt(curly_attrs),
+        )),
+        |(source, options)| -> Result<Include> {
+            let options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
+            Ok(Include {
+                source: source.to_string(),
+                media_type: options
+                    .get("format")
+                    .and_then(|attr| attr.to_owned())
+                    .map(Box::new),
+                ..Default::default()
+            })
+        },
+    )(input)
 }
 
 /// Stores and parses HTML content

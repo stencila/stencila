@@ -1,0 +1,39 @@
+---
+source: rust/codec-md/src/decode.rs
+assertion_line: 1384
+expression: "decode_fragment(content, None)"
+input_file: fixtures/fragments/md/include.md
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "A simple include of a sibling fixture,"
+    ]
+  },
+  {
+    "type": "Include",
+    "source": "paragraph.md"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Executable nodes in includes should get compiled and executed,"
+    ]
+  },
+  {
+    "type": "Include",
+    "source": "./code-chunk.md"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Paths are relative and the format option can be used to override the extension based format,"
+    ]
+  },
+  {
+    "type": "Include",
+    "source": "../md/paragraph.md",
+    "mediaType": "md"
+  }
+]

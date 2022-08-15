@@ -704,6 +704,26 @@ pub fn thematic_break() -> impl Strategy<Value = BlockContent> {
     Just(BlockContent::ThematicBreak(ThematicBreak::default()))
 }
 
+prop_compose! {
+    /// Generate an include node
+    pub fn include(freedom: Freedom)(
+        source in match freedom {
+            Freedom::Min => "somefile.fmt",
+            Freedom::Low => r"[A-Za-z0-9/.]+",
+            _ => r"[A-Za-z0-9/.-_]+",
+        },
+        media_type in match freedom {
+            Freedom::Min => of("fmt"),
+            _ => of(r"[A-Za-z0-9]+"),
+        }
+    ) -> BlockContent {
+        BlockContent::Include(Include{
+            source, media_type: media_type.map(Box::new),
+            ..Default::default()
+        })
+    }
+}
+
 /// Generate one of the block content node types
 pub fn block_content(
     freedom: Freedom,
@@ -718,6 +738,9 @@ pub fn block_content(
     }
     if !exclude_types.contains(&"Heading".to_string()) {
         strategies.push(heading(freedom, exclude_types.clone()).boxed())
+    }
+    if !exclude_types.contains(&"Include".to_string()) {
+        strategies.push(include(freedom).boxed())
     }
     if !exclude_types.contains(&"List".to_string()) {
         strategies.push(list(freedom, exclude_types.clone()).boxed())
