@@ -340,6 +340,16 @@ export function interfaceSchemaToSimpleStruct(
           case 'VideoObject':
             keepers = ['title']
             break
+          case 'Figure':
+            // Has own `label` and `caption` so does not need `title`
+            // but needs `content` for the nodes of the figure
+            keepers = ['content']
+            break
+          case 'Table':
+            // Has own `label` and `caption` and `rows` for content
+            // so does not need to inherit from `CreativeWork`
+            keepers = []
+            break
           default:
             keepers = ['title', 'content', 'parts']
         }

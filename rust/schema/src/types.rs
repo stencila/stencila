@@ -2032,12 +2032,6 @@ pub struct FigureSimple {
 
     /// A short label for the figure.
     pub label: Option<Box<String>>,
-
-    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    pub parts: Option<Vec<CreativeWorkTypes>>,
-
-    /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -4341,21 +4335,12 @@ pub struct TableSimple {
     /// A caption for the table.
     pub caption: Option<Box<TableCaption>>,
 
-    /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Box<CreativeWorkContent>>,
-
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
     /// A short label for the table.
     pub label: Option<Box<String>>,
-
-    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    pub parts: Option<Vec<CreativeWorkTypes>>,
-
-    /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
