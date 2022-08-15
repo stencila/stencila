@@ -111,6 +111,26 @@ fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
                 })]
             };
         }
+        if tag == LocalName::from("stencila-include") {
+            let source = element
+                .attributes
+                .borrow()
+                .get(LocalName::from("source"))
+                .unwrap_or_default()
+                .to_string();
+
+            let media_type = element
+                .attributes
+                .borrow()
+                .get(LocalName::from("media-type"))
+                .map(|value| Box::new(value.to_string()));
+
+            return vec![BlockContent::Include(Include {
+                source,
+                media_type,
+                ..Default::default()
+            })];
+        }
         // The following are ordered alphabetically by the output node type
         // with placeholder comments for types not implemented yet.
         match tag {

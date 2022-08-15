@@ -1,0 +1,17 @@
+---
+source: rust/codec-html/src/encode.rs
+assertion_line: 467
+expression: html
+input_file: fixtures/nodes/include.json
+---
+<article data-root itemtype="https://schema.org/Article" itemscope>
+  <stencila-document-toolbar>
+  </stencila-document-toolbar>
+  <div data-prop="content">
+    <stencila-include itemtype="https://schema.stenci.la/Include" itemscope source="heading.json">
+      <meta itemprop="source" content="heading.json"/>
+      <div data-prop="content" slot="content">
+      </div>
+    </stencila-include>
+  </div>
+</article>
