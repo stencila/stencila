@@ -615,6 +615,34 @@ impl Patch {
         self.ops.is_empty()
     }
 
+    /// Ignore patch operations that would overwrite derived fields
+    ///
+    /// Often we want to load new content for a `Node` from a new file but do not want to
+    /// loose fields that have been derived during compile and usually only in-memory. This
+    /// removes `Replace` and `Remove` operations of `compile_digest`, `execute_digest` etc.
+    pub fn remove_overwrite_derived(&mut self) {
+        self.ops.retain(|op| {
+            if let Operation::Remove { address, .. } | Operation::Replace { address, .. } = op {
+                for slot in address.iter() {
+                    if let Slot::Name(name) = slot {
+                        if matches!(
+                            name.as_str(),
+                            "compile_digest"
+                                | "execute_digest"
+                                | "execute_duration"
+                                | "execute_ended"
+                                | "execute_required"
+                                | "execute_status"
+                        ) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            true
+        })
+    }
+
     /// Prepare the patch for publishing
     ///
     /// The main purpose of this function is to generate HTML for each `Add` and `Replace`
