@@ -187,7 +187,7 @@ impl ResourceDigest {
         let content_digest = str_seahash(&Self::strip_chars(content_str)).unwrap_or_default();
         let semantic_digest = semantic_str
             .and_then(|str| str_seahash(&Self::strip_chars(str)).ok())
-            .unwrap_or_default();
+            .unwrap_or(content_digest);
         Self {
             content_digest,
             semantic_digest,
