@@ -60,16 +60,21 @@ impl Pointable for BlockContent {
 // Implementations for `BlockContent` structs (usually only properties that are content or `Node`s)
 // and associated enums (only variants containing content).
 
+pointable_struct!(Call, arguments, content);
+
 pointable_struct!(ClaimSimple, content);
 pointable_struct!(CodeBlock);
+
 pointable_struct!(CodeChunk, caption, errors);
 pointable_variants!(CodeChunkCaption, CodeChunkCaption::VecBlockContent);
 pointable_struct!(CodeError);
+
 pointable_struct!(CollectionSimple);
 pointable_struct!(FigureSimple, caption);
 pointable_variants!(FigureCaption, FigureCaption::VecBlockContent);
 pointable_struct!(Heading, content);
-pointable_struct!(Include);
+pointable_struct!(Include, content);
+
 pointable_struct!(List, items);
 pointable_struct!(ListItem, content);
 pointable_variants!(
@@ -77,9 +82,11 @@ pointable_variants!(
     ListItemContent::VecBlockContent,
     ListItemContent::VecInlineContent
 );
+
 pointable_struct!(MathBlock);
 pointable_struct!(Paragraph, content);
 pointable_struct!(QuoteBlock, content);
+
 pointable_struct!(TableCell, content);
 pointable_struct!(TableRow, cells);
 pointable_struct!(TableSimple, caption, rows);
@@ -89,4 +96,5 @@ pointable_variants!(
     TableCellContent::VecBlockContent,
     TableCellContent::VecInlineContent
 );
+
 pointable_struct!(ThematicBreak);
