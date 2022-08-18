@@ -156,6 +156,16 @@ patchable_variants!(
 
 patchable_struct!(Include, source, media_type, compile_digest, content);
 
+patchable_struct!(
+    Call,
+    source,
+    media_type,
+    compile_digest,
+    execute_digest,
+    arguments,
+    content
+);
+
 patchable_struct!(ThematicBreak);
 
 patchable_struct!(Claim, content, claim_type);

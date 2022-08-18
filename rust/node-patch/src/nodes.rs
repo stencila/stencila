@@ -66,6 +66,7 @@ patchable_node_variants!(
     Node::Article
     Node::AudioObject
     Node::Boolean
+    Node::Call
     Node::Cite
     Node::CiteGroup
     Node::Claim
