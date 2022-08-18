@@ -1198,6 +1198,10 @@ fn include(input: &str) -> IResult<&str, Include> {
                     .get("format")
                     .and_then(|attr| attr.to_owned())
                     .map(Box::new),
+                select: options
+                    .get("select")
+                    .and_then(|attr| attr.to_owned())
+                    .map(Box::new),
                 ..Default::default()
             })
         },
