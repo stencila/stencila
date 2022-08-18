@@ -15,7 +15,7 @@ input_file: fixtures/fragments/bash/tags.bash
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           2,
           6,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/bash/tags.bash
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           1,
           0,

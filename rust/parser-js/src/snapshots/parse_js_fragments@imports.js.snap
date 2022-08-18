@@ -15,7 +15,7 @@ input_file: fixtures/fragments/js/imports.js
   "relations": [
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           2,
           26,
@@ -31,7 +31,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           3,
           22,
@@ -47,7 +47,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           4,
           24,
@@ -63,7 +63,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           5,
           33,
@@ -79,7 +79,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           6,
           34,
@@ -95,7 +95,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           7,
           43,
@@ -111,7 +111,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           8,
           39,
@@ -127,7 +127,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           9,
           37,
@@ -143,7 +143,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           10,
           7,
@@ -159,7 +159,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           11,
           4,
@@ -176,7 +176,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           11,
           21,
@@ -192,7 +192,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           14,
           4,
@@ -209,7 +209,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           14,
           20,
@@ -226,7 +226,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           14,
           28,
@@ -242,7 +242,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           15,
           4,
@@ -259,7 +259,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           15,
           12,
@@ -276,7 +276,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           15,
           20,
@@ -292,7 +292,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           19,
           6,
@@ -309,7 +309,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           21,
           6,
@@ -326,7 +326,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           22,
           6,
@@ -343,7 +343,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           22,
           12,
@@ -360,7 +360,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           22,
           20,

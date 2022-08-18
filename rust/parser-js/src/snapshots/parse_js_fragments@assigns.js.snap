@@ -15,7 +15,7 @@ input_file: fixtures/fragments/js/assigns.js
   "relations": [
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           0,
           0,

@@ -15,7 +15,7 @@ input_file: fixtures/fragments/ts/declares.ts
   "relations": [
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           1,
           4,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           2,
           4,
@@ -49,7 +49,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           3,
           4,
@@ -66,7 +66,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           5,
           6,
@@ -83,7 +83,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           6,
           13,
@@ -100,7 +100,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           9,
           6,
@@ -117,7 +117,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           10,
           6,
@@ -134,7 +134,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           11,
           6,
@@ -151,7 +151,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           12,
           6,
@@ -168,7 +168,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           13,
           6,
@@ -185,7 +185,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           14,
           6,
@@ -202,7 +202,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           15,
           6,
@@ -219,7 +219,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           17,
           9,
@@ -236,7 +236,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           18,
           6,
@@ -253,7 +253,7 @@ input_file: fixtures/fragments/ts/declares.ts
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           19,
           16,

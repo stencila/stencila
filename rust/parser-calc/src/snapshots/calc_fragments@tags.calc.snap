@@ -15,7 +15,7 @@ input_file: fixtures/fragments/calc/tags.calc
   "relations": [
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           0,
           0,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/calc/tags.calc
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           1,
           0,

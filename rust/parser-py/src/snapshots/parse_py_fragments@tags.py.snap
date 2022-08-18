@@ -15,7 +15,7 @@ input_file: fixtures/fragments/py/tags.py
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           1,
           0,
@@ -31,7 +31,7 @@ input_file: fixtures/fragments/py/tags.py
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           2,
           0,
@@ -48,7 +48,7 @@ input_file: fixtures/fragments/py/tags.py
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           4,
           0,
@@ -65,7 +65,7 @@ input_file: fixtures/fragments/py/tags.py
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           5,
           0,
@@ -80,7 +80,7 @@ input_file: fixtures/fragments/py/tags.py
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           5,
           0,
@@ -95,7 +95,7 @@ input_file: fixtures/fragments/py/tags.py
     ],
     [
       {
-        "type": "Write",
+        "type": "Writes",
         "range": [
           6,
           0,

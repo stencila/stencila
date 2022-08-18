@@ -15,7 +15,7 @@ input_file: fixtures/fragments/calc/uses-only.calc
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           0,
           0,

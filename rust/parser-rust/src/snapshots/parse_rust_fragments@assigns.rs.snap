@@ -15,7 +15,7 @@ input_file: fixtures/fragments/rust/assigns.rs
   "relations": [
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           0,
           6,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/rust/assigns.rs
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           1,
           7,
@@ -49,7 +49,7 @@ input_file: fixtures/fragments/rust/assigns.rs
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           3,
           4,
@@ -66,7 +66,7 @@ input_file: fixtures/fragments/rust/assigns.rs
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           4,
           4,
@@ -83,7 +83,7 @@ input_file: fixtures/fragments/rust/assigns.rs
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           5,
           4,
@@ -100,7 +100,7 @@ input_file: fixtures/fragments/rust/assigns.rs
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           6,
           4,
@@ -117,7 +117,7 @@ input_file: fixtures/fragments/rust/assigns.rs
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           7,
           4,
@@ -134,7 +134,7 @@ input_file: fixtures/fragments/rust/assigns.rs
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           8,
           4,
@@ -151,7 +151,7 @@ input_file: fixtures/fragments/rust/assigns.rs
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           9,
           4,

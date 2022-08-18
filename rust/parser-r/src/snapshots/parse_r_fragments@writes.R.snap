@@ -15,7 +15,7 @@ input_file: fixtures/fragments/r/writes.R
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           0,
           10,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/r/writes.R
     ],
     [
       {
-        "type": "Write",
+        "type": "Writes",
         "range": [
           0,
           16,
@@ -47,7 +47,7 @@ input_file: fixtures/fragments/r/writes.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           2,
           12,
@@ -64,7 +64,7 @@ input_file: fixtures/fragments/r/writes.R
     ],
     [
       {
-        "type": "Write",
+        "type": "Writes",
         "range": [
           2,
           25,
@@ -79,7 +79,7 @@ input_file: fixtures/fragments/r/writes.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           4,
           0,
@@ -96,7 +96,7 @@ input_file: fixtures/fragments/r/writes.R
     ],
     [
       {
-        "type": "Write",
+        "type": "Writes",
         "range": [
           5,
           29,
@@ -111,7 +111,7 @@ input_file: fixtures/fragments/r/writes.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           8,
           17,
@@ -128,7 +128,7 @@ input_file: fixtures/fragments/r/writes.R
     ],
     [
       {
-        "type": "Write",
+        "type": "Writes",
         "range": [
           8,
           31,
@@ -143,7 +143,7 @@ input_file: fixtures/fragments/r/writes.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           12,
           12,
@@ -160,7 +160,7 @@ input_file: fixtures/fragments/r/writes.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           12,
           18,
@@ -177,7 +177,7 @@ input_file: fixtures/fragments/r/writes.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           14,
           10,
@@ -194,7 +194,7 @@ input_file: fixtures/fragments/r/writes.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           14,
           23,

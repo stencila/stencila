@@ -15,7 +15,7 @@ input_file: fixtures/fragments/js/tags.js
   "relations": [
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           8,
           4,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/js/tags.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           1,
           0,
@@ -48,7 +48,7 @@ input_file: fixtures/fragments/js/tags.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           1,
           0,
@@ -64,7 +64,7 @@ input_file: fixtures/fragments/js/tags.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           1,
           0,
@@ -80,7 +80,7 @@ input_file: fixtures/fragments/js/tags.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           2,
           0,
@@ -97,7 +97,7 @@ input_file: fixtures/fragments/js/tags.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           3,
           0,
@@ -114,7 +114,7 @@ input_file: fixtures/fragments/js/tags.js
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           5,
           0,
@@ -129,7 +129,7 @@ input_file: fixtures/fragments/js/tags.js
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           5,
           0,
@@ -144,7 +144,7 @@ input_file: fixtures/fragments/js/tags.js
     ],
     [
       {
-        "type": "Write",
+        "type": "Writes",
         "range": [
           6,
           0,

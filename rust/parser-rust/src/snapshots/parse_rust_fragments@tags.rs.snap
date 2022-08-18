@@ -15,7 +15,7 @@ input_file: fixtures/fragments/rust/tags.rs
   "relations": [
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           8,
           4,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/rust/tags.rs
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           0,
           0,
@@ -48,7 +48,7 @@ input_file: fixtures/fragments/rust/tags.rs
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           0,
           0,
@@ -64,7 +64,7 @@ input_file: fixtures/fragments/rust/tags.rs
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           0,
           0,
@@ -80,7 +80,7 @@ input_file: fixtures/fragments/rust/tags.rs
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           0,
           0,
@@ -96,7 +96,7 @@ input_file: fixtures/fragments/rust/tags.rs
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           1,
           0,
@@ -113,7 +113,7 @@ input_file: fixtures/fragments/rust/tags.rs
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           2,
           0,
@@ -130,7 +130,7 @@ input_file: fixtures/fragments/rust/tags.rs
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           3,
           0,
@@ -145,7 +145,7 @@ input_file: fixtures/fragments/rust/tags.rs
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           3,
           0,
@@ -160,7 +160,7 @@ input_file: fixtures/fragments/rust/tags.rs
     ],
     [
       {
-        "type": "Write",
+        "type": "Writes",
         "range": [
           4,
           0,

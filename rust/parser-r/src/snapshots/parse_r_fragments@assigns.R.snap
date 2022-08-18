@@ -15,7 +15,7 @@ input_file: fixtures/fragments/r/assigns.R
   "relations": [
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           0,
           0,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/r/assigns.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           1,
           0,
@@ -49,7 +49,7 @@ input_file: fixtures/fragments/r/assigns.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           3,
           0,
@@ -66,7 +66,7 @@ input_file: fixtures/fragments/r/assigns.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           5,
           4,
@@ -83,7 +83,7 @@ input_file: fixtures/fragments/r/assigns.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           10,
           4,
@@ -100,7 +100,7 @@ input_file: fixtures/fragments/r/assigns.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           13,
           0,
@@ -117,7 +117,7 @@ input_file: fixtures/fragments/r/assigns.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           15,
           0,
@@ -134,7 +134,7 @@ input_file: fixtures/fragments/r/assigns.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           16,
           0,
@@ -151,7 +151,7 @@ input_file: fixtures/fragments/r/assigns.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           17,
           0,
@@ -168,7 +168,7 @@ input_file: fixtures/fragments/r/assigns.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           18,
           0,
@@ -185,7 +185,7 @@ input_file: fixtures/fragments/r/assigns.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           19,
           0,
@@ -202,7 +202,7 @@ input_file: fixtures/fragments/r/assigns.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           20,
           0,

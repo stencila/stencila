@@ -15,7 +15,7 @@ input_file: fixtures/fragments/js/reads.js
   "relations": [
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           0,
           15,
@@ -31,7 +31,7 @@ input_file: fixtures/fragments/js/reads.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           1,
           27,
@@ -47,7 +47,7 @@ input_file: fixtures/fragments/js/reads.js
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           3,
           4,
@@ -64,7 +64,7 @@ input_file: fixtures/fragments/js/reads.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           3,
           11,
@@ -81,7 +81,7 @@ input_file: fixtures/fragments/js/reads.js
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           3,
           23,
@@ -96,7 +96,7 @@ input_file: fixtures/fragments/js/reads.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           4,
           0,
@@ -113,7 +113,7 @@ input_file: fixtures/fragments/js/reads.js
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           4,
           13,
@@ -128,7 +128,7 @@ input_file: fixtures/fragments/js/reads.js
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           6,
           9,
@@ -145,7 +145,7 @@ input_file: fixtures/fragments/js/reads.js
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           7,
           14,
@@ -160,7 +160,7 @@ input_file: fixtures/fragments/js/reads.js
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           8,
           17,

@@ -15,7 +15,7 @@ input_file: fixtures/fragments/rust/uses.rs
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           0,
           0,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/rust/uses.rs
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           1,
           0,
@@ -49,7 +49,7 @@ input_file: fixtures/fragments/rust/uses.rs
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           1,
           7,

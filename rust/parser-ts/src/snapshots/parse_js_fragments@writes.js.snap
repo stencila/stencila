@@ -15,7 +15,7 @@ input_file: fixtures/fragments/js/writes.js
   "relations": [
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           0,
           15,
@@ -31,7 +31,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Import",
+        "type": "Imports",
         "range": [
           1,
           28,
@@ -47,7 +47,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           3,
           4,
@@ -64,7 +64,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           3,
           11,
@@ -81,7 +81,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Write",
+        "type": "Writes",
         "range": [
           3,
           24,
@@ -96,7 +96,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           3,
           33,
@@ -113,7 +113,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           4,
           0,
@@ -130,7 +130,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Write",
+        "type": "Writes",
         "range": [
           4,
           14,
@@ -145,7 +145,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Uses",
         "range": [
           4,
           23,
@@ -162,7 +162,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Declare",
+        "type": "Declares",
         "range": [
           6,
           9,
@@ -179,7 +179,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Write",
+        "type": "Writes",
         "range": [
           7,
           15,

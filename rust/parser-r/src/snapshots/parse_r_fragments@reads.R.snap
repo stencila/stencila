@@ -15,7 +15,7 @@ input_file: fixtures/fragments/r/reads.R
   "relations": [
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           1,
           9,
@@ -30,7 +30,7 @@ input_file: fixtures/fragments/r/reads.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           4,
           0,
@@ -47,7 +47,7 @@ input_file: fixtures/fragments/r/reads.R
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           4,
           19,
@@ -62,7 +62,7 @@ input_file: fixtures/fragments/r/reads.R
     ],
     [
       {
-        "type": "Assign",
+        "type": "Assigns",
         "range": [
           7,
           0,
@@ -79,7 +79,7 @@ input_file: fixtures/fragments/r/reads.R
     ],
     [
       {
-        "type": "Read",
+        "type": "Reads",
         "range": [
           8,
           22,
