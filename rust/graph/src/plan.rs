@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use common::{
     eyre::{self, bail, Result},
+    once_cell::sync::Lazy,
     serde::Serialize,
     strum::AsRefStr,
 };
@@ -52,7 +53,8 @@ impl PlanOptions {
     }
 
     pub fn default_max_concurrency() -> usize {
-        num_cpus::get()
+        static CPUS: Lazy<usize> = Lazy::new(num_cpus::get);
+        *CPUS
     }
 
     pub fn to_markdown(&self) -> String {
@@ -77,7 +79,7 @@ impl Default for PlanOptions {
 }
 
 /// The ordering of nodes used when generating a plan
-#[derive(Debug, Clone, Serialize, AsRefStr)]
+#[derive(Debug, Clone, Copy, Serialize, AsRefStr)]
 #[serde(crate = "common::serde")]
 pub enum PlanOrdering {
     /// Only a single, specified, node is to be executed
