@@ -317,11 +317,11 @@ impl Graph {
                     // Skip adding `Use` relations where the resource was declared or assigned
                     // in the same resource. These are unnecessary and create a cyclic, one-to-one dependency.
                     let mut skip = false;
-                    if matches!(relation, Relation::Use(..)) {
+                    if matches!(relation, Relation::Uses(..)) {
                         for (other_relation, other_object) in &relations {
                             if matches!(
                                 other_relation,
-                                Relation::Declare(..) | Relation::Assign(..)
+                                Relation::Declares(..) | Relation::Assigns(..)
                             ) && other_object == object
                             {
                                 skip = true;
@@ -1065,16 +1065,16 @@ impl Graph {
                     self.graph.edge_weight(edge),
                 ) {
                     let (label, style) = match relation {
-                        Relation::Convert(relations::Convert { auto: active }) => (
+                        Relation::Converts(relations::Converts { auto: active }) => (
                             relation.to_string(),
                             if *active { "solid" } else { "dashed" },
                         ),
-                        Relation::Declare(relations::Declare { range })
-                        | Relation::Assign(relations::Assign { range })
-                        | Relation::Use(relations::Use { range })
-                        | Relation::Import(relations::Import { range })
-                        | Relation::Read(relations::Read { range })
-                        | Relation::Write(relations::Write { range }) => {
+                        Relation::Declares(relations::Declares { range })
+                        | Relation::Assigns(relations::Assigns { range })
+                        | Relation::Uses(relations::Uses { range })
+                        | Relation::Imports(relations::Imports { range })
+                        | Relation::Reads(relations::Reads { range })
+                        | Relation::Writes(relations::Writes { range }) => {
                             let label = if *range == relations::NULL_RANGE {
                                 relation.to_string()
                             } else {
