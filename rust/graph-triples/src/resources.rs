@@ -402,11 +402,11 @@ impl ResourceInfo {
             Some(relations) => !relations.iter().any(|(relation, ..)| {
                 matches!(
                     relation,
-                    Relation::Declare(..)
-                        | Relation::Assign(..)
-                        | Relation::Alter(..)
-                        | Relation::Import(..)
-                        | Relation::Write(..)
+                    Relation::Declares(..)
+                        | Relation::Assigns(..)
+                        | Relation::Alters(..)
+                        | Relation::Imports(..)
+                        | Relation::Writes(..)
                 )
             }),
             None => false,
@@ -419,7 +419,7 @@ impl ResourceInfo {
             Some(relations) => relations
                 .iter()
                 .filter_map(|pair| match pair {
-                    (Relation::Use(..), Resource::Symbol(symbol)) => Some(symbol),
+                    (Relation::Uses(..), Resource::Symbol(symbol)) => Some(symbol),
                     _ => None,
                 })
                 .cloned()
@@ -434,9 +434,9 @@ impl ResourceInfo {
             Some(relations) => relations
                 .iter()
                 .filter_map(|pair| match pair {
-                    (Relation::Declare(..), Resource::Symbol(symbol))
-                    | (Relation::Assign(..), Resource::Symbol(symbol))
-                    | (Relation::Alter(..), Resource::Symbol(symbol)) => Some(symbol),
+                    (Relation::Declares(..), Resource::Symbol(symbol))
+                    | (Relation::Assigns(..), Resource::Symbol(symbol))
+                    | (Relation::Alters(..), Resource::Symbol(symbol)) => Some(symbol),
                     _ => None,
                 })
                 .cloned()
@@ -555,7 +555,7 @@ pub struct Code {
     /// The id of the node with the document
     pub id: String,
 
-    /// The type of node e.g. `Parameter`, `CodeChunk`
+    /// The type of node e.g. `Parameter`, `CodeChunk`, `Call`
     #[derivative(PartialEq = "ignore")]
     #[derivative(PartialOrd = "ignore")]
     #[derivative(Hash = "ignore")]
@@ -568,7 +568,7 @@ pub struct Code {
     pub language: Option<String>,
 }
 
-/// Create a new `Code` resource
+/// Create a new `Executable` resource
 pub fn code(path: &Path, id: &str, kind: &str, language: Option<String>) -> Resource {
     Resource::Code(Code {
         path: path.to_path_buf(),

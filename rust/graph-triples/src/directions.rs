@@ -9,17 +9,18 @@ pub enum Direction {
 /// Get the the `Direction` for a `Relation`
 pub fn direction(relation: &Relation) -> Direction {
     match relation {
-        Relation::Assign(..) => Direction::To,
-        Relation::Alter(..) => Direction::To,
-        Relation::Convert(..) => Direction::To,
-        Relation::Declare(..) => Direction::To,
+        Relation::Assigns(..) => Direction::To,
+        Relation::Alters(..) => Direction::To,
+        Relation::Converts(..) => Direction::To,
+        Relation::Declares(..) => Direction::To,
         Relation::Embed => Direction::From,
-        Relation::Import(..) => Direction::From,
-        Relation::Include => Direction::From,
-        Relation::Link => Direction::To,
-        Relation::Read(..) => Direction::From,
-        Relation::Use(..) => Direction::From,
-        Relation::Write(..) => Direction::To,
-        Relation::Require(..) => Direction::From,
+        Relation::Imports(..) => Direction::From,
+        Relation::Includes => Direction::From,
+        Relation::Calls => Direction::From,
+        Relation::Links => Direction::To,
+        Relation::Reads(..) => Direction::From,
+        Relation::Uses(..) => Direction::From,
+        Relation::Writes(..) => Direction::To,
+        Relation::Requires(..) => Direction::From,
     }
 }

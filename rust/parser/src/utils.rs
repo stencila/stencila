@@ -111,13 +111,13 @@ pub fn apply_tags(
     if let Some(relations) = &mut resource_info.relations {
         for only in onlies {
             relations.retain(|(relation, _resource)| {
-                !(matches!(relation, Relation::Import(..)) && only == "imports"
-                    || matches!(relation, Relation::Declare(..)) && only == "declares"
-                    || matches!(relation, Relation::Assign(..)) && only == "assigns"
-                    || matches!(relation, Relation::Alter(..)) && only == "alters"
-                    || matches!(relation, Relation::Use(..)) && only == "uses"
-                    || matches!(relation, Relation::Read(..)) && only == "reads"
-                    || matches!(relation, Relation::Write(..)) && only == "writes")
+                !(matches!(relation, Relation::Imports(..)) && only == "imports"
+                    || matches!(relation, Relation::Declares(..)) && only == "declares"
+                    || matches!(relation, Relation::Assigns(..)) && only == "assigns"
+                    || matches!(relation, Relation::Alters(..)) && only == "alters"
+                    || matches!(relation, Relation::Uses(..)) && only == "uses"
+                    || matches!(relation, Relation::Reads(..)) && only == "reads"
+                    || matches!(relation, Relation::Writes(..)) && only == "writes")
             })
         }
     }

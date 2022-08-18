@@ -9,18 +9,19 @@ use common::{serde::Serialize, strum::Display};
 #[derive(Debug, Display, Clone, JsonSchema, Serialize)]
 #[serde(tag = "type", crate = "common::serde")]
 pub enum Relation {
-    Assign(Assign),
-    Alter(Alter),
-    Convert(Convert),
-    Declare(Declare),
+    Assigns(Assigns),
+    Alters(Alters),
+    Converts(Converts),
+    Declares(Declares),
     Embed,
-    Import(Import),
-    Include,
-    Link,
-    Read(Read),
-    Use(Use),
-    Write(Write),
-    Require(Require),
+    Imports(Imports),
+    Includes,
+    Calls,
+    Links,
+    Reads(Reads),
+    Uses(Uses),
+    Writes(Writes),
+    Requires(Requires),
 }
 
 /// The two dimensional range that a relation is defined within some
@@ -39,112 +40,112 @@ pub const NULL_RANGE: Range = (0, 0, 0, 0);
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
-pub struct Declare {
+pub struct Declares {
     /// The range within code that the assignment is done
     pub range: Range,
 }
 
 /// Create a new `Declare` relation
 pub fn declares(range: Range) -> Relation {
-    Relation::Declare(Declare { range })
+    Relation::Declares(Declares { range })
 }
 
 /// Assigns to a symbol
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
-pub struct Assign {
+pub struct Assigns {
     /// The range within code that the assignment is done
     pub range: Range,
 }
 
 /// Create a new `Assign` relation
 pub fn assigns(range: Range) -> Relation {
-    Relation::Assign(Assign { range })
+    Relation::Assigns(Assigns { range })
 }
 
 /// Alters a symbol
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
-pub struct Alter {
+pub struct Alters {
     /// The range within code that the alter
     pub range: Range,
 }
 
 /// Create a new `Alter` relation
 pub fn alters(range: Range) -> Relation {
-    Relation::Alter(Alter { range })
+    Relation::Alters(Alters { range })
 }
 
 /// Imports a `Module` or a `File`
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
-pub struct Import {
+pub struct Imports {
     /// The range within code
     pub range: Range,
 }
 
 /// Create a new `Import` relation
 pub fn imports(range: Range) -> Relation {
-    Relation::Import(Import { range })
+    Relation::Imports(Imports { range })
 }
 
 /// Converts a file into another
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
-pub struct Convert {
+pub struct Converts {
     /// Whether or not the conversion is automatically updated
     pub auto: bool,
 }
 
 /// Create a new `Convert` relation
 pub fn converts(auto: bool) -> Relation {
-    Relation::Convert(Convert { auto })
+    Relation::Converts(Converts { auto })
 }
 
 /// Reads from a file
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
-pub struct Read {
+pub struct Reads {
     /// The range within code that the read is declared
     pub range: Range,
 }
 
 /// Create a new `Read` relation
 pub fn reads(range: Range) -> Relation {
-    Relation::Read(Read { range })
+    Relation::Reads(Reads { range })
 }
 
 /// Uses a symbol or module
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
-pub struct Use {
+pub struct Uses {
     /// The range within code that the use is declared
     pub range: Range,
 }
 
 /// Create a new `Use` relation
 pub fn uses(range: Range) -> Relation {
-    Relation::Use(Use { range })
+    Relation::Uses(Uses { range })
 }
 
 /// Writes to a file
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
-pub struct Write {
+pub struct Writes {
     /// The range within code that the write is declared
     pub range: Range,
 }
 
 /// Create a new `Write` relation
 pub fn writes(range: Range) -> Relation {
-    Relation::Write(Write { range })
+    Relation::Writes(Writes { range })
 }
 
 /// Requires another code node to be executed first
@@ -155,7 +156,7 @@ pub fn writes(range: Range) -> Relation {
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
-pub struct Require {
+pub struct Requires {
     /// The range within code that the require is declared
     /// (usually within a comment tag, `@requires`)
     pub range: Range,
@@ -163,5 +164,5 @@ pub struct Require {
 
 /// Create a new `Require` relation
 pub fn requires(range: Range) -> Relation {
-    Relation::Require(Require { range })
+    Relation::Requires(Requires { range })
 }
