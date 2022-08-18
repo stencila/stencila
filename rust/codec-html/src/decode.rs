@@ -81,10 +81,7 @@ fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
         // Decode a HTML element
         //
         // Custom elements must be dealt with outside of the following match.
-        #[allow(clippy::cmp_owned)]
-        if tag == LocalName::from("stencila-code-block")
-            || tag == LocalName::from("stencila-code-chunk")
-        {
+        if tag == *"stencila-code-block" || tag == *"stencila-code-chunk" {
             let programming_language = element
                 .attributes
                 .borrow()
@@ -97,7 +94,7 @@ fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
                 "".to_string()
             };
 
-            return if tag == LocalName::from("stencila-code-block") {
+            return if tag == *"stencila-code-block" {
                 vec![BlockContent::CodeBlock(CodeBlock {
                     programming_language: programming_language.map(Box::new),
                     text,
@@ -111,7 +108,7 @@ fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
                 })]
             };
         }
-        if tag == *"stencila-include" {
+        if tag == *"stencila-include" || tag == *"stencila-call" {
             let source = element
                 .attributes
                 .borrow()
@@ -125,11 +122,29 @@ fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
                 .get(LocalName::from("media-type"))
                 .map(|value| Box::new(value.to_string()));
 
-            return vec![BlockContent::Include(Include {
-                source,
-                media_type,
-                ..Default::default()
-            })];
+            let select = element
+                .attributes
+                .borrow()
+                .get(LocalName::from("select"))
+                .map(|value| Box::new(value.to_string()));
+
+            let node = if tag == *"stencila-include" {
+                BlockContent::Include(Include {
+                    source,
+                    media_type,
+                    select,
+                    ..Default::default()
+                })
+            } else {
+                BlockContent::Call(Call {
+                    source,
+                    media_type,
+                    select,
+                    ..Default::default()
+                })
+            };
+
+            return vec![node];
         }
         // The following are ordered alphabetically by the output node type
         // with placeholder comments for types not implemented yet.
