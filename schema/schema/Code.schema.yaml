@@ -28,5 +28,3 @@ properties:
       or variants of a programming language. An example is using `programmingLanguage` "json" and
       `encodingFormat` "application/ld+json" for JSON-LD code examples.
     type: string
-required:
-  - text

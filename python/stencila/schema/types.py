@@ -161,38 +161,42 @@ class Code(Entity):
     `CodeExpression`) code nodes.
     """
 
-    text: String
-    """The text of the code."""
-
     mediaType: Optional[String] = None
     """Media type, typically expressed using a MIME format, of the code."""
 
     programmingLanguage: Optional[String] = None
     """The programming language of the code."""
 
+    text: Optional[String] = None
+    """The text of the code."""
+
 
     def __init__(
         self,
-        text: String,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
         meta: Optional[Object] = None,
-        programmingLanguage: Optional[String] = None
+        programmingLanguage: Optional[String] = None,
+        text: Optional[String] = None
     ) -> None:
         super().__init__(
             id=id,
             meta=meta
         )
-        if text is not None:
-            self.text = text
         if mediaType is not None:
             self.mediaType = mediaType
         if programmingLanguage is not None:
             self.programmingLanguage = programmingLanguage
+        if text is not None:
+            self.text = text
 
 
 class CodeBlock(Code):
     """A code block."""
+
+    text: String # type: ignore
+    """The text of the code."""
+
 
     def __init__(
         self,
@@ -209,7 +213,8 @@ class CodeBlock(Code):
             meta=meta,
             programmingLanguage=programmingLanguage
         )
-
+        if text is not None:
+            self.text = text
 
 
 class CodeExecutable(Code):
@@ -217,9 +222,6 @@ class CodeExecutable(Code):
     Base type for executable code nodes (i.e. `CodeChunk` and
     `CodeExpression`).
     """
-
-    programmingLanguage: String # type: ignore
-    """The programming language of the code."""
 
     codeDependencies: Optional[Array[Union["CodeChunk", "Parameter", "File"]]] = None
     """The upstream dependencies of the code."""
@@ -254,8 +256,6 @@ class CodeExecutable(Code):
 
     def __init__(
         self,
-        programmingLanguage: String,
-        text: String,
         codeDependencies: Optional[Array[Union["CodeChunk", "Parameter", "File"]]] = None,
         codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression", "File"]]] = None,
         compileDigest: Optional[String] = None,
@@ -268,17 +268,17 @@ class CodeExecutable(Code):
         executeStatus: Optional["EExecuteStatus"] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
-        meta: Optional[Object] = None
+        meta: Optional[Object] = None,
+        programmingLanguage: Optional[String] = None,
+        text: Optional[String] = None
     ) -> None:
         super().__init__(
-            programmingLanguage=programmingLanguage,
-            text=text,
             id=id,
             mediaType=mediaType,
-            meta=meta
+            meta=meta,
+            programmingLanguage=programmingLanguage,
+            text=text
         )
-        if programmingLanguage is not None:
-            self.programmingLanguage = programmingLanguage
         if codeDependencies is not None:
             self.codeDependencies = codeDependencies
         if codeDependents is not None:
@@ -301,11 +301,86 @@ class CodeExecutable(Code):
             self.executeStatus = executeStatus
 
 
+class Call(CodeExecutable):
+    """
+    Call another document, optionally with arguments, and include its executed
+    content
+    """
+
+    source: String
+    """The external source of the content, a file path or URL."""
+
+    arguments: Optional[Array["Parameter"]] = None
+    """The value of the source document's parameters to call it with"""
+
+    content: Optional[Array["BlockContent"]] = None
+    """The structured content decoded from the source."""
+
+    mediaType: Optional[String] = None # type: ignore
+    """Media type of the source content."""
+
+    select: Optional[String] = None
+    """A query to select a subset of content from the source after it has been called"""
+
+
+    def __init__(
+        self,
+        source: String,
+        arguments: Optional[Array["Parameter"]] = None,
+        codeDependencies: Optional[Array[Union["CodeChunk", "Parameter", "File"]]] = None,
+        codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression", "File"]]] = None,
+        compileDigest: Optional[String] = None,
+        content: Optional[Array["BlockContent"]] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional[Number] = None,
+        executeEnded: Optional["Date"] = None,
+        executeRequired: Optional["EExecuteRequired"] = None,
+        executeStatus: Optional["EExecuteStatus"] = None,
+        id: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None,
+        programmingLanguage: Optional[String] = None,
+        select: Optional[String] = None,
+        text: Optional[String] = None
+    ) -> None:
+        super().__init__(
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            errors=errors,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
+            id=id,
+            meta=meta,
+            programmingLanguage=programmingLanguage,
+            text=text
+        )
+        if source is not None:
+            self.source = source
+        if arguments is not None:
+            self.arguments = arguments
+        if content is not None:
+            self.content = content
+        if mediaType is not None:
+            self.mediaType = mediaType
+        if select is not None:
+            self.select = select
+
+
 class CodeChunk(CodeExecutable):
     """A executable chunk of code."""
 
     programmingLanguage: String # type: ignore
     """The programming language of the code."""
+
+    text: String # type: ignore
+    """The text of the code."""
 
     caption: Optional[Union[Array["BlockContent"], String]] = None
     """A caption for the CodeChunk."""
@@ -365,6 +440,8 @@ class CodeChunk(CodeExecutable):
         )
         if programmingLanguage is not None:
             self.programmingLanguage = programmingLanguage
+        if text is not None:
+            self.text = text
         if caption is not None:
             self.caption = caption
         if executeAuto is not None:
@@ -382,6 +459,9 @@ class CodeExpression(CodeExecutable):
 
     programmingLanguage: String # type: ignore
     """The programming language of the code."""
+
+    text: String # type: ignore
+    """The text of the code."""
 
     output: Optional[Any] = None
     """The value of the expression when it was last evaluated."""
@@ -425,12 +505,18 @@ class CodeExpression(CodeExecutable):
         )
         if programmingLanguage is not None:
             self.programmingLanguage = programmingLanguage
+        if text is not None:
+            self.text = text
         if output is not None:
             self.output = output
 
 
 class CodeFragment(Code):
     """Inline code."""
+
+    text: String # type: ignore
+    """The text of the code."""
+
 
     def __init__(
         self,
@@ -447,7 +533,8 @@ class CodeFragment(Code):
             meta=meta,
             programmingLanguage=programmingLanguage
         )
-
+        if text is not None:
+            self.text = text
 
 
 class CodeError(Entity):
@@ -2129,6 +2216,9 @@ class Include(Entity):
     mediaType: Optional[String] = None
     """Media type of the source content."""
 
+    select: Optional[String] = None
+    """A query to select a subset of content from the source"""
+
 
     def __init__(
         self,
@@ -2137,7 +2227,8 @@ class Include(Entity):
         content: Optional[Array["BlockContent"]] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
-        meta: Optional[Object] = None
+        meta: Optional[Object] = None,
+        select: Optional[String] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2151,6 +2242,8 @@ class Include(Entity):
             self.content = content
         if mediaType is not None:
             self.mediaType = mediaType
+        if select is not None:
+            self.select = select
 
 
 class NumberValidator(Validator):
@@ -4585,19 +4678,19 @@ class CitationIntentEnumeration(Enum):
 """
 Union type for valid block content.
 """
-BlockContent = Union["Claim", "CodeBlock", "CodeChunk", "Collection", "Figure", "Heading", "Include", "List", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
+BlockContent = Union["Call", "Claim", "CodeBlock", "CodeChunk", "Collection", "Figure", "Heading", "Include", "List", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
 
 
 """
 All type schemas that are derived from CodeExecutable
 """
-CodeExecutableTypes = Union["CodeExecutable", "CodeChunk", "CodeExpression"]
+CodeExecutableTypes = Union["CodeExecutable", "Call", "CodeChunk", "CodeExpression"]
 
 
 """
 All type schemas that are derived from Code
 """
-CodeTypes = Union["Code", "CodeBlock", "CodeChunk", "CodeExecutable", "CodeExpression", "CodeFragment"]
+CodeTypes = Union["Code", "Call", "CodeBlock", "CodeChunk", "CodeExecutable", "CodeExpression", "CodeFragment"]
 
 
 """
@@ -4615,7 +4708,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Co
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -4658,7 +4751,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 Union type for all types of nodes in this schema, including primitives and
     entities
 """
-Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
+Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
 
 
 """

@@ -102,29 +102,29 @@ CiteGroup <- function(
 #' Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
 #'
 #' @name Code
-#' @param text The text of the code. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
+#' @param text The text of the code.
 #' @return A `list` of class `Code`
 #' @seealso \code{\link{Entity}}
 #' @export
 Code <- function(
-  text,
   id,
   mediaType,
   meta,
-  programmingLanguage
+  programmingLanguage,
+  text
 ){
   self <- Entity(
     id = id,
     meta = meta
   )
   self$type <- as_scalar("Code")
-  self[["text"]] <- check_property("Code", "text", TRUE, missing(text), "character", text)
   self[["mediaType"]] <- check_property("Code", "mediaType", FALSE, missing(mediaType), "character", mediaType)
   self[["programmingLanguage"]] <- check_property("Code", "programmingLanguage", FALSE, missing(programmingLanguage), "character", programmingLanguage)
+  self[["text"]] <- check_property("Code", "text", FALSE, missing(text), "character", text)
   class(self) <- c(class(self), "Code")
   self
 }
@@ -156,7 +156,7 @@ CodeBlock <- function(
     programmingLanguage = programmingLanguage
   )
   self$type <- as_scalar("CodeBlock")
-
+  self[["text"]] <- check_property("CodeBlock", "text", TRUE, missing(text), "character", text)
   class(self) <- c(class(self), "CodeBlock")
   self
 }
@@ -165,8 +165,6 @@ CodeBlock <- function(
 #' Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
 #'
 #' @name CodeExecutable
-#' @param programmingLanguage The programming language of the code. \bold{Required}.
-#' @param text The text of the code. \bold{Required}.
 #' @param codeDependencies The upstream dependencies of the code.
 #' @param codeDependents The downstream dependents of the code.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
@@ -180,12 +178,12 @@ CodeBlock <- function(
 #' @param id The identifier for this item.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
+#' @param programmingLanguage The programming language of the code.
+#' @param text The text of the code.
 #' @return A `list` of class `CodeExecutable`
 #' @seealso \code{\link{Code}}
 #' @export
 CodeExecutable <- function(
-  programmingLanguage,
-  text,
   codeDependencies,
   codeDependents,
   compileDigest,
@@ -198,17 +196,18 @@ CodeExecutable <- function(
   executeStatus,
   id,
   mediaType,
-  meta
+  meta,
+  programmingLanguage,
+  text
 ){
   self <- Code(
-    programmingLanguage = programmingLanguage,
-    text = text,
     id = id,
     mediaType = mediaType,
-    meta = meta
+    meta = meta,
+    programmingLanguage = programmingLanguage,
+    text = text
   )
   self$type <- as_scalar("CodeExecutable")
-  self[["programmingLanguage"]] <- check_property("CodeExecutable", "programmingLanguage", TRUE, missing(programmingLanguage), "character", programmingLanguage)
   self[["codeDependencies"]] <- check_property("CodeExecutable", "codeDependencies", FALSE, missing(codeDependencies), Array(Union(CodeChunk, Parameter, File)), codeDependencies)
   self[["codeDependents"]] <- check_property("CodeExecutable", "codeDependents", FALSE, missing(codeDependents), Array(Union(CodeChunk, CodeExpression, File)), codeDependents)
   self[["compileDigest"]] <- check_property("CodeExecutable", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
@@ -220,6 +219,79 @@ CodeExecutable <- function(
   self[["executeRequired"]] <- check_property("CodeExecutable", "executeRequired", FALSE, missing(executeRequired), Enum("No", "NeverExecuted", "SemanticsChanged", "DependenciesChanged", "DependenciesFailed", "Failed"), executeRequired)
   self[["executeStatus"]] <- check_property("CodeExecutable", "executeStatus", FALSE, missing(executeStatus), Enum("Scheduled", "ScheduledPreviouslyFailed", "Running", "RunningPreviouslyFailed", "Succeeded", "Failed", "Cancelled"), executeStatus)
   class(self) <- c(class(self), "CodeExecutable")
+  self
+}
+
+
+#' Call another document, optionally with arguments, and include its executed content
+#'
+#' @name Call
+#' @param source The external source of the content, a file path or URL. \bold{Required}.
+#' @param arguments The value of the source document's parameters to call it with
+#' @param codeDependencies The upstream dependencies of the code.
+#' @param codeDependents The downstream dependents of the code.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
+#' @param content The structured content decoded from the source.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
+#' @param executeCount A count of the number of times that the node has been executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration in seconds of the last execution of the code.
+#' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeRequired Whether, and why, a node requires execution or re-execution.
+#' @param executeStatus Status of the most recent, including any current, execution of the code.
+#' @param id The identifier for this item.
+#' @param mediaType Media type of the source content.
+#' @param meta Metadata associated with this item.
+#' @param programmingLanguage The programming language of the code.
+#' @param select A query to select a subset of content from the source after it has been called
+#' @param text The text of the code.
+#' @return A `list` of class `Call`
+#' @seealso \code{\link{CodeExecutable}}
+#' @export
+Call <- function(
+  source,
+  arguments,
+  codeDependencies,
+  codeDependents,
+  compileDigest,
+  content,
+  errors,
+  executeCount,
+  executeDigest,
+  executeDuration,
+  executeEnded,
+  executeRequired,
+  executeStatus,
+  id,
+  mediaType,
+  meta,
+  programmingLanguage,
+  select,
+  text
+){
+  self <- CodeExecutable(
+    codeDependencies = codeDependencies,
+    codeDependents = codeDependents,
+    compileDigest = compileDigest,
+    errors = errors,
+    executeCount = executeCount,
+    executeDigest = executeDigest,
+    executeDuration = executeDuration,
+    executeEnded = executeEnded,
+    executeRequired = executeRequired,
+    executeStatus = executeStatus,
+    id = id,
+    meta = meta,
+    programmingLanguage = programmingLanguage,
+    text = text
+  )
+  self$type <- as_scalar("Call")
+  self[["source"]] <- check_property("Call", "source", TRUE, missing(source), "character", source)
+  self[["arguments"]] <- check_property("Call", "arguments", FALSE, missing(arguments), Array(Parameter), arguments)
+  self[["content"]] <- check_property("Call", "content", FALSE, missing(content), Array(BlockContent), content)
+  self[["mediaType"]] <- check_property("Call", "mediaType", FALSE, missing(mediaType), "character", mediaType)
+  self[["select"]] <- check_property("Call", "select", FALSE, missing(select), "character", select)
+  class(self) <- c(class(self), "Call")
   self
 }
 
@@ -311,6 +383,7 @@ CodeChunk <- function(
   )
   self$type <- as_scalar("CodeChunk")
   self[["programmingLanguage"]] <- check_property("CodeChunk", "programmingLanguage", TRUE, missing(programmingLanguage), "character", programmingLanguage)
+  self[["text"]] <- check_property("CodeChunk", "text", TRUE, missing(text), "character", text)
   self[["caption"]] <- check_property("CodeChunk", "caption", FALSE, missing(caption), Union(Array(BlockContent), "character"), caption)
   self[["executeAuto"]] <- check_property("CodeChunk", "executeAuto", FALSE, missing(executeAuto), Enum("Never", "Needed", "Always"), executeAuto)
   self[["executePure"]] <- check_property("CodeChunk", "executePure", FALSE, missing(executePure), "logical", executePure)
@@ -380,6 +453,7 @@ CodeExpression <- function(
   )
   self$type <- as_scalar("CodeExpression")
   self[["programmingLanguage"]] <- check_property("CodeExpression", "programmingLanguage", TRUE, missing(programmingLanguage), "character", programmingLanguage)
+  self[["text"]] <- check_property("CodeExpression", "text", TRUE, missing(text), "character", text)
   self[["output"]] <- check_property("CodeExpression", "output", FALSE, missing(output), Node, output)
   class(self) <- c(class(self), "CodeExpression")
   self
@@ -412,7 +486,7 @@ CodeFragment <- function(
     programmingLanguage = programmingLanguage
   )
   self$type <- as_scalar("CodeFragment")
-
+  self[["text"]] <- check_property("CodeFragment", "text", TRUE, missing(text), "character", text)
   class(self) <- c(class(self), "CodeFragment")
   self
 }
@@ -2356,6 +2430,7 @@ ImageObject <- function(
 #' @param id The identifier for this item.
 #' @param mediaType Media type of the source content.
 #' @param meta Metadata associated with this item.
+#' @param select A query to select a subset of content from the source
 #' @return A `list` of class `Include`
 #' @seealso \code{\link{Entity}}
 #' @export
@@ -2365,7 +2440,8 @@ Include <- function(
   content,
   id,
   mediaType,
-  meta
+  meta,
+  select
 ){
   self <- Entity(
     id = id,
@@ -2376,6 +2452,7 @@ Include <- function(
   self[["compileDigest"]] <- check_property("Include", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
   self[["content"]] <- check_property("Include", "content", FALSE, missing(content), Array(BlockContent), content)
   self[["mediaType"]] <- check_property("Include", "mediaType", FALSE, missing(mediaType), "character", mediaType)
+  self[["select"]] <- check_property("Include", "select", FALSE, missing(select), "character", select)
   class(self) <- c(class(self), "Include")
   self
 }
@@ -4701,21 +4778,21 @@ CitationIntentEnumeration <- Enum("AgreesWith", "CitesAsAuthority", "CitesAsData
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-BlockContent <- Union(Claim, CodeBlock, CodeChunk, Collection, Figure, Heading, Include, List, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
+BlockContent <- Union(Call, Claim, CodeBlock, CodeChunk, Collection, Figure, Heading, Include, List, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
 
 
 #' All type schemas that are derived from CodeExecutable
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-CodeExecutableTypes <- Union(CodeExecutable, CodeChunk, CodeExpression)
+CodeExecutableTypes <- Union(CodeExecutable, Call, CodeChunk, CodeExpression)
 
 
 #' All type schemas that are derived from Code
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-CodeTypes <- Union(Code, CodeBlock, CodeChunk, CodeExecutable, CodeExpression, CodeFragment)
+CodeTypes <- Union(Code, Call, CodeBlock, CodeChunk, CodeExecutable, CodeExpression, CodeFragment)
 
 
 #' All type schemas that are derived from ContactPoint
@@ -4736,7 +4813,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Claim, Collection
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Enumeration
@@ -4785,7 +4862,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
+Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
 
 
 #' All type schemas that are derived from NumberValidator

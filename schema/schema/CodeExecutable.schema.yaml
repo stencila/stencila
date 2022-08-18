@@ -100,5 +100,3 @@ properties:
     type: array
     items:
       $ref: CodeError
-required:
-  - programmingLanguage

@@ -20,6 +20,7 @@ pub const IDS: &[(&str, &str)] = &[
     ("BooleanValidator", "https://schema.stenci.la/BooleanValidator"),
     ("Brand", "https://schema.org/Brand"),
     ("reviews", "review"),
+    ("Call", "https://schema.stenci.la/Call"),
     ("CitationIntentEnumeration", "https://schema.stenci.la/CitationIntentEnumeration"),
     ("Cite", "https://schema.stenci.la/Cite"),
     ("CiteGroup", "https://schema.stenci.la/CiteGroup"),

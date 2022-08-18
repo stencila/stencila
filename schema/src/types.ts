@@ -23,6 +23,7 @@ export interface Types {
   Boolean: boolean
   BooleanValidator: BooleanValidator
   Brand: Brand
+  Call: Call
   CitationIntentEnumeration: CitationIntentEnumeration
   Cite: Cite
   CiteGroup: CiteGroup
@@ -135,6 +136,7 @@ export type Entity = {
     | 'AudioObject'
     | 'BooleanValidator'
     | 'Brand'
+    | 'Call'
     | 'CitationIntentEnumeration'
     | 'Cite'
     | 'CiteGroup'
@@ -282,14 +284,15 @@ export const citeGroup = (props: Omit<CiteGroup, 'type'>): CiteGroup => ({
 export type Code = Entity & {
   type:
     | 'Code'
+    | 'Call'
     | 'CodeBlock'
     | 'CodeChunk'
     | 'CodeExecutable'
     | 'CodeExpression'
     | 'CodeFragment'
-  text: string
   mediaType?: string
   programmingLanguage?: string
+  text?: string
 }
 
 /**
@@ -297,7 +300,7 @@ export type Code = Entity & {
  * @param props Object containing Code schema properties as key/value pairs
  * @returns {Code} Code schema node
  */
-export const code = (props: Omit<Code, 'type'>): Code => ({
+export const code = (props: Omit<Code, 'type'> = {}): Code => ({
   ...compact(props),
   type: 'Code',
 })
@@ -307,6 +310,7 @@ export const code = (props: Omit<Code, 'type'>): Code => ({
  */
 export type CodeBlock = Code & {
   type: 'CodeBlock'
+  text: string
 }
 
 /**
@@ -323,8 +327,7 @@ export const codeBlock = (props: Omit<CodeBlock, 'type'>): CodeBlock => ({
  * Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
  */
 export type CodeExecutable = Code & {
-  type: 'CodeExecutable' | 'CodeChunk' | 'CodeExpression'
-  programmingLanguage: string
+  type: 'CodeExecutable' | 'Call' | 'CodeChunk' | 'CodeExpression'
   codeDependencies?: Array<CodeChunk | Parameter | File>
   codeDependents?: Array<CodeChunk | CodeExpression | File>
   compileDigest?: string
@@ -356,10 +359,32 @@ export type CodeExecutable = Code & {
  * @returns {CodeExecutable} CodeExecutable schema node
  */
 export const codeExecutable = (
-  props: Omit<CodeExecutable, 'type'>
+  props: Omit<CodeExecutable, 'type'> = {}
 ): CodeExecutable => ({
   ...compact(props),
   type: 'CodeExecutable',
+})
+
+/**
+ * Call another document, optionally with arguments, and include its executed content
+ */
+export type Call = CodeExecutable & {
+  type: 'Call'
+  source: string
+  arguments?: Array<Parameter>
+  content?: Array<BlockContent>
+  mediaType?: string
+  select?: string
+}
+
+/**
+ * Create a `Call` node
+ * @param props Object containing Call schema properties as key/value pairs
+ * @returns {Call} Call schema node
+ */
+export const call = (props: Omit<Call, 'type'>): Call => ({
+  ...compact(props),
+  type: 'Call',
 })
 
 /**
@@ -368,6 +393,7 @@ export const codeExecutable = (
 export type CodeChunk = CodeExecutable & {
   type: 'CodeChunk'
   programmingLanguage: string
+  text: string
   caption?: Array<BlockContent> | string
   executeAuto?: 'Never' | 'Needed' | 'Always'
   executePure?: boolean
@@ -391,6 +417,7 @@ export const codeChunk = (props: Omit<CodeChunk, 'type'>): CodeChunk => ({
 export type CodeExpression = CodeExecutable & {
   type: 'CodeExpression'
   programmingLanguage: string
+  text: string
   output?: Node
 }
 
@@ -411,6 +438,7 @@ export const codeExpression = (
  */
 export type CodeFragment = Code & {
   type: 'CodeFragment'
+  text: string
 }
 
 /**
@@ -1128,6 +1156,7 @@ export type Include = Entity & {
   compileDigest?: string
   content?: Array<BlockContent>
   mediaType?: string
+  select?: string
 }
 
 /**
@@ -2042,6 +2071,7 @@ export const volumeMount = (props: Omit<VolumeMount, 'type'>): VolumeMount => ({
  * Union type for valid block content.
  */
 export type BlockContent =
+  | Call
   | Claim
   | CodeBlock
   | CodeChunk
@@ -2059,13 +2089,18 @@ export type BlockContent =
 /**
  * All type schemas that are derived from CodeExecutable
  */
-export type CodeExecutableTypes = CodeExecutable | CodeChunk | CodeExpression
+export type CodeExecutableTypes =
+  | CodeExecutable
+  | Call
+  | CodeChunk
+  | CodeExpression
 
 /**
  * All type schemas that are derived from Code
  */
 export type CodeTypes =
   | Code
+  | Call
   | CodeBlock
   | CodeChunk
   | CodeExecutable
@@ -2111,6 +2146,7 @@ export type EntityTypes =
   | AudioObject
   | BooleanValidator
   | Brand
+  | Call
   | CitationIntentEnumeration
   | Cite
   | CiteGroup
@@ -2268,6 +2304,7 @@ export type Node =
   | AudioObject
   | BooleanValidator
   | Brand
+  | Call
   | CitationIntentEnumeration
   | Cite
   | CiteGroup
@@ -2892,11 +2929,13 @@ export const codeExecutableTypes: TypeMap<
   Exclude<CodeExecutableTypes, Primitive>
 > = {
   CodeExecutable: 'CodeExecutable',
+  Call: 'Call',
   CodeChunk: 'CodeChunk',
   CodeExpression: 'CodeExpression',
 }
 export const codeTypes: TypeMap<Exclude<CodeTypes, Primitive>> = {
   Code: 'Code',
+  Call: 'Call',
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
   CodeExecutable: 'CodeExecutable',
@@ -2937,6 +2976,7 @@ export const entityTypes: TypeMap<Exclude<EntityTypes, Primitive>> = {
   AudioObject: 'AudioObject',
   BooleanValidator: 'BooleanValidator',
   Brand: 'Brand',
+  Call: 'Call',
   CitationIntentEnumeration: 'CitationIntentEnumeration',
   Cite: 'Cite',
   CiteGroup: 'CiteGroup',
@@ -3103,6 +3143,7 @@ export const validatorTypes: TypeMap<Exclude<ValidatorTypes, Primitive>> = {
   TupleValidator: 'TupleValidator',
 }
 export const blockContentTypes: TypeMap<Exclude<BlockContent, Primitive>> = {
+  Call: 'Call',
   Claim: 'Claim',
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',

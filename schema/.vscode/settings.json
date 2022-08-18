@@ -29,6 +29,10 @@
       "url": "./public/CodeExecutable.schema.json"
     },
     {
+      "fileMatch": ["*.Call.json"],
+      "url": "./public/Call.schema.json"
+    },
+    {
       "fileMatch": ["*.CodeChunk.json"],
       "url": "./public/CodeChunk.schema.json"
     },

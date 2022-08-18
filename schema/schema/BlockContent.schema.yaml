@@ -3,6 +3,7 @@ category: text
 status: stable
 description: Union type for valid block content.
 anyOf:
+  - $ref: Call
   - $ref: Claim
   - $ref: CodeBlock
   - $ref: CodeChunk

@@ -109,9 +109,6 @@ pub struct Code {
     #[derivative(Default(value = "Code_::Code"))]
     pub type_: Code_,
 
-    /// The text of the code.
-    pub text: String,
-
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
@@ -121,6 +118,9 @@ pub struct Code {
 
     /// The programming language of the code.
     pub programming_language: Option<Box<String>>,
+
+    /// The text of the code.
+    pub text: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -167,12 +167,6 @@ pub struct CodeExecutable {
     #[derivative(Default(value = "CodeExecutable_::CodeExecutable"))]
     pub type_: CodeExecutable_,
 
-    /// The programming language of the code.
-    pub programming_language: String,
-
-    /// The text of the code.
-    pub text: String,
-
     /// The upstream dependencies of the code.
     pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
 
@@ -209,11 +203,88 @@ pub struct CodeExecutable {
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
+
+    /// The programming language of the code.
+    pub programming_language: Option<Box<String>>,
+
+    /// The text of the code.
+    pub text: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CodeExecutable_ {
   CodeExecutable
+}
+
+/// Call another document, optionally with arguments, and include its executed content
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Call {
+    /// The name of this type
+    #[derivative(Default(value = "Call_::Call"))]
+    pub type_: Call_,
+
+    /// The external source of the content, a file path or URL.
+    pub source: String,
+
+    /// The value of the source document's parameters to call it with
+    pub arguments: Option<Vec<Parameter>>,
+
+    /// The upstream dependencies of the code.
+    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
+
+    /// The downstream dependents of the code.
+    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// The structured content decoded from the source.
+    pub content: Option<Vec<BlockContent>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration in seconds of the last execution of the code.
+    pub execute_duration: Option<Number>,
+
+    /// The date-time that the the last execution of the code ended.
+    pub execute_ended: Option<Box<Date>>,
+
+    /// Whether, and why, a node requires execution or re-execution.
+    pub execute_required: Option<CodeExecutableExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution of the code.
+    pub execute_status: Option<CodeExecutableExecuteStatus>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Media type of the source content.
+    pub media_type: Option<Box<String>>,
+
+    /// The programming language of the code.
+    pub programming_language: Option<Box<String>>,
+
+    /// A query to select a subset of content from the source after it has been called
+    pub select: Option<Box<String>>,
+
+    /// The text of the code.
+    pub text: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Call_ {
+  Call
 }
 
 /// A executable chunk of code.
@@ -2444,6 +2515,9 @@ pub struct Include {
 
     /// Media type of the source content.
     pub media_type: Option<Box<String>>,
+
+    /// A query to select a subset of content from the source
+    pub select: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -5390,6 +5464,7 @@ pub enum CitationIntentEnumeration {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BlockContent {
+    Call(Call),
     Claim(ClaimSimple),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
@@ -5410,6 +5485,7 @@ pub enum BlockContent {
 #[serde(untagged)]
 pub enum CodeExecutableTypes {
     CodeExecutable(CodeExecutable),
+    Call(Call),
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
 }
@@ -5419,6 +5495,7 @@ pub enum CodeExecutableTypes {
 #[serde(untagged)]
 pub enum CodeTypes {
     Code(Code),
+    Call(Call),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
     CodeExecutable(CodeExecutable),
@@ -5469,6 +5546,7 @@ pub enum EntityTypes {
     AudioObject(AudioObject),
     BooleanValidator(BooleanValidator),
     Brand(Brand),
+    Call(Call),
     CitationIntentEnumeration(CitationIntentEnumeration),
     Cite(Cite),
     CiteGroup(CiteGroup),
@@ -5640,6 +5718,7 @@ pub enum Node {
     AudioObject(AudioObject),
     BooleanValidator(BooleanValidator),
     Brand(Brand),
+    Call(Call),
     CitationIntentEnumeration(CitationIntentEnumeration),
     Cite(Cite),
     CiteGroup(CiteGroup),
