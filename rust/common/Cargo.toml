@@ -10,6 +10,7 @@ base64 = "0.13.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 chrono-humanize = "0.2.1"
 defaults = "0.2.0"
+derivative = "2.2.0"
 derive_more = "0.99.17"
 dirs = "4.0.0"
 eyre = "0.6.8"

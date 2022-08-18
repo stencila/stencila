@@ -4,11 +4,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use derivative::Derivative;
 use schemars::JsonSchema;
 
 use common::{
     eyre::Result,
+    derivative::Derivative,
     serde::{self, Serialize},
     serde_with::skip_serializing_none,
 };

@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-derivative = "2.2.0"
 events = { path = "../events" }
 graph-triples = { path = "../graph-triples" }
 hash-utils = { path = "../hash-utils" }

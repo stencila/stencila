@@ -7,7 +7,6 @@ use std::{
     time::Duration,
 };
 
-use derivative::Derivative;
 use zmq::Socket;
 
 use codec_ipynb::{translate_error, translate_mime_bundle, translate_stderr};
@@ -15,6 +14,7 @@ use kernel::{
     common::{
         async_trait::async_trait,
         defaults::Defaults,
+        derivative::Derivative,
         eyre::{bail, eyre, Result},
         once_cell::sync::Lazy,
         serde::{Deserialize, Serialize},
