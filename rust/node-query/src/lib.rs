@@ -13,7 +13,8 @@ pub const LANGS: [&str; 2] = ["jmespath", "jsonptr"];
 ///
 /// # Arguments
 ///
-pub fn query(node: &Node, query: &str, lang: &str) -> Result<serde_json::Value> {
+pub fn query(node: &Node, query: &str, lang: Option<&str>) -> Result<serde_json::Value> {
+    let lang = lang.unwrap_or(LANGS[0]);
     Ok(match lang {
         #[cfg(feature = "jmespath")]
         "jmespath" => {
