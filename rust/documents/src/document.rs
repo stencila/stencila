@@ -8,16 +8,13 @@ use std::{
 };
 
 use notify::DebouncedEvent;
-use schemars::{schema::Schema, JsonSchema};
 
 use common::{
-    eyre::{self, bail, Result},
+    eyre::{bail, Result},
     indexmap::IndexMap,
     itertools::Itertools,
     maplit::hashset,
-    once_cell::sync::Lazy,
     serde::Serialize,
-    serde_json,
     serde_with::skip_serializing_none,
     strum::Display,
     tokio::{
@@ -30,24 +27,28 @@ use common::{
 use events::publish;
 use formats::FormatSpec;
 use graph::{Graph, PlanOptions, PlanOrdering, PlanScope};
-use graph_triples::{resources, Relations};
+use graph_triples::{resources, Relations, Resource};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
 use node_address::{Address, AddressMap};
-use node_execute::{
-    compile, execute, CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, RequestId,
-    Response, When, WriteRequest,
-};
 use node_patch::{apply, diff, merge, Patch};
 use node_pointer::{resolve, resolve_mut};
 use node_reshape::reshape;
 use node_validate::Validator;
-use path_utils::pathdiff;
+
 use providers::DetectItem;
 use stencila_schema::{Article, InlineContent, Node, Parameter};
 
-use crate::utils::schemas;
+use crate::{
+    assemble::assemble,
+    compile::compile,
+    execute::execute,
+    messages::{
+        AssembleRequest, CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, RequestId,
+        Response, When, WriteRequest,
+    },
+};
 
-#[derive(Debug, JsonSchema, Serialize, Display)]
+#[derive(Debug, Serialize, Display)]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase")]
 enum DocumentEventType {
@@ -59,28 +60,19 @@ enum DocumentEventType {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, JsonSchema, Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(crate = "common::serde")]
-#[schemars(deny_unknown_fields)]
 struct DocumentEvent {
     /// The type of event
     #[serde(rename = "type")]
     type_: DocumentEventType,
 
     /// The `Patch` associated with a `Patched` event
-    #[schemars(schema_with = "DocumentEvent::schema_patch")]
     patch: Option<Patch>,
 }
 
-impl DocumentEvent {
-    /// Generate the JSON Schema for the `patch` property to avoid nesting
-    fn schema_patch(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Patch", false)
-    }
-}
-
 /// The status of a document with respect to on-disk synchronization
-#[derive(Debug, Clone, JsonSchema, Serialize, Display)]
+#[derive(Debug, Clone, Serialize, Display)]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase")]
 enum DocumentStatus {
@@ -98,10 +90,11 @@ enum DocumentStatus {
     Deleted,
 }
 
+pub type CallDocuments = HashMap<String, Mutex<Document>>;
+
 /// An in-memory representation of a document
-#[derive(Debug, JsonSchema, Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(crate = "common::serde")]
-#[schemars(deny_unknown_fields)]
 pub struct Document {
     /// The document identifier
     pub id: String,
@@ -147,8 +140,7 @@ pub struct Document {
     /// On initialization, this is inferred, if possible, from the file name extension
     /// of the document's `path`. However, it may change whilst the document is
     /// open in memory (e.g. if the `load` function sets a different format).
-    #[schemars(schema_with = "Document::schema_format")]
-    format: FormatSpec,
+    pub(crate) format: FormatSpec,
 
     /// Whether a HTML preview of the document is supported
     ///
@@ -172,7 +164,7 @@ pub struct Document {
     ///
     /// Skipped during serialization because will often be large.
     #[serde(skip)]
-    content: String,
+    pub(crate) content: String,
 
     /// The root Stencila Schema node of the document
     ///
@@ -183,7 +175,7 @@ pub struct Document {
     ///
     /// Skipped during serialization because will often be large.
     #[serde(skip)]
-    root: Arc<RwLock<Node>>,
+    pub(crate) root: Arc<RwLock<Node>>,
 
     /// Addresses of nodes in `root` that have an `id`
     ///
@@ -240,6 +232,9 @@ pub struct Document {
     patch_request_sender: mpsc::UnboundedSender<PatchRequest>,
 
     #[serde(skip)]
+    assemble_request_sender: mpsc::Sender<AssembleRequest>,
+
+    #[serde(skip)]
     compile_request_sender: mpsc::Sender<CompileRequest>,
 
     #[serde(skip)]
@@ -254,6 +249,9 @@ pub struct Document {
 
 #[allow(unused)]
 impl Document {
+    /// Milliseconds debounce delay for [`When::Soon`] assemble requests
+    const ASSEMBLE_DEBOUNCE_MILLIS: u64 = 500;
+
     /// Milliseconds debounce delay for [`When::Soon`] compile requests
     const COMPILE_DEBOUNCE_MILLIS: u64 = 250;
 
@@ -265,17 +263,6 @@ impl Document {
 
     /// Milliseconds after writing document to ignore other events on its file
     const WRITE_MUTE_MILLIS: u64 = 500;
-
-    /// Generate the JSON Schema for the `format` property to avoid duplicated
-    /// inline type.
-    fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Format", true)
-    }
-
-    /// Generate the JSON Schema for the `addresses` property to avoid duplicated types.
-    fn schema_addresses(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Record<string, Address>", true)
-    }
 
     /// Create a new empty document.
     ///
@@ -338,15 +325,16 @@ impl Document {
 
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
         let addresses = Arc::new(RwLock::new(AddressMap::default()));
+        let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
         let kernels = Arc::new(RwLock::new(KernelSpace::new(Some(&project))));
         let last_write = Arc::new(RwLock::new(Instant::now()));
 
-        let (write_request_sender, mut write_request_receiver) =
-            mpsc::unbounded_channel::<WriteRequest>();
-
         let (patch_request_sender, mut patch_request_receiver) =
             mpsc::unbounded_channel::<PatchRequest>();
+
+        let (assemble_request_sender, mut assemble_request_receiver) =
+            mpsc::channel::<AssembleRequest>(100);
 
         let (compile_request_sender, mut compile_request_receiver) =
             mpsc::channel::<CompileRequest>(100);
@@ -357,24 +345,10 @@ impl Document {
         let (cancel_request_sender, mut cancel_request_receiver) =
             mpsc::channel::<CancelRequest>(100);
 
-        let (response_sender, mut response_receiver) = broadcast::channel::<Response>(1);
+        let (write_request_sender, mut write_request_receiver) =
+            mpsc::unbounded_channel::<WriteRequest>();
 
-        let root_clone = root.clone();
-        let last_write_clone = last_write.clone();
-        let path_clone = path.clone();
-        let format_clone = Some(format.extension.clone());
-        let response_sender_clone = response_sender.clone();
-        tokio::spawn(async move {
-            Self::write_task(
-                &root_clone,
-                &last_write_clone,
-                &path_clone,
-                format_clone.as_deref(),
-                &mut write_request_receiver,
-                &response_sender_clone,
-            )
-            .await
-        });
+        let (response_sender, mut response_receiver) = broadcast::channel::<Response>(1);
 
         let id_clone = id.clone();
         let root_clone = root.clone();
@@ -390,6 +364,35 @@ impl Document {
                 &compile_sender_clone,
                 &write_sender_clone,
                 &mut patch_request_receiver,
+                &response_sender_clone,
+            )
+            .await
+        });
+
+        let id_clone = id.clone();
+        let path_clone = path.clone();
+        let project_clone = project.clone();
+        let root_clone = root.clone();
+        let addresses_clone = addresses.clone();
+        let call_docs_clone = call_docs.clone();
+        let patch_sender_clone = patch_request_sender.clone();
+        let compile_sender_clone = compile_request_sender.clone();
+        let execute_sender_clone = execute_request_sender.clone();
+        let write_sender_clone = write_request_sender.clone();
+        let response_sender_clone = response_sender.clone();
+        tokio::spawn(async move {
+            Self::assemble_task(
+                &id_clone,
+                &path_clone,
+                &project_clone,
+                &root_clone,
+                &addresses_clone,
+                &call_docs_clone,
+                &patch_sender_clone,
+                &compile_sender_clone,
+                &execute_sender_clone,
+                &write_sender_clone,
+                &mut assemble_request_receiver,
                 &response_sender_clone,
             )
             .await
@@ -430,6 +433,7 @@ impl Document {
         let graph_clone = graph.clone();
         let kernels_clone = kernels.clone();
         let patch_sender_clone = patch_request_sender.clone();
+        let response_sender_clone = response_sender.clone();
         tokio::spawn(async move {
             Self::execute_task(
                 &id_clone,
@@ -439,10 +443,27 @@ impl Document {
                 &addresses_clone,
                 &graph_clone,
                 &kernels_clone,
+                &call_docs,
                 &patch_sender_clone,
                 &write_request_sender,
                 &mut cancel_request_receiver,
                 &mut execute_request_receiver,
+                &response_sender_clone,
+            )
+            .await
+        });
+
+        let root_clone = root.clone();
+        let last_write_clone = last_write.clone();
+        let path_clone = path.clone();
+        let format_clone = Some(format.extension.clone());
+        tokio::spawn(async move {
+            Self::write_task(
+                &root_clone,
+                &last_write_clone,
+                &path_clone,
+                format_clone.as_deref(),
+                &mut write_request_receiver,
                 &response_sender,
             )
             .await
@@ -469,6 +490,7 @@ impl Document {
             relations: Default::default(),
             subscriptions: Default::default(),
 
+            assemble_request_sender,
             patch_request_sender,
             compile_request_sender,
             execute_request_sender,
@@ -858,7 +880,11 @@ impl Document {
     ) {
         let mut counter = 0u32;
         while let Some(request) = request_receiver.recv().await {
-            tracing::trace!("Patching document `{}` for request `{}`", &id, request.id);
+            tracing::trace!(
+                "Patching document `{}` for requests `{}`",
+                &id,
+                request.ids.iter().join(",")
+            );
 
             let mut patch = request.patch;
             let start = patch.target.clone();
@@ -898,15 +924,16 @@ impl Document {
                 },
             );
 
-            // Possibly compile, execute, and/or write
+            // Possibly compile, execute, and/or write; or respond
             if !matches!(request.compile, When::Never) {
                 tracing::trace!(
-                    "Sending compile request for document `{}` for patch request `{}`",
+                    "Sending compile request for document `{}` for patch requests `{}`",
                     &id,
-                    request.id
+                    request.ids.iter().join(",")
                 );
                 if let Err(error) = compile_sender
                     .send(CompileRequest::new(
+                        request.ids,
                         request.compile,
                         request.execute,
                         request.write,
@@ -922,26 +949,28 @@ impl Document {
                 }
             } else if !matches!(request.write, When::Never) {
                 tracing::trace!(
-                    "Sending write request for document `{}` for patch request `{}`",
+                    "Sending write request for document `{}` for patch requests `{}`",
                     &id,
-                    request.id
+                    request.ids.iter().join(",")
                 );
-                if let Err(error) = write_sender.send(WriteRequest::new(request.write)) {
+                if let Err(error) = write_sender.send(WriteRequest::new(request.ids, request.write))
+                {
                     tracing::error!(
                         "While sending write request for document `{}`: {}",
                         id,
                         error
                     );
                 }
-            }
-
-            // Send response
-            if let Err(error) = response_sender.send(Response::PatchResponse(request.id)) {
-                tracing::debug!(
-                    "While sending patch response for document `{}`: {}",
-                    id,
-                    error
-                );
+            } else {
+                for request_id in request.ids {
+                    if let Err(error) = response_sender.send(Response::new(request_id)) {
+                        tracing::debug!(
+                            "While sending response for document `{}` from patch task: {}",
+                            id,
+                            error
+                        );
+                    }
+                }
             }
         }
     }
@@ -962,14 +991,23 @@ impl Document {
     pub async fn patch_request(
         &self,
         patch: Patch,
+        assemble: When,
         compile: When,
         execute: When,
         write: When,
     ) -> Result<RequestId> {
         tracing::debug!("Sending patch request for document `{}`", self.id);
 
-        let request = PatchRequest::new(patch, When::Now, compile, execute, write);
-        let request_id = request.id.clone();
+        let request_id = RequestId::new();
+        let request = PatchRequest::new(
+            vec![request_id.clone()],
+            patch,
+            When::Now,
+            assemble,
+            compile,
+            execute,
+            write,
+        );
         if let Err(error) = self.patch_request_sender.send(request) {
             bail!(
                 "When sending patch request for document `{}`: {}",
@@ -979,6 +1017,274 @@ impl Document {
         };
 
         Ok(request_id)
+    }
+
+    /// Patch the document
+    #[tracing::instrument(skip(self))]
+    pub async fn patch(
+        &mut self,
+        patch: Patch,
+        assemble: When,
+        compile: When,
+        execute: When,
+        write: When,
+    ) -> Result<()> {
+        let request_id = self
+            .patch_request(patch, assemble, compile, execute, write)
+            .await?;
+
+        tracing::trace!(
+            "Waiting for patch response for document `{}` for request `{}`",
+            self.id,
+            request_id
+        );
+        while let Ok(response) = self.response_receiver.recv().await {
+            if response.request_id == request_id {
+                tracing::trace!(
+                    "Received patch response for document `{}` for request `{}`",
+                    self.id,
+                    request_id
+                );
+                break;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// A background task to assemble the root node of the document on request
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: The id of the document
+    ///
+    /// - `path`: The path of the document to be assembled
+    ///
+    /// - `project`: The project of the document to be assembled
+    ///
+    /// - `root`: The root [`Node`] to apply the compilation patch to
+    ///
+    /// - `addresses`: The [`AddressMap`] to be updated
+    ///
+    /// - `call_docs`:  The [`CallableMap`] of `Document` for each `Call` to be updated
+    ///
+    /// - `patch_sender`: A [`PatchRequest`] channel to send patches describing the changes to
+    ///                   assembled nodes
+    ///
+    /// - `compile_sender`: A [`CompileRequest`] channel to send any requests to compile the
+    ///                     document after it has been assembled
+    ///
+    /// - `execute_sender`: An [`ExecuteRequest`] channel to send any requests to execute the
+    ///                     document after it has been assembled
+    ///
+    /// - `write_sender`: The channel to send any [`WriteRequest`]s after a patch is applied
+    ///
+    /// - `request_receiver`: The channel to receive [`AssembleRequest`]s on
+    ///
+    /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
+    #[allow(clippy::too_many_arguments)]
+    pub async fn assemble_task(
+        id: &str,
+        path: &Path,
+        project: &Path,
+        root: &Arc<RwLock<Node>>,
+        address_map: &Arc<RwLock<AddressMap>>,
+        call_docs: &Arc<RwLock<CallDocuments>>,
+        patch_sender: &mpsc::UnboundedSender<PatchRequest>,
+        compile_sender: &mpsc::Sender<CompileRequest>,
+        execute_sender: &mpsc::Sender<ExecuteRequest>,
+        write_sender: &mpsc::UnboundedSender<WriteRequest>,
+        request_receiver: &mut mpsc::Receiver<AssembleRequest>,
+        response_sender: &broadcast::Sender<Response>,
+    ) {
+        let duration = Duration::from_millis(Document::ASSEMBLE_DEBOUNCE_MILLIS);
+        let mut request_ids = Vec::new();
+        let mut compile = When::Never;
+        let mut execute = When::Never;
+        let mut write = When::Never;
+        loop {
+            match tokio::time::timeout(duration, request_receiver.recv()).await {
+                // Request received: record and continue to wait for timeout unless `when` is now
+                Ok(Some(mut request)) => {
+                    if !matches!(request.when, When::Never) {
+                        request_ids.append(&mut request.ids);
+
+                        compile.no_later_than(request.compile);
+                        execute.no_later_than(request.execute);
+                        write.no_later_than(request.write);
+
+                        if !matches!(request.when, When::Now) {
+                            continue;
+                        }
+                    }
+                }
+                // Sender dropped: end of task
+                Ok(None) => break,
+                // Timeout so do the following with the last unhandled request, if any
+                Err(..) => {}
+            };
+
+            if request_ids.is_empty() {
+                continue;
+            }
+
+            tracing::trace!(
+                "Assembling document `{}` for requests `{}`",
+                id,
+                request_ids.iter().join(",")
+            );
+
+            // Assemble the root node
+            match assemble(path, root, call_docs, patch_sender).await {
+                Ok(new_address_map) => {
+                    // Update the address map
+                    *address_map.write().await = new_address_map;
+
+                    /*
+                    // Ensure that each `Call` node has a `Document` for when it is executed
+                    let mut call_docs = call_docs.write().await;
+                    for (call_id, (doc_path, doc_format)) in call_map {
+                        let signature = [
+                            doc_path.to_string_lossy().as_ref(),
+                            doc_format.as_deref().unwrap_or(""),
+                        ]
+                        .concat();
+                        if !call_docs.has_signature(&call_id, &signature) {
+                            let callable =
+                                Box::new(Document::open(doc_path, doc_format).await.unwrap());
+                            call_docs.insert(call_id, signature, callable);
+                        }
+                    }
+                    */
+                }
+                Err(error) => tracing::error!("While assembling document `{}`: {}", id, error),
+            };
+
+            // Possibly compile, execute, and/or write; or respond
+            if !matches!(compile, When::Never) {
+                tracing::trace!(
+                    "Sending compile request for document `{}` for assemble requests `{}`",
+                    &id,
+                    request_ids.iter().join(",")
+                );
+                if let Err(error) = compile_sender
+                    .send(CompileRequest::new(
+                        request_ids.clone(),
+                        compile,
+                        execute,
+                        write,
+                        None,
+                    ))
+                    .await
+                {
+                    tracing::error!(
+                        "While sending execute request for document `{}`: {}",
+                        id,
+                        error
+                    );
+                }
+            } else if !matches!(execute, When::Never) {
+                tracing::trace!(
+                    "Sending compile request for document `{}` for assemble requests `{}`",
+                    &id,
+                    request_ids.iter().join(",")
+                );
+                if let Err(error) = execute_sender
+                    .send(ExecuteRequest::new(
+                        request_ids.clone(),
+                        execute,
+                        write,
+                        None,
+                        None,
+                        None,
+                    ))
+                    .await
+                {
+                    tracing::error!(
+                        "While sending execute request for document `{}`: {}",
+                        id,
+                        error
+                    );
+                }
+            } else if !matches!(write, When::Never) {
+                tracing::trace!(
+                    "Sending write request for document `{}` for assemble requests `{}`",
+                    &id,
+                    request_ids.iter().join(",")
+                );
+                if let Err(error) = write_sender.send(WriteRequest::new(request_ids.clone(), write))
+                {
+                    tracing::error!(
+                        "While sending write request for document `{}`: {}",
+                        id,
+                        error
+                    );
+                }
+            } else {
+                for request_id in &request_ids {
+                    if let Err(error) = response_sender.send(Response::new(request_id.clone())) {
+                        tracing::debug!(
+                            "While sending response for document `{}` from assemble task: {}",
+                            id,
+                            error
+                        );
+                    }
+                }
+            }
+
+            request_ids.clear();
+            compile = When::Never;
+            execute = When::Never;
+            write = When::Never;
+        }
+    }
+
+    /// Request that the the document be assembled
+    #[tracing::instrument(skip(self))]
+    pub async fn assemble_request(
+        &self,
+        compile: When,
+        execute: When,
+        write: When,
+    ) -> Result<RequestId> {
+        tracing::debug!("Sending assemble request for document `{}`", self.id);
+
+        let request_id = RequestId::new();
+        let request =
+            AssembleRequest::new(vec![request_id.clone()], When::Now, compile, execute, write);
+        if let Err(error) = self.assemble_request_sender.send(request).await {
+            bail!(
+                "When sending assemble request for document `{}`: {}",
+                self.id,
+                error
+            )
+        };
+
+        Ok(request_id)
+    }
+
+    /// Assemble the document
+    #[tracing::instrument(skip(self))]
+    pub async fn assemble(&mut self, compile: When, execute: When, write: When) -> Result<()> {
+        let request_id = self.assemble_request(compile, execute, write).await?;
+
+        tracing::trace!(
+            "Waiting for assemble response for document `{}` for request `{}`",
+            self.id,
+            request_id
+        );
+        while let Ok(response) = self.response_receiver.recv().await {
+            if response.request_id == request_id {
+                tracing::trace!(
+                    "Received assemble response for document `{}` for request `{}`",
+                    self.id,
+                    request_id
+                );
+                break;
+            }
+        }
+
+        Ok(())
     }
 
     /// A background task to compile the root node of the document on request
@@ -1014,7 +1320,7 @@ impl Document {
         path: &Path,
         project: &Path,
         root: &Arc<RwLock<Node>>,
-        addresses: &Arc<RwLock<AddressMap>>,
+        address_map: &Arc<RwLock<AddressMap>>,
         graph: &Arc<RwLock<Graph>>,
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
@@ -1024,17 +1330,21 @@ impl Document {
     ) {
         let duration = Duration::from_millis(Document::COMPILE_DEBOUNCE_MILLIS);
         let mut request_ids = Vec::new();
-        let mut execute = false;
-        let mut write = false;
+        let mut execute = When::Never;
+        let mut write = When::Never;
         loop {
             match tokio::time::timeout(duration, request_receiver.recv()).await {
                 // Request received: record and continue to wait for timeout unless `when` is now
-                Ok(Some(request)) => {
-                    request_ids.push(request.id);
-                    execute |= !matches!(request.execute, When::Never);
-                    write |= !matches!(request.write, When::Never);
-                    if !matches!(request.when, When::Now) {
-                        continue;
+                Ok(Some(mut request)) => {
+                    if !matches!(request.when, When::Never) {
+                        request_ids.append(&mut request.ids);
+
+                        execute.no_later_than(request.execute);
+                        write.no_later_than(request.write);
+
+                        if !matches!(request.when, When::Now) {
+                            continue;
+                        }
                     }
                 }
                 // Sender dropped: end of task
@@ -1047,37 +1357,30 @@ impl Document {
                 continue;
             }
 
-            let request_ids_display = || {
-                request_ids
-                    .as_slice()
-                    .iter()
-                    .map(|id| id.to_string())
-                    .join(",")
-            };
             tracing::trace!(
                 "Compiling document `{}` for requests `{}`",
                 id,
-                request_ids_display()
+                request_ids.iter().join(",")
             );
 
             // Compile the root node
-            match compile(path, project, root, patch_sender).await {
-                Ok((new_addresses, new_graph)) => {
-                    *addresses.write().await = new_addresses;
+            match compile(path, project, root, address_map, patch_sender).await {
+                Ok(new_graph) => {
                     *graph.write().await = new_graph;
                 }
                 Err(error) => tracing::error!("While compiling document `{}`: {}", id, error),
             }
 
-            // Possibly execute and/or write
-            if execute {
+            // Possibly execute and/or write; or respond
+            if !matches!(execute, When::Never) {
                 tracing::trace!(
                     "Sending execute request for document `{}` for compile requests `{}`",
                     &id,
-                    request_ids_display()
+                    request_ids.iter().join(",")
                 );
                 if let Err(error) = execute_sender
                     .send(ExecuteRequest::new(
+                        request_ids.clone(),
                         When::Soon,
                         When::Soon,
                         None,
@@ -1092,42 +1395,36 @@ impl Document {
                         error
                     );
                 }
-            } else if write {
+            } else if !matches!(write, When::Never) {
                 tracing::trace!(
                     "Sending write request for document `{}` for compile requests `{}`",
                     &id,
-                    request_ids_display()
+                    request_ids.iter().join(",")
                 );
-                if let Err(error) = write_sender.send(WriteRequest::new(When::Soon)) {
+                if let Err(error) =
+                    write_sender.send(WriteRequest::new(request_ids.clone(), When::Soon))
+                {
                     tracing::error!(
                         "While sending write request for document `{}`: {}",
                         id,
                         error
                     );
                 }
-            }
-
-            // Send responses for each request
-            for request_id in &request_ids {
-                tracing::trace!(
-                    "Sending compile response for document `{}` for request `{}`",
-                    id,
-                    request_id
-                );
-                if let Err(error) =
-                    response_sender.send(Response::CompileResponse(request_id.clone()))
-                {
-                    tracing::debug!(
-                        "While sending compile response for document `{}`: {}",
-                        id,
-                        error
-                    );
+            } else {
+                for request_id in &request_ids {
+                    if let Err(error) = response_sender.send(Response::new(request_id.clone())) {
+                        tracing::debug!(
+                            "While sending response for document `{}` from compile task: {}",
+                            id,
+                            error
+                        );
+                    }
                 }
             }
 
             request_ids.clear();
-            execute = false;
-            write = false;
+            execute = When::Never;
+            write = When::Never;
         }
     }
 
@@ -1141,8 +1438,9 @@ impl Document {
     ) -> Result<RequestId> {
         tracing::debug!("Sending compile request for document `{}`", self.id);
 
-        let request = CompileRequest::new(When::Now, execute, write, start);
-        let request_id = request.id.clone();
+        let request_id = RequestId::new();
+        let request =
+            CompileRequest::new(vec![request_id.clone()], When::Now, execute, write, start);
         if let Err(error) = self.compile_request_sender.send(request).await {
             bail!(
                 "When sending compile request for document `{}`: {}",
@@ -1174,15 +1472,13 @@ impl Document {
             request_id
         );
         while let Ok(response) = self.response_receiver.recv().await {
-            if let Response::CompileResponse(id) = response {
-                if id == request_id {
-                    tracing::trace!(
-                        "Received compile response for document `{}` for request `{}`",
-                        self.id,
-                        request_id
-                    );
-                    break;
-                }
+            if response.request_id == request_id {
+                tracing::trace!(
+                    "Received compile response for document `{}` for request `{}`",
+                    self.id,
+                    request_id
+                );
+                break;
             }
         }
 
@@ -1207,6 +1503,8 @@ impl Document {
     ///
     /// - `kernel_space`:  The [`KernelSpace`] to use for execution
     ///
+    /// - `call_docs`:  The [`Document`]s to call for each `Call` node
+    ///
     /// - `patch_sender`: A [`PatchRequest`] channel sender to send patches describing the changes to
     ///                   executed nodes
     ///
@@ -1226,6 +1524,7 @@ impl Document {
         addresses: &Arc<RwLock<AddressMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<RwLock<KernelSpace>>,
+        call_docs: &Arc<RwLock<CallDocuments>>,
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         write_sender: &mpsc::UnboundedSender<WriteRequest>,
         cancel_receiver: &mut mpsc::Receiver<CancelRequest>,
@@ -1233,15 +1532,52 @@ impl Document {
         response_sender: &broadcast::Sender<Response>,
     ) {
         let duration = Duration::from_millis(Document::EXECUTE_DEBOUNCE_MILLIS);
-        let mut last_request = None;
+        let mut request_ids = Vec::new();
+        let mut start = None;
+        let mut ordering = PlanOptions::default_ordering();
+        let mut max_concurrency = PlanOptions::default_max_concurrency();
+        let mut write = When::Never;
         loop {
             match tokio::time::timeout(duration, request_receiver.recv()).await {
                 // Request received: record and continue to wait for timeout unless `now` is true
-                Ok(Some(request)) => {
-                    let now = matches!(request.when, When::Now);
-                    last_request = Some(request);
-                    if !now {
-                        continue;
+                Ok(Some(mut request)) => {
+                    if !matches!(request.when, When::Never) {
+                        request_ids.append(&mut request.ids);
+
+                        // In the following, we allow more 'conservative' execution options to
+                        // override the default or those in previous requests.
+
+                        // Precedence for executing whole document, rather than starting at a node
+                        // If there is only one request then use its start, otherwise execute the whole document.
+                        if request_ids.len() == 1 {
+                            start = request.start;
+                        } else {
+                            start = None;
+                        }
+
+                        // Precedence for appearance, over topological, over single ordering
+                        if let Some(request_ordering) = request.ordering {
+                            use PlanOrdering::*;
+                            match (ordering, request_ordering) {
+                                (Single, Topological | Appearance) | (Topological, Appearance) => {
+                                    ordering = request_ordering;
+                                }
+                                _ => {}
+                            }
+                        }
+
+                        // Precedence for lowest concurrency
+                        if let Some(request_concurrency) = request.max_concurrency {
+                            if request_concurrency < max_concurrency {
+                                max_concurrency = request_concurrency;
+                            }
+                        }
+
+                        write.no_later_than(request.write);
+
+                        if !matches!(request.when, When::Now) {
+                            continue;
+                        }
                     }
                 }
                 // Sender dropped: end of task
@@ -1250,32 +1586,33 @@ impl Document {
                 Err(..) => {}
             };
 
-            let request = match &last_request {
-                Some(request) => request,
-                None => continue,
-            };
+            if request_ids.is_empty() {
+                continue;
+            }
 
-            tracing::trace!("Executing document `{}` for request `{}`", &id, request.id);
-
-            // Resolve options
-            let start = request
-                .start
-                .clone()
-                .map(|node_id| resources::code(path, &node_id, "", None));
-            let ordering = request
-                .ordering
-                .clone()
-                .unwrap_or_else(PlanOptions::default_ordering);
-            let max_concurrency = request
-                .max_concurrency
-                .unwrap_or_else(PlanOptions::default_max_concurrency);
-            let options = PlanOptions {
-                ordering,
-                max_concurrency,
-            };
+            tracing::trace!(
+                "Executing document `{}` for requests `{}`",
+                &id,
+                request_ids.iter().join(",")
+            );
 
             // Generate the execution plan
-            let plan = match graph.read().await.plan(start, None, Some(options)).await {
+            let start = start
+                .clone()
+                .map(|node_id| resources::code(path, &node_id, "", None));
+            let plan = match graph
+                .read()
+                .await
+                .plan(
+                    start,
+                    None,
+                    Some(PlanOptions {
+                        ordering,
+                        max_concurrency,
+                    }),
+                )
+                .await
+            {
                 Ok(plan) => plan,
                 Err(error) => {
                     tracing::error!("While generating execution plan: {}", error);
@@ -1289,37 +1626,41 @@ impl Document {
                 root,
                 addresses,
                 kernel_space,
+                call_docs,
                 patch_sender,
                 cancel_receiver,
             )
             .await;
 
-            if !matches!(request.write, When::Never) {
+            // Possibly write document; or respond
+            if !matches!(write, When::Never) {
                 tracing::trace!(
-                    "Sending write request for document `{}` for request `{}`",
+                    "Sending write request for document `{}` for requests `{}`",
                     &id,
-                    request.id
+                    request_ids.iter().join(",")
                 );
-                if let Err(error) = write_sender.send(WriteRequest::new(request.write)) {
+                if let Err(error) = write_sender.send(WriteRequest::new(request_ids.clone(), write))
+                {
                     tracing::error!(
                         "While sending write request for document `{}`: {}",
                         id,
                         error
                     );
                 }
+            } else {
+                for request_id in &request_ids {
+                    if let Err(error) = response_sender.send(Response::new(request_id.clone())) {
+                        tracing::debug!(
+                            "While sending response for document `{}` from execute task: {}",
+                            id,
+                            error
+                        );
+                    }
+                }
             }
 
-            // Send response
-            if let Err(error) = response_sender.send(Response::ExecuteResponse(request.id.clone()))
-            {
-                tracing::debug!(
-                    "While sending execute response for document `{}`: {}",
-                    id,
-                    error
-                );
-            }
-
-            last_request = None;
+            request_ids.clear();
+            write = When::Never;
         }
     }
 
@@ -1334,8 +1675,15 @@ impl Document {
     ) -> Result<RequestId> {
         tracing::debug!("Sending execute request for document `{}`", self.id);
 
-        let request = ExecuteRequest::new(When::Now, write, start, ordering, max_concurrency);
-        let request_id = request.id.clone();
+        let request_id = RequestId::new();
+        let request = ExecuteRequest::new(
+            vec![request_id.clone()],
+            When::Now,
+            write,
+            start,
+            ordering,
+            max_concurrency,
+        );
         if let Err(error) = self.execute_request_sender.send(request).await {
             bail!(
                 "When sending execute request for document `{}`: {}",
@@ -1372,15 +1720,13 @@ impl Document {
             request_id
         );
         while let Ok(response) = self.response_receiver.recv().await {
-            if let Response::ExecuteResponse(id) = response {
-                if id == request_id {
-                    tracing::trace!(
-                        "Received execute response for document `{}` for request `{}`",
-                        self.id,
-                        request_id
-                    );
-                    break;
-                }
+            if response.request_id == request_id {
+                tracing::trace!(
+                    "Received execute response for document `{}` for request `{}`",
+                    self.id,
+                    request_id
+                );
+                break;
             }
         }
 
@@ -1394,33 +1740,54 @@ impl Document {
     /// React to a change in a file path
     ///
     /// If the path corresponds to a `File` resource in the document's graph then re-compile,
-    /// re-execute, and write the document.
+    /// and potentially re-execute, and write the document.
     async fn react(&mut self, path: &Path) {
-        if let Ok(resource_info) = self
-            .graph
-            .read()
-            .await
-            .find_resource_info(&resources::file(path))
-        {
+        let graph = self.graph.read().await;
+        if let Ok(resource_info) = graph.find_resource_info(&resources::file(path)) {
+            // Only execute and write if a code related resource e.g. `CodeChunk` and
+            // just compile for others e.g. `Include`
+            let mut assemble = When::Never;
+            let mut compile = When::Never;
+            let mut execute = When::Never;
+            let mut write = When::Never;
+            for dependent in resource_info.dependents.iter().flatten() {
+                if let Resource::Node(resources::Node { kind, .. }) = dependent {
+                    if kind == "Include" {
+                        assemble.no_later_than(When::Now);
+                        compile.no_later_than(When::Now);
+                    }
+                } else if matches!(dependent, Resource::Code(..)) {
+                    compile.no_later_than(When::Now);
+                    execute.no_later_than(When::Now);
+                    write.no_later_than(When::Soon);
+                }
+            }
+
             tracing::trace!(
-                "Compiling, executing and writing document `{}` because file changed: {}",
+                "Document `{}` reacting because file changed: {}",
                 self.id,
                 path.display()
             );
-            if let Err(error) = self.compile_request(When::Soon, When::Soon, None).await {
-                tracing::error!(
-                    "When sending compile request for document `{}`: {}",
-                    self.id,
-                    error
-                );
+            let result = if !matches!(assemble, When::Never) {
+                self.assemble_request(compile, execute, write).await
+            } else if !matches!(compile, When::Never) {
+                self.compile_request(execute, write, None).await
+            } else if !matches!(execute, When::Never) {
+                self.execute_request(write, None, None, None).await
+            } else {
+                return;
+            };
+
+            if let Err(error) = result {
+                tracing::error!("When sending request for document `{}`: {}", self.id, error);
             }
         }
     }
 
     /// Get the parameters of the document
     pub async fn params(&mut self) -> Result<IndexMap<String, (String, Address, Parameter)>> {
-        // Compile the document to ensure its `addresses` are up to date
-        self.compile(When::Never, When::Never, None).await?;
+        // Assemble the document to ensure its `addresses` are up to date
+        self.assemble(When::Never, When::Never, When::Never).await?;
 
         // Collect parameters from addresses
         let addresses = self.addresses.read().await;
@@ -1430,6 +1797,10 @@ impl Document {
             .filter_map(|(id, address)| {
                 if let Ok(pointer) = resolve(root, Some(address.clone()), Some(id.clone())) {
                     if let Some(InlineContent::Parameter(param)) = pointer.as_inline() {
+                        // Exclude parameters that `Call` arguments and which have an id that starts with "ar-".
+                        if id.starts_with("ar-") {
+                            return None;
+                        }
                         return Some((
                             param.name.clone(),
                             (id.clone(), address.clone(), param.clone()),
@@ -1466,7 +1837,7 @@ impl Document {
                                 }
                             }
                             Err(error) => bail!(
-                                "While attempting to set document parameter `{}`: {}",
+                                "While attempting to parse document parameter `{}`: {}",
                                 name,
                                 error
                             ),
@@ -1500,8 +1871,8 @@ impl Document {
     ) -> Result<RequestId> {
         tracing::debug!("Cancelling execution of document `{}`", self.id);
 
-        let request = CancelRequest::new(start, scope);
-        let request_id = request.id.clone();
+        let request_id = RequestId::new();
+        let request = CancelRequest::new(vec![request_id.clone()], start, scope);
         self.cancel_request_sender.send(request).await.or_else(|_| {
             bail!(
                 "When sending cancel request for document `{}`: the receiver has dropped",
@@ -1595,10 +1966,10 @@ impl Document {
                 | Node::VideoObject(..)
         );
 
-        // Set the root and compile
+        // Set the root, assemble and compile
         // TODO: Reconsider this in refactoring of alternative format representations of docs
         *self.root.write().await = root;
-        self.compile(When::Never, When::Never, None).await?;
+        self.assemble(When::Now, When::Never, When::Never).await?;
 
         // Publish any events for which there are subscriptions (this will probably go elsewhere)
         for subscription in self.subscriptions.keys() {
@@ -1764,7 +2135,7 @@ impl Document {
 #[derive(Debug)]
 pub struct DocumentHandler {
     /// The document being handled.
-    document: Arc<Mutex<Document>>,
+    pub(crate) document: Arc<Mutex<Document>>,
 
     /// The event handler thread's join handle.
     ///
@@ -1798,7 +2169,7 @@ impl DocumentHandler {
     ///
     /// - `document`: The document that this handler is for.
     /// - `watch`: Whether to watch the document (e.g. not for temporary, new files)
-    fn new(document: Document, watch: bool) -> DocumentHandler {
+    pub(crate) fn new(document: Document, watch: bool) -> DocumentHandler {
         let id = document.id.clone();
         let path = document.path.clone();
 
@@ -1913,942 +2284,6 @@ impl DocumentHandler {
             // printed (only if the `async_sender` is dropped before this is aborted)
             tracing::trace!("Ending document handler");
         })
-    }
-}
-
-/// An in-memory store of documents
-#[derive(Debug, Default)]
-pub struct Documents {
-    /// A mapping of file paths to open documents
-    registry: Mutex<HashMap<String, DocumentHandler>>,
-}
-
-impl Documents {
-    /// Create a new documents store
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// List documents that are currently open
-    ///
-    /// Returns a vector of document paths (relative to the current working directory)
-    pub async fn list(&self) -> Result<Vec<String>> {
-        let cwd = std::env::current_dir()?;
-        let mut paths = Vec::new();
-        for document in self.registry.lock().await.values() {
-            let path = &document.document.lock().await.path;
-            let path = match pathdiff::diff_paths(path, &cwd) {
-                Some(path) => path,
-                None => path.clone(),
-            };
-            let path = path.display().to_string();
-            paths.push(path);
-        }
-        Ok(paths)
-    }
-
-    /// Create a new document
-    pub async fn create<P: AsRef<Path>>(
-        &self,
-        path: Option<P>,
-        content: Option<String>,
-        format: Option<String>,
-    ) -> Result<String> {
-        let document = Document::create(path, content, format).await?;
-        let document_id = document.id.clone();
-        let handler = DocumentHandler::new(document, false);
-        self.registry
-            .lock()
-            .await
-            .insert(document_id.clone(), handler);
-
-        Ok(document_id)
-    }
-
-    /// Open a document
-    ///
-    /// # Arguments
-    ///
-    /// - `path`: The path of the document to open
-    /// - `format`: The format to open the document as (inferred from filename extension if not supplied)
-    ///
-    /// If the document has already been opened, it will not be re-opened, but rather the existing
-    /// in-memory instance will be returned.
-    pub async fn open<P: AsRef<Path>>(&self, path: P, format: Option<String>) -> Result<String> {
-        let path = Path::new(path.as_ref()).canonicalize()?;
-
-        for handler in self.registry.lock().await.values() {
-            let document = handler.document.lock().await;
-            if document.path == path {
-                return Ok(document.id.clone());
-            }
-        }
-
-        let document = Document::open(path, format).await?;
-        let document_id = document.id.clone();
-        let handler = DocumentHandler::new(document, true);
-        self.registry
-            .lock()
-            .await
-            .insert(document_id.clone(), handler);
-
-        Ok(document_id)
-    }
-
-    /// Close a document
-    ///
-    /// # Arguments
-    ///
-    /// - `id_or_path`: The id or path of the document to close
-    ///
-    /// If `id_or_path` matches an existing document `id` then that document will
-    /// be closed. Otherwise a search will be done and the first document with a matching
-    /// path will be closed.
-    pub async fn close<P: AsRef<Path>>(&self, id_or_path: P) -> Result<String> {
-        let id_or_path_path = id_or_path.as_ref();
-        let id_or_path_string = id_or_path_path.to_string_lossy().to_string();
-        let mut id_to_remove = String::new();
-
-        if self.registry.lock().await.contains_key(&id_or_path_string) {
-            id_to_remove = id_or_path_string
-        } else {
-            let path = id_or_path_path.canonicalize()?;
-            for handler in self.registry.lock().await.values() {
-                let document = handler.document.lock().await;
-                if document.path == path {
-                    id_to_remove = document.id.clone();
-                    break;
-                }
-            }
-        };
-        self.registry.lock().await.remove(&id_to_remove);
-
-        Ok(id_to_remove)
-    }
-
-    /// Subscribe a client to a topic for a document
-    pub async fn subscribe(&self, id: &str, topic: &str, client: &str) -> Result<String> {
-        let document_lock = self.get(id).await?;
-        let mut document_guard = document_lock.lock().await;
-        let topic = document_guard.subscribe(topic, client);
-        Ok(topic)
-    }
-
-    /// Unsubscribe a client from a topic for a document
-    pub async fn unsubscribe(&self, id: &str, topic: &str, client: &str) -> Result<String> {
-        let document_lock = self.get(id).await?;
-        let mut document_guard = document_lock.lock().await;
-        let topic = document_guard.unsubscribe(topic, client);
-        Ok(topic)
-    }
-
-    /// Get a document that has previously been opened
-    pub async fn get(&self, id: &str) -> Result<Arc<Mutex<Document>>> {
-        if let Some(handler) = self.registry.lock().await.get(id) {
-            Ok(handler.document.clone())
-        } else {
-            bail!("No document with id {}", id)
-        }
-    }
-}
-
-/// The global documents store
-pub static DOCUMENTS: Lazy<Documents> = Lazy::new(Documents::new);
-
-/// Get JSON Schemas for this module
-pub fn schemas() -> Result<serde_json::Value> {
-    let schemas = serde_json::Value::Array(vec![
-        schemas::generate::<Document>()?,
-        schemas::generate::<DocumentEvent>()?,
-    ]);
-    Ok(schemas)
-}
-
-#[cfg(feature = "cli")]
-pub mod commands {
-    use std::str::FromStr;
-
-    use cli_utils::{
-        args::params,
-        clap::{self, Parser},
-        result,
-        table::{Table, Title},
-        Result, Run,
-    };
-    use common::{async_trait::async_trait, itertools::Itertools};
-    use graph::{PlanOptions, PlanOrdering};
-    use node_patch::diff_display;
-    use stencila_schema::{
-        EnumValidator, IntegerValidator, NumberValidator, StringValidator, ValidatorTypes,
-    };
-
-    use crate::utils::json;
-
-    use super::*;
-
-    /// Manage documents
-    #[derive(Parser)]
-    pub struct Command {
-        #[clap(subcommand)]
-        pub action: Action,
-    }
-
-    #[derive(Parser)]
-    pub enum Action {
-        List(List),
-        Open(Open),
-        Close(Close),
-        Show(Show),
-
-        #[cfg(feature = "kernels-cli")]
-        Execute(kernel_commands::Execute),
-        #[cfg(feature = "kernels-cli")]
-        Kernels(kernel_commands::Kernels),
-        #[cfg(feature = "kernels-cli")]
-        Tasks(kernel_commands::Tasks),
-        #[cfg(feature = "kernels-cli")]
-        Cancel(kernel_commands::Cancel),
-        #[cfg(feature = "kernels-cli")]
-        Symbols(kernel_commands::Symbols),
-        #[cfg(feature = "kernels-cli")]
-        Restart(kernel_commands::Restart),
-
-        Graph(Graph),
-        #[clap(alias = "pars")]
-        Params(Params),
-        Run(Run_),
-        Plan(Plan),
-        Query(Query),
-        Diff(Diff),
-        Merge(Merge),
-        Detect(Detect),
-    }
-
-    #[async_trait]
-    impl Run for Command {
-        async fn run(&self) -> Result {
-            let Self { action } = self;
-            match action {
-                Action::List(action) => action.run().await,
-                Action::Open(action) => action.run().await,
-                Action::Close(action) => action.run().await,
-                Action::Show(action) => action.run().await,
-
-                #[cfg(feature = "kernels-cli")]
-                Action::Execute(action) => action.run().await,
-                #[cfg(feature = "kernels-cli")]
-                Action::Kernels(action) => action.run().await,
-                #[cfg(feature = "kernels-cli")]
-                Action::Tasks(action) => action.run().await,
-                #[cfg(feature = "kernels-cli")]
-                Action::Cancel(action) => action.run().await,
-                #[cfg(feature = "kernels-cli")]
-                Action::Symbols(action) => action.run().await,
-                #[cfg(feature = "kernels-cli")]
-                Action::Restart(action) => action.run().await,
-
-                Action::Graph(action) => action.run().await,
-                Action::Params(action) => action.run().await,
-                Action::Run(action) => action.run().await,
-                Action::Plan(action) => action.run().await,
-                Action::Query(action) => action.run().await,
-                Action::Diff(action) => action.run().await,
-                Action::Merge(action) => action.run().await,
-                Action::Detect(action) => action.run().await,
-            }
-        }
-    }
-
-    // The arguments used to specify the document file path and format
-    // Reused (with flatten) below
-    #[derive(Parser)]
-    struct File {
-        /// The path of the document file
-        path: String,
-
-        /// The format of the document file
-        #[clap(short, long)]
-        format: Option<String>,
-    }
-    impl File {
-        async fn open(&self) -> eyre::Result<String> {
-            DOCUMENTS.open(&self.path, self.format.clone()).await
-        }
-
-        async fn get(&self) -> eyre::Result<Arc<Mutex<Document>>> {
-            let id = self.open().await?;
-            DOCUMENTS.get(&id).await
-        }
-    }
-
-    /// List open documents
-    #[derive(Parser)]
-    pub struct List {}
-    #[async_trait]
-    impl Run for List {
-        async fn run(&self) -> Result {
-            let list = DOCUMENTS.list().await?;
-            result::value(list)
-        }
-    }
-
-    /// Open a document
-    #[derive(Parser)]
-    pub struct Open {
-        #[clap(flatten)]
-        file: File,
-    }
-    #[async_trait]
-    impl Run for Open {
-        async fn run(&self) -> Result {
-            self.file.open().await?;
-            result::nothing()
-        }
-    }
-
-    /// Close a document
-    #[derive(Parser)]
-    pub struct Close {
-        /// The path of the document file
-        pub path: String,
-    }
-    #[async_trait]
-    impl Run for Close {
-        async fn run(&self) -> Result {
-            DOCUMENTS.close(&self.path).await?;
-            result::nothing()
-        }
-    }
-
-    /// Show a document
-    #[derive(Parser)]
-    pub struct Show {
-        #[clap(flatten)]
-        file: File,
-
-        /// A pointer to the part of the document to show e.g. `variables`, `format.name`
-        ///
-        /// Some, usually large, document properties are only shown when specified with a
-        /// pointer (e.g. `content` and `root`).
-        pub pointer: Option<String>,
-    }
-    #[async_trait]
-    impl Run for Show {
-        async fn run(&self) -> Result {
-            let document = Document::open(&self.file.path, self.file.format.clone()).await?;
-            if let Some(pointer) = &self.pointer {
-                if pointer == "content" {
-                    result::content(&document.format.extension, &document.content)
-                } else if pointer == "root" {
-                    let root = &*document.root.read().await;
-                    result::value(root)
-                } else {
-                    let data = serde_json::to_value(document)?;
-                    if let Some(part) = data.pointer(&json::pointer(pointer)) {
-                        Ok(result::value(part)?)
-                    } else {
-                        bail!("Invalid pointer for document: {}", pointer)
-                    }
-                }
-            } else {
-                result::value(document)
-            }
-        }
-    }
-
-    // Subcommands that only work if `kernels-cli` feature is enabled
-    #[cfg(feature = "kernels-cli")]
-    mod kernel_commands {
-        use super::*;
-
-        #[derive(Parser)]
-        #[clap(alias = "exec")]
-        pub struct Execute {
-            #[clap(flatten)]
-            file: File,
-
-            #[clap(flatten)]
-            execute: kernels::commands::Execute,
-        }
-
-        #[async_trait]
-        impl Run for Execute {
-            async fn run(&self) -> Result {
-                let document = self.file.get().await?;
-                let document = document.lock().await;
-                let mut kernels = document.kernels.write().await;
-                self.execute.run(&mut kernels).await?;
-                result::nothing()
-            }
-        }
-
-        #[derive(Parser)]
-        pub struct Kernels {
-            #[clap(flatten)]
-            file: File,
-
-            #[clap(flatten)]
-            kernels: kernels::commands::Running,
-        }
-
-        #[async_trait]
-        impl Run for Kernels {
-            async fn run(&self) -> Result {
-                let document = self.file.get().await?;
-                let document = document.lock().await;
-                let kernels = document.kernels.read().await;
-                self.kernels.run(&*kernels).await
-            }
-        }
-
-        #[derive(Parser)]
-        pub struct Tasks {
-            #[clap(flatten)]
-            file: File,
-
-            #[clap(flatten)]
-            tasks: kernels::commands::Tasks,
-        }
-
-        #[async_trait]
-        impl Run for Tasks {
-            async fn run(&self) -> Result {
-                let document = self.file.get().await?;
-                let document = document.lock().await;
-                let kernels = document.kernels.read().await;
-                self.tasks.run(&*kernels).await
-            }
-        }
-
-        #[derive(Parser)]
-        pub struct Cancel {
-            #[clap(flatten)]
-            file: File,
-
-            #[clap(flatten)]
-            cancel: kernels::commands::Cancel,
-        }
-
-        #[async_trait]
-        impl Run for Cancel {
-            async fn run(&self) -> Result {
-                let document = self.file.get().await?;
-                let document = document.lock().await;
-                let mut kernels = document.kernels.write().await;
-                self.cancel.run(&mut *kernels).await?;
-                result::nothing()
-            }
-        }
-
-        #[derive(Parser)]
-        pub struct Symbols {
-            #[clap(flatten)]
-            file: File,
-
-            #[clap(flatten)]
-            symbols: kernels::commands::Symbols,
-        }
-
-        #[async_trait]
-        impl Run for Symbols {
-            async fn run(&self) -> Result {
-                let document = self.file.get().await?;
-                let document = document.lock().await;
-                let kernels = document.kernels.read().await;
-                self.symbols.run(&*kernels).await
-            }
-        }
-
-        #[derive(Parser)]
-        pub struct Restart {
-            #[clap(flatten)]
-            file: File,
-
-            #[clap(flatten)]
-            restart: kernels::commands::Restart,
-        }
-
-        #[async_trait]
-        impl Run for Restart {
-            async fn run(&self) -> Result {
-                let document = self.file.get().await?;
-                let document = document.lock().await;
-                let kernels = document.kernels.read().await;
-                self.restart.run(&*kernels).await
-            }
-        }
-    }
-
-    /// Output the dependency graph for a document
-    ///
-    /// Tip: When using the DOT format (the default), if you have GraphViz and ImageMagick
-    /// installed you can view the graph by piping the output to them. For example, to
-    /// view a graph of the current project:
-    ///
-    /// ```sh
-    /// $ stencila documents graph | dot -Tpng | display
-    /// ```
-    ///
-    #[derive(Parser)]
-    #[clap(verbatim_doc_comment)]
-    pub struct Graph {
-        #[clap(flatten)]
-        file: File,
-
-        /// The format to output the graph as
-        #[clap(long, short, default_value = "dot", possible_values = &graph::FORMATS)]
-        to: String,
-    }
-
-    #[async_trait]
-    impl Run for Graph {
-        async fn run(&self) -> Result {
-            let document = self.file.get().await?;
-            let document = document.lock().await;
-            let content = document.graph.read().await.to_format(&self.to)?;
-            result::content(&self.to, &content)
-        }
-    }
-
-    /// Show the parameters of a document
-    #[derive(Parser)]
-    #[clap(verbatim_doc_comment)]
-    pub struct Params {
-        #[clap(flatten)]
-        file: File,
-    }
-
-    /// A row in the table of parameters
-    #[derive(Serialize, Table)]
-    #[serde(crate = "common::serde")]
-    #[table(crate = "cli_utils::cli_table")]
-    struct Param {
-        #[table(title = "Name")]
-        name: String,
-
-        #[table(title = "Id")]
-        id: String,
-
-        #[table(skip)]
-        address: Address,
-
-        #[table(title = "Validation", display_fn = "option_validator")]
-        validator: Option<ValidatorTypes>,
-
-        #[table(title = "Default", display_fn = "option_node")]
-        default: Option<Node>,
-    }
-
-    fn option_validator(validator: &Option<ValidatorTypes>) -> String {
-        let validator = match validator {
-            Some(validator) => validator,
-            None => return String::new(),
-        };
-        match validator {
-            ValidatorTypes::BooleanValidator(..) => "Boolean".to_string(),
-            ValidatorTypes::NumberValidator(NumberValidator {
-                minimum,
-                maximum,
-                multiple_of,
-                ..
-            }) => format!(
-                "Number {} {} {}",
-                minimum
-                    .map(|min| format!("min:{}", min))
-                    .unwrap_or_default(),
-                maximum
-                    .map(|max| format!("max:{}", max))
-                    .unwrap_or_default(),
-                multiple_of
-                    .as_ref()
-                    .map(|mult| format!("multiple-of:{}", mult))
-                    .unwrap_or_default()
-            )
-            .trim()
-            .to_string(),
-            ValidatorTypes::IntegerValidator(IntegerValidator {
-                minimum,
-                maximum,
-                multiple_of,
-                ..
-            }) => format!(
-                "Integer {} {} {}",
-                minimum
-                    .map(|min| format!("min:{}", min))
-                    .unwrap_or_default(),
-                maximum
-                    .map(|max| format!("max:{}", max))
-                    .unwrap_or_default(),
-                multiple_of
-                    .as_ref()
-                    .map(|mult| format!("multiple-of:{}", mult))
-                    .unwrap_or_default()
-            )
-            .trim()
-            .to_string(),
-            ValidatorTypes::StringValidator(StringValidator {
-                min_length,
-                max_length,
-                pattern,
-                ..
-            }) => format!(
-                "String {} {} {}",
-                min_length
-                    .map(|min| format!("min-length:{}", min))
-                    .unwrap_or_default(),
-                max_length
-                    .map(|max| format!("max-length:{}", max))
-                    .unwrap_or_default(),
-                pattern
-                    .as_ref()
-                    .map(|pattern| format!("pattern:{}", pattern))
-                    .unwrap_or_default()
-            )
-            .trim()
-            .to_string(),
-            ValidatorTypes::EnumValidator(EnumValidator { values, .. }) => format!(
-                "One of {}",
-                values
-                    .iter()
-                    .map(|value| serde_json::to_string(value).unwrap_or_default())
-                    .join(", ")
-            )
-            .trim()
-            .to_string(),
-            _ => "*other*".to_string(),
-        }
-    }
-
-    fn option_node(validator: &Option<Node>) -> String {
-        let node = match validator {
-            Some(node) => node,
-            None => return String::new(),
-        };
-        serde_json::to_string(node).unwrap_or_default()
-    }
-
-    #[async_trait]
-    impl Run for Params {
-        async fn run(&self) -> Result {
-            let document = self.file.get().await?;
-            let mut document = document.lock().await;
-            let params = document.params().await?;
-            let params = params
-                .into_iter()
-                .map(|(name, (id, address, param))| Param {
-                    name,
-                    id,
-                    address,
-                    validator: param.validator.map(|boxed| *boxed),
-                    default: param.default.map(|boxed| *boxed),
-                })
-                .collect_vec();
-            result::table(params, Param::title())
-        }
-    }
-
-    /// Run a document
-    #[derive(Parser)]
-    pub struct Run_ {
-        /// The path of the document to execute
-        pub input: PathBuf,
-
-        /// Parameter `name=value` pairs
-        args: Vec<String>,
-
-        /// The path to save the executed document
-        #[clap(short, long, alias = "out")]
-        output: Option<PathBuf>,
-
-        /// The format of the input (defaults to being inferred from the file extension or content type)
-        #[clap(short, long)]
-        from: Option<String>,
-
-        /// The format of the output (defaults to being inferred from the file extension)
-        #[clap(short, long)]
-        to: Option<String>,
-
-        /// The theme to apply to the output (only for HTML and PDF)
-        #[clap(short = 'e', long)]
-        theme: Option<String>,
-
-        /// The id of the node to start execution from
-        #[clap(short, long)]
-        start: Option<String>,
-
-        /// Ordering for the execution plan
-        #[clap(long, parse(try_from_str = PlanOrdering::from_str), ignore_case = true)]
-        ordering: Option<PlanOrdering>,
-
-        /// Maximum concurrency for the execution plan
-        ///
-        /// A maximum concurrency of 2 means that no more than two tasks will
-        /// run at the same time (ie. in the same stage).
-        /// Defaults to the number of CPUs on the machine.
-        #[clap(short, long)]
-        concurrency: Option<usize>,
-    }
-
-    #[async_trait]
-    impl Run for Run_ {
-        async fn run(&self) -> Result {
-            // Open document
-            let mut document = Document::open(&self.input, self.from.clone()).await?;
-
-            // Call with args, or just execute
-            if !self.args.is_empty() {
-                let args = params(&self.args);
-                document.call(args).await?;
-            } else {
-                document
-                    .execute(
-                        When::Never,
-                        self.start.clone(),
-                        self.ordering.clone(),
-                        self.concurrency,
-                    )
-                    .await?;
-            }
-
-            tracing::info!("Finished running document");
-
-            // Display or write output
-            if let Some(output) = &self.output {
-                let out = output.display().to_string();
-                if out == "-" {
-                    let format = self.to.clone().unwrap_or_else(|| "json".to_string());
-                    let content = document.dump(Some(format.clone()), None).await?;
-                    return result::content(&format, &content);
-                } else {
-                    document
-                        .write_as(output, self.to.clone(), self.theme.clone())
-                        .await?;
-                }
-            }
-
-            result::nothing()
-        }
-    }
-
-    /// Generate an execution plan for a document
-    #[derive(Parser)]
-    pub struct Plan {
-        /// The path of the document to execute
-        pub input: PathBuf,
-
-        /// The format of the input (defaults to being inferred from the file extension or content type)
-        #[clap(short, long)]
-        from: Option<String>,
-
-        /// The id of the node to start execution from
-        #[clap(short, long)]
-        start: Option<String>,
-
-        /// Ordering for the execution plan
-        #[clap(short, long, parse(try_from_str = PlanOrdering::from_str), ignore_case = true)]
-        ordering: Option<PlanOrdering>,
-
-        /// Maximum concurrency for the execution plan
-        ///
-        /// A maximum concurrency of 2 means that no more than two tasks will
-        /// run at the same time (ie. in the same stage).
-        /// Defaults to the number of CPUs on the machine.
-        #[clap(short, long)]
-        concurrency: Option<usize>,
-    }
-
-    #[async_trait]
-    impl Run for Plan {
-        async fn run(&self) -> Result {
-            // Open document
-            let document = Document::open(&self.input, self.from.clone()).await?;
-
-            let start = self
-                .start
-                .as_ref()
-                .map(|node_id| resources::code(&document.path, node_id, "", None));
-
-            let options = PlanOptions {
-                ordering: self
-                    .ordering
-                    .clone()
-                    .unwrap_or_else(PlanOptions::default_ordering),
-                max_concurrency: self
-                    .concurrency
-                    .unwrap_or_else(PlanOptions::default_max_concurrency),
-            };
-
-            let plan = {
-                let graph = document.graph.write().await;
-                graph.plan(start, None, Some(options)).await?
-            };
-
-            result::new("md", &plan.to_markdown(), &plan)
-        }
-    }
-
-    /// Query a document
-    #[derive(Parser)]
-    pub struct Query {
-        /// The path of the document file
-        file: String,
-
-        /// The query to run on the document
-        query: String,
-
-        /// The format of the file
-        #[clap(short, long)]
-        format: Option<String>,
-
-        /// The language of the query
-        #[clap(
-            short,
-            long,
-            default_value = "jmespath",
-            possible_values = &node_query::LANGS
-        )]
-        lang: String,
-    }
-
-    #[async_trait]
-    impl Run for Query {
-        async fn run(&self) -> Result {
-            let Self {
-                file,
-                format,
-                query,
-                lang,
-            } = self;
-            let document_id = DOCUMENTS.open(file, format.clone()).await?;
-            let document = DOCUMENTS.get(&document_id).await?;
-            let document = document.lock().await;
-            let node = &*document.root.read().await;
-            let result = node_query::query(node, query, lang)?;
-            result::value(result)
-        }
-    }
-
-    /// Display the structural differences between two documents
-    #[derive(Parser)]
-    pub struct Diff {
-        /// The path of the first document
-        first: PathBuf,
-
-        /// The path of the second document
-        second: PathBuf,
-
-        /// The format to display the difference in
-        ///
-        /// Defaults to a "unified diff" of the JSON representation
-        /// of the documents. Unified diffs of other formats are available
-        /// e.g. "md", "yaml". Use "raw" for the raw patch as a list of
-        /// operations.
-        #[clap(short, long, default_value = "json")]
-        format: String,
-    }
-
-    #[async_trait]
-    impl Run for Diff {
-        async fn run(&self) -> Result {
-            let Self {
-                first,
-                second,
-                format,
-            } = self;
-            let first = Document::open(first, None).await?;
-            let second = Document::open(second, None).await?;
-
-            let first = &*first.root.read().await;
-            let second = &*second.root.read().await;
-
-            if format == "raw" {
-                let patch = diff(first, second);
-                result::value(patch)
-            } else {
-                let diff = diff_display(first, second, format).await?;
-                result::content("patch", &diff)
-            }
-        }
-    }
-
-    /// Merge changes from two or more derived versions of a document
-    ///
-    /// This command can be used as a Git custom "merge driver".
-    /// First, register Stencila as a merge driver,
-    ///
-    /// ```sh
-    /// $ git config merge.stencila.driver "stencila merge --git %O %A %B"
-    /// ```
-    ///
-    /// (The placeholders `%A` etc are used by `git` to pass arguments such
-    /// as file paths and options to `stencila`.)
-    ///
-    /// Then, in your `.gitattributes` file assign the driver to specific
-    /// types of files e.g.,
-    ///
-    /// ```text
-    /// *.{md|docx} merge=stencila
-    /// ```
-    ///
-    /// This can be done per project, or globally.
-    #[derive(Parser)]
-    #[clap(verbatim_doc_comment)]
-    // See https://git-scm.com/docs/gitattributes#_defining_a_custom_merge_driver and
-    // https://www.julianburr.de/til/custom-git-merge-drivers/ for more examples of defining a
-    // custom driver. In particular the meaning of the placeholders %O, %A etc
-    pub struct Merge {
-        /// The path of the original version
-        original: PathBuf,
-
-        /// The paths of the derived versions
-        #[clap(required = true, multiple_occurrences = true)]
-        derived: Vec<PathBuf>,
-
-        /// A flag to indicate that the command is being used as a Git merge driver
-        ///
-        /// When the `merge` command is used as a Git merge driver the second path
-        /// supplied is the file that is written to.
-        #[clap(short, long)]
-        git: bool,
-    }
-
-    #[async_trait]
-    impl Run for Merge {
-        async fn run(&self) -> Result {
-            let mut original = Document::open(&self.original, None).await?;
-
-            let mut docs: Vec<Document> = Vec::new();
-            for path in &self.derived {
-                docs.push(Document::open(path, None).await?)
-            }
-
-            original.merge(&docs).await?;
-
-            if self.git {
-                original.write_as(&self.derived[0], None, None).await?;
-            } else {
-                original.write(None, None).await?;
-            }
-
-            result::nothing()
-        }
-    }
-
-    /// Detect entities within a document
-    #[derive(Parser)]
-    pub struct Detect {
-        /// The path of the document file
-        pub file: String,
-    }
-
-    #[async_trait]
-    impl Run for Detect {
-        async fn run(&self) -> Result {
-            let mut document = Document::open(&self.file, None).await?;
-            document.read(true).await?;
-            let nodes = document.detect().await?;
-            result::value(nodes)
-        }
     }
 }
 

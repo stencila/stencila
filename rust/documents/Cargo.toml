@@ -1,12 +1,16 @@
 [package]
-name = "node-execute"
-description = "Compile and execute Stencila document nodes"
+name = "documents"
+description = "Executable documents"
 version = "0.0.0"
 edition = "2021"
+
+[features]
+cli = ["cli-utils"]
 
 [dependencies]
 codecs = { path = "../codecs" }
 common = { path = "../common" }
+events = { path = "../events" }
 formats = { path = "../formats" }
 graph = { path = "../graph" }
 graph-triples = { path = "../graph-triples" }
@@ -15,12 +19,18 @@ node-address = { path = "../node-address" }
 node-dispatch = { path = "../node-dispatch" }
 node-patch = { path = "../node-patch" }
 node-pointer = { path = "../node-pointer" }
+node-query = { path = "../node-query" }
+node-reshape = { path = "../node-reshape" }
 node-transform = { path = "../node-transform" }
 node-validate = { path = "../node-validate" }
 parsers = { path = "../parsers" }
+providers = { path = "../providers" }
 path-utils = { path = "../path-utils" }
 stencila-schema = { path = "../schema" }
 uuids = { path = "../uuids" }
+notify = "4.0.17"
+
+cli-utils = { path = "../cli-utils", optional = true}
 
 [dev-dependencies]
 codec = { path = "../codec" }

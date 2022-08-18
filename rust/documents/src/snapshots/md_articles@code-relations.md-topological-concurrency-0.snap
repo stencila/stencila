@@ -1,14 +1,69 @@
 ---
-source: rust/node-execute/src/tests.rs
-assertion_line: 105
+source: rust/documents/src/tests.rs
+assertion_line: 121
 expression: "&plan"
 ---
 {
   "options": {
-    "ordering": "Appearance",
-    "max_concurrency": 10
+    "ordering": "Topological",
+    "max_concurrency": 0
   },
   "stages": [
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "pa-1",
+              "kind": "Parameter",
+              "language": "Calc"
+            },
+            "relations": [
+              [
+                {
+                  "type": "Assigns",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "c",
+                  "kind": "Number"
+                }
+              ]
+            ],
+            "dependencies": [],
+            "dependents": [
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "c",
+                "kind": "Number"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-4",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              }
+            ],
+            "depth": 0,
+            "execute_pure": false,
+            "compile_digest": "2929670310044459792.6473431330112736658.0.0.0"
+          },
+          "kernel_name": "calc",
+          "is_fork": false
+        }
+      ]
+    },
     {
       "tasks": [
         {
@@ -23,7 +78,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Assign",
+                  "type": "Assigns",
                   "range": [
                     1,
                     0,
@@ -40,7 +95,7 @@ expression: "&plan"
               ],
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     2,
                     0,
@@ -143,7 +198,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -178,7 +233,7 @@ expression: "&plan"
             "compile_digest": "16686659887221966787.10447405199150839907.7791729115334767390.1.0"
           },
           "kernel_name": "calc",
-          "is_fork": true
+          "is_fork": false
         }
       ]
     },
@@ -196,7 +251,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -249,7 +304,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -302,7 +357,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Assign",
+                  "type": "Assigns",
                   "range": [
                     1,
                     0,
@@ -319,7 +374,7 @@ expression: "&plan"
               ],
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     1,
                     4,
@@ -336,7 +391,7 @@ expression: "&plan"
               ],
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     2,
                     0,
@@ -419,7 +474,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -485,7 +540,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -544,61 +599,6 @@ expression: "&plan"
             "resource": {
               "type": "Code",
               "path": "articles/code-relations.md",
-              "id": "pa-1",
-              "kind": "Parameter",
-              "language": "Calc"
-            },
-            "relations": [
-              [
-                {
-                  "type": "Assign",
-                  "range": [
-                    0,
-                    0,
-                    0,
-                    0
-                  ]
-                },
-                {
-                  "type": "Symbol",
-                  "path": "articles/code-relations.md",
-                  "name": "c",
-                  "kind": "Number"
-                }
-              ]
-            ],
-            "dependencies": [],
-            "dependents": [
-              {
-                "type": "Symbol",
-                "path": "articles/code-relations.md",
-                "name": "c",
-                "kind": "Number"
-              },
-              {
-                "type": "Code",
-                "path": "articles/code-relations.md",
-                "id": "cc-4",
-                "kind": "CodeChunk",
-                "language": "Calc"
-              }
-            ],
-            "depth": 0,
-            "execute_pure": false,
-            "compile_digest": "2929670310044459792.6473431330112736658.0.0.0"
-          },
-          "kernel_name": "calc",
-          "is_fork": false
-        }
-      ]
-    },
-    {
-      "tasks": [
-        {
-          "resource_info": {
-            "resource": {
-              "type": "Code",
-              "path": "articles/code-relations.md",
               "id": "cc-4",
               "kind": "CodeChunk",
               "language": "Calc"
@@ -606,7 +606,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -623,7 +623,7 @@ expression: "&plan"
               ],
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     4,
@@ -640,7 +640,7 @@ expression: "&plan"
               ],
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     8,
@@ -701,7 +701,7 @@ expression: "&plan"
             "compile_digest": "3894522473690053649.77074787185374047.16743740572555155447.3.0"
           },
           "kernel_name": "calc",
-          "is_fork": true
+          "is_fork": false
         }
       ]
     }

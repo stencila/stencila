@@ -16,12 +16,12 @@ use common::{
     strum::VariantNames,
     tokio, tracing,
 };
+use documents::DOCUMENTS;
 use tasks::Taskfile;
 use utils::some_string;
 
 use crate::{
     config::{self, CONFIG},
-    documents::{self, DOCUMENTS},
     logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
@@ -143,7 +143,7 @@ pub enum Command {
     With(WithCommand),
 
     #[clap(aliases = &["document", "docs", "doc"])]
-    Documents(documents::commands::Command),
+    Documents(documents::cli::Command),
 
     #[clap(aliases = &["project"])]
     Projects(cloud::projects::cli::Command),
@@ -437,8 +437,8 @@ impl Run for ShowCommand {
 
 /// Currently, these top-level commands simply delegate to those in other modules
 type ConvertCommand = codecs::commands::Convert;
-type DiffCommand = documents::commands::Diff;
-type MergeCommand = documents::commands::Merge;
+type DiffCommand = documents::cli::Diff;
+type MergeCommand = documents::cli::Merge;
 
 /// Run commands interactively with a particular project or document
 #[derive(Parser)]
@@ -605,7 +605,7 @@ impl Run for RunCommand {
 
             match module.as_str() {
                 "tasks" => run!(tasks::cli::Run_::try_parse_from(&args)?),
-                "documents" => run!(documents::commands::Run_::try_parse_from(&args)?),
+                "documents" => run!(documents::cli::Run_::try_parse_from(&args)?),
                 "server" => run!(crate::server::commands::Start::try_parse_from(&args)?),
                 _ => bail!("Unhandled module: {}", module),
             };

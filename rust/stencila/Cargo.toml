@@ -14,6 +14,7 @@ cli-interact = ["cli-utils/interact"]
 # These features are needed for use in `cfg` attributes
 # because features of dependencies e.g `codecs/cli` are
 # not recognised there (it needs to be a feature of this crate)
+documents-cli = ["documents/cli"]
 tasks-cli = ["tasks/cli"]
 codecs-cli = ["codecs/cli"]
 parsers-cli = ["parsers/cli"]
@@ -44,6 +45,9 @@ default = [
   "cli-progress",
   "cli-pretty",
   "cli-interact",
+
+  # Documents
+  "documents-cli",
 
   # Tasks
   "tasks-cli",
@@ -141,23 +145,15 @@ binaries = { path = "../binaries" }
 cloud = { path = "../cloud" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
-cron-utils = { path = "../cron-utils" }
+documents = { path = "../documents" }
 events = { path = "../events" }
 files = { path = "../files" }
-formats = { path = "../formats" }
 graph = { path = "../graph" }
 graph-triples = { path = "../graph-triples" }
 http-utils = { path = "../http-utils" }
 images = { path = "../images" }
 kernels = { path = "../kernels" }
-node-address = { path = "../node-address" }
-node-dispatch = { path = "../node-dispatch" }
-node-execute = { path = "../node-execute" }
 node-patch = { path = "../node-patch" }
-node-pointer = { path = "../node-pointer" }
-node-query = { path = "../node-query" }
-node-reshape = { path = "../node-reshape" }
-node-validate = { path = "../node-validate" }
 parsers = { path = "../parsers" }
 path-utils = { path = "../path-utils" }
 providers = { path = "../providers" }

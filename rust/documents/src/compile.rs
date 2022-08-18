@@ -7,17 +7,21 @@ use common::{
 };
 use graph::Graph;
 use graph_triples::{resources, Resource};
-use node_address::{Address, AddressMap};
+use node_address::AddressMap;
 use node_patch::diff_address;
 use node_pointer::resolve;
 use path_utils::path_slash::PathBufExt;
 use stencila_schema::{
-    CodeChunk, CodeExecutableCodeDependencies, CodeExecutableCodeDependents,
+    Call, CodeChunk, CodeExecutableCodeDependencies, CodeExecutableCodeDependents,
     CodeExecutableExecuteRequired, CodeExpression, File, Include, Node, Parameter,
     ParameterExecuteRequired,
 };
 
-use crate::{utils::send_patches, CompileContext, Executable, PatchRequest, When};
+use crate::{
+    executable::{CompileContext, Executable},
+    messages::{PatchRequest, When},
+    utils::send_patches,
+};
 
 /// Compile a node, usually the `root` node of a document
 ///
@@ -43,25 +47,32 @@ use crate::{utils::send_patches, CompileContext, Executable, PatchRequest, When}
 ///
 /// - `root`: The root node to be compiled
 ///
+/// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
+///                  included in the plan within the `root` node; takes a read lock)
+///
 /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
 ///                   executed nodes
 pub async fn compile(
     path: &Path,
     project: &Path,
     root: &Arc<RwLock<Node>>,
+    address_map: &Arc<RwLock<AddressMap>>,
     patch_sender: &UnboundedSender<PatchRequest>,
-) -> Result<(AddressMap, Graph)> {
-    // Walk over the root node calling `compile` on children
-    let mut address = Address::default();
-    let mut context = CompileContext::new(path, project);
-    root.write()
-        .await
-        .compile(&mut address, &mut context)
-        .await?;
-    let (address_map, resource_infos) = (context.address_map, context.resource_infos);
+) -> Result<Graph> {
+    let root = root.read().await;
+    let address_map = address_map.read().await;
 
-    // Send any patches generated during compile
-    send_patches(patch_sender, context.patches, When::Never);
+    // Call compile on each node in the address map
+    let mut context = CompileContext {
+        path: path.into(),
+        project: project.into(),
+        ..Default::default()
+    };
+    for (id, address) in address_map.iter() {
+        let pointer = resolve(&*root, Some(address.clone()), Some(id.clone()))?;
+        pointer.compile(&mut context).await?;
+    }
+    let resource_infos = context.resource_infos;
 
     // Construct a new `Graph` from the collected `ResourceInfo`s and get an updated
     // set of resource infos from it (with data on inter-dependencies etc)
@@ -73,7 +84,6 @@ pub async fn compile(
     // properties for them. This needs to be done first so that these properties can be set in `code_dependencies` and `code_dependents` arrays
     // of other nodes
     let resource_infos = graph.get_resource_infos();
-    let root = root.read().await;
     let nodes: HashMap<String, _> = resource_infos
         .iter()
         .filter_map(|(resource, resource_info)| {
@@ -143,7 +153,9 @@ pub async fn compile(
             }
         })
         .collect();
+
     drop(root);
+    drop(address_map);
 
     // In this second pass, iterate over the nodes collected above, derive some more properties, and calculate patches
     let patches = nodes
@@ -275,6 +287,14 @@ pub async fn compile(
                 Node::Include(Include { compile_digest, .. }) => {
                     *compile_digest = new_compile_digest;
                 }
+                Node::Call(Call {
+                    compile_digest,
+                    execute_required,
+                    ..
+                }) => {
+                    *compile_digest = new_compile_digest;
+                    *execute_required = new_execute_required.to_owned();
+                }
                 _ => (),
             }
 
@@ -285,5 +305,5 @@ pub async fn compile(
     // Send the interdependency patches
     send_patches(patch_sender, patches, When::Never);
 
-    Ok((address_map, graph))
+    Ok(graph)
 }

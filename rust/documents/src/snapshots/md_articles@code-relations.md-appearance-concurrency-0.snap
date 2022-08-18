@@ -1,6 +1,6 @@
 ---
-source: rust/node-execute/src/tests.rs
-assertion_line: 105
+source: rust/documents/src/tests.rs
+assertion_line: 121
 expression: "&plan"
 ---
 {
@@ -23,7 +23,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Assign",
+                  "type": "Assigns",
                   "range": [
                     1,
                     0,
@@ -40,7 +40,7 @@ expression: "&plan"
               ],
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     2,
                     0,
@@ -143,7 +143,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -196,7 +196,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -249,7 +249,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -302,7 +302,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Assign",
+                  "type": "Assigns",
                   "range": [
                     1,
                     0,
@@ -319,7 +319,7 @@ expression: "&plan"
               ],
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     1,
                     4,
@@ -336,7 +336,7 @@ expression: "&plan"
               ],
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     2,
                     0,
@@ -419,7 +419,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -485,7 +485,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -551,7 +551,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Assign",
+                  "type": "Assigns",
                   "range": [
                     0,
                     0,
@@ -606,7 +606,7 @@ expression: "&plan"
             "relations": [
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     0,
@@ -623,7 +623,7 @@ expression: "&plan"
               ],
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     4,
@@ -640,7 +640,7 @@ expression: "&plan"
               ],
               [
                 {
-                  "type": "Use",
+                  "type": "Uses",
                   "range": [
                     0,
                     8,

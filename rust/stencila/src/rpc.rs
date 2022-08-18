@@ -8,11 +8,11 @@ use common::{
     serde_with::skip_serializing_none,
     tracing,
 };
+use documents::{When, DOCUMENTS};
 use graph::{PlanOrdering, PlanScope};
-use node_execute::When;
 use node_patch::Patch;
 
-use crate::{documents::DOCUMENTS, sessions::SESSIONS};
+use crate::sessions::SESSIONS;
 
 type Params = HashMap<String, serde_json::Value>;
 
@@ -369,6 +369,9 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
     let id = required_string(params, "documentId")?;
     let patch = required_value(params, "patch")?;
     let patch: Patch = serde_json::from_value(patch)?;
+    let assemble = optional_string(params, "assemble")?
+        .and_then(|value| When::from_str(&value).ok())
+        .unwrap_or(When::Never);
     let compile = optional_string(params, "compile")?
         .and_then(|value| When::from_str(&value).ok())
         .unwrap_or(When::Soon);
@@ -384,7 +387,7 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
         .await?
         .lock()
         .await
-        .patch_request(patch, compile, execute, write)
+        .patch_request(patch, assemble, compile, execute, write)
         .await?;
     Ok((json!(true), Subscription::None))
 }

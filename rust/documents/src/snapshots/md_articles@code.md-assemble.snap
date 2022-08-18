@@ -1,0 +1,99 @@
+---
+source: rust/node-execute/src/tests.rs
+assertion_line: 66
+expression: "&address_map"
+---
+{
+  "cf-1": [
+    "content",
+    0,
+    "content",
+    1
+  ],
+  "cf-2": [
+    "content",
+    0,
+    "content",
+    3
+  ],
+  "cf-3": [
+    "content",
+    0,
+    "content",
+    5
+  ],
+  "cf-4": [
+    "content",
+    0,
+    "content",
+    7
+  ],
+  "cf-5": [
+    "content",
+    2,
+    "content",
+    1
+  ],
+  "ce-1": [
+    "content",
+    2,
+    "content",
+    3
+  ],
+  "ce-2": [
+    "content",
+    2,
+    "content",
+    5
+  ],
+  "ce-3": [
+    "content",
+    2,
+    "content",
+    7
+  ],
+  "ce-4": [
+    "content",
+    3,
+    "content",
+    1
+  ],
+  "ce-5": [
+    "content",
+    3,
+    "content",
+    3
+  ],
+  "cf-6": [
+    "content",
+    4,
+    "content",
+    1
+  ],
+  "cf-7": [
+    "content",
+    4,
+    "content",
+    3
+  ],
+  "cf-8": [
+    "content",
+    6,
+    "content",
+    1
+  ],
+  "cc-1": [
+    "content",
+    7
+  ],
+  "cf-9": [
+    "content",
+    8,
+    "content",
+    1
+  ],
+  "cb-1": [
+    "content",
+    9
+  ]
+}

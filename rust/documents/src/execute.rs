@@ -23,8 +23,10 @@ use node_patch::{diff, mutate, Patch};
 use stencila_schema::{CodeChunk, CodeExecutableExecuteStatus, CodeExpression, Node};
 
 use crate::{
+    document::CallDocuments,
+    executable::Executable,
+    messages::{CancelRequest, PatchRequest, When},
     utils::{resource_to_node, send_patch, send_patches},
-    CancelRequest, Executable, PatchRequest, When,
 };
 
 /// Execute a [`Plan`] on a [`Node`]
@@ -54,6 +56,7 @@ pub async fn execute(
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
     kernel_space: &Arc<RwLock<KernelSpace>>,
+    call_docs: &Arc<RwLock<CallDocuments>>,
     patch_request_sender: &UnboundedSender<PatchRequest>,
     cancel_request_receiver: &mut Receiver<CancelRequest>,
 ) -> Result<()> {
@@ -214,6 +217,7 @@ pub async fn execute(
 
             // Create clones of variables needed to execute the task
             let kernel_space = kernel_space.clone();
+            let call_docs = call_docs.clone();
             let kernel_selector = KernelSelector::new(task.kernel_name.clone(), None, None);
             let mut resource_info = task.resource_info.clone();
             let is_fork = task.is_fork;
@@ -234,10 +238,11 @@ pub async fn execute(
                 // Start execution of the node
                 let task_info = match executed
                     .execute_begin(
+                        &resource_info,
                         &*kernel_space.read().await,
                         &kernel_selector,
-                        &resource_info,
                         is_fork,
+                        &*call_docs.read().await,
                     )
                     .await
                 {

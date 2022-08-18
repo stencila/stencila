@@ -1,9 +1,16 @@
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
+    sync::Arc,
 };
 
-use common::{async_trait::async_trait, eyre::Result, serde_json, tracing};
+use common::{
+    async_trait::async_trait,
+    eyre::{bail, eyre, Result},
+    serde_json,
+    tokio::sync::{Mutex, RwLock},
+    tracing,
+};
 use formats::normalize_title;
 use graph_triples::{
     relations,
@@ -15,84 +22,40 @@ use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, AddressMap, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
 use node_patch::{diff_address, Patch};
+use node_pointer::Pointer;
+
+use node_query::query;
 use node_transform::Transform;
 use node_validate::Validator as _;
 use path_utils::merge;
 use stencila_schema::*;
 
-/// The compilation context, used to pass down properties of the
-/// root node and to record inputs and outputs etc during compilation
-#[derive(Debug, Default)]
-pub struct CompileContext {
-    /// The path of the document being compiled.
-    /// Used to resolve relative paths e.g. in `ImageObject` and `Include` nodes
-    path: PathBuf,
-
-    /// The project that the document is within.
-    /// Used to restrict any file links to be within the project
-    project: PathBuf,
-
-    /// Counts of the number of node ids with each prefix assigned
-    ///
-    /// Used to generate unique (to a compilation context, usually a document)
-    /// but short and meaningful (prefix relates to the node type). An additional
-    /// advantage is that the generated ids are deterministic.
-    ids: HashMap<String, usize>,
-
-    /// The programming language of the last code node encountered during
-    /// compilation
-    programming_language: Option<String>,
-
-    /// A map of node ids to addresses
-    pub(crate) address_map: AddressMap,
-
-    /// A list of resources compiles from the node
-    pub(crate) resource_infos: Vec<ResourceInfo>,
-
-    /// A list of patch operations representing changes to compiled nodes.
-    pub(crate) patches: Vec<Patch>,
-}
-
-impl CompileContext {
-    // Create a new compilation context
-    pub fn new(path: &Path, project: &Path) -> Self {
-        Self {
-            path: path.into(),
-            project: project.into(),
-            ..Default::default()
-        }
-    }
-
-    /// Generate an id for a given id "family"
-    fn identify(&mut self, prefix: &str) -> String {
-        let count = self
-            .ids
-            .entry(prefix.to_string())
-            .and_modify(|count| *count += 1)
-            .or_insert(1);
-        [prefix, "-", &count.to_string()].concat()
-    }
-}
+use crate::document::{CallDocuments, Document};
 
 /// Trait for executable document nodes
 ///
 /// This trait is implemented below for all (or at least most) node types.
 #[async_trait]
 pub trait Executable {
-    async fn compile(
+    async fn assemble(
         &mut self,
         _address: &mut Address,
-        _context: &mut CompileContext,
+        _context: &mut AssembleContext,
     ) -> Result<()> {
+        Ok(())
+    }
+
+    async fn compile(&self, _context: &mut CompileContext) -> Result<()> {
         Ok(())
     }
 
     async fn execute_begin(
         &mut self,
+        _resource_info: &ResourceInfo,
         _kernel_space: &KernelSpace,
         _kernel_selector: &KernelSelector,
-        _resource_info: &ResourceInfo,
         _is_fork: bool,
+        _call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
         Ok(None)
     }
@@ -102,35 +65,99 @@ pub trait Executable {
     }
 }
 
-/// Identify a node
-///
-/// If the node does not have an id, generate and assign one.
-/// These generated ids use a prefix reflecting the node type (i.g. "cc-" for `CodeChunk` nodes)
-/// which can be used to determine that it was generated (so, for example
-/// it is not persisted). Returns the node's id.
+pub struct AssembleContext {
+    /// The path of the document being compiled.
+    /// Used to resolve relative paths e.g. in `Include` nodes
+    pub path: PathBuf,
+
+    /// Counts of the number of node ids with each prefix assigned
+    pub ids: HashMap<String, usize>,
+
+    /// A map of node ids to addresses
+    pub address_map: AddressMap,
+
+    /// A map of `Call` ids to their `source`
+    /// Used so a document can maintain a `Document` for each `Call`
+    /// (thereby reducing startup times associated with each execution of the call)
+    pub call_docs: Arc<RwLock<CallDocuments>>,
+
+    /// A list of patch operations representing changes to compiled nodes.
+    pub patches: Vec<Patch>,
+}
+
+impl AssembleContext {
+    /// Generate a unique id for a node
+    ///
+    /// These generated ids use a prefix reflecting the node type (i.g. "cc-" for `CodeChunk` nodes)
+    /// which can be used to determine that it was generated (so, for example it is not persisted).
+    /// They are deterministic which is also useful (and maybe assumed elsewhere in the code?)
+    fn ensure_id(&mut self, prefix: &str) -> String {
+        let count = self
+            .ids
+            .entry(prefix.to_string())
+            .and_modify(|count| *count += 1)
+            .or_insert(1);
+        [prefix, "-", &count.to_string()].concat()
+    }
+
+    /// Record a node id
+    fn record_id(&mut self, id: String, address: Address) {
+        self.address_map.insert(id, address);
+    }
+}
+
+/// Ensure the node has an `id`, generating one if necessary
 ///
 /// This needs to be (?) a macro, rather than a generic function, because
 /// it is not possible to define a bound that the type must have the `id` property.
-macro_rules! identify {
+macro_rules! ensure_id {
     ($prefix:expr, $node:expr, $address:expr, $context:expr) => {{
         let id = if let Some(id) = $node.id.as_deref() {
             id.clone()
         } else {
-            let id = $context.identify($prefix);
+            let id = $context.ensure_id($prefix);
             $node.id = Some(Box::new(id.clone()));
             id
         };
-        $context.address_map.insert(id.clone(), $address.clone());
+        $context.record_id(id.clone(), $address.clone());
         id
     }};
 }
 
+/// Assert that a node has an id
+macro_rules! assert_id {
+    ($node:expr) => {
+        $node
+            .id
+            .as_deref()
+            .ok_or_else(|| eyre!("Node should have `id` assigned in assemble phase"))
+    };
+}
+
+#[derive(Debug, Default)]
+pub struct CompileContext {
+    /// The path of the document being compiled.
+    /// Used to resolve relative paths e.g. in `ImageObject` nodes
+    pub path: PathBuf,
+
+    /// The project that the document is within.
+    /// Used to restrict any file links to be within the project
+    pub project: PathBuf,
+
+    /// The programming language of the last code node encountered during
+    /// compilation
+    pub programming_language: Option<String>,
+
+    /// A list of resources compiled from the nodes
+    pub resource_infos: Vec<ResourceInfo>,
+}
+
 /// Set the programming of a node or of the context
 ///
-/// Ok, bad name but it's like `identify!`: if the node does
+/// Ok, bad name but it's like `ensure_id!`: if the node does
 /// not have a `programming_language` then we'll use the context's
 /// and if it does than we'll set the context's.
-macro_rules! langify {
+macro_rules! ensure_lang {
     ($node:expr, $context:expr) => {
         if $node.programming_language.is_empty() {
             $context.programming_language.clone().unwrap_or_default()
@@ -142,18 +169,20 @@ macro_rules! langify {
     };
 }
 
-// This first set of implementations are for node types that need
-// some sort of compilation.
-
-/// Compile a `Link` node
-///
-/// Adds a `Link` relation
 #[async_trait]
 impl Executable for Link {
-    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        let id = identify!("li", self, address, context);
+    async fn assemble(
+        &mut self,
+        address: &mut Address,
+        context: &mut AssembleContext,
+    ) -> Result<()> {
+        ensure_id!("li", self, address, context);
+        Ok(())
+    }
 
-        let resource = resources::node(&context.path, &id, "Link");
+    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+        let id = assert_id!(self)?;
+        let resource = resources::node(&context.path, id, "Link");
 
         let target = &self.target;
         let object = if target.starts_with("http://") || target.starts_with("https://") {
@@ -161,7 +190,7 @@ impl Executable for Link {
         } else {
             resources::file(&merge(&context.path, target))
         };
-        let relations = vec![(Relation::Link, object)];
+        let relations = vec![(Relation::Links, object)];
 
         let resource_info =
             ResourceInfo::new(resource, Some(relations), None, None, None, None, None);
@@ -220,13 +249,17 @@ macro_rules! executable_media_object {
     ($type:ty, $prefix:expr) => {
         #[async_trait]
         impl Executable for $type {
-            async fn compile(
+            async fn assemble(
                 &mut self,
                 address: &mut Address,
-                context: &mut CompileContext,
+                context: &mut AssembleContext,
             ) -> Result<()> {
-                let id = identify!($prefix, self, address, context);
+                ensure_id!($prefix, self, address, context);
+                Ok(())
+            }
 
+            async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+                let id = assert_id!(self)?;
                 let resource = resources::node(&context.path, &id, stringify!($type));
 
                 let url = executable_content_url(&self.content_url, context);
@@ -241,8 +274,6 @@ macro_rules! executable_media_object {
                 let resource_info =
                     ResourceInfo::new(resource, Some(relations), None, None, None, None, None);
                 context.resource_infos.push(resource_info);
-
-                self.content_url = url;
 
                 Ok(())
             }
@@ -289,18 +320,27 @@ fn parameter_digest(param: &Parameter, value: &Node) -> ResourceDigest {
 
 #[async_trait]
 impl Executable for Parameter {
+    async fn assemble(
+        &mut self,
+        address: &mut Address,
+        context: &mut AssembleContext,
+    ) -> Result<()> {
+        ensure_id!("pa", self, address, context);
+        Ok(())
+    }
+
     /// Compile a `Parameter` node
     ///
     /// Adds an `Assign` relation to the compilation context with the name and kind of value.
     /// If the language of the parameter is not defined (currently schema does not allow for this
     /// anyway), then use the language of the last code node. By definition, a `Parameter` is always
     /// "impure" (has a side effect).
-    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        let id = identify!("pa", self, address, context);
+    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+        let id = assert_id!(self)?;
 
         let resource = resources::code(
             &context.path,
-            &id,
+            id,
             "Parameter",
             context.programming_language.clone(),
         );
@@ -338,10 +378,11 @@ impl Executable for Parameter {
 
     async fn execute_begin(
         &mut self,
+        _resource_info: &ResourceInfo,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        _resource_info: &ResourceInfo,
         _is_fork: bool,
+        _call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
         tracing::trace!("Executing `Parameter`");
 
@@ -381,17 +422,26 @@ fn code_execute_status(task_info: &TaskInfo, errors: &[CodeError]) -> CodeExecut
 
 #[async_trait]
 impl Executable for CodeChunk {
+    async fn assemble(
+        &mut self,
+        address: &mut Address,
+        context: &mut AssembleContext,
+    ) -> Result<()> {
+        ensure_id!("cc", self, address, context);
+        Ok(())
+    }
+
     /// Compile a `CodeChunk` node
     ///
     /// Performs semantic analysis of the code (if language is supported) and adds the resulting
     /// relations to the compilation context. If the `programming_language` is an empty string
     /// then use the current language of the context.
-    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        let id = identify!("cc", self, address, context);
-        let lang = langify!(self, context);
+    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+        let id = assert_id!(self)?;
+        let lang = ensure_lang!(self, context);
 
         // Generate `ResourceInfo` by parsing the code
-        let resource = resources::code(&context.path, &id, "CodeChunk", Some(lang));
+        let resource = resources::code(&context.path, id, "CodeChunk", Some(lang));
         let mut resource_info = match parsers::parse(resource, &self.text) {
             Ok(resource_info) => resource_info,
             Err(error) => {
@@ -403,8 +453,8 @@ impl Executable for CodeChunk {
         // Update the resource info with properties from the node
         resource_info.execute_digest = self
             .execute_digest
-            .as_ref()
-            .map(|cord| ResourceDigest::from_string(&cord.0));
+            .as_deref()
+            .map(ResourceDigest::from_cord);
         resource_info.execute_failed = self.execute_status.as_ref().map(|status| {
             // This function can be called while the node is `Scheduled` so this needs to account for that
             // by considering last execution status as well
@@ -423,10 +473,11 @@ impl Executable for CodeChunk {
 
     async fn execute_begin(
         &mut self,
+        resource_info: &ResourceInfo,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: &ResourceInfo,
         is_fork: bool,
+        _call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
         tracing::trace!("Executing `CodeChunk` `{:?}`", self.id);
 
@@ -483,6 +534,15 @@ impl Executable for CodeChunk {
 
 #[async_trait]
 impl Executable for CodeExpression {
+    async fn assemble(
+        &mut self,
+        address: &mut Address,
+        context: &mut AssembleContext,
+    ) -> Result<()> {
+        ensure_id!("ce", self, address, context);
+        Ok(())
+    }
+
     /// Compile a `CodeExpression` node
     ///
     /// Performs semantic analysis of the code (if necessary) and adds the resulting
@@ -491,14 +551,14 @@ impl Executable for CodeExpression {
     ///
     /// A `CodeExpression` is assumed to be pure (i.e. have no side effects and can be executed
     /// in a fork).
-    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        let id = identify!("ce", self, address, context);
-        let lang = langify!(self, context);
+    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+        let id = assert_id!(self)?;
+        let lang = ensure_lang!(self, context);
 
         // Generate `ResourceInfo` by parsing the code
         let resource = resources::code(
             &context.path,
-            &id,
+            id,
             "CodeExpression",
             Some(normalize_title(&lang)),
         );
@@ -539,10 +599,11 @@ impl Executable for CodeExpression {
 
     async fn execute_begin(
         &mut self,
+        resource_info: &ResourceInfo,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: &ResourceInfo,
         is_fork: bool,
+        _call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
         tracing::trace!("Executing `CodeExpression` `{:?}`", self.id);
 
@@ -599,15 +660,24 @@ impl Executable for CodeExpression {
 /// relations.
 #[async_trait]
 impl Executable for SoftwareSourceCode {
-    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        let id = identify!("sc", self, address, context);
+    async fn assemble(
+        &mut self,
+        address: &mut Address,
+        context: &mut AssembleContext,
+    ) -> Result<()> {
+        ensure_id!("sc", self, address, context);
+        Ok(())
+    }
+
+    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+        let id = assert_id!(self)?;
 
         if let (Some(code), Some(language)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
             let resource = resources::code(
                 &context.path,
-                &id,
+                id,
                 "SoftwareSourceCode",
                 Some(language.clone()),
             );
@@ -619,95 +689,232 @@ impl Executable for SoftwareSourceCode {
     }
 }
 
+fn include_digest(include: &Include, path: &Path) -> ResourceDigest {
+    let semantic_string = include
+        .media_type
+        .as_deref()
+        .map(|media_type| [include.source.as_str(), media_type.to_string().as_str()].concat());
+    let mut digest = ResourceDigest::from_strings(&include.source, semantic_string.as_deref());
+    let dependency_digest =
+        ResourceDigest::from_path(path, include.media_type.as_ref().map(|str| str.as_str()));
+    digest.dependencies_digest = dependency_digest.content_digest;
+
+    digest
+}
+
 #[async_trait]
 impl Executable for Include {
-    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        // Ensure the node has an id
-        let id = identify!("in", self, address, context);
+    async fn assemble(
+        &mut self,
+        address: &mut Address,
+        context: &mut AssembleContext,
+    ) -> Result<()> {
+        ensure_id!("in", self, address, context);
 
-        tracing::trace!("Compiling `Include` node {}", id);
-        
-        // Calculate compile digest of the source
         let path = merge(&context.path, &self.source);
-        let digest =
-            ResourceDigest::from_path(&path, self.media_type.as_ref().map(|str| str.as_str()));
+        let digest = include_digest(self, &path);
+
+        let should_decode = self.content.is_none()
+            || match self.compile_digest.as_deref() {
+                Some(compile_digest) => digest.to_cord() != *compile_digest,
+                None => true,
+            };
+        if should_decode {
+            // Decode block content from the source
+            let mut content = match codecs::from_path(
+                &path,
+                self.media_type
+                    .as_ref()
+                    .map(|media_type| media_type.as_str()),
+                None,
+            )
+            .await
+            {
+                Ok(content) => Some(content.to_blocks()),
+                Err(error) => Some(vec![BlockContent::Paragraph(Paragraph {
+                    content: vec![InlineContent::String(error.to_string())],
+                    ..Default::default()
+                })]),
+            };
+
+            // Assemble the content as well
+            content
+                .assemble(&mut address.add_name("content"), context)
+                .await?;
+
+            // Generate a patch for changes to self
+            let mut patch = diff_address(
+                address.clone(),
+                self,
+                &Include {
+                    content,
+                    ..self.to_owned()
+                },
+            );
+            patch.remove_overwrite_derived();
+            context.patches.push(patch)
+        }
+
+        Ok(())
+    }
+
+    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+        let id = assert_id!(self)?;
 
         // Add resource relations to the context
-        let resource = resources::node(&context.path, &id, "Include");
+        let path = merge(&context.path, &self.source);
+        let digest = include_digest(self, &path);
+        let resource = resources::node(&context.path, id, "Include");
         let object = resources::file(&path);
-        let relations = vec![(Relation::Include, object)];
+        let relations = vec![(Relation::Includes, object)];
         let resource_info = ResourceInfo::new(
             resource,
             Some(relations),
             None,
             None,
-            Some(digest.clone()),
+            Some(digest),
             None,
             None,
         );
         context.resource_infos.push(resource_info);
 
-        // Return early if there has been no change to the digest
-        if let Some(compile_digest) = self.compile_digest.as_deref() {
-            if *compile_digest == digest.to_cord() {
-                return Ok(());
-            }
+        // Compile any included content
+        if let Some(content) = &self.content {
+            content.compile(context).await?
         }
-
-        // Decode block content from the source
-        let mut content = match codecs::from_path(
-            &path,
-            self.media_type
-                .as_ref()
-                .map(|media_type| media_type.as_str()),
-            None,
-        )
-        .await
-        {
-            Ok(content) => content.to_blocks(),
-            Err(error) => vec![BlockContent::Paragraph(Paragraph {
-                content: vec![InlineContent::String(error.to_string())],
-                ..Default::default()
-            })],
-        };
-
-        let address_of_content = address.add_name("content");
-
-        // Compile the included content (it will be part of the graph as well)
-        content
-            .compile(&mut address_of_content.clone(), context)
-            .await?;
-
-        // Generate a patch for changed content
-        let patch = diff_address(address_of_content, &self.content, &Some(content));
-        context.patches.push(patch);
 
         Ok(())
     }
 }
 
+#[async_trait]
+impl Executable for Call {
+    async fn assemble(
+        &mut self,
+        address: &mut Address,
+        context: &mut AssembleContext,
+    ) -> Result<()> {
+        let id = ensure_id!("ca", self, address, context);
+
+        // Record this call in the call map
+        let path = merge(&context.path, &self.source);
+        let format = self.media_type.as_deref().cloned();
+        let doc = Document::open(path, format).await?;
+
+        // Assemble parameters from the source document
+
+        context.call_docs.write().await.insert(id, Mutex::new(doc));
+
+        Ok(())
+    }
+
+    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+        let id = assert_id!(self)?;
+
+        // Create relations
+        let path = merge(&context.path, &self.source);
+        let resource = resources::code(&context.path, id, "Call", None);
+        let object = resources::file(&path);
+        let relations = vec![(Relation::Calls, object)];
+
+        // Calculate compile digest
+        let content_string = &self.source;
+        let semantic_string = self
+            .media_type
+            .as_deref()
+            .map(|media_type| [self.source.as_str(), media_type.to_string().as_str()].concat());
+        let compile_digest =
+            ResourceDigest::from_strings(content_string, semantic_string.as_deref());
+
+        // Make execute digest the correct type
+        let execute_digest = self
+            .execute_digest
+            .as_deref()
+            .map(ResourceDigest::from_cord);
+
+        // Add resource info to the compile context
+        let resource_info = ResourceInfo::new(
+            resource,
+            Some(relations),
+            None,       // TODO
+            Some(true), // Never has side effects
+            Some(compile_digest),
+            execute_digest,
+            None,
+        );
+        context.resource_infos.push(resource_info);
+
+        Ok(())
+    }
+
+    async fn execute_begin(
+        &mut self,
+        _resource_info: &ResourceInfo,
+        _kernel_space: &KernelSpace,
+        _kernel_selector: &KernelSelector,
+        _is_fork: bool,
+        call_docs: &CallDocuments,
+    ) -> Result<Option<TaskInfo>> {
+        let id = assert_id!(self)?;
+        tracing::trace!("Executing `Call` `{}`", id);
+
+        let args = match &self.arguments {
+            Some(args) => args
+                .iter()
+                .map(|arg| {
+                    (
+                        arg.name.clone(),
+                        serde_json::to_string(&arg.value).unwrap_or_default(),
+                    )
+                })
+                .collect(),
+            None => HashMap::new(),
+        };
+
+        // Call the document to get a `Node` result
+        let doc = call_docs.get(id).unwrap();
+        let mut doc = doc.lock().await;
+        doc.call(args).await?;
+        let root = &*doc.root.read().await;
+
+        // Select the content wanted and convert to static block content
+        let content = if let Some(select) = self.select.as_deref() {
+            let selected = query(root, select, None)?;
+            match selected.is_array() {
+                true => serde_json::from_value::<Vec<Node>>(selected)?.to_static_blocks(),
+                false => serde_json::from_value::<Node>(selected)?.to_static_blocks(),
+            }
+        } else {
+            root.to_static_blocks()
+        };
+        self.content = Some(content);
+
+        Ok(None)
+    }
+}
+
 // Nodes types that simply need an `id` assigned so that custom web component patch events have a target
 
-macro_rules! executable_identify_only {
+macro_rules! executable_assemble_id_only {
     ($type:ty, $prefix:expr) => {
         #[async_trait]
         impl Executable for $type {
-            async fn compile(
+            async fn assemble(
                 &mut self,
                 address: &mut Address,
-                context: &mut CompileContext,
+                context: &mut AssembleContext,
             ) -> Result<()> {
-                identify!($prefix, self, address, context);
+                ensure_id!($prefix, self, address, context);
                 Ok(())
             }
         }
     };
 }
 
-executable_identify_only!(CodeBlock, "cb");
-executable_identify_only!(CodeFragment, "cf");
-executable_identify_only!(MathBlock, "mb");
-executable_identify_only!(MathFragment, "mf");
+executable_assemble_id_only!(CodeBlock, "cb");
+executable_assemble_id_only!(CodeFragment, "cf");
+executable_assemble_id_only!(MathBlock, "mb");
+executable_assemble_id_only!(MathFragment, "mf");
 
 // Node types that do not need anything done
 
@@ -755,25 +962,35 @@ executable_nothing!(
 
 #[async_trait]
 impl Executable for Node {
-    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        dispatch_node!(self, Box::pin(async { Ok(()) }), compile, address, context).await
+    async fn assemble(
+        &mut self,
+        address: &mut Address,
+        context: &mut AssembleContext,
+    ) -> Result<()> {
+        dispatch_node!(self, Box::pin(async { Ok(()) }), assemble, address, context).await
+    }
+
+    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+        dispatch_node!(self, Box::pin(async { Ok(()) }), compile, context).await
     }
 
     async fn execute_begin(
         &mut self,
+        resource_info: &ResourceInfo,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: &ResourceInfo,
         is_fork: bool,
+        call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
         dispatch_node!(
             self,
             Box::pin(async { Ok(None) }),
             execute_begin,
+            resource_info,
             kernel_space,
             kernel_selector,
-            resource_info,
-            is_fork
+            is_fork,
+            call_docs
         )
         .await
     }
@@ -794,28 +1011,34 @@ macro_rules! executable_enum {
     ($type: ty, $dispatch_macro: ident) => {
         #[async_trait]
         impl Executable for $type {
-            async fn compile(
+            async fn assemble(
                 &mut self,
                 address: &mut Address,
-                context: &mut CompileContext,
+                context: &mut AssembleContext,
             ) -> Result<()> {
-                $dispatch_macro!(self, compile, address, context).await
+                $dispatch_macro!(self, assemble, address, context).await
+            }
+
+            async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+                $dispatch_macro!(self, compile, context).await
             }
 
             async fn execute_begin(
                 &mut self,
+                resource_info: &ResourceInfo,
                 kernel_space: &KernelSpace,
                 kernel_selector: &KernelSelector,
-                resource_info: &ResourceInfo,
                 is_fork: bool,
+                call_docs: &CallDocuments,
             ) -> Result<Option<TaskInfo>> {
                 $dispatch_macro!(
                     self,
                     execute_begin,
+                    resource_info,
                     kernel_space,
                     kernel_selector,
-                    resource_info,
-                    is_fork
+                    is_fork,
+                    call_docs
                 )
                 .await
             }
@@ -835,17 +1058,21 @@ executable_enum!(CreativeWorkTypes, dispatch_work);
 executable_enum!(BlockContent, dispatch_block);
 executable_enum!(InlineContent, dispatch_inline);
 
-// The following implementations of `Executable` for generic types, only implement `compile`
-// to "collect up" executable children into the `CompileContext` when they are walked over.
+// The following implementations of `Executable` for generic types, only implement `assemble`
+// to "collect up" `Executable` children into the `AssembleContext`.
 
 #[async_trait]
 impl<T> Executable for Option<T>
 where
-    T: Executable + Send,
+    T: Executable + Send + Sync,
 {
-    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+    async fn assemble(
+        &mut self,
+        address: &mut Address,
+        context: &mut AssembleContext,
+    ) -> Result<()> {
         match self {
-            Some(value) => value.compile(address, context).await,
+            Some(value) => value.assemble(address, context).await,
             None => Ok(()),
         }
     }
@@ -854,37 +1081,59 @@ where
 #[async_trait]
 impl<T> Executable for Box<T>
 where
-    T: Executable + Send,
+    T: Executable + Send + Sync,
 {
-    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        (**self).compile(address, context).await
+    async fn assemble(
+        &mut self,
+        address: &mut Address,
+        context: &mut AssembleContext,
+    ) -> Result<()> {
+        (**self).assemble(address, context).await
     }
 }
 
 #[async_trait]
 impl<T> Executable for Vec<T>
 where
-    T: Executable + Send,
+    T: Executable + Send + Sync,
 {
-    async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+    async fn assemble(
+        &mut self,
+        address: &mut Address,
+        context: &mut AssembleContext,
+    ) -> Result<()> {
         for (index, item) in self.iter_mut().enumerate() {
             address.push_back(Slot::Index(index));
-            item.compile(address, context).await?;
+            item.assemble(address, context).await?;
             address.pop_back();
         }
         Ok(())
     }
 }
 
-/// Compile fields of a struct
+/// Implementation of `Executable` for `Pointer` allowing us to execute nodes in an address map
+#[async_trait]
+impl<'lt> Executable for Pointer<'lt> {
+    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+        match self {
+            Pointer::Inline(inline) => inline.compile(context).await,
+            Pointer::Block(block) => block.compile(context).await,
+            Pointer::Node(node) => node.compile(context).await,
+            Pointer::Work(work) => work.compile(context).await,
+            _ => bail!("Unhandled pointer variant {:?}", self),
+        }
+    }
+}
+
+/// Implementation of `Executable` for various fields of a struct
 macro_rules! executable_fields {
     ($type:ty $(, $field:ident)* ) => {
         #[async_trait]
         impl Executable for $type {
-            async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+            async fn assemble(&mut self, address: &mut Address, context: &mut AssembleContext) -> Result<()> {
                 $(
                     address.push_back(Slot::Name(stringify!($field).to_string()));
-                    self.$field.compile(address, context).await?;
+                    self.$field.assemble(address, context).await?;
                     address.pop_back();
                 )*
                 Ok(())
@@ -906,12 +1155,11 @@ executable_fields!(TableSimple, rows, caption);
 executable_fields!(TableRow, cells);
 executable_fields!(TableCell, content);
 
-/// Compile the content field of a struct only
+/// Implementation of `Executable` for only the `content` field of a struct
 macro_rules! executable_content {
     ($type:ty) => {
         executable_fields!($type, content);
     };
-
     ( $( $type:ty ),* ) => {
         $(
             executable_content!($type);
@@ -943,15 +1191,15 @@ executable_content!(
     Underline
 );
 
-/// Compile variants of an enum
+/// Implementation of `Executable` for enum variants
 macro_rules! executable_variants {
     ( $type:ty $(, $variant:path )* ) => {
         #[async_trait]
         impl Executable for $type {
-            async fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+            async fn assemble(&mut self, address: &mut Address, context: &mut AssembleContext) -> Result<()> {
                 match self {
                     $(
-                        $variant(node) => node.compile(address, context).await,
+                        $variant(node) => node.assemble(address, context).await,
                     )*
                 }
             }

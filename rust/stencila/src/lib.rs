@@ -1,11 +1,6 @@
 #![recursion_limit = "256"]
 #![forbid(unsafe_code)]
 
-// Objects
-//
-// Core Stencila objects e.g `File`, `Article`, `Project`
-
-pub mod documents;
 pub use kernels;
 pub mod projects;
 pub mod sessions;

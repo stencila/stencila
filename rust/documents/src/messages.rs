@@ -3,8 +3,6 @@ use graph::{PlanOrdering, PlanScope};
 use node_patch::Patch;
 use uuids::uuid_family;
 
-uuid_family!(RequestId, "re");
-
 /// When requests should be fulfilled
 #[derive(Debug, Clone, Copy, EnumString)]
 #[strum(crate = "common::strum")]
@@ -14,22 +12,67 @@ pub enum When {
     Never,
 }
 
+impl When {
+    pub fn no_later_than(&mut self, other: When) {
+        match (&self, other) {
+            (When::Soon, When::Now) | (When::Never, When::Soon) | (When::Never, When::Now) => {
+                *self = other
+            }
+            _ => {}
+        }
+    }
+}
+
+uuid_family!(RequestId, "re");
+
 /// An internal request to patch a document
 #[derive(Debug)]
 pub struct PatchRequest {
-    pub id: RequestId,
+    pub ids: Vec<RequestId>,
     pub patch: Patch,
     pub when: When,
+    pub assemble: When,
     pub compile: When,
     pub execute: When,
     pub write: When,
 }
 
 impl PatchRequest {
-    pub fn new(patch: Patch, when: When, compile: When, execute: When, write: When) -> Self {
+    pub fn new(
+        ids: Vec<RequestId>,
+        patch: Patch,
+        when: When,
+        assemble: When,
+        compile: When,
+        execute: When,
+        write: When,
+    ) -> Self {
         Self {
-            id: RequestId::new(),
+            ids,
             patch,
+            when,
+            assemble,
+            compile,
+            execute,
+            write,
+        }
+    }
+}
+
+/// An internal request to assemble a document
+#[derive(Debug)]
+pub struct AssembleRequest {
+    pub ids: Vec<RequestId>,
+    pub when: When,
+    pub compile: When,
+    pub execute: When,
+    pub write: When,
+}
+
+impl AssembleRequest {
+    pub fn new(ids: Vec<RequestId>, when: When, compile: When, execute: When, write: When) -> Self {
+        Self {
+            ids,
             when,
             compile,
             execute,
@@ -41,7 +84,7 @@ impl PatchRequest {
 /// An internal request to compile a document
 #[derive(Debug)]
 pub struct CompileRequest {
-    pub id: RequestId,
+    pub ids: Vec<RequestId>,
     pub when: When,
     pub execute: When,
     pub write: When,
@@ -49,9 +92,15 @@ pub struct CompileRequest {
 }
 
 impl CompileRequest {
-    pub fn new(when: When, execute: When, write: When, start: Option<String>) -> Self {
+    pub fn new(
+        ids: Vec<RequestId>,
+        when: When,
+        execute: When,
+        write: When,
+        start: Option<String>,
+    ) -> Self {
         Self {
-            id: RequestId::new(),
+            ids,
             when,
             execute,
             write,
@@ -63,7 +112,7 @@ impl CompileRequest {
 /// An internal request to execute a document
 #[derive(Debug)]
 pub struct ExecuteRequest {
-    pub id: RequestId,
+    pub ids: Vec<RequestId>,
     pub when: When,
     pub write: When,
     pub start: Option<String>,
@@ -73,6 +122,7 @@ pub struct ExecuteRequest {
 
 impl ExecuteRequest {
     pub fn new(
+        ids: Vec<RequestId>,
         when: When,
         write: When,
         start: Option<String>,
@@ -80,7 +130,7 @@ impl ExecuteRequest {
         max_concurrency: Option<usize>,
     ) -> Self {
         Self {
-            id: RequestId::new(),
+            ids,
             when,
             write,
             start,
@@ -93,42 +143,37 @@ impl ExecuteRequest {
 /// An internal request to cancel execution of a document
 #[derive(Debug)]
 pub struct CancelRequest {
-    pub id: RequestId,
+    pub ids: Vec<RequestId>,
     pub start: Option<String>,
     pub scope: Option<PlanScope>,
 }
 
 impl CancelRequest {
-    pub fn new(start: Option<String>, scope: Option<PlanScope>) -> Self {
-        Self {
-            id: RequestId::new(),
-            start,
-            scope,
-        }
+    pub fn new(ids: Vec<RequestId>, start: Option<String>, scope: Option<PlanScope>) -> Self {
+        Self { ids, start, scope }
     }
 }
 
 /// An internal request to write the document (e.g. after patching)
 #[derive(Debug)]
 pub struct WriteRequest {
-    pub id: RequestId,
+    pub ids: Vec<RequestId>,
     pub when: When,
 }
 
 impl WriteRequest {
-    pub fn new(when: When) -> Self {
-        Self {
-            id: RequestId::new(),
-            when,
-        }
+    pub fn new(ids: Vec<RequestId>, when: When) -> Self {
+        Self { ids, when }
     }
 }
 
 #[derive(Debug, Clone)]
-pub enum Response {
-    PatchResponse(RequestId),
-    CompileResponse(RequestId),
-    ExecuteResponse(RequestId),
-    CancelResponse(RequestId),
-    WriteResponse(RequestId),
+pub struct Response {
+    pub request_id: RequestId,
+}
+
+impl Response {
+    pub fn new(request_id: RequestId) -> Self {
+        Self { request_id }
+    }
 }

@@ -1261,6 +1261,7 @@ dependencies = [
  "formats",
  "key-utils",
  "node-coerce",
+ "node-dispatch",
  "node-transform",
  "pandoc_types",
  "path-utils",
@@ -1436,6 +1437,7 @@ dependencies = [
  "chrono",
  "chrono-humanize",
  "defaults",
+ "derivative",
  "derive_more",
  "dirs",
  "eyre",
@@ -2025,6 +2027,38 @@ dependencies = [
  "libc",
  "socket2",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "documents"
+version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "codec",
+ "codec-md",
+ "codecs",
+ "common",
+ "events",
+ "formats",
+ "graph",
+ "graph-triples",
+ "kernels",
+ "node-address",
+ "node-dispatch",
+ "node-patch",
+ "node-pointer",
+ "node-query",
+ "node-reshape",
+ "node-transform",
+ "node-validate",
+ "notify",
+ "parsers",
+ "path-utils",
+ "providers",
+ "stencila-schema",
+ "test-snaps",
+ "test-utils",
+ "uuids",
 ]
 
 [[package]]
@@ -4152,32 +4186,6 @@ name = "node-dispatch"
 version = "0.0.0"
 
 [[package]]
-name = "node-execute"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-md",
- "codecs",
- "common",
- "formats",
- "graph",
- "graph-triples",
- "kernels",
- "node-address",
- "node-dispatch",
- "node-patch",
- "node-pointer",
- "node-transform",
- "node-validate",
- "parsers",
- "path-utils",
- "stencila-schema",
- "test-snaps",
- "test-utils",
- "uuids",
-]
-
-[[package]]
 name = "node-patch"
 version = "0.0.0"
 dependencies = [
@@ -4239,6 +4247,7 @@ name = "node-transform"
 version = "0.0.0"
 dependencies = [
  "codec-txt",
+ "common",
  "stencila-schema",
 ]
 
@@ -6492,11 +6501,10 @@ dependencies = [
  "cloud",
  "codecs",
  "common",
- "cron-utils",
+ "documents",
  "events",
  "exitcode",
  "files",
- "formats",
  "graph",
  "graph-triples",
  "handlebars",
@@ -6507,14 +6515,7 @@ dependencies = [
  "kernels",
  "key-utils",
  "mime_guess",
- "node-address",
- "node-dispatch",
- "node-execute",
  "node-patch",
- "node-pointer",
- "node-query",
- "node-reshape",
- "node-validate",
  "notify",
  "parsers",
  "path-utils",

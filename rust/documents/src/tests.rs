@@ -11,7 +11,7 @@ use common::{
     },
 };
 use graph::{Plan, PlanOptions, PlanOrdering};
-use kernels::{Kernel, KernelType};
+use kernels::{Kernel, KernelSpace, KernelType};
 use node_address::Slot;
 use node_patch::{Operation, Patch};
 use stencila_schema::Node;
@@ -21,7 +21,13 @@ use test_snaps::{
     snapshot_set_suffix,
 };
 
-use crate::*;
+use crate::{
+    assemble::assemble,
+    compile::compile,
+    document::CallDocuments,
+    execute::execute,
+    messages::{CancelRequest, PatchRequest},
+};
 
 /// Higher level tests of the top level functions in this crate
 #[tokio::test]
@@ -52,7 +58,6 @@ async fn md_articles() -> Result<()> {
         let path = path.strip_prefix(&fixtures)?;
         let project = path.parent().unwrap();
 
-        // Compile the article and snapshot the result
         let (patch_request_sender, mut patch_request_receiver) =
             mpsc::unbounded_channel::<PatchRequest>();
         tokio::spawn(async move {
@@ -60,9 +65,20 @@ async fn md_articles() -> Result<()> {
                 // Ignore for this test
             }
         });
-        let (addresses, graph) = compile(path, project, &root, &patch_request_sender).await?;
+
+        let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
+
+        // Assemble the article and snapshot the result
+        let address_map = assemble(path, &root, &call_docs, &patch_request_sender).await?;
+        snapshot_set_suffix(&[name, "-assemble"].concat(), || {
+            assert_json_snapshot!(&address_map)
+        });
+        let address_map = Arc::new(RwLock::new(address_map));
+
+        // Compile the article and snapshot the result
+        let graph = compile(path, project, &root, &address_map, &patch_request_sender).await?;
         snapshot_set_suffix(&[name, "-compile"].concat(), || {
-            assert_json_snapshot!((&addresses, &graph))
+            assert_json_snapshot!(&graph)
         });
 
         // Generate various execution plans for the article using alternative options
@@ -145,8 +161,9 @@ async fn md_articles() -> Result<()> {
         execute(
             &plan,
             &root,
-            &Arc::new(RwLock::new(addresses)),
+            &address_map,
             &Arc::new(RwLock::new(KernelSpace::new(None))),
+            &call_docs,
             &patch_request_sender,
             &mut cancel_request_receiver,
         )
@@ -187,7 +204,7 @@ async fn regression_creative_work() -> Result<()> {
         ]
     }))?;
 
-    let (_plan, patches) = compile_plan_execute(node).await?;
+    let (_plan, patches) = assemble_compile_plan_execute(node).await?;
     let was_executed = patches
         .iter()
         .flat_map(|patch| &patch.ops)
@@ -206,8 +223,9 @@ async fn regression_creative_work() -> Result<()> {
 /// Convenience function to compile, plan and execute a node
 ///
 /// Returns the plan and generated patches.
-async fn compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
+async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
     let root = Arc::new(RwLock::new(node));
+    let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
 
     let (patch_request_sender, mut patch_request_receiver) =
         mpsc::unbounded_channel::<PatchRequest>();
@@ -221,10 +239,14 @@ async fn compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
 
     let (_cancel_request_sender, mut cancel_request_receiver) = mpsc::channel::<CancelRequest>(1);
 
-    let (addresses, graph) = compile(
+    let address_map = assemble(&PathBuf::new(), &root, &call_docs, &patch_request_sender).await?;
+    let address_map = &Arc::new(RwLock::new(address_map));
+
+    let graph = compile(
         &PathBuf::new(),
         &PathBuf::new(),
         &root,
+        address_map,
         &patch_request_sender,
     )
     .await?;
@@ -234,8 +256,9 @@ async fn compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
     execute(
         &plan,
         &root,
-        &Arc::new(RwLock::new(addresses)),
+        address_map,
         &Arc::new(RwLock::new(KernelSpace::new(None))),
+        &call_docs,
         &patch_request_sender,
         &mut cancel_request_receiver,
     )

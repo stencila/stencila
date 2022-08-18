@@ -36,6 +36,7 @@ use common::{
     },
     tracing,
 };
+use documents::DOCUMENTS;
 use events::{subscribe, unsubscribe, Subscriber, SubscriptionId};
 use http_utils::{http, urlencoding};
 use server_next::statics::{get_static_parts, STATIC_VERSION};
@@ -44,7 +45,6 @@ use uuids::generate;
 
 use crate::{
     config::CONFIG,
-    documents::DOCUMENTS,
     jwt::{self, YEAR_SECONDS},
     projects::Projects,
     rpc::{self, Error, Response},

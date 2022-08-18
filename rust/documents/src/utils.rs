@@ -9,7 +9,7 @@ use node_patch::Patch;
 use node_pointer::resolve;
 use stencila_schema::Node;
 
-use crate::{PatchRequest, When};
+use crate::messages::{PatchRequest, RequestId, When};
 
 /// Get the [`Node`] corresponding to a [`Resource`]
 ///
@@ -63,8 +63,10 @@ pub(crate) fn send_patch(
         );
         // Note: this patch requests do not execute or write after the patch is applied
         if let Err(..) = patch_sender.send(PatchRequest::new(
+            vec![RequestId::new()],
             patch,
             When::Now,
+            When::Never,
             compile,
             When::Never,
             When::Never,

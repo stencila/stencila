@@ -21,6 +21,7 @@ use common::{
     tokio::{self, sync::Mutex, task::JoinHandle},
     tracing,
 };
+use documents::DOCUMENTS;
 use events::publish;
 use files::{File, FileEvent, Files};
 use graph::{Graph, GraphEvent, GraphEventType};
@@ -28,7 +29,6 @@ use graph_triples::{resources, Resource};
 use path_utils::pathdiff;
 
 use crate::config::CONFIG;
-use crate::documents::DOCUMENTS;
 use crate::utils::schemas;
 
 #[derive(Debug, Display, JsonSchema, Serialize)]
