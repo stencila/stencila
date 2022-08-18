@@ -10,6 +10,7 @@ macro_rules! dispatch_node {
             Node::AudioObject(node) => node.$method($($arg),*),
             Node::Boolean(node) => node.$method($($arg),*),
             Node::BooleanValidator(node) => node.$method($($arg),*),
+            Node::Call(node) => node.$method($($arg),*),
             Node::Cite(node) => node.$method($($arg),*),
             Node::CiteGroup(node) => node.$method($($arg),*),
             Node::Claim(node) => node.$method($($arg),*),
@@ -29,6 +30,7 @@ macro_rules! dispatch_node {
             Node::Figure(node) => node.$method($($arg),*),
             Node::Heading(node) => node.$method($($arg),*),
             Node::ImageObject(node) => node.$method($($arg),*),
+            Node::Include(node) => node.$method($($arg),*),
             Node::Integer(node) => node.$method($($arg),*),
             Node::IntegerValidator(node) => node.$method($($arg),*),
             Node::Link(node) => node.$method($($arg),*),
@@ -171,6 +173,7 @@ macro_rules! dispatch_inline_pair {
 macro_rules! dispatch_block {
     ($node:expr, $method:ident $(,$arg:expr)*) => {
         match $node {
+            BlockContent::Call(node) => node.$method($($arg),*),
             BlockContent::Claim(node) => node.$method($($arg),*),
             BlockContent::CodeBlock(node) => node.$method($($arg),*),
             BlockContent::CodeChunk(node) => node.$method($($arg),*),
@@ -192,6 +195,7 @@ macro_rules! dispatch_block {
 macro_rules! dispatch_block_pair {
     ($node:expr, $other:expr, $default:expr, $method:ident $(,$arg:expr)*) => {
         match ($node, $other) {
+            (BlockContent::Call(node), BlockContent::Call(other)) => node.$method(other, $($arg),*),
             (BlockContent::Claim(node), BlockContent::Claim(other)) => node.$method(other, $($arg),*),
             (BlockContent::CodeBlock(node), BlockContent::CodeBlock(other)) => node.$method(other, $($arg),*),
             (BlockContent::CodeChunk(node), BlockContent::CodeChunk(other)) => node.$method(other, $($arg),*),
