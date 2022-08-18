@@ -23,7 +23,7 @@ use stencila_schema::*;
 use super::{
     attr, attr_bool, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_prop,
     attr_slot, concat, concat_html, elem, elem_empty, elem_meta, elem_placeholder, nothing,
-    EncodeContext, ToHtml,
+    EncodeContext, EncodeMode, ToHtml,
 };
 
 /// Encode a `Datatable`
@@ -197,6 +197,11 @@ impl ToHtml for Parameter {
                     nothing()
                 };
 
+            let disabled_attr = match context.mode {
+                EncodeMode::Read => "disabled".to_string(),
+                _ => nothing(),
+            };
+
             elem_empty(
                 "input",
                 &[
@@ -207,13 +212,18 @@ impl ToHtml for Parameter {
                     value_attr,
                     size_attr,
                     checked_attr,
+                    disabled_attr,
                 ],
             )
         };
 
         elem(
             "stencila-parameter",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                attr("mode", context.mode.as_ref()),
+            ],
             &[name, validator, default, value, input].concat(),
         )
     }

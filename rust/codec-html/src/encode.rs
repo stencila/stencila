@@ -7,7 +7,9 @@ use codec::{
         eyre::Result,
         inflector::cases::{camelcase::to_camel_case, kebabcase::to_kebab_case},
         once_cell::sync::Lazy,
-        serde, serde_json, tracing,
+        serde, serde_json,
+        strum::AsRefStr,
+        tracing,
     },
     EncodeOptions,
 };
@@ -163,6 +165,9 @@ pub struct EncodeContext<'a> {
 
     /// Whether currently within inline content
     pub inline: bool,
+
+    /// The mode for user interaction with node Web Components
+    pub mode: EncodeMode,
 }
 
 impl<'a> Default for EncodeContext<'a> {
@@ -171,8 +176,17 @@ impl<'a> Default for EncodeContext<'a> {
             root: &Node::Null(Null {}),
             bundle: false,
             inline: false,
+            mode: EncodeMode::Write,
         }
     }
+}
+
+#[derive(Clone, Copy, AsRefStr)]
+#[strum(serialize_all = "lowercase", crate = "common::strum")]
+pub enum EncodeMode {
+    Read,
+    Run,
+    Write,
 }
 
 /// Trait for encoding a node as HTML

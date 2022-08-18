@@ -1,30 +1,18 @@
 //! Encode a `BlockContent` nodes to HTML
 
+use codec::common::itertools::Itertools;
+use node_dispatch::dispatch_block;
 use stencila_schema::*;
 
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype, attr_prop,
     attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder, json, nothing, EncodeContext,
-    ToHtml,
+    EncodeMode, ToHtml,
 };
 
 impl ToHtml for BlockContent {
     fn to_html(&self, context: &EncodeContext) -> String {
-        match self {
-            BlockContent::Claim(node) => node.to_html(context),
-            BlockContent::CodeBlock(node) => node.to_html(context),
-            BlockContent::CodeChunk(node) => node.to_html(context),
-            BlockContent::Collection(node) => node.to_html(context),
-            BlockContent::Figure(node) => node.to_html(context),
-            BlockContent::Heading(node) => node.to_html(context),
-            BlockContent::Include(node) => node.to_html(context),
-            BlockContent::List(node) => node.to_html(context),
-            BlockContent::MathBlock(node) => node.to_html(context),
-            BlockContent::Paragraph(node) => node.to_html(context),
-            BlockContent::QuoteBlock(node) => node.to_html(context),
-            BlockContent::Table(node) => node.to_html(context),
-            BlockContent::ThematicBreak(node) => node.to_html(context),
-        }
+        dispatch_block!(self, to_html, context)
     }
 }
 
@@ -362,6 +350,11 @@ impl ToHtml for Include {
             self.media_type.as_ref().map(|boxed| boxed.to_string()),
         );
 
+        let select = attr_and_meta_opt(
+            "select",
+            self.select.as_ref().map(|boxed| boxed.to_string()),
+        );
+
         let compile_digest = attr_and_meta_opt(
             "compile_digest",
             self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
@@ -383,9 +376,122 @@ impl ToHtml for Include {
                 attr_id(&self.id),
                 source.0,
                 media_type.0,
+                select.0,
                 compile_digest.0,
             ],
-            &[source.1, media_type.1, compile_digest.1, content].concat(),
+            &[source.1, media_type.1, select.1, compile_digest.1, content].concat(),
+        )
+    }
+}
+
+impl ToHtml for Call {
+    fn to_html(&self, context: &EncodeContext) -> String {
+        let source = attr_and_meta("source", &self.source);
+
+        let media_type = attr_and_meta_opt(
+            "media_type",
+            self.media_type.as_ref().map(|boxed| boxed.to_string()),
+        );
+
+        let select = attr_and_meta_opt(
+            "select",
+            self.select.as_ref().map(|boxed| boxed.to_string()),
+        );
+
+        let compile_digest = attr_and_meta_opt(
+            "compile_digest",
+            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
+        );
+
+        let execute_digest = attr_and_meta_opt(
+            "execute_digest",
+            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
+        );
+
+        let execute_required = attr_and_meta_opt(
+            "execute_required",
+            self.execute_required
+                .as_ref()
+                .map(|required| (*required).as_ref().to_string()),
+        );
+
+        let execute_status = attr_and_meta_opt(
+            "execute_status",
+            self.execute_status
+                .as_ref()
+                .map(|status| (*status).as_ref().to_string()),
+        );
+
+        let execute_ended = attr_and_meta_opt(
+            "execute_ended",
+            self.execute_ended
+                .as_ref()
+                .map(|date| (**date).value.to_string()),
+        );
+
+        let execute_duration = attr_and_meta_opt(
+            "execute_duration",
+            self.execute_duration
+                .as_ref()
+                .map(|seconds| seconds.to_string()),
+        );
+
+        let arguments = elem(
+            "stencila-call-arguments",
+            &[attr_slot("arguments")],
+            &self
+                .arguments
+                .iter()
+                .flatten()
+                .map(|param| {
+                    param.to_html(&EncodeContext {
+                        // Always use run mode for parameters because their validators should not
+                        // be editable
+                        mode: EncodeMode::Run,
+                        ..*context
+                    })
+                })
+                .join(""),
+        );
+
+        let content = elem(
+            "div",
+            &[attr_prop("content"), attr_slot("content")],
+            &self
+                .content
+                .as_ref()
+                .map_or_else(|| "".to_string(), |content| content.to_html(context)),
+        );
+
+        elem(
+            "stencila-call",
+            &[
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                source.0,
+                media_type.0,
+                select.0,
+                compile_digest.0,
+                execute_digest.0,
+                execute_required.0,
+                execute_status.0,
+                execute_ended.0,
+                execute_duration.0,
+            ],
+            &[
+                source.1,
+                media_type.1,
+                select.1,
+                compile_digest.1,
+                execute_digest.1,
+                execute_required.1,
+                execute_status.1,
+                execute_ended.1,
+                execute_duration.1,
+                arguments,
+                content,
+            ]
+            .concat(),
         )
     }
 }

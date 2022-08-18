@@ -111,7 +111,7 @@ fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
                 })]
             };
         }
-        if tag == LocalName::from("stencila-include") {
+        if tag == *"stencila-include" {
             let source = element
                 .attributes
                 .borrow()
