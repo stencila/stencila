@@ -7,6 +7,8 @@
   --color-parameter: hsl(50deg 80% 70%);
   --color-code: hsl(100deg 80% 70%);
   --color-math: hsl(200deg 80% 70%);
+  --color-include: hsl(270deg 80% 70%);
+  --color-call: hsl(320deg 80% 70%);
 
   /* Use system UI font an 10pt so <input> and <select> text of Parameters is same font as outputs
   of CodeChunk and CodeExpressions */
@@ -19,7 +21,9 @@
 :--CodeExpression,
 :--MathBlock,
 :--MathFragment,
-:--Parameter {
+:--Parameter,
+:--Include,
+:--Call {
   display: inline-block;
   margin: 0 !important;
   min-width: 19px;
@@ -223,5 +227,31 @@
   td {
     padding: 0.5em;
     border: 1px solid lightgrey;
+  }
+}
+
+:--Include {
+  /* Indicator */
+  &::before {
+    background-color: var(--color-include);
+    content: 'IN';
+  }
+
+  /* Hide content */
+  [slot='content'] {
+    display: none !important;
+  }
+}
+
+:--Call {
+  /* Indicator */
+  &::before {
+    background-color: var(--color-call);
+    content: 'CA';
+  }
+
+  /* Hide content */
+  [slot='content'] {
+    display: none !important;
   }
 }
