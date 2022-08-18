@@ -461,6 +461,10 @@ impl ToMd for Include {
             options.push(["format=", media_type].concat())
         }
 
+        if let Some(select) = self.select.as_deref() {
+            options.push(["select=", select].concat())
+        }
+
         let attrs = if options.is_empty() {
             "".to_string()
         } else {
@@ -468,6 +472,42 @@ impl ToMd for Include {
         };
 
         ["+[", &self.source, "]", &attrs, "\n\n"].concat()
+    }
+}
+
+impl ToMd for Call {
+    fn to_md(&self) -> String {
+        let args = self
+            .arguments
+            .iter()
+            .flatten()
+            .map(|arg| {
+                [
+                    &arg.name,
+                    "=",
+                    &serde_json::to_string(&arg.value).unwrap_or_default(),
+                ]
+                .concat()
+            })
+            .join(" ");
+
+        let mut options = Vec::new();
+
+        if let Some(media_type) = self.media_type.as_deref() {
+            options.push(["format=", media_type].concat())
+        }
+
+        if let Some(select) = self.select.as_deref() {
+            options.push(["select=", select].concat())
+        }
+
+        let attrs = if options.is_empty() {
+            "".to_string()
+        } else {
+            ["{", &options.join(" "), "}"].concat()
+        };
+
+        ["/", &self.source, "(", &args, ")", &attrs, "\n\n"].concat()
     }
 }
 
@@ -498,7 +538,6 @@ impl ToMd for Node {
         match self {
             Node::Article(node) => node.to_md(),
             Node::Boolean(node) => node.to_md(),
-            //Node::Cite(node) => node.to_md(),
             Node::CodeBlock(node) => node.to_md(),
             Node::CodeFragment(node) => node.to_md(),
             Node::CreativeWork(node) => node.to_md(),
@@ -507,7 +546,6 @@ impl ToMd for Node {
             Node::Integer(node) => node.to_md(),
             Node::Link(node) => node.to_md(),
             Node::List(node) => node.to_md(),
-            //Node::Note(node) => node.to_md(),
             Node::Null(node) => node.to_md(),
             Node::Number(node) => node.to_md(),
             Node::Paragraph(node) => node.to_md(),
@@ -520,7 +558,10 @@ impl ToMd for Node {
             Node::Subscript(node) => node.to_md(),
             Node::Superscript(node) => node.to_md(),
             Node::Underline(node) => node.to_md(),
-            _ => "<!-- unsupported type -->".to_string(),
+            _ => format!(
+                "<!-- Markdown encoding for Node::{} is not yet supported -->\n\n",
+                self.as_ref()
+            ),
         }
     }
 }
@@ -530,14 +571,12 @@ impl ToMd for InlineContent {
         match self {
             InlineContent::AudioObject(node) => node.to_md(),
             InlineContent::Boolean(node) => node.to_md(),
-            //InlineContent::Cite(node) => node.to_md(),
             InlineContent::CodeExpression(node) => node.to_md(),
             InlineContent::CodeFragment(node) => node.to_md(),
             InlineContent::Emphasis(node) => node.to_md(),
             InlineContent::ImageObject(node) => node.to_md(),
             InlineContent::Integer(node) => node.to_md(),
             InlineContent::Link(node) => node.to_md(),
-            //InlineContent::Note(node) => node.to_md(),
             InlineContent::Null(node) => node.to_md(),
             InlineContent::Number(node) => node.to_md(),
             InlineContent::MathFragment(node) => node.to_md(),
@@ -550,7 +589,10 @@ impl ToMd for InlineContent {
             InlineContent::Superscript(node) => node.to_md(),
             InlineContent::Underline(node) => node.to_md(),
             InlineContent::VideoObject(node) => node.to_md(),
-            _ => "<!-- unsupported type -->".to_string(),
+            _ => format!(
+                "<!-- Markdown encoding for InlineContent::{} is not yet supported -->\n\n",
+                self.as_ref()
+            ),
         }
     }
 }
@@ -558,7 +600,7 @@ impl ToMd for InlineContent {
 impl ToMd for BlockContent {
     fn to_md(&self) -> String {
         match self {
-            //BlockContent::Claim(node) => node.to_md(),
+            BlockContent::Call(node) => node.to_md(),
             BlockContent::CodeBlock(node) => node.to_md(),
             BlockContent::CodeChunk(node) => node.to_md(),
             BlockContent::Heading(node) => node.to_md(),
@@ -569,7 +611,10 @@ impl ToMd for BlockContent {
             BlockContent::QuoteBlock(node) => node.to_md(),
             BlockContent::Table(node) => node.to_md(),
             BlockContent::ThematicBreak(node) => node.to_md(),
-            _ => "<!-- unsupported type -->\n\n".to_string(),
+            _ => format!(
+                "<!-- Markdown encoding for BlockContent::{} is not yet supported -->\n\n",
+                self.as_ref()
+            ),
         }
     }
 }

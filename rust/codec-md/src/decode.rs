@@ -15,6 +15,7 @@ use codec::{
     common::{
         eyre::{bail, Result},
         inflector::Inflector,
+        itertools::Itertools,
         once_cell::sync::Lazy,
         regex::Regex,
         serde_json, serde_yaml, tracing,
@@ -278,6 +279,8 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         })
                     } else if let Ok((.., include)) = include(&inlines.text) {
                         BlockContent::Include(include)
+                    } else if let Ok((.., call)) = call(&inlines.text) {
+                        BlockContent::Call(call)
                     } else {
                         BlockContent::Paragraph(Paragraph {
                             content: inlines.pop_all(),
@@ -1197,6 +1200,74 @@ fn include(input: &str) -> IResult<&str, Include> {
                     .map(Box::new),
                 ..Default::default()
             })
+        },
+    )(input)
+}
+
+/// Parse a string into an `Call` node
+fn call(input: &str) -> IResult<&str, Call> {
+    map_res(
+        preceded(
+            char('/'),
+            tuple((take_till(|c| c == '('), call_args, opt(curly_attrs))),
+        ),
+        |(source, args, options)| -> Result<Call> {
+            let options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
+            let args = args
+                .iter()
+                .map(|(name, value)| {
+                    let string = unescape(value);
+                    let value = json5::from_str::<Node>(&string)
+                        .unwrap_or_else(|_| Node::String(string.clone()));
+                    Parameter {
+                        name: name.into(),
+                        value: Some(Box::new(value)),
+                        ..Default::default()
+                    }
+                })
+                .collect_vec();
+            Ok(Call {
+                source: source.to_string(),
+                arguments: if args.is_empty() { None } else { Some(args) },
+                media_type: options
+                    .get("format")
+                    .and_then(|attr| attr.to_owned())
+                    .map(Box::new),
+                select: options
+                    .get("select")
+                    .and_then(|attr| attr.to_owned())
+                    .map(Box::new),
+                ..Default::default()
+            })
+        },
+    )(input)
+}
+
+/// Parse arguments inside parentheses
+fn call_args(input: &str) -> IResult<&str, Vec<(String, String)>> {
+    alt((
+        map(tag("()"), |_| Vec::new()),
+        delimited(char('('), separated_list0(multispace1, call_arg), char(')')),
+    ))(input)
+}
+
+/// Parse an argument inside a set of curly braced arguments.
+///
+/// Arguments must be key-value pairs separated by `=` or `:`.
+fn call_arg(input: &str) -> IResult<&str, (String, String)> {
+    map_res(
+        tuple((
+            take_till(|c| c == ' ' || c == '=' || c == ':' || c == ')'),
+            tuple((multispace0, alt((tag("="), tag(":"))), multispace0)),
+            alt((
+                single_quoted,
+                double_quoted,
+                square_bracketed,
+                take_till(|c| c == ' ' || c == ')'),
+            )),
+        )),
+        |(name, _sep, value)| -> Result<(String, String)> {
+            Ok((name.to_string(), value.to_string()))
         },
     )(input)
 }
