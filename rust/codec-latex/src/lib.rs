@@ -23,7 +23,9 @@ impl CodecTrait for LatexCodec {
                     // TODO: Add support for these. See https://github.com/stencila/encoda/blob/master/src/codecs/latex/__fixtures__/code.tex
                     "CodeChunk",
                     "CodeExpression",
-                    "Parameter"
+                    "Parameter",
+                    "Include",
+                    "Call"
                 ],
             ]
             .concat(),
