@@ -2701,7 +2701,6 @@ name = "graph"
 version = "0.0.0"
 dependencies = [
  "common",
- "derivative",
  "events",
  "graph-triples",
  "hash-utils",
@@ -2718,7 +2717,6 @@ name = "graph-triples"
 version = "0.0.0"
 dependencies = [
  "common",
- "derivative",
  "hash-utils",
  "path-utils",
  "schemars",
@@ -3503,7 +3501,6 @@ name = "kernel-jupyter"
 version = "0.0.0"
 dependencies = [
  "codec-ipynb",
- "derivative",
  "fs-utils",
  "hex 0.4.3",
  "hmac",

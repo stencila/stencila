@@ -7,8 +7,8 @@ use std::{
 use schemars::JsonSchema;
 
 use common::{
-    eyre::Result,
     derivative::Derivative,
+    eyre::Result,
     serde::{self, Serialize},
     serde_with::skip_serializing_none,
 };
