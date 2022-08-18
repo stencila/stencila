@@ -1,5 +1,7 @@
-use super::Transform;
+use common::serde_json;
 use stencila_schema::*;
+
+use super::Transform;
 
 impl Transform for Node {
     /// Is a node an `InlineContent` variant e.g. a `Node:Strong`
@@ -143,8 +145,11 @@ impl Transform for Node {
                     ..Default::default()
                 })
             }
-            // Fallback to transforming to block content and then inline
-            _ => self.to_block().to_inline(),
+            // Fallback to transforming to JSON code fragment
+            _ => InlineContent::CodeFragment(CodeFragment {
+                text: serde_json::to_string(self).unwrap_or_default(),
+                ..Default::default()
+            }),
         }
     }
 
@@ -179,7 +184,8 @@ impl Transform for Node {
     fn is_block(&self) -> bool {
         matches!(
             self,
-            Node::Claim(..)
+            Node::Call(..)
+                | Node::Claim(..)
                 | Node::CodeBlock(..)
                 | Node::CodeChunk(..)
                 | Node::Collection(..)
@@ -199,6 +205,7 @@ impl Transform for Node {
     fn to_block(&self) -> BlockContent {
         match self.to_owned() {
             // Block variants
+            Node::Call(node) => BlockContent::Call(node),
             Node::Claim(node) => {
                 let Claim {
                     claim_type,
@@ -318,29 +325,17 @@ impl Transform for Node {
 
     /// Transform a `Node` variant to a vector of static `InlineContent` variants
     fn to_static_inlines(&self) -> Vec<InlineContent> {
-        if self.is_inline() {
-            self.to_inline().to_static_inlines()
-        } else {
-            self.to_block().to_static_inlines()
-        }
+        self.to_inlines().to_static_inlines()
     }
 
     /// Transform a `Node` variant to a vector of static `BlockContent` variants
     fn to_static_blocks(&self) -> Vec<BlockContent> {
-        if self.is_inline() {
-            self.to_inline().to_static_blocks()
-        } else {
-            self.to_block().to_static_blocks()
-        }
+        self.to_blocks().to_static_blocks()
     }
 
     /// Transform a `Node` variant to a vector of static `Node` variants
     fn to_static_nodes(&self) -> Vec<Node> {
-        if self.is_inline() {
-            self.to_inline().to_static_inlines().to_nodes()
-        } else {
-            self.to_block().to_static_blocks().to_nodes()
-        }
+        self.to_blocks().to_static_blocks().to_nodes()
     }
 }
 

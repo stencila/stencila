@@ -139,18 +139,18 @@ impl Transform for InlineContent {
     /// Transform an `InlineContent` variant to a vector of static `InlineContent` variants
     fn to_static_inlines(&self) -> Vec<InlineContent> {
         match self.to_owned() {
-            // Dynamic node types: only include their "outputs"
-            InlineContent::CodeExpression(node) => vec![node
+            // Dynamic node types: only include their "outputs", if any
+            InlineContent::CodeExpression(node) => node
                 .output
                 .as_ref()
-                .map(|value| value.to_inline())
-                .unwrap_or_else(|| InlineContent::String(String::new()))],
-            InlineContent::Parameter(node) => vec![node
+                .map(|value| vec![value.to_inline()])
+                .unwrap_or_default(),
+            InlineContent::Parameter(node) => node
                 .value
                 .as_ref()
                 .or(node.default.as_ref())
-                .map(|value| value.to_inline())
-                .unwrap_or_else(|| InlineContent::String(String::new()))],
+                .map(|value| vec![value.to_inline()])
+                .unwrap_or_default(),
 
             // Non-dynamic node types: make their content static
             InlineContent::Delete(node) => vec![InlineContent::Delete(Delete {

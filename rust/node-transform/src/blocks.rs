@@ -40,9 +40,14 @@ impl Transform for BlockContent {
             BlockContent::Paragraph(paragraph) => paragraph.content.to_inline(),
             // Variants with block content
             BlockContent::Claim(claim) => claim.content.to_inline(),
-            BlockContent::Include(include) => match include.content {
+            BlockContent::Include(Include {
+                source, content, ..
+            })
+            | BlockContent::Call(Call {
+                source, content, ..
+            }) => match content {
                 Some(content) => content.to_inline(),
-                None => InlineContent::String(include.source),
+                None => InlineContent::String(source),
             },
             // Fallback to a string
             _ => InlineContent::String(self.to_txt()),
@@ -57,7 +62,8 @@ impl Transform for BlockContent {
             BlockContent::Paragraph(paragraph) => paragraph.content,
             // Variants with block content
             BlockContent::Claim(claim) => claim.content.to_inlines(),
-            BlockContent::Include(include) => match include.content {
+            BlockContent::Include(Include { content, .. })
+            | BlockContent::Call(Call { content, .. }) => match content {
                 Some(content) => content.to_inlines(),
                 None => vec![self.to_inline()],
             },
@@ -84,6 +90,7 @@ impl Transform for BlockContent {
     /// simple block variants need "upcasting" to their more complex types.
     fn to_node(&self) -> Node {
         match self.to_owned() {
+            BlockContent::Call(node) => Node::Call(node),
             BlockContent::Claim(node) => {
                 let ClaimSimple {
                     claim_type,
@@ -210,8 +217,8 @@ impl Transform for BlockContent {
                     ..Default::default()
                 })]
             }
-            BlockContent::Include(include) => include
-                .content
+            BlockContent::Include(Include { content, .. })
+            | BlockContent::Call(Call { content, .. }) => content
                 .iter()
                 .flat_map(Transform::to_static_blocks)
                 .collect(),
