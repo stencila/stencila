@@ -4,6 +4,7 @@ use std::{
 };
 
 use cloud::nodes::{node_create, node_url};
+use node_dispatch::{dispatch_block, dispatch_inline};
 use pandoc_types::definition as pandoc;
 
 use codec::{
@@ -353,33 +354,7 @@ impl ToPandoc for Quote {
 
 impl ToPandoc for InlineContent {
     fn to_pandoc_inline(&self, context: &mut EncodeContext) -> pandoc::Inline {
-        match self {
-            InlineContent::AudioObject(node) => node.to_pandoc_inline(context),
-            InlineContent::Boolean(node) => node.to_pandoc_inline(context),
-            InlineContent::Cite(node) => node.to_pandoc_inline(context),
-            InlineContent::CiteGroup(node) => node.to_pandoc_inline(context),
-            InlineContent::CodeExpression(node) => node.to_pandoc_inline(context),
-            InlineContent::CodeFragment(node) => node.to_pandoc_inline(context),
-            InlineContent::Delete(node) => node.to_pandoc_inline(context),
-            InlineContent::Emphasis(node) => node.to_pandoc_inline(context),
-            InlineContent::ImageObject(node) => node.to_pandoc_inline(context),
-            InlineContent::Integer(node) => node.to_pandoc_inline(context),
-            InlineContent::Link(node) => node.to_pandoc_inline(context),
-            InlineContent::MathFragment(node) => node.to_pandoc_inline(context),
-            InlineContent::NontextualAnnotation(node) => node.to_pandoc_inline(context),
-            InlineContent::Note(node) => node.to_pandoc_inline(context),
-            InlineContent::Null(node) => node.to_pandoc_inline(context),
-            InlineContent::Number(node) => node.to_pandoc_inline(context),
-            InlineContent::Parameter(node) => node.to_pandoc_inline(context),
-            InlineContent::Quote(node) => node.to_pandoc_inline(context),
-            InlineContent::Strikeout(node) => node.to_pandoc_inline(context),
-            InlineContent::String(node) => node.to_pandoc_inline(context),
-            InlineContent::Strong(node) => node.to_pandoc_inline(context),
-            InlineContent::Subscript(node) => node.to_pandoc_inline(context),
-            InlineContent::Superscript(node) => node.to_pandoc_inline(context),
-            InlineContent::Underline(node) => node.to_pandoc_inline(context),
-            InlineContent::VideoObject(node) => node.to_pandoc_inline(context),
-        }
+        dispatch_inline!(self, to_pandoc_inline, context)
     }
 }
 
@@ -483,7 +458,49 @@ impl ToPandoc for Heading {
     }
 }
 
-unimplemented_to_pandoc!(Include);
+impl ToPandoc for Include {
+    fn to_pandoc_block(&self, context: &mut EncodeContext) -> pandoc::Block {
+        let mut blocks = vec![pandoc::Block::Para(vec![context.push_rpng(
+            "Include",
+            Node::Include(Include {
+                content: None,
+                ..self.clone()
+            }),
+        )])];
+
+        blocks.append(
+            &mut self
+                .content
+                .as_ref()
+                .map(|blocks| blocks.to_pandoc_blocks(context))
+                .unwrap_or_default(),
+        );
+
+        pandoc::Block::Div(attrs_empty(), blocks)
+    }
+}
+
+impl ToPandoc for Call {
+    fn to_pandoc_block(&self, context: &mut EncodeContext) -> pandoc::Block {
+        let mut blocks = vec![pandoc::Block::Para(vec![context.push_rpng(
+            "Call",
+            Node::Call(Call {
+                content: None,
+                ..self.clone()
+            }),
+        )])];
+
+        blocks.append(
+            &mut self
+                .content
+                .as_ref()
+                .map(|blocks| blocks.to_pandoc_blocks(context))
+                .unwrap_or_default(),
+        );
+
+        pandoc::Block::Div(attrs_empty(), blocks)
+    }
+}
 
 impl ToPandoc for List {
     fn to_pandoc_block(&self, context: &mut EncodeContext) -> pandoc::Block {
@@ -621,21 +638,7 @@ impl ToPandoc for TableSimple {
 
 impl ToPandoc for BlockContent {
     fn to_pandoc_block(&self, context: &mut EncodeContext) -> pandoc::Block {
-        match self {
-            BlockContent::Claim(node) => node.to_pandoc_block(context),
-            BlockContent::CodeBlock(node) => node.to_pandoc_block(context),
-            BlockContent::CodeChunk(node) => node.to_pandoc_block(context),
-            BlockContent::Collection(node) => node.to_pandoc_block(context),
-            BlockContent::Figure(node) => node.to_pandoc_block(context),
-            BlockContent::Heading(node) => node.to_pandoc_block(context),
-            BlockContent::Include(node) => node.to_pandoc_block(context),
-            BlockContent::List(node) => node.to_pandoc_block(context),
-            BlockContent::MathBlock(node) => node.to_pandoc_block(context),
-            BlockContent::Paragraph(node) => node.to_pandoc_block(context),
-            BlockContent::QuoteBlock(node) => node.to_pandoc_block(context),
-            BlockContent::Table(node) => node.to_pandoc_block(context),
-            BlockContent::ThematicBreak(node) => node.to_pandoc_block(context),
-        }
+        dispatch_block!(self, to_pandoc_block, context)
     }
 }
 

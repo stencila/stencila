@@ -17,6 +17,7 @@ codec-json = { path = "../codec-json" }
 codec-rpng = { path = "../codec-rpng" }
 formats = { path = "../formats" }
 key-utils = { path = "../key-utils" }
+node-dispatch = { path = "../node-dispatch" }
 pandoc_types = "0.5.0"
 path-utils = { path = "../path-utils" }
 uuids = { path = "../uuids" }
