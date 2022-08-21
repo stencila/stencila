@@ -1,0 +1,37 @@
+---
+source: rust/codec-script/src/lib.rs
+assertion_line: 158
+expression: article
+input_file: fixtures/articles/scripts/simple.py
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "A para"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "py",
+      "text": "a = 1\n"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Another para with a ",
+        {
+          "type": "CodeFragment",
+          "text": "code fragment"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "py",
+      "text": "b = 2\n"
+    }
+  ]
+}

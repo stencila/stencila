@@ -1,0 +1,105 @@
+---
+source: rust/codec-script/src/lib.rs
+assertion_line: 158
+expression: article
+input_file: fixtures/articles/scripts/simple.js
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "A para"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "js",
+      "text": "a = 1\n"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Another para with a code expression that use the above code ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "js",
+          "text": "a*2"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "js",
+      "text": "b = 2\n"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A mutliline block comment with a paragraph."
+      ]
+    },
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "And a quote block"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "And a list,"
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "One"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "Two"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "Three"
+              ]
+            }
+          ]
+        }
+      ],
+      "order": "Ascending"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "js",
+      "text": "c = 3\n"
+    }
+  ]
+}

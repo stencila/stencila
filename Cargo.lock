@@ -1326,6 +1326,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-script"
+version = "0.1.0"
+dependencies = [
+ "codec",
+ "codec-md",
+ "common",
+ "test-props",
+ "test-snaps",
+ "test-utils",
+]
+
+[[package]]
 name = "codec-toml"
 version = "0.0.0"
 dependencies = [
