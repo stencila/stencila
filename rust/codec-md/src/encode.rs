@@ -320,7 +320,8 @@ impl ToMd for QuoteBlock {
             .map(|block| {
                 block
                     .to_md()
-                    .split('\n')
+                    .trim()
+                    .lines()
                     .map(|line| ["> ", line].concat())
                     .join("\n")
             })
@@ -511,5 +512,28 @@ impl ToMd for ThingDescription {
             ThingDescription::VecInlineContent(inlines) => inlines.to_md(),
             ThingDescription::VecBlockContent(blocks) => blocks.to_md(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test_utils::pretty_assertions::assert_eq;
+
+    /// A regression test that quote blocks do not have unnecessary lines starting with >
+    #[test]
+    fn encode_quote_block() {
+        let md = encode(
+            &Node::QuoteBlock(QuoteBlock {
+                content: vec![BlockContent::Paragraph(Paragraph {
+                    content: vec![InlineContent::String("Hello world.".to_string())],
+                    ..Default::default()
+                })],
+                ..Default::default()
+            }),
+            None,
+        )
+        .unwrap();
+        assert_eq!(md, "> Hello world.")
     }
 }
