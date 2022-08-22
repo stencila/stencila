@@ -30,6 +30,7 @@ codec-person = { path = "../codec-person", optional = true }
 codec-png = { path = "../codec-png", optional = true }
 codec-rmd = { path = "../codec-rmd", optional = true }
 codec-rpng = { path = "../codec-rpng", optional = true }
+codec-script = { path = "../codec-script", optional = true }
 codec-toml = { path = "../codec-toml", optional = true }
 codec-txt = { path = "../codec-txt", optional = true }
 codec-yaml = { path = "../codec-yaml", optional = true }

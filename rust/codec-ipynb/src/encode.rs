@@ -8,6 +8,7 @@ use codec::{
         serde_json::{self, json},
     },
     stencila_schema::*,
+    EncodeOptions,
 };
 use codec_md::ToMd;
 use codec_txt::ToTxt;
@@ -154,7 +155,7 @@ fn encode_chunk(chunk: &CodeChunk) -> serde_json::Value {
     if let Some(caption) = chunk.caption.as_deref() {
         let caption = match caption {
             CodeChunkCaption::String(string) => string.clone(),
-            CodeChunkCaption::VecBlockContent(blocks) => blocks.to_md(),
+            CodeChunkCaption::VecBlockContent(blocks) => blocks.to_md(&EncodeOptions::default()),
         };
         metadata.insert("caption".to_string(), json!(caption));
     }
@@ -257,7 +258,7 @@ fn encode_execute_result(node: &Node) -> serde_json::Value {
 
 /// Encode a vector of `BlockContent` to a Jupyter Markdown cell
 fn encode_markdown(blocks: &[BlockContent]) -> serde_json::Value {
-    let md = blocks.to_md();
+    let md = blocks.to_md(&EncodeOptions::default());
     json!({
         "cell_type": "markdown",
         "source" : encode_multiline_string(&md),

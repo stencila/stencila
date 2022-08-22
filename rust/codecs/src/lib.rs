@@ -10,7 +10,7 @@ use codec::{
     Codec, CodecTrait,
 };
 use codec_format::FormatCodec;
-use formats::{match_name, Format, FormatSpec};
+use formats::{match_name, Format, FormatNodeType, FormatSpec};
 
 // Re-exports for use in other crates that call the following functions
 pub use codec::{DecodeOptions, EncodeOptions};
@@ -135,7 +135,21 @@ macro_rules! dispatch_builtins {
             #[cfg(feature = "codec-yaml")]
             Format::Yaml => Some(codec_yaml::YamlCodec::$method($($arg),*)),
 
-            _ => None
+            _ => {
+                let spec = $format.spec();
+
+                #[cfg(feature = "codec-script")]
+                {
+                    if matches!(spec.node_type, FormatNodeType::SoftwareSourceCode) {
+                        Some(codec_script::ScriptCodec::$method($($arg),*))
+                    } else {
+                        None
+                    }
+                }
+
+                #[cfg(not(feature = "codec-script"))]
+                None
+            }
         }
     };
 }
@@ -179,6 +193,8 @@ impl Codecs {
             ("rmd", codec_rmd::RmdCodec::spec()),
             #[cfg(feature = "codec-rpng")]
             ("rpng", codec_rpng::RpngCodec::spec()),
+            #[cfg(feature = "codec-script")]
+            ("script", codec_script::ScriptCodec::spec()),
             #[cfg(feature = "codec-toml")]
             ("toml", codec_toml::TomlCodec::spec()),
             #[cfg(feature = "codec-txt")]

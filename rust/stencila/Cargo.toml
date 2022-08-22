@@ -69,6 +69,7 @@ default = [
   "codecs/codec-png",
   "codecs/codec-rmd",
   "codecs/codec-rpng",
+  "codecs/codec-script",
   "codecs/codec-toml",
   "codecs/codec-txt",
   "codecs/codec-yaml",

@@ -260,6 +260,13 @@ pub struct EncodeOptions {
     /// Only applies to standalone HTML and formats derived from it (e.g. PDF, PNG).
     pub theme: Option<String>,
 
+    /// The maximum column width of the encoded content
+    ///
+    /// For text based formats, such as Markdown, this is the maximum number of characters
+    /// in a line. Codecs may only respect this for certain node types e.g `Paragraph` (or
+    /// for none at all).
+    pub max_width: Option<usize>,
+
     /// Whether Javascript for Web Components should be loaded or not
     ///
     /// Only applies to standalone HTML and formats derived from it (e.g. PDF, PNG).
@@ -283,6 +290,7 @@ impl Default for EncodeOptions {
             rpng_text: false,
             rpng_link: false,
             theme: None,
+            max_width: None,
             components: true,
             format: None,
         }

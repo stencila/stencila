@@ -1,0 +1,43 @@
+---
+source: rust/codec-script/src/lib.rs
+assertion_line: 349
+expression: script
+input_file: fixtures/articles/scripts/script.py
+---
+# First paragraph, followed by some code
+
+a = 1
+
+# Second paragraph, with a code expression that uses the above code `a*2`{py exec}, followed by some
+# more code, this time multiline,
+
+b = 2
+
+def fn1(x):
+    x * x
+
+# A multiline comment with a paragraph.
+# 
+# > And a quote block
+# 
+# And a list,
+# 
+# 1. One
+# 2. Two
+# 3. Three
+
+c = 3
+
+# Parameters can be included in Markdown, and will be encoded as script variables immediately after
+# they are declared.
+# 
+# Parameter d: /d/{type=integer}
+
+# @skip
+def __param__(type, index, default): import sys, json; return (str if type == 'string' else json.loads)(sys.argv[1 + index] if len(sys.argv) > index + 1 else default)
+
+# @skip
+d = __param__('integer', 0, "")
+
+print('a + b + c + d = %s' % (a + b + c + d))
+

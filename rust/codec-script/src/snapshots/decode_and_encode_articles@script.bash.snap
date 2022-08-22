@@ -1,0 +1,130 @@
+---
+source: rust/codec-script/src/lib.rs
+assertion_line: 323
+expression: article
+input_file: fixtures/articles/scripts/script.bash
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "First paragraph, followed by some code"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "bash",
+      "text": "a=1"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Second paragraph, with a code expression that uses the above code ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "bash",
+          "text": "expr a * 2"
+        },
+        ", followed by some more code, this time multiline,"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "bash",
+      "text": "b=2\n\nfunction fn1 {}"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A multiline comment with a paragraph."
+      ]
+    },
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "And a quote block"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "And a list,"
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "One"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "Two"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "Three"
+              ]
+            }
+          ]
+        }
+      ],
+      "order": "Ascending"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "bash",
+      "text": "c=3"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Parameters can be included in Markdown, and will be encoded as script variables immediately after they are declared."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Parameter d: ",
+        {
+          "type": "Parameter",
+          "name": "d",
+          "validator": {
+            "type": "IntegerValidator"
+          }
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "bash",
+      "text": "echo \"a + b + c + d = $(expr $a + $b + $c + $d))\""
+    }
+  ]
+}

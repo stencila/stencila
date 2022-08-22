@@ -1,9 +1,8 @@
 ---
 source: rust/codec-ipynb/src/encode.rs
-assertion_line: 281
+assertion_line: 286
 expression: json
 input_file: fixtures/articles/kitchen-sink.ipynb
-
 ---
 {
   "cells": [
@@ -28,8 +27,6 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "- like this\n",
         "\n",
         "> And block quotes like this\n",
-        "> \n",
-        "> \n",
         "\n",
         "Markdown cells get decoded into arrays of `BlockContent` and merged together, so the the fact that this cell is separate from the preceding and following cells will not be apparent.\n",
         "\n",

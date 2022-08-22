@@ -1,0 +1,40 @@
+---
+source: rust/codec-script/src/lib.rs
+assertion_line: 218
+expression: article
+input_file: fixtures/articles/scripts/README.sh
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "These are examples of writing articles using programming language scripts (like this one)"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Comments are parsed as Markdown and can have all the normal Markdown syntax, including Stencila extensions. Code is parsed into code chunks."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "sh",
+      "text": "NOW=$(date)"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "You can use variables in expressions within Markdown comments e.g. ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "bash",
+          "text": "$NOW"
+        },
+        "."
+      ]
+    }
+  ]
+}
