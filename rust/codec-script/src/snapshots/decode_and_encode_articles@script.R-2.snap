@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 236
+assertion_line: 349
 expression: script
 input_file: fixtures/articles/scripts/script.R
 ---
@@ -13,7 +13,7 @@ a <- 1
 
 b <- 2
 
-fn1 <- function {
+fn1 <- function() {
     x * x
 }
 
@@ -28,4 +28,17 @@ fn1 <- function {
 # 3. Three
 
 c <- 3
+
+# Parameters can be included in Markdown, and will be encoded as script variables immediately after
+# they are declared.
+# 
+# Parameter d: /d/{type=integer}
+
+# @skip
+param__ <- function(type, index, def) { argv <- commandArgs(trailingOnly=TRUE); ifelse(type == 'string', identity, jsonlite::fromJSON)(ifelse(length(argv) > index + 1, argv[1 + index], def)) }
+
+# @skip
+d = param__('integer', 0, "")
+
+cat('a + b + c + d = ', a + b + c + d)
 

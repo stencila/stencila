@@ -1,15 +1,13 @@
 # First paragraph, followed by some code
 
-a <- 1
+a=1
 
-# Second paragraph, with a code expression that uses the above code `a*2`{r exec},
+# Second paragraph, with a code expression that uses the above code `expr a * 2`{bash exec},
 # followed by some more code, this time multiline,
 
-b <- 2
+b=2
 
-fn1 <- function() {
-    x * x
-}
+function fn1 {}
 
 # A multiline comment with a paragraph.
 # 
@@ -22,11 +20,11 @@ fn1 <- function() {
 # 2. Two
 # 3. Three
 
-c <- 3
+c=3
 
 # Parameters can be included in Markdown, and will be encoded as script
 # variables immediately after they are declared.
 #
 # Parameter d: /d/{type=integer}
 
-cat('a + b + c + d = ', a + b + c + d)
+echo "a + b + c + d = $(expr $a + $b + $c + $d))"

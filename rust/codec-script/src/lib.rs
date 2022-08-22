@@ -2,13 +2,15 @@ use codec::{
     common::{
         eyre::{bail, Result},
         regex::Regex,
+        serde_json,
     },
-    stencila_schema::{Article, BlockContent, CodeChunk, Node},
+    stencila_schema::{Article, BlockContent, CodeChunk, InlineContent, Node, Parameter},
     utils::vec_string,
     Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
 use codec_md::ToMd;
 use common::itertools::Itertools;
+use node_pointer::{walk, Visitor};
 
 // A codec for programming language scripts
 pub struct ScriptCodec;
@@ -57,7 +59,7 @@ impl CodecTrait for ScriptCodec {
         let md_blocks = |md: &str| -> Vec<BlockContent> {
             codec_md::decode_fragment(md, Some(lang.to_string()))
         };
-        let code_block = |code: &str| -> BlockContent {
+        let code_chunk = |code: &str| -> BlockContent {
             BlockContent::CodeChunk(CodeChunk {
                 programming_language: lang.clone(),
                 text: code.trim().to_string(),
@@ -67,7 +69,13 @@ impl CodecTrait for ScriptCodec {
         let mut in_multiline = false;
         let mut md = String::new();
         let mut code = String::new();
+        let mut skip = false;
         for line in str.lines() {
+            if skip {
+                skip = false;
+                continue;
+            }
+
             if let Some((start_regex, mid_regex, end_regex)) = &multi_line_regexes {
                 if in_multiline {
                     let line_md = if let Some(captures) = end_regex.captures(line) {
@@ -82,8 +90,8 @@ impl CodecTrait for ScriptCodec {
                     md.push('\n');
                     continue;
                 } else if let Some(captures) = start_regex.captures(line) {
-                    if !code.is_empty() {
-                        blocks.push(code_block(&code));
+                    if !code.trim().is_empty() {
+                        blocks.push(code_chunk(&code));
                         code.clear();
                     }
 
@@ -99,12 +107,20 @@ impl CodecTrait for ScriptCodec {
             // Either add the line to Markdown or to code and if switching between them then
             // add to blocks and clear the buffer.
             if let Some(captures) = single_line_regex.captures(line) {
-                if !code.is_empty() {
-                    blocks.push(code_block(&code));
+                let content = captures[1].to_string();
+                if content.starts_with("@ignore") {
+                    continue;
+                } else if content.starts_with("@skip") {
+                    skip = true;
+                    continue;
+                }
+
+                if !code.trim().is_empty() {
+                    blocks.push(code_chunk(&code));
                     code.clear();
                 }
 
-                md.push_str(&captures[1]);
+                md.push_str(&content);
                 md.push('\n');
             } else {
                 if !md.is_empty() {
@@ -118,8 +134,8 @@ impl CodecTrait for ScriptCodec {
         }
 
         // Any remaining code to add?
-        if !code.is_empty() {
-            blocks.push(code_block(&code));
+        if !code.trim().is_empty() {
+            blocks.push(code_chunk(&code));
         }
 
         // Any remaining Markdown to add?
@@ -139,6 +155,37 @@ impl CodecTrait for ScriptCodec {
             options.max_width = Some(100);
         }
 
+        // Determine language and language-specific variables
+        let lang = match &options.format {
+            Some(format) => format.to_lowercase(),
+            None => bail!("A format option (the programming language of the script) is required"),
+        };
+        let comment_start = match lang.as_str() {
+            "bash" | "py" | "r" | "sh" | "zsh" => "# ",
+            "js" => "// ",
+            _ => bail!(
+                "No comment start defined for programming language `{}`",
+                lang
+            ),
+        };
+        let params_prelude = match lang.as_str() {
+            "js" => "// @skip\nconst __param__ = (type, index, def) => (type === 'string' ? String : JSON.parse)(process.argv[2 + index] || def)\n\n",
+            "py" =>"# @skip\ndef __param__(type, index, default): import sys, json; return (str if type == 'string' else json.loads)(sys.argv[1 + index] if len(sys.argv) > index + 1 else default)\n\n",
+            "r" =>"# @skip\nparam__ <- function(type, index, def) { argv <- commandArgs(trailingOnly=TRUE); ifelse(type == 'string', identity, jsonlite::fromJSON)(ifelse(length(argv) > index + 1, argv[1 + index], def)) }\n\n",
+            _ => "",
+        };
+        let param_template = match lang.as_str() {
+            "bash" | "sh" | "zsh" => "$name=${1:-$default}\n\n",
+            "js" => "let $name = __param__('$type', $index, $default);\n\n",
+            "py" => "$name = __param__('$type', $index, $default)\n\n",
+            "r" => "$name = param__('$type', $index, $default)\n\n",
+            _ => bail!(
+                "No param template defined for programming language `{}`",
+                lang
+            ),
+        };
+
+        // Get blocks, returning early if none
         let blocks = match node {
             Node::Article(Article { content, .. }) => match content {
                 Some(blocks) => blocks,
@@ -147,19 +194,12 @@ impl CodecTrait for ScriptCodec {
             _ => bail!("Unhandled node type `{}`", node.as_ref()),
         };
 
-        let lang = match &options.format {
-            Some(format) => format.to_lowercase(),
-            None => bail!("A format option (the programming language of the script) is required"),
-        };
-        let comment_start = match lang.as_str() {
-            "bash" | "py" | "r" | "sh" | "zsh" => "# ",
-            "js" => "// ",
-            _ => bail!("Unhandled programming language `{}`", lang),
-        };
-
-        // Iterate over blocks, adding `CodeChunk`s as code, and everything else, as Markdown comments
         let mut script = String::new();
+        let mut code = String::new();
+
+        // Iterate over blocks, adding `CodeChunk`s and `Parameters` as code, and everything else, as Markdown comments
         let mut comment_blocks = Vec::new();
+        let mut params_preluded = false;
         let blocks_to_comment = |blocks: &Vec<&BlockContent>| -> String {
             blocks
                 .iter()
@@ -177,6 +217,12 @@ impl CodecTrait for ScriptCodec {
 
                     comment_blocks.clear();
                 }
+
+                if !code.is_empty() {
+                    script.push_str(&code);
+                    code.clear();
+                }
+
                 script.push_str(text);
 
                 if text.ends_with('\n') {
@@ -185,15 +231,81 @@ impl CodecTrait for ScriptCodec {
                     script.push_str("\n\n");
                 }
             } else {
-                comment_blocks.push(block)
+                if !code.is_empty() {
+                    script.push_str(&code);
+                    code.clear();
+                }
+
+                comment_blocks.push(block);
+
+                // Get parameters and add a code section to instantiate them
+                let mut params = ParameterGetter::default();
+                walk(block, &mut params);
+                if !params.params.is_empty() {
+                    if !params_preluded {
+                        code += params_prelude;
+                        params_preluded = true;
+                    }
+
+                    for (index, param) in params.params.into_iter().enumerate() {
+                        let typ = param
+                            .validator
+                            .map(|validator| {
+                                validator
+                                    .as_ref()
+                                    .as_ref()
+                                    .strip_suffix("Validator")
+                                    .unwrap_or_default()
+                                    .to_string()
+                                    .to_lowercase()
+                            })
+                            .unwrap_or_else(|| "string".to_string());
+                        let default = param
+                            .default
+                            .unwrap_or_else(|| Box::new(Node::String(String::new())));
+                        let param_line = param_template
+                            .replace("$name", &param.name)
+                            .replace("$type", &typ)
+                            .replace("$index", &index.to_string())
+                            .replace(
+                                "$default",
+                                &serde_json::to_string(&default).unwrap_or_default(),
+                            );
+                        code += &[comment_start, "@skip\n", &param_line].concat();
+                    }
+                }
             }
         }
 
         if !comment_blocks.is_empty() {
-            script.push_str(&blocks_to_comment(&comment_blocks))
+            script.push_str(&blocks_to_comment(&comment_blocks));
+            script.push_str("\n\n");
+        }
+
+        if !code.is_empty() {
+            script.push_str(&code)
         }
 
         Ok(script.trim_end().to_string() + "\n")
+    }
+}
+
+#[derive(Default)]
+struct ParameterGetter {
+    params: Vec<Parameter>,
+}
+
+impl Visitor for ParameterGetter {
+    fn visit_inline(
+        &mut self,
+        _address: &node_pointer::Address,
+        node: &codec::stencila_schema::InlineContent,
+    ) -> bool {
+        if let InlineContent::Parameter(param) = node {
+            self.params.push(param.clone());
+            return false;
+        }
+        true
     }
 }
 
@@ -201,11 +313,12 @@ impl CodecTrait for ScriptCodec {
 mod tests {
     use std::path::Path;
 
-    use super::*;
     use test_snaps::{
         insta::{assert_json_snapshot, assert_snapshot},
         snapshot_fixtures_path_content,
     };
+
+    use super::*;
 
     #[test]
     fn decode_and_encode_articles() {

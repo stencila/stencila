@@ -1,8 +1,8 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 338
+assertion_line: 323
 expression: article
-input_file: fixtures/articles/scripts/script.R
+input_file: fixtures/articles/scripts/script.bash
 ---
 {
   "type": "Article",
@@ -15,8 +15,8 @@ input_file: fixtures/articles/scripts/script.R
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r",
-      "text": "a <- 1"
+      "programmingLanguage": "bash",
+      "text": "a=1"
     },
     {
       "type": "Paragraph",
@@ -24,16 +24,16 @@ input_file: fixtures/articles/scripts/script.R
         "Second paragraph, with a code expression that uses the above code ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "r",
-          "text": "a*2"
+          "programmingLanguage": "bash",
+          "text": "expr a * 2"
         },
         ", followed by some more code, this time multiline,"
       ]
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r",
-      "text": "b <- 2\n\nfn1 <- function() {\n    x * x\n}"
+      "programmingLanguage": "bash",
+      "text": "b=2\n\nfunction fn1 {}"
     },
     {
       "type": "Paragraph",
@@ -99,8 +99,8 @@ input_file: fixtures/articles/scripts/script.R
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r",
-      "text": "c <- 3"
+      "programmingLanguage": "bash",
+      "text": "c=3"
     },
     {
       "type": "Paragraph",
@@ -123,8 +123,8 @@ input_file: fixtures/articles/scripts/script.R
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r",
-      "text": "cat('a + b + c + d = ', a + b + c + d)"
+      "programmingLanguage": "bash",
+      "text": "echo \"a + b + c + d = $(expr $a + $b + $c + $d))\""
     }
   ]
 }

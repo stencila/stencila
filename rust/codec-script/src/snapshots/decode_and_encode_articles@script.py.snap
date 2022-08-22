@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 218
+assertion_line: 339
 expression: article
 input_file: fixtures/articles/scripts/script.py
 ---
@@ -101,6 +101,30 @@ input_file: fixtures/articles/scripts/script.py
       "type": "CodeChunk",
       "programmingLanguage": "py",
       "text": "c = 3"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Parameters can be included in Markdown, and will be encoded as script variables immediately after they are declared."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Parameter d: ",
+        {
+          "type": "Parameter",
+          "name": "d",
+          "validator": {
+            "type": "IntegerValidator"
+          }
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "py",
+      "text": "print('a + b + c + d = %s' % (a + b + c + d))"
     }
   ]
 }

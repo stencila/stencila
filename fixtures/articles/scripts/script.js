@@ -25,3 +25,10 @@ function fn1(x) {
  */
 
 c = 3
+
+// Parameters can be included in Markdown, and will be encoded as script
+// variables immediately after they are declared.
+//
+// Parameter d: /d/{type=integer}
+
+console.log('a + b + c + d = ', a + b + c + d)

@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 226
+assertion_line: 323
 expression: article
 input_file: fixtures/articles/scripts/script.js
 ---
@@ -101,6 +101,30 @@ input_file: fixtures/articles/scripts/script.js
       "type": "CodeChunk",
       "programmingLanguage": "js",
       "text": "c = 3"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Parameters can be included in Markdown, and will be encoded as script variables immediately after they are declared."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Parameter d: ",
+        {
+          "type": "Parameter",
+          "name": "d",
+          "validator": {
+            "type": "IntegerValidator"
+          }
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "js",
+      "text": "console.log('a + b + c + d = ', a + b + c + d)"
     }
   ]
 }
