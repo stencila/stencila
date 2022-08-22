@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 1354
+assertion_line: 1531
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/parameter.md
 ---
@@ -82,7 +82,7 @@ input_file: fixtures/fragments/md/parameter.md
       {
         "type": "Parameter",
         "name": "par4",
-        "default": 3.0,
+        "default": 3.14,
         "validator": {
           "type": "NumberValidator",
           "maximum": 4.0,

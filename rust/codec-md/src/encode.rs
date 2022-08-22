@@ -477,7 +477,7 @@ impl ToMd for Include {
             ["{", &options.join(" "), "}"].concat()
         };
 
-        ["+[", &self.source, "]", &attrs, "\n\n"].concat()
+        ["/", &self.source, &attrs, "\n\n"].concat()
     }
 }
 

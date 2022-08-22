@@ -4,7 +4,7 @@ Boolean parameters /par1/{bool def=true} and /par2/{bool def=false}.
 
 Integer parameters /parA/{int min=1 max=100 mult=2 def=2} and /parB/{int max=100 def=42}.
 
-Number parameters /par3/{num min=1 max=100 mult=2 def=22} and /par4/{num min=-1 max=4 def=3.0}.
+Number parameters /par3/{num min=1 max=100 mult=2 def=22} and /par4/{num min=-1 max=4 def=3.14}.
 
 String parameters /par5/{str min=1 max=100} and /par6/{str min=1 max=20 pattern="[A-Za-z ]+"}.
 

@@ -2,10 +2,11 @@ use std::collections::HashMap;
 
 use nom::{
     branch::alt,
-    bytes::complete::{escaped, tag, take, take_till, take_until, take_while1},
+    bytes::complete::{escaped, is_not, tag, tag_no_case, take, take_until, take_while1},
     character::complete::{alphanumeric1, char, digit1, multispace0, multispace1, none_of},
-    combinator::{map, map_res, not, opt, peek},
+    combinator::{all_consuming, map, map_res, not, opt, peek, recognize},
     multi::{fold_many0, separated_list0, separated_list1},
+    number::complete::double,
     sequence::{delimited, pair, preceded, tuple},
     IResult,
 };
@@ -271,15 +272,16 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                     }))
                 }
                 Tag::Paragraph => {
-                    let node = if inlines.text.starts_with("$$") && inlines.text.ends_with("$$") {
+                    let trimmed = inlines.text.trim();
+                    let node = if trimmed.starts_with("$$") && trimmed.ends_with("$$") {
                         BlockContent::MathBlock(MathBlock {
-                            text: inlines.text[2..inlines.text.len() - 2].trim().to_string(),
+                            text: trimmed[2..trimmed.len() - 2].trim().to_string(),
                             math_language: Some(Box::new("tex".to_string())),
                             ..Default::default()
                         })
-                    } else if let Ok((.., include)) = include(&inlines.text) {
+                    } else if let Ok((.., include)) = include(trimmed) {
                         BlockContent::Include(include)
-                    } else if let Ok((.., call)) = call(&inlines.text) {
+                    } else if let Ok((.., call)) = call(trimmed) {
                         BlockContent::Call(call)
                     } else {
                         BlockContent::Paragraph(Paragraph {
@@ -791,33 +793,51 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
     map_res(
         pair(delimited(char('/'), alphanumeric1, char('/')), curly_attrs),
         |(name, attrs)| -> Result<InlineContent> {
-            let first = attrs.first().map(|(name, ..)| Some(name.clone()));
-            let options: HashMap<String, Option<String>> = attrs.into_iter().collect();
+            let first = attrs
+                .first()
+                .map(|(name, ..)| Some(Node::String(name.clone())));
+            let mut options: HashMap<String, Option<Node>> = attrs.into_iter().collect();
 
             let typ = options
                 .get("type")
                 .or(first.as_ref())
-                .and_then(|value| value.as_deref());
+                .and_then(|value| value.as_ref())
+                .map(|node| node.to_txt());
+            let typ = typ.as_deref();
+
+            fn to_option_number(node: Node) -> Option<Number> {
+                match node {
+                    Node::Number(num) => Some(num),
+                    Node::Integer(num) => Some(Number(num as f64)),
+                    _ => node.to_txt().parse().ok(),
+                }
+            }
+            fn to_option_u32(node: Node) -> Option<u32> {
+                match node {
+                    Node::Integer(int) => Some(int as u32),
+                    _ => node.to_txt().parse().ok(),
+                }
+            }
 
             let validator = if matches!(typ, Some("boolean")) || matches!(typ, Some("bool")) {
                 Some(ValidatorTypes::BooleanValidator(BooleanValidator::default()))
             } else if matches!(typ, Some("integer")) || matches!(typ, Some("int")) {
                 let minimum = options
-                    .get("minimum")
-                    .or_else(|| options.get("min"))
-                    .and_then(|value| value.as_ref())
-                    .and_then(|value| value.parse().ok());
+                    .remove("minimum")
+                    .or_else(|| options.remove("min"))
+                    .and_then(|node| node)
+                    .and_then(to_option_number);
                 let maximum = options
-                    .get("maximum")
-                    .or_else(|| options.get("max"))
-                    .and_then(|value| value.as_ref())
-                    .and_then(|value| value.parse().ok());
+                    .remove("maximum")
+                    .or_else(|| options.remove("max"))
+                    .and_then(|node| node)
+                    .and_then(to_option_number);
                 let multiple_of = options
-                    .get("multiple_of")
-                    .or_else(|| options.get("mult"))
-                    .or_else(|| options.get("step"))
-                    .and_then(|value| value.as_ref())
-                    .and_then(|value| value.parse().ok());
+                    .remove("multiple_of")
+                    .or_else(|| options.remove("mult"))
+                    .or_else(|| options.remove("step"))
+                    .and_then(|node| node)
+                    .and_then(to_option_number);
                 Some(ValidatorTypes::IntegerValidator(IntegerValidator {
                     minimum,
                     maximum,
@@ -826,20 +846,20 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 }))
             } else if matches!(typ, Some("number")) || matches!(typ, Some("num")) {
                 let minimum = options
-                    .get("minimum")
-                    .or_else(|| options.get("min"))
-                    .and_then(|value| value.as_ref())
-                    .and_then(|value| value.parse().ok());
+                    .remove("minimum")
+                    .or_else(|| options.remove("min"))
+                    .and_then(|node| node)
+                    .and_then(to_option_number);
                 let maximum = options
-                    .get("maximum")
-                    .or_else(|| options.get("max"))
-                    .and_then(|value| value.as_ref())
-                    .and_then(|value| value.parse().ok());
+                    .remove("maximum")
+                    .or_else(|| options.remove("max"))
+                    .and_then(|node| node)
+                    .and_then(to_option_number);
                 let multiple_of = options
-                    .get("multiple_of")
-                    .or_else(|| options.get("mult"))
-                    .and_then(|value| value.as_ref())
-                    .and_then(|value| value.parse().ok());
+                    .remove("multiple_of")
+                    .or_else(|| options.remove("mult"))
+                    .and_then(|node| node)
+                    .and_then(to_option_number);
                 Some(ValidatorTypes::NumberValidator(NumberValidator {
                     minimum,
                     maximum,
@@ -848,22 +868,25 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 }))
             } else if matches!(typ, Some("string")) || matches!(typ, Some("str")) {
                 let min_length = options
-                    .get("min_length")
-                    .or_else(|| options.get("minlength"))
-                    .or_else(|| options.get("min"))
-                    .and_then(|value| value.as_ref())
-                    .and_then(|value| value.parse().ok());
+                    .remove("min_length")
+                    .or_else(|| options.remove("minlength"))
+                    .or_else(|| options.remove("min"))
+                    .and_then(|node| node)
+                    .and_then(to_option_u32);
                 let max_length = options
-                    .get("max_length")
-                    .or_else(|| options.get("maxlength"))
-                    .or_else(|| options.get("max"))
-                    .and_then(|value| value.as_ref())
-                    .and_then(|value| value.parse().ok());
+                    .remove("max_length")
+                    .or_else(|| options.remove("maxlength"))
+                    .or_else(|| options.remove("max"))
+                    .and_then(|node| node)
+                    .and_then(to_option_u32);
                 let pattern = options
-                    .get("pattern")
-                    .or_else(|| options.get("regex"))
-                    .and_then(|value| value.as_ref())
-                    .map(|value| Box::new(unescape(value)));
+                    .remove("pattern")
+                    .or_else(|| options.remove("regex"))
+                    .and_then(|value| value)
+                    .map(|node| match node {
+                        Node::String(string) => Box::new(string),
+                        _ => Box::new(node.to_txt()),
+                    });
                 Some(ValidatorTypes::StringValidator(StringValidator {
                     min_length,
                     max_length,
@@ -872,24 +895,29 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 }))
             } else if matches!(typ, Some("enum")) {
                 let values = options
-                    .get("values")
-                    .or_else(|| options.get("vals"))
-                    .and_then(|value| value.as_ref())
-                    .map(|string| {
-                        let string = unescape(string);
-                        let json = match string.starts_with('[') && string.ends_with('[') {
-                            true => string.clone(),
-                            false => ["[", &string, "]"].concat(),
-                        };
-                        match json5::from_str::<Vec<Node>>(&json) {
-                            Ok(array) => array,
-                            Err(..) => string
-                                .split(',')
-                                .map(|item| Node::String(item.trim().to_string()))
-                                .collect(),
-                        }
-                    })
-                    .unwrap_or_default();
+                    .remove("values")
+                    .or_else(|| options.remove("vals"))
+                    .and_then(|values| values);
+                let values = match values {
+                    Some(node) => match node {
+                        // Usually the supplied node is an array, which we need to convert
+                        // to a vector of `Node`s
+                        Node::Array(array) => array
+                            .into_iter()
+                            .map(|primitive| match primitive {
+                                Primitive::Null(node) => Node::Null(node),
+                                Primitive::Boolean(node) => Node::Boolean(node),
+                                Primitive::Integer(node) => Node::Integer(node),
+                                Primitive::Number(node) => Node::Number(node),
+                                Primitive::String(node) => Node::String(node),
+                                Primitive::Array(node) => Node::Array(node),
+                                Primitive::Object(node) => Node::Object(node),
+                            })
+                            .collect(),
+                        _ => vec![node],
+                    },
+                    None => vec![],
+                };
                 Some(ValidatorTypes::EnumValidator(EnumValidator {
                     values,
                     ..Default::default()
@@ -900,24 +928,15 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
             .map(Box::new);
 
             let default = options
-                .get("default")
-                .or_else(|| options.get("def"))
-                .and_then(|value| value.as_ref())
-                .map(|string| {
-                    let string = unescape(string);
-                    json5::from_str::<Node>(&string)
-                        .unwrap_or_else(|_| Node::String(string.clone()))
-                })
+                .remove("default")
+                .or_else(|| options.remove("def"))
+                .and_then(|value| value)
                 .map(Box::new);
 
             let value = options
-                .get("value")
-                .and_then(|value| value.as_ref())
-                .map(|string| {
-                    let string = unescape(string);
-                    json5::from_str::<Node>(&string)
-                        .unwrap_or_else(|_| Node::String(string.clone()))
-                })
+                .remove("value")
+                .or_else(|| options.remove("val"))
+                .and_then(|value| value)
                 .map(Box::new);
 
             Ok(InlineContent::Parameter(Parameter {
@@ -1095,8 +1114,6 @@ pub fn superscript(input: &str) -> IResult<&str, InlineContent> {
     )(input)
 }
 
-type Attrs = Vec<(String, Option<String>)>;
-
 /// Parse attributes inside curly braces
 ///
 /// Curly braced attributes are used to specify options on various inline
@@ -1105,7 +1122,7 @@ type Attrs = Vec<(String, Option<String>)>;
 /// This is lenient to the form of attributes and consumes everything
 /// until the closing bracket. Attribute names are converted to snake_case
 /// (so that users don't have to remember which case to use).
-fn curly_attrs(input: &str) -> IResult<&str, Attrs> {
+fn curly_attrs(input: &str) -> IResult<&str, Vec<(String, Option<Node>)>> {
     alt((
         map(tag("{}"), |_| Vec::new()),
         delimited(
@@ -1116,50 +1133,119 @@ fn curly_attrs(input: &str) -> IResult<&str, Attrs> {
     ))(input)
 }
 
-/// Parse an attribute inside a set of curly braced attributes.
+/// Parse an attribute inside a curly braced attributes into a string/node pair
 ///
 /// Attributes can be single values (i.e. flags) or key-value pairs (separated
 /// by `=` or `:`).
-fn curly_attr(input: &str) -> IResult<&str, (String, Option<String>)> {
+fn curly_attr(input: &str) -> IResult<&str, (String, Option<Node>)> {
     map_res(
         tuple((
-            take_till(|c| c == ' ' || c == '=' || c == ':' || c == '}'),
+            is_not(" =:}"),
             opt(preceded(
                 tuple((multispace0, alt((tag("="), tag(":"))), multispace0)),
-                alt((
-                    single_quoted,
-                    double_quoted,
-                    square_bracketed,
-                    take_till(|c| c == ' ' || c == '}'),
-                )),
+                alt((primitive_node, unquoted_string_node)),
             )),
         )),
-        |(name, value): (&str, Option<&str>)| -> Result<(String, Option<String>)> {
-            Ok((name.to_snake_case(), value.map(|value| value.to_string())))
+        |(name, value): (&str, Option<Node>)| -> Result<(String, Option<Node>)> {
+            Ok((name.to_snake_case(), value))
         },
     )(input)
 }
 
-/// Parse a single quoted string
-fn single_quoted(input: &str) -> IResult<&str, &str> {
+/// Parse a true/false (case-insensitive) into a `Boolean` node
+fn boolean_node(input: &str) -> IResult<&str, Node> {
+    map_res(
+        alt((tag_no_case("true"), tag_no_case("false"))),
+        |str: &str| -> Result<Node> { Ok(Node::Boolean(str == "true")) },
+    )(input)
+}
+
+/// Parse one or more digits into an `Integer` node
+fn integer_node(input: &str) -> IResult<&str, Node> {
+    map_res(
+        // The peek avoids a float input being partially parsed as an integer
+        // There is probably a better way/place to do this.
+        tuple((opt(tag("-")), digit1, peek(is_not(".")))),
+        |(sign, digits, _peek): (Option<&str>, &str, _)| -> Result<Node> {
+            Ok(Node::Integer(
+                (sign.unwrap_or_default().to_string() + digits).parse()?,
+            ))
+        },
+    )(input)
+}
+
+/// Parse one or more digits into an `Number` node
+fn number_node(input: &str) -> IResult<&str, Node> {
+    map_res(double, |num| -> Result<Node> {
+        Ok(Node::Number(Number(num)))
+    })(input)
+}
+
+/// Parse a single quoted string into a `String` node
+fn single_quoted_string_node(input: &str) -> IResult<&str, &str> {
     let escaped = escaped(none_of("\\\'"), '\\', tag("'"));
     let empty = tag("");
     delimited(tag("'"), alt((escaped, empty)), tag("'"))(input)
 }
 
-/// Parse a double quoted string
-fn double_quoted(input: &str) -> IResult<&str, &str> {
+/// Parse a double quoted string into a `String` node
+fn double_quoted_string_node(input: &str) -> IResult<&str, &str> {
     let escaped = escaped(none_of("\\\""), '\\', tag("\""));
     let empty = tag("");
     delimited(tag("\""), alt((escaped, empty)), tag("\""))(input)
 }
 
-/// Parse a JSON-style square bracketed array (inner closing brackets can be escaped)
-/// Does not return the outer brackets
-fn square_bracketed(input: &str) -> IResult<&str, &str> {
+/// Parse characters into string into a `String` node
+///
+/// Excludes character that may be significant in places that this is used.
+fn unquoted_string_node(input: &str) -> IResult<&str, Node> {
+    map_res(is_not(" }"), |str: &str| -> Result<Node> {
+        Ok(Node::String(str.to_string()))
+    })(input)
+}
+
+/// Parse a single or double quoted string into a `String` node
+fn string_node(input: &str) -> IResult<&str, Node> {
+    map_res(
+        alt((single_quoted_string_node, double_quoted_string_node)),
+        |str: &str| -> Result<Node> { Ok(Node::String(str.to_string())) },
+    )(input)
+}
+
+/// Parse a JSON5-style square bracketed array into an `Array` node
+///
+/// Inner closing brackets can be escaped.
+fn array_node(input: &str) -> IResult<&str, Node> {
     let escaped = escaped(none_of("\\]"), '\\', tag("]"));
     let empty = tag("");
-    delimited(tag("["), alt((escaped, empty)), tag("]"))(input)
+    map_res(
+        delimited(tag("["), alt((escaped, empty)), tag("]")),
+        |inner: &str| -> Result<Node> { Ok(json5::from_str(&["[", inner, "]"].concat())?) },
+    )(input)
+}
+
+/// Parse a JSON5-style curly braced object into an `Object` node
+///
+/// Inner closing braces can be escaped.
+fn object_node(input: &str) -> IResult<&str, Node> {
+    let escaped = escaped(none_of("\\}"), '\\', tag("}"));
+    let empty = tag("");
+    map_res(
+        delimited(tag("{"), alt((escaped, empty)), tag("}")),
+        |inner: &str| -> Result<Node> { Ok(json5::from_str(&["{", inner, "}"].concat())?) },
+    )(input)
+}
+
+/// Any primitive node
+fn primitive_node(input: &str) -> IResult<&str, Node> {
+    alt((
+        object_node,
+        array_node,
+        string_node,
+        integer_node,
+        number_node,
+        boolean_node,
+    ))(input)
 }
 
 /// Accumulate characters into a `String` node
@@ -1186,9 +1272,10 @@ fn character(input: &str) -> IResult<&str, InlineContent> {
 /// Parse a string into an `Include` node
 fn include(input: &str) -> IResult<&str, Include> {
     map_res(
-        tuple((
-            delimited(tag("+["), take_till(|c| c == ']'), char(']')),
-            opt(curly_attrs),
+        all_consuming(preceded(
+            char('/'),
+            // Exclude '(' from source to avoid clash with a `Call`
+            tuple((is_not("({"), opt(curly_attrs))),
         )),
         |(source, options)| -> Result<Include> {
             let options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
@@ -1196,12 +1283,12 @@ fn include(input: &str) -> IResult<&str, Include> {
                 source: source.to_string(),
                 media_type: options
                     .get("format")
-                    .and_then(|attr| attr.to_owned())
-                    .map(Box::new),
+                    .and_then(|option| option.as_ref())
+                    .map(|node| Box::new(node.to_txt())),
                 select: options
                     .get("select")
-                    .and_then(|attr| attr.to_owned())
-                    .map(Box::new),
+                    .and_then(|option| option.as_ref())
+                    .map(|node| Box::new(node.to_txt())),
                 ..Default::default()
             })
         },
@@ -1211,23 +1298,22 @@ fn include(input: &str) -> IResult<&str, Include> {
 /// Parse a string into an `Call` node
 fn call(input: &str) -> IResult<&str, Call> {
     map_res(
-        preceded(
+        all_consuming(preceded(
             char('/'),
-            tuple((take_till(|c| c == '('), call_args, opt(curly_attrs))),
-        ),
+            tuple((
+                is_not("("),
+                delimited(char('('), separated_list0(multispace1, call_arg), char(')')),
+                opt(curly_attrs),
+            )),
+        )),
         |(source, args, options)| -> Result<Call> {
             let options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
             let args = args
                 .iter()
-                .map(|(name, value)| {
-                    let string = unescape(value);
-                    let value = json5::from_str::<Node>(&string)
-                        .unwrap_or_else(|_| Node::String(string.clone()));
-                    Parameter {
-                        name: name.into(),
-                        value: Some(Box::new(value)),
-                        ..Default::default()
-                    }
+                .map(|(name, value)| Parameter {
+                    name: name.into(),
+                    value: Some(Box::new(value.to_owned())),
+                    ..Default::default()
                 })
                 .collect_vec();
             Ok(Call {
@@ -1235,44 +1321,29 @@ fn call(input: &str) -> IResult<&str, Call> {
                 arguments: if args.is_empty() { None } else { Some(args) },
                 media_type: options
                     .get("format")
-                    .and_then(|attr| attr.to_owned())
-                    .map(Box::new),
+                    .and_then(|option| option.as_ref())
+                    .map(|node| Box::new(node.to_txt())),
                 select: options
                     .get("select")
-                    .and_then(|attr| attr.to_owned())
-                    .map(Box::new),
+                    .and_then(|option| option.as_ref())
+                    .map(|node| Box::new(node.to_txt())),
                 ..Default::default()
             })
         },
     )(input)
 }
 
-/// Parse arguments inside parentheses
-fn call_args(input: &str) -> IResult<&str, Vec<(String, String)>> {
-    alt((
-        map(tag("()"), |_| Vec::new()),
-        delimited(char('('), separated_list0(multispace1, call_arg), char(')')),
-    ))(input)
-}
-
 /// Parse an argument inside a set of curly braced arguments.
 ///
 /// Arguments must be key-value pairs separated by `=` or `:`.
-fn call_arg(input: &str) -> IResult<&str, (String, String)> {
+fn call_arg(input: &str) -> IResult<&str, (String, Node)> {
     map_res(
         tuple((
-            take_till(|c| c == ' ' || c == '=' || c == ':' || c == ')'),
-            tuple((multispace0, alt((tag("="), tag(":"))), multispace0)),
-            alt((
-                single_quoted,
-                double_quoted,
-                square_bracketed,
-                take_till(|c| c == ' ' || c == ')'),
-            )),
+            is_not(" =)"),
+            delimited(multispace0, tag("="), multispace0),
+            primitive_node,
         )),
-        |(name, _sep, value)| -> Result<(String, String)> {
-            Ok((name.to_string(), value.to_string()))
-        },
+        |(name, _delim, node)| -> Result<(String, Node)> { Ok((name.to_string(), node)) },
     )(input)
 }
 
@@ -1362,7 +1433,7 @@ impl Html {
 mod tests {
     use super::*;
     use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
-    use test_utils::pretty_assertions::assert_eq;
+    use test_utils::{assert_json_eq, pretty_assertions::assert_eq};
 
     #[test]
     fn md_frontmatter() -> Result<()> {
@@ -1386,24 +1457,24 @@ mod tests {
 
     #[test]
     fn test_single_quoted() {
-        let (_, res) = single_quoted(r#"' \' 🤖 '"#).unwrap();
+        let (_, res) = single_quoted_string_node(r#"' \' 🤖 '"#).unwrap();
         assert_eq!(res, r#" \' 🤖 "#);
-        let (_, res) = single_quoted("' → x'").unwrap();
+        let (_, res) = single_quoted_string_node("' → x'").unwrap();
         assert_eq!(res, " → x");
-        let (_, res) = single_quoted("'  '").unwrap();
+        let (_, res) = single_quoted_string_node("'  '").unwrap();
         assert_eq!(res, "  ");
-        let (_, res) = single_quoted("''").unwrap();
+        let (_, res) = single_quoted_string_node("''").unwrap();
         assert_eq!(res, "");
     }
 
     #[test]
     fn test_square_bracketed() {
-        let (_, res) = square_bracketed("[1,2,3]").unwrap();
-        assert_eq!(res, "1,2,3");
-        let (_, res) = square_bracketed("['a', 'b', null]").unwrap();
-        assert_eq!(res, "'a', 'b', null");
-        let (_, res) = square_bracketed("[\\]]").unwrap();
-        assert_eq!(res, "\\]");
+        let (_, res) = array_node("[1,2,3]").unwrap();
+        assert_json_eq!(res, [1, 2, 3]);
+        let (_, res) = array_node("['a', 'b']").unwrap();
+        assert_json_eq!(res, ["a", "b"]);
+        let (_, res) = array_node("[\"string \\] with closing bracket\"]").unwrap();
+        assert_json_eq!(res, ["string ] with closing bracket"]);
     }
 
     #[test]
@@ -1413,13 +1484,13 @@ mod tests {
             vec![("a".to_string(), None),]
         );
 
-        assert_eq!(
-            curly_attrs(r#"{a=1 b='2' c:3 d = 4}"#).unwrap().1,
+        assert_json_eq!(
+            curly_attrs(r#"{a=1 b='2' c:-3 d = 4.0}"#).unwrap().1,
             vec![
-                ("a".to_string(), Some("1".to_string())),
-                ("b".to_string(), Some("2".to_string())),
-                ("c".to_string(), Some("3".to_string())),
-                ("d".to_string(), Some("4".to_string()))
+                ("a", Some(Node::Integer(1))),
+                ("b", Some(Node::String("2".to_string()))),
+                ("c", Some(Node::Integer(-3))),
+                ("d", Some(Node::Number(Number(4.0))))
             ]
         );
     }

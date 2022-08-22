@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 1384
+assertion_line: 1460
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/include.md
 ---
@@ -23,7 +23,7 @@ input_file: fixtures/fragments/md/include.md
   },
   {
     "type": "Include",
-    "source": "./code-chunk.md"
+    "source": "code-chunk.md"
   },
   {
     "type": "Paragraph",
@@ -35,5 +35,16 @@ input_file: fixtures/fragments/md/include.md
     "type": "Include",
     "source": "../md/paragraph.md",
     "mediaType": "md"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A subset of the document can be selected,"
+    ]
+  },
+  {
+    "type": "Include",
+    "source": "../md/paragraph.md",
+    "select": "content.1"
   }
 ]
