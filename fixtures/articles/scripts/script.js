@@ -8,17 +8,17 @@ a = 1
 b = 2
 
 function fn1(x) {
-    x * x
+  x * x
 }
 
 /**
- * A mutliline block comment with a paragraph.
- * 
+ * A multiline block comment with a paragraph.
+ *
  * > And a quote
  * > block
- * 
+ *
  * And a list,
- * 
+ *
  * 1. One
  * 2. Two
  * 3. Three

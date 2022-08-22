@@ -1,8 +1,8 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 158
+assertion_line: 218
 expression: article
-input_file: fixtures/articles/scripts/simple.js
+input_file: fixtures/articles/scripts/script.py
 ---
 {
   "type": "Article",
@@ -10,34 +10,35 @@ input_file: fixtures/articles/scripts/simple.js
     {
       "type": "Paragraph",
       "content": [
-        "A para"
+        "First paragraph, followed by some code"
       ]
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "js",
-      "text": "a = 1\n"
+      "programmingLanguage": "py",
+      "text": "a = 1"
     },
     {
       "type": "Paragraph",
       "content": [
-        "Another para with a code expression that use the above code ",
+        "Second paragraph, with a code expression that uses the above code ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "js",
+          "programmingLanguage": "py",
           "text": "a*2"
-        }
+        },
+        ", followed by some more code, this time multiline,"
       ]
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "js",
-      "text": "b = 2\n"
+      "programmingLanguage": "py",
+      "text": "b = 2\n\ndef fn1(x):\n    x * x"
     },
     {
       "type": "Paragraph",
       "content": [
-        "A mutliline block comment with a paragraph."
+        "A multiline comment with a paragraph."
       ]
     },
     {
@@ -98,8 +99,8 @@ input_file: fixtures/articles/scripts/simple.js
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "js",
-      "text": "c = 3\n"
+      "programmingLanguage": "py",
+      "text": "c = 3"
     }
   ]
 }

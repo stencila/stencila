@@ -11,7 +11,7 @@ fn1 <- function {
     x * x
 }
 
-# A mutliline comment with a paragraph.
+# A multiline comment with a paragraph.
 # 
 # > And a quote
 # > block

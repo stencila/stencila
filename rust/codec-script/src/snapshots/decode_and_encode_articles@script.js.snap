@@ -1,8 +1,8 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 158
+assertion_line: 218
 expression: article
-input_file: fixtures/articles/scripts/script.py
+input_file: fixtures/articles/scripts/script.js
 ---
 {
   "type": "Article",
@@ -15,8 +15,8 @@ input_file: fixtures/articles/scripts/script.py
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "py",
-      "text": "a = 1\n"
+      "programmingLanguage": "js",
+      "text": "a = 1"
     },
     {
       "type": "Paragraph",
@@ -24,7 +24,7 @@ input_file: fixtures/articles/scripts/script.py
         "Second paragraph, with a code expression that uses the above code ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "py",
+          "programmingLanguage": "js",
           "text": "a*2"
         },
         ", followed by some more code, this time multiline,"
@@ -32,13 +32,13 @@ input_file: fixtures/articles/scripts/script.py
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "py",
-      "text": "b = 2\n\ndef fn1(x):\n    x * x\n"
+      "programmingLanguage": "js",
+      "text": "b = 2\n\nfunction fn1(x) {\n    x * x\n}"
     },
     {
       "type": "Paragraph",
       "content": [
-        "A mutliline comment with a paragraph."
+        "A multiline block comment with a paragraph."
       ]
     },
     {
@@ -99,8 +99,8 @@ input_file: fixtures/articles/scripts/script.py
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "py",
-      "text": "c = 3\n"
+      "programmingLanguage": "js",
+      "text": "c = 3"
     }
   ]
 }

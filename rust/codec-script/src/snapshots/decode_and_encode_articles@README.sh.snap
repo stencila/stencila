@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 158
+assertion_line: 218
 expression: article
 input_file: fixtures/articles/scripts/README.sh
 ---
@@ -22,7 +22,7 @@ input_file: fixtures/articles/scripts/README.sh
     {
       "type": "CodeChunk",
       "programmingLanguage": "sh",
-      "text": "NOW=$(date)\n"
+      "text": "NOW=$(date)"
     },
     {
       "type": "Paragraph",

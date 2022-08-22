@@ -10,7 +10,7 @@ b = 2
 def fn1(x):
     x * x
 
-# A mutliline comment with a paragraph.
+# A multiline comment with a paragraph.
 # 
 # > And a quote
 # > block

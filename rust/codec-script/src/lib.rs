@@ -7,9 +7,11 @@ use codec::{
     utils::vec_string,
     Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
+use codec_md::ToMd;
+use common::itertools::Itertools;
 
 // A codec for programming language scripts
-pub struct ScriptCodec {}
+pub struct ScriptCodec;
 
 impl CodecTrait for ScriptCodec {
     fn spec() -> Codec {
@@ -58,7 +60,7 @@ impl CodecTrait for ScriptCodec {
         let code_block = |code: &str| -> BlockContent {
             BlockContent::CodeChunk(CodeChunk {
                 programming_language: lang.clone(),
-                text: code.trim().to_string() + "\n",
+                text: code.trim().to_string(),
                 ..Default::default()
             })
         };
@@ -131,8 +133,64 @@ impl CodecTrait for ScriptCodec {
         }))
     }
 
-    fn to_string(node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
-        todo!()
+    fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+        let options = options.unwrap_or_default();
+
+        let blocks = match node {
+            Node::Article(Article { content, .. }) => match content {
+                Some(blocks) => blocks,
+                None => return Ok(String::new()),
+            },
+            _ => bail!("Unhandled node type `{}`", node.as_ref()),
+        };
+
+        let lang = match options.format {
+            Some(format) => format.to_lowercase(),
+            None => bail!("A format option (the programming language of the script) is required"),
+        };
+        let comment_start = match lang.as_str() {
+            "bash" | "py" | "r" | "sh" | "zsh" => "# ",
+            "js" => "// ",
+            _ => bail!("Unhandled programming language `{}`", lang),
+        };
+
+        // Iterate over blocks, adding `CodeChunk`s as code, and everything else, as Markdown comments
+        let mut script = String::new();
+        let mut comment_blocks = Vec::new();
+        let blocks_to_comment = |blocks: &Vec<&BlockContent>| -> String {
+            blocks
+                .iter()
+                .map(|block| block.to_md().trim_end().to_string())
+                .join("\n\n")
+                .lines()
+                .map(|line| [comment_start, line].concat())
+                .join("\n")
+        };
+        for block in blocks {
+            if let BlockContent::CodeChunk(CodeChunk { text, .. }) = block {
+                if !comment_blocks.is_empty() {
+                    script.push_str(&blocks_to_comment(&comment_blocks));
+                    script.push_str("\n\n");
+
+                    comment_blocks.clear();
+                }
+                script.push_str(text);
+
+                if text.ends_with('\n') {
+                    script.push('\n');
+                } else {
+                    script.push_str("\n\n");
+                }
+            } else {
+                comment_blocks.push(block)
+            }
+        }
+
+        if !comment_blocks.is_empty() {
+            script.push_str(&blocks_to_comment(&comment_blocks))
+        }
+
+        Ok(script.trim_end().to_string() + "\n")
     }
 }
 
@@ -141,21 +199,38 @@ mod tests {
     use std::path::Path;
 
     use super::*;
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_path_content};
+    use test_snaps::{
+        insta::{assert_json_snapshot, assert_snapshot},
+        snapshot_fixtures_path_content,
+    };
 
     #[test]
-    fn decode_articles() {
+    fn decode_and_encode_articles() {
         snapshot_fixtures_path_content("articles/scripts/*", |path: &Path, content| {
             let format = path
                 .extension()
                 .unwrap_or_default()
                 .to_string_lossy()
                 .to_string();
-            let options = DecodeOptions {
-                format: Some(format),
-            };
-            let article = ScriptCodec::from_str(content, Some(options)).unwrap();
+
+            let article = ScriptCodec::from_str(
+                content,
+                Some(DecodeOptions {
+                    format: Some(format.clone()),
+                }),
+            )
+            .unwrap();
             assert_json_snapshot!(article);
+
+            let script = ScriptCodec::to_string(
+                &article,
+                Some(EncodeOptions {
+                    format: Some(format),
+                    ..Default::default()
+                }),
+            )
+            .unwrap();
+            assert_snapshot!(script);
         });
     }
 }
