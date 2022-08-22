@@ -708,17 +708,49 @@ prop_compose! {
     /// Generate an include node
     pub fn include(freedom: Freedom)(
         source in match freedom {
-            Freedom::Min => "somefile.fmt",
+            Freedom::Min => r"somefile\.fmt",
             Freedom::Low => r"[A-Za-z0-9/.]+",
             _ => r"[A-Za-z0-9/.-_]+",
         },
         media_type in match freedom {
             Freedom::Min => of("fmt"),
             _ => of(r"[A-Za-z0-9]+"),
+        },
+        select in match freedom {
+            Freedom::Min => of("query"),
+            _ => of(r"[A-Za-z0-9]+"),
         }
     ) -> BlockContent {
         BlockContent::Include(Include{
-            source, media_type: media_type.map(Box::new),
+            source,
+            media_type: media_type.map(Box::new),
+            select: select.map(Box::new),
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate a call block
+    pub fn call(freedom: Freedom)(
+        source in match freedom {
+            Freedom::Min => r"somefile\.fmt",
+            Freedom::Low => r"[A-Za-z0-9/.]+",
+            _ => r"[A-Za-z0-9/.-_]+",
+        },
+        media_type in match freedom {
+            Freedom::Min => of("fmt"),
+            _ => of(r"[A-Za-z0-9]+"),
+        },
+        select in match freedom {
+            Freedom::Min => of("query"),
+            _ => of(r"[A-Za-z0-9]+"),
+        }
+    ) -> BlockContent {
+        BlockContent::Call(Call{
+            source,
+            media_type: media_type.map(Box::new),
+            select: select.map(Box::new),
             ..Default::default()
         })
     }
@@ -730,6 +762,9 @@ pub fn block_content(
     exclude_types: Vec<String>,
 ) -> impl Strategy<Value = BlockContent> {
     let mut strategies = Vec::new();
+    if !exclude_types.contains(&"Call".to_string()) {
+        strategies.push(call(freedom).boxed())
+    }
     if !exclude_types.contains(&"CodeBlock".to_string()) {
         strategies.push(code_block(freedom).boxed())
     }
