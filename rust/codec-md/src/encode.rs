@@ -7,19 +7,20 @@ use codec::{
 };
 
 /// Encode a `Node` to Markdown
-pub fn encode(node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
-    Ok(node.to_md().trim().to_string())
+pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+    let options = options.unwrap_or_default();
+    Ok(node.to_md(&options).trim().to_string())
 }
 
 /// A trait to encode a `Node` as Markdown
 pub trait ToMd {
-    fn to_md(&self) -> String;
+    fn to_md(&self, options: &EncodeOptions) -> String;
 }
 
 macro_rules! primitive_to_md {
     ($type:ty) => {
         impl ToMd for $type {
-            fn to_md(&self) -> String {
+            fn to_md(&self, _options: &EncodeOptions) -> String {
                 self.to_string()
             }
         }
@@ -36,9 +37,9 @@ impl<Type> ToMd for Option<Type>
 where
     Type: ToMd,
 {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
-            Some(value) => value.to_md(),
+            Some(value) => value.to_md(options),
             None => "".to_string(),
         }
     }
@@ -48,8 +49,8 @@ impl<Type> ToMd for Box<Type>
 where
     Type: ToMd,
 {
-    fn to_md(&self) -> String {
-        self.as_ref().to_md()
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        self.as_ref().to_md(options)
     }
 }
 
@@ -57,9 +58,9 @@ impl<Type> ToMd for Vec<Type>
 where
     Type: ToMd,
 {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         self.iter()
-            .map(|item| item.to_md())
+            .map(|item| item.to_md(options))
             .collect::<Vec<String>>()
             .concat()
     }
@@ -68,9 +69,9 @@ where
 macro_rules! slice_to_md {
     ($type:ty) => {
         impl ToMd for $type {
-            fn to_md(&self) -> String {
+            fn to_md(&self, options: &EncodeOptions) -> String {
                 self.iter()
-                    .map(|item| item.to_md())
+                    .map(|item| item.to_md(options))
                     .collect::<Vec<String>>()
                     .concat()
             }
@@ -84,8 +85,8 @@ slice_to_md!([BlockContent]);
 macro_rules! delimited_inline_content_to_md {
     ($type:ty, $delimiter:expr) => {
         impl ToMd for $type {
-            fn to_md(&self) -> String {
-                [$delimiter, &self.content.to_md(), $delimiter].concat()
+            fn to_md(&self, options: &EncodeOptions) -> String {
+                [$delimiter, &self.content.to_md(options), $delimiter].concat()
             }
         }
     };
@@ -98,19 +99,19 @@ delimited_inline_content_to_md!(Subscript, "~");
 delimited_inline_content_to_md!(Superscript, "^");
 
 impl ToMd for Underline {
-    fn to_md(&self) -> String {
-        ["<u>", &self.content.to_md(), "</u>"].concat()
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        ["<u>", &self.content.to_md(options), "</u>"].concat()
     }
 }
 
 impl ToMd for Quote {
-    fn to_md(&self) -> String {
-        ["<q>", &self.content.to_md(), "</q>"].concat()
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        ["<q>", &self.content.to_md(options), "</q>"].concat()
     }
 }
 
 impl ToMd for CodeExpression {
-    fn to_md(&self) -> String {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
         ["`", &self.text, "`{", &self.programming_language, " exec}"].concat()
     }
 }
@@ -118,7 +119,7 @@ impl ToMd for CodeExpression {
 macro_rules! delimited_inline_text_to_md {
     ($type:ty, $delimiter:expr) => {
         impl ToMd for $type {
-            fn to_md(&self) -> String {
+            fn to_md(&self, _options: &EncodeOptions) -> String {
                 [$delimiter, &self.text, $delimiter].concat()
             }
         }
@@ -128,7 +129,7 @@ macro_rules! delimited_inline_text_to_md {
 delimited_inline_text_to_md!(CodeFragment, "`");
 
 impl ToMd for MathFragment {
-    fn to_md(&self) -> String {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
         match self.math_language.as_ref().map(|string| string.as_str()) {
             Some("asciimath") => ["`", &self.text, "`{asciimath}"].concat(),
             _ => ["$", &self.text, "$"].concat(),
@@ -137,7 +138,7 @@ impl ToMd for MathFragment {
 }
 
 impl ToMd for Parameter {
-    fn to_md(&self) -> String {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
         let mut options = String::new();
 
         if let Some(validator) = &self.validator {
@@ -165,15 +166,15 @@ impl ToMd for Parameter {
 }
 
 impl ToMd for Link {
-    fn to_md(&self) -> String {
-        ["[", &self.content.to_md(), "](", &self.target, ")"].concat()
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        ["[", &self.content.to_md(options), "](", &self.target, ")"].concat()
     }
 }
 
 macro_rules! inline_media_object_to_md {
     ($type:ty) => {
         impl ToMd for $type {
-            fn to_md(&self) -> String {
+            fn to_md(&self, _options: &EncodeOptions) -> String {
                 ["![", "](", &self.content_url, ")"].concat()
             }
         }
@@ -185,11 +186,11 @@ inline_media_object_to_md!(ImageObjectSimple);
 inline_media_object_to_md!(VideoObjectSimple);
 
 impl ToMd for Heading {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         [
             &"#".repeat(self.depth.unwrap_or(1) as usize),
             " ",
-            &self.content.to_md(),
+            &self.content.to_md(options),
             "\n\n",
         ]
         .concat()
@@ -197,13 +198,17 @@ impl ToMd for Heading {
 }
 
 impl ToMd for Paragraph {
-    fn to_md(&self) -> String {
-        [&self.content.to_md(), "\n\n"].concat()
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        let mut md = self.content.to_md(options);
+        if let Some(width) = options.max_width {
+            textwrap::fill_inplace(&mut md, width);
+        };
+        [&md, "\n\n"].concat()
     }
 }
 
 impl ToMd for CodeBlock {
-    fn to_md(&self) -> String {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
         let lang = match &self.programming_language {
             Some(boxed) => boxed.as_str(),
             None => "",
@@ -214,7 +219,7 @@ impl ToMd for CodeBlock {
 }
 
 impl ToMd for CodeChunk {
-    fn to_md(&self) -> String {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
         [
             "```",
             &self.programming_language,
@@ -227,7 +232,7 @@ impl ToMd for CodeChunk {
 }
 
 impl ToMd for MathBlock {
-    fn to_md(&self) -> String {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
         match self.math_language.as_ref().map(|string| string.as_str()) {
             Some("asciimath") => ["```asciimath\n", &self.text, "\n```\n\n"].concat(),
             _ => ["$$\n", &self.text, "\n$$\n\n"].concat(),
@@ -236,7 +241,7 @@ impl ToMd for MathBlock {
 }
 
 impl ToMd for List {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         let ordered = matches!(&self.order, Some(ListOrder::Ascending));
         let items: Vec<String> = self
             .items
@@ -248,7 +253,7 @@ impl ToMd for List {
                 } else {
                     "- ".to_string()
                 };
-                item.to_md()
+                item.to_md(options)
                     .split('\n')
                     .enumerate()
                     .map(|(index, line)| {
@@ -282,7 +287,7 @@ impl ToMd for List {
 }
 
 impl ToMd for ListItem {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         let checkbox = self.is_checked.map(|is_checked| match is_checked {
             true => InlineContent::String("[x] ".to_string()),
             false => InlineContent::String("[ ] ".to_string()),
@@ -290,8 +295,8 @@ impl ToMd for ListItem {
         match &self.content {
             Some(content) => match content {
                 ListItemContent::VecInlineContent(inlines) => match checkbox {
-                    Some(checkbox) => [vec![checkbox], inlines.clone()].concat().to_md(),
-                    None => inlines.to_md(),
+                    Some(checkbox) => [vec![checkbox], inlines.clone()].concat().to_md(options),
+                    None => inlines.to_md(options),
                 },
                 ListItemContent::VecBlockContent(blocks) => match checkbox {
                     Some(checkbox) => {
@@ -299,12 +304,12 @@ impl ToMd for ListItem {
                         if let Some(BlockContent::Paragraph(paragraph)) = blocks.first() {
                             let mut paragraph = paragraph.clone();
                             paragraph.content.insert(0, checkbox);
-                            [paragraph.to_md(), blocks[1..].to_md()].concat()
+                            [paragraph.to_md(options), blocks[1..].to_md(options)].concat()
                         } else {
-                            blocks.to_md()
+                            blocks.to_md(options)
                         }
                     }
-                    None => blocks.to_md(),
+                    None => blocks.to_md(options),
                 },
             },
             None => "".to_string(),
@@ -313,13 +318,13 @@ impl ToMd for ListItem {
 }
 
 impl ToMd for QuoteBlock {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         let content: Vec<String> = self
             .content
             .iter()
             .map(|block| {
                 block
-                    .to_md()
+                    .to_md(options)
                     .trim()
                     .lines()
                     .map(|line| ["> ", line].concat())
@@ -331,7 +336,7 @@ impl ToMd for QuoteBlock {
 }
 
 impl ToMd for TableSimple {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         let mut column_widths: Vec<usize> = Vec::new();
         let mut rows: Vec<Vec<String>> = Vec::new();
         for row in &self.rows {
@@ -340,8 +345,8 @@ impl ToMd for TableSimple {
                 let content = match &cell.content {
                     None => "".to_string(),
                     Some(content) => match content {
-                        TableCellContent::VecInlineContent(inlines) => inlines.to_md(),
-                        TableCellContent::VecBlockContent(blocks) => blocks.to_md(),
+                        TableCellContent::VecInlineContent(inlines) => inlines.to_md(options),
+                        TableCellContent::VecBlockContent(blocks) => blocks.to_md(options),
                     },
                 };
                 let width = content.len();
@@ -398,7 +403,7 @@ impl ToMd for TableSimple {
 }
 
 impl ToMd for ThematicBreak {
-    fn to_md(&self) -> String {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
         "---\n\n".to_string()
     }
 }
@@ -406,8 +411,8 @@ impl ToMd for ThematicBreak {
 macro_rules! content_to_md {
     ($type:ty) => {
         impl ToMd for $type {
-            fn to_md(&self) -> String {
-                self.content.to_md()
+            fn to_md(&self, options: &EncodeOptions) -> String {
+                self.content.to_md(options)
             }
         }
     };
@@ -417,100 +422,100 @@ content_to_md!(Article);
 content_to_md!(CreativeWork);
 
 impl ToMd for CreativeWorkContent {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
-            CreativeWorkContent::String(node) => node.to_md(),
-            CreativeWorkContent::VecNode(nodes) => nodes.to_md(),
+            CreativeWorkContent::String(node) => node.to_md(options),
+            CreativeWorkContent::VecNode(nodes) => nodes.to_md(options),
         }
     }
 }
 
 impl ToMd for Node {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
-            Node::Article(node) => node.to_md(),
-            Node::Boolean(node) => node.to_md(),
-            //Node::Cite(node) => node.to_md(),
-            Node::CodeBlock(node) => node.to_md(),
-            Node::CodeFragment(node) => node.to_md(),
-            Node::CreativeWork(node) => node.to_md(),
-            Node::Emphasis(node) => node.to_md(),
-            Node::Heading(node) => node.to_md(),
-            Node::Integer(node) => node.to_md(),
-            Node::Link(node) => node.to_md(),
-            Node::List(node) => node.to_md(),
-            //Node::Note(node) => node.to_md(),
-            Node::Null(node) => node.to_md(),
-            Node::Number(node) => node.to_md(),
-            Node::Paragraph(node) => node.to_md(),
-            Node::Parameter(node) => node.to_md(),
-            Node::Quote(node) => node.to_md(),
-            Node::QuoteBlock(node) => node.to_md(),
-            Node::Strikeout(node) => node.to_md(),
-            Node::String(node) => node.to_md(),
-            Node::Strong(node) => node.to_md(),
-            Node::Subscript(node) => node.to_md(),
-            Node::Superscript(node) => node.to_md(),
-            Node::Underline(node) => node.to_md(),
+            Node::Article(node) => node.to_md(options),
+            Node::Boolean(node) => node.to_md(options),
+            //Node::Cite(node) => node.to_md(options),
+            Node::CodeBlock(node) => node.to_md(options),
+            Node::CodeFragment(node) => node.to_md(options),
+            Node::CreativeWork(node) => node.to_md(options),
+            Node::Emphasis(node) => node.to_md(options),
+            Node::Heading(node) => node.to_md(options),
+            Node::Integer(node) => node.to_md(options),
+            Node::Link(node) => node.to_md(options),
+            Node::List(node) => node.to_md(options),
+            //Node::Note(node) => node.to_md(options),
+            Node::Null(node) => node.to_md(options),
+            Node::Number(node) => node.to_md(options),
+            Node::Paragraph(node) => node.to_md(options),
+            Node::Parameter(node) => node.to_md(options),
+            Node::Quote(node) => node.to_md(options),
+            Node::QuoteBlock(node) => node.to_md(options),
+            Node::Strikeout(node) => node.to_md(options),
+            Node::String(node) => node.to_md(options),
+            Node::Strong(node) => node.to_md(options),
+            Node::Subscript(node) => node.to_md(options),
+            Node::Superscript(node) => node.to_md(options),
+            Node::Underline(node) => node.to_md(options),
             _ => "<!-- unsupported type -->".to_string(),
         }
     }
 }
 
 impl ToMd for InlineContent {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
-            InlineContent::AudioObject(node) => node.to_md(),
-            InlineContent::Boolean(node) => node.to_md(),
-            //InlineContent::Cite(node) => node.to_md(),
-            InlineContent::CodeExpression(node) => node.to_md(),
-            InlineContent::CodeFragment(node) => node.to_md(),
-            InlineContent::Emphasis(node) => node.to_md(),
-            InlineContent::ImageObject(node) => node.to_md(),
-            InlineContent::Integer(node) => node.to_md(),
-            InlineContent::Link(node) => node.to_md(),
-            //InlineContent::Note(node) => node.to_md(),
-            InlineContent::Null(node) => node.to_md(),
-            InlineContent::Number(node) => node.to_md(),
-            InlineContent::MathFragment(node) => node.to_md(),
-            InlineContent::Parameter(node) => node.to_md(),
-            InlineContent::Quote(node) => node.to_md(),
-            InlineContent::Strikeout(node) => node.to_md(),
-            InlineContent::String(node) => node.to_md(),
-            InlineContent::Strong(node) => node.to_md(),
-            InlineContent::Subscript(node) => node.to_md(),
-            InlineContent::Superscript(node) => node.to_md(),
-            InlineContent::Underline(node) => node.to_md(),
-            InlineContent::VideoObject(node) => node.to_md(),
+            InlineContent::AudioObject(node) => node.to_md(options),
+            InlineContent::Boolean(node) => node.to_md(options),
+            //InlineContent::Cite(node) => node.to_md(options),
+            InlineContent::CodeExpression(node) => node.to_md(options),
+            InlineContent::CodeFragment(node) => node.to_md(options),
+            InlineContent::Emphasis(node) => node.to_md(options),
+            InlineContent::ImageObject(node) => node.to_md(options),
+            InlineContent::Integer(node) => node.to_md(options),
+            InlineContent::Link(node) => node.to_md(options),
+            //InlineContent::Note(node) => node.to_md(options),
+            InlineContent::Null(node) => node.to_md(options),
+            InlineContent::Number(node) => node.to_md(options),
+            InlineContent::MathFragment(node) => node.to_md(options),
+            InlineContent::Parameter(node) => node.to_md(options),
+            InlineContent::Quote(node) => node.to_md(options),
+            InlineContent::Strikeout(node) => node.to_md(options),
+            InlineContent::String(node) => node.to_md(options),
+            InlineContent::Strong(node) => node.to_md(options),
+            InlineContent::Subscript(node) => node.to_md(options),
+            InlineContent::Superscript(node) => node.to_md(options),
+            InlineContent::Underline(node) => node.to_md(options),
+            InlineContent::VideoObject(node) => node.to_md(options),
             _ => "<!-- unsupported type -->".to_string(),
         }
     }
 }
 
 impl ToMd for BlockContent {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
-            //BlockContent::Claim(node) => node.to_md(),
-            BlockContent::CodeBlock(node) => node.to_md(),
-            BlockContent::CodeChunk(node) => node.to_md(),
-            BlockContent::Heading(node) => node.to_md(),
-            BlockContent::List(node) => node.to_md(),
-            BlockContent::MathBlock(node) => node.to_md(),
-            BlockContent::Paragraph(node) => node.to_md(),
-            BlockContent::QuoteBlock(node) => node.to_md(),
-            BlockContent::Table(node) => node.to_md(),
-            BlockContent::ThematicBreak(node) => node.to_md(),
+            //BlockContent::Claim(node) => node.to_md(options),
+            BlockContent::CodeBlock(node) => node.to_md(options),
+            BlockContent::CodeChunk(node) => node.to_md(options),
+            BlockContent::Heading(node) => node.to_md(options),
+            BlockContent::List(node) => node.to_md(options),
+            BlockContent::MathBlock(node) => node.to_md(options),
+            BlockContent::Paragraph(node) => node.to_md(options),
+            BlockContent::QuoteBlock(node) => node.to_md(options),
+            BlockContent::Table(node) => node.to_md(options),
+            BlockContent::ThematicBreak(node) => node.to_md(options),
             _ => "<!-- unsupported type -->".to_string(),
         }
     }
 }
 
 impl ToMd for ThingDescription {
-    fn to_md(&self) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
             ThingDescription::String(string) => string.to_string(),
-            ThingDescription::VecInlineContent(inlines) => inlines.to_md(),
-            ThingDescription::VecBlockContent(blocks) => blocks.to_md(),
+            ThingDescription::VecInlineContent(inlines) => inlines.to_md(options),
+            ThingDescription::VecBlockContent(blocks) => blocks.to_md(options),
         }
     }
 }
@@ -519,6 +524,29 @@ impl ToMd for ThingDescription {
 mod tests {
     use super::*;
     use test_utils::pretty_assertions::assert_eq;
+
+    /// Test wrapping of long paragraphs
+    #[test]
+    fn encode_paragraph_long() {
+        let md = encode(
+            &Node::Paragraph(Paragraph {
+                content: vec![InlineContent::String(
+                    "This should be on first and this on second, and yep, this on third."
+                        .to_string(),
+                )],
+                ..Default::default()
+            }),
+            Some(EncodeOptions {
+                max_width: Some(24),
+                ..Default::default()
+            }),
+        )
+        .unwrap();
+        assert_eq!(
+            md,
+            "This should be on first\nand this on second, and\nyep, this on third."
+        )
+    }
 
     /// A regression test that quote blocks do not have unnecessary lines starting with >
     #[test]

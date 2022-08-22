@@ -134,7 +134,10 @@ impl CodecTrait for ScriptCodec {
     }
 
     fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-        let options = options.unwrap_or_default();
+        let mut options = options.unwrap_or_default();
+        if options.max_width.is_none() {
+            options.max_width = Some(100);
+        }
 
         let blocks = match node {
             Node::Article(Article { content, .. }) => match content {
@@ -144,7 +147,7 @@ impl CodecTrait for ScriptCodec {
             _ => bail!("Unhandled node type `{}`", node.as_ref()),
         };
 
-        let lang = match options.format {
+        let lang = match &options.format {
             Some(format) => format.to_lowercase(),
             None => bail!("A format option (the programming language of the script) is required"),
         };
@@ -160,7 +163,7 @@ impl CodecTrait for ScriptCodec {
         let blocks_to_comment = |blocks: &Vec<&BlockContent>| -> String {
             blocks
                 .iter()
-                .map(|block| block.to_md().trim_end().to_string())
+                .map(|block| block.to_md(&options).trim_end().to_string())
                 .join("\n\n")
                 .lines()
                 .map(|line| [comment_start, line].concat())

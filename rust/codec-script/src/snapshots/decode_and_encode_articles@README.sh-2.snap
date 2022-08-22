@@ -1,12 +1,13 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 233
+assertion_line: 236
 expression: script
 input_file: fixtures/articles/scripts/README.sh
 ---
 # These are examples of writing articles using programming language scripts (like this one)
 # 
-# Comments are parsed as Markdown and can have all the normal Markdown syntax, including Stencila extensions. Code is parsed into code chunks.
+# Comments are parsed as Markdown and can have all the normal Markdown syntax, including Stencila
+# extensions. Code is parsed into code chunks.
 
 NOW=$(date)
 
