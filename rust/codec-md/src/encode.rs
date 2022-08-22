@@ -460,7 +460,7 @@ impl ToMd for ThematicBreak {
 }
 
 impl ToMd for Include {
-    fn to_md(&self) -> String {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
         let mut options = Vec::new();
 
         if let Some(media_type) = self.media_type.as_deref() {
@@ -482,7 +482,7 @@ impl ToMd for Include {
 }
 
 impl ToMd for Call {
-    fn to_md(&self) -> String {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
         let args = self
             .arguments
             .iter()
@@ -542,28 +542,28 @@ impl ToMd for CreativeWorkContent {
 impl ToMd for Node {
     fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
-            Node::Article(node) => node.to_md(),
-            Node::Boolean(node) => node.to_md(),
-            Node::CodeBlock(node) => node.to_md(),
-            Node::CodeFragment(node) => node.to_md(),
-            Node::CreativeWork(node) => node.to_md(),
-            Node::Emphasis(node) => node.to_md(),
-            Node::Heading(node) => node.to_md(),
-            Node::Integer(node) => node.to_md(),
-            Node::Link(node) => node.to_md(),
-            Node::List(node) => node.to_md(),
-            Node::Null(node) => node.to_md(),
-            Node::Number(node) => node.to_md(),
-            Node::Paragraph(node) => node.to_md(),
-            Node::Parameter(node) => node.to_md(),
-            Node::Quote(node) => node.to_md(),
-            Node::QuoteBlock(node) => node.to_md(),
-            Node::Strikeout(node) => node.to_md(),
-            Node::String(node) => node.to_md(),
-            Node::Strong(node) => node.to_md(),
-            Node::Subscript(node) => node.to_md(),
-            Node::Superscript(node) => node.to_md(),
-            Node::Underline(node) => node.to_md(),
+            Node::Article(node) => node.to_md(options),
+            Node::Boolean(node) => node.to_md(options),
+            Node::CodeBlock(node) => node.to_md(options),
+            Node::CodeFragment(node) => node.to_md(options),
+            Node::CreativeWork(node) => node.to_md(options),
+            Node::Emphasis(node) => node.to_md(options),
+            Node::Heading(node) => node.to_md(options),
+            Node::Integer(node) => node.to_md(options),
+            Node::Link(node) => node.to_md(options),
+            Node::List(node) => node.to_md(options),
+            Node::Null(node) => node.to_md(options),
+            Node::Number(node) => node.to_md(options),
+            Node::Paragraph(node) => node.to_md(options),
+            Node::Parameter(node) => node.to_md(options),
+            Node::Quote(node) => node.to_md(options),
+            Node::QuoteBlock(node) => node.to_md(options),
+            Node::Strikeout(node) => node.to_md(options),
+            Node::String(node) => node.to_md(options),
+            Node::Strong(node) => node.to_md(options),
+            Node::Subscript(node) => node.to_md(options),
+            Node::Superscript(node) => node.to_md(options),
+            Node::Underline(node) => node.to_md(options),
             _ => format!(
                 "<!-- Markdown encoding for Node::{} is not yet supported -->\n\n",
                 self.as_ref()
@@ -575,26 +575,26 @@ impl ToMd for Node {
 impl ToMd for InlineContent {
     fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
-            InlineContent::AudioObject(node) => node.to_md(),
-            InlineContent::Boolean(node) => node.to_md(),
-            InlineContent::CodeExpression(node) => node.to_md(),
-            InlineContent::CodeFragment(node) => node.to_md(),
-            InlineContent::Emphasis(node) => node.to_md(),
-            InlineContent::ImageObject(node) => node.to_md(),
-            InlineContent::Integer(node) => node.to_md(),
-            InlineContent::Link(node) => node.to_md(),
-            InlineContent::Null(node) => node.to_md(),
-            InlineContent::Number(node) => node.to_md(),
-            InlineContent::MathFragment(node) => node.to_md(),
-            InlineContent::Parameter(node) => node.to_md(),
-            InlineContent::Quote(node) => node.to_md(),
-            InlineContent::Strikeout(node) => node.to_md(),
-            InlineContent::String(node) => node.to_md(),
-            InlineContent::Strong(node) => node.to_md(),
-            InlineContent::Subscript(node) => node.to_md(),
-            InlineContent::Superscript(node) => node.to_md(),
-            InlineContent::Underline(node) => node.to_md(),
-            InlineContent::VideoObject(node) => node.to_md(),
+            InlineContent::AudioObject(node) => node.to_md(options),
+            InlineContent::Boolean(node) => node.to_md(options),
+            InlineContent::CodeExpression(node) => node.to_md(options),
+            InlineContent::CodeFragment(node) => node.to_md(options),
+            InlineContent::Emphasis(node) => node.to_md(options),
+            InlineContent::ImageObject(node) => node.to_md(options),
+            InlineContent::Integer(node) => node.to_md(options),
+            InlineContent::Link(node) => node.to_md(options),
+            InlineContent::Null(node) => node.to_md(options),
+            InlineContent::Number(node) => node.to_md(options),
+            InlineContent::MathFragment(node) => node.to_md(options),
+            InlineContent::Parameter(node) => node.to_md(options),
+            InlineContent::Quote(node) => node.to_md(options),
+            InlineContent::Strikeout(node) => node.to_md(options),
+            InlineContent::String(node) => node.to_md(options),
+            InlineContent::Strong(node) => node.to_md(options),
+            InlineContent::Subscript(node) => node.to_md(options),
+            InlineContent::Superscript(node) => node.to_md(options),
+            InlineContent::Underline(node) => node.to_md(options),
+            InlineContent::VideoObject(node) => node.to_md(options),
             _ => format!(
                 "<!-- Markdown encoding for InlineContent::{} is not yet supported -->\n\n",
                 self.as_ref()
@@ -606,17 +606,17 @@ impl ToMd for InlineContent {
 impl ToMd for BlockContent {
     fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
-            BlockContent::Call(node) => node.to_md(),
-            BlockContent::CodeBlock(node) => node.to_md(),
-            BlockContent::CodeChunk(node) => node.to_md(),
-            BlockContent::Heading(node) => node.to_md(),
-            BlockContent::Include(node) => node.to_md(),
-            BlockContent::List(node) => node.to_md(),
-            BlockContent::MathBlock(node) => node.to_md(),
-            BlockContent::Paragraph(node) => node.to_md(),
-            BlockContent::QuoteBlock(node) => node.to_md(),
-            BlockContent::Table(node) => node.to_md(),
-            BlockContent::ThematicBreak(node) => node.to_md(),
+            BlockContent::Call(node) => node.to_md(options),
+            BlockContent::CodeBlock(node) => node.to_md(options),
+            BlockContent::CodeChunk(node) => node.to_md(options),
+            BlockContent::Heading(node) => node.to_md(options),
+            BlockContent::Include(node) => node.to_md(options),
+            BlockContent::List(node) => node.to_md(options),
+            BlockContent::MathBlock(node) => node.to_md(options),
+            BlockContent::Paragraph(node) => node.to_md(options),
+            BlockContent::QuoteBlock(node) => node.to_md(options),
+            BlockContent::Table(node) => node.to_md(options),
+            BlockContent::ThematicBreak(node) => node.to_md(options),
             _ => format!(
                 "<!-- Markdown encoding for BlockContent::{} is not yet supported -->\n\n",
                 self.as_ref()
