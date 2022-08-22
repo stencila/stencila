@@ -1389,6 +1389,7 @@ dependencies = [
  "codec-png",
  "codec-rmd",
  "codec-rpng",
+ "codec-script",
  "codec-toml",
  "codec-txt",
  "codec-yaml",
