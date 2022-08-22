@@ -158,7 +158,7 @@ impl ToMd for Parameter {
         let attrs = if options.is_empty() {
             String::new()
         } else {
-            ["/", &options, "/"].concat()
+            ["{", &options, "}"].concat()
         };
 
         ["/", &self.name, "/", &attrs].concat()
