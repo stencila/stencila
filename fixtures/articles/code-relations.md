@@ -26,7 +26,7 @@ b
 
 and some expressions that also use it: `b * 1`{calc exec} and `b * 2`{calc exec}.
 
-A `Parameter` that sets a third symbol `c` : /c/{num default=1 min=0 max=10}
+A `Parameter` that sets a third symbol `c` : &[c]{num default=1 min=0 max=10}
 
 And a code chunk that uses all three variables:
 

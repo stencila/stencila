@@ -212,7 +212,7 @@ impl ToMd for Parameter {
             ["{", &options, "}"].concat()
         };
 
-        ["/", &self.name, "/", &attrs].concat()
+        ["&[", &self.name, "]", &attrs].concat()
     }
 }
 

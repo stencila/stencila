@@ -4,7 +4,7 @@ use nom::{
     branch::alt,
     bytes::complete::{escaped, is_not, tag, tag_no_case, take, take_until, take_while1},
     character::complete::{alphanumeric1, char, digit1, multispace0, multispace1, none_of},
-    combinator::{all_consuming, map, map_res, not, opt, peek, recognize},
+    combinator::{all_consuming, map, map_res, not, opt, peek},
     multi::{fold_many0, separated_list0, separated_list1},
     number::complete::double,
     sequence::{delimited, pair, preceded, tuple},
@@ -27,8 +27,6 @@ use codec_txt::ToTxt;
 use formats::{match_path, FormatNodeType};
 use node_coerce::coerce;
 use node_transform::Transform;
-
-use crate::utils::unescape;
 
 /// Decode a Markdown document to a `Node`
 ///
@@ -791,7 +789,7 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
 /// Parse forward slash pairs into a `Parameter`.
 pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
     map_res(
-        pair(delimited(char('/'), alphanumeric1, char('/')), curly_attrs),
+        pair(delimited(tag("&["), alphanumeric1, char(']')), curly_attrs),
         |(name, attrs)| -> Result<InlineContent> {
             let first = attrs
                 .first()
@@ -1498,7 +1496,7 @@ mod tests {
     #[test]
     fn test_parameters() {
         assert_eq!(
-            parameter(r#"/name/{}"#).unwrap().1,
+            parameter(r#"&[name]{}"#).unwrap().1,
             InlineContent::Parameter(Parameter {
                 name: "name".to_string(),
                 ..Default::default()
@@ -1506,7 +1504,7 @@ mod tests {
         );
 
         assert_eq!(
-            parameter(r#"/name/{bool}"#).unwrap().1,
+            parameter(r#"&[name]{bool}"#).unwrap().1,
             InlineContent::Parameter(Parameter {
                 name: "name".to_string(),
                 validator: Some(Box::new(ValidatorTypes::BooleanValidator(
