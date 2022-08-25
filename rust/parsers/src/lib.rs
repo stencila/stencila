@@ -47,6 +47,8 @@ macro_rules! dispatch_builtins {
             Format::R => Some(parser_r::RParser::$method($($arg),*)),
             #[cfg(feature = "parser-rust")]
             Format::Rust => Some(parser_rust::RustParser::$method($($arg),*)),
+            #[cfg(feature = "parser-sql")]
+            Format::SQL => Some(parser_sql::SqlParser::$method($($arg),*)),
             #[cfg(feature = "parser-ts")]
             Format::TypeScript => Some(parser_ts::TsParser::$method($($arg),*)),
             // Fallback to empty result
@@ -76,6 +78,8 @@ impl Parsers {
             ("r", parser_r::RParser::spec()),
             #[cfg(feature = "parser-rust")]
             ("rust", parser_rust::RustParser::spec()),
+            #[cfg(feature = "parser-sql")]
+            ("sql", parser_sql::SqlParser::spec()),
             #[cfg(feature = "parser-ts")]
             ("ts", parser_ts::TsParser::spec()),
         ]

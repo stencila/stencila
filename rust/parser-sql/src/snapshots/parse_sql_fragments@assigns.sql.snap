@@ -1,0 +1,52 @@
+---
+source: rust/parser-sql/src/lib.rs
+assertion_line: 71
+expression: resource_info
+input_file: fixtures/fragments/sql/assigns.sql
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/sql/assigns.sql",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "SQL"
+  },
+  "relations": [
+    [
+      {
+        "type": "Assigns",
+        "range": [
+          0,
+          12,
+          0,
+          17
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/assigns.sql",
+        "name": "view1",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Assigns",
+        "range": [
+          2,
+          13,
+          2,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/assigns.sql",
+        "name": "table2",
+        "kind": "Datatable"
+      }
+    ]
+  ],
+  "compile_digest": "16197699156592667555.1761211989892016044.0.0.0"
+}

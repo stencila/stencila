@@ -1,0 +1,3 @@
+CREATE VIEW view1 AS SELECT * FROM table1;
+
+CREATE TABLE table2 AS SELECT * FROM table1;

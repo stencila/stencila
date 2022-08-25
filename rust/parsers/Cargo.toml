@@ -20,6 +20,7 @@ parser-js = { path = "../parser-js" , optional = true}
 parser-py = { path = "../parser-py" , optional = true}
 parser-r = { path = "../parser-r" , optional = true}
 parser-rust = { path = "../parser-rust" , optional = true}
+parser-sql = { path = "../parser-sql" , optional = true}
 parser-ts = { path = "../parser-ts" , optional = true}
 
 [dev-dependencies]

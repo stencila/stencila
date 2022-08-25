@@ -4708,6 +4708,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "parser-sql"
+version = "0.0.0"
+dependencies = [
+ "parser-treesitter",
+ "test-snaps",
+ "test-utils",
+ "tree-sitter-sql",
+]
+
+[[package]]
 name = "parser-treesitter"
 version = "0.0.0"
 dependencies = [
@@ -4741,6 +4751,7 @@ dependencies = [
  "parser-py",
  "parser-r",
  "parser-rust",
+ "parser-sql",
  "parser-ts",
  "test-utils",
 ]
@@ -7308,6 +7319,15 @@ name = "tree-sitter-rust"
 version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13470fafb7327a3acf96f5bc1013b5539a899a182f01c59b5af53f6b93195717"
+dependencies = [
+ "cc",
+ "tree-sitter",
+]
+
+[[package]]
+name = "tree-sitter-sql"
+version = "0.0.2"
+source = "git+https://github.com/nokome/tree-sitter-sql?rev=6afc167f6ac120727fbc3e0d721e168414f15795#6afc167f6ac120727fbc3e0d721e168414f15795"
 dependencies = [
  "cc",
  "tree-sitter",
