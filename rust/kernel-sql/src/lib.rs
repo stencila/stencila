@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    env,
     path::{Path, PathBuf},
     str::FromStr,
 };
@@ -66,7 +67,7 @@ impl SqlKernel {
         let mut url = self
             .config
             .clone()
-            // TODO: fallback to using $DATABASE_URL
+            .or_else(|| env::var("DATABASE_URL").ok())
             .unwrap_or_else(|| "sqlite://:memory:".to_string());
 
         // If the URL is for a SQLite and the file path is relative then make it
