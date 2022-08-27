@@ -1311,7 +1311,7 @@ impl Document {
     /// - `root`: The root [`Node`] to apply the compilation patch to
     ///
     /// - `addresses`: The [`AddressMap`] to be updated
-    /// 
+    ///
     /// - `tags`: The document's global [`TagMap`] to be updated
     ///
     /// - `graph`:  The [`Graph`] to be updated
@@ -1512,7 +1512,7 @@ impl Document {
     /// - `root`: The root [`Node`] to apply the compilation patch to
     ///
     /// - `addresses`: The [`AddressMap`] to be updated
-    /// 
+    ///
     /// - `tags`: The document's global [`TagMap`] for passing tags on to executed nodes
     ///
     /// - `graph`:  The [`Graph`] to be updated

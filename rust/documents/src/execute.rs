@@ -43,7 +43,7 @@ use crate::{
 ///
 /// - `address_map`: The [`AddressMap`] for the `root` node (used to locate code nodes
 ///                  included in the plan within the `root` node; takes a read lock)
-/// 
+///
 /// - `tag_map`: The document's [`TagMap`] of global tags
 ///
 /// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
@@ -53,6 +53,7 @@ use crate::{
 ///
 /// - `cancel_request_receiver`: A [`CancelRequest`] channel receiver to request cancellation of
 ///                   one or more tasks in the plan
+#[allow(clippy::too_many_arguments)]
 pub async fn execute(
     plan: &Plan,
     root: &Arc<RwLock<Node>>,
