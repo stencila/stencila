@@ -2,12 +2,12 @@
 source: rust/parser-sql/src/lib.rs
 assertion_line: 76
 expression: resource_info
-input_file: fixtures/fragments/sql/assigns.sql
+input_file: fixtures/fragments/sql/uses.sql
 ---
 {
   "resource": {
     "type": "Code",
-    "path": "fragments/sql/assigns.sql",
+    "path": "fragments/sql/uses.sql",
     "id": "",
     "kind": "SoftwareSourceCode",
     "language": "SQL"
@@ -15,52 +15,18 @@ input_file: fixtures/fragments/sql/assigns.sql
   "relations": [
     [
       {
-        "type": "Assigns",
-        "range": [
-          0,
-          12,
-          0,
-          18
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
-        "name": "view_1",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
         "type": "Uses",
         "range": [
           0,
-          36,
+          14,
           0,
-          43
+          21
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
-        "name": "table_1",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          2,
-          13,
-          2,
-          20
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
-        "name": "table_2",
+        "path": "fragments/sql/uses.sql",
+        "name": "table_a",
         "kind": "Datatable"
       }
     ],
@@ -69,20 +35,54 @@ input_file: fixtures/fragments/sql/assigns.sql
         "type": "Uses",
         "range": [
           2,
-          38,
+          14,
           2,
-          45
+          21
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
-        "name": "table_1",
+        "path": "fragments/sql/uses.sql",
+        "name": "table_b",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          4,
+          14,
+          4,
+          21
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/uses.sql",
+        "name": "table_d",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          4,
+          55,
+          4,
+          62
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/uses.sql",
+        "name": "table_e",
         "kind": "Datatable"
       }
     ]
   ],
-  "compile_digest": "7617862248484999253.6194133162311748503.0.0.0",
+  "compile_digest": "10808189577681179666.18214354455154075053.0.0.0",
   "tags": {
     "inner": []
   }

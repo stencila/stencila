@@ -1,6 +1,6 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 71
+assertion_line: 76
 expression: resource_info
 input_file: fixtures/fragments/sql/tags.sql
 ---
@@ -13,6 +13,23 @@ input_file: fixtures/fragments/sql/tags.sql
     "language": "SQL"
   },
   "relations": [
+    [
+      {
+        "type": "Uses",
+        "range": [
+          2,
+          14,
+          2,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/tags.sql",
+        "name": "table1",
+        "kind": "Datatable"
+      }
+    ],
     [
       {
         "type": "Assigns",
@@ -61,5 +78,24 @@ input_file: fixtures/fragments/sql/tags.sql
       }
     ]
   ],
-  "compile_digest": "10476229152737608905.9256843643871438446.0.0.0"
+  "compile_digest": "10476229152737608905.9256843643871438446.0.0.0",
+  "tags": {
+    "inner": [
+      {
+        "name": "assigns",
+        "value": "result1",
+        "global": false
+      },
+      {
+        "name": "reads",
+        "value": "some/data.csv",
+        "global": false
+      },
+      {
+        "name": "writes",
+        "value": "some/data.csv",
+        "global": false
+      }
+    ]
+  }
 }

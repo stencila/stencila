@@ -1,0 +1,157 @@
+---
+source: rust/parser-sql/src/lib.rs
+assertion_line: 76
+expression: resource_info
+input_file: fixtures/fragments/sql/alters.sql
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/sql/alters.sql",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "SQL"
+  },
+  "relations": [
+    [
+      {
+        "type": "Alters",
+        "range": [
+          0,
+          12,
+          0,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/alters.sql",
+        "name": "table_i1",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Alters",
+        "range": [
+          1,
+          12,
+          1,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/alters.sql",
+        "name": "table_i2",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Alters",
+        "range": [
+          2,
+          12,
+          2,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/alters.sql",
+        "name": "table_i3",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          2,
+          35,
+          2,
+          42
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/alters.sql",
+        "name": "table_a",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Alters",
+        "range": [
+          4,
+          7,
+          4,
+          15
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/alters.sql",
+        "name": "table_u1",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Alters",
+        "range": [
+          6,
+          12,
+          6,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/alters.sql",
+        "name": "table_d1",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Alters",
+        "range": [
+          7,
+          12,
+          7,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/alters.sql",
+        "name": "table_d2",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Alters",
+        "range": [
+          9,
+          11,
+          9,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/alters.sql",
+        "name": "table_p1",
+        "kind": "Datatable"
+      }
+    ]
+  ],
+  "compile_digest": "17352080989351478921.15361264440694782324.0.0.0",
+  "tags": {
+    "inner": []
+  }
+}

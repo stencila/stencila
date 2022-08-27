@@ -31,12 +31,17 @@ impl ParserTrait for SqlParser {
 
         let relations = matches
             .iter()
-            .filter_map(|(pattern, captures)| match pattern {
-                1 => Some((
-                    relations::assigns(captures[0].range),
+            .filter_map(|(pattern, captures)| {
+                let relation = match pattern {
+                    1 => relations::assigns(captures[0].range),
+                    2 => relations::uses(captures[0].range),
+                    3 => relations::alters(captures[0].range),
+                    _ => return None,
+                };
+                Some((
+                    relation,
                     resources::symbol(path, &captures[0].text, "Datatable"),
-                )),
-                _ => None,
+                ))
             })
             .collect();
 
