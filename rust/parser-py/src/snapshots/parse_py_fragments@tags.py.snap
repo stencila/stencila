@@ -109,5 +109,32 @@ input_file: fixtures/fragments/py/tags.py
       }
     ]
   ],
-  "compile_digest": "1689290116767603003.547168903537036275.0.0.0"
+  "compile_digest": "1689290116767603003.547168903537036275.0.0.0",
+  "tags": [
+    {
+      "name": "imports",
+      "value": "mod1 only",
+      "global": false
+    },
+    {
+      "name": "assigns",
+      "value": "var1 only",
+      "global": false
+    },
+    {
+      "name": "uses",
+      "value": "var3",
+      "global": false
+    },
+    {
+      "name": "reads",
+      "value": "file1 file2",
+      "global": false
+    },
+    {
+      "name": "writes",
+      "value": "file3",
+      "global": false
+    }
+  ]
 }

@@ -82,5 +82,6 @@ input_file: fixtures/fragments/bash/assigns.bash
       }
     ]
   ],
-  "compile_digest": "11742793986792055970.2571943724030498439.0.0.0"
+  "compile_digest": "11742793986792055970.2571943724030498439.0.0.0",
+  "tags": []
 }

@@ -405,5 +405,6 @@ input_file: fixtures/fragments/py/uses.py
       }
     ]
   ],
-  "compile_digest": "10358955729016971577.10397852800639433373.0.0.0"
+  "compile_digest": "10358955729016971577.10397852800639433373.0.0.0",
+  "tags": []
 }

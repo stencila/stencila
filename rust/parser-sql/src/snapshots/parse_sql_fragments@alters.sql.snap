@@ -151,7 +151,5 @@ input_file: fixtures/fragments/sql/alters.sql
     ]
   ],
   "compile_digest": "17352080989351478921.15361264440694782324.0.0.0",
-  "tags": {
-    "inner": []
-  }
+  "tags": []
 }

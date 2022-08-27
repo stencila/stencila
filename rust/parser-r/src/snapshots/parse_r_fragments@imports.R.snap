@@ -128,5 +128,6 @@ input_file: fixtures/fragments/r/imports.R
       }
     ]
   ],
-  "compile_digest": "899762864881371535.11930109659523068235.0.0.0"
+  "compile_digest": "899762864881371535.11930109659523068235.0.0.0",
+  "tags": []
 }

@@ -218,5 +218,6 @@ input_file: fixtures/fragments/r/assigns.R
       }
     ]
   ],
-  "compile_digest": "11349132781383042672.12063492160969735184.0.0.0"
+  "compile_digest": "11349132781383042672.12063492160969735184.0.0.0",
+  "tags": []
 }

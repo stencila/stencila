@@ -268,7 +268,7 @@ pub struct Tag {
 /// is expected to be more performant (in memory and CPU) given that the number
 /// of tags in a `TagMap` will usually be small (<10).
 #[derive(Debug, Default, Clone, Serialize)]
-#[serde(crate = "common::serde")]
+#[serde(transparent, crate = "common::serde")]
 pub struct TagMap {
     inner: Vec<Tag>,
 }

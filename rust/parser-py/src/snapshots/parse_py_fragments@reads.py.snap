@@ -315,5 +315,6 @@ input_file: fixtures/fragments/py/reads.py
       }
     ]
   ],
-  "compile_digest": "2584628737653420662.1093161531415228156.0.0.0"
+  "compile_digest": "2584628737653420662.1093161531415228156.0.0.0",
+  "tags": []
 }

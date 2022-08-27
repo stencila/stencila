@@ -158,5 +158,32 @@ input_file: fixtures/fragments/js/tags.js
       }
     ]
   ],
-  "compile_digest": "12864044659078367940.13563159722958230604.0.0.0"
+  "compile_digest": "12864044659078367940.13563159722958230604.0.0.0",
+  "tags": [
+    {
+      "name": "imports",
+      "value": "mod1, mod2 mod3",
+      "global": false
+    },
+    {
+      "name": "assigns",
+      "value": "var1 only",
+      "global": false
+    },
+    {
+      "name": "uses",
+      "value": "var2",
+      "global": false
+    },
+    {
+      "name": "reads",
+      "value": "file1 file2",
+      "global": false
+    },
+    {
+      "name": "writes",
+      "value": "file3",
+      "global": false
+    }
+  ]
 }

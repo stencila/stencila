@@ -376,5 +376,6 @@ input_file: fixtures/fragments/js/imports.js
       }
     ]
   ],
-  "compile_digest": "6829235760436021224.12736435360731899821.0.0.0"
+  "compile_digest": "6829235760436021224.12736435360731899821.0.0.0",
+  "tags": []
 }

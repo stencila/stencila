@@ -83,7 +83,5 @@ input_file: fixtures/fragments/sql/uses.sql
     ]
   ],
   "compile_digest": "10808189577681179666.18214354455154075053.0.0.0",
-  "tags": {
-    "inner": []
-  }
+  "tags": []
 }

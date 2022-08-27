@@ -167,5 +167,6 @@ input_file: fixtures/fragments/rust/assigns.rs
       }
     ]
   ],
-  "compile_digest": "5392323478064530077.3819236217095885594.0.0.0"
+  "compile_digest": "5392323478064530077.3819236217095885594.0.0.0",
+  "tags": []
 }

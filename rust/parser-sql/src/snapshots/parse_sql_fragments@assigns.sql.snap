@@ -83,7 +83,5 @@ input_file: fixtures/fragments/sql/assigns.sql
     ]
   ],
   "compile_digest": "7617862248484999253.6194133162311748503.0.0.0",
-  "tags": {
-    "inner": []
-  }
+  "tags": []
 }

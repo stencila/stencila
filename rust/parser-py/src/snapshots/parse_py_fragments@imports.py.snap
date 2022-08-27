@@ -78,5 +78,6 @@ input_file: fixtures/fragments/py/imports.py
       }
     ]
   ],
-  "compile_digest": "18282637135265011160.4403680722197191481.0.0.0"
+  "compile_digest": "18282637135265011160.4403680722197191481.0.0.0",
+  "tags": []
 }

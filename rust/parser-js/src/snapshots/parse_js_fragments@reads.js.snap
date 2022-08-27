@@ -174,5 +174,6 @@ input_file: fixtures/fragments/js/reads.js
       }
     ]
   ],
-  "compile_digest": "3120325187992956838.10127613829709636730.0.0.0"
+  "compile_digest": "3120325187992956838.10127613829709636730.0.0.0",
+  "tags": []
 }

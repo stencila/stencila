@@ -31,5 +31,6 @@ input_file: fixtures/fragments/js/assigns.js
       }
     ]
   ],
-  "compile_digest": "7660058006532944103.10142085193624583599.0.0.0"
+  "compile_digest": "7660058006532944103.10142085193624583599.0.0.0",
+  "tags": []
 }

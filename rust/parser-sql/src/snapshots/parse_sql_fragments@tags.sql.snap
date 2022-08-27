@@ -79,23 +79,21 @@ input_file: fixtures/fragments/sql/tags.sql
     ]
   ],
   "compile_digest": "10476229152737608905.9256843643871438446.0.0.0",
-  "tags": {
-    "inner": [
-      {
-        "name": "assigns",
-        "value": "result1",
-        "global": false
-      },
-      {
-        "name": "reads",
-        "value": "some/data.csv",
-        "global": false
-      },
-      {
-        "name": "writes",
-        "value": "some/data.csv",
-        "global": false
-      }
-    ]
-  }
+  "tags": [
+    {
+      "name": "assigns",
+      "value": "result1",
+      "global": false
+    },
+    {
+      "name": "reads",
+      "value": "some/data.csv",
+      "global": false
+    },
+    {
+      "name": "writes",
+      "value": "some/data.csv",
+      "global": false
+    }
+  ]
 }

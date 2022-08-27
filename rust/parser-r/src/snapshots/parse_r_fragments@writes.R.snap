@@ -210,5 +210,6 @@ input_file: fixtures/fragments/r/writes.R
       }
     ]
   ],
-  "compile_digest": "15309581107305257412.1015647684578772621.0.0.0"
+  "compile_digest": "15309581107305257412.1015647684578772621.0.0.0",
+  "tags": []
 }
