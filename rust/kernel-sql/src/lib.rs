@@ -6,7 +6,7 @@ use std::{
 };
 
 use sqlx::{
-    any::{AnyConnectOptions, AnyPool, AnyPoolOptions, AnyRow},
+    any::{AnyConnectOptions, AnyKind, AnyPool, AnyPoolOptions, AnyRow},
     Column, ConnectOptions, Row, TypeInfo,
 };
 
@@ -14,7 +14,9 @@ use kernel::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
+        itertools::Itertools,
         serde::Serialize,
+        serde_json,
         tracing::{self, log::LevelFilter},
     },
     stencila_schema::{
@@ -38,7 +40,7 @@ pub struct SqlKernel {
 
     /// The kernel's database connection pool
     #[serde(skip)]
-    connection_pool: Option<AnyPool>,
+    pool: Option<AnyPool>,
 
     /// Any select queries that have been assigned to variables
     #[serde(skip)]
@@ -54,12 +56,12 @@ impl SqlKernel {
         }
     }
 
-    /// Connect to the database
+    /// Connect to the database (if not already connected)
     ///
     /// This is called just-in-time (called by `exec`, `get` etc) as well as in `start`
     /// so that any errors during connection can be surfaced to the user as code chunk errors.
     async fn connect(&mut self) -> Result<()> {
-        if let Some(_pool) = &self.connection_pool {
+        if self.pool.is_some() {
             return Ok(());
         }
 
@@ -96,7 +98,7 @@ impl SqlKernel {
             .max_connections(10)
             .connect_with(options)
             .await?;
-        self.connection_pool = Some(pool);
+        self.pool = Some(pool);
 
         Ok(())
     }
@@ -125,19 +127,49 @@ impl KernelTrait for SqlKernel {
     }
 
     async fn get(&mut self, name: &str) -> Result<Node> {
-        let _pool = self.connect().await?;
-        let pool = self.connection_pool.as_ref().unwrap();
+        self.connect().await?;
+        let pool = self
+            .pool
+            .as_ref()
+            .expect("connect() should ensure connection");
+
         let sql = format!("SELECT * FROM \"{}\"", name.replace('"', "-"));
         match sqlx::query(&sql).fetch_all(pool).await {
             Ok(rows) => Ok(any_rows_to_datatable(rows)),
             Err(error) => {
-                bail!("No such symbol: {}", error)
+                bail!("While getting symbol `{}` from SQL kernel: {}", name, error)
             }
         }
     }
 
-    async fn set(&mut self, _name: &str, _value: Node) -> Result<()> {
-        todo!("Create a new table with name")
+    async fn set(&mut self, name: &str, value: Node) -> Result<()> {
+        self.connect().await?;
+        let pool = self
+            .pool
+            .as_ref()
+            .expect("connect() should ensure connection");
+
+        let datatable = match value {
+            Node::Datatable(node) => node,
+            _ => {
+                bail!(
+                    "Only Datatables can be set as symbols in a SQL database; got a `{}`",
+                    value.as_ref()
+                )
+            }
+        };
+
+        let result = match pool.any_kind() {
+            AnyKind::Postgres => datatable_to_postgres(name, datatable, pool).await,
+            _ => datatable_to_other(name, datatable, pool).await,
+        };
+
+        match result {
+            Ok(..) => Ok(()),
+            Err(error) => {
+                bail!("While setting symbol `{}` in SQL kernel: {}", name, error)
+            }
+        }
     }
 
     async fn exec_sync(&mut self, code: &str) -> Result<Task> {
@@ -147,7 +179,10 @@ impl KernelTrait for SqlKernel {
 
         match self.connect().await {
             Ok(..) => {
-                let pool = self.connection_pool.as_ref().unwrap();
+                let pool = self
+                    .pool
+                    .as_ref()
+                    .expect("connect() should ensure connection");
                 match sqlx::query(code).fetch_all(pool).await {
                     Ok(rows) => {
                         let datatable = any_rows_to_datatable(rows);
@@ -219,21 +254,27 @@ fn any_rows_to_datatable(rows: Vec<AnyRow>) -> Node {
         for (col_index, (_name, validator)) in columns.iter().enumerate() {
             let position = col_index * rows_len + row_index;
             let value = match validator {
-                Some(ValidatorTypes::BooleanValidator(..)) => {
-                    row.try_get::<bool, usize>(col_index).map(Node::Boolean)
-                }
+                Some(ValidatorTypes::BooleanValidator(..)) => row
+                    .try_get::<bool, usize>(col_index)
+                    .map(Node::Boolean)
+                    .ok(),
                 Some(ValidatorTypes::IntegerValidator(..)) => {
-                    row.try_get::<i64, usize>(col_index).map(Node::Integer)
+                    row.try_get::<i64, usize>(col_index).map(Node::Integer).ok()
                 }
                 Some(ValidatorTypes::NumberValidator(..)) => row
                     .try_get::<f64, usize>(col_index)
-                    .map(|num| Node::Number(Number(num))),
-                Some(ValidatorTypes::StringValidator(..)) => {
-                    row.try_get::<String, usize>(col_index).map(Node::String)
-                }
-                _ => row.try_get::<String, usize>(col_index).map(Node::String),
+                    .map(|num| Node::Number(Number(num)))
+                    .ok(),
+                Some(ValidatorTypes::StringValidator(..)) => row
+                    .try_get::<String, usize>(col_index)
+                    .map(Node::String)
+                    .ok(),
+                _ => row
+                    .try_get::<String, usize>(col_index)
+                    .ok()
+                    .and_then(|json| serde_json::from_str(&json).ok()),
             };
-            if let Ok(value) = value {
+            if let Some(value) = value {
                 values[position] = value;
             }
         }
@@ -260,44 +301,172 @@ fn any_rows_to_datatable(rows: Vec<AnyRow>) -> Node {
     })
 }
 
+/// Transform a Stencila [`Datatable`] to a Postgres table
+///
+/// This function follows the recommendation [here](https://github.com/launchbadge/sqlx/blob/main/FAQ.md#how-can-i-bind-an-array-to-a-values-clause-how-can-i-do-bulk-inserts)
+/// for doing bulk inserts to Postgres
+async fn datatable_to_postgres(name: &str, datatable: Datatable, pool: &AnyPool) -> Result<()> {
+    todo!();
+    
+    let mut sql = datatable_to_create_table(name, &datatable);
+    Ok(())
+}
+
+/// Transform a Stencila [`Datatable`] to SQL table
+async fn datatable_to_other(name: &str, datatable: Datatable, pool: &AnyPool) -> Result<()> {
+    let cols = datatable.columns.len();
+    let rows = datatable
+        .columns
+        .first()
+        .map(|column| column.values.len())
+        .unwrap_or(0);
+
+    let mut sql = datatable_to_create_table(name, &datatable);
+
+    if rows > 0 {
+        sql += &format!("INSERT INTO \"{}\" VALUES\n", name);
+        sql += &vec![format!(" ({})", vec!["?"; cols].join(", ")); rows].join(",\n");
+        sql += ";";
+    }
+
+    let mut query = sqlx::query(&sql);
+    for row in 0..rows {
+        for col in 0..cols {
+            let column = &datatable.columns[col];
+            let node = &column.values[row];
+            match node {
+                Node::Null(..) => query = query.bind("null"),
+                Node::Boolean(value) => query = query.bind(value),
+                Node::Integer(value) => query = query.bind(value),
+                Node::Number(value) => query = query.bind(value.0),
+                Node::String(value) => query = query.bind(value),
+                _ => query = query.bind(serde_json::to_string(node).unwrap_or_default()),
+            }
+        }
+    }
+    query.execute(pool).await?;
+
+    Ok(())
+}
+
+/// Generate a `CREATE TABLE` query
+fn datatable_to_create_table(name: &str, datatable: &Datatable) -> String {
+    let columns = datatable
+        .columns
+        .iter()
+        .map(|column| {
+            let validator = column
+                .validator
+                .as_deref()
+                .and_then(|array_validator| array_validator.items_validator.clone());
+            let datatype = match validator.as_deref() {
+                Some(ValidatorTypes::BooleanValidator(..)) => "BOOLEAN",
+                Some(ValidatorTypes::IntegerValidator(..)) => "INTEGER",
+                Some(ValidatorTypes::NumberValidator(..)) => "REAL",
+                Some(ValidatorTypes::StringValidator(..)) => "TEXT",
+                _ => "JSON",
+            };
+            format!("{} {}", column.name, datatype)
+        })
+        .collect_vec()
+        .join(", ");
+    format!(
+        "DROP TABLE IF EXISTS \"{}\";\nCREATE TABLE \"{}\"({});\n",
+        name, name, columns
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernel::{common::tokio, stencila_schema::Number, KernelTrait};
-    use test_utils::{assert_json_eq, common::serde_json::json};
+    use kernel::{common::tokio, KernelTrait, stencila_schema::Primitive};
+    use test_utils::assert_json_eq;
 
     #[tokio::test]
     async fn get_set_exec() -> Result<()> {
         let mut kernel = SqlKernel::new(&KernelSelector::default());
 
-        match kernel.get("a").await {
-            Ok(..) => bail!("Expected an error"),
-            Err(error) => assert!(error.to_string().contains("does not exist")),
+        if let Ok(..) = kernel.get("table_a").await {
+            bail!("Expected an error because table not yet created")
         };
 
-        match kernel.set("a", Node::String("A".to_string())).await {
+        match kernel.set("table_a", Node::String("A".to_string())).await {
             Ok(..) => bail!("Expected an error"),
             Err(error) => assert!(error
                 .to_string()
-                .contains("Unable to convert string `A` to a number")),
+                .contains("Only Datatables can be set as symbols")),
         };
 
-        kernel.set("a", Node::Number(Number(1.23))).await?;
+        let rows = 5;
+        let col_1 = DatatableColumn {
+            name: "col_1".to_string(),
+            validator: Some(Box::new(ArrayValidator {
+                items_validator: Some(Box::new(ValidatorTypes::BooleanValidator(
+                    BooleanValidator::default(),
+                ))),
+                ..Default::default()
+            })),
+            values: vec![Node::Boolean(true); rows],
+            ..Default::default()
+        };
+        let col_2 = DatatableColumn {
+            name: "col_2".to_string(),
+            validator: Some(Box::new(ArrayValidator {
+                items_validator: Some(Box::new(ValidatorTypes::IntegerValidator(
+                    IntegerValidator::default(),
+                ))),
+                ..Default::default()
+            })),
+            values: (0..rows)
+                .map(|index| Node::Integer(index as i64))
+                .collect_vec(),
+            ..Default::default()
+        };
+        let col_3 = DatatableColumn {
+            name: "col_3".to_string(),
+            validator: Some(Box::new(ArrayValidator {
+                items_validator: Some(Box::new(ValidatorTypes::NumberValidator(
+                    NumberValidator::default(),
+                ))),
+                ..Default::default()
+            })),
+            values: (0..rows)
+                .map(|index| Node::Number(Number(index as f64)))
+                .collect_vec(),
+            ..Default::default()
+        };
+        let col_4 = DatatableColumn {
+            name: "col_4".to_string(),
+            validator: Some(Box::new(ArrayValidator {
+                items_validator: Some(Box::new(ValidatorTypes::StringValidator(
+                    StringValidator::default(),
+                ))),
+                ..Default::default()
+            })),
+            values: (0..rows)
+                .map(|index| Node::String(format!("string-{}", index)))
+                .collect_vec(),
+            ..Default::default()
+        };
+        let col_5 = DatatableColumn {
+            name: "col_5".to_string(),
+            validator: None,
+            values: (0..rows)
+                .map(|index| Node::Array(vec![Primitive::Integer(index as i64)]))
+                .collect_vec(),
+            ..Default::default()
+        };
+        let datatable_a = Datatable {
+            columns: vec![col_1, col_2, col_3, col_4, col_5],
+            ..Default::default()
+        };
+        kernel
+            .set("table_a", Node::Datatable(datatable_a.clone()))
+            .await?;
 
-        let a = kernel.get("a").await?;
-        assert!(matches!(a, Node::Number(..)));
-        assert_json_eq!(a, json!(1.23));
-
-        let (outputs, errors) = kernel.exec("a * 2").await?;
-        assert_json_eq!(outputs, json!([2.46]));
-        assert_eq!(errors.len(), 0);
-
-        let (outputs, errors) = kernel.exec("x * 2").await?;
-        assert_eq!(outputs.len(), 0);
-        assert_json_eq!(
-            errors,
-            json!([{"type": "CodeError", "errorMessage": "Undefined variable or function: x"}])
-        );
+        let table_a = kernel.get("table_a").await?;
+        assert!(matches!(table_a, Node::Datatable(..)));
+        assert_json_eq!(table_a, datatable_a);
 
         Ok(())
     }
