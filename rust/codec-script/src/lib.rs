@@ -19,7 +19,7 @@ impl CodecTrait for ScriptCodec {
     fn spec() -> Codec {
         Codec {
             status: "beta".to_string(),
-            formats: vec_string!["bash", "js", "py", "r", "sh", "zsh"],
+            formats: vec_string!["bash", "js", "py", "r", "sh", "sql", "zsh"],
             root_types: vec_string!["Article"],
             ..Default::default()
         }
@@ -32,9 +32,10 @@ impl CodecTrait for ScriptCodec {
             None => bail!("A format option (the programming language of the script) is required"),
         };
 
-        // Define single line comment regexes for each langage
+        // Define single line comment regexes for each language
         let single_line_regex = Regex::new(match lang.as_str() {
             "js" => r"^//\s*(.*)$",
+            "sql" => r"^--\s*(.*)$",
             "bash" | "py" | "r" | "sh" | "zsh" => r"^#\s*(.*)$",
             _ => bail!("Unhandled programming language `{}`", lang),
         })
@@ -42,7 +43,7 @@ impl CodecTrait for ScriptCodec {
 
         // Define multi-line block comment regexes (begin, mid, end)
         let multi_line_regexes = match lang.as_str() {
-            "js" => Some((r"^/\*+\s*(.*)$", r"^\s*\*?\s*(.*)$", r"^\s*(.*?)\*+/$")),
+            "js" | "sql" => Some((r"^/\*+\s*(.*)$", r"^\s*\*?\s*(.*)$", r"^\s*(.*?)\*+/$")),
             _ => None,
         }
         .map(|regexes| {
@@ -163,6 +164,7 @@ impl CodecTrait for ScriptCodec {
         let comment_start = match lang.as_str() {
             "bash" | "py" | "r" | "sh" | "zsh" => "# ",
             "js" => "// ",
+            "sql" => "-- ",
             _ => bail!(
                 "No comment start defined for programming language `{}`",
                 lang
@@ -179,6 +181,7 @@ impl CodecTrait for ScriptCodec {
             "js" => "let $name = __param__('$type', $index, $default);\n\n",
             "py" => "$name = __param__('$type', $index, $default)\n\n",
             "r" => "$name = param__('$type', $index, $default)\n\n",
+            "sql" => "", // Not supported
             _ => bail!(
                 "No param template defined for programming language `{}`",
                 lang
