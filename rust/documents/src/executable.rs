@@ -487,7 +487,7 @@ impl Executable for CodeChunk {
         _tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         let id = assert_id!(self)?;
-        tracing::info!(
+        tracing::trace!(
             "Executing `CodeChunk` `{}` with kernel selector: {}",
             id,
             kernel_selector
