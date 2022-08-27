@@ -1,4 +1,8 @@
-use std::{collections::HashMap, str::FromStr};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
 use sqlx::{
     any::{AnyConnectOptions, AnyPool, AnyPoolOptions, AnyRow},
@@ -23,39 +27,60 @@ use kernel::{
 #[derive(Debug, Default, Serialize)]
 #[serde(crate = "kernel::common::serde")]
 pub struct SqlKernel {
-    url: String,
+    /// The kernel configuration containing the database URL
+    config: Option<String>,
 
-    //
+    /// The directory that the kernel is started in
+    ///
+    /// Used to be able to resolve the path to SQLite files with relative paths
+    directory: Option<PathBuf>,
+
+    /// The kernel's database connection pool
     #[serde(skip)]
     connection_pool: Option<AnyPool>,
 
+    /// Any select queries that have been assigned to variables
+    #[serde(skip)]
     assigned_selects: HashMap<String, Datatable>,
 }
 
 impl SqlKernel {
+    /// Create a new `SqlKernel`
     pub fn new(selector: &KernelSelector) -> Self {
-        let url = selector
-            .config
-            .clone()
-            .unwrap_or_else(|| "sqlite://:memory:".to_string());
-
-        tracing::trace!("Creating new SqlKernel with url: {}", url);
-
-        // TODO: fallback to using $DATABASE_URL
-
         Self {
-            url,
-            connection_pool: None,
-            assigned_selects: HashMap::new(),
+            config: selector.config.clone(),
+            ..Default::default()
         }
     }
 
+    /// Connect to the database
+    ///
+    /// This is called just-in-time (called by `exec`, `get` etc) as well as in `start`
+    /// so that any errors during connection can be surfaced to the user as code chunk errors.
     async fn connect(&mut self) -> Result<()> {
         if let Some(_pool) = &self.connection_pool {
             return Ok(());
         }
 
-        let mut options = AnyConnectOptions::from_str(&self.url)?;
+        // Resolve the database URL, falling back to env var and then to in-memory SQLite
+        let mut url = self
+            .config
+            .clone()
+            // TODO: fallback to using $DATABASE_URL
+            .unwrap_or_else(|| "sqlite://:memory:".to_string());
+
+        // If the URL is for a SQLite and the file path is relative then make it
+        // absolute using the directory that the kernel was started in.
+        if let (Some(spec), Some(directory)) = (url.strip_prefix("sqlite://"), &self.directory) {
+            let path = PathBuf::from(spec);
+            if spec != ":memory:" && path.is_relative() {
+                url = ["sqlite://", &directory.join(path).to_string_lossy()].concat();
+            }
+        }
+
+        tracing::trace!("Connecting to database: {}", url);
+
+        let mut options = AnyConnectOptions::from_str(&url)?;
         if let Some(options) = options.as_mssql_mut() {
             options.log_statements(LevelFilter::Trace);
         }
@@ -84,6 +109,18 @@ impl KernelTrait for SqlKernel {
 
     async fn status(&self) -> Result<KernelStatus> {
         Ok(KernelStatus::Idle)
+    }
+
+    async fn start(&mut self, directory: &Path) -> Result<()> {
+        self.directory = Some(directory.to_owned());
+
+        // Log error but do not return error so that another attempt is made to
+        // re-connect is made in `exec` etc
+        if let Err(error) = self.connect().await {
+            tracing::error!("While attempting to connect to database: {}", error)
+        }
+
+        Ok(())
     }
 
     async fn get(&mut self, name: &str) -> Result<Node> {
