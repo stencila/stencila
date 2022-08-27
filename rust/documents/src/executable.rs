@@ -16,7 +16,7 @@ use graph_triples::{
     relations,
     relations::NULL_RANGE,
     resources::{self, ResourceDigest},
-    Relation, ResourceInfo,
+    Relation, ResourceInfo, TagMap,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, AddressMap, Slot};
@@ -56,6 +56,7 @@ pub trait Executable {
         _kernel_selector: &KernelSelector,
         _is_fork: bool,
         _call_docs: &CallDocuments,
+        _tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         Ok(None)
     }
@@ -150,6 +151,9 @@ pub struct CompileContext {
 
     /// A list of resources compiled from the nodes
     pub resource_infos: Vec<ResourceInfo>,
+
+    /// Any global tags defined in code chunks
+    pub global_tags: TagMap,
 }
 
 /// Set the programming of a node or of the context
@@ -383,6 +387,7 @@ impl Executable for Parameter {
         kernel_selector: &KernelSelector,
         _is_fork: bool,
         _call_docs: &CallDocuments,
+        _tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         tracing::trace!("Executing `Parameter`");
 
@@ -466,6 +471,7 @@ impl Executable for CodeChunk {
             )
         });
 
+        context.global_tags.insert_globals(&resource_info.tags);
         context.resource_infos.push(resource_info);
 
         Ok(())
@@ -478,8 +484,14 @@ impl Executable for CodeChunk {
         kernel_selector: &KernelSelector,
         is_fork: bool,
         _call_docs: &CallDocuments,
+        _tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
-        tracing::trace!("Executing `CodeChunk` `{:?}`", self.id);
+        let id = assert_id!(self)?;
+        tracing::info!(
+            "Executing `CodeChunk` `{}` with kernel selector: {}",
+            id,
+            kernel_selector
+        );
 
         let task_info = kernel_space
             .exec(&self.text, resource_info, is_fork, kernel_selector)
@@ -604,6 +616,7 @@ impl Executable for CodeExpression {
         kernel_selector: &KernelSelector,
         is_fork: bool,
         _call_docs: &CallDocuments,
+        _tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         tracing::trace!("Executing `CodeExpression` `{:?}`", self.id);
 
@@ -854,6 +867,7 @@ impl Executable for Call {
         _kernel_selector: &KernelSelector,
         _is_fork: bool,
         call_docs: &CallDocuments,
+        _tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         let id = assert_id!(self)?;
         tracing::trace!("Executing `Call` `{}`", id);
@@ -981,6 +995,7 @@ impl Executable for Node {
         kernel_selector: &KernelSelector,
         is_fork: bool,
         call_docs: &CallDocuments,
+        tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         dispatch_node!(
             self,
@@ -990,7 +1005,8 @@ impl Executable for Node {
             kernel_space,
             kernel_selector,
             is_fork,
-            call_docs
+            call_docs,
+            tags
         )
         .await
     }
@@ -1030,6 +1046,7 @@ macro_rules! executable_enum {
                 kernel_selector: &KernelSelector,
                 is_fork: bool,
                 call_docs: &CallDocuments,
+                tags: &TagMap,
             ) -> Result<Option<TaskInfo>> {
                 $dispatch_macro!(
                     self,
@@ -1038,7 +1055,8 @@ macro_rules! executable_enum {
                     kernel_space,
                     kernel_selector,
                     is_fork,
-                    call_docs
+                    call_docs,
+                    tags
                 )
                 .await
             }

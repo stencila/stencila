@@ -1,0 +1,19 @@
+[package]
+name = "kernel-sql"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel = { path = "../kernel" }
+sqlx = { version = "0.6.1", features = [
+    "runtime-tokio-rustls",
+    "any",
+    # The `mysql` feature is not included because, at the time of writing,
+    # it caused a compile error `error[E0277]: (dyn functions::Function + 'static)` cannot be sent between threads safely`
+    "mssql",
+    "sqlite",
+    "postgres",
+] }
+
+[dev-dependencies]
+test-utils = { path = "../test-utils" }

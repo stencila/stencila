@@ -620,7 +620,7 @@ impl Run for Plan {
 
         let plan = {
             let graph = document.graph.write().await;
-            graph.plan(start, None, Some(options)).await?
+            graph.plan(start, None, None, Some(options)).await?
         };
 
         result::new("md", &plan.to_markdown(), &plan)

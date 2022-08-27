@@ -9,6 +9,7 @@ use schemars::JsonSchema;
 use common::{
     derivative::Derivative,
     eyre::Result,
+    itertools::Itertools,
     serde::{self, Serialize},
     serde_with::skip_serializing_none,
 };
@@ -247,6 +248,76 @@ impl Serialize for ResourceDigest {
     }
 }
 
+/// A tag declared in a `CodeChunk`
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize)]
+#[serde(crate = "common::serde")]
+pub struct Tag {
+    /// The name of the tag e.g. `uses`, `db`
+    pub name: String,
+
+    /// The value of the tag
+    pub value: String,
+
+    /// Whether the tag is global to the containing document
+    pub global: bool,
+}
+
+/// A collection of tags
+///
+/// Implements a `HashMap` like interface but is implemented as a `Vec` as this
+/// is expected to be more performant (in memory and CPU) given that the number
+/// of tags in a `TagMap` will usually be small (<10).
+#[derive(Debug, Default, Clone, Serialize)]
+#[serde(crate = "common::serde")]
+pub struct TagMap {
+    inner: Vec<Tag>,
+}
+
+impl TagMap {
+    /// Get a tag by name
+    pub fn get(&self, name: &str) -> Option<&Tag> {
+        self.inner.iter().find(|tag| tag.name == name)
+    }
+
+    /// Get a tag value by name
+    pub fn get_value(&self, name: &str) -> Option<String> {
+        self.get(name).map(|tag| tag.value.clone())
+    }
+
+    /// Insert a tag
+    ///
+    /// Overrides any existing tag with the same `name`.
+    pub fn insert(&mut self, new: Tag) {
+        if let Some((position, ..)) = self.inner.iter().find_position(|tag| tag.name == new.name) {
+            self.inner[position] = new;
+        } else {
+            self.inner.push(new)
+        }
+    }
+
+    /// Insert `global` tags from another tag map
+    ///
+    /// Used to merge a resource's global tags into a document's global tags.
+    pub fn insert_globals(&mut self, other: &TagMap) {
+        for tag in other.inner.iter() {
+            if tag.global {
+                self.insert(tag.clone());
+            }
+        }
+    }
+
+    /// Merge tags from one tag map into another, overriding any duplicates
+    ///
+    /// Used to merge document's global tags into a resource's tags.
+    pub fn merge(&self, other: &TagMap) -> TagMap {
+        let mut clone = self.clone();
+        for tag in &other.inner {
+            clone.insert(tag.clone());
+        }
+        clone
+    }
+}
+
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize)]
 #[serde(crate = "common::serde")]
@@ -323,7 +394,7 @@ pub struct ResourceInfo {
     ///
     /// Always execute the resource
     ///
-    /// e.g. a user may tag a `CodeBlock` as `@autorun always` if it assigns a random variable
+    /// e.g. a user may tag a `CodeChunk` as `@autorun always` if it assigns a random variable
     /// (i.e. is non-deterministic) and everytime one of its downstream dependents is run, they
     /// want it to be updated.
     ///
@@ -350,6 +421,9 @@ pub struct ResourceInfo {
     /// Used to determine if other resources should have `execute_required` set to `DependenciesFailed`.
     /// Should be false if the resource has never executed or succeeded last time it was.
     pub execute_failed: Option<bool>,
+
+    /// The tags defined in the resource (if it is a `CodeChunk`)
+    pub tags: TagMap,
 }
 
 impl ResourceInfo {
@@ -366,6 +440,7 @@ impl ResourceInfo {
             compile_digest: None,
             execute_digest: None,
             execute_failed: None,
+            tags: TagMap::default(),
         }
     }
 
@@ -390,6 +465,7 @@ impl ResourceInfo {
             compile_digest,
             execute_digest,
             execute_failed,
+            tags: TagMap::default(),
         }
     }
 
@@ -480,6 +556,7 @@ impl ResourceInfo {
         self.execute_failed = Some(execute_failed);
     }
 }
+
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
 #[derivative(PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[serde(crate = "common::serde")]

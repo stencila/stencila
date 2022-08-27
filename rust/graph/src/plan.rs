@@ -7,6 +7,7 @@ use common::{
     strum::AsRefStr,
 };
 use graph_triples::ResourceInfo;
+use kernels::KernelSelector;
 
 /// An execution plan for a document
 #[derive(Debug, Default, Serialize)]
@@ -166,7 +167,7 @@ pub struct PlanTask {
     ///
     /// If this is `None` it indicates that no kernel capable of executing
     /// the node is available on the machine
-    pub kernel_name: Option<String>,
+    pub kernel_selector: KernelSelector,
 
     /// The code will be executed in a fork of the kernel
     ///
@@ -179,12 +180,12 @@ impl PlanTask {
     pub fn to_markdown(&self) -> String {
         let node_type = self.resource_info.resource.node_type().unwrap_or("?");
         let node_id = self.resource_info.resource.node_id().unwrap_or("?");
-        let kernel_name = self.kernel_name.as_deref().unwrap_or("?");
+        let kernel_selector = self.kernel_selector.to_string();
         let fork = if self.is_fork { "**fork**" } else { "" };
 
         format!(
             "Run `{}` *{}* in *{}* kernel {}",
-            node_type, node_id, kernel_name, fork,
+            node_type, node_id, kernel_selector, fork,
         )
     }
 }

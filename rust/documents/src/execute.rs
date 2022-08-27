@@ -16,8 +16,8 @@ use common::{
     tracing,
 };
 use graph::{Plan, PlanScope};
-use graph_triples::Resource;
-use kernels::{KernelSelector, KernelSpace};
+use graph_triples::{Resource, TagMap};
+use kernels::KernelSpace;
 use node_address::{Address, AddressMap};
 use node_patch::{diff, mutate, Patch};
 use stencila_schema::{CodeChunk, CodeExecutableExecuteStatus, CodeExpression, Node};
@@ -41,8 +41,10 @@ use crate::{
 ///
 /// - `root`: The root node to execute the plan on (takes a read lock)
 ///
-/// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
+/// - `address_map`: The [`AddressMap`] for the `root` node (used to locate code nodes
 ///                  included in the plan within the `root` node; takes a read lock)
+/// 
+/// - `tag_map`: The document's [`TagMap`] of global tags
 ///
 /// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
 ///
@@ -55,6 +57,7 @@ pub async fn execute(
     plan: &Plan,
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
+    tag_map: &Arc<RwLock<TagMap>>,
     kernel_space: &Arc<RwLock<KernelSpace>>,
     call_docs: &Arc<RwLock<CallDocuments>>,
     patch_request_sender: &UnboundedSender<PatchRequest>,
@@ -218,7 +221,8 @@ pub async fn execute(
             // Create clones of variables needed to execute the task
             let kernel_space = kernel_space.clone();
             let call_docs = call_docs.clone();
-            let kernel_selector = KernelSelector::new(task.kernel_name.clone(), None, None);
+            let tag_map = tag_map.clone();
+            let kernel_selector = task.kernel_selector.clone();
             let mut resource_info = task.resource_info.clone();
             let is_fork = task.is_fork;
 
@@ -243,6 +247,7 @@ pub async fn execute(
                         &kernel_selector,
                         is_fork,
                         &*call_docs.read().await,
+                        &*tag_map.read().await,
                     )
                     .await
                 {

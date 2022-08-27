@@ -27,7 +27,7 @@ use common::{
 use events::publish;
 use formats::FormatSpec;
 use graph::{Graph, PlanOptions, PlanOrdering, PlanScope};
-use graph_triples::{resources, Relations, Resource};
+use graph_triples::{resources, Relations, Resource, TagMap};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
 use node_address::{Address, AddressMap};
 use node_patch::{apply, diff, merge, Patch};
@@ -187,6 +187,11 @@ pub struct Document {
     #[serde(skip)]
     addresses: Arc<RwLock<AddressMap>>,
 
+    /// Global tags defined in any of the document's code chunks
+    #[allow(dead_code)]
+    #[serde(skip)]
+    tags: Arc<RwLock<TagMap>>,
+
     /// The kernel space for this document.
     ///
     /// This is where document variables are stored and executable nodes such as
@@ -326,6 +331,7 @@ impl Document {
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
         let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
+        let tags = Arc::new(RwLock::new(TagMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
         let kernels = Arc::new(RwLock::new(KernelSpace::new(Some(&project))));
         let last_write = Arc::new(RwLock::new(Instant::now()));
@@ -403,6 +409,7 @@ impl Document {
         let project_clone = project.clone();
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
+        let tags_clone = tags.clone();
         let graph_clone = graph.clone();
         let patch_sender_clone = patch_request_sender.clone();
         let execute_sender_clone = execute_request_sender.clone();
@@ -415,6 +422,7 @@ impl Document {
                 &project_clone,
                 &root_clone,
                 &addresses_clone,
+                &tags_clone,
                 &graph_clone,
                 &patch_sender_clone,
                 &execute_sender_clone,
@@ -430,6 +438,7 @@ impl Document {
         let project_clone = project.clone();
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
+        let tags_clone = tags.clone();
         let graph_clone = graph.clone();
         let kernels_clone = kernels.clone();
         let patch_sender_clone = patch_request_sender.clone();
@@ -441,6 +450,7 @@ impl Document {
                 &project_clone,
                 &root_clone,
                 &addresses_clone,
+                &tags_clone,
                 &graph_clone,
                 &kernels_clone,
                 &call_docs,
@@ -484,6 +494,7 @@ impl Document {
 
             root,
             addresses,
+            tags,
             graph,
             kernels,
 
@@ -1300,6 +1311,8 @@ impl Document {
     /// - `root`: The root [`Node`] to apply the compilation patch to
     ///
     /// - `addresses`: The [`AddressMap`] to be updated
+    /// 
+    /// - `tags`: The document's global [`TagMap`] to be updated
     ///
     /// - `graph`:  The [`Graph`] to be updated
     ///
@@ -1320,7 +1333,8 @@ impl Document {
         path: &Path,
         project: &Path,
         root: &Arc<RwLock<Node>>,
-        address_map: &Arc<RwLock<AddressMap>>,
+        addresses: &Arc<RwLock<AddressMap>>,
+        tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
@@ -1364,7 +1378,7 @@ impl Document {
             );
 
             // Compile the root node
-            match compile(path, project, root, address_map, patch_sender).await {
+            match compile(path, project, root, addresses, tags, patch_sender).await {
                 Ok(new_graph) => {
                     *graph.write().await = new_graph;
                 }
@@ -1498,6 +1512,8 @@ impl Document {
     /// - `root`: The root [`Node`] to apply the compilation patch to
     ///
     /// - `addresses`: The [`AddressMap`] to be updated
+    /// 
+    /// - `tags`: The document's global [`TagMap`] for passing tags on to executed nodes
     ///
     /// - `graph`:  The [`Graph`] to be updated
     ///
@@ -1522,6 +1538,7 @@ impl Document {
         project: &Path,
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
+        tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<RwLock<KernelSpace>>,
         call_docs: &Arc<RwLock<CallDocuments>>,
@@ -1600,12 +1617,14 @@ impl Document {
             let start = start
                 .clone()
                 .map(|node_id| resources::code(path, &node_id, "", None));
+            let tags_guard = tags.read().await;
             let plan = match graph
                 .read()
                 .await
                 .plan(
                     start,
                     None,
+                    Some(&*tags_guard),
                     Some(PlanOptions {
                         ordering,
                         max_concurrency,
@@ -1619,12 +1638,14 @@ impl Document {
                     continue;
                 }
             };
+            drop(tags_guard);
 
             // Execute the plan on the root node
             execute(
                 &plan,
                 root,
                 addresses,
+                tags,
                 kernel_space,
                 call_docs,
                 patch_sender,

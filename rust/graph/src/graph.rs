@@ -27,7 +27,7 @@ use common::{
 };
 use graph_triples::{
     direction, relations, stencila_schema::CodeChunkExecuteAuto, Direction, Pairs, Relation,
-    Resource, ResourceInfo, Triple,
+    Resource, ResourceInfo, TagMap, Triple,
 };
 use hash_utils::seahash;
 use kernels::{Kernel, KernelSelector};
@@ -561,12 +561,17 @@ impl Graph {
     ///
     /// - `start`: The node at which the plan should start. If `None` then
     ///            starts at the first node in the document.
+    /// 
+    /// - `kernels`: The kernels available to execute the plan
+    /// 
+    /// - `tags`: The document's global tags
     ///
     /// - `options`: Options for the plan
     pub async fn plan(
         &self,
         start: Option<Resource>,
         kernels: Option<Vec<Kernel>>,
+        tags: Option<&TagMap>,
         options: Option<PlanOptions>,
     ) -> Result<Plan> {
         let kernels = match kernels {
@@ -574,11 +579,17 @@ impl Graph {
             None => kernels::available().await,
         };
 
+        let empty_tags = TagMap::default();
+        let tags = match tags {
+            Some(tags) => tags,
+            None => &empty_tags,
+        };
+
         let options = options.unwrap_or_default();
         match options.ordering {
-            PlanOrdering::Single => self.plan_single(start, kernels, options),
-            PlanOrdering::Appearance => self.plan_appearance(start, kernels, options),
-            PlanOrdering::Topological => self.plan_topological(start, kernels, options),
+            PlanOrdering::Single => self.plan_single(start, kernels, tags, options),
+            PlanOrdering::Appearance => self.plan_appearance(start, kernels, tags, options),
+            PlanOrdering::Topological => self.plan_topological(start, kernels, tags, options),
         }
     }
 
@@ -595,12 +606,15 @@ impl Graph {
     ///            starts at the first node in the document.
     ///
     /// - `kernels`: The kernels available to execute the plan
+    /// 
+    /// - `tags`: The document's global tags
     ///
     /// - `options`: Options for the plan
     pub fn plan_single(
         &self,
         start: Option<Resource>,
         kernels: Vec<Kernel>,
+        tags: &TagMap,
         options: PlanOptions,
     ) -> Result<Plan> {
         let start = match start {
@@ -620,9 +634,13 @@ impl Graph {
             _ => bail!("The resource must be a `Code` node for plan ordering `Simple`"),
         };
 
-        let kernel = KernelSelector::new(None, code.language.clone(), None).select(&kernels);
-        let (kernel_name, kernel_forkable) = match kernel {
-            Some(kernel) => (Some(kernel.name.clone()), kernel.forkable),
+        let kernel_selector = KernelSelector::from_lang_and_tags(
+            code.language.as_deref(),
+            Some(&tags.merge(&resource_info.tags)),
+        );
+        let kernel = kernel_selector.select(&kernels);
+        let kernel_forkable = match kernel {
+            Some(kernel) => kernel.forkable,
             None => bail!("There is no kernel available capable of executing the code"),
         };
 
@@ -636,7 +654,7 @@ impl Graph {
             stages: vec![PlanStage {
                 tasks: vec![PlanTask {
                     resource_info,
-                    kernel_name,
+                    kernel_selector,
                     is_fork,
                 }],
             }],
@@ -654,12 +672,15 @@ impl Graph {
     ///            starts at the first node in the document.
     ///
     /// - `kernels`: The kernels available to execute the plan
+    /// 
+    /// - `tags`: The document's global tags
     ///
     /// - `options`: Options for the plan
     pub fn plan_appearance(
         &self,
         start: Option<Resource>,
         kernels: Vec<Kernel>,
+        tags: &TagMap,
         options: PlanOptions,
     ) -> Result<Plan> {
         let mut stages: Vec<PlanStage> = Vec::with_capacity(self.appearance_order.len());
@@ -682,15 +703,18 @@ impl Graph {
                 _ => continue,
             };
 
+            let resource_info = self.get_resource_info(resource)?;
+
             // Only include code for which there is a kernel capable of executing it
-            let selector = KernelSelector::new(None, code.language.clone(), None);
-            let kernel = selector.select(&kernels);
-            let (kernel_name, kernel_forkable) = match kernel {
-                Some(kernel) => (Some(kernel.name.clone()), kernel.forkable),
+            let kernel_selector = KernelSelector::from_lang_and_tags(
+                code.language.as_deref(),
+                Some(&tags.merge(&resource_info.tags)),
+            );
+            let kernel = kernel_selector.select(&kernels);
+            let kernel_forkable = match kernel {
+                Some(kernel) => kernel.forkable,
                 None => continue,
             };
-
-            let resource_info = self.get_resource_info(resource)?;
 
             // If this is not the explicitly executed resource `start`
             // and `autorun == Never` then exclude it and any following resources
@@ -715,7 +739,7 @@ impl Graph {
             // Create the task
             let task = PlanTask {
                 resource_info: resource_info.clone(),
-                kernel_name,
+                kernel_selector,
                 is_fork,
             };
 
@@ -758,12 +782,15 @@ impl Graph {
     ///            If `None` then the plan includes all nodes in the document.
     ///
     /// - `kernels`: The kernels available to execute the plan
+    /// 
+    /// - `tags`: The document's global tags
     ///
     /// - `options`: Options for the plan
     pub fn plan_topological(
         &self,
         start: Option<Resource>,
         kernels: Vec<Kernel>,
+        tags: &TagMap,
         options: PlanOptions,
     ) -> Result<Plan> {
         // First iteration, in topological order, to determine which resources to include
@@ -889,15 +916,18 @@ impl Graph {
                 _ => continue,
             };
 
+            let resource_info = self.get_resource_info(resource)?;
+
             // Only execute resources for which there is a kernel capable of executing code
-            let selector = KernelSelector::new(None, code.language.clone(), None);
-            let kernel = selector.select(&kernels);
-            let (kernel_name, kernel_forkable) = match kernel {
-                Some(kernel) => (Some(kernel.name.clone()), kernel.forkable),
+            let kernel_selector = KernelSelector::from_lang_and_tags(
+                code.language.as_deref(),
+                Some(&tags.merge(&resource_info.tags)),
+            );
+            let kernel = kernel_selector.select(&kernels);
+            let kernel_forkable = match kernel {
+                Some(kernel) => kernel.forkable,
                 None => continue,
             };
-
-            let resource_info = self.get_resource_info(resource)?;
 
             // Determine if the taks should run in a fork
             let is_fork = Self::should_run_in_fork(
@@ -910,7 +940,7 @@ impl Graph {
             // Create the task
             let task = PlanTask {
                 resource_info: resource_info.clone(),
-                kernel_name,
+                kernel_selector,
                 is_fork,
             };
 

@@ -28,5 +28,6 @@ kernel-micro = { path = "../kernel-micro", optional = true }
 kernel-node = { path = "../kernel-node", optional = true }
 kernel-python = { path = "../kernel-python", optional = true }
 kernel-r = { path = "../kernel-r", optional = true }
+kernel-sql = { path = "../kernel-sql", optional = true }
 kernel-store = { path = "../kernel-store", optional = true }
 kernel-zsh = { path = "../kernel-zsh", optional = true }

@@ -7,11 +7,13 @@ use common::{
     once_cell::sync::Lazy,
     regex::Regex,
     serde::{Deserialize, Serialize},
+    serde_with::skip_serializing_none,
     strum::Display,
     tokio::sync::{broadcast, mpsc},
     tracing,
 };
 use formats::Format;
+use graph_triples::TagMap;
 use stencila_schema::{CodeError, Node};
 use utils::some_box_string;
 use uuids::uuid_family;
@@ -147,7 +149,9 @@ pub struct KernelInfo {
 }
 
 /// A selector used to choose amongst alternative kernels
-#[derive(Debug, Default)]
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct KernelSelector {
     /// A string that will match against the kernel `name` or any of its `languages`
     pub any: Option<String>,
@@ -160,6 +164,9 @@ pub struct KernelSelector {
 
     /// A string that will match against the kernel `type`
     pub r#type: Option<String>,
+
+    /// Extra configuration details which can be passed to the kernel's `new` function
+    pub config: Option<String>,
 
     /// A string that will match against the kernel `id`
     pub id: Option<String>,
@@ -180,18 +187,38 @@ impl fmt::Display for KernelSelector {
             str.push_str(" type:");
             str.push_str(r#type);
         }
+        if let Some(config) = &self.config {
+            str.push_str(" config:");
+            str.push_str(config);
+        }
+        if let Some(id) = &self.id {
+            str.push_str(" id:");
+            str.push_str(id);
+        }
         write!(formatter, "{}", str.trim())
     }
 }
 
 impl KernelSelector {
     /// Create a new `KernelSelector`
-    pub fn new(name: Option<String>, lang: Option<String>, r#type: Option<String>) -> Self {
+    pub fn from_lang_and_tags(lang: Option<&str>, tags: Option<&TagMap>) -> Self {
+        let (name, config) = if let Some(tags) = tags {
+            let name = tags.get_value("kernel");
+            let config = match lang {
+                Some("SQL") => tags.get_value("db"),
+                _ => None,
+            };
+            (name, config)
+        } else {
+            (None, None)
+        };
+
         Self {
             any: None,
+            lang: lang.map(String::from),
+            r#type: None,
             name,
-            lang,
-            r#type,
+            config,
             id: None,
         }
     }
@@ -249,6 +276,7 @@ impl KernelSelector {
             name,
             lang,
             r#type,
+            config: None,
             id: None,
         }
     }
