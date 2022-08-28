@@ -1,25 +1,66 @@
-use sqlx::{Column, Row, SqlitePool, TypeInfo};
+use std::collections::HashMap;
+
+use sqlx::{sqlite::SqliteArguments, Arguments, Column, Row, SqlitePool, TypeInfo};
 
 use kernel::{
-    common::{eyre::Result, itertools::Itertools, serde_json, tracing},
+    common::{
+        eyre::Result,
+        itertools::Itertools,
+        once_cell::sync::Lazy,
+        regex::{Captures, Regex},
+        serde_json, tracing,
+    },
     stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node, Null,
         Number, NumberValidator, StringValidator, ValidatorTypes,
     },
 };
 
+/// Bind parameters to an SQL statement based on name
+fn bind<'lt>(sql: &str, parameters: &'lt HashMap<String, Node>) -> (String, SqliteArguments<'lt>) {
+    static PARAM_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"\$([a-zA-Z][a-zA-Z_0-9]*)").expect("Unable to create regex"));
+
+    let mut count = 0;
+    let mut arguments = SqliteArguments::default();
+    let sql = PARAM_REGEX.replace(sql, |captures: &Captures| {
+        let name = captures[1].to_string();
+        let value = parameters.get(&name).unwrap();
+        match value {
+            Node::Boolean(value) => arguments.add(value),
+            Node::Integer(value) => arguments.add(value),
+            Node::Number(value) => arguments.add(value.0),
+            Node::String(value) => arguments.add(value),
+            _ => arguments.add(serde_json::to_value(&value).unwrap_or(serde_json::Value::Null)),
+        };
+        count += 1;
+        ["?", &count.to_string()].concat()
+    });
+    (sql.to_string(), arguments)
+}
+
 /// Execute an SQL statement in SQLite
 ///
 /// Only returns a `Datatable` for convenience elsewhere in the code
-pub async fn execute_statement(sql: &str, pool: &SqlitePool) -> Result<Datatable> {
-    sqlx::query(sql).execute(pool).await?;
+pub async fn execute_statement(
+    sql: &str,
+    parameters: &HashMap<String, Node>,
+    pool: &SqlitePool,
+) -> Result<Datatable> {
+    let (sql, args) = bind(sql, parameters);
+    sqlx::query_with(&sql, args).execute(pool).await?;
     Ok(Datatable::default())
 }
 
 /// Run a query in SQLite and return the result as a Stencila [`Datatable`]
-pub async fn query_to_datatable(query: &str, pool: &SqlitePool) -> Result<Datatable> {
+pub async fn query_to_datatable(
+    query: &str,
+    parameters: &HashMap<String, Node>,
+    pool: &SqlitePool,
+) -> Result<Datatable> {
     // Run the query
-    let rows = sqlx::query(query).fetch_all(pool).await?;
+    let (sql, args) = bind(query, parameters);
+    let rows = sqlx::query_with(&sql, args).fetch_all(pool).await?;
 
     // Get the names of the columns and transform their types into validators
     let columns = if let Some(row) = rows.first() {

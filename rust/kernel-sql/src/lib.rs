@@ -52,6 +52,10 @@ pub struct SqlKernel {
     /// Datatables resulting from SELECT queries that have been assigned to variables
     #[serde(skip)]
     assigned: HashMap<String, Datatable>,
+
+    /// Nodes, other than Datatables, that are `set()` in this kernel and available
+    /// for SQL statement parameter bindings
+    parameters: HashMap<String, Node>,
 }
 
 impl SqlKernel {
@@ -133,7 +137,15 @@ impl SqlKernel {
             code.push_str(line);
             code.push('\n');
         }
-        code.split(';').map(String::from).collect_vec()
+        code.split(';')
+            .filter_map(|statement| {
+                if statement.trim().is_empty() {
+                    None
+                } else {
+                    Some(String::from(statement))
+                }
+            })
+            .collect_vec()
     }
 }
 
@@ -166,11 +178,13 @@ impl KernelTrait for SqlKernel {
             .as_ref()
             .expect("connect() should ensure connection");
 
+        let params = &self.parameters;
+
         // Attempt to get a table or view with the same name
         let query = format!("SELECT * FROM \"{}\"", name.replace('"', "-"));
         if let Ok(datatable) = match pool {
-            MetaPool::Postgres(pool) => postgres::query_to_datatable(&query, pool).await,
-            MetaPool::Sqlite(pool) => sqlite::query_to_datatable(&query, pool).await,
+            MetaPool::Postgres(pool) => postgres::query_to_datatable(&query, params, pool).await,
+            MetaPool::Sqlite(pool) => sqlite::query_to_datatable(&query, params, pool).await,
         } {
             return Ok(Node::Datatable(datatable));
         }
@@ -189,21 +203,18 @@ impl KernelTrait for SqlKernel {
             .as_ref()
             .expect("connect() should ensure connection");
 
-        let datatable = match value {
-            Node::Datatable(node) => node,
-            _ => {
-                bail!(
-                    "Only Datatables can be set as symbols in a SQL database; got a `{}`",
-                    value.as_ref()
-                )
+        if let Node::Datatable(datatable) = value {
+            match pool {
+                MetaPool::Postgres(pool) => {
+                    postgres::table_from_datatable(name, datatable, pool).await
+                }
+                MetaPool::Sqlite(pool) => sqlite::table_from_datatable(name, datatable, pool).await,
             }
-        };
-
-        match pool {
-            MetaPool::Postgres(pool) => postgres::table_from_datatable(name, datatable, pool).await,
-            MetaPool::Sqlite(pool) => sqlite::table_from_datatable(name, datatable, pool).await,
+            .map_err(|error| eyre!("While setting table `{}` in SQL kernel: {}", name, error))
+        } else {
+            self.parameters.insert(name.to_string(), value);
+            Ok(())
         }
-        .map_err(|error| eyre!("While setting symbol `{}` in SQL kernel: {}", name, error))
     }
 
     async fn exec_sync(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
@@ -222,23 +233,27 @@ impl KernelTrait for SqlKernel {
                 .as_ref()
                 .expect("connect() should ensure connection");
 
+            let params = &self.parameters;
+
             let statements = Self::split_statements(code);
             for statement in statements {
                 let result = if statement.trim_start().to_lowercase().starts_with("select") {
                     match pool {
                         MetaPool::Postgres(pool) => {
-                            postgres::query_to_datatable(&statement, pool).await
+                            postgres::query_to_datatable(&statement, params, pool).await
                         }
                         MetaPool::Sqlite(pool) => {
-                            sqlite::query_to_datatable(&statement, pool).await
+                            sqlite::query_to_datatable(&statement, params, pool).await
                         }
                     }
                 } else {
                     match pool {
                         MetaPool::Postgres(pool) => {
-                            postgres::execute_statement(&statement, pool).await
+                            postgres::execute_statement(&statement, params, pool).await
                         }
-                        MetaPool::Sqlite(pool) => sqlite::execute_statement(&statement, pool).await,
+                        MetaPool::Sqlite(pool) => {
+                            sqlite::execute_statement(&statement, params, pool).await
+                        }
                     }
                 };
 

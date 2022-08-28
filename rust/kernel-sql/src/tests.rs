@@ -114,14 +114,6 @@ async fn test(config: &str) -> Result<()> {
     let table_a = kernel.get("table_a").await?;
     assert_json_eq!(table_a, datatable_a);
 
-    // Test setting a non-Datatable doesn't work
-    match kernel.set("table_a", Node::String("A".to_string())).await {
-        Ok(..) => bail!("Expected an error"),
-        Err(error) => assert!(error
-            .to_string()
-            .contains("Only Datatables can be set as symbols")),
-    };
-
     // Test that @assign tag works as expected
     kernel
         .exec(
@@ -137,6 +129,22 @@ async fn test(config: &str) -> Result<()> {
     match &query_2.0[0] {
         Node::Datatable(datatable) => {
             assert_eq!(datatable.columns[0].values[0], Node::Integer(123))
+        }
+        _ => bail!("Should be a datatable!"),
+    }
+
+    // Test setting a non-Datatable adds to the kernel's parameters which can then be used in bindings
+    kernel.set("param", Node::Integer(3)).await?;
+    kernel.parameters.contains_key("param");
+    let query_3 = kernel
+        .exec("SELECT col_4 FROM table_a WHERE col_2 = $param;", None)
+        .await?;
+    match &query_3.0[0] {
+        Node::Datatable(datatable) => {
+            assert_eq!(
+                datatable.columns[0].values[0],
+                Node::String("string-3".to_string())
+            )
         }
         _ => bail!("Should be a datatable!"),
     }
