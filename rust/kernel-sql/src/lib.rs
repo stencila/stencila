@@ -27,6 +27,12 @@ mod sqlite;
 #[cfg(test)]
 mod tests;
 
+static SYMBOL_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new("^[a-zA-Z_][a-zA-Z_0-9]*$").expect("Unable to create regex"));
+
+static BINDING_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"\$([a-zA-Z_][a-zA-Z_0-9]*)").expect("Unable to create regex"));
+
 #[derive(Debug)]
 enum MetaPool {
     Postgres(PgPool),
@@ -260,15 +266,11 @@ impl KernelTrait for SqlKernel {
                 match result {
                     Ok(datatable) => {
                         if let Some(assigns) = tags.and_then(|tags| tags.get_value("assigns")) {
-                            static REGEX: Lazy<Regex> = Lazy::new(|| {
-                                Regex::new("^[a-zA-Z_][a-zA-Z_0-9]*$")
-                                    .expect("Unable to create regex")
-                            });
-                            if REGEX.is_match(&assigns) {
+                            if SYMBOL_REGEX.is_match(&assigns) {
                                 self.assigned.insert(assigns, datatable);
                             } else {
                                 messages.push(CodeError {
-                                        error_message: format!("The `@assigns` tag is invalid. It should be a single identifier matching regular expression `{}`", REGEX.as_str()),
+                                        error_message: format!("The `@assigns` tag is invalid. It should be a single identifier matching regular expression `{}`", SYMBOL_REGEX.as_str()),
                                         ..Default::default()
                                     });
                             }

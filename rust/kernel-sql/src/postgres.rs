@@ -3,27 +3,20 @@ use std::collections::HashMap;
 use sqlx::{postgres::PgArguments, Arguments, Column, PgPool, Row, TypeInfo};
 
 use kernel::{
-    common::{
-        eyre::Result,
-        itertools::Itertools,
-        once_cell::sync::Lazy,
-        regex::{Captures, Regex},
-        serde_json, tracing,
-    },
+    common::{eyre::Result, itertools::Itertools, regex::Captures, serde_json, tracing},
     stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node, Null,
         Number, NumberValidator, StringValidator, ValidatorTypes,
     },
 };
 
+use crate::BINDING_REGEX;
+
 /// Bind parameters to an SQL statement based on name
 fn bind(sql: &str, parameters: &HashMap<String, Node>) -> (String, PgArguments) {
-    static PARAM_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"\$([a-zA-Z][a-zA-Z_0-9]*)").expect("Unable to create regex"));
-
     let mut count = 0;
     let mut arguments = PgArguments::default();
-    let sql = PARAM_REGEX.replace(sql, |captures: &Captures| {
+    let sql = BINDING_REGEX.replace_all(sql, |captures: &Captures| {
         let name = captures[1].to_string();
         let value = parameters.get(&name).unwrap();
         match value {
