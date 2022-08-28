@@ -42,3 +42,6 @@
         target: (identifier) @identifer
     )
 ]
+
+; binding
+((argument_reference) @index)

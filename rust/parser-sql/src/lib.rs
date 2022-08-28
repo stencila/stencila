@@ -36,12 +36,18 @@ impl ParserTrait for SqlParser {
                     1 => relations::assigns(captures[0].range),
                     2 => relations::uses(captures[0].range),
                     3 => relations::alters(captures[0].range),
+                    4 => relations::uses(captures[0].range),
                     _ => return None,
                 };
-                Some((
-                    relation,
-                    resources::symbol(path, &captures[0].text, "Datatable"),
-                ))
+                let name = match pattern {
+                    4 => &captures[0].text[1..],
+                    _ => &captures[0].text,
+                };
+                let kind = match pattern {
+                    4 => "",
+                    _ => "Datatable",
+                };
+                Some((relation, resources::symbol(path, name, kind)))
             })
             .collect();
 
