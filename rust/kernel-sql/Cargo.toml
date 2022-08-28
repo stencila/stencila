@@ -10,7 +10,6 @@ sqlx = { version = "0.6.1", features = [
     "any",
     # The `mysql` feature is not included because, at the time of writing,
     # it caused a compile error `error[E0277]: (dyn functions::Function + 'static)` cannot be sent between threads safely`
-    "mssql",
     "sqlite",
     "postgres",
 ] }
