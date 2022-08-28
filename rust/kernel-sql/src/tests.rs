@@ -36,19 +36,15 @@ async fn test(config: &str) -> Result<()> {
         ..Default::default()
     });
 
+    // Clean up after any previous test
     kernel.exec("DROP TABLE IF EXISTS table_a", None).await?;
 
+    // Test that getting a non-existent table does not work
     if let Ok(..) = kernel.get("table_a").await {
         bail!("Expected an error because table not yet created")
     };
 
-    match kernel.set("table_a", Node::String("A".to_string())).await {
-        Ok(..) => bail!("Expected an error"),
-        Err(error) => assert!(error
-            .to_string()
-            .contains("Only Datatables can be set as symbols")),
-    };
-
+    // Test setting a Datatable
     let rows = 5;
     let col_1 = DatatableColumn {
         name: "col_1".to_string(),
@@ -115,19 +111,35 @@ async fn test(config: &str) -> Result<()> {
     kernel
         .set("table_a", Node::Datatable(datatable_a.clone()))
         .await?;
-
     let table_a = kernel.get("table_a").await?;
     assert_json_eq!(table_a, datatable_a);
 
+    // Test setting a non-Datatable doesn't work
+    match kernel.set("table_a", Node::String("A".to_string())).await {
+        Ok(..) => bail!("Expected an error"),
+        Err(error) => assert!(error
+            .to_string()
+            .contains("Only Datatables can be set as symbols")),
+    };
+
+    // Test that @assign tag works as expected
     kernel
         .exec(
             "SELECT * FROM table_a",
             Some(&TagMap::from_name_values(&[("assigns", "query_1")])),
         )
         .await?;
-
     let query_1 = kernel.get("query_1").await?;
     assert_json_eq!(query_1, datatable_a);
+
+    // Test that possibly untyped columns (at least in SQLite) are translated into values
+    let query_2 = kernel.exec("SELECT 123;", None).await?;
+    match &query_2.0[0] {
+        Node::Datatable(datatable) => {
+            assert_eq!(datatable.columns[0].values[0], Node::Integer(123))
+        }
+        _ => bail!("Should be a datatable!"),
+    }
 
     Ok(())
 }
