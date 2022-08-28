@@ -40,6 +40,8 @@ impl ParserTrait for SqlParser {
                     _ => return None,
                 };
                 let name = match pattern {
+                    // Note: although tree-sitter-sql creates an ERROR here because of a non-numeric
+                    // reference we are able to capture the name of the argument from the reference
                     4 => &captures[0].text[1..],
                     _ => &captures[0].text,
                 };

@@ -1,0 +1,155 @@
+---
+source: rust/parser-sql/src/lib.rs
+assertion_line: 82
+expression: resource_info
+input_file: fixtures/fragments/sql/bindings.sql
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/sql/bindings.sql",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "SQL"
+  },
+  "relations": [
+    [
+      {
+        "type": "Uses",
+        "range": [
+          0,
+          14,
+          0,
+          21
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "table_1",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          0,
+          36,
+          0,
+          41
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par1",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          0,
+          54,
+          0,
+          60
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par_2",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Alters",
+        "range": [
+          2,
+          12,
+          2,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "table_2",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          2,
+          42,
+          2,
+          47
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "Par3",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          2,
+          49,
+          2,
+          54
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par4",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Alters",
+        "range": [
+          4,
+          12,
+          4,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "table_3",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          4,
+          34,
+          4,
+          40
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par_5",
+        "kind": ""
+      }
+    ]
+  ],
+  "compile_digest": "2087667592006731688.16928463090556914540.0.0.0",
+  "tags": []
+}
