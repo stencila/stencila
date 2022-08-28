@@ -8,6 +8,14 @@ use kernel::{
     },
 };
 
+/// Execute an SQL statement in SQLite
+///
+/// Only returns a `Datatable` for convenience elsewhere in the code
+pub async fn execute_statement(sql: &str, pool: &SqlitePool) -> Result<Datatable> {
+    sqlx::query(sql).execute(pool).await?;
+    Ok(Datatable::default())
+}
+
 /// Run a query in SQLite and return the result as a Stencila [`Datatable`]
 pub async fn query_to_datatable(query: &str, pool: &SqlitePool) -> Result<Datatable> {
     // Run the query

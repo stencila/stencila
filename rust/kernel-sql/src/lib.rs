@@ -11,6 +11,7 @@ use kernel::{
     common::{
         async_trait::async_trait,
         eyre::{bail, eyre, Result},
+        itertools::Itertools,
         once_cell::sync::Lazy,
         regex::Regex,
         serde::Serialize,
@@ -107,6 +108,33 @@ impl SqlKernel {
 
         Ok(())
     }
+
+    /// Split some SQL code into separate statements
+    ///
+    /// Strips whole-line and multi-line comments but not comments that are after SQL on a line.
+    /// This is a crude implementation (multiline comments must stat/end at the start/end of a line)
+    /// but should hopefully suffice in most cases.
+    fn split_statements(sql: &str) -> Vec<String> {
+        let mut code = String::new();
+        let mut in_multiline_comment = false;
+        for line in sql.lines() {
+            let line = line.trim();
+
+            if line.starts_with("--") {
+                continue;
+            } else if line.starts_with("/*") {
+                in_multiline_comment = true;
+                continue;
+            } else if in_multiline_comment && line.ends_with("*/") {
+                in_multiline_comment = false;
+                continue;
+            }
+
+            code.push_str(line);
+            code.push('\n');
+        }
+        code.split(';').map(String::from).collect_vec()
+    }
 }
 
 #[async_trait]
@@ -183,17 +211,37 @@ impl KernelTrait for SqlKernel {
         let mut outputs = Vec::new();
         let mut messages = Vec::new();
 
-        match self.connect().await {
-            Ok(..) => {
-                let pool = self
-                    .pool
-                    .as_ref()
-                    .expect("connect() should ensure connection");
+        if let Err(error) = self.connect().await {
+            messages.push(CodeError {
+                error_message: error.to_string(),
+                ..Default::default()
+            });
+        } else {
+            let pool = self
+                .pool
+                .as_ref()
+                .expect("connect() should ensure connection");
 
-                let result = match pool {
-                    MetaPool::Postgres(pool) => postgres::query_to_datatable(code, pool).await,
-                    MetaPool::Sqlite(pool) => sqlite::query_to_datatable(code, pool).await,
+            let statements = Self::split_statements(code);
+            for statement in statements {
+                let result = if statement.trim_start().to_lowercase().starts_with("select") {
+                    match pool {
+                        MetaPool::Postgres(pool) => {
+                            postgres::query_to_datatable(&statement, pool).await
+                        }
+                        MetaPool::Sqlite(pool) => {
+                            sqlite::query_to_datatable(&statement, pool).await
+                        }
+                    }
+                } else {
+                    match pool {
+                        MetaPool::Postgres(pool) => {
+                            postgres::execute_statement(&statement, pool).await
+                        }
+                        MetaPool::Sqlite(pool) => sqlite::execute_statement(&statement, pool).await,
+                    }
                 };
+
                 match result {
                     Ok(datatable) => {
                         if let Some(assigns) = tags.and_then(|tags| tags.get_value("assigns")) {
@@ -205,9 +253,9 @@ impl KernelTrait for SqlKernel {
                                 self.assigned.insert(assigns, datatable);
                             } else {
                                 messages.push(CodeError {
-                                    error_message: format!("The `@assigns` tag is invalid. It should be a single identifier matching regular expression `{}`", REGEX.as_str()),
-                                    ..Default::default()
-                                });
+                                        error_message: format!("The `@assigns` tag is invalid. It should be a single identifier matching regular expression `{}`", REGEX.as_str()),
+                                        ..Default::default()
+                                    });
                             }
                         } else {
                             outputs.push(Node::Datatable(datatable));
@@ -226,12 +274,6 @@ impl KernelTrait for SqlKernel {
                         });
                     }
                 }
-            }
-            Err(error) => {
-                messages.push(CodeError {
-                    error_message: error.to_string(),
-                    ..Default::default()
-                });
             }
         }
 
