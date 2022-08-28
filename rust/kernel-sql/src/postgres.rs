@@ -76,7 +76,7 @@ pub async fn query_to_datatable(query: &str, pool: &PgPool) -> Result<Datatable>
                     .ok()
                     .and_then(|value| serde_json::from_value(value).ok()),
                 _ => row
-                    .try_get::<String, usize>(col_index)
+                    .try_get_unchecked::<String, usize>(col_index)
                     .ok()
                     .and_then(|json| serde_json::from_str(&json).ok()),
             };

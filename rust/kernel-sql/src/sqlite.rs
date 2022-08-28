@@ -29,7 +29,7 @@ pub async fn query_to_datatable(query: &str, pool: &SqlitePool) -> Result<Datata
                     }
                     "REAL" => Some(ValidatorTypes::NumberValidator(NumberValidator::default())),
                     "TEXT" => Some(ValidatorTypes::StringValidator(StringValidator::default())),
-                    "BLOB" | "NULL" => None,
+                    "NULL" => None, // No column type specified e.g. "SELECT 1;"
                     _ => {
                         tracing::error!("Unhandled column type: {}", col_type);
                         None
@@ -64,7 +64,7 @@ pub async fn query_to_datatable(query: &str, pool: &SqlitePool) -> Result<Datata
                     .map(Node::String)
                     .ok(),
                 _ => row
-                    .try_get::<String, usize>(col_index)
+                    .try_get_unchecked::<String, usize>(col_index)
                     .ok()
                     .and_then(|json| serde_json::from_str(&json).ok()),
             };
