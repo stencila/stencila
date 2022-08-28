@@ -56,7 +56,6 @@ pub trait Executable {
         _kernel_selector: &KernelSelector,
         _is_fork: bool,
         _call_docs: &CallDocuments,
-        _tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         Ok(None)
     }
@@ -387,7 +386,6 @@ impl Executable for Parameter {
         kernel_selector: &KernelSelector,
         _is_fork: bool,
         _call_docs: &CallDocuments,
-        _tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         tracing::trace!("Executing `Parameter`");
 
@@ -484,7 +482,6 @@ impl Executable for CodeChunk {
         kernel_selector: &KernelSelector,
         is_fork: bool,
         _call_docs: &CallDocuments,
-        tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         let id = assert_id!(self)?;
         tracing::trace!(
@@ -494,7 +491,7 @@ impl Executable for CodeChunk {
         );
 
         let task_info = kernel_space
-            .exec(&self.text, tags, resource_info, is_fork, kernel_selector)
+            .exec(&self.text, resource_info, is_fork, kernel_selector)
             .await?;
 
         Ok(Some(task_info))
@@ -616,12 +613,11 @@ impl Executable for CodeExpression {
         kernel_selector: &KernelSelector,
         is_fork: bool,
         _call_docs: &CallDocuments,
-        tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         tracing::trace!("Executing `CodeExpression` `{:?}`", self.id);
 
         let task_info = kernel_space
-            .exec(&self.text, tags, resource_info, is_fork, kernel_selector)
+            .exec(&self.text, resource_info, is_fork, kernel_selector)
             .await?;
 
         Ok(Some(task_info))
@@ -867,7 +863,6 @@ impl Executable for Call {
         _kernel_selector: &KernelSelector,
         _is_fork: bool,
         call_docs: &CallDocuments,
-        _tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         let id = assert_id!(self)?;
         tracing::trace!("Executing `Call` `{}`", id);
@@ -995,7 +990,6 @@ impl Executable for Node {
         kernel_selector: &KernelSelector,
         is_fork: bool,
         call_docs: &CallDocuments,
-        tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         dispatch_node!(
             self,
@@ -1005,8 +999,7 @@ impl Executable for Node {
             kernel_space,
             kernel_selector,
             is_fork,
-            call_docs,
-            tags
+            call_docs
         )
         .await
     }
@@ -1046,7 +1039,6 @@ macro_rules! executable_enum {
                 kernel_selector: &KernelSelector,
                 is_fork: bool,
                 call_docs: &CallDocuments,
-                tags: &TagMap,
             ) -> Result<Option<TaskInfo>> {
                 $dispatch_macro!(
                     self,
@@ -1055,8 +1047,7 @@ macro_rules! executable_enum {
                     kernel_space,
                     kernel_selector,
                     is_fork,
-                    call_docs,
-                    tags
+                    call_docs
                 )
                 .await
             }

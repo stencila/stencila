@@ -187,6 +187,7 @@ pub async fn execute(
         }
 
         // Create a kernel task for each task in this stage
+        let tags = tag_map.read().await;
         for (task_index, task) in stage.tasks.iter().enumerate() {
             // Get the node info for the task
             let mut node_info = match node_infos.get(&task.resource_info.resource) {
@@ -222,10 +223,12 @@ pub async fn execute(
             // Create clones of variables needed to execute the task
             let kernel_space = kernel_space.clone();
             let call_docs = call_docs.clone();
-            let tag_map = tag_map.clone();
-            let kernel_selector = task.kernel_selector.clone();
             let mut resource_info = task.resource_info.clone();
+            let kernel_selector = task.kernel_selector.clone();
             let is_fork = task.is_fork;
+
+            // Merge the global tag map into the resource's
+            resource_info.tags.merge(&*tags);
 
             // Create a future for the task that will be spawned later
             let future = async move {
@@ -248,7 +251,6 @@ pub async fn execute(
                         &kernel_selector,
                         is_fork,
                         &*call_docs.read().await,
-                        &*tag_map.read().await,
                     )
                     .await
                 {
@@ -322,6 +324,7 @@ pub async fn execute(
             cancellers.insert(node_id, cancel_sender);
             futures.push(future);
         }
+        drop(tags);
 
         // Send patches for updated execution status
         send_patches(patch_request_sender, patches, When::Soon);

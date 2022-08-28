@@ -901,7 +901,6 @@ impl KernelSpace {
     pub async fn exec(
         &self,
         code: &str,
-        tags: &TagMap,
         resource_info: &ResourceInfo,
         force_fork: bool,
         selector: &KernelSelector,
@@ -965,10 +964,11 @@ impl KernelSpace {
             kernel_id,
             if fork { " fork" } else { "" }
         );
+        let tags = Some(&resource_info.tags);
         let task = if fork {
-            kernel.exec_fork(code, Some(tags)).await?
+            kernel.exec_fork(code, tags).await?
         } else {
-            kernel.exec_async(code, Some(tags)).await?
+            kernel.exec_async(code, tags).await?
         };
 
         // Record symbols assigned in kernel (unless it was a fork)
@@ -1122,7 +1122,6 @@ impl KernelSpace {
     pub async fn repl(
         &self,
         code: &str,
-        tags: &TagMap,
         language: Option<String>,
         kernel: Option<String>,
         background: bool,
@@ -1185,9 +1184,7 @@ impl KernelSpace {
             };
 
             // Execute the code
-            let mut task_info = self
-                .exec(&code, tags, &resource_info, is_fork, &selector)
-                .await?;
+            let mut task_info = self.exec(&code, &resource_info, is_fork, &selector).await?;
 
             if background {
                 // Indicate task is running in background
@@ -1579,7 +1576,6 @@ pub mod commands {
             kernel_space
                 .repl(
                     &self.code.join(" "),
-                    &TagMap::default(),
                     self.lang.clone(),
                     self.kernel.clone(),
                     self.background,
