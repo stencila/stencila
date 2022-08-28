@@ -1,6 +1,6 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 82
+assertion_line: 108
 expression: resource_info
 input_file: fixtures/fragments/sql/bindings.sql
 ---
@@ -37,7 +37,7 @@ input_file: fixtures/fragments/sql/bindings.sql
           0,
           36,
           0,
-          41
+          38
         ]
       },
       {
@@ -52,9 +52,9 @@ input_file: fixtures/fragments/sql/bindings.sql
         "type": "Uses",
         "range": [
           0,
-          54,
+          51,
           0,
-          60
+          53
         ]
       },
       {
@@ -66,11 +66,62 @@ input_file: fixtures/fragments/sql/bindings.sql
     ],
     [
       {
-        "type": "Alters",
+        "type": "Uses",
         "range": [
           2,
-          12,
+          14,
           2,
+          21
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "table_2",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          3,
+          20,
+          3,
+          22
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par_integer",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          4,
+          17,
+          4,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par_text",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Alters",
+        "range": [
+          7,
+          12,
+          7,
           19
         ]
       },
@@ -85,10 +136,10 @@ input_file: fixtures/fragments/sql/bindings.sql
       {
         "type": "Uses",
         "range": [
-          2,
+          7,
           42,
-          2,
-          47
+          7,
+          44
         ]
       },
       {
@@ -102,10 +153,10 @@ input_file: fixtures/fragments/sql/bindings.sql
       {
         "type": "Uses",
         "range": [
-          2,
-          49,
-          2,
-          54
+          7,
+          46,
+          7,
+          48
         ]
       },
       {
@@ -119,9 +170,9 @@ input_file: fixtures/fragments/sql/bindings.sql
       {
         "type": "Alters",
         "range": [
-          4,
+          9,
           12,
-          4,
+          9,
           19
         ]
       },
@@ -136,10 +187,10 @@ input_file: fixtures/fragments/sql/bindings.sql
       {
         "type": "Uses",
         "range": [
-          4,
+          9,
           34,
-          4,
-          40
+          9,
+          36
         ]
       },
       {
@@ -150,6 +201,6 @@ input_file: fixtures/fragments/sql/bindings.sql
       }
     ]
   ],
-  "compile_digest": "2087667592006731688.16928463090556914540.0.0.0",
+  "compile_digest": "9183586031446600102.11059944532023402949.0.0.0",
   "tags": []
 }

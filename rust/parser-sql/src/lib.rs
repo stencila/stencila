@@ -1,7 +1,12 @@
 use std::path::Path;
 
 use parser_treesitter::{
-    common::{eyre::Result, once_cell::sync::Lazy},
+    common::{
+        eyre::Result,
+        once_cell::sync::Lazy,
+        regex::{Captures, Regex},
+        tracing,
+    },
     formats::Format,
     graph_triples::{relations, resources, Resource, ResourceInfo},
     resource_info, Parser, ParserTrait, TreesitterParser,
@@ -25,7 +30,19 @@ impl ParserTrait for SqlParser {
     }
 
     fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
-        let code = code.as_bytes();
+        // Replace named bindings e.g. `$par_a` with numeric bindings e.g. `$1` so that
+        // they are recognized by `tree-sitter-sql`.
+        let mut bindings = Vec::new();
+        static BINDING_REGEX: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r"\$([a-zA-Z_][a-zA-Z_0-9]*)").expect("Unable to create regex")
+        });
+        let sql = BINDING_REGEX.replace_all(code, |captures: &Captures| {
+            let name = captures[1].to_string();
+            bindings.push(name);
+            ["$", &bindings.len().to_string()].concat()
+        });
+
+        let code = sql.as_bytes();
         let tree = PARSER.parse(code);
         let matches = PARSER.query(code, &tree);
 
@@ -40,9 +57,16 @@ impl ParserTrait for SqlParser {
                     _ => return None,
                 };
                 let name = match pattern {
-                    // Note: although tree-sitter-sql creates an ERROR here because of a non-numeric
-                    // reference we are able to capture the name of the argument from the reference
-                    4 => &captures[0].text[1..],
+                    4 => match captures[0].text[1..].parse::<usize>() {
+                        Ok(index) => &bindings[index - 1],
+                        Err(error) => {
+                            tracing::error!(
+                                "Unexpectedly unable to parse binding as integer index: {}",
+                                error
+                            );
+                            return None;
+                        }
+                    },
                     _ => &captures[0].text,
                 };
                 let kind = match pattern {
