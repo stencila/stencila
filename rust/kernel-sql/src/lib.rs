@@ -11,6 +11,8 @@ use kernel::{
     common::{
         async_trait::async_trait,
         eyre::{bail, eyre, Result},
+        once_cell::sync::Lazy,
+        regex::Regex,
         serde::Serialize,
         tracing::{self, log::LevelFilter},
     },
@@ -176,7 +178,7 @@ impl KernelTrait for SqlKernel {
         .map_err(|error| eyre!("While setting symbol `{}` in SQL kernel: {}", name, error))
     }
 
-    async fn exec_sync(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_sync(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
         let mut task = Task::begin_sync();
         let mut outputs = Vec::new();
         let mut messages = Vec::new();
@@ -194,7 +196,22 @@ impl KernelTrait for SqlKernel {
                 };
                 match result {
                     Ok(datatable) => {
-                        outputs.push(Node::Datatable(datatable));
+                        if let Some(assigns) = tags.and_then(|tags| tags.get_value("assigns")) {
+                            static REGEX: Lazy<Regex> = Lazy::new(|| {
+                                Regex::new("^[a-zA-Z_][a-zA-Z_0-9]*$")
+                                    .expect("Unable to create regex")
+                            });
+                            if REGEX.is_match(&assigns) {
+                                self.assigned.insert(assigns, datatable);
+                            } else {
+                                messages.push(CodeError {
+                                    error_message: format!("The `@assigns` tag is invalid. It should be a single identifier matching regular expression `{}`", REGEX.as_str()),
+                                    ..Default::default()
+                                });
+                            }
+                        } else {
+                            outputs.push(Node::Datatable(datatable));
+                        }
                     }
                     Err(error) => {
                         let message = error.to_string();

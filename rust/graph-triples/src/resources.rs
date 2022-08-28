@@ -274,6 +274,19 @@ pub struct TagMap {
 }
 
 impl TagMap {
+    /// Create a new tag map from a list of name/value pairs
+    pub fn from_name_values(pairs: &[(&str, &str)]) -> Self {
+        let mut map = Self::default();
+        for (name, value) in pairs {
+            map.insert(Tag {
+                name: name.to_string(),
+                value: value.to_string(),
+                ..Default::default()
+            });
+        }
+        map
+    }
+
     /// Get a tag by name
     pub fn get(&self, name: &str) -> Option<&Tag> {
         self.inner.iter().find(|tag| tag.name == name)

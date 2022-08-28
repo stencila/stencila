@@ -117,8 +117,17 @@ async fn test(config: &str) -> Result<()> {
         .await?;
 
     let table_a = kernel.get("table_a").await?;
-    assert!(matches!(table_a, Node::Datatable(..)));
     assert_json_eq!(table_a, datatable_a);
+
+    kernel
+        .exec(
+            "SELECT * FROM table_a",
+            Some(&TagMap::from_name_values(&[("assigns", "query_1")])),
+        )
+        .await?;
+
+    let query_1 = kernel.get("query_1").await?;
+    assert_json_eq!(query_1, datatable_a);
 
     Ok(())
 }
