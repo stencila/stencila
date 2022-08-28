@@ -30,7 +30,7 @@ use kernel::{
         tracing,
     },
     stencila_schema::{CodeError, Node},
-    Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, Task, TaskResult,
+    Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
 use path_utils::path_slash::PathBufExt;
 
@@ -608,7 +608,7 @@ impl JupyterKernel {
 
         // Run any startup code
         if let Some(code) = startup(&self.language)? {
-            self.exec(&code).await?;
+            self.exec(&code, None).await?;
         }
 
         Ok(())
@@ -799,7 +799,7 @@ impl KernelTrait for JupyterKernel {
 
     async fn stop(&mut self) -> Result<()> {
         if let Some(code) = shutdown(&self.language)? {
-            self.exec(&code).await?;
+            self.exec(&code, None).await?;
         }
 
         if let Some(JupyterDetails {
@@ -858,7 +858,7 @@ impl KernelTrait for JupyterKernel {
     async fn set(&mut self, name: &str, value: Node) -> Result<()> {
         let json = serde_json::to_string(&value)?;
         if let Some(code) = set(&self.language, name, &json)? {
-            let (.., _errors) = self.exec(&code).await?;
+            let (.., _errors) = self.exec(&code, None).await?;
             // TODO: Check for any errors
             Ok(())
         } else {
@@ -869,7 +869,7 @@ impl KernelTrait for JupyterKernel {
         }
     }
 
-    async fn exec_sync(&mut self, code: &str) -> Result<Task> {
+    async fn exec_sync(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
         // TODO: Use interruptable async task
         let mut task = Task::begin_sync();
 

@@ -16,7 +16,7 @@ async fn test_sqlite() -> Result<()> {
 }
 
 /// Test against Postgres
-/// 
+///
 /// Requires some manual setup:
 ///   > docker run --rm -it -p5432:5432 -e POSTGRES_PASSWORD=postgres postgres
 ///   > psql --host localhost --user postgres
@@ -36,7 +36,7 @@ async fn test(config: &str) -> Result<()> {
         ..Default::default()
     });
 
-    kernel.exec("DROP TABLE IF EXISTS table_a").await?;
+    kernel.exec("DROP TABLE IF EXISTS table_a", None).await?;
 
     if let Ok(..) = kernel.get("table_a").await {
         bail!("Expected an error because table not yet created")

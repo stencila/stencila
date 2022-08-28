@@ -484,7 +484,7 @@ impl Executable for CodeChunk {
         kernel_selector: &KernelSelector,
         is_fork: bool,
         _call_docs: &CallDocuments,
-        _tags: &TagMap,
+        tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         let id = assert_id!(self)?;
         tracing::trace!(
@@ -494,7 +494,7 @@ impl Executable for CodeChunk {
         );
 
         let task_info = kernel_space
-            .exec(&self.text, resource_info, is_fork, kernel_selector)
+            .exec(&self.text, tags, resource_info, is_fork, kernel_selector)
             .await?;
 
         Ok(Some(task_info))
@@ -616,12 +616,12 @@ impl Executable for CodeExpression {
         kernel_selector: &KernelSelector,
         is_fork: bool,
         _call_docs: &CallDocuments,
-        _tags: &TagMap,
+        tags: &TagMap,
     ) -> Result<Option<TaskInfo>> {
         tracing::trace!("Executing `CodeExpression` `{:?}`", self.id);
 
         let task_info = kernel_space
-            .exec(&self.text, resource_info, is_fork, kernel_selector)
+            .exec(&self.text, tags, resource_info, is_fork, kernel_selector)
             .await?;
 
         Ok(Some(task_info))

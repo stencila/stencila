@@ -20,7 +20,8 @@ use kernel::{
         tracing,
     },
     stencila_schema::{CodeError, Node, Object},
-    Kernel, KernelStatus, KernelTrait, KernelType, Task, TaskMessages, TaskOutputs, TaskResult,
+    Kernel, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskMessages, TaskOutputs,
+    TaskResult,
 };
 
 // Line end flags for the Microkernel protocol
@@ -441,7 +442,7 @@ impl KernelTrait for MicroKernel {
     }
 
     /// Execute code in the kernel synchronously
-    async fn exec_sync(&mut self, code: &str) -> Result<Task> {
+    async fn exec_sync(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
         let mut task = Task::begin_sync();
         let (outputs, messages) = self.state().await.send_receive(&[code.to_string()]).await?;
         let result = TaskResult::new(outputs, messages);
@@ -451,7 +452,7 @@ impl KernelTrait for MicroKernel {
     }
 
     /// Execute code in the kernel asynchronously
-    async fn exec_async(&mut self, code: &str) -> Result<Task> {
+    async fn exec_async(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
         // Setup channels and execution task
         let (result_forwarder, ..) = broadcast::channel(1);
         let (interrupt_sender, interrupt_receiver) = if self.interruptable {
@@ -517,7 +518,7 @@ impl KernelTrait for MicroKernel {
 
     /// Execute code in a fork of the kernel
     #[cfg(not(target_os = "windows"))]
-    async fn exec_fork(&mut self, code: &str) -> Result<Task> {
+    async fn exec_fork(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
         if !self.is_forkable().await {
             bail!("Kernel `{}` is not forkable", self.name);
         }

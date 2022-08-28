@@ -39,24 +39,26 @@ mod tests {
         }
 
         // Assign a variable and output it
-        let (outputs, messages) = kernel.exec("const a = 2\na").await?;
+        let (outputs, messages) = kernel.exec("const a = 2\na", None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [2]);
 
         // Print the variable twice and then output it
-        let (outputs, messages) = kernel.exec("console.log(a)\nconsole.log(a)\na").await?;
+        let (outputs, messages) = kernel
+            .exec("console.log(a)\nconsole.log(a)\na", None)
+            .await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [2, 2, 2]);
 
         // Syntax error
-        let (outputs, messages) = kernel.exec("bad ^ # syntax").await?;
+        let (outputs, messages) = kernel.exec("bad ^ # syntax", None).await?;
         assert_json_eq!(messages[0].error_type, "SyntaxError");
         assert_json_eq!(messages[0].error_message, "Invalid or unexpected token");
         assert!(messages[0].stack_trace.is_some());
         assert_json_eq!(outputs, json!([]));
 
         // Runtime error
-        let (outputs, messages) = kernel.exec("foo").await?;
+        let (outputs, messages) = kernel.exec("foo", None).await?;
         assert_json_eq!(messages[0].error_type, "ReferenceError");
         assert_json_eq!(messages[0].error_message, "foo is not defined");
         assert!(messages[0].stack_trace.is_some());
@@ -68,7 +70,7 @@ mod tests {
         assert_json_eq!(b, 3);
 
         // Use both variables
-        let (outputs, messages) = kernel.exec("a*b").await?;
+        let (outputs, messages) = kernel.exec("a*b", None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [6]);
 
@@ -84,15 +86,17 @@ mod tests {
             false => return Ok(()),
         }
 
-        let (outputs, messages) = kernel.exec("console.log(1)").await?;
+        let (outputs, messages) = kernel.exec("console.log(1)", None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [1]);
 
-        let (outputs, messages) = kernel.exec("console.log(1, 2, 3, 4)").await?;
+        let (outputs, messages) = kernel.exec("console.log(1, 2, 3, 4)", None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [1, 2, 3, 4]);
 
-        let (outputs, messages) = kernel.exec("console.log([1, 2, 3], 4, 'str')").await?;
+        let (outputs, messages) = kernel
+            .exec("console.log([1, 2, 3], 4, 'str')", None)
+            .await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, json!([[1, 2, 3], 4, "str"]));
 
@@ -121,6 +125,7 @@ console.log(4)
 console.error("Error message")
 5
 "#,
+                None,
             )
             .await?;
 
@@ -174,49 +179,49 @@ console.error("Error message")
 
         // A variable declared with `var`
 
-        let (outputs, messages) = kernel.exec("var a = 1\na").await?;
+        let (outputs, messages) = kernel.exec("var a = 1\na", None).await?;
         assert_eq!(messages, vec![]);
         assert_json_eq!(outputs[0], json!(1));
 
-        let (outputs, messages) = kernel.exec("var a = 2\na").await?;
+        let (outputs, messages) = kernel.exec("var a = 2\na", None).await?;
         assert_eq!(messages, vec![]);
         assert_json_eq!(outputs[0], json!(2));
 
-        let (outputs, messages) = kernel.exec("let a = 3\na").await?;
+        let (outputs, messages) = kernel.exec("let a = 3\na", None).await?;
         assert_eq!(messages, vec![]);
         assert_json_eq!(outputs[0], json!(3));
 
-        let (outputs, messages) = kernel.exec("const a = 4\na").await?;
+        let (outputs, messages) = kernel.exec("const a = 4\na", None).await?;
         assert_eq!(messages, vec![]);
         assert_json_eq!(outputs[0], json!(4));
 
         // A variable declared with `let`
 
-        let (outputs, messages) = kernel.exec("let b = 1\nb").await?;
+        let (outputs, messages) = kernel.exec("let b = 1\nb", None).await?;
         assert_eq!(messages, vec![]);
         assert_json_eq!(outputs[0], json!(1));
 
-        let (outputs, messages) = kernel.exec("let b = 2\nb").await?;
+        let (outputs, messages) = kernel.exec("let b = 2\nb", None).await?;
         assert_eq!(messages, vec![]);
         assert_json_eq!(outputs[0], json!(2));
 
-        let (outputs, messages) = kernel.exec("b = 3\nb").await?;
+        let (outputs, messages) = kernel.exec("b = 3\nb", None).await?;
         assert_eq!(messages, vec![]);
         assert_json_eq!(outputs[0], json!(3));
 
         // A variable declared with `const`
 
-        let (outputs, messages) = kernel.exec("const c = 1\nc").await?;
+        let (outputs, messages) = kernel.exec("const c = 1\nc", None).await?;
         assert_eq!(messages, vec![]);
         assert_json_eq!(outputs[0], json!(1));
 
-        let (.., messages) = kernel.exec("const c = 2\nc").await?;
+        let (.., messages) = kernel.exec("const c = 2\nc", None).await?;
         assert_eq!(
             messages[0].error_message,
             "Assignment to constant variable."
         );
 
-        let (.., messages) = kernel.exec("c = 3\nc").await?;
+        let (.., messages) = kernel.exec("c = 3\nc", None).await?;
         assert_eq!(
             messages[0].error_message,
             "Assignment to constant variable."

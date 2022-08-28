@@ -13,7 +13,7 @@ use common::{
     tracing,
 };
 use formats::Format;
-use graph_triples::TagMap;
+pub use graph_triples::TagMap;
 use stencila_schema::{CodeError, Node};
 use utils::some_box_string;
 use uuids::uuid_family;
@@ -625,8 +625,12 @@ pub trait KernelTrait {
     ///
     /// This is a convenience method when all you want to do is get [`Task`]
     /// outputs and messages (and are not interested in task duration or interruption).
-    async fn exec(&mut self, code: &str) -> Result<(TaskOutputs, TaskMessages)> {
-        let mut task = self.exec_sync(code).await?;
+    async fn exec(
+        &mut self,
+        code: &str,
+        tags: Option<&TagMap>,
+    ) -> Result<(TaskOutputs, TaskMessages)> {
+        let mut task = self.exec_sync(code, tags).await?;
         let TaskResult { outputs, messages } = task.result().await?;
         Ok((outputs, messages))
     }
@@ -641,14 +645,14 @@ pub trait KernelTrait {
     /// part of their implementation.
     ///
     /// Must be implemented by [`KernelTrait`] implementations.
-    async fn exec_sync(&mut self, code: &str) -> Result<Task>;
+    async fn exec_sync(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task>;
 
     /// Execute code in the kernel asynchronously
     ///
     /// Should be overridden by [`KernelTrait`] implementations that are interruptable.
     /// The default implementation simply calls `exec_sync`.
-    async fn exec_async(&mut self, code: &str) -> Result<Task> {
-        self.exec_sync(code).await
+    async fn exec_async(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+        self.exec_sync(code, tags).await
     }
 
     /// Fork the kernel and execute code in the fork
@@ -657,7 +661,7 @@ pub trait KernelTrait {
     /// The default implementation errors because code marked as `@pure` should not
     /// be executed in the main kernel in case it has side-effects (e.g. assigning
     /// temporary variables) which are intended to be ignored.
-    async fn exec_fork(&mut self, _code: &str) -> Result<Task> {
+    async fn exec_fork(&mut self, _code: &str, _tags: Option<&TagMap>) -> Result<Task> {
         bail!("Kernel is not forkable")
     }
 }

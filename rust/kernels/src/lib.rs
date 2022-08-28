@@ -26,7 +26,7 @@ use kernel::{
         tracing,
     },
     stencila_schema::{CodeError, Node},
-    KernelId, KernelInfo, KernelStatus, KernelTrait, TaskId, TaskMessages, TaskOutputs,
+    KernelId, KernelInfo, KernelStatus, KernelTrait, TagMap, TaskId, TaskMessages, TaskOutputs,
 };
 
 // Re-exports
@@ -166,20 +166,24 @@ impl KernelTrait for MetaKernel {
         dispatch_variants!(self, set, name, value).await
     }
 
-    async fn exec(&mut self, code: &str) -> Result<(TaskOutputs, TaskMessages)> {
-        dispatch_variants!(self, exec, code).await
+    async fn exec(
+        &mut self,
+        code: &str,
+        tags: Option<&TagMap>,
+    ) -> Result<(TaskOutputs, TaskMessages)> {
+        dispatch_variants!(self, exec, code, tags).await
     }
 
-    async fn exec_sync(&mut self, code: &str) -> Result<Task> {
-        dispatch_variants!(self, exec_sync, code).await
+    async fn exec_sync(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+        dispatch_variants!(self, exec_sync, code, tags).await
     }
 
-    async fn exec_async(&mut self, code: &str) -> Result<Task> {
-        dispatch_variants!(self, exec_async, code).await
+    async fn exec_async(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+        dispatch_variants!(self, exec_async, code, tags).await
     }
 
-    async fn exec_fork(&mut self, code: &str) -> Result<Task> {
-        dispatch_variants!(self, exec_fork, code).await
+    async fn exec_fork(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+        dispatch_variants!(self, exec_fork, code, tags).await
     }
 }
 
@@ -897,6 +901,7 @@ impl KernelSpace {
     pub async fn exec(
         &self,
         code: &str,
+        tags: &TagMap,
         resource_info: &ResourceInfo,
         force_fork: bool,
         selector: &KernelSelector,
@@ -961,9 +966,9 @@ impl KernelSpace {
             if fork { " fork" } else { "" }
         );
         let task = if fork {
-            kernel.exec_fork(code).await?
+            kernel.exec_fork(code, Some(tags)).await?
         } else {
-            kernel.exec_async(code).await?
+            kernel.exec_async(code, Some(tags)).await?
         };
 
         // Record symbols assigned in kernel (unless it was a fork)
@@ -1117,6 +1122,7 @@ impl KernelSpace {
     pub async fn repl(
         &self,
         code: &str,
+        tags: &TagMap,
         language: Option<String>,
         kernel: Option<String>,
         background: bool,
@@ -1179,7 +1185,9 @@ impl KernelSpace {
             };
 
             // Execute the code
-            let mut task_info = self.exec(&code, &resource_info, is_fork, &selector).await?;
+            let mut task_info = self
+                .exec(&code, tags, &resource_info, is_fork, &selector)
+                .await?;
 
             if background {
                 // Indicate task is running in background
@@ -1571,6 +1579,7 @@ pub mod commands {
             kernel_space
                 .repl(
                     &self.code.join(" "),
+                    &TagMap::default(),
                     self.lang.clone(),
                     self.kernel.clone(),
                     self.background,

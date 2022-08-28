@@ -49,19 +49,19 @@ mod tests {
         }
 
         // Assign a variable and output it
-        let (outputs, messages) = kernel.exec("a=2\necho $a").await?;
+        let (outputs, messages) = kernel.exec("a=2\necho $a", None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [2]);
 
         // Syntax error
-        let (outputs, messages) = kernel.exec("if").await?;
+        let (outputs, messages) = kernel.exec("if", None).await?;
         assert!(messages[0]
             .error_message
             .ends_with("syntax error: unexpected end of file"));
         assert_json_eq!(outputs, json!([]));
 
         // Runtime error
-        let (outputs, messages) = kernel.exec("foo").await?;
+        let (outputs, messages) = kernel.exec("foo", None).await?;
         assert!(messages[0]
             .error_message
             .ends_with("foo: command not found"));
@@ -73,7 +73,7 @@ mod tests {
         assert_json_eq!(b, 3);
 
         // Use both variables
-        let (outputs, messages) = kernel.exec("echo $a$b").await?;
+        let (outputs, messages) = kernel.exec("echo $a$b", None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [23]);
 
@@ -92,7 +92,7 @@ mod tests {
             false => return Ok(()),
         }
 
-        let (outputs, messages) = kernel.exec("date +%s").await?;
+        let (outputs, messages) = kernel.exec("date +%s", None).await?;
         assert_json_eq!(messages, json!([]));
         let timestamp = outputs.first().unwrap();
         match timestamp {

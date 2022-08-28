@@ -15,7 +15,7 @@ use kernel::{
         tracing::{self, log::LevelFilter},
     },
     stencila_schema::{CodeError, Datatable, Node},
-    Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, Task, TaskResult,
+    Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
 
 mod postgres;
@@ -46,9 +46,9 @@ pub struct SqlKernel {
     #[serde(skip)]
     pool: Option<MetaPool>,
 
-    /// Any select queries that have been assigned to variables
+    /// Datatables resulting from SELECT queries that have been assigned to variables
     #[serde(skip)]
-    assigned_selects: HashMap<String, Datatable>,
+    assigned: HashMap<String, Datatable>,
 }
 
 impl SqlKernel {
@@ -136,13 +136,20 @@ impl KernelTrait for SqlKernel {
             .as_ref()
             .expect("connect() should ensure connection");
 
+        // Attempt to get a table or view with the same name
         let query = format!("SELECT * FROM \"{}\"", name.replace('"', "-"));
-        match pool {
+        if let Ok(datatable) = match pool {
             MetaPool::Postgres(pool) => postgres::query_to_datatable(&query, pool).await,
             MetaPool::Sqlite(pool) => sqlite::query_to_datatable(&query, pool).await,
+        } {
+            return Ok(Node::Datatable(datatable));
         }
-        .map(Node::Datatable)
-        .map_err(|error| eyre!("While getting symbol `{}` from SQL kernel: {}", name, error))
+
+        // Attempt to get as a previously assigned symbol
+        match self.assigned.get(name) {
+            Some(datatable) => Ok(Node::Datatable(datatable.clone())),
+            None => bail!("Unable to find symbol `{}` in database (it is not a table, view, or assigned query result)", name)
+        }
     }
 
     async fn set(&mut self, name: &str, value: Node) -> Result<()> {
@@ -169,7 +176,7 @@ impl KernelTrait for SqlKernel {
         .map_err(|error| eyre!("While setting symbol `{}` in SQL kernel: {}", name, error))
     }
 
-    async fn exec_sync(&mut self, code: &str) -> Result<Task> {
+    async fn exec_sync(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
         let mut task = Task::begin_sync();
         let mut outputs = Vec::new();
         let mut messages = Vec::new();

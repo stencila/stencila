@@ -5,7 +5,7 @@ use kernel::{
         serde::Serialize,
     },
     stencila_schema::{CodeError, Node},
-    Kernel, KernelStatus, KernelTrait, Task, TaskResult,
+    Kernel, KernelStatus, KernelTrait, TagMap, Task, TaskResult,
 };
 use std::collections::HashMap;
 
@@ -55,7 +55,7 @@ impl KernelTrait for StoreKernel {
         Ok(())
     }
 
-    async fn exec_sync(&mut self, code: &str) -> Result<Task> {
+    async fn exec_sync(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
         let mut task = Task::begin_sync();
         let mut outputs = Vec::new();
         let mut messages = Vec::new();
@@ -106,11 +106,11 @@ mod tests {
         let b = kernel.get("b").await?;
         assert!(matches!(b, Node::Number(..)));
 
-        let (outputs, errors) = kernel.exec("a\nb").await?;
+        let (outputs, errors) = kernel.exec("a\nb", None).await?;
         assert_eq!(outputs.len(), 2);
         assert_eq!(errors.len(), 0);
 
-        let (outputs, errors) = kernel.exec("x\ny\nz").await?;
+        let (outputs, errors) = kernel.exec("x\ny\nz", None).await?;
         assert_eq!(outputs.len(), 0);
         assert_eq!(errors.len(), 3);
 
