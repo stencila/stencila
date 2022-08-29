@@ -1,12 +1,27 @@
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    path::PathBuf,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 
 use sqlx::{sqlite::SqliteArguments, Arguments, Column, Row, SqlitePool, TypeInfo};
 
 use kernel::{
-    common::{eyre::Result, itertools::Itertools, regex::Captures, serde_json, tracing},
+    common::{
+        eyre::Result,
+        itertools::Itertools,
+        regex::Captures,
+        serde_json,
+        tokio::{self, sync::mpsc, time},
+        tracing,
+    },
+    graph_triples::{
+        resources::{self, ResourceChangeAction},
+        ResourceChange,
+    },
     stencila_schema::{
-        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node, Null,
-        Number, NumberValidator, StringValidator, ValidatorTypes,
+        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, Date, IntegerValidator, Node,
+        Null, Number, NumberValidator, StringValidator, ValidatorTypes,
     },
 };
 
@@ -73,7 +88,10 @@ pub async fn query_to_datatable(
                     "TEXT" => Some(ValidatorTypes::StringValidator(StringValidator::default())),
                     "NULL" => None, // No column type specified e.g. "SELECT 1;"
                     _ => {
-                        tracing::error!("Unhandled column type: {}", col_type);
+                        tracing::warn!(
+                            "Unhandled column type, will have no validator: {}",
+                            col_type
+                        );
                         None
                     }
                 };
@@ -104,6 +122,10 @@ pub async fn query_to_datatable(
                 "TEXT" => row
                     .try_get::<String, usize>(col_index)
                     .map(Node::String)
+                    .ok(),
+                "DATETIME" => row
+                    .try_get::<String, usize>(col_index)
+                    .map(|date| Node::Date(Date::from(date)))
                     .ok(),
                 _ => row
                     .try_get_unchecked::<String, usize>(col_index)
@@ -200,6 +222,124 @@ pub async fn table_from_datatable(
         }
     }
     query.execute(pool).await?;
+
+    Ok(())
+}
+
+/**
+ * Start a background task to listen for notifications of changes to tables
+ *
+ * SQLite does have ["Data Change Notification Callbacks"](https://www.sqlite.org/c3ref/update_hook.html)
+ * and `rusqlite` crate has a `update_hook` method. However, these hooks only receive events (inserts, updates, deletes)
+ * that were made by the same connection, not other connections or other database.
+ * See the discussion at https://sqlite.org/forum/info/b77046785208132f.
+ *
+ * Given that, this implements a polling approach which listens for changes in a hidden
+ * notifications table. At present it is somewhat rudimentary but allows for testing
+ * of other logic around table watches.
+ */
+pub async fn watch(
+    url: &str,
+    pool: &SqlitePool,
+    sender: mpsc::Sender<ResourceChange>,
+) -> Result<()> {
+    // Create table for recording changes and a trigger to purge events older than 60s
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS stencila_resource_changes(
+            "time" INTEGER,
+            "action" TEXT,
+            "table" TEXT
+        );
+
+        CREATE TRIGGER IF NOT EXISTS stencila_resource_changes_purge
+        AFTER INSERT ON stencila_resource_changes
+        BEGIN
+            DELETE FROM stencila_resource_changes
+            WHERE time < (julianday('now') - 2440587.5) * 86400000 - (60 * 1000);
+        END;
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    let url = url.to_string();
+    let pool = pool.clone();
+    tokio::spawn(async move {
+        let mut interval = time::interval(Duration::from_millis(100));
+        let mut last_time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis();
+        loop {
+            interval.tick().await;
+
+            let rows = match sqlx::query(
+                r#"
+                SELECT "time", "action", "table"
+                FROM stencila_resource_changes
+                WHERE "time" > ?
+                GROUP BY time, action, "table"
+                ORDER BY time;
+                "#,
+            )
+            .bind(last_time as i64)
+            .fetch_all(&pool)
+            .await
+            {
+                Ok(row) => row,
+                Err(error) => {
+                    tracing::error!("While polling for SQLite notifications: {}", error);
+                    continue;
+                }
+            };
+
+            let path = PathBuf::from(url.clone()).join("public");
+
+            for row in rows {
+                let name = row.get_unchecked::<String, _>("table");
+                let time = row.get_unchecked::<i64, _>("time");
+
+                let change = ResourceChange {
+                    resource: resources::symbol(&path, &name, "Datatable"),
+                    action: ResourceChangeAction::Updated,
+                    time: time.to_string(),
+                };
+                if let Err(error) = sender.send(change).await {
+                    tracing::error!(
+                        "While sending resource change from SQLite listener: {}",
+                        error
+                    );
+                }
+
+                last_time = time as u128;
+            }
+        }
+    });
+
+    Ok(())
+}
+
+/// Set up watches for a particular table
+pub async fn watch_table(table: &str, pool: &SqlitePool) -> Result<()> {
+    for action in ["INSERT", "UPDATE", "DELETE"] {
+        sqlx::query(&format!(
+            r#"
+            CREATE TRIGGER IF NOT EXISTS stencila_resource_{action}_{table}
+            AFTER {action} ON {table}
+            BEGIN
+                INSERT INTO stencila_resource_changes(time, action, "table")
+                VALUES(
+                    CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER),
+                    '{action}',
+                    '{table}'
+                );
+            END;
+            "#
+        ))
+        .execute(pool)
+        .await?;
+    }
 
     Ok(())
 }

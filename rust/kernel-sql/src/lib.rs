@@ -15,8 +15,9 @@ use kernel::{
         once_cell::sync::Lazy,
         regex::Regex,
         serde::Serialize,
+        serde_with::skip_serializing_none,
         tokio::sync::mpsc,
-        tracing::{self, log::LevelFilter}, serde_with::skip_serializing_none,
+        tracing::{self, log::LevelFilter},
     },
     graph_triples::ResourceChange,
     stencila_schema::{CodeError, Datatable, Node},
@@ -162,26 +163,26 @@ impl SqlKernel {
             match pool {
                 MetaPool::Postgres(pool) => {
                     postgres::watch(url, pool, sender).await?;
-                    self.watching = true;
                 }
-                MetaPool::Sqlite(..) => {
-                    bail!("Table watches are not yet supported for SQLite databases")
+                MetaPool::Sqlite(pool) => {
+                    sqlite::watch(url, pool, sender).await?;
                 }
             }
+            self.watching = true;
         }
 
-        match pool {
-            MetaPool::Postgres(pool) => {
-                for table in tables {
-                    if !self.watches.contains(table) {
+        for table in tables {
+            if !self.watches.contains(table) {
+                match pool {
+                    MetaPool::Postgres(pool) => {
                         postgres::watch_table(table, pool).await?;
-                        self.watches.push(table.to_owned());
+                    }
+                    MetaPool::Sqlite(pool) => {
+                        sqlite::watch_table(table, pool).await?;
                     }
                 }
             }
-            MetaPool::Sqlite(..) => {
-                bail!("The @watch tag is not yet supported for SQLite databases")
-            }
+            self.watches.push(table.to_owned());
         }
 
         Ok(())
