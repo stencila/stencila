@@ -128,7 +128,7 @@ pub fn apply_tags(
 /// Parse a tag from a comment line
 fn parse_comment_line(line: &str) -> Option<Tag> {
     static REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"(global)?\s*@([a-zA-Z]+)\s+(.*?)?\s*(:?\*/)?$")
+        Regex::new(r"(@global\s+)?@([a-zA-Z]+)\s+(.*?)?\s*(:?\*/)?$")
             .expect("Unable to create regex")
     });
 
@@ -174,7 +174,7 @@ mod test {
             })
         );
         assert_eq!(
-            parse_comment_line("-- global @db postgres://user:pwd@host:5432/db"),
+            parse_comment_line("-- @global @db postgres://user:pwd@host:5432/db"),
             Some(Tag {
                 name: "db".to_string(),
                 value: "postgres://user:pwd@host:5432/db".to_string(),
