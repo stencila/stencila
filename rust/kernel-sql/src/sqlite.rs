@@ -88,7 +88,7 @@ pub async fn query_to_datatable(
                     "TEXT" => Some(ValidatorTypes::StringValidator(StringValidator::default())),
                     "NULL" => None, // No column type specified e.g. "SELECT 1;"
                     _ => {
-                        tracing::warn!(
+                        tracing::debug!(
                             "Unhandled column type, will have no validator: {}",
                             col_type
                         );
@@ -322,13 +322,13 @@ pub async fn watch(
 
 /// Set up watches for a particular table
 pub async fn watch_table(table: &str, pool: &SqlitePool) -> Result<()> {
-    for action in ["INSERT", "UPDATE", "DELETE"] {
+    for action in ["insert", "update", "delete"] {
         sqlx::query(&format!(
             r#"
             CREATE TRIGGER IF NOT EXISTS stencila_resource_{action}_{table}
-            AFTER {action} ON {table}
+            AFTER {action} ON "{table}"
             BEGIN
-                INSERT INTO stencila_resource_changes(time, action, "table")
+                INSERT INTO stencila_resource_changes("time", "action", "table")
                 VALUES(
                     CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER),
                     '{action}',
@@ -342,4 +342,27 @@ pub async fn watch_table(table: &str, pool: &SqlitePool) -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Set up watches for `@all` tables
+pub async fn watch_all(schema: Option<&String>, pool: &SqlitePool) -> Result<Vec<String>> {
+    let schema = schema.map_or_else(|| "main".to_string(), String::from);
+
+    let tables = sqlx::query(&format!(
+        r#"
+        SELECT "name" FROM "{schema}"."sqlite_master"
+        WHERE "type" = 'table' AND "name" != 'stencila_resource_changes'
+        "#
+    ))
+    .fetch_all(pool)
+    .await?;
+
+    let mut names = Vec::with_capacity(tables.len());
+    for table in tables {
+        let name = table.get_unchecked("name");
+        watch_table(name, pool).await?;
+        names.push(name.to_owned());
+    }
+
+    Ok(names)
 }

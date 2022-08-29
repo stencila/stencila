@@ -19,8 +19,8 @@ use kernel::{
         ResourceChange,
     },
     stencila_schema::{
-        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node,
-        Null, Number, NumberValidator, StringValidator, ValidatorTypes,
+        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node, Null,
+        Number, NumberValidator, StringValidator, ValidatorTypes,
     },
 };
 
@@ -296,6 +296,30 @@ pub async fn table_from_datatable(name: &str, datatable: Datatable, pool: &PgPoo
 
 /// Start a background task to listen for notifications of changes to tables
 pub async fn watch(url: &str, pool: &PgPool, sender: mpsc::Sender<ResourceChange>) -> Result<()> {
+    sqlx::query(
+        "
+        CREATE OR REPLACE FUNCTION stencila_resource_change_trigger()
+        RETURNS trigger
+        LANGUAGE plpgsql
+        AS $trigger$
+        BEGIN
+            PERFORM pg_notify(
+            'stencila_resource_change',
+            json_build_object(
+                'time', CURRENT_TIMESTAMP,
+                'action', LOWER(TG_OP),
+                'schema', TG_TABLE_SCHEMA,
+                'table', TG_TABLE_NAME
+            )::text
+            );
+            RETURN NULL;
+        END;
+        $trigger$;
+        ",
+    )
+    .execute(pool)
+    .await?;
+
     let mut listener = PgListener::connect_with(pool).await?;
     listener.listen("stencila_resource_change").await?;
 
@@ -344,30 +368,6 @@ pub async fn watch(url: &str, pool: &PgPool, sender: mpsc::Sender<ResourceChange
 
 /// Set up watches for a particular table
 pub async fn watch_table(table: &str, pool: &PgPool) -> Result<()> {
-    sqlx::query(
-        "
-        CREATE OR REPLACE FUNCTION stencila_resource_change_trigger()
-        RETURNS trigger
-        LANGUAGE plpgsql
-        AS $trigger$
-        BEGIN
-            PERFORM pg_notify(
-            'stencila_resource_change',
-            json_build_object(
-                'time', CURRENT_TIMESTAMP,
-                'action', LOWER(TG_OP),
-                'schema', TG_TABLE_SCHEMA,
-                'table', TG_TABLE_NAME
-            )::text
-            );
-            RETURN NULL;
-        END;
-        $trigger$;
-        ",
-    )
-    .execute(pool)
-    .await?;
-
     sqlx::query(&format!(
         r#"
         CREATE OR REPLACE TRIGGER "stencila_resource_change_{table}"
@@ -379,4 +379,28 @@ pub async fn watch_table(table: &str, pool: &PgPool) -> Result<()> {
     .await?;
 
     Ok(())
+}
+
+/// Set up watches for `@all` tables in a schema
+pub async fn watch_all(schema: Option<&String>, pool: &PgPool) -> Result<Vec<String>> {
+    let schema = schema.map_or_else(|| "public".to_string(), String::from);
+
+    let tables = sqlx::query(
+        r#"
+        SELECT table_name FROM information_schema.tables
+        WHERE table_schema = $1
+        "#,
+    )
+    .bind(schema)
+    .fetch_all(pool)
+    .await?;
+
+    let mut names = Vec::with_capacity(tables.len());
+    for table in tables {
+        let name = table.get_unchecked("table_name");
+        watch_table(name, pool).await?;
+        names.push(name.to_owned());
+    }
+
+    Ok(names)
 }

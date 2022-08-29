@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     env,
     path::{Path, PathBuf},
     str::FromStr,
@@ -75,7 +75,7 @@ pub struct SqlKernel {
     watching: bool,
 
     /// The tables that the kernel is listening for change notifications for
-    watches: Vec<String>,
+    watches: HashSet<String>,
 
     /// A sender to send [`ResourceChange`]s back to the owning document (if any)
     #[serde(skip)]
@@ -154,6 +154,12 @@ impl SqlKernel {
             .expect("connect() should ensure connection");
         let url = self.url.as_ref().expect("connect() should ensure URL");
 
+        tracing::debug!(
+            "Watching tables `{}` in database `{}`",
+            tables.join(", "),
+            url
+        );
+
         let sender = match &self.resource_changes_sender {
             Some(sender) => sender.to_owned(),
             None => bail!("No resource sender provided to this SQL kernel"),
@@ -171,18 +177,28 @@ impl SqlKernel {
             self.watching = true;
         }
 
+        if let Some(first) = tables.first() {
+            if first == "@all" {
+                let schema = tables.get(1);
+                let tables = match pool {
+                    MetaPool::Postgres(pool) => postgres::watch_all(schema, pool).await?,
+                    MetaPool::Sqlite(pool) => sqlite::watch_all(schema, pool).await?,
+                };
+                for table in tables {
+                    self.watches.insert(table);
+                }
+                return Ok(());
+            }
+        }
+
         for table in tables {
             if !self.watches.contains(table) {
                 match pool {
-                    MetaPool::Postgres(pool) => {
-                        postgres::watch_table(table, pool).await?;
-                    }
-                    MetaPool::Sqlite(pool) => {
-                        sqlite::watch_table(table, pool).await?;
-                    }
+                    MetaPool::Postgres(pool) => postgres::watch_table(table, pool).await?,
+                    MetaPool::Sqlite(pool) => sqlite::watch_table(table, pool).await?,
                 }
+                self.watches.insert(table.to_owned());
             }
-            self.watches.push(table.to_owned());
         }
 
         Ok(())
