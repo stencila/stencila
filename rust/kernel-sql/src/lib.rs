@@ -3,6 +3,7 @@ use std::{
     env,
     path::{Path, PathBuf},
     str::FromStr,
+    sync::Arc,
 };
 
 use sqlx::{any::AnyConnectOptions, ConnectOptions, PgPool, SqlitePool};
@@ -10,13 +11,14 @@ use sqlx::{any::AnyConnectOptions, ConnectOptions, PgPool, SqlitePool};
 use kernel::{
     common::{
         async_trait::async_trait,
+        defaults::Defaults,
         eyre::{bail, eyre, Result},
         itertools::Itertools,
         once_cell::sync::Lazy,
         regex::Regex,
         serde::Serialize,
         serde_with::skip_serializing_none,
-        tokio::sync::mpsc,
+        tokio::sync::{mpsc, RwLock},
         tracing::{self, log::LevelFilter},
     },
     graph_triples::ResourceChange,
@@ -42,9 +44,11 @@ enum MetaPool {
     Sqlite(SqlitePool),
 }
 
+type WatchedTables = Arc<RwLock<HashSet<String>>>;
+
 /// A kernel that executes SQL
 #[skip_serializing_none]
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Defaults, Serialize)]
 #[serde(crate = "kernel::common::serde")]
 pub struct SqlKernel {
     /// The kernel configuration containing the database URL
@@ -75,7 +79,9 @@ pub struct SqlKernel {
     watching: bool,
 
     /// The tables that the kernel is listening for change notifications for
-    watches: HashSet<String>,
+    #[def = "Arc::new(RwLock::new(HashSet::new()))"]
+    #[serde(skip)]
+    watches: WatchedTables,
 
     /// A sender to send [`ResourceChange`]s back to the owning document (if any)
     #[serde(skip)]
@@ -166,16 +172,19 @@ impl SqlKernel {
         };
 
         if !self.watching {
+            let watches = self.watches.clone();
             match pool {
                 MetaPool::Postgres(pool) => {
-                    postgres::watch(url, pool, sender).await?;
+                    postgres::watch(url, pool, watches, sender).await?;
                 }
                 MetaPool::Sqlite(pool) => {
-                    sqlite::watch(url, pool, sender).await?;
+                    sqlite::watch(url, pool, watches, sender).await?;
                 }
             }
             self.watching = true;
         }
+
+        let mut watches = self.watches.write().await;
 
         if let Some(first) = tables.first() {
             if first == "@all" {
@@ -185,23 +194,39 @@ impl SqlKernel {
                     MetaPool::Sqlite(pool) => sqlite::watch_all(schema, pool).await?,
                 };
                 for table in tables {
-                    self.watches.insert(table);
+                    watches.insert(table);
                 }
                 return Ok(());
             }
         }
 
         for table in tables {
-            if !self.watches.contains(table) {
+            if !watches.contains(table) {
                 match pool {
                     MetaPool::Postgres(pool) => postgres::watch_table(table, pool).await?,
                     MetaPool::Sqlite(pool) => sqlite::watch_table(table, pool).await?,
                 }
-                self.watches.insert(table.to_owned());
+                watches.insert(table.to_owned());
             }
         }
 
         Ok(())
+    }
+
+    /// Ignore notifications from the database for one or more tables
+    ///
+    /// This does not drop any triggers in the database as other documents may still want
+    /// to be listening to the table
+    async fn unwatch(&mut self, tables: &[String]) {
+        let mut watches = self.watches.write().await;
+        for table in tables {
+            if table == "@all" {
+                watches.clear();
+                break;
+            } else {
+                watches.remove(table);
+            }
+        }
     }
 
     /// Split some SQL code into separate statements
@@ -319,6 +344,13 @@ impl KernelTrait for SqlKernel {
                 ..Default::default()
             });
         } else {
+            if let Some(tags) = tags {
+                let unwatch = tags.get_items("unwatch");
+                if !unwatch.is_empty() {
+                    self.unwatch(&unwatch).await;
+                }
+            }
+
             let pool = self
                 .pool
                 .as_ref()
@@ -381,13 +413,13 @@ impl KernelTrait for SqlKernel {
             if let Some(tags) = tags {
                 // Apply any @watch tags _after_ statements in case the user wants the watch
                 // to apply to a table that they just created.
-                let tables = tags.get_items("watch");
-                if !tables.is_empty() {
-                    if let Err(error) = self.watch(&tables).await {
+                let watch = tags.get_items("watch");
+                if !watch.is_empty() {
+                    if let Err(error) = self.watch(&watch).await {
                         messages.push(CodeError {
                             error_message: format!(
                                 "While setting up watch for tables `{}`: {}",
-                                tables.join(", "),
+                                watch.join(" "),
                                 error
                             ),
                             ..Default::default()

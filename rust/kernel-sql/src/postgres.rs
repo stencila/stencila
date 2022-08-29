@@ -24,7 +24,7 @@ use kernel::{
     },
 };
 
-use crate::BINDING_REGEX;
+use crate::{WatchedTables, BINDING_REGEX};
 
 /// Bind parameters to an SQL statement based on name
 fn bind(sql: &str, parameters: &HashMap<String, Node>) -> (String, PgArguments) {
@@ -295,7 +295,12 @@ pub async fn table_from_datatable(name: &str, datatable: Datatable, pool: &PgPoo
 }
 
 /// Start a background task to listen for notifications of changes to tables
-pub async fn watch(url: &str, pool: &PgPool, sender: mpsc::Sender<ResourceChange>) -> Result<()> {
+pub async fn watch(
+    url: &str,
+    pool: &PgPool,
+    watches: WatchedTables,
+    sender: mpsc::Sender<ResourceChange>,
+) -> Result<()> {
     sqlx::query(
         "
         CREATE OR REPLACE FUNCTION stencila_resource_change_trigger()
@@ -326,6 +331,11 @@ pub async fn watch(url: &str, pool: &PgPool, sender: mpsc::Sender<ResourceChange
     let url = url.to_string();
     tokio::spawn(async move {
         while let Ok(notification) = listener.recv().await {
+            let watches = watches.read().await;
+            if watches.is_empty() {
+                continue;
+            }
+
             let json = notification.payload();
             let mut event: HashMap<String, String> = match serde_json::from_str(json) {
                 Ok(event) => event,
@@ -348,6 +358,10 @@ pub async fn watch(url: &str, pool: &PgPool, sender: mpsc::Sender<ResourceChange
                     continue;
                 }
             };
+
+            if !watches.contains(&name) {
+                continue;
+            }
 
             let change = ResourceChange {
                 resource: resources::symbol(&path, &name, "Datatable"),

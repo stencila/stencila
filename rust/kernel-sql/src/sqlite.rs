@@ -25,7 +25,7 @@ use kernel::{
     },
 };
 
-use crate::BINDING_REGEX;
+use crate::{BINDING_REGEX, WatchedTables};
 
 /// Bind parameters to an SQL statement based on name
 fn bind<'lt>(sql: &str, parameters: &'lt HashMap<String, Node>) -> (String, SqliteArguments<'lt>) {
@@ -241,6 +241,7 @@ pub async fn table_from_datatable(
 pub async fn watch(
     url: &str,
     pool: &SqlitePool,
+    watches: WatchedTables,
     sender: mpsc::Sender<ResourceChange>,
 ) -> Result<()> {
     // Create table for recording changes and a trigger to purge events older than 60s
@@ -266,13 +267,18 @@ pub async fn watch(
     let url = url.to_string();
     let pool = pool.clone();
     tokio::spawn(async move {
-        let mut interval = time::interval(Duration::from_millis(100));
+        let mut interval = time::interval(Duration::from_millis(300));
         let mut last_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_millis();
         loop {
             interval.tick().await;
+
+            let watches = watches.read().await;
+            if watches.is_empty() {
+                continue;
+            }
 
             let rows = match sqlx::query(
                 r#"
@@ -299,6 +305,10 @@ pub async fn watch(
             for row in rows {
                 let name = row.get_unchecked::<String, _>("table");
                 let time = row.get_unchecked::<i64, _>("time");
+
+                if !watches.contains(&name) {
+                    continue;
+                }
 
                 let change = ResourceChange {
                     resource: resources::symbol(&path, &name, "Datatable"),
