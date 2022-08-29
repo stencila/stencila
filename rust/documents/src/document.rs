@@ -27,7 +27,7 @@ use common::{
 use events::publish;
 use formats::FormatSpec;
 use graph::{Graph, PlanOptions, PlanOrdering, PlanScope};
-use graph_triples::{resources, Relations, Resource, TagMap};
+use graph_triples::{resources, Relations, Resource, ResourceChange, TagMap};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
 use node_address::{Address, AddressMap};
 use node_patch::{apply, diff, merge, Patch};
@@ -328,12 +328,18 @@ impl Document {
             .expect("Unable to get path parent")
             .to_path_buf();
 
+        let (resource_changes_sender, mut resource_changes_receiver) =
+            mpsc::channel::<ResourceChange>(100);
+
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
         let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
         let tags = Arc::new(RwLock::new(TagMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
-        let kernels = Arc::new(RwLock::new(KernelSpace::new(Some(&project))));
+        let kernels = Arc::new(RwLock::new(KernelSpace::new(
+            Some(&project),
+            Some(resource_changes_sender),
+        )));
         let last_write = Arc::new(RwLock::new(Instant::now()));
 
         let (patch_request_sender, mut patch_request_receiver) =
@@ -371,6 +377,17 @@ impl Document {
                 &write_sender_clone,
                 &mut patch_request_receiver,
                 &response_sender_clone,
+            )
+            .await
+        });
+
+        let id_clone = id.clone();
+        let execute_sender_clone = execute_request_sender.clone();
+        tokio::spawn(async move {
+            Self::resource_change_task(
+                &id_clone,
+                &mut resource_changes_receiver,
+                &execute_sender_clone,
             )
             .await
         });
@@ -1061,6 +1078,49 @@ impl Document {
         }
 
         Ok(())
+    }
+
+    /// A background task to react to changes in a resource in the document's graph
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: The id of the document
+    ///
+    /// - `change_receiver`: The channel to receive [`ResourceChange`]s on
+    #[allow(clippy::too_many_arguments)]
+    pub async fn resource_change_task(
+        id: &str,
+        change_receiver: &mut mpsc::Receiver<ResourceChange>,
+        execute_sender: &mpsc::Sender<ExecuteRequest>,
+    ) {
+        // TODO: move the functionality in react() to here and have a separate file watching
+        // task in Document, and factor away DocumentHandler.
+        while let Some(resource_change) = change_receiver.recv().await {
+            let resource_id = resource_change.resource.resource_id();
+            tracing::trace!(
+                "Sending execute request for document `{}` for change in resource `{}`",
+                &id,
+                resource_id
+            );
+            if let Err(error) = execute_sender
+                .send(ExecuteRequest::new(
+                    vec![RequestId::new()],
+                    When::Soon,
+                    When::Never,
+                    // TODO: Send Some(resource_id) [Start is currently looking for node_id rather than resource_id]
+                    None,
+                    None,
+                    None,
+                ))
+                .await
+            {
+                tracing::error!(
+                    "While sending execute request for document `{}`: {}",
+                    id,
+                    error
+                );
+            }
+        }
     }
 
     /// A background task to assemble the root node of the document on request

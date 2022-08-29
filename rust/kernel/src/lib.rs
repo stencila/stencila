@@ -20,6 +20,7 @@ use uuids::uuid_family;
 
 // Re-export for the convenience of crates that implement `KernelTrait`
 pub use common;
+pub use graph_triples;
 pub use stencila_schema;
 
 /// The type of kernel

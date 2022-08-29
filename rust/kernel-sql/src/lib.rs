@@ -15,8 +15,10 @@ use kernel::{
         once_cell::sync::Lazy,
         regex::Regex,
         serde::Serialize,
-        tracing::{self, log::LevelFilter},
+        tokio::sync::mpsc,
+        tracing::{self, log::LevelFilter}, serde_with::skip_serializing_none,
     },
+    graph_triples::ResourceChange,
     stencila_schema::{CodeError, Datatable, Node},
     Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
@@ -40,6 +42,7 @@ enum MetaPool {
 }
 
 /// A kernel that executes SQL
+#[skip_serializing_none]
 #[derive(Debug, Default, Serialize)]
 #[serde(crate = "kernel::common::serde")]
 pub struct SqlKernel {
@@ -51,6 +54,9 @@ pub struct SqlKernel {
     /// Used to be able to resolve the path to SQLite files with relative paths
     directory: Option<PathBuf>,
 
+    /// The URL of the database (resolved just-in-time before connecting)
+    url: Option<String>,
+
     /// The kernel's database connection pool
     #[serde(skip)]
     pool: Option<MetaPool>,
@@ -61,14 +67,29 @@ pub struct SqlKernel {
 
     /// Nodes, other than Datatables, that are `set()` in this kernel and available
     /// for SQL statement parameter bindings
+    #[serde(skip)]
     parameters: HashMap<String, Node>,
+
+    /// Whether a notification listening task has been started for this kernel
+    watching: bool,
+
+    /// The tables that the kernel is listening for change notifications for
+    watches: Vec<String>,
+
+    /// A sender to send [`ResourceChange`]s back to the owning document (if any)
+    #[serde(skip)]
+    resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
 }
 
 impl SqlKernel {
     /// Create a new `SqlKernel`
-    pub fn new(selector: &KernelSelector) -> Self {
+    pub fn new(
+        selector: &KernelSelector,
+        resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
+    ) -> Self {
         Self {
             config: selector.config.clone(),
+            resource_changes_sender,
             ..Default::default()
         }
     }
@@ -98,15 +119,18 @@ impl SqlKernel {
             }
         }
 
+        let mut options = AnyConnectOptions::from_str(&url)?;
+
         tracing::trace!("Connecting to database: {}", url);
 
-        let mut options = AnyConnectOptions::from_str(&url)?;
         let pool = if let Some(options) = options.as_postgres_mut() {
             options.log_statements(LevelFilter::Trace);
-            MetaPool::Postgres(PgPool::connect_with(options.clone()).await?)
+            let pool = PgPool::connect_with(options.clone()).await?;
+            MetaPool::Postgres(pool)
         } else if let Some(options) = options.as_sqlite_mut() {
             options.log_statements(LevelFilter::Trace);
-            MetaPool::Sqlite(SqlitePool::connect_with(options.clone()).await?)
+            let pool = SqlitePool::connect_with(options.clone()).await?;
+            MetaPool::Sqlite(pool)
         } else {
             bail!(
                 "Unhandled database type `{:?}` for url: {}",
@@ -115,6 +139,50 @@ impl SqlKernel {
             )
         };
         self.pool = Some(pool);
+        self.url = Some(url);
+
+        Ok(())
+    }
+
+    /// Listen for notifications from the database (if not already listening)
+    async fn watch(&mut self, tables: &[String]) -> Result<()> {
+        self.connect().await?;
+        let pool = self
+            .pool
+            .as_ref()
+            .expect("connect() should ensure connection");
+        let url = self.url.as_ref().expect("connect() should ensure URL");
+
+        let sender = match &self.resource_changes_sender {
+            Some(sender) => sender.to_owned(),
+            None => bail!("No resource sender provided to this SQL kernel"),
+        };
+
+        if !self.watching {
+            match pool {
+                MetaPool::Postgres(pool) => {
+                    postgres::watch(url, pool, sender).await?;
+                    self.watching = true;
+                }
+                MetaPool::Sqlite(..) => {
+                    bail!("Table watches are not yet supported for SQLite databases")
+                }
+            }
+        }
+
+        match pool {
+            MetaPool::Postgres(pool) => {
+                for table in tables {
+                    if !self.watches.contains(table) {
+                        postgres::watch_table(table, pool).await?;
+                        self.watches.push(table.to_owned());
+                    }
+                }
+            }
+            MetaPool::Sqlite(..) => {
+                bail!("The @watch tag is not yet supported for SQLite databases")
+            }
+        }
 
         Ok(())
     }
@@ -287,6 +355,24 @@ impl KernelTrait for SqlKernel {
 
                         messages.push(CodeError {
                             error_message: message,
+                            ..Default::default()
+                        });
+                    }
+                }
+            }
+
+            if let Some(tags) = tags {
+                // Apply any @watch tags _after_ statements in case the user wants the watch
+                // to apply to a table that they just created.
+                let tables = tags.get_items("watch");
+                if !tables.is_empty() {
+                    if let Err(error) = self.watch(&tables).await {
+                        messages.push(CodeError {
+                            error_message: format!(
+                                "While setting up watch for tables `{}`: {}",
+                                tables.join(", "),
+                                error
+                            ),
                             ..Default::default()
                         });
                     }

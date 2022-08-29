@@ -10,6 +10,8 @@ use common::{
     derivative::Derivative,
     eyre::Result,
     itertools::Itertools,
+    once_cell::sync::Lazy,
+    regex::Regex,
     serde::{self, Serialize},
     serde_with::skip_serializing_none,
 };
@@ -32,7 +34,7 @@ pub enum Resource {
     /// A node within a document
     Node(Node),
 
-    /// A file within the project
+    /// A file on the local filesystem
     File(File),
 
     /// A programming language module, usually part of an external package
@@ -295,6 +297,17 @@ impl TagMap {
     /// Get a tag value by name
     pub fn get_value(&self, name: &str) -> Option<String> {
         self.get(name).map(|tag| tag.value.clone())
+    }
+
+    /// Get a tag split into individual space or comma separated items
+    pub fn get_items(&self, name: &str) -> Vec<String> {
+        static REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r"\s+|(\s*,\s*)").expect("Unable to create regex"));
+
+        match self.get_value(name) {
+            Some(value) => REGEX.split(&value).map(String::from).collect_vec(),
+            None => Vec::new(),
+        }
     }
 
     /// Insert a tag
@@ -568,6 +581,24 @@ impl ResourceInfo {
         self.execute_digest = self.compile_digest.clone();
         self.execute_failed = Some(execute_failed);
     }
+}
+
+/// A change to a resource
+#[derive(Debug, Serialize)]
+#[serde(crate = "common::serde")]
+pub struct ResourceChange {
+    pub resource: Resource,
+    pub action: ResourceChangeAction,
+    pub time: String,
+}
+
+/// The type of change to a resource
+#[derive(Debug, Serialize)]
+#[serde(crate = "common::serde")]
+pub enum ResourceChangeAction {
+    Created,
+    Updated,
+    Deleted,
 }
 
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]

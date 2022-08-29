@@ -1,12 +1,26 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
-use sqlx::{postgres::PgArguments, Arguments, Column, PgPool, Row, TypeInfo};
+use sqlx::{
+    postgres::{PgArguments, PgListener},
+    Arguments, Column, PgPool, Row, TypeInfo,
+};
 
 use kernel::{
-    common::{eyre::Result, itertools::Itertools, regex::Captures, serde_json, tracing},
+    common::{
+        eyre::Result,
+        itertools::Itertools,
+        regex::Captures,
+        serde_json,
+        tokio::{self, sync::mpsc},
+        tracing,
+    },
+    graph_triples::{
+        resources::{self, ResourceChangeAction},
+        ResourceChange,
+    },
     stencila_schema::{
-        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node, Null,
-        Number, NumberValidator, StringValidator, ValidatorTypes,
+        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node,
+        Null, Number, NumberValidator, StringValidator, ValidatorTypes,
     },
 };
 
@@ -73,7 +87,10 @@ pub async fn query_to_datatable(
                     "TEXT" => Some(ValidatorTypes::StringValidator(StringValidator::default())),
                     "JSON" => None,
                     _ => {
-                        tracing::error!("Unhandled column type: {}", col_type);
+                        tracing::warn!(
+                            "Unhandled column type, will have no validator: {}",
+                            col_type
+                        );
                         None
                     }
                 };
@@ -120,7 +137,9 @@ pub async fn query_to_datatable(
                 _ => row
                     .try_get_unchecked::<String, usize>(col_index)
                     .ok()
-                    .and_then(|json| serde_json::from_str(&json).ok()),
+                    .and_then(|string| {
+                        serde_json::from_str(&string).unwrap_or(Some(Node::String(string)))
+                    }),
             };
             if let Some(value) = value {
                 values[position] = value;
@@ -271,6 +290,93 @@ pub async fn table_from_datatable(name: &str, datatable: Datatable, pool: &PgPoo
     }
 
     query.execute(pool).await?;
+
+    Ok(())
+}
+
+/// Start a background task to listen for notifications of changes to tables
+pub async fn watch(url: &str, pool: &PgPool, sender: mpsc::Sender<ResourceChange>) -> Result<()> {
+    let mut listener = PgListener::connect_with(pool).await?;
+    listener.listen("stencila_resource_change").await?;
+
+    let url = url.to_string();
+    tokio::spawn(async move {
+        while let Ok(notification) = listener.recv().await {
+            let json = notification.payload();
+            let mut event: HashMap<String, String> = match serde_json::from_str(json) {
+                Ok(event) => event,
+                Err(error) => {
+                    tracing::error!("While deserializing Postgres notification event: {}", error);
+                    continue;
+                }
+            };
+
+            let schema = event
+                .remove("schema")
+                .unwrap_or_else(|| "public".to_string());
+
+            let path = PathBuf::from(url.clone()).join(schema);
+
+            let name = match event.remove("table") {
+                Some(table) => table,
+                None => {
+                    tracing::error!("Postgres notification event has no `table` field: {}", json);
+                    continue;
+                }
+            };
+
+            let change = ResourceChange {
+                resource: resources::symbol(&path, &name, "Datatable"),
+                action: ResourceChangeAction::Updated,
+                time: event.remove("time").unwrap_or_default(),
+            };
+            if let Err(error) = sender.send(change).await {
+                tracing::error!(
+                    "While sending resource change from Postgres listener: {}",
+                    error
+                );
+            }
+        }
+    });
+
+    Ok(())
+}
+
+/// Set up watches for a particular table
+pub async fn watch_table(table: &str, pool: &PgPool) -> Result<()> {
+    sqlx::query(
+        "
+        CREATE OR REPLACE FUNCTION stencila_resource_change_trigger()
+        RETURNS trigger
+        LANGUAGE plpgsql
+        AS $trigger$
+        BEGIN
+            PERFORM pg_notify(
+            'stencila_resource_change',
+            json_build_object(
+                'time', CURRENT_TIMESTAMP,
+                'action', LOWER(TG_OP),
+                'schema', TG_TABLE_SCHEMA,
+                'table', TG_TABLE_NAME
+            )::text
+            );
+            RETURN NULL;
+        END;
+        $trigger$;
+        ",
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(&format!(
+        r#"
+        CREATE OR REPLACE TRIGGER "stencila_resource_change_{table}"
+        AFTER INSERT OR UPDATE OR DELETE ON "{table}"
+        EXECUTE PROCEDURE stencila_resource_change_trigger();
+        "#
+    ))
+    .execute(pool)
+    .await?;
 
     Ok(())
 }

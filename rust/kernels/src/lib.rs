@@ -7,7 +7,7 @@ use std::{
 };
 
 use common::{once_cell::sync::Lazy, tokio::sync::RwLock};
-use graph_triples::ResourceInfo;
+use graph_triples::{ResourceChange, ResourceInfo};
 #[allow(unused_imports)]
 use kernel::{
     common::{
@@ -59,7 +59,10 @@ enum MetaKernel {
 impl MetaKernel {
     /// Create a new `MetaKernel` instance based on a selector which matches against the
     /// name or language of the kernel
-    async fn new(selector: &KernelSelector) -> Result<Self> {
+    async fn new(
+        selector: &KernelSelector,
+        resource_changes_sender: &Option<mpsc::Sender<ResourceChange>>,
+    ) -> Result<Self> {
         #[cfg(feature = "kernel-store")]
         {
             let kernel = kernel_store::StoreKernel::new();
@@ -88,7 +91,7 @@ impl MetaKernel {
         matches_kernel!(
             "kernel-sql",
             MetaKernel::Sql,
-            kernel_sql::SqlKernel::new(selector)
+            kernel_sql::SqlKernel::new(selector, resource_changes_sender.clone())
         );
 
         matches_kernel!("kernel-bash", MetaKernel::Micro, kernel_bash::new());
@@ -216,6 +219,7 @@ impl KernelMap {
         &mut self,
         desired_selector: &KernelSelector,
         directory: &Path,
+        resource_changes_sender: &Option<mpsc::Sender<ResourceChange>>,
     ) -> Result<KernelId> {
         tracing::trace!("Ensuring kernel matching selector `{}`", desired_selector);
 
@@ -265,14 +269,20 @@ impl KernelMap {
 
         // If unable to set in an existing kernel then start a new kernel
         // for the selector.
-        self.start(desired_selector, directory).await
+        self.start(desired_selector, directory, resource_changes_sender)
+            .await
     }
 
     /// Start a kernel for a selector
-    async fn start(&mut self, selector: &KernelSelector, directory: &Path) -> Result<KernelId> {
+    async fn start(
+        &mut self,
+        selector: &KernelSelector,
+        directory: &Path,
+        resource_changes_sender: &Option<mpsc::Sender<ResourceChange>>,
+    ) -> Result<KernelId> {
         tracing::trace!("Starting kernel matching selector `{}`", selector);
 
-        let mut kernel = MetaKernel::new(selector).await?;
+        let mut kernel = MetaKernel::new(selector, resource_changes_sender).await?;
         kernel.start(directory).await?;
 
         // Generate the kernel id from the selector, adding a numeric suffix if necessary
@@ -750,6 +760,9 @@ pub struct KernelSpace {
     /// The working directory of the kernel space
     directory: PathBuf,
 
+    /// A channel sender for sending changes to resources within the kernel
+    resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
+
     /// The kernels in the kernel space
     kernels: Arc<Mutex<KernelMap>>,
 
@@ -759,7 +772,7 @@ pub struct KernelSpace {
     /// The list of all tasks sent to this kernel space
     tasks: Arc<Mutex<KernelTasks>>,
 
-    /// The monitoring task for the kernel
+    /// The monitoring task for the kernel space
     monitoring: Option<JoinHandle<()>>,
 }
 
@@ -776,11 +789,15 @@ pub type KernelInfos = HashMap<KernelId, KernelInfo>;
 
 impl KernelSpace {
     /// Create a new kernel space and start its monitoring task
-    pub fn new(dir: Option<&Path>) -> Self {
+    pub fn new(
+        directory: Option<&Path>,
+        resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
+    ) -> Self {
         let mut kernel_space = Self::default();
-        kernel_space.directory = dir
+        kernel_space.directory = directory
             .map(PathBuf::from)
             .unwrap_or_else(|| current_dir().expect("Should be able to get current dir"));
+        kernel_space.resource_changes_sender = resource_changes_sender;
 
         let kernels = kernel_space.kernels.clone();
         let tasks = kernel_space.tasks.clone();
@@ -820,7 +837,9 @@ impl KernelSpace {
     /// Start a kernel
     pub async fn start(&self, selector: &KernelSelector) -> Result<KernelId> {
         let kernels = &mut *self.kernels.lock().await;
-        kernels.start(selector, &self.directory).await
+        kernels
+            .start(selector, &self.directory, &self.resource_changes_sender)
+            .await
     }
 
     /// Stop a kernel
@@ -854,7 +873,9 @@ impl KernelSpace {
 
             kernels.stop(id).await?;
             purge_kernel_from_symbols(symbols, id);
-            kernels.start(&selector, &self.directory).await?;
+            kernels
+                .start(&selector, &self.directory, &self.resource_changes_sender)
+                .await?;
         }
 
         Ok(())
@@ -876,7 +897,9 @@ impl KernelSpace {
     pub async fn set(&self, name: &str, value: Node, selector: &KernelSelector) -> Result<()> {
         let kernels = &mut *self.kernels.lock().await;
 
-        let kernel_id = kernels.ensure(selector, &self.directory).await?;
+        let kernel_id = kernels
+            .ensure(selector, &self.directory, &self.resource_changes_sender)
+            .await?;
         tracing::debug!("Setting symbol `{}` in kernel `{}`", name, kernel_id);
 
         let kernel = kernels.get_mut(&kernel_id)?;
@@ -908,7 +931,9 @@ impl KernelSpace {
         let kernels = &mut *self.kernels.lock().await;
 
         // Determine the kernel to execute in
-        let kernel_id = kernels.ensure(selector, &self.directory).await?;
+        let kernel_id = kernels
+            .ensure(selector, &self.directory, &self.resource_changes_sender)
+            .await?;
         tracing::trace!("Dispatching task to kernel `{}`", kernel_id);
 
         // Mirror symbols that are used in the code into the kernel
@@ -1278,7 +1303,7 @@ pub async fn available() -> Vec<Kernel> {
 
     #[cfg(feature = "kernel-sql")]
     available.push(
-        kernel_sql::SqlKernel::new(&KernelSelector::default())
+        kernel_sql::SqlKernel::new(&KernelSelector::default(), None)
             .spec()
             .await,
     );
@@ -1518,7 +1543,7 @@ pub mod commands {
     /// kernel state is maintained in successive calls to `Execute::run` when in
     /// interactive mode
     static KERNEL_SPACE: Lazy<Mutex<KernelSpace>> =
-        Lazy::new(|| Mutex::new(KernelSpace::new(None)));
+        Lazy::new(|| Mutex::new(KernelSpace::new(None, None)));
 
     /// Execute code within a document kernel space
     ///
