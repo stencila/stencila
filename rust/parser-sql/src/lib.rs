@@ -58,7 +58,10 @@ impl ParserTrait for SqlParser {
                 };
                 let name = match pattern {
                     4 => match captures[0].text[1..].parse::<usize>() {
-                        Ok(index) => &bindings[index - 1],
+                        Ok(index) => match bindings.get(index - 1) {
+                            Some(name) => name,
+                            None => return None,
+                        },
                         Err(error) => {
                             tracing::error!(
                                 "Unexpectedly unable to parse binding as integer index: {}",
@@ -94,9 +97,12 @@ impl ParserTrait for SqlParser {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use std::path::PathBuf;
+
     use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
     use test_utils::fixtures;
+
+    use super::*;
 
     #[test]
     fn parse_sql_fragments() {
@@ -107,5 +113,15 @@ mod tests {
             let resource_info = SqlParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })
+    }
+
+    /// Regression test for when a numeric binding is in the SQL code
+    #[test]
+    fn do_not_panic_on_numeric_bindings() -> Result<()> {
+        let code = "SELECT * FROM table_1 WHERE col_1 = $1 OR col_1 = ?1";
+        let path = PathBuf::new();
+        let resource = resources::code(&path, "", "SoftwareSourceCode", Some("SQL".to_string()));
+        SqlParser::parse(resource, &path, code)?;
+        Ok(())
     }
 }
