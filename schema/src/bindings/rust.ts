@@ -100,14 +100,11 @@ const noBoxTypes = [
   // Enums with no data
   'CiteCitationMode',
   'ClaimClaimType',
-  'CodeChunkExecuteAuto',
-  'CodeExecutableExecuteRequired',
-  'CodeExecutableExecuteStatus',
-  'IncludeExecuteRequired',
-  'IncludeExecuteStatus',
+  'ExecuteAuto',
+  'ExecuteRequired',
+  'ExecuteStatus',
   'ListOrder',
   'NoteNoteType',
-  'ParameterExecuteRequired',
   'SoftwareSessionStatus',
   'TableCellCellType',
   'TableRowRowType',
@@ -383,14 +380,14 @@ export function enumSchemaToEnum(
   const variants = anyOf
     ?.map((schema) => {
       const { description = '', const: const_ = '' } = schema
-      return `    /// ${description}\n    ${const_ as string},\n`
+      return `    ${docComment(description)}\n    ${const_ as string},\n`
     })
     .join('')
 
   return `${docComment(description)}
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ${title} {\n${variants}}`
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
+#[strum(ascii_case_insensitive)]
+pub enum ${title} {\n${variants}}\n`
 }
 
 /**

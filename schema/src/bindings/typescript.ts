@@ -337,10 +337,12 @@ export const generateTypeMaps = async (): Promise<string> => {
   const typeMaps = unions
     .map((schema) => {
       const { title = '' } = schema
+      const type =
+        title === 'InlineContent'
+          ? `TypeMap<Exclude<${title}, string|number|boolean|null>>`
+          : `TypeMap<${title}>`
       return `
-    export const ${camelCase(
-      schemaClass(title)
-    )}: TypeMap<Exclude<${title}, Primitive>> = {
+    export const ${camelCase(schemaClass(title))}: ${type} = {
       ${
         schema.anyOf
           ?.reduce((typeMap: string[], type) => {
@@ -359,6 +361,10 @@ export const generateTypeMaps = async (): Promise<string> => {
               : typeMap
           }, [])
           .join('\n') ?? ''
+      }${
+        // Because CallArgument is derived from Parameter, which is InlineContent,
+        // we need to add it here
+        title === 'InlineContent' ? "CallArgument: 'CallArgument'" : ''
       }
       }
     `

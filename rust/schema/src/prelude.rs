@@ -10,7 +10,7 @@ pub use std::{
     fmt::{self, Display},
     sync::Arc,
 };
-pub use strum::AsRefStr;
+pub use strum::{AsRefStr, EnumString};
 
 /// A null value
 ///

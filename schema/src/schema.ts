@@ -327,7 +327,7 @@ const processSchema = (
     }
 
     // Apply `extends` keyword
-    if (parent !== null) {
+    if (parent !== null && parent.title !== 'Enumeration') {
       // Extend `properties`
       schema.properties = {
         ...cloneDeep(parentProperties),

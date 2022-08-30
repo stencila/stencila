@@ -43,7 +43,7 @@ pub struct Cite {
     pub target: String,
 
     /// The type/s of the citation, both factually and rhetorically.
-    pub citation_intent: Option<Vec<CitationIntentEnumeration>>,
+    pub citation_intent: Option<Vec<CitationIntent>>,
 
     /// Determines how the citation is shown within the surrounding text.
     pub citation_mode: Option<CiteCitationMode>,
@@ -179,6 +179,9 @@ pub struct CodeExecutable {
     /// Errors when compiling (e.g. syntax errors) or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
 
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
     /// A count of the number of times that the node has been executed.
     pub execute_count: Option<Integer>,
 
@@ -191,11 +194,11 @@ pub struct CodeExecutable {
     /// The date-time that the the last execution of the code ended.
     pub execute_ended: Option<Box<Date>>,
 
-    /// Whether, and why, a node requires execution or re-execution.
-    pub execute_required: Option<CodeExecutableExecuteRequired>,
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
 
     /// Status of the most recent, including any current, execution of the code.
-    pub execute_status: Option<CodeExecutableExecuteStatus>,
+    pub execute_status: Option<ExecuteStatus>,
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
@@ -214,77 +217,6 @@ pub struct CodeExecutable {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CodeExecutable_ {
   CodeExecutable
-}
-
-/// Call another document, optionally with arguments, and include its executed content
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Call {
-    /// The name of this type
-    #[derivative(Default(value = "Call_::Call"))]
-    pub type_: Call_,
-
-    /// The external source of the content, a file path or URL.
-    pub source: String,
-
-    /// The value of the source document's parameters to call it with
-    pub arguments: Option<Vec<Parameter>>,
-
-    /// The upstream dependencies of the code.
-    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
-
-    /// The downstream dependents of the code.
-    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
-
-    /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
-
-    /// The structured content decoded from the source.
-    pub content: Option<Vec<BlockContent>>,
-
-    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
-    pub errors: Option<Vec<CodeError>>,
-
-    /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
-
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
-
-    /// Duration in seconds of the last execution of the code.
-    pub execute_duration: Option<Number>,
-
-    /// The date-time that the the last execution of the code ended.
-    pub execute_ended: Option<Box<Date>>,
-
-    /// Whether, and why, a node requires execution or re-execution.
-    pub execute_required: Option<CodeExecutableExecuteRequired>,
-
-    /// Status of the most recent, including any current, execution of the code.
-    pub execute_status: Option<CodeExecutableExecuteStatus>,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-
-    /// Media type of the source content.
-    pub media_type: Option<Box<String>>,
-
-    /// The programming language of the code.
-    pub programming_language: Option<Box<String>>,
-
-    /// A query to select a subset of content from the source after it has been called
-    pub select: Option<Box<String>>,
-
-    /// The text of the code.
-    pub text: Option<Box<String>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Call_ {
-  Call
 }
 
 /// A executable chunk of code.
@@ -318,8 +250,8 @@ pub struct CodeChunk {
     /// Errors when compiling (e.g. syntax errors) or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
 
-    /// Under which circumstances the node should be automatically executed.
-    pub execute_auto: Option<CodeChunkExecuteAuto>,
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
 
     /// A count of the number of times that the node has been executed.
     pub execute_count: Option<u32>,
@@ -336,11 +268,11 @@ pub struct CodeChunk {
     /// Whether the code should be treated as side-effect free when executed.
     pub execute_pure: Option<Boolean>,
 
-    /// Whether, and why, a node requires execution or re-execution.
-    pub execute_required: Option<CodeExecutableExecuteRequired>,
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
 
     /// Status of the most recent, including any current, execution of the code.
-    pub execute_status: Option<CodeExecutableExecuteStatus>,
+    pub execute_status: Option<ExecuteStatus>,
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
@@ -389,6 +321,9 @@ pub struct CodeExpression {
     /// Errors when compiling (e.g. syntax errors) or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
 
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
     /// A count of the number of times that the node has been executed.
     pub execute_count: Option<u32>,
 
@@ -401,11 +336,11 @@ pub struct CodeExpression {
     /// The date-time that the the last execution of the code ended.
     pub execute_ended: Option<Box<Date>>,
 
-    /// Whether, and why, a node requires execution or re-execution.
-    pub execute_required: Option<CodeExecutableExecuteRequired>,
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
 
     /// Status of the most recent, including any current, execution of the code.
-    pub execute_status: Option<CodeExecutableExecuteStatus>,
+    pub execute_status: Option<ExecuteStatus>,
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
@@ -421,6 +356,151 @@ pub struct CodeExpression {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CodeExpression_ {
   CodeExpression
+}
+
+/// Include content from an external source (e.g. file, URL).
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Include {
+    /// The name of this type
+    #[derivative(Default(value = "Include_::Include"))]
+    pub type_: Include_,
+
+    /// The external source of the content, a file path or URL.
+    pub source: String,
+
+    /// The upstream dependencies of the code.
+    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
+
+    /// The downstream dependents of the code.
+    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// The structured content decoded from the source.
+    pub content: Option<Vec<BlockContent>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration in seconds of the last execution of the code.
+    pub execute_duration: Option<Number>,
+
+    /// The date-time that the the last execution of the code ended.
+    pub execute_ended: Option<Box<Date>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution of the code.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Media type of the source content.
+    pub media_type: Option<Box<String>>,
+
+    /// The programming language of the code.
+    pub programming_language: Option<Box<String>>,
+
+    /// A query to select a subset of content from the source
+    pub select: Option<Box<String>>,
+
+    /// The text of the code.
+    pub text: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Include_ {
+  Include
+}
+
+/// Call another document, optionally with arguments, and include its executed content
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Call {
+    /// The name of this type
+    #[derivative(Default(value = "Call_::Call"))]
+    pub type_: Call_,
+
+    /// The external source of the content, a file path or URL.
+    pub source: String,
+
+    /// The value of the source document's parameters to call it with
+    pub arguments: Option<Vec<CallArgument>>,
+
+    /// The upstream dependencies of the code.
+    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
+
+    /// The downstream dependents of the code.
+    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// The structured content decoded from the source.
+    pub content: Option<Vec<BlockContent>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration in seconds of the last execution of the code.
+    pub execute_duration: Option<Number>,
+
+    /// The date-time that the the last execution of the code ended.
+    pub execute_ended: Option<Box<Date>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution of the code.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Media type of the source content.
+    pub media_type: Option<Box<String>>,
+
+    /// The programming language of the code.
+    pub programming_language: Option<Box<String>>,
+
+    /// A query to select a subset of content from the source
+    pub select: Option<Box<String>>,
+
+    /// The text of the code.
+    pub text: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Call_ {
+  Call
 }
 
 /// Inline code.
@@ -572,6 +652,109 @@ pub struct Emphasis {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Emphasis_ {
   Emphasis
+}
+
+/// A parameter of a document or function.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Parameter {
+    /// The name of this type
+    #[derivative(Default(value = "Parameter_::Parameter"))]
+    pub type_: Parameter_,
+
+    /// The name of the parameter.
+    pub name: String,
+
+    /// A digest of the value of the parameter.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// The default value of the parameter.
+    pub default: Option<Box<Node>>,
+
+    /// The `compileDigest` of the parameter when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Whether, and why, the parameter needs execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Indicates that this parameter is variadic and can accept multiple named arguments.
+    pub is_extensible: Option<Boolean>,
+
+    /// Is this parameter required, if not it should have a default or default is assumed to be null.
+    pub is_required: Option<Boolean>,
+
+    /// Indicates that this parameter is variadic and can accept multiple arguments.
+    pub is_variadic: Option<Boolean>,
+
+    /// The validator that the value is validated against.
+    pub validator: Option<Box<ValidatorTypes>>,
+
+    /// The current value of the parameter.
+    pub value: Option<Box<Node>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Parameter_ {
+  Parameter
+}
+
+/// The value of a `Parameter` to call a document with
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct CallArgument {
+    /// The name of this type
+    #[derivative(Default(value = "CallArgument_::CallArgument"))]
+    pub type_: CallArgument_,
+
+    /// The name of the parameter.
+    pub name: String,
+
+    /// A digest of the value of the parameter.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// The default value of the parameter.
+    pub default: Option<Box<Node>>,
+
+    /// The `compileDigest` of the parameter when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Whether, and why, the parameter needs execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Indicates that this parameter is variadic and can accept multiple named arguments.
+    pub is_extensible: Option<Boolean>,
+
+    /// Is this parameter required, if not it should have a default or default is assumed to be null.
+    pub is_required: Option<Boolean>,
+
+    /// Indicates that this parameter is variadic and can accept multiple arguments.
+    pub is_variadic: Option<Boolean>,
+
+    /// The name of a variable to use as the value of the parameter
+    pub symbol: Option<Box<String>>,
+
+    /// The validator that the value is validated against.
+    pub validator: Option<Box<ValidatorTypes>>,
+
+    /// The current value of the parameter.
+    pub value: Option<Box<Node>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum CallArgument_ {
+  CallArgument
 }
 
 /// The most generic type of item.
@@ -2490,41 +2673,6 @@ pub enum ImageObjectSimple_ {
   ImageObject
 }
 
-/// Include content from an external source (e.g. file, URL).
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Include {
-    /// The name of this type
-    #[derivative(Default(value = "Include_::Include"))]
-    pub type_: Include_,
-
-    /// The external source of the content, a file path or URL.
-    pub source: String,
-
-    /// A digest of the `source` and `mediaType` properties the last time the node was compiled.
-    pub compile_digest: Option<Box<Cord>>,
-
-    /// The structured content decoded from the source.
-    pub content: Option<Vec<BlockContent>>,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-
-    /// Media type of the source content.
-    pub media_type: Option<Box<String>>,
-
-    /// A query to select a subset of content from the source
-    pub select: Option<Box<String>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Include_ {
-  Include
-}
-
 /// A validator specifying the constraints on a numeric node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
@@ -2984,56 +3132,6 @@ pub struct Paragraph {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Paragraph_ {
   Paragraph
-}
-
-/// A parameter of a document or function.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Parameter {
-    /// The name of this type
-    #[derivative(Default(value = "Parameter_::Parameter"))]
-    pub type_: Parameter_,
-
-    /// The name of the parameter.
-    pub name: String,
-
-    /// A digest of the value of the parameter.
-    pub compile_digest: Option<Box<Cord>>,
-
-    /// The default value of the parameter.
-    pub default: Option<Box<Node>>,
-
-    /// The `compileDigest` of the parameter when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
-
-    /// Whether, and why, the parameter need execution or re-execution.
-    pub execute_required: Option<ParameterExecuteRequired>,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-
-    /// Indicates that this parameter is variadic and can accept multiple named arguments.
-    pub is_extensible: Option<Boolean>,
-
-    /// Is this parameter required, if not it should have a default or default is assumed to be null.
-    pub is_required: Option<Boolean>,
-
-    /// Indicates that this parameter is variadic and can accept multiple arguments.
-    pub is_variadic: Option<Boolean>,
-
-    /// The validator that the value is validated against.
-    pub validator: Option<Box<ValidatorTypes>>,
-
-    /// The current value of the parameter.
-    pub value: Option<Box<Node>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Parameter_ {
-  Parameter
 }
 
 /// A periodical publication.
@@ -4843,38 +4941,18 @@ pub enum CitePageStart {
 #[serde(untagged)]
 pub enum CodeExecutableCodeDependencies {
     CodeChunk(CodeChunk),
-    Parameter(Parameter),
     File(File),
+    Parameter(Parameter),
 }
 
 /// Types permitted for the `codeDependents` property of a `CodeExecutable` node.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeExecutableCodeDependents {
+    Call(Call),
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
     File(File),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
-pub enum CodeExecutableExecuteRequired {
-    No,
-    NeverExecuted,
-    SemanticsChanged,
-    DependenciesChanged,
-    DependenciesFailed,
-    Failed,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
-pub enum CodeExecutableExecuteStatus {
-    Scheduled,
-    ScheduledPreviouslyFailed,
-    Running,
-    RunningPreviouslyFailed,
-    Succeeded,
-    Failed,
-    Cancelled,
 }
 
 /// Types permitted for the `caption` property of a `CodeChunk` node.
@@ -4883,13 +4961,6 @@ pub enum CodeExecutableExecuteStatus {
 pub enum CodeChunkCaption {
     VecBlockContent(Vec<BlockContent>),
     String(String),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
-pub enum CodeChunkExecuteAuto {
-    Never,
-    Needed,
-    Always,
 }
 
 /// Types permitted for the `description` property of a `Thing` node.
@@ -5111,13 +5182,6 @@ pub enum OrganizationMembers {
     Person(Person),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
-pub enum ParameterExecuteRequired {
-    No,
-    NeverExecuted,
-    SemanticsChanged,
-}
-
 /// Types permitted for the `address` property of a `Person` node.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -5269,9 +5333,9 @@ pub enum TableRowRowType {
  ********************************************************************/
 
 /// The type or nature of a citation, both factually and rhetorically.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CitationIntentEnumeration {
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
+#[strum(ascii_case_insensitive)]
+pub enum CitationIntent {
     /// The citing entity agrees with statements, ideas or conclusions presented in the cited entity
     AgreesWith,
     /// The citing entity cites the cited entity as one that provides an authoritative description or definition of the subject under discussion
@@ -5456,6 +5520,57 @@ pub enum CitationIntentEnumeration {
     UsesMethodIn,
 }
 
+/// Under which circumstances the document node should be automatically executed.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
+#[strum(ascii_case_insensitive)]
+pub enum ExecuteAuto {
+    /// Never automatically execute the document node. Only execute the when the user explicitly executes the specific node or all nodes in the containing document.
+    Never,
+    /// Automatically execute the document node when it needs to be: if it is stale and is  upstream dependency of a node that has been executed, or is a downstream dependent of a node that has been executed.
+    Needed,
+    /// Always execute the code when one of its dependents is executed, even if it is not stale (i.e. it, or its own dependencies, are unchanged since the last time it was executed).
+    Always,
+}
+
+/// Under which circumstances the document node should be automatically executed.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
+#[strum(ascii_case_insensitive)]
+pub enum ExecuteRequired {
+    /// No re-execution is required, the semantics of the node and its dependencies has not changed since it was last executed
+    No,
+    /// Execution is required because the node has never been executed (or any previous execution was not persisted in its state).
+    NeverExecuted,
+    /// Re-execution is required because the semantics of the node has changed since it was last executed.
+    SemanticsChanged,
+    /// Re-execution is required because the semantics of one or more dependencies (including transitive dependencies)  changed since it was last executed.
+    DependenciesChanged,
+    /// Re-execution is required because one or more dependencies (including transitive dependencies) failed when it was last executed.
+    DependenciesFailed,
+    /// Re-execution is required because the node failed last time it was executed.
+    Failed,
+}
+
+/// Status of the most recent, including any current, execution of a document node.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
+#[strum(ascii_case_insensitive)]
+pub enum ExecuteStatus {
+    /// 
+    Scheduled,
+    /// 
+    ScheduledPreviouslyFailed,
+    /// 
+    Running,
+    /// 
+    RunningPreviouslyFailed,
+    /// 
+    Succeeded,
+    /// 
+    Failed,
+    /// 
+    Cancelled,
+}
+
+
 /*********************************************************************
  * Enums for "union" schemas
  ********************************************************************/
@@ -5488,6 +5603,7 @@ pub enum CodeExecutableTypes {
     Call(Call),
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
+    Include(Include),
 }
 
 /// All type schemas that are derived from Code
@@ -5501,6 +5617,7 @@ pub enum CodeTypes {
     CodeExecutable(CodeExecutable),
     CodeExpression(CodeExpression),
     CodeFragment(CodeFragment),
+    Include(Include),
 }
 
 /// All type schemas that are derived from ContactPoint
@@ -5547,7 +5664,7 @@ pub enum EntityTypes {
     BooleanValidator(BooleanValidator),
     Brand(Brand),
     Call(Call),
-    CitationIntentEnumeration(CitationIntentEnumeration),
+    CallArgument(CallArgument),
     Cite(Cite),
     CiteGroup(CiteGroup),
     Claim(Claim),
@@ -5626,20 +5743,20 @@ pub enum EntityTypes {
     VolumeMount(VolumeMount),
 }
 
-/// All type schemas that are derived from Enumeration
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum EnumerationTypes {
-    Enumeration(Enumeration),
-    CitationIntentEnumeration(CitationIntentEnumeration),
-}
-
 /// All type schemas that are derived from Grant
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantTypes {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
+}
+
+/// All type schemas that are derived from Include
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum IncludeTypes {
+    Include(Include),
+    Call(Call),
 }
 
 /// Union type for valid inline content.
@@ -5719,7 +5836,7 @@ pub enum Node {
     BooleanValidator(BooleanValidator),
     Brand(Brand),
     Call(Call),
-    CitationIntentEnumeration(CitationIntentEnumeration),
+    CallArgument(CallArgument),
     Cite(Cite),
     CiteGroup(CiteGroup),
     Claim(Claim),
@@ -5813,6 +5930,14 @@ pub enum NumberValidatorTypes {
     IntegerValidator(IntegerValidator),
 }
 
+/// All type schemas that are derived from Parameter
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ParameterTypes {
+    Parameter(Parameter),
+    CallArgument(CallArgument),
+}
+
 /// Union type for all primitives values
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -5834,7 +5959,6 @@ pub enum ThingTypes {
     Article(Article),
     AudioObject(AudioObject),
     Brand(Brand),
-    CitationIntentEnumeration(CitationIntentEnumeration),
     Claim(Claim),
     Collection(Collection),
     Comment(Comment),

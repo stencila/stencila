@@ -24,7 +24,8 @@ export interface Types {
   BooleanValidator: BooleanValidator
   Brand: Brand
   Call: Call
-  CitationIntentEnumeration: CitationIntentEnumeration
+  CallArgument: CallArgument
+  CitationIntent: CitationIntent
   Cite: Cite
   CiteGroup: CiteGroup
   Claim: Claim
@@ -54,7 +55,9 @@ export interface Types {
   EntityTypes: EntityTypes
   EnumValidator: EnumValidator
   Enumeration: Enumeration
-  EnumerationTypes: EnumerationTypes
+  ExecuteAuto: ExecuteAuto
+  ExecuteRequired: ExecuteRequired
+  ExecuteStatus: ExecuteStatus
   Figure: Figure
   File: File
   Function: Function
@@ -63,6 +66,7 @@ export interface Types {
   Heading: Heading
   ImageObject: ImageObject
   Include: Include
+  IncludeTypes: IncludeTypes
   InlineContent: InlineContent
   Integer: Integer
   IntegerValidator: IntegerValidator
@@ -89,6 +93,7 @@ export interface Types {
   Organization: Organization
   Paragraph: Paragraph
   Parameter: Parameter
+  ParameterTypes: ParameterTypes
   Periodical: Periodical
   Person: Person
   PostalAddress: PostalAddress
@@ -137,7 +142,7 @@ export type Entity = {
     | 'BooleanValidator'
     | 'Brand'
     | 'Call'
-    | 'CitationIntentEnumeration'
+    | 'CallArgument'
     | 'Cite'
     | 'CiteGroup'
     | 'Claim'
@@ -234,7 +239,7 @@ export const entity = (props: Omit<Entity, 'type'> = {}): Entity => ({
 export type Cite = Entity & {
   type: 'Cite'
   target: string
-  citationIntent?: Array<CitationIntentEnumeration>
+  citationIntent?: Array<CitationIntent>
   citationMode?:
     | 'Parenthetical'
     | 'Narrative'
@@ -290,6 +295,7 @@ export type Code = Entity & {
     | 'CodeExecutable'
     | 'CodeExpression'
     | 'CodeFragment'
+    | 'Include'
   mediaType?: string
   programmingLanguage?: string
   text?: string
@@ -327,30 +333,18 @@ export const codeBlock = (props: Omit<CodeBlock, 'type'>): CodeBlock => ({
  * Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
  */
 export type CodeExecutable = Code & {
-  type: 'CodeExecutable' | 'Call' | 'CodeChunk' | 'CodeExpression'
-  codeDependencies?: Array<CodeChunk | Parameter | File>
-  codeDependents?: Array<CodeChunk | CodeExpression | File>
+  type: 'CodeExecutable' | 'Call' | 'CodeChunk' | 'CodeExpression' | 'Include'
+  codeDependencies?: Array<CodeChunk | File | Parameter>
+  codeDependents?: Array<Call | CodeChunk | CodeExpression | File>
   compileDigest?: string
   errors?: Array<CodeError>
+  executeAuto?: ExecuteAuto
   executeCount?: Integer
   executeDigest?: string
   executeDuration?: number
   executeEnded?: Date
-  executeRequired?:
-    | 'No'
-    | 'NeverExecuted'
-    | 'SemanticsChanged'
-    | 'DependenciesChanged'
-    | 'DependenciesFailed'
-    | 'Failed'
-  executeStatus?:
-    | 'Scheduled'
-    | 'ScheduledPreviouslyFailed'
-    | 'Running'
-    | 'RunningPreviouslyFailed'
-    | 'Succeeded'
-    | 'Failed'
-    | 'Cancelled'
+  executeRequired?: ExecuteRequired
+  executeStatus?: ExecuteStatus
 }
 
 /**
@@ -366,28 +360,6 @@ export const codeExecutable = (
 })
 
 /**
- * Call another document, optionally with arguments, and include its executed content
- */
-export type Call = CodeExecutable & {
-  type: 'Call'
-  source: string
-  arguments?: Array<Parameter>
-  content?: Array<BlockContent>
-  mediaType?: string
-  select?: string
-}
-
-/**
- * Create a `Call` node
- * @param props Object containing Call schema properties as key/value pairs
- * @returns {Call} Call schema node
- */
-export const call = (props: Omit<Call, 'type'>): Call => ({
-  ...compact(props),
-  type: 'Call',
-})
-
-/**
  * A executable chunk of code.
  */
 export type CodeChunk = CodeExecutable & {
@@ -395,7 +367,6 @@ export type CodeChunk = CodeExecutable & {
   programmingLanguage: string
   text: string
   caption?: Array<BlockContent> | string
-  executeAuto?: 'Never' | 'Needed' | 'Always'
   executePure?: boolean
   label?: string
   outputs?: Array<Node>
@@ -431,6 +402,47 @@ export const codeExpression = (
 ): CodeExpression => ({
   ...compact(props),
   type: 'CodeExpression',
+})
+
+/**
+ * Include content from an external source (e.g. file, URL).
+ */
+export type Include = CodeExecutable & {
+  type: 'Include' | 'Call'
+  source: string
+  content?: Array<BlockContent>
+  mediaType?: string
+  select?: string
+}
+
+/**
+ * Create a `Include` node
+ * @param props Object containing Include schema properties as key/value pairs
+ * @returns {Include} Include schema node
+ */
+export const include = (props: Omit<Include, 'type'>): Include => ({
+  ...compact(props),
+  type: 'Include',
+})
+
+/**
+ * Call another document, optionally with arguments, and include its executed content
+ */
+export type Call = Include & {
+  type: 'Call'
+  source: string
+  arguments?: Array<CallArgument>
+  mediaType?: string
+}
+
+/**
+ * Create a `Call` node
+ * @param props Object containing Call schema properties as key/value pairs
+ * @returns {Call} Call schema node
+ */
+export const call = (props: Omit<Call, 'type'>): Call => ({
+  ...compact(props),
+  type: 'Call',
 })
 
 /**
@@ -555,6 +567,53 @@ export const emphasis = (props: Omit<Emphasis, 'type'>): Emphasis => ({
 })
 
 /**
+ * A parameter of a document or function.
+ */
+export type Parameter = Entity & {
+  type: 'Parameter' | 'CallArgument'
+  name: string
+  compileDigest?: string
+  default?: Node
+  executeDigest?: string
+  executeRequired?: ExecuteRequired
+  isExtensible?: boolean
+  isRequired?: boolean
+  isVariadic?: boolean
+  validator?: ValidatorTypes
+  value?: Node
+}
+
+/**
+ * Create a `Parameter` node
+ * @param props Object containing Parameter schema properties as key/value pairs
+ * @returns {Parameter} Parameter schema node
+ */
+export const parameter = (props: Omit<Parameter, 'type'>): Parameter => ({
+  ...compact(props),
+  type: 'Parameter',
+})
+
+/**
+ * The value of a `Parameter` to call a document with
+ */
+export type CallArgument = Parameter & {
+  type: 'CallArgument'
+  symbol?: string
+}
+
+/**
+ * Create a `CallArgument` node
+ * @param props Object containing CallArgument schema properties as key/value pairs
+ * @returns {CallArgument} CallArgument schema node
+ */
+export const callArgument = (
+  props: Omit<CallArgument, 'type'>
+): CallArgument => ({
+  ...compact(props),
+  type: 'CallArgument',
+})
+
+/**
  * The most generic type of item.
  */
 export type Thing = Entity & {
@@ -563,7 +622,6 @@ export type Thing = Entity & {
     | 'Article'
     | 'AudioObject'
     | 'Brand'
-    | 'CitationIntentEnumeration'
     | 'Claim'
     | 'Collection'
     | 'Comment'
@@ -1018,7 +1076,7 @@ export const enumValidator = (
  * Lists or enumerations, for example, a list of cuisines or music genres, etc.
  */
 export type Enumeration = Thing & {
-  type: 'Enumeration' | 'CitationIntentEnumeration'
+  type: 'Enumeration'
 }
 
 /**
@@ -1145,28 +1203,6 @@ export type ImageObject = MediaObject & {
 export const imageObject = (props: Omit<ImageObject, 'type'>): ImageObject => ({
   ...compact(props),
   type: 'ImageObject',
-})
-
-/**
- * Include content from an external source (e.g. file, URL).
- */
-export type Include = Entity & {
-  type: 'Include'
-  source: string
-  compileDigest?: string
-  content?: Array<BlockContent>
-  mediaType?: string
-  select?: string
-}
-
-/**
- * Create a `Include` node
- * @param props Object containing Include schema properties as key/value pairs
- * @returns {Include} Include schema node
- */
-export const include = (props: Omit<Include, 'type'>): Include => ({
-  ...compact(props),
-  type: 'Include',
 })
 
 /**
@@ -1435,33 +1471,6 @@ export type Paragraph = Entity & {
 export const paragraph = (props: Omit<Paragraph, 'type'>): Paragraph => ({
   ...compact(props),
   type: 'Paragraph',
-})
-
-/**
- * A parameter of a document or function.
- */
-export type Parameter = Entity & {
-  type: 'Parameter'
-  name: string
-  compileDigest?: string
-  default?: Node
-  executeDigest?: string
-  executeRequired?: 'No' | 'NeverExecuted' | 'SemanticsChanged'
-  isExtensible?: boolean
-  isRequired?: boolean
-  isVariadic?: boolean
-  validator?: ValidatorTypes
-  value?: Node
-}
-
-/**
- * Create a `Parameter` node
- * @param props Object containing Parameter schema properties as key/value pairs
- * @returns {Parameter} Parameter schema node
- */
-export const parameter = (props: Omit<Parameter, 'type'>): Parameter => ({
-  ...compact(props),
-  type: 'Parameter',
 })
 
 /**
@@ -2094,6 +2103,7 @@ export type CodeExecutableTypes =
   | Call
   | CodeChunk
   | CodeExpression
+  | Include
 
 /**
  * All type schemas that are derived from Code
@@ -2106,6 +2116,7 @@ export type CodeTypes =
   | CodeExecutable
   | CodeExpression
   | CodeFragment
+  | Include
 
 /**
  * All type schemas that are derived from ContactPoint
@@ -2147,7 +2158,7 @@ export type EntityTypes =
   | BooleanValidator
   | Brand
   | Call
-  | CitationIntentEnumeration
+  | CallArgument
   | Cite
   | CiteGroup
   | Claim
@@ -2226,14 +2237,14 @@ export type EntityTypes =
   | VolumeMount
 
 /**
- * All type schemas that are derived from Enumeration
- */
-export type EnumerationTypes = Enumeration | CitationIntentEnumeration
-
-/**
  * All type schemas that are derived from Grant
  */
 export type GrantTypes = Grant | MonetaryGrant
+
+/**
+ * All type schemas that are derived from Include
+ */
+export type IncludeTypes = Include | Call
 
 /**
  * Union type for valid inline content.
@@ -2305,7 +2316,7 @@ export type Node =
   | BooleanValidator
   | Brand
   | Call
-  | CitationIntentEnumeration
+  | CallArgument
   | Cite
   | CiteGroup
   | Claim
@@ -2396,6 +2407,11 @@ export type Node =
 export type NumberValidatorTypes = NumberValidator | IntegerValidator
 
 /**
+ * All type schemas that are derived from Parameter
+ */
+export type ParameterTypes = Parameter | CallArgument
+
+/**
  * Union type for all primitives values
  */
 export type Primitive =
@@ -2415,7 +2431,6 @@ export type ThingTypes =
   | Article
   | AudioObject
   | Brand
-  | CitationIntentEnumeration
   | Claim
   | Collection
   | Comment
@@ -2466,7 +2481,7 @@ export type ValidatorTypes =
 /**
  * The type or nature of a citation, both factually and rhetorically.
  */
-export enum CitationIntentEnumeration {
+export enum CitationIntent {
   /**
    * The citing entity agrees with statements, ideas or conclusions presented in the cited entity
    */
@@ -2923,17 +2938,129 @@ export enum CitationIntentEnumeration {
   UsesMethodIn = 'UsesMethodIn',
 }
 
+/**
+ * Under which circumstances the document node should be automatically executed.
+ */
+export enum ExecuteAuto {
+  /**
+   * Never automatically execute the document node. Only execute the when the user explicitly executes
+the specific node or all nodes in the containing document.
+
+   */
+  Never = 'Never',
+
+  /**
+   * Automatically execute the document node when it needs to be: if it is stale and is 
+upstream dependency of a node that has been executed, or is a downstream dependent of a node that
+has been executed.
+
+   */
+  Needed = 'Needed',
+
+  /**
+   * Always execute the code when one of its dependents is executed, even if it is not stale (i.e. it, or its own dependencies,
+are unchanged since the last time it was executed).
+
+   */
+  Always = 'Always',
+}
+
+/**
+ * Under which circumstances the document node should be automatically executed.
+ */
+export enum ExecuteRequired {
+  /**
+   * No re-execution is required, the semantics of the node and its dependencies has not changed
+since it was last executed
+
+   */
+  No = 'No',
+
+  /**
+   * Execution is required because the node has never been executed (or any previous
+execution was not persisted in its state).
+
+   */
+  NeverExecuted = 'NeverExecuted',
+
+  /**
+   * Re-execution is required because the semantics of the node has changed since it was
+last executed.
+
+   */
+  SemanticsChanged = 'SemanticsChanged',
+
+  /**
+   * Re-execution is required because the semantics of one or more dependencies (including transitive dependencies) 
+changed since it was last executed.
+
+   */
+  DependenciesChanged = 'DependenciesChanged',
+
+  /**
+   * Re-execution is required because one or more dependencies (including transitive dependencies) failed when it was
+last executed.
+
+   */
+  DependenciesFailed = 'DependenciesFailed',
+
+  /**
+   * Re-execution is required because the node failed last time it was executed.
+
+   */
+  Failed = 'Failed',
+}
+
+/**
+ * Status of the most recent, including any current, execution of a document node.
+ */
+export enum ExecuteStatus {
+  /**
+   *
+   */
+  Scheduled = 'Scheduled',
+
+  /**
+   *
+   */
+  ScheduledPreviouslyFailed = 'ScheduledPreviouslyFailed',
+
+  /**
+   *
+   */
+  Running = 'Running',
+
+  /**
+   *
+   */
+  RunningPreviouslyFailed = 'RunningPreviouslyFailed',
+
+  /**
+   *
+   */
+  Succeeded = 'Succeeded',
+
+  /**
+   *
+   */
+  Failed = 'Failed',
+
+  /**
+   *
+   */
+  Cancelled = 'Cancelled',
+}
+
 export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }
 
-export const codeExecutableTypes: TypeMap<
-  Exclude<CodeExecutableTypes, Primitive>
-> = {
+export const codeExecutableTypes: TypeMap<CodeExecutableTypes> = {
   CodeExecutable: 'CodeExecutable',
   Call: 'Call',
   CodeChunk: 'CodeChunk',
   CodeExpression: 'CodeExpression',
+  Include: 'Include',
 }
-export const codeTypes: TypeMap<Exclude<CodeTypes, Primitive>> = {
+export const codeTypes: TypeMap<CodeTypes> = {
   Code: 'Code',
   Call: 'Call',
   CodeBlock: 'CodeBlock',
@@ -2941,35 +3068,34 @@ export const codeTypes: TypeMap<Exclude<CodeTypes, Primitive>> = {
   CodeExecutable: 'CodeExecutable',
   CodeExpression: 'CodeExpression',
   CodeFragment: 'CodeFragment',
+  Include: 'Include',
 }
-export const contactPointTypes: TypeMap<Exclude<ContactPointTypes, Primitive>> =
-  {
-    ContactPoint: 'ContactPoint',
-    PostalAddress: 'PostalAddress',
-  }
-export const creativeWorkTypes: TypeMap<Exclude<CreativeWorkTypes, Primitive>> =
-  {
-    CreativeWork: 'CreativeWork',
-    Article: 'Article',
-    AudioObject: 'AudioObject',
-    Claim: 'Claim',
-    Collection: 'Collection',
-    Comment: 'Comment',
-    Datatable: 'Datatable',
-    Figure: 'Figure',
-    File: 'File',
-    ImageObject: 'ImageObject',
-    MediaObject: 'MediaObject',
-    Periodical: 'Periodical',
-    PublicationIssue: 'PublicationIssue',
-    PublicationVolume: 'PublicationVolume',
-    Review: 'Review',
-    SoftwareApplication: 'SoftwareApplication',
-    SoftwareSourceCode: 'SoftwareSourceCode',
-    Table: 'Table',
-    VideoObject: 'VideoObject',
-  }
-export const entityTypes: TypeMap<Exclude<EntityTypes, Primitive>> = {
+export const contactPointTypes: TypeMap<ContactPointTypes> = {
+  ContactPoint: 'ContactPoint',
+  PostalAddress: 'PostalAddress',
+}
+export const creativeWorkTypes: TypeMap<CreativeWorkTypes> = {
+  CreativeWork: 'CreativeWork',
+  Article: 'Article',
+  AudioObject: 'AudioObject',
+  Claim: 'Claim',
+  Collection: 'Collection',
+  Comment: 'Comment',
+  Datatable: 'Datatable',
+  Figure: 'Figure',
+  File: 'File',
+  ImageObject: 'ImageObject',
+  MediaObject: 'MediaObject',
+  Periodical: 'Periodical',
+  PublicationIssue: 'PublicationIssue',
+  PublicationVolume: 'PublicationVolume',
+  Review: 'Review',
+  SoftwareApplication: 'SoftwareApplication',
+  SoftwareSourceCode: 'SoftwareSourceCode',
+  Table: 'Table',
+  VideoObject: 'VideoObject',
+}
+export const entityTypes: TypeMap<EntityTypes> = {
   Entity: 'Entity',
   ArrayValidator: 'ArrayValidator',
   Article: 'Article',
@@ -2977,7 +3103,7 @@ export const entityTypes: TypeMap<Exclude<EntityTypes, Primitive>> = {
   BooleanValidator: 'BooleanValidator',
   Brand: 'Brand',
   Call: 'Call',
-  CitationIntentEnumeration: 'CitationIntentEnumeration',
+  CallArgument: 'CallArgument',
   Cite: 'Cite',
   CiteGroup: 'CiteGroup',
   Claim: 'Claim',
@@ -3055,15 +3181,15 @@ export const entityTypes: TypeMap<Exclude<EntityTypes, Primitive>> = {
   VideoObject: 'VideoObject',
   VolumeMount: 'VolumeMount',
 }
-export const enumerationTypes: TypeMap<Exclude<EnumerationTypes, Primitive>> = {
-  Enumeration: 'Enumeration',
-  CitationIntentEnumeration: 'CitationIntentEnumeration',
-}
-export const grantTypes: TypeMap<Exclude<GrantTypes, Primitive>> = {
+export const grantTypes: TypeMap<GrantTypes> = {
   Grant: 'Grant',
   MonetaryGrant: 'MonetaryGrant',
 }
-export const markTypes: TypeMap<Exclude<MarkTypes, Primitive>> = {
+export const includeTypes: TypeMap<IncludeTypes> = {
+  Include: 'Include',
+  Call: 'Call',
+}
+export const markTypes: TypeMap<MarkTypes> = {
   Mark: 'Mark',
   Delete: 'Delete',
   Emphasis: 'Emphasis',
@@ -3075,29 +3201,30 @@ export const markTypes: TypeMap<Exclude<MarkTypes, Primitive>> = {
   Superscript: 'Superscript',
   Underline: 'Underline',
 }
-export const mathTypes: TypeMap<Exclude<MathTypes, Primitive>> = {
+export const mathTypes: TypeMap<MathTypes> = {
   Math: 'Math',
   MathBlock: 'MathBlock',
   MathFragment: 'MathFragment',
 }
-export const mediaObjectTypes: TypeMap<Exclude<MediaObjectTypes, Primitive>> = {
+export const mediaObjectTypes: TypeMap<MediaObjectTypes> = {
   MediaObject: 'MediaObject',
   AudioObject: 'AudioObject',
   ImageObject: 'ImageObject',
   VideoObject: 'VideoObject',
 }
-export const numberValidatorTypes: TypeMap<
-  Exclude<NumberValidatorTypes, Primitive>
-> = {
+export const numberValidatorTypes: TypeMap<NumberValidatorTypes> = {
   NumberValidator: 'NumberValidator',
   IntegerValidator: 'IntegerValidator',
 }
-export const thingTypes: TypeMap<Exclude<ThingTypes, Primitive>> = {
+export const parameterTypes: TypeMap<ParameterTypes> = {
+  Parameter: 'Parameter',
+  CallArgument: 'CallArgument',
+}
+export const thingTypes: TypeMap<ThingTypes> = {
   Thing: 'Thing',
   Article: 'Article',
   AudioObject: 'AudioObject',
   Brand: 'Brand',
-  CitationIntentEnumeration: 'CitationIntentEnumeration',
   Claim: 'Claim',
   Collection: 'Collection',
   Comment: 'Comment',
@@ -3131,7 +3258,7 @@ export const thingTypes: TypeMap<Exclude<ThingTypes, Primitive>> = {
   VideoObject: 'VideoObject',
   VolumeMount: 'VolumeMount',
 }
-export const validatorTypes: TypeMap<Exclude<ValidatorTypes, Primitive>> = {
+export const validatorTypes: TypeMap<ValidatorTypes> = {
   Validator: 'Validator',
   ArrayValidator: 'ArrayValidator',
   BooleanValidator: 'BooleanValidator',
@@ -3142,7 +3269,7 @@ export const validatorTypes: TypeMap<Exclude<ValidatorTypes, Primitive>> = {
   StringValidator: 'StringValidator',
   TupleValidator: 'TupleValidator',
 }
-export const blockContentTypes: TypeMap<Exclude<BlockContent, Primitive>> = {
+export const blockContentTypes: TypeMap<BlockContent> = {
   Call: 'Call',
   Claim: 'Claim',
   CodeBlock: 'CodeBlock',
@@ -3158,7 +3285,9 @@ export const blockContentTypes: TypeMap<Exclude<BlockContent, Primitive>> = {
   Table: 'Table',
   ThematicBreak: 'ThematicBreak',
 }
-export const inlineContentTypes: TypeMap<Exclude<InlineContent, Primitive>> = {
+export const inlineContentTypes: TypeMap<
+  Exclude<InlineContent, string | number | boolean | null>
+> = {
   AudioObject: 'AudioObject',
   Cite: 'Cite',
   CiteGroup: 'CiteGroup',
@@ -3179,6 +3308,7 @@ export const inlineContentTypes: TypeMap<Exclude<InlineContent, Primitive>> = {
   Superscript: 'Superscript',
   Underline: 'Underline',
   VideoObject: 'VideoObject',
+  CallArgument: 'CallArgument',
 }
 
 export interface Unions {
@@ -3187,12 +3317,13 @@ export interface Unions {
   ContactPointTypes: ContactPointTypes
   CreativeWorkTypes: CreativeWorkTypes
   EntityTypes: EntityTypes
-  EnumerationTypes: EnumerationTypes
   GrantTypes: GrantTypes
+  IncludeTypes: IncludeTypes
   MarkTypes: MarkTypes
   MathTypes: MathTypes
   MediaObjectTypes: MediaObjectTypes
   NumberValidatorTypes: NumberValidatorTypes
+  ParameterTypes: ParameterTypes
   ThingTypes: ThingTypes
   ValidatorTypes: ValidatorTypes
   BlockContent: BlockContent
@@ -3205,12 +3336,13 @@ export const unions = {
   ContactPointTypes: contactPointTypes,
   CreativeWorkTypes: creativeWorkTypes,
   EntityTypes: entityTypes,
-  EnumerationTypes: enumerationTypes,
   GrantTypes: grantTypes,
+  IncludeTypes: includeTypes,
   MarkTypes: markTypes,
   MathTypes: mathTypes,
   MediaObjectTypes: mediaObjectTypes,
   NumberValidatorTypes: numberValidatorTypes,
+  ParameterTypes: parameterTypes,
   ThingTypes: thingTypes,
   ValidatorTypes: validatorTypes,
   BlockContent: blockContentTypes,

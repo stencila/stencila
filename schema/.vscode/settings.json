@@ -29,16 +29,20 @@
       "url": "./public/CodeExecutable.schema.json"
     },
     {
-      "fileMatch": ["*.Call.json"],
-      "url": "./public/Call.schema.json"
-    },
-    {
       "fileMatch": ["*.CodeChunk.json"],
       "url": "./public/CodeChunk.schema.json"
     },
     {
       "fileMatch": ["*.CodeExpression.json"],
       "url": "./public/CodeExpression.schema.json"
+    },
+    {
+      "fileMatch": ["*.Include.json"],
+      "url": "./public/Include.schema.json"
+    },
+    {
+      "fileMatch": ["*.Call.json"],
+      "url": "./public/Call.schema.json"
     },
     {
       "fileMatch": ["*.CodeFragment.json"],
@@ -63,6 +67,14 @@
     {
       "fileMatch": ["*.Emphasis.json"],
       "url": "./public/Emphasis.schema.json"
+    },
+    {
+      "fileMatch": ["*.Parameter.json"],
+      "url": "./public/Parameter.schema.json"
+    },
+    {
+      "fileMatch": ["*.CallArgument.json"],
+      "url": "./public/CallArgument.schema.json"
     },
     {
       "fileMatch": ["*.Thing.json"],
@@ -165,10 +177,6 @@
       "url": "./public/ImageObject.schema.json"
     },
     {
-      "fileMatch": ["*.Include.json"],
-      "url": "./public/Include.schema.json"
-    },
-    {
       "fileMatch": ["*.NumberValidator.json"],
       "url": "./public/NumberValidator.schema.json"
     },
@@ -219,10 +227,6 @@
     {
       "fileMatch": ["*.Paragraph.json"],
       "url": "./public/Paragraph.schema.json"
-    },
-    {
-      "fileMatch": ["*.Parameter.json"],
-      "url": "./public/Parameter.schema.json"
     },
     {
       "fileMatch": ["*.Periodical.json"],
