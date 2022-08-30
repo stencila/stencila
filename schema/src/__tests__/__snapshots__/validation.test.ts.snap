@@ -34,7 +34,7 @@ Array [
     "params": Object {
       "allowedValue": "AgreesWith",
     },
-    "schemaPath": "#/anyOf/0/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/0/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -43,7 +43,7 @@ Array [
     "params": Object {
       "allowedValue": "CitesAsAuthority",
     },
-    "schemaPath": "#/anyOf/1/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/1/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -52,7 +52,7 @@ Array [
     "params": Object {
       "allowedValue": "CitesAsDataSource",
     },
-    "schemaPath": "#/anyOf/2/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/2/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -61,7 +61,7 @@ Array [
     "params": Object {
       "allowedValue": "CitesAsEvidence",
     },
-    "schemaPath": "#/anyOf/3/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/3/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -70,7 +70,7 @@ Array [
     "params": Object {
       "allowedValue": "CitesAsMetadataDocument",
     },
-    "schemaPath": "#/anyOf/4/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/4/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -79,7 +79,7 @@ Array [
     "params": Object {
       "allowedValue": "CitesAsPotentialSolution",
     },
-    "schemaPath": "#/anyOf/5/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/5/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -88,7 +88,7 @@ Array [
     "params": Object {
       "allowedValue": "CitesAsRecommendedReading",
     },
-    "schemaPath": "#/anyOf/6/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/6/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -97,7 +97,7 @@ Array [
     "params": Object {
       "allowedValue": "CitesAsRelated",
     },
-    "schemaPath": "#/anyOf/7/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/7/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -106,7 +106,7 @@ Array [
     "params": Object {
       "allowedValue": "CitesAsSourceDocument",
     },
-    "schemaPath": "#/anyOf/8/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/8/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -115,7 +115,7 @@ Array [
     "params": Object {
       "allowedValue": "CitesForInformation",
     },
-    "schemaPath": "#/anyOf/9/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/9/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -124,7 +124,7 @@ Array [
     "params": Object {
       "allowedValue": "Compiles",
     },
-    "schemaPath": "#/anyOf/10/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/10/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -133,7 +133,7 @@ Array [
     "params": Object {
       "allowedValue": "Confirms",
     },
-    "schemaPath": "#/anyOf/11/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/11/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -142,7 +142,7 @@ Array [
     "params": Object {
       "allowedValue": "ContainsAssertionFrom",
     },
-    "schemaPath": "#/anyOf/12/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/12/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -151,7 +151,7 @@ Array [
     "params": Object {
       "allowedValue": "Corrects",
     },
-    "schemaPath": "#/anyOf/13/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/13/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -160,7 +160,7 @@ Array [
     "params": Object {
       "allowedValue": "Credits",
     },
-    "schemaPath": "#/anyOf/14/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/14/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -169,7 +169,7 @@ Array [
     "params": Object {
       "allowedValue": "Critiques",
     },
-    "schemaPath": "#/anyOf/15/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/15/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -178,7 +178,7 @@ Array [
     "params": Object {
       "allowedValue": "Derides",
     },
-    "schemaPath": "#/anyOf/16/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/16/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -187,7 +187,7 @@ Array [
     "params": Object {
       "allowedValue": "Describes",
     },
-    "schemaPath": "#/anyOf/17/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/17/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -196,7 +196,7 @@ Array [
     "params": Object {
       "allowedValue": "DisagreesWith",
     },
-    "schemaPath": "#/anyOf/18/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/18/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -205,7 +205,7 @@ Array [
     "params": Object {
       "allowedValue": "Discusses",
     },
-    "schemaPath": "#/anyOf/19/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/19/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -214,7 +214,7 @@ Array [
     "params": Object {
       "allowedValue": "Disputes",
     },
-    "schemaPath": "#/anyOf/20/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/20/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -223,7 +223,7 @@ Array [
     "params": Object {
       "allowedValue": "Documents",
     },
-    "schemaPath": "#/anyOf/21/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/21/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -232,7 +232,7 @@ Array [
     "params": Object {
       "allowedValue": "Extends",
     },
-    "schemaPath": "#/anyOf/22/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/22/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -241,7 +241,7 @@ Array [
     "params": Object {
       "allowedValue": "GivesBackgroundTo",
     },
-    "schemaPath": "#/anyOf/23/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/23/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -250,7 +250,7 @@ Array [
     "params": Object {
       "allowedValue": "GivesSupportTo",
     },
-    "schemaPath": "#/anyOf/24/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/24/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -259,7 +259,7 @@ Array [
     "params": Object {
       "allowedValue": "HasReplyFrom",
     },
-    "schemaPath": "#/anyOf/25/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/25/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -268,7 +268,7 @@ Array [
     "params": Object {
       "allowedValue": "IncludesExcerptFrom",
     },
-    "schemaPath": "#/anyOf/26/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/26/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -277,7 +277,7 @@ Array [
     "params": Object {
       "allowedValue": "IncludesQuotationFrom",
     },
-    "schemaPath": "#/anyOf/27/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/27/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -286,7 +286,7 @@ Array [
     "params": Object {
       "allowedValue": "IsAgreedWithBy",
     },
-    "schemaPath": "#/anyOf/28/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/28/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -295,7 +295,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCitedAsAuthorityBy",
     },
-    "schemaPath": "#/anyOf/29/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/29/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -304,7 +304,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCitedAsDataSourceBy",
     },
-    "schemaPath": "#/anyOf/30/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/30/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -313,7 +313,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCitedAsEvidenceBy",
     },
-    "schemaPath": "#/anyOf/31/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/31/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -322,7 +322,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCitedAsMetadataDocumentBy",
     },
-    "schemaPath": "#/anyOf/32/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/32/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -331,7 +331,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCitedAsPontentialSolutionBy",
     },
-    "schemaPath": "#/anyOf/33/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/33/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -340,7 +340,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCitedAsRecommendedReadingBy",
     },
-    "schemaPath": "#/anyOf/34/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/34/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -349,7 +349,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCitedAsRelatedBy",
     },
-    "schemaPath": "#/anyOf/35/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/35/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -358,7 +358,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCitedAsSourceDocumentBy",
     },
-    "schemaPath": "#/anyOf/36/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/36/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -367,7 +367,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCitedBy",
     },
-    "schemaPath": "#/anyOf/37/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/37/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -376,7 +376,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCitedForInformationBy",
     },
-    "schemaPath": "#/anyOf/38/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/38/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -385,7 +385,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCompiledBy",
     },
-    "schemaPath": "#/anyOf/39/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/39/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -394,7 +394,7 @@ Array [
     "params": Object {
       "allowedValue": "IsConfirmedBy",
     },
-    "schemaPath": "#/anyOf/40/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/40/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -403,7 +403,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCorrectedBy",
     },
-    "schemaPath": "#/anyOf/41/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/41/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -412,7 +412,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCreditedBy",
     },
-    "schemaPath": "#/anyOf/42/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/42/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -421,7 +421,7 @@ Array [
     "params": Object {
       "allowedValue": "IsCritiquedBy",
     },
-    "schemaPath": "#/anyOf/43/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/43/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -430,7 +430,7 @@ Array [
     "params": Object {
       "allowedValue": "IsDeridedBy",
     },
-    "schemaPath": "#/anyOf/44/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/44/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -439,7 +439,7 @@ Array [
     "params": Object {
       "allowedValue": "IsDescribedBy",
     },
-    "schemaPath": "#/anyOf/45/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/45/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -448,7 +448,7 @@ Array [
     "params": Object {
       "allowedValue": "IsDisagreedWithBy",
     },
-    "schemaPath": "#/anyOf/46/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/46/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -457,7 +457,7 @@ Array [
     "params": Object {
       "allowedValue": "IsDiscussedBy",
     },
-    "schemaPath": "#/anyOf/47/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/47/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -466,7 +466,7 @@ Array [
     "params": Object {
       "allowedValue": "IsDisputedBy",
     },
-    "schemaPath": "#/anyOf/48/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/48/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -475,7 +475,7 @@ Array [
     "params": Object {
       "allowedValue": "IsDocumentedBy",
     },
-    "schemaPath": "#/anyOf/49/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/49/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -484,7 +484,7 @@ Array [
     "params": Object {
       "allowedValue": "IsExtendedBy",
     },
-    "schemaPath": "#/anyOf/50/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/50/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -493,7 +493,7 @@ Array [
     "params": Object {
       "allowedValue": "IsLinkedToBy",
     },
-    "schemaPath": "#/anyOf/51/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/51/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -502,7 +502,7 @@ Array [
     "params": Object {
       "allowedValue": "IsParodiedBy",
     },
-    "schemaPath": "#/anyOf/52/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/52/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -511,7 +511,7 @@ Array [
     "params": Object {
       "allowedValue": "IsPlagiarizedBy",
     },
-    "schemaPath": "#/anyOf/53/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/53/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -520,7 +520,7 @@ Array [
     "params": Object {
       "allowedValue": "IsQualifiedBy",
     },
-    "schemaPath": "#/anyOf/54/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/54/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -529,7 +529,7 @@ Array [
     "params": Object {
       "allowedValue": "IsRefutedBy",
     },
-    "schemaPath": "#/anyOf/55/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/55/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -538,7 +538,7 @@ Array [
     "params": Object {
       "allowedValue": "IsRetractedBy",
     },
-    "schemaPath": "#/anyOf/56/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/56/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -547,7 +547,7 @@ Array [
     "params": Object {
       "allowedValue": "IsReviewedBy",
     },
-    "schemaPath": "#/anyOf/57/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/57/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -556,7 +556,7 @@ Array [
     "params": Object {
       "allowedValue": "IsRidiculedBy",
     },
-    "schemaPath": "#/anyOf/58/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/58/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -565,7 +565,7 @@ Array [
     "params": Object {
       "allowedValue": "IsSpeculatedOnBy",
     },
-    "schemaPath": "#/anyOf/59/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/59/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -574,7 +574,7 @@ Array [
     "params": Object {
       "allowedValue": "IsSupportedBy",
     },
-    "schemaPath": "#/anyOf/60/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/60/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -583,7 +583,7 @@ Array [
     "params": Object {
       "allowedValue": "IsUpdatedBy",
     },
-    "schemaPath": "#/anyOf/61/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/61/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -592,7 +592,7 @@ Array [
     "params": Object {
       "allowedValue": "Likes",
     },
-    "schemaPath": "#/anyOf/62/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/62/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -601,7 +601,7 @@ Array [
     "params": Object {
       "allowedValue": "LinksTo",
     },
-    "schemaPath": "#/anyOf/63/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/63/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -610,7 +610,7 @@ Array [
     "params": Object {
       "allowedValue": "ObtainsBackgroundFrom",
     },
-    "schemaPath": "#/anyOf/64/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/64/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -619,7 +619,7 @@ Array [
     "params": Object {
       "allowedValue": "ObtainsSupportFrom",
     },
-    "schemaPath": "#/anyOf/65/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/65/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -628,7 +628,7 @@ Array [
     "params": Object {
       "allowedValue": "Parodies",
     },
-    "schemaPath": "#/anyOf/66/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/66/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -637,7 +637,7 @@ Array [
     "params": Object {
       "allowedValue": "Plagiarizes",
     },
-    "schemaPath": "#/anyOf/67/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/67/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -646,7 +646,7 @@ Array [
     "params": Object {
       "allowedValue": "ProvidesAssertionFor",
     },
-    "schemaPath": "#/anyOf/68/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/68/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -655,7 +655,7 @@ Array [
     "params": Object {
       "allowedValue": "ProvidesConclusionsFor",
     },
-    "schemaPath": "#/anyOf/69/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/69/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -664,7 +664,7 @@ Array [
     "params": Object {
       "allowedValue": "ProvidesDataFor",
     },
-    "schemaPath": "#/anyOf/70/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/70/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -673,7 +673,7 @@ Array [
     "params": Object {
       "allowedValue": "ProvidesExcerptFor",
     },
-    "schemaPath": "#/anyOf/71/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/71/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -682,7 +682,7 @@ Array [
     "params": Object {
       "allowedValue": "ProvidesMethodFor",
     },
-    "schemaPath": "#/anyOf/72/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/72/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -691,7 +691,7 @@ Array [
     "params": Object {
       "allowedValue": "ProvidesQuotationFor",
     },
-    "schemaPath": "#/anyOf/73/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/73/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -700,7 +700,7 @@ Array [
     "params": Object {
       "allowedValue": "Qualifies",
     },
-    "schemaPath": "#/anyOf/74/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/74/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -709,7 +709,7 @@ Array [
     "params": Object {
       "allowedValue": "Refutes",
     },
-    "schemaPath": "#/anyOf/75/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/75/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -718,7 +718,7 @@ Array [
     "params": Object {
       "allowedValue": "RepliesTo",
     },
-    "schemaPath": "#/anyOf/76/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/76/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -727,7 +727,7 @@ Array [
     "params": Object {
       "allowedValue": "Retracts",
     },
-    "schemaPath": "#/anyOf/77/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/77/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -736,7 +736,7 @@ Array [
     "params": Object {
       "allowedValue": "Reviews",
     },
-    "schemaPath": "#/anyOf/78/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/78/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -745,7 +745,7 @@ Array [
     "params": Object {
       "allowedValue": "Ridicules",
     },
-    "schemaPath": "#/anyOf/79/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/79/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -754,7 +754,7 @@ Array [
     "params": Object {
       "allowedValue": "SharesAuthorInstitutionWith",
     },
-    "schemaPath": "#/anyOf/80/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/80/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -763,7 +763,7 @@ Array [
     "params": Object {
       "allowedValue": "SharesAuthorWith",
     },
-    "schemaPath": "#/anyOf/81/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/81/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -772,7 +772,7 @@ Array [
     "params": Object {
       "allowedValue": "SharesFundingAgencyWith",
     },
-    "schemaPath": "#/anyOf/82/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/82/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -781,7 +781,7 @@ Array [
     "params": Object {
       "allowedValue": "SharesJournalWith",
     },
-    "schemaPath": "#/anyOf/83/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/83/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -790,7 +790,7 @@ Array [
     "params": Object {
       "allowedValue": "SharesPublicationVenueWith",
     },
-    "schemaPath": "#/anyOf/84/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/84/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -799,7 +799,7 @@ Array [
     "params": Object {
       "allowedValue": "SpeculatesOn",
     },
-    "schemaPath": "#/anyOf/85/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/85/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -808,7 +808,7 @@ Array [
     "params": Object {
       "allowedValue": "Supports",
     },
-    "schemaPath": "#/anyOf/86/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/86/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -817,7 +817,7 @@ Array [
     "params": Object {
       "allowedValue": "Updates",
     },
-    "schemaPath": "#/anyOf/87/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/87/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -826,7 +826,7 @@ Array [
     "params": Object {
       "allowedValue": "UsesConclusionsFrom",
     },
-    "schemaPath": "#/anyOf/88/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/88/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -835,7 +835,7 @@ Array [
     "params": Object {
       "allowedValue": "UsesDataFrom",
     },
-    "schemaPath": "#/anyOf/89/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/89/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
@@ -844,14 +844,14 @@ Array [
     "params": Object {
       "allowedValue": "UsesMethodIn",
     },
-    "schemaPath": "#/anyOf/90/const",
+    "schemaPath": "CitationIntent.schema.json/anyOf/90/const",
   },
   Object {
     "instancePath": "/citationIntent/0",
     "keyword": "anyOf",
     "message": "must match a schema in anyOf",
     "params": Object {},
-    "schemaPath": "#/anyOf",
+    "schemaPath": "CitationIntent.schema.json/anyOf",
   },
 ]
 `;

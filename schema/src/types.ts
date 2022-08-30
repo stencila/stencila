@@ -430,7 +430,6 @@ export const include = (props: Omit<Include, 'type'>): Include => ({
  */
 export type Call = Include & {
   type: 'Call'
-  source: string
   arguments?: Array<CallArgument>
   mediaType?: string
 }

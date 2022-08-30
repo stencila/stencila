@@ -506,9 +506,6 @@ class Call(Include):
     content
     """
 
-    source: String # type: ignore
-    """The external source of the content, a file path or URL."""
-
     arguments: Optional[Array["CallArgument"]] = None
     """The value of the source document's parameters to call it with"""
 
@@ -560,8 +557,6 @@ class Call(Include):
             select=select,
             text=text
         )
-        if source is not None:
-            self.source = source
         if arguments is not None:
             self.arguments = arguments
         if mediaType is not None:

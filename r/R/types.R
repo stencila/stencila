@@ -536,7 +536,6 @@ Call <- function(
     text = text
   )
   self$type <- as_scalar("Call")
-  self[["source"]] <- check_property("Call", "source", TRUE, missing(source), "character", source)
   self[["arguments"]] <- check_property("Call", "arguments", FALSE, missing(arguments), Array(CallArgument), arguments)
   self[["mediaType"]] <- check_property("Call", "mediaType", FALSE, missing(mediaType), "character", mediaType)
   class(self) <- c(class(self), "Call")
