@@ -176,7 +176,7 @@ replaceable_struct!(
     page_start,
     pagination
 );
-patchable_enum!(CitationIntentEnumeration);
+patchable_enum!(CitationIntent);
 patchable_enum!(CiteCitationMode);
 patchable_enum!(CitePageEnd);
 patchable_enum!(CitePageStart);

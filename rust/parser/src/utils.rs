@@ -3,9 +3,7 @@
 use std::path::{Path, PathBuf};
 
 use common::{once_cell::sync::Lazy, regex::Regex};
-use graph_triples::{
-    relations, resources, stencila_schema::CodeChunkExecuteAuto, Relation, Resource, Tag,
-};
+use graph_triples::{relations, resources, stencila_schema::ExecuteAuto, Relation, Resource, Tag};
 
 use crate::ResourceInfo;
 
@@ -52,9 +50,9 @@ pub fn apply_tags(
 
                 "autorun" => {
                     let variant = match tag.value.as_str() {
-                        "always" => Some(CodeChunkExecuteAuto::Always),
-                        "never" => Some(CodeChunkExecuteAuto::Never),
-                        _ => Some(CodeChunkExecuteAuto::Needed),
+                        "always" => Some(ExecuteAuto::Always),
+                        "never" => Some(ExecuteAuto::Never),
+                        _ => Some(ExecuteAuto::Needed),
                     };
                     resource_info.execute_auto = variant;
                     continue;

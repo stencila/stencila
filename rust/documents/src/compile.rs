@@ -12,12 +12,12 @@ use node_patch::diff_address;
 use node_pointer::resolve;
 use path_utils::path_slash::PathBufExt;
 use stencila_schema::{
-    Call, CodeChunk, CodeExecutableCodeDependencies, CodeExecutableCodeDependents,
-    CodeExecutableExecuteRequired, CodeExpression, File, Include, Node, Parameter,
-    ParameterExecuteRequired,
+    Call, CodeChunk, CodeExecutableCodeDependencies, CodeExecutableCodeDependents, CodeExpression,
+    ExecuteRequired, File, Include, Node, Parameter,
 };
 
 use crate::{
+    document::CallDocuments,
     executable::{CompileContext, Executable},
     messages::{PatchRequest, When},
     utils::send_patches,
@@ -50,6 +50,8 @@ use crate::{
 /// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
 ///                  included in the plan within the `root` node; takes a read lock)
 ///
+/// - `call_docs`: The [`CallDocuments`] to which documents that a `Call`ed by this one will be added
+///
 /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
 ///                   executed nodes
 pub async fn compile(
@@ -58,6 +60,7 @@ pub async fn compile(
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
     tag_map: &Arc<RwLock<TagMap>>,
+    call_docs: &Arc<RwLock<CallDocuments>>,
     patch_sender: &UnboundedSender<PatchRequest>,
 ) -> Result<Graph> {
     let root = root.read().await;
@@ -67,6 +70,7 @@ pub async fn compile(
     let mut context = CompileContext {
         path: path.into(),
         project: project.into(),
+        call_docs: call_docs.clone(),
         ..Default::default()
     };
     for (id, address) in address_map.iter() {
@@ -77,6 +81,9 @@ pub async fn compile(
 
     // Update the document's global tag map with those from those collected by the compile context
     *tag_map.write().await = context.global_tags;
+
+    // Send any generated patches
+    send_patches(patch_sender, context.patches, When::Never);
 
     // Construct a new `Graph` from the collected `ResourceInfo`s and get an updated
     // set of resource infos from it (with data on inter-dependencies etc)
@@ -123,18 +130,18 @@ pub async fn compile(
                 // Determine `execute_required` by comparing `compile_digest` to `execute_digest`
                 let execute_required = if let Some(compile_digest) = &resource_info.compile_digest {
                     match &resource_info.execute_digest {
-                        None => CodeExecutableExecuteRequired::NeverExecuted,
+                        None => ExecuteRequired::NeverExecuted,
                         Some(execute_digest) => {
                             if compile_digest.semantic_digest != execute_digest.semantic_digest {
-                                CodeExecutableExecuteRequired::SemanticsChanged
+                                ExecuteRequired::SemanticsChanged
                             } else if compile_digest.dependencies_digest
                                 != execute_digest.dependencies_digest
                             {
-                                CodeExecutableExecuteRequired::DependenciesChanged
+                                ExecuteRequired::DependenciesChanged
                             } else if compile_digest.dependencies_failed > 0 {
-                                CodeExecutableExecuteRequired::DependenciesFailed
+                                ExecuteRequired::DependenciesFailed
                             } else {
-                                CodeExecutableExecuteRequired::No
+                                ExecuteRequired::No
                             }
                         }
                     }
@@ -189,11 +196,11 @@ pub async fn compile(
                             }
                             Node::Parameter(node) => {
                                 let execute_required = if node.execute_digest.is_none() {
-                                    ParameterExecuteRequired::NeverExecuted
+                                    ExecuteRequired::NeverExecuted
                                 } else if node.execute_digest == node.compile_digest {
-                                    ParameterExecuteRequired::No
+                                    ExecuteRequired::No
                                 } else {
-                                    ParameterExecuteRequired::SemanticsChanged
+                                    ExecuteRequired::SemanticsChanged
                                 };
 
                                 Some(CodeExecutableCodeDependencies::Parameter(Parameter {
@@ -292,10 +299,12 @@ pub async fn compile(
                     *compile_digest = new_compile_digest;
                 }
                 Node::Call(Call {
+                    code_dependencies,
                     compile_digest,
                     execute_required,
                     ..
                 }) => {
+                    *code_dependencies = Some(dependencies);
                     *compile_digest = new_compile_digest;
                     *execute_required = new_execute_required.to_owned();
                 }

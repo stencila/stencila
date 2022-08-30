@@ -26,8 +26,8 @@ use common::{
     strum::Display,
 };
 use graph_triples::{
-    direction, relations, stencila_schema::CodeChunkExecuteAuto, Direction, Pairs, Relation,
-    Resource, ResourceInfo, TagMap, Triple,
+    direction, relations, stencila_schema::ExecuteAuto, Direction, Pairs, Relation, Resource,
+    ResourceInfo, TagMap, Triple,
 };
 use hash_utils::seahash;
 use kernels::{Kernel, KernelSelector};
@@ -694,10 +694,7 @@ impl Graph {
             // and `autorun == Never` then exclude it and any following resources
             if start.is_some()
                 && Some(resource) != start.as_ref()
-                && matches!(
-                    resource_info.execute_auto,
-                    Some(CodeChunkExecuteAuto::Never)
-                )
+                && matches!(resource_info.execute_auto, Some(ExecuteAuto::Never))
             {
                 break;
             }
@@ -808,10 +805,7 @@ impl Graph {
                 }
 
                 if !matches!(resource_info.resource, Resource::Code(..))
-                    || matches!(
-                        resource_info.execute_auto,
-                        Some(CodeChunkExecuteAuto::Never)
-                    )
+                    || matches!(resource_info.execute_auto, Some(ExecuteAuto::Never))
                 {
                     excluded.insert(resource_info.resource.clone());
                     return Ok(false);
@@ -821,10 +815,7 @@ impl Graph {
                     if dependency != start && matches!(dependency, Resource::Code(..)) {
                         let dependency_info = self.get_resource_info(dependency)?;
                         if dependency_info.is_stale()
-                            && matches!(
-                                dependency_info.execute_auto,
-                                Some(CodeChunkExecuteAuto::Never)
-                            )
+                            && matches!(dependency_info.execute_auto, Some(ExecuteAuto::Never))
                         {
                             excluded.insert(resource_info.resource.clone());
                             return Ok(false);
@@ -857,10 +848,8 @@ impl Graph {
             // `autorun == Always` are also included, as well as dependents of those dependencies
             for dependency in dependencies {
                 let dependency_info = self.get_resource_info(dependency)?;
-                if (matches!(
-                    dependency_info.execute_auto,
-                    Some(CodeChunkExecuteAuto::Always)
-                ) || dependency_info.is_stale())
+                if (matches!(dependency_info.execute_auto, Some(ExecuteAuto::Always))
+                    || dependency_info.is_stale())
                     && should_include(dependency_info)?
                 {
                     included.insert(dependency);

@@ -17,7 +17,7 @@ use common::{
 };
 use hash_utils::str_seahash;
 use path_utils::path_slash::PathExt;
-use stencila_schema::{CodeChunkExecuteAuto, Cord};
+use stencila_schema::{ExecuteAuto, Cord};
 
 use crate::{Pairs, Relation};
 
@@ -406,7 +406,7 @@ pub struct ResourceInfo {
     /// - the `PlanOrdering::Appearance` option: the resource, and any following resources
     ///   should be excluded from the plan.
     ///
-    /// ## `Needed`
+    /// ## `WhenNecessary`
     ///
     /// Execute the resource if it is an upstream dependency of a resource that has been run.
     /// This is the default.
@@ -424,7 +424,7 @@ pub struct ResourceInfo {
     /// (i.e. is non-deterministic) and everytime one of its downstream dependents is run, they
     /// want it to be updated.
     ///
-    pub execute_auto: Option<CodeChunkExecuteAuto>,
+    pub execute_auto: Option<ExecuteAuto>,
 
     /// Whether the resource is marked as pure or impure.
     ///
@@ -474,7 +474,7 @@ impl ResourceInfo {
     pub fn new(
         resource: Resource,
         relations: Option<Pairs>,
-        execute_auto: Option<CodeChunkExecuteAuto>,
+        execute_auto: Option<ExecuteAuto>,
         execute_pure: Option<bool>,
         compile_digest: Option<ResourceDigest>,
         execute_digest: Option<ResourceDigest>,

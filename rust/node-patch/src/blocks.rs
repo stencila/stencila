@@ -106,16 +106,18 @@ replaceable_struct!(CodeError, error_message, error_type, stack_trace);
 patchable_variants!(
     CodeExecutableCodeDependencies,
     CodeExecutableCodeDependencies::CodeChunk,
-    CodeExecutableCodeDependencies::Parameter
+    CodeExecutableCodeDependencies::Parameter,
+    CodeExecutableCodeDependencies::File
 );
 patchable_variants!(
     CodeExecutableCodeDependents,
+    CodeExecutableCodeDependents::Call,
     CodeExecutableCodeDependents::CodeChunk,
     CodeExecutableCodeDependents::CodeExpression
 );
-patchable_enum!(CodeChunkExecuteAuto);
-patchable_enum!(CodeExecutableExecuteRequired);
-patchable_enum!(CodeExecutableExecuteStatus);
+patchable_enum!(ExecuteAuto);
+patchable_enum!(ExecuteRequired);
+patchable_enum!(ExecuteStatus);
 
 patchable_struct!(List, items, order);
 patchable_enum!(ListOrder);
@@ -158,13 +160,22 @@ patchable_struct!(Include, source, media_type, compile_digest, content);
 
 patchable_struct!(
     Call,
+    id,
     source,
     media_type,
+    select,
+    arguments,
+    code_dependencies,
     compile_digest,
     execute_digest,
-    arguments,
-    content
+    execute_required,
+    execute_status,
+    execute_ended,
+    execute_duration,
+    errors,
+    content,
 );
+patchable_struct!(CallArgument, id, name, validator, value, symbol);
 
 patchable_struct!(ThematicBreak);
 

@@ -20,7 +20,7 @@ use graph_triples::{Resource, TagMap};
 use kernels::KernelSpace;
 use node_address::{Address, AddressMap};
 use node_patch::{diff, mutate, Patch};
-use stencila_schema::{CodeChunk, CodeExecutableExecuteStatus, CodeExpression, Node};
+use stencila_schema::{CodeChunk, CodeExpression, ExecuteStatus, Node};
 
 use crate::{
     document::CallDocuments,
@@ -148,8 +148,7 @@ pub async fn execute(
                 );
                 matches!(
                     node_info.get_execute_status(),
-                    None | Some(CodeExecutableExecuteStatus::Failed)
-                        | Some(CodeExecutableExecuteStatus::Cancelled)
+                    None | Some(ExecuteStatus::Failed) | Some(ExecuteStatus::Cancelled)
                 )
             });
         if dependencies_failed {
@@ -304,7 +303,7 @@ pub async fn execute(
                 let execute_failed = match &executed {
                     Node::CodeChunk(CodeChunk { execute_status, .. })
                     | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                        matches!(execute_status, Some(CodeExecutableExecuteStatus::Failed))
+                        matches!(execute_status, Some(ExecuteStatus::Failed))
                     }
                     _ => false,
                 };
@@ -451,7 +450,7 @@ struct NodeInfo {
     node: Node,
 
     /// The execution state of the node prior to [`execute`]
-    previous_execute_status: Option<CodeExecutableExecuteStatus>,
+    previous_execute_status: Option<ExecuteStatus>,
 }
 
 impl NodeInfo {
@@ -467,12 +466,12 @@ impl NodeInfo {
         node_info
     }
 
-    fn get_execute_status(&self) -> Option<CodeExecutableExecuteStatus> {
+    fn get_execute_status(&self) -> Option<ExecuteStatus> {
         match &self.node {
             Node::CodeChunk(CodeChunk { execute_status, .. })
             | Node::CodeExpression(CodeExpression { execute_status, .. }) => execute_status.clone(),
             // At present, assumes the execution of parameters always succeeds
-            Node::Parameter(..) => Some(CodeExecutableExecuteStatus::Succeeded),
+            Node::Parameter(..) => Some(ExecuteStatus::Succeeded),
             _ => None,
         }
     }
@@ -486,10 +485,8 @@ impl NodeInfo {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
                 | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
                     *execute_status = Some(match execute_status {
-                        Some(CodeExecutableExecuteStatus::Failed) => {
-                            CodeExecutableExecuteStatus::ScheduledPreviouslyFailed
-                        }
-                        _ => CodeExecutableExecuteStatus::Scheduled,
+                        Some(ExecuteStatus::Failed) => ExecuteStatus::ScheduledPreviouslyFailed,
+                        _ => ExecuteStatus::Scheduled,
                     });
                 }
                 _ => {}
@@ -506,11 +503,11 @@ impl NodeInfo {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
                 | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
                     *execute_status = Some(match execute_status {
-                        Some(CodeExecutableExecuteStatus::Failed)
-                        | Some(CodeExecutableExecuteStatus::ScheduledPreviouslyFailed) => {
-                            CodeExecutableExecuteStatus::RunningPreviouslyFailed
+                        Some(ExecuteStatus::Failed)
+                        | Some(ExecuteStatus::ScheduledPreviouslyFailed) => {
+                            ExecuteStatus::RunningPreviouslyFailed
                         }
-                        _ => CodeExecutableExecuteStatus::Running,
+                        _ => ExecuteStatus::Running,
                     });
                 }
                 _ => {}
@@ -526,7 +523,7 @@ impl NodeInfo {
             &|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
                 | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                    *execute_status = Some(CodeExecutableExecuteStatus::Cancelled);
+                    *execute_status = Some(ExecuteStatus::Cancelled);
                 }
                 _ => {}
             },
@@ -542,14 +539,14 @@ impl NodeInfo {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
                 | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
                     match execute_status {
-                        Some(CodeExecutableExecuteStatus::Scheduled)
-                        | Some(CodeExecutableExecuteStatus::ScheduledPreviouslyFailed) => {
+                        Some(ExecuteStatus::Scheduled)
+                        | Some(ExecuteStatus::ScheduledPreviouslyFailed) => {
                             *execute_status = self.previous_execute_status.clone()
                         }
 
-                        Some(CodeExecutableExecuteStatus::Running)
-                        | Some(CodeExecutableExecuteStatus::RunningPreviouslyFailed) => {
-                            *execute_status = Some(CodeExecutableExecuteStatus::Cancelled)
+                        Some(ExecuteStatus::Running)
+                        | Some(ExecuteStatus::RunningPreviouslyFailed) => {
+                            *execute_status = Some(ExecuteStatus::Cancelled)
                         }
 
                         _ => {}

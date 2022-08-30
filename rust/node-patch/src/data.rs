@@ -28,8 +28,6 @@ patchable_struct!(
     execute_required
 );
 
-patchable_enum!(ParameterExecuteRequired);
-
 patchable_variants!(
     ValidatorTypes,
     ValidatorTypes::ArrayValidator,
