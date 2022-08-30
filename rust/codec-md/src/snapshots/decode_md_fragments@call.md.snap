@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 1530
+assertion_line: 1641
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/call.md
 ---
@@ -26,19 +26,41 @@ input_file: fixtures/fragments/md/call.md
     "source": "code-chunk.md",
     "arguments": [
       {
-        "type": "Parameter",
+        "type": "CallArgument",
         "name": "arg1",
         "value": 1
       },
       {
-        "type": "Parameter",
+        "type": "CallArgument",
         "name": "arg2",
         "value": "2"
       },
       {
-        "type": "Parameter",
+        "type": "CallArgument",
         "name": "arg3",
         "value": 3.14
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Arguments can be symbols defined elsewhere in the document,"
+    ]
+  },
+  {
+    "type": "Call",
+    "source": "code-chunk.md",
+    "arguments": [
+      {
+        "type": "CallArgument",
+        "name": "arg1",
+        "symbol": "sym1"
+      },
+      {
+        "type": "CallArgument",
+        "name": "arg2",
+        "symbol": "some_Symbol_9"
       }
     ]
   },
