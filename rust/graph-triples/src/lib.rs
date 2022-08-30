@@ -19,6 +19,9 @@ pub mod resources;
 pub use resources::Resource;
 pub use resources::ResourceId;
 pub use resources::ResourceInfo;
+pub use resources::ResourceChange;
+pub use resources::Tag;
+pub use resources::TagMap;
 
 pub mod relations;
 pub use relations::Relation;

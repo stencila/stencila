@@ -7,17 +7,20 @@ use common::{
     once_cell::sync::Lazy,
     regex::Regex,
     serde::{Deserialize, Serialize},
+    serde_with::skip_serializing_none,
     strum::Display,
     tokio::sync::{broadcast, mpsc},
     tracing,
 };
 use formats::Format;
+pub use graph_triples::TagMap;
 use stencila_schema::{CodeError, Node};
 use utils::some_box_string;
 use uuids::uuid_family;
 
 // Re-export for the convenience of crates that implement `KernelTrait`
 pub use common;
+pub use graph_triples;
 pub use stencila_schema;
 
 /// The type of kernel
@@ -147,7 +150,9 @@ pub struct KernelInfo {
 }
 
 /// A selector used to choose amongst alternative kernels
-#[derive(Debug, Default)]
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct KernelSelector {
     /// A string that will match against the kernel `name` or any of its `languages`
     pub any: Option<String>,
@@ -160,6 +165,9 @@ pub struct KernelSelector {
 
     /// A string that will match against the kernel `type`
     pub r#type: Option<String>,
+
+    /// Extra configuration details which can be passed to the kernel's `new` function
+    pub config: Option<String>,
 
     /// A string that will match against the kernel `id`
     pub id: Option<String>,
@@ -180,18 +188,38 @@ impl fmt::Display for KernelSelector {
             str.push_str(" type:");
             str.push_str(r#type);
         }
+        if let Some(config) = &self.config {
+            str.push_str(" config:");
+            str.push_str(config);
+        }
+        if let Some(id) = &self.id {
+            str.push_str(" id:");
+            str.push_str(id);
+        }
         write!(formatter, "{}", str.trim())
     }
 }
 
 impl KernelSelector {
     /// Create a new `KernelSelector`
-    pub fn new(name: Option<String>, lang: Option<String>, r#type: Option<String>) -> Self {
+    pub fn from_lang_and_tags(lang: Option<&str>, tags: Option<&TagMap>) -> Self {
+        let (name, config) = if let Some(tags) = tags {
+            let name = tags.get_value("kernel");
+            let config = match lang {
+                Some("SQL") => tags.get_value("db"),
+                _ => None,
+            };
+            (name, config)
+        } else {
+            (None, None)
+        };
+
         Self {
             any: None,
+            lang: lang.map(String::from),
+            r#type: None,
             name,
-            lang,
-            r#type,
+            config,
             id: None,
         }
     }
@@ -249,6 +277,7 @@ impl KernelSelector {
             name,
             lang,
             r#type,
+            config: None,
             id: None,
         }
     }
@@ -597,8 +626,12 @@ pub trait KernelTrait {
     ///
     /// This is a convenience method when all you want to do is get [`Task`]
     /// outputs and messages (and are not interested in task duration or interruption).
-    async fn exec(&mut self, code: &str) -> Result<(TaskOutputs, TaskMessages)> {
-        let mut task = self.exec_sync(code).await?;
+    async fn exec(
+        &mut self,
+        code: &str,
+        tags: Option<&TagMap>,
+    ) -> Result<(TaskOutputs, TaskMessages)> {
+        let mut task = self.exec_sync(code, tags).await?;
         let TaskResult { outputs, messages } = task.result().await?;
         Ok((outputs, messages))
     }
@@ -613,14 +646,14 @@ pub trait KernelTrait {
     /// part of their implementation.
     ///
     /// Must be implemented by [`KernelTrait`] implementations.
-    async fn exec_sync(&mut self, code: &str) -> Result<Task>;
+    async fn exec_sync(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task>;
 
     /// Execute code in the kernel asynchronously
     ///
     /// Should be overridden by [`KernelTrait`] implementations that are interruptable.
     /// The default implementation simply calls `exec_sync`.
-    async fn exec_async(&mut self, code: &str) -> Result<Task> {
-        self.exec_sync(code).await
+    async fn exec_async(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+        self.exec_sync(code, tags).await
     }
 
     /// Fork the kernel and execute code in the fork
@@ -629,7 +662,7 @@ pub trait KernelTrait {
     /// The default implementation errors because code marked as `@pure` should not
     /// be executed in the main kernel in case it has side-effects (e.g. assigning
     /// temporary variables) which are intended to be ignored.
-    async fn exec_fork(&mut self, _code: &str) -> Result<Task> {
+    async fn exec_fork(&mut self, _code: &str, _tags: Option<&TagMap>) -> Result<Task> {
         bail!("Kernel is not forkable")
     }
 }

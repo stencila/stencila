@@ -6,7 +6,7 @@ use common::{
     tracing,
 };
 use graph::Graph;
-use graph_triples::{resources, Resource};
+use graph_triples::{resources, Resource, TagMap};
 use node_address::AddressMap;
 use node_patch::diff_address;
 use node_pointer::resolve;
@@ -57,6 +57,7 @@ pub async fn compile(
     project: &Path,
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
+    tag_map: &Arc<RwLock<TagMap>>,
     patch_sender: &UnboundedSender<PatchRequest>,
 ) -> Result<Graph> {
     let root = root.read().await;
@@ -73,6 +74,9 @@ pub async fn compile(
         pointer.compile(&mut context).await?;
     }
     let resource_infos = context.resource_infos;
+
+    // Update the document's global tag map with those from those collected by the compile context
+    *tag_map.write().await = context.global_tags;
 
     // Construct a new `Graph` from the collected `ResourceInfo`s and get an updated
     // set of resource infos from it (with data on inter-dependencies etc)

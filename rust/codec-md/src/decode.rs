@@ -2,8 +2,13 @@ use std::collections::HashMap;
 
 use nom::{
     branch::alt,
-    bytes::complete::{escaped, is_not, tag, tag_no_case, take, take_until, take_while1},
-    character::complete::{alphanumeric1, char, digit1, multispace0, multispace1, none_of},
+    bytes::complete::{
+        escaped, is_not, tag, tag_no_case, take, take_until, take_while, take_while1,
+    },
+    character::{
+        complete::{alpha1, char, digit1, multispace0, multispace1, none_of},
+        is_alphanumeric,
+    },
     combinator::{all_consuming, map, map_res, not, opt, peek},
     multi::{fold_many0, separated_list0, separated_list1},
     number::complete::double,
@@ -786,10 +791,10 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
     )(input)
 }
 
-/// Parse forward slash pairs into a `Parameter`.
+/// Parse a `Parameter`.
 pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
     map_res(
-        pair(delimited(tag("&["), alphanumeric1, char(']')), curly_attrs),
+        pair(delimited(tag("&["), symbol, char(']')), curly_attrs),
         |(name, attrs)| -> Result<InlineContent> {
             let first = attrs
                 .first()
@@ -938,7 +943,7 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 .map(Box::new);
 
             Ok(InlineContent::Parameter(Parameter {
-                name: name.into(),
+                name,
                 validator,
                 default,
                 value,
@@ -1337,11 +1342,25 @@ fn call(input: &str) -> IResult<&str, Call> {
 fn call_arg(input: &str) -> IResult<&str, (String, Node)> {
     map_res(
         tuple((
-            is_not(" =)"),
+            symbol,
             delimited(multispace0, tag("="), multispace0),
             primitive_node,
         )),
-        |(name, _delim, node)| -> Result<(String, Node)> { Ok((name.to_string(), node)) },
+        |(name, _delim, node)| -> Result<(String, Node)> { Ok((name, node)) },
+    )(input)
+}
+
+/// Parse a symbol (e.g. the name of a `Parameter` or `CallArgument`)
+///
+/// Will only recognize names that are valid (in most programming languages). An alternative is to be more
+/// permissive here and to check validity of symbol names elsewhere.
+fn symbol(input: &str) -> IResult<&str, String> {
+    map_res(
+        tuple((
+            alpha1,
+            take_while(|chr: char| is_alphanumeric(chr as u8) || chr == '_'),
+        )),
+        |(start, rest): (&str, &str)| -> Result<String> { Ok([start, rest].concat()) },
     )(input)
 }
 
@@ -1510,6 +1529,16 @@ mod tests {
                 validator: Some(Box::new(ValidatorTypes::BooleanValidator(
                     BooleanValidator::default()
                 ))),
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(
+            parameter(r#"&[name_with_under7scoresAnd_digits_3]{}"#)
+                .unwrap()
+                .1,
+            InlineContent::Parameter(Parameter {
+                name: "name_with_under7scoresAnd_digits_3".to_string(),
                 ..Default::default()
             })
         );

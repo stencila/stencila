@@ -1,0 +1,206 @@
+---
+source: rust/parser-sql/src/lib.rs
+assertion_line: 108
+expression: resource_info
+input_file: fixtures/fragments/sql/bindings.sql
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/sql/bindings.sql",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "SQL"
+  },
+  "relations": [
+    [
+      {
+        "type": "Uses",
+        "range": [
+          0,
+          14,
+          0,
+          21
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "table_1",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          0,
+          36,
+          0,
+          38
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par1",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          0,
+          51,
+          0,
+          53
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par_2",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          2,
+          14,
+          2,
+          21
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "table_2",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          3,
+          20,
+          3,
+          22
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par_integer",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          4,
+          17,
+          4,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par_text",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Alters",
+        "range": [
+          7,
+          12,
+          7,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "table_2",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          7,
+          42,
+          7,
+          44
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "Par3",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          7,
+          46,
+          7,
+          48
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par4",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Alters",
+        "range": [
+          9,
+          12,
+          9,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "table_3",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          9,
+          34,
+          9,
+          36
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/bindings.sql",
+        "name": "par_5",
+        "kind": ""
+      }
+    ]
+  ],
+  "compile_digest": "9183586031446600102.11059944532023402949.0.0.0",
+  "tags": []
+}

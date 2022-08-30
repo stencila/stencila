@@ -17,6 +17,7 @@ pub(crate) fn escape(string: &str) -> String {
 /// Unescape characters
 ///
 /// See [`escape`] for which characters need to be unescaped.
+#[allow(dead_code)]
 pub(crate) fn unescape(string: &str) -> String {
     string
         .replace("\\_", "_")

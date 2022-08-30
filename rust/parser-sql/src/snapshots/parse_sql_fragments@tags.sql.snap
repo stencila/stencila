@@ -1,0 +1,99 @@
+---
+source: rust/parser-sql/src/lib.rs
+assertion_line: 76
+expression: resource_info
+input_file: fixtures/fragments/sql/tags.sql
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/sql/tags.sql",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "SQL"
+  },
+  "relations": [
+    [
+      {
+        "type": "Uses",
+        "range": [
+          2,
+          14,
+          2,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/tags.sql",
+        "name": "table1",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Assigns",
+        "range": [
+          1,
+          0,
+          1,
+          18
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/tags.sql",
+        "name": "result1",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Reads",
+        "range": [
+          6,
+          0,
+          6,
+          22
+        ]
+      },
+      {
+        "type": "File",
+        "path": "some/data.csv"
+      }
+    ],
+    [
+      {
+        "type": "Writes",
+        "range": [
+          10,
+          0,
+          10,
+          23
+        ]
+      },
+      {
+        "type": "File",
+        "path": "some/data.csv"
+      }
+    ]
+  ],
+  "compile_digest": "10476229152737608905.9256843643871438446.0.0.0",
+  "tags": [
+    {
+      "name": "assigns",
+      "value": "result1",
+      "global": false
+    },
+    {
+      "name": "reads",
+      "value": "some/data.csv",
+      "global": false
+    },
+    {
+      "name": "writes",
+      "value": "some/data.csv",
+      "global": false
+    }
+  ]
+}

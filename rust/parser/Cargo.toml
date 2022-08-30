@@ -8,3 +8,6 @@ edition = "2021"
 common = { path = "../common" }
 formats = { path = "../formats" }
 graph-triples = { path = "../graph-triples" }
+
+[dev-dependencies]
+test-utils = { path = "../test-utils" }

@@ -99,5 +99,6 @@ input_file: fixtures/fragments/bash/uses.bash
       }
     ]
   ],
-  "compile_digest": "13708025511074419382.2957275543647306678.0.0.0"
+  "compile_digest": "13708025511074419382.2957275543647306678.0.0.0",
+  "tags": []
 }

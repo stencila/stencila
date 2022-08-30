@@ -48,6 +48,17 @@ input_file: fixtures/fragments/calc/tags.calc
       }
     ]
   ],
-  "execute_pure": false,
-  "compile_digest": "626009382929379198.14539668640094265315.0.0.0"
+  "compile_digest": "626009382929379198.14539668640094265315.0.0.0",
+  "tags": [
+    {
+      "name": "assigns",
+      "value": "var1 only",
+      "global": false
+    },
+    {
+      "name": "uses",
+      "value": "var2",
+      "global": false
+    }
+  ]
 }

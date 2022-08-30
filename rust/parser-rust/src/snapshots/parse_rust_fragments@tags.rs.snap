@@ -175,6 +175,37 @@ input_file: fixtures/fragments/rust/tags.rs
     ]
   ],
   "execute_auto": "Never",
-  "execute_pure": false,
-  "compile_digest": "233062591600640095.13741806697853602266.0.0.0"
+  "compile_digest": "233062591600640095.13741806697853602266.0.0.0",
+  "tags": [
+    {
+      "name": "imports",
+      "value": "pkg1, pkg2 pkg3,pkg4",
+      "global": false
+    },
+    {
+      "name": "assigns",
+      "value": "var1 only",
+      "global": false
+    },
+    {
+      "name": "uses",
+      "value": "var2",
+      "global": false
+    },
+    {
+      "name": "reads",
+      "value": "file1, file2",
+      "global": false
+    },
+    {
+      "name": "writes",
+      "value": "file3 only",
+      "global": false
+    },
+    {
+      "name": "autorun",
+      "value": "never",
+      "global": false
+    }
+  ]
 }

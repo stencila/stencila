@@ -81,6 +81,7 @@ default = [
   "parsers/parser-js",
   "parsers/parser-py",
   "parsers/parser-r",
+  "parsers/parser-sql",
   "parsers/parser-ts",
 
   # Kernels
@@ -91,6 +92,7 @@ default = [
   "kernels/kernel-python",
   "kernels/kernel-r",
   "kernels/kernel-store",
+  "kernels/kernel-sql",
   "kernels/kernel-zsh",
 
   # Binaries

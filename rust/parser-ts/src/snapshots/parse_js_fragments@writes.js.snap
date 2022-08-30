@@ -193,5 +193,6 @@ input_file: fixtures/fragments/js/writes.js
       }
     ]
   ],
-  "compile_digest": "12927841084470903993.3761178951351669820.0.0.0"
+  "compile_digest": "12927841084470903993.3761178951351669820.0.0.0",
+  "tags": []
 }

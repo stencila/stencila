@@ -65,5 +65,6 @@ input_file: fixtures/fragments/rust/uses.rs
       }
     ]
   ],
-  "compile_digest": "8603239650721494443.9773956241927022867.0.0.0"
+  "compile_digest": "8603239650721494443.9773956241927022867.0.0.0",
+  "tags": []
 }

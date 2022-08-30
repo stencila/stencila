@@ -31,5 +31,12 @@ input_file: fixtures/fragments/calc/assigns-only.calc
       }
     ]
   ],
-  "compile_digest": "1611136096599336719.890248489642441135.0.0.0"
+  "compile_digest": "1611136096599336719.890248489642441135.0.0.0",
+  "tags": [
+    {
+      "name": "assigns",
+      "value": "a only",
+      "global": false
+    }
+  ]
 }

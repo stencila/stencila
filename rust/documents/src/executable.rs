@@ -16,7 +16,7 @@ use graph_triples::{
     relations,
     relations::NULL_RANGE,
     resources::{self, ResourceDigest},
-    Relation, ResourceInfo,
+    Relation, ResourceInfo, TagMap,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, AddressMap, Slot};
@@ -150,6 +150,9 @@ pub struct CompileContext {
 
     /// A list of resources compiled from the nodes
     pub resource_infos: Vec<ResourceInfo>,
+
+    /// Any global tags defined in code chunks
+    pub global_tags: TagMap,
 }
 
 /// Set the programming of a node or of the context
@@ -466,6 +469,7 @@ impl Executable for CodeChunk {
             )
         });
 
+        context.global_tags.insert_globals(&resource_info.tags);
         context.resource_infos.push(resource_info);
 
         Ok(())
@@ -479,7 +483,12 @@ impl Executable for CodeChunk {
         is_fork: bool,
         _call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
-        tracing::trace!("Executing `CodeChunk` `{:?}`", self.id);
+        let id = assert_id!(self)?;
+        tracing::trace!(
+            "Executing `CodeChunk` `{}` with kernel selector: {}",
+            id,
+            kernel_selector
+        );
 
         let task_info = kernel_space
             .exec(&self.text, resource_info, is_fork, kernel_selector)

@@ -7,7 +7,7 @@ use std::{
 };
 
 use common::{once_cell::sync::Lazy, tokio::sync::RwLock};
-use graph_triples::ResourceInfo;
+use graph_triples::{ResourceChange, ResourceInfo};
 #[allow(unused_imports)]
 use kernel::{
     common::{
@@ -26,7 +26,7 @@ use kernel::{
         tracing,
     },
     stencila_schema::{CodeError, Node},
-    KernelId, KernelInfo, KernelStatus, KernelTrait, TaskId, TaskMessages, TaskOutputs,
+    KernelId, KernelInfo, KernelStatus, KernelTrait, TagMap, TaskId, TaskMessages, TaskOutputs,
 };
 
 // Re-exports
@@ -51,12 +51,18 @@ enum MetaKernel {
 
     #[cfg(feature = "kernel-jupyter")]
     Jupyter(kernel_jupyter::JupyterKernel),
+
+    #[cfg(feature = "kernel-sql")]
+    Sql(kernel_sql::SqlKernel),
 }
 
 impl MetaKernel {
     /// Create a new `MetaKernel` instance based on a selector which matches against the
     /// name or language of the kernel
-    async fn new(selector: &KernelSelector) -> Result<Self> {
+    async fn new(
+        selector: &KernelSelector,
+        resource_changes_sender: &Option<mpsc::Sender<ResourceChange>>,
+    ) -> Result<Self> {
         #[cfg(feature = "kernel-store")]
         {
             let kernel = kernel_store::StoreKernel::new();
@@ -80,6 +86,12 @@ impl MetaKernel {
             "kernel-calc",
             MetaKernel::Calc,
             kernel_calc::CalcKernel::new()
+        );
+
+        matches_kernel!(
+            "kernel-sql",
+            MetaKernel::Sql,
+            kernel_sql::SqlKernel::new(selector, resource_changes_sender.clone())
         );
 
         matches_kernel!("kernel-bash", MetaKernel::Micro, kernel_bash::new());
@@ -109,6 +121,8 @@ macro_rules! dispatch_variants {
             MetaKernel::Store(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-calc")]
             MetaKernel::Calc(kernel) => kernel.$method($($arg),*),
+            #[cfg(feature = "kernel-sql")]
+            MetaKernel::Sql(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-micro")]
             MetaKernel::Micro(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-jupyter")]
@@ -155,33 +169,38 @@ impl KernelTrait for MetaKernel {
         dispatch_variants!(self, set, name, value).await
     }
 
-    async fn exec(&mut self, code: &str) -> Result<(TaskOutputs, TaskMessages)> {
-        dispatch_variants!(self, exec, code).await
+    async fn exec(
+        &mut self,
+        code: &str,
+        tags: Option<&TagMap>,
+    ) -> Result<(TaskOutputs, TaskMessages)> {
+        dispatch_variants!(self, exec, code, tags).await
     }
 
-    async fn exec_sync(&mut self, code: &str) -> Result<Task> {
-        dispatch_variants!(self, exec_sync, code).await
+    async fn exec_sync(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+        dispatch_variants!(self, exec_sync, code, tags).await
     }
 
-    async fn exec_async(&mut self, code: &str) -> Result<Task> {
-        dispatch_variants!(self, exec_async, code).await
+    async fn exec_async(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+        dispatch_variants!(self, exec_async, code, tags).await
     }
 
-    async fn exec_fork(&mut self, code: &str) -> Result<Task> {
-        dispatch_variants!(self, exec_fork, code).await
+    async fn exec_fork(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+        dispatch_variants!(self, exec_fork, code, tags).await
     }
 }
 
 /// A map of kernel ids to kernels.
 #[derive(Debug, Default, Deref, DerefMut, Serialize)]
 #[serde(crate = "common::serde")]
-struct KernelMap(BTreeMap<KernelId, MetaKernel>);
+struct KernelMap(BTreeMap<KernelId, (KernelSelector, MetaKernel)>);
 
 impl KernelMap {
     /// Get a reference to a kernel
     fn get(&self, kernel_id: &str) -> Result<&MetaKernel> {
         (**self)
             .get(kernel_id)
+            .map(|(.., kernel)| kernel)
             .ok_or_else(|| eyre!("Unknown kernel `{}`", kernel_id))
     }
 
@@ -189,24 +208,39 @@ impl KernelMap {
     fn get_mut(&mut self, kernel_id: &str) -> Result<&mut MetaKernel> {
         (**self)
             .get_mut(kernel_id)
+            .map(|(.., kernel)| kernel)
             .ok_or_else(|| eyre!("Unknown kernel `{}`", kernel_id))
     }
 
     /// Ensure that a kernel exists for a selector
     ///
     /// Returns the kernel's id.
-    async fn ensure(&mut self, selector: &KernelSelector, directory: &Path) -> Result<KernelId> {
-        tracing::trace!("Ensuring kernel matching selector `{}`", selector);
+    async fn ensure(
+        &mut self,
+        desired_selector: &KernelSelector,
+        directory: &Path,
+        resource_changes_sender: &Option<mpsc::Sender<ResourceChange>>,
+    ) -> Result<KernelId> {
+        tracing::trace!("Ensuring kernel matching selector `{}`", desired_selector);
 
         // Is there already a running kernel that matches the selector?
-        for (kernel_id, kernel) in self.iter_mut() {
-            if let Some(id) = &selector.id {
-                if id != kernel_id {
-                    // Not the right id, so keep looking
-                    continue;
-                }
-            } else if !selector.matches(&kernel.spec().await) {
-                // Not a match, so keep looking
+        for (kernel_id, (existing_selector, kernel)) in self.iter_mut() {
+            let mut matched = false;
+            // If id is specified in selector, this takes precedence
+            if let Some(id) = &desired_selector.id {
+                matched = id == kernel_id;
+            }
+            // Otherwise, if config is specified then matches if the selector is the same as the
+            // existing kernel
+            else if desired_selector.config.is_some() {
+                matched = desired_selector == existing_selector;
+            }
+            // Finally, if the selector does not specify `id` or `config` then match lang etc
+            // against the spec
+            else if desired_selector.matches(&kernel.spec().await) {
+                matched = true;
+            }
+            if !matched {
                 continue;
             }
 
@@ -235,14 +269,20 @@ impl KernelMap {
 
         // If unable to set in an existing kernel then start a new kernel
         // for the selector.
-        self.start(selector, directory).await
+        self.start(desired_selector, directory, resource_changes_sender)
+            .await
     }
 
     /// Start a kernel for a selector
-    async fn start(&mut self, selector: &KernelSelector, directory: &Path) -> Result<KernelId> {
+    async fn start(
+        &mut self,
+        selector: &KernelSelector,
+        directory: &Path,
+        resource_changes_sender: &Option<mpsc::Sender<ResourceChange>>,
+    ) -> Result<KernelId> {
         tracing::trace!("Starting kernel matching selector `{}`", selector);
 
-        let mut kernel = MetaKernel::new(selector).await?;
+        let mut kernel = MetaKernel::new(selector, resource_changes_sender).await?;
         kernel.start(directory).await?;
 
         // Generate the kernel id from the selector, adding a numeric suffix if necessary
@@ -257,7 +297,7 @@ impl KernelMap {
             [kernel_id, count.to_string()].concat()
         };
 
-        self.insert(kernel_id.clone(), kernel);
+        self.insert(kernel_id.clone(), (selector.clone(), kernel));
 
         Ok(kernel_id)
     }
@@ -279,7 +319,10 @@ impl KernelMap {
         #[cfg(feature = "kernel-jupyter")]
         {
             let (kernel_id, kernel) = kernel_jupyter::JupyterKernel::connect(id_or_path).await?;
-            self.insert(kernel_id.clone(), MetaKernel::Jupyter(kernel));
+            self.insert(
+                kernel_id.clone(),
+                (KernelSelector::default(), MetaKernel::Jupyter(kernel)),
+            );
 
             Ok(kernel_id)
         }
@@ -293,7 +336,7 @@ impl KernelMap {
     /// Get a list of kernels (including their details and status)
     pub async fn list(&self) -> KernelInfos {
         let mut list = KernelInfos::new();
-        for (id, kernel) in self.iter() {
+        for (id, (.., kernel)) in self.iter() {
             let id = id.to_string();
             let spec = kernel.spec().await;
             let status = match kernel.status().await {
@@ -717,6 +760,9 @@ pub struct KernelSpace {
     /// The working directory of the kernel space
     directory: PathBuf,
 
+    /// A channel sender for sending changes to resources within the kernel
+    resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
+
     /// The kernels in the kernel space
     kernels: Arc<Mutex<KernelMap>>,
 
@@ -726,7 +772,7 @@ pub struct KernelSpace {
     /// The list of all tasks sent to this kernel space
     tasks: Arc<Mutex<KernelTasks>>,
 
-    /// The monitoring task for the kernel
+    /// The monitoring task for the kernel space
     monitoring: Option<JoinHandle<()>>,
 }
 
@@ -743,11 +789,15 @@ pub type KernelInfos = HashMap<KernelId, KernelInfo>;
 
 impl KernelSpace {
     /// Create a new kernel space and start its monitoring task
-    pub fn new(dir: Option<&Path>) -> Self {
+    pub fn new(
+        directory: Option<&Path>,
+        resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
+    ) -> Self {
         let mut kernel_space = Self::default();
-        kernel_space.directory = dir
+        kernel_space.directory = directory
             .map(PathBuf::from)
             .unwrap_or_else(|| current_dir().expect("Should be able to get current dir"));
+        kernel_space.resource_changes_sender = resource_changes_sender;
 
         let kernels = kernel_space.kernels.clone();
         let tasks = kernel_space.tasks.clone();
@@ -787,7 +837,9 @@ impl KernelSpace {
     /// Start a kernel
     pub async fn start(&self, selector: &KernelSelector) -> Result<KernelId> {
         let kernels = &mut *self.kernels.lock().await;
-        kernels.start(selector, &self.directory).await
+        kernels
+            .start(selector, &self.directory, &self.resource_changes_sender)
+            .await
     }
 
     /// Stop a kernel
@@ -814,11 +866,16 @@ impl KernelSpace {
         for id in &ids {
             let kernel = kernels.get(id)?;
             let spec = kernel.spec().await;
-            let selector = KernelSelector::new(Some(spec.name), None, None);
+            let selector = KernelSelector {
+                name: Some(spec.name),
+                ..Default::default()
+            };
 
             kernels.stop(id).await?;
             purge_kernel_from_symbols(symbols, id);
-            kernels.start(&selector, &self.directory).await?;
+            kernels
+                .start(&selector, &self.directory, &self.resource_changes_sender)
+                .await?;
         }
 
         Ok(())
@@ -840,7 +897,9 @@ impl KernelSpace {
     pub async fn set(&self, name: &str, value: Node, selector: &KernelSelector) -> Result<()> {
         let kernels = &mut *self.kernels.lock().await;
 
-        let kernel_id = kernels.ensure(selector, &self.directory).await?;
+        let kernel_id = kernels
+            .ensure(selector, &self.directory, &self.resource_changes_sender)
+            .await?;
         tracing::debug!("Setting symbol `{}` in kernel `{}`", name, kernel_id);
 
         let kernel = kernels.get_mut(&kernel_id)?;
@@ -872,7 +931,9 @@ impl KernelSpace {
         let kernels = &mut *self.kernels.lock().await;
 
         // Determine the kernel to execute in
-        let kernel_id = kernels.ensure(selector, &self.directory).await?;
+        let kernel_id = kernels
+            .ensure(selector, &self.directory, &self.resource_changes_sender)
+            .await?;
         tracing::trace!("Dispatching task to kernel `{}`", kernel_id);
 
         // Mirror symbols that are used in the code into the kernel
@@ -928,10 +989,11 @@ impl KernelSpace {
             kernel_id,
             if fork { " fork" } else { "" }
         );
+        let tags = Some(&resource_info.tags);
         let task = if fork {
-            kernel.exec_fork(code).await?
+            kernel.exec_fork(code, tags).await?
         } else {
-            kernel.exec_async(code).await?
+            kernel.exec_async(code, tags).await?
         };
 
         // Record symbols assigned in kernel (unless it was a fork)
@@ -1130,7 +1192,7 @@ impl KernelSpace {
                 }
                 None => match language {
                     // Selector based on language only
-                    Some(_) => KernelSelector::new(None, language, None),
+                    Some(_) => KernelSelector::from_lang_and_tags(language.as_deref(), None),
                     None => {
                         let tasks = self.tasks.lock().await;
                         match tasks.inner.last() {
@@ -1140,7 +1202,7 @@ impl KernelSpace {
                                 ..Default::default()
                             },
                             // Select anything (will select the first kernel)
-                            None => KernelSelector::new(None, None, None),
+                            None => KernelSelector::default(),
                         }
                     }
                 },
@@ -1238,6 +1300,13 @@ pub async fn available() -> Vec<Kernel> {
 
     #[cfg(feature = "kernel-calc")]
     available.push(kernel_calc::CalcKernel::new().spec().await);
+
+    #[cfg(feature = "kernel-sql")]
+    available.push(
+        kernel_sql::SqlKernel::new(&KernelSelector::default(), None)
+            .spec()
+            .await,
+    );
 
     macro_rules! microkernel_available {
         ($feat:literal, $crat:ident, $list:expr) => {
@@ -1474,7 +1543,7 @@ pub mod commands {
     /// kernel state is maintained in successive calls to `Execute::run` when in
     /// interactive mode
     static KERNEL_SPACE: Lazy<Mutex<KernelSpace>> =
-        Lazy::new(|| Mutex::new(KernelSpace::new(None)));
+        Lazy::new(|| Mutex::new(KernelSpace::new(None, None)));
 
     /// Execute code within a document kernel space
     ///

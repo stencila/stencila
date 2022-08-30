@@ -201,5 +201,6 @@ input_file: fixtures/fragments/py/assigns.py
       }
     ]
   ],
-  "compile_digest": "12060311432052402604.1233639623729888515.0.0.0"
+  "compile_digest": "12060311432052402604.1233639623729888515.0.0.0",
+  "tags": []
 }

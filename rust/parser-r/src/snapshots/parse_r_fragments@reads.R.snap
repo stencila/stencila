@@ -93,5 +93,6 @@ input_file: fixtures/fragments/r/reads.R
       }
     ]
   ],
-  "compile_digest": "4070031409373294044.14306524640697689833.0.0.0"
+  "compile_digest": "4070031409373294044.14306524640697689833.0.0.0",
+  "tags": []
 }

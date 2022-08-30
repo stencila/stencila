@@ -90,27 +90,27 @@ mod tests {
         };
 
         // The execution context should start off empty
-        let (outputs, messages) = kernel.exec("ls()").await?;
+        let (outputs, messages) = kernel.exec("ls()", None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [[]]);
 
         // Assign a variable and output it
-        let (outputs, messages) = kernel.exec("a <- 2\na").await?;
+        let (outputs, messages) = kernel.exec("a <- 2\na", None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [[2]]);
 
         // The execution context should now have the var
-        let (outputs, messages) = kernel.exec("ls()").await?;
+        let (outputs, messages) = kernel.exec("ls()", None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [["a"]]);
 
         // Print the variable twice and then output it
-        let (outputs, messages) = kernel.exec("print(a)\nprint(a)\na").await?;
+        let (outputs, messages) = kernel.exec("print(a)\nprint(a)\na", None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [[2], [2], [2]]);
 
         // Syntax error
-        let (outputs, messages) = kernel.exec("bad ^ # syntax").await?;
+        let (outputs, messages) = kernel.exec("bad ^ # syntax", None).await?;
         assert_json_is!(messages[0].error_type, "SyntaxError");
         assert_json_is!(
             messages[0].error_message,
@@ -119,7 +119,7 @@ mod tests {
         assert_json_is!(outputs, []);
 
         // Runtime error
-        let (outputs, messages) = kernel.exec("foo").await?;
+        let (outputs, messages) = kernel.exec("foo", None).await?;
         assert_json_is!(messages[0].error_type, "RuntimeError");
         assert_json_is!(messages[0].error_message, "object 'foo' not found");
         assert_json_is!(outputs, []);
@@ -130,7 +130,7 @@ mod tests {
         assert_json_is!(b, 3);
 
         // Use both variables
-        let (outputs, messages) = kernel.exec("a*b").await?;
+        let (outputs, messages) = kernel.exec("a*b", None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [[6]]);
 
@@ -179,15 +179,17 @@ mod tests {
             Err(..) => return Ok(()),
         };
 
-        let (outputs, messages) = kernel.exec("a <- 1").await?;
+        let (outputs, messages) = kernel.exec("a <- 1", None).await?;
         assert!(messages.is_empty());
         assert_json_is!(outputs, []);
 
-        let (outputs, messages) = kernel.exec("b = 2").await?;
+        let (outputs, messages) = kernel.exec("b = 2", None).await?;
         assert!(messages.is_empty());
         assert_json_is!(outputs, []);
 
-        let (outputs, messages) = kernel.exec("print(a)\nprint(b)\na_b <- a + b").await?;
+        let (outputs, messages) = kernel
+            .exec("print(a)\nprint(b)\na_b <- a + b", None)
+            .await?;
         assert!(messages.is_empty());
         assert_json_is!(outputs, [[1], [2]]);
 
@@ -205,7 +207,7 @@ mod tests {
 
         // Null, booleans, integers, numbers, strings
         let (outputs, messages) = kernel
-            .exec("list(NULL, TRUE, FALSE, 1, 1.23456789, 'str')")
+            .exec("list(NULL, TRUE, FALSE, 1, 1.23456789, 'str')", None)
             .await?;
         assert_json_is!(messages, []);
         assert_json_is!(
@@ -214,17 +216,17 @@ mod tests {
         );
 
         // Arrays
-        let (outputs, messages) = kernel.exec("1:5").await?;
+        let (outputs, messages) = kernel.exec("1:5", None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [[1, 2, 3, 4, 5]]);
 
         // Objects
-        let (outputs, messages) = kernel.exec("list(a=1, b=list(c=2))").await?;
+        let (outputs, messages) = kernel.exec("list(a=1, b=list(c=2))", None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [{"a": [1], "b": {"c": [2]}}]);
 
         // Matrix
-        let (outputs, messages) = kernel.exec("matrix(c(1:4), 2, 2)").await?;
+        let (outputs, messages) = kernel.exec("matrix(c(1:4), 2, 2)", None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [[[1, 3], [2, 4]]]);
 
@@ -249,6 +251,7 @@ mod tests {
     d = factor(c("X", "Y"), levels = c("X", "Y", "Z")),
     stringsAsFactors = FALSE
 )"#,
+                None,
             )
             .await?;
         assert_json_is!(messages, []);
@@ -283,7 +286,7 @@ mod tests {
             }
         );
 
-        let (outputs, messages) = kernel.exec("mtcars").await?;
+        let (outputs, messages) = kernel.exec("mtcars", None).await?;
         assert_json_is!(messages, []);
         let dt = match &outputs[0] {
             Node::Datatable(dt) => dt.clone(),
@@ -308,7 +311,7 @@ mod tests {
             { "type": "NumberValidator"}
         );
 
-        let (outputs, messages) = kernel.exec("chickwts").await?;
+        let (outputs, messages) = kernel.exec("chickwts", None).await?;
         assert_json_is!(messages, []);
         let dt = match &outputs[0] {
             Node::Datatable(dt) => dt.clone(),
@@ -346,7 +349,7 @@ mod tests {
         };
 
         for code in ["plot(1)", "hist(rnorm(1000), breaks=30)"] {
-            let (outputs, messages) = kernel.exec(code).await?;
+            let (outputs, messages) = kernel.exec(code, None).await?;
             assert_json_is!(messages, []);
             let image = match &outputs[0] {
                 Node::ImageObject(dt) => dt.clone(),
@@ -377,7 +380,7 @@ mod tests {
 
         // Start a long running task in the kernel that should get interrupted
         let mut task = kernel
-            .exec_async("started <- TRUE; Sys.sleep(10); finished <- TRUE")
+            .exec_async("started <- TRUE; Sys.sleep(10); finished <- TRUE", None)
             .await
             .unwrap();
 
@@ -386,7 +389,10 @@ mod tests {
         task.interrupt().await?;
 
         // Check that was started but not finished
-        let (outputs, messages) = kernel.exec("c(started, exists('finished'))").await.unwrap();
+        let (outputs, messages) = kernel
+            .exec("c(started, exists('finished'))", None)
+            .await
+            .unwrap();
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [[true, false]]);
 
@@ -411,21 +417,21 @@ mod tests {
         };
 
         // In the kernel import a module and assign a variable
-        let (outputs, messages) = kernel.exec("var = runif(1)\nvar").await?;
+        let (outputs, messages) = kernel.exec("var = runif(1)\nvar", None).await?;
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
         let var = outputs[0].clone();
 
         // Now fork-exec. The fork should be able to use the module and access the
         // variable but any change to variable should not change its value in the parent kernel
-        let mut task = kernel.exec_fork("print(var)\nvar = runif(1)").await?;
+        let mut task = kernel.exec_fork("print(var)\nvar = runif(1)", None).await?;
         let TaskResult { outputs, messages } = task.result().await?;
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
         assert_json_is!(outputs[0], var);
 
         // Back in the parent kernel, var should still have its original value
-        let (outputs, messages) = kernel.exec("var").await?;
+        let (outputs, messages) = kernel.exec("var", None).await?;
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
         assert_json_eq!(outputs[0], var);

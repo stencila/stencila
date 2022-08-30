@@ -133,5 +133,12 @@ input_file: fixtures/fragments/calc/assigns.calc
       }
     ]
   ],
-  "compile_digest": "10286327178512735048.13385730424357177047.0.0.0"
+  "compile_digest": "10286327178512735048.13385730424357177047.0.0.0",
+  "tags": [
+    {
+      "name": "assigns",
+      "value": "d",
+      "global": false
+    }
+  ]
 }

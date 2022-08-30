@@ -1,0 +1,87 @@
+---
+source: rust/parser-sql/src/lib.rs
+assertion_line: 76
+expression: resource_info
+input_file: fixtures/fragments/sql/uses.sql
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/sql/uses.sql",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "SQL"
+  },
+  "relations": [
+    [
+      {
+        "type": "Uses",
+        "range": [
+          0,
+          14,
+          0,
+          21
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/uses.sql",
+        "name": "table_a",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          2,
+          14,
+          2,
+          21
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/uses.sql",
+        "name": "table_b",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          4,
+          14,
+          4,
+          21
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/uses.sql",
+        "name": "table_d",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          4,
+          55,
+          4,
+          62
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/uses.sql",
+        "name": "table_e",
+        "kind": "Datatable"
+      }
+    ]
+  ],
+  "compile_digest": "10808189577681179666.18214354455154075053.0.0.0",
+  "tags": []
+}

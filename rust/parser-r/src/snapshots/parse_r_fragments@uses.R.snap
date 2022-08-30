@@ -405,5 +405,6 @@ input_file: fixtures/fragments/r/uses.R
       }
     ]
   ],
-  "compile_digest": "4702990536694179253.11654817024932292149.0.0.0"
+  "compile_digest": "4702990536694179253.11654817024932292149.0.0.0",
+  "tags": []
 }
