@@ -4,7 +4,7 @@ assertion_line: 481
 expression: html
 input_file: fixtures/nodes/parameter-integer.json
 ---
-<stencila-parameter data-root itemtype="https://schema.stenci.la/Parameter" itemscope mode="write">
+<stencila-parameter data-root itemtype="https://schema.stenci.la/Parameter" itemscope>
   <label data-prop="name" slot="name" for="input-id">par</label>
   <meta itemprop="validator" itemtype="https://schema.stenci.la/IntegerValidator" itemscope/>
   <meta itemprop="defaultValue" itemtype="https://schema.org/Integer" itemscope content="42"/>
