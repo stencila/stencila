@@ -390,6 +390,19 @@ export function listen(
     )
   )
 
+  window.addEventListener('stencila-call-change', (event) =>
+    onCallChange(client, clientId, documentId, event as CallChangeEvent)
+  )
+
+  window.addEventListener('stencila-call-argument-change', (event) =>
+    onCallArgumentChange(
+      client,
+      clientId,
+      documentId,
+      event as CallArgumentChangeEvent
+    )
+  )
+
   // Code execution
   const executeHandler = async ({
     detail,
@@ -616,6 +629,94 @@ async function onParameterChange(
 }
 
 /**
+ * The browser event emitted when a property of a `Call` changes.
+ */
+export interface CallChangeEvent extends CustomEvent {
+  detail: {
+    property: 'source' | 'select'
+    value: string
+  }
+}
+
+/**
+ * Handle a `CallChangeEvent`
+ */
+async function onCallChange(
+  client: Client,
+  clientId: ClientId,
+  documentId: DocumentId,
+  event: CallChangeEvent
+): Promise<void> {
+  const [_nodeType, nodeId] = resolveEventNode(event)
+
+  const { property, value } = event.detail
+
+  const op: Operation = {
+    type: 'Replace',
+    address: [property],
+    value,
+    items: 1,
+    length: 1,
+  }
+
+  const patch: Patch = {
+    actor: clientId,
+    target: nodeId,
+    ops: [op],
+  }
+
+  return sendPatch(client, documentId, patch, 'Now', 'Never', 'Soon')
+}
+
+/**
+ * The browser event emitted when a property of a `CallArgument` changes.
+ */
+export interface CallArgumentChangeEvent extends CustomEvent {
+  detail: {
+    index: number
+    property: 'symbol' | 'value'
+    value: string
+  }
+}
+
+/**
+ * Handle a `CallArgumentChangeEvent`
+ */
+async function onCallArgumentChange(
+  client: Client,
+  clientId: ClientId,
+  documentId: DocumentId,
+  event: CallArgumentChangeEvent
+): Promise<void> {
+  const [_nodeType, nodeId] = resolveEventNode(event)
+
+  const { index, property, value } = event.detail
+
+  const op: Operation =
+    property === 'symbol' && value.trim().length === 0
+      ? {
+          type: 'Remove',
+          address: ['arguments', index, 'symbol'],
+          items: 1,
+        }
+      : {
+          type: 'Replace',
+          address: ['arguments', index, property],
+          value,
+          items: 1,
+          length: 1,
+        }
+
+  const patch: Patch = {
+    actor: clientId,
+    target: nodeId,
+    ops: [op],
+  }
+
+  return sendPatch(client, documentId, patch, 'Now', 'Never', 'Soon')
+}
+
+/**
  * Extract the given Element's Schema Node type
  * If the node does not have an `itemtype` attribute, this function returns an empty string.
  */
@@ -637,7 +738,7 @@ function resolveEventNode(event: Event): [string, string] {
   let elType = getElType(elem)
 
   if (id === null || id === '') {
-    const nodeEl = elem.closest('[itemtype]')
+    const nodeEl = elem.closest('[itemtype][id]')
     if (nodeEl) {
       id = nodeEl.getAttribute('id')
       elType = getElType(nodeEl)
