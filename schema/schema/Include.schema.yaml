@@ -4,7 +4,7 @@ category: text
 description: Include content from an external source (e.g. file, URL).
 role: secondary
 status: unstable
-extends: Entity
+extends: CodeExecutable
 properties:
   source:
     '@id': stencila:source
@@ -19,13 +19,6 @@ properties:
     $comment: |
       Typically expressed using a file name extensions (e.g. `md`) or a
       MIME type (e.g. `text/md`).
-  compileDigest:
-    '@id': stencila:compileDigest
-    description: A digest of the `source` and `mediaType` properties the last time the node was compiled.
-    type: string
-    $comment: |
-      Used to determine whether it is necessary to re-compile the node (i.e. update the `content` property
-      due to new content in the `source` or a change in the `mediaType`).
   select:
     '@id': stencila:select
     description: A query to select a subset of content from the source

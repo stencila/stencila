@@ -1,0 +1,13 @@
+title: CallArgument
+'@id': stencila:CallArgument
+category: code
+description: The value of a `Parameter` to call a document with
+role: secondary
+status: unstable
+extends: Parameter
+properties:
+  symbol:
+    '@id': stencila:symbol
+    description: The name of a variable to use as the value of the parameter
+    type: string
+    pattern: '[a-zA-z_][A-z0-9_]*'

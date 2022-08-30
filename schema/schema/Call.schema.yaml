@@ -4,39 +4,13 @@ category: code
 description: Call another document, optionally with arguments, and include its executed content
 role: secondary
 status: unstable
-extends: CodeExecutable
+extends: Include
 properties:
-  source:
-    '@id': stencila:source
-    description: The external source of the content, a file path or URL.
-    type: string
-  mediaType:
-    '@id': schema:encodingFormat
-    aliases:
-      - encodingFormat
-    description: Media type of the source content.
-    type: string
-    $comment: |
-      Typically expressed using a file name extensions (e.g. `md`) or a
-      MIME type (e.g. `text/md`).
   arguments:
     '@id': stencila:arguments
     description: The value of the source document's parameters to call it with
     type: array
     items:
-      $ref: Parameter
-  select:
-    '@id': stencila:select
-    description: A query to select a subset of content from the source after it has been called
-    type: string
-  content:
-    '@id': stencila:content
-    description: The structured content decoded from the source.
-    type: array
-    items:
-      $ref: BlockContent
-    $comment: |
-      Assumes that included content will be block content i.e. that there will be limited
-      instances where a user would want to use an `Include` node to transclude inline content.
+      $ref: CallArgument
 required:
   - source
