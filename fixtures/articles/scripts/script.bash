@@ -25,6 +25,6 @@ c=3
 # Parameters can be included in Markdown, and will be encoded as script
 # variables immediately after they are declared.
 #
-# Parameter d: /d/{type=integer}
+# Parameter d: &[d]{type=integer}
 
 echo "a + b + c + d = $(expr $a + $b + $c + $d))"

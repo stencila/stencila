@@ -21,4 +21,4 @@ CREATE TABLE table_1(
 
 SELECT * FROM table_1
 
--- Currently, unlinke for other languages, document parameters are not supported in SQL scripts.
+-- Currently, unlink for other languages, document parameters are not supported in SQL scripts.

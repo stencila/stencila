@@ -26,6 +26,6 @@ c = 3
 # Parameters can be included in Markdown, and will be encoded as script
 # variables immediately after they are declared.
 #
-# Parameter d: /d/{type=integer}
+# Parameter d: &[d]{type=integer}
 
 print('a + b + c + d = %s' % (a + b + c + d))

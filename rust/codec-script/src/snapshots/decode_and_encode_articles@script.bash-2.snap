@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 333
+assertion_line: 352
 expression: script
 input_file: fixtures/articles/scripts/script.bash
 ---
@@ -30,7 +30,7 @@ c=3
 # Parameters can be included in Markdown, and will be encoded as script variables immediately after
 # they are declared.
 # 
-# Parameter d: /d/{type=integer}
+# Parameter d: &[d]{int}
 
 # @skip
 d=${1:-""}

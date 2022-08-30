@@ -99,7 +99,7 @@ input_file: fixtures/articles/scripts/script.sql
     {
       "type": "Paragraph",
       "content": [
-        "Currently, unlike for other languages, document parameters are not supported in SQL scripts."
+        "Currently, unlink for other languages, document parameters are not supported in SQL scripts."
       ]
     }
   ]

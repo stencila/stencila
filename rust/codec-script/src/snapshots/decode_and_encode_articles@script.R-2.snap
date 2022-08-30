@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 349
+assertion_line: 352
 expression: script
 input_file: fixtures/articles/scripts/script.R
 ---
@@ -32,7 +32,7 @@ c <- 3
 # Parameters can be included in Markdown, and will be encoded as script variables immediately after
 # they are declared.
 # 
-# Parameter d: /d/{type=integer}
+# Parameter d: &[d]{int}
 
 # @skip
 param__ <- function(type, index, def) { argv <- commandArgs(trailingOnly=TRUE); ifelse(type == 'string', identity, jsonlite::fromJSON)(ifelse(length(argv) > index + 1, argv[1 + index], def)) }
