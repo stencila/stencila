@@ -17,7 +17,7 @@ use common::{
 };
 use hash_utils::str_seahash;
 use path_utils::path_slash::PathExt;
-use stencila_schema::{ExecuteAuto, Cord};
+use stencila_schema::{Cord, ExecuteAuto};
 
 use crate::{Pairs, Relation};
 

@@ -1354,7 +1354,7 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
                 CallArgumentValue::Symbol(symbol) => (None, Some(Box::new(symbol))),
             };
             Ok(CallArgument {
-                name: name.into(),
+                name,
                 value,
                 symbol,
                 ..Default::default()

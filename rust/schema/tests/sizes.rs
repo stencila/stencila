@@ -26,7 +26,7 @@ fn sizes() {
     sizeof!(AudioObject);
     sizeof!(BooleanValidator);
     sizeof!(Brand);
-    sizeof!(CitationIntentEnumeration);
+    sizeof!(CitationIntent);
     sizeof!(Cite);
     sizeof!(CiteGroup);
     sizeof!(Claim);

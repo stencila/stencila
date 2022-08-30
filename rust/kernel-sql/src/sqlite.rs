@@ -25,7 +25,7 @@ use kernel::{
     },
 };
 
-use crate::{BINDING_REGEX, WatchedTables};
+use crate::{WatchedTables, BINDING_REGEX};
 
 /// Bind parameters to an SQL statement based on name
 fn bind<'lt>(sql: &str, parameters: &'lt HashMap<String, Node>) -> (String, SqliteArguments<'lt>) {

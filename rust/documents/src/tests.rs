@@ -84,6 +84,7 @@ async fn md_articles() -> Result<()> {
             &root,
             &address_map,
             &tag_map,
+            &call_docs,
             &patch_request_sender,
         )
         .await?;
@@ -261,6 +262,7 @@ async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)>
         &root,
         address_map,
         &tags,
+        &call_docs,
         &patch_request_sender,
     )
     .await?;
