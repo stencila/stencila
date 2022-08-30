@@ -156,7 +156,22 @@ patchable_variants!(
     FigureCaption::String
 );
 
-patchable_struct!(Include, source, media_type, compile_digest, content);
+patchable_struct!(
+    Include,
+    id,
+    source,
+    media_type,
+    select,
+    code_dependents,
+    compile_digest,
+    execute_digest,
+    execute_required,
+    execute_status,
+    execute_ended,
+    execute_duration,
+    errors,
+    content,
+);
 
 patchable_struct!(
     Call,
