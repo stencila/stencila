@@ -1,5 +1,5 @@
-title: CitationIntentEnumeration
-'@id': stencila:CitationIntentEnumeration
+title: CitationIntent
+'@id': stencila:CitationIntent
 extends: Enumeration
 category: text
 status: unstable
