@@ -16,8 +16,8 @@ properties:
     items:
       anyOf:
         - $ref: CodeChunk
-        - $ref: Parameter
         - $ref: File
+        - $ref: Parameter
     $comment: |
       Note that this excludes `CodeExpression` nodes since they should not have side effects
       (e.g. assigning variables) that would cause another node to be dependent upon them.
@@ -27,6 +27,7 @@ properties:
     type: array
     items:
       anyOf:
+        - $ref: Call
         - $ref: CodeChunk
         - $ref: CodeExpression
         - $ref: File
@@ -52,39 +53,12 @@ properties:
     type: string
   executeRequired:
     '@id': stencila:executeRequired
-    description: Whether, and why, a node requires execution or re-execution.
-    enum:
-      - 'No'
-      - NeverExecuted
-      - SemanticsChanged
-      - DependenciesChanged
-      - DependenciesFailed
-      - Failed
-    $comment: |
-      Derived from a comparison of `compileDigest` and `executeDigest` and the `executeStatus`
-      of dependencies.
-      `No`: no re-execution is required, the semantics of the code and its dependencies has not changed
-      since it was last executed.
-      `NeverExecuted`: execution is required because the code has never been executed (or any previous
-      execution was not persisted in its state).
-      `SemanticsChanged`: re-execution is required because the semantics of the code has changed since it was
-      last executed.
-      `DependenciesChanged`: the semantics of one or more dependencies (including transitive dependencies) 
-      changed since it was last executed.
-      `DependenciesFailed`: one or more dependencies (including transitive dependencies) failed when it was
-      last executed.
-      `Failed`: re-execution is required because the code failed last time it was executed.
+    description: Whether, and why, the code requires execution or re-execution.
+    $ref: ExecuteRequired
   executeStatus:
     '@id': stencila:executeStatus
     description: Status of the most recent, including any current, execution of the code.
-    enum:
-      - Scheduled
-      - ScheduledPreviouslyFailed
-      - Running
-      - RunningPreviouslyFailed
-      - Succeeded
-      - Failed
-      - Cancelled
+    $ref: ExecuteStatus
   executeEnded:
     '@id': stencila:executeEnded
     description: The date-time that the the last execution of the code ended.
@@ -94,6 +68,10 @@ properties:
     description: Duration in seconds of the last execution of the code.
     type: number
     minimum: 0
+  executeAuto:
+    '@id': stencila:executeAuto
+    description: Under which circumstances the code should be automatically executed.
+    $ref: ExecuteAuto
   errors:
     '@id': stencila:errors
     description: Errors when compiling (e.g. syntax errors) or executing the chunk.
