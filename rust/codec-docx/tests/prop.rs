@@ -17,9 +17,13 @@ proptest! {
         Freedom::Min,
         [
             DocxCodec::spec().unsupported_types,
-            // Pandoc replaces the media object with the description if
-            // it can not find the file. So exclude these types from the test.
-            vec_string!["AudioObject", "ImageObject", "VideoObject"]
+            vec_string![
+                // Pandoc replaces the media object with the description if
+                // it can not find the file. So exclude these types from the test.
+                "AudioObject", "ImageObject", "VideoObject",
+                // Skipping `Call` until fully developed
+                "Call"
+            ]
         ].concat(),
         DocxCodec::spec().unsupported_properties
     )) {

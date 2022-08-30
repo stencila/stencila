@@ -21,6 +21,7 @@ async fn test_sqlite() -> Result<()> {
 ///   > docker run --rm -it -p5432:5432 -e POSTGRES_PASSWORD=postgres postgres
 ///   > psql --host localhost --user postgres
 ///   postgres=# CREATE DATABASE testdb;
+#[ignore]
 #[tokio::test]
 async fn test_postgres() -> Result<()> {
     if skip_ci("Not yet setup to work on CI") {
