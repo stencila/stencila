@@ -31,6 +31,18 @@ where
 }
 
 /// Generate a [`Patch`] describing the difference between two nodes of the same type
+/// at a specific id.
+#[tracing::instrument(skip(node1, node2))]
+pub fn diff_id<Type>(id: &str, node1: &Type, node2: &Type) -> Patch
+where
+    Type: Patchable,
+{
+    let mut patch = diff(node1, node2);
+    patch.target = Some(id.to_string());
+    patch
+}
+
+/// Generate a [`Patch`] describing the difference between two nodes of the same type
 /// at a specific address.
 #[tracing::instrument(skip(node1, node2))]
 pub fn diff_address<Type>(address: Address, node1: &Type, node2: &Type) -> Patch
@@ -330,11 +342,11 @@ impl Operation {
             BlockContent
 
             // Types related to compilation and execution
+            ExecuteStatus
+            ExecuteRequired
+            ExecuteAuto
             CodeExecutableCodeDependencies
             CodeExecutableCodeDependents
-            CodeExecutableExecuteRequired
-            CodeExecutableExecuteStatus
-            ParameterExecuteRequired
 
             // Child types of the above
             ListItem
@@ -907,7 +919,7 @@ mod works;
 mod tests {
     use super::*;
     use stencila_schema::{Article, Emphasis, InlineContent, Paragraph};
-    use test_utils::{assert_json_eq, assert_json_is};
+    use test_utils::{assert_json_eq, assert_json_is, pretty_assertions::assert_eq};
 
     #[test]
     fn test_diff_apply() -> Result<()> {
@@ -1094,5 +1106,53 @@ mod tests {
                 "to": ["content", 0, "content", 0],
             }]
         );
+    }
+
+    /// A regression test of serialization of an patch replacing execution status etc
+    #[test]
+    fn test_serialize_execute_enums() -> Result<()> {
+        let patch = diff(
+            &CodeChunk {
+                execute_status: None,
+                execute_required: Some(ExecuteRequired::NeverExecuted),
+                ..Default::default()
+            },
+            &CodeChunk {
+                execute_status: Some(ExecuteStatus::Scheduled),
+                execute_required: Some(ExecuteRequired::SemanticsChanged),
+                ..Default::default()
+            },
+        );
+
+        match &patch.ops[0] {
+            Operation::Replace { value, .. } => {
+                if let Some(value) = value.downcast_ref::<ExecuteRequired>() {
+                    assert_eq!(*value, ExecuteRequired::SemanticsChanged);
+                } else {
+                    bail!("Unexpected value type type");
+                }
+            }
+            _ => bail!("Unexpected operation type"),
+        }
+
+        assert_json_is!(patch, {
+            "ops": [
+                {
+                    "type": "Replace",
+                    "address": ["executeRequired"],
+                    "items": 1,
+                    "value": "SemanticsChanged",
+                    "length": 1
+                },
+                {
+                    "type": "Add",
+                    "address": ["executeStatus"],
+                    "value": "Scheduled",
+                    "length": 1
+                },
+            ]
+        });
+
+        Ok(())
     }
 }

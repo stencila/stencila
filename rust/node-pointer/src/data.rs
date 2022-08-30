@@ -9,6 +9,18 @@ use crate::{Pointable, Pointer, PointerMut, Visitor, VisitorMut};
 pointable_struct!(Datatable);
 pointable_struct!(DatatableColumn);
 
+pointable_variants!(
+    ValidatorTypes,
+    ValidatorTypes::ArrayValidator,
+    ValidatorTypes::BooleanValidator,
+    ValidatorTypes::ConstantValidator,
+    ValidatorTypes::EnumValidator,
+    ValidatorTypes::IntegerValidator,
+    ValidatorTypes::NumberValidator,
+    ValidatorTypes::StringValidator,
+    ValidatorTypes::TupleValidator
+);
+
 pointable_struct!(Validator);
 pointable_struct!(ArrayValidator);
 pointable_struct!(BooleanValidator);

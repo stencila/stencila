@@ -79,7 +79,7 @@ impl Validator for ConstantValidator {
     fn validate(&self, node: &Node) -> Result<()> {
         match *node == *self.value {
             true => Ok(()),
-            false => bail!("Value is not equal to constant"),
+            false => bail!("Value is not equal to constant: {:?}", node),
         }
     }
 
@@ -97,7 +97,7 @@ impl Validator for EnumValidator {
     fn validate(&self, node: &Node) -> Result<()> {
         match self.values.contains(node) {
             true => Ok(()),
-            false => bail!("Value is not in enumeration"),
+            false => bail!("Value is not in enumeration: {:?}", node),
         }
     }
 
@@ -125,7 +125,11 @@ impl Validator for BooleanValidator {
         if matches!(node, Node::Boolean(..)) {
             Ok(())
         } else {
-            bail!("Expected a `Boolean` got a `{}` value", node.as_ref())
+            bail!(
+                "Expected a `Boolean` got a `{}` value: {}",
+                node.as_ref(),
+                serde_json::to_string(node).unwrap_or_default()
+            )
         }
     }
 
@@ -164,7 +168,11 @@ impl Validator for NumberValidator {
         } else if let Node::Integer(num) = node {
             *num as f64
         } else {
-            bail!("Expected a `Number` got a `{}`", node.as_ref())
+            bail!(
+                "Expected a `Number` got a `{}`: {}",
+                node.as_ref(),
+                serde_json::to_string(node).unwrap_or_default()
+            )
         };
 
         if let Some(Number(min)) = self.minimum {
@@ -238,7 +246,11 @@ impl Validator for IntegerValidator {
             }
             .validate(node)
         } else {
-            bail!("Expected an `Integer` got a `{}`", node.as_ref())
+            bail!(
+                "Expected an `Integer` got a `{}`: {}",
+                node.as_ref(),
+                serde_json::to_string(node).unwrap_or_default()
+            )
         }
     }
 
@@ -266,7 +278,11 @@ impl Validator for StringValidator {
         let string = if let Node::String(string) = node {
             string
         } else {
-            bail!("Expected a `String` got a `{}`", node.as_ref())
+            bail!(
+                "Expected a `String` got a `{}`: {}",
+                node.as_ref(),
+                serde_json::to_string(node).unwrap_or_default()
+            )
         };
 
         if let Some(min) = self.min_length {

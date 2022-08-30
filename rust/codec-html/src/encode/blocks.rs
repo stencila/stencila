@@ -6,8 +6,8 @@ use stencila_schema::*;
 
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype, attr_prop,
-    attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder, json, nothing, EncodeContext,
-    EncodeMode, ToHtml,
+    attr_slot, concat, data::label_and_input, elem, elem_empty, elem_meta, elem_placeholder, json,
+    nothing, EncodeContext, ToHtml,
 };
 
 impl ToHtml for BlockContent {
@@ -360,6 +360,50 @@ impl ToHtml for Include {
             self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
         );
 
+        let execute_digest = attr_and_meta_opt(
+            "execute_digest",
+            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
+        );
+
+        let execute_auto = attr_and_meta_opt(
+            "execute_auto",
+            self.execute_auto
+                .as_ref()
+                .map(|auto| (*auto).as_ref().to_string()),
+        );
+
+        let execute_required = attr_and_meta_opt(
+            "execute_required",
+            self.execute_required
+                .as_ref()
+                .map(|required| (*required).as_ref().to_string()),
+        );
+
+        let execute_status = attr_and_meta_opt(
+            "execute_status",
+            self.execute_status
+                .as_ref()
+                .map(|status| (*status).as_ref().to_string()),
+        );
+
+        let dependencies = elem(
+            "stencila-code-dependencies",
+            &[attr_slot("code-dependencies")],
+            &elem_placeholder(
+                "div",
+                &[attr_prop("code-dependencies")],
+                &self.code_dependencies,
+                context,
+            ),
+        );
+
+        let errors = elem_placeholder(
+            "div",
+            &[attr_prop("errors"), attr_slot("errors")],
+            &self.errors,
+            context,
+        );
+
         let content = elem(
             "div",
             &[attr_prop("content"), attr_slot("content")],
@@ -378,8 +422,25 @@ impl ToHtml for Include {
                 media_type.0,
                 select.0,
                 compile_digest.0,
+                execute_auto.0,
+                execute_digest.0,
+                execute_required.0,
+                execute_status.0,
             ],
-            &[source.1, media_type.1, select.1, compile_digest.1, content].concat(),
+            &[
+                source.1,
+                media_type.1,
+                select.1,
+                compile_digest.1,
+                execute_auto.1,
+                execute_digest.1,
+                execute_required.1,
+                execute_status.1,
+                dependencies,
+                errors,
+                content,
+            ]
+            .concat(),
         )
     }
 }
@@ -406,6 +467,13 @@ impl ToHtml for Call {
         let execute_digest = attr_and_meta_opt(
             "execute_digest",
             self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
+        );
+
+        let execute_auto = attr_and_meta_opt(
+            "execute_auto",
+            self.execute_auto
+                .as_ref()
+                .map(|auto| (*auto).as_ref().to_string()),
         );
 
         let execute_required = attr_and_meta_opt(
@@ -437,21 +505,56 @@ impl ToHtml for Call {
         );
 
         let arguments = elem(
-            "stencila-call-arguments",
-            &[attr_slot("arguments")],
+            "div",
+            &[attr_prop("arguments"), attr_slot("arguments")],
             &self
                 .arguments
                 .iter()
                 .flatten()
-                .map(|param| {
-                    param.to_html(&EncodeContext {
-                        // Always use run mode for parameters because their validators should not
-                        // be editable
-                        mode: EncodeMode::Run,
-                        ..*context
-                    })
+                .enumerate()
+                .map(|(index, arg)| {
+                    let symbol_value_attr = match &arg.symbol {
+                        Some(symbol) => attr("value", symbol),
+                        None => "".to_string(),
+                    };
+                    let symbol = elem_empty(
+                        "input",
+                        &[attr_prop("symbol"), attr_slot("symbol"), symbol_value_attr],
+                    );
+
+                    let (name, value) = label_and_input(
+                        &arg.name,
+                        &arg.validator,
+                        &arg.value,
+                        &arg.default,
+                        context,
+                    );
+
+                    elem(
+                        "stencila-call-argument",
+                        &[attr_itemtype::<Self>(), attr("index", &index.to_string())],
+                        &[name, symbol, value].concat(),
+                    )
                 })
                 .join(""),
+        );
+
+        let dependencies = elem(
+            "stencila-code-dependencies",
+            &[attr_slot("code-dependencies")],
+            &elem_placeholder(
+                "div",
+                &[attr_prop("code-dependencies")],
+                &self.code_dependencies,
+                context,
+            ),
+        );
+
+        let errors = elem_placeholder(
+            "div",
+            &[attr_prop("errors"), attr_slot("errors")],
+            &self.errors,
+            context,
         );
 
         let content = elem(
@@ -472,6 +575,7 @@ impl ToHtml for Call {
                 media_type.0,
                 select.0,
                 compile_digest.0,
+                execute_auto.0,
                 execute_digest.0,
                 execute_required.0,
                 execute_status.0,
@@ -483,12 +587,15 @@ impl ToHtml for Call {
                 media_type.1,
                 select.1,
                 compile_digest.1,
+                execute_auto.1,
                 execute_digest.1,
                 execute_required.1,
                 execute_status.1,
                 execute_ended.1,
                 execute_duration.1,
                 arguments,
+                dependencies,
+                errors,
                 content,
             ]
             .concat(),

@@ -427,6 +427,7 @@ impl Document {
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
         let tags_clone = tags.clone();
+        let call_docs_clone = call_docs.clone();
         let graph_clone = graph.clone();
         let patch_sender_clone = patch_request_sender.clone();
         let execute_sender_clone = execute_request_sender.clone();
@@ -440,6 +441,7 @@ impl Document {
                 &root_clone,
                 &addresses_clone,
                 &tags_clone,
+                &call_docs_clone,
                 &graph_clone,
                 &patch_sender_clone,
                 &execute_sender_clone,
@@ -1395,6 +1397,7 @@ impl Document {
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
         tags: &Arc<RwLock<TagMap>>,
+        call_docs: &Arc<RwLock<CallDocuments>>,
         graph: &Arc<RwLock<Graph>>,
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
@@ -1438,7 +1441,17 @@ impl Document {
             );
 
             // Compile the root node
-            match compile(path, project, root, addresses, tags, patch_sender).await {
+            match compile(
+                path,
+                project,
+                root,
+                addresses,
+                tags,
+                call_docs,
+                patch_sender,
+            )
+            .await
+            {
                 Ok(new_graph) => {
                     *graph.write().await = new_graph;
                 }
@@ -1878,10 +1891,6 @@ impl Document {
             .filter_map(|(id, address)| {
                 if let Ok(pointer) = resolve(root, Some(address.clone()), Some(id.clone())) {
                     if let Some(InlineContent::Parameter(param)) = pointer.as_inline() {
-                        // Exclude parameters that `Call` arguments and which have an id that starts with "ar-".
-                        if id.starts_with("ar-") {
-                            return None;
-                        }
                         return Some((
                             param.name.clone(),
                             (id.clone(), address.clone(), param.clone()),
@@ -1895,19 +1904,17 @@ impl Document {
         Ok(params)
     }
 
-    /// Call the document with a set of parameters
-    pub async fn call(&mut self, args: HashMap<String, String>) -> Result<()> {
-        // Get the document's params
+    /// Call the document with arguments
+    pub async fn call(&mut self, args: HashMap<String, Node>) -> Result<()> {
         let mut params = self.params().await?;
 
-        // Attempt to set params based on args
         {
             let root = &mut *self.root.write().await;
             for (name, value) in args {
                 if let Some((id, address, param)) = params.remove(&name) {
                     if let Some(validator) = param.validator.as_deref() {
-                        match validator.parse(&value) {
-                            Ok(value) => {
+                        match validator.validate(&value) {
+                            Ok(..) => {
                                 if let Ok(mut pointer) = resolve_mut(root, Some(address), Some(id))
                                 {
                                     if let Some(InlineContent::Parameter(param)) =
@@ -1930,8 +1937,34 @@ impl Document {
             }
         }
 
-        // Now execute the document
         self.execute(When::Never, None, None, None).await?;
+
+        Ok(())
+    }
+
+    pub async fn call_strings(&mut self, args: HashMap<String, String>) -> Result<()> {
+        let mut params = self.params().await?;
+        let mut args_parsed = HashMap::new();
+        for (name, value) in args {
+            if let Some((id, address, param)) = params.remove(&name) {
+                if let Some(validator) = param.validator.as_deref() {
+                    match validator.parse(&value) {
+                        Ok(value) => {
+                            args_parsed.insert(name, value);
+                        }
+                        Err(error) => bail!(
+                            "While attempting to parse document parameter `{}`: {}",
+                            name,
+                            error
+                        ),
+                    }
+                }
+            } else {
+                bail!("Document does not have a parameter named `{}`", name)
+            }
+        }
+
+        self.call(args_parsed);
 
         Ok(())
     }

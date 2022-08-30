@@ -541,7 +541,7 @@ impl Run for Run_ {
         // Call with args, or just execute
         if !self.args.is_empty() {
             let args = params(&self.args);
-            document.call(args).await?;
+            document.call_strings(args).await?;
         } else {
             document
                 .execute(

@@ -555,6 +555,7 @@ impl Task {
         }
     }
 }
+
 /// A trait for kernels
 ///
 /// This trait can be used by Rust implementations of kernels, allowing them to

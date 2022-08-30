@@ -16,7 +16,7 @@ use crate::{
 
 /// Assemble a node, usually the `root` node of a document
 ///
-/// Uses a `RwLock` for `root` so that write lock can be held for as short as
+/// Uses a `RwLock` for `root` and `call_docs` so that write lock can be held for as short as
 /// time as possible and for consistency with the `execute` function.
 ///
 /// # Arguments
@@ -24,6 +24,8 @@ use crate::{
 /// - `path`: The path of the document to be compiled
 ///
 /// - `root`: The root node to be compiled
+/// 
+/// - `call_docs`: The [`CallDocuments`] to which documents that a `Call`ed by this one will be added
 ///
 /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
 pub async fn assemble(

@@ -115,6 +115,23 @@ impl ToHtml for CodeExecutableCodeDependents {
             execute_required,
             execute_status,
         ) = match self {
+            CodeExecutableCodeDependents::Call(Call {
+                id,
+                source,
+                execute_auto,
+                execute_required,
+                execute_status,
+                ..
+            }) => (
+                "Call",
+                id.as_deref(),
+                Some(source),
+                None,
+                execute_auto.as_ref().map(|value| value.as_ref()),
+                execute_required.as_ref().map(|value| value.as_ref()),
+                execute_status.as_ref().map(|value| value.as_ref()),
+            ),
+
             CodeExecutableCodeDependents::CodeChunk(CodeChunk {
                 id,
                 label,
@@ -132,6 +149,7 @@ impl ToHtml for CodeExecutableCodeDependents {
                 execute_required.as_ref().map(|value| value.as_ref()),
                 execute_status.as_ref().map(|value| value.as_ref()),
             ),
+
             CodeExecutableCodeDependents::CodeExpression(CodeExpression {
                 id,
                 programming_language,
@@ -147,6 +165,7 @@ impl ToHtml for CodeExecutableCodeDependents {
                 execute_required.as_ref().map(|value| value.as_ref()),
                 execute_status.as_ref().map(|value| value.as_ref()),
             ),
+
             CodeExecutableCodeDependents::File(File { path, .. }) => {
                 ("File", None, Some(path), None, None, None, None)
             }

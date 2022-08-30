@@ -82,21 +82,6 @@ impl ToHtml for DatatableColumn {
 /// Encode a `Parameter`
 impl ToHtml for Parameter {
     fn to_html(&self, context: &EncodeContext) -> String {
-        // Generate a unique id for the <input> to be able to associate the
-        // <label> with it. We avoid using `self.name` or `self.name` which could
-        // get updated via patches (and thus would need changing in two places).
-        // But for determinism in tests, create a static id.
-        let input_id = match cfg!(test) {
-            true => "input-id".to_string(),
-            false => uuids::generate("in").to_string(),
-        };
-
-        let name = elem(
-            "label",
-            &[attr_prop("name"), attr_slot("name"), attr("for", &input_id)],
-            &self.name,
-        );
-
         // Meta elements for `validator`, `default`, and `value` that add HTML Microdata and
         // are used as "proxies" to the attributes added to the <input> element when patching the DOM
 
@@ -136,97 +121,122 @@ impl ToHtml for Parameter {
             ],
         );
 
-        let input = if let Some(ValidatorTypes::EnumValidator(validator)) =
-            self.validator.as_deref()
-        {
-            // Select the `value`, or secondarily, the `default` <option>
-            let value = self
-                .value
-                .as_deref()
-                .or(self.default.as_deref())
-                .map(|node| node.to_txt())
-                .unwrap_or_default();
-
-            let options = concat(&validator.values, |node| {
-                let txt = node.to_txt();
-                let selected = if txt == value { "selected" } else { "" };
-                elem("option", &[attr("value", &txt), selected.to_string()], &txt)
-            });
-
-            elem(
-                "select",
-                &[attr("id", &input_id), attr_slot("value")],
-                &[options].concat(),
-            )
-        } else {
-            // Get the attrs corresponding to the validator so that we
-            // can add them to the <input> element
-            let validator_attrs = match &self.validator {
-                Some(validator) => validator.to_attrs(context),
-                None => vec![attr("type", "text")],
-            };
-
-            // If the parameter's `default` property is set then set a `placeholder` attribute
-            let placeholder_attr = match &self.default {
-                Some(node) => attr("placeholder", &node.to_txt()),
-                None => "".to_string(),
-            };
-
-            let value_attr = match &self.value {
-                Some(node) => attr("value", &node.to_txt()),
-                None => "".to_string(),
-            };
-
-            // Add a size attribute which will expand the horizontal with of the input to match the content.
-            // This is useful when generating RPNGs to avoid extra whitespace. There is not an easy way to do this
-            // using CSS, see https://css-tricks.com/auto-growing-inputs-textareas/
-            let size_attr = self
-                .value
-                .as_ref()
-                .or(self.default.as_ref())
-                .map(|node| attr("size", &(node.to_txt().len() + 1).to_string()))
-                .unwrap_or_default();
-
-            // If a `BooleanValidator` then need to set the `checked` attribute if true
-            let checked_attr =
-                if let (Some(ValidatorTypes::BooleanValidator(..)), Some(Node::Boolean(true))) =
-                    (self.validator.as_deref(), self.value.as_deref())
-                {
-                    attr("checked", "")
-                } else {
-                    nothing()
-                };
-
-            let disabled_attr = match context.mode {
-                EncodeMode::Read => "disabled".to_string(),
-                _ => nothing(),
-            };
-
-            elem_empty(
-                "input",
-                &[
-                    attr("id", &input_id),
-                    attr_slot("value"),
-                    validator_attrs.join(" "),
-                    placeholder_attr,
-                    value_attr,
-                    size_attr,
-                    checked_attr,
-                    disabled_attr,
-                ],
-            )
-        };
+        let (name, input) = label_and_input(
+            &self.name,
+            &self.validator,
+            &self.value,
+            &self.default,
+            context,
+        );
 
         elem(
             "stencila-parameter",
-            &[
-                attr_itemtype::<Self>(),
-                attr_id(&self.id),
-                attr("mode", context.mode.as_ref()),
-            ],
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &[name, validator, default, value, input].concat(),
         )
     }
+}
+
+pub(crate) fn label_and_input(
+    name: &str,
+    validator: &Option<Box<ValidatorTypes>>,
+    value: &Option<Box<Node>>,
+    default: &Option<Box<Node>>,
+    context: &EncodeContext,
+) -> (String, String) {
+    // Generate a unique id for the <input> to be able to associate the
+    // <label> with it. We avoid using `self.id` or `self.name` which could
+    // get updated via patches (and thus would need changing in two places).
+    // But for determinism in tests, create a static id.
+    let input_id = match cfg!(test) {
+        true => "input-id".to_string(),
+        false => uuids::generate("in").to_string(),
+    };
+
+    let label = elem(
+        "label",
+        &[attr_prop("name"), attr_slot("name"), attr("for", &input_id)],
+        name,
+    );
+
+    let input = if let Some(ValidatorTypes::EnumValidator(validator)) = validator.as_deref() {
+        // Select the `value`, or secondarily, the `default` <option>
+        let value = value
+            .as_deref()
+            .or(default.as_deref())
+            .map(|node| node.to_txt())
+            .unwrap_or_default();
+
+        let options = concat(&validator.values, |node| {
+            let txt = node.to_txt();
+            let selected = if txt == value { "selected" } else { "" };
+            elem("option", &[attr("value", &txt), selected.to_string()], &txt)
+        });
+
+        elem(
+            "select",
+            &[attr("id", &input_id), attr_slot("value")],
+            &[options].concat(),
+        )
+    } else {
+        // Get the attrs corresponding to the validator so that we
+        // can add them to the <input> element
+        let validator_attrs = match &validator {
+            Some(validator) => validator.to_attrs(context),
+            None => vec![attr("type", "text")],
+        };
+
+        // If the parameter's `default` property is set then set a `placeholder` attribute
+        let placeholder_attr = match &default {
+            Some(node) => attr("placeholder", &node.to_txt()),
+            None => "".to_string(),
+        };
+
+        let value_attr = match &value {
+            Some(node) => attr("value", &node.to_txt()),
+            None => "".to_string(),
+        };
+
+        // Add a size attribute which will expand the horizontal with of the input to match the content.
+        // This is useful when generating RPNGs to avoid extra whitespace. There is not an easy way to do this
+        // using CSS, see https://css-tricks.com/auto-growing-inputs-textareas/
+        let size_attr = value
+            .as_ref()
+            .or(default.as_ref())
+            .map(|node| attr("size", &(node.to_txt().len() + 1).to_string()))
+            .unwrap_or_default();
+
+        // If a `BooleanValidator` then need to set the `checked` attribute if true
+        let checked_attr =
+            if let (Some(ValidatorTypes::BooleanValidator(..)), Some(Node::Boolean(true))) =
+                (validator.as_deref(), value.as_deref())
+            {
+                attr("checked", "")
+            } else {
+                nothing()
+            };
+
+        let disabled_attr = match context.mode {
+            EncodeMode::Read => "disabled".to_string(),
+            _ => nothing(),
+        };
+
+        elem_empty(
+            "input",
+            &[
+                attr("id", &input_id),
+                attr_slot("value"),
+                validator_attrs.join(" "),
+                placeholder_attr,
+                value_attr,
+                size_attr,
+                checked_attr,
+                disabled_attr,
+            ],
+        )
+    };
+
+    (label, input)
 }
 
 /// Encode a `ValidatorTypes` variant

@@ -207,7 +207,7 @@ impl ToMd for Parameter {
         }
 
         let attrs = if options.is_empty() {
-            "{}".to_string()
+            "".to_string()
         } else {
             ["{", &options, "}"].concat()
         };
@@ -471,6 +471,10 @@ impl ToMd for Include {
             options.push(["select=", select].concat())
         }
 
+        if let Some(execute_auto) = &self.execute_auto {
+            options.push(["autorun=", execute_auto.as_ref()].concat())
+        }
+
         let attrs = if options.is_empty() {
             "".to_string()
         } else {
@@ -482,19 +486,13 @@ impl ToMd for Include {
 }
 
 impl ToMd for Call {
-    fn to_md(&self, _options: &EncodeOptions) -> String {
+    fn to_md(&self, options: &EncodeOptions) -> String {
         let args = self
             .arguments
             .iter()
             .flatten()
-            .map(|arg| {
-                [
-                    &arg.name,
-                    "=",
-                    &serde_json::to_string(&arg.value).unwrap_or_default(),
-                ]
-                .concat()
-            })
+            .map(|arg| arg.to_md(options))
+            .filter(|arg| !arg.is_empty())
             .join(" ");
 
         let mut options = Vec::new();
@@ -507,6 +505,10 @@ impl ToMd for Call {
             options.push(["select=", select].concat())
         }
 
+        if let Some(execute_auto) = &self.execute_auto {
+            options.push(["autorun=", execute_auto.as_ref()].concat())
+        }
+
         let attrs = if options.is_empty() {
             "".to_string()
         } else {
@@ -514,6 +516,27 @@ impl ToMd for Call {
         };
 
         ["/", &self.source, "(", &args, ")", &attrs, "\n\n"].concat()
+    }
+}
+
+impl ToMd for CallArgument {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
+        if let Some(symbol) = &self.symbol {
+            if !symbol.trim().is_empty() {
+                return [&self.name, "=", symbol].concat();
+            }
+        }
+
+        if let Some(value) = &self.value {
+            return [
+                &self.name,
+                "=",
+                &serde_json::to_string(&value).unwrap_or_default(),
+            ]
+            .concat();
+        };
+
+        String::new()
     }
 }
 

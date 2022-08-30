@@ -2,15 +2,10 @@ use std::collections::HashMap;
 
 use nom::{
     branch::alt,
-    bytes::complete::{
-        escaped, is_not, tag, tag_no_case, take, take_until, take_while, take_while1,
-    },
-    character::{
-        complete::{alpha1, char, digit1, multispace0, multispace1, none_of},
-        is_alphanumeric,
-    },
-    combinator::{all_consuming, map, map_res, not, opt, peek},
-    multi::{fold_many0, separated_list0, separated_list1},
+    bytes::complete::{escaped, is_not, tag, tag_no_case, take, take_until, take_while1},
+    character::complete::{alpha1, alphanumeric1, char, digit1, multispace0, multispace1, none_of},
+    combinator::{all_consuming, map, map_res, not, opt, peek, recognize},
+    multi::{fold_many0, many0, many1, separated_list0, separated_list1},
     number::complete::double,
     sequence::{delimited, pair, preceded, tuple},
     IResult,
@@ -21,7 +16,6 @@ use codec::{
     common::{
         eyre::{bail, Result},
         inflector::Inflector,
-        itertools::Itertools,
         once_cell::sync::Lazy,
         regex::Regex,
         serde_json, serde_yaml, tracing,
@@ -1186,16 +1180,16 @@ fn number_node(input: &str) -> IResult<&str, Node> {
 
 /// Parse a single quoted string into a `String` node
 fn single_quoted_string_node(input: &str) -> IResult<&str, &str> {
-    let escaped = escaped(none_of("\\\'"), '\\', tag("'"));
+    let escaped = escaped(none_of("\\\'"), '\\', char('\''));
     let empty = tag("");
-    delimited(tag("'"), alt((escaped, empty)), tag("'"))(input)
+    delimited(char('\''), alt((escaped, empty)), char('\''))(input)
 }
 
 /// Parse a double quoted string into a `String` node
 fn double_quoted_string_node(input: &str) -> IResult<&str, &str> {
-    let escaped = escaped(none_of("\\\""), '\\', tag("\""));
+    let escaped = escaped(none_of("\\\""), '\\', char('"'));
     let empty = tag("");
-    delimited(tag("\""), alt((escaped, empty)), tag("\""))(input)
+    delimited(char('"'), alt((escaped, empty)), char('"'))(input)
 }
 
 /// Parse characters into string into a `String` node
@@ -1281,17 +1275,21 @@ fn include(input: &str) -> IResult<&str, Include> {
             tuple((is_not("({"), opt(curly_attrs))),
         )),
         |(source, options)| -> Result<Include> {
-            let options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
+            let mut options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
             Ok(Include {
                 source: source.to_string(),
                 media_type: options
-                    .get("format")
-                    .and_then(|option| option.as_ref())
+                    .remove("format")
+                    .and_then(|option| option)
                     .map(|node| Box::new(node.to_txt())),
                 select: options
-                    .get("select")
-                    .and_then(|option| option.as_ref())
+                    .remove("select")
+                    .and_then(|option| option)
                     .map(|node| Box::new(node.to_txt())),
+                execute_auto: options
+                    .remove("autorun")
+                    .and_then(|option| option)
+                    .and_then(|node| node.to_txt().parse().ok()),
                 ..Default::default()
             })
         },
@@ -1310,26 +1308,22 @@ fn call(input: &str) -> IResult<&str, Call> {
             )),
         )),
         |(source, args, options)| -> Result<Call> {
-            let options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
-            let args = args
-                .iter()
-                .map(|(name, value)| Parameter {
-                    name: name.into(),
-                    value: Some(Box::new(value.to_owned())),
-                    ..Default::default()
-                })
-                .collect_vec();
+            let mut options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
             Ok(Call {
                 source: source.to_string(),
                 arguments: if args.is_empty() { None } else { Some(args) },
                 media_type: options
-                    .get("format")
-                    .and_then(|option| option.as_ref())
+                    .remove("format")
+                    .and_then(|option| option)
                     .map(|node| Box::new(node.to_txt())),
                 select: options
-                    .get("select")
-                    .and_then(|option| option.as_ref())
+                    .remove("select")
+                    .and_then(|option| option)
                     .map(|node| Box::new(node.to_txt())),
+                execute_auto: options
+                    .remove("autorun")
+                    .and_then(|option| option)
+                    .and_then(|node| node.to_txt().parse().ok()),
                 ..Default::default()
             })
         },
@@ -1338,15 +1332,34 @@ fn call(input: &str) -> IResult<&str, Call> {
 
 /// Parse an argument inside a set of curly braced arguments.
 ///
-/// Arguments must be key-value pairs separated by `=` or `:`.
-fn call_arg(input: &str) -> IResult<&str, (String, Node)> {
+/// Arguments must be key-value or key-symbol pairs separated by `=`.
+fn call_arg(input: &str) -> IResult<&str, CallArgument> {
+    #[allow(clippy::large_enum_variant)]
+    enum CallArgumentValue {
+        Node(Node),
+        Symbol(String),
+    }
     map_res(
         tuple((
             symbol,
             delimited(multispace0, tag("="), multispace0),
-            primitive_node,
+            alt((
+                map(primitive_node, CallArgumentValue::Node),
+                map(symbol, CallArgumentValue::Symbol),
+            )),
         )),
-        |(name, _delim, node)| -> Result<(String, Node)> { Ok((name, node)) },
+        |(name, _delim, node)| -> Result<CallArgument> {
+            let (value, symbol) = match node {
+                CallArgumentValue::Node(node) => (Some(Box::new(node)), None),
+                CallArgumentValue::Symbol(symbol) => (None, Some(Box::new(symbol))),
+            };
+            Ok(CallArgument {
+                name: name.into(),
+                value,
+                symbol,
+                ..Default::default()
+            })
+        },
     )(input)
 }
 
@@ -1356,11 +1369,11 @@ fn call_arg(input: &str) -> IResult<&str, (String, Node)> {
 /// permissive here and to check validity of symbol names elsewhere.
 fn symbol(input: &str) -> IResult<&str, String> {
     map_res(
-        tuple((
-            alpha1,
-            take_while(|chr: char| is_alphanumeric(chr as u8) || chr == '_'),
-        )),
-        |(start, rest): (&str, &str)| -> Result<String> { Ok([start, rest].concat()) },
+        recognize(tuple((
+            many1(alt((alpha1, tag("_")))),
+            many0(alt((alphanumeric1, tag("_")))),
+        ))),
+        |str: &str| -> Result<String> { Ok(str.to_string()) },
     )(input)
 }
 
@@ -1485,6 +1498,18 @@ mod tests {
     }
 
     #[test]
+    fn test_double_quoted() {
+        let (_, res) = double_quoted_string_node(r#"" \" 🤖 ""#).unwrap();
+        assert_eq!(res, r#" \" 🤖 "#);
+        let (_, res) = double_quoted_string_node(r#"" → x""#).unwrap();
+        assert_eq!(res, " → x");
+        let (_, res) = double_quoted_string_node(r#""  ""#).unwrap();
+        assert_eq!(res, "  ");
+        let (_, res) = double_quoted_string_node(r#""""#).unwrap();
+        assert_eq!(res, "");
+    }
+
+    #[test]
     fn test_square_bracketed() {
         let (_, res) = array_node("[1,2,3]").unwrap();
         assert_json_eq!(res, [1, 2, 3]);
@@ -1541,6 +1566,65 @@ mod tests {
                 name: "name_with_under7scoresAnd_digits_3".to_string(),
                 ..Default::default()
             })
+        );
+    }
+
+    #[test]
+    fn test_calls() {
+        assert_eq!(
+            call("/file.md()").unwrap().1,
+            Call {
+                source: "file.md".to_string(),
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            call("/file.md(a=1)").unwrap().1,
+            Call {
+                source: "file.md".to_string(),
+                arguments: Some(vec![CallArgument {
+                    name: "a".to_string(),
+                    value: Some(Box::new(Node::Integer(1))),
+                    ..Default::default()
+                }]),
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            call(r#"/file.md(parAm_eter_1="string")"#).unwrap().1,
+            Call {
+                source: "file.md".to_string(),
+                arguments: Some(vec![CallArgument {
+                    name: "parAm_eter_1".to_string(),
+                    value: Some(Box::new(Node::String("string".to_string()))),
+                    ..Default::default()
+                }]),
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            call("/file.md(a=1.23 b=symbol c='string')").unwrap().1,
+            Call {
+                source: "file.md".to_string(),
+                arguments: Some(vec![
+                    CallArgument {
+                        name: "a".to_string(),
+                        value: Some(Box::new(Node::Number(Number(1.23)))),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "b".to_string(),
+                        symbol: Some(Box::new("symbol".to_string())),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "c".to_string(),
+                        value: Some(Box::new(Node::String("string".to_string()))),
+                        ..Default::default()
+                    }
+                ]),
+                ..Default::default()
+            }
         );
     }
 

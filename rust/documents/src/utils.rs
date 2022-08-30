@@ -76,12 +76,19 @@ pub(crate) fn send_patch(
     }
 }
 
-/// Sends multiple [`Patch`]es using a channel sender (combining them into a single patch before sending)
+/// Sends multiple [`Patch`]es using a channel sender (combining them into a single patch, if
+/// possible, before sending)
 pub(crate) fn send_patches(
     patch_sender: &UnboundedSender<PatchRequest>,
     patches: Vec<Patch>,
     compile: When,
 ) {
-    let patch = Patch::from_patches(patches);
-    send_patch(patch_sender, patch, compile)
+    if patches.iter().any(|patch| patch.target.is_some()) {
+        for patch in patches {
+            send_patch(patch_sender, patch, compile)
+        }
+    } else {
+        let patch = Patch::from_patches(patches);
+        send_patch(patch_sender, patch, compile)
+    }
 }
