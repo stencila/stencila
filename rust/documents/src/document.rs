@@ -11,7 +11,6 @@ use notify::DebouncedEvent;
 
 use common::{
     eyre::{bail, Result},
-    indexmap::IndexMap,
     itertools::Itertools,
     maplit::hashset,
     serde::Serialize,
@@ -29,14 +28,13 @@ use formats::FormatSpec;
 use graph::{Graph, PlanOptions, PlanOrdering, PlanScope};
 use graph_triples::{resources, Relations, Resource, ResourceChange, TagMap};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
-use node_address::{Address, AddressMap};
+use node_address::AddressMap;
 use node_patch::{apply, diff, merge, Patch};
-use node_pointer::{resolve, resolve_mut};
+use node_pointer::resolve;
 use node_reshape::reshape;
-use node_validate::Validator;
 
 use providers::DetectItem;
-use stencila_schema::{Article, InlineContent, Node, Parameter};
+use stencila_schema::{Article, Node};
 
 use crate::{
     assemble::assemble,
@@ -185,7 +183,7 @@ pub struct Document {
     /// pointers or references will change as the document is patched.
     /// These addresses are shifted when the document is patched to account for this.
     #[serde(skip)]
-    addresses: Arc<RwLock<AddressMap>>,
+    pub(crate) addresses: Arc<RwLock<AddressMap>>,
 
     /// Global tags defined in any of the document's code chunks
     #[allow(dead_code)]
@@ -1876,97 +1874,6 @@ impl Document {
                 tracing::error!("When sending request for document `{}`: {}", self.id, error);
             }
         }
-    }
-
-    /// Get the parameters of the document
-    pub async fn params(&mut self) -> Result<IndexMap<String, (String, Address, Parameter)>> {
-        // Assemble the document to ensure its `addresses` are up to date
-        self.assemble(When::Never, When::Never, When::Never).await?;
-
-        // Collect parameters from addresses
-        let addresses = self.addresses.read().await;
-        let root = &*self.root.read().await;
-        let params = addresses
-            .iter()
-            .filter_map(|(id, address)| {
-                if let Ok(pointer) = resolve(root, Some(address.clone()), Some(id.clone())) {
-                    if let Some(InlineContent::Parameter(param)) = pointer.as_inline() {
-                        return Some((
-                            param.name.clone(),
-                            (id.clone(), address.clone(), param.clone()),
-                        ));
-                    }
-                }
-                None
-            })
-            .collect();
-
-        Ok(params)
-    }
-
-    /// Call the document with arguments
-    pub async fn call(&mut self, args: HashMap<String, Node>) -> Result<()> {
-        let mut params = self.params().await?;
-
-        {
-            let root = &mut *self.root.write().await;
-            for (name, value) in args {
-                if let Some((id, address, param)) = params.remove(&name) {
-                    if let Some(validator) = param.validator.as_deref() {
-                        match validator.validate(&value) {
-                            Ok(..) => {
-                                if let Ok(mut pointer) = resolve_mut(root, Some(address), Some(id))
-                                {
-                                    if let Some(InlineContent::Parameter(param)) =
-                                        pointer.as_inline_mut()
-                                    {
-                                        param.value = Some(Box::new(value));
-                                    }
-                                }
-                            }
-                            Err(error) => bail!(
-                                "While attempting to parse document parameter `{}`: {}",
-                                name,
-                                error
-                            ),
-                        }
-                    }
-                } else {
-                    bail!("Document does not have a parameter named `{}`", name)
-                }
-            }
-        }
-
-        self.execute(When::Never, None, None, None).await?;
-
-        Ok(())
-    }
-
-    pub async fn call_strings(&mut self, args: HashMap<String, String>) -> Result<()> {
-        let mut params = self.params().await?;
-        let mut args_parsed = HashMap::new();
-        for (name, value) in args {
-            if let Some((id, address, param)) = params.remove(&name) {
-                if let Some(validator) = param.validator.as_deref() {
-                    match validator.parse(&value) {
-                        Ok(value) => {
-                            args_parsed.insert(name, value);
-                        }
-                        Err(error) => bail!(
-                            "While attempting to parse document parameter `{}`: {}",
-                            name,
-                            error
-                        ),
-                    }
-                }
-            } else {
-                bail!("Document does not have a parameter named `{}`", name)
-            }
-        }
-
-        self.call(args_parsed);
-
-        Ok(())
     }
 
     /// Cancel the execution of the document

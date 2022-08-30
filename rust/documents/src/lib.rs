@@ -5,6 +5,7 @@ mod documents;
 mod executable;
 mod execute;
 mod messages;
+mod parameters;
 mod utils;
 
 pub use crate::documents::DOCUMENTS;
