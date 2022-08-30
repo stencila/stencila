@@ -21,8 +21,8 @@ proptest! {
                 // Pandoc replaces the media object with the description if
                 // it can not find the file. So exclude these types from the test.
                 "AudioObject", "ImageObject", "VideoObject",
-                // Skipping `Call` until fully developed
-                "Call"
+                // Skipping these until fully developed
+                "Call", "Include"
             ]
         ].concat(),
         DocxCodec::spec().unsupported_properties
