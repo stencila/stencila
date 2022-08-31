@@ -278,7 +278,7 @@ impl Document {
     /// a new document. If the `path` is not specified, the created document
     /// will be `temporary: true` and have a temporary file path.
     #[tracing::instrument]
-    fn new(path: Option<PathBuf>, format: Option<String>) -> Document {
+    fn new(path: Option<PathBuf>, format: Option<String>) -> Result<Document> {
         let id = uuids::generate("do").to_string();
 
         let format = if let Some(format) = format {
@@ -298,6 +298,8 @@ impl Document {
                     .map(|os_str| os_str.to_string_lossy())
                     .unwrap_or_else(|| "Untitled".into())
                     .into();
+
+                let path = path.canonicalize()?;
 
                 (path, name, false)
             }
@@ -496,7 +498,7 @@ impl Document {
             .await
         });
 
-        Document {
+        Ok(Document {
             id,
             path,
             project,
@@ -524,7 +526,7 @@ impl Document {
             execute_request_sender,
             cancel_request_sender,
             response_receiver,
-        }
+        })
     }
 
     /// Create a new document, optionally with content.
@@ -535,7 +537,7 @@ impl Document {
     ) -> Result<Document> {
         let path = path.map(|path| PathBuf::from(path.as_ref()));
 
-        let mut document = Document::new(path, format);
+        let mut document = Document::new(path, format)?;
         if let Some(content) = content {
             document.load(content, None).await?;
         }
@@ -551,12 +553,12 @@ impl Document {
     ///
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the path's file extension.
-    /// TODO: add project: Option<PathBuf> so that project can be explictly set
     #[tracing::instrument(skip(path))]
     pub async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
-        let path = PathBuf::from(path.as_ref());
+        let path = path.as_ref();
+        let path = Self::find_matching_path(path, None)?;
 
-        let mut document = Document::new(Some(path.clone()), format);
+        let mut document = Document::new(Some(path.clone()), format)?;
         if let Err(error) = document.read(true).await {
             tracing::warn!("While reading document `{}`: {}", path.display(), error)
         };
@@ -2315,8 +2317,8 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn new() {
-        let doc = Document::new(None, None);
+    async fn new() -> Result<()> {
+        let doc = Document::new(None, None)?;
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
@@ -2324,13 +2326,15 @@ mod tests {
         assert_eq!(doc.content, "");
         assert_eq!(doc.subscriptions, HashMap::new());
 
-        let doc = Document::new(None, Some("md".to_string()));
+        let doc = Document::new(None, Some("md".to_string()))?;
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
         assert_eq!(doc.format.extension, "md");
         assert_eq!(doc.content, "");
         assert_eq!(doc.subscriptions, HashMap::new());
+
+        Ok(())
     }
 
     #[tokio::test]
