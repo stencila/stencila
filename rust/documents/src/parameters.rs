@@ -9,12 +9,13 @@ use common::{
     eyre::{bail, Result},
     indexmap::IndexMap,
     itertools::Itertools,
+    serde_json, tracing,
 };
 use node_address::Address;
 use node_pointer::{resolve, resolve_mut};
 use node_validate::Validator;
 use path_utils::lexiclean::Lexiclean;
-use stencila_schema::{InlineContent, Node, Parameter};
+use stencila_schema::{EnumValidator, InlineContent, Node, Parameter, ValidatorTypes};
 
 use crate::{document::Document, When};
 
@@ -158,7 +159,7 @@ impl Document {
         );
         let path = dir.join(path).lexiclean();
 
-        if !Self::is_matching_path(&path, &self.path) {
+        if !Self::path_matches(&path, &self.path) {
             bail!(
                 "Unable to call document at `{}` with path `{}` because paths do not match",
                 self.path.to_string_lossy(),
@@ -168,7 +169,7 @@ impl Document {
 
         let mut args = HashMap::new();
         let arg_values = path.components().collect_vec();
-        for (index, component) in Self::path_parts(&self.path).iter().enumerate() {
+        for (index, component) in Self::path_segments(&self.path).iter().enumerate() {
             if let Some(name) = component.strip_prefix('$') {
                 args.insert(
                     name.to_string(),
@@ -182,6 +183,84 @@ impl Document {
         Ok(())
     }
 
+    /// Get a list of possible URL paths for a document
+    ///
+    /// When a document has a parameterized path that involves only parameters with `EnumValidator`s,
+    /// tis function will return all possible combinations of paths for those parameters. If a document does not
+    /// have any parameters, or one of the parameters in the path is not an `EnumValidator`, then
+    /// only one path (`self.path`) will be returned.
+    pub async fn enumerate_urls(&mut self, expand: bool) -> Result<Vec<String>> {
+        let params = self.params().await?;
+
+        let path_segments = Self::path_segments(&self.path);
+        let path_params = Self::path_params(&self.path);
+
+        // Collect the values of all enum parameters
+        let param_values: HashMap<String, &Vec<Node>> = path_params.into_iter().filter_map(|name| match params.get(&name) {
+            Some((.., param)) => {
+                match param.validator.as_deref() {
+                    Some(ValidatorTypes::EnumValidator(EnumValidator{values,..})) => {
+                        match !values.is_empty() {
+                            true => Some((name, values)),
+                            false => None
+                        }
+                    },
+                    _ => None
+                }
+            },
+            None => {
+                tracing::warn!("Parameter `${}` is used in path for document `{}` but is not represented by a `Parameter` in the content of the document", name, self.path.to_string_lossy());
+                None
+            }
+        }).collect();
+
+        // If there is not a set of values for all of the docs parameters then return the
+        // expanded (forward slashes only) URL path
+        if !expand || param_values.len() != params.len() {
+            return Ok(vec![path_segments.join("/")]);
+        }
+
+        // Expand the segments ito URL paths using the enum values
+        let mut urls: Vec<String> = Vec::new();
+        for segment in path_segments {
+            // A parameter segment so expand paths for that segment
+            if let Some(param) = segment.strip_prefix('$') {
+                if let Some(values) = param_values.get(param) {
+                    urls = urls
+                        .iter()
+                        .flat_map(|path| {
+                            values.iter().map(|node| {
+                                [
+                                    path,
+                                    "/",
+                                    &match node {
+                                        Node::Boolean(value) => value.to_string(),
+                                        Node::Integer(value) => value.to_string(),
+                                        Node::Number(value) => value.0.to_string(),
+                                        Node::String(value) => value.to_string(),
+                                        _ => serde_json::to_string(node)
+                                            .unwrap_or_else(|_| segment.clone()),
+                                    },
+                                ]
+                                .concat()
+                            })
+                        })
+                        .collect();
+                    continue;
+                }
+            }
+
+            // Not a parameter segment (or one that for some reason has no values) so just add to
+            // each of the existing paths
+            for path in urls.iter_mut() {
+                path.push('/');
+                path.push_str(&segment)
+            }
+        }
+
+        Ok(urls)
+    }
+
     /// Does a filesystem path contain parameters?
     pub fn path_has_parameters(path: &Path) -> bool {
         for component in path.components() {
@@ -193,9 +272,9 @@ impl Document {
         false
     }
 
-    /// Split a filesystem path into parts, including parts separated by dots
+    /// Split a filesystem path into segments, including segments separated by dots
     /// in directory of file names
-    fn path_parts(path: &Path) -> Vec<String> {
+    fn path_segments(path: &Path) -> Vec<String> {
         let mut parts = Vec::new();
         for component in path.components() {
             let string = component.as_os_str().to_string_lossy();
@@ -204,6 +283,65 @@ impl Document {
             }
         }
         parts
+    }
+
+    /// Get the name of the parameters is a document's filesystem path
+    fn path_params(path: &Path) -> Vec<String> {
+        Self::path_segments(path)
+            .iter()
+            .filter_map(|part| part.strip_prefix('$').map(String::from))
+            .collect_vec()
+    }
+
+    /// Match a URL path to a, possibly parametrized, filesystem path
+    ///
+    /// Used in `Document::find_path` to find a file system path matching a path.
+    pub fn path_matches<P1: AsRef<Path>, P2: AsRef<Path>>(path: P1, file: P2) -> bool {
+        let path = path.as_ref();
+        let file = file.as_ref();
+
+        // Equal as is? (note that Rust removes trailing slashes in paths)
+        if path == file {
+            return true;
+        }
+
+        // Equal to file stem (i.e. if drop extension)
+        let file = match file.file_stem() {
+            Some(stem) => file
+                .components()
+                .take(file.components().count() - 1)
+                .collect::<PathBuf>()
+                .join(stem),
+            None => file.to_path_buf(),
+        };
+        if path == file {
+            return true;
+        }
+
+        // Split path into segments
+        let path_segments = path.components();
+
+        // Split the file into segments (includes dots)
+        let file_segments = Self::path_segments(&file);
+
+        // Equal number of segments?
+        if path_segments.count() != file_segments.len() {
+            return false;
+        }
+
+        // Do the `path_segments` match the `file_segments` allowing for `$<name>` "wildcards"
+        for (index, component) in path.components().enumerate() {
+            if file_segments[index].starts_with('$') {
+                continue;
+            }
+
+            let path_part = component.as_os_str().to_string_lossy();
+            if path_part != file_segments[index] {
+                return false;
+            }
+        }
+
+        true
     }
 
     /// Find a filesystem path that matches a, possibly parametrized, path
@@ -236,7 +374,7 @@ impl Document {
         for entry in walker.filter_map(Result::ok) {
             let entry_path = entry.path();
             let rel_path = entry_path.strip_prefix(&dir).unwrap_or(entry_path);
-            if entry_path.is_file() && Self::is_matching_path(path, rel_path) {
+            if entry_path.is_file() && Self::path_matches(path, rel_path) {
                 return Ok(entry_path.to_path_buf());
             }
         }
@@ -245,57 +383,6 @@ impl Document {
             "Unable to find a file matching path: {}",
             path.to_string_lossy()
         );
-    }
-
-    /// Match a path to a, possibly parametrized, filesystem path
-    ///
-    /// Used in `Document::find_path` to find a file system path matching a path.
-    pub fn is_matching_path<P1: AsRef<Path>, P2: AsRef<Path>>(path: P1, file: P2) -> bool {
-        let path = path.as_ref();
-        let file = file.as_ref();
-
-        // Equal as is? (note that Rust removes trailing slashes in paths)
-        if path == file {
-            return true;
-        }
-
-        // Equal to file stem (i.e. if drop extension)
-        let file = match file.file_stem() {
-            Some(stem) => file
-                .components()
-                .take(file.components().count() - 1)
-                .collect::<PathBuf>()
-                .join(stem),
-            None => file.to_path_buf(),
-        };
-        if path == file {
-            return true;
-        }
-
-        // Split path into components
-        let path_parts = path.components();
-
-        // Split the file into parts (includes dots)
-        let file_parts = Self::path_parts(&file);
-
-        // Equal number of parts?
-        if path_parts.count() != file_parts.len() {
-            return false;
-        }
-
-        // Do the `path_parts` match the `file_parts` allowing for `$<name>` "wildcards"
-        for (index, component) in path.components().enumerate() {
-            if file_parts[index].starts_with('$') {
-                continue;
-            }
-
-            let path_part = component.as_os_str().to_string_lossy();
-            if path_part != file_parts[index] {
-                return false;
-            }
-        }
-
-        true
     }
 }
 
@@ -308,48 +395,45 @@ mod tests {
     #[tokio::test]
     async fn matches_path() {
         // Match on equal
-        assert!(Document::is_matching_path("file.ext", "file.ext"));
-        assert!(Document::is_matching_path("dir/file.ext", "dir/file.ext"));
-        assert!(Document::is_matching_path("dir/file.ext/", "dir/file.ext"));
+        assert!(Document::path_matches("file.ext", "file.ext"));
+        assert!(Document::path_matches("dir/file.ext", "dir/file.ext"));
+        assert!(Document::path_matches("dir/file.ext/", "dir/file.ext"));
 
         // Match on stem
-        assert!(Document::is_matching_path("file", "file.ext"));
-        assert!(Document::is_matching_path("dir/file", "dir/file.ext"));
-        assert!(Document::is_matching_path("dir/file/", "dir/file.ext"));
+        assert!(Document::path_matches("file", "file.ext"));
+        assert!(Document::path_matches("dir/file", "dir/file.ext"));
+        assert!(Document::path_matches("dir/file/", "dir/file.ext"));
 
         // Match on parameters
-        assert!(Document::is_matching_path("2002", "$year.ext"));
-        assert!(Document::is_matching_path("2002/west", "$year.$region.ext"));
-        assert!(Document::is_matching_path("2002/west", "$year/$region.ext"));
-        assert!(Document::is_matching_path(
-            "2002/west/",
-            "$year/$region.ext"
-        ));
-        assert!(Document::is_matching_path(
+        assert!(Document::path_matches("2002", "$year.ext"));
+        assert!(Document::path_matches("2002/west", "$year.$region.ext"));
+        assert!(Document::path_matches("2002/west", "$year/$region.ext"));
+        assert!(Document::path_matches("2002/west/", "$year/$region.ext"));
+        assert!(Document::path_matches(
             "2002/west/habitat/pelagic",
             "$year.$region.habitat.$habitat.ext"
         ));
-        assert!(Document::is_matching_path(
+        assert!(Document::path_matches(
             "2002/west/habitat/pelagic",
             "$year/$region/habitat/$habitat.ext"
         ));
-        assert!(Document::is_matching_path(
+        assert!(Document::path_matches(
             "2002/region/west/pelagic",
             "$year/region/$region.$habitat.ext"
         ));
-        assert!(Document::is_matching_path(
+        assert!(Document::path_matches(
             "2002/region/west/pelagic",
             "$year.region.$region/$habitat.ext"
         ));
-        assert!(Document::is_matching_path(
+        assert!(Document::path_matches(
             "2002/region/west/habitat/pelagic/",
             "$year.region.$region.habitat.$habitat.ext"
         ));
 
         // Non matches
-        assert!(!Document::is_matching_path("a", "b"));
-        assert!(!Document::is_matching_path("a", "b.ext"));
-        assert!(!Document::is_matching_path("a/c", "b/$c"));
-        assert!(!Document::is_matching_path("a/b/c/d", "a/$b/c"));
+        assert!(!Document::path_matches("a", "b"));
+        assert!(!Document::path_matches("a", "b.ext"));
+        assert!(!Document::path_matches("a/c", "b/$c"));
+        assert!(!Document::path_matches("a/b/c/d", "a/$b/c"));
     }
 }
