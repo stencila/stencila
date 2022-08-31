@@ -401,7 +401,7 @@ mod tests {
 
     /// Test forking
     #[tokio::test]
-    async fn exec_fork() -> Result<()> {
+    async fn forking() -> Result<()> {
         let _guard = QUEUE.lock().await;
 
         let mut kernel = match skip_or_kernel().await {
@@ -435,6 +435,16 @@ mod tests {
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
         assert_json_eq!(outputs[0], var);
+
+        // Now create a persistent fork and ensure were can execute multiple tasks in it including
+        // getting the original var and generating a new one
+        let mut fork = kernel.create_fork("").await?;
+        let (outputs, messages) = fork.exec("var", None).await?;
+        assert_json_is!(messages, []);
+        assert_json_is!(outputs, [var]);
+        let (outputs, messages) = fork.exec("runif(0, 1)", None).await?;
+        assert_json_is!(messages, []);
+        assert_eq!(outputs.len(), 1);
 
         Ok(())
     }

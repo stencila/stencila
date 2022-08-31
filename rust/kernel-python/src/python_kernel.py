@@ -71,25 +71,30 @@ while True:
 
                 should_exec = False
             else:
-                # Child process, so should exit process after executing the code
-                should_exit = True
-
                 # Remove the FORK flag and the pipe paths from the front of lines
-                (new_stdout, new_stderr) = lines[1:3]
-                lines = lines[3:]
+                (new_stdin, new_stdout, new_stderr) = lines[1:4]
+                lines = lines[4:]
 
                 # Close file descriptors so that we're not interfering with
-                # parent's file descriptors and so stdin, stdout and stderr get replaced below.
-                # See https://gist.github.com/ionelmc/5038117 for a more sophisticated approach to this.
+                # parent's file descriptors and so stdin, stdout and stderr get replaced below
+                # using the right index (0, 1, 2).
+                # See https://gist.github.com/ionelmc/5038117 for a more sophisticated approach
+                # to determining the maximum file descriptor
                 os.closerange(0, 1024)
 
-                # Set stdin to /dev/null to avoid getting more input
-                # and to end loop on next iteration
-                os.open("/dev/null", os.O_RDONLY)  # 0: stdin
+                if new_stdin:
+                    # Replace stdin with pipe and do not execute code (which should be empty)
+                    os.open(new_stdin, os.O_RDONLY)  # fd 0 = stdin
+                    should_exec = False
+                else:
+                    # If there is no new stdin then set stdin to /dev/null to avoid getting more input
+                    # and exit at end of loop
+                    os.open("/dev/null", os.O_RDONLY)  # fd 0 = stdin
+                    should_exit = True
 
                 # Replace stdout and stderr with pipes
-                os.open(new_stdout, os.O_WRONLY | os.O_TRUNC)  # 1: stdout
-                os.open(new_stderr, os.O_WRONLY | os.O_TRUNC)  # 2: stderr
+                os.open(new_stdout, os.O_WRONLY | os.O_TRUNC)  # fd 1 = stdout
+                os.open(new_stderr, os.O_WRONLY | os.O_TRUNC)  # fd 2 = stderr
 
         if should_exec:
             rest, last = lines[:-1], lines[-1]

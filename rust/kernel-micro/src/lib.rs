@@ -119,7 +119,6 @@ pub struct MicroKernel {
 #[derive(Debug)]
 enum Stdin {
     Child(BufWriter<ChildStdin>),
-    #[allow(dead_code)]
     File(BufWriter<File>),
 }
 
@@ -588,11 +587,25 @@ impl MicroKernel {
     }
 
     /// Create a fork of the kernel
+    ///
+    /// If `code` is NOT empty then the child fork process should execute it and exit
+    /// immediately (after sending results and messages over stdout/stderr).
+    ///
+    /// If `code` IS empty then the child fork process should remain alive and wait for other tasks.
     #[cfg(not(target_os = "windows"))]
-    async fn create_fork(&mut self, code: &str) -> Result<MicroKernel> {
+    pub async fn create_fork(&self, code: &str) -> Result<MicroKernel> {
         // Create pipes in a temporary directory (which gets cleaned up when dropped)
+        // Not that a stdin is not required for temporary forks since code is sent on
+        // the same request.
         use nix::{sys::stat, unistd::mkfifo};
         let pipes_dir = tempdir()?;
+        let fork_stdin = if code.is_empty() {
+            let fork_stdin = pipes_dir.path().join("stdin.pipe");
+            mkfifo(&fork_stdin, stat::Mode::S_IRWXU)?;
+            Some(fork_stdin)
+        } else {
+            None
+        };
         let fork_stdout = pipes_dir.path().join("stdout.pipe");
         mkfifo(&fork_stdout, stat::Mode::S_IRWXU)?;
         let fork_stderr = pipes_dir.path().join("stderr.pipe");
@@ -600,9 +613,14 @@ impl MicroKernel {
 
         let mut state = self.state().await;
 
-        // Send fork task to the kernel
+        // Send fork task to the kernel with paths of `stdin` (if any), `stdout` and `stderr`
+        // and any code to execute. The kernel process expects these four "argument lines" to FORK,
+        // although `stdin` and `code` may be empty lines.
         let task = vec![
             FORK.to_string(),
+            fork_stdin
+                .as_ref()
+                .map_or_else(String::new, |path| path.display().to_string()),
             fork_stdout.display().to_string(),
             fork_stderr.display().to_string(),
             code.to_string(),
@@ -620,18 +638,30 @@ impl MicroKernel {
             bail!("Did not receive a pid for fork")
         };
 
-        // Open the fork `stdout` and `stderr` FIFO pipes. These calls will block until the child
-        // process has opened the pipes for writing. So perhaps this should have a timeout
+        // Open the fork `stdin`, `stdout` and `stderr` FIFO pipes. These calls will block until the child
+        // process has opened the pipes for reading/writing. So perhaps this should have a timeout
         // in case that fails.
-        tracing::trace!("Waiting to open stdout");
+        let fork_stdin = match fork_stdin {
+            Some(fork_stdin) => {
+                tracing::trace!("Creating {}", fork_stdin.display());
+                // This must use `create` so the pipe is opened in write-only mode
+                // Otherwise this process and the fork will both be waiting on each other
+                // to act as the writer for their reader.
+                let fork_stdin = File::create(fork_stdin).await?;
+                tracing::trace!("Fork has opened stdin pipe for reading");
+                Some(fork_stdin)
+            }
+            None => None,
+        };
+        tracing::trace!("Waiting to open {}", fork_stdout.display());
         let fork_stdout = File::open(fork_stdout).await?;
-        tracing::trace!("Waiting to open stderr");
+        tracing::trace!("Waiting to open {}", fork_stderr.display());
         let fork_stderr = File::open(fork_stderr).await?;
-        tracing::trace!("Fork has opened stdout and stderr");
+        tracing::trace!("Fork has opened stdout and stderr pipes for writing");
 
         Ok(Self {
-            // Copied from parent..
-            // Small properties required for fork operation and/or display
+            // Fields copied from parent..
+            // Small fields required for fork operation and/or display
             name: self.name.clone(),
             languages: self.languages.clone(),
             available: self.available,
@@ -639,19 +669,19 @@ impl MicroKernel {
             forkable: self.forkable,
             runtime: self.runtime.clone(),
             args: self.args.clone(),
-            // Large properties not required for fork operation
+            // Large fields not required for fork operation
             script: (String::new(), String::new()),
             others: Vec::new(),
-            // Small properties that may be needed for fork to get symbols
+            // Small fields that may be needed for fork to get symbols
             set_template: self.set_template.clone(),
             get_template: self.get_template.clone(),
 
-            // Runtime properties..
+            // Runtime fields that must not be copied from parent..
             pid: Some(fork_pid),
             forked_from: self.pid,
             child: None,
             state: Some(Arc::new(Mutex::new(MicroKernelState {
-                stdin: None,
+                stdin: fork_stdin.map(|stream| Stdin::File(BufWriter::new(stream))),
                 stdout: Stdout::File(BufReader::new(fork_stdout)),
                 stderr: Stderr::File(BufReader::new(fork_stderr)),
             }))),
