@@ -716,10 +716,8 @@ Emphasis <- function(
 #' @param default The default value of the parameter.
 #' @param executeDigest The `compileDigest` of the parameter when it was last executed.
 #' @param executeRequired Whether, and why, the parameter needs execution or re-execution.
+#' @param hidden Whether the parameter should be hidden.
 #' @param id The identifier for this item.
-#' @param isExtensible Indicates that this parameter is variadic and can accept multiple named arguments.
-#' @param isRequired Is this parameter required, if not it should have a default or default is assumed to be null.
-#' @param isVariadic Indicates that this parameter is variadic and can accept multiple arguments.
 #' @param meta Metadata associated with this item.
 #' @param validator The validator that the value is validated against.
 #' @param value The current value of the parameter.
@@ -732,10 +730,8 @@ Parameter <- function(
   default,
   executeDigest,
   executeRequired,
+  hidden,
   id,
-  isExtensible,
-  isRequired,
-  isVariadic,
   meta,
   validator,
   value
@@ -750,9 +746,7 @@ Parameter <- function(
   self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), Node, default)
   self[["executeDigest"]] <- check_property("Parameter", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
   self[["executeRequired"]] <- check_property("Parameter", "executeRequired", FALSE, missing(executeRequired), ExecuteRequired, executeRequired)
-  self[["isExtensible"]] <- check_property("Parameter", "isExtensible", FALSE, missing(isExtensible), "logical", isExtensible)
-  self[["isRequired"]] <- check_property("Parameter", "isRequired", FALSE, missing(isRequired), "logical", isRequired)
-  self[["isVariadic"]] <- check_property("Parameter", "isVariadic", FALSE, missing(isVariadic), "logical", isVariadic)
+  self[["hidden"]] <- check_property("Parameter", "hidden", FALSE, missing(hidden), "logical", hidden)
   self[["validator"]] <- check_property("Parameter", "validator", FALSE, missing(validator), ValidatorTypes, validator)
   self[["value"]] <- check_property("Parameter", "value", FALSE, missing(value), Node, value)
   class(self) <- c(class(self), "Parameter")
@@ -768,10 +762,8 @@ Parameter <- function(
 #' @param default The default value of the parameter.
 #' @param executeDigest The `compileDigest` of the parameter when it was last executed.
 #' @param executeRequired Whether, and why, the parameter needs execution or re-execution.
+#' @param hidden Whether the parameter should be hidden.
 #' @param id The identifier for this item.
-#' @param isExtensible Indicates that this parameter is variadic and can accept multiple named arguments.
-#' @param isRequired Is this parameter required, if not it should have a default or default is assumed to be null.
-#' @param isVariadic Indicates that this parameter is variadic and can accept multiple arguments.
 #' @param meta Metadata associated with this item.
 #' @param symbol The name of a variable to use as the value of the parameter
 #' @param validator The validator that the value is validated against.
@@ -785,10 +777,8 @@ CallArgument <- function(
   default,
   executeDigest,
   executeRequired,
+  hidden,
   id,
-  isExtensible,
-  isRequired,
-  isVariadic,
   meta,
   symbol,
   validator,
@@ -800,10 +790,8 @@ CallArgument <- function(
     default = default,
     executeDigest = executeDigest,
     executeRequired = executeRequired,
+    hidden = hidden,
     id = id,
-    isExtensible = isExtensible,
-    isRequired = isRequired,
-    isVariadic = isVariadic,
     meta = meta,
     validator = validator,
     value = value

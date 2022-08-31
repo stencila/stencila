@@ -679,18 +679,12 @@ pub struct Parameter {
     /// Whether, and why, the parameter needs execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
 
+    /// Whether the parameter should be hidden.
+    pub hidden: Option<Boolean>,
+
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
-
-    /// Indicates that this parameter is variadic and can accept multiple named arguments.
-    pub is_extensible: Option<Boolean>,
-
-    /// Is this parameter required, if not it should have a default or default is assumed to be null.
-    pub is_required: Option<Boolean>,
-
-    /// Indicates that this parameter is variadic and can accept multiple arguments.
-    pub is_variadic: Option<Boolean>,
 
     /// The validator that the value is validated against.
     pub validator: Option<Box<ValidatorTypes>>,
@@ -729,18 +723,12 @@ pub struct CallArgument {
     /// Whether, and why, the parameter needs execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
 
+    /// Whether the parameter should be hidden.
+    pub hidden: Option<Boolean>,
+
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
-
-    /// Indicates that this parameter is variadic and can accept multiple named arguments.
-    pub is_extensible: Option<Boolean>,
-
-    /// Is this parameter required, if not it should have a default or default is assumed to be null.
-    pub is_required: Option<Boolean>,
-
-    /// Indicates that this parameter is variadic and can accept multiple arguments.
-    pub is_variadic: Option<Boolean>,
 
     /// The name of a variable to use as the value of the parameter
     pub symbol: Option<Box<String>>,

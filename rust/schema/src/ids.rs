@@ -23,7 +23,6 @@ pub const IDS: &[(&str, &str)] = &[
     ("Call", "https://schema.stenci.la/Call"),
     ("CallArgument", "https://schema.stenci.la/CallArgument"),
     ("default", "defaultValue"),
-    ("isRequired", "valueRequired"),
     ("CitationIntent", "https://schema.stenci.la/CitationIntent"),
     ("Cite", "https://schema.stenci.la/Cite"),
     ("CiteGroup", "https://schema.stenci.la/CiteGroup"),

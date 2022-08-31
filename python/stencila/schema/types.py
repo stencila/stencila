@@ -721,14 +721,8 @@ class Parameter(Entity):
     executeRequired: Optional["ExecuteRequired"] = None
     """Whether, and why, the parameter needs execution or re-execution."""
 
-    isExtensible: Optional[Boolean] = None
-    """Indicates that this parameter is variadic and can accept multiple named arguments."""
-
-    isRequired: Optional[Boolean] = None
-    """Is this parameter required, if not it should have a default or default is assumed to be null."""
-
-    isVariadic: Optional[Boolean] = None
-    """Indicates that this parameter is variadic and can accept multiple arguments."""
+    hidden: Optional[Boolean] = None
+    """Whether the parameter should be hidden."""
 
     validator: Optional["ValidatorTypes"] = None
     """The validator that the value is validated against."""
@@ -744,10 +738,8 @@ class Parameter(Entity):
         default: Optional[Any] = None,
         executeDigest: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
+        hidden: Optional[Boolean] = None,
         id: Optional[String] = None,
-        isExtensible: Optional[Boolean] = None,
-        isRequired: Optional[Boolean] = None,
-        isVariadic: Optional[Boolean] = None,
         meta: Optional[Object] = None,
         validator: Optional["ValidatorTypes"] = None,
         value: Optional[Any] = None
@@ -766,12 +758,8 @@ class Parameter(Entity):
             self.executeDigest = executeDigest
         if executeRequired is not None:
             self.executeRequired = executeRequired
-        if isExtensible is not None:
-            self.isExtensible = isExtensible
-        if isRequired is not None:
-            self.isRequired = isRequired
-        if isVariadic is not None:
-            self.isVariadic = isVariadic
+        if hidden is not None:
+            self.hidden = hidden
         if validator is not None:
             self.validator = validator
         if value is not None:
@@ -792,10 +780,8 @@ class CallArgument(Parameter):
         default: Optional[Any] = None,
         executeDigest: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
+        hidden: Optional[Boolean] = None,
         id: Optional[String] = None,
-        isExtensible: Optional[Boolean] = None,
-        isRequired: Optional[Boolean] = None,
-        isVariadic: Optional[Boolean] = None,
         meta: Optional[Object] = None,
         symbol: Optional[String] = None,
         validator: Optional["ValidatorTypes"] = None,
@@ -807,10 +793,8 @@ class CallArgument(Parameter):
             default=default,
             executeDigest=executeDigest,
             executeRequired=executeRequired,
+            hidden=hidden,
             id=id,
-            isExtensible=isExtensible,
-            isRequired=isRequired,
-            isVariadic=isVariadic,
             meta=meta,
             validator=validator,
             value=value

@@ -575,9 +575,7 @@ export type Parameter = Entity & {
   default?: Node
   executeDigest?: string
   executeRequired?: ExecuteRequired
-  isExtensible?: boolean
-  isRequired?: boolean
-  isVariadic?: boolean
+  hidden?: boolean
   validator?: ValidatorTypes
   value?: Node
 }
