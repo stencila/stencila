@@ -1,4 +1,4 @@
-//! Methods associated with document parameters and calling documents
+//! Methods associated with calling documents and accessing their parameters
 
 use std::{
     collections::HashMap,
@@ -189,13 +189,31 @@ impl Document {
     /// tis function will return all possible combinations of paths for those parameters. If a document does not
     /// have any parameters, or one of the parameters in the path is not an `EnumValidator`, then
     /// only one path (`self.path`) will be returned.
-    pub async fn enumerate_urls(&mut self, expand: bool) -> Result<Vec<String>> {
-        let params = self.params().await?;
+    ///
+    /// # Arguments
+    ///
+    /// - `dir`: The directory that the URLs should be relative to (defaults to current working directory)
+    ///          The document must be withing this directory.
+    ///
+    /// - `expand`: Whether to expand parametrized paths
+    pub async fn enumerate_urls(
+        &mut self,
+        dir: Option<&Path>,
+        expand: bool,
+    ) -> Result<Vec<String>> {
+        let home = dir
+            .map_or_else(
+                || std::env::current_dir().expect("Directory not supplied and unable to get CWD"),
+                PathBuf::from,
+            )
+            .canonicalize()?;
 
-        let path_segments = Self::path_segments(&self.path);
-        let path_params = Self::path_params(&self.path);
+        let path = self.path.strip_prefix(&home)?;
+        let path_segments = Self::path_segments(path);
+        let path_params = Self::path_params(path);
 
         // Collect the values of all enum parameters
+        let params = self.params().await?;
         let param_values: HashMap<String, &Vec<Node>> = path_params.into_iter().filter_map(|name| match params.get(&name) {
             Some((.., param)) => {
                 match param.validator.as_deref() {
@@ -221,7 +239,7 @@ impl Document {
         }
 
         // Expand the segments ito URL paths using the enum values
-        let mut urls: Vec<String> = Vec::new();
+        let mut urls: Vec<String> = vec![String::new()];
         for segment in path_segments {
             // A parameter segment so expand paths for that segment
             if let Some(param) = segment.strip_prefix('$') {
@@ -252,9 +270,9 @@ impl Document {
 
             // Not a parameter segment (or one that for some reason has no values) so just add to
             // each of the existing paths
-            for path in urls.iter_mut() {
-                path.push('/');
-                path.push_str(&segment)
+            for url in urls.iter_mut() {
+                url.push('/');
+                url.push_str(&segment)
             }
         }
 
@@ -274,6 +292,9 @@ impl Document {
 
     /// Split a filesystem path into segments, including segments separated by dots
     /// in directory of file names
+    ///
+    /// This assumes that the `path` includes a terminating file extension and excludes that
+    /// as a segment.
     fn path_segments(path: &Path) -> Vec<String> {
         let mut parts = Vec::new();
         for component in path.components() {
@@ -282,6 +303,7 @@ impl Document {
                 parts.push(part.to_string());
             }
         }
+        parts.pop();
         parts
     }
 
@@ -306,7 +328,7 @@ impl Document {
         }
 
         // Equal to file stem (i.e. if drop extension)
-        let file = match file.file_stem() {
+        let file_stem = match file.file_stem() {
             Some(stem) => file
                 .components()
                 .take(file.components().count() - 1)
@@ -314,7 +336,7 @@ impl Document {
                 .join(stem),
             None => file.to_path_buf(),
         };
-        if path == file {
+        if path == file_stem {
             return true;
         }
 
@@ -322,7 +344,7 @@ impl Document {
         let path_segments = path.components();
 
         // Split the file into segments (includes dots)
-        let file_segments = Self::path_segments(&file);
+        let file_segments = Self::path_segments(file);
 
         // Equal number of segments?
         if path_segments.count() != file_segments.len() {
