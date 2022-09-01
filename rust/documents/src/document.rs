@@ -195,7 +195,7 @@ pub struct Document {
     /// This is where document variables are stored and executable nodes such as
     /// `CodeChunk`s and `Parameters`s are executed.
     #[serde(skip)]
-    kernels: Arc<RwLock<KernelSpace>>,
+    pub(crate) kernels: Arc<RwLock<KernelSpace>>,
 
     /// The set of dependency relations between this document, or nodes in this document,
     /// and other resources.
@@ -342,161 +342,28 @@ impl Document {
         )));
         let last_write = Arc::new(RwLock::new(Instant::now()));
 
-        let (patch_request_sender, mut patch_request_receiver) =
-            mpsc::unbounded_channel::<PatchRequest>();
-
-        let (assemble_request_sender, mut assemble_request_receiver) =
-            mpsc::channel::<AssembleRequest>(100);
-
-        let (compile_request_sender, mut compile_request_receiver) =
-            mpsc::channel::<CompileRequest>(100);
-
-        let (execute_request_sender, mut execute_request_receiver) =
-            mpsc::channel::<ExecuteRequest>(100);
-
-        let (cancel_request_sender, mut cancel_request_receiver) =
-            mpsc::channel::<CancelRequest>(100);
-
-        let (write_request_sender, mut write_request_receiver) =
-            mpsc::unbounded_channel::<WriteRequest>();
-
-        let (response_sender, mut response_receiver) = broadcast::channel::<Response>(1);
-
-        let id_clone = id.clone();
-        let root_clone = root.clone();
-        let addresses_clone = addresses.clone();
-        let compile_sender_clone = compile_request_sender.clone();
-        let write_sender_clone = write_request_sender.clone();
-        let response_sender_clone = response_sender.clone();
-        tokio::spawn(async move {
-            Self::patch_task(
-                &id_clone,
-                &root_clone,
-                &addresses_clone,
-                &compile_sender_clone,
-                &write_sender_clone,
-                &mut patch_request_receiver,
-                &response_sender_clone,
-            )
-            .await
-        });
-
-        let id_clone = id.clone();
-        let execute_sender_clone = execute_request_sender.clone();
-        tokio::spawn(async move {
-            Self::resource_change_task(
-                &id_clone,
-                &mut resource_changes_receiver,
-                &execute_sender_clone,
-            )
-            .await
-        });
-
-        let id_clone = id.clone();
-        let path_clone = path.clone();
-        let project_clone = project.clone();
-        let root_clone = root.clone();
-        let addresses_clone = addresses.clone();
-        let call_docs_clone = call_docs.clone();
-        let patch_sender_clone = patch_request_sender.clone();
-        let compile_sender_clone = compile_request_sender.clone();
-        let execute_sender_clone = execute_request_sender.clone();
-        let write_sender_clone = write_request_sender.clone();
-        let response_sender_clone = response_sender.clone();
-        tokio::spawn(async move {
-            Self::assemble_task(
-                &id_clone,
-                &path_clone,
-                &project_clone,
-                &root_clone,
-                &addresses_clone,
-                &call_docs_clone,
-                &patch_sender_clone,
-                &compile_sender_clone,
-                &execute_sender_clone,
-                &write_sender_clone,
-                &mut assemble_request_receiver,
-                &response_sender_clone,
-            )
-            .await
-        });
-
-        let id_clone = id.clone();
-        let path_clone = path.clone();
-        let project_clone = project.clone();
-        let root_clone = root.clone();
-        let addresses_clone = addresses.clone();
-        let tags_clone = tags.clone();
-        let call_docs_clone = call_docs.clone();
-        let graph_clone = graph.clone();
-        let patch_sender_clone = patch_request_sender.clone();
-        let execute_sender_clone = execute_request_sender.clone();
-        let write_sender_clone = write_request_sender.clone();
-        let response_sender_clone = response_sender.clone();
-        tokio::spawn(async move {
-            Self::compile_task(
-                &id_clone,
-                &path_clone,
-                &project_clone,
-                &root_clone,
-                &addresses_clone,
-                &tags_clone,
-                &call_docs_clone,
-                &graph_clone,
-                &patch_sender_clone,
-                &execute_sender_clone,
-                &write_sender_clone,
-                &mut compile_request_receiver,
-                &response_sender_clone,
-            )
-            .await
-        });
-
-        let id_clone = id.clone();
-        let path_clone = path.clone();
-        let project_clone = project.clone();
-        let root_clone = root.clone();
-        let addresses_clone = addresses.clone();
-        let tags_clone = tags.clone();
-        let graph_clone = graph.clone();
-        let kernels_clone = kernels.clone();
-        let patch_sender_clone = patch_request_sender.clone();
-        let response_sender_clone = response_sender.clone();
-        tokio::spawn(async move {
-            Self::execute_task(
-                &id_clone,
-                &path_clone,
-                &project_clone,
-                &root_clone,
-                &addresses_clone,
-                &tags_clone,
-                &graph_clone,
-                &kernels_clone,
-                &call_docs,
-                &patch_sender_clone,
-                &write_request_sender,
-                &mut cancel_request_receiver,
-                &mut execute_request_receiver,
-                &response_sender_clone,
-            )
-            .await
-        });
-
-        let root_clone = root.clone();
-        let last_write_clone = last_write.clone();
-        let path_clone = path.clone();
-        let format_clone = Some(format.extension.clone());
-        tokio::spawn(async move {
-            Self::write_task(
-                &root_clone,
-                &last_write_clone,
-                &path_clone,
-                format_clone.as_deref(),
-                &mut write_request_receiver,
-                &response_sender,
-            )
-            .await
-        });
+        let (
+            patch_request_sender,
+            assemble_request_sender,
+            compile_request_sender,
+            execute_request_sender,
+            cancel_request_sender,
+            response_receiver,
+        ) = Self::initialize(
+            &id,
+            &path,
+            &project,
+            &format,
+            &root,
+            &addresses,
+            
+            &tags,
+            &graph,
+            &kernels,
+            &last_write,
+            call_docs,
+            resource_changes_receiver,
+        );
 
         Ok(Document {
             id,
@@ -520,8 +387,8 @@ impl Document {
             relations: Default::default(),
             subscriptions: Default::default(),
 
-            assemble_request_sender,
             patch_request_sender,
+            assemble_request_sender,
             compile_request_sender,
             execute_request_sender,
             cancel_request_sender,
@@ -735,7 +602,7 @@ impl Document {
     /// - `request_receiver`: The channel to receive [`WriteRequest`]s on
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
-    async fn write_task(
+    pub(crate) async fn write_task(
         root: &Arc<RwLock<Node>>,
         last_write: &Arc<RwLock<Instant>>,
         path: &Path,
@@ -899,7 +766,7 @@ impl Document {
     /// - `request_receiver`: The channel to receive [`PatchRequest`]s on
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
-    async fn patch_task(
+    pub(crate) async fn patch_task(
         id: &str,
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
@@ -1090,7 +957,7 @@ impl Document {
     ///
     /// - `change_receiver`: The channel to receive [`ResourceChange`]s on
     #[allow(clippy::too_many_arguments)]
-    pub async fn resource_change_task(
+    pub(crate) async fn resource_change_task(
         id: &str,
         change_receiver: &mut mpsc::Receiver<ResourceChange>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
@@ -1156,7 +1023,7 @@ impl Document {
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
     #[allow(clippy::too_many_arguments)]
-    pub async fn assemble_task(
+    pub(crate) async fn assemble_task(
         id: &str,
         path: &Path,
         project: &Path,
@@ -1390,7 +1257,7 @@ impl Document {
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
     #[allow(clippy::too_many_arguments)]
-    pub async fn compile_task(
+    pub(crate) async fn compile_task(
         id: &str,
         path: &Path,
         project: &Path,
@@ -1605,7 +1472,7 @@ impl Document {
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
     #[allow(clippy::too_many_arguments)]
-    pub async fn execute_task(
+    pub(crate) async fn execute_task(
         id: &str,
         path: &Path,
         project: &Path,
