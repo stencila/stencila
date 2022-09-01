@@ -2,6 +2,7 @@
 
 import json
 import os
+import resource
 from sys import exit, stdin, stdout, stderr
 
 from python_codec import decode_value, encode_exception, encode_message, encode_value
@@ -21,6 +22,18 @@ else:
     FORK = "\U0010DE70"
     NEWLINE = "\U0010B522"
     EXIT = "\U0010CC00"
+
+# Try to get the maximum number of file descriptors the process can have open
+#
+# SC_OPEN_MAX "The maximum number of files that a process can have open at any time" sysconf(3)
+# RLIMIT_NOFILE "specifies a value one greater than the maximum file descriptor number that can be opened by this process." getrlimit(2)
+try:
+    MAXFD = os.sysconf("SC_OPEN_MAX")
+except Exception:
+    try:
+        MAXFD = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+    except Exception:
+        MAXFD = 256
 
 # Monkey patch `print` to encode individual objects (if no options used)
 def print(*objects, sep=" ", end="\n", file=stdout, flush=False):
@@ -78,9 +91,7 @@ while True:
                 # Close file descriptors so that we're not interfering with
                 # parent's file descriptors and so stdin, stdout and stderr get replaced below
                 # using the right index (0, 1, 2).
-                # See https://gist.github.com/ionelmc/5038117 for a more sophisticated approach
-                # to determining the maximum file descriptor
-                os.closerange(0, 1024)
+                os.closerange(0, MAXFD)
 
                 if new_stdin:
                     # Replace stdin with pipe and do not execute code (which should be empty)
