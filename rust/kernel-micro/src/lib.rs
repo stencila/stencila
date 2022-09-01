@@ -1,4 +1,8 @@
-use std::{env, fs, path::Path, sync::Arc};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use kernel::{
     common::{
@@ -95,11 +99,14 @@ pub struct MicroKernel {
     #[serde(skip)]
     get_template: String,
 
+    /// The working directory of the kernel (when it was started)
+    directory: Option<PathBuf>,
+
     /// The process id of the kernel
     pid: Option<u32>,
 
     /// The process id of the parent kernel (if a fork)
-    forked_from: Option<u32>,
+    parent_pid: Option<u32>,
 
     /// The child process of the kernel (`None` for forks)
     #[serde(skip)]
@@ -199,10 +206,42 @@ impl MicroKernel {
             set_template: set_template.into(),
             get_template: get_template.into(),
 
+            directory: None,
             pid: None,
-            forked_from: None,
+            parent_pid: None,
             child: None,
             state: None,
+            status: Arc::new(RwLock::new(KernelStatus::Pending)),
+        }
+    }
+}
+
+impl Clone for MicroKernel {
+    fn clone(&self) -> Self {
+        Self {
+            // Config fields that can be cloned
+            // For forks, `script` and `other` is not necessary so as an optimization,
+            // we could potentially avoid cloning these.
+            name: self.name.clone(),
+            languages: self.languages.clone(),
+            available: self.available,
+            interruptable: self.interruptable,
+            forkable: self.forkable,
+            runtime: self.runtime.clone(),
+            args: self.args.clone(),
+            script: self.script.clone(),
+            others: self.others.clone(),
+            set_template: self.set_template.clone(),
+            get_template: self.get_template.clone(),
+
+            // Runtime fields that should be set to None for the clone
+            directory: None,
+            pid: None,
+            parent_pid: None,
+            child: None,
+            state: None,
+
+            // Assume clones are initially pending
             status: Arc::new(RwLock::new(KernelStatus::Pending)),
         }
     }
@@ -355,6 +394,7 @@ impl KernelTrait for MicroKernel {
             .take()
             .ok_or_else(|| eyre!("Child has no stderr handle"))?;
 
+        self.directory = Some(directory.to_owned());
         self.pid = child.id();
         self.child = Some(child);
 
@@ -660,33 +700,31 @@ impl MicroKernel {
         tracing::trace!("Fork has opened stdout and stderr pipes for writing");
 
         Ok(Self {
-            // Fields copied from parent..
-            // Small fields required for fork operation and/or display
-            name: self.name.clone(),
-            languages: self.languages.clone(),
-            available: self.available,
-            interruptable: self.interruptable,
-            forkable: self.forkable,
-            runtime: self.runtime.clone(),
-            args: self.args.clone(),
-            // Large fields not required for fork operation
-            script: (String::new(), String::new()),
-            others: Vec::new(),
-            // Small fields that may be needed for fork to get symbols
-            set_template: self.set_template.clone(),
-            get_template: self.get_template.clone(),
-
-            // Runtime fields that must not be copied from parent..
+            parent_pid: self.pid,
             pid: Some(fork_pid),
-            forked_from: self.pid,
             child: None,
             state: Some(Arc::new(Mutex::new(MicroKernelState {
                 stdin: fork_stdin.map(|stream| Stdin::File(BufWriter::new(stream))),
                 stdout: Stdout::File(BufReader::new(fork_stdout)),
                 stderr: Stderr::File(BufReader::new(fork_stderr)),
             }))),
-            status: Arc::new(RwLock::new(KernelStatus::Busy)),
+            ..self.clone()
         })
+    }
+
+    /// Create a "knife" of the kernel
+    ///
+    /// A "knife" is how we duplicate kernels that can not be forked. A knife is not
+    /// an exact duplicate of the kernel because it does not have a copy-on-write copy of the kernel's
+    /// memory (including variables and imported modules). Instead, we just spawn a child process
+    /// that is as similar as possible to the parent (i.e. same binary etc)
+    pub async fn create_knife(&self) -> Result<MicroKernel> {
+        let mut knife = self.clone();
+        match &self.directory {
+            Some(dir) => knife.start(dir).await?,
+            None => bail!("Attempting to start a 'knife' from a kernel which has no directory yet (has not been started?)")
+        }
+        Ok(knife)
     }
 }
 
