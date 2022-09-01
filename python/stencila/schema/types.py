@@ -309,7 +309,10 @@ class Executable(Entity):
     """Duration in seconds of the last execution."""
 
     executeEnded: Optional["Date"] = None
-    """The date-time that the the last execution ended."""
+    """The date-time that the last execution ended."""
+
+    executeKernel: Optional[String] = None
+    """The id of the kernel that the node was last executed in."""
 
     executeRequired: Optional["ExecuteRequired"] = None
     """Whether, and why, the code requires execution or re-execution."""
@@ -329,6 +332,7 @@ class Executable(Entity):
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
         id: Optional[String] = None,
@@ -356,6 +360,8 @@ class Executable(Entity):
             self.executeDuration = executeDuration
         if executeEnded is not None:
             self.executeEnded = executeEnded
+        if executeKernel is not None:
+            self.executeKernel = executeKernel
         if executeRequired is not None:
             self.executeRequired = executeRequired
         if executeStatus is not None:
@@ -391,6 +397,7 @@ class CodeExecutable(Executable):
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
         id: Optional[String] = None,
@@ -407,6 +414,7 @@ class CodeExecutable(Executable):
             executeDigest=executeDigest,
             executeDuration=executeDuration,
             executeEnded=executeEnded,
+            executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
             id=id,
@@ -456,6 +464,7 @@ class CodeChunk(CodeExecutable):
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executeKernel: Optional[String] = None,
         executePure: Optional[Boolean] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
@@ -477,6 +486,7 @@ class CodeChunk(CodeExecutable):
             executeDigest=executeDigest,
             executeDuration=executeDuration,
             executeEnded=executeEnded,
+            executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
             id=id,
@@ -523,6 +533,7 @@ class CodeExpression(CodeExecutable):
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
         id: Optional[String] = None,
@@ -542,6 +553,7 @@ class CodeExpression(CodeExecutable):
             executeDigest=executeDigest,
             executeDuration=executeDuration,
             executeEnded=executeEnded,
+            executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
             id=id,
@@ -585,6 +597,7 @@ class Include(Executable):
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
         id: Optional[String] = None,
@@ -602,6 +615,7 @@ class Include(Executable):
             executeDigest=executeDigest,
             executeDuration=executeDuration,
             executeEnded=executeEnded,
+            executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
             id=id,
@@ -641,6 +655,7 @@ class Call(Include):
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
         id: Optional[String] = None,
@@ -660,6 +675,7 @@ class Call(Include):
             executeDigest=executeDigest,
             executeDuration=executeDuration,
             executeEnded=executeEnded,
+            executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
             id=id,
@@ -703,6 +719,7 @@ class Parameter(Executable):
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
         hidden: Optional[Boolean] = None,
@@ -721,6 +738,7 @@ class Parameter(Executable):
             executeDigest=executeDigest,
             executeDuration=executeDuration,
             executeEnded=executeEnded,
+            executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
             id=id,
@@ -758,6 +776,7 @@ class CallArgument(Parameter):
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
         hidden: Optional[Boolean] = None,
@@ -779,6 +798,7 @@ class CallArgument(Parameter):
             executeDigest=executeDigest,
             executeDuration=executeDuration,
             executeEnded=executeEnded,
+            executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
             hidden=hidden,
@@ -4809,6 +4829,11 @@ last executed.
     # Re-execution is required because the node failed last time it was executed.
 
     Failed = "Failed"
+
+    # Re-execution is required because the kernel that the node was last executed in
+was restarted.
+
+    KernelRestarted = "KernelRestarted"
 
 
 

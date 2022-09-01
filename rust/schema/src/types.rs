@@ -273,8 +273,11 @@ pub struct Executable {
     /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
@@ -332,8 +335,11 @@ pub struct CodeExecutable {
     /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
@@ -397,8 +403,11 @@ pub struct CodeChunk {
     /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether the code should be treated as side-effect free when executed.
     pub execute_pure: Option<Boolean>,
@@ -468,8 +477,11 @@ pub struct CodeExpression {
     /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
@@ -533,8 +545,11 @@ pub struct Include {
     /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
@@ -601,8 +616,11 @@ pub struct Call {
     /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
@@ -666,8 +684,11 @@ pub struct Parameter {
     /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
@@ -734,8 +755,11 @@ pub struct CallArgument {
     /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
@@ -5625,6 +5649,8 @@ pub enum ExecuteRequired {
     DependenciesFailed,
     /// Re-execution is required because the node failed last time it was executed.
     Failed,
+    /// Re-execution is required because the kernel that the node was last executed in was restarted.
+    KernelRestarted,
 }
 
 /// Status of the most recent, including any current, execution of a document node.

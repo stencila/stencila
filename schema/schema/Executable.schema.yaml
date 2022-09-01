@@ -52,13 +52,17 @@ properties:
     '@id': stencila:executeRequired
     description: Whether, and why, the code requires execution or re-execution.
     $ref: ExecuteRequired
+  executeKernel:
+    '@id': stencila:executeKernel
+    description: The id of the kernel that the node was last executed in.
+    type: string
   executeStatus:
     '@id': stencila:executeStatus
     description: Status of the most recent, including any current, execution.
     $ref: ExecuteStatus
   executeEnded:
     '@id': stencila:executeEnded
-    description: The date-time that the the last execution ended.
+    description: The date-time that the last execution ended.
     $ref: Date
   executeDuration:
     '@id': stencila:executeDuration

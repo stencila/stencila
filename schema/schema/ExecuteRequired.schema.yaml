@@ -35,3 +35,8 @@ anyOf:
     '@id': stencila:executeRequiredFailed
     description: |
       Re-execution is required because the node failed last time it was executed.
+  - const: KernelRestarted
+    '@id': stencila:executeRequiredKernelRestarted
+    description: |
+      Re-execution is required because the kernel that the node was last executed in
+      was restarted.

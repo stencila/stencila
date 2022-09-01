@@ -402,6 +402,7 @@ export type Executable = Entity & {
   executeDigest?: string
   executeDuration?: number
   executeEnded?: Date
+  executeKernel?: string
   executeRequired?: ExecuteRequired
   executeStatus?: ExecuteStatus
 }
@@ -3027,6 +3028,13 @@ last executed.
 
    */
   Failed = 'Failed',
+
+  /**
+   * Re-execution is required because the kernel that the node was last executed in
+was restarted.
+
+   */
+  KernelRestarted = 'KernelRestarted',
 }
 
 /**

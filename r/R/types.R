@@ -261,7 +261,8 @@ Date <- function(
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the the last execution ended.
+#' @param executeEnded The date-time that the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
 #' @param id The identifier for this item.
@@ -279,6 +280,7 @@ Executable <- function(
   executeDigest,
   executeDuration,
   executeEnded,
+  executeKernel,
   executeRequired,
   executeStatus,
   id,
@@ -298,6 +300,7 @@ Executable <- function(
   self[["executeDigest"]] <- check_property("Executable", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
   self[["executeDuration"]] <- check_property("Executable", "executeDuration", FALSE, missing(executeDuration), "numeric", executeDuration)
   self[["executeEnded"]] <- check_property("Executable", "executeEnded", FALSE, missing(executeEnded), Date, executeEnded)
+  self[["executeKernel"]] <- check_property("Executable", "executeKernel", FALSE, missing(executeKernel), "character", executeKernel)
   self[["executeRequired"]] <- check_property("Executable", "executeRequired", FALSE, missing(executeRequired), ExecuteRequired, executeRequired)
   self[["executeStatus"]] <- check_property("Executable", "executeStatus", FALSE, missing(executeStatus), ExecuteStatus, executeStatus)
   class(self) <- c(class(self), "Executable")
@@ -318,7 +321,8 @@ Executable <- function(
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the the last execution ended.
+#' @param executeEnded The date-time that the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
 #' @param id The identifier for this item.
@@ -339,6 +343,7 @@ CodeExecutable <- function(
   executeDigest,
   executeDuration,
   executeEnded,
+  executeKernel,
   executeRequired,
   executeStatus,
   id,
@@ -355,6 +360,7 @@ CodeExecutable <- function(
     executeDigest = executeDigest,
     executeDuration = executeDuration,
     executeEnded = executeEnded,
+    executeKernel = executeKernel,
     executeRequired = executeRequired,
     executeStatus = executeStatus,
     id = id,
@@ -383,7 +389,8 @@ CodeExecutable <- function(
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the the last execution ended.
+#' @param executeEnded The date-time that the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executePure Whether the code should be treated as side-effect free when executed.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
@@ -428,6 +435,7 @@ CodeChunk <- function(
   executeDigest,
   executeDuration,
   executeEnded,
+  executeKernel,
   executePure,
   executeRequired,
   executeStatus,
@@ -449,6 +457,7 @@ CodeChunk <- function(
     executeDigest = executeDigest,
     executeDuration = executeDuration,
     executeEnded = executeEnded,
+    executeKernel = executeKernel,
     executeRequired = executeRequired,
     executeStatus = executeStatus,
     id = id,
@@ -480,7 +489,8 @@ CodeChunk <- function(
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the the last execution ended.
+#' @param executeEnded The date-time that the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
 #' @param id The identifier for this item.
@@ -502,6 +512,7 @@ CodeExpression <- function(
   executeDigest,
   executeDuration,
   executeEnded,
+  executeKernel,
   executeRequired,
   executeStatus,
   id,
@@ -521,6 +532,7 @@ CodeExpression <- function(
     executeDigest = executeDigest,
     executeDuration = executeDuration,
     executeEnded = executeEnded,
+    executeKernel = executeKernel,
     executeRequired = executeRequired,
     executeStatus = executeStatus,
     id = id,
@@ -549,7 +561,8 @@ CodeExpression <- function(
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the the last execution ended.
+#' @param executeEnded The date-time that the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
 #' @param id The identifier for this item.
@@ -571,6 +584,7 @@ Include <- function(
   executeDigest,
   executeDuration,
   executeEnded,
+  executeKernel,
   executeRequired,
   executeStatus,
   id,
@@ -588,6 +602,7 @@ Include <- function(
     executeDigest = executeDigest,
     executeDuration = executeDuration,
     executeEnded = executeEnded,
+    executeKernel = executeKernel,
     executeRequired = executeRequired,
     executeStatus = executeStatus,
     id = id,
@@ -617,7 +632,8 @@ Include <- function(
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the the last execution ended.
+#' @param executeEnded The date-time that the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
 #' @param id The identifier for this item.
@@ -640,6 +656,7 @@ Call <- function(
   executeDigest,
   executeDuration,
   executeEnded,
+  executeKernel,
   executeRequired,
   executeStatus,
   id,
@@ -659,6 +676,7 @@ Call <- function(
     executeDigest = executeDigest,
     executeDuration = executeDuration,
     executeEnded = executeEnded,
+    executeKernel = executeKernel,
     executeRequired = executeRequired,
     executeStatus = executeStatus,
     id = id,
@@ -686,7 +704,8 @@ Call <- function(
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the the last execution ended.
+#' @param executeEnded The date-time that the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
 #' @param hidden Whether the parameter should be hidden.
@@ -709,6 +728,7 @@ Parameter <- function(
   executeDigest,
   executeDuration,
   executeEnded,
+  executeKernel,
   executeRequired,
   executeStatus,
   hidden,
@@ -727,6 +747,7 @@ Parameter <- function(
     executeDigest = executeDigest,
     executeDuration = executeDuration,
     executeEnded = executeEnded,
+    executeKernel = executeKernel,
     executeRequired = executeRequired,
     executeStatus = executeStatus,
     id = id,
@@ -756,7 +777,8 @@ Parameter <- function(
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the the last execution ended.
+#' @param executeEnded The date-time that the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
 #' @param hidden Whether the parameter should be hidden.
@@ -780,6 +802,7 @@ CallArgument <- function(
   executeDigest,
   executeDuration,
   executeEnded,
+  executeKernel,
   executeRequired,
   executeStatus,
   hidden,
@@ -801,6 +824,7 @@ CallArgument <- function(
     executeDigest = executeDigest,
     executeDuration = executeDuration,
     executeEnded = executeEnded,
+    executeKernel = executeKernel,
     executeRequired = executeRequired,
     executeStatus = executeStatus,
     hidden = hidden,
@@ -4962,7 +4986,7 @@ ExecuteAuto <- Enum("Never", "Needed", "Always")
 #'
 #' @return A `list` of class `Enum` describing valid members of this enumeration
 #' @export
-ExecuteRequired <- Enum("No", "NeverExecuted", "SemanticsChanged", "DependenciesChanged", "DependenciesFailed", "Failed")
+ExecuteRequired <- Enum("No", "NeverExecuted", "SemanticsChanged", "DependenciesChanged", "DependenciesFailed", "Failed", "KernelRestarted")
 
 #' Status of the most recent, including any current, execution of a document node.
 #'
