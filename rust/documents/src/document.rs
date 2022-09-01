@@ -10,6 +10,7 @@ use std::{
 use notify::DebouncedEvent;
 
 use common::{
+    async_recursion::async_recursion,
     eyre::{bail, Result},
     itertools::Itertools,
     maplit::hashset,
@@ -175,6 +176,10 @@ pub struct Document {
     #[serde(skip)]
     pub(crate) root: Arc<RwLock<Node>>,
 
+    /// The other documents that this document calls
+    #[serde(skip)]
+    pub(crate) call_docs: Arc<RwLock<CallDocuments>>,
+
     /// Addresses of nodes in `root` that have an `id`
     ///
     /// Used to fetch a particular node (and do something with it like `patch`
@@ -195,7 +200,7 @@ pub struct Document {
     /// This is where document variables are stored and executable nodes such as
     /// `CodeChunk`s and `Parameters`s are executed.
     #[serde(skip)]
-    pub(crate) kernels: Arc<RwLock<KernelSpace>>,
+    kernels: Arc<RwLock<KernelSpace>>,
 
     /// The set of dependency relations between this document, or nodes in this document,
     /// and other resources.
@@ -213,7 +218,7 @@ pub struct Document {
     ///
     /// This is derived from `relations`.
     #[serde(skip)]
-    pub graph: Arc<RwLock<Graph>>,
+    pub(crate) graph: Arc<RwLock<Graph>>,
 
     /// The clients that are subscribed to each topic for this document
     ///
@@ -332,8 +337,8 @@ impl Document {
             mpsc::channel::<ResourceChange>(100);
 
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
-        let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
+        let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let tags = Arc::new(RwLock::new(TagMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
         let kernels = Arc::new(RwLock::new(KernelSpace::new(
@@ -355,13 +360,12 @@ impl Document {
             &project,
             &format,
             &root,
+            &call_docs,
             &addresses,
-            
             &tags,
             &graph,
             &kernels,
             &last_write,
-            call_docs,
             resource_changes_receiver,
         );
 
@@ -379,6 +383,105 @@ impl Document {
             content: Default::default(),
 
             root,
+            call_docs,
+            addresses,
+            tags,
+            graph,
+            kernels,
+
+            relations: Default::default(),
+            subscriptions: Default::default(),
+
+            patch_request_sender,
+            assemble_request_sender,
+            compile_request_sender,
+            execute_request_sender,
+            cancel_request_sender,
+            response_receiver,
+        })
+    }
+
+    #[async_recursion]
+    pub async fn fork(&self) -> Result<Document> {
+        let id = uuids::generate("do").to_string();
+        let path = self.path.clone();
+        let project = self.project.clone();
+        let format = self.format.clone();
+
+        tracing::debug!(
+            "Forking document `{}` from `{}` to `{}`",
+            self.id,
+            self.path.display(),
+            id
+        );
+
+        let (resource_changes_sender, mut resource_changes_receiver) =
+            mpsc::channel::<ResourceChange>(100);
+
+        // Fields that can be cloned
+
+        let root = Arc::new(RwLock::new(self.root.read().await.clone()));
+        let addresses = Arc::new(RwLock::new(self.addresses.read().await.clone()));
+        let tags = Arc::new(RwLock::new(self.tags.read().await.clone()));
+        let graph = Arc::new(RwLock::new(self.graph.read().await.clone()));
+
+        // Fields that need to be forked (kernels and call_docs which have kernels)
+
+        let self_call_docs = self.call_docs.read().await;
+        let mut call_docs = CallDocuments::new();
+        for (call_id, doc) in self_call_docs.iter() {
+            let doc = doc.lock().await.fork().await?;
+            call_docs.insert(call_id.clone(), Mutex::new(doc));
+        }
+        let call_docs = Arc::new(RwLock::new(call_docs));
+
+        let (kernels, kernels_restarted) = self
+            .kernels
+            .read()
+            .await
+            .fork(Some(resource_changes_sender))
+            .await?;
+        let kernels = Arc::new(RwLock::new(kernels));
+
+        let last_write = Arc::new(RwLock::new(Instant::now()));
+
+        let (
+            patch_request_sender,
+            assemble_request_sender,
+            compile_request_sender,
+            execute_request_sender,
+            cancel_request_sender,
+            response_receiver,
+        ) = Self::initialize(
+            &id,
+            &path,
+            &project,
+            &format,
+            &root,
+            &call_docs,
+            &addresses,
+            &tags,
+            &graph,
+            &kernels,
+            &last_write,
+            resource_changes_receiver,
+        );
+
+        Ok(Document {
+            id,
+            path,
+            project,
+            temporary: self.temporary,
+            name: self.name.clone(),
+            format,
+            previewable: self.previewable,
+
+            status: DocumentStatus::Synced,
+            last_write,
+            content: Default::default(),
+
+            root,
+            call_docs,
             addresses,
             tags,
             graph,

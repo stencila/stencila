@@ -27,12 +27,12 @@ impl Document {
         project: &Path,
         format: &FormatSpec,
         root: &Arc<RwLock<Node>>,
+        call_docs: &Arc<RwLock<CallDocuments>>,
         addresses: &Arc<RwLock<AddressMap>>,
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernels: &Arc<RwLock<KernelSpace>>,
         last_write: &Arc<RwLock<Instant>>,
-        call_docs: Arc<RwLock<CallDocuments>>,
         mut resource_changes_receiver: mpsc::Receiver<ResourceChange>,
     ) -> (
         mpsc::UnboundedSender<PatchRequest>,
@@ -160,6 +160,7 @@ impl Document {
         let tags_clone = tags.clone();
         let graph_clone = graph.clone();
         let kernels_clone = kernels.clone();
+        let call_docs_clone = call_docs.clone();
         let patch_sender_clone = patch_request_sender.clone();
         let response_sender_clone = response_sender.clone();
         tokio::spawn(async move {
@@ -172,7 +173,7 @@ impl Document {
                 &tags_clone,
                 &graph_clone,
                 &kernels_clone,
-                &call_docs,
+                &call_docs_clone,
                 &patch_sender_clone,
                 &write_request_sender,
                 &mut cancel_request_receiver,
