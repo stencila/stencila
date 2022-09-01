@@ -142,7 +142,7 @@ impl MetaKernel {
             }
 
             #[cfg(feature = "kernel-jupyter")]
-            MetaKernel::Micro(kernel) => {
+            MetaKernel::Jupyter(_) => {
                 bail!("Doing a `MetaKernel::fork` is not yet implemented for Jupyter kernels",)
             }
         }
