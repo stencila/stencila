@@ -1,8 +1,8 @@
 use std::collections::{BTreeMap, VecDeque};
 
-use async_recursion::async_recursion;
 use codec::{
     common::{
+        async_recursion::async_recursion,
         eyre::{bail, Result},
         futures,
         once_cell::sync::Lazy,

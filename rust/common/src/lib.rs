@@ -9,6 +9,7 @@
 //! commonly used dependencies need to be updated. Some of these crates are in line to become
 //! part of the `std` library (e.g. `once_cell`).
 
+pub use async_recursion;
 pub use async_trait;
 pub use base64;
 pub use chrono;

@@ -5,7 +5,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-async-recursion = "1.0.0"
 cloud = { path = "../cloud" }
 codec = { path = "../codec" }
 codec-pandoc = { path = "../codec-pandoc" }
