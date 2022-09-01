@@ -431,12 +431,6 @@ class CodeExecutable(Executable):
 class CodeChunk(CodeExecutable):
     """A executable chunk of code."""
 
-    programmingLanguage: String # type: ignore
-    """The programming language of the code."""
-
-    text: String # type: ignore
-    """The text of the code."""
-
     caption: Optional[Union[Array["BlockContent"], String]] = None
     """A caption for the CodeChunk."""
 
@@ -493,10 +487,6 @@ class CodeChunk(CodeExecutable):
             mediaType=mediaType,
             meta=meta
         )
-        if programmingLanguage is not None:
-            self.programmingLanguage = programmingLanguage
-        if text is not None:
-            self.text = text
         if caption is not None:
             self.caption = caption
         if executePure is not None:
@@ -509,12 +499,6 @@ class CodeChunk(CodeExecutable):
 
 class CodeExpression(CodeExecutable):
     """An executable programming code expression."""
-
-    programmingLanguage: String # type: ignore
-    """The programming language of the code."""
-
-    text: String # type: ignore
-    """The text of the code."""
 
     output: Optional[Any] = None
     """The value of the expression when it was last evaluated."""
@@ -560,10 +544,6 @@ class CodeExpression(CodeExecutable):
             mediaType=mediaType,
             meta=meta
         )
-        if programmingLanguage is not None:
-            self.programmingLanguage = programmingLanguage
-        if text is not None:
-            self.text = text
         if output is not None:
             self.output = output
 

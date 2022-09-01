@@ -30,9 +30,6 @@ properties:
     type: array
     items:
       $ref: Node
-required:
-  - text
-  - programmingLanguage
 examples:
   - type: CodeChunk
     programmingLanguage: python

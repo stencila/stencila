@@ -446,8 +446,6 @@ export const codeExecutable = (
  */
 export type CodeChunk = CodeExecutable & {
   type: 'CodeChunk'
-  programmingLanguage: string
-  text: string
   caption?: Array<BlockContent> | string
   executePure?: boolean
   label?: string
@@ -469,8 +467,6 @@ export const codeChunk = (props: Omit<CodeChunk, 'type'>): CodeChunk => ({
  */
 export type CodeExpression = CodeExecutable & {
   type: 'CodeExpression'
-  programmingLanguage: string
-  text: string
   output?: Node
 }
 

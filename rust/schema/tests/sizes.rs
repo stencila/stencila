@@ -30,7 +30,7 @@ fn sizes() {
     sizeof!(Cite);
     sizeof!(CiteGroup);
     sizeof!(Claim);
-    sizeof!(Code);
+    sizeof!(CodeStatic);
     sizeof!(CodeBlock);
     sizeof!(CodeChunk);
     sizeof!(CodeError);
@@ -49,6 +49,7 @@ fn sizes() {
     sizeof!(Emphasis);
     sizeof!(EnumValidator);
     sizeof!(Enumeration);
+    sizeof!(Executable);
     sizeof!(Figure);
     sizeof!(Function);
     sizeof!(Grant);

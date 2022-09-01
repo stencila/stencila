@@ -11,10 +11,6 @@ properties:
     description: The value of the expression when it was last evaluated.
     allOf:
       - $ref: Node
-required:
-  - text
-  - programmingLanguage
 $comment:
-  Note that `CodeExpression` nodes lack the `executeAuto` and `executePure` properties that
-  `CodeChunk` nodes have because they will always be executed (when dependencies) change and
-  should be side-effect free.
+  Note that `CodeExpression` nodes lack the `executePure` properties that
+  `CodeChunk` nodes have because they should be side-effect free.
