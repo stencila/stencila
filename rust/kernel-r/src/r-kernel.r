@@ -129,6 +129,10 @@ while (!is.null(stdin)) {
         new_stderr <- lines[4]
         lines <- tail(lines, -4)
 
+        # Close file descriptors so that we're not interfering with
+        # parent's file descriptors
+        closeAllConnections()
+
         if (nzchar(new_stdin) > 0) {
           # Replace stdin with pipe and do not execute code (which should be empty)
           stdin <- file(new_stdin, open = "r", raw = TRUE)
