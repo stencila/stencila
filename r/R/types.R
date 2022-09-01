@@ -99,33 +99,64 @@ CiteGroup <- function(
 }
 
 
-#' Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
+#' An error that occurred when parsing, compiling or executing a Code node.
 #'
-#' @name Code
+#' @name CodeError
+#' @param errorMessage The error message or brief description of the error. \bold{Required}.
+#' @param errorType The type of error e.g. "SyntaxError", "ZeroDivisionError".
 #' @param id The identifier for this item.
-#' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
-#' @param programmingLanguage The programming language of the code.
-#' @param text The text of the code.
-#' @return A `list` of class `Code`
+#' @param stackTrace Stack trace leading up to the error.
+#' @return A `list` of class `CodeError`
 #' @seealso \code{\link{Entity}}
 #' @export
-Code <- function(
+CodeError <- function(
+  errorMessage,
+  errorType,
   id,
-  mediaType,
   meta,
-  programmingLanguage,
-  text
+  stackTrace
 ){
   self <- Entity(
     id = id,
     meta = meta
   )
-  self$type <- as_scalar("Code")
-  self[["mediaType"]] <- check_property("Code", "mediaType", FALSE, missing(mediaType), "character", mediaType)
-  self[["programmingLanguage"]] <- check_property("Code", "programmingLanguage", FALSE, missing(programmingLanguage), "character", programmingLanguage)
-  self[["text"]] <- check_property("Code", "text", FALSE, missing(text), "character", text)
-  class(self) <- c(class(self), "Code")
+  self$type <- as_scalar("CodeError")
+  self[["errorMessage"]] <- check_property("CodeError", "errorMessage", TRUE, missing(errorMessage), "character", errorMessage)
+  self[["errorType"]] <- check_property("CodeError", "errorType", FALSE, missing(errorType), "character", errorType)
+  self[["stackTrace"]] <- check_property("CodeError", "stackTrace", FALSE, missing(stackTrace), "character", stackTrace)
+  class(self) <- c(class(self), "CodeError")
+  self
+}
+
+
+#' Base type for non-executable code nodes(e.g. `CodeBlock`).
+#'
+#' @name CodeStatic
+#' @param text The text of the code. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
+#' @param meta Metadata associated with this item.
+#' @param programmingLanguage The programming language of the code.
+#' @return A `list` of class `CodeStatic`
+#' @seealso \code{\link{Entity}}
+#' @export
+CodeStatic <- function(
+  text,
+  id,
+  mediaType,
+  meta,
+  programmingLanguage
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("CodeStatic")
+  self[["text"]] <- check_property("CodeStatic", "text", TRUE, missing(text), "character", text)
+  self[["mediaType"]] <- check_property("CodeStatic", "mediaType", FALSE, missing(mediaType), "character", mediaType)
+  self[["programmingLanguage"]] <- check_property("CodeStatic", "programmingLanguage", FALSE, missing(programmingLanguage), "character", programmingLanguage)
+  class(self) <- c(class(self), "CodeStatic")
   self
 }
 
@@ -139,7 +170,7 @@ Code <- function(
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
 #' @return A `list` of class `CodeBlock`
-#' @seealso \code{\link{Code}}
+#' @seealso \code{\link{CodeStatic}}
 #' @export
 CodeBlock <- function(
   text,
@@ -148,7 +179,7 @@ CodeBlock <- function(
   meta,
   programmingLanguage
 ){
-  self <- Code(
+  self <- CodeStatic(
     text = text,
     id = id,
     mediaType = mediaType,
@@ -156,8 +187,120 @@ CodeBlock <- function(
     programmingLanguage = programmingLanguage
   )
   self$type <- as_scalar("CodeBlock")
-  self[["text"]] <- check_property("CodeBlock", "text", TRUE, missing(text), "character", text)
+
   class(self) <- c(class(self), "CodeBlock")
+  self
+}
+
+
+#' Inline code.
+#'
+#' @name CodeFragment
+#' @param text The text of the code. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
+#' @param meta Metadata associated with this item.
+#' @param programmingLanguage The programming language of the code.
+#' @return A `list` of class `CodeFragment`
+#' @seealso \code{\link{CodeStatic}}
+#' @export
+CodeFragment <- function(
+  text,
+  id,
+  mediaType,
+  meta,
+  programmingLanguage
+){
+  self <- CodeStatic(
+    text = text,
+    id = id,
+    mediaType = mediaType,
+    meta = meta,
+    programmingLanguage = programmingLanguage
+  )
+  self$type <- as_scalar("CodeFragment")
+
+  class(self) <- c(class(self), "CodeFragment")
+  self
+}
+
+
+#' A date encoded as a ISO 8601 string.
+#'
+#' @name Date
+#' @param value The date as an ISO 8601 string. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @return A `list` of class `Date`
+#' @seealso \code{\link{Entity}}
+#' @export
+Date <- function(
+  value,
+  id,
+  meta
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Date")
+  self[["value"]] <- check_property("Date", "value", TRUE, missing(value), "character", value)
+  class(self) <- c(class(self), "Date")
+  self
+}
+
+
+#' Base type for executable document nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
+#'
+#' @name Executable
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
+#' @param executeAuto Under which circumstances the code should be automatically executed.
+#' @param executeCount A count of the number of times that the node has been executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration in seconds of the last execution.
+#' @param executeEnded The date-time that the the last execution ended.
+#' @param executeRequired Whether, and why, the code requires execution or re-execution.
+#' @param executeStatus Status of the most recent, including any current, execution.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @return A `list` of class `Executable`
+#' @seealso \code{\link{Entity}}
+#' @export
+Executable <- function(
+  codeDependencies,
+  codeDependents,
+  compileDigest,
+  errors,
+  executeAuto,
+  executeCount,
+  executeDigest,
+  executeDuration,
+  executeEnded,
+  executeRequired,
+  executeStatus,
+  id,
+  meta
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Executable")
+  self[["codeDependencies"]] <- check_property("Executable", "codeDependencies", FALSE, missing(codeDependencies), Array(Union(CodeChunk, File, Parameter)), codeDependencies)
+  self[["codeDependents"]] <- check_property("Executable", "codeDependents", FALSE, missing(codeDependents), Array(Union(Call, CodeChunk, CodeExpression, File)), codeDependents)
+  self[["compileDigest"]] <- check_property("Executable", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
+  self[["errors"]] <- check_property("Executable", "errors", FALSE, missing(errors), Array(CodeError), errors)
+  self[["executeAuto"]] <- check_property("Executable", "executeAuto", FALSE, missing(executeAuto), ExecuteAuto, executeAuto)
+  self[["executeCount"]] <- check_property("Executable", "executeCount", FALSE, missing(executeCount), "numeric", executeCount)
+  self[["executeDigest"]] <- check_property("Executable", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
+  self[["executeDuration"]] <- check_property("Executable", "executeDuration", FALSE, missing(executeDuration), "numeric", executeDuration)
+  self[["executeEnded"]] <- check_property("Executable", "executeEnded", FALSE, missing(executeEnded), Date, executeEnded)
+  self[["executeRequired"]] <- check_property("Executable", "executeRequired", FALSE, missing(executeRequired), ExecuteRequired, executeRequired)
+  self[["executeStatus"]] <- check_property("Executable", "executeStatus", FALSE, missing(executeStatus), ExecuteStatus, executeStatus)
+  class(self) <- c(class(self), "Executable")
   self
 }
 
@@ -165,26 +308,28 @@ CodeBlock <- function(
 #' Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
 #'
 #' @name CodeExecutable
-#' @param codeDependencies The upstream dependencies of the code.
-#' @param codeDependents The downstream dependents of the code.
+#' @param programmingLanguage The programming language of the code. \bold{Required}.
+#' @param text The text of the code. \bold{Required}.
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
-#' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution of the code.
-#' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeDuration Duration in seconds of the last execution.
+#' @param executeEnded The date-time that the the last execution ended.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
-#' @param executeStatus Status of the most recent, including any current, execution of the code.
+#' @param executeStatus Status of the most recent, including any current, execution.
 #' @param id The identifier for this item.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
-#' @param programmingLanguage The programming language of the code.
-#' @param text The text of the code.
 #' @return A `list` of class `CodeExecutable`
-#' @seealso \code{\link{Code}}
+#' @seealso \code{\link{Executable}}
 #' @export
 CodeExecutable <- function(
+  programmingLanguage,
+  text,
   codeDependencies,
   codeDependents,
   compileDigest,
@@ -198,29 +343,27 @@ CodeExecutable <- function(
   executeStatus,
   id,
   mediaType,
-  meta,
-  programmingLanguage,
-  text
+  meta
 ){
-  self <- Code(
+  self <- Executable(
+    codeDependencies = codeDependencies,
+    codeDependents = codeDependents,
+    compileDigest = compileDigest,
+    errors = errors,
+    executeAuto = executeAuto,
+    executeCount = executeCount,
+    executeDigest = executeDigest,
+    executeDuration = executeDuration,
+    executeEnded = executeEnded,
+    executeRequired = executeRequired,
+    executeStatus = executeStatus,
     id = id,
-    mediaType = mediaType,
-    meta = meta,
-    programmingLanguage = programmingLanguage,
-    text = text
+    meta = meta
   )
   self$type <- as_scalar("CodeExecutable")
-  self[["codeDependencies"]] <- check_property("CodeExecutable", "codeDependencies", FALSE, missing(codeDependencies), Array(Union(CodeChunk, File, Parameter)), codeDependencies)
-  self[["codeDependents"]] <- check_property("CodeExecutable", "codeDependents", FALSE, missing(codeDependents), Array(Union(Call, CodeChunk, CodeExpression, File)), codeDependents)
-  self[["compileDigest"]] <- check_property("CodeExecutable", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
-  self[["errors"]] <- check_property("CodeExecutable", "errors", FALSE, missing(errors), Array(CodeError), errors)
-  self[["executeAuto"]] <- check_property("CodeExecutable", "executeAuto", FALSE, missing(executeAuto), ExecuteAuto, executeAuto)
-  self[["executeCount"]] <- check_property("CodeExecutable", "executeCount", FALSE, missing(executeCount), "numeric", executeCount)
-  self[["executeDigest"]] <- check_property("CodeExecutable", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
-  self[["executeDuration"]] <- check_property("CodeExecutable", "executeDuration", FALSE, missing(executeDuration), "numeric", executeDuration)
-  self[["executeEnded"]] <- check_property("CodeExecutable", "executeEnded", FALSE, missing(executeEnded), Date, executeEnded)
-  self[["executeRequired"]] <- check_property("CodeExecutable", "executeRequired", FALSE, missing(executeRequired), ExecuteRequired, executeRequired)
-  self[["executeStatus"]] <- check_property("CodeExecutable", "executeStatus", FALSE, missing(executeStatus), ExecuteStatus, executeStatus)
+  self[["programmingLanguage"]] <- check_property("CodeExecutable", "programmingLanguage", TRUE, missing(programmingLanguage), "character", programmingLanguage)
+  self[["text"]] <- check_property("CodeExecutable", "text", TRUE, missing(text), "character", text)
+  self[["mediaType"]] <- check_property("CodeExecutable", "mediaType", FALSE, missing(mediaType), "character", mediaType)
   class(self) <- c(class(self), "CodeExecutable")
   self
 }
@@ -232,18 +375,18 @@ CodeExecutable <- function(
 #' @param programmingLanguage The programming language of the code. \bold{Required}.
 #' @param text The text of the code. \bold{Required}.
 #' @param caption A caption for the CodeChunk.
-#' @param codeDependencies The upstream dependencies of the code.
-#' @param codeDependents The downstream dependents of the code.
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
-#' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution of the code.
-#' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeDuration Duration in seconds of the last execution.
+#' @param executeEnded The date-time that the the last execution ended.
 #' @param executePure Whether the code should be treated as side-effect free when executed.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
-#' @param executeStatus Status of the most recent, including any current, execution of the code.
+#' @param executeStatus Status of the most recent, including any current, execution.
 #' @param id The identifier for this item.
 #' @param label A short label for the CodeChunk.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
@@ -329,17 +472,17 @@ CodeChunk <- function(
 #' @name CodeExpression
 #' @param programmingLanguage The programming language of the code. \bold{Required}.
 #' @param text The text of the code. \bold{Required}.
-#' @param codeDependencies The upstream dependencies of the code.
-#' @param codeDependents The downstream dependents of the code.
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
-#' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution of the code.
-#' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeDuration Duration in seconds of the last execution.
+#' @param executeEnded The date-time that the the last execution ended.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
-#' @param executeStatus Status of the most recent, including any current, execution of the code.
+#' @param executeStatus Status of the most recent, including any current, execution.
 #' @param id The identifier for this item.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
@@ -397,26 +540,24 @@ CodeExpression <- function(
 #'
 #' @name Include
 #' @param source The external source of the content, a file path or URL. \bold{Required}.
-#' @param codeDependencies The upstream dependencies of the code.
-#' @param codeDependents The downstream dependents of the code.
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param content The structured content decoded from the source.
-#' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution of the code.
-#' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeDuration Duration in seconds of the last execution.
+#' @param executeEnded The date-time that the the last execution ended.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
-#' @param executeStatus Status of the most recent, including any current, execution of the code.
+#' @param executeStatus Status of the most recent, including any current, execution.
 #' @param id The identifier for this item.
 #' @param mediaType Media type of the source content.
 #' @param meta Metadata associated with this item.
-#' @param programmingLanguage The programming language of the code.
 #' @param select A query to select a subset of content from the source
-#' @param text The text of the code.
 #' @return A `list` of class `Include`
-#' @seealso \code{\link{CodeExecutable}}
+#' @seealso \code{\link{Executable}}
 #' @export
 Include <- function(
   source,
@@ -435,11 +576,9 @@ Include <- function(
   id,
   mediaType,
   meta,
-  programmingLanguage,
-  select,
-  text
+  select
 ){
-  self <- CodeExecutable(
+  self <- Executable(
     codeDependencies = codeDependencies,
     codeDependents = codeDependents,
     compileDigest = compileDigest,
@@ -452,9 +591,7 @@ Include <- function(
     executeRequired = executeRequired,
     executeStatus = executeStatus,
     id = id,
-    meta = meta,
-    programmingLanguage = programmingLanguage,
-    text = text
+    meta = meta
   )
   self$type <- as_scalar("Include")
   self[["source"]] <- check_property("Include", "source", TRUE, missing(source), "character", source)
@@ -471,24 +608,22 @@ Include <- function(
 #' @name Call
 #' @param source The external source of the content, a file path or URL. \bold{Required}.
 #' @param arguments The value of the source document's parameters to call it with
-#' @param codeDependencies The upstream dependencies of the code.
-#' @param codeDependents The downstream dependents of the code.
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param content The structured content decoded from the source.
-#' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution of the code.
-#' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeDuration Duration in seconds of the last execution.
+#' @param executeEnded The date-time that the the last execution ended.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
-#' @param executeStatus Status of the most recent, including any current, execution of the code.
+#' @param executeStatus Status of the most recent, including any current, execution.
 #' @param id The identifier for this item.
 #' @param mediaType Media type of the source content.
 #' @param meta Metadata associated with this item.
-#' @param programmingLanguage The programming language of the code.
 #' @param select A query to select a subset of content from the source
-#' @param text The text of the code.
 #' @return A `list` of class `Call`
 #' @seealso \code{\link{Include}}
 #' @export
@@ -510,9 +645,7 @@ Call <- function(
   id,
   mediaType,
   meta,
-  programmingLanguage,
-  select,
-  text
+  select
 ){
   self <- Include(
     source = source,
@@ -531,102 +664,154 @@ Call <- function(
     id = id,
     mediaType = mediaType,
     meta = meta,
-    programmingLanguage = programmingLanguage,
-    select = select,
-    text = text
+    select = select
   )
   self$type <- as_scalar("Call")
   self[["arguments"]] <- check_property("Call", "arguments", FALSE, missing(arguments), Array(CallArgument), arguments)
-  self[["mediaType"]] <- check_property("Call", "mediaType", FALSE, missing(mediaType), "character", mediaType)
   class(self) <- c(class(self), "Call")
   self
 }
 
 
-#' Inline code.
+#' A parameter of a document.
 #'
-#' @name CodeFragment
-#' @param text The text of the code. \bold{Required}.
+#' @name Parameter
+#' @param name The name of the parameter. \bold{Required}.
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
+#' @param default The default value of the parameter.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
+#' @param executeAuto Under which circumstances the code should be automatically executed.
+#' @param executeCount A count of the number of times that the node has been executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration in seconds of the last execution.
+#' @param executeEnded The date-time that the the last execution ended.
+#' @param executeRequired Whether, and why, the code requires execution or re-execution.
+#' @param executeStatus Status of the most recent, including any current, execution.
+#' @param hidden Whether the parameter should be hidden.
 #' @param id The identifier for this item.
-#' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
-#' @param programmingLanguage The programming language of the code.
-#' @return A `list` of class `CodeFragment`
-#' @seealso \code{\link{Code}}
+#' @param validator The validator that the value is validated against.
+#' @param value The current value of the parameter.
+#' @return A `list` of class `Parameter`
+#' @seealso \code{\link{Executable}}
 #' @export
-CodeFragment <- function(
-  text,
+Parameter <- function(
+  name,
+  codeDependencies,
+  codeDependents,
+  compileDigest,
+  default,
+  errors,
+  executeAuto,
+  executeCount,
+  executeDigest,
+  executeDuration,
+  executeEnded,
+  executeRequired,
+  executeStatus,
+  hidden,
   id,
-  mediaType,
   meta,
-  programmingLanguage
+  validator,
+  value
 ){
-  self <- Code(
-    text = text,
+  self <- Executable(
+    codeDependencies = codeDependencies,
+    codeDependents = codeDependents,
+    compileDigest = compileDigest,
+    errors = errors,
+    executeAuto = executeAuto,
+    executeCount = executeCount,
+    executeDigest = executeDigest,
+    executeDuration = executeDuration,
+    executeEnded = executeEnded,
+    executeRequired = executeRequired,
+    executeStatus = executeStatus,
     id = id,
-    mediaType = mediaType,
+    meta = meta
+  )
+  self$type <- as_scalar("Parameter")
+  self[["name"]] <- check_property("Parameter", "name", TRUE, missing(name), "character", name)
+  self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), Node, default)
+  self[["hidden"]] <- check_property("Parameter", "hidden", FALSE, missing(hidden), "logical", hidden)
+  self[["validator"]] <- check_property("Parameter", "validator", FALSE, missing(validator), ValidatorTypes, validator)
+  self[["value"]] <- check_property("Parameter", "value", FALSE, missing(value), Node, value)
+  class(self) <- c(class(self), "Parameter")
+  self
+}
+
+
+#' The value of a `Parameter` to call a document with
+#'
+#' @name CallArgument
+#' @param name The name of the parameter. \bold{Required}.
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
+#' @param default The default value of the parameter.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
+#' @param executeAuto Under which circumstances the code should be automatically executed.
+#' @param executeCount A count of the number of times that the node has been executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration in seconds of the last execution.
+#' @param executeEnded The date-time that the the last execution ended.
+#' @param executeRequired Whether, and why, the code requires execution or re-execution.
+#' @param executeStatus Status of the most recent, including any current, execution.
+#' @param hidden Whether the parameter should be hidden.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param symbol The name of a variable to use as the value of the parameter
+#' @param validator The validator that the value is validated against.
+#' @param value The current value of the parameter.
+#' @return A `list` of class `CallArgument`
+#' @seealso \code{\link{Parameter}}
+#' @export
+CallArgument <- function(
+  name,
+  codeDependencies,
+  codeDependents,
+  compileDigest,
+  default,
+  errors,
+  executeAuto,
+  executeCount,
+  executeDigest,
+  executeDuration,
+  executeEnded,
+  executeRequired,
+  executeStatus,
+  hidden,
+  id,
+  meta,
+  symbol,
+  validator,
+  value
+){
+  self <- Parameter(
+    name = name,
+    codeDependencies = codeDependencies,
+    codeDependents = codeDependents,
+    compileDigest = compileDigest,
+    default = default,
+    errors = errors,
+    executeAuto = executeAuto,
+    executeCount = executeCount,
+    executeDigest = executeDigest,
+    executeDuration = executeDuration,
+    executeEnded = executeEnded,
+    executeRequired = executeRequired,
+    executeStatus = executeStatus,
+    hidden = hidden,
+    id = id,
     meta = meta,
-    programmingLanguage = programmingLanguage
+    validator = validator,
+    value = value
   )
-  self$type <- as_scalar("CodeFragment")
-  self[["text"]] <- check_property("CodeFragment", "text", TRUE, missing(text), "character", text)
-  class(self) <- c(class(self), "CodeFragment")
-  self
-}
-
-
-#' An error that occurred when parsing, compiling or executing a Code node.
-#'
-#' @name CodeError
-#' @param errorMessage The error message or brief description of the error. \bold{Required}.
-#' @param errorType The type of error e.g. "SyntaxError", "ZeroDivisionError".
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @param stackTrace Stack trace leading up to the error.
-#' @return A `list` of class `CodeError`
-#' @seealso \code{\link{Entity}}
-#' @export
-CodeError <- function(
-  errorMessage,
-  errorType,
-  id,
-  meta,
-  stackTrace
-){
-  self <- Entity(
-    id = id,
-    meta = meta
-  )
-  self$type <- as_scalar("CodeError")
-  self[["errorMessage"]] <- check_property("CodeError", "errorMessage", TRUE, missing(errorMessage), "character", errorMessage)
-  self[["errorType"]] <- check_property("CodeError", "errorType", FALSE, missing(errorType), "character", errorType)
-  self[["stackTrace"]] <- check_property("CodeError", "stackTrace", FALSE, missing(stackTrace), "character", stackTrace)
-  class(self) <- c(class(self), "CodeError")
-  self
-}
-
-
-#' A date encoded as a ISO 8601 string.
-#'
-#' @name Date
-#' @param value The date as an ISO 8601 string. \bold{Required}.
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @return A `list` of class `Date`
-#' @seealso \code{\link{Entity}}
-#' @export
-Date <- function(
-  value,
-  id,
-  meta
-){
-  self <- Entity(
-    id = id,
-    meta = meta
-  )
-  self$type <- as_scalar("Date")
-  self[["value"]] <- check_property("Date", "value", TRUE, missing(value), "character", value)
-  class(self) <- c(class(self), "Date")
+  self$type <- as_scalar("CallArgument")
+  self[["symbol"]] <- check_property("CallArgument", "symbol", FALSE, missing(symbol), "character", symbol)
+  class(self) <- c(class(self), "CallArgument")
   self
 }
 
@@ -704,101 +889,6 @@ Emphasis <- function(
   self$type <- as_scalar("Emphasis")
 
   class(self) <- c(class(self), "Emphasis")
-  self
-}
-
-
-#' A parameter of a document or function.
-#'
-#' @name Parameter
-#' @param name The name of the parameter. \bold{Required}.
-#' @param compileDigest A digest of the value of the parameter.
-#' @param default The default value of the parameter.
-#' @param executeDigest The `compileDigest` of the parameter when it was last executed.
-#' @param executeRequired Whether, and why, the parameter needs execution or re-execution.
-#' @param hidden Whether the parameter should be hidden.
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @param validator The validator that the value is validated against.
-#' @param value The current value of the parameter.
-#' @return A `list` of class `Parameter`
-#' @seealso \code{\link{Entity}}
-#' @export
-Parameter <- function(
-  name,
-  compileDigest,
-  default,
-  executeDigest,
-  executeRequired,
-  hidden,
-  id,
-  meta,
-  validator,
-  value
-){
-  self <- Entity(
-    id = id,
-    meta = meta
-  )
-  self$type <- as_scalar("Parameter")
-  self[["name"]] <- check_property("Parameter", "name", TRUE, missing(name), "character", name)
-  self[["compileDigest"]] <- check_property("Parameter", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
-  self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), Node, default)
-  self[["executeDigest"]] <- check_property("Parameter", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
-  self[["executeRequired"]] <- check_property("Parameter", "executeRequired", FALSE, missing(executeRequired), ExecuteRequired, executeRequired)
-  self[["hidden"]] <- check_property("Parameter", "hidden", FALSE, missing(hidden), "logical", hidden)
-  self[["validator"]] <- check_property("Parameter", "validator", FALSE, missing(validator), ValidatorTypes, validator)
-  self[["value"]] <- check_property("Parameter", "value", FALSE, missing(value), Node, value)
-  class(self) <- c(class(self), "Parameter")
-  self
-}
-
-
-#' The value of a `Parameter` to call a document with
-#'
-#' @name CallArgument
-#' @param name The name of the parameter. \bold{Required}.
-#' @param compileDigest A digest of the value of the parameter.
-#' @param default The default value of the parameter.
-#' @param executeDigest The `compileDigest` of the parameter when it was last executed.
-#' @param executeRequired Whether, and why, the parameter needs execution or re-execution.
-#' @param hidden Whether the parameter should be hidden.
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @param symbol The name of a variable to use as the value of the parameter
-#' @param validator The validator that the value is validated against.
-#' @param value The current value of the parameter.
-#' @return A `list` of class `CallArgument`
-#' @seealso \code{\link{Parameter}}
-#' @export
-CallArgument <- function(
-  name,
-  compileDigest,
-  default,
-  executeDigest,
-  executeRequired,
-  hidden,
-  id,
-  meta,
-  symbol,
-  validator,
-  value
-){
-  self <- Parameter(
-    name = name,
-    compileDigest = compileDigest,
-    default = default,
-    executeDigest = executeDigest,
-    executeRequired = executeRequired,
-    hidden = hidden,
-    id = id,
-    meta = meta,
-    validator = validator,
-    value = value
-  )
-  self$type <- as_scalar("CallArgument")
-  self[["symbol"]] <- check_property("CallArgument", "symbol", FALSE, missing(symbol), "character", symbol)
-  class(self) <- c(class(self), "CallArgument")
   self
 }
 
@@ -4892,14 +4982,14 @@ BlockContent <- Union(Call, Claim, CodeBlock, CodeChunk, Collection, Figure, Hea
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-CodeExecutableTypes <- Union(CodeExecutable, Call, CodeChunk, CodeExpression, Include)
+CodeExecutableTypes <- Union(CodeExecutable, CodeChunk, CodeExpression)
 
 
-#' All type schemas that are derived from Code
+#' All type schemas that are derived from CodeStatic
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-CodeTypes <- Union(Code, Call, CodeBlock, CodeChunk, CodeExecutable, CodeExpression, CodeFragment, Include)
+CodeStaticTypes <- Union(CodeStatic, CodeBlock, CodeFragment)
 
 
 #' All type schemas that are derived from ContactPoint
@@ -4920,7 +5010,14 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Claim, Collection
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
+
+
+#' All type schemas that are derived from Executable
+#'
+#' @return A `list` of class `Union` describing valid subtypes of this type
+#' @export
+ExecutableTypes <- Union(Executable, Call, CallArgument, CodeChunk, CodeExecutable, CodeExpression, Include, Parameter)
 
 
 #' All type schemas that are derived from Grant
@@ -4969,7 +5066,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
+Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
 
 
 #' All type schemas that are derived from NumberValidator

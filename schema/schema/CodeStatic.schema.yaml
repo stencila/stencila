@@ -1,10 +1,10 @@
-title: Code
-'@id': stencila:Code
+title: CodeStatic
+'@id': stencila:CodeStatic
 extends: Entity
 role: base
 status: stable
 category: code
-description: Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
+description: Base type for non-executable code nodes(e.g. `CodeBlock`).
 $comment: |
   The most important, and only required, property of a `Code` node is `text`, a `string` of the source code.
   There are no restrictions on the length or content of `text` and it is possible for it to be syntactically
@@ -28,3 +28,5 @@ properties:
       or variants of a programming language. An example is using `programmingLanguage` "json" and
       `encodingFormat` "application/ld+json" for JSON-LD code examples.
     type: string
+required:
+  - text

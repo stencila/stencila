@@ -147,11 +147,46 @@ class CiteGroup(Entity):
             self.items = items
 
 
-class Code(Entity):
+class CodeError(Entity):
     """
-    Base type for non-executable (e.g. `CodeBlock`) and executable (e.g.
-    `CodeExpression`) code nodes.
+    An error that occurred when parsing, compiling or executing a Code node.
     """
+
+    errorMessage: String
+    """The error message or brief description of the error."""
+
+    errorType: Optional[String] = None
+    """The type of error e.g. "SyntaxError", "ZeroDivisionError"."""
+
+    stackTrace: Optional[String] = None
+    """Stack trace leading up to the error."""
+
+
+    def __init__(
+        self,
+        errorMessage: String,
+        errorType: Optional[String] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
+        stackTrace: Optional[String] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if errorMessage is not None:
+            self.errorMessage = errorMessage
+        if errorType is not None:
+            self.errorType = errorType
+        if stackTrace is not None:
+            self.stackTrace = stackTrace
+
+
+class CodeStatic(Entity):
+    """Base type for non-executable code nodes(e.g. `CodeBlock`)."""
+
+    text: String
+    """The text of the code."""
 
     mediaType: Optional[String] = None
     """Media type, typically expressed using a MIME format, of the code."""
@@ -159,36 +194,29 @@ class Code(Entity):
     programmingLanguage: Optional[String] = None
     """The programming language of the code."""
 
-    text: Optional[String] = None
-    """The text of the code."""
-
 
     def __init__(
         self,
+        text: String,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
         meta: Optional[Object] = None,
-        programmingLanguage: Optional[String] = None,
-        text: Optional[String] = None
+        programmingLanguage: Optional[String] = None
     ) -> None:
         super().__init__(
             id=id,
             meta=meta
         )
+        if text is not None:
+            self.text = text
         if mediaType is not None:
             self.mediaType = mediaType
         if programmingLanguage is not None:
             self.programmingLanguage = programmingLanguage
-        if text is not None:
-            self.text = text
 
 
-class CodeBlock(Code):
+class CodeBlock(CodeStatic):
     """A code block."""
-
-    text: String # type: ignore
-    """The text of the code."""
-
 
     def __init__(
         self,
@@ -205,27 +233,68 @@ class CodeBlock(Code):
             meta=meta,
             programmingLanguage=programmingLanguage
         )
-        if text is not None:
-            self.text = text
 
 
-class CodeExecutable(Code):
+
+class CodeFragment(CodeStatic):
+    """Inline code."""
+
+    def __init__(
+        self,
+        text: String,
+        id: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None,
+        programmingLanguage: Optional[String] = None
+    ) -> None:
+        super().__init__(
+            text=text,
+            id=id,
+            mediaType=mediaType,
+            meta=meta,
+            programmingLanguage=programmingLanguage
+        )
+
+
+
+class Date(Entity):
+    """A date encoded as a ISO 8601 string."""
+
+    value: String
+    """The date as an ISO 8601 string."""
+
+
+    def __init__(
+        self,
+        value: String,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if value is not None:
+            self.value = value
+
+
+class Executable(Entity):
     """
-    Base type for executable code nodes (i.e. `CodeChunk` and
-    `CodeExpression`).
+    Base type for executable document nodes (e.g. `CodeChunk`,
+    `CodeExpression`, `Call`).
     """
 
     codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None
-    """The upstream dependencies of the code."""
+    """The upstream dependencies."""
 
     codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None
-    """The downstream dependents of the code."""
+    """The downstream dependents."""
 
     compileDigest: Optional[String] = None
     """A digest of the content, semantics and dependencies of the node."""
 
     errors: Optional[Array["CodeError"]] = None
-    """Errors when compiling (e.g. syntax errors) or executing the chunk."""
+    """Errors when compiling (e.g. syntax errors) or executing the node."""
 
     executeAuto: Optional["ExecuteAuto"] = None
     """Under which circumstances the code should be automatically executed."""
@@ -237,16 +306,16 @@ class CodeExecutable(Code):
     """The `compileDigest` of the node when it was last executed."""
 
     executeDuration: Optional[Number] = None
-    """Duration in seconds of the last execution of the code."""
+    """Duration in seconds of the last execution."""
 
     executeEnded: Optional["Date"] = None
-    """The date-time that the the last execution of the code ended."""
+    """The date-time that the the last execution ended."""
 
     executeRequired: Optional["ExecuteRequired"] = None
     """Whether, and why, the code requires execution or re-execution."""
 
     executeStatus: Optional["ExecuteStatus"] = None
-    """Status of the most recent, including any current, execution of the code."""
+    """Status of the most recent, including any current, execution."""
 
 
     def __init__(
@@ -263,17 +332,11 @@ class CodeExecutable(Code):
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
         id: Optional[String] = None,
-        mediaType: Optional[String] = None,
-        meta: Optional[Object] = None,
-        programmingLanguage: Optional[String] = None,
-        text: Optional[String] = None
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
-            mediaType=mediaType,
-            meta=meta,
-            programmingLanguage=programmingLanguage,
-            text=text
+            meta=meta
         )
         if codeDependencies is not None:
             self.codeDependencies = codeDependencies
@@ -297,6 +360,64 @@ class CodeExecutable(Code):
             self.executeRequired = executeRequired
         if executeStatus is not None:
             self.executeStatus = executeStatus
+
+
+class CodeExecutable(Executable):
+    """
+    Base type for executable code nodes (i.e. `CodeChunk` and
+    `CodeExpression`).
+    """
+
+    programmingLanguage: String
+    """The programming language of the code."""
+
+    text: String
+    """The text of the code."""
+
+    mediaType: Optional[String] = None
+    """Media type, typically expressed using a MIME format, of the code."""
+
+
+    def __init__(
+        self,
+        programmingLanguage: String,
+        text: String,
+        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        compileDigest: Optional[String] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["ExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional[Number] = None,
+        executeEnded: Optional["Date"] = None,
+        executeRequired: Optional["ExecuteRequired"] = None,
+        executeStatus: Optional["ExecuteStatus"] = None,
+        id: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            errors=errors,
+            executeAuto=executeAuto,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
+            id=id,
+            meta=meta
+        )
+        if programmingLanguage is not None:
+            self.programmingLanguage = programmingLanguage
+        if text is not None:
+            self.text = text
+        if mediaType is not None:
+            self.mediaType = mediaType
 
 
 class CodeChunk(CodeExecutable):
@@ -435,7 +556,7 @@ class CodeExpression(CodeExecutable):
             self.output = output
 
 
-class Include(CodeExecutable):
+class Include(Executable):
     """Include content from an external source (e.g. file, URL)."""
 
     source: String
@@ -444,7 +565,7 @@ class Include(CodeExecutable):
     content: Optional[Array["BlockContent"]] = None
     """The structured content decoded from the source."""
 
-    mediaType: Optional[String] = None # type: ignore
+    mediaType: Optional[String] = None
     """Media type of the source content."""
 
     select: Optional[String] = None
@@ -469,9 +590,7 @@ class Include(CodeExecutable):
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
         meta: Optional[Object] = None,
-        programmingLanguage: Optional[String] = None,
-        select: Optional[String] = None,
-        text: Optional[String] = None
+        select: Optional[String] = None
     ) -> None:
         super().__init__(
             codeDependencies=codeDependencies,
@@ -486,9 +605,7 @@ class Include(CodeExecutable):
             executeRequired=executeRequired,
             executeStatus=executeStatus,
             id=id,
-            meta=meta,
-            programmingLanguage=programmingLanguage,
-            text=text
+            meta=meta
         )
         if source is not None:
             self.source = source
@@ -508,9 +625,6 @@ class Call(Include):
 
     arguments: Optional[Array["CallArgument"]] = None
     """The value of the source document's parameters to call it with"""
-
-    mediaType: Optional[String] = None # type: ignore
-    """Media type of the source content."""
 
 
     def __init__(
@@ -532,9 +646,7 @@ class Call(Include):
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
         meta: Optional[Object] = None,
-        programmingLanguage: Optional[String] = None,
-        select: Optional[String] = None,
-        text: Optional[String] = None
+        select: Optional[String] = None
     ) -> None:
         super().__init__(
             source=source,
@@ -553,96 +665,130 @@ class Call(Include):
             id=id,
             mediaType=mediaType,
             meta=meta,
-            programmingLanguage=programmingLanguage,
-            select=select,
-            text=text
+            select=select
         )
         if arguments is not None:
             self.arguments = arguments
-        if mediaType is not None:
-            self.mediaType = mediaType
 
 
-class CodeFragment(Code):
-    """Inline code."""
+class Parameter(Executable):
+    """A parameter of a document."""
 
-    text: String # type: ignore
-    """The text of the code."""
+    name: String
+    """The name of the parameter."""
 
+    default: Optional[Any] = None
+    """The default value of the parameter."""
 
-    def __init__(
-        self,
-        text: String,
-        id: Optional[String] = None,
-        mediaType: Optional[String] = None,
-        meta: Optional[Object] = None,
-        programmingLanguage: Optional[String] = None
-    ) -> None:
-        super().__init__(
-            text=text,
-            id=id,
-            mediaType=mediaType,
-            meta=meta,
-            programmingLanguage=programmingLanguage
-        )
-        if text is not None:
-            self.text = text
+    hidden: Optional[Boolean] = None
+    """Whether the parameter should be hidden."""
 
+    validator: Optional["ValidatorTypes"] = None
+    """The validator that the value is validated against."""
 
-class CodeError(Entity):
-    """
-    An error that occurred when parsing, compiling or executing a Code node.
-    """
-
-    errorMessage: String
-    """The error message or brief description of the error."""
-
-    errorType: Optional[String] = None
-    """The type of error e.g. "SyntaxError", "ZeroDivisionError"."""
-
-    stackTrace: Optional[String] = None
-    """Stack trace leading up to the error."""
+    value: Optional[Any] = None
+    """The current value of the parameter."""
 
 
     def __init__(
         self,
-        errorMessage: String,
-        errorType: Optional[String] = None,
+        name: String,
+        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        compileDigest: Optional[String] = None,
+        default: Optional[Any] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["ExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional[Number] = None,
+        executeEnded: Optional["Date"] = None,
+        executeRequired: Optional["ExecuteRequired"] = None,
+        executeStatus: Optional["ExecuteStatus"] = None,
+        hidden: Optional[Boolean] = None,
         id: Optional[String] = None,
         meta: Optional[Object] = None,
-        stackTrace: Optional[String] = None
+        validator: Optional["ValidatorTypes"] = None,
+        value: Optional[Any] = None
     ) -> None:
         super().__init__(
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            errors=errors,
+            executeAuto=executeAuto,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
             id=id,
             meta=meta
         )
-        if errorMessage is not None:
-            self.errorMessage = errorMessage
-        if errorType is not None:
-            self.errorType = errorType
-        if stackTrace is not None:
-            self.stackTrace = stackTrace
-
-
-class Date(Entity):
-    """A date encoded as a ISO 8601 string."""
-
-    value: String
-    """The date as an ISO 8601 string."""
-
-
-    def __init__(
-        self,
-        value: String,
-        id: Optional[String] = None,
-        meta: Optional[Object] = None
-    ) -> None:
-        super().__init__(
-            id=id,
-            meta=meta
-        )
+        if name is not None:
+            self.name = name
+        if default is not None:
+            self.default = default
+        if hidden is not None:
+            self.hidden = hidden
+        if validator is not None:
+            self.validator = validator
         if value is not None:
             self.value = value
+
+
+class CallArgument(Parameter):
+    """The value of a `Parameter` to call a document with"""
+
+    symbol: Optional[String] = None
+    """The name of a variable to use as the value of the parameter"""
+
+
+    def __init__(
+        self,
+        name: String,
+        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        compileDigest: Optional[String] = None,
+        default: Optional[Any] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["ExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional[Number] = None,
+        executeEnded: Optional["Date"] = None,
+        executeRequired: Optional["ExecuteRequired"] = None,
+        executeStatus: Optional["ExecuteStatus"] = None,
+        hidden: Optional[Boolean] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
+        symbol: Optional[String] = None,
+        validator: Optional["ValidatorTypes"] = None,
+        value: Optional[Any] = None
+    ) -> None:
+        super().__init__(
+            name=name,
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            default=default,
+            errors=errors,
+            executeAuto=executeAuto,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
+            hidden=hidden,
+            id=id,
+            meta=meta,
+            validator=validator,
+            value=value
+        )
+        if symbol is not None:
+            self.symbol = symbol
 
 
 class Mark(Entity):
@@ -701,106 +847,6 @@ class Emphasis(Mark):
             meta=meta
         )
 
-
-
-class Parameter(Entity):
-    """A parameter of a document or function."""
-
-    name: String
-    """The name of the parameter."""
-
-    compileDigest: Optional[String] = None
-    """A digest of the value of the parameter."""
-
-    default: Optional[Any] = None
-    """The default value of the parameter."""
-
-    executeDigest: Optional[String] = None
-    """The `compileDigest` of the parameter when it was last executed."""
-
-    executeRequired: Optional["ExecuteRequired"] = None
-    """Whether, and why, the parameter needs execution or re-execution."""
-
-    hidden: Optional[Boolean] = None
-    """Whether the parameter should be hidden."""
-
-    validator: Optional["ValidatorTypes"] = None
-    """The validator that the value is validated against."""
-
-    value: Optional[Any] = None
-    """The current value of the parameter."""
-
-
-    def __init__(
-        self,
-        name: String,
-        compileDigest: Optional[String] = None,
-        default: Optional[Any] = None,
-        executeDigest: Optional[String] = None,
-        executeRequired: Optional["ExecuteRequired"] = None,
-        hidden: Optional[Boolean] = None,
-        id: Optional[String] = None,
-        meta: Optional[Object] = None,
-        validator: Optional["ValidatorTypes"] = None,
-        value: Optional[Any] = None
-    ) -> None:
-        super().__init__(
-            id=id,
-            meta=meta
-        )
-        if name is not None:
-            self.name = name
-        if compileDigest is not None:
-            self.compileDigest = compileDigest
-        if default is not None:
-            self.default = default
-        if executeDigest is not None:
-            self.executeDigest = executeDigest
-        if executeRequired is not None:
-            self.executeRequired = executeRequired
-        if hidden is not None:
-            self.hidden = hidden
-        if validator is not None:
-            self.validator = validator
-        if value is not None:
-            self.value = value
-
-
-class CallArgument(Parameter):
-    """The value of a `Parameter` to call a document with"""
-
-    symbol: Optional[String] = None
-    """The name of a variable to use as the value of the parameter"""
-
-
-    def __init__(
-        self,
-        name: String,
-        compileDigest: Optional[String] = None,
-        default: Optional[Any] = None,
-        executeDigest: Optional[String] = None,
-        executeRequired: Optional["ExecuteRequired"] = None,
-        hidden: Optional[Boolean] = None,
-        id: Optional[String] = None,
-        meta: Optional[Object] = None,
-        symbol: Optional[String] = None,
-        validator: Optional["ValidatorTypes"] = None,
-        value: Optional[Any] = None
-    ) -> None:
-        super().__init__(
-            name=name,
-            compileDigest=compileDigest,
-            default=default,
-            executeDigest=executeDigest,
-            executeRequired=executeRequired,
-            hidden=hidden,
-            id=id,
-            meta=meta,
-            validator=validator,
-            value=value
-        )
-        if symbol is not None:
-            self.symbol = symbol
 
 
 class Thing(Entity):
@@ -4803,13 +4849,13 @@ BlockContent = Union["Call", "Claim", "CodeBlock", "CodeChunk", "Collection", "F
 """
 All type schemas that are derived from CodeExecutable
 """
-CodeExecutableTypes = Union["CodeExecutable", "Call", "CodeChunk", "CodeExpression", "Include"]
+CodeExecutableTypes = Union["CodeExecutable", "CodeChunk", "CodeExpression"]
 
 
 """
-All type schemas that are derived from Code
+All type schemas that are derived from CodeStatic
 """
-CodeTypes = Union["Code", "Call", "CodeBlock", "CodeChunk", "CodeExecutable", "CodeExpression", "CodeFragment", "Include"]
+CodeStaticTypes = Union["CodeStatic", "CodeBlock", "CodeFragment"]
 
 
 """
@@ -4827,7 +4873,13 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Co
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
+
+
+"""
+All type schemas that are derived from Executable
+"""
+ExecutableTypes = Union["Executable", "Call", "CallArgument", "CodeChunk", "CodeExecutable", "CodeExpression", "Include", "Parameter"]
 
 
 """
@@ -4870,7 +4922,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 Union type for all types of nodes in this schema, including primitives and
     entities
 """
-Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
+Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
 
 
 """

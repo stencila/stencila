@@ -1,10 +1,10 @@
 title: Parameter
 '@id': stencila:Parameter
-extends: Entity
+extends: Executable
 role: secondary
-status: experimental
+status: unstable
 category: code
-description: A parameter of a document or function.
+description: A parameter of a document.
 properties:
   name:
     '@id': schema:name
@@ -29,18 +29,6 @@ properties:
     description: The validator that the value is validated against.
     allOf:
       - $ref: ValidatorTypes
-  compileDigest:
-    '@id': stencila:compileDigest
-    description: A digest of the value of the parameter.
-    type: string
-  executeDigest:
-    '@id': stencila:executeDigest
-    description: The `compileDigest` of the parameter when it was last executed.
-    type: string
-  executeRequired:
-    '@id': stencila:executeRequired
-    description: Whether, and why, the parameter needs execution or re-execution.
-    $ref: ExecuteRequired
   hidden:
     '@id': stencila:hidden
     description: Whether the parameter should be hidden.

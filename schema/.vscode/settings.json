@@ -17,12 +17,28 @@
       "url": "./public/CiteGroup.schema.json"
     },
     {
-      "fileMatch": ["*.Code.json"],
-      "url": "./public/Code.schema.json"
+      "fileMatch": ["*.CodeError.json"],
+      "url": "./public/CodeError.schema.json"
+    },
+    {
+      "fileMatch": ["*.CodeStatic.json"],
+      "url": "./public/CodeStatic.schema.json"
     },
     {
       "fileMatch": ["*.CodeBlock.json"],
       "url": "./public/CodeBlock.schema.json"
+    },
+    {
+      "fileMatch": ["*.CodeFragment.json"],
+      "url": "./public/CodeFragment.schema.json"
+    },
+    {
+      "fileMatch": ["*.Date.json"],
+      "url": "./public/Date.schema.json"
+    },
+    {
+      "fileMatch": ["*.Executable.json"],
+      "url": "./public/Executable.schema.json"
     },
     {
       "fileMatch": ["*.CodeExecutable.json"],
@@ -45,16 +61,12 @@
       "url": "./public/Call.schema.json"
     },
     {
-      "fileMatch": ["*.CodeFragment.json"],
-      "url": "./public/CodeFragment.schema.json"
+      "fileMatch": ["*.Parameter.json"],
+      "url": "./public/Parameter.schema.json"
     },
     {
-      "fileMatch": ["*.CodeError.json"],
-      "url": "./public/CodeError.schema.json"
-    },
-    {
-      "fileMatch": ["*.Date.json"],
-      "url": "./public/Date.schema.json"
+      "fileMatch": ["*.CallArgument.json"],
+      "url": "./public/CallArgument.schema.json"
     },
     {
       "fileMatch": ["*.Mark.json"],
@@ -67,14 +79,6 @@
     {
       "fileMatch": ["*.Emphasis.json"],
       "url": "./public/Emphasis.schema.json"
-    },
-    {
-      "fileMatch": ["*.Parameter.json"],
-      "url": "./public/Parameter.schema.json"
-    },
-    {
-      "fileMatch": ["*.CallArgument.json"],
-      "url": "./public/CallArgument.schema.json"
     },
     {
       "fileMatch": ["*.Thing.json"],

@@ -104,16 +104,16 @@ patchable_variants!(
 replaceable_struct!(CodeError, error_message, error_type, stack_trace);
 
 patchable_variants!(
-    CodeExecutableCodeDependencies,
-    CodeExecutableCodeDependencies::CodeChunk,
-    CodeExecutableCodeDependencies::Parameter,
-    CodeExecutableCodeDependencies::File
+    ExecutableCodeDependencies,
+    ExecutableCodeDependencies::CodeChunk,
+    ExecutableCodeDependencies::Parameter,
+    ExecutableCodeDependencies::File
 );
 patchable_variants!(
-    CodeExecutableCodeDependents,
-    CodeExecutableCodeDependents::Call,
-    CodeExecutableCodeDependents::CodeChunk,
-    CodeExecutableCodeDependents::CodeExpression
+    ExecutableCodeDependents,
+    ExecutableCodeDependents::Call,
+    ExecutableCodeDependents::CodeChunk,
+    ExecutableCodeDependents::CodeExpression
 );
 patchable_enum!(ExecuteAuto);
 patchable_enum!(ExecuteRequired);

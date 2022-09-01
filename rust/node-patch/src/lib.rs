@@ -345,8 +345,8 @@ impl Operation {
             ExecuteStatus
             ExecuteRequired
             ExecuteAuto
-            CodeExecutableCodeDependencies
-            CodeExecutableCodeDependents
+            ExecutableCodeDependencies
+            ExecutableCodeDependents
 
             // Child types of the above
             ListItem
@@ -431,8 +431,8 @@ impl Operation {
             BlockContent
 
             // Types related to compilation of code
-            CodeExecutableCodeDependencies
-            CodeExecutableCodeDependents
+            ExecutableCodeDependencies
+            ExecutableCodeDependents
 
             // Child types of the above
             ListItem

@@ -29,7 +29,6 @@ export interface Types {
   Cite: Cite
   CiteGroup: CiteGroup
   Claim: Claim
-  Code: Code
   CodeBlock: CodeBlock
   CodeChunk: CodeChunk
   CodeError: CodeError
@@ -37,7 +36,8 @@ export interface Types {
   CodeExecutableTypes: CodeExecutableTypes
   CodeExpression: CodeExpression
   CodeFragment: CodeFragment
-  CodeTypes: CodeTypes
+  CodeStatic: CodeStatic
+  CodeStaticTypes: CodeStaticTypes
   Collection: Collection
   Comment: Comment
   ConstantValidator: ConstantValidator
@@ -55,6 +55,8 @@ export interface Types {
   EntityTypes: EntityTypes
   EnumValidator: EnumValidator
   Enumeration: Enumeration
+  Executable: Executable
+  ExecutableTypes: ExecutableTypes
   ExecuteAuto: ExecuteAuto
   ExecuteRequired: ExecuteRequired
   ExecuteStatus: ExecuteStatus
@@ -146,13 +148,13 @@ export type Entity = {
     | 'Cite'
     | 'CiteGroup'
     | 'Claim'
-    | 'Code'
     | 'CodeBlock'
     | 'CodeChunk'
     | 'CodeError'
     | 'CodeExecutable'
     | 'CodeExpression'
     | 'CodeFragment'
+    | 'CodeStatic'
     | 'Collection'
     | 'Comment'
     | 'ConstantValidator'
@@ -166,6 +168,7 @@ export type Entity = {
     | 'Emphasis'
     | 'EnumValidator'
     | 'Enumeration'
+    | 'Executable'
     | 'Figure'
     | 'File'
     | 'Function'
@@ -284,39 +287,50 @@ export const citeGroup = (props: Omit<CiteGroup, 'type'>): CiteGroup => ({
 })
 
 /**
- * Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
+ * An error that occurred when parsing, compiling or executing a Code node.
  */
-export type Code = Entity & {
-  type:
-    | 'Code'
-    | 'Call'
-    | 'CodeBlock'
-    | 'CodeChunk'
-    | 'CodeExecutable'
-    | 'CodeExpression'
-    | 'CodeFragment'
-    | 'Include'
-  mediaType?: string
-  programmingLanguage?: string
-  text?: string
+export type CodeError = Entity & {
+  type: 'CodeError'
+  errorMessage: string
+  errorType?: string
+  stackTrace?: string
 }
 
 /**
- * Create a `Code` node
- * @param props Object containing Code schema properties as key/value pairs
- * @returns {Code} Code schema node
+ * Create a `CodeError` node
+ * @param props Object containing CodeError schema properties as key/value pairs
+ * @returns {CodeError} CodeError schema node
  */
-export const code = (props: Omit<Code, 'type'> = {}): Code => ({
+export const codeError = (props: Omit<CodeError, 'type'>): CodeError => ({
   ...compact(props),
-  type: 'Code',
+  type: 'CodeError',
+})
+
+/**
+ * Base type for non-executable code nodes(e.g. `CodeBlock`).
+ */
+export type CodeStatic = Entity & {
+  type: 'CodeStatic' | 'CodeBlock' | 'CodeFragment'
+  text: string
+  mediaType?: string
+  programmingLanguage?: string
+}
+
+/**
+ * Create a `CodeStatic` node
+ * @param props Object containing CodeStatic schema properties as key/value pairs
+ * @returns {CodeStatic} CodeStatic schema node
+ */
+export const codeStatic = (props: Omit<CodeStatic, 'type'>): CodeStatic => ({
+  ...compact(props),
+  type: 'CodeStatic',
 })
 
 /**
  * A code block.
  */
-export type CodeBlock = Code & {
+export type CodeBlock = CodeStatic & {
   type: 'CodeBlock'
-  text: string
 }
 
 /**
@@ -330,10 +344,55 @@ export const codeBlock = (props: Omit<CodeBlock, 'type'>): CodeBlock => ({
 })
 
 /**
- * Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+ * Inline code.
  */
-export type CodeExecutable = Code & {
-  type: 'CodeExecutable' | 'Call' | 'CodeChunk' | 'CodeExpression' | 'Include'
+export type CodeFragment = CodeStatic & {
+  type: 'CodeFragment'
+}
+
+/**
+ * Create a `CodeFragment` node
+ * @param props Object containing CodeFragment schema properties as key/value pairs
+ * @returns {CodeFragment} CodeFragment schema node
+ */
+export const codeFragment = (
+  props: Omit<CodeFragment, 'type'>
+): CodeFragment => ({
+  ...compact(props),
+  type: 'CodeFragment',
+})
+
+/**
+ * A date encoded as a ISO 8601 string.
+ */
+export type Date = Entity & {
+  type: 'Date'
+  value: string
+}
+
+/**
+ * Create a `Date` node
+ * @param props Object containing Date schema properties as key/value pairs
+ * @returns {Date} Date schema node
+ */
+export const date = (props: Omit<Date, 'type'>): Date => ({
+  ...compact(props),
+  type: 'Date',
+})
+
+/**
+ * Base type for executable document nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
+ */
+export type Executable = Entity & {
+  type:
+    | 'Executable'
+    | 'Call'
+    | 'CallArgument'
+    | 'CodeChunk'
+    | 'CodeExecutable'
+    | 'CodeExpression'
+    | 'Include'
+    | 'Parameter'
   codeDependencies?: Array<CodeChunk | File | Parameter>
   codeDependents?: Array<Call | CodeChunk | CodeExpression | File>
   compileDigest?: string
@@ -348,12 +407,34 @@ export type CodeExecutable = Code & {
 }
 
 /**
+ * Create a `Executable` node
+ * @param props Object containing Executable schema properties as key/value pairs
+ * @returns {Executable} Executable schema node
+ */
+export const executable = (
+  props: Omit<Executable, 'type'> = {}
+): Executable => ({
+  ...compact(props),
+  type: 'Executable',
+})
+
+/**
+ * Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+ */
+export type CodeExecutable = Executable & {
+  type: 'CodeExecutable' | 'CodeChunk' | 'CodeExpression'
+  programmingLanguage: string
+  text: string
+  mediaType?: string
+}
+
+/**
  * Create a `CodeExecutable` node
  * @param props Object containing CodeExecutable schema properties as key/value pairs
  * @returns {CodeExecutable} CodeExecutable schema node
  */
 export const codeExecutable = (
-  props: Omit<CodeExecutable, 'type'> = {}
+  props: Omit<CodeExecutable, 'type'>
 ): CodeExecutable => ({
   ...compact(props),
   type: 'CodeExecutable',
@@ -407,7 +488,7 @@ export const codeExpression = (
 /**
  * Include content from an external source (e.g. file, URL).
  */
-export type Include = CodeExecutable & {
+export type Include = Executable & {
   type: 'Include' | 'Call'
   source: string
   content?: Array<BlockContent>
@@ -431,7 +512,6 @@ export const include = (props: Omit<Include, 'type'>): Include => ({
 export type Call = Include & {
   type: 'Call'
   arguments?: Array<CallArgument>
-  mediaType?: string
 }
 
 /**
@@ -445,61 +525,45 @@ export const call = (props: Omit<Call, 'type'>): Call => ({
 })
 
 /**
- * Inline code.
+ * A parameter of a document.
  */
-export type CodeFragment = Code & {
-  type: 'CodeFragment'
-  text: string
+export type Parameter = Executable & {
+  type: 'Parameter' | 'CallArgument'
+  name: string
+  default?: Node
+  hidden?: boolean
+  validator?: ValidatorTypes
+  value?: Node
 }
 
 /**
- * Create a `CodeFragment` node
- * @param props Object containing CodeFragment schema properties as key/value pairs
- * @returns {CodeFragment} CodeFragment schema node
+ * Create a `Parameter` node
+ * @param props Object containing Parameter schema properties as key/value pairs
+ * @returns {Parameter} Parameter schema node
  */
-export const codeFragment = (
-  props: Omit<CodeFragment, 'type'>
-): CodeFragment => ({
+export const parameter = (props: Omit<Parameter, 'type'>): Parameter => ({
   ...compact(props),
-  type: 'CodeFragment',
+  type: 'Parameter',
 })
 
 /**
- * An error that occurred when parsing, compiling or executing a Code node.
+ * The value of a `Parameter` to call a document with
  */
-export type CodeError = Entity & {
-  type: 'CodeError'
-  errorMessage: string
-  errorType?: string
-  stackTrace?: string
+export type CallArgument = Parameter & {
+  type: 'CallArgument'
+  symbol?: string
 }
 
 /**
- * Create a `CodeError` node
- * @param props Object containing CodeError schema properties as key/value pairs
- * @returns {CodeError} CodeError schema node
+ * Create a `CallArgument` node
+ * @param props Object containing CallArgument schema properties as key/value pairs
+ * @returns {CallArgument} CallArgument schema node
  */
-export const codeError = (props: Omit<CodeError, 'type'>): CodeError => ({
+export const callArgument = (
+  props: Omit<CallArgument, 'type'>
+): CallArgument => ({
   ...compact(props),
-  type: 'CodeError',
-})
-
-/**
- * A date encoded as a ISO 8601 string.
- */
-export type Date = Entity & {
-  type: 'Date'
-  value: string
-}
-
-/**
- * Create a `Date` node
- * @param props Object containing Date schema properties as key/value pairs
- * @returns {Date} Date schema node
- */
-export const date = (props: Omit<Date, 'type'>): Date => ({
-  ...compact(props),
-  type: 'Date',
+  type: 'CallArgument',
 })
 
 /**
@@ -563,51 +627,6 @@ export type Emphasis = Mark & {
 export const emphasis = (props: Omit<Emphasis, 'type'>): Emphasis => ({
   ...compact(props),
   type: 'Emphasis',
-})
-
-/**
- * A parameter of a document or function.
- */
-export type Parameter = Entity & {
-  type: 'Parameter' | 'CallArgument'
-  name: string
-  compileDigest?: string
-  default?: Node
-  executeDigest?: string
-  executeRequired?: ExecuteRequired
-  hidden?: boolean
-  validator?: ValidatorTypes
-  value?: Node
-}
-
-/**
- * Create a `Parameter` node
- * @param props Object containing Parameter schema properties as key/value pairs
- * @returns {Parameter} Parameter schema node
- */
-export const parameter = (props: Omit<Parameter, 'type'>): Parameter => ({
-  ...compact(props),
-  type: 'Parameter',
-})
-
-/**
- * The value of a `Parameter` to call a document with
- */
-export type CallArgument = Parameter & {
-  type: 'CallArgument'
-  symbol?: string
-}
-
-/**
- * Create a `CallArgument` node
- * @param props Object containing CallArgument schema properties as key/value pairs
- * @returns {CallArgument} CallArgument schema node
- */
-export const callArgument = (
-  props: Omit<CallArgument, 'type'>
-): CallArgument => ({
-  ...compact(props),
-  type: 'CallArgument',
 })
 
 /**
@@ -2095,25 +2114,12 @@ export type BlockContent =
 /**
  * All type schemas that are derived from CodeExecutable
  */
-export type CodeExecutableTypes =
-  | CodeExecutable
-  | Call
-  | CodeChunk
-  | CodeExpression
-  | Include
+export type CodeExecutableTypes = CodeExecutable | CodeChunk | CodeExpression
 
 /**
- * All type schemas that are derived from Code
+ * All type schemas that are derived from CodeStatic
  */
-export type CodeTypes =
-  | Code
-  | Call
-  | CodeBlock
-  | CodeChunk
-  | CodeExecutable
-  | CodeExpression
-  | CodeFragment
-  | Include
+export type CodeStaticTypes = CodeStatic | CodeBlock | CodeFragment
 
 /**
  * All type schemas that are derived from ContactPoint
@@ -2159,13 +2165,13 @@ export type EntityTypes =
   | Cite
   | CiteGroup
   | Claim
-  | Code
   | CodeBlock
   | CodeChunk
   | CodeError
   | CodeExecutable
   | CodeExpression
   | CodeFragment
+  | CodeStatic
   | Collection
   | Comment
   | ConstantValidator
@@ -2179,6 +2185,7 @@ export type EntityTypes =
   | Emphasis
   | EnumValidator
   | Enumeration
+  | Executable
   | Figure
   | File
   | Function
@@ -2232,6 +2239,19 @@ export type EntityTypes =
   | Variable
   | VideoObject
   | VolumeMount
+
+/**
+ * All type schemas that are derived from Executable
+ */
+export type ExecutableTypes =
+  | Executable
+  | Call
+  | CallArgument
+  | CodeChunk
+  | CodeExecutable
+  | CodeExpression
+  | Include
+  | Parameter
 
 /**
  * All type schemas that are derived from Grant
@@ -2317,13 +2337,13 @@ export type Node =
   | Cite
   | CiteGroup
   | Claim
-  | Code
   | CodeBlock
   | CodeChunk
   | CodeError
   | CodeExecutable
   | CodeExpression
   | CodeFragment
+  | CodeStatic
   | Collection
   | Comment
   | ConstantValidator
@@ -2337,6 +2357,7 @@ export type Node =
   | Emphasis
   | EnumValidator
   | Enumeration
+  | Executable
   | Figure
   | File
   | Function
@@ -3052,20 +3073,13 @@ export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }
 
 export const codeExecutableTypes: TypeMap<CodeExecutableTypes> = {
   CodeExecutable: 'CodeExecutable',
-  Call: 'Call',
   CodeChunk: 'CodeChunk',
   CodeExpression: 'CodeExpression',
-  Include: 'Include',
 }
-export const codeTypes: TypeMap<CodeTypes> = {
-  Code: 'Code',
-  Call: 'Call',
+export const codeStaticTypes: TypeMap<CodeStaticTypes> = {
+  CodeStatic: 'CodeStatic',
   CodeBlock: 'CodeBlock',
-  CodeChunk: 'CodeChunk',
-  CodeExecutable: 'CodeExecutable',
-  CodeExpression: 'CodeExpression',
   CodeFragment: 'CodeFragment',
-  Include: 'Include',
 }
 export const contactPointTypes: TypeMap<ContactPointTypes> = {
   ContactPoint: 'ContactPoint',
@@ -3104,13 +3118,13 @@ export const entityTypes: TypeMap<EntityTypes> = {
   Cite: 'Cite',
   CiteGroup: 'CiteGroup',
   Claim: 'Claim',
-  Code: 'Code',
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
   CodeError: 'CodeError',
   CodeExecutable: 'CodeExecutable',
   CodeExpression: 'CodeExpression',
   CodeFragment: 'CodeFragment',
+  CodeStatic: 'CodeStatic',
   Collection: 'Collection',
   Comment: 'Comment',
   ConstantValidator: 'ConstantValidator',
@@ -3124,6 +3138,7 @@ export const entityTypes: TypeMap<EntityTypes> = {
   Emphasis: 'Emphasis',
   EnumValidator: 'EnumValidator',
   Enumeration: 'Enumeration',
+  Executable: 'Executable',
   Figure: 'Figure',
   File: 'File',
   Function: 'Function',
@@ -3177,6 +3192,16 @@ export const entityTypes: TypeMap<EntityTypes> = {
   Variable: 'Variable',
   VideoObject: 'VideoObject',
   VolumeMount: 'VolumeMount',
+}
+export const executableTypes: TypeMap<ExecutableTypes> = {
+  Executable: 'Executable',
+  Call: 'Call',
+  CallArgument: 'CallArgument',
+  CodeChunk: 'CodeChunk',
+  CodeExecutable: 'CodeExecutable',
+  CodeExpression: 'CodeExpression',
+  Include: 'Include',
+  Parameter: 'Parameter',
 }
 export const grantTypes: TypeMap<GrantTypes> = {
   Grant: 'Grant',
@@ -3310,10 +3335,11 @@ export const inlineContentTypes: TypeMap<
 
 export interface Unions {
   CodeExecutableTypes: CodeExecutableTypes
-  CodeTypes: CodeTypes
+  CodeStaticTypes: CodeStaticTypes
   ContactPointTypes: ContactPointTypes
   CreativeWorkTypes: CreativeWorkTypes
   EntityTypes: EntityTypes
+  ExecutableTypes: ExecutableTypes
   GrantTypes: GrantTypes
   IncludeTypes: IncludeTypes
   MarkTypes: MarkTypes
@@ -3329,10 +3355,11 @@ export interface Unions {
 
 export const unions = {
   CodeExecutableTypes: codeExecutableTypes,
-  CodeTypes: codeTypes,
+  CodeStaticTypes: codeStaticTypes,
   ContactPointTypes: contactPointTypes,
   CreativeWorkTypes: creativeWorkTypes,
   EntityTypes: entityTypes,
+  ExecutableTypes: executableTypes,
   GrantTypes: grantTypes,
   IncludeTypes: includeTypes,
   MarkTypes: markTypes,
