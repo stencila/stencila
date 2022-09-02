@@ -206,7 +206,7 @@ impl KernelSelector {
         let (name, config) = if let Some(tags) = tags {
             let name = tags.get_value("kernel");
             let config = match lang {
-                Some("SQL") => tags.get_value("db"),
+                Some("SQL") | Some("PrQL") => tags.get_value("db"),
                 _ => None,
             };
             (name, config)
@@ -360,6 +360,18 @@ impl TaskResult {
     /// Create a new task result
     pub fn new(outputs: Vec<Node>, messages: Vec<CodeError>) -> Self {
         Self { outputs, messages }
+    }
+
+    /// A syntax error occurred
+    pub fn syntax_error(message: &str) -> Self {
+        Self::new(
+            vec![],
+            vec![CodeError {
+                error_type: some_box_string!("SyntaxError"),
+                error_message: message.to_string(),
+                ..Default::default()
+            }],
+        )
     }
 
     /// Used to indicate an internal (to Stencila code) error rather than user error

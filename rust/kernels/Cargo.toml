@@ -26,6 +26,7 @@ kernel-deno = { path = "../kernel-deno", optional = true }
 kernel-jupyter = { path = "../kernel-jupyter", optional = true }
 kernel-micro = { path = "../kernel-micro", optional = true }
 kernel-node = { path = "../kernel-node", optional = true }
+kernel-prql = { path = "../kernel-prql", optional = true }
 kernel-python = { path = "../kernel-python", optional = true }
 kernel-r = { path = "../kernel-r", optional = true }
 kernel-sql = { path = "../kernel-sql", optional = true }

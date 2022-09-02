@@ -1,0 +1,2 @@
+from table_a
+filter col_1 > $par1 and col_2 == $par2 

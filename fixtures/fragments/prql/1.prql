@@ -1,0 +1,2 @@
+from table_a
+filter col_1 > 0

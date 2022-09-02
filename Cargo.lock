@@ -91,6 +91,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ariadne"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1cb2a2046bea8ce5e875551f5772024882de0b540c7f93dfc5d6cf1ca8b030c"
+dependencies = [
+ "yansi",
+]
+
+[[package]]
 name = "arrayvec"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -962,6 +971,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "clio"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c850d26e67812ca0adb581c77e4ad1fd0a27ea3a8f8205fddfe7d5f52b783788"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "clipboard-win"
 version = "4.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1368,7 +1386,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
- "serde_yaml",
+ "serde_yaml 0.8.26",
  "slug",
  "strum",
  "tempfile",
@@ -2080,6 +2098,18 @@ name = "enum-as-inner"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "570d109b813e904becc80d8d5da38376818a143348413f7149f1340fe04754d4"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "enum-as-inner"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c9720bba047d567ffc8a3cba48bf19126600e249ab7f128e9233e6376976a116"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -3514,6 +3544,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-prql"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-sql",
+ "prql-compiler",
+]
+
+[[package]]
 name = "kernel-python"
 version = "0.0.0"
 dependencies = [
@@ -3585,6 +3624,7 @@ dependencies = [
  "kernel-jupyter",
  "kernel-micro",
  "kernel-node",
+ "kernel-prql",
  "kernel-python",
  "kernel-r",
  "kernel-sql",
@@ -4695,6 +4735,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "parser-prql"
+version = "0.0.0"
+dependencies = [
+ "parser",
+ "parser-sql",
+ "prql-compiler",
+ "test-snaps",
+ "test-utils",
+]
+
+[[package]]
 name = "parser-py"
 version = "0.0.0"
 dependencies = [
@@ -4765,6 +4816,7 @@ dependencies = [
  "parser-bash",
  "parser-calc",
  "parser-js",
+ "parser-prql",
  "parser-py",
  "parser-r",
  "parser-rust",
@@ -5299,6 +5351,31 @@ dependencies = [
  "provider-gitlab",
  "provider-http",
  "test-utils",
+]
+
+[[package]]
+name = "prql-compiler"
+version = "0.2.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38110b53ae667375862e5017b67c1bb685a462f4f0a6c933300f2856aef8582c"
+dependencies = [
+ "anyhow",
+ "ariadne",
+ "atty",
+ "clap",
+ "clio",
+ "color-eyre",
+ "enum-as-inner 0.5.1",
+ "itertools",
+ "pest",
+ "pest_derive",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.9.10",
+ "sqlformat 0.2.0",
+ "sqlparser",
+ "strum",
+ "strum_macros",
 ]
 
 [[package]]
@@ -6275,6 +6352,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_yaml"
+version = "0.9.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a09f551ccc8210268ef848f0bab37b306e87b85b2e017b899e7fb815f5aed62"
+dependencies = [
+ "indexmap",
+ "itoa 1.0.2",
+ "ryu",
+ "serde",
+ "unsafe-libyaml",
+]
+
+[[package]]
 name = "server-next"
 version = "0.0.0"
 dependencies = [
@@ -6546,6 +6636,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "sqlformat"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f87e292b4291f154971a43c3774364e2cbcaec599d3f5bf6fa9d122885dbc38a"
+dependencies = [
+ "itertools",
+ "nom",
+ "unicode_categories",
+]
+
+[[package]]
+name = "sqlparser"
+version = "0.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8ec7ef1bad82a2453dbaef7218b6f036e545edcce1ffd55f6e7af7bea43cce2"
+dependencies = [
+ "log",
+ "serde",
+]
+
+[[package]]
 name = "sqlx"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6601,7 +6712,7 @@ dependencies = [
  "sha-1 0.10.0",
  "sha2 0.10.5",
  "smallvec",
- "sqlformat",
+ "sqlformat 0.1.8",
  "sqlx-rt",
  "stringprep",
  "thiserror",
@@ -7529,7 +7640,7 @@ dependencies = [
  "async-trait",
  "cfg-if 1.0.0",
  "data-encoding",
- "enum-as-inner",
+ "enum-as-inner 0.3.4",
  "futures-channel",
  "futures-io",
  "futures-util",
