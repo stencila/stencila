@@ -186,9 +186,9 @@ impl Document {
     /// Get a list of possible URL paths for a document
     ///
     /// When a document has a parameterized path that involves only parameters with `EnumValidator`s,
-    /// tis function will return all possible combinations of paths for those parameters. If a document does not
+    /// this function will return all possible combinations of paths for those parameters. If a document does not
     /// have any parameters, or one of the parameters in the path is not an `EnumValidator`, then
-    /// only one path (`self.path`) will be returned.
+    /// only one URL path will be returned.
     ///
     /// # Arguments
     ///
@@ -232,14 +232,15 @@ impl Document {
             }
         }).collect();
 
-        // If there is not a set of values for all of the docs parameters then return the
-        // expanded (forward slashes only) URL path
-        if !expand || param_values.len() != params.len() {
-            return Ok(vec![path_segments.join("/")]);
+        let mut urls: Vec<String> = vec![path_segments.join("/")];
+
+        // If the `expand` option is `false`, or if not all of the params are enums, then
+        // return the "canonical" path
+        if !expand || param_values.is_empty() || param_values.len() != params.len() {
+            return Ok(urls);
         }
 
         // Expand the segments ito URL paths using the enum values
-        let mut urls: Vec<String> = vec![String::new()];
         for segment in path_segments {
             // A parameter segment so expand paths for that segment
             if let Some(param) = segment.strip_prefix('$') {
