@@ -194,6 +194,7 @@ patchable_struct!(
     compile_digest,
     execute_digest,
     execute_required,
+    execute_kernel,
     execute_status,
     execute_ended,
     execute_duration

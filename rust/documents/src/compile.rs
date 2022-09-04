@@ -12,7 +12,7 @@ use node_patch::diff_address;
 use node_pointer::resolve;
 use path_utils::path_slash::PathBufExt;
 use stencila_schema::{
-    Call, CodeChunk, CodeExecutableCodeDependencies, CodeExecutableCodeDependents, CodeExpression,
+    Call, CodeChunk, CodeExpression, ExecutableCodeDependencies, ExecutableCodeDependents,
     ExecuteRequired, File, Include, Node, Parameter,
 };
 
@@ -184,7 +184,7 @@ pub async fn compile(
                         };
                         match node {
                             Node::CodeChunk(node) => {
-                                Some(CodeExecutableCodeDependencies::CodeChunk(CodeChunk {
+                                Some(ExecutableCodeDependencies::CodeChunk(CodeChunk {
                                     id: node.id.clone(),
                                     label: node.label.clone(),
                                     programming_language: node.programming_language.clone(),
@@ -203,7 +203,7 @@ pub async fn compile(
                                     ExecuteRequired::SemanticsChanged
                                 };
 
-                                Some(CodeExecutableCodeDependencies::Parameter(Parameter {
+                                Some(ExecutableCodeDependencies::Parameter(Parameter {
                                     id: node.id.clone(),
                                     name: node.name.clone(),
                                     execute_required: Some(execute_required),
@@ -213,7 +213,7 @@ pub async fn compile(
                             _ => None,
                         }
                     }
-                    Resource::File(file) => Some(CodeExecutableCodeDependencies::File(File {
+                    Resource::File(file) => Some(ExecutableCodeDependencies::File(File {
                         path: graph
                             .relative_path(&file.path, true)
                             .to_slash_lossy()
@@ -236,7 +236,7 @@ pub async fn compile(
                         };
                         match node {
                             Node::CodeChunk(dependant) => {
-                                Some(CodeExecutableCodeDependents::CodeChunk(CodeChunk {
+                                Some(ExecutableCodeDependents::CodeChunk(CodeChunk {
                                     id: dependant.id.clone(),
                                     label: dependant.label.clone(),
                                     programming_language: dependant.programming_language.clone(),
@@ -246,19 +246,19 @@ pub async fn compile(
                                     ..Default::default()
                                 }))
                             }
-                            Node::CodeExpression(dependant) => Some(
-                                CodeExecutableCodeDependents::CodeExpression(CodeExpression {
+                            Node::CodeExpression(dependant) => {
+                                Some(ExecutableCodeDependents::CodeExpression(CodeExpression {
                                     id: dependant.id.clone(),
                                     programming_language: dependant.programming_language.clone(),
                                     execute_required: new_execute_required.clone(),
                                     execute_status: dependant.execute_status.clone(),
                                     ..Default::default()
-                                }),
-                            ),
+                                }))
+                            }
                             _ => None,
                         }
                     }
-                    Resource::File(file) => Some(CodeExecutableCodeDependents::File(File {
+                    Resource::File(file) => Some(ExecutableCodeDependents::File(File {
                         path: file.path.to_slash_lossy().to_string(),
                         ..Default::default()
                     })),

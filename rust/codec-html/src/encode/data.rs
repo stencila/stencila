@@ -21,9 +21,9 @@ use node_dispatch::dispatch_validator;
 use stencila_schema::*;
 
 use super::{
-    attr, attr_bool, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_prop,
-    attr_slot, concat, concat_html, elem, elem_empty, elem_meta, elem_placeholder, nothing,
-    EncodeContext, EncodeMode, ToHtml,
+    attr, attr_and_meta_opt, attr_bool, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str,
+    attr_prop, attr_slot, concat, concat_html, elem, elem_empty, elem_meta, elem_placeholder,
+    nothing, EncodeContext, EncodeMode, ToHtml,
 };
 
 /// Encode a `Datatable`
@@ -121,6 +121,30 @@ impl ToHtml for Parameter {
             ],
         );
 
+        let compile_digest = attr_and_meta_opt(
+            "compile_digest",
+            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
+        );
+
+        let execute_digest = attr_and_meta_opt(
+            "execute_digest",
+            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
+        );
+
+        let execute_required = attr_and_meta_opt(
+            "execute_required",
+            self.execute_required
+                .as_ref()
+                .map(|required| (*required).as_ref().to_string()),
+        );
+
+        let execute_kernel = attr_and_meta_opt(
+            "execute_kernel",
+            self.execute_kernel
+                .as_deref()
+                .map(|kernel| kernel.to_string()),
+        );
+
         let (name, input) = label_and_input(
             &self.name,
             &self.validator,
@@ -131,8 +155,26 @@ impl ToHtml for Parameter {
 
         elem(
             "stencila-parameter",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[name, validator, default, value, input].concat(),
+            &[
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                compile_digest.0,
+                execute_digest.0,
+                execute_required.0,
+                execute_kernel.0,
+            ],
+            &[
+                name,
+                validator,
+                default,
+                value,
+                compile_digest.1,
+                execute_digest.1,
+                execute_required.1,
+                execute_kernel.1,
+                input,
+            ]
+            .concat(),
         )
     }
 }

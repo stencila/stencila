@@ -360,6 +360,13 @@ impl ToHtml for CodeExpression {
                 .map(|required| (*required).as_ref().to_string()),
         );
 
+        let execute_kernel = attr_and_meta_opt(
+            "execute_kernel",
+            self.execute_kernel
+                .as_deref()
+                .map(|kernel| kernel.to_string()),
+        );
+
         let execute_status = attr_and_meta_opt(
             "execute_status",
             self.execute_status
@@ -427,6 +434,7 @@ impl ToHtml for CodeExpression {
                 compile_digest.0,
                 execute_digest.0,
                 execute_required.0,
+                execute_kernel.0,
                 execute_status.0,
                 execute_ended.0,
                 execute_duration.0,
@@ -436,6 +444,7 @@ impl ToHtml for CodeExpression {
                 compile_digest.1,
                 execute_digest.1,
                 execute_required.1,
+                execute_kernel.1,
                 execute_status.1,
                 execute_ended.1,
                 execute_duration.1,

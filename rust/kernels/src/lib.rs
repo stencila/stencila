@@ -977,7 +977,7 @@ impl KernelSpace {
     }
 
     /// Set a symbol in the kernel space
-    pub async fn set(&self, name: &str, value: Node, selector: &KernelSelector) -> Result<()> {
+    pub async fn set(&self, name: &str, value: Node, selector: &KernelSelector) -> Result<KernelId> {
         let kernels = &mut *self.kernels.lock().await;
 
         let kernel_id = kernels
@@ -992,7 +992,7 @@ impl KernelSpace {
         match symbols.entry(name.to_string()) {
             Entry::Occupied(mut occupied) => {
                 let info = occupied.get_mut();
-                info.home = kernel_id;
+                info.home = kernel_id.clone();
                 info.modified = Utc::now();
             }
             Entry::Vacant(vacant) => {
@@ -1000,7 +1000,7 @@ impl KernelSpace {
             }
         }
 
-        Ok(())
+        Ok(kernel_id)
     }
 
     /// Execute some code in the kernel space

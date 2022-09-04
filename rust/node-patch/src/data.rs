@@ -25,7 +25,8 @@ patchable_struct!(
     value,
     compile_digest,
     execute_digest,
-    execute_required
+    execute_required,
+    execute_kernel,
 );
 
 patchable_variants!(

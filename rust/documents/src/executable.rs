@@ -398,7 +398,7 @@ impl Executable for Parameter {
 
         let value = parameter_value(self);
 
-        kernel_space
+        let kernel_id = kernel_space
             .set(&self.name, value.clone(), kernel_selector)
             .await?;
 
@@ -408,6 +408,7 @@ impl Executable for Parameter {
         self.compile_digest = Some(digest.clone());
         self.execute_digest = Some(digest);
         self.execute_required = Some(ExecuteRequired::No);
+        self.execute_kernel = Some(Box::new(kernel_id));
 
         Ok(None)
     }
@@ -529,6 +530,7 @@ impl Executable for CodeChunk {
         self.execute_status = Some(execute_status);
         self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
         self.execute_duration = task_info.duration().map(Number);
+        self.execute_kernel = task_info.kernel_id.map(Box::new);
 
         // Update outputs and errors
         self.outputs = if outputs.is_empty() {
@@ -653,6 +655,7 @@ impl Executable for CodeExpression {
         self.execute_status = Some(execute_status);
         self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
         self.execute_duration = task_info.duration().map(Number);
+        self.execute_kernel = task_info.kernel_id.map(Box::new);
 
         // Update output and errors
         self.output = outputs.get(0).map(|output| Box::new(output.clone()));
