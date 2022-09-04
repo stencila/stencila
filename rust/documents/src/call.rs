@@ -271,7 +271,9 @@ impl Document {
             // Not a parameter segment (or one that for some reason has no values) so just add to
             // each of the existing paths
             for url in urls.iter_mut() {
-                url.push('/');
+                if !url.is_empty() {
+                    url.push('/');
+                }
                 url.push_str(&segment)
             }
         }
