@@ -193,7 +193,7 @@ impl Document {
     /// # Arguments
     ///
     /// - `dir`: The directory that the URLs should be relative to (defaults to current working directory)
-    ///          The document must be withing this directory.
+    ///          The document must be within this directory.
     ///
     /// - `expand`: Whether to expand parametrized paths
     pub async fn enumerate_urls(
@@ -232,15 +232,16 @@ impl Document {
             }
         }).collect();
 
-        let mut urls: Vec<String> = vec![path_segments.join("/")];
+        let canonical_url = path_segments.join("/");
 
         // If the `expand` option is `false`, or if not all of the params are enums, then
         // return the "canonical" path
         if !expand || param_values.is_empty() || param_values.len() != params.len() {
-            return Ok(urls);
+            return Ok(vec![canonical_url]);
         }
 
         // Expand the segments ito URL paths using the enum values
+        let mut urls: Vec<String> = vec![String::new()];
         for segment in path_segments {
             // A parameter segment so expand paths for that segment
             if let Some(param) = segment.strip_prefix('$') {
@@ -278,6 +279,7 @@ impl Document {
                 url.push_str(&segment)
             }
         }
+        urls.insert(0, canonical_url);
 
         Ok(urls)
     }
