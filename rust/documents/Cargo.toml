@@ -28,6 +28,7 @@ notify = "4.0.17"
 parsers = { path = "../parsers" }
 path-utils = { path = "../path-utils" }
 providers = { path = "../providers" }
+statics = { path = "../statics" }
 stencila-schema = { path = "../schema" }
 uuids = { path = "../uuids" }
 

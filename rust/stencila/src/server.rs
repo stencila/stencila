@@ -39,7 +39,7 @@ use common::{
 use documents::DOCUMENTS;
 use events::{subscribe, unsubscribe, Subscriber, SubscriptionId};
 use http_utils::{http, urlencoding};
-use server_next::statics::{get_static_parts, STATIC_VERSION};
+use server_next::statics::{get_static_parts, STATICS_VERSION};
 use stencila_schema::Node;
 use uuids::generate;
 
@@ -1275,7 +1275,7 @@ async fn terminal_handler(
       </script>
     </body>
 </html>"#,
-        static_root = ["/~static/", STATIC_VERSION].concat()
+        static_root = ["/~static/", STATICS_VERSION].concat()
     );
 
     let response = warp::reply::Response::new(html.into());
@@ -1670,7 +1670,7 @@ pub fn html_rewrite(
     home: &Path,
     document: &Path,
 ) -> String {
-    let static_root = ["/~static/", STATIC_VERSION].concat();
+    let static_root = ["/~static/", STATICS_VERSION].concat();
 
     // Head element for theme
     let themes = format!(
