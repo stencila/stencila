@@ -228,22 +228,6 @@ impl Transform for Node {
             }
             Node::CodeBlock(node) => BlockContent::CodeBlock(node),
             Node::CodeChunk(node) => BlockContent::CodeChunk(node),
-            Node::Collection(node) => {
-                let Collection {
-                    content,
-                    id,
-                    parts,
-                    title,
-                    ..
-                } = node;
-                BlockContent::Collection(CollectionSimple {
-                    content,
-                    id,
-                    parts,
-                    title,
-                    ..Default::default()
-                })
-            }
             Node::Figure(node) => {
                 let Figure {
                     caption,

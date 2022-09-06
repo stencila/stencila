@@ -48,6 +48,7 @@ pub const IDS: &[(&str, &str)] = &[
     ("Date", "https://schema.org/Date"),
     ("DefinedTerm", "https://schema.org/DefinedTerm"),
     ("Delete", "https://schema.stenci.la/Delete"),
+    ("Directory", "https://schema.stenci.la/Directory"),
     ("Emphasis", "https://schema.stenci.la/Emphasis"),
     ("Entity", "https://schema.stenci.la/Entity"),
     ("EnumValidator", "https://schema.stenci.la/EnumValidator"),

@@ -109,6 +109,10 @@
       "url": "./public/Collection.schema.json"
     },
     {
+      "fileMatch": ["*.Directory.json"],
+      "url": "./public/Directory.schema.json"
+    },
+    {
       "fileMatch": ["*.Comment.json"],
       "url": "./public/Comment.schema.json"
     },

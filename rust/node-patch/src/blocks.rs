@@ -201,4 +201,3 @@ patchable_struct!(Claim, content, claim_type);
 patchable_struct!(ClaimSimple, content, claim_type);
 patchable_enum!(ClaimClaimType);
 
-patchable_struct!(CollectionSimple);

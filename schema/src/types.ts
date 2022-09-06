@@ -39,6 +39,7 @@ export interface Types {
   CodeStatic: CodeStatic
   CodeStaticTypes: CodeStaticTypes
   Collection: Collection
+  CollectionTypes: CollectionTypes
   Comment: Comment
   ConstantValidator: ConstantValidator
   ContactPoint: ContactPoint
@@ -50,6 +51,7 @@ export interface Types {
   Date: Date
   DefinedTerm: DefinedTerm
   Delete: Delete
+  Directory: Directory
   Emphasis: Emphasis
   Entity: Entity
   EntityTypes: EntityTypes
@@ -165,6 +167,7 @@ export type Entity = {
     | 'Date'
     | 'DefinedTerm'
     | 'Delete'
+    | 'Directory'
     | 'Emphasis'
     | 'EnumValidator'
     | 'Enumeration'
@@ -643,6 +646,7 @@ export type Thing = Entity & {
     | 'Datatable'
     | 'DatatableColumn'
     | 'DefinedTerm'
+    | 'Directory'
     | 'Enumeration'
     | 'Figure'
     | 'File'
@@ -740,6 +744,7 @@ export type CreativeWork = Thing & {
     | 'Collection'
     | 'Comment'
     | 'Datatable'
+    | 'Directory'
     | 'Figure'
     | 'File'
     | 'ImageObject'
@@ -842,7 +847,7 @@ export const claim = (props: Omit<Claim, 'type'>): Claim => ({
  * A collection of CreativeWorks or other artifacts.
  */
 export type Collection = CreativeWork & {
-  type: 'Collection'
+  type: 'Collection' | 'Directory'
   parts: Array<CreativeWorkTypes>
 }
 
@@ -854,6 +859,26 @@ export type Collection = CreativeWork & {
 export const collection = (props: Omit<Collection, 'type'>): Collection => ({
   ...compact(props),
   type: 'Collection',
+})
+
+/**
+ * A directory on the filesystem
+ */
+export type Directory = Collection & {
+  type: 'Directory'
+  name: string
+  parts: Array<File | Directory>
+  path: string
+}
+
+/**
+ * Create a `Directory` node
+ * @param props Object containing Directory schema properties as key/value pairs
+ * @returns {Directory} Directory schema node
+ */
+export const directory = (props: Omit<Directory, 'type'>): Directory => ({
+  ...compact(props),
+  type: 'Directory',
 })
 
 /**
@@ -1128,6 +1153,7 @@ export const figure = (props: Omit<Figure, 'type'> = {}): Figure => ({
  */
 export type File = CreativeWork & {
   type: 'File'
+  name: string
   path: string
 }
 
@@ -2097,7 +2123,6 @@ export type BlockContent =
   | Claim
   | CodeBlock
   | CodeChunk
-  | Collection
   | Figure
   | Heading
   | Include
@@ -2119,6 +2144,11 @@ export type CodeExecutableTypes = CodeExecutable | CodeChunk | CodeExpression
 export type CodeStaticTypes = CodeStatic | CodeBlock | CodeFragment
 
 /**
+ * All type schemas that are derived from Collection
+ */
+export type CollectionTypes = Collection | Directory
+
+/**
  * All type schemas that are derived from ContactPoint
  */
 export type ContactPointTypes = ContactPoint | PostalAddress
@@ -2134,6 +2164,7 @@ export type CreativeWorkTypes =
   | Collection
   | Comment
   | Datatable
+  | Directory
   | Figure
   | File
   | ImageObject
@@ -2179,6 +2210,7 @@ export type EntityTypes =
   | Date
   | DefinedTerm
   | Delete
+  | Directory
   | Emphasis
   | EnumValidator
   | Enumeration
@@ -2351,6 +2383,7 @@ export type Node =
   | Date
   | DefinedTerm
   | Delete
+  | Directory
   | Emphasis
   | EnumValidator
   | Enumeration
@@ -2454,6 +2487,7 @@ export type ThingTypes =
   | Datatable
   | DatatableColumn
   | DefinedTerm
+  | Directory
   | Enumeration
   | Figure
   | File
@@ -3085,6 +3119,10 @@ export const codeStaticTypes: TypeMap<CodeStaticTypes> = {
   CodeBlock: 'CodeBlock',
   CodeFragment: 'CodeFragment',
 }
+export const collectionTypes: TypeMap<CollectionTypes> = {
+  Collection: 'Collection',
+  Directory: 'Directory',
+}
 export const contactPointTypes: TypeMap<ContactPointTypes> = {
   ContactPoint: 'ContactPoint',
   PostalAddress: 'PostalAddress',
@@ -3097,6 +3135,7 @@ export const creativeWorkTypes: TypeMap<CreativeWorkTypes> = {
   Collection: 'Collection',
   Comment: 'Comment',
   Datatable: 'Datatable',
+  Directory: 'Directory',
   Figure: 'Figure',
   File: 'File',
   ImageObject: 'ImageObject',
@@ -3139,6 +3178,7 @@ export const entityTypes: TypeMap<EntityTypes> = {
   Date: 'Date',
   DefinedTerm: 'DefinedTerm',
   Delete: 'Delete',
+  Directory: 'Directory',
   Emphasis: 'Emphasis',
   EnumValidator: 'EnumValidator',
   Enumeration: 'Enumeration',
@@ -3259,6 +3299,7 @@ export const thingTypes: TypeMap<ThingTypes> = {
   Datatable: 'Datatable',
   DatatableColumn: 'DatatableColumn',
   DefinedTerm: 'DefinedTerm',
+  Directory: 'Directory',
   Enumeration: 'Enumeration',
   Figure: 'Figure',
   File: 'File',
@@ -3300,7 +3341,6 @@ export const blockContentTypes: TypeMap<BlockContent> = {
   Claim: 'Claim',
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
-  Collection: 'Collection',
   Figure: 'Figure',
   Heading: 'Heading',
   Include: 'Include',
@@ -3340,6 +3380,7 @@ export const inlineContentTypes: TypeMap<
 export interface Unions {
   CodeExecutableTypes: CodeExecutableTypes
   CodeStaticTypes: CodeStaticTypes
+  CollectionTypes: CollectionTypes
   ContactPointTypes: ContactPointTypes
   CreativeWorkTypes: CreativeWorkTypes
   EntityTypes: EntityTypes
@@ -3360,6 +3401,7 @@ export interface Unions {
 export const unions = {
   CodeExecutableTypes: codeExecutableTypes,
   CodeStaticTypes: codeStaticTypes,
+  CollectionTypes: collectionTypes,
   ContactPointTypes: contactPointTypes,
   CreativeWorkTypes: creativeWorkTypes,
   EntityTypes: entityTypes,

@@ -8,8 +8,8 @@ use stencila_schema::Node;
 
 /// Encode a `Node` to HTML
 ///
-/// All node types that have an `impl ToHtml` should be listed here. Not all node types
-/// are supported, in which case this function returns HTML indicating that that is the case.
+/// Not all node types have `impl ToHtml` in which case this function
+/// returns HTML indicating that that is the case.
 impl ToHtml for Node {
     fn to_html(&self, context: &EncodeContext) -> String {
         // Call `array_to_html` to avoid `Vec<Primitive>.to_html()` for arrays

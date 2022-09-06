@@ -1463,33 +1463,115 @@ pub struct Collection {
 pub enum Collection_ {
   Collection
 }
-/// A collection of CreativeWorks or other artifacts.
+
+/// A directory on the filesystem
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
 #[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
-pub struct CollectionSimple {
+pub struct Directory {
     /// The name of this type
-    #[derivative(Default(value = "CollectionSimple_::Collection"))]
-    pub type_: CollectionSimple_,
+    #[derivative(Default(value = "Directory_::Directory"))]
+    pub type_: Directory_,
 
-    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    pub parts: Vec<CreativeWorkTypes>,
+    /// The name of the item.
+    pub name: String,
+
+    /// The files and other directories that are within this directory
+    pub parts: Vec<DirectoryParts>,
+
+    /// The path (absolute or relative) of the file on the filesystem
+    pub path: String,
+
+    /// The subject matter of the content.
+    pub about: Option<Vec<ThingTypes>>,
+
+    /// Alternate names (aliases) for the item.
+    pub alternate_names: Option<Vec<String>>,
+
+    /// The authors of this creative work.
+    pub authors: Option<Vec<CreativeWorkAuthors>>,
+
+    /// Comments about this creative work.
+    pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
     pub content: Option<Box<CreativeWorkContent>>,
+
+    /// Date/time of acceptance.
+    pub date_accepted: Option<Box<Date>>,
+
+    /// Date/time of creation.
+    pub date_created: Option<Box<Date>>,
+
+    /// Date/time of most recent modification.
+    pub date_modified: Option<Box<Date>>,
+
+    /// Date of first publication.
+    pub date_published: Option<Box<Date>>,
+
+    /// Date/time that work was received.
+    pub date_received: Option<Box<Date>>,
+
+    /// A description of the item.
+    pub description: Option<Box<ThingDescription>>,
+
+    /// People who edited the `CreativeWork`.
+    pub editors: Option<Vec<Person>>,
+
+    /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+    pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
+
+    /// People or organizations that funded the `CreativeWork`.
+    pub funders: Option<Vec<CreativeWorkFunders>>,
+
+    /// Genre of the creative work, broadcast channel or group.
+    pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
+    /// Any kind of identifier for any kind of Thing.
+    pub identifiers: Option<Vec<ThingIdentifiers>>,
+
+    /// Images of the item.
+    pub images: Option<Vec<ThingImages>>,
+
+    /// An item or other CreativeWork that this CreativeWork is a part of.
+    pub is_part_of: Option<Box<CreativeWorkTypes>>,
+
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+    pub keywords: Option<Vec<String>>,
+
+    /// License documents that applies to this content, typically indicated by URL.
+    pub licenses: Option<Vec<CreativeWorkLicenses>>,
+
+    /// The people or organizations who maintain this CreativeWork.
+    pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
+
+    /// A publisher of the CreativeWork.
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
+
+    /// References to other creative works, such as another publication, web page, scholarly article, etc.
+    pub references: Option<Vec<CreativeWorkReferences>>,
+
+    /// The textual content of this creative work.
+    pub text: Option<Box<String>>,
+
     /// The title of the creative work.
     pub title: Option<Box<CreativeWorkTitle>>,
+
+    /// The URL of the item.
+    pub url: Option<Box<String>>,
+
+    /// The version of the creative work.
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum CollectionSimple_ {
-  Collection
+pub enum Directory_ {
+  Directory
 }
 
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
@@ -2404,6 +2486,9 @@ pub struct File {
     #[derivative(Default(value = "File_::File"))]
     pub type_: File_,
 
+    /// The name of the item.
+    pub name: String,
+
     /// The path (absolute or relative) of the file on the filesystem
     pub path: String,
 
@@ -2473,9 +2558,6 @@ pub struct File {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
-
-    /// The name of the item.
-    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
@@ -5205,6 +5287,14 @@ pub enum ClaimClaimType {
     Corollary,
 }
 
+/// Types permitted for the `parts` property of a `Directory` node.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum DirectoryParts {
+    File(File),
+    Directory(Directory),
+}
+
 /// Types permitted for the `caption` property of a `Figure` node.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -5686,7 +5776,6 @@ pub enum BlockContent {
     Claim(ClaimSimple),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
-    Collection(CollectionSimple),
     Figure(FigureSimple),
     Heading(Heading),
     Include(Include),
@@ -5716,6 +5805,14 @@ pub enum CodeStaticTypes {
     CodeFragment(CodeFragment),
 }
 
+/// All type schemas that are derived from Collection
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CollectionTypes {
+    Collection(Collection),
+    Directory(Directory),
+}
+
 /// All type schemas that are derived from ContactPoint
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -5735,6 +5832,7 @@ pub enum CreativeWorkTypes {
     Collection(Collection),
     Comment(Comment),
     Datatable(Datatable),
+    Directory(Directory),
     Figure(Figure),
     File(File),
     ImageObject(ImageObject),
@@ -5781,6 +5879,7 @@ pub enum EntityTypes {
     Date(Date),
     DefinedTerm(DefinedTerm),
     Delete(Delete),
+    Directory(Directory),
     Emphasis(Emphasis),
     EnumValidator(EnumValidator),
     Enumeration(Enumeration),
@@ -5968,6 +6067,7 @@ pub enum Node {
     Date(Date),
     DefinedTerm(DefinedTerm),
     Delete(Delete),
+    Directory(Directory),
     Emphasis(Emphasis),
     EnumValidator(EnumValidator),
     Enumeration(Enumeration),
@@ -6079,6 +6179,7 @@ pub enum ThingTypes {
     Datatable(Datatable),
     DatatableColumn(DatatableColumn),
     DefinedTerm(DefinedTerm),
+    Directory(Directory),
     Enumeration(Enumeration),
     Figure(Figure),
     File(File),

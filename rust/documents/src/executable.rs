@@ -1294,7 +1294,7 @@ macro_rules! executable_fields {
 executable_fields!(CiteGroup, items);
 
 executable_fields!(Collection, parts);
-executable_fields!(CollectionSimple, parts);
+executable_fields!(Directory, parts);
 
 executable_fields!(List, items);
 executable_fields!(ListItem, item, content);
@@ -1360,6 +1360,12 @@ executable_variants!(
     CreativeWorkContent,
     CreativeWorkContent::String,
     CreativeWorkContent::VecNode
+);
+
+executable_variants!(
+    DirectoryParts,
+    DirectoryParts::File,
+    DirectoryParts::Directory
 );
 
 executable_variants!(

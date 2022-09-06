@@ -444,8 +444,6 @@ impl ToPandoc for CodeChunk {
     }
 }
 
-unimplemented_to_pandoc!(CollectionSimple);
-
 unimplemented_to_pandoc!(FigureSimple);
 
 impl ToPandoc for Heading {

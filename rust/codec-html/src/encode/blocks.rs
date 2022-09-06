@@ -278,16 +278,6 @@ impl ToHtml for CodeError {
     }
 }
 
-impl ToHtml for CollectionSimple {
-    fn to_html(&self, context: &EncodeContext) -> String {
-        elem(
-            "ol",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &concat(&self.parts, |part| elem("li", &[], &part.to_html(context))),
-        )
-    }
-}
-
 /// Encode a figure as HTML
 ///
 /// Similar to as for tables, except that the label and caption are at the bottom
