@@ -57,11 +57,11 @@ where
 /// Generate a [`Patch`] using a recipe function
 ///
 /// Inspired by [Immer](https://immerjs.github.io/immer/produce/)'s `produce` function.
-pub fn produce(
-    node: &Node,
+pub fn produce<T: Clone + Patchable, F: Fn(&mut T)>(
+    node: &T,
     node_id: Option<String>,
     node_address: Option<Address>,
-    recipe: &dyn Fn(&mut Node),
+    recipe: F,
 ) -> Patch {
     let mut draft = node.clone();
     recipe(&mut draft);
@@ -75,11 +75,11 @@ pub fn produce(
 /// Generate a [`Patch`] using a mutating function
 ///
 /// Like [`produce`] but mutates the node as well as generating a patch.
-pub fn mutate(
-    node: &mut Node,
+pub fn mutate<T: Clone + Patchable, F: Fn(&mut T)>(
+    node: &mut T,
     node_id: Option<String>,
     node_address: Option<Address>,
-    recipe: &dyn Fn(&mut Node),
+    recipe: F,
 ) -> Patch {
     let before = node.clone();
     recipe(node);
