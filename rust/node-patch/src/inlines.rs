@@ -249,6 +249,7 @@ macro_rules! patchable_media_object {
     };
 }
 
+patchable_media_object!(MediaObject, content_url, media_type);
 patchable_media_object!(AudioObject, content_url, media_type);
 patchable_media_object!(AudioObjectSimple, content_url, media_type);
 patchable_media_object!(ImageObject, content_url, media_type);

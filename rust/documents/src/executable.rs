@@ -21,7 +21,7 @@ use graph_triples::{
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, AddressMap, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
-use node_patch::{diff_address, diff_id, Patch};
+use node_patch::{diff_address, diff_id, produce, Patch};
 use node_pointer::Pointer;
 
 use node_query::query;
@@ -210,12 +210,12 @@ impl Executable for Link {
     }
 }
 
-/// Compile to `content_url` property of `MediaObject` node types
+/// Compile the `content_url` property of `MediaObject` node types
 ///
 /// If the `content_url` property is  a `file://` URL (implicitly
 /// or explicitly) then resolves the file path, records it as
 /// a file dependency, and returns an absolute `file://` URL.
-fn executable_content_url(content_url: &str, context: &mut CompileContext) -> String {
+fn compile_content_url(content_url: &str, context: &mut CompileContext) -> String {
     if content_url.starts_with("http://")
         || content_url.starts_with("https://")
         || content_url.starts_with("data:")
@@ -255,6 +255,10 @@ fn executable_content_url(content_url: &str, context: &mut CompileContext) -> St
 }
 
 /// Compile a `MediaObject` node type
+/// 
+/// Note that this patches the `content_url` property so that any absolute file path
+/// that is resolved in `compile_content_url()` is available, for example
+/// for encoding to other formats.
 macro_rules! executable_media_object {
     ($type:ty, $prefix:expr) => {
         #[async_trait]
@@ -272,7 +276,7 @@ macro_rules! executable_media_object {
                 let id = assert_id!(self)?;
                 let resource = resources::node(&context.path, &id, stringify!($type));
 
-                let url = executable_content_url(&self.content_url, context);
+                let url = compile_content_url(&self.content_url, context);
                 let object = if url.starts_with("http") || url.starts_with("data:") {
                     resources::url(&url)
                 } else {
@@ -285,17 +289,22 @@ macro_rules! executable_media_object {
                     ResourceInfo::new(resource, Some(relations), None, None, None, None, None);
                 context.resource_infos.push(resource_info);
 
+                let patch = produce(self, Some(id.clone()), None, |draft| {
+                    draft.content_url = url.clone();
+                });
+                context.patches.push(patch);
+
                 Ok(())
             }
         }
     };
 }
 
+executable_media_object!(MediaObject, "me");
 executable_media_object!(AudioObject, "au");
 executable_media_object!(AudioObjectSimple, "au");
 executable_media_object!(ImageObject, "im");
 executable_media_object!(ImageObjectSimple, "im");
-executable_media_object!(MediaObject, "me");
 executable_media_object!(VideoObject, "vi");
 executable_media_object!(VideoObjectSimple, "vi");
 
