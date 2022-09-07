@@ -1,0 +1,12 @@
+[package]
+name = "config-docs"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+common = { path = "../common" }
+quote = "1.0.21"
+syn = "1.0.99"

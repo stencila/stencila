@@ -1,0 +1,15 @@
+[package]
+name = "config"
+version = "0.0.0"
+edition = "2021"
+
+[features]
+default = ["cli"]
+cli = ["cli-utils"]
+
+[dependencies]
+common = { path = "../common" }
+config-docs = { path = "../config-docs" }
+merge = "0.1.0"
+
+cli-utils = { path = "../cli-utils", optional = true }
