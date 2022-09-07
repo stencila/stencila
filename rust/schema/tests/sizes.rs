@@ -139,7 +139,6 @@ fn sizes() {
     sizeof!(ClaimSimple);
     sizeof!(CodeBlock);
     sizeof!(CodeChunk);
-    sizeof!(CollectionSimple);
     sizeof!(FigureSimple);
     sizeof!(Heading);
     sizeof!(Include);
