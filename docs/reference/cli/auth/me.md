@@ -5,7 +5,7 @@
 ## Usage
 
 ```sh
-stencila users me [options]
+stencila auth me [options]
 ```
 
 

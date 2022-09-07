@@ -4,6 +4,7 @@ parts:
   - open
   - close
   - show
+  - build
   - run
   - convert
   - diff
@@ -26,7 +27,7 @@ parts:
   - config
   - login
   - logout
-  - tokens
+  - auth
   - upgrade
   - interact
 ---
@@ -52,6 +53,7 @@ Enter interactive mode by using the `interact` command, the `--interact` option 
 | [`open`](open.md) | Open a project or document using a web browser |
 | [`close`](close.md) | Close a project or document |
 | [`show`](show.md) | Show a project or document |
+| [`build`](build.md) | Build a document |
 | [`run`](run.md) | Run documents, tasks, and/or server |
 | [`convert`](convert.md) | Convert between formats |
 | [`diff`](diff.md) | Display the structural differences between two documents |
@@ -74,7 +76,7 @@ Enter interactive mode by using the `interact` command, the `--interact` option 
 | [`config`](config/README.md) | Manage configuration settings |
 | [`login`](login.md) | Login to your Stencila account |
 | [`logout`](logout.md) | Logout from your Stencila account |
-| [`tokens`](tokens/README.md) | Manage personal access tokens |
+| [`auth`](auth/README.md) | Login/out and manage tokens and authentication providers |
 | [`upgrade`](upgrade.md) | Upgrade to the latest (or other) version |
 | [`interact`](interact.md) | Enter interactive mode (if not yet in it) |
 | `help` | Print help information |

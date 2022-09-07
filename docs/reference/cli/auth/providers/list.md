@@ -1,41 +1,22 @@
----
-parts:
-  - list
-  - show
-  - detect
-  - enrich
-  - pull
-  - push
-  - cron
----
-
-
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `providers`: Manage and use source providers
+# `list`: List external accounts connected to your Stencila account
 
 ## Usage
 
 ```sh
-stencila providers [options] <subcommand>
+stencila auth providers list [options]
 ```
 
 
 
-## Subcommands
+
+
+## Options
 
 | Name | Description |
 | --- | --- |
-| [`list`](list.md) | List the providers that are available |
-| [`show`](show.md) | Show the specifications of a provider |
-| [`detect`](detect.md) | Detect nodes within a file or string |
-| [`enrich`](enrich.md) | Enrich nodes within a file or string |
-| [`pull`](pull.md) | Pull files or content from a remote source to a local path |
-| [`push`](push.md) | Push files or content from a local path to a remote source |
-| [`cron`](cron.md) | Schedule pull and/or push between remote source and a local path |
-| `help` | Print help information |
-
-
+| `--web -w` | Open the corresponding web page on Stencila in your browser. Use this option when you want to quickly jump to the web page on Stencila that offers the same, or similar, functionality to this command. |
 
 ## Global options
 

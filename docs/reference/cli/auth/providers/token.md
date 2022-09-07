@@ -1,24 +1,22 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `create`: Create a new personal access token
+# `token`: Obtain an access token for a provider
 
 ## Usage
 
 ```sh
-stencila tokens create [options]
+stencila auth providers token [options] <provider>
 ```
 
-Use this command to create a token for accessing the Stencila API on your behalf. Store tokens securely.
+This command is generally only used during testing or debugging.
 
 
-
-## Options
+## Arguments
 
 | Name | Description |
 | --- | --- |
-| `--note -n <note>` | A note for the token. This option is useful for remembering why you created a token and whether you can safely delete it in the future. |
-| `--expires-in -e <expires-in>` | The number of minutes until the token should expire. Use this option if you want the new token to expire after a certain amount of time. |
-| `--tag -t <tag>` | A tag for the token. Tags are used to identify a token created for a specific client or purpose. They avoid the generation of multiple, redundant tokens. You probably do not need to set a tag when manually creating a token. |
+| `provider` | The name of the authentication provider |
+
 
 ## Global options
 

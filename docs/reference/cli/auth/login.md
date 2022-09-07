@@ -1,28 +1,17 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `cancel`: Cancel a code execution task, or all tasks, in a document kernel space
+# `login`: Login to your Stencila account
 
 ## Usage
 
 ```sh
-stencila documents cancel [options] <path> <task>
+stencila auth login [options]
 ```
 
-Use an integer to cancel a task by it's number. Use "all" to cancel all unfinished tasks.
+Use this command to link the Stencila CLI to your Stencila account. A browser window will be opened allowing you to sign in to Stencila, or create a Stencila account if you do not have one already. Once you have done that an access token will be stored on your machine allowing to access the Stencila API without having to sign in again.
 
 
-## Arguments
 
-| Name | Description |
-| --- | --- |
-| `path` | The path of the document file |
-| `task` | The task number or id, or "all" |
-
-## Options
-
-| Name | Description |
-| --- | --- |
-| `--format -f <format>` | The format of the document file. |
 
 ## Global options
 

@@ -1,11 +1,11 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `symbols`: Show the code symbols in a document kernel space
+# `connect`: Connect an external account to your Stencila account
 
 ## Usage
 
 ```sh
-stencila documents symbols [options] <path>
+stencila auth providers connect [options] <provider>
 ```
 
 
@@ -15,13 +15,13 @@ stencila documents symbols [options] <path>
 
 | Name | Description |
 | --- | --- |
-| `path` | The path of the document file |
+| `provider` | The name of the authentication provider |
 
 ## Options
 
 | Name | Description |
 | --- | --- |
-| `--format -f <format>` | The format of the document file. |
+| `--web -w` | Open the corresponding web page on Stencila in your browser. Use this option when you want to quickly jump to the web page on Stencila that offers the same, or similar, functionality to this command. |
 
 ## Global options
 

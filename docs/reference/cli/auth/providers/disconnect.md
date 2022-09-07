@@ -1,17 +1,27 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `logout`: Logout from your Stencila account
+# `disconnect`: Disconnect an external account from your Stencila account
 
 ## Usage
 
 ```sh
-stencila users logout [options]
+stencila auth providers disconnect [options] <provider>
 ```
 
-Use this command to unlink the Stencila CLI from your Stencila account. This will not affect your login status in the browser. i.e. if you are logged in to Stencila in your browser, this will not log you out there.
 
 
 
+## Arguments
+
+| Name | Description |
+| --- | --- |
+| `provider` | The name of the authentication provider |
+
+## Options
+
+| Name | Description |
+| --- | --- |
+| `--web -w` | Open the corresponding web page on Stencila in your browser. Use this option when you want to quickly jump to the web page on Stencila that offers the same, or similar, functionality to this command. |
 
 ## Global options
 

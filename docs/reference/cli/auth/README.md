@@ -1,28 +1,37 @@
+---
+parts:
+  - login
+  - logout
+  - me
+  - tokens
+  - providers
+---
+
+
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `export`: Export content from a local path to a remote source
+# `auth`: Login/out and manage tokens and authentication providers
 
 ## Usage
 
 ```sh
-stencila providers export [options] <source> [path]
+stencila auth [options] <subcommand>
 ```
 
 
 
-
-## Arguments
-
-| Name | Description |
-| --- | --- |
-| `source` | The source identifier e.g. `github:org/name@v1.2.0` |
-| `path` | The local path to export file/s from e.g. `report.md` |
-
-## Options
+## Subcommands
 
 | Name | Description |
 | --- | --- |
-| `--token <token>` | The token (or name of environment variable) required to access the resource. Only necessary if authentication is required for the resource. Defaults to using the environment variable corresponding to the provider of the resource e.g. `GITHUB_TOKEN`. |
+| [`login`](login.md) | Login to your Stencila account |
+| [`logout`](logout.md) | Logout from your Stencila account |
+| [`me`](me.md) | Show the currently authenticated user |
+| [`tokens`](tokens/README.md) | Manage personal access tokens |
+| [`providers`](providers/README.md) | Manage authentication providers |
+| `help` | Print help information |
+
+
 
 ## Global options
 

@@ -1,17 +1,28 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `login`: Login to your Stencila account
+# `pull`: Pull files or content from a remote source to a local path
 
 ## Usage
 
 ```sh
-stencila users login [options]
+stencila providers pull [options] <source> [path]
 ```
 
-Use this command to link the Stencila CLI to your Stencila account. A browser window will be opened allowing you to sign in to Stencila, or create a Stencila account if you do not have one already. Once you have done that an access token will be stored on your machine allowing to access the Stencila API without having to sign in again.
 
 
 
+## Arguments
+
+| Name | Description |
+| --- | --- |
+| `source` | The source identifier e.g. `github:org/name@v1.2.0` |
+| `path` | The local path to import file/s to e.g. `data` |
+
+## Options
+
+| Name | Description |
+| --- | --- |
+| `--token <token>` | The token (or name of environment variable) required to access the resource. Only necessary if authentication is required for the resource. Defaults to using the environment variable corresponding to the provider of the resource e.g. `GITHUB_TOKEN`. |
 
 ## Global options
 

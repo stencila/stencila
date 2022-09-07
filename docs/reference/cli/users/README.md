@@ -1,8 +1,5 @@
 ---
 parts:
-  - login
-  - logout
-  - me
   - find
   - invite
 ---
@@ -24,9 +21,6 @@ stencila users [options] <subcommand>
 
 | Name | Description |
 | --- | --- |
-| [`login`](login.md) | Login to your Stencila account |
-| [`logout`](logout.md) | Logout from your Stencila account |
-| [`me`](me.md) | Show the currently authenticated user |
 | [`find`](find.md) | Find users by name |
 | [`invite`](invite.md) | Invite users by email or link |
 | `help` | Print help information |

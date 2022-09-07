@@ -74,4 +74,5 @@ FORCE:
 # Generate docs
 docs:
 	cargo run -p cli-docs
+	cargo run -p config -- docs
 	cargo run -p tasks -- docs

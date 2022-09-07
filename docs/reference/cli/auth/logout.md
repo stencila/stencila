@@ -1,21 +1,16 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `delete`: Delete a personal access token
+# `logout`: Logout from your Stencila account
 
 ## Usage
 
 ```sh
-stencila tokens delete [options] <id>
+stencila auth logout [options]
 ```
 
-Use this command to permanently delete an access token. Take care as any clients or services still relying on the token (including this CLI!) may be interrupted.
+Use this command to unlink the Stencila CLI from your Stencila account. This will not affect your login status in the browser. i.e. if you are logged in to Stencila in your browser, this will not log you out there.
 
 
-## Arguments
-
-| Name | Description |
-| --- | --- |
-| `id` | The id of the token |
 
 
 ## Global options

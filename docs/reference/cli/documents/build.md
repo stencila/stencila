@@ -1,11 +1,11 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `restart`: Restart one or all of the kernels
+# `build`: Build a document
 
 ## Usage
 
 ```sh
-stencila documents restart [options] <path> [id]
+stencila documents build [options] <source> [dest]
 ```
 
 
@@ -15,14 +15,14 @@ stencila documents restart [options] <path> [id]
 
 | Name | Description |
 | --- | --- |
-| `path` | The path of the document file |
-| `id` | The id of the kernel (defaults to all) |
+| `source` | The path of the document |
+| `dest` |  |
 
 ## Options
 
 | Name | Description |
 | --- | --- |
-| `--format -f <format>` | The format of the document file. |
+| `--theme -t <theme>` | . Default: stencila |
 
 ## Global options
 

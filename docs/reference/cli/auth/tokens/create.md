@@ -1,41 +1,24 @@
----
-parts:
-  - list
-  - show
-  - detect
-  - enrich
-  - pull
-  - push
-  - cron
----
-
-
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `providers`: Manage and use source providers
+# `create`: Create a new personal access token
 
 ## Usage
 
 ```sh
-stencila providers [options] <subcommand>
+stencila auth tokens create [options]
 ```
 
+Use this command to create a token for accessing the Stencila API on your behalf. Store tokens securely.
 
 
-## Subcommands
+
+## Options
 
 | Name | Description |
 | --- | --- |
-| [`list`](list.md) | List the providers that are available |
-| [`show`](show.md) | Show the specifications of a provider |
-| [`detect`](detect.md) | Detect nodes within a file or string |
-| [`enrich`](enrich.md) | Enrich nodes within a file or string |
-| [`pull`](pull.md) | Pull files or content from a remote source to a local path |
-| [`push`](push.md) | Push files or content from a local path to a remote source |
-| [`cron`](cron.md) | Schedule pull and/or push between remote source and a local path |
-| `help` | Print help information |
-
-
+| `--note -n <note>` | A note for the token. This option is useful for remembering why you created a token and whether you can safely delete it in the future. |
+| `--expires-in -e <expires-in>` | The number of minutes until the token should expire. Use this option if you want the new token to expire after a certain amount of time. |
+| `--tag -t <tag>` | A tag for the token. Tags are used to identify a token created for a specific client or purpose. They avoid the generation of multiple, redundant tokens. You probably do not need to set a tag when manually creating a token. |
 
 ## Global options
 

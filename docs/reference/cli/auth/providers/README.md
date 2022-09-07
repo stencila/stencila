@@ -1,15 +1,33 @@
+---
+parts:
+  - list
+  - connect
+  - disconnect
+  - token
+---
+
+
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `list`: List personal access tokens
+# `providers`: Manage authentication providers
 
 ## Usage
 
 ```sh
-stencila tokens list [options]
+stencila auth providers [options] <subcommand>
 ```
 
-Use this command to retrieve the details of the tokens created by you or on your behalf when signing in using Stencila API clients. Note that you can not retrieve the actual token itself (that is only available when you create it).
 
+
+## Subcommands
+
+| Name | Description |
+| --- | --- |
+| [`list`](list.md) | List external accounts connected to your Stencila account |
+| [`connect`](connect.md) | Connect an external account to your Stencila account |
+| [`disconnect`](disconnect.md) | Disconnect an external account from your Stencila account |
+| [`token`](token.md) | Obtain an access token for a provider |
+| `help` | Print help information |
 
 
 

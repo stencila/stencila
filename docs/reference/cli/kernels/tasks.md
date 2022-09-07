@@ -17,7 +17,7 @@ stencila kernels tasks [options]
 | Name | Description |
 | --- | --- |
 | `--num -n <num>` | The maximum number of tasks to show. Default: 100 |
-| `--sort -s <sort>` | The order to sort tasks (defaults to by task number). One of: `number`, `created`, `started`, `finished`, `cancelled`. Default: number |
+| `--sort -s <sort>` | The order to sort tasks (defaults to by task number). One of: `number`, `created`, `started`, `finished`, `interrupted`. Default: number |
 | `--desc -d` | Whether to sort in descending order. |
 | `--kernel -k <kernel>` | Only show tasks assigned to a specific kernel. |
 

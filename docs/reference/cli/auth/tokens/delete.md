@@ -1,31 +1,22 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `tasks`: List the code execution tasks in a document kernel space
+# `delete`: Delete a personal access token
 
 ## Usage
 
 ```sh
-stencila documents tasks [options] <path>
+stencila auth tokens delete [options] <id>
 ```
 
-
+Use this command to permanently delete an access token. Take care as any clients or services still relying on the token (including this CLI!) may be interrupted.
 
 
 ## Arguments
 
 | Name | Description |
 | --- | --- |
-| `path` | The path of the document file |
+| `id` | The id of the token |
 
-## Options
-
-| Name | Description |
-| --- | --- |
-| `--format -f <format>` | The format of the document file. |
-| `--num -n <num>` | The maximum number of tasks to show. Default: 100 |
-| `--sort -s <sort>` | The order to sort tasks (defaults to by task number). One of: `number`, `created`, `started`, `finished`, `cancelled`. Default: number |
-| `--desc -d` | Whether to sort in descending order. |
-| `--kernel -k <kernel>` | Only show tasks assigned to a specific kernel. |
 
 ## Global options
 

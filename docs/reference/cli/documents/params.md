@@ -1,38 +1,14 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `execute`: Execute code within a document kernel space
+# `params`: Show the parameters of a document
 
 ## Usage
 
 ```sh
-stencila documents execute [options] <path> [code]
+stencila documents params [options] <path>
 ```
 
-Mainly intended for testing that Stencila is able to talk
-to Jupyter kernels and execute code within them.
 
-Use the `--kernel` option to specify, by name, language or type, which kernel the code
-should be executed in e.g.,
-
-```stencila
-> kernels execute Math.PI --lang=javascript
-```
-
-```stencila
-> kernels execute Math.PI --lang javascript --kernel="type:jupyter"
-```
-
-In interactive mode, you can set the command prefix to "stay" in a particular
-language and mimic a REPL in that language e.g.,
-
-```stencila
-> kernels execute --lang=javascript
-> let r = 10
-> 2 * Math.PI * r
-```
-
-If a kernel is not yet running for the language then one will be started
-(if installed on the machine).
 
 
 ## Arguments
@@ -40,17 +16,12 @@ If a kernel is not yet running for the language then one will be started
 | Name | Description |
 | --- | --- |
 | `path` | The path of the document file |
-| `code` | Code to execute within the kernel space |
 
 ## Options
 
 | Name | Description |
 | --- | --- |
 | `--format -f <format>` | The format of the document file. |
-| `--lang -l <lang>` | The programming language of the code. |
-| `--kernel -k <kernel>` | The kernel where the code should executed (a kernel selector string). |
-| `--background -b` | The task should run be in the background. |
-| `--fork` | The task should run be in a kernel fork (if possible). |
 
 ## Global options
 

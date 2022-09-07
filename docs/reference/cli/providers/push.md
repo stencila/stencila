@@ -1,44 +1,28 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `kernels`: List the kernels in a document kernel space
+# `push`: Push files or content from a local path to a remote source
 
 ## Usage
 
 ```sh
-stencila documents kernels [options] <path>
+stencila providers push [options] <source> [path]
 ```
 
-Mainly intended for interactive mode testing / inspection. Note that
-for a kernel to be in this list it must have either been started by Stencila,
 
-```stencila
-> kernels start r
-```
-
-or connected to from Stencila,
- 
-```stencila
-> kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
-```
-
-To get a list of externally started Jupyter kernels that can be connected to run,
-
-```stencila
-> kernels external
-```
 
 
 ## Arguments
 
 | Name | Description |
 | --- | --- |
-| `path` | The path of the document file |
+| `source` | The source identifier e.g. `github:org/name@v1.2.0` |
+| `path` | The local path to export file/s from e.g. `report.md` |
 
 ## Options
 
 | Name | Description |
 | --- | --- |
-| `--format -f <format>` | The format of the document file. |
+| `--token <token>` | The token (or name of environment variable) required to access the resource. Only necessary if authentication is required for the resource. Defaults to using the environment variable corresponding to the provider of the resource e.g. `GITHUB_TOKEN`. |
 
 ## Global options
 

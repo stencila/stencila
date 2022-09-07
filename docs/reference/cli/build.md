@@ -1,11 +1,11 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `import`: Import content from a remote source to a local path
+# `build`: Build a document
 
 ## Usage
 
 ```sh
-stencila providers import [options] <source> [path]
+stencila build [options] <source> [dest]
 ```
 
 
@@ -15,14 +15,14 @@ stencila providers import [options] <source> [path]
 
 | Name | Description |
 | --- | --- |
-| `source` | The source identifier e.g. `github:org/name@v1.2.0` |
-| `path` | The local path to import file/s to e.g. `data` |
+| `source` | The path of the document |
+| `dest` |  |
 
 ## Options
 
 | Name | Description |
 | --- | --- |
-| `--token <token>` | The token (or name of environment variable) required to access the resource. Only necessary if authentication is required for the resource. Defaults to using the environment variable corresponding to the provider of the resource e.g. `GITHUB_TOKEN`. |
+| `--theme -t <theme>` | . Default: stencila |
 
 ## Global options
 

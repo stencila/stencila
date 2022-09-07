@@ -1,28 +1,33 @@
+---
+parts:
+  - list
+  - create
+  - delete
+---
+
+
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `queues`: Show the code execution queues in a document kernel space
+# `tokens`: Manage personal access tokens
 
 ## Usage
 
 ```sh
-stencila documents queues [options] <path>
+stencila auth tokens [options] <subcommand>
 ```
 
 
 
-
-## Arguments
-
-| Name | Description |
-| --- | --- |
-| `path` | The path of the document file |
-
-## Options
+## Subcommands
 
 | Name | Description |
 | --- | --- |
-| `--format -f <format>` | The format of the document file. |
-| `--kernel -k <kernel>` | Only show the queue for a specific kernel. |
+| [`list`](list.md) | List personal access tokens |
+| [`create`](create.md) | Create a new personal access token |
+| [`delete`](delete.md) | Delete a personal access token |
+| `help` | Print help information |
+
+
 
 ## Global options
 

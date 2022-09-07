@@ -9,7 +9,6 @@ parts:
   - show
   - execute
   - tasks
-  - queues
   - cancel
   - symbols
   - restart
@@ -43,7 +42,6 @@ stencila kernels [options] <subcommand>
 | [`show`](show.md) | Show the details of a current kernel |
 | [`execute`](execute.md) | Execute code within a document kernel space |
 | [`tasks`](tasks.md) | List the code execution tasks in a document kernel space |
-| [`queues`](queues.md) | Show the code execution queues in a document kernel space |
 | [`cancel`](cancel.md) | Cancel a code execution task, or all tasks, in a document kernel space |
 | [`symbols`](symbols.md) | Show the code symbols in a document kernel space |
 | [`restart`](restart.md) | Restart one or all of the kernels |

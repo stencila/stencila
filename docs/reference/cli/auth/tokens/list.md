@@ -1,31 +1,15 @@
----
-parts:
-  - list
-  - create
-  - delete
----
-
-
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `tokens`: Manage personal access tokens
+# `list`: List personal access tokens
 
 ## Usage
 
 ```sh
-stencila tokens [options] <subcommand>
+stencila auth tokens list [options]
 ```
 
+Use this command to retrieve the details of the tokens created by you or on your behalf when signing in using Stencila API clients. Note that you can not retrieve the actual token itself (that is only available when you create it).
 
-
-## Subcommands
-
-| Name | Description |
-| --- | --- |
-| [`list`](list.md) | List personal access tokens |
-| [`create`](create.md) | Create a new personal access token |
-| [`delete`](delete.md) | Delete a personal access token |
-| `help` | Print help information |
 
 
 
