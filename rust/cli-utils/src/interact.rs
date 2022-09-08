@@ -23,7 +23,7 @@ fn help() -> String {
         .paint("Stencila CLI interactive mode\n\n")
         .to_string();
 
-    help += &Yellow.paint("ABOUT:").to_string();
+    help += &Yellow.paint("ABOUT:");
     help += r#"
 Interactive mode allows you to interact with the Stencila CLI
 without having to restart it. This is particularly useful for
@@ -41,7 +41,7 @@ interactive session (see the shortcut keystrokes below).
 
 "#;
 
-    help += &Yellow.paint("SHORTCUTS:\n").to_string();
+    help += &Yellow.paint("SHORTCUTS:\n");
     for (keys, desc) in &[
         ("--help", "Get help for the current command prefix"),
         ("^     ", "Print the current command prefix"),

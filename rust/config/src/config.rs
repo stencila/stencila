@@ -209,7 +209,7 @@ pub enum ImageFormat {
 
 impl Config {
     /// Resolve a config for a given path
-    fn resolve<P: AsRef<Path>>(path: &Path) {
+    fn resolve<P: AsRef<Path>>(_path: &Path) {
         todo!()
     }
 }

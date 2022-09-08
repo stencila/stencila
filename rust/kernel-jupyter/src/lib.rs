@@ -749,7 +749,7 @@ impl KernelTrait for JupyterKernel {
             .map(|arg| {
                 arg.replace(
                     "{connection_file}",
-                    &connection.path.to_string_lossy().to_string(),
+                    &connection.path.to_string_lossy(),
                 )
             })
             .collect();

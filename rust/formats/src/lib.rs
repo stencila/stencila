@@ -9,7 +9,7 @@ use common::{
 };
 
 #[derive(
-    Debug, Clone, PartialEq, EnumIter, Serialize, Deserialize, JsonSchema, Display, EnumString,
+    Debug, Clone, PartialEq, Eq, EnumIter, Serialize, Deserialize, JsonSchema, Display, EnumString,
 )]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
@@ -133,7 +133,7 @@ impl Format {
 }
 
 /// The type of format as a schema `Node` type
-#[derive(Clone, Debug, PartialEq, JsonSchema, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 pub enum FormatNodeType {
     Article,
@@ -152,7 +152,7 @@ pub enum FormatNodeType {
 ///
 /// Used to determine various application behaviors
 /// e.g. not reading binary formats into memory unnecessarily
-#[derive(Clone, Debug, PartialEq, JsonSchema, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct FormatSpec {
@@ -296,7 +296,7 @@ pub fn match_path<P: AsRef<Path>>(path: P) -> Format {
     };
 
     // Match that name
-    let format = match_name(&name.to_string_lossy().to_string());
+    let format = match_name(&name.to_string_lossy());
 
     // If no match then attempt to determine if file or directory
     if matches!(format, Format::Unknown) {

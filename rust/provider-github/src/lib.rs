@@ -539,7 +539,8 @@ mod tests {
         }
 
         // Version, no path
-        for string in ["github:owner/name@version"] {
+        {
+            let string = "github:owner/name@version";
             assert_json_is!(
                 GithubProvider::parse(string)[0].node,
                 {
@@ -598,7 +599,8 @@ mod tests {
         }
 
         // File path, no version
-        for string in ["github:owner/name/sub/folder/file.ext"] {
+        {
+            let string = "github:owner/name/sub/folder/file.ext";
             assert_json_is!(
                 GithubProvider::parse(string)[0].node,
                 {

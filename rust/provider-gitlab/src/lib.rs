@@ -526,7 +526,8 @@ mod tests {
         }
 
         // Version, no path
-        for string in ["gitlab:owner/name@version"] {
+        {
+            let string = "gitlab:owner/name@version";
             assert_json_is!(
                 GitlabProvider::parse(string)[0].node,
                 {
@@ -585,7 +586,8 @@ mod tests {
         }
 
         // File path, no version (only for short identifier)
-        for string in ["gitlab:owner/name/sub/folder/file.ext"] {
+        {
+            let string = "gitlab:owner/name/sub/folder/file.ext";
             assert_json_is!(
                 GitlabProvider::parse(string)[0].node,
                 {

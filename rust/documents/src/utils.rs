@@ -38,7 +38,7 @@ pub(crate) fn resource_to_node(
         .clone();
 
     let pointer = resolve(
-        &*root,
+        root,
         Some(node_address.clone()),
         Some(node_id.to_string()),
     )?;

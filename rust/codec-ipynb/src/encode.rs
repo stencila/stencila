@@ -220,7 +220,7 @@ fn encode_display_data(image: &ImageObject) -> serde_json::Value {
     let url = &image.content_url;
     let data = if let Some(data) = url.strip_prefix("data:") {
         let parts = data.split(";base64,").collect::<Vec<&str>>();
-        let mime_type = parts.get(0).map(|str| str.to_string()).unwrap_or_default();
+        let mime_type = parts.first().map(|str| str.to_string()).unwrap_or_default();
         let data = parts.get(1);
         let data = if mime_type.starts_with("application/vnd.plotly")
             || mime_type.starts_with("application/vnd.vega")
