@@ -3,7 +3,10 @@ use std::{
     env, fs,
     ops::Deref,
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
     time::{Duration, Instant},
 };
 
@@ -236,6 +239,12 @@ pub struct Document {
     ///    completed e.g. `encoded:html`
     subscriptions: HashMap<String, HashSet<String>>,
 
+    /// A running count of the number of subscriptions to the document
+    ///
+    /// Used, as a performance optimization, to avoiding publishing events
+    /// or doing pre-publishing preparation, when there are no subscribers.
+    subscriptions_count: Arc<AtomicUsize>,
+
     #[serde(skip)]
     patch_request_sender: mpsc::UnboundedSender<PatchRequest>,
 
@@ -345,6 +354,7 @@ impl Document {
             Some(&project),
             Some(resource_changes_sender),
         )));
+        let subscriptions_count = Arc::new(AtomicUsize::new(0));
         let last_write = Arc::new(RwLock::new(Instant::now()));
 
         let (
@@ -365,6 +375,7 @@ impl Document {
             &tags,
             &graph,
             &kernels,
+            &subscriptions_count,
             &last_write,
             resource_changes_receiver,
         );
@@ -391,6 +402,7 @@ impl Document {
 
             relations: Default::default(),
             subscriptions: Default::default(),
+            subscriptions_count,
 
             patch_request_sender,
             assemble_request_sender,
@@ -443,6 +455,7 @@ impl Document {
             .await?;
         let kernels = Arc::new(RwLock::new(kernels));
 
+        let subscriptions_count = Arc::new(AtomicUsize::new(0));
         let last_write = Arc::new(RwLock::new(Instant::now()));
 
         let (
@@ -463,6 +476,7 @@ impl Document {
             &tags,
             &graph,
             &kernels,
+            &subscriptions_count,
             &last_write,
             resource_changes_receiver,
         );
@@ -489,6 +503,7 @@ impl Document {
 
             relations: Default::default(),
             subscriptions: Default::default(),
+            subscriptions_count,
 
             patch_request_sender,
             assemble_request_sender,
@@ -862,6 +877,8 @@ impl Document {
     /// - `addresses`: The [`AddressMap`] to use to locate nodes within the root
     ///                node (will be read locked)
     ///
+    /// - `subscriptions_count`: The number of subscriptions to the document
+    ///
     /// - `compile_sender`: The channel to send any [`CompileRequest`]s after a patch is applied
     ///
     /// - `write_sender`: The channel to send any [`WriteRequest`]s after a patch is applied
@@ -869,10 +886,12 @@ impl Document {
     /// - `request_receiver`: The channel to receive [`PatchRequest`]s on
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
+    #[allow(clippy::too_many_arguments)]
     pub(crate) async fn patch_task(
         id: &str,
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
+        subscriptions_count: &Arc<AtomicUsize>,
         compile_sender: &mpsc::Sender<CompileRequest>,
         write_sender: &mpsc::UnboundedSender<WriteRequest>,
         request_receiver: &mut mpsc::UnboundedReceiver<PatchRequest>,
@@ -910,19 +929,21 @@ impl Document {
                 // Apply the patch to the root node
                 apply(root, &patch);
 
-                // Pre-publish the patch
+                // Increment version counter
                 counter += 1;
-                patch.prepublish(counter, root);
-            }
 
-            // Publish the patch
-            publish(
-                &["documents:", id, ":patched"].concat(),
-                &DocumentEvent {
-                    type_: DocumentEventType::Patched,
-                    patch: Some(patch),
-                },
-            );
+                // Publish the patch if there are any subscriptions
+                if subscriptions_count.load(Ordering::Acquire) > 0 {
+                    patch.prepublish(counter, root);
+                    publish(
+                        &["documents:", id, ":patched"].concat(),
+                        &DocumentEvent {
+                            type_: DocumentEventType::Patched,
+                            patch: Some(patch),
+                        },
+                    );
+                }
+            }
 
             // Possibly compile, execute, and/or write; or respond
             if !matches!(request.compile, When::Never) {
@@ -2008,6 +2029,7 @@ impl Document {
                 vacant.insert(hashset! {client.into()});
             }
         }
+        self.subscriptions_count.fetch_add(1, Ordering::SeqCst);
         self.topic(topic)
     }
 
@@ -2020,6 +2042,7 @@ impl Document {
                 occupied.remove();
             }
         }
+        self.subscriptions_count.fetch_sub(1, Ordering::SeqCst);
         self.topic(topic)
     }
 

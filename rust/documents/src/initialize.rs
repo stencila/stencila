@@ -1,4 +1,8 @@
-use std::{path::Path, sync::Arc, time::Instant};
+use std::{
+    path::Path,
+    sync::{atomic::AtomicUsize, Arc},
+    time::Instant,
+};
 
 use common::tokio::{
     self,
@@ -32,6 +36,7 @@ impl Document {
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernels: &Arc<RwLock<KernelSpace>>,
+        subscriptions_count: &Arc<AtomicUsize>,
         last_write: &Arc<RwLock<Instant>>,
         mut resource_changes_receiver: mpsc::Receiver<ResourceChange>,
     ) -> (
@@ -65,6 +70,7 @@ impl Document {
         let id_clone = id.to_string();
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
+        let subscriptions_count_clone = subscriptions_count.clone();
         let compile_sender_clone = compile_request_sender.clone();
         let write_sender_clone = write_request_sender.clone();
         let response_sender_clone = response_sender.clone();
@@ -73,6 +79,7 @@ impl Document {
                 &id_clone,
                 &root_clone,
                 &addresses_clone,
+                &subscriptions_count_clone,
                 &compile_sender_clone,
                 &write_sender_clone,
                 &mut patch_request_receiver,

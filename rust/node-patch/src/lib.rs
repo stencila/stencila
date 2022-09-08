@@ -659,6 +659,7 @@ impl Patch {
     ///
     /// The main purpose of this function is to generate HTML for each `Add` and `Replace`
     /// operation in the patch before it is sent to clients.
+    #[tracing::instrument(skip(self, root))]
     pub fn prepublish(&mut self, sequence: u32, root: &Node) -> &mut Self {
         self.sequence = Some(sequence);
         for op in self.ops.iter_mut() {
