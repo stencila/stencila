@@ -1,5 +1,5 @@
 mod config;
-pub use config::Config;
+pub use crate::config::Config;
 
 mod docs;
 

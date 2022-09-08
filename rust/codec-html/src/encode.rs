@@ -552,7 +552,7 @@ mod tests {
         let is_server_error = response.status().is_server_error();
         match response.error_for_status() {
             Ok(response) => {
-                let result = response.json().await?;
+                let result: serde_json::Value = response.json().await?;
                 assert_json_eq!(result, json!({"messages": []}));
             }
             Err(error) => {
