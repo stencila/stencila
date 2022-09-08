@@ -977,7 +977,12 @@ impl KernelSpace {
     }
 
     /// Set a symbol in the kernel space
-    pub async fn set(&self, name: &str, value: Node, selector: &KernelSelector) -> Result<KernelId> {
+    pub async fn set(
+        &self,
+        name: &str,
+        value: Node,
+        selector: &KernelSelector,
+    ) -> Result<KernelId> {
         let kernels = &mut *self.kernels.lock().await;
 
         let kernel_id = kernels
@@ -1340,7 +1345,8 @@ impl KernelSpace {
                     for error in messages {
                         let mut err = error.error_message;
                         if let Some(trace) = error.stack_trace {
-                            err += &format!("\n{}", trace);
+                            use std::fmt::Write;
+                            write!(err, "\n{}", trace)?;
                         }
                         tracing::error!("{}", err)
                     }

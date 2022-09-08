@@ -249,19 +249,21 @@ pub struct DetectItem {
     pub node: Node,
 }
 
+type DetectorParse = dyn Fn(&str) -> Vec<ParseItem>;
+
 pub struct Detector {
     /// The name of the provider that this detector is for
     provider: String,
 
     /// The function used to attempt to parse a string into a node
-    parse: Box<dyn Fn(&str) -> Vec<ParseItem>>,
+    parse: Box<DetectorParse>,
 
     /// The list of detected nodes and their location
     detections: Vec<DetectItem>,
 }
 
 impl Detector {
-    fn new(provider: String, parse: Box<dyn Fn(&str) -> Vec<ParseItem>>) -> Self {
+    fn new(provider: String, parse: Box<DetectorParse>) -> Self {
         Self {
             provider,
             parse,

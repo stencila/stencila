@@ -1,6 +1,6 @@
 //! Encode `InlineContent` nodes to HTML
 
-use std::{fs, path::PathBuf};
+use std::{fmt::Write, fs, path::PathBuf};
 
 use codec::common::{base64, tracing};
 use stencila_schema::*;
@@ -303,12 +303,14 @@ impl ToHtml for Cite {
                                     } else {
                                         format!(r#"{} et al"#, names[0])
                                     };
-                                    content += &format!(r#"<span>{}</span>"#, names)
+                                    write!(content, r#"<span>{}</span>"#, names)
+                                        .expect("Unable to write to string")
                                 }
                                 if let Some(date) = date {
                                     if date.value.len() >= 4 {
                                         let year = date.value[..4].to_string();
-                                        content += &format!(r#"<span>{}</span>"#, year)
+                                        write!(content, r#"<span>{}</span>"#, year)
+                                            .expect("Unable to write to string")
                                     }
                                 }
                             }

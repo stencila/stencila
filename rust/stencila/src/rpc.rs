@@ -114,7 +114,7 @@ pub type Notification = Request;
 ///
 /// See <https://www.jsonrpc.org/specification#response_object>.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct Response {
     /// A string specifying the version of the JSON-RPC protocol.
@@ -152,7 +152,7 @@ pub enum Subscription {
 ///
 /// See <https://www.jsonrpc.org/specification#error_object>.
 #[skip_serializing_none]
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct Error {
     /// A number that indicates the error type that ocurred

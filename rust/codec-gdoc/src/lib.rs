@@ -15,6 +15,7 @@ type NodeRanges = BTreeMap<Address, (i64, i64)>;
 
 mod decode;
 mod encode;
+#[allow(clippy::derive_partial_eq_without_eq)]
 mod gdoc;
 mod remote;
 

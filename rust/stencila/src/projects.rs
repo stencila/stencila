@@ -831,7 +831,9 @@ pub mod config {
     /// Projects
     ///
     /// Configuration settings for project defaults
-    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[derive(
+        Debug, Defaults, PartialEq, Eq, Clone, JsonSchema, Deserialize, Serialize, Validate,
+    )]
     #[serde(default, rename_all = "camelCase", crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct ProjectsConfig {

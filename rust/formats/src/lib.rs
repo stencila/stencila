@@ -233,7 +233,7 @@ impl FormatSpec {
     }
 
     /// Create the special `Unknown` format
-    /// 
+    ///
     /// Used when unable to determine the format of some content
     pub fn unknown() -> FormatSpec {
         FormatSpec {

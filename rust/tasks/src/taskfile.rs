@@ -729,12 +729,14 @@ impl Taskfile {
             let path = dir.join(format!("{}.md", name));
             write(path, md.trim())?;
 
-            table += &format!(
-                "| [`{}`]({}.md) | {} |\n",
+            use std::fmt::Write;
+            writeln!(
+                table,
+                "| [`{}`]({}.md) | {} |",
                 name,
                 name,
                 taskfile.desc.unwrap_or_default()
-            );
+            )?;
         }
 
         let readme = dir.join("README.md");

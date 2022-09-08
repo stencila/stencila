@@ -37,11 +37,7 @@ pub(crate) fn resource_to_node(
         .ok_or_else(|| eyre!("Expected to have address for node `{}`", node_id))?
         .clone();
 
-    let pointer = resolve(
-        root,
-        Some(node_address.clone()),
-        Some(node_id.to_string()),
-    )?;
+    let pointer = resolve(root, Some(node_address.clone()), Some(node_id.to_string()))?;
     let node = pointer.to_node()?;
 
     Ok((node, node_id.to_string(), node_address))

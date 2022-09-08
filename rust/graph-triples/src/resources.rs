@@ -153,7 +153,8 @@ impl ResourceDigest {
     /// Create a new `ResourceDigest` from its string representation
     pub fn from_string(string: &str) -> Self {
         let parts: Vec<&str> = string.split('.').collect();
-        let content_digest = parts.first()
+        let content_digest = parts
+            .first()
             .map_or(0, |str| str.parse().unwrap_or_default());
         let semantic_digest = parts
             .get(1)

@@ -255,7 +255,7 @@ fn compile_content_url(content_url: &str, context: &mut CompileContext) -> Strin
 }
 
 /// Compile a `MediaObject` node type
-/// 
+///
 /// Note that this patches the `content_url` property so that any absolute file path
 /// that is resolved in `compile_content_url()` is available, for example
 /// for encoding to other formats.

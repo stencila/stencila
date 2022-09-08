@@ -131,7 +131,7 @@ impl SnapshotEntry {
 /// A snapshot is created at the start of a session and stored to disk. Another snapshot
 /// is taken at the end of session. The changes between the snapshots are used to create
 /// an image layer.
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
 pub struct Snapshot {

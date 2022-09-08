@@ -1,6 +1,6 @@
 //! Functions for an interactive mode command line (REPL)
 
-use std::path::Path;
+use std::{fmt::Write, path::Path};
 
 use clap::Parser;
 use rustyline::error::ReadlineError;
@@ -56,7 +56,7 @@ interactive session (see the shortcut keystrokes below).
         ("Ctrl+C", "Cancel the current task (if any)"),
         ("Ctrl+D", "Exit interactive session"),
     ] {
-        help += &format!("    {} {}\n", Green.paint(*keys), desc)
+        writeln!(help, "    {} {}", Green.paint(*keys), desc).expect("Unable to write to string")
     }
 
     help

@@ -91,4 +91,3 @@ pointable_variants!(
     DirectoryParts::File,
     DirectoryParts::Directory
 );
-

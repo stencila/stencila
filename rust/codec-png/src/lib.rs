@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::{fmt::Write, fs, path::Path};
 
 use chromiumoxide::{
     cdp::browser_protocol::page::CaptureScreenshotFormat, handler::viewport::Viewport, Browser,
@@ -96,10 +96,11 @@ pub async fn nodes_to_bytes(
                 ..Default::default()
             }),
         )?;
-        nodes_html.push_str(&format!(
+        write!(
+            nodes_html,
             r#"<div class="node" id="node-{}">{}</div>"#,
             index, node_html
-        ));
+        )?;
     }
 
     let theme = options
