@@ -197,12 +197,12 @@ prop_compose! {
 
 prop_compose! {
     /// Generate a parameter node
-    pub fn parameter(freedom: Freedom)(
+    pub fn parameter(freedom: Freedom, exclude_types: &[String])(
         name in match freedom {
             Freedom::Min => r"name",
             _ => r"[a-z_][A-z0-9_]*", // Note that this is the regex allowed by the schema
         },
-        validator in parameter_validator(),
+        validator in parameter_validator(exclude_types),
         default in select(vec![true, false])
     ) -> InlineContent {
         let default = default.then(|| validator.default_()).map(Box::new);
@@ -216,14 +216,20 @@ prop_compose! {
 }
 
 /// Generate a validator for a parameter
-pub fn parameter_validator() -> impl Strategy<Value = ValidatorTypes> {
-    prop_oneof![
-        boolean_validator(),
-        integer_validator(),
-        number_validator(),
-        string_validator(),
-        enum_validator()
-    ]
+pub fn parameter_validator(exclude_types: &[String]) -> impl Strategy<Value = ValidatorTypes> {
+    let mut types = Vec::new();
+    for (name, strategy) in [
+        ("BooleanValidator", boolean_validator().boxed()),
+        ("IntegerValidator", integer_validator().boxed()),
+        ("NumberValidator", number_validator().boxed()),
+        ("StringValidator", string_validator().boxed()),
+        ("EnumValidator", enum_validator().boxed()),
+    ] {
+        if !exclude_types.contains(&name.to_string()) {
+            types.push(strategy)
+        }
+    }
+    Union::new(types)
 }
 
 /// Generate a boolean validator
@@ -409,7 +415,7 @@ pub fn inline_content(
         ("Emphasis", emphasis(freedom).boxed()),
         ("Link", link(freedom).boxed()),
         ("MathFragment", math_fragment(freedom).boxed()),
-        ("Parameter", parameter(freedom).boxed()),
+        ("Parameter", parameter(freedom, &exclude_types).boxed()),
         ("Quote", quote(freedom).boxed()),
         ("Strikeout", strikeout(freedom).boxed()),
         ("Strong", strong(freedom).boxed()),
@@ -433,7 +439,7 @@ prop_compose! {
     ///   - Always starts and ends with a string.
     ///   - Ensures that nodes such as `Strong` and `Emphasis` are surrounded by spaces (for Markdown).
     ///   - No leading or trailing whitespace (for Markdown).
-    pub fn vec_inline_content(freedom: Freedom, exclude_properties: Vec<String>)(
+    pub fn vec_inline_content(freedom: Freedom, exclude_types: Vec<String>)(
         length in 1usize..(match freedom {
             Freedom::Min => 1,
             Freedom::Low => 5,
@@ -441,7 +447,7 @@ prop_compose! {
         } + 1)
     )(
         strings in vec(string(freedom), size_range(length + 1)),
-        others in vec(inline_content(freedom, exclude_properties.clone()), size_range(length))
+        others in vec(inline_content(freedom, exclude_types.clone()), size_range(length))
     ) -> Vec<InlineContent> {
         let mut content: Vec<InlineContent> = interleave(strings, others).collect();
         for index in 0..content.len() {
