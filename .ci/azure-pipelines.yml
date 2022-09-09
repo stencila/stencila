@@ -408,7 +408,7 @@ jobs:
       #   2. unable to copy repo to C: drive
       #   3. unable to use CARGO_TARGET_DIR or --target-dir on another drive
       - script: |
-          cargo test --all --exclude "buildpack-*" --exclude "buildpacks" --exclude "codec-*" --exclude "codecs" --exclude "kernel-*" --exclude "kernels" --exclude "parser-*" --exclude "parsers" --exclude "provider-*" --exclude "providers"
+          cargo test --all --exclude "codec-*" --exclude "codecs" --exclude "kernel-*" --exclude "kernels" --exclude "parser-*" --exclude "parsers" --exclude "provider-*" --exclude "providers"
         condition: and(contains(variables.changed, 'rust'), not(startsWith(variables['Build.SourceBranch'], 'refs/tags/')))
         displayName: 'Rust: Test'
 
