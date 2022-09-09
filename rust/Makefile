@@ -1,5 +1,11 @@
 all: fix lint cover audit build docs
 
+ifdef CI
+  PROFILE:=ci
+else
+  PROFILE:=dev
+endif 
+
 setup:
 	# Install cargo plugins
 	cargo install \
@@ -24,13 +30,13 @@ lint:
 	cargo clippy --workspace --all-features --tests
 
 test:
-	cargo test --workspace --all-features -- --nocapture
+	cargo test --workspace --all-features --profile $(PROFILE) -- --nocapture
 
 cover:
 	cargo tarpaulin --ignore-tests --exclude-files tests/* \
 	  --out Xml --out Html --output-dir coverage \
 	  --timeout 600 \
-	  --workspace --all-features
+	  --workspace --all-features --profile $(PROFILE)
 
 audit:
 	cargo +nightly udeps --workspace --all-features

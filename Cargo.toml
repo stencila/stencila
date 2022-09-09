@@ -17,6 +17,15 @@ exclude = [
     "rust/buildpacks"
 ]
 
+[profile.ci]
+# Settings aimed at reducing disk usage and improving build times on CI
+# At time of writing, these settings produced a ./target/ci that was 5G vs a
+# ./target/debug of 15G.
+inherits = "dev"
+debug = false
+strip = true
+opt-level = "z"
+
 [profile.release]
 # Settings that help reduce the binary size based on https://github.com/johnthagen/min-sized-rust
 lto = true
