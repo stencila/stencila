@@ -13,7 +13,6 @@ use kernel::{
         regex::Regex,
         serde::Serialize,
         serde_json,
-        tempfile::tempdir,
         tokio::{
             self,
             fs::File,
@@ -45,6 +44,8 @@ const TASK: &str = "\u{10ABBA}";
 const TASK_ALT: &str = "<U+0010ABBA>";
 
 /// Indicates that the task should be run in a forked process.
+/// Allow dead code because these not used on Windows
+#[allow(dead_code)]
 const FORK: &str = "\u{10DE70}";
 #[allow(dead_code)]
 const FORK_ALT: &str = "<U+0010DE70>";
@@ -126,12 +127,14 @@ pub struct MicroKernel {
 #[derive(Debug)]
 enum Stdin {
     Child(BufWriter<ChildStdin>),
+    #[allow(dead_code)] // Not used on Windows
     File(BufWriter<File>),
 }
 
 #[derive(Debug)]
 enum Stdout {
     Child(BufReader<ChildStdout>),
+    #[allow(dead_code)] // Not used on Windows
     File(BufReader<File>),
 }
 
@@ -261,6 +264,7 @@ macro_rules! include_file {
 /// or kill it asynchronously while it is executing.
 pub struct MicroKernelSignaller {
     // The process id of the microkernel
+    #[allow(dead_code)] // Not used on Windows
     pid: u32,
 }
 
@@ -634,6 +638,9 @@ impl MicroKernel {
     /// If `code` IS empty then the child fork process should remain alive and wait for other tasks.
     #[cfg(not(target_os = "windows"))]
     pub async fn create_fork(&self, code: &str) -> Result<MicroKernel> {
+        // Avoid "unused import" linter warning on Windows by importing here
+        use kernel::common::tempfile::tempdir;
+
         // Create pipes in a temporary directory (which gets cleaned up when dropped)
         // Not that a stdin is not required for temporary forks since code is sent on
         // the same request.
@@ -710,6 +717,11 @@ impl MicroKernel {
             }))),
             ..self.clone()
         })
+    }
+
+    #[cfg(target_os = "windows")]
+    pub async fn create_fork(&self, _code: &str) -> Result<MicroKernel> {
+        bail!("This method should never be called on Windows because process forking is not available")
     }
 
     /// Create a "knife" of the kernel
