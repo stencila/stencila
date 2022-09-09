@@ -203,7 +203,7 @@ jobs:
       # top level directory and thus allows HTTP access to fixtures.
       - script: |
           set -e
-          cargo run --manifest-path rust/stencila/Cargo.toml -- server start --url :9000 --insecure --log-requests --log-level=trace &
+          cargo run --manifest-path rust/stencila/Cargo.toml --profile ci -- server start --url :9000 --insecure --log-requests --log-level=trace &
           make -C schema setup build
           npm ci --prefix web
           npm run lint --prefix web
@@ -310,7 +310,7 @@ jobs:
       - script: |
           set -e
           cd rust
-          cargo test
+          cargo test --profile ci
         condition: and(contains(variables.changed, 'rust'), not(startsWith(variables['Build.SourceBranch'], 'refs/tags/')))
         displayName: 'Rust: Test'
 
@@ -408,7 +408,7 @@ jobs:
       #   2. unable to copy repo to C: drive
       #   3. unable to use CARGO_TARGET_DIR or --target-dir on another drive
       - script: |
-          cargo test --all --exclude "codec-*" --exclude "codecs" --exclude "kernel-*" --exclude "kernels" --exclude "parser-*" --exclude "parsers" --exclude "provider-*" --exclude "providers"
+          cargo test --profile ci --all --exclude "codec-*" --exclude "codecs" --exclude "kernel-*" --exclude "kernels" --exclude "parser-*" --exclude "parsers" --exclude "provider-*" --exclude "providers"
         condition: and(contains(variables.changed, 'rust'), not(startsWith(variables['Build.SourceBranch'], 'refs/tags/')))
         displayName: 'Rust: Test'
 
