@@ -141,6 +141,7 @@ enum Stdout {
 #[derive(Debug)]
 enum Stderr {
     Child(BufReader<ChildStderr>),
+    #[allow(dead_code)] // Not used on Windows
     File(BufReader<File>),
 }
 
