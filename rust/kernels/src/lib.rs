@@ -140,6 +140,9 @@ impl MetaKernel {
             #[cfg(feature = "kernel-sql")]
             MetaKernel::Sql(kernel) => Ok((MetaKernel::Sql(kernel.clone()), true)),
 
+            #[cfg(feature = "kernel-prql")]
+            MetaKernel::Prql(kernel) => Ok((MetaKernel::Prql(kernel.clone()), true)),
+
             #[cfg(feature = "kernel-micro")]
             MetaKernel::Micro(kernel) => {
                 let (kernel, is_clone) = if kernel.is_forkable().await {

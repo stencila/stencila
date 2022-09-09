@@ -9,7 +9,7 @@ use kernel::{
 use kernel_sql::SqlKernel;
 
 /// A kernel that executes SQL
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(transparent, crate = "kernel::common::serde")]
 pub struct PrqlKernel(SqlKernel);
 
