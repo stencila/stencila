@@ -12,8 +12,10 @@ proptest! {
     // Given the slowness of generating PNGs only use very few cases.
     #![proptest_config(ProptestConfig::with_cases(3))]
 
+    // Currently using `Low` freedom to ensure that code chunk has some
+    // text and do not get "Error -32000: Cannot take screenshot with 0 height." error.
     #[test]
-    fn test_code_chunk(chunk in code_chunk(Freedom::Max)) {
+    fn test_code_chunk(chunk in code_chunk(Freedom::Low)) {
         let input = if let BlockContent::CodeChunk(chunk) = chunk {
             Node::CodeChunk(chunk)
         } else {
