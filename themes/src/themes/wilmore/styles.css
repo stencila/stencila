@@ -147,7 +147,6 @@
   display: none;
 }
 
-:--Code,
 :--CodeBlock,
 :--CodeChunk {
   font-family: var(--font-family-mono);

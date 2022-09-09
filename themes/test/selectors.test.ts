@@ -1,6 +1,6 @@
 /**
  * Test that custom selectors used in theme CSS are valid
- * (i.e. that they exist in `src/selectors.css`
+ * (i.e. that they exist in `src/selectors.css`)
  */
 import fs from 'fs'
 import globby from 'globby'
