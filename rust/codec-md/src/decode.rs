@@ -433,7 +433,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
             Event::Code(value) => {
                 // Because we allow for attributes on code, we push back the
                 // code in back ticks for it to be parsed again later.
-                inlines.push_text(&["`", &value.to_string(), "`"].concat())
+                inlines.push_text(&["`", &value, "`"].concat())
             }
             Event::Rule => blocks.push_node(BlockContent::ThematicBreak(ThematicBreak {
                 ..Default::default()
@@ -458,7 +458,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 tracing::debug!("Markdown HardBreaks are not yet handled");
             }
             Event::Html(content) => {
-                let mut content = html.handle_html(&content.to_string());
+                let mut content = html.handle_html(&content);
                 if !content.is_empty() {
                     if inlines.active {
                         inlines.append_nodes(&mut content.to_inlines())
@@ -747,7 +747,7 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
             let (lang, exec) = match res.1 {
                 Some(attrs) => {
                     let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
-                    let lang = attrs.get(0).and_then(|item| {
+                    let lang = attrs.first().and_then(|item| {
                         if *item == "exec" {
                             None
                         } else {
@@ -973,7 +973,7 @@ pub fn code_expr(input: &str) -> IResult<&str, InlineContent> {
             let lang = match res.1 {
                 Some(attrs) => {
                     let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
-                    attrs.get(0).map(|item| item.to_string())
+                    attrs.first().map(|item| item.to_string())
                 }
                 None => None,
             };

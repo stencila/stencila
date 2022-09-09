@@ -355,8 +355,8 @@ impl Run for OpenCommand {
         } else {
             let document_id = DOCUMENTS.open(&path, None).await?;
             let document = DOCUMENTS.get(&document_id).await?;
-            let path = document.lock().await.path.clone();
-            path
+            let document = document.lock().await;
+            document.path.clone()
         };
 
         if cfg!(feature = "webbrowser") {

@@ -1,6 +1,7 @@
 //! Generate documentation from the Stencila `clap` CLI application
 
 use std::{
+    fmt::Write,
     fs::{create_dir_all, remove_dir_all, write},
     path::{Path, PathBuf},
 };
@@ -117,9 +118,9 @@ fn get_usage(app: &App, command: &str) -> String {
         for arg in app.get_positionals() {
             let name = arg.get_name();
             if arg.is_required_set() {
-                usage += &format!(" <{}>", name);
+                write!(usage, " <{}>", name).expect("Unable to write to string");
             } else {
-                usage += &format!(" [{}]", name);
+                write!(usage, " [{}]", name).expect("Unable to write to string");
             }
         }
     }
@@ -143,7 +144,7 @@ fn render_subcommands(
             [name, ".md"].concat()
         };
         let title = subcommand.get_about().unwrap_or_default();
-        md += &format!("| [`{name}`]({path}) | {title} |\n");
+        writeln!(md, "| [`{name}`]({path}) | {title} |").expect("Unable to write to string");
 
         render_app(
             dir,
@@ -167,7 +168,13 @@ fn get_args(app: &App) -> String {
 
         count += 1;
 
-        md += &format!("| `{}` | {} |\n", name, arg.get_help().unwrap_or_default());
+        writeln!(
+            md,
+            "| `{}` | {} |",
+            name,
+            arg.get_help().unwrap_or_default()
+        )
+        .expect("Unable to write to string");
     }
 
     if count == 0 {
@@ -257,7 +264,7 @@ fn get_options(app: &App, global: bool) -> String {
         }
 
         count += 1;
-        md += &format!("| `{long}{short}{value}` | {help} |\n",);
+        writeln!(md, "| `{long}{short}{value}` | {help} |").expect("Unable to write to string");
     }
 
     if count == 0 {

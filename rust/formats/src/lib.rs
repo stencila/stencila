@@ -9,7 +9,7 @@ use common::{
 };
 
 #[derive(
-    Debug, Clone, PartialEq, EnumIter, Serialize, Deserialize, JsonSchema, Display, EnumString,
+    Debug, Clone, PartialEq, Eq, EnumIter, Serialize, Deserialize, JsonSchema, Display, EnumString,
 )]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
@@ -20,6 +20,7 @@ pub enum Format {
     Directory,
     Dockerfile,
     Docx,
+    File,
     Flac,
     Gdoc,
     Gif,
@@ -124,14 +125,15 @@ impl Format {
             Format::Date => FormatSpec::new("Date", "date", &[], false, false, FormatNodeType::Date),
 
             // Specials
+            Format::File => FormatSpec::file(),
             Format::Directory => FormatSpec::directory(),
-            Format::Unknown => FormatSpec::unknown("unknown")
+            Format::Unknown => FormatSpec::unknown()
         }
     }
 }
 
 /// The type of format as a schema `Node` type
-#[derive(Clone, Debug, PartialEq, JsonSchema, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 pub enum FormatNodeType {
     Article,
@@ -141,6 +143,8 @@ pub enum FormatNodeType {
     SoftwareSourceCode,
     Date,
     Person,
+    Directory,
+    File,
     Unknown,
 }
 
@@ -148,7 +152,7 @@ pub enum FormatNodeType {
 ///
 /// Used to determine various application behaviors
 /// e.g. not reading binary formats into memory unnecessarily
-#[derive(Clone, Debug, PartialEq, JsonSchema, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct FormatSpec {
@@ -202,8 +206,20 @@ impl FormatSpec {
         }
     }
 
-    /// Create the special `directory` format used on `File` objects
-    /// that are directories
+    /// Create the special `File` format
+    pub fn file() -> FormatSpec {
+        FormatSpec {
+            title: "File".to_string(),
+            extension: "".into(),
+            aliases: Vec::new(),
+            binary: true,
+            preview: false,
+            node_type: FormatNodeType::File,
+            known: true,
+        }
+    }
+
+    /// Create the special `Directory` format
     pub fn directory() -> FormatSpec {
         FormatSpec {
             title: "Directory".to_string(),
@@ -211,17 +227,18 @@ impl FormatSpec {
             aliases: Vec::new(),
             binary: true,
             preview: false,
-            node_type: FormatNodeType::Unknown,
+            node_type: FormatNodeType::Directory,
             known: true,
         }
     }
 
-    /// Create the special `unknown` file format where all we
-    /// have is the name e.g. from a file extension.
-    pub fn unknown(name: &str) -> FormatSpec {
+    /// Create the special `Unknown` format
+    ///
+    /// Used when unable to determine the format of some content
+    pub fn unknown() -> FormatSpec {
         FormatSpec {
-            title: name.to_string(),
-            extension: name.to_lowercase(),
+            title: "Unknown".to_string(),
+            extension: "".into(),
             aliases: Vec::new(),
             // Set binary to false so that any unregistered format
             // will be at least shown in editor...
@@ -265,7 +282,7 @@ pub fn match_name(name: &str) -> Format {
 ///
 /// Extracts a "name" (extension or file base name) from a
 /// file path and then calls `match_name` on that.
-pub fn match_path<P: AsRef<Path>>(path: &P) -> Format {
+pub fn match_path<P: AsRef<Path>>(path: P) -> Format {
     let path = path.as_ref();
 
     // Get name from file extension, or filename if no extension
@@ -279,7 +296,24 @@ pub fn match_path<P: AsRef<Path>>(path: &P) -> Format {
     };
 
     // Match that name
-    match_name(&name.to_string_lossy().to_string())
+    let format = match_name(&name.to_string_lossy());
+
+    // If no match then attempt to determine if file or directory
+    if matches!(format, Format::Unknown) {
+        if path.exists() {
+            if path.is_dir() {
+                Format::Directory
+            } else {
+                Format::File
+            }
+        } else if path.extension().is_some() {
+            Format::File
+        } else {
+            Format::Directory
+        }
+    } else {
+        format
+    }
 }
 
 /// Normalize a format name to its title

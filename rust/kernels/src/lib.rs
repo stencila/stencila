@@ -6,7 +6,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use common::{once_cell::sync::Lazy, tokio::sync::RwLock};
+use common::{once_cell::sync::Lazy, strum::AsRefStr, tokio::sync::RwLock};
 use graph_triples::{ResourceChange, ResourceInfo};
 #[allow(unused_imports)]
 use kernel::{
@@ -37,7 +37,7 @@ pub use kernel::{Kernel, KernelSelector, KernelType, Task, TaskResult};
 /// In the future this maybe changed to, or augmented with a `Box<dyn KernelTrait>`,
 /// to allow dispatching to plugins that are dynamically added at runtime.
 #[allow(clippy::large_enum_variant)]
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, AsRefStr)]
 #[serde(crate = "common::serde")]
 enum MetaKernel {
     #[cfg(feature = "kernel-store")]
@@ -111,6 +111,41 @@ impl MetaKernel {
             "Unable to create an execution kernel for selector `{}`",
             selector
         )
+    }
+
+    /// Fork a `MetaKernel` instance
+    ///
+    /// Returns the new `MetaKernel` and a boolean indicating whether the kernel is a
+    /// clone of the parent.
+    ///
+    /// This is easier to done here, not in KernelTrait, given that the returned kernel needs
+    /// to be the same variant as its ancestor.
+    async fn fork(&self) -> Result<(MetaKernel, bool)> {
+        match self {
+            #[cfg(feature = "kernel-store")]
+            MetaKernel::Store(kernel) => Ok((MetaKernel::Store(kernel.clone()), true)),
+
+            #[cfg(feature = "kernel-calc")]
+            MetaKernel::Calc(kernel) => Ok((MetaKernel::Calc(kernel.clone()), true)),
+
+            #[cfg(feature = "kernel-sql")]
+            MetaKernel::Sql(kernel) => Ok((MetaKernel::Sql(kernel.clone()), true)),
+
+            #[cfg(feature = "kernel-micro")]
+            MetaKernel::Micro(kernel) => {
+                let (kernel, is_clone) = if kernel.is_forkable().await {
+                    (kernel.create_fork("").await?, true)
+                } else {
+                    (kernel.create_knife().await?, false)
+                };
+                Ok((MetaKernel::Micro(kernel), is_clone))
+            }
+
+            #[cfg(feature = "kernel-jupyter")]
+            MetaKernel::Jupyter(_) => {
+                bail!("Doing a `MetaKernel::fork` is not yet implemented for Jupyter kernels",)
+            }
+        }
     }
 }
 
@@ -793,33 +828,81 @@ impl KernelSpace {
         directory: Option<&Path>,
         resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
     ) -> Self {
-        let mut kernel_space = Self::default();
-        kernel_space.directory = directory
+        let mut new = Self::default();
+        new.directory = directory
             .map(PathBuf::from)
             .unwrap_or_else(|| current_dir().expect("Should be able to get current dir"));
-        kernel_space.resource_changes_sender = resource_changes_sender;
+        new.resource_changes_sender = resource_changes_sender;
 
-        let kernels = kernel_space.kernels.clone();
-        let tasks = kernel_space.tasks.clone();
-        kernel_space.monitoring = Some(tokio::spawn(async move {
-            KernelSpace::monitor(&kernels, &tasks).await
-        }));
-
-        kernel_space
+        new.monitor();
+        new
     }
 
-    /// Monitor the kernels space
+    /// Fork a kernel space
+    ///
+    /// A clone is made of each kernel in `kernels`. If the kernel is forkable, then the clone will be
+    /// a forked process. Otherwise, it will be a new process.
+    ///
+    /// The symbols in this kernel space are also cloned but are then modified to that `mirrored`
+    /// id removed for new kernels that are not processes forks and therefore do not have the
+    /// value mirrored in them.
+    ///
+    /// Returns a new `KernelSpace` and a list of the names of the kernels in that kernel space
+    /// that were restarted.
+    pub async fn fork(
+        &self,
+        resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
+    ) -> Result<(Self, Vec<String>)> {
+        let mut new = Self::default();
+        new.directory = self.directory.clone();
+        new.resource_changes_sender = resource_changes_sender;
+
+        // Fork each of the kernels and remove any `mirrored` entry for the kernel if unable to do
+        // a proper fork.
+        let mut new_kernels = KernelMap::default();
+        let mut new_symbols = self.symbols.lock().await.clone();
+        let mut kernels_restarted = Vec::new();
+        for (kernel_name, (selector, kernel)) in self.kernels.lock().await.iter() {
+            // Create the new kernel
+            let (new_kernel, is_fork) = kernel.fork().await?;
+            new_kernels.insert(kernel_name.clone(), (selector.clone(), new_kernel));
+
+            // Special handling for those that are not true forks with identical state.
+            if !is_fork {
+                // Remove any symbols that
+                new_symbols.retain(|_symbol, symbol_info| symbol_info.home != *kernel_name);
+                // Remove any symbol `mirrored` entries for the kernel
+                for (_symbol, symbol_info) in new_symbols.iter_mut() {
+                    symbol_info
+                        .mirrored
+                        .retain(|mirrored_in, _| mirrored_in != kernel_name);
+                }
+                // Add to list of kernels that were restarted
+                kernels_restarted.push(kernel_name.to_owned());
+            }
+        }
+        new.kernels = Arc::new(Mutex::new(new_kernels));
+        new.symbols = Arc::new(Mutex::new(new_symbols));
+
+        new.monitor();
+        Ok((new, kernels_restarted))
+    }
+
+    /// Monitor the kernel space
     ///
     /// Monitors the health of kernels and cleans up the task list to
     /// avoid it growing too large.
-    async fn monitor(_kernels: &Arc<Mutex<KernelMap>>, tasks: &Arc<Mutex<KernelTasks>>) {
+    fn monitor(&mut self) {
         const PERIOD: Duration = Duration::from_millis(1000);
 
-        tracing::trace!("Beginning kernel space monitoring");
-        loop {
-            KernelSpace::clean(tasks).await;
-            tokio::time::sleep(PERIOD).await;
-        }
+        let tasks = self.tasks.clone();
+        self.monitoring = Some(tokio::spawn(async move {
+            tracing::trace!("Beginning kernel space monitoring");
+            loop {
+                KernelSpace::clean(&tasks).await;
+                tokio::time::sleep(PERIOD).await;
+            }
+        }));
     }
 
     /// Get the list of kernels in the kernel space
@@ -894,7 +977,12 @@ impl KernelSpace {
     }
 
     /// Set a symbol in the kernel space
-    pub async fn set(&self, name: &str, value: Node, selector: &KernelSelector) -> Result<()> {
+    pub async fn set(
+        &self,
+        name: &str,
+        value: Node,
+        selector: &KernelSelector,
+    ) -> Result<KernelId> {
         let kernels = &mut *self.kernels.lock().await;
 
         let kernel_id = kernels
@@ -909,7 +997,7 @@ impl KernelSpace {
         match symbols.entry(name.to_string()) {
             Entry::Occupied(mut occupied) => {
                 let info = occupied.get_mut();
-                info.home = kernel_id;
+                info.home = kernel_id.clone();
                 info.modified = Utc::now();
             }
             Entry::Vacant(vacant) => {
@@ -917,7 +1005,7 @@ impl KernelSpace {
             }
         }
 
-        Ok(())
+        Ok(kernel_id)
     }
 
     /// Execute some code in the kernel space
@@ -1257,7 +1345,8 @@ impl KernelSpace {
                     for error in messages {
                         let mut err = error.error_message;
                         if let Some(trace) = error.stack_trace {
-                            err += &format!("\n{}", trace);
+                            use std::fmt::Write;
+                            write!(err, "\n{}", trace)?;
                         }
                         tracing::error!("{}", err)
                     }

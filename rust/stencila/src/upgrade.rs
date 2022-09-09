@@ -139,7 +139,9 @@ pub mod config {
     /// Configuration settings used when upgrading the application (and optionally plugins)
     /// automatically, in the background. These settings are NOT used as defaults when
     /// using the CLI `upgrade` command directly.
-    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[derive(
+        Debug, Defaults, PartialEq, Eq, Clone, JsonSchema, Deserialize, Serialize, Validate,
+    )]
     #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct UpgradeConfig {

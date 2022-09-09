@@ -29,7 +29,7 @@ use crate::change_set::{Change, ChangeSet};
 /// An entry for a file, directory, or symlink, in a snapshot
 ///
 /// Stores data necessary to detect a change in the file.
-#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
 pub struct SnapshotEntry {
@@ -57,7 +57,7 @@ pub struct SnapshotEntry {
 /// Only includes the metadata that needs to be diffed. For that reason,
 /// does not record `modified` time since that would create a false positive
 /// difference (if all other attributes were the same).
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
 pub struct SnapshotEntryMetadata {
@@ -131,7 +131,7 @@ impl SnapshotEntry {
 /// A snapshot is created at the start of a session and stored to disk. Another snapshot
 /// is taken at the end of session. The changes between the snapshots are used to create
 /// an image layer.
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "rkyv", derive(Archive))]
 #[cfg_attr(feature = "rkyv-safe", archive_attr(derive(CheckBytes)))]
 pub struct Snapshot {

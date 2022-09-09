@@ -99,15 +99,47 @@ pub enum CiteGroup_ {
   CiteGroup
 }
 
-/// Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
+/// An error that occurred when parsing, compiling or executing a Code node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
 #[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
-pub struct Code {
+pub struct CodeError {
     /// The name of this type
-    #[derivative(Default(value = "Code_::Code"))]
-    pub type_: Code_,
+    #[derivative(Default(value = "CodeError_::CodeError"))]
+    pub type_: CodeError_,
+
+    /// The error message or brief description of the error.
+    pub error_message: String,
+
+    /// The type of error e.g. "SyntaxError", "ZeroDivisionError".
+    pub error_type: Option<Box<String>>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Stack trace leading up to the error.
+    pub stack_trace: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum CodeError_ {
+  CodeError
+}
+
+/// Base type for non-executable code nodes(e.g. `CodeBlock`).
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct CodeStatic {
+    /// The name of this type
+    #[derivative(Default(value = "CodeStatic_::CodeStatic"))]
+    pub type_: CodeStatic_,
+
+    /// The text of the code.
+    pub text: String,
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
@@ -118,14 +150,11 @@ pub struct Code {
 
     /// The programming language of the code.
     pub programming_language: Option<Box<String>>,
-
-    /// The text of the code.
-    pub text: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Code_ {
-  Code
+pub enum CodeStatic_ {
+  CodeStatic
 }
 
 /// A code block.
@@ -157,26 +186,79 @@ pub enum CodeBlock_ {
   CodeBlock
 }
 
-/// Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+/// Inline code.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
 #[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
-pub struct CodeExecutable {
+pub struct CodeFragment {
     /// The name of this type
-    #[derivative(Default(value = "CodeExecutable_::CodeExecutable"))]
-    pub type_: CodeExecutable_,
+    #[derivative(Default(value = "CodeFragment_::CodeFragment"))]
+    pub type_: CodeFragment_,
 
-    /// The upstream dependencies of the code.
-    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
+    /// The text of the code.
+    pub text: String,
 
-    /// The downstream dependents of the code.
-    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
+
+    /// The programming language of the code.
+    pub programming_language: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum CodeFragment_ {
+  CodeFragment
+}
+
+/// A date encoded as a ISO 8601 string.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Date {
+    /// The name of this type
+    #[derivative(Default(value = "Date_::Date"))]
+    pub type_: Date_,
+
+    /// The date as an ISO 8601 string.
+    #[derivative(Default(value = "chrono::Utc::now().to_rfc3339()"))]
+    pub value: String,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Date_ {
+  Date
+}
+
+/// Base type for executable document nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Executable {
+    /// The name of this type
+    #[derivative(Default(value = "Executable_::Executable"))]
+    pub type_: Executable_,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<Box<Cord>>,
 
-    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -188,16 +270,81 @@ pub struct CodeExecutable {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution of the code.
+    /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution of the code ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
 
-    /// Status of the most recent, including any current, execution of the code.
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Executable_ {
+  Executable
+}
+
+/// Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct CodeExecutable {
+    /// The name of this type
+    #[derivative(Default(value = "CodeExecutable_::CodeExecutable"))]
+    pub type_: CodeExecutable_,
+
+    /// The programming language of the code.
+    pub programming_language: String,
+
+    /// The text of the code.
+    pub text: String,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration in seconds of the last execution.
+    pub execute_duration: Option<Number>,
+
+    /// The date-time that the last execution ended.
+    pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
 
     /// The identifier for this item.
@@ -206,12 +353,6 @@ pub struct CodeExecutable {
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
-
-    /// The programming language of the code.
-    pub programming_language: Option<Box<String>>,
-
-    /// The text of the code.
-    pub text: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -238,16 +379,16 @@ pub struct CodeChunk {
     /// A caption for the CodeChunk.
     pub caption: Option<Box<CodeChunkCaption>>,
 
-    /// The upstream dependencies of the code.
-    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
 
-    /// The downstream dependents of the code.
-    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<Box<Cord>>,
 
-    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -259,11 +400,14 @@ pub struct CodeChunk {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution of the code.
+    /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution of the code ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether the code should be treated as side-effect free when executed.
     pub execute_pure: Option<Boolean>,
@@ -271,7 +415,7 @@ pub struct CodeChunk {
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
 
-    /// Status of the most recent, including any current, execution of the code.
+    /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
 
     /// The identifier for this item.
@@ -309,16 +453,16 @@ pub struct CodeExpression {
     /// The text of the code.
     pub text: String,
 
-    /// The upstream dependencies of the code.
-    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
 
-    /// The downstream dependents of the code.
-    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<Box<Cord>>,
 
-    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -330,16 +474,19 @@ pub struct CodeExpression {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution of the code.
+    /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution of the code ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
 
-    /// Status of the most recent, including any current, execution of the code.
+    /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
 
     /// The identifier for this item.
@@ -371,11 +518,11 @@ pub struct Include {
     /// The external source of the content, a file path or URL.
     pub source: String,
 
-    /// The upstream dependencies of the code.
-    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
 
-    /// The downstream dependents of the code.
-    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<Box<Cord>>,
@@ -383,7 +530,7 @@ pub struct Include {
     /// The structured content decoded from the source.
     pub content: Option<Vec<BlockContent>>,
 
-    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -395,16 +542,19 @@ pub struct Include {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution of the code.
+    /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution of the code ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
 
-    /// Status of the most recent, including any current, execution of the code.
+    /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
 
     /// The identifier for this item.
@@ -414,14 +564,8 @@ pub struct Include {
     /// Media type of the source content.
     pub media_type: Option<Box<String>>,
 
-    /// The programming language of the code.
-    pub programming_language: Option<Box<String>>,
-
     /// A query to select a subset of content from the source
     pub select: Option<Box<String>>,
-
-    /// The text of the code.
-    pub text: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -445,11 +589,11 @@ pub struct Call {
     /// The value of the source document's parameters to call it with
     pub arguments: Option<Vec<CallArgument>>,
 
-    /// The upstream dependencies of the code.
-    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
 
-    /// The downstream dependents of the code.
-    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<Box<Cord>>,
@@ -457,7 +601,7 @@ pub struct Call {
     /// The structured content decoded from the source.
     pub content: Option<Vec<BlockContent>>,
 
-    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -469,16 +613,19 @@ pub struct Call {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution of the code.
+    /// Duration in seconds of the last execution.
     pub execute_duration: Option<Number>,
 
-    /// The date-time that the the last execution of the code ended.
+    /// The date-time that the last execution ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
     pub execute_required: Option<ExecuteRequired>,
 
-    /// Status of the most recent, including any current, execution of the code.
+    /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
 
     /// The identifier for this item.
@@ -488,14 +635,8 @@ pub struct Call {
     /// Media type of the source content.
     pub media_type: Option<Box<String>>,
 
-    /// The programming language of the code.
-    pub programming_language: Option<Box<String>>,
-
     /// A query to select a subset of content from the source
     pub select: Option<Box<String>>,
-
-    /// The text of the code.
-    pub text: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -503,86 +644,149 @@ pub enum Call_ {
   Call
 }
 
-/// Inline code.
+/// A parameter of a document.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
 #[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
-pub struct CodeFragment {
+pub struct Parameter {
     /// The name of this type
-    #[derivative(Default(value = "CodeFragment_::CodeFragment"))]
-    pub type_: CodeFragment_,
+    #[derivative(Default(value = "Parameter_::Parameter"))]
+    pub type_: Parameter_,
 
-    /// The text of the code.
-    pub text: String,
+    /// The name of the parameter.
+    pub name: String,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// The default value of the parameter.
+    pub default: Option<Box<Node>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration in seconds of the last execution.
+    pub execute_duration: Option<Number>,
+
+    /// The date-time that the last execution ended.
+    pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// Whether the parameter should be hidden.
+    pub hidden: Option<Boolean>,
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub media_type: Option<Box<String>>,
+    /// The validator that the value is validated against.
+    pub validator: Option<Box<ValidatorTypes>>,
 
-    /// The programming language of the code.
-    pub programming_language: Option<Box<String>>,
+    /// The current value of the parameter.
+    pub value: Option<Box<Node>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum CodeFragment_ {
-  CodeFragment
+pub enum Parameter_ {
+  Parameter
 }
 
-/// An error that occurred when parsing, compiling or executing a Code node.
+/// The value of a `Parameter` to call a document with
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
 #[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
-pub struct CodeError {
+pub struct CallArgument {
     /// The name of this type
-    #[derivative(Default(value = "CodeError_::CodeError"))]
-    pub type_: CodeError_,
+    #[derivative(Default(value = "CallArgument_::CallArgument"))]
+    pub type_: CallArgument_,
 
-    /// The error message or brief description of the error.
-    pub error_message: String,
+    /// The name of the parameter.
+    pub name: String,
 
-    /// The type of error e.g. "SyntaxError", "ZeroDivisionError".
-    pub error_type: Option<Box<String>>,
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// The default value of the parameter.
+    pub default: Option<Box<Node>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration in seconds of the last execution.
+    pub execute_duration: Option<Number>,
+
+    /// The date-time that the last execution ended.
+    pub execute_ended: Option<Box<Date>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// Whether the parameter should be hidden.
+    pub hidden: Option<Boolean>,
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
-    /// Stack trace leading up to the error.
-    pub stack_trace: Option<Box<String>>,
+    /// The name of a variable to use as the value of the parameter
+    pub symbol: Option<Box<String>>,
+
+    /// The validator that the value is validated against.
+    pub validator: Option<Box<ValidatorTypes>>,
+
+    /// The current value of the parameter.
+    pub value: Option<Box<Node>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum CodeError_ {
-  CodeError
-}
-
-/// A date encoded as a ISO 8601 string.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Date {
-    /// The name of this type
-    #[derivative(Default(value = "Date_::Date"))]
-    pub type_: Date_,
-
-    /// The date as an ISO 8601 string.
-    #[derivative(Default(value = "chrono::Utc::now().to_rfc3339()"))]
-    pub value: String,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Date_ {
-  Date
+pub enum CallArgument_ {
+  CallArgument
 }
 
 /// A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
@@ -652,109 +856,6 @@ pub struct Emphasis {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Emphasis_ {
   Emphasis
-}
-
-/// A parameter of a document or function.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Parameter {
-    /// The name of this type
-    #[derivative(Default(value = "Parameter_::Parameter"))]
-    pub type_: Parameter_,
-
-    /// The name of the parameter.
-    pub name: String,
-
-    /// A digest of the value of the parameter.
-    pub compile_digest: Option<Box<Cord>>,
-
-    /// The default value of the parameter.
-    pub default: Option<Box<Node>>,
-
-    /// The `compileDigest` of the parameter when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
-
-    /// Whether, and why, the parameter needs execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-
-    /// Indicates that this parameter is variadic and can accept multiple named arguments.
-    pub is_extensible: Option<Boolean>,
-
-    /// Is this parameter required, if not it should have a default or default is assumed to be null.
-    pub is_required: Option<Boolean>,
-
-    /// Indicates that this parameter is variadic and can accept multiple arguments.
-    pub is_variadic: Option<Boolean>,
-
-    /// The validator that the value is validated against.
-    pub validator: Option<Box<ValidatorTypes>>,
-
-    /// The current value of the parameter.
-    pub value: Option<Box<Node>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Parameter_ {
-  Parameter
-}
-
-/// The value of a `Parameter` to call a document with
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct CallArgument {
-    /// The name of this type
-    #[derivative(Default(value = "CallArgument_::CallArgument"))]
-    pub type_: CallArgument_,
-
-    /// The name of the parameter.
-    pub name: String,
-
-    /// A digest of the value of the parameter.
-    pub compile_digest: Option<Box<Cord>>,
-
-    /// The default value of the parameter.
-    pub default: Option<Box<Node>>,
-
-    /// The `compileDigest` of the parameter when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
-
-    /// Whether, and why, the parameter needs execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-
-    /// Indicates that this parameter is variadic and can accept multiple named arguments.
-    pub is_extensible: Option<Boolean>,
-
-    /// Is this parameter required, if not it should have a default or default is assumed to be null.
-    pub is_required: Option<Boolean>,
-
-    /// Indicates that this parameter is variadic and can accept multiple arguments.
-    pub is_variadic: Option<Boolean>,
-
-    /// The name of a variable to use as the value of the parameter
-    pub symbol: Option<Box<String>>,
-
-    /// The validator that the value is validated against.
-    pub validator: Option<Box<ValidatorTypes>>,
-
-    /// The current value of the parameter.
-    pub value: Option<Box<Node>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum CallArgument_ {
-  CallArgument
 }
 
 /// The most generic type of item.
@@ -1362,33 +1463,115 @@ pub struct Collection {
 pub enum Collection_ {
   Collection
 }
-/// A collection of CreativeWorks or other artifacts.
+
+/// A directory on the filesystem
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
 #[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
-pub struct CollectionSimple {
+pub struct Directory {
     /// The name of this type
-    #[derivative(Default(value = "CollectionSimple_::Collection"))]
-    pub type_: CollectionSimple_,
+    #[derivative(Default(value = "Directory_::Directory"))]
+    pub type_: Directory_,
 
-    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    pub parts: Vec<CreativeWorkTypes>,
+    /// The name of the item.
+    pub name: String,
+
+    /// The files and other directories that are within this directory
+    pub parts: Vec<DirectoryParts>,
+
+    /// The path (absolute or relative) of the file on the filesystem
+    pub path: String,
+
+    /// The subject matter of the content.
+    pub about: Option<Vec<ThingTypes>>,
+
+    /// Alternate names (aliases) for the item.
+    pub alternate_names: Option<Vec<String>>,
+
+    /// The authors of this creative work.
+    pub authors: Option<Vec<CreativeWorkAuthors>>,
+
+    /// Comments about this creative work.
+    pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
     pub content: Option<Box<CreativeWorkContent>>,
+
+    /// Date/time of acceptance.
+    pub date_accepted: Option<Box<Date>>,
+
+    /// Date/time of creation.
+    pub date_created: Option<Box<Date>>,
+
+    /// Date/time of most recent modification.
+    pub date_modified: Option<Box<Date>>,
+
+    /// Date of first publication.
+    pub date_published: Option<Box<Date>>,
+
+    /// Date/time that work was received.
+    pub date_received: Option<Box<Date>>,
+
+    /// A description of the item.
+    pub description: Option<Box<ThingDescription>>,
+
+    /// People who edited the `CreativeWork`.
+    pub editors: Option<Vec<Person>>,
+
+    /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+    pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
+
+    /// People or organizations that funded the `CreativeWork`.
+    pub funders: Option<Vec<CreativeWorkFunders>>,
+
+    /// Genre of the creative work, broadcast channel or group.
+    pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
+    /// Any kind of identifier for any kind of Thing.
+    pub identifiers: Option<Vec<ThingIdentifiers>>,
+
+    /// Images of the item.
+    pub images: Option<Vec<ThingImages>>,
+
+    /// An item or other CreativeWork that this CreativeWork is a part of.
+    pub is_part_of: Option<Box<CreativeWorkTypes>>,
+
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+    pub keywords: Option<Vec<String>>,
+
+    /// License documents that applies to this content, typically indicated by URL.
+    pub licenses: Option<Vec<CreativeWorkLicenses>>,
+
+    /// The people or organizations who maintain this CreativeWork.
+    pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
+
+    /// A publisher of the CreativeWork.
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
+
+    /// References to other creative works, such as another publication, web page, scholarly article, etc.
+    pub references: Option<Vec<CreativeWorkReferences>>,
+
+    /// The textual content of this creative work.
+    pub text: Option<Box<String>>,
+
     /// The title of the creative work.
     pub title: Option<Box<CreativeWorkTitle>>,
+
+    /// The URL of the item.
+    pub url: Option<Box<String>>,
+
+    /// The version of the creative work.
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum CollectionSimple_ {
-  Collection
+pub enum Directory_ {
+  Directory
 }
 
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
@@ -2303,6 +2486,9 @@ pub struct File {
     #[derivative(Default(value = "File_::File"))]
     pub type_: File_,
 
+    /// The name of the item.
+    pub name: String,
+
     /// The path (absolute or relative) of the file on the filesystem
     pub path: String,
 
@@ -2372,9 +2558,6 @@ pub struct File {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
-
-    /// The name of the item.
-    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
@@ -4936,19 +5119,19 @@ pub enum CitePageStart {
     String(String),
 }
 
-/// Types permitted for the `codeDependencies` property of a `CodeExecutable` node.
+/// Types permitted for the `codeDependencies` property of a `Executable` node.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum CodeExecutableCodeDependencies {
+pub enum ExecutableCodeDependencies {
     CodeChunk(CodeChunk),
     File(File),
     Parameter(Parameter),
 }
 
-/// Types permitted for the `codeDependents` property of a `CodeExecutable` node.
+/// Types permitted for the `codeDependents` property of a `Executable` node.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum CodeExecutableCodeDependents {
+pub enum ExecutableCodeDependents {
     Call(Call),
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
@@ -5102,6 +5285,14 @@ pub enum ClaimClaimType {
     Hypothesis,
     Proposition,
     Corollary,
+}
+
+/// Types permitted for the `parts` property of a `Directory` node.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum DirectoryParts {
+    File(File),
+    Directory(Directory),
 }
 
 /// Types permitted for the `caption` property of a `Figure` node.
@@ -5548,6 +5739,8 @@ pub enum ExecuteRequired {
     DependenciesFailed,
     /// Re-execution is required because the node failed last time it was executed.
     Failed,
+    /// Re-execution is required because the kernel that the node was last executed in was restarted.
+    KernelRestarted,
 }
 
 /// Status of the most recent, including any current, execution of a document node.
@@ -5583,7 +5776,6 @@ pub enum BlockContent {
     Claim(ClaimSimple),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
-    Collection(CollectionSimple),
     Figure(FigureSimple),
     Heading(Heading),
     Include(Include),
@@ -5600,24 +5792,25 @@ pub enum BlockContent {
 #[serde(untagged)]
 pub enum CodeExecutableTypes {
     CodeExecutable(CodeExecutable),
-    Call(Call),
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
-    Include(Include),
 }
 
-/// All type schemas that are derived from Code
+/// All type schemas that are derived from CodeStatic
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum CodeTypes {
-    Code(Code),
-    Call(Call),
+pub enum CodeStaticTypes {
+    CodeStatic(CodeStatic),
     CodeBlock(CodeBlock),
-    CodeChunk(CodeChunk),
-    CodeExecutable(CodeExecutable),
-    CodeExpression(CodeExpression),
     CodeFragment(CodeFragment),
-    Include(Include),
+}
+
+/// All type schemas that are derived from Collection
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CollectionTypes {
+    Collection(Collection),
+    Directory(Directory),
 }
 
 /// All type schemas that are derived from ContactPoint
@@ -5639,6 +5832,7 @@ pub enum CreativeWorkTypes {
     Collection(Collection),
     Comment(Comment),
     Datatable(Datatable),
+    Directory(Directory),
     Figure(Figure),
     File(File),
     ImageObject(ImageObject),
@@ -5668,13 +5862,13 @@ pub enum EntityTypes {
     Cite(Cite),
     CiteGroup(CiteGroup),
     Claim(Claim),
-    Code(Code),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
     CodeError(CodeError),
     CodeExecutable(CodeExecutable),
     CodeExpression(CodeExpression),
     CodeFragment(CodeFragment),
+    CodeStatic(CodeStatic),
     Collection(Collection),
     Comment(Comment),
     ConstantValidator(ConstantValidator),
@@ -5685,9 +5879,11 @@ pub enum EntityTypes {
     Date(Date),
     DefinedTerm(DefinedTerm),
     Delete(Delete),
+    Directory(Directory),
     Emphasis(Emphasis),
     EnumValidator(EnumValidator),
     Enumeration(Enumeration),
+    Executable(Executable),
     Figure(Figure),
     File(File),
     Function(Function),
@@ -5741,6 +5937,20 @@ pub enum EntityTypes {
     Variable(Variable),
     VideoObject(VideoObject),
     VolumeMount(VolumeMount),
+}
+
+/// All type schemas that are derived from Executable
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ExecutableTypes {
+    Executable(Executable),
+    Call(Call),
+    CallArgument(CallArgument),
+    CodeChunk(CodeChunk),
+    CodeExecutable(CodeExecutable),
+    CodeExpression(CodeExpression),
+    Include(Include),
+    Parameter(Parameter),
 }
 
 /// All type schemas that are derived from Grant
@@ -5840,13 +6050,13 @@ pub enum Node {
     Cite(Cite),
     CiteGroup(CiteGroup),
     Claim(Claim),
-    Code(Code),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
     CodeError(CodeError),
     CodeExecutable(CodeExecutable),
     CodeExpression(CodeExpression),
     CodeFragment(CodeFragment),
+    CodeStatic(CodeStatic),
     Collection(Collection),
     Comment(Comment),
     ConstantValidator(ConstantValidator),
@@ -5857,9 +6067,11 @@ pub enum Node {
     Date(Date),
     DefinedTerm(DefinedTerm),
     Delete(Delete),
+    Directory(Directory),
     Emphasis(Emphasis),
     EnumValidator(EnumValidator),
     Enumeration(Enumeration),
+    Executable(Executable),
     Figure(Figure),
     File(File),
     Function(Function),
@@ -5967,6 +6179,7 @@ pub enum ThingTypes {
     Datatable(Datatable),
     DatatableColumn(DatatableColumn),
     DefinedTerm(DefinedTerm),
+    Directory(Directory),
     Enumeration(Enumeration),
     Figure(Figure),
     File(File),

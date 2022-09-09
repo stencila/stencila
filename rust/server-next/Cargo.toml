@@ -12,7 +12,7 @@ axum = "0.5.13"
 common = { path = "../common" }
 mime_guess = "2.0.4"
 portpicker = "0.1.1"
-rust-embed = { version = "6.4.0", features = ["compression"] }
+statics = { path = "../statics" }
 tower-http = { version = "0.3.4", features = ["trace"] }
 
 cli-utils = { path = "../cli-utils", features = ["pretty"], optional = true }

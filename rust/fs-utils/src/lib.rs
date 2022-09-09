@@ -6,7 +6,7 @@ use std::{
     path::Path,
 };
 
-use common::eyre::{eyre, Result};
+use common::eyre::{eyre, Context, Result};
 
 /// Set permissions on a file
 #[allow(unused_variables)]
@@ -83,15 +83,18 @@ pub fn clear_dir_all(dir: impl AsRef<Path>) -> Result<()> {
 
 /// Recursively copy a directory to another
 pub fn copy_dir_all(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> Result<()> {
-    fs::create_dir_all(&dest)?;
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        if entry.file_type()?.is_dir() {
-            copy_dir_all(entry.path(), dest.as_ref().join(entry.file_name()))?;
-        } else if let Err(error) = fs::copy(entry.path(), dest.as_ref().join(entry.file_name())) {
+    let dest = dest.as_ref();
+    fs::create_dir_all(&dest).context("While attempting to create destination directory")?;
+    for entry in fs::read_dir(src)
+        .context("While attempting to read source directory")?
+        .flatten()
+    {
+        if entry.path().is_dir() {
+            copy_dir_all(entry.path(), dest.join(entry.file_name()))?;
+        } else if let Err(error) = fs::copy(entry.path(), dest.join(entry.file_name())) {
             // Ignore "the source path is neither a regular file nor a symlink to a regular file" errors
             if !matches!(error.kind(), io::ErrorKind::InvalidInput) {
-                return Err(eyre!(error));
+                return Err(eyre!(error)).context("While attempting to copy file");
             }
         }
     }

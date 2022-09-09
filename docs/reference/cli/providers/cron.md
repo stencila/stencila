@@ -1,6 +1,6 @@
 <!-- Generated from doc comments in Rust. Do not edit. -->
 
-# `cron`: Schedule import and/or export between remote source and a local path
+# `cron`: Schedule pull and/or push between remote source and a local path
 
 ## Usage
 

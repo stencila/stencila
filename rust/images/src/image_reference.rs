@@ -5,7 +5,7 @@ use common::{
     serde::Serialize,
 };
 
-#[derive(Debug, Default, Clone, PartialEq, Serialize)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct ImageReference {
     /// The registry the image is on. Defaults to `registry.hub.docker.com`

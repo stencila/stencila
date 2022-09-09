@@ -6,6 +6,7 @@ edition = "2021"
 
 [features]
 cli = ["cli-utils"]
+default = ["provider-http"]
 
 [dependencies]
 codecs = { path = "../codecs" }

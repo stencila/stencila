@@ -7,7 +7,6 @@ anyOf:
   - $ref: Claim
   - $ref: CodeBlock
   - $ref: CodeChunk
-  - $ref: Collection
   - $ref: Figure
   - $ref: Heading
   - $ref: Include

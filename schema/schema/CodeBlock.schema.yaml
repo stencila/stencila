@@ -1,10 +1,8 @@
 title: CodeBlock
 '@id': stencila:CodeBlock
-extends: Code
+extends: CodeStatic
 role: secondary
 status: stable
 category: code
 description: A code block.
 properties: {}
-required:
-  - text

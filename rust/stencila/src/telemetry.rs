@@ -13,7 +13,9 @@ pub mod config {
     use validator::Validate;
 
     /// Telemetry settings for Stencila CLI
-    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[derive(
+        Debug, Defaults, PartialEq, Eq, Clone, JsonSchema, Deserialize, Serialize, Validate,
+    )]
     #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct TelemetryCliConfig {
@@ -23,7 +25,9 @@ pub mod config {
     }
 
     /// Telemetry settings for Stencila Desktop
-    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[derive(
+        Debug, Defaults, PartialEq, Eq, Clone, JsonSchema, Deserialize, Serialize, Validate,
+    )]
     #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct TelemetryDesktopConfig {
@@ -35,7 +39,9 @@ pub mod config {
     /// Telemetry
     ///
     /// Configuration settings for telemetry
-    #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[derive(
+        Debug, Default, PartialEq, Eq, Clone, JsonSchema, Deserialize, Serialize, Validate,
+    )]
     #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct TelemetryConfig {

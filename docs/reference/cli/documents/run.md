@@ -5,7 +5,7 @@
 ## Usage
 
 ```sh
-stencila documents run [options] <input> [output]
+stencila documents run [options] <input> [args]
 ```
 
 
@@ -16,20 +16,19 @@ stencila documents run [options] <input> [output]
 | Name | Description |
 | --- | --- |
 | `input` | The path of the document to execute |
-| `output` | The path to save the executed document |
+| `args` | Parameter `name=value` pairs |
 
 ## Options
 
 | Name | Description |
 | --- | --- |
+| `--output -o <output>` | The path to save the executed document. |
 | `--from -f <from>` | The format of the input (defaults to being inferred from the file extension or content type). |
 | `--to -t <to>` | The format of the output (defaults to being inferred from the file extension). |
 | `--theme -e <theme>` | The theme to apply to the output (only for HTML and PDF). |
 | `--start -s <start>` | The id of the node to start execution from. |
-| `--ordering -o <ordering>` | Ordering for the execution plan. |
+| `--ordering <ordering>` | Ordering for the execution plan. |
 | `--concurrency -c <concurrency>` | Maximum concurrency for the execution plan. A maximum concurrency of 2 means that no more than two tasks will run at the same time (ie. in the same stage). Defaults to the number of CPUs on the machine. |
-| `--dry-run -d` | Generate execution plan but do not execute it. |
-| `--quiet -q` | Do not display execution plan or progress. |
 
 ## Global options
 

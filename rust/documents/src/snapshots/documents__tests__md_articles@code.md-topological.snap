@@ -1,0 +1,12 @@
+---
+source: rust/documents/src/tests.rs
+assertion_line: 122
+expression: "&plan"
+---
+{
+  "options": {
+    "ordering": "Topological",
+    "max_concurrency": 10
+  },
+  "stages": []
+}

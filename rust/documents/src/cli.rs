@@ -538,10 +538,12 @@ impl Run for Run_ {
         // Open document
         let mut document = Document::open(&self.input, self.from.clone()).await?;
 
-        // Call with args, or just execute
+        // Call with args or path, or just execute
         if !self.args.is_empty() {
             let args = params(&self.args);
-            document.call_strings(args).await?;
+            document.call_with_strings(args).await?;
+        } else if !Document::path_has_parameters(&document.path) {
+            document.call_with_path(&self.input, None).await?;
         } else {
             document
                 .execute(

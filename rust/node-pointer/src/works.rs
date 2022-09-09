@@ -66,6 +66,7 @@ pointable_struct!(Claim, content);
 pointable_struct!(Collection, parts);
 pointable_struct!(Comment);
 pointable_struct!(CreativeWork, content);
+pointable_struct!(Directory, parts);
 pointable_struct!(Figure);
 pointable_struct!(File, path);
 pointable_struct!(ImageObject);
@@ -83,4 +84,10 @@ pointable_variants!(
     CreativeWorkContent,
     CreativeWorkContent::String,
     CreativeWorkContent::VecNode
+);
+
+pointable_variants!(
+    DirectoryParts,
+    DirectoryParts::File,
+    DirectoryParts::Directory
 );

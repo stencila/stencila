@@ -25,7 +25,7 @@ Does not import the source use the `import` command for that.
 | --- | --- |
 | `--name -n <name>` | The name to give the source. |
 | `--cron -c <cron>` | A cron schedule for the source. |
-| `--watch -w <watch>` | A watch mode for the source. One of: `changed`, `committed`, `tagged` |
+| `--watch -w <watch>` | A watch mode for the source. |
 | `--dry-run` | Do a dry run of adding the source. Parses the input URL and other arguments into a source but does not add it, or the files that it imports, to the project. Useful for checking URL and cron formats and previewing the files that will be imported. |
 
 ## Global options

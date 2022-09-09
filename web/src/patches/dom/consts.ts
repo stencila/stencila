@@ -13,6 +13,7 @@ export const STRUCT_ATTRIBUTES: Record<string, string> = {
   compileDigest: 'compile-digest',
   executeDigest: 'execute-digest',
   executeRequired: 'execute-required',
+  executeKernel: 'execute-kernel',
   executeStatus: 'execute-status',
   executeEnded: 'execute-ended',
   executeDuration: 'execute-duration',

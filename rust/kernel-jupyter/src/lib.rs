@@ -746,12 +746,7 @@ impl KernelTrait for JupyterKernel {
         let args: Vec<String> = self
             .argv
             .iter()
-            .map(|arg| {
-                arg.replace(
-                    "{connection_file}",
-                    &connection.path.to_string_lossy().to_string(),
-                )
-            })
+            .map(|arg| arg.replace("{connection_file}", &connection.path.to_string_lossy()))
             .collect();
 
         let child = Command::new(&args[0])

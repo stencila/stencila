@@ -117,7 +117,7 @@ export function changeTagName(elem: Element, tag: string, type?: string): void {
   const changed = document.createElement(tag)
   changed.innerHTML = elem.innerHTML
   for (let index = 0; index < elem.attributes.length; index++) {
-    const attr = elem.attributes[index] as Attr
+    const attr = elem.attributes[index]
     if (attr.name === 'itemtype' && type !== undefined) {
       changed.setAttribute(attr.name, `https://schema.stenci.la/${type}`)
     } else {

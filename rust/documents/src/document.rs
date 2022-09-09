@@ -3,15 +3,18 @@ use std::{
     env, fs,
     ops::Deref,
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
     time::{Duration, Instant},
 };
 
 use notify::DebouncedEvent;
 
 use common::{
+    async_recursion::async_recursion,
     eyre::{bail, Result},
-    indexmap::IndexMap,
     itertools::Itertools,
     maplit::hashset,
     serde::Serialize,
@@ -29,14 +32,13 @@ use formats::FormatSpec;
 use graph::{Graph, PlanOptions, PlanOrdering, PlanScope};
 use graph_triples::{resources, Relations, Resource, ResourceChange, TagMap};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
-use node_address::{Address, AddressMap};
+use node_address::AddressMap;
 use node_patch::{apply, diff, merge, Patch};
-use node_pointer::{resolve, resolve_mut};
+use node_pointer::resolve;
 use node_reshape::reshape;
-use node_validate::Validator;
 
 use providers::DetectItem;
-use stencila_schema::{Article, InlineContent, Node, Parameter};
+use stencila_schema::{Article, Node};
 
 use crate::{
     assemble::assemble,
@@ -177,6 +179,10 @@ pub struct Document {
     #[serde(skip)]
     pub(crate) root: Arc<RwLock<Node>>,
 
+    /// The other documents that this document calls
+    #[serde(skip)]
+    pub(crate) call_docs: Arc<RwLock<CallDocuments>>,
+
     /// Addresses of nodes in `root` that have an `id`
     ///
     /// Used to fetch a particular node (and do something with it like `patch`
@@ -185,7 +191,7 @@ pub struct Document {
     /// pointers or references will change as the document is patched.
     /// These addresses are shifted when the document is patched to account for this.
     #[serde(skip)]
-    addresses: Arc<RwLock<AddressMap>>,
+    pub(crate) addresses: Arc<RwLock<AddressMap>>,
 
     /// Global tags defined in any of the document's code chunks
     #[allow(dead_code)]
@@ -215,7 +221,7 @@ pub struct Document {
     ///
     /// This is derived from `relations`.
     #[serde(skip)]
-    pub graph: Arc<RwLock<Graph>>,
+    pub(crate) graph: Arc<RwLock<Graph>>,
 
     /// The clients that are subscribed to each topic for this document
     ///
@@ -232,6 +238,12 @@ pub struct Document {
     ///    is changed internally or externally and  conversions have been
     ///    completed e.g. `encoded:html`
     subscriptions: HashMap<String, HashSet<String>>,
+
+    /// A running count of the number of subscriptions to the document
+    ///
+    /// Used, as a performance optimization, to avoiding publishing events
+    /// or doing pre-publishing preparation, when there are no subscribers.
+    subscriptions_count: Arc<AtomicUsize>,
 
     #[serde(skip)]
     patch_request_sender: mpsc::UnboundedSender<PatchRequest>,
@@ -280,7 +292,7 @@ impl Document {
     /// a new document. If the `path` is not specified, the created document
     /// will be `temporary: true` and have a temporary file path.
     #[tracing::instrument]
-    fn new(path: Option<PathBuf>, format: Option<String>) -> Document {
+    fn new(path: Option<PathBuf>, format: Option<String>) -> Result<Document> {
         let id = uuids::generate("do").to_string();
 
         let format = if let Some(format) = format {
@@ -300,6 +312,8 @@ impl Document {
                     .map(|os_str| os_str.to_string_lossy())
                     .unwrap_or_else(|| "Untitled".into())
                     .into();
+
+                let path = path.canonicalize()?;
 
                 (path, name, false)
             }
@@ -332,173 +346,41 @@ impl Document {
             mpsc::channel::<ResourceChange>(100);
 
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
-        let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
+        let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let tags = Arc::new(RwLock::new(TagMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
         let kernels = Arc::new(RwLock::new(KernelSpace::new(
             Some(&project),
             Some(resource_changes_sender),
         )));
+        let subscriptions_count = Arc::new(AtomicUsize::new(0));
         let last_write = Arc::new(RwLock::new(Instant::now()));
 
-        let (patch_request_sender, mut patch_request_receiver) =
-            mpsc::unbounded_channel::<PatchRequest>();
+        let (
+            patch_request_sender,
+            assemble_request_sender,
+            compile_request_sender,
+            execute_request_sender,
+            cancel_request_sender,
+            response_receiver,
+        ) = Self::initialize(
+            &id,
+            &path,
+            &project,
+            &format,
+            &root,
+            &call_docs,
+            &addresses,
+            &tags,
+            &graph,
+            &kernels,
+            &subscriptions_count,
+            &last_write,
+            resource_changes_receiver,
+        );
 
-        let (assemble_request_sender, mut assemble_request_receiver) =
-            mpsc::channel::<AssembleRequest>(100);
-
-        let (compile_request_sender, mut compile_request_receiver) =
-            mpsc::channel::<CompileRequest>(100);
-
-        let (execute_request_sender, mut execute_request_receiver) =
-            mpsc::channel::<ExecuteRequest>(100);
-
-        let (cancel_request_sender, mut cancel_request_receiver) =
-            mpsc::channel::<CancelRequest>(100);
-
-        let (write_request_sender, mut write_request_receiver) =
-            mpsc::unbounded_channel::<WriteRequest>();
-
-        let (response_sender, mut response_receiver) = broadcast::channel::<Response>(1);
-
-        let id_clone = id.clone();
-        let root_clone = root.clone();
-        let addresses_clone = addresses.clone();
-        let compile_sender_clone = compile_request_sender.clone();
-        let write_sender_clone = write_request_sender.clone();
-        let response_sender_clone = response_sender.clone();
-        tokio::spawn(async move {
-            Self::patch_task(
-                &id_clone,
-                &root_clone,
-                &addresses_clone,
-                &compile_sender_clone,
-                &write_sender_clone,
-                &mut patch_request_receiver,
-                &response_sender_clone,
-            )
-            .await
-        });
-
-        let id_clone = id.clone();
-        let execute_sender_clone = execute_request_sender.clone();
-        tokio::spawn(async move {
-            Self::resource_change_task(
-                &id_clone,
-                &mut resource_changes_receiver,
-                &execute_sender_clone,
-            )
-            .await
-        });
-
-        let id_clone = id.clone();
-        let path_clone = path.clone();
-        let project_clone = project.clone();
-        let root_clone = root.clone();
-        let addresses_clone = addresses.clone();
-        let call_docs_clone = call_docs.clone();
-        let patch_sender_clone = patch_request_sender.clone();
-        let compile_sender_clone = compile_request_sender.clone();
-        let execute_sender_clone = execute_request_sender.clone();
-        let write_sender_clone = write_request_sender.clone();
-        let response_sender_clone = response_sender.clone();
-        tokio::spawn(async move {
-            Self::assemble_task(
-                &id_clone,
-                &path_clone,
-                &project_clone,
-                &root_clone,
-                &addresses_clone,
-                &call_docs_clone,
-                &patch_sender_clone,
-                &compile_sender_clone,
-                &execute_sender_clone,
-                &write_sender_clone,
-                &mut assemble_request_receiver,
-                &response_sender_clone,
-            )
-            .await
-        });
-
-        let id_clone = id.clone();
-        let path_clone = path.clone();
-        let project_clone = project.clone();
-        let root_clone = root.clone();
-        let addresses_clone = addresses.clone();
-        let tags_clone = tags.clone();
-        let call_docs_clone = call_docs.clone();
-        let graph_clone = graph.clone();
-        let patch_sender_clone = patch_request_sender.clone();
-        let execute_sender_clone = execute_request_sender.clone();
-        let write_sender_clone = write_request_sender.clone();
-        let response_sender_clone = response_sender.clone();
-        tokio::spawn(async move {
-            Self::compile_task(
-                &id_clone,
-                &path_clone,
-                &project_clone,
-                &root_clone,
-                &addresses_clone,
-                &tags_clone,
-                &call_docs_clone,
-                &graph_clone,
-                &patch_sender_clone,
-                &execute_sender_clone,
-                &write_sender_clone,
-                &mut compile_request_receiver,
-                &response_sender_clone,
-            )
-            .await
-        });
-
-        let id_clone = id.clone();
-        let path_clone = path.clone();
-        let project_clone = project.clone();
-        let root_clone = root.clone();
-        let addresses_clone = addresses.clone();
-        let tags_clone = tags.clone();
-        let graph_clone = graph.clone();
-        let kernels_clone = kernels.clone();
-        let patch_sender_clone = patch_request_sender.clone();
-        let response_sender_clone = response_sender.clone();
-        tokio::spawn(async move {
-            Self::execute_task(
-                &id_clone,
-                &path_clone,
-                &project_clone,
-                &root_clone,
-                &addresses_clone,
-                &tags_clone,
-                &graph_clone,
-                &kernels_clone,
-                &call_docs,
-                &patch_sender_clone,
-                &write_request_sender,
-                &mut cancel_request_receiver,
-                &mut execute_request_receiver,
-                &response_sender_clone,
-            )
-            .await
-        });
-
-        let root_clone = root.clone();
-        let last_write_clone = last_write.clone();
-        let path_clone = path.clone();
-        let format_clone = Some(format.extension.clone());
-        tokio::spawn(async move {
-            Self::write_task(
-                &root_clone,
-                &last_write_clone,
-                &path_clone,
-                format_clone.as_deref(),
-                &mut write_request_receiver,
-                &response_sender,
-            )
-            .await
-        });
-
-        Document {
+        Ok(Document {
             id,
             path,
             project,
@@ -512,6 +394,7 @@ impl Document {
             content: Default::default(),
 
             root,
+            call_docs,
             addresses,
             tags,
             graph,
@@ -519,14 +402,116 @@ impl Document {
 
             relations: Default::default(),
             subscriptions: Default::default(),
+            subscriptions_count,
 
-            assemble_request_sender,
             patch_request_sender,
+            assemble_request_sender,
             compile_request_sender,
             execute_request_sender,
             cancel_request_sender,
             response_receiver,
+        })
+    }
+
+    #[async_recursion]
+    pub async fn fork(&self) -> Result<Document> {
+        let id = uuids::generate("do").to_string();
+        let path = self.path.clone();
+        let project = self.project.clone();
+        let format = self.format.clone();
+
+        tracing::debug!(
+            "Forking document `{}` from `{}` to `{}`",
+            self.id,
+            self.path.display(),
+            id
+        );
+
+        let (resource_changes_sender, mut resource_changes_receiver) =
+            mpsc::channel::<ResourceChange>(100);
+
+        // Fields that can be cloned
+
+        let root = Arc::new(RwLock::new(self.root.read().await.clone()));
+        let addresses = Arc::new(RwLock::new(self.addresses.read().await.clone()));
+        let tags = Arc::new(RwLock::new(self.tags.read().await.clone()));
+        let graph = Arc::new(RwLock::new(self.graph.read().await.clone()));
+
+        // Fields that need to be forked (kernels and call_docs which have kernels)
+
+        let self_call_docs = self.call_docs.read().await;
+        let mut call_docs = CallDocuments::new();
+        for (call_id, doc) in self_call_docs.iter() {
+            let doc = doc.lock().await.fork().await?;
+            call_docs.insert(call_id.clone(), Mutex::new(doc));
         }
+        let call_docs = Arc::new(RwLock::new(call_docs));
+
+        let (kernels, kernels_restarted) = self
+            .kernels
+            .read()
+            .await
+            .fork(Some(resource_changes_sender))
+            .await?;
+        let kernels = Arc::new(RwLock::new(kernels));
+
+        let subscriptions_count = Arc::new(AtomicUsize::new(0));
+        let last_write = Arc::new(RwLock::new(Instant::now()));
+
+        let (
+            patch_request_sender,
+            assemble_request_sender,
+            compile_request_sender,
+            execute_request_sender,
+            cancel_request_sender,
+            response_receiver,
+        ) = Self::initialize(
+            &id,
+            &path,
+            &project,
+            &format,
+            &root,
+            &call_docs,
+            &addresses,
+            &tags,
+            &graph,
+            &kernels,
+            &subscriptions_count,
+            &last_write,
+            resource_changes_receiver,
+        );
+
+        Ok(Document {
+            id,
+            path,
+            project,
+            temporary: self.temporary,
+            name: self.name.clone(),
+            format,
+            previewable: self.previewable,
+
+            status: DocumentStatus::Synced,
+            last_write,
+            content: Default::default(),
+
+            root,
+            call_docs,
+            addresses,
+            tags,
+            graph,
+            kernels,
+
+            relations: Default::default(),
+            subscriptions: Default::default(),
+            subscriptions_count,
+
+            patch_request_sender,
+            assemble_request_sender,
+            compile_request_sender,
+            execute_request_sender,
+            cancel_request_sender,
+            response_receiver,
+        })
     }
 
     /// Create a new document, optionally with content.
@@ -537,7 +522,7 @@ impl Document {
     ) -> Result<Document> {
         let path = path.map(|path| PathBuf::from(path.as_ref()));
 
-        let mut document = Document::new(path, format);
+        let mut document = Document::new(path, format)?;
         if let Some(content) = content {
             document.load(content, None).await?;
         }
@@ -553,12 +538,12 @@ impl Document {
     ///
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the path's file extension.
-    /// TODO: add project: Option<PathBuf> so that project can be explictly set
     #[tracing::instrument(skip(path))]
     pub async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
-        let path = PathBuf::from(path.as_ref());
+        let path = path.as_ref();
+        let path = Self::find_matching_path(path, None)?;
 
-        let mut document = Document::new(Some(path.clone()), format);
+        let mut document = Document::new(Some(path.clone()), format)?;
         if let Err(error) = document.read(true).await {
             tracing::warn!("While reading document `{}`: {}", path.display(), error)
         };
@@ -735,7 +720,7 @@ impl Document {
     /// - `request_receiver`: The channel to receive [`WriteRequest`]s on
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
-    async fn write_task(
+    pub(crate) async fn write_task(
         root: &Arc<RwLock<Node>>,
         last_write: &Arc<RwLock<Instant>>,
         path: &Path,
@@ -892,6 +877,8 @@ impl Document {
     /// - `addresses`: The [`AddressMap`] to use to locate nodes within the root
     ///                node (will be read locked)
     ///
+    /// - `subscriptions_count`: The number of subscriptions to the document
+    ///
     /// - `compile_sender`: The channel to send any [`CompileRequest`]s after a patch is applied
     ///
     /// - `write_sender`: The channel to send any [`WriteRequest`]s after a patch is applied
@@ -899,10 +886,12 @@ impl Document {
     /// - `request_receiver`: The channel to receive [`PatchRequest`]s on
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
-    async fn patch_task(
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) async fn patch_task(
         id: &str,
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
+        subscriptions_count: &Arc<AtomicUsize>,
         compile_sender: &mpsc::Sender<CompileRequest>,
         write_sender: &mpsc::UnboundedSender<WriteRequest>,
         request_receiver: &mut mpsc::UnboundedReceiver<PatchRequest>,
@@ -940,19 +929,21 @@ impl Document {
                 // Apply the patch to the root node
                 apply(root, &patch);
 
-                // Pre-publish the patch
+                // Increment version counter
                 counter += 1;
-                patch.prepublish(counter, root);
-            }
 
-            // Publish the patch
-            publish(
-                &["documents:", id, ":patched"].concat(),
-                &DocumentEvent {
-                    type_: DocumentEventType::Patched,
-                    patch: Some(patch),
-                },
-            );
+                // Publish the patch if there are any subscriptions
+                if subscriptions_count.load(Ordering::Acquire) > 0 {
+                    patch.prepublish(counter, root);
+                    publish(
+                        &["documents:", id, ":patched"].concat(),
+                        &DocumentEvent {
+                            type_: DocumentEventType::Patched,
+                            patch: Some(patch),
+                        },
+                    );
+                }
+            }
 
             // Possibly compile, execute, and/or write; or respond
             if !matches!(request.compile, When::Never) {
@@ -1090,7 +1081,7 @@ impl Document {
     ///
     /// - `change_receiver`: The channel to receive [`ResourceChange`]s on
     #[allow(clippy::too_many_arguments)]
-    pub async fn resource_change_task(
+    pub(crate) async fn resource_change_task(
         id: &str,
         change_receiver: &mut mpsc::Receiver<ResourceChange>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
@@ -1156,7 +1147,7 @@ impl Document {
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
     #[allow(clippy::too_many_arguments)]
-    pub async fn assemble_task(
+    pub(crate) async fn assemble_task(
         id: &str,
         path: &Path,
         project: &Path,
@@ -1390,7 +1381,7 @@ impl Document {
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
     #[allow(clippy::too_many_arguments)]
-    pub async fn compile_task(
+    pub(crate) async fn compile_task(
         id: &str,
         path: &Path,
         project: &Path,
@@ -1605,7 +1596,7 @@ impl Document {
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
     #[allow(clippy::too_many_arguments)]
-    pub async fn execute_task(
+    pub(crate) async fn execute_task(
         id: &str,
         path: &Path,
         project: &Path,
@@ -1878,97 +1869,6 @@ impl Document {
         }
     }
 
-    /// Get the parameters of the document
-    pub async fn params(&mut self) -> Result<IndexMap<String, (String, Address, Parameter)>> {
-        // Assemble the document to ensure its `addresses` are up to date
-        self.assemble(When::Never, When::Never, When::Never).await?;
-
-        // Collect parameters from addresses
-        let addresses = self.addresses.read().await;
-        let root = &*self.root.read().await;
-        let params = addresses
-            .iter()
-            .filter_map(|(id, address)| {
-                if let Ok(pointer) = resolve(root, Some(address.clone()), Some(id.clone())) {
-                    if let Some(InlineContent::Parameter(param)) = pointer.as_inline() {
-                        return Some((
-                            param.name.clone(),
-                            (id.clone(), address.clone(), param.clone()),
-                        ));
-                    }
-                }
-                None
-            })
-            .collect();
-
-        Ok(params)
-    }
-
-    /// Call the document with arguments
-    pub async fn call(&mut self, args: HashMap<String, Node>) -> Result<()> {
-        let mut params = self.params().await?;
-
-        {
-            let root = &mut *self.root.write().await;
-            for (name, value) in args {
-                if let Some((id, address, param)) = params.remove(&name) {
-                    if let Some(validator) = param.validator.as_deref() {
-                        match validator.validate(&value) {
-                            Ok(..) => {
-                                if let Ok(mut pointer) = resolve_mut(root, Some(address), Some(id))
-                                {
-                                    if let Some(InlineContent::Parameter(param)) =
-                                        pointer.as_inline_mut()
-                                    {
-                                        param.value = Some(Box::new(value));
-                                    }
-                                }
-                            }
-                            Err(error) => bail!(
-                                "While attempting to parse document parameter `{}`: {}",
-                                name,
-                                error
-                            ),
-                        }
-                    }
-                } else {
-                    bail!("Document does not have a parameter named `{}`", name)
-                }
-            }
-        }
-
-        self.execute(When::Never, None, None, None).await?;
-
-        Ok(())
-    }
-
-    pub async fn call_strings(&mut self, args: HashMap<String, String>) -> Result<()> {
-        let mut params = self.params().await?;
-        let mut args_parsed = HashMap::new();
-        for (name, value) in args {
-            if let Some((id, address, param)) = params.remove(&name) {
-                if let Some(validator) = param.validator.as_deref() {
-                    match validator.parse(&value) {
-                        Ok(value) => {
-                            args_parsed.insert(name, value);
-                        }
-                        Err(error) => bail!(
-                            "While attempting to parse document parameter `{}`: {}",
-                            name,
-                            error
-                        ),
-                    }
-                }
-            } else {
-                bail!("Document does not have a parameter named `{}`", name)
-            }
-        }
-
-        self.call(args_parsed);
-
-        Ok(())
-    }
-
     /// Cancel the execution of the document
     ///
     /// # Arguments
@@ -2129,6 +2029,7 @@ impl Document {
                 vacant.insert(hashset! {client.into()});
             }
         }
+        self.subscriptions_count.fetch_add(1, Ordering::SeqCst);
         self.topic(topic)
     }
 
@@ -2141,6 +2042,7 @@ impl Document {
                 occupied.remove();
             }
         }
+        self.subscriptions_count.fetch_sub(1, Ordering::SeqCst);
         self.topic(topic)
     }
 
@@ -2408,8 +2310,8 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn new() {
-        let doc = Document::new(None, None);
+    async fn new() -> Result<()> {
+        let doc = Document::new(None, None)?;
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
@@ -2417,13 +2319,15 @@ mod tests {
         assert_eq!(doc.content, "");
         assert_eq!(doc.subscriptions, HashMap::new());
 
-        let doc = Document::new(None, Some("md".to_string()));
+        let doc = Document::new(None, Some("md".to_string()))?;
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
         assert_eq!(doc.format.extension, "md");
         assert_eq!(doc.content, "");
         assert_eq!(doc.subscriptions, HashMap::new());
+
+        Ok(())
     }
 
     #[tokio::test]

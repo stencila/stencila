@@ -1,0 +1,748 @@
+---
+source: rust/documents/src/tests.rs
+assertion_line: 122
+expression: "&plan"
+---
+{
+  "options": {
+    "ordering": "Appearance",
+    "max_concurrency": 0
+  },
+  "stages": [
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "cc-1",
+              "kind": "CodeChunk",
+              "language": "Calc"
+            },
+            "relations": [
+              [
+                {
+                  "type": "Assigns",
+                  "range": [
+                    1,
+                    0,
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ],
+              [
+                {
+                  "type": "Uses",
+                  "range": [
+                    2,
+                    0,
+                    2,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ]
+            ],
+            "dependencies": [],
+            "dependents": [
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
+                "kind": "Number"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-2",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "ce-1",
+                "kind": "CodeExpression",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "ce-2",
+                "kind": "CodeExpression",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-3",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "ce-3",
+                "kind": "CodeExpression",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "ce-4",
+                "kind": "CodeExpression",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-4",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              }
+            ],
+            "depth": 0,
+            "execute_auto": "Always",
+            "compile_digest": "9316405199738436605.427226447947932231.0.0.0",
+            "tags": [
+              {
+                "name": "autorun",
+                "value": "always",
+                "global": false
+              }
+            ]
+          },
+          "kernel_selector": {
+            "lang": "Calc"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "cc-2",
+              "kind": "CodeChunk",
+              "language": "Calc"
+            },
+            "relations": [
+              [
+                {
+                  "type": "Uses",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ]
+            ],
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              }
+            ],
+            "depth": 2,
+            "compile_digest": "16686659887221966787.10447405199150839907.7791729115334767390.1.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "Calc"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "ce-1",
+              "kind": "CodeExpression",
+              "language": "Calc"
+            },
+            "relations": [
+              [
+                {
+                  "type": "Uses",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ]
+            ],
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              }
+            ],
+            "depth": 2,
+            "compile_digest": "1195711327746707359.17276421816759163992.7791729115334767390.1.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "Calc"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "ce-2",
+              "kind": "CodeExpression",
+              "language": "Calc"
+            },
+            "relations": [
+              [
+                {
+                  "type": "Uses",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ]
+            ],
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              }
+            ],
+            "depth": 2,
+            "compile_digest": "5376003846207966692.15846618375799990938.7791729115334767390.1.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "Calc"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "cc-3",
+              "kind": "CodeChunk",
+              "language": "Calc"
+            },
+            "relations": [
+              [
+                {
+                  "type": "Assigns",
+                  "range": [
+                    1,
+                    0,
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "b",
+                  "kind": "Number"
+                }
+              ],
+              [
+                {
+                  "type": "Uses",
+                  "range": [
+                    1,
+                    4,
+                    1,
+                    5
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ],
+              [
+                {
+                  "type": "Uses",
+                  "range": [
+                    2,
+                    0,
+                    2,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "b",
+                  "kind": "Number"
+                }
+              ]
+            ],
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              }
+            ],
+            "dependents": [
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
+                "kind": "Number"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "ce-3",
+                "kind": "CodeExpression",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "ce-4",
+                "kind": "CodeExpression",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-4",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              }
+            ],
+            "depth": 2,
+            "execute_auto": "Never",
+            "compile_digest": "16211924891031318050.15562958038392290983.7791729115334767390.1.0",
+            "tags": [
+              {
+                "name": "autorun",
+                "value": "never",
+                "global": false
+              }
+            ]
+          },
+          "kernel_selector": {
+            "lang": "Calc"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "ce-3",
+              "kind": "CodeExpression",
+              "language": "Calc"
+            },
+            "relations": [
+              [
+                {
+                  "type": "Uses",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "b",
+                  "kind": "Number"
+                }
+              ]
+            ],
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-3",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
+                "kind": "Number"
+              }
+            ],
+            "depth": 4,
+            "compile_digest": "14319809613103427217.1710217970989683588.9849296973909467689.1.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "Calc"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "ce-4",
+              "kind": "CodeExpression",
+              "language": "Calc"
+            },
+            "relations": [
+              [
+                {
+                  "type": "Uses",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "b",
+                  "kind": "Number"
+                }
+              ]
+            ],
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-3",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
+                "kind": "Number"
+              }
+            ],
+            "depth": 4,
+            "compile_digest": "2993544518503473449.212035399485833950.9849296973909467689.1.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "Calc"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "pa-1",
+              "kind": "Parameter",
+              "language": "Calc"
+            },
+            "relations": [
+              [
+                {
+                  "type": "Assigns",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "c",
+                  "kind": "Number"
+                }
+              ]
+            ],
+            "dependencies": [],
+            "dependents": [
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "c",
+                "kind": "Number"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-4",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              }
+            ],
+            "depth": 0,
+            "execute_pure": false,
+            "compile_digest": "2929670310044459792.6473431330112736658.0.0.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "Calc"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "cc-4",
+              "kind": "CodeChunk",
+              "language": "Calc"
+            },
+            "relations": [
+              [
+                {
+                  "type": "Uses",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ],
+              [
+                {
+                  "type": "Uses",
+                  "range": [
+                    0,
+                    4,
+                    0,
+                    5
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "b",
+                  "kind": "Number"
+                }
+              ],
+              [
+                {
+                  "type": "Uses",
+                  "range": [
+                    0,
+                    8,
+                    0,
+                    9
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "c",
+                  "kind": "Number"
+                }
+              ]
+            ],
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-3",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "pa-1",
+                "kind": "Parameter",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
+                "kind": "Number"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "c",
+                "kind": "Number"
+              }
+            ],
+            "depth": 4,
+            "compile_digest": "3894522473690053649.77074787185374047.16743740572555155447.3.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "Calc"
+          },
+          "is_fork": false
+        }
+      ]
+    }
+  ]
+}

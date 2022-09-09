@@ -1,4 +1,5 @@
 use axum::{routing::get, Router};
+use statics::STATICS_VERSION;
 use tower_http::trace::TraceLayer;
 
 use common::{
@@ -7,7 +8,7 @@ use common::{
     tracing,
 };
 
-use crate::statics::{get_static, STATIC_VERSION};
+use crate::statics::get_static;
 
 #[derive(Debug, Default)]
 pub struct Server {
@@ -37,7 +38,7 @@ impl Server {
 
     /// Get the the versioned (i.e prefixed with `/~static/<version>`) for an asset
     pub fn static_path(asset: &str) -> String {
-        format!("/~static/{}/{}", STATIC_VERSION, asset)
+        format!("/~static/{}/{}", STATICS_VERSION, asset)
     }
 
     /// Start the server

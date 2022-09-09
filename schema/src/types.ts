@@ -29,7 +29,6 @@ export interface Types {
   Cite: Cite
   CiteGroup: CiteGroup
   Claim: Claim
-  Code: Code
   CodeBlock: CodeBlock
   CodeChunk: CodeChunk
   CodeError: CodeError
@@ -37,8 +36,10 @@ export interface Types {
   CodeExecutableTypes: CodeExecutableTypes
   CodeExpression: CodeExpression
   CodeFragment: CodeFragment
-  CodeTypes: CodeTypes
+  CodeStatic: CodeStatic
+  CodeStaticTypes: CodeStaticTypes
   Collection: Collection
+  CollectionTypes: CollectionTypes
   Comment: Comment
   ConstantValidator: ConstantValidator
   ContactPoint: ContactPoint
@@ -50,11 +51,14 @@ export interface Types {
   Date: Date
   DefinedTerm: DefinedTerm
   Delete: Delete
+  Directory: Directory
   Emphasis: Emphasis
   Entity: Entity
   EntityTypes: EntityTypes
   EnumValidator: EnumValidator
   Enumeration: Enumeration
+  Executable: Executable
+  ExecutableTypes: ExecutableTypes
   ExecuteAuto: ExecuteAuto
   ExecuteRequired: ExecuteRequired
   ExecuteStatus: ExecuteStatus
@@ -146,13 +150,13 @@ export type Entity = {
     | 'Cite'
     | 'CiteGroup'
     | 'Claim'
-    | 'Code'
     | 'CodeBlock'
     | 'CodeChunk'
     | 'CodeError'
     | 'CodeExecutable'
     | 'CodeExpression'
     | 'CodeFragment'
+    | 'CodeStatic'
     | 'Collection'
     | 'Comment'
     | 'ConstantValidator'
@@ -163,9 +167,11 @@ export type Entity = {
     | 'Date'
     | 'DefinedTerm'
     | 'Delete'
+    | 'Directory'
     | 'Emphasis'
     | 'EnumValidator'
     | 'Enumeration'
+    | 'Executable'
     | 'Figure'
     | 'File'
     | 'Function'
@@ -284,39 +290,50 @@ export const citeGroup = (props: Omit<CiteGroup, 'type'>): CiteGroup => ({
 })
 
 /**
- * Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
+ * An error that occurred when parsing, compiling or executing a Code node.
  */
-export type Code = Entity & {
-  type:
-    | 'Code'
-    | 'Call'
-    | 'CodeBlock'
-    | 'CodeChunk'
-    | 'CodeExecutable'
-    | 'CodeExpression'
-    | 'CodeFragment'
-    | 'Include'
-  mediaType?: string
-  programmingLanguage?: string
-  text?: string
+export type CodeError = Entity & {
+  type: 'CodeError'
+  errorMessage: string
+  errorType?: string
+  stackTrace?: string
 }
 
 /**
- * Create a `Code` node
- * @param props Object containing Code schema properties as key/value pairs
- * @returns {Code} Code schema node
+ * Create a `CodeError` node
+ * @param props Object containing CodeError schema properties as key/value pairs
+ * @returns {CodeError} CodeError schema node
  */
-export const code = (props: Omit<Code, 'type'> = {}): Code => ({
+export const codeError = (props: Omit<CodeError, 'type'>): CodeError => ({
   ...compact(props),
-  type: 'Code',
+  type: 'CodeError',
+})
+
+/**
+ * Base type for non-executable code nodes(e.g. `CodeBlock`).
+ */
+export type CodeStatic = Entity & {
+  type: 'CodeStatic' | 'CodeBlock' | 'CodeFragment'
+  text: string
+  mediaType?: string
+  programmingLanguage?: string
+}
+
+/**
+ * Create a `CodeStatic` node
+ * @param props Object containing CodeStatic schema properties as key/value pairs
+ * @returns {CodeStatic} CodeStatic schema node
+ */
+export const codeStatic = (props: Omit<CodeStatic, 'type'>): CodeStatic => ({
+  ...compact(props),
+  type: 'CodeStatic',
 })
 
 /**
  * A code block.
  */
-export type CodeBlock = Code & {
+export type CodeBlock = CodeStatic & {
   type: 'CodeBlock'
-  text: string
 }
 
 /**
@@ -330,10 +347,55 @@ export const codeBlock = (props: Omit<CodeBlock, 'type'>): CodeBlock => ({
 })
 
 /**
- * Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+ * Inline code.
  */
-export type CodeExecutable = Code & {
-  type: 'CodeExecutable' | 'Call' | 'CodeChunk' | 'CodeExpression' | 'Include'
+export type CodeFragment = CodeStatic & {
+  type: 'CodeFragment'
+}
+
+/**
+ * Create a `CodeFragment` node
+ * @param props Object containing CodeFragment schema properties as key/value pairs
+ * @returns {CodeFragment} CodeFragment schema node
+ */
+export const codeFragment = (
+  props: Omit<CodeFragment, 'type'>
+): CodeFragment => ({
+  ...compact(props),
+  type: 'CodeFragment',
+})
+
+/**
+ * A date encoded as a ISO 8601 string.
+ */
+export type Date = Entity & {
+  type: 'Date'
+  value: string
+}
+
+/**
+ * Create a `Date` node
+ * @param props Object containing Date schema properties as key/value pairs
+ * @returns {Date} Date schema node
+ */
+export const date = (props: Omit<Date, 'type'>): Date => ({
+  ...compact(props),
+  type: 'Date',
+})
+
+/**
+ * Base type for executable document nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
+ */
+export type Executable = Entity & {
+  type:
+    | 'Executable'
+    | 'Call'
+    | 'CallArgument'
+    | 'CodeChunk'
+    | 'CodeExecutable'
+    | 'CodeExpression'
+    | 'Include'
+    | 'Parameter'
   codeDependencies?: Array<CodeChunk | File | Parameter>
   codeDependents?: Array<Call | CodeChunk | CodeExpression | File>
   compileDigest?: string
@@ -343,8 +405,31 @@ export type CodeExecutable = Code & {
   executeDigest?: string
   executeDuration?: number
   executeEnded?: Date
+  executeKernel?: string
   executeRequired?: ExecuteRequired
   executeStatus?: ExecuteStatus
+}
+
+/**
+ * Create a `Executable` node
+ * @param props Object containing Executable schema properties as key/value pairs
+ * @returns {Executable} Executable schema node
+ */
+export const executable = (
+  props: Omit<Executable, 'type'> = {}
+): Executable => ({
+  ...compact(props),
+  type: 'Executable',
+})
+
+/**
+ * Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+ */
+export type CodeExecutable = Executable & {
+  type: 'CodeExecutable' | 'CodeChunk' | 'CodeExpression'
+  programmingLanguage: string
+  text: string
+  mediaType?: string
 }
 
 /**
@@ -353,7 +438,7 @@ export type CodeExecutable = Code & {
  * @returns {CodeExecutable} CodeExecutable schema node
  */
 export const codeExecutable = (
-  props: Omit<CodeExecutable, 'type'> = {}
+  props: Omit<CodeExecutable, 'type'>
 ): CodeExecutable => ({
   ...compact(props),
   type: 'CodeExecutable',
@@ -364,8 +449,6 @@ export const codeExecutable = (
  */
 export type CodeChunk = CodeExecutable & {
   type: 'CodeChunk'
-  programmingLanguage: string
-  text: string
   caption?: Array<BlockContent> | string
   executePure?: boolean
   label?: string
@@ -387,8 +470,6 @@ export const codeChunk = (props: Omit<CodeChunk, 'type'>): CodeChunk => ({
  */
 export type CodeExpression = CodeExecutable & {
   type: 'CodeExpression'
-  programmingLanguage: string
-  text: string
   output?: Node
 }
 
@@ -407,7 +488,7 @@ export const codeExpression = (
 /**
  * Include content from an external source (e.g. file, URL).
  */
-export type Include = CodeExecutable & {
+export type Include = Executable & {
   type: 'Include' | 'Call'
   source: string
   content?: Array<BlockContent>
@@ -431,7 +512,6 @@ export const include = (props: Omit<Include, 'type'>): Include => ({
 export type Call = Include & {
   type: 'Call'
   arguments?: Array<CallArgument>
-  mediaType?: string
 }
 
 /**
@@ -445,61 +525,45 @@ export const call = (props: Omit<Call, 'type'>): Call => ({
 })
 
 /**
- * Inline code.
+ * A parameter of a document.
  */
-export type CodeFragment = Code & {
-  type: 'CodeFragment'
-  text: string
+export type Parameter = Executable & {
+  type: 'Parameter' | 'CallArgument'
+  name: string
+  default?: Node
+  hidden?: boolean
+  validator?: ValidatorTypes
+  value?: Node
 }
 
 /**
- * Create a `CodeFragment` node
- * @param props Object containing CodeFragment schema properties as key/value pairs
- * @returns {CodeFragment} CodeFragment schema node
+ * Create a `Parameter` node
+ * @param props Object containing Parameter schema properties as key/value pairs
+ * @returns {Parameter} Parameter schema node
  */
-export const codeFragment = (
-  props: Omit<CodeFragment, 'type'>
-): CodeFragment => ({
+export const parameter = (props: Omit<Parameter, 'type'>): Parameter => ({
   ...compact(props),
-  type: 'CodeFragment',
+  type: 'Parameter',
 })
 
 /**
- * An error that occurred when parsing, compiling or executing a Code node.
+ * The value of a `Parameter` to call a document with
  */
-export type CodeError = Entity & {
-  type: 'CodeError'
-  errorMessage: string
-  errorType?: string
-  stackTrace?: string
+export type CallArgument = Parameter & {
+  type: 'CallArgument'
+  symbol?: string
 }
 
 /**
- * Create a `CodeError` node
- * @param props Object containing CodeError schema properties as key/value pairs
- * @returns {CodeError} CodeError schema node
+ * Create a `CallArgument` node
+ * @param props Object containing CallArgument schema properties as key/value pairs
+ * @returns {CallArgument} CallArgument schema node
  */
-export const codeError = (props: Omit<CodeError, 'type'>): CodeError => ({
+export const callArgument = (
+  props: Omit<CallArgument, 'type'>
+): CallArgument => ({
   ...compact(props),
-  type: 'CodeError',
-})
-
-/**
- * A date encoded as a ISO 8601 string.
- */
-export type Date = Entity & {
-  type: 'Date'
-  value: string
-}
-
-/**
- * Create a `Date` node
- * @param props Object containing Date schema properties as key/value pairs
- * @returns {Date} Date schema node
- */
-export const date = (props: Omit<Date, 'type'>): Date => ({
-  ...compact(props),
-  type: 'Date',
+  type: 'CallArgument',
 })
 
 /**
@@ -566,53 +630,6 @@ export const emphasis = (props: Omit<Emphasis, 'type'>): Emphasis => ({
 })
 
 /**
- * A parameter of a document or function.
- */
-export type Parameter = Entity & {
-  type: 'Parameter' | 'CallArgument'
-  name: string
-  compileDigest?: string
-  default?: Node
-  executeDigest?: string
-  executeRequired?: ExecuteRequired
-  isExtensible?: boolean
-  isRequired?: boolean
-  isVariadic?: boolean
-  validator?: ValidatorTypes
-  value?: Node
-}
-
-/**
- * Create a `Parameter` node
- * @param props Object containing Parameter schema properties as key/value pairs
- * @returns {Parameter} Parameter schema node
- */
-export const parameter = (props: Omit<Parameter, 'type'>): Parameter => ({
-  ...compact(props),
-  type: 'Parameter',
-})
-
-/**
- * The value of a `Parameter` to call a document with
- */
-export type CallArgument = Parameter & {
-  type: 'CallArgument'
-  symbol?: string
-}
-
-/**
- * Create a `CallArgument` node
- * @param props Object containing CallArgument schema properties as key/value pairs
- * @returns {CallArgument} CallArgument schema node
- */
-export const callArgument = (
-  props: Omit<CallArgument, 'type'>
-): CallArgument => ({
-  ...compact(props),
-  type: 'CallArgument',
-})
-
-/**
  * The most generic type of item.
  */
 export type Thing = Entity & {
@@ -629,6 +646,7 @@ export type Thing = Entity & {
     | 'Datatable'
     | 'DatatableColumn'
     | 'DefinedTerm'
+    | 'Directory'
     | 'Enumeration'
     | 'Figure'
     | 'File'
@@ -726,6 +744,7 @@ export type CreativeWork = Thing & {
     | 'Collection'
     | 'Comment'
     | 'Datatable'
+    | 'Directory'
     | 'Figure'
     | 'File'
     | 'ImageObject'
@@ -828,7 +847,7 @@ export const claim = (props: Omit<Claim, 'type'>): Claim => ({
  * A collection of CreativeWorks or other artifacts.
  */
 export type Collection = CreativeWork & {
-  type: 'Collection'
+  type: 'Collection' | 'Directory'
   parts: Array<CreativeWorkTypes>
 }
 
@@ -840,6 +859,26 @@ export type Collection = CreativeWork & {
 export const collection = (props: Omit<Collection, 'type'>): Collection => ({
   ...compact(props),
   type: 'Collection',
+})
+
+/**
+ * A directory on the filesystem
+ */
+export type Directory = Collection & {
+  type: 'Directory'
+  name: string
+  parts: Array<File | Directory>
+  path: string
+}
+
+/**
+ * Create a `Directory` node
+ * @param props Object containing Directory schema properties as key/value pairs
+ * @returns {Directory} Directory schema node
+ */
+export const directory = (props: Omit<Directory, 'type'>): Directory => ({
+  ...compact(props),
+  type: 'Directory',
 })
 
 /**
@@ -1114,6 +1153,7 @@ export const figure = (props: Omit<Figure, 'type'> = {}): Figure => ({
  */
 export type File = CreativeWork & {
   type: 'File'
+  name: string
   path: string
 }
 
@@ -2083,7 +2123,6 @@ export type BlockContent =
   | Claim
   | CodeBlock
   | CodeChunk
-  | Collection
   | Figure
   | Heading
   | Include
@@ -2097,25 +2136,17 @@ export type BlockContent =
 /**
  * All type schemas that are derived from CodeExecutable
  */
-export type CodeExecutableTypes =
-  | CodeExecutable
-  | Call
-  | CodeChunk
-  | CodeExpression
-  | Include
+export type CodeExecutableTypes = CodeExecutable | CodeChunk | CodeExpression
 
 /**
- * All type schemas that are derived from Code
+ * All type schemas that are derived from CodeStatic
  */
-export type CodeTypes =
-  | Code
-  | Call
-  | CodeBlock
-  | CodeChunk
-  | CodeExecutable
-  | CodeExpression
-  | CodeFragment
-  | Include
+export type CodeStaticTypes = CodeStatic | CodeBlock | CodeFragment
+
+/**
+ * All type schemas that are derived from Collection
+ */
+export type CollectionTypes = Collection | Directory
 
 /**
  * All type schemas that are derived from ContactPoint
@@ -2133,6 +2164,7 @@ export type CreativeWorkTypes =
   | Collection
   | Comment
   | Datatable
+  | Directory
   | Figure
   | File
   | ImageObject
@@ -2161,13 +2193,13 @@ export type EntityTypes =
   | Cite
   | CiteGroup
   | Claim
-  | Code
   | CodeBlock
   | CodeChunk
   | CodeError
   | CodeExecutable
   | CodeExpression
   | CodeFragment
+  | CodeStatic
   | Collection
   | Comment
   | ConstantValidator
@@ -2178,9 +2210,11 @@ export type EntityTypes =
   | Date
   | DefinedTerm
   | Delete
+  | Directory
   | Emphasis
   | EnumValidator
   | Enumeration
+  | Executable
   | Figure
   | File
   | Function
@@ -2234,6 +2268,19 @@ export type EntityTypes =
   | Variable
   | VideoObject
   | VolumeMount
+
+/**
+ * All type schemas that are derived from Executable
+ */
+export type ExecutableTypes =
+  | Executable
+  | Call
+  | CallArgument
+  | CodeChunk
+  | CodeExecutable
+  | CodeExpression
+  | Include
+  | Parameter
 
 /**
  * All type schemas that are derived from Grant
@@ -2319,13 +2366,13 @@ export type Node =
   | Cite
   | CiteGroup
   | Claim
-  | Code
   | CodeBlock
   | CodeChunk
   | CodeError
   | CodeExecutable
   | CodeExpression
   | CodeFragment
+  | CodeStatic
   | Collection
   | Comment
   | ConstantValidator
@@ -2336,9 +2383,11 @@ export type Node =
   | Date
   | DefinedTerm
   | Delete
+  | Directory
   | Emphasis
   | EnumValidator
   | Enumeration
+  | Executable
   | Figure
   | File
   | Function
@@ -2438,6 +2487,7 @@ export type ThingTypes =
   | Datatable
   | DatatableColumn
   | DefinedTerm
+  | Directory
   | Enumeration
   | Figure
   | File
@@ -3008,6 +3058,13 @@ last executed.
 
    */
   Failed = 'Failed',
+
+  /**
+   * Re-execution is required because the kernel that the node was last executed in
+was restarted.
+
+   */
+  KernelRestarted = 'KernelRestarted',
 }
 
 /**
@@ -3054,20 +3111,17 @@ export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }
 
 export const codeExecutableTypes: TypeMap<CodeExecutableTypes> = {
   CodeExecutable: 'CodeExecutable',
-  Call: 'Call',
   CodeChunk: 'CodeChunk',
   CodeExpression: 'CodeExpression',
-  Include: 'Include',
 }
-export const codeTypes: TypeMap<CodeTypes> = {
-  Code: 'Code',
-  Call: 'Call',
+export const codeStaticTypes: TypeMap<CodeStaticTypes> = {
+  CodeStatic: 'CodeStatic',
   CodeBlock: 'CodeBlock',
-  CodeChunk: 'CodeChunk',
-  CodeExecutable: 'CodeExecutable',
-  CodeExpression: 'CodeExpression',
   CodeFragment: 'CodeFragment',
-  Include: 'Include',
+}
+export const collectionTypes: TypeMap<CollectionTypes> = {
+  Collection: 'Collection',
+  Directory: 'Directory',
 }
 export const contactPointTypes: TypeMap<ContactPointTypes> = {
   ContactPoint: 'ContactPoint',
@@ -3081,6 +3135,7 @@ export const creativeWorkTypes: TypeMap<CreativeWorkTypes> = {
   Collection: 'Collection',
   Comment: 'Comment',
   Datatable: 'Datatable',
+  Directory: 'Directory',
   Figure: 'Figure',
   File: 'File',
   ImageObject: 'ImageObject',
@@ -3106,13 +3161,13 @@ export const entityTypes: TypeMap<EntityTypes> = {
   Cite: 'Cite',
   CiteGroup: 'CiteGroup',
   Claim: 'Claim',
-  Code: 'Code',
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
   CodeError: 'CodeError',
   CodeExecutable: 'CodeExecutable',
   CodeExpression: 'CodeExpression',
   CodeFragment: 'CodeFragment',
+  CodeStatic: 'CodeStatic',
   Collection: 'Collection',
   Comment: 'Comment',
   ConstantValidator: 'ConstantValidator',
@@ -3123,9 +3178,11 @@ export const entityTypes: TypeMap<EntityTypes> = {
   Date: 'Date',
   DefinedTerm: 'DefinedTerm',
   Delete: 'Delete',
+  Directory: 'Directory',
   Emphasis: 'Emphasis',
   EnumValidator: 'EnumValidator',
   Enumeration: 'Enumeration',
+  Executable: 'Executable',
   Figure: 'Figure',
   File: 'File',
   Function: 'Function',
@@ -3180,6 +3237,16 @@ export const entityTypes: TypeMap<EntityTypes> = {
   VideoObject: 'VideoObject',
   VolumeMount: 'VolumeMount',
 }
+export const executableTypes: TypeMap<ExecutableTypes> = {
+  Executable: 'Executable',
+  Call: 'Call',
+  CallArgument: 'CallArgument',
+  CodeChunk: 'CodeChunk',
+  CodeExecutable: 'CodeExecutable',
+  CodeExpression: 'CodeExpression',
+  Include: 'Include',
+  Parameter: 'Parameter',
+}
 export const grantTypes: TypeMap<GrantTypes> = {
   Grant: 'Grant',
   MonetaryGrant: 'MonetaryGrant',
@@ -3232,6 +3299,7 @@ export const thingTypes: TypeMap<ThingTypes> = {
   Datatable: 'Datatable',
   DatatableColumn: 'DatatableColumn',
   DefinedTerm: 'DefinedTerm',
+  Directory: 'Directory',
   Enumeration: 'Enumeration',
   Figure: 'Figure',
   File: 'File',
@@ -3273,7 +3341,6 @@ export const blockContentTypes: TypeMap<BlockContent> = {
   Claim: 'Claim',
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
-  Collection: 'Collection',
   Figure: 'Figure',
   Heading: 'Heading',
   Include: 'Include',
@@ -3312,10 +3379,12 @@ export const inlineContentTypes: TypeMap<
 
 export interface Unions {
   CodeExecutableTypes: CodeExecutableTypes
-  CodeTypes: CodeTypes
+  CodeStaticTypes: CodeStaticTypes
+  CollectionTypes: CollectionTypes
   ContactPointTypes: ContactPointTypes
   CreativeWorkTypes: CreativeWorkTypes
   EntityTypes: EntityTypes
+  ExecutableTypes: ExecutableTypes
   GrantTypes: GrantTypes
   IncludeTypes: IncludeTypes
   MarkTypes: MarkTypes
@@ -3331,10 +3400,12 @@ export interface Unions {
 
 export const unions = {
   CodeExecutableTypes: codeExecutableTypes,
-  CodeTypes: codeTypes,
+  CodeStaticTypes: codeStaticTypes,
+  CollectionTypes: collectionTypes,
   ContactPointTypes: contactPointTypes,
   CreativeWorkTypes: creativeWorkTypes,
   EntityTypes: entityTypes,
+  ExecutableTypes: executableTypes,
   GrantTypes: grantTypes,
   IncludeTypes: includeTypes,
   MarkTypes: markTypes,

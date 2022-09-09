@@ -1,6 +1,6 @@
 //! Functions for an interactive mode command line (REPL)
 
-use std::path::Path;
+use std::{fmt::Write, path::Path};
 
 use clap::Parser;
 use rustyline::error::ReadlineError;
@@ -23,7 +23,7 @@ fn help() -> String {
         .paint("Stencila CLI interactive mode\n\n")
         .to_string();
 
-    help += &Yellow.paint("ABOUT:").to_string();
+    help += &Yellow.paint("ABOUT:");
     help += r#"
 Interactive mode allows you to interact with the Stencila CLI
 without having to restart it. This is particularly useful for
@@ -41,7 +41,7 @@ interactive session (see the shortcut keystrokes below).
 
 "#;
 
-    help += &Yellow.paint("SHORTCUTS:\n").to_string();
+    help += &Yellow.paint("SHORTCUTS:\n");
     for (keys, desc) in &[
         ("--help", "Get help for the current command prefix"),
         ("^     ", "Print the current command prefix"),
@@ -56,7 +56,7 @@ interactive session (see the shortcut keystrokes below).
         ("Ctrl+C", "Cancel the current task (if any)"),
         ("Ctrl+D", "Exit interactive session"),
     ] {
-        help += &format!("    {} {}\n", Green.paint(*keys), desc)
+        writeln!(help, "    {} {}", Green.paint(*keys), desc).expect("Unable to write to string")
     }
 
     help
@@ -188,7 +188,6 @@ mod editor {
     use ansi_term::Colour::{Blue, White, Yellow};
     use rustyline::{
         completion::{Completer, FilenameCompleter, Pair},
-        config::OutputStreamType,
         highlight::{Highlighter, MatchingBracketHighlighter},
         hint::{Hinter, HistoryHinter},
         validate::{MatchingBracketValidator, Validator},
@@ -204,10 +203,9 @@ mod editor {
             .max_history_size(1000)
             .completion_type(CompletionType::List)
             .edit_mode(EditMode::Emacs)
-            .output_stream(OutputStreamType::Stdout)
             .build();
 
-        let mut editor = Editor::with_config(config);
+        let mut editor = Editor::with_config(config).expect("Unable to create editor");
 
         let helper = Helper::new();
         editor.set_helper(Some(helper));

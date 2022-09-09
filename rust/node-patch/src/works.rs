@@ -85,6 +85,40 @@ patchable_struct!(
 );
 
 patchable_struct!(
+    Directory,
+    //about,
+    alternate_names,
+    authors,
+    //comments,
+    content,
+    date_accepted,
+    date_created,
+    date_modified,
+    date_published,
+    date_received,
+    description,
+    editors,
+    //funded_by,
+    funders,
+    genre,
+    //identifiers,
+    //images,
+    is_part_of,
+    keywords,
+    licenses,
+    maintainers,
+    name,
+    parts,
+    path,
+    publisher,
+    references,
+    text,
+    title,
+    url,
+    version
+);
+
+patchable_struct!(
     File,
     //about,
     alternate_names,
@@ -293,6 +327,12 @@ patchable_variants!(
     ArticlePageEnd,
     ArticlePageEnd::String,
     ArticlePageEnd::Integer
+);
+
+patchable_variants!(
+    DirectoryParts,
+    DirectoryParts::File,
+    DirectoryParts::Directory
 );
 
 patchable_variants!(

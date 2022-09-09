@@ -30,10 +30,10 @@ impl ToHtml for Date {
 
 /// Encode a dependency of an executable code node
 ///
-/// Note that for this type, and for `CodeExecutableCodeDependents`, the node being
+/// Note that for this type, and for `ExecutableCodeDependents`, the node being
 /// encoded is a _partial_ copy of a node. So any properties encoded here must be copied
 /// across in the `node-execute::compile` module.
-impl ToHtml for CodeExecutableCodeDependencies {
+impl ToHtml for ExecutableCodeDependencies {
     fn to_html(&self, _context: &EncodeContext) -> String {
         let (
             node_kind,
@@ -44,7 +44,7 @@ impl ToHtml for CodeExecutableCodeDependencies {
             execute_required,
             execute_status,
         ) = match self {
-            CodeExecutableCodeDependencies::CodeChunk(CodeChunk {
+            ExecutableCodeDependencies::CodeChunk(CodeChunk {
                 id,
                 label,
                 programming_language,
@@ -61,7 +61,7 @@ impl ToHtml for CodeExecutableCodeDependencies {
                 execute_required.as_ref().map(|value| value.as_ref()),
                 execute_status.clone(),
             ),
-            CodeExecutableCodeDependencies::Parameter(Parameter {
+            ExecutableCodeDependencies::Parameter(Parameter {
                 id,
                 name,
                 execute_required,
@@ -75,7 +75,7 @@ impl ToHtml for CodeExecutableCodeDependencies {
                 execute_required.as_ref().map(|value| value.as_ref()),
                 None,
             ),
-            CodeExecutableCodeDependencies::File(File { path, .. }) => {
+            ExecutableCodeDependencies::File(File { path, .. }) => {
                 ("File", None, Some(path), None, None, None, None)
             }
         };
@@ -104,7 +104,7 @@ impl ToHtml for CodeExecutableCodeDependencies {
 }
 
 /// Encode a dependent of an executable code node
-impl ToHtml for CodeExecutableCodeDependents {
+impl ToHtml for ExecutableCodeDependents {
     fn to_html(&self, _context: &EncodeContext) -> String {
         let (
             node_kind,
@@ -115,7 +115,7 @@ impl ToHtml for CodeExecutableCodeDependents {
             execute_required,
             execute_status,
         ) = match self {
-            CodeExecutableCodeDependents::Call(Call {
+            ExecutableCodeDependents::Call(Call {
                 id,
                 source,
                 execute_auto,
@@ -132,7 +132,7 @@ impl ToHtml for CodeExecutableCodeDependents {
                 execute_status.as_ref().map(|value| value.as_ref()),
             ),
 
-            CodeExecutableCodeDependents::CodeChunk(CodeChunk {
+            ExecutableCodeDependents::CodeChunk(CodeChunk {
                 id,
                 label,
                 programming_language,
@@ -150,7 +150,7 @@ impl ToHtml for CodeExecutableCodeDependents {
                 execute_status.as_ref().map(|value| value.as_ref()),
             ),
 
-            CodeExecutableCodeDependents::CodeExpression(CodeExpression {
+            ExecutableCodeDependents::CodeExpression(CodeExpression {
                 id,
                 programming_language,
                 execute_required,
@@ -166,7 +166,7 @@ impl ToHtml for CodeExecutableCodeDependents {
                 execute_status.as_ref().map(|value| value.as_ref()),
             ),
 
-            CodeExecutableCodeDependents::File(File { path, .. }) => {
+            ExecutableCodeDependents::File(File { path, .. }) => {
                 ("File", None, Some(path), None, None, None, None)
             }
         };

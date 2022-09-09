@@ -14,6 +14,7 @@ events = { path = "../events" }
 formats = { path = "../formats" }
 graph = { path = "../graph" }
 graph-triples = { path = "../graph-triples" }
+ignore = "0.4.18"
 kernels = { path = "../kernels" }
 node-address = { path = "../node-address" }
 node-dispatch = { path = "../node-dispatch" }
@@ -23,12 +24,13 @@ node-query = { path = "../node-query" }
 node-reshape = { path = "../node-reshape" }
 node-transform = { path = "../node-transform" }
 node-validate = { path = "../node-validate" }
+notify = "4.0.17"
 parsers = { path = "../parsers" }
-providers = { path = "../providers" }
 path-utils = { path = "../path-utils" }
+providers = { path = "../providers" }
+statics = { path = "../statics" }
 stencila-schema = { path = "../schema" }
 uuids = { path = "../uuids" }
-notify = "4.0.17"
 
 cli-utils = { path = "../cli-utils", optional = true}
 

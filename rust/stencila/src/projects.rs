@@ -10,6 +10,7 @@ use notify::DebouncedEvent;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 
 use common::{
+    async_recursion::async_recursion,
     eyre::{bail, Result},
     glob,
     once_cell::sync::Lazy,
@@ -400,7 +401,7 @@ impl Project {
         let mut graph = Graph::new(self.path.clone());
 
         // Walk over files starting at the main file
-        #[async_recursion::async_recursion]
+        #[async_recursion]
         async fn walk(visited: &mut Vec<PathBuf>, path: &Path, graph: &mut Graph) -> Result<()> {
             let path_buf = path.to_path_buf();
             if visited.contains(&path_buf) || !path.exists() {
@@ -830,7 +831,9 @@ pub mod config {
     /// Projects
     ///
     /// Configuration settings for project defaults
-    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[derive(
+        Debug, Defaults, PartialEq, Eq, Clone, JsonSchema, Deserialize, Serialize, Validate,
+    )]
     #[serde(default, rename_all = "camelCase", crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct ProjectsConfig {

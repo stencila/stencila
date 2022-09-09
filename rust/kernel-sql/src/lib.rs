@@ -38,7 +38,7 @@ static SYMBOL_REGEX: Lazy<Regex> =
 static BINDING_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"\$([a-zA-Z_][a-zA-Z_0-9]*)").expect("Unable to create regex"));
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum MetaPool {
     Postgres(PgPool),
     Sqlite(SqlitePool),
@@ -48,7 +48,7 @@ type WatchedTables = Arc<RwLock<HashSet<String>>>;
 
 /// A kernel that executes SQL
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Serialize)]
+#[derive(Debug, Defaults, Clone, Serialize)]
 #[serde(crate = "kernel::common::serde")]
 pub struct SqlKernel {
     /// The kernel configuration containing the database URL

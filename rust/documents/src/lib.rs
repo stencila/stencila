@@ -1,9 +1,11 @@
 mod assemble;
+mod call;
 mod compile;
 mod document;
 mod documents;
 mod executable;
 mod execute;
+mod initialize;
 mod messages;
 mod utils;
 

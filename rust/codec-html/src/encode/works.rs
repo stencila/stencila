@@ -1,6 +1,6 @@
 //! Encode `CreativeWork` nodes to HTML
 
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, path::PathBuf};
 
 use codec::common::itertools::Itertools;
 use codec_txt::ToTxt;
@@ -9,8 +9,8 @@ use node_transform::Transform;
 use stencila_schema::*;
 
 use super::{
-    attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, concat, elem, elem_empty, json,
-    EncodeContext, ToHtml,
+    attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, attr_slot, concat, elem, elem_empty,
+    json, EncodeContext, ToHtml,
 };
 
 impl ToHtml for CreativeWorkTypes {
@@ -298,6 +298,42 @@ fn affiliation_org_to_html(org: &Organization) -> String {
         "</li>",
     ]
     .concat()
+}
+
+impl ToHtml for File {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        let toolbar = elem("stencila-document-toolbar", &[], "");
+
+        elem(
+            "stencila-file",
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[toolbar].concat(),
+        )
+    }
+}
+
+impl ToHtml for Directory {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        let toolbar = elem("stencila-document-toolbar", &[], "");
+
+        let parts = concat(&self.parts, |part| {
+            let name = match part {
+                DirectoryParts::File(File { name, .. }) => PathBuf::from(name)
+                    .file_stem()
+                    .map_or_else(|| name.clone(), |stem| stem.to_string_lossy().to_string()),
+                DirectoryParts::Directory(Directory { name, .. }) => name.clone(),
+            };
+            let link = elem("a", &[attr("href", &[&name, "/"].concat())], &name);
+            elem("li", &[attr_itemprop("parts")], &link)
+        });
+        let parts = elem("ul", &[attr_prop("parts"), attr_slot("parts")], &parts);
+
+        elem(
+            "stencila-directory",
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[toolbar, parts].concat(),
+        )
+    }
 }
 
 /// Generate HTML from the `BlockContent` analogue (e.g. `TableSimple`) or `InlineContent`

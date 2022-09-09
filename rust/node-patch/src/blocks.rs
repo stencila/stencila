@@ -88,6 +88,7 @@ patchable_struct!(
     execute_pure,
     execute_digest,
     execute_required,
+    execute_kernel,
     execute_status,
     execute_ended,
     execute_duration
@@ -104,16 +105,16 @@ patchable_variants!(
 replaceable_struct!(CodeError, error_message, error_type, stack_trace);
 
 patchable_variants!(
-    CodeExecutableCodeDependencies,
-    CodeExecutableCodeDependencies::CodeChunk,
-    CodeExecutableCodeDependencies::Parameter,
-    CodeExecutableCodeDependencies::File
+    ExecutableCodeDependencies,
+    ExecutableCodeDependencies::CodeChunk,
+    ExecutableCodeDependencies::Parameter,
+    ExecutableCodeDependencies::File
 );
 patchable_variants!(
-    CodeExecutableCodeDependents,
-    CodeExecutableCodeDependents::Call,
-    CodeExecutableCodeDependents::CodeChunk,
-    CodeExecutableCodeDependents::CodeExpression
+    ExecutableCodeDependents,
+    ExecutableCodeDependents::Call,
+    ExecutableCodeDependents::CodeChunk,
+    ExecutableCodeDependents::CodeExpression
 );
 patchable_enum!(ExecuteAuto);
 patchable_enum!(ExecuteRequired);
@@ -166,6 +167,7 @@ patchable_struct!(
     compile_digest,
     execute_digest,
     execute_required,
+    execute_kernel,
     execute_status,
     execute_ended,
     execute_duration,
@@ -184,6 +186,7 @@ patchable_struct!(
     compile_digest,
     execute_digest,
     execute_required,
+    execute_kernel,
     execute_status,
     execute_ended,
     execute_duration,
@@ -197,5 +200,3 @@ patchable_struct!(ThematicBreak);
 patchable_struct!(Claim, content, claim_type);
 patchable_struct!(ClaimSimple, content, claim_type);
 patchable_enum!(ClaimClaimType);
-
-patchable_struct!(CollectionSimple);

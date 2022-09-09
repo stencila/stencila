@@ -49,7 +49,7 @@ export function diff(a: JsonValue, b: JsonValue, address: Address = []): Patch {
   } else if (isArray(a) && isArray(b)) {
     const ops: Operation[] = []
     let prev: PatchItem<JsonValue> | undefined
-    for (const curr of getPatch(a, b, equal)) {
+    for (const curr of getPatch<JsonValue>(a, b, equal)) {
       if (curr.type === 'add') {
         if (
           prev?.type === 'remove' &&
@@ -93,10 +93,7 @@ export function diff(a: JsonValue, b: JsonValue, address: Address = []): Patch {
     for (const key in a) {
       if (key === 'type') continue
       if (key in b) {
-        ops.push(
-          ...diff(a[key] as JsonValue, b[key] as JsonValue, [...address, key])
-            .ops
-        )
+        ops.push(...diff(a[key], b[key], [...address, key]).ops)
       } else {
         ops.push({ type: 'Remove', address: [...address, key], items: 1 })
       }

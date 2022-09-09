@@ -1,7 +1,7 @@
 use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
     env,
-    fmt::Debug,
+    fmt::{Debug, Write},
     fs,
     path::{Path, PathBuf},
     sync::{
@@ -39,7 +39,7 @@ use common::{
 use documents::DOCUMENTS;
 use events::{subscribe, unsubscribe, Subscriber, SubscriptionId};
 use http_utils::{http, urlencoding};
-use server_next::statics::{get_static_parts, STATIC_VERSION};
+use server_next::statics::{get_static_parts, STATICS_VERSION};
 use stencila_schema::Node;
 use uuids::generate;
 
@@ -212,7 +212,7 @@ pub async fn serve<P: AsRef<Path>>(
     let mut url = format!("http://{}:{}/{}", server.address, server.port, url_path);
     if let Some(key) = &server.key {
         let token = jwt::encode(key, Some(project), expiry_seconds, single_use)?;
-        url += &format!("?token={}", token);
+        write!(url, "?token={}", token).expect("Unable to write to string");
     }
 
     Ok(url)
@@ -1275,7 +1275,7 @@ async fn terminal_handler(
       </script>
     </body>
 </html>"#,
-        static_root = ["/~static/", STATIC_VERSION].concat()
+        static_root = ["/~static/", STATICS_VERSION].concat()
     );
 
     let response = warp::reply::Response::new(html.into());
@@ -1670,7 +1670,7 @@ pub fn html_rewrite(
     home: &Path,
     document: &Path,
 ) -> String {
-    let static_root = ["/~static/", STATIC_VERSION].concat();
+    let static_root = ["/~static/", STATICS_VERSION].concat();
 
     // Head element for theme
     let themes = format!(
@@ -1950,7 +1950,9 @@ pub mod config {
     ///
     /// Configuration settings for running as a server
     #[skip_serializing_none]
-    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[derive(
+        Debug, Defaults, PartialEq, Eq, Clone, JsonSchema, Deserialize, Serialize, Validate,
+    )]
     #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct ServerConfig {

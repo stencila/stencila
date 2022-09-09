@@ -550,8 +550,11 @@ mod tests {
 
         // If the response is a server error (e.g. 503 Service Unavailable) then warn but do not fail
         let is_server_error = response.status().is_server_error();
-        let result = match response.error_for_status() {
-            Ok(response) => response.json().await?,
+        match response.error_for_status() {
+            Ok(response) => {
+                let result: serde_json::Value = response.json().await?;
+                assert_json_eq!(result, json!({"messages": []}));
+            }
             Err(error) => {
                 if is_server_error {
                     eprintln!("https://validator.w3.org/nu/ server error: {:}", error)
@@ -560,8 +563,6 @@ mod tests {
                 }
             }
         };
-
-        assert_json_eq!(result, json!({"messages": []}));
 
         Ok(())
     }

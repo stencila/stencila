@@ -107,6 +107,7 @@ while (!is.null(stdin)) {
         quit(save="no")
       }
 
+      should_exec <- TRUE
       should_exit <- FALSE
       if (lines[1] == FORK) {
         # The `eval_safe` function of https://github.com/jeroen/unix provides an alternative 
@@ -122,16 +123,26 @@ while (!is.null(stdin)) {
           next
         }
 
-        # Child process, so...
-        should_exit <- TRUE
-
         # Remove the FORK flag and the pipe paths from the front of lines
-        new_stdout <- lines[2]
-        new_stderr <- lines[3]
-        lines <- tail(lines, -3)
+        new_stdin <- lines[2]
+        new_stdout <- lines[3]
+        new_stderr <- lines[4]
+        lines <- tail(lines, -4)
 
-        # Set stdin to /dev/null to end loop
-        stdin <- NULL
+        # Close file descriptors so that we're not interfering with
+        # parent's file descriptors
+        closeAllConnections()
+
+        if (nzchar(new_stdin) > 0) {
+          # Replace stdin with pipe and do not execute code (which should be empty)
+          stdin <- file(new_stdin, open = "r", raw = TRUE)
+          should_exec <- FALSE   
+        } else {
+          # If there is no new stdin then set stdin to /dev/null to avoid getting more input
+          # and exit at end of loop
+          stdin <- NULL
+          should_exit <- TRUE
+        }
 
         # Replace stdout and stderr with pipes
         # These will normally be not NA except when using the FORK flag during manual testing
@@ -141,68 +152,70 @@ while (!is.null(stdin)) {
         }
       }
 
-      code <- paste0(lines, collapse = "\n")
-      compiled <- tryCatch(parse(text=code), error=identity)
-      if (inherits(compiled, "simpleError")) {
-        error(compiled, "SyntaxError")
-      } else {
-        # Default graphics device to avoid window popping up or `Rplot.pdf` polluting
-        # local directory. 
-        # `CairoPNG` is preferred instead of `png` to avoid "a forked child should not open a graphics device"
-        # which arises because X11 can not be used in a forked environment.
-        # The tempdir `check` is needed when forking.
-        file <- tempfile(tmpdir = tempdir(check=TRUE))
-        tryCatch(
-          Cairo::CairoPNG(file),
-          error = function(cond) png(file)
-        )
-        # Recording must be enabled for recordPlot() to work
-        dev.control("enable")
+      if (should_exec) {
+        code <- paste0(lines, collapse = "\n")
+        compiled <- tryCatch(parse(text=code), error=identity)
+        if (inherits(compiled, "simpleError")) {
+          error(compiled, "SyntaxError")
+        } else {
+          # Default graphics device to avoid window popping up or `Rplot.pdf` polluting
+          # local directory. 
+          # `CairoPNG` is preferred instead of `png` to avoid "a forked child should not open a graphics device"
+          # which arises because X11 can not be used in a forked environment.
+          # The tempdir `check` is needed when forking.
+          file <- tempfile(tmpdir = tempdir(check=TRUE))
+          tryCatch(
+            Cairo::CairoPNG(file),
+            error = function(cond) png(file)
+          )
+          # Recording must be enabled for recordPlot() to work
+          dev.control("enable")
 
-        # Capture output to stdout so we can add a terminating flag
-        #output <- textConnection("out", "w", local = TRUE)
-        #sink(output, type = "output")
+          # Capture output to stdout so we can add a terminating flag
+          #output <- textConnection("out", "w", local = TRUE)
+          #sink(output, type = "output")
 
-        value <- tryCatch(
-          eval(compiled, envir, .GlobalEnv),
-          message=info,
-          warning=warning,
-          error=error,
-          interrupt=interrupt
-        )
+          value <- tryCatch(
+            eval(compiled, envir, .GlobalEnv),
+            message=info,
+            warning=warning,
+            error=error,
+            interrupt=interrupt
+          )
 
-        # Get any output and reset the sink
-        #output_text <- textConnectionValue(output)
-        #sink(type = "output")
-        #close(output)
-        #if (nzchar(output_text)) {
-        #  write(paste0(output_text, RESULT), stdout)
-        #}
-        
-        # Ignore any values that are not visible
-        if (!withVisible(value)$visible) {
-          value <- NULL
+          # Get any output and reset the sink
+          #output_text <- textConnectionValue(output)
+          #sink(type = "output")
+          #close(output)
+          #if (nzchar(output_text)) {
+          #  write(paste0(output_text, RESULT), stdout)
+          #}
+          
+          # Ignore any values that are not visible
+          if (!withVisible(value)$visible) {
+            value <- NULL
+          }
+
+          # Capture plot and clear device
+          rec_plot <- recordPlot()
+          if (!is.null(rec_plot[[1]])) {
+            value <- rec_plot
+          }
+          dev.off()  
+
+          if (!is.null(value)) {
+            # Only return value if last line is not blank, a comment, or an assignment
+            last <- tail(lines, 1)
+            blank <- nchar(trimws(last)) == 0
+            comment <- startsWith(last, "#")
+            assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", last)
+            if (!blank && !comment && !assignment) write(paste0(encode_value(value), RESULT), stdout)
+          }
         }
 
-        # Capture plot and clear device
-        rec_plot <- recordPlot()
-        if (!is.null(rec_plot[[1]])) {
-          value <- rec_plot
-        }
-        dev.off()  
-
-        if (!is.null(value)) {
-          # Only return value if last line is not blank, a comment, or an assignment
-          last <- tail(lines, 1)
-          blank <- nchar(trimws(last)) == 0
-          comment <- startsWith(last, "#")
-          assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", last)
-          if (!blank && !comment && !assignment) write(paste0(encode_value(value), RESULT), stdout)
-        }
+        write(TASK, stdout)
+        write(TASK, stderr)
       }
-
-      write(TASK, stdout)
-      write(TASK, stderr)
 
       if (should_exit) {
         quit(save="no")

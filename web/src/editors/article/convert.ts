@@ -38,7 +38,7 @@ export function transformProsemirror(value: JsonValue): JsonValue {
     let index = 0
     let prev: JsonValue | undefined
     while (index < value.length) {
-      const curr = transformProsemirror(value[index] as JsonValue)
+      const curr = transformProsemirror(value[index])
       if (
         isObject(prev) &&
         isArray(prev.content) &&
@@ -64,7 +64,7 @@ export function transformProsemirror(value: JsonValue): JsonValue {
 
   // Transform properties of objects
   for (const key in object) {
-    object[key] = transformProsemirror(object[key] as JsonValue)
+    object[key] = transformProsemirror(object[key])
   }
 
   switch (object.type) {

@@ -2,6 +2,7 @@
 
 import json
 import os
+import resource
 from sys import exit, stdin, stdout, stderr
 
 from python_codec import decode_value, encode_exception, encode_message, encode_value
@@ -21,6 +22,18 @@ else:
     FORK = "\U0010DE70"
     NEWLINE = "\U0010B522"
     EXIT = "\U0010CC00"
+
+# Try to get the maximum number of file descriptors the process can have open
+#
+# SC_OPEN_MAX "The maximum number of files that a process can have open at any time" sysconf(3)
+# RLIMIT_NOFILE "specifies a value one greater than the maximum file descriptor number that can be opened by this process." getrlimit(2)
+try:
+    MAXFD = os.sysconf("SC_OPEN_MAX")
+except Exception:
+    try:
+        MAXFD = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+    except Exception:
+        MAXFD = 256
 
 # Monkey patch `print` to encode individual objects (if no options used)
 def print(*objects, sep=" ", end="\n", file=stdout, flush=False):
@@ -71,25 +84,28 @@ while True:
 
                 should_exec = False
             else:
-                # Child process, so should exit process after executing the code
-                should_exit = True
-
                 # Remove the FORK flag and the pipe paths from the front of lines
-                (new_stdout, new_stderr) = lines[1:3]
-                lines = lines[3:]
+                (new_stdin, new_stdout, new_stderr) = lines[1:4]
+                lines = lines[4:]
 
                 # Close file descriptors so that we're not interfering with
-                # parent's file descriptors and so stdin, stdout and stderr get replaced below.
-                # See https://gist.github.com/ionelmc/5038117 for a more sophisticated approach to this.
-                os.closerange(0, 1024)
+                # parent's file descriptors and so stdin, stdout and stderr get replaced below
+                # using the right index (0, 1, 2).
+                os.closerange(0, MAXFD)
 
-                # Set stdin to /dev/null to avoid getting more input
-                # and to end loop on next iteration
-                os.open("/dev/null", os.O_RDONLY)  # 0: stdin
+                if new_stdin:
+                    # Replace stdin with pipe and do not execute code (which should be empty)
+                    os.open(new_stdin, os.O_RDONLY)  # fd 0 = stdin
+                    should_exec = False
+                else:
+                    # If there is no new stdin then set stdin to /dev/null to avoid getting more input
+                    # and exit at end of loop
+                    os.open("/dev/null", os.O_RDONLY)  # fd 0 = stdin
+                    should_exit = True
 
                 # Replace stdout and stderr with pipes
-                os.open(new_stdout, os.O_WRONLY | os.O_TRUNC)  # 1: stdout
-                os.open(new_stderr, os.O_WRONLY | os.O_TRUNC)  # 2: stderr
+                os.open(new_stdout, os.O_WRONLY | os.O_TRUNC)  # fd 1 = stdout
+                os.open(new_stderr, os.O_WRONLY | os.O_TRUNC)  # fd 2 = stderr
 
         if should_exec:
             rest, last = lines[:-1], lines[-1]

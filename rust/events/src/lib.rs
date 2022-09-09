@@ -72,6 +72,7 @@ fn obtain() -> Result<MutexGuard<'static, HashMap<SubscriptionId, Subscription>>
 }
 
 /// Subscribe to a topic
+#[allow(clippy::let_unit_value)]
 pub fn subscribe(topic: &str, subscriber: Subscriber) -> Result<SubscriptionId> {
     tracing::trace!("Subscribing to topic `{}`", topic);
 
@@ -197,6 +198,7 @@ static INTERRUPT_LISTENER: Lazy<()> = Lazy::new(|| {
 /// when you want to be able to swap the interrupt channel for some other cancellation
 /// channel that is bounded and without a message type (ie. `mpsc::Sender<()>` rather than `mpsc::Sender<Message>`)
 /// and you don't need to unsubscribe.
+#[allow(clippy::let_unit_value)]
 pub async fn subscribe_to_interrupt(subscriber: mpsc::Sender<()>) {
     // Ensure the interrupt listener is started
     let _ = *INTERRUPT_LISTENER;

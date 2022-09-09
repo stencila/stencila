@@ -1,10 +1,10 @@
 title: Parameter
 '@id': stencila:Parameter
-extends: Entity
+extends: Executable
 role: secondary
-status: experimental
+status: unstable
 category: code
-description: A parameter of a document or function.
+description: A parameter of a document.
 properties:
   name:
     '@id': schema:name
@@ -29,29 +29,13 @@ properties:
     description: The validator that the value is validated against.
     allOf:
       - $ref: ValidatorTypes
-  compileDigest:
-    '@id': stencila:compileDigest
-    description: A digest of the value of the parameter.
-    type: string
-  executeDigest:
-    '@id': stencila:executeDigest
-    description: The `compileDigest` of the parameter when it was last executed.
-    type: string
-  executeRequired:
-    '@id': stencila:executeRequired
-    description: Whether, and why, the parameter needs execution or re-execution.
-    $ref: ExecuteRequired
-  isRequired:
-    '@id': schema:valueRequired
-    description: Is this parameter required, if not it should have a default or default is assumed to be null.
+  hidden:
+    '@id': stencila:hidden
+    description: Whether the parameter should be hidden.
     type: boolean
-  isVariadic:
-    '@id': stencila:isVariadic
-    description: Indicates that this parameter is variadic and can accept multiple arguments.
-    type: boolean
-  isExtensible:
-    '@id': stencila:isExtensible
-    description: Indicates that this parameter is variadic and can accept multiple named arguments.
-    type: boolean
+    default: false
+    $comment: |
+      For HTML renderings of a document it is often desirable to hide parameters of a
+      document that are already represented in the URL of the document.
 required:
   - name

@@ -146,7 +146,7 @@ mod tests {
 
     /// Test forking
     #[tokio::test]
-    async fn exec_fork() -> Result<()> {
+    async fn forking() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => {
                 if kernel.is_forkable().await {
@@ -183,6 +183,16 @@ mod tests {
         // Back in the parent kernel, var should still have its original value
         assert_json_eq!(var, kernel.get("var").await?);
         let (outputs, messages) = kernel.exec("var", None).await?;
+        assert_json_is!(messages, []);
+        assert_eq!(outputs.len(), 1);
+
+        // Now create a persistent fork and ensure were can execute multiple tasks in it including
+        // getting the original var and using the imported `runif` function
+        let mut fork = kernel.create_fork("").await?;
+        let (outputs, messages) = fork.exec("var", None).await?;
+        assert_json_is!(messages, []);
+        assert_json_is!(outputs, [var]);
+        let (outputs, messages) = fork.exec("runif(0, 1)", None).await?;
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
 

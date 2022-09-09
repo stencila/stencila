@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, path::Path, sync::Arc};
 
 use codec::{
     common::{
-        eyre::{bail, eyre, Result},
+        eyre::{bail, Result},
         once_cell::sync::Lazy,
         tracing,
     },
@@ -10,7 +10,7 @@ use codec::{
     Codec, CodecTrait,
 };
 use codec_format::FormatCodec;
-use formats::{match_name, Format, FormatNodeType, FormatSpec};
+use formats::{match_name, match_path, Format, FormatNodeType, FormatSpec};
 
 // Re-exports for use in other crates that call the following functions
 pub use codec::{DecodeOptions, EncodeOptions};
@@ -257,14 +257,10 @@ impl Codecs {
 
     /// Get a format from a path and supplied optional format
     fn format_from_path(path: &Path, format: Option<&str>) -> Result<(Format, FormatSpec)> {
-        let format = format
-            .map(|str| str.to_string())
-            .or_else(|| {
-                path.extension()
-                    .map(|os_str| os_str.to_string_lossy().into())
-            })
-            .ok_or_else(|| eyre!("No format supplied and path has no extension"))?;
-        let format = match_name(&format);
+        let format = match format {
+            Some(format) => match_name(format),
+            _ => match_path(path),
+        };
 
         let format_spec = format.spec();
 
@@ -320,8 +316,12 @@ impl Codecs {
             ..options.unwrap_or_default()
         });
 
-        if let Some(future) = dispatch_builtins!(format, from_path, path, options) {
+        if let Some(future) = dispatch_builtins!(format, from_path, path, options.clone()) {
             return future.await;
+        }
+
+        if let Ok(node) = FormatCodec::from_path(path, options).await {
+            return Ok(node);
         }
 
         bail!(
@@ -349,8 +349,12 @@ impl Codecs {
             ..options.unwrap_or_default()
         });
 
-        if let Some(future) = dispatch_builtins!(format, from_remote, path, options) {
+        if let Some(future) = dispatch_builtins!(format, from_remote, path, options.clone()) {
             return future.await;
+        }
+
+        if let Ok(node) = FormatCodec::from_remote(path, options).await {
+            return Ok(node);
         }
 
         bail!(

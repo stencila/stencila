@@ -25,14 +25,14 @@ pub(crate) const BASE_URL: &str = if cfg!(debug_assertions) {
 #[macro_export]
 macro_rules! api {
     ($template:expr $(, $par:expr)*) => {
-        [crate::utils::BASE_URL, "/api/v1/", &format!($template $(, $par)*)].concat()
+        [$crate::utils::BASE_URL, "/api/v1/", &format!($template $(, $par)*)].concat()
     };
 }
 
 #[macro_export]
 macro_rules! page {
     ($template:expr $(, $par:expr)*) => {
-        [crate::utils::BASE_URL, "/", &format!($template $(, $par)*)].concat()
+        [$crate::utils::BASE_URL, "/", &format!($template $(, $par)*)].concat()
     };
 }
 

@@ -180,7 +180,7 @@ pub async fn require_any(binaries: &[(&str, &str)]) -> Result<BinaryInstallation
             return Ok(installation);
         }
     }
-    match binaries.get(0) {
+    match binaries.first() {
         Some((name, semver)) => ensure(name, semver).await,
         None => bail!("No name/semver pairs provided"),
     }

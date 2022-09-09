@@ -1,80 +1,32 @@
 title: CodeExecutable
 '@id': stencila:CodeExecutable
-extends: Code
+extends: Executable
 role: base
 status: stable
 category: code
 description: Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
 $comment: |
-  Adds properties to the base `Code` node type that are necessary, or useful, for executable code.
-  Also makes the `programmingLanguage` property required since that is necessary to be able to execute it.
+  Adds properties to the base `Executable` node type that are necessary for executable code .
+  The added properties are the same as for static code nodes and both `text` and `programmingLanguage` are required.
 properties:
-  codeDependencies:
-    '@id': stencila:codeDependencies
-    description: The upstream dependencies of the code.
-    type: array
-    items:
-      anyOf:
-        - $ref: CodeChunk
-        - $ref: File
-        - $ref: Parameter
-    $comment: |
-      Note that this excludes `CodeExpression` nodes since they should not have side effects
-      (e.g. assigning variables) that would cause another node to be dependent upon them.
-  codeDependents:
-    '@id': stencila:codeDependents
-    description: The downstream dependents of the code.
-    type: array
-    items:
-      anyOf:
-        - $ref: Call
-        - $ref: CodeChunk
-        - $ref: CodeExpression
-        - $ref: File
-    $comment: |
-      Note that in comparison to `codeDependencies`, this property does not allow for `Parameter`
-      dependents (because parameters are never dependent upon others).
-  compileDigest:
-    '@id': stencila:compileDigest
-    description: A digest of the content, semantics and dependencies of the node.
+  text:
+    '@id': schema:text
+    description: The text of the code.
     type: string
-  executeCount:
-    '@id': stencila:executeCount
-    description: A count of the number of times that the node has been executed.
-    type: integer
-    minimum: 0
-    $comment: |
-      Intended to increment with each successive execution of the node, including across sessions.
-      Note that this differs to the `execution_count` in Jupyter Notebook format which is
-      the "code cell's prompt number" and which resets at the start of each new session.
-  executeDigest:
-    '@id': stencila:executeDigest
-    description: The `compileDigest` of the node when it was last executed.
+  programmingLanguage:
+    '@id': schema:programmingLanguage
+    description: The programming language of the code.
     type: string
-  executeRequired:
-    '@id': stencila:executeRequired
-    description: Whether, and why, the code requires execution or re-execution.
-    $ref: ExecuteRequired
-  executeStatus:
-    '@id': stencila:executeStatus
-    description: Status of the most recent, including any current, execution of the code.
-    $ref: ExecuteStatus
-  executeEnded:
-    '@id': stencila:executeEnded
-    description: The date-time that the the last execution of the code ended.
-    $ref: Date
-  executeDuration:
-    '@id': stencila:executeDuration
-    description: Duration in seconds of the last execution of the code.
-    type: number
-    minimum: 0
-  executeAuto:
-    '@id': stencila:executeAuto
-    description: Under which circumstances the code should be automatically executed.
-    $ref: ExecuteAuto
-  errors:
-    '@id': stencila:errors
-    description: Errors when compiling (e.g. syntax errors) or executing the chunk.
-    type: array
-    items:
-      $ref: CodeError
+  mediaType:
+    '@id': schema:encodingFormat
+    aliases:
+      - encodingFormat
+    description: Media type, typically expressed using a MIME format, of the code.
+    $comment: |
+      This property allows the differentiation of formats using the same programming language
+      or variants of a programming language. An example is using `programmingLanguage` "json" and
+      `encodingFormat` "application/ld+json" for JSON-LD code examples.
+    type: string
+required:
+  - text
+  - programmingLanguage

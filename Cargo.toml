@@ -4,7 +4,18 @@
 members = ["rust/*"]
 
 # Exclude crates that are alpha (needing work before they will compile and/or pass tests)
-exclude = ["rust/plugins"]
+# or are in process of being deprecated
+exclude = [
+    "rust/plugins",
+    "rust/buildpack",
+    "rust/buildpack-apt",
+    "rust/buildpack-dockerfile",
+    "rust/buildpack-node",
+    "rust/buildpack-python",
+    "rust/buildpack-r",
+    "rust/buildpack-stencila",
+    "rust/buildpacks"
+]
 
 [profile.release]
 # Settings that help reduce the binary size based on https://github.com/johnthagen/min-sized-rust

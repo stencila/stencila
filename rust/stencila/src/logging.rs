@@ -20,6 +20,7 @@ use events::publish;
     Clone,
     Copy,
     PartialEq,
+    Eq,
     PartialOrd,
     JsonSchema,
     Deserialize,
@@ -53,7 +54,16 @@ impl From<&tracing::Level> for LoggingLevel {
 
 /// Logging format
 #[derive(
-    Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, EnumString, EnumVariantNames,
+    Debug,
+    PartialEq,
+    Eq,
+    Clone,
+    Copy,
+    JsonSchema,
+    Deserialize,
+    Serialize,
+    EnumString,
+    EnumVariantNames,
 )]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
@@ -90,7 +100,7 @@ pub mod config {
     ///
     /// Configuration settings for log entries printed to stderr when using the CLI
     #[derive(
-        Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
+        Debug, Defaults, PartialEq, Eq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
     )]
     #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
@@ -108,7 +118,7 @@ pub mod config {
     ///
     /// Configuration settings for log entries shown to the user in the desktop
     #[derive(
-        Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
+        Debug, Defaults, PartialEq, Eq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
     )]
     #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
@@ -121,7 +131,9 @@ pub mod config {
     /// Logging to file
     ///
     /// Configuration settings for logs entries written to file
-    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[derive(
+        Debug, Defaults, PartialEq, Eq, Clone, JsonSchema, Deserialize, Serialize, Validate,
+    )]
     #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct LoggingFileConfig {
@@ -147,7 +159,9 @@ pub mod config {
     /// Logging
     ///
     /// Configuration settings for logging
-    #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[derive(
+        Debug, Default, PartialEq, Eq, Clone, JsonSchema, Deserialize, Serialize, Validate,
+    )]
     #[serde(default, crate = "common::serde")]
     #[schemars(deny_unknown_fields)]
     pub struct LoggingConfig {

@@ -239,7 +239,7 @@ export function receivePatch(
   event: DocumentEvent,
   callback: (patch: Patch) => void = applyPatch
 ): void {
-  let patch
+  let patch: Patch
   if (event.type === 'patched') {
     patch = event.patch as Patch
   } else {
@@ -253,8 +253,8 @@ export function receivePatch(
 
   // Check the patch sequence number and panic if out of order
   const lastSequence = window.stencilaWebClient.patchSequence
-  if (sequence != undefined && lastSequence != undefined) {
-    if (sequence != lastSequence + 1) {
+  if (sequence !== undefined && lastSequence !== undefined) {
+    if (sequence !== lastSequence + 1) {
       throw panic(
         `Expected patch sequence ${lastSequence + 1}, got ${sequence}`
       )
@@ -262,7 +262,7 @@ export function receivePatch(
   }
 
   // Update the client's patch sequence
-  if (sequence != undefined) {
+  if (sequence !== undefined) {
     window.stencilaWebClient.patchSequence = sequence
   }
 

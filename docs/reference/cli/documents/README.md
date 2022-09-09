@@ -4,15 +4,11 @@ parts:
   - open
   - close
   - show
-  - execute
-  - kernels
-  - tasks
-  - queues
-  - cancel
-  - symbols
-  - restart
+  - build
   - graph
+  - params
   - run
+  - plan
   - query
   - diff
   - merge
@@ -40,15 +36,11 @@ stencila documents [options] <subcommand>
 | [`open`](open.md) | Open a document |
 | [`close`](close.md) | Close a document |
 | [`show`](show.md) | Show a document |
-| [`execute`](execute.md) | Execute code within a document kernel space |
-| [`kernels`](kernels.md) | List the kernels in a document kernel space |
-| [`tasks`](tasks.md) | List the code execution tasks in a document kernel space |
-| [`queues`](queues.md) | Show the code execution queues in a document kernel space |
-| [`cancel`](cancel.md) | Cancel a code execution task, or all tasks, in a document kernel space |
-| [`symbols`](symbols.md) | Show the code symbols in a document kernel space |
-| [`restart`](restart.md) | Restart one or all of the kernels |
+| [`build`](build.md) | Build a document |
 | [`graph`](graph.md) | Output the dependency graph for a document |
+| [`params`](params.md) | Show the parameters of a document |
 | [`run`](run.md) | Run a document |
+| [`plan`](plan.md) | Generate an execution plan for a document |
 | [`query`](query.md) | Query a document |
 | [`diff`](diff.md) | Display the structural differences between two documents |
 | [`merge`](merge.md) | Merge changes from two or more derived versions of a document |

@@ -21,7 +21,7 @@ use graph_triples::{
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, AddressMap, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
-use node_patch::{diff_address, diff_id, Patch};
+use node_patch::{diff_address, diff_id, produce, Patch};
 use node_pointer::Pointer;
 
 use node_query::query;
@@ -210,12 +210,12 @@ impl Executable for Link {
     }
 }
 
-/// Compile to `content_url` property of `MediaObject` node types
+/// Compile the `content_url` property of `MediaObject` node types
 ///
 /// If the `content_url` property is  a `file://` URL (implicitly
 /// or explicitly) then resolves the file path, records it as
 /// a file dependency, and returns an absolute `file://` URL.
-fn executable_content_url(content_url: &str, context: &mut CompileContext) -> String {
+fn compile_content_url(content_url: &str, context: &mut CompileContext) -> String {
     if content_url.starts_with("http://")
         || content_url.starts_with("https://")
         || content_url.starts_with("data:")
@@ -255,6 +255,10 @@ fn executable_content_url(content_url: &str, context: &mut CompileContext) -> St
 }
 
 /// Compile a `MediaObject` node type
+///
+/// Note that this patches the `content_url` property so that any absolute file path
+/// that is resolved in `compile_content_url()` is available, for example
+/// for encoding to other formats.
 macro_rules! executable_media_object {
     ($type:ty, $prefix:expr) => {
         #[async_trait]
@@ -272,7 +276,7 @@ macro_rules! executable_media_object {
                 let id = assert_id!(self)?;
                 let resource = resources::node(&context.path, &id, stringify!($type));
 
-                let url = executable_content_url(&self.content_url, context);
+                let url = compile_content_url(&self.content_url, context);
                 let object = if url.starts_with("http") || url.starts_with("data:") {
                     resources::url(&url)
                 } else {
@@ -285,17 +289,22 @@ macro_rules! executable_media_object {
                     ResourceInfo::new(resource, Some(relations), None, None, None, None, None);
                 context.resource_infos.push(resource_info);
 
+                let patch = produce(self, Some(id.clone()), None, |draft| {
+                    draft.content_url = url.clone();
+                });
+                context.patches.push(patch);
+
                 Ok(())
             }
         }
     };
 }
 
+executable_media_object!(MediaObject, "me");
 executable_media_object!(AudioObject, "au");
 executable_media_object!(AudioObjectSimple, "au");
 executable_media_object!(ImageObject, "im");
 executable_media_object!(ImageObjectSimple, "im");
-executable_media_object!(MediaObject, "me");
 executable_media_object!(VideoObject, "vi");
 executable_media_object!(VideoObjectSimple, "vi");
 
@@ -398,7 +407,7 @@ impl Executable for Parameter {
 
         let value = parameter_value(self);
 
-        kernel_space
+        let kernel_id = kernel_space
             .set(&self.name, value.clone(), kernel_selector)
             .await?;
 
@@ -408,6 +417,7 @@ impl Executable for Parameter {
         self.compile_digest = Some(digest.clone());
         self.execute_digest = Some(digest);
         self.execute_required = Some(ExecuteRequired::No);
+        self.execute_kernel = Some(Box::new(kernel_id));
 
         Ok(None)
     }
@@ -529,6 +539,7 @@ impl Executable for CodeChunk {
         self.execute_status = Some(execute_status);
         self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
         self.execute_duration = task_info.duration().map(Number);
+        self.execute_kernel = task_info.kernel_id.map(Box::new);
 
         // Update outputs and errors
         self.outputs = if outputs.is_empty() {
@@ -653,6 +664,7 @@ impl Executable for CodeExpression {
         self.execute_status = Some(execute_status);
         self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
         self.execute_duration = task_info.duration().map(Number);
+        self.execute_kernel = task_info.kernel_id.map(Box::new);
 
         // Update output and errors
         self.output = outputs.get(0).map(|output| Box::new(output.clone()));
@@ -1291,7 +1303,7 @@ macro_rules! executable_fields {
 executable_fields!(CiteGroup, items);
 
 executable_fields!(Collection, parts);
-executable_fields!(CollectionSimple, parts);
+executable_fields!(Directory, parts);
 
 executable_fields!(List, items);
 executable_fields!(ListItem, item, content);
@@ -1357,6 +1369,12 @@ executable_variants!(
     CreativeWorkContent,
     CreativeWorkContent::String,
     CreativeWorkContent::VecNode
+);
+
+executable_variants!(
+    DirectoryParts,
+    DirectoryParts::File,
+    DirectoryParts::Directory
 );
 
 executable_variants!(

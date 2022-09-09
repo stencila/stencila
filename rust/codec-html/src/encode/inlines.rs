@@ -1,6 +1,6 @@
 //! Encode `InlineContent` nodes to HTML
 
-use std::{fs, path::PathBuf};
+use std::{fmt::Write, fs, path::PathBuf};
 
 use codec::common::{base64, tracing};
 use stencila_schema::*;
@@ -303,12 +303,14 @@ impl ToHtml for Cite {
                                     } else {
                                         format!(r#"{} et al"#, names[0])
                                     };
-                                    content += &format!(r#"<span>{}</span>"#, names)
+                                    write!(content, r#"<span>{}</span>"#, names)
+                                        .expect("Unable to write to string")
                                 }
                                 if let Some(date) = date {
                                     if date.value.len() >= 4 {
                                         let year = date.value[..4].to_string();
-                                        content += &format!(r#"<span>{}</span>"#, year)
+                                        write!(content, r#"<span>{}</span>"#, year)
+                                            .expect("Unable to write to string")
                                     }
                                 }
                             }
@@ -358,6 +360,13 @@ impl ToHtml for CodeExpression {
             self.execute_required
                 .as_ref()
                 .map(|required| (*required).as_ref().to_string()),
+        );
+
+        let execute_kernel = attr_and_meta_opt(
+            "execute_kernel",
+            self.execute_kernel
+                .as_deref()
+                .map(|kernel| kernel.to_string()),
         );
 
         let execute_status = attr_and_meta_opt(
@@ -427,6 +436,7 @@ impl ToHtml for CodeExpression {
                 compile_digest.0,
                 execute_digest.0,
                 execute_required.0,
+                execute_kernel.0,
                 execute_status.0,
                 execute_ended.0,
                 execute_duration.0,
@@ -436,6 +446,7 @@ impl ToHtml for CodeExpression {
                 compile_digest.1,
                 execute_digest.1,
                 execute_required.1,
+                execute_kernel.1,
                 execute_status.1,
                 execute_ended.1,
                 execute_duration.1,

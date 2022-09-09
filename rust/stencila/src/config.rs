@@ -70,7 +70,7 @@ impl ConfigEvent {
     }
 }
 
-#[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
 #[serde(default, crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Config {
@@ -95,7 +95,7 @@ pub struct Config {
 /// Editors
 ///
 /// Configuration settings for document editors.
-#[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize)]
+#[derive(Debug, Defaults, PartialEq, Eq, Clone, JsonSchema, Deserialize, Serialize)]
 #[serde(default, rename_all = "camelCase", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct EditorsConfig {

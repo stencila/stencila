@@ -4,8 +4,8 @@ parts:
   - show
   - detect
   - enrich
-  - import
-  - export
+  - pull
+  - push
   - cron
 ---
 
@@ -30,9 +30,9 @@ stencila providers [options] <subcommand>
 | [`show`](show.md) | Show the specifications of a provider |
 | [`detect`](detect.md) | Detect nodes within a file or string |
 | [`enrich`](enrich.md) | Enrich nodes within a file or string |
-| [`import`](import.md) | Import content from a remote source to a local path |
-| [`export`](export.md) | Export content from a local path to a remote source |
-| [`cron`](cron.md) | Schedule import and/or export between remote source and a local path |
+| [`pull`](pull.md) | Pull files or content from a remote source to a local path |
+| [`push`](push.md) | Push files or content from a local path to a remote source |
+| [`cron`](cron.md) | Schedule pull and/or push between remote source and a local path |
 | `help` | Print help information |
 
 
