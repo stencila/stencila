@@ -5,23 +5,23 @@ import { onDiscoverExecutableLanguages } from './events/kernels'
 import { languages } from './kernels'
 import * as sessions from './sessions'
 
-export type { Document, Patch, Session } from './types'
-export type { Client } from './client'
-
 // The form of the following re-exports is a workaround for the error
 // "@parcel/transformer-typescript-types: node.exportClause.elements is not iterable"
 // See https://github.com/parcel-bundler/parcel/issues/5911#issuecomment-1007642717
 
 import * as client_ from './client'
-export const client = { ...client_ }
 
 import * as documents_ from './documents'
-export const documents = { ...documents_ }
 
 import * as patches_ from './patches'
-export const patches = { ...patches_ }
 
 import * as uid from './utils/uid'
+
+export type { Document, Patch, Session } from './types'
+export type { Client } from './client'
+export const client = { ...client_ }
+export const documents = { ...documents_ }
+export const patches = { ...patches_ }
 export const utils = { ...uid }
 
 export const main = (

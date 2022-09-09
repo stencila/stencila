@@ -3,13 +3,13 @@
 // See https://github.com/parcel-bundler/parcel/issues/5911#issuecomment-1007642717
 
 import * as codemirror_ from './codemirror'
-export const codemirror = { ...codemirror_ }
 
 import * as dom_ from './dom'
-export const dom = { ...dom_ }
 
 import * as json_ from './json'
-export const json = { ...json_ }
 
 import * as string_ from './string'
+export const codemirror = { ...codemirror_ }
+export const dom = { ...dom_ }
+export const json = { ...json_ }
 export const string = { ...string_ }

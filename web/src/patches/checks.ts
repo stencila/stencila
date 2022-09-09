@@ -24,7 +24,7 @@ import { Slot } from '../types'
  * Reloads the document to get a new DOM state and then throws an exception for
  * early exit from the calling function.
  */
-export function panic(message: string) {
+export function panic(message: string): Error {
   console.error(message)
 
   // During development create an alert so developer can inspect DOM
@@ -43,12 +43,15 @@ export function panic(message: string) {
       .then((html) => {
         const root = document.body.querySelector('[data-root]')
         if (root) {
-          root.parentElement.insertBefore(HtmlFragment(html), root)
+          root.parentElement?.insertBefore(HtmlFragment(html), root)
           root.remove()
 
           client.resettingRoot = false
           client.patchSequence = undefined
         }
+      })
+      .catch((error) => {
+        console.error('While attempting to recover from panic', error)
       })
   }
 

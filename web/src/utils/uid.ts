@@ -10,7 +10,7 @@ const idGenerator: Record<number, () => string> = {}
 const nanoid = (size = 20): string => {
   let uidGenerator = idGenerator[size]
 
-  if (uidGenerator) {
+  if (uidGenerator !== undefined) {
     return uidGenerator()
   } else {
     uidGenerator = customAlphabet(

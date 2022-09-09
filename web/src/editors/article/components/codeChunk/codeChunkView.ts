@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { EditorView as CMEditorView } from '@codemirror/view'
 import '@stencila/components'
 import { Keymap } from '@stencila/components/dist/types/components/editor/editor'
