@@ -198,7 +198,6 @@ impl Taskfile {
     /// See https://taskfile.dev/styleguide/.
     fn dump(&self) -> Result<String> {
         let yaml = serde_yaml::to_string(self)?;
-        let yaml = yaml.strip_prefix("---\n").unwrap_or(yaml.as_str());
 
         static PROP_REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new("(?m)^[a-z]+:").expect("Unable to create regex"));

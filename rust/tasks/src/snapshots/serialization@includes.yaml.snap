@@ -1,10 +1,10 @@
 ---
 source: rust/tasks/src/taskfile.rs
-assertion_line: 756
+assertion_line: 2007
 expression: yaml
 input_file: fixtures/taskfiles/includes.yaml
 ---
-version: "3"
+version: '3'
 
 includes:
   include-as-string: hello.yaml
@@ -15,3 +15,4 @@ includes:
   include-with-optional:
     taskfile: does-no-exist.yaml
     optional: true
+

@@ -1,21 +1,21 @@
 ---
 source: rust/tasks/src/taskfile.rs
-assertion_line: 2005
+assertion_line: 2007
 expression: yaml
 input_file: fixtures/taskfiles/scheduled-and-watched.yaml
 ---
-version: "3"
+version: '3'
 
 tasks:
   scheduled:
     silent: true
     schedule: Every 10 seconds
     cmds:
-      - "echo \"This is {{.TASK}} at $(date)\""
+    - echo "This is {{.TASK}} at $(date)"
 
   watched:
     silent: true
     watches: scheduled-and-watched.yaml
     cmds:
-      - "echo \"This is {{.TASK}} at $(date)\""
+    - echo "This is {{.TASK}} at $(date)"
 

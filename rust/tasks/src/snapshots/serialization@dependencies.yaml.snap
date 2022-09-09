@@ -1,26 +1,27 @@
 ---
 source: rust/tasks/src/taskfile.rs
-assertion_line: 756
+assertion_line: 2007
 expression: yaml
 input_file: fixtures/taskfiles/dependencies.yaml
 ---
-version: "3"
+version: '3'
 
 tasks:
   default:
     deps:
-      - a
-      - b
-      - task: c
-        vars:
-          VAR: Var for c
+    - a
+    - b
+    - task: c
+      vars:
+        VAR: Var for c
 
   a:
     deps:
-      - b
+    - b
     cmds:
-      - "echo 'This is task {{.TASK}}'"
+    - echo 'This is task {{.TASK}}'
 
-  b: "echo 'This is task {{.TASK}}'"
+  b: echo 'This is task {{.TASK}}'
 
-  c: "echo 'This is task c {{.VAR}}'"
+  c: echo 'This is task c {{.VAR}}'
+
