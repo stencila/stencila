@@ -188,7 +188,6 @@ mod editor {
     use ansi_term::Colour::{Blue, White, Yellow};
     use rustyline::{
         completion::{Completer, FilenameCompleter, Pair},
-        config::OutputStreamType,
         highlight::{Highlighter, MatchingBracketHighlighter},
         hint::{Hinter, HistoryHinter},
         validate::{MatchingBracketValidator, Validator},
@@ -204,10 +203,9 @@ mod editor {
             .max_history_size(1000)
             .completion_type(CompletionType::List)
             .edit_mode(EditMode::Emacs)
-            .output_stream(OutputStreamType::Stdout)
             .build();
 
-        let mut editor = Editor::with_config(config);
+        let mut editor = Editor::with_config(config).expect("Unable to create editor");
 
         let helper = Helper::new();
         editor.set_helper(Some(helper));
