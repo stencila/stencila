@@ -17,6 +17,7 @@ cli-utils = { path = "../cli-utils" , optional = true}
 parser-bash = { path = "../parser-bash" , optional = true}
 parser-calc = { path = "../parser-calc" , optional = true}
 parser-js = { path = "../parser-js" , optional = true}
+parser-prql = { path = "../parser-prql" , optional = true}
 parser-py = { path = "../parser-py" , optional = true}
 parser-r = { path = "../parser-r" , optional = true}
 parser-rust = { path = "../parser-rust" , optional = true}

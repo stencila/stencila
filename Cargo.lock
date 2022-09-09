@@ -76,6 +76,9 @@ name = "anyhow"
 version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9a8f622bcf6ff3df478e9deba3e03e4e04b300f8e6a139e192c05fa3490afc7"
+dependencies = [
+ "backtrace",
+]
 
 [[package]]
 name = "archive-utils"
@@ -88,6 +91,15 @@ dependencies = [
  "xz2",
  "zip",
  "zstd",
+]
+
+[[package]]
+name = "ariadne"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1cb2a2046bea8ce5e875551f5772024882de0b540c7f93dfc5d6cf1ca8b030c"
+dependencies = [
+ "yansi",
 ]
 
 [[package]]
@@ -639,9 +651,9 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
-version = "3.4.0"
+version = "3.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e8c087f005730276d1096a652e92a8bacee2e2472bcc9715a74d2bec38b5820"
+checksum = "c1ad822118d20d2c234f427000d5acc36eabe1e29a348c89b63dd60b13f28e5d"
 
 [[package]]
 name = "byte-tools"
@@ -959,6 +971,15 @@ dependencies = [
  "termimad",
  "tracing-subscriber",
  "urlencoding 2.1.2",
+]
+
+[[package]]
+name = "clio"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c850d26e67812ca0adb581c77e4ad1fd0a27ea3a8f8205fddfe7d5f52b783788"
+dependencies = [
+ "libc",
 ]
 
 [[package]]
@@ -2080,6 +2101,18 @@ name = "enum-as-inner"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "570d109b813e904becc80d8d5da38376818a143348413f7149f1340fe04754d4"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "enum-as-inner"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c9720bba047d567ffc8a3cba48bf19126600e249ab7f128e9233e6376976a116"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -3514,6 +3547,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-prql"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-sql",
+ "prql-compiler",
+]
+
+[[package]]
 name = "kernel-python"
 version = "0.0.0"
 dependencies = [
@@ -3585,6 +3627,7 @@ dependencies = [
  "kernel-jupyter",
  "kernel-micro",
  "kernel-node",
+ "kernel-prql",
  "kernel-python",
  "kernel-r",
  "kernel-sql",
@@ -4695,6 +4738,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "parser-prql"
+version = "0.0.0"
+dependencies = [
+ "parser",
+ "parser-sql",
+ "prql-compiler",
+ "test-snaps",
+ "test-utils",
+]
+
+[[package]]
 name = "parser-py"
 version = "0.0.0"
 dependencies = [
@@ -4765,6 +4819,7 @@ dependencies = [
  "parser-bash",
  "parser-calc",
  "parser-js",
+ "parser-prql",
  "parser-py",
  "parser-r",
  "parser-rust",
@@ -5299,6 +5354,31 @@ dependencies = [
  "provider-gitlab",
  "provider-http",
  "test-utils",
+]
+
+[[package]]
+name = "prql-compiler"
+version = "0.2.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38110b53ae667375862e5017b67c1bb685a462f4f0a6c933300f2856aef8582c"
+dependencies = [
+ "anyhow",
+ "ariadne",
+ "atty",
+ "clap",
+ "clio",
+ "color-eyre",
+ "enum-as-inner 0.5.1",
+ "itertools",
+ "pest",
+ "pest_derive",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "sqlformat 0.2.0",
+ "sqlparser",
+ "strum",
+ "strum_macros",
 ]
 
 [[package]]
@@ -6546,6 +6626,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "sqlformat"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f87e292b4291f154971a43c3774364e2cbcaec599d3f5bf6fa9d122885dbc38a"
+dependencies = [
+ "itertools",
+ "nom",
+ "unicode_categories",
+]
+
+[[package]]
+name = "sqlparser"
+version = "0.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8ec7ef1bad82a2453dbaef7218b6f036e545edcce1ffd55f6e7af7bea43cce2"
+dependencies = [
+ "log",
+ "serde",
+]
+
+[[package]]
 name = "sqlx"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6601,7 +6702,7 @@ dependencies = [
  "sha-1 0.10.0",
  "sha2 0.10.5",
  "smallvec",
- "sqlformat",
+ "sqlformat 0.1.8",
  "sqlx-rt",
  "stringprep",
  "thiserror",
@@ -7529,7 +7630,7 @@ dependencies = [
  "async-trait",
  "cfg-if 1.0.0",
  "data-encoding",
- "enum-as-inner",
+ "enum-as-inner 0.3.4",
  "futures-channel",
  "futures-io",
  "futures-util",
@@ -7977,9 +8078,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-futures"
-version = "0.4.28"
+version = "0.4.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e8d7523cb1f2a4c96c1317ca690031b714a51cc14e05f712446691f413f5d39"
+checksum = "fa76fb221a1f8acddf5b54ace85912606980ad661ac7a503b4570ffd3a624dad"
 dependencies = [
  "cfg-if 1.0.0",
  "js-sys",
@@ -8018,9 +8119,9 @@ checksum = "6598dd0bd3c7d51095ff6531a5b23e02acdc81804e30d8f07afb77b7215a140a"
 
 [[package]]
 name = "web-sys"
-version = "0.3.55"
+version = "0.3.59"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38eb105f1c59d9eaa6b5cdc92b859d85b926e82cb2e0945cd0c9259faa6fe9fb"
+checksum = "ed055ab27f941423197eb86b2035720b1a3ce40504df082cac2ecc6ed73335a1"
 dependencies = [
  "js-sys",
  "wasm-bindgen",

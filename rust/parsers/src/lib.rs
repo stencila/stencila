@@ -41,6 +41,8 @@ macro_rules! dispatch_builtins {
             Format::Calc => Some(parser_calc::CalcParser::$method($($arg),*)),
             #[cfg(feature = "parser-js")]
             Format::JavaScript => Some(parser_js::JsParser::$method($($arg),*)),
+            #[cfg(feature = "parser-prql")]
+            Format::PrQL => Some(parser_prql::PrqlParser::$method($($arg),*)),
             #[cfg(feature = "parser-py")]
             Format::Python => Some(parser_py::PyParser::$method($($arg),*)),
             #[cfg(feature = "parser-r")]
@@ -72,6 +74,8 @@ impl Parsers {
             ("calc", parser_calc::CalcParser::spec()),
             #[cfg(feature = "parser-js")]
             ("js", parser_js::JsParser::spec()),
+            #[cfg(feature = "parser-py")]
+            ("prql", parser_prql::PrqlParser::spec()),
             #[cfg(feature = "parser-py")]
             ("py", parser_py::PyParser::spec()),
             #[cfg(feature = "parser-r")]

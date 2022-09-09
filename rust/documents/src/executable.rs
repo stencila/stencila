@@ -460,14 +460,13 @@ impl Executable for CodeChunk {
         let id = assert_id!(self)?;
         let lang = ensure_lang!(self, context);
 
-        // Generate `ResourceInfo` by parsing the code
+        // Generate `ResourceInfo` by parsing the code. If there is a passing error
+        // still generate resource info but do not generate errors since the user may
+        // still be in the process of writing code
         let resource = resources::code(&context.path, id, "CodeChunk", Some(lang));
-        let mut resource_info = match parsers::parse(resource, &self.text) {
+        let mut resource_info = match parsers::parse(resource.clone(), &self.text) {
             Ok(resource_info) => resource_info,
-            Err(error) => {
-                tracing::debug!("While parsing code chunk `{}`: {}", id, error);
-                return Ok(());
-            }
+            Err(..) => ResourceInfo::default(resource),
         };
 
         // Update the resource info with properties from the node
@@ -580,19 +579,18 @@ impl Executable for CodeExpression {
         let id = assert_id!(self)?;
         let lang = ensure_lang!(self, context);
 
-        // Generate `ResourceInfo` by parsing the code
+        // Generate `ResourceInfo` by parsing the code. If there is a passing error
+        // still generate resource info but do not generate errors since the user may
+        // still be in the process of writing code
         let resource = resources::code(
             &context.path,
             id,
             "CodeExpression",
             Some(normalize_title(&lang)),
         );
-        let mut resource_info = match parsers::parse(resource, &self.text) {
+        let mut resource_info = match parsers::parse(resource.clone(), &self.text) {
             Ok(resource_info) => resource_info,
-            Err(error) => {
-                tracing::debug!("While parsing code expression `{}`: {}", id, error);
-                return Ok(());
-            }
+            Err(..) => ResourceInfo::default(resource),
         };
 
         // Update the resource info (which has (an incomplete) `compile_digest`) with the `execute_digest` from

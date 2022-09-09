@@ -46,14 +46,17 @@ enum MetaKernel {
     #[cfg(feature = "kernel-calc")]
     Calc(kernel_calc::CalcKernel),
 
+    #[cfg(feature = "kernel-sql")]
+    Sql(kernel_sql::SqlKernel),
+
+    #[cfg(feature = "kernel-prql")]
+    Prql(kernel_prql::PrqlKernel),
+
     #[cfg(feature = "kernel-micro")]
     Micro(kernel_micro::MicroKernel),
 
     #[cfg(feature = "kernel-jupyter")]
     Jupyter(kernel_jupyter::JupyterKernel),
-
-    #[cfg(feature = "kernel-sql")]
-    Sql(kernel_sql::SqlKernel),
 }
 
 impl MetaKernel {
@@ -94,6 +97,12 @@ impl MetaKernel {
             kernel_sql::SqlKernel::new(selector, resource_changes_sender.clone())
         );
 
+        matches_kernel!(
+            "kernel-prql",
+            MetaKernel::Prql,
+            kernel_prql::PrqlKernel::new(selector, resource_changes_sender.clone())
+        );
+
         matches_kernel!("kernel-bash", MetaKernel::Micro, kernel_bash::new());
         matches_kernel!("kernel-deno", MetaKernel::Micro, kernel_deno::new());
         matches_kernel!("kernel-node", MetaKernel::Micro, kernel_node::new());
@@ -131,6 +140,9 @@ impl MetaKernel {
             #[cfg(feature = "kernel-sql")]
             MetaKernel::Sql(kernel) => Ok((MetaKernel::Sql(kernel.clone()), true)),
 
+            #[cfg(feature = "kernel-prql")]
+            MetaKernel::Prql(kernel) => Ok((MetaKernel::Prql(kernel.clone()), true)),
+
             #[cfg(feature = "kernel-micro")]
             MetaKernel::Micro(kernel) => {
                 let (kernel, is_clone) = if kernel.is_forkable().await {
@@ -158,6 +170,8 @@ macro_rules! dispatch_variants {
             MetaKernel::Calc(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-sql")]
             MetaKernel::Sql(kernel) => kernel.$method($($arg),*),
+            #[cfg(feature = "kernel-prql")]
+            MetaKernel::Prql(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-micro")]
             MetaKernel::Micro(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-jupyter")]
@@ -1393,6 +1407,13 @@ pub async fn available() -> Vec<Kernel> {
     #[cfg(feature = "kernel-sql")]
     available.push(
         kernel_sql::SqlKernel::new(&KernelSelector::default(), None)
+            .spec()
+            .await,
+    );
+
+    #[cfg(feature = "kernel-prql")]
+    available.push(
+        kernel_prql::PrqlKernel::new(&KernelSelector::default(), None)
             .spec()
             .await,
     );
