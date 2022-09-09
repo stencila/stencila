@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 parser-treesitter = { path = "../parser-treesitter" }
-tree-sitter-sql = { git = "https://github.com/nokome/tree-sitter-sql", rev = "6afc167f6ac120727fbc3e0d721e168414f15795" }
+tree-sitter-sql = { git = "https://github.com/nokome/tree-sitter-sql", rev = "622388189d08a95e22de0f24b987c73fd9946b67" }
 
 [dev-dependencies]
 test-snaps = { path = "../test-snaps" }

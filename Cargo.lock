@@ -7484,7 +7484,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-sql"
 version = "0.0.2"
-source = "git+https://github.com/nokome/tree-sitter-sql?rev=6afc167f6ac120727fbc3e0d721e168414f15795#6afc167f6ac120727fbc3e0d721e168414f15795"
+source = "git+https://github.com/nokome/tree-sitter-sql?rev=622388189d08a95e22de0f24b987c73fd9946b67#622388189d08a95e22de0f24b987c73fd9946b67"
 dependencies = [
  "cc",
  "tree-sitter",
