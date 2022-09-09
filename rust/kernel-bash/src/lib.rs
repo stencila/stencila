@@ -49,7 +49,7 @@ mod tests {
         }
 
         // Assign a variable and output it
-        let (outputs, messages) = kernel.exec("a=2\necho $a", None).await?;
+        let (outputs, messages) = kernel.exec("a=2\necho $a\n", None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [2]);
 
@@ -73,7 +73,7 @@ mod tests {
         assert_json_eq!(b, 3);
 
         // Use both variables
-        let (outputs, messages) = kernel.exec("echo $a$b", None).await?;
+        let (outputs, messages) = kernel.exec("echo $a$b\n", None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [23]);
 
