@@ -16,11 +16,7 @@ use kernels::{Kernel, KernelSpace, KernelType};
 use node_address::Slot;
 use node_patch::{Operation, Patch};
 use stencila_schema::Node;
-use test_snaps::{
-    fixtures,
-    insta::{self, assert_json_snapshot},
-    snapshot_set_suffix,
-};
+use test_snaps::{fixtures, insta::assert_json_snapshot, snapshot_set_suffix};
 
 use crate::{
     assemble::assemble,
@@ -42,12 +38,6 @@ async fn md_articles() -> Result<()> {
         .into_iter()
         .filter(|kernel| matches!(kernel.r#type, KernelType::Builtin))
         .collect();
-
-    let mut settings = insta::Settings::clone_current();
-    settings.set_prepend_module_to_snapshot(false);
-
-    #[allow(deprecated)] // Using bind_to_scope leads to renaming of snapshot files
-    settings.bind_to_thread();
 
     for name in ["code.md", "code-relations.md"] {
         let path = fixtures.join("articles").join(name);

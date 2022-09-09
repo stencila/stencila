@@ -1,11 +1,11 @@
 ---
-source: rust/node-execute/src/lib.rs
+source: rust/documents/src/tests.rs
+assertion_line: 122
 expression: "&plan"
-
 ---
 {
   "options": {
-    "ordering": "Topological",
+    "ordering": "Appearance",
     "max_concurrency": 10
   },
   "stages": []

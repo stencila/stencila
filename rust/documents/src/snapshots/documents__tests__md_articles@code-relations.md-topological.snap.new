@@ -1,6 +1,6 @@
 ---
 source: rust/documents/src/tests.rs
-assertion_line: 131
+assertion_line: 122
 expression: "&plan"
 ---
 {
