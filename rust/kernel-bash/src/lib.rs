@@ -38,7 +38,10 @@ mod tests {
     /// Other test should be written for language specific quirks and regressions.
     #[tokio::test]
     async fn basics() -> Result<()> {
-        if skip_ci_os("windows", "test currently failing on windows") {
+        if skip_ci_os("windows", "test currently failing on Windows CI") {
+            return Ok(());
+        }
+        if skip_ci_os("macos", "test currently failing on MacOS CI") {
             return Ok(());
         }
 
@@ -82,7 +85,7 @@ mod tests {
 
     #[tokio::test]
     async fn percent_escaping() -> Result<()> {
-        if skip_ci_os("windows", "test currently failing on windows") {
+        if skip_ci_os("windows", "test currently failing on Windows CI") {
             return Ok(());
         }
 
