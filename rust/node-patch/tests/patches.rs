@@ -125,10 +125,8 @@ proptest! {
     // Vectors of block content
     #[test]
     fn vecs_blocks(
-        // TODO: For some reason, related to the fact that EnumValidator uses `replaceable_struct!` macro,
-        // this test fails. Excluded for now but in the long term, fix, or do not use `replaceable_struct!`.
-        a in vec_block_content(Freedom::Low, vec!["EnumValidator".to_string()]),
-        b in vec_block_content(Freedom::Low, vec!["EnumValidator".to_string()]),
+        a in vec_block_content(Freedom::Low, vec![]),
+        b in vec_block_content(Freedom::Low, vec![]),
     ) {
         let patch = diff(&a, &b);
         assert_json_eq!(apply_new(&a, &patch).unwrap(), b)
