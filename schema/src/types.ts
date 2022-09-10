@@ -966,7 +966,7 @@ export const audioObject = (props: Omit<AudioObject, 'type'>): AudioObject => ({
 export type DatatableColumn = Thing & {
   type: 'DatatableColumn'
   name: string
-  values: Array<Node>
+  values: Array<Primitive>
   validator?: ArrayValidator
 }
 

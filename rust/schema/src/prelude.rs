@@ -12,6 +12,8 @@ pub use std::{
 };
 pub use strum::{AsRefStr, EnumString};
 
+use crate::Primitive;
+
 /// A null value
 ///
 /// This is a struct, rather than a unit variant of `Primitive`, so that
@@ -116,19 +118,6 @@ pub type Array = Vec<Primitive>;
 ///
 /// Uses `BTreeMap` to preserve order.
 pub type Object = BTreeMap<String, Primitive>;
-
-/// The set of primitive (non-Entity) node types
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum Primitive {
-    Null(Null),
-    Boolean(Boolean),
-    Integer(Integer),
-    Number(Number),
-    String(String),
-    Object(Object),
-    Array(Array),
-}
 
 /// A newtype derived from `String`
 ///

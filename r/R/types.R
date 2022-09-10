@@ -2135,7 +2135,7 @@ DatatableColumn <- function(
   )
   self$type <- as_scalar("DatatableColumn")
   self[["name"]] <- check_property("DatatableColumn", "name", TRUE, missing(name), "character", name)
-  self[["values"]] <- check_property("DatatableColumn", "values", TRUE, missing(values), Array(Node), values)
+  self[["values"]] <- check_property("DatatableColumn", "values", TRUE, missing(values), Array(Primitive), values)
   self[["validator"]] <- check_property("DatatableColumn", "validator", FALSE, missing(validator), ArrayValidator, validator)
   class(self) <- c(class(self), "DatatableColumn")
   self

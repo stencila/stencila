@@ -2104,7 +2104,7 @@ pub struct DatatableColumn {
     pub name: String,
 
     /// The data values of the column.
-    pub values: Vec<Node>,
+    pub values: Vec<Primitive>,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,

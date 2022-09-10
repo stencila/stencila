@@ -1900,7 +1900,7 @@ class DatatableColumn(Thing):
     name: String # type: ignore
     """The name of the item."""
 
-    values: Array[Any]
+    values: Array["Primitive"]
     """The data values of the column."""
 
     validator: Optional["ArrayValidator"] = None
@@ -1910,7 +1910,7 @@ class DatatableColumn(Thing):
     def __init__(
         self,
         name: String,
-        values: Array[Any],
+        values: Array["Primitive"],
         alternateNames: Optional[Array[String]] = None,
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         id: Optional[String] = None,

@@ -8,7 +8,6 @@ pub use prelude::Integer;
 pub use prelude::Null;
 pub use prelude::Number;
 pub use prelude::Object;
-pub use prelude::Primitive;
 
 #[allow(non_camel_case_types)]
 #[rustfmt::skip]

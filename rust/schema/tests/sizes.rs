@@ -176,6 +176,18 @@ fn sizes() {
 
     println!();
     println!("----------------------------------------------");
+    sizeof!(Primitive);
+    println!("----------------------------------------------");
+    sizeof!(Boolean);
+    sizeof!(Integer);
+    sizeof!(Number);
+    sizeof!(String);
+    sizeof!(Array);
+    sizeof!(Object);
+    println!("----------------------------------------------");
+
+    println!();
+    println!("----------------------------------------------");
     println!("Reference");
     println!("----------------------------------------------");
     sizeof!(bool);
