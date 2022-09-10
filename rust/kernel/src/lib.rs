@@ -751,8 +751,8 @@ mod test {
         );
 
         assert!(KernelSelector::parse("foo").matches(&k));
-        assert!(KernelSelector::parse("bar").matches(&k));
-        assert!(KernelSelector::parse("baz").matches(&k));
+        assert!(KernelSelector::parse("bash").matches(&k));
+        assert!(KernelSelector::parse("zsh").matches(&k));
         assert!(KernelSelector::parse("name:foo").matches(&k));
         assert!(KernelSelector::parse("lang:bash").matches(&k));
         assert!(KernelSelector::parse("lang:zsh").matches(&k));
