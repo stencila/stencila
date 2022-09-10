@@ -20,7 +20,7 @@ use kernel::{
     },
     stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node, Null,
-        Number, NumberValidator, StringValidator, ValidatorTypes,
+        Number, NumberValidator, Primitive, StringValidator, ValidatorTypes,
     },
 };
 
@@ -104,31 +104,34 @@ pub async fn query_to_datatable(
     // Pre-allocate an vector of the size needed to hold all values and insert them in
     // column-first order
     let rows_len = rows.len();
-    let mut values: Vec<Node> = vec![Node::Null(Null {}); columns.len() * rows_len];
+    let mut values: Vec<Primitive> = vec![Primitive::Null(Null {}); columns.len() * rows_len];
     for (row_index, row) in rows.into_iter().enumerate() {
         for (col_index, (_name, col_type, ..)) in columns.iter().enumerate() {
             let position = col_index * rows_len + row_index;
             let value = match col_type.as_str() {
                 "BOOL" => row
                     .try_get::<bool, usize>(col_index)
-                    .map(Node::Boolean)
+                    .map(Primitive::Boolean)
                     .ok(),
                 "INT4" => row
                     .try_get::<i32, usize>(col_index)
-                    .map(|int| Node::Integer(int as i64))
+                    .map(|int| Primitive::Integer(int as i64))
                     .ok(),
-                "INT8" => row.try_get::<i64, usize>(col_index).map(Node::Integer).ok(),
+                "INT8" => row
+                    .try_get::<i64, usize>(col_index)
+                    .map(Primitive::Integer)
+                    .ok(),
                 "FLOAT4" => row
                     .try_get::<f32, usize>(col_index)
-                    .map(|num| Node::Number(Number(num as f64)))
+                    .map(|num| Primitive::Number(Number(num as f64)))
                     .ok(),
                 "FLOAT8" => row
                     .try_get::<f64, usize>(col_index)
-                    .map(|num| Node::Number(Number(num)))
+                    .map(|num| Primitive::Number(Number(num)))
                     .ok(),
                 "TEXT" => row
                     .try_get::<String, usize>(col_index)
-                    .map(Node::String)
+                    .map(Primitive::String)
                     .ok(),
                 "JSON" => row
                     .try_get::<serde_json::Value, usize>(col_index)
@@ -138,7 +141,7 @@ pub async fn query_to_datatable(
                     .try_get_unchecked::<String, usize>(col_index)
                     .ok()
                     .and_then(|string| {
-                        serde_json::from_str(&string).unwrap_or(Some(Node::String(string)))
+                        serde_json::from_str(&string).unwrap_or(Some(Primitive::String(string)))
                     }),
             };
             if let Some(value) = value {
@@ -247,7 +250,7 @@ pub async fn table_from_datatable(name: &str, datatable: Datatable, pool: &PgPoo
             Some(ValidatorTypes::BooleanValidator(..)) => {
                 let values = values
                     .map(|node| match node {
-                        Node::Boolean(value) => Some(*value),
+                        Primitive::Boolean(value) => Some(*value),
                         _ => None,
                     })
                     .collect_vec();
@@ -256,7 +259,7 @@ pub async fn table_from_datatable(name: &str, datatable: Datatable, pool: &PgPoo
             Some(ValidatorTypes::IntegerValidator(..)) => {
                 let values = values
                     .map(|node| match node {
-                        Node::Integer(value) => Some(*value),
+                        Primitive::Integer(value) => Some(*value),
                         _ => None,
                     })
                     .collect_vec();
@@ -265,7 +268,7 @@ pub async fn table_from_datatable(name: &str, datatable: Datatable, pool: &PgPoo
             Some(ValidatorTypes::NumberValidator(..)) => {
                 let values = values
                     .map(|node| match node {
-                        Node::Number(value) => Some(value.0),
+                        Primitive::Number(value) => Some(value.0),
                         _ => None,
                     })
                     .collect_vec();
@@ -274,7 +277,7 @@ pub async fn table_from_datatable(name: &str, datatable: Datatable, pool: &PgPoo
             Some(ValidatorTypes::StringValidator(..)) => {
                 let values = values
                     .map(|node| match node {
-                        Node::String(value) => Some(value.clone()),
+                        Primitive::String(value) => Some(value.clone()),
                         _ => None,
                     })
                     .collect_vec();

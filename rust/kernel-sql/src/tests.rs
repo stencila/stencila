@@ -60,7 +60,7 @@ async fn test(config: &str) -> Result<()> {
             ))),
             ..Default::default()
         })),
-        values: vec![Node::Boolean(true); rows],
+        values: vec![Primitive::Boolean(true); rows],
         ..Default::default()
     };
     let col_2 = DatatableColumn {
@@ -72,7 +72,7 @@ async fn test(config: &str) -> Result<()> {
             ..Default::default()
         })),
         values: (0..rows)
-            .map(|index| Node::Integer(index as i64))
+            .map(|index| Primitive::Integer(index as i64))
             .collect_vec(),
         ..Default::default()
     };
@@ -85,7 +85,7 @@ async fn test(config: &str) -> Result<()> {
             ..Default::default()
         })),
         values: (0..rows)
-            .map(|index| Node::Number(Number(index as f64)))
+            .map(|index| Primitive::Number(Number(index as f64)))
             .collect_vec(),
         ..Default::default()
     };
@@ -98,7 +98,7 @@ async fn test(config: &str) -> Result<()> {
             ..Default::default()
         })),
         values: (0..rows)
-            .map(|index| Node::String(format!("string-{}", index)))
+            .map(|index| Primitive::String(format!("string-{}", index)))
             .collect_vec(),
         ..Default::default()
     };
@@ -106,7 +106,7 @@ async fn test(config: &str) -> Result<()> {
         name: "col_5".to_string(),
         validator: None,
         values: (0..rows)
-            .map(|index| Node::Array(vec![Primitive::Integer(index as i64)]))
+            .map(|index| Primitive::Array(vec![Primitive::Integer(index as i64)]))
             .collect_vec(),
         ..Default::default()
     };
@@ -135,7 +135,7 @@ async fn test(config: &str) -> Result<()> {
     let query_2 = kernel.exec("SELECT 123;", Format::SQL, None).await?;
     match &query_2.0[0] {
         Node::Datatable(datatable) => {
-            assert_eq!(datatable.columns[0].values[0], Node::Integer(123))
+            assert_eq!(datatable.columns[0].values[0], Primitive::Integer(123))
         }
         _ => bail!("Should be a datatable!"),
     }
@@ -154,7 +154,7 @@ async fn test(config: &str) -> Result<()> {
         Node::Datatable(datatable) => {
             assert_eq!(
                 datatable.columns[0].values[0],
-                Node::String("string-3".to_string())
+                Primitive::String("string-3".to_string())
             )
         }
         _ => bail!("Should be a datatable!"),
