@@ -1,6 +1,6 @@
 ---
 source: rust/parser-prql/src/lib.rs
-assertion_line: 59
+assertion_line: 58
 expression: resource_info
 input_file: fixtures/fragments/prql/2.prql
 ---
@@ -10,7 +10,7 @@ input_file: fixtures/fragments/prql/2.prql
     "path": "fragments/prql/2.prql",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "PRQL"
+    "language": "prql"
   },
   "relations": [
     [

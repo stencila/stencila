@@ -15,8 +15,6 @@ use parser_treesitter::{
 /// A parser for SQL
 pub struct SqlParser;
 
-static LANG: Lazy<String> = Lazy::new(|| Format::SQL.spec().title);
-
 const QUERY: &str = include_str!("query.scm");
 
 static PARSER: Lazy<TreesitterParser> =
@@ -25,7 +23,7 @@ static PARSER: Lazy<TreesitterParser> =
 impl ParserTrait for SqlParser {
     fn spec() -> Parser {
         Parser {
-            language: LANG.clone(),
+            language: Format::SQL
         }
     }
 
@@ -83,7 +81,7 @@ impl ParserTrait for SqlParser {
         let resource_info = resource_info(
             resource,
             path,
-            &Self::spec().language,
+            Self::spec().language,
             code,
             &tree,
             &["comment"],
@@ -109,7 +107,7 @@ mod tests {
         snapshot_fixtures("fragments/sql/*.sql", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Some("SQL".to_string()));
+            let resource = resources::code(path, "", "SoftwareSourceCode", Format::SQL);
             let resource_info = SqlParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })
@@ -120,7 +118,7 @@ mod tests {
     fn do_not_panic_on_numeric_bindings() -> Result<()> {
         let code = "SELECT * FROM table_1 WHERE col_1 = $1 OR col_1 = ?1";
         let path = PathBuf::new();
-        let resource = resources::code(&path, "", "SoftwareSourceCode", Some("SQL".to_string()));
+        let resource = resources::code(&path, "", "SoftwareSourceCode", Format::SQL);
         SqlParser::parse(resource, &path, code)?;
         Ok(())
     }

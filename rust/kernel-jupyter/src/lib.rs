@@ -29,6 +29,7 @@ use kernel::{
         },
         tracing,
     },
+    formats::{self, Format},
     stencila_schema::{CodeError, Node},
     Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
@@ -608,7 +609,8 @@ impl JupyterKernel {
 
         // Run any startup code
         if let Some(code) = startup(&self.language)? {
-            self.exec(&code, None).await?;
+            let lang = formats::match_name(&self.language);
+            self.exec(&code, lang, None).await?;
         }
 
         Ok(())
@@ -728,7 +730,7 @@ impl KernelTrait for JupyterKernel {
         Kernel::new(
             &self.name,
             KernelType::Jupyter,
-            &[&self.language],
+            &[formats::match_name(&self.language)],
             true,
             false,
             false,
@@ -794,7 +796,8 @@ impl KernelTrait for JupyterKernel {
 
     async fn stop(&mut self) -> Result<()> {
         if let Some(code) = shutdown(&self.language)? {
-            self.exec(&code, None).await?;
+            let lang = formats::match_name(&self.language);
+            self.exec(&code, lang, None).await?;
         }
 
         if let Some(JupyterDetails {
@@ -853,7 +856,8 @@ impl KernelTrait for JupyterKernel {
     async fn set(&mut self, name: &str, value: Node) -> Result<()> {
         let json = serde_json::to_string(&value)?;
         if let Some(code) = set(&self.language, name, &json)? {
-            let (.., _errors) = self.exec(&code, None).await?;
+            let lang = formats::match_name(&self.language);
+            let (.., _errors) = self.exec(&code, lang, None).await?;
             // TODO: Check for any errors
             Ok(())
         } else {
@@ -864,7 +868,12 @@ impl KernelTrait for JupyterKernel {
         }
     }
 
-    async fn exec_sync(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_sync(
+        &mut self,
+        code: &str,
+        _lang: Format,
+        _tags: Option<&TagMap>,
+    ) -> Result<Task> {
         // TODO: Use interruptable async task
         let mut task = Task::begin_sync();
 

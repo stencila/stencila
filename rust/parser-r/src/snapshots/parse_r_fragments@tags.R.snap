@@ -10,7 +10,7 @@ input_file: fixtures/fragments/r/tags.R
     "path": "fragments/r/tags.R",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "R"
+    "language": "r"
   },
   "relations": [
     [
@@ -25,7 +25,7 @@ input_file: fixtures/fragments/r/tags.R
       },
       {
         "type": "Module",
-        "language": "R",
+        "language": "r",
         "name": "pkg1"
       }
     ],
@@ -41,7 +41,7 @@ input_file: fixtures/fragments/r/tags.R
       },
       {
         "type": "Module",
-        "language": "R",
+        "language": "r",
         "name": "pkg2"
       }
     ],
@@ -57,7 +57,7 @@ input_file: fixtures/fragments/r/tags.R
       },
       {
         "type": "Module",
-        "language": "R",
+        "language": "r",
         "name": "pk3"
       }
     ],
@@ -73,7 +73,7 @@ input_file: fixtures/fragments/r/tags.R
       },
       {
         "type": "Module",
-        "language": "R",
+        "language": "r",
         "name": "pkg4"
       }
     ],

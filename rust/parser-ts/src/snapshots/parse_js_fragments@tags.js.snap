@@ -1,6 +1,6 @@
 ---
 source: rust/parser-ts/src/lib.rs
-assertion_line: 136
+assertion_line: 126
 expression: resource_info
 input_file: fixtures/fragments/js/tags.js
 ---
@@ -10,7 +10,7 @@ input_file: fixtures/fragments/js/tags.js
     "path": "fragments/js/tags.js",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "JavaScript"
+    "language": "javascript"
   },
   "relations": [
     [
@@ -42,7 +42,7 @@ input_file: fixtures/fragments/js/tags.js
       },
       {
         "type": "Module",
-        "language": "TypeScript",
+        "language": "typescript",
         "name": "mod1"
       }
     ],
@@ -58,7 +58,7 @@ input_file: fixtures/fragments/js/tags.js
       },
       {
         "type": "Module",
-        "language": "TypeScript",
+        "language": "typescript",
         "name": "mod2"
       }
     ],
@@ -74,7 +74,7 @@ input_file: fixtures/fragments/js/tags.js
       },
       {
         "type": "Module",
-        "language": "TypeScript",
+        "language": "typescript",
         "name": "mod3"
       }
     ],

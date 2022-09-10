@@ -24,7 +24,7 @@ pub struct JsParser {}
 impl ParserTrait for JsParser {
     fn spec() -> Parser {
         Parser {
-            language: Format::JavaScript.spec().title,
+            language: Format::JavaScript,
         }
     }
 
@@ -41,7 +41,7 @@ impl ParserTrait for JsParser {
         let resource_info = resource_info(
             resource,
             path,
-            &Self::spec().language,
+            Self::spec().language,
             code,
             &tree,
             &["comment"],
@@ -75,7 +75,7 @@ pub fn handle_patterns(
             let object = if module.starts_with("./") {
                 resources::file(&path_utils::merge(path, &[&module, ".js"].concat()))
             } else {
-                resources::module("javascript", &module)
+                resources::module(Format::JavaScript, &module)
             };
             Some((relations::imports(range), object))
         }
@@ -205,12 +205,7 @@ mod tests {
         snapshot_fixtures("fragments/js/*.js", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(
-                path,
-                "",
-                "SoftwareSourceCode",
-                Some("JavaScript".to_string()),
-            );
+            let resource = resources::code(path, "", "SoftwareSourceCode", Format::JavaScript);
             let resource_info = JsParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })

@@ -1,6 +1,6 @@
 use parser::{
     graph_triples::{relations::Range, resources::ResourceDigest, Pairs, Resource, ResourceInfo},
-    utils::apply_tags,
+    utils::apply_tags, formats::Format,
 };
 use std::{collections::HashMap, path::Path, sync::Mutex};
 use tree_sitter::Tree;
@@ -211,7 +211,7 @@ pub fn child_text<'tree>(
 pub fn resource_info(
     resource: Resource,
     path: &Path,
-    lang: &str,
+    lang: Format,
     code: &[u8],
     tree: &Tree,
     semantics_exclude: &[&str],

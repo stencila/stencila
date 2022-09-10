@@ -1,6 +1,6 @@
 ---
 source: rust/parser-py/src/lib.rs
-assertion_line: 223
+assertion_line: 222
 expression: resource_info
 input_file: fixtures/fragments/py/assigns.py
 ---
@@ -10,7 +10,7 @@ input_file: fixtures/fragments/py/assigns.py
     "path": "fragments/py/assigns.py",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "Python"
+    "language": "python"
   },
   "relations": [
     [

@@ -1,6 +1,6 @@
 ---
 source: rust/parser-ts/src/lib.rs
-assertion_line: 120
+assertion_line: 115
 expression: resource_info
 input_file: fixtures/fragments/ts/declares.ts
 ---
@@ -10,7 +10,7 @@ input_file: fixtures/fragments/ts/declares.ts
     "path": "fragments/ts/declares.ts",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "TypeScript"
+    "language": "typescript"
   },
   "relations": [
     [

@@ -6,6 +6,7 @@ use parser::{
         once_cell::sync::Lazy,
         regex::{Captures, Regex},
     },
+    formats::Format,
     graph_triples::{Resource, ResourceInfo},
     Parser, ParserTrait,
 };
@@ -22,7 +23,7 @@ pub struct PrqlParser;
 impl ParserTrait for PrqlParser {
     fn spec() -> Parser {
         Parser {
-            language: "PrQL".to_string(),
+            language: Format::PrQL,
         }
     }
 
@@ -42,7 +43,7 @@ impl ParserTrait for PrqlParser {
 
 #[cfg(test)]
 mod tests {
-    use parser::graph_triples::resources;
+    use parser::{formats::Format, graph_triples::resources};
     use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
     use test_utils::fixtures;
 
@@ -53,8 +54,7 @@ mod tests {
         snapshot_fixtures("fragments/prql/*.prql", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource =
-                resources::code(path, "", "SoftwareSourceCode", Some("PRQL".to_string()));
+            let resource = resources::code(path, "", "SoftwareSourceCode", Format::PrQL);
             let resource_info = PrqlParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })

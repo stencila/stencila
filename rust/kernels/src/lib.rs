@@ -7,7 +7,8 @@ use std::{
 };
 
 use common::{once_cell::sync::Lazy, strum::AsRefStr, tokio::sync::RwLock};
-use graph_triples::{ResourceChange, ResourceInfo};
+use formats::Format;
+use graph_triples::{resources::Code, Resource, ResourceChange, ResourceInfo};
 #[allow(unused_imports)]
 use kernel::{
     common::{
@@ -221,21 +222,27 @@ impl KernelTrait for MetaKernel {
     async fn exec(
         &mut self,
         code: &str,
+        lang: Format,
         tags: Option<&TagMap>,
     ) -> Result<(TaskOutputs, TaskMessages)> {
-        dispatch_variants!(self, exec, code, tags).await
+        dispatch_variants!(self, exec, code, lang, tags).await
     }
 
-    async fn exec_sync(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
-        dispatch_variants!(self, exec_sync, code, tags).await
+    async fn exec_sync(&mut self, code: &str, lang: Format, tags: Option<&TagMap>) -> Result<Task> {
+        dispatch_variants!(self, exec_sync, code, lang, tags).await
     }
 
-    async fn exec_async(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
-        dispatch_variants!(self, exec_async, code, tags).await
+    async fn exec_async(
+        &mut self,
+        code: &str,
+        lang: Format,
+        tags: Option<&TagMap>,
+    ) -> Result<Task> {
+        dispatch_variants!(self, exec_async, code, lang, tags).await
     }
 
-    async fn exec_fork(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
-        dispatch_variants!(self, exec_fork, code, tags).await
+    async fn exec_fork(&mut self, code: &str, lang: Format, tags: Option<&TagMap>) -> Result<Task> {
+        dispatch_variants!(self, exec_fork, code, lang, tags).await
     }
 }
 
@@ -415,6 +422,7 @@ impl KernelMap {
     #[cfg(feature = "cli")]
     pub async fn display(&self) -> cli_utils::Result {
         use cli_utils::result;
+        use common::itertools::Itertools;
 
         let list = self.list().await;
 
@@ -429,12 +437,15 @@ impl KernelMap {
                     info.status,
                     info.spec.r#type,
                     info.spec.name,
-                    info.spec.languages.join(", "),
+                    info.spec
+                        .languages
+                        .iter()
+                        .map(|format| format.spec().title)
+                        .join(", "),
                     info.interruptable,
                     info.forkable
                 )
             })
-            .collect::<Vec<String>>()
             .join("\n");
 
         let md = format!(
@@ -1082,6 +1093,10 @@ impl KernelSpace {
 
         // Execute the code in the kernel, or a fork
         let kernel = kernels.get_mut(&kernel_id)?;
+        let lang = match resource_info.resource {
+            Resource::Code(Code { language, .. }) => language,
+            _ => Format::Unknown,
+        };
         let pure = resource_info.is_pure();
         let fork = force_fork || (pure && kernel.is_forkable().await);
 
@@ -1093,9 +1108,9 @@ impl KernelSpace {
         );
         let tags = Some(&resource_info.tags);
         let task = if fork {
-            kernel.exec_fork(code, tags).await?
+            kernel.exec_fork(code, lang, tags).await?
         } else {
-            kernel.exec_async(code, tags).await?
+            kernel.exec_async(code, lang, tags).await?
         };
 
         // Record symbols assigned in kernel (unless it was a fork)
@@ -1278,7 +1293,14 @@ impl KernelSpace {
             // If possible, parse the code so that we can use the relations to determine variables that
             // are assigned or used (needed for variable mirroring).
             let path = PathBuf::from("<cli>");
-            let resource = resources::code(&path, "<id>", "<file>", language.clone());
+            let resource = resources::code(
+                &path,
+                "<id>",
+                "<file>",
+                language
+                    .as_ref()
+                    .map_or_else(|| Format::Unknown, |lang| formats::match_name(lang)),
+            );
             let resource_info = match parsers::parse(resource.clone(), &code) {
                 Ok(resource_info) => resource_info,
                 Err(..) => ResourceInfo::default(resource),
@@ -1457,13 +1479,8 @@ pub async fn languages() -> Result<Vec<String>> {
     let mut languages: HashSet<String> = HashSet::new();
     let kernels = available().await;
     for kernel in kernels {
-        for lang in kernel.languages {
-            let format = formats::match_name(&lang);
-            let lang = match format {
-                formats::Format::Unknown => lang,
-                _ => format.spec().title,
-            };
-            languages.insert(lang);
+        for format in kernel.languages {
+            languages.insert(format.to_string());
         }
     }
     let mut languages: Vec<String> = languages.into_iter().collect();

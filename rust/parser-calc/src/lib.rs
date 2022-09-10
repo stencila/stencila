@@ -18,7 +18,7 @@ pub struct CalcParser {}
 impl ParserTrait for CalcParser {
     fn spec() -> Parser {
         Parser {
-            language: Format::Calc.spec().title,
+            language: Format::Calc,
         }
     }
 
@@ -36,7 +36,7 @@ impl ParserTrait for CalcParser {
         });
 
         // The semantic content of the code (includes the language name and ignores comments)
-        let mut semantics = Self::spec().language;
+        let mut semantics = Self::spec().language.to_string();
         let mut comments = Vec::new();
         let relations = code
             .split('\n')
@@ -104,7 +104,7 @@ impl ParserTrait for CalcParser {
         for (row, line) in comments {
             apply_tags(
                 path,
-                &Self::spec().language,
+                Self::spec().language,
                 row,
                 line,
                 Some("Number".to_string()),
@@ -127,8 +127,7 @@ mod tests {
         snapshot_fixtures("fragments/calc/*.calc", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource =
-                resources::code(path, "", "SoftwareSourceCode", Some("Calc".to_string()));
+            let resource = resources::code(path, "", "SoftwareSourceCode", Format::Calc);
             let resource_info = CalcParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })

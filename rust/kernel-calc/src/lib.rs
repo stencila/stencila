@@ -10,6 +10,7 @@ use kernel::{
         regex::Regex,
         serde::Serialize,
     },
+    formats::Format,
     stencila_schema::{CodeError, Node, Number, Primitive},
     Kernel, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
@@ -33,7 +34,14 @@ impl CalcKernel {
 #[async_trait]
 impl KernelTrait for CalcKernel {
     async fn spec(&self) -> Kernel {
-        Kernel::new("calc", KernelType::Builtin, &["calc"], true, false, true)
+        Kernel::new(
+            "calc",
+            KernelType::Builtin,
+            &[Format::Calc],
+            true,
+            false,
+            true,
+        )
     }
 
     async fn status(&self) -> Result<KernelStatus> {
@@ -83,7 +91,16 @@ impl KernelTrait for CalcKernel {
         Ok(())
     }
 
-    async fn exec_sync(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_sync(
+        &mut self,
+        code: &str,
+        lang: Format,
+        _tags: Option<&TagMap>,
+    ) -> Result<Task> {
+        if lang != Format::Calc {
+            bail!("Unexpected language for `CalcKernel`: {}", lang);
+        }
+
         static STATEMENTS_REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new(r"\r?\n|;").expect("Unable to create regex"));
         static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -157,9 +174,14 @@ impl KernelTrait for CalcKernel {
         Ok(task)
     }
 
-    async fn exec_fork(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_fork(
+        &mut self,
+        code: &str,
+        lang: Format,
+        _tags: Option<&TagMap>,
+    ) -> Result<Task> {
         let mut fork = self.clone();
-        fork.exec_async(code, _tags).await
+        fork.exec_async(code, lang, _tags).await
     }
 }
 
@@ -212,11 +234,11 @@ mod tests {
         assert!(matches!(a, Node::Number(..)));
         assert_json_eq!(a, json!(1.23));
 
-        let (outputs, errors) = kernel.exec("a * 2", None).await?;
+        let (outputs, errors) = kernel.exec("a * 2", Format::Calc, None).await?;
         assert_json_eq!(outputs, json!([2.46]));
         assert_eq!(errors.len(), 0);
 
-        let (outputs, errors) = kernel.exec("x * 2", None).await?;
+        let (outputs, errors) = kernel.exec("x * 2", Format::Calc, None).await?;
         assert_eq!(outputs.len(), 0);
         assert_json_eq!(
             errors,

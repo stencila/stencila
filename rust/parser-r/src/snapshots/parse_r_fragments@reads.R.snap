@@ -10,7 +10,7 @@ input_file: fixtures/fragments/r/reads.R
     "path": "fragments/r/reads.R",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "R"
+    "language": "r"
   },
   "relations": [
     [

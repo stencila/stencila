@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
+formats = { path = "../formats" }
 hash-utils = { path = "../hash-utils" }
 path-utils = { path = "../path-utils" }
 schemars = { version = "0.8.8", features = ["preserve_order"] }

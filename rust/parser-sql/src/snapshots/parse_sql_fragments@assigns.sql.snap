@@ -1,6 +1,6 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 76
+assertion_line: 114
 expression: resource_info
 input_file: fixtures/fragments/sql/assigns.sql
 ---
@@ -10,7 +10,7 @@ input_file: fixtures/fragments/sql/assigns.sql
     "path": "fragments/sql/assigns.sql",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "SQL"
+    "language": "sql"
   },
   "relations": [
     [

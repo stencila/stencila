@@ -3,14 +3,29 @@ use std::path::Path;
 use schemars::JsonSchema;
 
 use common::{
-    inflector::Inflector,
+    defaults::Defaults,
     serde::{Deserialize, Serialize},
     strum::{Display, EnumIter, EnumString, IntoEnumIterator},
 };
 
 #[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, Serialize, Deserialize, JsonSchema, Display, EnumString,
+    Debug,
+    Defaults,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    EnumIter,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Display,
+    EnumString,
 )]
+#[def = "Unknown"]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum Format {
@@ -315,18 +330,5 @@ pub fn match_path<P: AsRef<Path>>(path: P) -> Format {
         }
     } else {
         format
-    }
-}
-
-/// Normalize a format name to its title
-///
-/// If the name can be matched against a known format then its
-/// title will be returned. Otherwise, the name converted to title
-/// case will be returned.
-pub fn normalize_title(name: &str) -> String {
-    let format = match_name(name);
-    match format {
-        Format::Unknown => name.to_title_case(),
-        _ => format.spec().title,
     }
 }

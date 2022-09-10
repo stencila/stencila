@@ -41,7 +41,9 @@ async fn test(config: &str) -> Result<()> {
     );
 
     // Clean up after any previous test
-    kernel.exec("DROP TABLE IF EXISTS table_a", None).await?;
+    kernel
+        .exec("DROP TABLE IF EXISTS table_a", Format::SQL, None)
+        .await?;
 
     // Test that getting a non-existent table does not work
     if let Ok(..) = kernel.get("table_a").await {
@@ -122,6 +124,7 @@ async fn test(config: &str) -> Result<()> {
     kernel
         .exec(
             "SELECT * FROM table_a",
+            Format::SQL,
             Some(&TagMap::from_name_values(&[("assigns", "query_1")])),
         )
         .await?;
@@ -129,7 +132,7 @@ async fn test(config: &str) -> Result<()> {
     assert_json_eq!(query_1, datatable_a);
 
     // Test that possibly untyped columns (at least in SQLite) are translated into values
-    let query_2 = kernel.exec("SELECT 123;", None).await?;
+    let query_2 = kernel.exec("SELECT 123;", Format::SQL, None).await?;
     match &query_2.0[0] {
         Node::Datatable(datatable) => {
             assert_eq!(datatable.columns[0].values[0], Node::Integer(123))
@@ -141,7 +144,11 @@ async fn test(config: &str) -> Result<()> {
     kernel.set("param", Node::Integer(3)).await?;
     kernel.parameters.contains_key("param");
     let query_3 = kernel
-        .exec("SELECT col_4 FROM table_a WHERE col_2 = $param;", None)
+        .exec(
+            "SELECT col_4 FROM table_a WHERE col_2 = $param;",
+            Format::SQL,
+            None,
+        )
         .await?;
     match &query_3.0[0] {
         Node::Datatable(datatable) => {

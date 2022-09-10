@@ -1,3 +1,4 @@
+use kernel::formats::Format;
 use kernel_micro::{include_file, MicroKernel};
 
 /// A microkernel for Zsh
@@ -7,7 +8,7 @@ use kernel_micro::{include_file, MicroKernel};
 pub fn new() -> MicroKernel {
     MicroKernel::new(
         "zsh-micro",
-        &["Zsh", "Shell"],
+        &[Format::Zsh, Format::Shell],
         true,
         false,
         false,
@@ -42,17 +43,17 @@ mod tests {
         }
 
         // Assign a variable and output it
-        let (outputs, messages) = kernel.exec("a=2\necho $a", None).await?;
+        let (outputs, messages) = kernel.exec("a=2\necho $a", Format::Zsh, None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [2]);
 
         // Syntax error
-        let (outputs, messages) = kernel.exec("if", None).await?;
+        let (outputs, messages) = kernel.exec("if", Format::Zsh, None).await?;
         assert!(messages[0].error_message.ends_with("parse error near `if'"));
         assert_json_eq!(outputs, json!([]));
 
         // Runtime error
-        let (outputs, messages) = kernel.exec("foo", None).await?;
+        let (outputs, messages) = kernel.exec("foo", Format::Zsh, None).await?;
         assert!(messages[0]
             .error_message
             .ends_with("command not found: foo"));
@@ -64,7 +65,7 @@ mod tests {
         assert_json_eq!(b, 3);
 
         // Use both variables
-        let (outputs, messages) = kernel.exec("echo $a$b", None).await?;
+        let (outputs, messages) = kernel.exec("echo $a$b", Format::Zsh, None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [23]);
 

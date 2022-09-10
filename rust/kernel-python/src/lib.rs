@@ -1,10 +1,11 @@
+use kernel::formats::Format;
 use kernel_micro::{include_file, MicroKernel};
 
 /// A microkernel for Python
 pub fn new() -> MicroKernel {
     MicroKernel::new(
         "python-micro",
-        &["python"],
+        &[Format::Python],
         true,
         cfg!(not(target_os = "windows")),
         cfg!(any(target_os = "linux", target_os = "macos")),
@@ -57,17 +58,17 @@ mod tests {
         };
 
         // The execution context should start off empty
-        let (outputs, messages) = kernel.exec("dir()", None).await?;
+        let (outputs, messages) = kernel.exec("dir()", Format::Python, None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs[0], ["__builtins__", "__decode_value__", "print"]);
 
         // Assign a variable and output it
-        let (outputs, messages) = kernel.exec("a = 2\na", None).await?;
+        let (outputs, messages) = kernel.exec("a = 2\na", Format::Python, None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [2]);
 
         // The execution context should now have the var
-        let (outputs, messages) = kernel.exec("dir()", None).await?;
+        let (outputs, messages) = kernel.exec("dir()", Format::Python, None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(
             outputs[0],
@@ -75,19 +76,21 @@ mod tests {
         );
 
         // Print the variable twice and then output it
-        let (outputs, messages) = kernel.exec("print(a)\nprint(a)\na", None).await?;
+        let (outputs, messages) = kernel
+            .exec("print(a)\nprint(a)\na", Format::Python, None)
+            .await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [2, 2, 2]);
 
         // Syntax error
-        let (outputs, messages) = kernel.exec("bad ^ # syntax", None).await?;
+        let (outputs, messages) = kernel.exec("bad ^ # syntax", Format::Python, None).await?;
         assert_json_is!(messages[0].error_type, "SyntaxError");
         assert_json_is!(messages[0].error_message, "invalid syntax (<code>, line 1)");
         assert!(messages[0].stack_trace.is_some());
         assert_json_is!(outputs, []);
 
         // Runtime error
-        let (outputs, messages) = kernel.exec("foo", None).await?;
+        let (outputs, messages) = kernel.exec("foo", Format::Python, None).await?;
         assert_json_is!(messages[0].error_type, "NameError");
         assert_json_is!(messages[0].error_message, "name 'foo' is not defined");
         assert!(messages[0].stack_trace.is_some());
@@ -99,7 +102,7 @@ mod tests {
         assert_json_is!(b, 3);
 
         // Use both variables
-        let (outputs, messages) = kernel.exec("a*b", None).await?;
+        let (outputs, messages) = kernel.exec("a*b", Format::Python, None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [6]);
 
@@ -125,6 +128,7 @@ mod tests {
         let mut task = kernel
             .exec_async(
                 "import time\nstarted = True\ntime.sleep(10)\nfinished = True",
+                Format::Python,
                 None,
             )
             .await?;
@@ -135,7 +139,7 @@ mod tests {
 
         // Check that was started but not finished
         let (outputs, messages) = kernel
-            .exec("[started, 'finished' in locals()]", None)
+            .exec("[started, 'finished' in locals()]", Format::Python, None)
             .await
             .unwrap();
         assert_json_is!(messages, []);
@@ -163,6 +167,7 @@ mod tests {
         let (outputs, messages) = kernel
             .exec(
                 "from random import uniform as runif\nvar = runif(0, 1)\nvar",
+                Format::Python,
                 None,
             )
             .await?;
@@ -173,7 +178,7 @@ mod tests {
         // Now fork-exec. The fork should be able to use the module and access the
         // variable but any change to variable should not change its value in the parent kernel
         let mut task = kernel
-            .exec_fork("print(var)\nvar = runif(0, 1)", None)
+            .exec_fork("print(var)\nvar = runif(0, 1)", Format::Python, None)
             .await?;
         let TaskResult { outputs, messages } = task.result().await?;
         assert_json_is!(messages, []);
@@ -182,17 +187,17 @@ mod tests {
 
         // Back in the parent kernel, var should still have its original value
         assert_json_eq!(var, kernel.get("var").await?);
-        let (outputs, messages) = kernel.exec("var", None).await?;
+        let (outputs, messages) = kernel.exec("var", Format::Python, None).await?;
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
 
         // Now create a persistent fork and ensure were can execute multiple tasks in it including
         // getting the original var and using the imported `runif` function
         let mut fork = kernel.create_fork("").await?;
-        let (outputs, messages) = fork.exec("var", None).await?;
+        let (outputs, messages) = fork.exec("var", Format::Python, None).await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [var]);
-        let (outputs, messages) = fork.exec("runif(0, 1)", None).await?;
+        let (outputs, messages) = fork.exec("runif(0, 1)", Format::Python, None).await?;
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
 
@@ -212,7 +217,11 @@ mod tests {
 
         // Import a module and a function from another module in one task
         let (outputs, messages) = kernel
-            .exec("import time\nfrom datetime import datetime", None)
+            .exec(
+                "import time\nfrom datetime import datetime",
+                Format::Python,
+                None,
+            )
             .await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, []);
@@ -221,6 +230,7 @@ mod tests {
         let (outputs, messages) = kernel
             .exec(
                 "def func():\n\treturn (time.time(), datetime.now())\nfunc()",
+                Format::Python,
                 None,
             )
             .await?;

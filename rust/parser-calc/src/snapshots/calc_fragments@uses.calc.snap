@@ -1,6 +1,6 @@
 ---
 source: rust/parser-calc/src/lib.rs
-assertion_line: 133
+assertion_line: 132
 expression: resource_info
 input_file: fixtures/fragments/calc/uses.calc
 ---
@@ -10,7 +10,7 @@ input_file: fixtures/fragments/calc/uses.calc
     "path": "fragments/calc/uses.calc",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "Calc"
+    "language": "calc"
   },
   "relations": [
     [
@@ -150,7 +150,7 @@ input_file: fixtures/fragments/calc/uses.calc
       }
     ]
   ],
-  "compile_digest": "690503005563725699.15608905620440727919.0.0.0",
+  "compile_digest": "690503005563725699.12590019388989690396.0.0.0",
   "tags": [
     {
       "name": "uses",

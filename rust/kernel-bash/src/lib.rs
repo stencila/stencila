@@ -1,3 +1,4 @@
+use kernel::formats::Format;
 use kernel_micro::{include_file, MicroKernel};
 
 /// A microkernel for Bash
@@ -7,7 +8,7 @@ use kernel_micro::{include_file, MicroKernel};
 pub fn new() -> MicroKernel {
     MicroKernel::new(
         "bash-micro",
-        &["Bash", "Shell"],
+        &[Format::Bash, Format::Shell],
         true,
         false,
         false,
@@ -52,19 +53,19 @@ mod tests {
         }
 
         // Assign a variable and output it
-        let (outputs, messages) = kernel.exec("a=2\necho $a\n", None).await?;
+        let (outputs, messages) = kernel.exec("a=2\necho $a\n", Format::Bash, None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [2]);
 
         // Syntax error
-        let (outputs, messages) = kernel.exec("if", None).await?;
+        let (outputs, messages) = kernel.exec("if", Format::Bash, None).await?;
         assert!(messages[0]
             .error_message
             .ends_with("syntax error: unexpected end of file"));
         assert_json_eq!(outputs, json!([]));
 
         // Runtime error
-        let (outputs, messages) = kernel.exec("foo", None).await?;
+        let (outputs, messages) = kernel.exec("foo", Format::Bash, None).await?;
         assert!(messages[0]
             .error_message
             .ends_with("foo: command not found"));
@@ -76,7 +77,7 @@ mod tests {
         assert_json_eq!(b, 3);
 
         // Use both variables
-        let (outputs, messages) = kernel.exec("echo $a$b\n", None).await?;
+        let (outputs, messages) = kernel.exec("echo $a$b\n", Format::Bash, None).await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [23]);
 
@@ -95,7 +96,7 @@ mod tests {
             false => return Ok(()),
         }
 
-        let (outputs, messages) = kernel.exec("date +%s", None).await?;
+        let (outputs, messages) = kernel.exec("date +%s", Format::Bash, None).await?;
         assert_json_eq!(messages, json!([]));
         let timestamp = outputs.first().unwrap();
         match timestamp {

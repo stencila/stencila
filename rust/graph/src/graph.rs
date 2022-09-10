@@ -608,8 +608,8 @@ impl Graph {
             _ => bail!("The resource must be a `Code` node for plan ordering `Simple`"),
         };
 
-        let kernel_selector = KernelSelector::from_lang_and_tags(
-            code.language.as_deref(),
+        let kernel_selector = KernelSelector::from_format_and_tags(
+            code.language,
             Some(&tags.merge(&resource_info.tags)),
         );
         let kernel = kernel_selector.select(&kernels);
@@ -680,8 +680,8 @@ impl Graph {
             let resource_info = self.get_resource_info(resource)?;
 
             // Only include code for which there is a kernel capable of executing it
-            let kernel_selector = KernelSelector::from_lang_and_tags(
-                code.language.as_deref(),
+            let kernel_selector = KernelSelector::from_format_and_tags(
+                code.language,
                 Some(&tags.merge(&resource_info.tags)),
             );
             let kernel = kernel_selector.select(&kernels);
@@ -882,8 +882,8 @@ impl Graph {
             let resource_info = self.get_resource_info(resource)?;
 
             // Only execute resources for which there is a kernel capable of executing code
-            let kernel_selector = KernelSelector::from_lang_and_tags(
-                code.language.as_deref(),
+            let kernel_selector = KernelSelector::from_format_and_tags(
+                code.language,
                 Some(&tags.merge(&resource_info.tags)),
             );
             let kernel = kernel_selector.select(&kernels);
@@ -978,11 +978,7 @@ impl Graph {
                         ),
                     ),
                     Resource::Code(code) => {
-                        let label = if let Some(lang) = &code.language {
-                            format!("{} {}\\n{}", lang, code.kind, code.id)
-                        } else {
-                            format!("{}\\n{}", code.kind, code.id)
-                        };
+                        let label = format!("{} {}\\n{}", code.language, code.kind, code.id);
                         ("box", "#efe0a6", label)
                     }
                     Resource::Node(node) => {

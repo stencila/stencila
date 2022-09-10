@@ -1,6 +1,6 @@
 use std::{collections::BTreeMap, sync::Arc};
 
-use formats::{match_name, Format};
+use formats::Format;
 use parser::{
     common::{
         eyre::{bail, Result},
@@ -114,15 +114,13 @@ impl Parsers {
     /// Parse a code resource
     fn parse(&self, resource: Resource, code: &str) -> Result<ResourceInfo> {
         let (path, language) = if let Resource::Code(code) = &resource {
-            (code.path.clone(), code.language.clone().unwrap_or_default())
+            (code.path.clone(), code.language)
         } else {
             bail!("Attempting to parse a resource that is not a `Code` resource")
         };
 
-        let format = match_name(&language);
-
         let resource_info =
-            if let Some(result) = dispatch_builtins!(format, parse, resource, &path, code) {
+            if let Some(result) = dispatch_builtins!(language, parse, resource, &path, code) {
                 result?
             } else {
                 bail!(
@@ -249,9 +247,10 @@ pub mod commands {
                 let lang = self.lang.clone().or(Some(ext)).unwrap_or_default();
                 (file, code, lang)
             };
+            let lang = formats::match_name(&lang);
 
             let path = PathBuf::from(path);
-            let resource = resources::code(&path, "<id>", "<cli>", Some(lang));
+            let resource = resources::code(&path, "<id>", "<cli>", lang);
             let resource_info = PARSERS.parse(resource, &code)?;
             result::value(resource_info)
         }
@@ -269,7 +268,7 @@ mod tests {
     #[cfg(feature = "parser-calc")]
     fn test_parse() -> Result<()> {
         let path = PathBuf::from("<test>");
-        let resource = resources::code(&path, "<id>", "<cli>", Some("Calc".to_string()));
+        let resource = resources::code(&path, "<id>", "<cli>", Format::Calc);
         let resource_info = parse(resource, "a = 1\nb = a * a")?;
         assert!(matches!(resource_info.execute_pure, None));
         assert!(!resource_info.is_pure());

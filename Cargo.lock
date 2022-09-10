@@ -2704,6 +2704,7 @@ name = "graph-triples"
 version = "0.0.0"
 dependencies = [
  "common",
+ "formats",
  "hash-utils",
  "path-utils",
  "schemars",

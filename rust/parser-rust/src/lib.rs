@@ -20,7 +20,7 @@ pub struct RustParser {}
 impl ParserTrait for RustParser {
     fn spec() -> Parser {
         Parser {
-            language: Format::Rust.spec().title,
+            language: Format::Rust,
         }
     }
 
@@ -75,7 +75,7 @@ impl ParserTrait for RustParser {
         let resource_info = resource_info(
             resource,
             path,
-            &Self::spec().language,
+            Self::spec().language,
             code,
             &tree,
             &["comment"],
@@ -98,8 +98,7 @@ mod tests {
         snapshot_fixtures("fragments/rust/*.rs", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource =
-                resources::code(path, "", "SoftwareSourceCode", Some("Rust".to_string()));
+            let resource = resources::code(path, "", "SoftwareSourceCode", Format::Rust);
             let resource_info = RustParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })

@@ -1,6 +1,6 @@
 ---
 source: rust/parser-rust/src/lib.rs
-assertion_line: 104
+assertion_line: 103
 expression: resource_info
 input_file: fixtures/fragments/rust/tags.rs
 ---
@@ -10,7 +10,7 @@ input_file: fixtures/fragments/rust/tags.rs
     "path": "fragments/rust/tags.rs",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "Rust"
+    "language": "rust"
   },
   "relations": [
     [
@@ -42,7 +42,7 @@ input_file: fixtures/fragments/rust/tags.rs
       },
       {
         "type": "Module",
-        "language": "Rust",
+        "language": "rust",
         "name": "pkg1"
       }
     ],
@@ -58,7 +58,7 @@ input_file: fixtures/fragments/rust/tags.rs
       },
       {
         "type": "Module",
-        "language": "Rust",
+        "language": "rust",
         "name": "pkg2"
       }
     ],
@@ -74,7 +74,7 @@ input_file: fixtures/fragments/rust/tags.rs
       },
       {
         "type": "Module",
-        "language": "Rust",
+        "language": "rust",
         "name": "pkg3"
       }
     ],
@@ -90,7 +90,7 @@ input_file: fixtures/fragments/rust/tags.rs
       },
       {
         "type": "Module",
-        "language": "Rust",
+        "language": "rust",
         "name": "pkg4"
       }
     ],

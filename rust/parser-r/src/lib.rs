@@ -26,7 +26,7 @@ pub struct RParser {}
 impl ParserTrait for RParser {
     fn spec() -> Parser {
         Parser {
-            language: Format::R.spec().title,
+            language: Format::R,
         }
     }
 
@@ -53,7 +53,7 @@ impl ParserTrait for RParser {
                             }
                             Some((
                                 relations::imports(package.range),
-                                resources::module("r", &remove_quotes(&package.text)),
+                                resources::module(Format::R, &remove_quotes(&package.text)),
                             ))
                         })
                 }
@@ -182,7 +182,7 @@ impl ParserTrait for RParser {
         let resource_info = resource_info(
             resource,
             path,
-            &Self::spec().language,
+            Self::spec().language,
             code,
             &tree,
             &["comment"],
@@ -205,7 +205,7 @@ mod tests {
         snapshot_fixtures("fragments/r/*.R", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Some("R".to_string()));
+            let resource = resources::code(path, "", "SoftwareSourceCode", Format::R);
             let resource_info = RParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })

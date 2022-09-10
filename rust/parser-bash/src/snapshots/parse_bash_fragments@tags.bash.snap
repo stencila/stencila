@@ -1,6 +1,6 @@
 ---
 source: rust/parser-bash/src/lib.rs
-assertion_line: 96
+assertion_line: 95
 expression: resource_info
 input_file: fixtures/fragments/bash/tags.bash
 ---
@@ -10,7 +10,7 @@ input_file: fixtures/fragments/bash/tags.bash
     "path": "fragments/bash/tags.bash",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "Bash"
+    "language": "bash"
   },
   "relations": [
     [

@@ -1,6 +1,6 @@
 ---
 source: rust/parser-rust/src/lib.rs
-assertion_line: 104
+assertion_line: 103
 expression: resource_info
 input_file: fixtures/fragments/rust/uses.rs
 ---
@@ -10,7 +10,7 @@ input_file: fixtures/fragments/rust/uses.rs
     "path": "fragments/rust/uses.rs",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "Rust"
+    "language": "rust"
   },
   "relations": [
     [

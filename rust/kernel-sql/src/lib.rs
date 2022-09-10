@@ -21,6 +21,7 @@ use kernel::{
         tokio::sync::{mpsc, RwLock},
         tracing::{self, log::LevelFilter},
     },
+    formats::Format,
     graph_triples::ResourceChange,
     stencila_schema::{CodeError, Datatable, Node},
     Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
@@ -268,7 +269,14 @@ impl SqlKernel {
 #[async_trait]
 impl KernelTrait for SqlKernel {
     async fn spec(&self) -> Kernel {
-        Kernel::new("sql", KernelType::Builtin, &["sql"], true, false, false)
+        Kernel::new(
+            "sql",
+            KernelType::Builtin,
+            &[Format::SQL],
+            true,
+            false,
+            false,
+        )
     }
 
     async fn status(&self) -> Result<KernelStatus> {
@@ -333,7 +341,11 @@ impl KernelTrait for SqlKernel {
         }
     }
 
-    async fn exec_sync(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_sync(&mut self, code: &str, lang: Format, tags: Option<&TagMap>) -> Result<Task> {
+        if lang != Format::SQL {
+            bail!("Unexpected language for `SqlKernel`: {}", lang);
+        }
+
         let mut task = Task::begin_sync();
         let mut outputs = Vec::new();
         let mut messages = Vec::new();

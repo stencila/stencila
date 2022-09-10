@@ -20,6 +20,7 @@ use uuids::uuid_family;
 
 // Re-export for the convenience of crates that implement `KernelTrait`
 pub use common;
+pub use formats;
 pub use graph_triples;
 pub use stencila_schema;
 
@@ -55,9 +56,9 @@ pub struct Kernel {
 
     /// The languages supported by the kernel
     ///
-    /// These should be the `title` of one of the `Format`s defined in
-    /// the `formats` crate (but don't have to be). Many kernels only support one language.
-    pub languages: Vec<String>,
+    /// Used when generating execution plans to determine which tasks to
+    /// run in each kernel.
+    pub languages: Vec<Format>,
 
     /// Is the kernel available on the current machine?
     pub available: bool,
@@ -68,7 +69,7 @@ pub struct Kernel {
     /// Is the kernel fork-able on the current machine?
     ///
     /// Used when generating execution plans to determine which tasks
-    /// can be conducted concurrently
+    /// can be conducted concurrently.
     pub forkable: bool,
 }
 
@@ -77,19 +78,15 @@ impl Kernel {
     pub fn new(
         name: &str,
         r#type: KernelType,
-        languages: &[&str],
+        languages: &[Format],
         available: bool,
         interruptable: bool,
         forkable: bool,
     ) -> Self {
-        let languages = languages
-            .iter()
-            .map(|language| language.to_string())
-            .collect();
         Self {
             name: name.to_string(),
             r#type,
-            languages,
+            languages: languages.into(),
             available,
             interruptable,
             forkable,
@@ -201,12 +198,21 @@ impl fmt::Display for KernelSelector {
 }
 
 impl KernelSelector {
-    /// Create a new `KernelSelector`
+    /// Create a new `KernelSelector` from a language string and tags
     pub fn from_lang_and_tags(lang: Option<&str>, tags: Option<&TagMap>) -> Self {
+        let format = match lang {
+            Some(lang) => formats::match_name(lang),
+            None => Format::Unknown,
+        };
+        Self::from_format_and_tags(format, tags)
+    }
+
+    /// Create a new `KernelSelector` from a `Format` and tags
+    pub fn from_format_and_tags(lang: Format, tags: Option<&TagMap>) -> Self {
         let (name, config) = if let Some(tags) = tags {
             let name = tags.get_value("kernel");
             let config = match lang {
-                Some("SQL") | Some("PrQL") => tags.get_value("db"),
+                Format::SQL | Format::PrQL => tags.get_value("db"),
                 _ => None,
             };
             (name, config)
@@ -216,7 +222,7 @@ impl KernelSelector {
 
         Self {
             any: None,
-            lang: lang.map(String::from),
+            lang: Some(lang.to_string()),
             r#type: None,
             name,
             config,
@@ -299,10 +305,8 @@ impl KernelSelector {
         if let (true, Some(lang)) = (matched, &self.lang) {
             let format = formats::match_name(lang);
             let mut lang_matched = false;
-            for kernel_lang in &kernel.languages {
-                if lang.to_lowercase() == kernel_lang.to_lowercase()
-                    || (format != Format::Unknown && format == formats::match_name(kernel_lang))
-                {
+            for kernel_format in &kernel.languages {
+                if format != Format::Unknown && format == *kernel_format {
                     lang_matched = true;
                     break;
                 }
@@ -310,10 +314,8 @@ impl KernelSelector {
             matched &= lang_matched;
         } else if let (false, Some(lang)) = (matched, &self.any) {
             let format = formats::match_name(lang);
-            for kernel_lang in &kernel.languages {
-                if lang.to_lowercase() == kernel_lang.to_lowercase()
-                    || (format != Format::Unknown && format == formats::match_name(kernel_lang))
-                {
+            for kernel_format in &kernel.languages {
+                if format != Format::Unknown && format == *kernel_format {
                     matched = true;
                     break;
                 }
@@ -642,9 +644,10 @@ pub trait KernelTrait {
     async fn exec(
         &mut self,
         code: &str,
+        lang: Format,
         tags: Option<&TagMap>,
     ) -> Result<(TaskOutputs, TaskMessages)> {
-        let mut task = self.exec_sync(code, tags).await?;
+        let mut task = self.exec_sync(code, lang, tags).await?;
         let TaskResult { outputs, messages } = task.result().await?;
         Ok((outputs, messages))
     }
@@ -659,14 +662,19 @@ pub trait KernelTrait {
     /// part of their implementation.
     ///
     /// Must be implemented by [`KernelTrait`] implementations.
-    async fn exec_sync(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task>;
+    async fn exec_sync(&mut self, code: &str, lang: Format, tags: Option<&TagMap>) -> Result<Task>;
 
     /// Execute code in the kernel asynchronously
     ///
     /// Should be overridden by [`KernelTrait`] implementations that are interruptable.
     /// The default implementation simply calls `exec_sync`.
-    async fn exec_async(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
-        self.exec_sync(code, tags).await
+    async fn exec_async(
+        &mut self,
+        code: &str,
+        lang: Format,
+        tags: Option<&TagMap>,
+    ) -> Result<Task> {
+        self.exec_sync(code, lang, tags).await
     }
 
     /// Fork the kernel and execute code in the fork
@@ -675,7 +683,12 @@ pub trait KernelTrait {
     /// The default implementation errors because code marked as `@pure` should not
     /// be executed in the main kernel in case it has side-effects (e.g. assigning
     /// temporary variables) which are intended to be ignored.
-    async fn exec_fork(&mut self, _code: &str, _tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_fork(
+        &mut self,
+        _code: &str,
+        _lang: Format,
+        _tags: Option<&TagMap>,
+    ) -> Result<Task> {
         bail!("Kernel is not forkable")
     }
 }
@@ -731,7 +744,7 @@ mod test {
         let k = Kernel::new(
             "foo",
             KernelType::Builtin,
-            &["bar", "baz"],
+            &[Format::Bash, Format::Zsh],
             true,
             false,
             false,
@@ -741,9 +754,9 @@ mod test {
         assert!(KernelSelector::parse("bar").matches(&k));
         assert!(KernelSelector::parse("baz").matches(&k));
         assert!(KernelSelector::parse("name:foo").matches(&k));
-        assert!(KernelSelector::parse("lang:bar").matches(&k));
-        assert!(KernelSelector::parse("lang:baz").matches(&k));
-        assert!(KernelSelector::parse("name:foo lang:bar type:builtin").matches(&k));
+        assert!(KernelSelector::parse("lang:bash").matches(&k));
+        assert!(KernelSelector::parse("lang:zsh").matches(&k));
+        assert!(KernelSelector::parse("name:foo lang:bash type:builtin").matches(&k));
         assert!(KernelSelector::parse("foo type:builtin").matches(&k));
 
         assert!(!KernelSelector::parse("quax").matches(&k));

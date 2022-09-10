@@ -2,6 +2,7 @@ use std::path::Path;
 
 use kernel::{
     common::{async_trait::async_trait, eyre::Result, serde::Serialize, tokio::sync::mpsc},
+    formats::Format,
     graph_triples::ResourceChange,
     stencila_schema::Node,
     Kernel, KernelSelector, KernelStatus, KernelTrait, TagMap, Task, TaskResult,
@@ -28,7 +29,7 @@ impl KernelTrait for PrqlKernel {
     async fn spec(&self) -> Kernel {
         let mut spec = self.0.spec().await;
         spec.name = "prql".to_string();
-        spec.languages = vec!["prql".to_string()];
+        spec.languages = vec![Format::PrQL];
         spec
     }
 
@@ -48,9 +49,9 @@ impl KernelTrait for PrqlKernel {
         self.0.set(name, value).await
     }
 
-    async fn exec_sync(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_sync(&mut self, code: &str, lang: Format, tags: Option<&TagMap>) -> Result<Task> {
         match prql_compiler::compile(code) {
-            Ok(sql) => self.0.exec_sync(&sql, tags).await,
+            Ok(sql) => self.0.exec_sync(&sql, lang, tags).await,
             Err(error) => {
                 let mut task = Task::begin_sync();
                 task.end(TaskResult::syntax_error(&error.to_string()));
@@ -59,9 +60,14 @@ impl KernelTrait for PrqlKernel {
         }
     }
 
-    async fn exec_async(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_async(
+        &mut self,
+        code: &str,
+        lang: Format,
+        tags: Option<&TagMap>,
+    ) -> Result<Task> {
         match prql_compiler::compile(code) {
-            Ok(sql) => self.0.exec_async(&sql, tags).await,
+            Ok(sql) => self.0.exec_async(&sql, lang, tags).await,
             Err(error) => {
                 let mut task = Task::begin_sync();
                 task.end(TaskResult::syntax_error(&error.to_string()));
@@ -70,9 +76,9 @@ impl KernelTrait for PrqlKernel {
         }
     }
 
-    async fn exec_fork(&mut self, code: &str, tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_fork(&mut self, code: &str, lang: Format, tags: Option<&TagMap>) -> Result<Task> {
         match prql_compiler::compile(code) {
-            Ok(sql) => self.0.exec_fork(&sql, tags).await,
+            Ok(sql) => self.0.exec_fork(&sql, lang, tags).await,
             Err(error) => {
                 let mut task = Task::begin_sync();
                 task.end(TaskResult::syntax_error(&error.to_string()));

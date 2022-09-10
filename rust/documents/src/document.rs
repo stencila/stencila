@@ -28,7 +28,7 @@ use common::{
     tracing,
 };
 use events::publish;
-use formats::FormatSpec;
+use formats::{Format, FormatSpec};
 use graph::{Graph, PlanOptions, PlanOrdering, PlanScope};
 use graph_triples::{resources, Relations, Resource, ResourceChange, TagMap};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
@@ -1680,7 +1680,7 @@ impl Document {
             // Generate the execution plan
             let start = start
                 .clone()
-                .map(|node_id| resources::code(path, &node_id, "", None));
+                .map(|node_id| resources::code(path, &node_id, "", Format::Unknown));
             let tags_guard = tags.read().await;
             let plan = match graph
                 .read()

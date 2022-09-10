@@ -10,10 +10,10 @@ expression: "&graph"
       "path": "articles/code-relations.md",
       "id": "cc-4",
       "kind": "CodeChunk",
-      "language": "Calc",
+      "language": "calc",
       "dependencies": 6,
       "depth": 4,
-      "compile_digest": "3894522473690053649.77074787185374047.16743740572555155447.3.0",
+      "compile_digest": "3894522473690053649.3064020986591757252.13296612083283731109.3.0",
       "index": 0
     },
     {
@@ -24,7 +24,7 @@ expression: "&graph"
       "dependencies": 1,
       "dependents": 8,
       "depth": 1,
-      "compile_digest": "0.0.10787333969192202575.1.0",
+      "compile_digest": "0.0.3683281318082465071.1.0",
       "index": 1
     },
     {
@@ -35,7 +35,7 @@ expression: "&graph"
       "dependencies": 3,
       "dependents": 3,
       "depth": 3,
-      "compile_digest": "0.0.6349562748128994219.1.0",
+      "compile_digest": "0.0.15800464523240391870.1.0",
       "index": 2
     },
     {
@@ -54,7 +54,7 @@ expression: "&graph"
       "path": "articles/code-relations.md",
       "id": "pa-1",
       "kind": "Parameter",
-      "language": "Calc",
+      "language": "calc",
       "dependencies": 0,
       "dependents": 2,
       "depth": 0,
@@ -67,10 +67,10 @@ expression: "&graph"
       "path": "articles/code-relations.md",
       "id": "ce-4",
       "kind": "CodeExpression",
-      "language": "Calc",
+      "language": "calc",
       "dependencies": 4,
       "depth": 4,
-      "compile_digest": "2993544518503473449.212035399485833950.9849296973909467689.1.0",
+      "compile_digest": "2993544518503473449.17057874873997538463.6170967268824451325.1.0",
       "index": 5
     },
     {
@@ -78,10 +78,10 @@ expression: "&graph"
       "path": "articles/code-relations.md",
       "id": "ce-3",
       "kind": "CodeExpression",
-      "language": "Calc",
+      "language": "calc",
       "dependencies": 4,
       "depth": 4,
-      "compile_digest": "14319809613103427217.1710217970989683588.9849296973909467689.1.0",
+      "compile_digest": "14319809613103427217.5584834878793570800.6170967268824451325.1.0",
       "index": 6
     },
     {
@@ -89,12 +89,12 @@ expression: "&graph"
       "path": "articles/code-relations.md",
       "id": "cc-3",
       "kind": "CodeChunk",
-      "language": "Calc",
+      "language": "calc",
       "dependencies": 2,
       "dependents": 4,
       "depth": 2,
       "execute_auto": "Never",
-      "compile_digest": "16211924891031318050.15562958038392290983.7791729115334767390.1.0",
+      "compile_digest": "16211924891031318050.4826985045600982618.10855079609699597019.1.0",
       "index": 7
     },
     {
@@ -102,10 +102,10 @@ expression: "&graph"
       "path": "articles/code-relations.md",
       "id": "ce-2",
       "kind": "CodeExpression",
-      "language": "Calc",
+      "language": "calc",
       "dependencies": 2,
       "depth": 2,
-      "compile_digest": "5376003846207966692.15846618375799990938.7791729115334767390.1.0",
+      "compile_digest": "5376003846207966692.7442174387065919531.10855079609699597019.1.0",
       "index": 8
     },
     {
@@ -113,10 +113,10 @@ expression: "&graph"
       "path": "articles/code-relations.md",
       "id": "ce-1",
       "kind": "CodeExpression",
-      "language": "Calc",
+      "language": "calc",
       "dependencies": 2,
       "depth": 2,
-      "compile_digest": "1195711327746707359.17276421816759163992.7791729115334767390.1.0",
+      "compile_digest": "1195711327746707359.14434809801808754219.10855079609699597019.1.0",
       "index": 9
     },
     {
@@ -124,10 +124,10 @@ expression: "&graph"
       "path": "articles/code-relations.md",
       "id": "cc-2",
       "kind": "CodeChunk",
-      "language": "Calc",
+      "language": "calc",
       "dependencies": 2,
       "depth": 2,
-      "compile_digest": "16686659887221966787.10447405199150839907.7791729115334767390.1.0",
+      "compile_digest": "16686659887221966787.8748471189156309820.10855079609699597019.1.0",
       "index": 10
     },
     {
@@ -135,12 +135,12 @@ expression: "&graph"
       "path": "articles/code-relations.md",
       "id": "cc-1",
       "kind": "CodeChunk",
-      "language": "Calc",
+      "language": "calc",
       "dependencies": 0,
       "dependents": 9,
       "depth": 0,
       "execute_auto": "Always",
-      "compile_digest": "9316405199738436605.427226447947932231.0.0.0",
+      "compile_digest": "9316405199738436605.13978852262712383813.0.0.0",
       "index": 11
     }
   ],

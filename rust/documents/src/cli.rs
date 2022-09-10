@@ -16,6 +16,7 @@ use common::{
     tokio::sync::Mutex,
     tracing,
 };
+use formats::Format;
 use graph::{PlanOptions, PlanOrdering};
 use graph_triples::resources;
 use node_address::Address;
@@ -611,7 +612,7 @@ impl Run for Plan {
         let start = self
             .start
             .as_ref()
-            .map(|node_id| resources::code(&document.path, node_id, "", None));
+            .map(|node_id| resources::code(&document.path, node_id, "", Format::Unknown));
 
         let options = PlanOptions {
             ordering: self.ordering.unwrap_or_else(PlanOptions::default_ordering),

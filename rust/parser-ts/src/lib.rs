@@ -31,7 +31,7 @@ pub struct TsParser {}
 impl ParserTrait for TsParser {
     fn spec() -> Parser {
         Parser {
-            language: Format::TypeScript.spec().title,
+            language: Format::TypeScript,
         }
     }
 
@@ -87,7 +87,7 @@ impl ParserTrait for TsParser {
         let resource_info = resource_info(
             resource,
             path,
-            &Self::spec().language,
+            Self::spec().language,
             code,
             &tree,
             &["comment"],
@@ -110,12 +110,7 @@ mod tests {
         snapshot_fixtures("fragments/ts/*.ts", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(
-                path,
-                "",
-                "SoftwareSourceCode",
-                Some("TypeScript".to_string()),
-            );
+            let resource = resources::code(path, "", "SoftwareSourceCode", Format::TypeScript);
             let resource_info = TsParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })
@@ -126,12 +121,7 @@ mod tests {
         snapshot_fixtures("fragments/js/*.js", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(
-                path,
-                "",
-                "SoftwareSourceCode",
-                Some("JavaScript".to_string()),
-            );
+            let resource = resources::code(path, "", "SoftwareSourceCode", Format::JavaScript);
             let resource_info = TsParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })

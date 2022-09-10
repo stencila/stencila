@@ -3,6 +3,7 @@
 use std::path::{Path, PathBuf};
 
 use common::{once_cell::sync::Lazy, regex::Regex};
+use formats::Format;
 use graph_triples::{relations, resources, stencila_schema::ExecuteAuto, Relation, Resource, Tag};
 
 use crate::ResourceInfo;
@@ -27,7 +28,7 @@ use crate::ResourceInfo;
 /// - `resource_info`: The [`ResourceInfo`] object to update
 pub fn apply_tags(
     path: &Path,
-    lang: &str,
+    lang: Format,
     row: usize,
     comment: &str,
     kind: Option<String>,
@@ -90,7 +91,7 @@ pub fn apply_tags(
                         resources::symbol(path, &arg, &kind.clone().unwrap_or_default())
                     }
                     "reads" | "writes" => resources::file(&PathBuf::from(arg)),
-                    "requires" => resources::code(path, &arg, "", None),
+                    "requires" => resources::code(path, &arg, "", Format::Unknown),
                     _ => continue,
                 };
                 pairs.push((relation.clone(), resource))

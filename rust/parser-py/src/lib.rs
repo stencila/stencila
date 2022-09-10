@@ -26,7 +26,7 @@ pub struct PyParser {}
 impl ParserTrait for PyParser {
     fn spec() -> Parser {
         Parser {
-            language: Format::Python.spec().title,
+            language: Format::Python,
         }
     }
 
@@ -45,7 +45,7 @@ impl ParserTrait for PyParser {
                     let path = path_utils::merge(path, [module, ".py"].concat());
                     let object = match path.exists() {
                         true => resources::file(&path),
-                        false => resources::module("python", module),
+                        false => resources::module(Format::Python, module),
                     };
                     Some((relations::imports(range), object))
                 }
@@ -194,7 +194,7 @@ impl ParserTrait for PyParser {
         let resource_info = resource_info(
             resource,
             path,
-            &Self::spec().language,
+            Self::spec().language,
             code,
             &tree,
             &["comment"],
@@ -217,8 +217,7 @@ mod tests {
         snapshot_fixtures("fragments/py/*.py", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource =
-                resources::code(path, "", "SoftwareSourceCode", Some("Python".to_string()));
+            let resource = resources::code(path, "", "SoftwareSourceCode", Format::Python);
             let resource_info = PyParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })

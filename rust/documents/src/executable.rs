@@ -11,7 +11,7 @@ use common::{
     tokio::sync::{Mutex, RwLock},
     tracing,
 };
-use formats::normalize_title;
+use formats::Format;
 use graph_triples::{
     relations,
     relations::NULL_RANGE,
@@ -146,7 +146,7 @@ pub struct CompileContext {
 
     /// The programming language of the last code node encountered during
     /// compilation
-    pub programming_language: Option<String>,
+    pub programming_language: Format,
 
     /// A list of resources compiled from the nodes
     pub resource_infos: Vec<ResourceInfo>,
@@ -170,11 +170,14 @@ pub struct CompileContext {
 macro_rules! ensure_lang {
     ($node:expr, $context:expr) => {
         if $node.programming_language.is_empty() {
-            $context.programming_language.clone().unwrap_or_default()
+            match $context.programming_language {
+                Format::Unknown => String::new(),
+                _ => $context.programming_language.spec().title,
+            }
         } else {
-            let lang = normalize_title(&$node.programming_language);
-            $context.programming_language = Some(lang.clone());
-            lang
+            let format = formats::match_name(&$node.programming_language);
+            $context.programming_language = format;
+            format.spec().title
         }
     };
 }
@@ -357,12 +360,8 @@ impl Executable for Parameter {
     async fn compile(&self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
 
-        let resource = resources::code(
-            &context.path,
-            id,
-            "Parameter",
-            context.programming_language.clone(),
-        );
+        let resource =
+            resources::code(&context.path, id, "Parameter", context.programming_language);
 
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
@@ -463,7 +462,7 @@ impl Executable for CodeChunk {
         // Generate `ResourceInfo` by parsing the code. If there is a passing error
         // still generate resource info but do not generate errors since the user may
         // still be in the process of writing code
-        let resource = resources::code(&context.path, id, "CodeChunk", Some(lang));
+        let resource = resources::code(&context.path, id, "CodeChunk", formats::match_name(&lang));
         let mut resource_info = match parsers::parse(resource.clone(), &self.text) {
             Ok(resource_info) => resource_info,
             Err(..) => ResourceInfo::default(resource),
@@ -586,7 +585,7 @@ impl Executable for CodeExpression {
             &context.path,
             id,
             "CodeExpression",
-            Some(normalize_title(&lang)),
+            formats::match_name(&lang),
         );
         let mut resource_info = match parsers::parse(resource.clone(), &self.text) {
             Ok(resource_info) => resource_info,
@@ -701,7 +700,7 @@ impl Executable for SoftwareSourceCode {
                 &context.path,
                 id,
                 "SoftwareSourceCode",
-                Some(language.clone()),
+                formats::match_name(language),
             );
             let resource_info = parsers::parse(resource, code)?;
             context.resource_infos.push(resource_info);
@@ -883,7 +882,7 @@ impl Executable for Call {
 
         // Create relations between this resource and the `source` file and any `symbol`s
         // used by arguments. Add to `compile_digest` in same loop.
-        let resource = resources::code(&context.path, id, "Call", None);
+        let resource = resources::code(&context.path, id, "Call", Format::Unknown);
         let mut relations = vec![(
             Relation::Calls,
             resources::file(&merge(&context.path, &self.source)),

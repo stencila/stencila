@@ -22,6 +22,7 @@ use kernel::{
         },
         tracing,
     },
+    formats::Format,
     stencila_schema::{CodeError, Node, Object},
     Kernel, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskMessages, TaskOutputs,
     TaskResult,
@@ -64,7 +65,7 @@ pub struct MicroKernel {
     /// The language of the kernel
     ///
     /// Used to be able to return a `Kernel` spec.
-    languages: Vec<String>,
+    languages: Vec<Format>,
 
     /// Is the kernel available on the current operating system?
     available: bool,
@@ -183,7 +184,7 @@ impl MicroKernel {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         name: &str,
-        languages: &[&str],
+        languages: &[Format],
         available: bool,
         interruptable: bool,
         forkable: bool,
@@ -196,7 +197,7 @@ impl MicroKernel {
     ) -> Self {
         Self {
             name: name.into(),
-            languages: languages.iter().map(|lang| lang.to_string()).collect(),
+            languages: languages.into(),
             available,
             interruptable,
             forkable,
@@ -333,14 +334,14 @@ impl KernelTrait for MicroKernel {
             binaries::installed(name, semver).await
         };
 
-        Kernel {
-            name: self.name.clone(),
-            r#type: KernelType::Micro,
-            languages: self.languages.clone(),
+        Kernel::new(
+            &self.name,
+            KernelType::Micro,
+            &self.languages,
             available,
-            interruptable: self.interruptable,
-            forkable: self.forkable,
-        }
+            self.interruptable,
+            self.forkable,
+        )
     }
 
     /// Start the kernel
@@ -486,7 +487,20 @@ impl KernelTrait for MicroKernel {
     }
 
     /// Execute code in the kernel synchronously
-    async fn exec_sync(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_sync(
+        &mut self,
+        code: &str,
+        lang: Format,
+        _tags: Option<&TagMap>,
+    ) -> Result<Task> {
+        if !self.languages.contains(&lang) {
+            bail!(
+                "Unexpected language for `{}` microkernel: {}",
+                self.name,
+                lang
+            );
+        }
+
         let mut task = Task::begin_sync();
         let (outputs, messages) = self.state().await.send_receive(&[code.to_string()]).await?;
         let result = TaskResult::new(outputs, messages);
@@ -496,7 +510,20 @@ impl KernelTrait for MicroKernel {
     }
 
     /// Execute code in the kernel asynchronously
-    async fn exec_async(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_async(
+        &mut self,
+        code: &str,
+        lang: Format,
+        _tags: Option<&TagMap>,
+    ) -> Result<Task> {
+        if !self.languages.contains(&lang) {
+            bail!(
+                "Unexpected language for `{}` microkernel: {}",
+                self.name,
+                lang
+            );
+        }
+
         // Setup channels and execution task
         let (result_forwarder, ..) = broadcast::channel(1);
         let (interrupt_sender, interrupt_receiver) = if self.interruptable {
@@ -562,7 +589,19 @@ impl KernelTrait for MicroKernel {
 
     /// Execute code in a fork of the kernel
     #[cfg(not(target_os = "windows"))]
-    async fn exec_fork(&mut self, code: &str, _tags: Option<&TagMap>) -> Result<Task> {
+    async fn exec_fork(
+        &mut self,
+        code: &str,
+        lang: Format,
+        _tags: Option<&TagMap>,
+    ) -> Result<Task> {
+        if !self.languages.contains(&lang) {
+            bail!(
+                "Unexpected language for `{}` microkernel: {}",
+                self.name,
+                lang
+            );
+        }
         if !self.is_forkable().await {
             bail!("Kernel `{}` is not forkable", self.name);
         }

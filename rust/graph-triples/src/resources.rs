@@ -15,6 +15,7 @@ use common::{
     serde::{self, Serialize},
     serde_with::skip_serializing_none,
 };
+use formats::Format;
 use hash_utils::str_seahash;
 use path_utils::path_slash::PathExt;
 use stencila_schema::{Cord, ExecuteAuto};
@@ -62,7 +63,7 @@ impl Resource {
             }
             Resource::File(File { path, .. }) => ["file://", &path.to_slash_lossy()].concat(),
             Resource::Module(Module { language, name, .. }) => {
-                ["module://", language, "#", name].concat()
+                ["module://", &language.to_string(), "#", name].concat()
             }
             Resource::Url(Url { url }) => url.clone(),
         }
@@ -682,15 +683,17 @@ pub struct Code {
     #[derivative(Hash = "ignore")]
     pub kind: String,
 
-    /// The programming language associated with the node (if any)
+    /// The programming language associated with the node
+    ///
+    /// Can be [`Format::Unknown`].
     #[derivative(PartialEq = "ignore")]
     #[derivative(PartialOrd = "ignore")]
     #[derivative(Hash = "ignore")]
-    pub language: Option<String>,
+    pub language: Format,
 }
 
 /// Create a new `Executable` resource
-pub fn code(path: &Path, id: &str, kind: &str, language: Option<String>) -> Resource {
+pub fn code(path: &Path, id: &str, kind: &str, language: Format) -> Resource {
     Resource::Code(Code {
         path: path.to_path_buf(),
         id: id.into(),
@@ -720,16 +723,16 @@ pub fn file(path: &Path) -> Resource {
 #[schemars(deny_unknown_fields)]
 pub struct Module {
     /// The programming language of the module
-    pub language: String,
+    pub language: Format,
 
     /// The name of the module
     pub name: String,
 }
 
 /// Create a new `Module` resource
-pub fn module(language: &str, name: &str) -> Resource {
+pub fn module(language: Format, name: &str) -> Resource {
     Resource::Module(Module {
-        language: language.into(),
+        language,
         name: name.into(),
     })
 }

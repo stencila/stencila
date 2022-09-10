@@ -1,6 +1,6 @@
 ---
 source: rust/parser-ts/src/lib.rs
-assertion_line: 136
+assertion_line: 126
 expression: resource_info
 input_file: fixtures/fragments/js/uses.js
 ---
@@ -10,7 +10,7 @@ input_file: fixtures/fragments/js/uses.js
     "path": "fragments/js/uses.js",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "JavaScript"
+    "language": "javascript"
   },
   "relations": [
     [

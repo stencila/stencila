@@ -4,6 +4,7 @@ use common::{
     eyre::Result,
     serde::{Deserialize, Serialize},
 };
+use formats::Format;
 use graph_triples::{Resource, ResourceInfo};
 
 // Export and re-export for the convenience of crates that implement a parser
@@ -22,7 +23,7 @@ pub use graph_triples;
 #[serde(default, rename_all = "camelCase", crate = "common::serde")]
 pub struct Parser {
     /// The language that the parser parses
-    pub language: String,
+    pub language: Format,
 }
 
 /// A trait for parsers
