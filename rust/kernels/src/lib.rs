@@ -50,9 +50,6 @@ enum MetaKernel {
     #[cfg(feature = "kernel-sql")]
     Sql(kernel_sql::SqlKernel),
 
-    #[cfg(feature = "kernel-prql")]
-    Prql(kernel_prql::PrqlKernel),
-
     #[cfg(feature = "kernel-micro")]
     Micro(kernel_micro::MicroKernel),
 
@@ -98,12 +95,6 @@ impl MetaKernel {
             kernel_sql::SqlKernel::new(selector, resource_changes_sender.clone())
         );
 
-        matches_kernel!(
-            "kernel-prql",
-            MetaKernel::Prql,
-            kernel_prql::PrqlKernel::new(selector, resource_changes_sender.clone())
-        );
-
         matches_kernel!("kernel-bash", MetaKernel::Micro, kernel_bash::new());
         matches_kernel!("kernel-deno", MetaKernel::Micro, kernel_deno::new());
         matches_kernel!("kernel-node", MetaKernel::Micro, kernel_node::new());
@@ -140,9 +131,6 @@ impl MetaKernel {
 
             #[cfg(feature = "kernel-sql")]
             MetaKernel::Sql(kernel) => Ok((MetaKernel::Sql(kernel.clone()), true)),
-
-            #[cfg(feature = "kernel-prql")]
-            MetaKernel::Prql(kernel) => Ok((MetaKernel::Prql(kernel.clone()), true)),
 
             #[cfg(feature = "kernel-micro")]
             MetaKernel::Micro(kernel) => {

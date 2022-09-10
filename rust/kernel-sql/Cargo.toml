@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 kernel = { path = "../kernel" }
+prql-compiler = "0.2.6"
 sqlx = { version = "0.6.1", features = [
     "runtime-tokio-rustls",
     "any",

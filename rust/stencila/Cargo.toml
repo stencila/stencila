@@ -90,7 +90,6 @@ default = [
   "kernels/kernel-bash",
   "kernels/kernel-calc",
   "kernels/kernel-node",
-  "kernels/kernel-prql",
   "kernels/kernel-python",
   "kernels/kernel-r",
   "kernels/kernel-store",

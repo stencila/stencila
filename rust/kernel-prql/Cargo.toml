@@ -1,9 +1,0 @@
-[package]
-name = "kernel-prql"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-kernel = { path = "../kernel" }
-kernel-sql = { path = "../kernel-sql" }
-prql-compiler = "0.2.6"

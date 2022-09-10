@@ -3548,15 +3548,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kernel-prql"
-version = "0.0.0"
-dependencies = [
- "kernel",
- "kernel-sql",
- "prql-compiler",
-]
-
-[[package]]
 name = "kernel-python"
 version = "0.0.0"
 dependencies = [
@@ -3581,6 +3572,7 @@ name = "kernel-sql"
 version = "0.0.0"
 dependencies = [
  "kernel",
+ "prql-compiler",
  "sqlx",
  "test-utils",
 ]
@@ -3628,7 +3620,6 @@ dependencies = [
  "kernel-jupyter",
  "kernel-micro",
  "kernel-node",
- "kernel-prql",
  "kernel-python",
  "kernel-r",
  "kernel-sql",

@@ -272,7 +272,7 @@ impl KernelTrait for SqlKernel {
         Kernel::new(
             "sql",
             KernelType::Builtin,
-            &[Format::SQL],
+            &[Format::SQL, Format::PrQL],
             true,
             false,
             false,
@@ -342,9 +342,18 @@ impl KernelTrait for SqlKernel {
     }
 
     async fn exec_sync(&mut self, code: &str, lang: Format, tags: Option<&TagMap>) -> Result<Task> {
-        if lang != Format::SQL {
-            bail!("Unexpected language for `SqlKernel`: {}", lang);
-        }
+        let sql = match lang {
+            Format::SQL => code.to_string(),
+            Format::PrQL => match prql_compiler::compile(code) {
+                Ok(sql) => sql,
+                Err(error) => {
+                    let mut task = Task::begin_sync();
+                    task.end(TaskResult::syntax_error(&error.to_string()));
+                    return Ok(task);
+                }
+            },
+            _ => bail!("Unexpected language for `SqlKernel`: {}", lang),
+        };
 
         let mut task = Task::begin_sync();
         let mut outputs = Vec::new();
@@ -370,7 +379,7 @@ impl KernelTrait for SqlKernel {
 
             let params = &self.parameters;
 
-            let statements = Self::split_statements(code);
+            let statements = Self::split_statements(&sql);
             for statement in statements {
                 let result = if statement.trim_start().to_lowercase().starts_with("select") {
                     match pool {
