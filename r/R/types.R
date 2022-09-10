@@ -2212,6 +2212,7 @@ Validator <- function(
 #' A validator specifying constraints on an array node.
 #'
 #' @name ArrayValidator
+#' @param itemsNullable Whether items can have the value `Node::Null` \bold{Required}.
 #' @param contains An array node is valid if at least one of its items is valid against the `contains` schema.
 #' @param id The identifier for this item.
 #' @param itemsValidator Another validator node specifying the constraints on all items in the array.
@@ -2223,6 +2224,7 @@ Validator <- function(
 #' @seealso \code{\link{Validator}}
 #' @export
 ArrayValidator <- function(
+  itemsNullable,
   contains,
   id,
   itemsValidator,
@@ -2236,6 +2238,7 @@ ArrayValidator <- function(
     meta = meta
   )
   self$type <- as_scalar("ArrayValidator")
+  self[["itemsNullable"]] <- check_property("ArrayValidator", "itemsNullable", TRUE, missing(itemsNullable), "logical", itemsNullable)
   self[["contains"]] <- check_property("ArrayValidator", "contains", FALSE, missing(contains), ValidatorTypes, contains)
   self[["itemsValidator"]] <- check_property("ArrayValidator", "itemsValidator", FALSE, missing(itemsValidator), ValidatorTypes, itemsValidator)
   self[["maxItems"]] <- check_property("ArrayValidator", "maxItems", FALSE, missing(maxItems), "numeric", maxItems)

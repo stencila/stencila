@@ -2205,6 +2205,9 @@ pub struct ArrayValidator {
     #[derivative(Default(value = "ArrayValidator_::ArrayValidator"))]
     pub type_: ArrayValidator_,
 
+    /// Whether items can have the value `Node::Null`
+    pub items_nullable: Boolean,
+
     /// An array node is valid if at least one of its items is valid against the `contains` schema.
     pub contains: Option<Box<ValidatorTypes>>,
 

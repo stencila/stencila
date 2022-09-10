@@ -1032,6 +1032,7 @@ export const validator = (props: Omit<Validator, 'type'> = {}): Validator => ({
  */
 export type ArrayValidator = Validator & {
   type: 'ArrayValidator'
+  itemsNullable: boolean
   contains?: ValidatorTypes
   itemsValidator?: ValidatorTypes
   maxItems?: Integer
@@ -1045,7 +1046,7 @@ export type ArrayValidator = Validator & {
  * @returns {ArrayValidator} ArrayValidator schema node
  */
 export const arrayValidator = (
-  props: Omit<ArrayValidator, 'type'> = {}
+  props: Omit<ArrayValidator, 'type'>
 ): ArrayValidator => ({
   ...compact(props),
   type: 'ArrayValidator',

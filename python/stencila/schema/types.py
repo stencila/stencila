@@ -1994,6 +1994,9 @@ class Validator(Entity):
 class ArrayValidator(Validator):
     """A validator specifying constraints on an array node."""
 
+    itemsNullable: Boolean
+    """Whether items can have the value `Node::Null`"""
+
     contains: Optional["ValidatorTypes"] = None
     """An array node is valid if at least one of its items is valid against the `contains` schema."""
 
@@ -2012,6 +2015,7 @@ class ArrayValidator(Validator):
 
     def __init__(
         self,
+        itemsNullable: Boolean,
         contains: Optional["ValidatorTypes"] = None,
         id: Optional[String] = None,
         itemsValidator: Optional["ValidatorTypes"] = None,
@@ -2024,6 +2028,8 @@ class ArrayValidator(Validator):
             id=id,
             meta=meta
         )
+        if itemsNullable is not None:
+            self.itemsNullable = itemsNullable
         if contains is not None:
             self.contains = contains
         if itemsValidator is not None:
