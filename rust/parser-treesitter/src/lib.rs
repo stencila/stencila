@@ -1,6 +1,7 @@
 use parser::{
+    formats::Format,
     graph_triples::{relations::Range, resources::ResourceDigest, Pairs, Resource, ResourceInfo},
-    utils::apply_tags, formats::Format,
+    utils::apply_tags,
 };
 use std::{collections::HashMap, path::Path, sync::Mutex};
 use tree_sitter::Tree;

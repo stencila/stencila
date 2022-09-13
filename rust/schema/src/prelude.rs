@@ -406,7 +406,7 @@ impl Timestamp {
 impl Duration {
     /// Convert a duration to a string parsable by SQL databases such as Postgres, SQLite, DuckDB etc
     pub fn to_sql(&self) -> String {
-        [&self.value.to_string(), " ", &self.time_unit.as_ref()].concat()
+        [&self.value.to_string(), " ", self.time_unit.as_ref()].concat()
     }
 }
 

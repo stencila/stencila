@@ -70,7 +70,7 @@ impl Clone for DuckPond {
 }
 
 /// Convert parameters to SQL string
-/// 
+///
 /// Unfortunately due to lifetimes and `ToSqlOutput` we seem to need to do this before calling `bind`
 fn to_sql(parameters: &HashMap<String, Node>) -> HashMap<String, Node> {
     parameters

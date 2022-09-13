@@ -5,9 +5,10 @@ use common::{
 };
 use node_dispatch::dispatch_validator;
 use stencila_schema::{
-    self, ArrayValidator, BooleanValidator, ConstantValidator, Duration, DurationValidator,
-    EnumValidator, IntegerValidator, Node, Number, NumberValidator, StringValidator, Timestamp,
-    TimestampValidator, TupleValidator, ValidatorTypes, DateTimeValidator, TimeValidator, Date, Time, DateTime, DateValidator,
+    self, ArrayValidator, BooleanValidator, ConstantValidator, Date, DateTime, DateTimeValidator,
+    DateValidator, Duration, DurationValidator, EnumValidator, IntegerValidator, Node, Number,
+    NumberValidator, StringValidator, Time, TimeValidator, Timestamp, TimestampValidator,
+    TupleValidator, ValidatorTypes,
 };
 
 /// A trait for applying different [`ValidatorTypes`] to other nodes
