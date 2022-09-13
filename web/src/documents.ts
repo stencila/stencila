@@ -613,7 +613,7 @@ async function onParameterChange(
 
   const op: Operation = {
     type: 'Replace',
-    address: [event.detail.property],
+    address: event.detail.property.split('.'),
     value: event.detail.value,
     items: 1,
     length: 1,
