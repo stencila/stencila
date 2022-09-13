@@ -224,6 +224,22 @@ inline_primitive_to_pandoc_str!(Integer);
 inline_primitive_to_pandoc_str!(Number);
 inline_primitive_to_pandoc_str!(String);
 
+macro_rules! inline_with_value_to_pandoc_str {
+    ($type:ty) => {
+        impl ToPandoc for $type {
+            fn to_pandoc_inline(&self, _context: &mut EncodeContext) -> pandoc::Inline {
+                pandoc::Inline::Str(self.value.to_string())
+            }
+        }
+    };
+}
+
+inline_with_value_to_pandoc_str!(Date);
+inline_with_value_to_pandoc_str!(Time);
+inline_with_value_to_pandoc_str!(DateTime);
+inline_with_value_to_pandoc_str!(Timestamp);
+inline_with_value_to_pandoc_str!(Duration);
+
 macro_rules! inline_content_to_pandoc_inline {
     ($type:ty, $pandoc:expr) => {
         impl ToPandoc for $type {
