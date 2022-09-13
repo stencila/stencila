@@ -4,6 +4,8 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+arrow = "21.0.0"
+duckdb = { version = "0.5.0", features = ["bundled"] }
 kernel = { path = "../kernel" }
 prql-compiler = "0.2.6"
 sqlx = { version = "0.6.1", features = [

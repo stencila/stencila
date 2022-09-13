@@ -27,8 +27,11 @@ use kernel::{
     Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
 
+mod duck;
 mod postgres;
 mod sqlite;
+
+use duck::DuckPond;
 
 #[cfg(test)]
 mod tests;
@@ -39,8 +42,10 @@ static SYMBOL_REGEX: Lazy<Regex> =
 static BINDING_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"\$([a-zA-Z_][a-zA-Z_0-9]*)").expect("Unable to create regex"));
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone)]
 enum MetaPool {
+    Duck(DuckPond),
     Postgres(PgPool),
     Sqlite(SqlitePool),
 }
@@ -118,33 +123,44 @@ impl SqlKernel {
             .or_else(|| env::var("DATABASE_URL").ok())
             .unwrap_or_else(|| "sqlite://:memory:".to_string());
 
-        // If the URL is for a SQLite and the file path is relative then make it
+        // If the URL is for a SQLite or DuckDb database and the file path is relative then make it
         // absolute using the directory that the kernel was started in.
         if let (Some(spec), Some(directory)) = (url.strip_prefix("sqlite://"), &self.directory) {
             let path = PathBuf::from(spec);
             if spec != ":memory:" && path.is_relative() {
                 url = ["sqlite://", &directory.join(path).to_string_lossy()].concat();
             }
+        } else if let (Some(spec), Some(directory)) =
+            (url.strip_prefix("duckdb://"), &self.directory)
+        {
+            let path = PathBuf::from(spec);
+            if spec != ":memory:" && path.is_relative() {
+                url = ["duckdb://", &directory.join(path).to_string_lossy()].concat();
+            }
         }
-
-        let mut options = AnyConnectOptions::from_str(&url)?;
 
         tracing::trace!("Connecting to database: {}", url);
 
-        let pool = if let Some(options) = options.as_postgres_mut() {
-            options.log_statements(LevelFilter::Trace);
-            let pool = PgPool::connect_with(options.clone()).await?;
-            MetaPool::Postgres(pool)
-        } else if let Some(options) = options.as_sqlite_mut() {
-            options.log_statements(LevelFilter::Trace);
-            let pool = SqlitePool::connect_with(options.clone()).await?;
-            MetaPool::Sqlite(pool)
+        let pool = if let Some(path) = url.strip_prefix("duckdb://") {
+            let pond = DuckPond::connect(path);
+            MetaPool::Duck(pond)
         } else {
-            bail!(
-                "Unhandled database type `{:?}` for url: {}",
-                options.kind(),
-                url
-            )
+            let mut options = AnyConnectOptions::from_str(&url)?;
+            if let Some(options) = options.as_postgres_mut() {
+                options.log_statements(LevelFilter::Trace);
+                let pool = PgPool::connect_with(options.clone()).await?;
+                MetaPool::Postgres(pool)
+            } else if let Some(options) = options.as_sqlite_mut() {
+                options.log_statements(LevelFilter::Trace);
+                let pool = SqlitePool::connect_with(options.clone()).await?;
+                MetaPool::Sqlite(pool)
+            } else {
+                bail!(
+                    "Unhandled database type `{:?}` for url: {}",
+                    options.kind(),
+                    url
+                )
+            }
         };
         self.pool = Some(pool);
         self.url = Some(url);
@@ -175,6 +191,9 @@ impl SqlKernel {
         if !self.watching {
             let watches = self.watches.clone();
             match pool {
+                MetaPool::Duck(pool) => {
+                    duck::watch(url, pool, watches, sender).await?;
+                }
                 MetaPool::Postgres(pool) => {
                     postgres::watch(url, pool, watches, sender).await?;
                 }
@@ -191,6 +210,7 @@ impl SqlKernel {
             if first == "@all" {
                 let schema = tables.get(1);
                 let tables = match pool {
+                    MetaPool::Duck(pool) => duck::watch_all(schema, pool).await?,
                     MetaPool::Postgres(pool) => postgres::watch_all(schema, pool).await?,
                     MetaPool::Sqlite(pool) => sqlite::watch_all(schema, pool).await?,
                 };
@@ -204,6 +224,7 @@ impl SqlKernel {
         for table in tables {
             if !watches.contains(table) {
                 match pool {
+                    MetaPool::Duck(pool) => duck::watch_table(table, pool).await?,
                     MetaPool::Postgres(pool) => postgres::watch_table(table, pool).await?,
                     MetaPool::Sqlite(pool) => sqlite::watch_table(table, pool).await?,
                 }
@@ -307,6 +328,7 @@ impl KernelTrait for SqlKernel {
         // Attempt to get a table or view with the same name
         let query = format!("SELECT * FROM \"{}\"", name.replace('"', "-"));
         if let Ok(datatable) = match pool {
+            MetaPool::Duck(pool) => duck::query_to_datatable(&query, params, pool).await,
             MetaPool::Postgres(pool) => postgres::query_to_datatable(&query, params, pool).await,
             MetaPool::Sqlite(pool) => sqlite::query_to_datatable(&query, params, pool).await,
         } {
@@ -329,6 +351,7 @@ impl KernelTrait for SqlKernel {
 
         if let Node::Datatable(datatable) = value {
             match pool {
+                MetaPool::Duck(pool) => duck::table_from_datatable(name, datatable, pool).await,
                 MetaPool::Postgres(pool) => {
                     postgres::table_from_datatable(name, datatable, pool).await
                 }
@@ -383,6 +406,9 @@ impl KernelTrait for SqlKernel {
             for statement in statements {
                 let result = if statement.trim_start().to_lowercase().starts_with("select") {
                     match pool {
+                        MetaPool::Duck(pool) => {
+                            duck::query_to_datatable(&statement, params, pool).await
+                        }
                         MetaPool::Postgres(pool) => {
                             postgres::query_to_datatable(&statement, params, pool).await
                         }
@@ -392,6 +418,9 @@ impl KernelTrait for SqlKernel {
                     }
                 } else {
                     match pool {
+                        MetaPool::Duck(pool) => {
+                            duck::execute_statement(&statement, params, pool).await
+                        }
                         MetaPool::Postgres(pool) => {
                             postgres::execute_statement(&statement, params, pool).await
                         }
