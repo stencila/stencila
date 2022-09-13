@@ -1,0 +1,36 @@
+---
+source: rust/parser-sql/src/lib.rs
+assertion_line: 408
+expression: resource_info
+input_file: fixtures/fragments/sql/create-table.sql
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/sql/create-table.sql",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "sql"
+  },
+  "relations": [
+    [
+      {
+        "type": "Assigns",
+        "range": [
+          3,
+          13,
+          3,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/create-table.sql",
+        "name": "table_a",
+        "kind": "Datatable"
+      }
+    ]
+  ],
+  "compile_digest": "6257936074037965066.5776369964411662989.0.0.0",
+  "tags": []
+}

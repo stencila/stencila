@@ -1,0 +1,73 @@
+---
+source: rust/parser-sql/src/lib.rs
+assertion_line: 427
+expression: parameters
+---
+[
+  {
+    "type": "Parameter",
+    "name": "col_a",
+    "default": 5,
+    "validator": {
+      "type": "IntegerValidator",
+      "maximum": 10.0,
+      "minimum": 1.0
+    }
+  },
+  {
+    "type": "Parameter",
+    "name": "col_b",
+    "default": "Hello",
+    "validator": {
+      "type": "StringValidator"
+    }
+  },
+  {
+    "type": "Parameter",
+    "name": "col_c",
+    "default": 15.6,
+    "validator": {
+      "type": "NumberValidator",
+      "exclusiveMaximum": 20.0,
+      "exclusiveMinimum": 10.0
+    }
+  },
+  {
+    "type": "Parameter",
+    "name": "col_d",
+    "validator": {
+      "type": "DateValidator",
+      "maximum": {
+        "type": "Date",
+        "value": "2010-12-31"
+      },
+      "minimum": {
+        "type": "Date",
+        "value": "2000-01-01"
+      }
+    }
+  },
+  {
+    "type": "Parameter",
+    "name": "col_e",
+    "default": {
+      "type": "Date",
+      "value": "2999-01-09"
+    },
+    "validator": {
+      "type": "DateValidator",
+      "maximum": {
+        "type": "Date",
+        "value": "3000-01-01"
+      }
+    }
+  },
+  {
+    "type": "Parameter",
+    "name": "col_f",
+    "validator": {
+      "type": "StringValidator",
+      "maxLength": 9
+    }
+  }
+]
