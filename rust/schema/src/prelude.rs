@@ -105,7 +105,10 @@ impl std::str::FromStr for Number {
 
 impl std::fmt::Display for Number {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+        // Use JSON stringify here because that deals with ensuring decimal point for
+        // floats that are close to integers.
+        let json = serde_json::to_string(&self.0).expect("Should always be able to stringify");
+        write!(f, "{}", json)
     }
 }
 
