@@ -113,10 +113,10 @@ impl TreesitterParser {
 pub struct Capture<'tree> {
     #[allow(dead_code)]
     /// The index of the capture in the pattern
-    index: u32,
+    pub index: u32,
 
     /// The name of the capture in the pattern
-    name: String,
+    pub name: String,
 
     /// The captured node
     pub node: tree_sitter::Node<'tree>,
