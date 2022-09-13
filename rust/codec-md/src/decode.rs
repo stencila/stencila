@@ -2,12 +2,17 @@ use std::collections::HashMap;
 
 use nom::{
     branch::alt,
-    bytes::complete::{escaped, is_not, tag, tag_no_case, take, take_until, take_while1},
-    character::complete::{alpha1, alphanumeric1, char, digit1, multispace0, multispace1, none_of},
+    bytes::complete::{
+        escaped, is_not, tag, tag_no_case, take, take_until, take_while1, take_while_m_n,
+    },
+    character::{
+        complete::{alpha1, alphanumeric1, char, digit1, multispace0, multispace1, none_of},
+        is_digit,
+    },
     combinator::{all_consuming, map, map_res, not, opt, peek, recognize},
     multi::{fold_many0, many0, many1, separated_list0, separated_list1},
     number::complete::double,
-    sequence::{delimited, pair, preceded, tuple},
+    sequence::{delimited, pair, preceded, terminated, tuple},
     IResult,
 };
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
@@ -815,9 +820,51 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     _ => node.to_txt().parse().ok(),
                 }
             }
+            fn to_option_date(node: Node) -> Option<Date> {
+                match node {
+                    Node::Date(date) => Some(date),
+                    Node::String(string) => Some(Date::from(string)),
+                    _ => None,
+                }
+            }
+            fn to_option_time(node: Node) -> Option<Time> {
+                match node {
+                    Node::Time(time) => Some(time),
+                    Node::String(string) => Some(Time::from(string)),
+                    _ => None,
+                }
+            }
+            fn to_option_datetime(node: Node) -> Option<DateTime> {
+                match node {
+                    Node::DateTime(datetime) => Some(datetime),
+                    Node::String(string) => Some(DateTime::from(string)),
+                    _ => None,
+                }
+            }
 
             let validator = if matches!(typ, Some("boolean")) || matches!(typ, Some("bool")) {
                 Some(ValidatorTypes::BooleanValidator(BooleanValidator::default()))
+            } else if matches!(typ, Some("enum")) {
+                let values = options
+                    .remove("values")
+                    .or_else(|| options.remove("vals"))
+                    .and_then(|values| values);
+                let values = match values {
+                    Some(node) => match node {
+                        // Usually the supplied node is an array, which we need to convert
+                        // to a vector of `Node`s
+                        Node::Array(array) => array
+                            .into_iter()
+                            .map(|primitive| primitive.to_node())
+                            .collect(),
+                        _ => vec![node],
+                    },
+                    None => vec![],
+                };
+                Some(ValidatorTypes::EnumValidator(EnumValidator {
+                    values,
+                    ..Default::default()
+                }))
             } else if matches!(typ, Some("integer")) || matches!(typ, Some("int")) {
                 let minimum = options
                     .remove("minimum")
@@ -890,33 +937,52 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     pattern,
                     ..Default::default()
                 }))
-            } else if matches!(typ, Some("enum")) {
-                let values = options
-                    .remove("values")
-                    .or_else(|| options.remove("vals"))
-                    .and_then(|values| values);
-                let values = match values {
-                    Some(node) => match node {
-                        // Usually the supplied node is an array, which we need to convert
-                        // to a vector of `Node`s
-                        Node::Array(array) => array
-                            .into_iter()
-                            .map(|primitive| match primitive {
-                                Primitive::Null(node) => Node::Null(node),
-                                Primitive::Boolean(node) => Node::Boolean(node),
-                                Primitive::Integer(node) => Node::Integer(node),
-                                Primitive::Number(node) => Node::Number(node),
-                                Primitive::String(node) => Node::String(node),
-                                Primitive::Array(node) => Node::Array(node),
-                                Primitive::Object(node) => Node::Object(node),
-                            })
-                            .collect(),
-                        _ => vec![node],
-                    },
-                    None => vec![],
-                };
-                Some(ValidatorTypes::EnumValidator(EnumValidator {
-                    values,
+            } else if matches!(typ, Some("date")) {
+                let minimum = options
+                    .remove("minimum")
+                    .or_else(|| options.remove("min"))
+                    .and_then(|node| node)
+                    .and_then(to_option_date);
+                let maximum = options
+                    .remove("maximum")
+                    .or_else(|| options.remove("max"))
+                    .and_then(|node| node)
+                    .and_then(to_option_date);
+                Some(ValidatorTypes::DateValidator(DateValidator {
+                    minimum,
+                    maximum,
+                    ..Default::default()
+                }))
+            } else if matches!(typ, Some("time")) {
+                let minimum = options
+                    .remove("minimum")
+                    .or_else(|| options.remove("min"))
+                    .and_then(|node| node)
+                    .and_then(to_option_time);
+                let maximum = options
+                    .remove("maximum")
+                    .or_else(|| options.remove("max"))
+                    .and_then(|node| node)
+                    .and_then(to_option_time);
+                Some(ValidatorTypes::TimeValidator(TimeValidator {
+                    minimum,
+                    maximum,
+                    ..Default::default()
+                }))
+            } else if matches!(typ, Some("datetime")) {
+                let minimum = options
+                    .remove("minimum")
+                    .or_else(|| options.remove("min"))
+                    .and_then(|node| node)
+                    .and_then(to_option_datetime);
+                let maximum = options
+                    .remove("maximum")
+                    .or_else(|| options.remove("max"))
+                    .and_then(|node| node)
+                    .and_then(to_option_datetime);
+                Some(ValidatorTypes::DateTimeValidator(DateTimeValidator {
+                    minimum,
+                    maximum,
                     ..Default::default()
                 }))
             } else {
@@ -1136,12 +1202,16 @@ fn curly_attrs(input: &str) -> IResult<&str, Vec<(String, Option<Node>)>> {
 /// by `=` or `:`).
 fn curly_attr(input: &str) -> IResult<&str, (String, Option<Node>)> {
     map_res(
-        tuple((
-            is_not(" =:}"),
-            opt(preceded(
-                tuple((multispace0, alt((tag("="), tag(":"))), multispace0)),
-                alt((primitive_node, unquoted_string_node)),
-            )),
+        alt((
+            map(
+                tuple((
+                    is_not(" =:}"),
+                    tuple((multispace0, alt((tag("="), tag(":"))), multispace0)),
+                    alt((primitive_node, unquoted_string_node)),
+                )),
+                |(name, _s, value)| (name, Some(value)),
+            ),
+            map(is_not(" =:}"), |name| (name, None)),
         )),
         |(name, value): (&str, Option<Node>)| -> Result<(String, Option<Node>)> {
             Ok((name.to_snake_case(), value))
@@ -1209,6 +1279,45 @@ fn string_node(input: &str) -> IResult<&str, Node> {
     )(input)
 }
 
+/// Parse a YYYY-mm-dd date
+fn date_node(input: &str) -> IResult<&str, Node> {
+    map_res(
+        recognize(tuple((
+            take_while_m_n(4, 4, |c| is_digit(c as u8)),
+            char('-'),
+            take_while_m_n(2, 2, |c| is_digit(c as u8)),
+            char('-'),
+            take_while_m_n(2, 2, |c| is_digit(c as u8)),
+        ))),
+        |str: &str| -> Result<Node> { Ok(Node::Date(Date::from(str.to_string()))) },
+    )(input)
+}
+
+/// Parse a HH::MM::SS time
+fn time_node(input: &str) -> IResult<&str, Node> {
+    map_res(
+        recognize(tuple((
+            take_while_m_n(2, 2, |c| is_digit(c as u8)),
+            char(':'),
+            take_while_m_n(2, 2, |c| is_digit(c as u8)),
+            char(':'),
+            take_while_m_n(2, 2, |c| is_digit(c as u8)),
+        ))),
+        |str: &str| -> Result<Node> { Ok(Node::Time(Time::from(str.to_string()))) },
+    )(input)
+}
+
+/// Parse a YYYY-mm-ddTHH::MM::SS datetime
+fn datetime_node(input: &str) -> IResult<&str, Node> {
+    map_res(
+        recognize(terminated(
+            tuple((date_node, char('T'), time_node)),
+            opt(char('Z')),
+        )),
+        |str: &str| -> Result<Node> { Ok(Node::DateTime(DateTime::from(str.to_string()))) },
+    )(input)
+}
+
 /// Parse a JSON5-style square bracketed array into an `Array` node
 ///
 /// Inner closing brackets can be escaped.
@@ -1238,6 +1347,9 @@ fn primitive_node(input: &str) -> IResult<&str, Node> {
     alt((
         object_node,
         array_node,
+        datetime_node,
+        date_node,
+        time_node,
         string_node,
         integer_node,
         number_node,
@@ -1533,6 +1645,21 @@ mod tests {
                 ("b", Some(Node::String("2".to_string()))),
                 ("c", Some(Node::Integer(-3))),
                 ("d", Some(Node::Number(Number(4.0))))
+            ]
+        );
+
+        assert_json_eq!(
+            curly_attrs(r#"{date min=2022-09-01 max='2022-09-30' def="2022-09-15"}"#)
+                .unwrap()
+                .1,
+            vec![
+                ("date", None),
+                (
+                    "min",
+                    Some(Node::Date(Date::from("2022-09-01".to_string())))
+                ),
+                ("max", Some(Node::String("2022-09-30".to_string()))),
+                ("def", Some(Node::String("2022-09-15".to_string()))),
             ]
         );
     }

@@ -148,6 +148,11 @@ impl ToMd for Parameter {
                 ValidatorTypes::BooleanValidator(..) => {
                     options += "bool";
                 }
+                ValidatorTypes::EnumValidator(validator) => {
+                    let json = serde_json::to_string(&validator.values)
+                        .unwrap_or_else(|_| "[]".to_string());
+                    options += &["enum vals=", &escape(&json)].concat();
+                }
                 ValidatorTypes::IntegerValidator(validator) => {
                     options += "int";
                     if let Some(min) = validator.minimum {
@@ -192,18 +197,56 @@ impl ToMd for Parameter {
                         options += &[" pattern=\"", &escape(pattern), "\""].concat();
                     }
                 }
-                ValidatorTypes::EnumValidator(validator) => {
-                    let json = serde_json::to_string(&validator.values)
-                        .unwrap_or_else(|_| "[]".to_string());
-                    options += &["enum vals=", &escape(&json)].concat();
+                ValidatorTypes::DateValidator(validator) => {
+                    options += "date";
+                    if let Some(min) = &validator.minimum {
+                        options += " min=";
+                        options += &min.to_string();
+                    }
+                    if let Some(max) = &validator.maximum {
+                        options += " max=";
+                        options += &max.to_string();
+                    }
+                }
+                ValidatorTypes::TimeValidator(validator) => {
+                    options += "time";
+                    if let Some(min) = &validator.minimum {
+                        options += " min=";
+                        options += &min.to_string();
+                    }
+                    if let Some(max) = &validator.maximum {
+                        options += " max=";
+                        options += &max.to_string();
+                    }
+                }
+                ValidatorTypes::DateTimeValidator(validator) => {
+                    options += "datetime";
+                    if let Some(min) = &validator.minimum {
+                        options += " min=";
+                        options += &min.to_string();
+                    }
+                    if let Some(max) = &validator.maximum {
+                        options += " max=";
+                        options += &max.to_string();
+                    }
                 }
                 _ => {}
             };
         }
 
         if let Some(default) = &self.default {
-            let json = serde_json::to_string(&default).unwrap_or_else(|_| "null".to_string());
-            options += &[" def=", &escape(&json)].concat();
+            let value = match default.as_ref() {
+                Node::Null(node) => node.to_string(),
+                Node::Boolean(node) => node.to_string(),
+                Node::Integer(node) => node.to_string(),
+                Node::Number(node) => node.to_string(),
+                Node::String(node) => ["'", &node.to_string(), "'"].concat(),
+                Node::Date(node) => node.to_string(),
+                Node::Time(node) => node.to_string(),
+                Node::DateTime(node) => node.to_string(),
+                _ => serde_json::to_string(&default).unwrap_or_else(|_| "null".to_string()),
+            };
+            options += &[" def=", &escape(&value)].concat();
         }
 
         let attrs = if options.is_empty() {
