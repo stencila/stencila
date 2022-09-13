@@ -9,5 +9,5 @@ input_file: fixtures/nodes/parameter-integer.json
   <meta itemprop="validator" itemtype="https://schema.stenci.la/IntegerValidator" itemscope/>
   <meta itemprop="defaultValue" itemtype="https://schema.org/Integer" itemscope content="42"/>
   <meta itemprop="value" itemtype="https://schema.org/Integer" itemscope content="50"/>
-  <input id="input-id" slot="value" type="number" step="1" placeholder="42" value="50" size="3"/>
+  <input id="input-id" slot="value" type="number" step="1.0" placeholder="42" value="50" size="3"/>
 </stencila-parameter>

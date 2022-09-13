@@ -54,7 +54,7 @@ expression: "&graph"
       "path": "articles/code-relations.md",
       "id": "pa-1",
       "kind": "Parameter",
-      "language": "calc",
+      "language": "json",
       "dependencies": 0,
       "dependents": 2,
       "depth": 0,

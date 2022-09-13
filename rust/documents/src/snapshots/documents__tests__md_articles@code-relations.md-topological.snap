@@ -575,7 +575,7 @@ expression: "&plan"
               "path": "articles/code-relations.md",
               "id": "pa-1",
               "kind": "Parameter",
-              "language": "calc"
+              "language": "json"
             },
             "relations": [
               [
@@ -618,7 +618,7 @@ expression: "&plan"
             "tags": []
           },
           "kernel_selector": {
-            "lang": "calc"
+            "lang": "json"
           },
           "is_fork": false
         }
@@ -708,7 +708,7 @@ expression: "&plan"
                 "path": "articles/code-relations.md",
                 "id": "pa-1",
                 "kind": "Parameter",
-                "language": "calc"
+                "language": "json"
               },
               {
                 "type": "Symbol",

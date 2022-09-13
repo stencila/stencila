@@ -1,14 +1,13 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 438
+assertion_line: 481
 expression: html
 input_file: fixtures/nodes/number-validator.json
-
 ---
 <stencila-number-validator data-root itemtype="https://schema.stenci.la/NumberValidator" itemscope>
-  <span data-prop="minimum" slot="minimum">0</span>
-  <span data-prop="exclusiveMinimum" slot="exclusive-minimum">-1</span>
-  <span data-prop="maximum" slot="maximum">100</span>
-  <span data-prop="exclusiveMaximum" slot="exclusive-maximum">101</span>
-  <span data-prop="multipleOf" slot="multiple-of">5</span>
+  <span data-prop="minimum" slot="minimum">0.0</span>
+  <span data-prop="exclusiveMinimum" slot="exclusive-minimum">-1.0</span>
+  <span data-prop="maximum" slot="maximum">100.0</span>
+  <span data-prop="exclusiveMaximum" slot="exclusive-maximum">101.0</span>
+  <span data-prop="multipleOf" slot="multiple-of">5.0</span>
 </stencila-number-validator>

@@ -1,9 +1,8 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 438
+assertion_line: 481
 expression: html
 input_file: fixtures/nodes/array.json
-
 ---
 <stencila-array data-root itemtype="https://schema.stenci.la/Array" itemscope>
   <ol slot="items">
@@ -23,7 +22,7 @@ input_file: fixtures/nodes/array.json
       <span itemtype="https://schema.org/Number" itemscope>1.23</span>
     </li>
     <li>
-      <span itemtype="https://schema.org/Number" itemscope>1000000</span>
+      <span itemtype="https://schema.org/Number" itemscope>1000000.0</span>
     </li>
     <li>a</li>
     <li>
