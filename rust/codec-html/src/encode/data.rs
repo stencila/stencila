@@ -15,7 +15,7 @@
 
 use std::string::ToString;
 
-use codec::common::tracing;
+use codec::common::{serde_json, tracing};
 use codec_txt::ToTxt;
 use node_dispatch::dispatch_validator;
 use stencila_schema::*;
@@ -228,14 +228,28 @@ pub(crate) fn label_and_input(
             None => vec![attr("type", "text")],
         };
 
+        fn node_to_attr_value(node: &Node) -> String {
+            match node {
+                Node::Null(node) => node.to_string(),
+                Node::Boolean(node) => node.to_string(),
+                Node::Integer(node) => node.to_string(),
+                Node::Number(node) => node.to_string(),
+                Node::String(node) => node.to_string(),
+                Node::Date(node) => node.to_string(),
+                Node::Time(node) => node.to_string(),
+                Node::DateTime(node) => node.to_string(),
+                _ => serde_json::to_string(node).unwrap_or_else(|_| "null".to_string()),
+            }
+        }
+
         // If the parameter's `default` property is set then set a `placeholder` attribute
         let placeholder_attr = match &default {
-            Some(node) => attr("placeholder", &node.to_txt()),
+            Some(node) => attr("placeholder", &node_to_attr_value(node.as_ref())),
             None => "".to_string(),
         };
 
         let value_attr = match &value {
-            Some(node) => attr("value", &node.to_txt()),
+            Some(node) => attr("value", &node_to_attr_value(node.as_ref())),
             None => "".to_string(),
         };
 
@@ -245,7 +259,12 @@ pub(crate) fn label_and_input(
         let size_attr = value
             .as_ref()
             .or(default.as_ref())
-            .map(|node| attr("size", &(node.to_txt().len() + 1).to_string()))
+            .map(|node| {
+                attr(
+                    "size",
+                    &(node_to_attr_value(node.as_ref()).len() + 1).to_string(),
+                )
+            })
             .unwrap_or_default();
 
         // If a `BooleanValidator` then need to set the `checked` attribute if true
@@ -555,6 +574,119 @@ impl ToHtml for StringValidator {
             attrs.push(attr("pattern", pattern))
         }
         attrs
+    }
+}
+
+fn datetime_validator_content<T>(
+    context: &EncodeContext,
+    minimum: &Option<T>,
+    maximum: &Option<T>,
+) -> String
+where
+    T: ToString,
+{
+    let minimum = elem_placeholder(
+        "span",
+        &[attr_prop("minimum"), attr_slot("minimum")],
+        &minimum.as_ref().map(|value| value.to_string()),
+        context,
+    );
+
+    let maximum = elem_placeholder(
+        "span",
+        &[attr_prop("maximum"), attr_slot("maximum")],
+        &maximum.as_ref().map(|value| value.to_string()),
+        context,
+    );
+
+    [minimum, maximum].concat()
+}
+
+fn datetime_validator_attrs<T>(
+    input_type: &str,
+    minimum: &Option<T>,
+    maximum: &Option<T>,
+) -> Vec<String>
+where
+    T: ToString,
+{
+    let mut attrs = Vec::new();
+    attrs.push(attr("type", input_type));
+    if let Some(minimum) = &minimum {
+        attrs.push(attr("min", &minimum.to_string()))
+    }
+    if let Some(maximum) = &maximum {
+        attrs.push(attr("max", &maximum.to_string()))
+    }
+    attrs
+}
+
+/// Encode a `DateValidator`
+impl ToHtml for DateValidator {
+    fn to_html(&self, context: &EncodeContext) -> String {
+        elem(
+            "stencila-date-validator",
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &datetime_validator_content(context, &self.minimum, &self.maximum),
+        )
+    }
+
+    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+        datetime_validator_attrs("date", &self.minimum, &self.maximum)
+    }
+}
+
+/// Encode a `TimeValidator`
+///
+/// No properties, so just an empty element used to indicate the type
+impl ToHtml for TimeValidator {
+    fn to_html(&self, context: &EncodeContext) -> String {
+        elem(
+            "stencila-time-validator",
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &datetime_validator_content(context, &self.minimum, &self.maximum),
+        )
+    }
+
+    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+        datetime_validator_attrs("time", &self.minimum, &self.maximum)
+    }
+}
+
+/// Encode a `DateTimeValidator`
+///
+/// No properties, so just an empty element used to indicate the type
+impl ToHtml for DateTimeValidator {
+    fn to_html(&self, context: &EncodeContext) -> String {
+        elem(
+            "stencila-datetime-validator",
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &datetime_validator_content(context, &self.minimum, &self.maximum),
+        )
+    }
+
+    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+        datetime_validator_attrs("datetime-local", &self.minimum, &self.maximum)
+    }
+}
+
+/// Encode a `TimestampValidator`
+///
+/// No properties, so just an empty element used to indicate the type
+impl ToHtml for TimestampValidator {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        tracing::error!("ToHtml not yet implemented for TimestampValidator");
+        String::new()
+    }
+}
+
+/// Encode a `DurationValidator`
+///
+/// No properties, so just an empty element used to indicate the type
+impl ToHtml for DurationValidator {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        tracing::error!("ToHtml not yet implemented for DurationValidator");
+        String::new()
     }
 }
 

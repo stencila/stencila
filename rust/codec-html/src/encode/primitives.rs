@@ -1,9 +1,14 @@
 //! Encode `Primitive` nodes to HTML
 
-use super::{attr_itemtype_str, attr_slot, concat, elem, EncodeContext, ToHtml};
 use html_escape::encode_safe;
 use node_dispatch::dispatch_primitive;
 use stencila_schema::*;
+
+use crate::encode::attr;
+
+use super::{
+    attr_itemtype, attr_itemtype_str, attr_prop, attr_slot, concat, elem, EncodeContext, ToHtml,
+};
 
 impl ToHtml for Primitive {
     fn to_html(&self, context: &EncodeContext) -> String {
@@ -47,6 +52,105 @@ atomic_to_html!(Number);
 impl ToHtml for String {
     fn to_html(&self, _context: &EncodeContext) -> String {
         encode_safe(self).to_string()
+    }
+}
+
+/// Encode a `Date` to HTML
+impl ToHtml for Date {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        // To allow for alternative formatting the Date could be decomposed as follows.
+        // However, for now, keeping things simple by just encoding the raw value.
+        /*
+        use chrono::Datelike;
+        let content = match chrono::NaiveDate::parse_from_str(&self.value, "%Y-%m-%d") {
+            Ok(datetime) => [
+                elem("span", &[], &datetime.year().to_string()),
+                elem("span", &[], &datetime.month().to_string()),
+                elem("span", &[], &datetime.day().to_string()),
+            ]
+            .concat(),
+            Err(error) => {
+                tracing::warn!("While parsing `Date` value `{}`: {}", self.value, error);
+                self.value.clone()
+            }
+        };
+        */
+        elem(
+            "span",
+            &[],
+            &elem(
+                "time",
+                &[
+                    attr_itemtype::<Self>(),
+                    attr_prop("value"),
+                    attr("datetime", &self.value),
+                ],
+                &self.value,
+            ),
+        )
+    }
+}
+
+/// Encode a `Time` to HTML
+impl ToHtml for Time {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        // As for `Date` this could be broken into parts but for now is kept simple
+        elem(
+            "span",
+            &[],
+            &elem(
+                "time",
+                &[
+                    attr_itemtype::<Self>(),
+                    attr_prop("value"),
+                    attr("datetime", &self.value),
+                ],
+                &self.value,
+            ),
+        )
+    }
+}
+
+/// Encode a `DateTime` to HTML
+impl ToHtml for DateTime {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        // As for `Date` this could be broken into parts but for now is kept simple
+        elem(
+            "span",
+            &[],
+            &elem(
+                "time",
+                &[
+                    attr_itemtype::<Self>(),
+                    attr_prop("value"),
+                    attr("datetime", &self.value),
+                ],
+                &self.value,
+            ),
+        )
+    }
+}
+
+/// Encode a `Timestamp` to HTML
+impl ToHtml for Timestamp {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        // Convert the time stamp to a `chrono:NaiveDate` and print as ISO 8601 string
+        self.to_iso8601().unwrap_or_default()
+    }
+}
+
+/// Encode a `Duration` to HTML
+impl ToHtml for Duration {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        elem(
+            "span",
+            &[],
+            &[
+                elem("span", &[attr_prop("value")], &self.value.to_string()),
+                elem("span", &[attr_prop("timeUnit")], &self.time_unit.to_si()),
+            ]
+            .concat(),
+        )
     }
 }
 
