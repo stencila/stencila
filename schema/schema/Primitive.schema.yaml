@@ -2,11 +2,19 @@ title: Primitive
 category: data
 status: stable
 description: Union type for all primitives values
+$comment: |
+  Analogous to https://schema.org/DataType "The basic data types such as Integers, Strings, etc."
+  but includes additional types such as `Integer`, `Timestamp`, and `Object`.
 anyOf:
   - $ref: 'Null'
   - $ref: Boolean
   - $ref: Integer
   - $ref: Number
   - $ref: String
+  - $ref: Date
+  - $ref: Time
+  - $ref: DateTime
+  - $ref: Timestamp
+  - $ref: Duration
   - $ref: Object
   - $ref: Array

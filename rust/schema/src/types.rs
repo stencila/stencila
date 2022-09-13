@@ -215,30 +215,6 @@ pub enum CodeFragment_ {
   CodeFragment
 }
 
-/// A date encoded as a ISO 8601 string.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Date {
-    /// The name of this type
-    #[derivative(Default(value = "Date_::Date"))]
-    pub type_: Date_,
-
-    /// The date as an ISO 8601 string.
-    #[derivative(Default(value = "chrono::Utc::now().to_rfc3339()"))]
-    pub value: String,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Date_ {
-  Date
-}
-
 /// Base type for executable document nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
@@ -787,75 +763,6 @@ pub struct CallArgument {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CallArgument_ {
   CallArgument
-}
-
-/// A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Mark {
-    /// The name of this type
-    #[derivative(Default(value = "Mark_::Mark"))]
-    pub type_: Mark_,
-
-    /// The content that is marked.
-    pub content: Vec<InlineContent>,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Mark_ {
-  Mark
-}
-
-/// Content that is marked for deletion
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Delete {
-    /// The name of this type
-    #[derivative(Default(value = "Delete_::Delete"))]
-    pub type_: Delete_,
-
-    /// The content that is marked.
-    pub content: Vec<InlineContent>,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Delete_ {
-  Delete
-}
-
-/// Emphasised content.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Emphasis {
-    /// The name of this type
-    #[derivative(Default(value = "Emphasis_::Emphasis"))]
-    pub type_: Emphasis_,
-
-    /// The content that is marked.
-    pub content: Vec<InlineContent>,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Emphasis_ {
-  Emphasis
 }
 
 /// The most generic type of item.
@@ -1464,116 +1371,6 @@ pub enum Collection_ {
   Collection
 }
 
-/// A directory on the filesystem
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Directory {
-    /// The name of this type
-    #[derivative(Default(value = "Directory_::Directory"))]
-    pub type_: Directory_,
-
-    /// The name of the item.
-    pub name: String,
-
-    /// The files and other directories that are within this directory
-    pub parts: Vec<DirectoryParts>,
-
-    /// The path (absolute or relative) of the file on the filesystem
-    pub path: String,
-
-    /// The subject matter of the content.
-    pub about: Option<Vec<ThingTypes>>,
-
-    /// Alternate names (aliases) for the item.
-    pub alternate_names: Option<Vec<String>>,
-
-    /// The authors of this creative work.
-    pub authors: Option<Vec<CreativeWorkAuthors>>,
-
-    /// Comments about this creative work.
-    pub comments: Option<Vec<Comment>>,
-
-    /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Box<CreativeWorkContent>>,
-
-    /// Date/time of acceptance.
-    pub date_accepted: Option<Box<Date>>,
-
-    /// Date/time of creation.
-    pub date_created: Option<Box<Date>>,
-
-    /// Date/time of most recent modification.
-    pub date_modified: Option<Box<Date>>,
-
-    /// Date of first publication.
-    pub date_published: Option<Box<Date>>,
-
-    /// Date/time that work was received.
-    pub date_received: Option<Box<Date>>,
-
-    /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
-
-    /// People who edited the `CreativeWork`.
-    pub editors: Option<Vec<Person>>,
-
-    /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
-
-    /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<CreativeWorkFunders>>,
-
-    /// Genre of the creative work, broadcast channel or group.
-    pub genre: Option<Vec<String>>,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-
-    /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<ThingIdentifiers>>,
-
-    /// Images of the item.
-    pub images: Option<Vec<ThingImages>>,
-
-    /// An item or other CreativeWork that this CreativeWork is a part of.
-    pub is_part_of: Option<Box<CreativeWorkTypes>>,
-
-    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    pub keywords: Option<Vec<String>>,
-
-    /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkLicenses>>,
-
-    /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
-
-    /// A publisher of the CreativeWork.
-    pub publisher: Option<Box<CreativeWorkPublisher>>,
-
-    /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkReferences>>,
-
-    /// The textual content of this creative work.
-    pub text: Option<Box<String>>,
-
-    /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
-
-    /// The URL of the item.
-    pub url: Option<Box<String>>,
-
-    /// The version of the creative work.
-    pub version: Option<Box<CreativeWorkVersion>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Directory_ {
-  Directory
-}
-
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
@@ -2134,47 +1931,6 @@ pub enum DatatableColumn_ {
   DatatableColumn
 }
 
-/// A word, name, acronym, phrase, etc. with a formal definition.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct DefinedTerm {
-    /// The name of this type
-    #[derivative(Default(value = "DefinedTerm_::DefinedTerm"))]
-    pub type_: DefinedTerm_,
-
-    /// The name of the item.
-    pub name: String,
-
-    /// Alternate names (aliases) for the item.
-    pub alternate_names: Option<Vec<String>>,
-
-    /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-
-    /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<ThingIdentifiers>>,
-
-    /// Images of the item.
-    pub images: Option<Vec<ThingImages>>,
-
-    /// A code that identifies this DefinedTerm within a DefinedTermSet
-    pub term_code: Option<Box<String>>,
-
-    /// The URL of the item.
-    pub url: Option<Box<String>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum DefinedTerm_ {
-  DefinedTerm
-}
-
 /// A base for all validator types.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
@@ -2275,6 +2031,370 @@ pub struct ConstantValidator {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ConstantValidator_ {
   ConstantValidator
+}
+
+/// A calendar date encoded as a ISO 8601 string.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Date {
+    /// The name of this type
+    #[derivative(Default(value = "Date_::Date"))]
+    pub type_: Date_,
+
+    /// The date as an ISO 8601 string.
+    #[derivative(Default(value = "chrono::Utc::now().format(\"%Y-%m-%d\").to_string()"))]
+    pub value: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Date_ {
+  Date
+}
+
+/// A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct DateTime {
+    /// The name of this type
+    #[derivative(Default(value = "DateTime_::DateTime"))]
+    pub type_: DateTime_,
+
+    /// The date as an ISO 8601 string.
+    #[derivative(Default(value = "chrono::Utc::now().to_rfc3339()"))]
+    pub value: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum DateTime_ {
+  DateTime
+}
+
+/// A validator specifying the constraints on a date-time.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct DateTimeValidator {
+    /// The name of this type
+    #[derivative(Default(value = "DateTimeValidator_::DateTimeValidator"))]
+    pub type_: DateTimeValidator_,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// The inclusive upper limit for a date-time.
+    pub maximum: Option<DateTime>,
+
+    /// The inclusive lower limit for a date-time.
+    pub minimum: Option<DateTime>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum DateTimeValidator_ {
+  DateTimeValidator
+}
+
+/// A validator specifying the constraints on a date.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct DateValidator {
+    /// The name of this type
+    #[derivative(Default(value = "DateValidator_::DateValidator"))]
+    pub type_: DateValidator_,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// The inclusive upper limit for a date.
+    pub maximum: Option<Date>,
+
+    /// The inclusive lower limit for a date.
+    pub minimum: Option<Date>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum DateValidator_ {
+  DateValidator
+}
+
+/// A word, name, acronym, phrase, etc. with a formal definition.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct DefinedTerm {
+    /// The name of this type
+    #[derivative(Default(value = "DefinedTerm_::DefinedTerm"))]
+    pub type_: DefinedTerm_,
+
+    /// The name of the item.
+    pub name: String,
+
+    /// Alternate names (aliases) for the item.
+    pub alternate_names: Option<Vec<String>>,
+
+    /// A description of the item.
+    pub description: Option<Box<ThingDescription>>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Any kind of identifier for any kind of Thing.
+    pub identifiers: Option<Vec<ThingIdentifiers>>,
+
+    /// Images of the item.
+    pub images: Option<Vec<ThingImages>>,
+
+    /// A code that identifies this DefinedTerm within a DefinedTermSet
+    pub term_code: Option<Box<String>>,
+
+    /// The URL of the item.
+    pub url: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum DefinedTerm_ {
+  DefinedTerm
+}
+
+/// A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Mark {
+    /// The name of this type
+    #[derivative(Default(value = "Mark_::Mark"))]
+    pub type_: Mark_,
+
+    /// The content that is marked.
+    pub content: Vec<InlineContent>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Mark_ {
+  Mark
+}
+
+/// Content that is marked for deletion
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Delete {
+    /// The name of this type
+    #[derivative(Default(value = "Delete_::Delete"))]
+    pub type_: Delete_,
+
+    /// The content that is marked.
+    pub content: Vec<InlineContent>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Delete_ {
+  Delete
+}
+
+/// A directory on the filesystem
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Directory {
+    /// The name of this type
+    #[derivative(Default(value = "Directory_::Directory"))]
+    pub type_: Directory_,
+
+    /// The name of the item.
+    pub name: String,
+
+    /// The files and other directories that are within this directory
+    pub parts: Vec<DirectoryParts>,
+
+    /// The path (absolute or relative) of the file on the filesystem
+    pub path: String,
+
+    /// The subject matter of the content.
+    pub about: Option<Vec<ThingTypes>>,
+
+    /// Alternate names (aliases) for the item.
+    pub alternate_names: Option<Vec<String>>,
+
+    /// The authors of this creative work.
+    pub authors: Option<Vec<CreativeWorkAuthors>>,
+
+    /// Comments about this creative work.
+    pub comments: Option<Vec<Comment>>,
+
+    /// The structured content of this creative work c.f. property `text`.
+    pub content: Option<Box<CreativeWorkContent>>,
+
+    /// Date/time of acceptance.
+    pub date_accepted: Option<Box<Date>>,
+
+    /// Date/time of creation.
+    pub date_created: Option<Box<Date>>,
+
+    /// Date/time of most recent modification.
+    pub date_modified: Option<Box<Date>>,
+
+    /// Date of first publication.
+    pub date_published: Option<Box<Date>>,
+
+    /// Date/time that work was received.
+    pub date_received: Option<Box<Date>>,
+
+    /// A description of the item.
+    pub description: Option<Box<ThingDescription>>,
+
+    /// People who edited the `CreativeWork`.
+    pub editors: Option<Vec<Person>>,
+
+    /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+    pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
+
+    /// People or organizations that funded the `CreativeWork`.
+    pub funders: Option<Vec<CreativeWorkFunders>>,
+
+    /// Genre of the creative work, broadcast channel or group.
+    pub genre: Option<Vec<String>>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Any kind of identifier for any kind of Thing.
+    pub identifiers: Option<Vec<ThingIdentifiers>>,
+
+    /// Images of the item.
+    pub images: Option<Vec<ThingImages>>,
+
+    /// An item or other CreativeWork that this CreativeWork is a part of.
+    pub is_part_of: Option<Box<CreativeWorkTypes>>,
+
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+    pub keywords: Option<Vec<String>>,
+
+    /// License documents that applies to this content, typically indicated by URL.
+    pub licenses: Option<Vec<CreativeWorkLicenses>>,
+
+    /// The people or organizations who maintain this CreativeWork.
+    pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
+
+    /// A publisher of the CreativeWork.
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
+
+    /// References to other creative works, such as another publication, web page, scholarly article, etc.
+    pub references: Option<Vec<CreativeWorkReferences>>,
+
+    /// The textual content of this creative work.
+    pub text: Option<Box<String>>,
+
+    /// The title of the creative work.
+    pub title: Option<Box<CreativeWorkTitle>>,
+
+    /// The URL of the item.
+    pub url: Option<Box<String>>,
+
+    /// The version of the creative work.
+    pub version: Option<Box<CreativeWorkVersion>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Directory_ {
+  Directory
+}
+
+/// A value that represents the difference between two timestamps
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Duration {
+    /// The name of this type
+    #[derivative(Default(value = "Duration_::Duration"))]
+    pub type_: Duration_,
+
+    /// The time unit that the `value` represents.
+    #[derivative(Default(value = "TimeUnit::Microsecond"))]
+    pub time_unit: TimeUnit,
+
+    /// The time difference in `timeUnit`s.
+    pub value: Integer,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Duration_ {
+  Duration
+}
+
+/// A validator specifying the constraints on a duration.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct DurationValidator {
+    /// The name of this type
+    #[derivative(Default(value = "DurationValidator_::DurationValidator"))]
+    pub type_: DurationValidator_,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// The inclusive upper limit for a duration.
+    pub maximum: Option<Box<Duration>>,
+
+    /// The inclusive lower limit for a duration.
+    pub minimum: Option<Box<Duration>>,
+
+    /// The time units that the duration can have.
+    pub time_units: Option<Vec<TimeUnit>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum DurationValidator_ {
+  DurationValidator
+}
+
+/// Emphasised content.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Emphasis {
+    /// The name of this type
+    #[derivative(Default(value = "Emphasis_::Emphasis"))]
+    pub type_: Emphasis_,
+
+    /// The content that is marked.
+    pub content: Vec<InlineContent>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Emphasis_ {
+  Emphasis
 }
 
 /// A schema specifying that a node must be one of several values.
@@ -4787,6 +4907,105 @@ pub enum ThematicBreak_ {
   ThematicBreak
 }
 
+/// A point in time recurring on multiple days
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Time {
+    /// The name of this type
+    #[derivative(Default(value = "Time_::Time"))]
+    pub type_: Time_,
+
+    /// The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`.
+    #[derivative(Default(value = "chrono::Utc::now().format(\"%H:%M:%S\").to_string()"))]
+    pub value: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Time_ {
+  Time
+}
+
+/// A validator specifying the constraints on a time.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct TimeValidator {
+    /// The name of this type
+    #[derivative(Default(value = "TimeValidator_::TimeValidator"))]
+    pub type_: TimeValidator_,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// The inclusive upper limit for a time.
+    pub maximum: Option<Time>,
+
+    /// The inclusive lower limit for a time.
+    pub minimum: Option<Time>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum TimeValidator_ {
+  TimeValidator
+}
+
+/// A value that represents a point in time
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Timestamp {
+    /// The name of this type
+    #[derivative(Default(value = "Timestamp_::Timestamp"))]
+    pub type_: Timestamp_,
+
+    /// The time unit that the `value` represents.
+    #[derivative(Default(value = "TimeUnit::Microsecond"))]
+    pub time_unit: TimeUnit,
+
+    /// The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z).
+    #[derivative(Default(value = "std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_micros() as i64"))]
+    pub value: Integer,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Timestamp_ {
+  Timestamp
+}
+
+/// A validator specifying the constraints on a timestamp.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct TimestampValidator {
+    /// The name of this type
+    #[derivative(Default(value = "TimestampValidator_::TimestampValidator"))]
+    pub type_: TimestampValidator_,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// The inclusive upper limit for a timestamp.
+    pub maximum: Option<Box<Timestamp>>,
+
+    /// The inclusive lower limit for a timestamp.
+    pub minimum: Option<Box<Timestamp>>,
+
+    /// The time units that the timestamp can have.
+    pub time_units: Option<Vec<TimeUnit>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum TimestampValidator_ {
+  TimestampValidator
+}
+
 /// A validator specifying constraints on an array of heterogeneous items.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
@@ -5766,6 +5985,38 @@ pub enum ExecuteStatus {
     Cancelled,
 }
 
+/// A unit in which time can be measured
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
+#[strum(ascii_case_insensitive)]
+pub enum TimeUnit {
+    /// 
+    Year,
+    /// 
+    Month,
+    /// 
+    Week,
+    /// 
+    Day,
+    /// 
+    Hour,
+    /// 
+    Minute,
+    /// 
+    Second,
+    /// 
+    Millisecond,
+    /// 
+    Microsecond,
+    /// 
+    Nanosecond,
+    /// 
+    Picosecond,
+    /// 
+    Femtosecond,
+    /// 
+    Attosecond,
+}
+
 
 /*********************************************************************
  * Enums for "union" schemas
@@ -5879,10 +6130,12 @@ pub enum EntityTypes {
     CreativeWork(CreativeWork),
     Datatable(Datatable),
     DatatableColumn(DatatableColumn),
-    Date(Date),
+    DateTimeValidator(DateTimeValidator),
+    DateValidator(DateValidator),
     DefinedTerm(DefinedTerm),
     Delete(Delete),
     Directory(Directory),
+    DurationValidator(DurationValidator),
     Emphasis(Emphasis),
     EnumValidator(EnumValidator),
     Enumeration(Enumeration),
@@ -5934,6 +6187,8 @@ pub enum EntityTypes {
     TableRow(TableRow),
     ThematicBreak(ThematicBreak),
     Thing(Thing),
+    TimeValidator(TimeValidator),
+    TimestampValidator(TimestampValidator),
     TupleValidator(TupleValidator),
     Underline(Underline),
     Validator(Validator),
@@ -6001,6 +6256,11 @@ pub enum InlineContent {
     Integer(Integer),
     Number(Number),
     String(String),
+    Date(Date),
+    Time(Time),
+    DateTime(DateTime),
+    Timestamp(Timestamp),
+    Duration(Duration),
 }
 
 /// All type schemas that are derived from Mark
@@ -6067,10 +6327,12 @@ pub enum Node {
     CreativeWork(CreativeWork),
     Datatable(Datatable),
     DatatableColumn(DatatableColumn),
-    Date(Date),
+    DateTimeValidator(DateTimeValidator),
+    DateValidator(DateValidator),
     DefinedTerm(DefinedTerm),
     Delete(Delete),
     Directory(Directory),
+    DurationValidator(DurationValidator),
     Emphasis(Emphasis),
     EnumValidator(EnumValidator),
     Enumeration(Enumeration),
@@ -6122,6 +6384,8 @@ pub enum Node {
     TableRow(TableRow),
     ThematicBreak(ThematicBreak),
     Thing(Thing),
+    TimeValidator(TimeValidator),
+    TimestampValidator(TimestampValidator),
     TupleValidator(TupleValidator),
     Underline(Underline),
     Validator(Validator),
@@ -6133,6 +6397,11 @@ pub enum Node {
     Integer(Integer),
     Number(Number),
     String(String),
+    Date(Date),
+    Time(Time),
+    DateTime(DateTime),
+    Timestamp(Timestamp),
+    Duration(Duration),
     Object(Object),
     Array(Array),
 }
@@ -6162,6 +6431,11 @@ pub enum Primitive {
     Integer(Integer),
     Number(Number),
     String(String),
+    Date(Date),
+    Time(Time),
+    DateTime(DateTime),
+    Timestamp(Timestamp),
+    Duration(Duration),
     Object(Object),
     Array(Array),
 }
@@ -6217,9 +6491,14 @@ pub enum ValidatorTypes {
     ArrayValidator(ArrayValidator),
     BooleanValidator(BooleanValidator),
     ConstantValidator(ConstantValidator),
+    DateTimeValidator(DateTimeValidator),
+    DateValidator(DateValidator),
+    DurationValidator(DurationValidator),
     EnumValidator(EnumValidator),
     IntegerValidator(IntegerValidator),
     NumberValidator(NumberValidator),
     StringValidator(StringValidator),
+    TimeValidator(TimeValidator),
+    TimestampValidator(TimestampValidator),
     TupleValidator(TupleValidator),
 }

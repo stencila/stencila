@@ -1,0 +1,20 @@
+title: TimeValidator
+'@id': stencila:TimeValidator
+extends: Validator
+role: validation
+status: stable
+category: data
+description: A validator specifying the constraints on a time.
+properties:
+  minimum:
+    '@id': stencila:minimum
+    $ref: Time
+    description: The inclusive lower limit for a time.
+    $comment: |
+      A time is valid if it is greater than, or exactly equal to, `minimum`.
+  maximum:
+    '@id': stencila:maximum
+    $ref: Time
+    description: The inclusive upper limit for a time.
+    $comment: |
+      A time is valid if it is less than, or exactly equal to, `maximum`.

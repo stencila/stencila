@@ -225,31 +225,6 @@ CodeFragment <- function(
 }
 
 
-#' A date encoded as a ISO 8601 string.
-#'
-#' @name Date
-#' @param value The date as an ISO 8601 string. \bold{Required}.
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @return A `list` of class `Date`
-#' @seealso \code{\link{Entity}}
-#' @export
-Date <- function(
-  value,
-  id,
-  meta
-){
-  self <- Entity(
-    id = id,
-    meta = meta
-  )
-  self$type <- as_scalar("Date")
-  self[["value"]] <- check_property("Date", "value", TRUE, missing(value), "character", value)
-  class(self) <- c(class(self), "Date")
-  self
-}
-
-
 #' Base type for executable document nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
 #'
 #' @name Executable
@@ -832,83 +807,6 @@ CallArgument <- function(
   self$type <- as_scalar("CallArgument")
   self[["symbol"]] <- check_property("CallArgument", "symbol", FALSE, missing(symbol), "character", symbol)
   class(self) <- c(class(self), "CallArgument")
-  self
-}
-
-
-#' A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
-#'
-#' @name Mark
-#' @param content The content that is marked. \bold{Required}.
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @return A `list` of class `Mark`
-#' @seealso \code{\link{Entity}}
-#' @export
-Mark <- function(
-  content,
-  id,
-  meta
-){
-  self <- Entity(
-    id = id,
-    meta = meta
-  )
-  self$type <- as_scalar("Mark")
-  self[["content"]] <- check_property("Mark", "content", TRUE, missing(content), Array(InlineContent), content)
-  class(self) <- c(class(self), "Mark")
-  self
-}
-
-
-#' Content that is marked for deletion
-#'
-#' @name Delete
-#' @param content The content that is marked. \bold{Required}.
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @return A `list` of class `Delete`
-#' @seealso \code{\link{Mark}}
-#' @export
-Delete <- function(
-  content,
-  id,
-  meta
-){
-  self <- Mark(
-    content = content,
-    id = id,
-    meta = meta
-  )
-  self$type <- as_scalar("Delete")
-
-  class(self) <- c(class(self), "Delete")
-  self
-}
-
-
-#' Emphasised content.
-#'
-#' @name Emphasis
-#' @param content The content that is marked. \bold{Required}.
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @return A `list` of class `Emphasis`
-#' @seealso \code{\link{Mark}}
-#' @export
-Emphasis <- function(
-  content,
-  id,
-  meta
-){
-  self <- Mark(
-    content = content,
-    id = id,
-    meta = meta
-  )
-  self$type <- as_scalar("Emphasis")
-
-  class(self) <- c(class(self), "Emphasis")
   self
 }
 
@@ -1501,119 +1399,6 @@ Collection <- function(
 }
 
 
-#' A directory on the filesystem
-#'
-#' @name Directory
-#' @param name The name of the item. \bold{Required}.
-#' @param parts The files and other directories that are within this directory \bold{Required}.
-#' @param path The path (absolute or relative) of the file on the filesystem \bold{Required}.
-#' @param about The subject matter of the content.
-#' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this creative work.
-#' @param comments Comments about this creative work.
-#' @param content The structured content of this creative work c.f. property `text`.
-#' @param dateAccepted Date/time of acceptance.
-#' @param dateCreated Date/time of creation.
-#' @param dateModified Date/time of most recent modification.
-#' @param datePublished Date of first publication.
-#' @param dateReceived Date/time that work was received.
-#' @param description A description of the item.
-#' @param editors People who edited the `CreativeWork`.
-#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-#' @param funders People or organizations that funded the `CreativeWork`.
-#' @param genre Genre of the creative work, broadcast channel or group.
-#' @param id The identifier for this item.
-#' @param identifiers Any kind of identifier for any kind of Thing.
-#' @param images Images of the item.
-#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-#' @param licenses License documents that applies to this content, typically indicated by URL.
-#' @param maintainers The people or organizations who maintain this CreativeWork.
-#' @param meta Metadata associated with this item.
-#' @param publisher A publisher of the CreativeWork.
-#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
-#' @param text The textual content of this creative work.
-#' @param title The title of the creative work.
-#' @param url The URL of the item.
-#' @param version The version of the creative work.
-#' @return A `list` of class `Directory`
-#' @seealso \code{\link{Collection}}
-#' @export
-Directory <- function(
-  name,
-  parts,
-  path,
-  about,
-  alternateNames,
-  authors,
-  comments,
-  content,
-  dateAccepted,
-  dateCreated,
-  dateModified,
-  datePublished,
-  dateReceived,
-  description,
-  editors,
-  fundedBy,
-  funders,
-  genre,
-  id,
-  identifiers,
-  images,
-  isPartOf,
-  keywords,
-  licenses,
-  maintainers,
-  meta,
-  publisher,
-  references,
-  text,
-  title,
-  url,
-  version
-){
-  self <- Collection(
-    name = name,
-    about = about,
-    alternateNames = alternateNames,
-    authors = authors,
-    comments = comments,
-    content = content,
-    dateAccepted = dateAccepted,
-    dateCreated = dateCreated,
-    dateModified = dateModified,
-    datePublished = datePublished,
-    dateReceived = dateReceived,
-    description = description,
-    editors = editors,
-    fundedBy = fundedBy,
-    funders = funders,
-    genre = genre,
-    id = id,
-    identifiers = identifiers,
-    images = images,
-    isPartOf = isPartOf,
-    keywords = keywords,
-    licenses = licenses,
-    maintainers = maintainers,
-    meta = meta,
-    publisher = publisher,
-    references = references,
-    text = text,
-    title = title,
-    url = url,
-    version = version
-  )
-  self$type <- as_scalar("Directory")
-  self[["name"]] <- check_property("Directory", "name", TRUE, missing(name), "character", name)
-  self[["parts"]] <- check_property("Directory", "parts", TRUE, missing(parts), Array(Union(File, Directory)), parts)
-  self[["path"]] <- check_property("Directory", "path", TRUE, missing(path), "character", path)
-  class(self) <- c(class(self), "Directory")
-  self
-}
-
-
 #' A comment on an item, e.g on a Article, or SoftwareSourceCode.
 #'
 #' @name Comment
@@ -2142,50 +1927,6 @@ DatatableColumn <- function(
 }
 
 
-#' A word, name, acronym, phrase, etc. with a formal definition.
-#'
-#' @name DefinedTerm
-#' @param name The name of the item. \bold{Required}.
-#' @param alternateNames Alternate names (aliases) for the item.
-#' @param description A description of the item.
-#' @param id The identifier for this item.
-#' @param identifiers Any kind of identifier for any kind of Thing.
-#' @param images Images of the item.
-#' @param meta Metadata associated with this item.
-#' @param termCode A code that identifies this DefinedTerm within a DefinedTermSet
-#' @param url The URL of the item.
-#' @return A `list` of class `DefinedTerm`
-#' @seealso \code{\link{Thing}}
-#' @export
-DefinedTerm <- function(
-  name,
-  alternateNames,
-  description,
-  id,
-  identifiers,
-  images,
-  meta,
-  termCode,
-  url
-){
-  self <- Thing(
-    name = name,
-    alternateNames = alternateNames,
-    description = description,
-    id = id,
-    identifiers = identifiers,
-    images = images,
-    meta = meta,
-    url = url
-  )
-  self$type <- as_scalar("DefinedTerm")
-  self[["name"]] <- check_property("DefinedTerm", "name", TRUE, missing(name), "character", name)
-  self[["termCode"]] <- check_property("DefinedTerm", "termCode", FALSE, missing(termCode), "character", termCode)
-  class(self) <- c(class(self), "DefinedTerm")
-  self
-}
-
-
 #' A base for all validator types.
 #'
 #' @name Validator
@@ -2293,6 +2034,381 @@ ConstantValidator <- function(
   self$type <- as_scalar("ConstantValidator")
   self[["value"]] <- check_property("ConstantValidator", "value", TRUE, missing(value), Node, value)
   class(self) <- c(class(self), "ConstantValidator")
+  self
+}
+
+
+#' A calendar date encoded as a ISO 8601 string.
+#'
+#' @name Date
+#' @param value The date as an ISO 8601 string. \bold{Required}.
+#' @return A `list` of class `Date`
+#' @export
+Date <- function(
+  value
+){
+  self <- list()
+  self$type <- as_scalar("Date")
+  self[["value"]] <- check_property("Date", "value", TRUE, missing(value), "character", value)
+  class(self) <- c(class(self), "Date")
+  self
+}
+
+
+#' A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.
+#'
+#' @name DateTime
+#' @param value The date as an ISO 8601 string. \bold{Required}.
+#' @return A `list` of class `DateTime`
+#' @export
+DateTime <- function(
+  value
+){
+  self <- list()
+  self$type <- as_scalar("DateTime")
+  self[["value"]] <- check_property("DateTime", "value", TRUE, missing(value), "character", value)
+  class(self) <- c(class(self), "DateTime")
+  self
+}
+
+
+#' A validator specifying the constraints on a date-time.
+#'
+#' @name DateTimeValidator
+#' @param id The identifier for this item.
+#' @param maximum The inclusive upper limit for a date-time.
+#' @param meta Metadata associated with this item.
+#' @param minimum The inclusive lower limit for a date-time.
+#' @return A `list` of class `DateTimeValidator`
+#' @seealso \code{\link{Validator}}
+#' @export
+DateTimeValidator <- function(
+  id,
+  maximum,
+  meta,
+  minimum
+){
+  self <- Validator(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("DateTimeValidator")
+  self[["maximum"]] <- check_property("DateTimeValidator", "maximum", FALSE, missing(maximum), DateTime, maximum)
+  self[["minimum"]] <- check_property("DateTimeValidator", "minimum", FALSE, missing(minimum), DateTime, minimum)
+  class(self) <- c(class(self), "DateTimeValidator")
+  self
+}
+
+
+#' A validator specifying the constraints on a date.
+#'
+#' @name DateValidator
+#' @param id The identifier for this item.
+#' @param maximum The inclusive upper limit for a date.
+#' @param meta Metadata associated with this item.
+#' @param minimum The inclusive lower limit for a date.
+#' @return A `list` of class `DateValidator`
+#' @seealso \code{\link{Validator}}
+#' @export
+DateValidator <- function(
+  id,
+  maximum,
+  meta,
+  minimum
+){
+  self <- Validator(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("DateValidator")
+  self[["maximum"]] <- check_property("DateValidator", "maximum", FALSE, missing(maximum), Date, maximum)
+  self[["minimum"]] <- check_property("DateValidator", "minimum", FALSE, missing(minimum), Date, minimum)
+  class(self) <- c(class(self), "DateValidator")
+  self
+}
+
+
+#' A word, name, acronym, phrase, etc. with a formal definition.
+#'
+#' @name DefinedTerm
+#' @param name The name of the item. \bold{Required}.
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param description A description of the item.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param images Images of the item.
+#' @param meta Metadata associated with this item.
+#' @param termCode A code that identifies this DefinedTerm within a DefinedTermSet
+#' @param url The URL of the item.
+#' @return A `list` of class `DefinedTerm`
+#' @seealso \code{\link{Thing}}
+#' @export
+DefinedTerm <- function(
+  name,
+  alternateNames,
+  description,
+  id,
+  identifiers,
+  images,
+  meta,
+  termCode,
+  url
+){
+  self <- Thing(
+    name = name,
+    alternateNames = alternateNames,
+    description = description,
+    id = id,
+    identifiers = identifiers,
+    images = images,
+    meta = meta,
+    url = url
+  )
+  self$type <- as_scalar("DefinedTerm")
+  self[["name"]] <- check_property("DefinedTerm", "name", TRUE, missing(name), "character", name)
+  self[["termCode"]] <- check_property("DefinedTerm", "termCode", FALSE, missing(termCode), "character", termCode)
+  class(self) <- c(class(self), "DefinedTerm")
+  self
+}
+
+
+#' A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
+#'
+#' @name Mark
+#' @param content The content that is marked. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @return A `list` of class `Mark`
+#' @seealso \code{\link{Entity}}
+#' @export
+Mark <- function(
+  content,
+  id,
+  meta
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Mark")
+  self[["content"]] <- check_property("Mark", "content", TRUE, missing(content), Array(InlineContent), content)
+  class(self) <- c(class(self), "Mark")
+  self
+}
+
+
+#' Content that is marked for deletion
+#'
+#' @name Delete
+#' @param content The content that is marked. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @return A `list` of class `Delete`
+#' @seealso \code{\link{Mark}}
+#' @export
+Delete <- function(
+  content,
+  id,
+  meta
+){
+  self <- Mark(
+    content = content,
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Delete")
+
+  class(self) <- c(class(self), "Delete")
+  self
+}
+
+
+#' A directory on the filesystem
+#'
+#' @name Directory
+#' @param name The name of the item. \bold{Required}.
+#' @param parts The files and other directories that are within this directory \bold{Required}.
+#' @param path The path (absolute or relative) of the file on the filesystem \bold{Required}.
+#' @param about The subject matter of the content.
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param authors The authors of this creative work.
+#' @param comments Comments about this creative work.
+#' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
+#' @param dateCreated Date/time of creation.
+#' @param dateModified Date/time of most recent modification.
+#' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
+#' @param description A description of the item.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param images Images of the item.
+#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
+#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+#' @param licenses License documents that applies to this content, typically indicated by URL.
+#' @param maintainers The people or organizations who maintain this CreativeWork.
+#' @param meta Metadata associated with this item.
+#' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
+#' @param text The textual content of this creative work.
+#' @param title The title of the creative work.
+#' @param url The URL of the item.
+#' @param version The version of the creative work.
+#' @return A `list` of class `Directory`
+#' @seealso \code{\link{Collection}}
+#' @export
+Directory <- function(
+  name,
+  parts,
+  path,
+  about,
+  alternateNames,
+  authors,
+  comments,
+  content,
+  dateAccepted,
+  dateCreated,
+  dateModified,
+  datePublished,
+  dateReceived,
+  description,
+  editors,
+  fundedBy,
+  funders,
+  genre,
+  id,
+  identifiers,
+  images,
+  isPartOf,
+  keywords,
+  licenses,
+  maintainers,
+  meta,
+  publisher,
+  references,
+  text,
+  title,
+  url,
+  version
+){
+  self <- Collection(
+    name = name,
+    about = about,
+    alternateNames = alternateNames,
+    authors = authors,
+    comments = comments,
+    content = content,
+    dateAccepted = dateAccepted,
+    dateCreated = dateCreated,
+    dateModified = dateModified,
+    datePublished = datePublished,
+    dateReceived = dateReceived,
+    description = description,
+    editors = editors,
+    fundedBy = fundedBy,
+    funders = funders,
+    genre = genre,
+    id = id,
+    identifiers = identifiers,
+    images = images,
+    isPartOf = isPartOf,
+    keywords = keywords,
+    licenses = licenses,
+    maintainers = maintainers,
+    meta = meta,
+    publisher = publisher,
+    references = references,
+    text = text,
+    title = title,
+    url = url,
+    version = version
+  )
+  self$type <- as_scalar("Directory")
+  self[["name"]] <- check_property("Directory", "name", TRUE, missing(name), "character", name)
+  self[["parts"]] <- check_property("Directory", "parts", TRUE, missing(parts), Array(Union(File, Directory)), parts)
+  self[["path"]] <- check_property("Directory", "path", TRUE, missing(path), "character", path)
+  class(self) <- c(class(self), "Directory")
+  self
+}
+
+
+#' A value that represents the difference between two timestamps
+#'
+#' @name Duration
+#' @param timeUnit The time unit that the `value` represents. \bold{Required}.
+#' @param value The time difference in `timeUnit`s. \bold{Required}.
+#' @return A `list` of class `Duration`
+#' @export
+Duration <- function(
+  timeUnit,
+  value
+){
+  self <- list()
+  self$type <- as_scalar("Duration")
+  self[["timeUnit"]] <- check_property("Duration", "timeUnit", TRUE, missing(timeUnit), TimeUnit, timeUnit)
+  self[["value"]] <- check_property("Duration", "value", TRUE, missing(value), "numeric", value)
+  class(self) <- c(class(self), "Duration")
+  self
+}
+
+
+#' A validator specifying the constraints on a duration.
+#'
+#' @name DurationValidator
+#' @param id The identifier for this item.
+#' @param maximum The inclusive upper limit for a duration.
+#' @param meta Metadata associated with this item.
+#' @param minimum The inclusive lower limit for a duration.
+#' @param timeUnits The time units that the duration can have.
+#' @return A `list` of class `DurationValidator`
+#' @seealso \code{\link{Validator}}
+#' @export
+DurationValidator <- function(
+  id,
+  maximum,
+  meta,
+  minimum,
+  timeUnits
+){
+  self <- Validator(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("DurationValidator")
+  self[["maximum"]] <- check_property("DurationValidator", "maximum", FALSE, missing(maximum), Duration, maximum)
+  self[["minimum"]] <- check_property("DurationValidator", "minimum", FALSE, missing(minimum), Duration, minimum)
+  self[["timeUnits"]] <- check_property("DurationValidator", "timeUnits", FALSE, missing(timeUnits), Array(TimeUnit), timeUnits)
+  class(self) <- c(class(self), "DurationValidator")
+  self
+}
+
+
+#' Emphasised content.
+#'
+#' @name Emphasis
+#' @param content The content that is marked. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @return A `list` of class `Emphasis`
+#' @seealso \code{\link{Mark}}
+#' @export
+Emphasis <- function(
+  content,
+  id,
+  meta
+){
+  self <- Mark(
+    content = content,
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Emphasis")
+
+  class(self) <- c(class(self), "Emphasis")
   self
 }
 
@@ -4812,6 +4928,102 @@ ThematicBreak <- function(
 }
 
 
+#' A point in time recurring on multiple days
+#'
+#' @name Time
+#' @param value The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`. \bold{Required}.
+#' @return A `list` of class `Time`
+#' @export
+Time <- function(
+  value
+){
+  self <- list()
+  self$type <- as_scalar("Time")
+  self[["value"]] <- check_property("Time", "value", TRUE, missing(value), "character", value)
+  class(self) <- c(class(self), "Time")
+  self
+}
+
+
+#' A validator specifying the constraints on a time.
+#'
+#' @name TimeValidator
+#' @param id The identifier for this item.
+#' @param maximum The inclusive upper limit for a time.
+#' @param meta Metadata associated with this item.
+#' @param minimum The inclusive lower limit for a time.
+#' @return A `list` of class `TimeValidator`
+#' @seealso \code{\link{Validator}}
+#' @export
+TimeValidator <- function(
+  id,
+  maximum,
+  meta,
+  minimum
+){
+  self <- Validator(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("TimeValidator")
+  self[["maximum"]] <- check_property("TimeValidator", "maximum", FALSE, missing(maximum), Time, maximum)
+  self[["minimum"]] <- check_property("TimeValidator", "minimum", FALSE, missing(minimum), Time, minimum)
+  class(self) <- c(class(self), "TimeValidator")
+  self
+}
+
+
+#' A value that represents a point in time
+#'
+#' @name Timestamp
+#' @param timeUnit The time unit that the `value` represents. \bold{Required}.
+#' @param value The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z). \bold{Required}.
+#' @return A `list` of class `Timestamp`
+#' @export
+Timestamp <- function(
+  timeUnit,
+  value
+){
+  self <- list()
+  self$type <- as_scalar("Timestamp")
+  self[["timeUnit"]] <- check_property("Timestamp", "timeUnit", TRUE, missing(timeUnit), TimeUnit, timeUnit)
+  self[["value"]] <- check_property("Timestamp", "value", TRUE, missing(value), "numeric", value)
+  class(self) <- c(class(self), "Timestamp")
+  self
+}
+
+
+#' A validator specifying the constraints on a timestamp.
+#'
+#' @name TimestampValidator
+#' @param id The identifier for this item.
+#' @param maximum The inclusive upper limit for a timestamp.
+#' @param meta Metadata associated with this item.
+#' @param minimum The inclusive lower limit for a timestamp.
+#' @param timeUnits The time units that the timestamp can have.
+#' @return A `list` of class `TimestampValidator`
+#' @seealso \code{\link{Validator}}
+#' @export
+TimestampValidator <- function(
+  id,
+  maximum,
+  meta,
+  minimum,
+  timeUnits
+){
+  self <- Validator(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("TimestampValidator")
+  self[["maximum"]] <- check_property("TimestampValidator", "maximum", FALSE, missing(maximum), Timestamp, maximum)
+  self[["minimum"]] <- check_property("TimestampValidator", "minimum", FALSE, missing(minimum), Timestamp, minimum)
+  self[["timeUnits"]] <- check_property("TimestampValidator", "timeUnits", FALSE, missing(timeUnits), Array(TimeUnit), timeUnits)
+  class(self) <- c(class(self), "TimestampValidator")
+  self
+}
+
+
 #' A validator specifying constraints on an array of heterogeneous items.
 #'
 #' @name TupleValidator
@@ -5107,6 +5319,12 @@ ExecuteRequired <- Enum("No", "NeverExecuted", "SemanticsChanged", "Dependencies
 #' @export
 ExecuteStatus <- Enum("Scheduled", "ScheduledPreviouslyFailed", "Running", "RunningPreviouslyFailed", "Succeeded", "Failed", "Cancelled")
 
+#' A unit in which time can be measured
+#'
+#' @return A `list` of class `Enum` describing valid members of this enumeration
+#' @export
+TimeUnit <- Enum("Year", "Month", "Week", "Day", "Hour", "Minute", "Second", "Millisecond", "Microsecond", "Nanosecond", "Picosecond", "Femtosecond", "Attosecond")
+
 
 #' Union type for valid block content.
 #'
@@ -5154,7 +5372,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Claim, Collection
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Directory, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, DateTimeValidator, DateValidator, DefinedTerm, Delete, Directory, DurationValidator, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TimeValidator, TimestampValidator, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Executable
@@ -5182,7 +5400,7 @@ IncludeTypes <- Union(Include, Call)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-InlineContent <- Union(AudioObject, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Note, Parameter, Quote, Strikeout, Strong, Subscript, Superscript, Underline, VideoObject, "NULL", "logical", "numeric", "character")
+InlineContent <- Union(AudioObject, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Note, Parameter, Quote, Strikeout, Strong, Subscript, Superscript, Underline, VideoObject, "NULL", "logical", "numeric", "character", Date, Time, DateTime, Timestamp, Duration)
 
 
 #' All type schemas that are derived from Mark
@@ -5210,7 +5428,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Directory, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
+Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, DateTimeValidator, DateValidator, DefinedTerm, Delete, Directory, DurationValidator, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TimeValidator, TimestampValidator, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", Date, Time, DateTime, Timestamp, Duration, "list", Array(Any()))
 
 
 #' All type schemas that are derived from NumberValidator
@@ -5231,7 +5449,7 @@ ParameterTypes <- Union(Parameter, CallArgument)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Primitive <- Union("NULL", "logical", "numeric", "character", "list", Array(Any()))
+Primitive <- Union("NULL", "logical", "numeric", "character", Date, Time, DateTime, Timestamp, Duration, "list", Array(Any()))
 
 
 #' All type schemas that are derived from Thing
@@ -5245,6 +5463,6 @@ ThingTypes <- Union(Thing, Article, AudioObject, Brand, Claim, Collection, Comme
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-ValidatorTypes <- Union(Validator, ArrayValidator, BooleanValidator, ConstantValidator, EnumValidator, IntegerValidator, NumberValidator, StringValidator, TupleValidator)
+ValidatorTypes <- Union(Validator, ArrayValidator, BooleanValidator, ConstantValidator, DateTimeValidator, DateValidator, DurationValidator, EnumValidator, IntegerValidator, NumberValidator, StringValidator, TimeValidator, TimestampValidator, TupleValidator)
 
 

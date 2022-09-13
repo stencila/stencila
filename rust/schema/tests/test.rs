@@ -4,9 +4,34 @@
 use maplit::btreemap;
 use serde_json::{json, Result, Value};
 use stencila_schema::{
-    Article, BlockContent, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle, InlineContent,
-    Null, Number, Paragraph, Person, Primitive,
+    Article, BlockContent, Boolean, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle, Date,
+    DateTime, Duration, InlineContent, Integer, Null, Number, Paragraph, Person, Primitive, Time,
+    TimeUnit, Timestamp,
 };
+
+#[test]
+fn primitives_defaults() -> Result<()> {
+    assert!(!Boolean::default());
+    assert_eq!(Integer::default(), 0);
+    assert_eq!(Number::default(), Number(0f64));
+    assert_eq!(String::default(), String::new());
+
+    println!("{:?}", Date::default());
+    println!("{:?}", Time::default());
+    println!("{:?}", DateTime::default());
+
+    println!("{:?}", Timestamp::default());
+    assert_eq!(
+        Duration::default(),
+        Duration {
+            value: 0,
+            time_unit: TimeUnit::Microsecond,
+            ..Default::default()
+        }
+    );
+
+    Ok(())
+}
 
 #[test]
 fn primitives_deserialize() -> Result<()> {
@@ -27,6 +52,33 @@ fn primitives_deserialize() -> Result<()> {
 
     let string: Primitive = serde_json::from_str("\"str  ing\"")?;
     assert!(matches!(string, Primitive::String(..)));
+
+    let date: Primitive = serde_json::from_str(r#"{"type":"Date", "value":"2022-09-12"}"#)?;
+    assert!(matches!(date, Primitive::Date(..)));
+
+    let timestamp: Primitive =
+        serde_json::from_str(r#"{"type":"Timestamp", "value":1234, "timeUnit":"Day"}"#)?;
+    if let Primitive::Timestamp(Timestamp {
+        value, time_unit, ..
+    }) = timestamp
+    {
+        assert_eq!(value, 1234);
+        assert_eq!(time_unit, TimeUnit::Day);
+    } else {
+        panic!("Not a timestamp!")
+    };
+
+    let duration: Primitive =
+        serde_json::from_str(r#"{"type":"Duration", "value":-1234, "timeUnit":"Millisecond"}"#)?;
+    if let Primitive::Duration(Duration {
+        value, time_unit, ..
+    }) = duration
+    {
+        assert_eq!(value, -1234);
+        assert_eq!(time_unit, TimeUnit::Millisecond);
+    } else {
+        panic!("Not a duration!")
+    };
 
     let array: Primitive = serde_json::from_str(r#"[null, false, 42, 3.14, "string"]"#)?;
     if let Primitive::Array(array) = array {
@@ -55,7 +107,7 @@ fn primitives_deserialize() -> Result<()> {
         assert!(matches!(object["d"], Primitive::Number(..)));
         assert!(matches!(object["e"], Primitive::String(..)));
     } else {
-        panic!("Not an object!")
+        panic!("Not an object; got {:?}", object)
     };
 
     Ok(())

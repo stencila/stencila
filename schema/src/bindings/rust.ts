@@ -47,11 +47,36 @@ interface Context {
   anonEnums: Record<string, string>
 }
 
+// Custom derives for particular structs
+const structDerives: Record<string, string> = {
+  // These need a custom Deserialize method to avoid confusion with Object
+  Date: 'Clone, Debug, Derivative, Serialize',
+  Time: 'Clone, Debug, Derivative, Serialize',
+  DateTime: 'Clone, Debug, Derivative, Serialize',
+  Timestamp: 'Clone, Debug, Derivative, Serialize',
+  Duration: 'Clone, Debug, Derivative, Serialize',
+}
+
 // Custom attributes to add to particular properties
 const propertyAttributes: Record<string, string[]> = {
   '*.id': ['#[derivative(PartialEq = "ignore", Hash = "ignore")]'],
   'Date.value': [
+    '#[derivative(Default(value = "chrono::Utc::now().format(\\"%Y-%m-%d\\").to_string()"))]',
+  ],
+  'Time.value': [
+    '#[derivative(Default(value = "chrono::Utc::now().format(\\"%H:%M:%S\\").to_string()"))]',
+  ],
+  'DateTime.value': [
     '#[derivative(Default(value = "chrono::Utc::now().to_rfc3339()"))]',
+  ],
+  'Timestamp.value': [
+    '#[derivative(Default(value = "std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_micros() as i64"))]',
+  ],
+  'Timestamp.timeUnit': [
+    '#[derivative(Default(value = "TimeUnit::Microsecond"))]',
+  ],
+  'Duration.timeUnit': [
+    '#[derivative(Default(value = "TimeUnit::Microsecond"))]',
   ],
   'PropertyValue.value': [
     '#[derivative(Default(value = "PropertyValueValue::String(String::new())"))]',
@@ -87,6 +112,13 @@ const propertyTypes: Record<string, string> = {
   '*.compileDigest': 'Box<Cord>',
   '*.buildDigest': 'Box<Cord>',
   '*.executeDigest': 'Box<Cord>',
+  // No need to box these
+  'DateValidator.minimum': 'Date',
+  'DateValidator.maximum': 'Date',
+  'TimeValidator.minimum': 'Time',
+  'TimeValidator.maximum': 'Time',
+  'DateTimeValidator.minimum': 'DateTime',
+  'DateTimeValidator.maximum': 'DateTime',
 }
 
 // Types that should not get automatically boxed if the property is
@@ -254,6 +286,9 @@ export function interfaceSchemaToStruct(
   const { title = 'Untitled', description = title } = schema
   const { all } = getSchemaProperties(schema)
 
+  const derives =
+    structDerives[title] || 'Clone, Debug, Derivative, Serialize, Deserialize'
+
   const fields = all
     .filter(({ name }) => name !== 'meta')
     .map(({ name, schema, optional, inherited, override }) => {
@@ -302,7 +337,7 @@ ${attrs.map((attr) => `    ${attr}\n`).join('')}    pub ${snakeCase(
   return `
 ${docComment(description)}
 #[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derive(${derives})]
 #[derivative(Default, PartialEq, Eq, Hash)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ${title} {

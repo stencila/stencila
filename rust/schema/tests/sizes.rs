@@ -182,6 +182,11 @@ fn sizes() {
     sizeof!(Integer);
     sizeof!(Number);
     sizeof!(String);
+    sizeof!(Date);
+    sizeof!(Time);
+    sizeof!(DateTime);
+    sizeof!(Timestamp);
+    sizeof!(Duration);
     sizeof!(Array);
     sizeof!(Object);
     println!("----------------------------------------------");

@@ -1,6 +1,6 @@
-use chrono::{DateTime, Utc};
 pub use derivative::Derivative;
 use float_cmp::approx_eq;
+use serde::ser::Error;
 pub use serde::{Deserialize, Serialize};
 pub use serde_json::Value;
 pub use serde_with::skip_serializing_none;
@@ -12,7 +12,7 @@ pub use std::{
 };
 pub use strum::{AsRefStr, EnumString};
 
-use crate::Primitive;
+use crate::{Date, DateTime, Duration, Primitive, Time, TimeUnit, Timestamp};
 
 /// A null value
 ///
@@ -74,6 +74,12 @@ impl Number {
     }
 }
 
+impl Default for Number {
+    fn default() -> Self {
+        Self(0f64)
+    }
+}
+
 impl PartialEq for Number {
     fn eq(&self, other: &Self) -> bool {
         approx_eq!(f64, self.0, other.0, ulps = 2)
@@ -111,6 +117,318 @@ impl std::ops::Deref for Number {
     }
 }
 
+// Custom deserialization for primitives serialized with an internal `type` tag
+
+macro_rules! deserialize_date_time {
+    ($type:ty) => {
+        impl<'de> Deserialize<'de> for $type {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                if let Ok(value) = serde_json::Value::deserialize(deserializer) {
+                    if let Some(object) = value.as_object() {
+                        if let Some(stringify!($type)) =
+                            object.get("type").and_then(|value| value.as_str())
+                        {
+                            return Ok(Self {
+                                value: object
+                                    .get("value")
+                                    .and_then(|value| value.as_str())
+                                    .unwrap_or_default()
+                                    .to_string(),
+                                ..Default::default()
+                            });
+                        }
+                    }
+                }
+                Err(serde::de::Error::custom("Not a type"))
+            }
+        }
+    };
+}
+
+deserialize_date_time!(Date);
+deserialize_date_time!(Time);
+deserialize_date_time!(DateTime);
+
+macro_rules! deserialize_time_united {
+    ($type:ty) => {
+        impl<'de> Deserialize<'de> for $type {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                use std::str::FromStr;
+                if let Ok(value) = serde_json::Value::deserialize(deserializer) {
+                    if let Some(object) = value.as_object() {
+                        if let Some(stringify!($type)) =
+                            object.get("type").and_then(|value| value.as_str())
+                        {
+                            return Ok(Self {
+                                value: object
+                                    .get("value")
+                                    .and_then(|value| value.as_i64())
+                                    .unwrap_or_default(),
+                                time_unit: object
+                                    .get("timeUnit")
+                                    .and_then(|value| value.as_str())
+                                    .and_then(|value| TimeUnit::from_str(value).ok())
+                                    .unwrap_or(TimeUnit::Microsecond),
+                                ..Default::default()
+                            });
+                        }
+                    }
+                }
+                Err(serde::de::Error::custom("Not a type"))
+            }
+        }
+    };
+}
+
+deserialize_time_united!(Timestamp);
+deserialize_time_united!(Duration);
+
+// Convenience methods for `Date` etc
+
+const DATE_FORMAT: &str = "%Y-%m-%d";
+const TIME_FORMAT: &str = "%H:%M:%S";
+const DATE_TIME_FORMAT: &str = "%Y-%m-%dT%H:%M:%SZ";
+
+impl Date {
+    pub fn now() -> Self {
+        Self::from(chrono::Utc::now())
+    }
+}
+
+impl Time {
+    pub fn now() -> Self {
+        Self::from(chrono::Utc::now())
+    }
+}
+
+impl DateTime {
+    pub fn now() -> Self {
+        Self::from(chrono::Utc::now())
+    }
+}
+
+impl From<chrono::NaiveDate> for Date {
+    fn from(date: chrono::NaiveDate) -> Self {
+        Self {
+            value: date.format(DATE_FORMAT).to_string(),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<chrono::DateTime<chrono::Utc>> for Date {
+    fn from(date_time: chrono::DateTime<chrono::Utc>) -> Self {
+        Self {
+            value: date_time.format(DATE_FORMAT).to_string(),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<chrono::NaiveTime> for Time {
+    fn from(date: chrono::NaiveTime) -> Self {
+        Self {
+            value: date.format(TIME_FORMAT).to_string(),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<chrono::DateTime<chrono::Utc>> for Time {
+    fn from(date_time: chrono::DateTime<chrono::Utc>) -> Self {
+        Self {
+            value: date_time.format(TIME_FORMAT).to_string(),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<chrono::NaiveDateTime> for DateTime {
+    fn from(date: chrono::NaiveDateTime) -> Self {
+        Self {
+            value: date.format(DATE_TIME_FORMAT).to_string(),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<chrono::DateTime<chrono::Utc>> for DateTime {
+    fn from(date_time: chrono::DateTime<chrono::Utc>) -> Self {
+        Self {
+            value: date_time.to_rfc3339(),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<String> for Date {
+    fn from(string: String) -> Self {
+        Self {
+            value: string,
+            ..Default::default()
+        }
+    }
+}
+
+impl ToString for Date {
+    fn to_string(&self) -> String {
+        self.value.to_owned()
+    }
+}
+
+impl From<String> for Time {
+    fn from(string: String) -> Self {
+        Self {
+            value: string,
+            ..Default::default()
+        }
+    }
+}
+
+impl ToString for Time {
+    fn to_string(&self) -> String {
+        self.value.to_owned()
+    }
+}
+
+impl From<String> for DateTime {
+    fn from(string: String) -> Self {
+        Self {
+            value: string,
+            ..Default::default()
+        }
+    }
+}
+
+impl ToString for DateTime {
+    fn to_string(&self) -> String {
+        self.value.to_owned()
+    }
+}
+
+impl Date {
+    /// Convert a date to a string parsable by SQL databases
+    ///
+    /// This could be improved on a lot!
+    pub fn to_sql(&self) -> String {
+        let colons = self.value.matches(':').count();
+        match colons {
+            0 => [&self.value, ":00:00"].concat(),
+            1 => [&self.value, ":00"].concat(),
+            _ => self.value.clone(),
+        }
+    }
+}
+
+impl Time {
+    /// Convert a time to a string parsable by SQL databases
+    ///
+    /// See note for `Date::to_sql`.
+    pub fn to_sql(&self) -> String {
+        let colons = self.value.matches(':').count();
+        match colons {
+            0 => [&self.value, ":00:00"].concat(),
+            1 => [&self.value, ":00"].concat(),
+            _ => self.value.clone(),
+        }
+    }
+}
+
+impl DateTime {
+    /// Convert a datetime to a string parsable by SQL databases
+    ///
+    /// See note for `Date::to_sql`.
+    pub fn to_sql(&self) -> String {
+        let colons = self.value.matches(':').count();
+        match colons {
+            0 => [&self.value, ":00:00"].concat(),
+            1 => [&self.value, ":00"].concat(),
+            _ => self.value.clone(),
+        }
+    }
+}
+
+impl Timestamp {
+    /// Convert a timestamp to a `chrono::NaiveDateTime`
+    pub fn to_chrono_datetime(
+        &self,
+    ) -> std::result::Result<chrono::NaiveDateTime, std::fmt::Error> {
+        use TimeUnit::*;
+        let epoch = chrono::NaiveDateTime::new(
+            chrono::NaiveDate::from_ymd(1970, 1, 1),
+            chrono::NaiveTime::from_hms(0, 0, 0),
+        );
+        let duration = match self.time_unit {
+            Day => chrono::Duration::days(self.value),
+            Hour => chrono::Duration::hours(self.value),
+            Minute => chrono::Duration::minutes(self.value),
+            Second => chrono::Duration::seconds(self.value),
+            Millisecond => chrono::Duration::milliseconds(self.value),
+            Microsecond => chrono::Duration::microseconds(self.value),
+            Nanosecond => chrono::Duration::nanoseconds(self.value),
+            _ => {
+                return Err(std::fmt::Error::custom(&format!(
+                    "Unable to convert a timestamp with unit `{}` to a `chrono::NaiveDateTime`",
+                    self.time_unit.as_ref()
+                )))
+            }
+        };
+
+        match epoch.checked_add_signed(duration) {
+            Some(date) => Ok(date),
+            None => Err(std::fmt::Error::custom("")),
+        }
+    }
+
+    /// Convert a timestamp to an ISO 8601 string
+    pub fn to_iso8601(&self) -> std::result::Result<String, std::fmt::Error> {
+        Ok(self
+            .to_chrono_datetime()?
+            .format(DATE_TIME_FORMAT)
+            .to_string())
+    }
+
+    /// Convert a date to a string parseable by SQL databases
+    pub fn to_sql(&self) -> std::result::Result<String, std::fmt::Error> {
+        self.to_iso8601()
+    }
+}
+
+impl Duration {
+    /// Convert a duration to a string parsable by SQL databases such as Postgres, SQLite, DuckDB etc
+    pub fn to_sql(&self) -> String {
+        [&self.value.to_string(), " ", &self.time_unit.as_ref()].concat()
+    }
+}
+
+impl TimeUnit {
+    pub fn to_si(&self) -> String {
+        use TimeUnit::*;
+        match self {
+            Year => "yr",
+            Month => "mo",
+            Week => "wk",
+            Day => "d",
+            Hour => "h",
+            Minute => "min",
+            Second => "s",
+            Millisecond => "ms",
+            Microsecond => "µs",
+            Nanosecond => "ns",
+            Picosecond => "ps",
+            Femtosecond => "fs",
+            Attosecond => "as",
+        }
+        .to_string()
+    }
+}
+
 /// An array value (a.k.a. vector)
 pub type Array = Vec<Primitive>;
 
@@ -126,32 +444,3 @@ pub type Object = BTreeMap<String, Primitive>;
 /// rather than diff the string.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Cord(pub String);
-
-// Convenience functions for `Date`
-
-impl From<DateTime<Utc>> for crate::Date {
-    fn from(date_time: DateTime<Utc>) -> Self {
-        Self {
-            value: date_time.to_rfc3339(),
-            ..Default::default()
-        }
-    }
-}
-
-impl From<String> for crate::Date {
-    fn from(string: String) -> Self {
-        Self {
-            value: string,
-            ..Default::default()
-        }
-    }
-}
-
-impl crate::Date {
-    pub fn now() -> Self {
-        Self {
-            value: Utc::now().to_rfc3339(),
-            ..Default::default()
-        }
-    }
-}

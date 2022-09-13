@@ -1,0 +1,17 @@
+title: Timestamp
+'@id': schema:Timestamp
+category: data
+status: stable
+description: A value that represents a point in time
+properties:
+  value:
+    '@id': schema:value
+    description: The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z).
+    type: integer
+  timeUnit:
+    '@id': stencila:timeUnit
+    description: The time unit that the `value` represents.
+    $ref: TimeUnit
+required:
+  - value
+  - timeUnit

@@ -257,27 +257,6 @@ class CodeFragment(CodeStatic):
 
 
 
-class Date(Entity):
-    """A date encoded as a ISO 8601 string."""
-
-    value: String
-    """The date as an ISO 8601 string."""
-
-
-    def __init__(
-        self,
-        value: String,
-        id: Optional[String] = None,
-        meta: Optional[Object] = None
-    ) -> None:
-        super().__init__(
-            id=id,
-            meta=meta
-        )
-        if value is not None:
-            self.value = value
-
-
 class Executable(Entity):
     """
     Base type for executable document nodes (e.g. `CodeChunk`,
@@ -789,64 +768,6 @@ class CallArgument(Parameter):
         )
         if symbol is not None:
             self.symbol = symbol
-
-
-class Mark(Entity):
-    """
-    A base class for nodes that mark some other inline content in some way
-    (e.g. as being emphasised, or quoted).
-    """
-
-    content: Array["InlineContent"]
-    """The content that is marked."""
-
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        id: Optional[String] = None,
-        meta: Optional[Object] = None
-    ) -> None:
-        super().__init__(
-            id=id,
-            meta=meta
-        )
-        if content is not None:
-            self.content = content
-
-
-class Delete(Mark):
-    """Content that is marked for deletion"""
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        id: Optional[String] = None,
-        meta: Optional[Object] = None
-    ) -> None:
-        super().__init__(
-            content=content,
-            id=id,
-            meta=meta
-        )
-
-
-
-class Emphasis(Mark):
-    """Emphasised content."""
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        id: Optional[String] = None,
-        meta: Optional[Object] = None
-    ) -> None:
-        super().__init__(
-            content=content,
-            id=id,
-            meta=meta
-        )
-
 
 
 class Thing(Entity):
@@ -1437,94 +1358,6 @@ such as Articles, Datatables, Tables and more.
             self.parts = parts
 
 
-class Directory(Collection):
-    """A directory on the filesystem"""
-
-    name: String # type: ignore
-    """The name of the item."""
-
-    parts: Array[Union["File", "Directory"]] # type: ignore
-    """The files and other directories that are within this directory"""
-
-    path: String
-    """The path (absolute or relative) of the file on the filesystem"""
-
-
-    def __init__(
-        self,
-        name: String,
-        parts: Array[Union["File", "Directory"]],
-        path: String,
-        about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[String]] = None,
-        authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array[Any], String]] = None,
-        dateAccepted: Optional["Date"] = None,
-        dateCreated: Optional["Date"] = None,
-        dateModified: Optional["Date"] = None,
-        datePublished: Optional["Date"] = None,
-        dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
-        editors: Optional[Array["Person"]] = None,
-        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
-        funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[String]] = None,
-        id: Optional[String] = None,
-        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
-        images: Optional[Array[Union["ImageObject", String]]] = None,
-        isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[String]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
-        maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Object] = None,
-        publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
-        text: Optional[String] = None,
-        title: Optional[Union[Array["InlineContent"], String]] = None,
-        url: Optional[String] = None,
-        version: Optional[Union[String, Number]] = None
-    ) -> None:
-        super().__init__(
-            name=name,
-            about=about,
-            alternateNames=alternateNames,
-            authors=authors,
-            comments=comments,
-            content=content,
-            dateAccepted=dateAccepted,
-            dateCreated=dateCreated,
-            dateModified=dateModified,
-            datePublished=datePublished,
-            dateReceived=dateReceived,
-            description=description,
-            editors=editors,
-            fundedBy=fundedBy,
-            funders=funders,
-            genre=genre,
-            id=id,
-            identifiers=identifiers,
-            images=images,
-            isPartOf=isPartOf,
-            keywords=keywords,
-            licenses=licenses,
-            maintainers=maintainers,
-            meta=meta,
-            publisher=publisher,
-            references=references,
-            text=text,
-            title=title,
-            url=url,
-            version=version
-        )
-        if name is not None:
-            self.name = name
-        if parts is not None:
-            self.parts = parts
-        if path is not None:
-            self.path = path
-
-
 class Comment(CreativeWork):
     """A comment on an item, e.g on a Article, or SoftwareSourceCode."""
 
@@ -1938,44 +1771,6 @@ class DatatableColumn(Thing):
             self.validator = validator
 
 
-class DefinedTerm(Thing):
-    """A word, name, acronym, phrase, etc. with a formal definition."""
-
-    name: String # type: ignore
-    """The name of the item."""
-
-    termCode: Optional[String] = None
-    """A code that identifies this DefinedTerm within a DefinedTermSet"""
-
-
-    def __init__(
-        self,
-        name: String,
-        alternateNames: Optional[Array[String]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
-        id: Optional[String] = None,
-        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
-        images: Optional[Array[Union["ImageObject", String]]] = None,
-        meta: Optional[Object] = None,
-        termCode: Optional[String] = None,
-        url: Optional[String] = None
-    ) -> None:
-        super().__init__(
-            name=name,
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            identifiers=identifiers,
-            images=images,
-            meta=meta,
-            url=url
-        )
-        if name is not None:
-            self.name = name
-        if termCode is not None:
-            self.termCode = termCode
-
-
 class Validator(Entity):
     """A base for all validator types."""
 
@@ -2076,6 +1871,340 @@ class ConstantValidator(Validator):
         )
         if value is not None:
             self.value = value
+
+
+class Date:
+    """A calendar date encoded as a ISO 8601 string."""
+
+    value: String
+    """The date as an ISO 8601 string."""
+
+
+    def __init__(
+        self,
+        value: String
+    ) -> None:
+        super().__init__(
+
+        )
+        if value is not None:
+            self.value = value
+
+
+class DateTime:
+    """
+    A combination of date and time of day in the form
+    `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.
+    """
+
+    value: String
+    """The date as an ISO 8601 string."""
+
+
+    def __init__(
+        self,
+        value: String
+    ) -> None:
+        super().__init__(
+
+        )
+        if value is not None:
+            self.value = value
+
+
+class DateTimeValidator(Validator):
+    """A validator specifying the constraints on a date-time."""
+
+    maximum: Optional["DateTime"] = None
+    """The inclusive upper limit for a date-time."""
+
+    minimum: Optional["DateTime"] = None
+    """The inclusive lower limit for a date-time."""
+
+
+    def __init__(
+        self,
+        id: Optional[String] = None,
+        maximum: Optional["DateTime"] = None,
+        meta: Optional[Object] = None,
+        minimum: Optional["DateTime"] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if maximum is not None:
+            self.maximum = maximum
+        if minimum is not None:
+            self.minimum = minimum
+
+
+class DateValidator(Validator):
+    """A validator specifying the constraints on a date."""
+
+    maximum: Optional["Date"] = None
+    """The inclusive upper limit for a date."""
+
+    minimum: Optional["Date"] = None
+    """The inclusive lower limit for a date."""
+
+
+    def __init__(
+        self,
+        id: Optional[String] = None,
+        maximum: Optional["Date"] = None,
+        meta: Optional[Object] = None,
+        minimum: Optional["Date"] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if maximum is not None:
+            self.maximum = maximum
+        if minimum is not None:
+            self.minimum = minimum
+
+
+class DefinedTerm(Thing):
+    """A word, name, acronym, phrase, etc. with a formal definition."""
+
+    name: String # type: ignore
+    """The name of the item."""
+
+    termCode: Optional[String] = None
+    """A code that identifies this DefinedTerm within a DefinedTermSet"""
+
+
+    def __init__(
+        self,
+        name: String,
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
+        termCode: Optional[String] = None,
+        url: Optional[String] = None
+    ) -> None:
+        super().__init__(
+            name=name,
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            identifiers=identifiers,
+            images=images,
+            meta=meta,
+            url=url
+        )
+        if name is not None:
+            self.name = name
+        if termCode is not None:
+            self.termCode = termCode
+
+
+class Mark(Entity):
+    """
+    A base class for nodes that mark some other inline content in some way
+    (e.g. as being emphasised, or quoted).
+    """
+
+    content: Array["InlineContent"]
+    """The content that is marked."""
+
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if content is not None:
+            self.content = content
+
+
+class Delete(Mark):
+    """Content that is marked for deletion"""
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            id=id,
+            meta=meta
+        )
+
+
+
+class Directory(Collection):
+    """A directory on the filesystem"""
+
+    name: String # type: ignore
+    """The name of the item."""
+
+    parts: Array[Union["File", "Directory"]] # type: ignore
+    """The files and other directories that are within this directory"""
+
+    path: String
+    """The path (absolute or relative) of the file on the filesystem"""
+
+
+    def __init__(
+        self,
+        name: String,
+        parts: Array[Union["File", "Directory"]],
+        path: String,
+        about: Optional[Array["ThingTypes"]] = None,
+        alternateNames: Optional[Array[String]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
+        dateAccepted: Optional["Date"] = None,
+        dateCreated: Optional["Date"] = None,
+        dateModified: Optional["Date"] = None,
+        datePublished: Optional["Date"] = None,
+        dateReceived: Optional["Date"] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
+        meta: Optional[Object] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
+    ) -> None:
+        super().__init__(
+            name=name,
+            about=about,
+            alternateNames=alternateNames,
+            authors=authors,
+            comments=comments,
+            content=content,
+            dateAccepted=dateAccepted,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            dateReceived=dateReceived,
+            description=description,
+            editors=editors,
+            fundedBy=fundedBy,
+            funders=funders,
+            genre=genre,
+            id=id,
+            identifiers=identifiers,
+            images=images,
+            isPartOf=isPartOf,
+            keywords=keywords,
+            licenses=licenses,
+            maintainers=maintainers,
+            meta=meta,
+            publisher=publisher,
+            references=references,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if name is not None:
+            self.name = name
+        if parts is not None:
+            self.parts = parts
+        if path is not None:
+            self.path = path
+
+
+class Duration:
+    """A value that represents the difference between two timestamps"""
+
+    timeUnit: "TimeUnit"
+    """The time unit that the `value` represents."""
+
+    value: Integer
+    """The time difference in `timeUnit`s."""
+
+
+    def __init__(
+        self,
+        timeUnit: "TimeUnit",
+        value: Integer
+    ) -> None:
+        super().__init__(
+
+        )
+        if timeUnit is not None:
+            self.timeUnit = timeUnit
+        if value is not None:
+            self.value = value
+
+
+class DurationValidator(Validator):
+    """A validator specifying the constraints on a duration."""
+
+    maximum: Optional["Duration"] = None
+    """The inclusive upper limit for a duration."""
+
+    minimum: Optional["Duration"] = None
+    """The inclusive lower limit for a duration."""
+
+    timeUnits: Optional[Array["TimeUnit"]] = None
+    """The time units that the duration can have."""
+
+
+    def __init__(
+        self,
+        id: Optional[String] = None,
+        maximum: Optional["Duration"] = None,
+        meta: Optional[Object] = None,
+        minimum: Optional["Duration"] = None,
+        timeUnits: Optional[Array["TimeUnit"]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if maximum is not None:
+            self.maximum = maximum
+        if minimum is not None:
+            self.minimum = minimum
+        if timeUnits is not None:
+            self.timeUnits = timeUnits
+
+
+class Emphasis(Mark):
+    """Emphasised content."""
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            id=id,
+            meta=meta
+        )
+
 
 
 class EnumValidator(Validator):
@@ -4342,6 +4471,108 @@ class ThematicBreak(Entity):
 
 
 
+class Time:
+    """A point in time recurring on multiple days"""
+
+    value: String
+    """The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`."""
+
+
+    def __init__(
+        self,
+        value: String
+    ) -> None:
+        super().__init__(
+
+        )
+        if value is not None:
+            self.value = value
+
+
+class TimeValidator(Validator):
+    """A validator specifying the constraints on a time."""
+
+    maximum: Optional["Time"] = None
+    """The inclusive upper limit for a time."""
+
+    minimum: Optional["Time"] = None
+    """The inclusive lower limit for a time."""
+
+
+    def __init__(
+        self,
+        id: Optional[String] = None,
+        maximum: Optional["Time"] = None,
+        meta: Optional[Object] = None,
+        minimum: Optional["Time"] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if maximum is not None:
+            self.maximum = maximum
+        if minimum is not None:
+            self.minimum = minimum
+
+
+class Timestamp:
+    """A value that represents a point in time"""
+
+    timeUnit: "TimeUnit"
+    """The time unit that the `value` represents."""
+
+    value: Integer
+    """The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z)."""
+
+
+    def __init__(
+        self,
+        timeUnit: "TimeUnit",
+        value: Integer
+    ) -> None:
+        super().__init__(
+
+        )
+        if timeUnit is not None:
+            self.timeUnit = timeUnit
+        if value is not None:
+            self.value = value
+
+
+class TimestampValidator(Validator):
+    """A validator specifying the constraints on a timestamp."""
+
+    maximum: Optional["Timestamp"] = None
+    """The inclusive upper limit for a timestamp."""
+
+    minimum: Optional["Timestamp"] = None
+    """The inclusive lower limit for a timestamp."""
+
+    timeUnits: Optional[Array["TimeUnit"]] = None
+    """The time units that the timestamp can have."""
+
+
+    def __init__(
+        self,
+        id: Optional[String] = None,
+        maximum: Optional["Timestamp"] = None,
+        meta: Optional[Object] = None,
+        minimum: Optional["Timestamp"] = None,
+        timeUnits: Optional[Array["TimeUnit"]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if maximum is not None:
+            self.maximum = maximum
+        if minimum is not None:
+            self.minimum = minimum
+        if timeUnits is not None:
+            self.timeUnits = timeUnits
+
+
 class TupleValidator(Validator):
     """
     A validator specifying constraints on an array of heterogeneous items.
@@ -4944,6 +5175,51 @@ class ExecuteStatus(Enum):
 
 
 
+class TimeUnit(Enum):
+    """
+    A unit in which time can be measured
+    """
+    # 
+    Year = "Year"
+
+    # 
+    Month = "Month"
+
+    # 
+    Week = "Week"
+
+    # 
+    Day = "Day"
+
+    # 
+    Hour = "Hour"
+
+    # 
+    Minute = "Minute"
+
+    # 
+    Second = "Second"
+
+    # 
+    Millisecond = "Millisecond"
+
+    # 
+    Microsecond = "Microsecond"
+
+    # 
+    Nanosecond = "Nanosecond"
+
+    # 
+    Picosecond = "Picosecond"
+
+    # 
+    Femtosecond = "Femtosecond"
+
+    # 
+    Attosecond = "Attosecond"
+
+
+
 """
 Union type for valid block content.
 """
@@ -4983,7 +5259,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Co
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Directory", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -5007,7 +5283,7 @@ IncludeTypes = Union["Include", "Call"]
 """
 Union type for valid inline content.
 """
-InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Parameter", "Quote", "Strikeout", "Strong", "Subscript", "Superscript", "Underline", "VideoObject", None, "Boolean", "Integer", "Number", "String"]
+InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Parameter", "Quote", "Strikeout", "Strong", "Subscript", "Superscript", "Underline", "VideoObject", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration"]
 
 
 """
@@ -5032,7 +5308,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 Union type for all types of nodes in this schema, including primitives and
     entities
 """
-Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Directory", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
+Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration", "Object", "Array"]
 
 
 """
@@ -5050,7 +5326,7 @@ ParameterTypes = Union["Parameter", "CallArgument"]
 """
 Union type for all primitives values
 """
-Primitive = Union[None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
+Primitive = Union[None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration", "Object", "Array"]
 
 
 """
@@ -5062,5 +5338,5 @@ ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Claim", "Collect
 """
 All type schemas that are derived from Validator
 """
-ValidatorTypes = Union["Validator", "ArrayValidator", "BooleanValidator", "ConstantValidator", "EnumValidator", "IntegerValidator", "NumberValidator", "StringValidator", "TupleValidator"]
+ValidatorTypes = Union["Validator", "ArrayValidator", "BooleanValidator", "ConstantValidator", "DateTimeValidator", "DateValidator", "DurationValidator", "EnumValidator", "IntegerValidator", "NumberValidator", "StringValidator", "TimeValidator", "TimestampValidator", "TupleValidator"]
 
