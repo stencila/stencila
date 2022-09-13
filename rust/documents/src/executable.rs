@@ -360,14 +360,23 @@ impl Executable for Parameter {
     async fn compile(&self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
 
-        let resource =
-            resources::code(&context.path, id, "Parameter", context.programming_language);
+        // Use `Format::Json` to indicate that the parameter will be set in the store. Previously we
+        // used the context language to set the parameter directly in the kernel corresponding to the
+        // language of preceding code chunks (if any). But this is more reliable e.g. some kernels
+        // may not support more complicated types like Timestamps and DateTimes
+        let resource = resources::code(&context.path, id, "Parameter", Format::Json);
 
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
+            Some(ValidatorTypes::EnumValidator(..)) => "Enum",
             Some(ValidatorTypes::IntegerValidator(..)) => "Integer",
             Some(ValidatorTypes::NumberValidator(..)) => "Number",
             Some(ValidatorTypes::StringValidator(..)) => "String",
+            Some(ValidatorTypes::DateValidator(..)) => "Date",
+            Some(ValidatorTypes::TimeValidator(..)) => "Time",
+            Some(ValidatorTypes::DateTimeValidator(..)) => "DateTime",
+            Some(ValidatorTypes::TimestampValidator(..)) => "Timestamp",
+            Some(ValidatorTypes::DurationValidator(..)) => "Duration",
             Some(ValidatorTypes::TupleValidator(..)) => "Tuple",
             Some(ValidatorTypes::ArrayValidator(..)) => "Array",
             _ => "",
@@ -1087,6 +1096,11 @@ executable_nothing!(
     Integer,
     Number,
     String,
+    Date,
+    Time,
+    DateTime,
+    Timestamp,
+    Duration,
     Array,
     Object,
     // Entity types that are unlikely to ever need to be executable
@@ -1103,10 +1117,15 @@ executable_nothing!(
     ArrayValidator,
     BooleanValidator,
     ConstantValidator,
+    DateTimeValidator,
+    DateValidator,
+    DurationValidator,
     EnumValidator,
     IntegerValidator,
     NumberValidator,
     StringValidator,
+    TimestampValidator,
+    TimeValidator,
     TupleValidator,
     // External resources
     File

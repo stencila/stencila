@@ -33,7 +33,7 @@ impl KernelTrait for StoreKernel {
         Kernel::new(
             "store",
             kernel::KernelType::Builtin,
-            &[],
+            &[Format::Json],
             true,
             false,
             false,
