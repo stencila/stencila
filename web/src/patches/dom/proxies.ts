@@ -249,7 +249,14 @@ function changeValue(
     }
     ;(elem as HTMLInputElement).checked = value as boolean
   } else {
-    const val = value == null ? 'null' : value.toString()
+    const val =
+      value == null
+        ? 'null'
+        : // If value.value exists then use that (e.g. for Date parameters)
+        typeof value == 'object' && value['value'] !== undefined
+        ? value['value'].toString()
+        : // Otherwise just use value
+          value.toString()
     elem.setAttribute('value', escapeAttr(val))
     elem.value = val
   }
