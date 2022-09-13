@@ -118,6 +118,15 @@ patchable_atomic!(Number);
 // rather than diffed. So treat it as an atomic.
 patchable_atomic!(Cord);
 
+// Implementations for time related types
+
+patchable_struct!(Date, value);
+patchable_struct!(Time, value);
+patchable_struct!(DateTime, value);
+patchable_struct!(Timestamp, value, time_unit);
+patchable_struct!(Duration, value, time_unit);
+patchable_enum!(TimeUnit);
+
 #[cfg(test)]
 mod tests {
     use super::*;

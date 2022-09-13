@@ -62,7 +62,10 @@ impl Transform for InlineContent {
             InlineContent::CiteGroup(node) => Node::CiteGroup(node),
             InlineContent::CodeExpression(node) => Node::CodeExpression(node),
             InlineContent::CodeFragment(node) => Node::CodeFragment(node),
+            InlineContent::Date(node) => Node::Date(node),
+            InlineContent::DateTime(node) => Node::DateTime(node),
             InlineContent::Delete(node) => Node::Delete(node),
+            InlineContent::Duration(node) => Node::Duration(node),
             InlineContent::Emphasis(node) => Node::Emphasis(node),
             InlineContent::ImageObject(node) => {
                 let ImageObjectSimple {
@@ -104,6 +107,8 @@ impl Transform for InlineContent {
             InlineContent::Strong(node) => Node::Strong(node),
             InlineContent::Subscript(node) => Node::Subscript(node),
             InlineContent::Superscript(node) => Node::Superscript(node),
+            InlineContent::Time(node) => Node::Time(node),
+            InlineContent::Timestamp(node) => Node::Timestamp(node),
             InlineContent::Underline(node) => Node::Underline(node),
             InlineContent::VideoObject(node) => {
                 let VideoObjectSimple {

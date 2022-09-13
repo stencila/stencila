@@ -52,6 +52,11 @@ pub fn coerce(value: JsonValue, type_: Option<String>) -> Result<Node> {
         Primitive::Integer(node) => Node::Integer(node),
         Primitive::Number(node) => Node::Number(node),
         Primitive::String(node) => Node::String(node),
+        Primitive::Date(node) => Node::Date(node),
+        Primitive::Time(node) => Node::Time(node),
+        Primitive::DateTime(node) => Node::DateTime(node),
+        Primitive::Timestamp(node) => Node::Timestamp(node),
+        Primitive::Duration(node) => Node::Duration(node),
         Primitive::Array(node) => Node::Array(node),
         Primitive::Object(node) => Node::Object(node),
     })

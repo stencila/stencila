@@ -5,8 +5,9 @@ use common::{
 };
 use node_dispatch::dispatch_validator;
 use stencila_schema::{
-    self, ArrayValidator, BooleanValidator, ConstantValidator, EnumValidator, IntegerValidator,
-    Node, Number, NumberValidator, StringValidator, TupleValidator, ValidatorTypes,
+    self, ArrayValidator, BooleanValidator, ConstantValidator, Duration, DurationValidator,
+    EnumValidator, IntegerValidator, Node, Number, NumberValidator, StringValidator, Timestamp,
+    TimestampValidator, TupleValidator, ValidatorTypes, DateTimeValidator, TimeValidator, Date, Time, DateTime, DateValidator,
 };
 
 /// A trait for applying different [`ValidatorTypes`] to other nodes
@@ -348,6 +349,90 @@ impl Validator for StringValidator {
         } else {
             String::new()
         })
+    }
+}
+
+impl Validator for DateValidator {
+    fn validate(&self, _node: &Node) -> Result<()> {
+        tracing::error!("DateValidator.validate not yet implemented");
+        Ok(())
+    }
+
+    fn parse(&self, string: &str) -> Result<Node> {
+        Ok(Node::Date(Date::from(string.to_string())))
+    }
+
+    fn coerce(&self, _node: &Node) -> Node {
+        tracing::error!("DateValidator.coerce not yet implemented");
+        self.default_()
+    }
+
+    fn default_(&self) -> Node {
+        Node::Date(Date::default())
+    }
+}
+
+impl Validator for TimeValidator {
+    fn validate(&self, _node: &Node) -> Result<()> {
+        tracing::error!("TimeValidator.validate not yet implemented");
+        Ok(())
+    }
+
+    fn coerce(&self, _node: &Node) -> Node {
+        tracing::error!("TimeValidator.coerce not yet implemented");
+        self.default_()
+    }
+
+    fn default_(&self) -> Node {
+        Node::Time(Time::default())
+    }
+}
+
+impl Validator for DateTimeValidator {
+    fn validate(&self, _node: &Node) -> Result<()> {
+        tracing::error!("DateTimeValidator.validate not yet implemented");
+        Ok(())
+    }
+
+    fn coerce(&self, _node: &Node) -> Node {
+        tracing::error!("DateTimeValidator.coerce not yet implemented");
+        self.default_()
+    }
+
+    fn default_(&self) -> Node {
+        Node::DateTime(DateTime::default())
+    }
+}
+
+impl Validator for TimestampValidator {
+    fn validate(&self, _node: &Node) -> Result<()> {
+        tracing::error!("TimestampValidator.validate not yet implemented");
+        Ok(())
+    }
+
+    fn coerce(&self, _node: &Node) -> Node {
+        tracing::error!("TimestampValidator.coerce not yet implemented");
+        self.default_()
+    }
+
+    fn default_(&self) -> Node {
+        Node::Timestamp(Timestamp::default())
+    }
+}
+
+impl Validator for DurationValidator {
+    fn validate(&self, _node: &Node) -> Result<()> {
+        tracing::error!("DurationValidator.validate not yet implemented");
+        Ok(())
+    }
+
+    fn coerce(&self, _node: &Node) -> Node {
+        tracing::error!("DurationValidator.coerce not yet implemented");
+        self.default_()
+    }
+
+    fn default_(&self) -> Node {
+        Node::Duration(Duration::default())
     }
 }
 

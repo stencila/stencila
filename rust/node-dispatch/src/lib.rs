@@ -24,8 +24,11 @@ macro_rules! dispatch_node {
             Node::CreativeWork(node) => node.$method($($arg),*),
             Node::Datatable(node) => node.$method($($arg),*),
             Node::DatatableColumn(node) => node.$method($($arg),*),
+            Node::Date(node) => node.$method($($arg),*),
+            Node::DateTime(node) => node.$method($($arg),*),
             Node::Delete(node) => node.$method($($arg),*),
             Node::Directory(node) => node.$method($($arg),*),
+            Node::Duration(node) => node.$method($($arg),*),
             Node::Emphasis(node) => node.$method($($arg),*),
             Node::EnumValidator(node) => node.$method($($arg),*),
             Node::Figure(node) => node.$method($($arg),*),
@@ -64,6 +67,8 @@ macro_rules! dispatch_node {
             Node::Superscript(node) => node.$method($($arg),*),
             Node::Table(node) => node.$method($($arg),*),
             Node::ThematicBreak(node) => node.$method($($arg),*),
+            Node::Time(node) => node.$method($($arg),*),
+            Node::Timestamp(node) => node.$method($($arg),*),
             Node::TupleValidator(node) => node.$method($($arg),*),
             Node::Underline(node) => node.$method($($arg),*),
             Node::Validator(node) => node.$method($($arg),*),
@@ -82,6 +87,11 @@ macro_rules! dispatch_primitive {
             Primitive::Integer(node) => node.$method($($arg),*),
             Primitive::Number(node) => node.$method($($arg),*),
             Primitive::String(node) => node.$method($($arg),*),
+            Primitive::Date(node) => node.$method($($arg),*),
+            Primitive::Time(node) => node.$method($($arg),*),
+            Primitive::DateTime(node) => node.$method($($arg),*),
+            Primitive::Timestamp(node) => node.$method($($arg),*),
+            Primitive::Duration(node) => node.$method($($arg),*),
             Primitive::Array(node) => node.$method($($arg),*),
             Primitive::Object(node) => node.$method($($arg),*),
         }
@@ -97,6 +107,11 @@ macro_rules! dispatch_primitive_pair {
             (Primitive::Integer(node), Primitive::Integer(other)) => node.$method(other, $($arg),*),
             (Primitive::Number(node), Primitive::Number(other)) => node.$method(other, $($arg),*),
             (Primitive::String(node), Primitive::String(other)) => node.$method(other, $($arg),*),
+            (Primitive::Date(node), Primitive::Date(other)) => node.$method(other, $($arg),*),
+            (Primitive::Time(node), Primitive::Time(other)) => node.$method(other, $($arg),*),
+            (Primitive::DateTime(node), Primitive::DateTime(other)) => node.$method(other, $($arg),*),
+            (Primitive::Timestamp(node), Primitive::Timestamp(other)) => node.$method(other, $($arg),*),
+            (Primitive::Duration(node), Primitive::Duration(other)) => node.$method(other, $($arg),*),
             (Primitive::Array(node), Primitive::Array(other)) => node.$method(other, $($arg),*),
             (Primitive::Object(node), Primitive::Object(other)) => node.$method(other, $($arg),*),
             _ => $default
@@ -114,7 +129,10 @@ macro_rules! dispatch_inline {
             InlineContent::CiteGroup(node) => node.$method($($arg),*),
             InlineContent::CodeExpression(node) => node.$method($($arg),*),
             InlineContent::CodeFragment(node) => node.$method($($arg),*),
+            InlineContent::Date(node) => node.$method($($arg),*),
+            InlineContent::DateTime(node) => node.$method($($arg),*),
             InlineContent::Delete(node) => node.$method($($arg),*),
+            InlineContent::Duration(node) => node.$method($($arg),*),
             InlineContent::Emphasis(node) => node.$method($($arg),*),
             InlineContent::ImageObject(node) => node.$method($($arg),*),
             InlineContent::Integer(node) => node.$method($($arg),*),
@@ -131,6 +149,8 @@ macro_rules! dispatch_inline {
             InlineContent::Strong(node) => node.$method($($arg),*),
             InlineContent::Subscript(node) => node.$method($($arg),*),
             InlineContent::Superscript(node) => node.$method($($arg),*),
+            InlineContent::Time(node) => node.$method($($arg),*),
+            InlineContent::Timestamp(node) => node.$method($($arg),*),
             InlineContent::Underline(node) => node.$method($($arg),*),
             InlineContent::VideoObject(node) => node.$method($($arg),*),
         }
@@ -147,7 +167,10 @@ macro_rules! dispatch_inline_pair {
             (InlineContent::CiteGroup(node), InlineContent::CiteGroup(other)) => node.$method(other, $($arg),*),
             (InlineContent::CodeExpression(node), InlineContent::CodeExpression(other)) => node.$method(other, $($arg),*),
             (InlineContent::CodeFragment(node), InlineContent::CodeFragment(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Date(node), InlineContent::Date(other)) => node.$method(other, $($arg),*),
+            (InlineContent::DateTime(node), InlineContent::DateTime(other)) => node.$method(other, $($arg),*),
             (InlineContent::Delete(node), InlineContent::Delete(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Duration(node), InlineContent::Duration(other)) => node.$method(other, $($arg),*),
             (InlineContent::Emphasis(node), InlineContent::Emphasis(other)) => node.$method(other, $($arg),*),
             (InlineContent::ImageObject(node), InlineContent::ImageObject(other)) => node.$method(other, $($arg),*),
             (InlineContent::Integer(node), InlineContent::Integer(other)) => node.$method(other, $($arg),*),
@@ -164,6 +187,8 @@ macro_rules! dispatch_inline_pair {
             (InlineContent::Strong(node), InlineContent::Strong(other)) => node.$method(other, $($arg),*),
             (InlineContent::Subscript(node), InlineContent::Subscript(other)) => node.$method(other, $($arg),*),
             (InlineContent::Superscript(node), InlineContent::Superscript(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Time(node), InlineContent::Time(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Timestamp(node), InlineContent::Timestamp(other)) => node.$method(other, $($arg),*),
             (InlineContent::Underline(node), InlineContent::Underline(other)) => node.$method(other, $($arg),*),
             (InlineContent::VideoObject(node), InlineContent::VideoObject(other)) => node.$method(other, $($arg),*),
             _ => $default
@@ -246,15 +271,20 @@ macro_rules! dispatch_work {
 macro_rules! dispatch_validator {
     ($node:expr, $method:ident $(,$arg:expr)*) => {
         match $node {
-            ValidatorTypes::Validator(node) => node.$method($($arg),*),
             ValidatorTypes::ArrayValidator(node) => node.$method($($arg),*),
             ValidatorTypes::BooleanValidator(node) => node.$method($($arg),*),
             ValidatorTypes::ConstantValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::DateTimeValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::DateValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::DurationValidator(node) => node.$method($($arg),*),
             ValidatorTypes::EnumValidator(node) => node.$method($($arg),*),
             ValidatorTypes::IntegerValidator(node) => node.$method($($arg),*),
             ValidatorTypes::NumberValidator(node) => node.$method($($arg),*),
             ValidatorTypes::StringValidator(node) => node.$method($($arg),*),
-            ValidatorTypes::TupleValidator(node) => node.$method($($arg),*)
+            ValidatorTypes::TimestampValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::TimeValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::TupleValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::Validator(node) => node.$method($($arg),*),
         }
     }
 }
@@ -263,15 +293,20 @@ macro_rules! dispatch_validator {
 macro_rules! dispatch_validator_pair {
     ($node:expr, $other:expr, $default:expr, $method:ident $(,$arg:expr)*) => {
         match ($node, $other) {
-            (ValidatorTypes::Validator(node), ValidatorTypes::Validator(other)) => node.$method(other, $($arg),*),
             (ValidatorTypes::ArrayValidator(node), ValidatorTypes::ArrayValidator(other)) => node.$method(other, $($arg),*),
             (ValidatorTypes::BooleanValidator(node), ValidatorTypes::BooleanValidator(other)) => node.$method(other, $($arg),*),
             (ValidatorTypes::ConstantValidator(node), ValidatorTypes::ConstantValidator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::DateTimeValidator(node), ValidatorTypes::DateTime(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::DateValidator(node), DateTypes::Date(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::DurationValidator(node), ValidatorTypes::DurationValidator(other)) => node.$method(other, $($arg),*),
             (ValidatorTypes::EnumValidator(node), ValidatorTypes::EnumValidator(other)) => node.$method(other, $($arg),*),
             (ValidatorTypes::IntegerValidator(node), ValidatorTypes::IntegerValidator(other)) => node.$method(other, $($arg),*),
             (ValidatorTypes::NumberValidator(node), ValidatorTypes::NumberValidator(other)) => node.$method(other, $($arg),*),
             (ValidatorTypes::StringValidator(node), ValidatorTypes::StringValidator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::TimestampValidator(node), ValidatorTypes::TimestampValidator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::TimeValidator(node), ValidatorTypes::Time(other)) => node.$method(other, $($arg),*),
             (ValidatorTypes::TupleValidator(node), ValidatorTypes::TupleValidator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::Validator(node), ValidatorTypes::Validator(other)) => node.$method(other, $($arg),*),
             _ => $default
         }
     }

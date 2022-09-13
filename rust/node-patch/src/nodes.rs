@@ -76,7 +76,10 @@ patchable_node_variants!(
     Node::CodeFragment
     Node::Datatable
     Node::DatatableColumn
+    Node::Date
+    Node::DateTime
     Node::Delete
+    Node::Duration
     Node::Emphasis
     Node::Figure
     Node::Heading
@@ -103,6 +106,8 @@ patchable_node_variants!(
     Node::Superscript
     Node::Table
     Node::ThematicBreak
+    Node::Time
+    Node::Timestamp
     Node::Underline
     Node::VideoObject
 );

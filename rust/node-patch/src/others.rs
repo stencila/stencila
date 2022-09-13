@@ -1,8 +1,6 @@
 use super::prelude::*;
 use stencila_schema::*;
 
-replaceable_struct!(Date, value);
-
 patchable_struct!(
     Organization,
     // All properties except `id` (as at 2021-11-18)
