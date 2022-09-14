@@ -161,8 +161,16 @@ impl SqlParser {
                             check.operator = String::new();
                         }
                     }
-                    "check.function" => {
-                        check.function = capture.text;
+                    "check.call" => {
+                        if let Some(function) = capture
+                            .text
+                            .strip_suffix(&["(", &column.column_name, ")"].concat())
+                        {
+                            check.function = function.to_owned();
+                        } else {
+                            // This check is for a different column so do as above
+                            check.operator = String::new();
+                        }
                     }
                     "check.number" => {
                         check.number = capture.text;

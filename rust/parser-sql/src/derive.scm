@@ -23,9 +23,13 @@
                     left: [
                         (identifier) @check.identifier
                         (function_call
-                            function: (identifier) @check.function
-                            arguments: (identifier) @check.identifier
-                        )
+                            ; Previously we captured the function and identifier as below.
+                            ; However, for some reason that is very slow (~ 3 times slower)
+                            ; in both --debug and --release tests. So do simple "parsing in
+                            ; rust instead.
+                            ; function: (identifier) @check.function
+                            ; arguments: (identifier) @check.identifier
+                        ) @check.call
                     ]
                     right: [
                         ((number) @check.number)
@@ -39,10 +43,7 @@
                     (binary_expression
                         left: [
                             (identifier) @check.identifier
-                            (function_call
-                                function: (identifier) @check.function
-                                arguments: (identifier) @check.identifier
-                            )
+                            (function_call) @check.call
                         ]
                         right: [
                             ((number) @check.number)
