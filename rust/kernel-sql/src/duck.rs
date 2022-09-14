@@ -588,7 +588,7 @@ pub async fn table_to_parameters(
         )
     }
 
-    // Parse the SQL to get the parameters (including checks)
+    // Parse the SQL to get the parameters
     let mut parameters = parser_sql::SqlParser::derive_parameters(&sql);
 
     // Add missing validators for enum columns

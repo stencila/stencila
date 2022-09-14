@@ -19,8 +19,9 @@ use kernel::{
         ResourceChange,
     },
     stencila_schema::{
-        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node, Null,
-        Number, NumberValidator, Parameter, Primitive, StringValidator, ValidatorTypes,
+        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, EnumValidator,
+        IntegerValidator, Node, Null, Number, NumberValidator, Parameter, Primitive,
+        StringValidator, ValidatorTypes,
     },
 };
 
@@ -310,7 +311,7 @@ pub async fn table_to_parameters(
     let schema = schema.unwrap_or("public");
     let columns = sqlx::query(
         r#"
-        select column_name, data_type, column_default
+        select column_name, data_type, udt_schema, udt_name, column_default
         from information_schema.columns
         where table_schema = $1 and table_name = $2;
         "#,
@@ -354,8 +355,10 @@ pub async fn table_to_parameters(
         .collect();
 
     // Generate the SQL for the table.
+    // Also record details of columns with user defined data types
     use std::fmt::Write;
     let mut sql = format!("CREATE TABLE {} (\n", table);
+    let mut enum_columns: Vec<(String, String)> = Vec::new();
     for column in columns {
         let column_name: String = column.get("column_name");
         let data_type: String = column.get("data_type");
@@ -371,11 +374,44 @@ pub async fn table_to_parameters(
                 .map(|value| ["CHECK ", value].concat())
                 .unwrap_or_default()
         )?;
+
+        if data_type == "USER-DEFINED" {
+            enum_columns.push((column_name, column.get("udt_name")));
+        }
     }
     sql += ");";
 
     // Parse the SQL to get the parameters (including checks)
-    Ok(parser_sql::SqlParser::derive_parameters(&sql))
+    let mut parameters = parser_sql::SqlParser::derive_parameters(&sql);
+
+    // Add missing validators for enum columns
+    for (column_name, data_type) in enum_columns {
+        if let Some(values) = sqlx::query(&format!(
+            r#"select enum_range(null::{})::text[]"#,
+            data_type
+        ))
+        .fetch_optional(pool)
+        .await?
+        {
+            let values = values
+                .get::<Vec<String>, usize>(0)
+                .into_iter()
+                .map(Node::String)
+                .collect_vec();
+            for parameter in &mut parameters {
+                if parameter.name == column_name {
+                    parameter.validator =
+                        Some(Box::new(ValidatorTypes::EnumValidator(EnumValidator {
+                            values,
+                            ..Default::default()
+                        })));
+                    break;
+                }
+            }
+        }
+    }
+
+    Ok(parameters)
 }
 
 /**
