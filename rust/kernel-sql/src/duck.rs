@@ -19,8 +19,8 @@ use kernel::{
     stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, Date, DateTime,
         DateValidator, Duration, DurationValidator, EnumValidator, IntegerValidator, Node, Null,
-        Number, NumberValidator, Primitive, StringValidator, Time, TimeUnit, TimeValidator,
-        Timestamp, TimestampValidator, ValidatorTypes,
+        Number, NumberValidator, Parameter, Primitive, StringValidator, Time, TimeUnit,
+        TimeValidator, Timestamp, TimestampValidator, ValidatorTypes,
     },
 };
 
@@ -523,6 +523,88 @@ pub async fn table_from_datatable(
     _pond: &DuckPond,
 ) -> Result<()> {
     bail!("Converting a Datatable to a DuckDB table is not yet implemented")
+}
+
+/**
+ * Derive parameters from the columns of a DuckDB table
+ */
+pub async fn table_to_parameters(
+    url: &str,
+    pond: &DuckPond,
+    table: &str,
+    schema: Option<&str>,
+) -> Result<Vec<Parameter>> {
+    // Get table metadata
+    let schema = schema.unwrap_or("main");
+    let connection = pond.connection.lock().await;
+    let mut statement = connection.prepare(
+        r#"
+        select column_name, data_type, column_default
+        from information_schema.columns
+        where table_schema = ? and table_name = ?;
+        "#,
+    )?;
+    let mut columns = statement.query(duckdb::params![schema, table])?;
+
+    // Generate the SQL for the table.
+    // This could be done instead by constructing `parser_sqlite:SqlColumn`s
+    // and generating the SQL from there.
+    // Doing it this way for consistency with Postgres and SQLite and in case we
+    // need to add checks later.
+    use std::fmt::Write;
+    let mut col_count = 0;
+    let mut sql = format!("CREATE TABLE {} (\n", table);
+    while let Some(column) = columns.next()? {
+        let column_name: String = column.get("column_name")?;
+        let data_type: String = column.get("data_type")?;
+        let column_default: Option<String> = column.get("column_default")?;
+        writeln!(
+            &mut sql,
+            "  {column_name} {data_type} {default},",
+            default = column_default
+                .map(|value| ["DEFAULT ", &value].concat())
+                .unwrap_or_default(),
+        )?;
+        col_count += 1;
+    }
+    sql += ");";
+
+    if col_count == 0 {
+        bail!(
+            "Table `{}` does not appear to exists in schema `{}` of DuckDB database `{}`",
+            table,
+            schema,
+            url
+        )
+    }
+
+    // Parse the SQL to get the parameters (including checks)
+    Ok(parser_sql::SqlParser::derive_parameters(&sql))
+}
+
+/**
+ * Derive a parameter from a column in a DuckDB table
+ */
+pub async fn column_to_parameter(
+    url: &str,
+    pool: &DuckPond,
+    column: &str,
+    table: &str,
+    schema: Option<&str>,
+) -> Result<Parameter> {
+    let parameter = table_to_parameters(url, pool, table, schema)
+        .await?
+        .into_iter()
+        .find(|parameter| parameter.name == column);
+
+    let schema = schema.unwrap_or("public");
+    match parameter {
+        Some(parameter) => Ok(parameter),
+        None => bail!(
+            "Column `{}` does not appear to exist in table `{}` of schema `{}` of DuckDB database `{}`",
+            column, table, schema, url
+        ),
+    }
 }
 
 /// Start a background task to listen for notifications of changes to tables

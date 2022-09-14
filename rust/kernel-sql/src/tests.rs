@@ -16,7 +16,6 @@ async fn test_sqlite() -> Result<()> {
 }
 
 /// Test against DuckDB
-#[ignore]
 #[tokio::test]
 async fn test_duckdb() -> Result<()> {
     test("duckdb://:memory:").await
@@ -201,21 +200,36 @@ async fn test(config: &str) -> Result<()> {
     }]);
 
     let parameter = kernel.derive("parameter", "table_1.col_c").await?;
-    assert_json_is!(parameter, [{
-        "type": "Parameter",
-        "name": "col_c",
-        "validator": {
-            "type": "DateValidator",
-            "minimum": {
+    if config.starts_with("duckdb://") {
+        // DuckDB does not yet support retrieval of checks
+        assert_json_is!(parameter, [{
+            "type": "Parameter",
+            "name": "col_c",
+            "validator": {
+                "type": "DateValidator",
+            },
+            "default": {
                 "type": "Date",
-                "value": "2001-01-01"
+                "value": "2001-01-02"
             }
-        },
-        "default": {
-            "type": "Date",
-            "value": "2001-01-02"
-        }
-    }]);
+        }]);
+    } else {
+        assert_json_is!(parameter, [{
+            "type": "Parameter",
+            "name": "col_c",
+            "validator": {
+                "type": "DateValidator",
+                "minimum": {
+                    "type": "Date",
+                    "value": "2001-01-01"
+                }
+            },
+            "default": {
+                "type": "Date",
+                "value": "2001-01-02"
+            }
+        }]);
+    }
 
     let parameters = kernel.derive("parameters", "table_1").await?;
     assert_eq!(parameters.len(), 3);

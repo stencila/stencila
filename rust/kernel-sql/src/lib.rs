@@ -191,13 +191,15 @@ impl SqlKernel {
                 table.ok_or_else(|| eyre!("A table name is required in derive from path"))?;
             let schema = schema.map(|string| string.as_str());
             let parameter = match pool {
+                MetaPool::Duck(pool) => {
+                    duck::column_to_parameter(url, pool, column, table, schema).await?
+                }
                 MetaPool::Postgres(pool) => {
                     postgres::column_to_parameter(url, pool, column, table, schema).await?
                 }
                 MetaPool::Sqlite(pool) => {
                     sqlite::column_to_parameter(url, pool, column, table, schema).await?
                 }
-                _ => todo!(),
             };
             Ok(vec![Node::Parameter(parameter)])
         } else if what.to_lowercase() == "parameters" {
@@ -205,13 +207,13 @@ impl SqlKernel {
                 table.ok_or_else(|| eyre!("A table name is required in derive from path"))?;
             let schema = schema.map(|string| string.as_str());
             let parameters = match pool {
+                MetaPool::Duck(pool) => duck::table_to_parameters(url, pool, table, schema).await?,
                 MetaPool::Postgres(pool) => {
                     postgres::table_to_parameters(url, pool, table, schema).await?
                 }
                 MetaPool::Sqlite(pool) => {
                     sqlite::table_to_parameters(url, pool, table, schema).await?
                 }
-                _ => todo!(),
             };
             Ok(parameters.into_iter().map(Node::Parameter).collect())
         } else {
