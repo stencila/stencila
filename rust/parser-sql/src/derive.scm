@@ -14,6 +14,7 @@
             (default_clause [
                 ((number) @default)
                 ((string content: ((_) @default)))
+                ((type_cast . (string content: ((_) @default))))
             ])?
 
             ; capture most common forms of check constraints involving the column
