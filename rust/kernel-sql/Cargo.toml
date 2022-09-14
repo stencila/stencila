@@ -8,6 +8,7 @@ arrow = "21.0.0"
 duckdb = { version = "0.5.0", features = ["bundled"] }
 kernel = { path = "../kernel" }
 prql-compiler = "0.2.6"
+parser-sql = { path = "../parser-sql" }
 sqlx = { version = "0.6.1", features = [
     "runtime-tokio-rustls",
     "any",
