@@ -7,7 +7,7 @@ use kernel::{
     },
     KernelTrait,
 };
-use test_utils::{assert_json_eq, skip_ci};
+use test_utils::{assert_json_eq, assert_json_is, skip_ci};
 
 /// Test against SQLite
 #[tokio::test]
@@ -15,13 +15,18 @@ async fn test_sqlite() -> Result<()> {
     test("sqlite://:memory:").await
 }
 
+/// Test against DuckDB
+#[ignore]
+#[tokio::test]
+async fn test_duckdb() -> Result<()> {
+    test("duckdb://:memory:").await
+}
+
 /// Test against Postgres
 ///
 /// Requires some manual setup:
 ///   > docker run --rm -it -p5432:5432 -e POSTGRES_PASSWORD=postgres postgres
-///   > psql --host localhost --user postgres
-///   postgres=# CREATE DATABASE testdb;
-#[ignore]
+///   > PGPASSWORD=postgres createdb --host=localhost --user postgres testdb
 #[tokio::test]
 async fn test_postgres() -> Result<()> {
     if skip_ci("Not yet setup to work on CI") {
@@ -114,6 +119,7 @@ async fn test(config: &str) -> Result<()> {
         columns: vec![col_1, col_2, col_3, col_4, col_5],
         ..Default::default()
     };
+
     kernel
         .set("table_a", Node::Datatable(datatable_a.clone()))
         .await?;
@@ -158,6 +164,84 @@ async fn test(config: &str) -> Result<()> {
             )
         }
         _ => bail!("Should be a datatable!"),
+    }
+
+    // Test deriving parameters from columns
+
+    kernel
+        .exec(
+            r#"
+                CREATE TABLE table_1 (
+                    col_a BOOLEAN,
+                    col_b INTEGER DEFAULT 42,
+                    col_c DATE CHECK (col_c > '2001-01-01') DEFAULT '2001-01-02'
+                )"#,
+            Format::SQL,
+            None,
+        )
+        .await?;
+
+    let parameter = kernel.derive("parameter", "table_1.col_a").await?;
+    assert_json_is!(parameter, [{
+        "type": "Parameter",
+        "name": "col_a",
+        "validator": {
+            "type": "BooleanValidator"
+        }
+    }]);
+
+    let parameter = kernel.derive("parameter", "table_1.col_b").await?;
+    assert_json_is!(parameter, [{
+        "type": "Parameter",
+        "name": "col_b",
+        "validator": {
+            "type": "IntegerValidator"
+        },
+        "default": 42
+    }]);
+
+    let parameter = kernel.derive("parameter", "table_1.col_c").await?;
+    assert_json_is!(parameter, [{
+        "type": "Parameter",
+        "name": "col_c",
+        "validator": {
+            "type": "DateValidator",
+            "minimum": {
+                "type": "Date",
+                "value": "2001-01-01"
+            }
+        },
+        "default": {
+            "type": "Date",
+            "value": "2001-01-02"
+        }
+    }]);
+
+    let parameters = kernel.derive("parameters", "table_1").await?;
+    assert_eq!(parameters.len(), 3);
+
+    if let Err(error) = kernel.derive("parameter", "table_1.col_foo").await {
+        assert!(
+            error
+                .to_string()
+                .starts_with("Column `col_foo` does not appear to exist"),
+            "Got `{}`",
+            error
+        )
+    } else {
+        bail!("Expected error")
+    }
+
+    if let Err(error) = kernel.derive("parameter", "table_bar.col_foo").await {
+        assert!(
+            error
+                .to_string()
+                .starts_with("Table `table_bar` does not appear to exist"),
+            "Got `{}`",
+            error
+        )
+    } else {
+        bail!("Expected error")
     }
 
     Ok(())

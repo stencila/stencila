@@ -168,6 +168,57 @@ impl SqlKernel {
         Ok(())
     }
 
+    /// Derive one or more Stencila nodes from a table or column in the database
+    pub async fn derive(&mut self, what: &str, from: &str) -> Result<Vec<Node>> {
+        let parts: Vec<String> = from.split('.').map(String::from).collect();
+        let (schema, table, column) = if parts.len() < 3 {
+            (None, parts.first(), parts.get(1))
+        } else {
+            (parts.first(), parts.get(1), parts.get(2))
+        };
+
+        self.connect().await?;
+        let pool = self
+            .pool
+            .as_ref()
+            .expect("connect() should ensure connection");
+        let url = self.url.as_ref().expect("connect() should ensure URL");
+
+        if what.to_lowercase() == "parameter" {
+            let column =
+                column.ok_or_else(|| eyre!("A column name is required in derive from path"))?;
+            let table =
+                table.ok_or_else(|| eyre!("A table name is required in derive from path"))?;
+            let schema = schema.map(|string| string.as_str());
+            let parameter = match pool {
+                MetaPool::Postgres(pool) => {
+                    postgres::column_to_parameter(url, pool, column, table, schema).await?
+                }
+                MetaPool::Sqlite(pool) => {
+                    sqlite::column_to_parameter(url, pool, column, table, schema).await?
+                }
+                _ => todo!(),
+            };
+            Ok(vec![Node::Parameter(parameter)])
+        } else if what.to_lowercase() == "parameters" {
+            let table =
+                table.ok_or_else(|| eyre!("A table name is required in derive from path"))?;
+            let schema = schema.map(|string| string.as_str());
+            let parameters = match pool {
+                MetaPool::Postgres(pool) => {
+                    postgres::table_to_parameters(url, pool, table, schema).await?
+                }
+                MetaPool::Sqlite(pool) => {
+                    sqlite::table_to_parameters(url, pool, table, schema).await?
+                }
+                _ => todo!(),
+            };
+            Ok(parameters.into_iter().map(Node::Parameter).collect())
+        } else {
+            bail!("Do not know how to derive `{}` from database", what)
+        }
+    }
+
     /// Listen for notifications from the database (if not already listening)
     async fn watch(&mut self, tables: &[String]) -> Result<()> {
         self.connect().await?;

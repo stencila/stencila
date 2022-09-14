@@ -228,7 +228,7 @@ pub async fn table_from_datatable(
 /**
  * Derive parameters from the columns of a SQLite table
  */
-pub async fn derive_parameters(
+pub async fn table_to_parameters(
     url: &str,
     pool: &SqlitePool,
     table: &str,
@@ -258,24 +258,24 @@ pub async fn derive_parameters(
 /**
  * Derive a parameter from a column in a SQLite table
  */
-pub async fn derive_parameter(
+pub async fn column_to_parameter(
     url: &str,
     pool: &SqlitePool,
     column: &str,
     table: &str,
     schema: Option<&str>,
 ) -> Result<Parameter> {
-    let parameter = derive_parameters(url, pool, table, schema)
+    let parameter = table_to_parameters(url, pool, table, schema)
         .await?
         .into_iter()
         .find(|parameter| parameter.name == column);
+        
+    let schema = schema.unwrap_or("main");
     match parameter {
         Some(parameter) => Ok(parameter),
         None => bail!(
-            "Table `{}` of SQLite database `{}` does not have a column named `{}`",
-            table,
-            url,
-            column
+            "Column `{}` does not appear to exist in table `{}` of schema `{}` of SQLite database `{}`",
+            column, table, schema, url
         ),
     }
 }
@@ -429,83 +429,4 @@ pub async fn watch_all(schema: Option<&String>, pool: &SqlitePool) -> Result<Vec
     }
 
     Ok(names)
-}
-
-#[cfg(test)]
-mod tests {
-    use test_utils::assert_json_is;
-
-    use super::*;
-
-    #[tokio::test]
-    async fn test_derive_parameters() -> Result<()> {
-        let url = "sqlite://:memory:";
-        let pool = SqlitePool::connect(url).await?;
-
-        sqlx::query(
-            r#"create table table_1 (
-                col_a boolean,
-                col_b date check (col_b > '2001-01-01') default '2001-01-02'
-            )"#,
-        )
-        .execute(&pool)
-        .await?;
-
-        let parameter = derive_parameter(url, &pool, "col_a", "table_1", None).await?;
-        assert_json_is!(parameter, {
-            "type": "Parameter",
-            "name": "col_a",
-            "validator": {
-                "type": "BooleanValidator"
-            }
-        });
-
-        let parameter = derive_parameter(url, &pool, "col_b", "table_1", None).await?;
-        assert_json_is!(parameter, {
-            "type": "Parameter",
-            "name": "col_b",
-            "validator": {
-                "type": "DateValidator",
-                "minimum": {
-                    "type" : "Date",
-                    "value" : "2001-01-01"
-                }
-            },
-            "default": {
-                "type" : "Date",
-                "value" : "2001-01-02"
-            }
-        });
-
-        if let Err(error) = derive_parameter(url, &pool, "col_foo", "table_1", None).await {
-            assert_eq!(
-                error.to_string(),
-                "Table `table_1` of SQLite database `sqlite://:memory:` does not have a column named `col_foo`"
-            )
-        } else {
-            bail!("Expected error")
-        }
-
-        if let Err(error) = derive_parameter(url, &pool, "col_foo", "table_bar", None).await {
-            assert_eq!(
-                error.to_string(),
-                "Table `table_bar` does not appear to exists in schema `main` of SQLite database `sqlite://:memory:`"
-            )
-        } else {
-            bail!("Expected error")
-        }
-
-        if let Err(error) =
-            derive_parameter(url, &pool, "col_foo", "table_bar", Some("schema_baz")).await
-        {
-            assert_eq!(
-                error.to_string(),
-                "Table `table_bar` does not appear to exists in schema `schema_baz` of SQLite database `sqlite://:memory:`"
-            )
-        } else {
-            bail!("Expected error")
-        }
-
-        Ok(())
-    }
 }

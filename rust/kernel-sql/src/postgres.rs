@@ -7,7 +7,7 @@ use sqlx::{
 
 use kernel::{
     common::{
-        eyre::Result,
+        eyre::{bail, Result},
         itertools::Itertools,
         regex::Captures,
         serde_json,
@@ -20,7 +20,7 @@ use kernel::{
     },
     stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node, Null,
-        Number, NumberValidator, Primitive, StringValidator, ValidatorTypes,
+        Number, NumberValidator, Parameter, Primitive, StringValidator, ValidatorTypes,
     },
 };
 
@@ -295,6 +295,112 @@ pub async fn table_from_datatable(name: &str, datatable: Datatable, pool: &PgPoo
     query.execute(pool).await?;
 
     Ok(())
+}
+
+/**
+ * Derive parameters from the columns of a Postgres table
+ */
+pub async fn table_to_parameters(
+    url: &str,
+    pool: &PgPool,
+    table: &str,
+    schema: Option<&str>,
+) -> Result<Vec<Parameter>> {
+    // Get table metadata
+    let schema = schema.unwrap_or("public");
+    let columns = sqlx::query(
+        r#"
+        select column_name, data_type, column_default
+        from information_schema.columns
+        where table_schema = $1 and table_name = $2;
+        "#,
+    )
+    .bind(schema)
+    .bind(table)
+    .fetch_all(pool)
+    .await?;
+
+    if columns.is_empty() {
+        bail!(
+            "Table `{}` does not appear to exists in schema `{}` of Postgres database `{}`",
+            table,
+            schema,
+            url
+        )
+    }
+
+    // Get checks associated with the table
+    let checks = sqlx::query(
+        r#"
+        select column_name, check_clause
+        from information_schema.check_constraints as cc
+        left join information_schema.constraint_column_usage as ccu
+        on cc.constraint_name = ccu.constraint_name
+        where table_schema = $1 and table_name = $2;
+        "#,
+    )
+    .bind(schema)
+    .bind(table)
+    .fetch_all(pool)
+    .await?;
+    let checks: HashMap<String, String> = checks
+        .into_iter()
+        .map(|check| {
+            (
+                check.get::<String, &str>("column_name"),
+                check.get::<String, &str>("check_clause"),
+            )
+        })
+        .collect();
+
+    // Generate the SQL for the table.
+    use std::fmt::Write;
+    let mut sql = format!("CREATE TABLE {} (\n", table);
+    for column in columns {
+        let column_name: String = column.get("column_name");
+        let data_type: String = column.get("data_type");
+        let column_default: Option<String> = column.get("column_default");
+        writeln!(
+            &mut sql,
+            "  {column_name} {data_type} {default} {checks},",
+            default = column_default
+                .map(|value| ["DEFAULT ", &value].concat())
+                .unwrap_or_default(),
+            checks = checks
+                .get(&column_name)
+                .map(|value| ["CHECK ", value].concat())
+                .unwrap_or_default()
+        )?;
+    }
+    sql += ");";
+
+    // Parse the SQL to get the parameters (including checks)
+    Ok(parser_sql::SqlParser::derive_parameters(&sql))
+}
+
+/**
+ * Derive a parameter from a column in a Postgres table
+ */
+pub async fn column_to_parameter(
+    url: &str,
+    pool: &PgPool,
+    column: &str,
+    table: &str,
+    schema: Option<&str>,
+) -> Result<Parameter> {
+    let parameter = table_to_parameters(url, pool, table, schema)
+        .await?
+        .into_iter()
+        .find(|parameter| parameter.name == column);
+
+    let schema = schema.unwrap_or("public");
+    match parameter {
+        Some(parameter) => Ok(parameter),
+        None => bail!(
+            "Column `{}` does not appear to exist in table `{}` of schema `{}` of Postgres database `{}`",
+            column, table, schema, url
+        ),
+    }
 }
 
 /// Start a background task to listen for notifications of changes to tables
