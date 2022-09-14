@@ -551,9 +551,11 @@ pub async fn table_to_parameters(
     // and generating the SQL from there.
     // Doing it this way for consistency with Postgres and SQLite and in case we
     // need to add checks later.
+    // Also record enum columns (those not having one of the standard types or type aliases)
     use std::fmt::Write;
     let mut col_count = 0;
     let mut sql = format!("CREATE TABLE {} (\n", table);
+    let mut enum_columns = Vec::new();
     while let Some(column) = columns.next()? {
         let column_name: String = column.get("column_name")?;
         let data_type: String = column.get("data_type")?;
@@ -565,6 +567,14 @@ pub async fn table_to_parameters(
                 .map(|value| ["DEFAULT ", &value].concat())
                 .unwrap_or_default(),
         )?;
+
+        if !DATA_TYPES.contains(&data_type.as_ref())
+            && !data_type.starts_with("DECIMAL")
+            && !data_type.starts_with("VARCHAR")
+        {
+            enum_columns.push((column_name, data_type));
+        }
+
         col_count += 1;
     }
     sql += ");";
@@ -579,7 +589,37 @@ pub async fn table_to_parameters(
     }
 
     // Parse the SQL to get the parameters (including checks)
-    Ok(parser_sql::SqlParser::derive_parameters(&sql))
+    let mut parameters = parser_sql::SqlParser::derive_parameters(&sql);
+
+    // Add missing validators for enum columns
+    for (column_name, data_type) in enum_columns {
+        // The `enum_range` function returns a `VARCHAR[]` (a list of strings). Unfortunately
+        // `duckdb-rs` does not seem to appear conversion of those to `Vec<String>`. So we convert
+        // to a comma separated list using `list_string_agg` and then split that.
+        let mut statement = connection.prepare(&format!(
+            r#"select list_string_agg(enum_range(null::{}))"#,
+            data_type
+        ))?;
+        if let Some(values) = statement.query([])?.next()? {
+            let values = values
+                .get::<usize, String>(0)?
+                .split(',')
+                .map(|level| Node::String(level.to_string()))
+                .collect_vec();
+            for parameter in &mut parameters {
+                if parameter.name == column_name {
+                    parameter.validator =
+                        Some(Box::new(ValidatorTypes::EnumValidator(EnumValidator {
+                            values,
+                            ..Default::default()
+                        })));
+                    break;
+                }
+            }
+        }
+    }
+
+    Ok(parameters)
 }
 
 /**
@@ -629,3 +669,53 @@ pub async fn watch_table(_table: &str, _pond: &DuckPond) -> Result<()> {
 pub async fn watch_all(_schema: Option<&String>, _pond: &DuckPond) -> Result<Vec<String>> {
     bail!("Table watches are not supported for DuckDB databases")
 }
+
+/// A list of data types recognized by DuckDB. Any type not in this list is assumed to be a
+/// user defined enum type. List from https://duckdb.org/docs/sql/data_types/overview
+const DATA_TYPES: &[&str] = &[
+    "BIGINT",
+    "BINARY",
+    "BLOB",
+    "BOOL",
+    "BOOLEAN",
+    "BPCHAR",
+    "BYTEA",
+    "CHAR",
+    "DATE",
+    "DATETIME",
+    "DECIMAL",
+    "DECIMAL",
+    "DOUBLE",
+    "FLOAT",
+    "FLOAT4",
+    "FLOAT8",
+    "HUGEINT",
+    "INT",
+    "INT1",
+    "INT2",
+    "INT4",
+    "INT8",
+    "INTEGER",
+    "INTERVAL",
+    "LOGICAL",
+    "LONG",
+    "NUMERIC",
+    "REAL",
+    "SHORT",
+    "SIGNED",
+    "SMALLINT",
+    "STRING",
+    "TEXT",
+    "TIME",
+    "TIMESTAMP",
+    "TIMESTAMP WITH TIME ZONE",
+    "TIMESTAMPTZ",
+    "TINYINT",
+    "UBIGINT",
+    "UINTEGER",
+    "USMALLINT",
+    "UTINYINT",
+    "UUID",
+    "VARBINARY",
+    "VARCHAR",
+];
