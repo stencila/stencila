@@ -196,76 +196,18 @@ deserialize_time_united!(Duration);
 
 const DATE_FORMAT: &str = "%Y-%m-%d";
 const TIME_FORMAT: &str = "%H:%M:%S";
-const DATE_TIME_FORMAT: &str = "%Y-%m-%dT%H:%M:%SZ";
+const DATE_TIME_FORMAT: &str = "%Y-%m-%dT%H:%M:%S";
 
 impl Date {
-    pub fn now() -> Self {
-        Self::from(chrono::Utc::now())
-    }
-}
-
-impl Time {
-    pub fn now() -> Self {
-        Self::from(chrono::Utc::now())
-    }
-}
-
-impl DateTime {
-    pub fn now() -> Self {
-        Self::from(chrono::Utc::now())
-    }
-}
-
-impl From<chrono::NaiveDate> for Date {
-    fn from(date: chrono::NaiveDate) -> Self {
-        Self {
-            value: date.format(DATE_FORMAT).to_string(),
-            ..Default::default()
-        }
-    }
-}
-
-impl From<chrono::DateTime<chrono::Utc>> for Date {
-    fn from(date_time: chrono::DateTime<chrono::Utc>) -> Self {
-        Self {
-            value: date_time.format(DATE_FORMAT).to_string(),
-            ..Default::default()
-        }
-    }
-}
-
-impl From<chrono::NaiveTime> for Time {
-    fn from(date: chrono::NaiveTime) -> Self {
-        Self {
-            value: date.format(TIME_FORMAT).to_string(),
-            ..Default::default()
-        }
-    }
-}
-
-impl From<chrono::DateTime<chrono::Utc>> for Time {
-    fn from(date_time: chrono::DateTime<chrono::Utc>) -> Self {
-        Self {
-            value: date_time.format(TIME_FORMAT).to_string(),
-            ..Default::default()
-        }
-    }
-}
-
-impl From<chrono::NaiveDateTime> for DateTime {
-    fn from(date: chrono::NaiveDateTime) -> Self {
-        Self {
-            value: date.format(DATE_TIME_FORMAT).to_string(),
-            ..Default::default()
-        }
-    }
-}
-
-impl From<chrono::DateTime<chrono::Utc>> for DateTime {
-    fn from(date_time: chrono::DateTime<chrono::Utc>) -> Self {
-        Self {
-            value: date_time.to_rfc3339(),
-            ..Default::default()
+    /// Convert a date to a string parsable by SQL databases
+    ///
+    /// This could be improved on a lot!
+    pub fn to_sql(&self) -> String {
+        let colons = self.value.matches(':').count();
+        match colons {
+            0 => [&self.value, ":00:00"].concat(),
+            1 => [&self.value, ":00"].concat(),
+            _ => self.value.clone(),
         }
     }
 }
@@ -285,46 +227,11 @@ impl ToString for Date {
     }
 }
 
-impl From<String> for Time {
-    fn from(string: String) -> Self {
+impl From<chrono::NaiveDate> for Date {
+    fn from(date: chrono::NaiveDate) -> Self {
         Self {
-            value: string,
+            value: date.format(DATE_FORMAT).to_string(),
             ..Default::default()
-        }
-    }
-}
-
-impl ToString for Time {
-    fn to_string(&self) -> String {
-        self.value.to_owned()
-    }
-}
-
-impl From<String> for DateTime {
-    fn from(string: String) -> Self {
-        Self {
-            value: string,
-            ..Default::default()
-        }
-    }
-}
-
-impl ToString for DateTime {
-    fn to_string(&self) -> String {
-        self.value.to_owned()
-    }
-}
-
-impl Date {
-    /// Convert a date to a string parsable by SQL databases
-    ///
-    /// This could be improved on a lot!
-    pub fn to_sql(&self) -> String {
-        let colons = self.value.matches(':').count();
-        match colons {
-            0 => [&self.value, ":00:00"].concat(),
-            1 => [&self.value, ":00"].concat(),
-            _ => self.value.clone(),
         }
     }
 }
@@ -343,7 +250,36 @@ impl Time {
     }
 }
 
+impl From<String> for Time {
+    fn from(string: String) -> Self {
+        Self {
+            value: string,
+            ..Default::default()
+        }
+    }
+}
+
+impl ToString for Time {
+    fn to_string(&self) -> String {
+        self.value.to_owned()
+    }
+}
+
+impl From<chrono::NaiveTime> for Time {
+    fn from(date: chrono::NaiveTime) -> Self {
+        Self {
+            value: date.format(TIME_FORMAT).to_string(),
+            ..Default::default()
+        }
+    }
+}
+
 impl DateTime {
+    // Get the `DateTime` now
+    pub fn now() -> Self {
+        Self::from(chrono::Utc::now())
+    }
+
     /// Convert a datetime to a string parsable by SQL databases
     ///
     /// See note for `Date::to_sql`.
@@ -353,6 +289,39 @@ impl DateTime {
             0 => [&self.value, ":00:00"].concat(),
             1 => [&self.value, ":00"].concat(),
             _ => self.value.clone(),
+        }
+    }
+}
+
+impl From<String> for DateTime {
+    fn from(string: String) -> Self {
+        Self {
+            value: string,
+            ..Default::default()
+        }
+    }
+}
+
+impl ToString for DateTime {
+    fn to_string(&self) -> String {
+        self.value.to_owned()
+    }
+}
+
+impl From<chrono::NaiveDateTime> for DateTime {
+    fn from(date: chrono::NaiveDateTime) -> Self {
+        Self {
+            value: date.format(DATE_TIME_FORMAT).to_string(),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<chrono::DateTime<chrono::Utc>> for DateTime {
+    fn from(date_time: chrono::DateTime<chrono::Utc>) -> Self {
+        Self {
+            value: date_time.to_rfc3339(),
+            ..Default::default()
         }
     }
 }
@@ -395,6 +364,11 @@ impl Timestamp {
             .to_chrono_datetime()?
             .format(DATE_TIME_FORMAT)
             .to_string())
+    }
+
+    /// Convert a timestamp to a `DateTime`
+    pub fn to_date_time(&self) -> std::result::Result<DateTime, std::fmt::Error> {
+        Ok(DateTime::from(self.to_chrono_datetime()?))
     }
 
     /// Convert a date to a string parseable by SQL databases

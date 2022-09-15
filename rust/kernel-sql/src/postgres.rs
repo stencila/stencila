@@ -7,6 +7,7 @@ use sqlx::{
 
 use kernel::{
     common::{
+        chrono,
         eyre::{bail, Result},
         itertools::Itertools,
         regex::Captures,
@@ -19,13 +20,16 @@ use kernel::{
         ResourceChange,
     },
     stencila_schema::{
-        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, EnumValidator,
-        IntegerValidator, Node, Null, Number, NumberValidator, Parameter, Primitive,
-        StringValidator, ValidatorTypes,
+        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, Date, DateTime,
+        DateValidator, EnumValidator, IntegerValidator, Node, Null, Number, NumberValidator,
+        Parameter, Primitive, StringValidator, Time, TimeValidator, ValidatorTypes,
     },
 };
 
-use crate::{WatchedTables, BINDING_REGEX};
+use crate::{
+    common::{create_table_from_datatable, datatable_rows_cols},
+    WatchedTables, BINDING_REGEX,
+};
 
 /// Bind parameters to an SQL statement based on name
 fn bind(sql: &str, parameters: &HashMap<String, Node>) -> (String, PgArguments) {
@@ -86,6 +90,11 @@ pub async fn query_to_datatable(
                         Some(ValidatorTypes::NumberValidator(NumberValidator::default()))
                     }
                     "TEXT" => Some(ValidatorTypes::StringValidator(StringValidator::default())),
+                    "DATE" => Some(ValidatorTypes::DateValidator(DateValidator::default())),
+                    "TIME" => Some(ValidatorTypes::TimeValidator(TimeValidator::default())),
+                    "TIMESTAMP" => Some(ValidatorTypes::DateTimeValidator(
+                        kernel::stencila_schema::DateTimeValidator::default(),
+                    )),
                     "JSON" => None,
                     _ => {
                         tracing::warn!(
@@ -134,6 +143,18 @@ pub async fn query_to_datatable(
                     .try_get::<String, usize>(col_index)
                     .map(Primitive::String)
                     .ok(),
+                "DATE" => row
+                    .try_get::<chrono::NaiveDate, usize>(col_index)
+                    .map(|date| Primitive::Date(Date::from(date)))
+                    .ok(),
+                "TIME" => row
+                    .try_get::<chrono::NaiveTime, usize>(col_index)
+                    .map(|time| Primitive::Time(Time::from(time)))
+                    .ok(),
+                "TIMESTAMP" => row
+                    .try_get::<chrono::NaiveDateTime, usize>(col_index)
+                    .map(|datetime| Primitive::DateTime(DateTime::from(datetime)))
+                    .ok(),
                 "JSON" => row
                     .try_get::<serde_json::Value, usize>(col_index)
                     .ok()
@@ -159,6 +180,8 @@ pub async fn query_to_datatable(
             validator: validator.map(|validator| {
                 Box::new(ArrayValidator {
                     items_validator: Some(Box::new(validator)),
+                    // Assume true (the default) because unable to get the columns NOT NULL easily
+                    items_nullable: true,
                     ..Default::default()
                 })
             }),
@@ -177,38 +200,18 @@ pub async fn query_to_datatable(
 /// This function follows the recommendation [here](https://github.com/launchbadge/sqlx/blob/main/FAQ.md#how-can-i-bind-an-array-to-a-values-clause-how-can-i-do-bulk-inserts)
 /// for doing bulk inserts into Postgres tables.
 pub async fn table_from_datatable(name: &str, datatable: Datatable, pool: &PgPool) -> Result<()> {
+    let (rows, cols) = datatable_rows_cols(&datatable);
+    if cols == 0 {
+        return Ok(());
+    }
+
     sqlx::query(&format!("DROP TABLE IF EXISTS \"{}\"", name))
         .execute(pool)
         .await?;
 
-    let columns = datatable
-        .columns
-        .iter()
-        .map(|column| {
-            let validator = column
-                .validator
-                .as_deref()
-                .and_then(|array_validator| array_validator.items_validator.clone());
-            let datatype = match validator.as_deref() {
-                Some(ValidatorTypes::BooleanValidator(..)) => "BOOLEAN",
-                Some(ValidatorTypes::IntegerValidator(..)) => "INTEGER",
-                Some(ValidatorTypes::NumberValidator(..)) => "REAL",
-                Some(ValidatorTypes::StringValidator(..)) => "TEXT",
-                _ => "JSON",
-            };
-            format!("{} {}", column.name, datatype)
-        })
-        .collect_vec()
-        .join(", ");
-    sqlx::query(&format!("CREATE TABLE \"{}\"({});\n", name, columns))
-        .execute(pool)
-        .await?;
+    let sql = create_table_from_datatable(name, &datatable, false);
+    sqlx::query(&sql).execute(pool).await?;
 
-    let rows = datatable
-        .columns
-        .first()
-        .map(|column| column.values.len())
-        .unwrap_or(0);
     if rows == 0 {
         return Ok(());
     }
@@ -233,6 +236,9 @@ pub async fn table_from_datatable(name: &str, datatable: Datatable, pool: &PgPoo
                 Some(ValidatorTypes::IntegerValidator(..)) => "INTEGER",
                 Some(ValidatorTypes::NumberValidator(..)) => "REAL",
                 Some(ValidatorTypes::StringValidator(..)) => "TEXT",
+                Some(ValidatorTypes::DateValidator(..)) => "DATE",
+                Some(ValidatorTypes::TimeValidator(..)) => "TIME",
+                Some(ValidatorTypes::DateTimeValidator(..)) => "TIMESTAMP",
                 _ => "JSON",
             };
             format!("${}::{}[]", index + 1, datatype)
@@ -279,6 +285,33 @@ pub async fn table_from_datatable(name: &str, datatable: Datatable, pool: &PgPoo
                 let values = values
                     .map(|node| match node {
                         Primitive::String(value) => Some(value.clone()),
+                        _ => None,
+                    })
+                    .collect_vec();
+                query = query.bind(values);
+            }
+            Some(ValidatorTypes::DateValidator(..)) => {
+                let values = values
+                    .map(|node| match node {
+                        Primitive::Date(value) => Some(value.value.clone()),
+                        _ => None,
+                    })
+                    .collect_vec();
+                query = query.bind(values);
+            }
+            Some(ValidatorTypes::TimeValidator(..)) => {
+                let values = values
+                    .map(|node| match node {
+                        Primitive::Time(value) => Some(value.value.clone()),
+                        _ => None,
+                    })
+                    .collect_vec();
+                query = query.bind(values);
+            }
+            Some(ValidatorTypes::DateTimeValidator(..)) => {
+                let values = values
+                    .map(|node| match node {
+                        Primitive::DateTime(value) => Some(value.value.clone()),
                         _ => None,
                     })
                     .collect_vec();

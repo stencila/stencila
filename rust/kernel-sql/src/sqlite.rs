@@ -9,7 +9,6 @@ use sqlx::{sqlite::SqliteArguments, Arguments, Column, Row, SqlitePool, TypeInfo
 use kernel::{
     common::{
         eyre::{bail, eyre, Result},
-        itertools::Itertools,
         regex::Captures,
         serde_json,
         tokio::{self, sync::mpsc, time},
@@ -20,12 +19,16 @@ use kernel::{
         ResourceChange,
     },
     stencila_schema::{
-        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node, Null,
-        Number, NumberValidator, Parameter, Primitive, StringValidator, ValidatorTypes,
+        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, Date, DateTime,
+        DateTimeValidator, DateValidator, IntegerValidator, Node, Null, Number, NumberValidator,
+        Parameter, Primitive, StringValidator, Time, TimeValidator, ValidatorTypes,
     },
 };
 
-use crate::{WatchedTables, BINDING_REGEX};
+use crate::{
+    common::{create_table_from_datatable, datatable_rows_cols},
+    WatchedTables, BINDING_REGEX,
+};
 
 /// Bind parameters to an SQL statement based on name
 fn bind<'lt>(sql: &str, parameters: &'lt HashMap<String, Node>) -> (String, SqliteArguments<'lt>) {
@@ -76,7 +79,7 @@ pub async fn query_to_datatable(
             .iter()
             .map(|column| {
                 let name = column.name().to_string();
-                let col_type = column.type_info().name().to_string();
+                let col_type = column.type_info().name().to_string().to_uppercase();
                 let validator = match col_type.as_str() {
                     "BOOLEAN" => {
                         Some(ValidatorTypes::BooleanValidator(BooleanValidator::default()))
@@ -86,6 +89,11 @@ pub async fn query_to_datatable(
                     }
                     "REAL" => Some(ValidatorTypes::NumberValidator(NumberValidator::default())),
                     "TEXT" => Some(ValidatorTypes::StringValidator(StringValidator::default())),
+                    "DATE" => Some(ValidatorTypes::DateValidator(DateValidator::default())),
+                    "TIME" => Some(ValidatorTypes::TimeValidator(TimeValidator::default())),
+                    "DATETIME" | "TIMESTAMP" => Some(ValidatorTypes::DateTimeValidator(
+                        DateTimeValidator::default(),
+                    )),
                     "NULL" => None, // No column type specified e.g. "SELECT 1;"
                     _ => {
                         tracing::debug!(
@@ -126,6 +134,18 @@ pub async fn query_to_datatable(
                     .try_get::<String, usize>(col_index)
                     .map(Primitive::String)
                     .ok(),
+                "DATE" => row
+                    .try_get::<String, usize>(col_index)
+                    .map(|value| Primitive::Date(Date::from(value)))
+                    .ok(),
+                "TIME" => row
+                    .try_get::<String, usize>(col_index)
+                    .map(|value| Primitive::Time(Time::from(value)))
+                    .ok(),
+                "DATETIME" | "TIMESTAMP" => row
+                    .try_get::<String, usize>(col_index)
+                    .map(|value| Primitive::DateTime(DateTime::from(value)))
+                    .ok(),
                 _ => row
                     .try_get_unchecked::<String, usize>(col_index)
                     .ok()
@@ -145,6 +165,8 @@ pub async fn query_to_datatable(
             validator: validator.map(|validator| {
                 Box::new(ArrayValidator {
                     items_validator: Some(Box::new(validator)),
+                    // Assume true (the default) because unable to get the columns NOT NULL easily
+                    items_nullable: true,
                     ..Default::default()
                 })
             }),
@@ -164,43 +186,23 @@ pub async fn table_from_datatable(
     datatable: Datatable,
     pool: &SqlitePool,
 ) -> Result<()> {
+    let (rows, cols) = datatable_rows_cols(&datatable);
+    if cols == 0 {
+        return Ok(());
+    }
+
     sqlx::query(&format!("DROP TABLE IF EXISTS \"{}\"", name))
         .execute(pool)
         .await?;
 
-    let columns = datatable
-        .columns
-        .iter()
-        .map(|column| {
-            let validator = column
-                .validator
-                .as_deref()
-                .and_then(|array_validator| array_validator.items_validator.clone());
-            let datatype = match validator.as_deref() {
-                Some(ValidatorTypes::BooleanValidator(..)) => "BOOLEAN",
-                Some(ValidatorTypes::IntegerValidator(..)) => "INTEGER",
-                Some(ValidatorTypes::NumberValidator(..)) => "REAL",
-                Some(ValidatorTypes::StringValidator(..)) => "TEXT",
-                _ => "JSON",
-            };
-            format!("{} {}", column.name, datatype)
-        })
-        .collect_vec()
-        .join(", ");
-    sqlx::query(&format!("CREATE TABLE \"{}\"({});\n", name, columns))
-        .execute(pool)
-        .await?;
+    let sql = create_table_from_datatable(name, &datatable, false);
+    sqlx::query(&sql).execute(pool).await?;
 
-    let rows = datatable
-        .columns
-        .first()
-        .map(|column| column.values.len())
-        .unwrap_or(0);
     if rows == 0 {
         return Ok(());
     }
 
-    let cols = datatable.columns.len();
+    let (rows, cols) = datatable_rows_cols(&datatable);
 
     let mut sql = format!("INSERT INTO \"{}\" VALUES\n", name);
     sql += &vec![format!(" ({})", vec!["?"; cols].join(", ")); rows].join(",\n");
@@ -216,6 +218,9 @@ pub async fn table_from_datatable(
                 Primitive::Integer(value) => query = query.bind(value),
                 Primitive::Number(value) => query = query.bind(value.0),
                 Primitive::String(value) => query = query.bind(value),
+                Primitive::Date(value) => query = query.bind(&value.value),
+                Primitive::Time(value) => query = query.bind(&value.value),
+                Primitive::DateTime(value) => query = query.bind(&value.value),
                 _ => query = query.bind(serde_json::to_string(node).unwrap_or_default()),
             }
         }
@@ -269,7 +274,7 @@ pub async fn column_to_parameter(
         .await?
         .into_iter()
         .find(|parameter| parameter.name == column);
-        
+
     let schema = schema.unwrap_or("main");
     match parameter {
         Some(parameter) => Ok(parameter),

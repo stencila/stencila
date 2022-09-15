@@ -18,13 +18,16 @@ use kernel::{
     graph_triples::ResourceChange,
     stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, Date, DateTime,
-        DateValidator, Duration, DurationValidator, EnumValidator, IntegerValidator, Node, Null,
-        Number, NumberValidator, Parameter, Primitive, StringValidator, Time, TimeUnit,
-        TimeValidator, Timestamp, TimestampValidator, ValidatorTypes,
+        DateTimeValidator, DateValidator, Duration, DurationValidator, EnumValidator,
+        IntegerValidator, Node, Null, Number, NumberValidator, Parameter, Primitive,
+        StringValidator, Time, TimeUnit, TimeValidator, Timestamp, ValidatorTypes,
     },
 };
 
-use crate::{WatchedTables, BINDING_REGEX};
+use crate::{
+    common::{create_table_from_datatable, datatable_rows_cols},
+    WatchedTables, BINDING_REGEX,
+};
 
 /// A connection "pool" to a DuckDB database
 ///
@@ -450,22 +453,25 @@ pub async fn query_to_datatable(
                     .collect(),
             )),
             DataType::Timestamp(datatypes::TimeUnit::Microsecond, ..) => Some((
-                ValidatorTypes::TimestampValidator(TimestampValidator::default()),
+                // For consistency with other databases return a `DateTime` here.
+                ValidatorTypes::DateTimeValidator(DateTimeValidator::default()),
                 values
                     .downcast_ref::<array::TimestampMicrosecondArray>()
                     .expect("Should cast to expected type")
                     .iter()
                     .map(|value| {
-                        value.map_or_else(
-                            || NULL,
-                            |value| {
-                                Primitive::Timestamp(Timestamp {
+                        value
+                            .and_then(|value| {
+                                Timestamp {
                                     value,
                                     time_unit: TimeUnit::Microsecond,
                                     ..Default::default()
-                                })
-                            },
-                        )
+                                }
+                                .to_date_time()
+                                .ok()
+                            })
+                            .map(Primitive::DateTime)
+                            .unwrap_or(NULL)
                     })
                     .collect(),
             )),
@@ -516,13 +522,49 @@ pub async fn query_to_datatable(
     })
 }
 
-/// Create a SQLite table from a Stencila [`Datatable`]
-pub async fn table_from_datatable(
-    _name: &str,
-    _datatable: Datatable,
-    _pond: &DuckPond,
-) -> Result<()> {
-    bail!("Converting a Datatable to a DuckDB table is not yet implemented")
+/// Create a DuckDB table from a Stencila [`Datatable`]
+pub async fn table_from_datatable(name: &str, datatable: Datatable, pond: &DuckPond) -> Result<()> {
+    let (rows, cols) = datatable_rows_cols(&datatable);
+    if cols == 0 {
+        return Ok(());
+    }
+
+    let sql = create_table_from_datatable(name, &datatable, false);
+    let connection = pond.connection.lock().await;
+    connection.execute(&sql, [])?;
+
+    if rows == 0 {
+        return Ok(());
+    }
+
+    let sql = format!(
+        "INSERT INTO \"{}\" VALUES ({})",
+        name,
+        vec!["?"; cols].join(", ")
+    );
+    let mut statement = connection.prepare(&sql)?;
+
+    for row in 0..rows {
+        let mut params = Vec::new();
+        for col in 0..cols {
+            let column = &datatable.columns[col];
+            let node = &column.values[row];
+            let to_sql_output = match node {
+                Primitive::Boolean(value) => value.to_sql()?,
+                Primitive::Integer(value) => value.to_sql()?,
+                Primitive::Number(value) => value.0.to_sql()?,
+                Primitive::String(value) => value.to_sql()?,
+                Primitive::Date(Date { value, .. })
+                | Primitive::Time(Time { value, .. })
+                | Primitive::DateTime(DateTime { value, .. }) => value.to_sql()?,
+                _ => bail!("Unhandled primitive type: {}", node.as_ref()),
+            };
+            params.push(to_sql_output);
+        }
+        statement.execute(params_from_iter(params))?;
+    }
+
+    Ok(())
 }
 
 /**

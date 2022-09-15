@@ -1,13 +1,15 @@
-use super::*;
 use kernel::{
     common::{itertools::Itertools, tokio},
     stencila_schema::{
-        ArrayValidator, BooleanValidator, DatatableColumn, IntegerValidator, Number,
-        NumberValidator, Primitive, StringValidator, ValidatorTypes,
+        ArrayValidator, BooleanValidator, DatatableColumn, Date, DateTime, DateTimeValidator,
+        DateValidator, IntegerValidator, Number, NumberValidator, Primitive, StringValidator, Time,
+        TimeValidator, ValidatorTypes,
     },
     KernelTrait,
 };
 use test_utils::{assert_json_eq, assert_json_is, skip_ci};
+
+use super::*;
 
 /// Test against SQLite
 #[tokio::test]
@@ -55,24 +57,28 @@ async fn test(config: &str) -> Result<()> {
     };
 
     // Test setting a Datatable
+    // Always use `items_nullable: true` because, for this test, that is what we get
+    // in the Datatables we get back from the database
     let rows = 5;
-    let col_1 = DatatableColumn {
-        name: "col_1".to_string(),
+    let col_bool = DatatableColumn {
+        name: "col_bool".to_string(),
         validator: Some(Box::new(ArrayValidator {
             items_validator: Some(Box::new(ValidatorTypes::BooleanValidator(
                 BooleanValidator::default(),
             ))),
+            items_nullable: true,
             ..Default::default()
         })),
         values: vec![Primitive::Boolean(true); rows],
         ..Default::default()
     };
-    let col_2 = DatatableColumn {
-        name: "col_2".to_string(),
+    let col_int = DatatableColumn {
+        name: "col_int".to_string(),
         validator: Some(Box::new(ArrayValidator {
             items_validator: Some(Box::new(ValidatorTypes::IntegerValidator(
                 IntegerValidator::default(),
             ))),
+            items_nullable: true,
             ..Default::default()
         })),
         values: (0..rows)
@@ -80,12 +86,13 @@ async fn test(config: &str) -> Result<()> {
             .collect_vec(),
         ..Default::default()
     };
-    let col_3 = DatatableColumn {
-        name: "col_3".to_string(),
+    let col_num = DatatableColumn {
+        name: "col_num".to_string(),
         validator: Some(Box::new(ArrayValidator {
             items_validator: Some(Box::new(ValidatorTypes::NumberValidator(
                 NumberValidator::default(),
             ))),
+            items_nullable: true,
             ..Default::default()
         })),
         values: (0..rows)
@@ -93,12 +100,13 @@ async fn test(config: &str) -> Result<()> {
             .collect_vec(),
         ..Default::default()
     };
-    let col_4 = DatatableColumn {
-        name: "col_4".to_string(),
+    let col_str = DatatableColumn {
+        name: "col_str".to_string(),
         validator: Some(Box::new(ArrayValidator {
             items_validator: Some(Box::new(ValidatorTypes::StringValidator(
                 StringValidator::default(),
             ))),
+            items_nullable: true,
             ..Default::default()
         })),
         values: (0..rows)
@@ -106,16 +114,65 @@ async fn test(config: &str) -> Result<()> {
             .collect_vec(),
         ..Default::default()
     };
-    let col_5 = DatatableColumn {
-        name: "col_5".to_string(),
-        validator: None,
+    let col_date = DatatableColumn {
+        name: "col_date".to_string(),
+        validator: Some(Box::new(ArrayValidator {
+            items_validator: Some(Box::new(ValidatorTypes::DateValidator(
+                DateValidator::default(),
+            ))),
+            items_nullable: true,
+            ..Default::default()
+        })),
         values: (0..rows)
-            .map(|index| Primitive::Array(vec![Primitive::Integer(index as i64)]))
+            .map(|index| Primitive::Date(Date::from(format!("2000-01-0{}", index + 1))))
             .collect_vec(),
         ..Default::default()
     };
+    let col_time = DatatableColumn {
+        name: "col_time".to_string(),
+        validator: Some(Box::new(ArrayValidator {
+            items_validator: Some(Box::new(ValidatorTypes::TimeValidator(
+                TimeValidator::default(),
+            ))),
+            items_nullable: true,
+            ..Default::default()
+        })),
+        values: (0..rows)
+            .map(|index| Primitive::Time(Time::from(format!("00:00:0{}", index))))
+            .collect_vec(),
+        ..Default::default()
+    };
+    let col_datetime = DatatableColumn {
+        name: "col_datetime".to_string(),
+        validator: Some(Box::new(ArrayValidator {
+            items_validator: Some(Box::new(ValidatorTypes::DateTimeValidator(
+                DateTimeValidator::default(),
+            ))),
+            items_nullable: true,
+            ..Default::default()
+        })),
+        values: (0..rows)
+            .map(|index| {
+                Primitive::DateTime(DateTime::from(format!(
+                    "2000-01-0{}T00:00:0{}",
+                    index + 1,
+                    index + 1
+                )))
+            })
+            .collect_vec(),
+        ..Default::default()
+    };
+
     let datatable_a = Datatable {
-        columns: vec![col_1, col_2, col_3, col_4, col_5],
+        columns: vec![
+            col_bool,
+            col_int,
+            col_num,
+            col_str,
+            col_date,
+            col_time,
+            col_datetime,
+        ],
         ..Default::default()
     };
 
@@ -150,7 +207,7 @@ async fn test(config: &str) -> Result<()> {
     kernel.parameters.contains_key("param");
     let query_3 = kernel
         .exec(
-            "SELECT col_4 FROM table_a WHERE col_2 = $param;",
+            "SELECT col_str FROM table_a WHERE col_int = $param;",
             Format::SQL,
             None,
         )
@@ -257,6 +314,42 @@ async fn test(config: &str) -> Result<()> {
     } else {
         bail!("Expected error")
     }
+
+    if config.starts_with("sqlite://") {
+        kernel
+            .exec(
+                r#"
+                CREATE TABLE table_2 (
+                    col_enum TEXT CHECK(col_enum IN ('one', 'two', 'three')) DEFAULT 'two'
+                )"#,
+                Format::SQL,
+                None,
+            )
+            .await?;
+    } else {
+        kernel
+            .exec(
+                r#"
+                CREATE TYPE my_enum AS ENUM ('one', 'two', 'three');
+                CREATE TABLE table_2 (
+                    col_enum my_enum DEFAULT 'two'
+                )"#,
+                Format::SQL,
+                None,
+            )
+            .await?;
+    }
+
+    let parameter = kernel.derive("parameter", "table_2.col_enum").await?;
+    assert_json_is!(parameter, [{
+        "type": "Parameter",
+        "name": "col_enum",
+        "default": "two",
+        "validator": {
+            "type": "EnumValidator",
+            "values": ["one", "two", "three"]
+        }
+    }]);
 
     Ok(())
 }

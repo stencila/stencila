@@ -16,6 +16,8 @@ sqlx = { version = "0.6.1", features = [
     # it caused a compile error `error[E0277]: (dyn functions::Function + 'static)` cannot be sent between threads safely`
     "sqlite",
     "postgres",
+
+    "chrono"
 ] }
 
 [dev-dependencies]

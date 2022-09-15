@@ -27,6 +27,7 @@ use kernel::{
     Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
 
+mod common;
 mod duck;
 mod postgres;
 mod sqlite;
