@@ -1,6 +1,6 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 408
+assertion_line: 455
 expression: resource_info
 input_file: fixtures/fragments/sql/create-table.sql
 ---
@@ -31,6 +31,6 @@ input_file: fixtures/fragments/sql/create-table.sql
       }
     ]
   ],
-  "compile_digest": "6257936074037965066.5776369964411662989.0.0.0",
+  "compile_digest": "17526273571211583829.10305857154133940898.0.0.0",
   "tags": []
 }

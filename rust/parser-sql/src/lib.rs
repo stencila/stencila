@@ -16,8 +16,8 @@ use parser_treesitter::{
 };
 use stencila_schema::{
     BooleanValidator, Date, DateTime, DateTimeValidator, DateValidator, DurationValidator,
-    IntegerValidator, Node, Number, NumberValidator, Parameter, StringValidator, Time,
-    TimeValidator, TimestampValidator, ValidatorTypes,
+    EnumValidator, IntegerValidator, Node, Number, NumberValidator, Parameter, StringValidator,
+    Time, TimeValidator, TimestampValidator, ValidatorTypes,
 };
 
 /// A parser for SQL
@@ -146,13 +146,16 @@ impl SqlParser {
                             continue 'matches;
                         }
                     }
-                    "check" => {
+                    "check.op" => {
                         static OPERATOR_REGEX: Lazy<Regex> = Lazy::new(|| {
-                            Regex::new(" (=|<|<=|>|>=) ").expect("Unable to create regex")
+                            Regex::new(" (<|<=|>|>=) ").expect("Unable to create regex")
                         });
                         if let Some(captures) = OPERATOR_REGEX.captures(&capture.text) {
                             check.operator = captures[1].to_string();
                         }
+                    }
+                    "check.in" => {
+                        check.operator = "in".to_string();
                     }
                     "check.identifier" => {
                         if capture.text != column.column_name {
@@ -177,6 +180,24 @@ impl SqlParser {
                     }
                     "check.string" => {
                         check.string = capture.text;
+                    }
+                    "check.tuple" => {
+                        let tuple = capture.text;
+                        let tuple = tuple.strip_prefix('(').unwrap_or(&tuple);
+                        let tuple = tuple.strip_suffix(')').unwrap_or(tuple);
+
+                        static ITEMS_REGEX: Lazy<Regex> =
+                            Lazy::new(|| Regex::new(r"'\s*,\s*'").expect("Unable to create regex"));
+                        let items = ITEMS_REGEX
+                            .split(tuple)
+                            .map(|item| item.strip_prefix('\'').unwrap_or(item))
+                            .map(|item| item.strip_suffix('\'').unwrap_or(item))
+                            .map(String::from)
+                            .collect_vec();
+
+                        if !items.is_empty() {
+                            check.tuple = items;
+                        }
                     }
                     _ => {}
                 }
@@ -223,6 +244,8 @@ struct SqlCheck {
     number: String,
 
     string: String,
+
+    tuple: Vec<String>,
 }
 
 impl SqlColumn {
@@ -285,7 +308,7 @@ impl SqlColumn {
         };
 
         if let Some(ValidatorTypes::IntegerValidator(validator)) = &mut validator {
-            for check in self.checks {
+            for check in &self.checks {
                 if check.function.is_empty() && !check.number.is_empty() {
                     let number = check.number.parse().ok().map(Number);
                     if number.is_some() {
@@ -302,7 +325,7 @@ impl SqlColumn {
                 }
             }
         } else if let Some(ValidatorTypes::NumberValidator(validator)) = &mut validator {
-            for check in self.checks {
+            for check in &self.checks {
                 if check.function.is_empty() && !check.number.is_empty() {
                     let number = check.number.parse().ok().map(Number);
                     if number.is_some() {
@@ -319,7 +342,7 @@ impl SqlColumn {
                 }
             }
         } else if let Some(ValidatorTypes::StringValidator(validator)) = &mut validator {
-            for check in self.checks {
+            for check in &self.checks {
                 if check.function.to_lowercase() == "length" && !check.number.is_empty() {
                     if let Ok(length) = check.number.parse::<u32>() {
                         if check.operator == ">=" {
@@ -335,33 +358,50 @@ impl SqlColumn {
                 }
             }
         } else if let Some(ValidatorTypes::DateValidator(validator)) = &mut validator {
-            for check in self.checks {
+            for check in &self.checks {
                 if check.function.is_empty() && !check.string.is_empty() {
                     if check.operator == ">=" || check.operator == ">" {
-                        validator.minimum = Some(Date::from(check.string));
+                        validator.minimum = Some(Date::from(check.string.clone()));
                     } else if check.operator == "<=" || check.operator == "<" {
-                        validator.maximum = Some(Date::from(check.string));
+                        validator.maximum = Some(Date::from(check.string.clone()));
                     }
                 }
             }
         } else if let Some(ValidatorTypes::TimeValidator(validator)) = &mut validator {
-            for check in self.checks {
+            for check in &self.checks {
                 if check.function.is_empty() && !check.string.is_empty() {
                     if check.operator == ">=" || check.operator == ">" {
-                        validator.minimum = Some(Time::from(check.string));
+                        validator.minimum = Some(Time::from(check.string.clone()));
                     } else if check.operator == "<=" || check.operator == "<" {
-                        validator.maximum = Some(Time::from(check.string));
+                        validator.maximum = Some(Time::from(check.string.clone()));
                     }
                 }
             }
         } else if let Some(ValidatorTypes::DateTimeValidator(validator)) = &mut validator {
-            for check in self.checks {
+            for check in &self.checks {
                 if check.function.is_empty() && !check.string.is_empty() {
                     if check.operator == ">=" || check.operator == ">" {
-                        validator.minimum = Some(DateTime::from(check.string));
+                        validator.minimum = Some(DateTime::from(check.string.clone()));
                     } else if check.operator == "<=" || check.operator == "<" {
-                        validator.maximum = Some(DateTime::from(check.string));
+                        validator.maximum = Some(DateTime::from(check.string.clone()));
                     }
+                }
+            }
+        }
+
+        // If there is a `CHECK(col IN (...))` clause then make the validator and enum validator
+        if matches!(validator, None | Some(ValidatorTypes::StringValidator(..))) {
+            for check in self.checks {
+                if check.function.is_empty() && !check.tuple.is_empty() {
+                    validator = Some(ValidatorTypes::EnumValidator(EnumValidator {
+                        values: check
+                            .tuple
+                            .iter()
+                            .map(|item| Node::String(item.to_owned()))
+                            .collect_vec(),
+                        ..Default::default()
+                    }));
+                    break;
                 }
             }
         }

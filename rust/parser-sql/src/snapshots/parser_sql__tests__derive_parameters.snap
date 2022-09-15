@@ -1,6 +1,6 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 427
+assertion_line: 474
 expression: parameters
 ---
 [
@@ -68,6 +68,18 @@ expression: parameters
     "validator": {
       "type": "StringValidator",
       "maxLength": 9
+    }
+  },
+  {
+    "type": "Parameter",
+    "name": "col_g",
+    "validator": {
+      "type": "EnumValidator",
+      "values": [
+        "one",
+        "two",
+        "three"
+      ]
     }
   }
 ]

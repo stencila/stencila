@@ -1,7 +1,7 @@
 ; A set of Tree-sitter queries used when deriving properties of parameters
 ; based on the column types and checks in CREATE TABLE statements
 
- (create_table_statement
+(create_table_statement
     (table_parameters
         (table_column
             name: (identifier) @name
@@ -37,7 +37,7 @@
                         ((string content: ((_) @check.string)))
                         ((type_cast . (string content: ((_) @check.string))))
                     ]
-                ) @check
+                ) @check.op
                 
                 ; e.g. col_a > 10 AND col_a <= 20
                 (boolean_expression [
@@ -51,9 +51,18 @@
                             ((string content: ((_) @check.string)))
                             ((type_cast . (string content: ((_) @check.string))))
                         ]
-                    ) @check
+                    ) @check.op
                 ]) @checks
+
+                ; e.g. col_a IN ('one', 'two', 'three')
+                (in_expression
+                    (identifier) @check.identifier
+                    (tuple
+                        ; Trying to catpure the individual elements does not seem to work for some reason
+                        ; (string content: ((_) @check.tuple.string)) +
+                    ) @check.tuple
+                ) @check.in
             ])?
         )
     )
- )
+)
