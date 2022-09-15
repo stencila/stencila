@@ -18,6 +18,7 @@ pub fn new() -> MicroKernel {
         &[],
         "{{name}}={{json}}",
         "echo ${{name}}",
+        None,
     )
 }
 

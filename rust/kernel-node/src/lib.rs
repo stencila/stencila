@@ -15,6 +15,7 @@ pub fn new() -> MicroKernel {
         &[include_file!("node-codec.js")],
         "{{name}} = decodeValue({{json}})",
         "{{name}}",
+        None,
     )
 }
 

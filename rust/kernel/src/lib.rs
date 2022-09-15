@@ -637,6 +637,22 @@ pub trait KernelTrait {
     /// Must be implemented by [`KernelTrait`] implementations.
     async fn set(&mut self, name: &str, value: Node) -> Result<()>;
 
+    /// Derive one or more `Node`s from an object in the kernel
+    /// 
+    /// Note that this differs from `get` in that the object is not converted and
+    /// returned but rather an object of a different type is returned. At present
+    /// the main use case for this method is to derive one or more `Parameter`s from
+    /// the columns of a database table or data frame.
+    /// 
+    /// # Arguments
+    /// 
+    /// - `what`: What type of nodes to derive e.g. "parameters", "parameter"
+    /// 
+    /// - `from`: The dotted path to the object that will be derived from e.g. "table.column"
+    async fn derive(&mut self, _what: &str, _from: &str) -> Result<Vec<Node>> {
+        bail!("Derive is not implemented for this kernel")
+    }
+
     /// Execute code in the kernel and get outputs and messages
     ///
     /// This is a convenience method when all you want to do is get [`Task`]

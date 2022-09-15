@@ -15,6 +15,7 @@ pub fn new() -> MicroKernel {
         &[include_file!("deno-codec.ts")],
         "{{name}} = decodeValue({{json}})",
         "{{name}}",
+        None,
     )
 }
 

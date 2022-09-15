@@ -11,7 +11,9 @@ use kernel::{
         serde::Serialize,
     },
     formats::Format,
-    stencila_schema::{CodeError, Node, Number, Primitive},
+    stencila_schema::{
+        CodeError, Node, Number, NumberValidator, Parameter, Primitive, ValidatorTypes,
+    },
     Kernel, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
 
@@ -89,6 +91,23 @@ impl KernelTrait for CalcKernel {
         };
         self.symbols.insert(name.to_string(), value);
         Ok(())
+    }
+
+    async fn derive(&mut self, what: &str, from: &str) -> Result<Vec<Node>> {
+        if what != "parameter" {
+            bail!("Only know how to derive a single parameter from a `calc` kernel")
+        }
+
+        match self.symbols.get(from) {
+            Some(..) => Ok(vec![Node::Parameter(Parameter {
+                name: from.to_string(),
+                validator: Some(Box::new(ValidatorTypes::NumberValidator(
+                    NumberValidator::default(),
+                ))),
+                ..Default::default()
+            })]),
+            None => bail!("Symbol `{}` does not exist in this `calc` kernel", from),
+        }
     }
 
     async fn exec_sync(

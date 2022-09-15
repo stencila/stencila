@@ -101,6 +101,10 @@ pub struct MicroKernel {
     #[serde(skip)]
     get_template: String,
 
+    /// The code template for deriving nodes from objects in the kerbel
+    #[serde(skip)]
+    derive_template: Option<String>,
+
     /// The working directory of the kernel (when it was started)
     directory: Option<PathBuf>,
 
@@ -194,6 +198,7 @@ impl MicroKernel {
         others: &[(&str, &str)],
         set_template: &str,
         get_template: &str,
+        derive_template: Option<&str>,
     ) -> Self {
         Self {
             name: name.into(),
@@ -210,6 +215,7 @@ impl MicroKernel {
                 .collect(),
             set_template: set_template.into(),
             get_template: get_template.into(),
+            derive_template: derive_template.map(String::from),
 
             directory: None,
             pid: None,
@@ -238,6 +244,7 @@ impl Clone for MicroKernel {
             others: self.others.clone(),
             set_template: self.set_template.clone(),
             get_template: self.get_template.clone(),
+            derive_template: self.derive_template.clone(),
 
             // Runtime fields that should be set to None for the clone
             directory: None,
@@ -483,6 +490,28 @@ impl KernelTrait for MicroKernel {
                 .map(|message| message.error_message.clone())
                 .unwrap_or_else(|| "Unknown error".to_string());
             bail!("Unable to set symbol `{}`: {}", name, message)
+        }
+    }
+
+    /// Derive one or more `Node`s from an object in the kernel
+    async fn derive(&mut self, what: &str, from: &str) -> Result<Vec<Node>> {
+        let template = match &self.derive_template {
+            Some(template) => template,
+            None => bail!("Unable to derive nodes from `{}` microkernel", self.name),
+        };
+
+        let code = template.replace("{{what}}", what).replace("{{from}}", from);
+
+        let (outputs, messages) = self.state().await.send_receive(&[code]).await?;
+
+        if messages.is_empty() {
+            Ok(outputs)
+        } else {
+            let message = messages
+                .first()
+                .map(|message| message.error_message.clone())
+                .unwrap_or_else(|| "Unknown error".to_string());
+            bail!("Unable to derive `{}` from `{}`: {}", what, from, message)
         }
     }
 

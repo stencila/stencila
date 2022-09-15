@@ -5,7 +5,13 @@ import os
 import resource
 from sys import exit, stdin, stdout, stderr
 
-from python_codec import decode_value, encode_exception, encode_message, encode_value
+from python_codec import (
+    decode_value,
+    derive_nodes,
+    encode_exception,
+    encode_message,
+    encode_value,
+)
 
 # Use easier-to-type flags during development manual testing
 if stdin.isatty():
@@ -43,11 +49,18 @@ def print(*objects, sep=" ", end="\n", file=stdout, flush=False):
         json = encode_value(object)
         stdout.write(json + RESULT)
 
+# Derive nodes and return them as separate outputs
+def derive(what, path, context):
+    nodes = derive_nodes(what, path, context)
+    for node in nodes:
+        json = encode_value(node)
+        stdout.write(json + RESULT)
+
 
 # Create execution context with monkey patched `print` and `decode_value` function
 # for setting variables
 context = {}
-context.update({"print": print, "__decode_value__": decode_value})
+context.update({"print": print, "__decode_value__": decode_value, "__derive__": derive})
 
 # Signal that kernel is ready
 stdout.write(READY)

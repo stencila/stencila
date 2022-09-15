@@ -15,6 +15,7 @@ pub fn new() -> MicroKernel {
         &[include_file!("python_codec.py")],
         "{{name}} = __decode_value__(r'''{{json}}''')",
         "{{name}}",
+        Some("__derive__('''{{what}}''','''{{from}}''', globals())"),
     )
 }
 
@@ -60,7 +61,10 @@ mod tests {
         // The execution context should start off empty
         let (outputs, messages) = kernel.exec("dir()", Format::Python, None).await?;
         assert_json_is!(messages, []);
-        assert_json_is!(outputs[0], ["__builtins__", "__decode_value__", "print"]);
+        assert_json_is!(
+            outputs[0],
+            ["__builtins__", "__decode_value__", "__derive__", "print"]
+        );
 
         // Assign a variable and output it
         let (outputs, messages) = kernel.exec("a = 2\na", Format::Python, None).await?;
@@ -72,7 +76,13 @@ mod tests {
         assert_json_is!(messages, []);
         assert_json_is!(
             outputs[0],
-            ["__builtins__", "__decode_value__", "a", "print"]
+            [
+                "__builtins__",
+                "__decode_value__",
+                "__derive__",
+                "a",
+                "print"
+            ]
         );
 
         // Print the variable twice and then output it
@@ -249,6 +259,120 @@ mod tests {
         };
 
         kernel_micro::tests::set_get_strings(&mut kernel).await?;
+
+        Ok(())
+    }
+
+    /// Test deriving parameters
+    #[tokio::test]
+    async fn derive_pars() -> Result<()> {
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => kernel,
+            Err(..) => return Ok(()),
+        };
+
+        // Assign some variable
+        let (outputs, messages) = kernel
+            .exec(
+                r#"
+a = True
+b = 42
+c = 1.23
+d = "Hello"
+e = []
+f = {}
+
+from enum import Enum
+class Color(Enum):
+    RED = 1
+    BLUE = 2
+    GREEN = 3
+g = Color.RED
+
+import numpy as np
+a1 = np.array([], dtype=np.bool_)
+a2 = np.array([], dtype=np.int_)
+a3 = np.array([], dtype=np.uint)
+a4 = np.array([], dtype=np.float_)
+a6 = np.array([], dtype=np.datetime64)
+a7 = np.array([], dtype=np.timedelta64)
+
+                "#,
+                Format::Python,
+                None,
+            )
+            .await?;
+        assert_json_is!(messages, []);
+        assert_json_is!(outputs, []);
+
+        for (name, validator_type) in [
+            ("a", "BooleanValidator"),
+            ("b", "IntegerValidator"),
+            ("c", "NumberValidator"),
+            ("d", "StringValidator"),
+            ("f", "ObjectValidator"),
+        ] {
+            assert_json_is!(kernel.derive("parameter", name).await?, [{
+                "type": "Parameter",
+                "name": name,
+                "validator": {
+                    "type": validator_type
+                }
+            }]);
+        }
+
+        assert_json_is!(kernel.derive("parameter", "e").await?, [{
+            "type": "Parameter",
+            "name": "e",
+            "validator": {
+                "type": "ArrayValidator",
+                "itemsNullable": false
+            }
+        }]);
+
+        for name in ["Color", "g"] {
+            assert_json_is!(kernel.derive("parameter", name).await?, [{
+                "type": "Parameter",
+                "name": name,
+                "validator": {
+                    "type": "EnumValidator",
+                    "values": ["RED", "BLUE", "GREEN"]
+                }
+            }]);
+        }
+
+        for (name, items) in [
+            ("a1", "BooleanValidator"),
+            ("a2", "IntegerValidator"),
+            ("a4", "NumberValidator"),
+            ("a6", "TimestampValidator"),
+            ("a7", "DurationValidator"),
+        ] {
+            assert_json_is!(kernel.derive("parameter", name).await?, [{
+                "type": "Parameter",
+                "name": name,
+                "validator": {
+                    "type": "ArrayValidator",
+                    "itemsNullable": false,
+                    "itemsValidator": {
+                        "type": items
+                    }
+                }
+            }]);
+        }
+
+        assert_json_is!(kernel.derive("parameter", "a3").await?, [{
+            "type": "Parameter",
+            "name": "a3",
+            "validator": {
+                "type": "ArrayValidator",
+                "itemsNullable": false,
+                "itemsValidator": {
+                    "type": "IntegerValidator",
+                    "minimum": 0.0
+                }
+            }
+        }]);
 
         Ok(())
     }

@@ -17,6 +17,7 @@ pub fn new() -> MicroKernel {
         &[include_file!("r-codec.r")],
         "{{name}} <- decode_value(r\"({{json}})\")",
         "cat(encode_value({{name}}, unbox = TRUE))",
+        None,
     )
 }
 
