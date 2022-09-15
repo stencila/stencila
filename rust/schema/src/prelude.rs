@@ -236,6 +236,15 @@ impl From<chrono::NaiveDate> for Date {
     }
 }
 
+impl From<chrono::DateTime<chrono::Utc>> for Date {
+    fn from(date: chrono::DateTime<chrono::Utc>) -> Self {
+        Self {
+            value: date.format(DATE_FORMAT).to_string(),
+            ..Default::default()
+        }
+    }
+}
+
 impl Time {
     /// Convert a time to a string parsable by SQL databases
     ///
