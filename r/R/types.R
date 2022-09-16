@@ -235,8 +235,8 @@ CodeFragment <- function(
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the last execution ended.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
 #' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
@@ -273,8 +273,8 @@ Executable <- function(
   self[["executeAuto"]] <- check_property("Executable", "executeAuto", FALSE, missing(executeAuto), ExecuteAuto, executeAuto)
   self[["executeCount"]] <- check_property("Executable", "executeCount", FALSE, missing(executeCount), "numeric", executeCount)
   self[["executeDigest"]] <- check_property("Executable", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
-  self[["executeDuration"]] <- check_property("Executable", "executeDuration", FALSE, missing(executeDuration), "numeric", executeDuration)
-  self[["executeEnded"]] <- check_property("Executable", "executeEnded", FALSE, missing(executeEnded), Date, executeEnded)
+  self[["executeDuration"]] <- check_property("Executable", "executeDuration", FALSE, missing(executeDuration), Duration, executeDuration)
+  self[["executeEnded"]] <- check_property("Executable", "executeEnded", FALSE, missing(executeEnded), Timestamp, executeEnded)
   self[["executeKernel"]] <- check_property("Executable", "executeKernel", FALSE, missing(executeKernel), "character", executeKernel)
   self[["executeRequired"]] <- check_property("Executable", "executeRequired", FALSE, missing(executeRequired), ExecuteRequired, executeRequired)
   self[["executeStatus"]] <- check_property("Executable", "executeStatus", FALSE, missing(executeStatus), ExecuteStatus, executeStatus)
@@ -295,8 +295,8 @@ Executable <- function(
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the last execution ended.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
 #' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
@@ -363,8 +363,8 @@ CodeExecutable <- function(
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the last execution ended.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
 #' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executePure Whether the code should be treated as side-effect free when executed.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
@@ -461,8 +461,8 @@ CodeChunk <- function(
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the last execution ended.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
 #' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
@@ -531,8 +531,8 @@ CodeExpression <- function(
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the last execution ended.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
 #' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
@@ -602,8 +602,8 @@ Include <- function(
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the last execution ended.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
 #' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
@@ -675,8 +675,8 @@ Call <- function(
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the last execution ended.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
 #' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.
@@ -751,8 +751,8 @@ Parameter <- function(
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
-#' @param executeDuration Duration in seconds of the last execution.
-#' @param executeEnded The date-time that the last execution ended.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
 #' @param executeKernel The id of the kernel that the node was last executed in.
 #' @param executeRequired Whether, and why, the code requires execution or re-execution.
 #' @param executeStatus Status of the most recent, including any current, execution.

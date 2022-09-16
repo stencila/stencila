@@ -609,14 +609,14 @@ impl TaskInfo {
         self.task.finished.or(self.task.interrupted)
     }
 
-    /// Calculate the task duration in seconds
-    pub fn duration(&self) -> Option<f64> {
+    /// Calculate the task duration in microseconds
+    pub fn duration(&self) -> Option<u64> {
         let duration = if let (Some(began), Some(ended)) = (self.task.started, self.ended()) {
             Some(ended - began)
         } else {
             self.task.started.map(|started| (Utc::now() - started))
         };
-        duration.map(|duration| duration.to_std().unwrap_or(Duration::ZERO).as_secs_f64())
+        duration.map(|duration| duration.to_std().unwrap_or(Duration::ZERO).as_micros() as u64)
     }
 }
 
@@ -1539,10 +1539,10 @@ fn format_time(time: DateTime<Utc>) -> String {
 }
 
 /// Format begin and end times into a human readable, rounded to milliseconds
-fn format_duration(seconds: Option<f64>) -> String {
-    match seconds {
-        Some(seconds) => {
-            let duration = Duration::from_secs(seconds as u64);
+fn format_duration(micros: Option<u64>) -> String {
+    match micros {
+        Some(micros) => {
+            let duration = Duration::from_micros(micros);
             humantime::format_duration(duration).to_string()
         }
         _ => "".to_string(),

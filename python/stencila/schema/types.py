@@ -284,11 +284,11 @@ class Executable(Entity):
     executeDigest: Optional[String] = None
     """The `compileDigest` of the node when it was last executed."""
 
-    executeDuration: Optional[Number] = None
-    """Duration in seconds of the last execution."""
+    executeDuration: Optional["Duration"] = None
+    """Duration of the last execution."""
 
-    executeEnded: Optional["Date"] = None
-    """The date-time that the last execution ended."""
+    executeEnded: Optional["Timestamp"] = None
+    """The timestamp when the last execution ended."""
 
     executeKernel: Optional[String] = None
     """The id of the kernel that the node was last executed in."""
@@ -309,8 +309,8 @@ class Executable(Entity):
         executeAuto: Optional["ExecuteAuto"] = None,
         executeCount: Optional[Integer] = None,
         executeDigest: Optional[String] = None,
-        executeDuration: Optional[Number] = None,
-        executeEnded: Optional["Date"] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
@@ -374,8 +374,8 @@ class CodeExecutable(Executable):
         executeAuto: Optional["ExecuteAuto"] = None,
         executeCount: Optional[Integer] = None,
         executeDigest: Optional[String] = None,
-        executeDuration: Optional[Number] = None,
-        executeEnded: Optional["Date"] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
@@ -435,8 +435,8 @@ class CodeChunk(CodeExecutable):
         executeAuto: Optional["ExecuteAuto"] = None,
         executeCount: Optional[Integer] = None,
         executeDigest: Optional[String] = None,
-        executeDuration: Optional[Number] = None,
-        executeEnded: Optional["Date"] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
         executeKernel: Optional[String] = None,
         executePure: Optional[Boolean] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
@@ -494,8 +494,8 @@ class CodeExpression(CodeExecutable):
         executeAuto: Optional["ExecuteAuto"] = None,
         executeCount: Optional[Integer] = None,
         executeDigest: Optional[String] = None,
-        executeDuration: Optional[Number] = None,
-        executeEnded: Optional["Date"] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
@@ -554,8 +554,8 @@ class Include(Executable):
         executeAuto: Optional["ExecuteAuto"] = None,
         executeCount: Optional[Integer] = None,
         executeDigest: Optional[String] = None,
-        executeDuration: Optional[Number] = None,
-        executeEnded: Optional["Date"] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
@@ -612,8 +612,8 @@ class Call(Include):
         executeAuto: Optional["ExecuteAuto"] = None,
         executeCount: Optional[Integer] = None,
         executeDigest: Optional[String] = None,
-        executeDuration: Optional[Number] = None,
-        executeEnded: Optional["Date"] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
@@ -680,8 +680,8 @@ class Parameter(Executable):
         executeAuto: Optional["ExecuteAuto"] = None,
         executeCount: Optional[Integer] = None,
         executeDigest: Optional[String] = None,
-        executeDuration: Optional[Number] = None,
-        executeEnded: Optional["Date"] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
@@ -740,8 +740,8 @@ class CallArgument(Parameter):
         executeAuto: Optional["ExecuteAuto"] = None,
         executeCount: Optional[Integer] = None,
         executeDigest: Optional[String] = None,
-        executeDuration: Optional[Number] = None,
-        executeEnded: Optional["Date"] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,

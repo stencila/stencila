@@ -246,11 +246,11 @@ pub struct Executable {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution.
-    pub execute_duration: Option<Number>,
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
 
-    /// The date-time that the last execution ended.
-    pub execute_ended: Option<Box<Date>>,
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
     pub execute_kernel: Option<Box<String>>,
@@ -308,11 +308,11 @@ pub struct CodeExecutable {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution.
-    pub execute_duration: Option<Number>,
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
 
-    /// The date-time that the last execution ended.
-    pub execute_ended: Option<Box<Date>>,
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
     pub execute_kernel: Option<Box<String>>,
@@ -376,11 +376,11 @@ pub struct CodeChunk {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution.
-    pub execute_duration: Option<Number>,
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
 
-    /// The date-time that the last execution ended.
-    pub execute_ended: Option<Box<Date>>,
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
     pub execute_kernel: Option<Box<String>>,
@@ -450,11 +450,11 @@ pub struct CodeExpression {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution.
-    pub execute_duration: Option<Number>,
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
 
-    /// The date-time that the last execution ended.
-    pub execute_ended: Option<Box<Date>>,
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
     pub execute_kernel: Option<Box<String>>,
@@ -518,11 +518,11 @@ pub struct Include {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution.
-    pub execute_duration: Option<Number>,
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
 
-    /// The date-time that the last execution ended.
-    pub execute_ended: Option<Box<Date>>,
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
     pub execute_kernel: Option<Box<String>>,
@@ -589,11 +589,11 @@ pub struct Call {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution.
-    pub execute_duration: Option<Number>,
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
 
-    /// The date-time that the last execution ended.
-    pub execute_ended: Option<Box<Date>>,
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
     pub execute_kernel: Option<Box<String>>,
@@ -660,11 +660,11 @@ pub struct Parameter {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution.
-    pub execute_duration: Option<Number>,
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
 
-    /// The date-time that the last execution ended.
-    pub execute_ended: Option<Box<Date>>,
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
     pub execute_kernel: Option<Box<String>>,
@@ -734,11 +734,11 @@ pub struct CallArgument {
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
-    /// Duration in seconds of the last execution.
-    pub execute_duration: Option<Number>,
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
 
-    /// The date-time that the last execution ended.
-    pub execute_ended: Option<Box<Date>>,
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
     pub execute_kernel: Option<Box<String>>,

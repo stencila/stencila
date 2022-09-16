@@ -386,10 +386,124 @@ impl Timestamp {
     }
 }
 
+impl From<chrono::DateTime<chrono::Utc>> for Timestamp {
+    fn from(date_time: chrono::DateTime<chrono::Utc>) -> Self {
+        Self {
+            value: date_time.timestamp_millis(),
+            time_unit: TimeUnit::Millisecond,
+            ..Default::default()
+        }
+    }
+}
+
 impl Duration {
+    /// Create a duration from the number of minutes
+    pub fn from_mins(value: i64) -> Self {
+        Self {
+            value,
+            time_unit: TimeUnit::Minute,
+            ..Default::default()
+        }
+    }
+
+    /// Create a duration from the number of seconds
+    pub fn from_secs(value: i64) -> Self {
+        Self {
+            value,
+            time_unit: TimeUnit::Second,
+            ..Default::default()
+        }
+    }
+
+    /// Create a duration from the number of milliseconds
+    pub fn from_millis(value: i64) -> Self {
+        Self {
+            value,
+            time_unit: TimeUnit::Millisecond,
+            ..Default::default()
+        }
+    }
+
+    /// Create a duration from the number of microseconds
+    pub fn from_micros(value: i64) -> Self {
+        Self {
+            value,
+            time_unit: TimeUnit::Microsecond,
+            ..Default::default()
+        }
+    }
+
+    /// Create a string representation of the duration using the units
+    /// that make most sense to a human
+    ///
+    /// A more sophisticated approach to this would be to convert to
+    /// a `chrono::Duration` and use the `chrono_humanize` crate.
+    pub fn humanize(&self) -> String {
+        use TimeUnit::*;
+
+        let value = self.value as f64;
+        let (value, time_unit) = match self.time_unit {
+            Minute => {
+                if value > 1.44e3 {
+                    (value / 1.44e3, &Day)
+                } else if value > 6e1 {
+                    (value / 6e1, &Hour)
+                } else {
+                    (value, &self.time_unit)
+                }
+            }
+            Second => {
+                if value > 8.64e4 {
+                    (value / 8.64e4, &Day)
+                } else if value > 3.6e3 {
+                    (value / 3.6e3, &Hour)
+                } else if value > 6e1 {
+                    (value / 6e1, &Minute)
+                } else {
+                    (value, &self.time_unit)
+                }
+            }
+            Millisecond => {
+                if value > 8.64e7 {
+                    (value / 8.64e7, &Day)
+                } else if value > 3.6e6 {
+                    (value / 3.6e6, &Hour)
+                } else if value > 6e4 {
+                    (value / 6e4, &Minute)
+                } else if value > 1e3 {
+                    (value / 1e3, &Second)
+                } else {
+                    (value, &self.time_unit)
+                }
+            }
+            Microsecond => {
+                if value > 3.6e9 {
+                    (value / 3.6e9, &Hour)
+                } else if value > 6e7 {
+                    (value / 6e7, &Minute)
+                } else if value > 1e6 {
+                    (value / 1e6, &Second)
+                } else if value > 1e3 {
+                    (value / 1e3, &Millisecond)
+                } else {
+                    (value, &self.time_unit)
+                }
+            }
+            _ => (value as f64, &self.time_unit),
+        };
+
+        format!("{:.3}{}", value, time_unit.to_si())
+    }
+
     /// Convert a duration to a string parsable by SQL databases such as Postgres, SQLite, DuckDB etc
     pub fn to_sql(&self) -> String {
-        [&self.value.to_string(), " ", self.time_unit.as_ref()].concat()
+        [&self.value.to_string(), self.time_unit.as_ref()].concat()
+    }
+}
+
+impl ToString for Duration {
+    fn to_string(&self) -> String {
+        [&self.value.to_string(), " ", &self.time_unit.to_si()].concat()
     }
 }
 

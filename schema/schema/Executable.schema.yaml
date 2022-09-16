@@ -62,13 +62,12 @@ properties:
     $ref: ExecuteStatus
   executeEnded:
     '@id': stencila:executeEnded
-    description: The date-time that the last execution ended.
-    $ref: Date
+    description: The timestamp when the last execution ended.
+    $ref: Timestamp
   executeDuration:
     '@id': stencila:executeDuration
-    description: Duration in seconds of the last execution.
-    type: number
-    minimum: 0
+    description: Duration of the last execution.
+    $ref: Duration
   executeAuto:
     '@id': stencila:executeAuto
     description: Under which circumstances the code should be automatically executed.
