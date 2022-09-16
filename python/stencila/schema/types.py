@@ -655,6 +655,9 @@ class Parameter(Executable):
     default: Optional[Any] = None
     """The default value of the parameter."""
 
+    derivedFrom: Optional[String] = None
+    """The dotted path to the object that the parameter should be derived from"""
+
     hidden: Optional[Boolean] = None
     """Whether the parameter should be hidden."""
 
@@ -672,6 +675,7 @@ class Parameter(Executable):
         codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
         compileDigest: Optional[String] = None,
         default: Optional[Any] = None,
+        derivedFrom: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
         executeCount: Optional[Integer] = None,
@@ -707,6 +711,8 @@ class Parameter(Executable):
             self.name = name
         if default is not None:
             self.default = default
+        if derivedFrom is not None:
+            self.derivedFrom = derivedFrom
         if hidden is not None:
             self.hidden = hidden
         if validator is not None:
@@ -729,6 +735,7 @@ class CallArgument(Parameter):
         codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
         compileDigest: Optional[String] = None,
         default: Optional[Any] = None,
+        derivedFrom: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
         executeCount: Optional[Integer] = None,
@@ -751,6 +758,7 @@ class CallArgument(Parameter):
             codeDependents=codeDependents,
             compileDigest=compileDigest,
             default=default,
+            derivedFrom=derivedFrom,
             errors=errors,
             executeAuto=executeAuto,
             executeCount=executeCount,

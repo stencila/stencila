@@ -645,6 +645,9 @@ pub struct Parameter {
     /// The default value of the parameter.
     pub default: Option<Box<Node>>,
 
+    /// The dotted path to the object that the parameter should be derived from
+    pub derived_from: Option<Box<String>>,
+
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
@@ -715,6 +718,9 @@ pub struct CallArgument {
 
     /// The default value of the parameter.
     pub default: Option<Box<Node>>,
+
+    /// The dotted path to the object that the parameter should be derived from
+    pub derived_from: Option<Box<String>>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,

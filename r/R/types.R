@@ -670,6 +670,7 @@ Call <- function(
 #' @param codeDependents The downstream dependents.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param default The default value of the parameter.
+#' @param derivedFrom The dotted path to the object that the parameter should be derived from
 #' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
@@ -693,6 +694,7 @@ Parameter <- function(
   codeDependents,
   compileDigest,
   default,
+  derivedFrom,
   errors,
   executeAuto,
   executeCount,
@@ -727,6 +729,7 @@ Parameter <- function(
   self$type <- as_scalar("Parameter")
   self[["name"]] <- check_property("Parameter", "name", TRUE, missing(name), "character", name)
   self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), Node, default)
+  self[["derivedFrom"]] <- check_property("Parameter", "derivedFrom", FALSE, missing(derivedFrom), "character", derivedFrom)
   self[["hidden"]] <- check_property("Parameter", "hidden", FALSE, missing(hidden), "logical", hidden)
   self[["validator"]] <- check_property("Parameter", "validator", FALSE, missing(validator), ValidatorTypes, validator)
   self[["value"]] <- check_property("Parameter", "value", FALSE, missing(value), Node, value)
@@ -743,6 +746,7 @@ Parameter <- function(
 #' @param codeDependents The downstream dependents.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param default The default value of the parameter.
+#' @param derivedFrom The dotted path to the object that the parameter should be derived from
 #' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
 #' @param executeAuto Under which circumstances the code should be automatically executed.
 #' @param executeCount A count of the number of times that the node has been executed.
@@ -767,6 +771,7 @@ CallArgument <- function(
   codeDependents,
   compileDigest,
   default,
+  derivedFrom,
   errors,
   executeAuto,
   executeCount,
@@ -789,6 +794,7 @@ CallArgument <- function(
     codeDependents = codeDependents,
     compileDigest = compileDigest,
     default = default,
+    derivedFrom = derivedFrom,
     errors = errors,
     executeAuto = executeAuto,
     executeCount = executeCount,
