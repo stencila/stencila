@@ -457,8 +457,8 @@ impl KernelTrait for SqlKernel {
 
             let statements = Self::split_statements(&sql);
             for statement in statements {
-                let result = if statement.trim_start().to_lowercase().starts_with("select") {
-                    match pool {
+                let error_maybe = if statement.trim_start().to_lowercase().starts_with("select") {
+                    let result = match pool {
                         MetaPool::Duck(pool) => {
                             duck::query_to_datatable(&statement, params, pool).await
                         }
@@ -468,6 +468,24 @@ impl KernelTrait for SqlKernel {
                         MetaPool::Sqlite(pool) => {
                             sqlite::query_to_datatable(&statement, params, pool).await
                         }
+                    };
+                    match result {
+                        Ok(datatable) => {
+                            if let Some(assigns) = tags.and_then(|tags| tags.get_value("assigns")) {
+                                if SYMBOL_REGEX.is_match(&assigns) {
+                                    self.assigned.insert(assigns, datatable);
+                                } else {
+                                    messages.push(CodeError {
+                                            error_message: format!("The `@assigns` tag is invalid. It should be a single identifier matching regular expression `{}`", SYMBOL_REGEX.as_str()),
+                                            ..Default::default()
+                                        });
+                                }
+                            } else {
+                                outputs.push(Node::Datatable(datatable));
+                            }
+                            None
+                        }
+                        Err(error) => Some(error),
                     }
                 } else {
                     match pool {
@@ -481,35 +499,20 @@ impl KernelTrait for SqlKernel {
                             sqlite::execute_statement(&statement, params, pool).await
                         }
                     }
+                    .err()
                 };
 
-                match result {
-                    Ok(datatable) => {
-                        if let Some(assigns) = tags.and_then(|tags| tags.get_value("assigns")) {
-                            if SYMBOL_REGEX.is_match(&assigns) {
-                                self.assigned.insert(assigns, datatable);
-                            } else {
-                                messages.push(CodeError {
-                                        error_message: format!("The `@assigns` tag is invalid. It should be a single identifier matching regular expression `{}`", SYMBOL_REGEX.as_str()),
-                                        ..Default::default()
-                                    });
-                            }
-                        } else {
-                            outputs.push(Node::Datatable(datatable));
-                        }
-                    }
-                    Err(error) => {
-                        let message = error.to_string();
-                        let message = message
-                            .strip_prefix("error returned from database:")
-                            .unwrap_or(&message);
-                        let message = message.trim().to_string();
+                if let Some(error) = error_maybe {
+                    let message = error.to_string();
+                    let message = message
+                        .strip_prefix("error returned from database:")
+                        .unwrap_or(&message);
+                    let message = message.trim().to_string();
 
-                        messages.push(CodeError {
-                            error_message: message,
-                            ..Default::default()
-                        });
-                    }
+                    messages.push(CodeError {
+                        error_message: message,
+                        ..Default::default()
+                    });
                 }
             }
 

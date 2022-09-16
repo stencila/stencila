@@ -154,13 +154,11 @@ fn bind<'p>(
 }
 
 /// Execute an SQL statement in DuckDB
-///
-/// Only returns a `Datatable` for convenience elsewhere in the code
 pub async fn execute_statement(
     sql: &str,
     parameters: &HashMap<String, Node>,
     pond: &DuckPond,
-) -> Result<Datatable> {
+) -> Result<()> {
     let connection = pond.connection.lock().await;
 
     let parameters = to_sql(parameters);
@@ -169,7 +167,7 @@ pub async fn execute_statement(
 
     statement.execute(params_from_iter(params))?;
 
-    Ok(Datatable::default())
+    Ok(())
 }
 
 /// Run a query in SQLite and return the result as a Stencila [`Datatable`]

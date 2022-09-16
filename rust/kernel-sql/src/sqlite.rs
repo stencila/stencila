@@ -51,16 +51,14 @@ fn bind<'lt>(sql: &str, parameters: &'lt HashMap<String, Node>) -> (String, Sqli
 }
 
 /// Execute an SQL statement in SQLite
-///
-/// Only returns a `Datatable` for convenience elsewhere in the code
 pub async fn execute_statement(
     sql: &str,
     parameters: &HashMap<String, Node>,
     pool: &SqlitePool,
-) -> Result<Datatable> {
+) -> Result<()> {
     let (sql, args) = bind(sql, parameters);
     sqlx::query_with(&sql, args).execute(pool).await?;
-    Ok(Datatable::default())
+    Ok(())
 }
 
 /// Run a query in SQLite and return the result as a Stencila [`Datatable`]

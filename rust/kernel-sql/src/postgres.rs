@@ -52,16 +52,14 @@ fn bind(sql: &str, parameters: &HashMap<String, Node>) -> (String, PgArguments) 
 }
 
 /// Execute an SQL statement in Postgres
-///
-/// Only returns a `Datatable` for convenience elsewhere in the code
 pub async fn execute_statement(
     sql: &str,
     parameters: &HashMap<String, Node>,
     pool: &PgPool,
-) -> Result<Datatable> {
+) -> Result<()> {
     let (sql, args) = bind(sql, parameters);
     sqlx::query_with(&sql, args).execute(pool).await?;
-    Ok(Datatable::default())
+    Ok(())
 }
 
 /// Run a query in Postgres and return the result as a Stencila [`Datatable`]
