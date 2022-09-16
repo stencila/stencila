@@ -353,19 +353,19 @@ impl Executable for Parameter {
 
     /// Compile a `Parameter` node
     ///
-    /// Adds an `Assign` relation to the compilation context with the name and kind of value.
-    /// If the language of the parameter is not defined (currently schema does not allow for this
-    /// anyway), then use the language of the last code node. By definition, a `Parameter` is always
-    /// "impure" (has a side effect).
+    /// Adds an `Assign` relation to the compilation context with the name and kind of value
+    /// of the parameter. Uses `Format::Json` to indicate that the parameter will be set in the "store kernel".
+    /// Previously we used the context language to set the parameter directly in the kernel
+    /// corresponding to the language of preceding code chunks (if any). But always storing in the
+    /// core is more reliable e.g. some kernels may not support more complicated types like
+    /// `Timestamp`s and `DateTime`s.
+    ///
+    /// By definition, a `Parameter` is always "impure" (has a side effect).
     async fn compile(&self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
 
-        // Use `Format::Json` to indicate that the parameter will be set in the store. Previously we
-        // used the context language to set the parameter directly in the kernel corresponding to the
-        // language of preceding code chunks (if any). But this is more reliable e.g. some kernels
-        // may not support more complicated types like Timestamps and DateTimes
+        // Add a resource for the parameter itself
         let resource = resources::code(&context.path, id, "Parameter", Format::Json);
-
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
             Some(ValidatorTypes::EnumValidator(..)) => "Enum",
@@ -381,8 +381,14 @@ impl Executable for Parameter {
             Some(ValidatorTypes::ArrayValidator(..)) => "Array",
             _ => "",
         };
-        let object = resources::symbol(&context.path, &self.name, kind);
-        let relations = vec![(relations::assigns(NULL_RANGE), object)];
+        let symbol = resources::symbol(&context.path, &self.name, kind);
+        let mut relations = vec![(relations::assigns(NULL_RANGE), symbol)];
+
+        // If the parameter is derived then add relation for what it is derived from
+        if let Some(from) = &self.derived_from {
+            let from = resources::symbol(&context.path, &from, "");
+            relations.push((relations::uses(NULL_RANGE), from));
+        }
 
         let value = parameter_value(self);
         let compile_digest = parameter_digest(self, &value);
@@ -411,7 +417,34 @@ impl Executable for Parameter {
         _is_fork: bool,
         _call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
-        tracing::trace!("Executing `Parameter`");
+        let id = assert_id!(self)?;
+        tracing::trace!("Executing `Parameter` `{id}`");
+
+        let mut errors = Vec::new();
+
+        // If parameter is derived then start by ensuring derived properties
+        // are up to date
+        if let Some(from) = &self.derived_from {
+            tracing::trace!("Deriving `Parameter` `{id}` from {from}");
+            match kernel_space.derive("parameter", from).await {
+                Ok(nodes) => {
+                    if let Some(Node::Parameter(parameter)) = nodes.first() {
+                        self.validator = parameter.validator.clone();
+                    } else {
+                        // This is not a user error, but a kernel implementation error so bail
+                        bail!("Expected to get a parameter from derive call")
+                    }
+                }
+                Err(error) => {
+                    // TODO: Ensure this error is assigned to parameters. Does not seem to be at present.
+                    errors.push(CodeError {
+                        error_type: Some(Box::new("DeriveError".to_string())),
+                        error_message: error.to_string(),
+                        ..Default::default()
+                    })
+                }
+            }
+        }
 
         let value = parameter_value(self);
 
@@ -426,6 +459,11 @@ impl Executable for Parameter {
         self.execute_digest = Some(digest);
         self.execute_required = Some(ExecuteRequired::No);
         self.execute_kernel = Some(Box::new(kernel_id));
+        self.errors = if errors.is_empty() {
+            None
+        } else {
+            Some(errors)
+        };
 
         Ok(None)
     }

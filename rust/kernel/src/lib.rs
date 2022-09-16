@@ -649,9 +649,7 @@ pub trait KernelTrait {
     /// - `what`: What type of nodes to derive e.g. "parameters", "parameter"
     /// 
     /// - `from`: The dotted path to the object that will be derived from e.g. "table.column"
-    async fn derive(&mut self, _what: &str, _from: &str) -> Result<Vec<Node>> {
-        bail!("Derive is not implemented for this kernel")
-    }
+    async fn derive(&mut self, _what: &str, _from: &str) -> Result<Vec<Node>>;
 
     /// Execute code in the kernel and get outputs and messages
     ///

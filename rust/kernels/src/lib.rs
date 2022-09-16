@@ -6,7 +6,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use common::{once_cell::sync::Lazy, strum::AsRefStr, tokio::sync::RwLock};
+use common::{itertools::Itertools, once_cell::sync::Lazy, strum::AsRefStr, tokio::sync::RwLock};
 use formats::Format;
 use graph_triples::{resources::Code, Resource, ResourceChange, ResourceInfo};
 #[allow(unused_imports)]
@@ -205,6 +205,10 @@ impl KernelTrait for MetaKernel {
 
     async fn set(&mut self, name: &str, value: Node) -> Result<()> {
         dispatch_variants!(self, set, name, value).await
+    }
+
+    async fn derive(&mut self, what: &str, from: &str) -> Result<Vec<Node>> {
+        dispatch_variants!(self, derive, what, from).await
     }
 
     async fn exec(
@@ -410,7 +414,6 @@ impl KernelMap {
     #[cfg(feature = "cli")]
     pub async fn display(&self) -> cli_utils::Result {
         use cli_utils::result;
-        use common::itertools::Itertools;
 
         let list = self.list().await;
 
@@ -1019,6 +1022,22 @@ impl KernelSpace {
         }
 
         Ok(kernel_id)
+    }
+
+    /// Derive one or more nodes from a symbol in the kernel space
+    pub async fn derive(&self, what: &str, from: &str) -> Result<Vec<Node>> {
+        let parts: Vec<&str> = from.splitn(2, '.').collect();
+        let symbol = parts[0];
+        let symbols = &mut *self.symbols.lock().await;
+        let symbol_info = symbols
+            .get(symbol)
+            .ok_or_else(|| eyre!("Unknown symbol to derive from `{}`", symbol))?;
+
+        let kernels = &mut *self.kernels.lock().await;
+        let kernel = kernels.get_mut(&symbol_info.home)?;
+
+        let nodes = kernel.derive(what, from).await?;
+        Ok(nodes)
     }
 
     /// Execute some code in the kernel space

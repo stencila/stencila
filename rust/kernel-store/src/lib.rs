@@ -56,6 +56,10 @@ impl KernelTrait for StoreKernel {
         Ok(())
     }
 
+    async fn derive(&mut self, _what: &str, _from: &str) -> Result<Vec<Node>> {
+        bail!("Derive is not implemented for `store` kernel");
+    }
+
     async fn exec_sync(
         &mut self,
         code: &str,
