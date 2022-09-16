@@ -141,8 +141,12 @@ impl ToMd for MathFragment {
 
 impl ToMd for Parameter {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        let mut options = String::new();
+        // If the parameter is derived, then only encode its name and what it is derived from
+        if let Some(from) = self.derived_from.as_deref() {
+            return ["&[", &self.name, "]{from=", from.as_str(), "}"].concat();
+        }
 
+        let mut options = String::new();
         if let Some(validator) = &self.validator {
             match validator.as_ref() {
                 ValidatorTypes::BooleanValidator(..) => {

@@ -793,7 +793,7 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
 /// Parse a `Parameter`.
 pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
     map_res(
-        pair(delimited(tag("&["), symbol, char(']')), curly_attrs),
+        pair(delimited(tag("&["), opt(symbol), char(']')), curly_attrs),
         |(name, attrs)| -> Result<InlineContent> {
             let first = attrs
                 .first()
@@ -807,6 +807,12 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 .map(|node| node.to_txt());
             let typ = typ.as_deref();
 
+            fn to_option_string(node: Node) -> Option<String> {
+                match node {
+                    Node::String(num) => Some(num),
+                    _ => Some(node.to_txt()),
+                }
+            }
             fn to_option_number(node: Node) -> Option<Number> {
                 match node {
                     Node::Number(num) => Some(num),
@@ -990,6 +996,21 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
             }
             .map(Box::new);
 
+            let derived_from = options
+                .remove("derived-from")
+                .or_else(|| options.remove("from"))
+                .and_then(|value| value)
+                .and_then(to_option_string)
+                .map(Box::new);
+
+            let name = name
+                .or_else(|| {
+                    derived_from
+                        .clone()
+                        .map(|from| from.split('.').last().unwrap_or(from.as_str()).to_string())
+                })
+                .unwrap_or_else(|| "unnamed".to_string());
+
             let default = options
                 .remove("default")
                 .or_else(|| options.remove("def"))
@@ -1007,6 +1028,7 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 validator,
                 default,
                 value,
+                derived_from,
                 ..Default::default()
             }))
         },
