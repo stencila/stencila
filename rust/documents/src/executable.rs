@@ -386,7 +386,7 @@ impl Executable for Parameter {
 
         // If the parameter is derived then add relation for what it is derived from
         if let Some(from) = &self.derived_from {
-            let from = resources::symbol(&context.path, &from, "");
+            let from = resources::symbol(&context.path, from, "");
             relations.push((relations::uses(NULL_RANGE), from));
         }
 
@@ -430,6 +430,7 @@ impl Executable for Parameter {
                 Ok(nodes) => {
                     if let Some(Node::Parameter(parameter)) = nodes.first() {
                         self.validator = parameter.validator.clone();
+                        self.default = parameter.default.clone();
                     } else {
                         // This is not a user error, but a kernel implementation error so bail
                         bail!("Expected to get a parameter from derive call")
@@ -582,8 +583,12 @@ impl Executable for CodeChunk {
             ExecuteRequired::Failed
         });
         self.execute_status = Some(execute_status);
-        self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
-        self.execute_duration = task_info.duration().map(Number);
+        self.execute_ended = task_info
+            .ended()
+            .map(|ended| Box::new(Timestamp::from(ended)));
+        self.execute_duration = task_info
+            .duration()
+            .map(|duration| Box::new(Duration::from_micros(duration as i64)));
         self.execute_kernel = task_info.kernel_id.map(Box::new);
 
         // Update outputs and errors
@@ -706,8 +711,12 @@ impl Executable for CodeExpression {
             ExecuteRequired::Failed
         });
         self.execute_status = Some(execute_status);
-        self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
-        self.execute_duration = task_info.duration().map(Number);
+        self.execute_ended = task_info
+            .ended()
+            .map(|ended| Box::new(Timestamp::from(ended)));
+        self.execute_duration = task_info
+            .duration()
+            .map(|duration| Box::new(Duration::from_micros(duration as i64)));
         self.execute_kernel = task_info.kernel_id.map(Box::new);
 
         // Update output and errors
