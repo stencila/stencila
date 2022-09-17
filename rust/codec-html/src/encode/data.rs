@@ -145,6 +145,11 @@ impl ToHtml for Parameter {
                 .map(|kernel| kernel.to_string()),
         );
 
+        let execute_count = attr_and_meta_opt(
+            "execute_count",
+            self.execute_count.map(|count| count.to_string()),
+        );
+
         let (name, input) = label_and_input(
             &self.name,
             &self.validator,
@@ -162,6 +167,7 @@ impl ToHtml for Parameter {
                 execute_digest.0,
                 execute_required.0,
                 execute_kernel.0,
+                execute_count.0,
             ],
             &[
                 name,
@@ -172,6 +178,7 @@ impl ToHtml for Parameter {
                 execute_digest.1,
                 execute_required.1,
                 execute_kernel.1,
+                execute_count.1,
                 input,
             ]
             .concat(),

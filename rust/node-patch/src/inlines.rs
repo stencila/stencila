@@ -197,7 +197,8 @@ patchable_struct!(
     execute_kernel,
     execute_status,
     execute_ended,
-    execute_duration
+    execute_duration,
+    execute_count
 );
 patchable_struct!(CodeFragment, programming_language, text);
 patchable_struct!(Delete, content);

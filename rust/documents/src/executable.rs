@@ -460,6 +460,7 @@ impl Executable for Parameter {
         self.execute_digest = Some(digest);
         self.execute_required = Some(ExecuteRequired::No);
         self.execute_kernel = Some(Box::new(kernel_id));
+        self.execute_count = Some(self.execute_count.unwrap_or_default() + 1);
         self.errors = if errors.is_empty() {
             None
         } else {
@@ -590,6 +591,7 @@ impl Executable for CodeChunk {
             .duration()
             .map(|duration| Box::new(Duration::from_micros(duration as i64)));
         self.execute_kernel = task_info.kernel_id.map(Box::new);
+        self.execute_count = Some(self.execute_count.unwrap_or_default() + 1);
 
         // Update outputs and errors
         self.outputs = if outputs.is_empty() {
@@ -718,6 +720,7 @@ impl Executable for CodeExpression {
             .duration()
             .map(|duration| Box::new(Duration::from_micros(duration as i64)));
         self.execute_kernel = task_info.kernel_id.map(Box::new);
+        self.execute_count = Some(self.execute_count.unwrap_or_default() + 1);
 
         // Update output and errors
         self.output = outputs.get(0).map(|output| Box::new(output.clone()));

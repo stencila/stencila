@@ -395,6 +395,11 @@ impl ToHtml for CodeExpression {
                 .map(|seconds| seconds.to_string()),
         );
 
+        let execute_count = attr_and_meta_opt(
+            "execute_count",
+            self.execute_count.map(|count| count.to_string()),
+        );
+
         let text = elem(
             "code",
             &[attr_prop("text"), attr_slot("text")],
@@ -445,6 +450,7 @@ impl ToHtml for CodeExpression {
                 execute_status.0,
                 execute_ended.0,
                 execute_duration.0,
+                execute_count.0,
             ],
             &[
                 lang.1,
@@ -455,6 +461,7 @@ impl ToHtml for CodeExpression {
                 execute_status.1,
                 execute_ended.1,
                 execute_duration.1,
+                execute_count.1,
                 text,
                 dependencies,
                 output,
