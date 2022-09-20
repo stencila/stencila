@@ -10,8 +10,8 @@ elevateMode(Mode.Read)
 
 import 'construct-style-sheets-polyfill'
 
-import '../components/document/document-header'
-// import '../components/document/document-footer'
-// import '../components/document/document-nav'
-// import '../components/document/document-toc'
-// import '../components/document/document-flow'
+export { default as StencilaDocumentHeader } from '../components/document/document-header'
+//export { default as StencilaDocumentFooter } from '../components/document/document-footer'
+//export { default as StencilaDocumentNav } from '../components/document/document-nav'
+//export { default as StencilaDocumentToc } from '../components/document/document-toc'
+//export { default as StencilaDocumentFlow } from '../components/document/document-flow'
