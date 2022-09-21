@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Web client for interacting with Stencila document server",
   "scripts": {
-    "build": "parcel build --no-source-maps './src/views/*.js'",
-    "dev": "parcel watch './src/views/*.js'",
+    "build": "parcel build --no-source-maps .",
+    "dev": "parcel watch .",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cover": "jest --coverage",
@@ -91,6 +91,17 @@
   "engines": {
     "node": ">= 14"
   },
+  "source": [
+    "src/views/alter.js",
+    "src/views/develop.js",
+    "src/views/edit.js",
+    "src/views/inspect.js",
+    "src/views/interact.js",
+    "src/views/read.js",
+    "src/views/static.js",
+    "src/views/write.js",
+    "src/terminal/terminal.ts"
+  ],
   "browserslist": [
     "defaults",
     "not IE 11",
