@@ -1,40 +1,87 @@
 /**
- * The current user mode
+ * The user mode for the document
  */
 export const enum Mode {
-  Read = 0,
-  View = 1,
+  Static = 0,
+  Read = 1,
   Interact = 2,
   Inspect = 3,
-  Modify = 4,
-  Edit = 5,
-  Write = 6,
+  Alter = 4,
+  Develop = 5,
+  Edit = 6,
+  Write = 7,
 }
 
 /**
- * Set the current user mode
+ * Get the description of a mode
  */
-export function setMode(mode: Mode) {
-  window.stencila = { ...window.stencila, mode }
-}
-
-/**
- * Elevate the current user mode
- *
- * Will only set the mode if the existing mode is undefined or
- * lower than the current mode. This function was necessary for
- * guaranteeing the final mode is as expected when doing a chain of
- * dynamic, async `import`s for browser bundles.
- */
-export function elevateMode(mode: Mode) {
-  if ((window.stencila?.mode ?? Mode.Read) < mode) {
-    window.stencila = { ...window.stencila, mode }
+export function modeDesc(mode: Mode): string {
+  switch (mode) {
+    case Mode.Static:
+      return 'Read a static view'
+    case Mode.Read:
+      return 'Read a dynamic view'
+    case Mode.Interact:
+      return 'Interact with dynamic elements'
+    case Mode.Inspect:
+      return 'Inspect and interact with dynamic elements'
+    case Mode.Alter:
+      return 'Alter and interact with dynamic elements'
+    case Mode.Develop:
+      return 'Create, update and delete dynamic elements'
+    case Mode.Edit:
+      return 'Create, update and delete content elements'
+    case Mode.Write:
+      return 'Create, update and delete all elements'
   }
 }
 
 /**
- * Get the current user mode
+ * Convert a `Mode` to a string
  */
-export function getMode(): Mode {
-  return window.stencila.mode ?? Mode.Read
+export function modeToString(mode: Mode): string {
+  switch (mode) {
+    case Mode.Static:
+      return 'Static'
+    case Mode.Read:
+      return 'Read'
+    case Mode.Interact:
+      return 'Interact'
+    case Mode.Inspect:
+      return 'Inspect'
+    case Mode.Alter:
+      return 'Alter'
+    case Mode.Develop:
+      return 'Develop'
+    case Mode.Edit:
+      return 'Edit'
+    case Mode.Write:
+      return 'Write'
+  }
+}
+
+/**
+ * Convert a string into a `Mode`
+ */
+export function modeFromString(mode: string): Mode {
+  switch (mode.toLowerCase()) {
+    case 'static':
+      return Mode.Static
+    case 'read':
+      return Mode.Read
+    case 'interact':
+      return Mode.Interact
+    case 'inspect':
+      return Mode.Inspect
+    case 'alter':
+      return Mode.Alter
+    case 'develop':
+      return Mode.Develop
+    case 'edit':
+      return Mode.Edit
+    case 'write':
+      return Mode.Write
+    default:
+      throw new Error(`Could not convert string '${mode}' to a mode`)
+  }
 }

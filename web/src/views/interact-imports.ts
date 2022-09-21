@@ -5,12 +5,10 @@
  * but not for inspecting of modifying its execution.
  */
 
-import { Mode, elevateMode } from '../mode'
-
 // @ts-ignore
-import('./view').then(() => elevateMode(Mode.Interact)).catch(console.error)
+import('./read-imports')
 
-//export { default as StencilaParameter } from '../components/nodes/parameter'
+import '../components/nodes/parameter'
 //export { default as StencilaFilter } from '../components/nodes/filter'
 //export { default as StencilaGate } from '../components/nodes/gate'
 //export { default as StencilaForm } from '../components/nodes/form'
