@@ -8,6 +8,7 @@ import StencilaElement from './element'
 // prettier-ignore
 const icons: Record<string, string> = {
   'arrow-repeat': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/arrow-repeat.svg'),
+  'book': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/book.svg'),
   'check-circle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/check-circle.svg'),
   'circle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/circle.svg'),
   'clock': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/clock.svg'),
@@ -17,10 +18,30 @@ const icons: Record<string, string> = {
   'eye-slash': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/eye-slash.svg'),
   'eye': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/eye.svg'),
   'hourglass': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/hourglass.svg'),
+  'house': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/house.svg'),
   'lightning-fill': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/lightning-fill.svg'),
+  'list': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/list.svg'),
+  'map': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/map.svg'),
+  'pen': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/pen.svg'),
+  'pencil': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/pencil.svg'),
+  'play': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/play.svg'),
+  'search': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/search.svg'),
+  'sliders': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/sliders.svg'),
+  'stars': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/stars.svg'),
+  'three-dots-vertical': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/three-dots-vertical.svg'),
+  'wifi': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/wifi.svg'),
+  'x-lg': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/x-lg.svg'),
 }
 
 export type IconName = keyof typeof icons
+
+/**
+ * Get the SVG source for an icon as a DataURI
+ */
+export function getIconSrc(name: IconName): string {
+  const svg = encodeURIComponent(icons[name] ?? icons.circle)
+  return `data:image/svg+xml,${svg}`
+}
 
 /**
  * An icon
@@ -46,9 +67,8 @@ export default class StencilaIcon extends StencilaElement {
   label?: string
 
   render() {
-    const svg = encodeURIComponent(icons[this.name] ?? icons.circle)
     return html`<sl-icon
-      src="data:image/svg+xml,${svg}"
+      src="${getIconSrc(this.name)}"
       ${this.label ? `label=${this.label}` : ''}
     ></sl-icon>`
   }

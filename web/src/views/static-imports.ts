@@ -5,10 +5,10 @@
  * of the document.
  */
 
-import 'construct-style-sheets-polyfill'
+import { initialize } from '../components/utils/css'
+initialize()
 
 import '../components/document/document-header'
-//export { default as StencilaDocumentFooter } from '../components/document/document-footer'
-//export { default as StencilaDocumentNav } from '../components/document/document-nav'
-//export { default as StencilaDocumentToc } from '../components/document/document-toc'
-//export { default as StencilaDocumentFlow } from '../components/document/document-flow'
+import '../components/document/document-footer'
+import '../components/document/document-nav'
+import '../components/document/document-toc'

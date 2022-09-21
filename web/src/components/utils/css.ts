@@ -1,4 +1,4 @@
-import { variable } from '@stencila/schema'
+import 'construct-style-sheets-polyfill'
 import { create, cssomSheet } from 'twind'
 
 /**
@@ -91,9 +91,7 @@ function addStylesheet(css: string) {
   document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]
 }
 
-setupVars()
-
-export function setupVars() {
+export function initialize() {
   // Create color variables, literal and semantic
   const colors = `
   :root,
@@ -461,9 +459,7 @@ export function setupVars() {
     --sl-transition-x-fast: 50ms;
 
     --sl-font-mono: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-    --sl-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-      "Segoe UI Symbol";
+    --sl-font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --sl-font-serif: Georgia, "Times New Roman", serif;
 
     --sl-font-size-2x-small: 0.625rem;
@@ -615,4 +611,9 @@ export function setupVars() {
 `
 
   addStylesheet(shoelace)
+
+  addStylesheet(`
+    body{
+      margin: 0;
+    }`)
 }
