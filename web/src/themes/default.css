@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Cabin&family=Roboto&display=swap');
+
+:host,
+:root {
+  --stencila-root-width: 50em;
+
+  --stencila-text-color: var(--stencila-color-neutral-800);
+
+  --stencila-text-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol';
+}
+
+body {
+  background-color: var(--stencila-background-color);
+}
+
+[data-root] {
+  max-width: var(--stencila-root-width);
+  margin: 0 auto;
+
+  font-family: var(--stencila-text-font);
+  color: var(--stencila-text-color);
+}

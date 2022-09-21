@@ -1,7 +1,7 @@
 import { DocumentPath } from './documents'
-import { Document, Session } from './types'
+import { Document, Session } from '../types'
 import { Client, ClientId, ClientOptions, connect, disconnect } from './client'
-import { onDiscoverExecutableLanguages } from './events/kernels'
+import { onDiscoverExecutableLanguages } from '../events/kernels'
 import { languages } from './kernels'
 import * as sessions from './sessions'
 
@@ -13,11 +13,11 @@ import * as client_ from './client'
 
 import * as documents_ from './documents'
 
-import * as patches_ from './patches'
+import * as patches_ from '../patches'
 
 import * as uid from './utils/uid'
 
-export type { Document, Patch, Session } from './types'
+export type { Document, Patch, Session } from '../types'
 export type { Client } from './client'
 export const client = { ...client_ }
 export const documents = { ...documents_ }

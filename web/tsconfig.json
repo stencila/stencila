@@ -2,6 +2,7 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "experimentalDecorators": true,
     "target": "es6",
     "skipLibCheck": true,
     "strictNullChecks": true,

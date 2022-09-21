@@ -7,7 +7,7 @@
  */
 
 import HtmlFragment from 'html-fragment'
-import { documents } from '..'
+import { documents } from '../client'
 import { Slot } from '../types'
 
 /**

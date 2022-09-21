@@ -1,4 +1,4 @@
-import { Session, SessionEvent } from './types'
+import { Session, SessionEvent } from '../types'
 import { Client } from './client'
 
 export type SessionId = string
