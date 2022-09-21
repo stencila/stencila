@@ -11,6 +11,6 @@ export default class StencilaDocumentFooter extends StencilaElement {
   static styles = [sheet.target]
 
   render() {
-    return html`<nav></nav>`
+    return html`<footer></footer>`
   }
 }

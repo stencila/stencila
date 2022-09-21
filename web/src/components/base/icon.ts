@@ -9,6 +9,7 @@ import StencilaElement from './element'
 const icons: Record<string, string> = {
   'arrow-repeat': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/arrow-repeat.svg'),
   'book': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/book.svg'),
+  'braces-asterisk': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/braces-asterisk.svg'),
   'check-circle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/check-circle.svg'),
   'circle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/circle.svg'),
   'clock': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/clock.svg'),
@@ -17,6 +18,7 @@ const icons: Record<string, string> = {
   'dash': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/dash.svg'),
   'eye-slash': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/eye-slash.svg'),
   'eye': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/eye.svg'),
+  'file': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/file.svg'),
   'hourglass': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/hourglass.svg'),
   'house': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/house.svg'),
   'lightning-fill': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/lightning-fill.svg'),
@@ -30,6 +32,7 @@ const icons: Record<string, string> = {
   'stars': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/stars.svg'),
   'three-dots-vertical': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/three-dots-vertical.svg'),
   'wifi': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/wifi.svg'),
+  'wrench-adjustable': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/wrench-adjustable.svg'),
   'x-lg': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/x-lg.svg'),
 }
 

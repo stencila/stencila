@@ -11,27 +11,36 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
 import '@shoelace-style/shoelace/dist/components/menu-label/menu-label'
 import '@shoelace-style/shoelace/dist/components/menu/menu'
 
-import { Mode, modeDesc, modeFromString, modeToString } from '../../mode'
+import {
+  currentMode,
+  modeDesc,
+  modeFromString,
+  modeIcon,
+  modeLabel,
+  modeDevStatus,
+} from '../../mode'
 import StencilaElement from '../base/element'
 import { IconName } from '../base/icon'
 import '../base/icon-button'
 import { twSheet } from '../utils/css'
+import { DevStatus, devStatusTag } from '../../dev-status'
 
 const { tw, sheet } = twSheet()
 
-const currentMode = Mode.Interact
 const config = {
   logo: {
     url: 'https://stenci.la/img/stencila/stencilaLogo.svg',
     alt: 'Stencila',
   },
-  title: 'Docs',
+  //title: 'Docs',
+  /*
   links: [
     { label: 'Tutorials', url: '#tutorials', icon: 'stars' },
     { label: 'Guides', url: '#guides', icon: 'map' },
     { label: 'Reference', url: '#reference', icon: 'book' },
   ],
-  views: [
+  */
+  modes: [
     'Static',
     'Read',
     'Interact',
@@ -41,13 +50,16 @@ const config = {
     'Edit',
     'Write',
   ],
+  /*
   breadcrumbs: [
     { label: 'One', path: 'one' },
     { label: 'Two', path: 'two' },
     { label: 'Three', path: 'three' },
     { label: 'Four' },
   ],
+  */
 }
+type Config = typeof config
 
 /**
  * A component for a document header
@@ -57,21 +69,57 @@ export default class StencilaDocumentHeader extends StencilaElement {
   static styles = [sheet.target]
 
   render() {
-    const { logo, title, links, views, breadcrumbs } = config
+    return html`<header>
+      ${this.renderTopbar(config)}
+      ${config.breadcrumbs?.length > 1
+        ? this.renderBreadcrumbs(config.breadcrumbs)
+        : ''}
+    </header>`
+  }
+
+  private renderTopbar(config: Config) {
+    const { logo, title, links, modes } = config
     return html`<nav class="${tw`border(b gray-200) bg-white font-sans`}">
-        <div class="${tw`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8`}">
-          <div class="${tw`flex h-16 justify-between`}">
-            <div class="${tw`flex`}">
-              ${logo && this.renderLogo(logo)}
-              ${title && this.renderTitle(title)}
-              ${links && this.renderLinks(links)}
-            </div>
-            ${this.renderDesktopMenu(views)}
-            ${this.renderMobileMenu(links, views)}
+      <div class="${tw`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8`}">
+        <div class="${tw`flex h-16 justify-between`}">
+          <div class="${tw`flex`}">
+            ${logo && this.renderLogo(logo)} ${title && this.renderTitle(title)}
+            ${links && this.renderLinks(links)}
           </div>
+          ${this.renderModeMenu(modes)} ${this.renderMobileMenu(links, modes)}
         </div>
-      </nav>
-      ${breadcrumbs?.length > 1 && this.renderBreadcrumbs(breadcrumbs)}`
+      </div>
+    </nav>`
+  }
+
+  private renderBreadcrumbs(breadcrumbs: { label: string; path?: string }[]) {
+    return html` <div class="${tw`border(b gray-200) bg-white h-8 pt-1.5`}">
+      <div
+        class="${tw(css`
+          ${twApply('mx-auto max-w-7xl px-4 sm:px-6 lg:px-8')}
+          sl-breadcrumb-item::part(base) {
+            ${twApply('text(gray-700 sm) font(sans normal)')}
+          }
+        `)}"
+      >
+        <sl-breadcrumb>
+          <sl-breadcrumb-item>
+            <a href="/"
+              ><stencila-icon slot="prefix" name="house"></stencila-icon
+            ></a>
+          </sl-breadcrumb-item>
+          ${breadcrumbs.map(
+            ({ label, path }, index) => html`<sl-breadcrumb-item>
+              ${index < breadcrumbs.length - 1
+                ? html`<a href="${path}" class="${tw`text-blue-700`}"
+                    >${label}</a
+                  >`
+                : label}
+            </sl-breadcrumb-item>`
+          )}
+        </sl-breadcrumb>
+      </div>
+    </div>`
   }
 
   private renderLogo({ url, alt = 'Logo' }: { url: string; alt: string }) {
@@ -111,43 +159,14 @@ export default class StencilaDocumentHeader extends StencilaElement {
     </div>`
   }
 
-  private renderBreadcrumbs(breadcrumbs: { label: string; path?: string }[]) {
-    return html` <div class="${tw`border(b gray-200) bg-white h-8 pt-1.5`}">
-      <div
-        class="${tw(css`
-          ${twApply('mx-auto max-w-7xl px-4 sm:px-6 lg:px-8')}
-          sl-breadcrumb-item::part(base) {
-            ${twApply('text(gray-700 sm) font(sans normal)')}
-          }
-        `)}"
-      >
-        <sl-breadcrumb>
-          <sl-breadcrumb-item>
-            <a href="/"
-              ><stencila-icon slot="prefix" name="house"></stencila-icon
-            ></a>
-          </sl-breadcrumb-item>
-          ${breadcrumbs.map(
-            ({ label, path }, index) => html`<sl-breadcrumb-item>
-              ${index < breadcrumbs.length - 1
-                ? html`<a href="${path}" class="${tw`text-blue-700`}"
-                    >${label}</a
-                  >`
-                : label}
-            </sl-breadcrumb-item>`
-          )}
-        </sl-breadcrumb>
-      </div>
-    </div>`
-  }
-
-  private renderDesktopMenu(views: string[]) {
+  private renderModeMenu(modes?: string[]) {
+    const mode = currentMode()
     return html`
       <div
         class="${tw(css`
           ${twApply('flex items-center invisible sm:visible')}
-          stencila-icon-button {
-            ${twApply('text(gray-700 xl) font-medium')}
+          sl-button::part(base) {
+            ${twApply('border(none) pt-3 text(gray-500 xl)')}
           }
           sl-dropdown::part(panel) {
             ${twApply('border(1 solid gray-100) rounded')}
@@ -155,33 +174,61 @@ export default class StencilaDocumentHeader extends StencilaElement {
           sl-menu-label::part(base) {
             ${twApply('text(gray-400 xs)')}
           }
-          sl-menu-item::part(base) {
-            ${twApply('text(gray-600 sm) font-medium mt-1')}
-          }
         `)}"
       >
         <sl-dropdown>
-          <stencila-icon-button
-            slot="trigger"
-            name="three-dots-vertical"
-          ></stencila-icon-button>
+          <sl-button slot="trigger" variant="default" size="large" circle
+            ><stencila-icon name="${modeIcon(mode)}"></stencila-icon
+          ></sl-button>
           <sl-menu>
-            ${views?.length > 1 &&
+            ${modes &&
+            modes.length > 1 &&
             html`<sl-divider></sl-divider>
               <sl-menu-label>Views</sl-menu-label>
-              ${this.renderViewMenuItems(views)}`}
+              ${this.renderModeMenuItems(modes)}`}
           </sl-menu>
         </sl-dropdown>
       </div>
     `
   }
 
+  private renderModeMenuItems(modes: string[]) {
+    const currMode = currentMode()
+    return modes.map((modeName) => {
+      const mode = modeFromString(modeName)
+      const label = modeLabel(mode)
+      const devStatus = modeDevStatus(mode)
+      return html`<a
+        href="?mode=${label.toLowerCase()}"
+        class="${tw(css`
+          sl-menu-item::part(base) {
+            ${twApply('text(gray-600 sm) font-medium mt-1')}
+          }
+        `)}"
+        ><sl-menu-item
+          ${devStatus < DevStatus.Alpha ? 'disabled' : ''}
+          class="${mode == currMode ? tw`border(blue-500 l-2)` : ''}"
+        >
+          <div>
+            <stencila-icon
+              slot="prefix"
+              name="${modeIcon(mode)}"
+            ></stencila-icon>
+            <span class=${tw`ml-1`}>${label}</span>
+            <span class=${tw`float-right`}>${devStatusTag(devStatus)}</span>
+          </div>
+          <div class=${tw`text(gray-400 xs) font-light`}>${modeDesc(mode)}</div>
+        </sl-menu-item></a
+      >`
+    })
+  }
+
   @state()
   private mobileMenuIsOpen: boolean = false
 
   private renderMobileMenu(
-    links: { label: string; url: string; icon?: string }[],
-    views: string[]
+    links?: { label: string; url: string; icon?: string }[],
+    modes?: string[]
   ) {
     return html`
       <div
@@ -210,7 +257,9 @@ export default class StencilaDocumentHeader extends StencilaElement {
             name="${this.mobileMenuIsOpen ? 'x-lg' : 'list'}"
           ></stencila-icon-button>
           <sl-menu>
-            ${links.map(
+            ${links &&
+            links.length > 1 &&
+            links.map(
               ({ url, label, icon }) =>
                 html`<a href="${url}"
                   ><sl-menu-item
@@ -222,55 +271,14 @@ export default class StencilaDocumentHeader extends StencilaElement {
                   ></a
                 >`
             )}
-            ${views?.length > 1 &&
+            ${modes &&
+            modes.length > 1 &&
             html`<sl-divider></sl-divider>
-              <sl-menu-label>Views</sl-menu-label>
-              ${this.renderViewMenuItems(views)}`}
+              <sl-menu-label>Mode</sl-menu-label>
+              ${this.renderModeMenuItems(modes)}`}
           </sl-menu>
         </sl-dropdown>
       </div>
     `
-  }
-
-  private renderViewMenuItems(views: string[]) {
-    return views.map((view) => {
-      const mode = modeFromString(view)
-      const modeString = modeToString(mode)
-      const active = mode == currentMode
-      const cls = active ? tw`border(blue-500 l-2) bg-blue-50` : ''
-      return html`<a href="?mode=${modeString.toLowerCase()}"
-        ><sl-menu-item class="${cls}">
-          <div>
-            <stencila-icon
-              slot="prefix"
-              name="${this.modeIcon(mode)}"
-            ></stencila-icon>
-            <span class=${tw`ml-1`}>${modeString}</span>
-          </div>
-          <div class=${tw`text(gray-400 xs) font-light`}>${modeDesc(mode)}</div>
-        </sl-menu-item></a
-      >`
-    })
-  }
-
-  private modeIcon(mode: Mode): IconName {
-    switch (mode) {
-      case Mode.Static:
-        return 'book'
-      case Mode.Read:
-        return 'wifi'
-      case Mode.Inspect:
-        return 'search'
-      case Mode.Interact:
-        return 'sliders'
-      case Mode.Alter:
-        return 'play'
-      case Mode.Develop:
-        return 'code'
-      case Mode.Edit:
-        return 'pencil'
-      case Mode.Write:
-        return 'pen'
-    }
   }
 }

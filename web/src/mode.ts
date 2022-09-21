@@ -1,9 +1,12 @@
+import { IconName } from './components/base/icon'
+import { DevStatus } from './dev-status'
+
 /**
  * The user mode for the document
  */
 export const enum Mode {
   Static = 0,
-  Read = 1,
+  Dynamic = 1,
   Interact = 2,
   Inspect = 3,
   Alter = 4,
@@ -18,15 +21,15 @@ export const enum Mode {
 export function modeDesc(mode: Mode): string {
   switch (mode) {
     case Mode.Static:
-      return 'Read a static view'
-    case Mode.Read:
-      return 'Read a dynamic view'
+      return 'Static version with no realtime updates'
+    case Mode.Dynamic:
+      return 'Realtime updates to dynamic elements'
     case Mode.Interact:
       return 'Interact with dynamic elements'
     case Mode.Inspect:
       return 'Inspect and interact with dynamic elements'
     case Mode.Alter:
-      return 'Alter and interact with dynamic elements'
+      return 'Alter and re-run dynamic elements'
     case Mode.Develop:
       return 'Create, update and delete dynamic elements'
     case Mode.Edit:
@@ -37,14 +40,14 @@ export function modeDesc(mode: Mode): string {
 }
 
 /**
- * Convert a `Mode` to a string
+ * Get the label for a mode
  */
-export function modeToString(mode: Mode): string {
+export function modeLabel(mode: Mode): string {
   switch (mode) {
     case Mode.Static:
       return 'Static'
-    case Mode.Read:
-      return 'Read'
+    case Mode.Dynamic:
+      return 'Dynamic'
     case Mode.Interact:
       return 'Interact'
     case Mode.Inspect:
@@ -61,6 +64,51 @@ export function modeToString(mode: Mode): string {
 }
 
 /**
+ * Get the icon for a mode
+ */
+export function modeIcon(mode: Mode): IconName {
+  switch (mode) {
+    case Mode.Static:
+      return 'file'
+    case Mode.Dynamic:
+      return 'wifi'
+    case Mode.Inspect:
+      return 'search'
+    case Mode.Interact:
+      return 'sliders'
+    case Mode.Alter:
+      return 'wrench-adjustable'
+    case Mode.Develop:
+      return 'code'
+    case Mode.Edit:
+      return 'pencil'
+    case Mode.Write:
+      return 'braces-asterisk'
+  }
+}
+
+/**
+ * Get the development status of a mode
+ */
+export function modeDevStatus(mode: Mode): DevStatus {
+  switch (mode) {
+    case Mode.Static:
+      return DevStatus.Stable
+    case Mode.Dynamic:
+    case Mode.Inspect:
+      return DevStatus.Beta
+    case Mode.Interact:
+    case Mode.Alter:
+      return DevStatus.Alpha
+    case Mode.Develop:
+      return DevStatus.ComingSoon
+    case Mode.Edit:
+    case Mode.Write:
+      return DevStatus.Planned
+  }
+}
+
+/**
  * Convert a string into a `Mode`
  */
 export function modeFromString(mode: string): Mode {
@@ -68,7 +116,7 @@ export function modeFromString(mode: string): Mode {
     case 'static':
       return Mode.Static
     case 'read':
-      return Mode.Read
+      return Mode.Dynamic
     case 'interact':
       return Mode.Interact
     case 'inspect':
@@ -84,4 +132,11 @@ export function modeFromString(mode: string): Mode {
     default:
       throw new Error(`Could not convert string '${mode}' to a mode`)
   }
+}
+
+/**
+ * Get the current mode from the config
+ */
+export function currentMode(): Mode {
+  return modeFromString(window.stencilaConfig.mode) ?? Mode.Static
 }
