@@ -2,8 +2,8 @@ import { html } from 'lit'
 import { customElement, state } from 'lit/decorators'
 import { apply as twApply, css } from 'twind/css'
 
-import '@shoelace-style/shoelace/dist/components/breadcrumb/breadcrumb'
 import '@shoelace-style/shoelace/dist/components/breadcrumb-item/breadcrumb-item'
+import '@shoelace-style/shoelace/dist/components/breadcrumb/breadcrumb'
 import '@shoelace-style/shoelace/dist/components/button/button'
 import '@shoelace-style/shoelace/dist/components/divider/divider'
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown'
@@ -11,20 +11,19 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
 import '@shoelace-style/shoelace/dist/components/menu-label/menu-label'
 import '@shoelace-style/shoelace/dist/components/menu/menu'
 
+import { DevStatus, devStatusTag } from '../../dev-status'
 import {
   currentMode,
+  Mode,
   modeDesc,
+  modeDevStatus,
   modeFromString,
   modeIcon,
   modeLabel,
-  modeDevStatus,
-  Mode,
 } from '../../mode'
-import StencilaElement from '../base/element'
-import { IconName } from '../base/icon'
+import StencilaElement from '../utils/element'
 import '../base/icon-button'
 import { twSheet } from '../utils/css'
-import { DevStatus, devStatusTag } from '../../dev-status'
 
 const { tw, sheet } = twSheet()
 
@@ -50,6 +49,7 @@ const config = {
     'Develop',
     'Edit',
     'Write',
+    'Code',
     'Shell',
   ],
   /*

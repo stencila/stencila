@@ -3,7 +3,7 @@ import { customElement, property } from 'lit/decorators'
 
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 
-import StencilaElement from './element'
+import StencilaElement from '../utils/element'
 
 // prettier-ignore
 const icons: Record<string, string> = {
@@ -14,6 +14,7 @@ const icons: Record<string, string> = {
   'circle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/circle.svg'),
   'clock': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/clock.svg'),
   'code': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/code.svg'),
+  'code-square': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/code-square.svg'),
   'dash-circle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/dash-circle.svg'),
   'dash': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/dash.svg'),
   'eye-slash': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/eye-slash.svg'),

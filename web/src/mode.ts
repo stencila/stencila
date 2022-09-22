@@ -13,7 +13,8 @@ export const enum Mode {
   Develop = 5,
   Edit = 6,
   Write = 7,
-  Shell = 8,
+  Code = 8,
+  Shell = 9,
 }
 
 /**
@@ -37,6 +38,8 @@ export function modeDesc(mode: Mode): string {
       return 'Create, update and delete content elements'
     case Mode.Write:
       return 'Create, update and delete all elements'
+    case Mode.Code:
+      return 'Use a code editor to modify the document'
     case Mode.Shell:
       return 'Use a shell terminal to do anything!'
   }
@@ -63,6 +66,8 @@ export function modeLabel(mode: Mode): string {
       return 'Edit'
     case Mode.Write:
       return 'Write'
+    case Mode.Code:
+      return 'Code'
     case Mode.Shell:
       return 'Shell'
   }
@@ -89,6 +94,8 @@ export function modeIcon(mode: Mode): IconName {
       return 'pencil'
     case Mode.Write:
       return 'braces-asterisk'
+    case Mode.Code:
+      return 'code-square'
     case Mode.Shell:
       return 'terminal-fill'
   }
@@ -112,6 +119,7 @@ export function modeDevStatus(mode: Mode): DevStatus {
     case Mode.Edit:
     case Mode.Write:
       return DevStatus.Planned
+    case Mode.Code:
     case Mode.Shell:
       return DevStatus.Beta
   }
@@ -138,6 +146,8 @@ export function modeFromString(mode: string): Mode {
       return Mode.Edit
     case 'write':
       return Mode.Write
+    case 'code':
+      return Mode.Code
     case 'shell':
       return Mode.Shell
     default:

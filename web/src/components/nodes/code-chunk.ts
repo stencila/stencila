@@ -4,9 +4,9 @@ import { apply as twApply, css } from 'twind/css'
 
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 
-import '../base/code-editor'
+import '../editors/code-editor'
 import '../base/icon'
-import StencilaElement from '../base/element'
+import StencilaElement from '../utils/element'
 import { twSheet, varApply, varLocal, varPass } from '../utils/css'
 
 const { tw, sheet } = twSheet()

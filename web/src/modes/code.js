@@ -2,6 +2,6 @@ import { initialize } from '../components/utils/css'
 initialize()
 
 import '../components/document/document-header'
-import '../components/editors/shell-terminal'
+import '../components/editors/code-editor'
 
-import './shell.css'
+import './code.css'

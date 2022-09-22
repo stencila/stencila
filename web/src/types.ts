@@ -18,7 +18,13 @@ declare global {
       patchSequence?: number
       resettingRoot?: boolean
     }
-    stencilaShell: (elemId: string, dir: string) => void
+    stencilaCodeEditor: (
+      elementId: string,
+      documentId: string,
+      mediaType: string,
+      content: string
+    ) => void
+    stencilaShellTerminal: (elementId: string, dir: string) => void
   }
 }
 

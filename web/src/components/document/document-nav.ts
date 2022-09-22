@@ -1,7 +1,7 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import StencilaElement from '../base/element'
+import StencilaElement from '../utils/element'
 import { twSheet } from '../utils/css'
 
 const { tw, sheet } = twSheet()

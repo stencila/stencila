@@ -3,7 +3,7 @@ import { customElement, property } from 'lit/decorators'
 
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button'
 
-import StencilaElement from './element'
+import StencilaElement from '../utils/element'
 import { getIconSrc, IconName } from './icon'
 
 /**
