@@ -51,7 +51,10 @@ impl ToHtml for CreativeWork {
 
 impl ToHtml for Article {
     fn to_html(&self, context: &EncodeContext) -> String {
-        let toolbar = elem("stencila-document-toolbar", &[], "");
+        let header = elem("stencila-document-header", &[], "");
+        let footer = elem("stencila-document-footer", &[], "");
+        let nav = elem("stencila-document-nav", &[], "");
+        let toc = elem("stencila-document-toc", &[], "");
 
         let title = match &self.title {
             Some(title) => {
@@ -149,7 +152,18 @@ impl ToHtml for Article {
         elem(
             "article",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[toolbar, title, authors, affiliations, abstract_, content].concat(),
+            &[
+                header,
+                title,
+                authors,
+                affiliations,
+                abstract_,
+                content,
+                footer,
+                nav,
+                toc,
+            ]
+            .concat(),
         )
     }
 }
@@ -302,19 +316,19 @@ fn affiliation_org_to_html(org: &Organization) -> String {
 
 impl ToHtml for File {
     fn to_html(&self, _context: &EncodeContext) -> String {
-        let toolbar = elem("stencila-document-toolbar", &[], "");
+        let header = elem("stencila-document-header", &[], "");
 
         elem(
             "stencila-file",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[toolbar].concat(),
+            &[header].concat(),
         )
     }
 }
 
 impl ToHtml for Directory {
     fn to_html(&self, _context: &EncodeContext) -> String {
-        let toolbar = elem("stencila-document-toolbar", &[], "");
+        let header = elem("stencila-document-header", &[], "");
 
         let parts = concat(&self.parts, |part| {
             let name = match part {
@@ -331,7 +345,7 @@ impl ToHtml for Directory {
         elem(
             "stencila-directory",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[toolbar, parts].concat(),
+            &[header, parts].concat(),
         )
     }
 }

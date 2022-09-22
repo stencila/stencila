@@ -2,14 +2,13 @@ import { FileFormatUtils } from '@stencila/components'
 import { Client } from './client/client'
 import { DocumentId } from './client/documents'
 import { main } from './client/index'
-import { Mode } from './mode'
 
 export type ElementId = string
 
 declare global {
   interface Window {
-    stencila: {
-      mode: Mode
+    stencilaConfig: {
+      mode: string
     }
     stencilaWebClient: {
       main: typeof main
@@ -19,9 +18,7 @@ declare global {
       patchSequence?: number
       resettingRoot?: boolean
     }
-    stencilaWebTerminal: {
-      main: (elemId: string) => void
-    }
+    stencilaShell: (elemId: string, dir: string) => void
   }
 }
 

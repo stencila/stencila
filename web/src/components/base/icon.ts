@@ -30,8 +30,10 @@ const icons: Record<string, string> = {
   'search': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/search.svg'),
   'sliders': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/sliders.svg'),
   'stars': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/stars.svg'),
+  'terminal-fill': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/terminal-fill.svg'),
   'three-dots-vertical': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/three-dots-vertical.svg'),
   'wifi': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/wifi.svg'),
+  'wifi-off': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/wifi-off.svg'),
   'wrench-adjustable': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/wrench-adjustable.svg'),
   'x-lg': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/x-lg.svg'),
 }

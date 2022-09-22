@@ -13,6 +13,7 @@ export const enum Mode {
   Develop = 5,
   Edit = 6,
   Write = 7,
+  Shell = 8,
 }
 
 /**
@@ -36,6 +37,8 @@ export function modeDesc(mode: Mode): string {
       return 'Create, update and delete content elements'
     case Mode.Write:
       return 'Create, update and delete all elements'
+    case Mode.Shell:
+      return 'Use a shell terminal to do anything!'
   }
 }
 
@@ -60,6 +63,8 @@ export function modeLabel(mode: Mode): string {
       return 'Edit'
     case Mode.Write:
       return 'Write'
+    case Mode.Shell:
+      return 'Shell'
   }
 }
 
@@ -69,7 +74,7 @@ export function modeLabel(mode: Mode): string {
 export function modeIcon(mode: Mode): IconName {
   switch (mode) {
     case Mode.Static:
-      return 'file'
+      return 'wifi-off'
     case Mode.Dynamic:
       return 'wifi'
     case Mode.Inspect:
@@ -84,6 +89,8 @@ export function modeIcon(mode: Mode): IconName {
       return 'pencil'
     case Mode.Write:
       return 'braces-asterisk'
+    case Mode.Shell:
+      return 'terminal-fill'
   }
 }
 
@@ -105,6 +112,8 @@ export function modeDevStatus(mode: Mode): DevStatus {
     case Mode.Edit:
     case Mode.Write:
       return DevStatus.Planned
+    case Mode.Shell:
+      return DevStatus.Beta
   }
 }
 
@@ -115,7 +124,7 @@ export function modeFromString(mode: string): Mode {
   switch (mode.toLowerCase()) {
     case 'static':
       return Mode.Static
-    case 'read':
+    case 'dynamic':
       return Mode.Dynamic
     case 'interact':
       return Mode.Interact
@@ -129,6 +138,8 @@ export function modeFromString(mode: string): Mode {
       return Mode.Edit
     case 'write':
       return Mode.Write
+    case 'shell':
+      return Mode.Shell
     default:
       throw new Error(`Could not convert string '${mode}' to a mode`)
   }

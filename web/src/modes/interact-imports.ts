@@ -6,7 +6,7 @@
  */
 
 // @ts-ignore
-import('./read-imports')
+import('./dynamic-imports')
 
 import '../components/nodes/parameter'
 //export { default as StencilaFilter } from '../components/nodes/filter'

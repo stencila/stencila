@@ -3,14 +3,16 @@ import { AttachAddon } from 'xterm-addon-attach'
 import { FitAddon } from 'xterm-addon-fit'
 
 import 'xterm/css/xterm.css'
-import './terminal.css'
+import './shell.css'
 
 /**
- * Create an Xterm.js terminal that attaches to the Stencila document server
+ * Create an Xterm.js terminal that attaches to a shell session provided
+ * by the Stencila document server
  *
  * @param elemId The id of the element on which to create the terminal
+ * @param dir The starting directory for the shell session
  */
-const main = (elemId: string): void => {
+window.stencilaShell = (elemId, dir) => {
   const terminal = new Terminal({
     rows: 50,
     fontFamily: 'Menlo, monospace',
@@ -45,7 +47,7 @@ const main = (elemId: string): void => {
   const websocket = new WebSocket(
     `${location.protocol === 'https:' ? 'wss' : 'ws'}://${
       location.host
-    }/~attach`
+    }/~shell/${dir}`
   )
   const attachAddon = new AttachAddon(websocket)
   terminal.loadAddon(attachAddon)
@@ -57,8 +59,4 @@ const main = (elemId: string): void => {
   terminal.open(elem)
 
   fitAddon.fit()
-}
-
-window.stencilaWebTerminal = {
-  main,
 }

@@ -43,10 +43,10 @@ export function devStatusTag(status: DevStatus) {
     case DevStatus.ComingSoon:
       return html`<stencila-tag color="blue">Coming soon</stencila-tag>`
     case DevStatus.Alpha:
-      return html`<stencila-tag color="red">Alpha</stencila-tag>`
+      return html`<stencila-tag color="yellow">Alpha</stencila-tag>`
     case DevStatus.Beta:
-      return html`<stencila-tag color="yellow">Beta</stencila-tag>`
+      return html`<stencila-tag color="green">Beta</stencila-tag>`
     case DevStatus.Stable:
-      return html`<stencila-tag color="green">Stable</stencila-tag>`
+      return html`<stencila-tag color="grey">Stable</stencila-tag>`
   }
 }

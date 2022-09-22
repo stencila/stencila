@@ -18,6 +18,7 @@ import {
   modeIcon,
   modeLabel,
   modeDevStatus,
+  Mode,
 } from '../../mode'
 import StencilaElement from '../base/element'
 import { IconName } from '../base/icon'
@@ -42,13 +43,14 @@ const config = {
   */
   modes: [
     'Static',
-    'Read',
+    'Dynamic',
     'Interact',
     'Inspect',
     'Alter',
     'Develop',
     'Edit',
     'Write',
+    'Shell',
   ],
   /*
   breadcrumbs: [
@@ -86,7 +88,10 @@ export default class StencilaDocumentHeader extends StencilaElement {
             ${logo && this.renderLogo(logo)} ${title && this.renderTitle(title)}
             ${links && this.renderLinks(links)}
           </div>
-          ${this.renderModeMenu(modes)} ${this.renderMobileMenu(links, modes)}
+          <div class="${tw`flex`}">
+            ${this.renderModeMenu(modes)} ${this.renderDesktopMenu(modes)}
+            ${this.renderMobileMenu(links, modes)}
+          </div>
         </div>
       </div>
     </nav>`
@@ -181,11 +186,7 @@ export default class StencilaDocumentHeader extends StencilaElement {
             ><stencila-icon name="${modeIcon(mode)}"></stencila-icon
           ></sl-button>
           <sl-menu>
-            ${modes &&
-            modes.length > 1 &&
-            html`<sl-divider></sl-divider>
-              <sl-menu-label>Views</sl-menu-label>
-              ${this.renderModeMenuItems(modes)}`}
+            ${modes && modes.length > 1 && this.renderModeMenuItems(modes)}
           </sl-menu>
         </sl-dropdown>
       </div>
@@ -198,15 +199,30 @@ export default class StencilaDocumentHeader extends StencilaElement {
       const mode = modeFromString(modeName)
       const label = modeLabel(mode)
       const devStatus = modeDevStatus(mode)
+      const target = mode > Mode.Write ? '_blank' : ''
+      const disabled = devStatus < DevStatus.Alpha
       return html`<a
-        href="?mode=${label.toLowerCase()}"
+        href="${disabled ? '' : `?mode=${label.toLowerCase()}`}"
+        target="${target}"
         class="${tw(css`
           sl-menu-item::part(base) {
-            ${twApply('text(gray-600 sm) font-medium mt-1')}
+            ${twApply(
+              `text(gray-${disabled ? 400 : 600} sm) font-medium mt-1 cursor-${
+                disabled ? 'default' : 'pointer'
+              }`
+            )}
+          }
+          stencila-tag {
+            ${twApply('float-right')}
+          }
+          .label {
+            ${twApply(`ml-1`)}
+          }
+          .desc {
+            ${twApply(`text(gray-400 xs) font-light`)}
           }
         `)}"
         ><sl-menu-item
-          ${devStatus < DevStatus.Alpha ? 'disabled' : ''}
           class="${mode == currMode ? tw`border(blue-500 l-2)` : ''}"
         >
           <div>
@@ -214,13 +230,54 @@ export default class StencilaDocumentHeader extends StencilaElement {
               slot="prefix"
               name="${modeIcon(mode)}"
             ></stencila-icon>
-            <span class=${tw`ml-1`}>${label}</span>
-            <span class=${tw`float-right`}>${devStatusTag(devStatus)}</span>
+            <span class="label">${label}</span>
+            ${devStatus != DevStatus.Stable ? devStatusTag(devStatus) : ''}
           </div>
-          <div class=${tw`text(gray-400 xs) font-light`}>${modeDesc(mode)}</div>
+          <div class="desc">${modeDesc(mode)}</div>
         </sl-menu-item></a
       >`
     })
+  }
+
+  private renderDesktopMenu(modes?: string[]) {
+    return html`
+      <div
+        class="${tw(css`
+          ${twApply('flex items-center invisible sm:visible')}
+          sl-button::part(base) {
+            ${twApply('border(none) pt-3 text(gray-500 xl)')}
+          }
+          sl-dropdown::part(panel) {
+            ${twApply('border(1 solid gray-100) rounded')}
+          }
+          sl-menu-label::part(base) {
+            ${twApply('text(gray-400 xs)')}
+          }
+          sl-menu-item::part(base) {
+            ${twApply('text(gray-600 sm) font-medium mt-1')}
+          }
+          stencila-tag {
+            ${twApply('float-right')}
+          }
+          .title {
+            ${twApply('')}
+          }
+          .label {
+            ${twApply(`ml-1`)}
+          }
+          .desc {
+            ${twApply('text(gray-400 xs) font-light')}
+          }
+        `)}"
+      >
+        <sl-dropdown>
+          <sl-button slot="trigger" variant="default" size="large" circle
+            ><stencila-icon name="three-dots-vertical"></stencila-icon
+          ></sl-button>
+          <sl-menu></sl-menu>
+        </sl-dropdown>
+      </div>
+    `
   }
 
   @state()
@@ -245,6 +302,18 @@ export default class StencilaDocumentHeader extends StencilaElement {
           }
           sl-menu-item::part(base) {
             ${twApply('text(gray-600 sm) font-medium mt-1')}
+          }
+          stencila-tag {
+            ${twApply('float-right')}
+          }
+          .title {
+            ${twApply('')}
+          }
+          .label {
+            ${twApply(`ml-1`)}
+          }
+          .desc {
+            ${twApply('text(gray-400 xs) font-light')}
           }
         `)}"
       >
