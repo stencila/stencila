@@ -270,15 +270,22 @@ export default class StencilaCodeEditor extends StencilaElement {
   }
 
   /**
-   * Handle a change in the language
+   * On a change in the language selector update the property, dispatch
+   * an event and dispatch an effect to the editor
    */
   private async onLanguageChange(event: Event) {
     const language = (event.target as HTMLSelectElement).value
-    const languageSupport = await this.getLanguageSupport(language)
-    if (languageSupport) {
-      const effect = this.languageConfig.reconfigure(languageSupport)
-      this.dispatchEffect(effect)
-    }
+
+    // Change the language property, mainly for debugging, so it it reflected
+    // in the HTML attribute of this element
+    this.language = language
+
+    // TODO: Dispatch event
+
+    const languageSupport =
+      (await this.getLanguageSupport(language)) ?? this.fallbackLanguage()
+    const effect = this.languageConfig.reconfigure(languageSupport)
+    this.dispatchEffect(effect)
   }
 
   /**
