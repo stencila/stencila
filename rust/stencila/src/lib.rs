@@ -3,7 +3,6 @@
 
 pub use kernels;
 pub mod projects;
-pub mod sessions;
 
 // Features
 //

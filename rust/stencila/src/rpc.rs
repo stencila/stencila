@@ -12,8 +12,6 @@ use documents::{When, DOCUMENTS};
 use graph::{PlanOrdering, PlanScope};
 use node_patch::Patch;
 
-use crate::sessions::SESSIONS;
-
 type Params = HashMap<String, serde_json::Value>;
 
 /// A JSON-RPC 2.0 request
@@ -55,11 +53,6 @@ impl Request {
         tracing::trace!("Dispatching request for client `{}`", client);
 
         let result: Result<(serde_json::Value, Subscription)> = match self.method.as_str() {
-            "sessions.start" => sessions_start().await,
-            "sessions.stop" => sessions_stop(&self.params).await,
-            "sessions.subscribe" => sessions_subscribe(&self.params, client).await,
-            "sessions.unsubscribe" => sessions_unsubscribe(&self.params, client).await,
-            "kernels.languages" => kernels_languages(&self.params).await,
             "documents.create" => documents_create(&self.params).await,
             "documents.open" => documents_open(&self.params).await,
             "documents.close" => documents_close(&self.params).await,
@@ -247,48 +240,6 @@ impl Error {
 // The following are dispatching functions that check the supplied JSON arguments
 // and send them on to the relevant core functions, raising errors is arguments are
 // missing or of the wrong type, and converting returned values to JSON.
-
-async fn sessions_start() -> Result<(serde_json::Value, Subscription)> {
-    let session = SESSIONS.start().await?;
-    Ok((json!(session), Subscription::None))
-}
-
-async fn sessions_stop(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "sessionId")?;
-
-    let session = SESSIONS.stop(&id).await?;
-    Ok((json!(session), Subscription::None))
-}
-
-async fn sessions_subscribe(
-    params: &Params,
-    client: &str,
-) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "sessionId")?;
-    let topic = required_string(params, "topic")?;
-
-    let (session, topic) = SESSIONS.subscribe(&id, &topic, client).await?;
-    Ok((json!(session), Subscription::Subscribe(topic)))
-}
-
-async fn sessions_unsubscribe(
-    params: &Params,
-    client: &str,
-) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "sessionId")?;
-    let topic = required_string(params, "topic")?;
-
-    let (session, topic) = SESSIONS.unsubscribe(&id, &topic, client).await?;
-    Ok((json!(session), Subscription::Unsubscribe(topic)))
-}
-
-async fn kernels_languages(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    // TODO The kernel list will be dependant upon the session
-    let _id = required_string(params, "sessionId")?;
-
-    let kernels = kernels::languages().await?;
-    Ok((json!(kernels), Subscription::None))
-}
 
 async fn documents_create(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let path = optional_string(params, "path")?;
