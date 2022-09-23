@@ -229,7 +229,8 @@ export default class StencilaCodeEditor extends StencilaElement {
    * calls itself so that embedded code blocks also get highlighting.
    */
   private matchLanguage(name: string): LanguageDescription | null {
-    if (name == 'md' || name == 'markdown') {
+    const lower = name.toLowerCase()
+    if (lower == 'md' || lower == 'markdown') {
       const self = this
       return LanguageDescription.of({
         name: 'Markdown',
@@ -244,9 +245,12 @@ export default class StencilaCodeEditor extends StencilaElement {
       })
     }
 
-    return LanguageDescription.matchLanguageName(
-      this.languageDescriptions,
-      name
+    return (
+      this.languageDescriptions.find((desc) =>
+        desc.extensions.includes(name)
+      ) ??
+      LanguageDescription.matchLanguageName(this.languageDescriptions, name) ??
+      LanguageDescription.matchFilename(this.languageDescriptions, name)
     )
   }
 
