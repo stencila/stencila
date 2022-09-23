@@ -1,3 +1,4 @@
+import { capitalCase, camelCase } from 'change-case'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 import { css } from 'twind/css'
@@ -23,7 +24,12 @@ import {
 import { languages } from '@codemirror/language-data'
 import { lintKeymap } from '@codemirror/lint'
 import { highlightSelectionMatches, searchKeymap } from '@codemirror/search'
-import { Compartment, EditorState, StateEffect } from '@codemirror/state'
+import {
+  Compartment,
+  EditorState,
+  Extension,
+  StateEffect,
+} from '@codemirror/state'
 import {
   crosshairCursor,
   drawSelection,
@@ -36,6 +42,8 @@ import {
   lineNumbers,
   rectangularSelection,
 } from '@codemirror/view'
+
+import * as themes from 'thememirror/dist'
 
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
@@ -50,8 +58,64 @@ const { tw, sheet } = twSheet()
 export default class StencilaCodeEditor extends StencilaElement {
   static styles = [sheet.target]
 
+  /**
+   * The code language
+   */
   @property({ reflect: true })
   language: string = 'other'
+
+  /**
+   * A list of languages supported by this editor
+   *
+   * This list is presented in a dropdown language selector.
+   * If the list is empty, no selector will be provided.
+   */
+  @property({ type: Array })
+  private languagesSupported = [
+    'C',
+    'C++',
+    'Calc',
+    'CSS',
+    'Dockerfile',
+    'Go',
+    'Haskell',
+    'HTML',
+    'Java',
+    'JavaScript',
+    'JSON',
+    'Julia',
+    'LaTeX',
+    'Markdown',
+    'PLSQL',
+    'PrQL',
+    'Python',
+    'R',
+    'Ruby',
+    'Rust',
+    'Shell',
+    'SQL',
+    'SQLite',
+    'TOML',
+    'TypeScript',
+    'XML',
+    'YAML',
+    'Other',
+  ]
+
+  /**
+   * The editor theme
+   */
+  @property({ reflect: true })
+  theme: string = 'Tomorrow'
+
+  /**
+   * A list of themes supported by this editor
+   *
+   * This list is presented in a dropdown theme selector.
+   * If the list is empty, no selector will be provided.
+   */
+  @property({ type: Array })
+  private themes = Object.keys(themes).map((name) => capitalCase(name))
 
   /**
    * The CodeMirror editor
@@ -60,10 +124,13 @@ export default class StencilaCodeEditor extends StencilaElement {
 
   /**
    * The CodeMirror language configuration
-   *
-   * @see https://codemirror.net/6/docs/ref/#state.Compartment
    */
   private languageConfig = new Compartment()
+
+  /**
+   * The CodeMirror theme configuration
+   */
+  private themeConfig = new Compartment()
 
   /**
    * Extensions setup for CodeMirror
@@ -76,11 +143,12 @@ export default class StencilaCodeEditor extends StencilaElement {
    * (which is just a bunch of imports and an array literal), copy it into your own code,
    * and adjust it as desired."
    *
-   * Runtime configurable extensions e.g. `languageConfig` added.
+   * Runtime configurable extensions added (e.g. `languageConfig`) need to be added
+   * here.
    */
-  private async editorExtensions(language: string) {
-    // Fixed extensions based off `basic-setup`
-    let extensions = [
+  private async editorExtensions() {
+    return [
+      // Fixed extensions based off `basic-setup`
       lineNumbers(),
       highlightActiveLineGutter(),
       highlightSpecialChars(),
@@ -107,15 +175,11 @@ export default class StencilaCodeEditor extends StencilaElement {
         ...completionKeymap,
         ...lintKeymap,
       ]),
+
+      // Change-able extensions
+      this.languageConfig.of(await this.getLanguageSupport(this.language)),
+      this.themeConfig.of(this.getTheme(this.theme)),
     ]
-
-    // Change-able extensions
-    const languageSupport = await this.getLanguageSupport(language)
-    if (languageSupport) {
-      extensions = [...extensions, this.languageConfig.of(languageSupport)]
-    }
-
-    return extensions
   }
 
   /**
@@ -219,41 +283,38 @@ export default class StencilaCodeEditor extends StencilaElement {
   }
 
   /**
-   * List of languages that are supported by this editor
-   *
-   * 'Other' is listed here as a fallback when the language name / file extension
-   * does not match any of those registered.
+   * On a change in the language selector update the property, dispatch
+   * an event and dispatch an effect to the editor
    */
-  private languagesSupported = [
-    'C',
-    'C++',
-    'Calc',
-    'CSS',
-    'Dockerfile',
-    'Go',
-    'Haskell',
-    'HTML',
-    'Java',
-    'JavaScript',
-    'JSON',
-    'Julia',
-    'LaTeX',
-    'Markdown',
-    'PLSQL',
-    'PrQL',
-    'Python',
-    'R',
-    'Ruby',
-    'Rust',
-    'Shell',
-    'SQL',
-    'SQLite',
-    'TOML',
-    'TypeScript',
-    'XML',
-    'YAML',
-    'Other',
-  ]
+  private async onLanguageChange(event: Event) {
+    this.language = (event.target as HTMLSelectElement).value
+
+    // TODO: Dispatch event
+
+    const languageSupport = await this.getLanguageSupport(this.language)
+    const effect = this.languageConfig.reconfigure(languageSupport)
+    this.dispatchEffect(effect)
+  }
+
+  /**
+   * Get a CodeMirror theme `Extension`
+   */
+  private getTheme(title: string): Extension {
+    const name = camelCase(title)
+    return themes[name]
+  }
+
+  /**
+   * On a change in the theme selector update the property and dispatch
+   * an effect to the editor
+   */
+  private async onThemeChange(event: Event) {
+    this.theme = (event.target as HTMLSelectElement).value
+
+    const theme = this.getTheme(this.theme)
+    const effect = this.themeConfig.reconfigure(theme)
+    this.dispatchEffect(effect)
+  }
 
   /**
    * Dispatch a CodeMirror `StateEffect` to the editor
@@ -267,25 +328,6 @@ export default class StencilaCodeEditor extends StencilaElement {
       }) ?? {}
 
     this.editorView?.dispatch(transaction)
-  }
-
-  /**
-   * On a change in the language selector update the property, dispatch
-   * an event and dispatch an effect to the editor
-   */
-  private async onLanguageChange(event: Event) {
-    const language = (event.target as HTMLSelectElement).value
-
-    // Change the language property, mainly for debugging, so it it reflected
-    // in the HTML attribute of this element
-    this.language = language
-
-    // TODO: Dispatch event
-
-    const languageSupport =
-      (await this.getLanguageSupport(language)) ?? this.fallbackLanguage()
-    const effect = this.languageConfig.reconfigure(languageSupport)
-    this.dispatchEffect(effect)
   }
 
   /**
@@ -303,7 +345,7 @@ export default class StencilaCodeEditor extends StencilaElement {
     if (this.editorView == undefined) {
       this.editorView = new EditorView({
         doc: content,
-        extensions: [await this.editorExtensions(this.language)],
+        extensions: [await this.editorExtensions()],
         parent: this.renderRoot.querySelector('#codemirror')!,
       })
     } else {
@@ -373,7 +415,7 @@ export default class StencilaCodeEditor extends StencilaElement {
               label="Programming language"
             ></stencila-icon>
             ${this.languagesSupported.map((lang) => {
-              return html`<sl-menu-item value="${lang.toLowerCase()}">
+              return html`<sl-menu-item value="${lang}">
                 <stencila-icon
                   slot="prefix"
                   name="lightning-fill"
@@ -383,6 +425,19 @@ export default class StencilaCodeEditor extends StencilaElement {
                 ${lang}
               </sl-menu-item>`
             })}
+          </sl-select>
+        </div>
+        <div part="theme" class="${tw`w-40`}">
+          <sl-select size="small" @sl-change=${this.onThemeChange}>
+            <stencila-icon
+              slot="prefix"
+              name="palette"
+              label="Theme"
+            ></stencila-icon>
+            ${this.themes.map(
+              (theme) =>
+                html`<sl-menu-item value="${theme}"> ${theme} </sl-menu-item>`
+            )}
           </sl-select>
         </div>
       </div>
