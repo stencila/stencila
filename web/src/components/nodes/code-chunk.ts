@@ -116,23 +116,17 @@ export default class StencilaCodeChunk extends StencilaElement {
             'text-color'
           )}
 
-          ${twApply('p-1')}
           ${varApply(
             'border-style',
             'border-width',
             'border-color',
             'border-radius',
-            'bg-color'
+            'bg-color',
+            'icon-color',
+            'text-font',
+            'text-size',
+            'text-color'
           )}
-
-          stencila-icon {
-            ${varApply('icon-color')}
-          }
-
-          [part='info'] .item {
-            ${twApply('inline-block align-middle mr-3')}
-            ${varApply('text-font', 'text-size', 'text-color')}
-          }
 
           stencila-code-editor {
             ${varPass(
@@ -141,6 +135,7 @@ export default class StencilaCodeChunk extends StencilaElement {
               'border-color',
               'border-radius',
               'bg-color',
+              'icon-color',
               'text-font',
               'text-size',
               'text-color'
@@ -149,7 +144,7 @@ export default class StencilaCodeChunk extends StencilaElement {
         `
       )}"
     >
-      <div class="header ${tw`flex flex-row`}">
+      <div part="header" class="${tw`flex flex-row p-1 bg-gray-50`}">
         <span class="${tw`mr-2`}">
           <sl-tooltip content="${runButton.title}">
             <stencila-icon
@@ -171,36 +166,45 @@ export default class StencilaCodeChunk extends StencilaElement {
       </div>
 
       <stencila-code-editor
+        part="code"
         language="${this.programmingLanguage}"
+        theme="dracula"
+        languages="[]"
+        themes="[]"
         class="${this.isCodeVisible ? '' : tw`hidden`}"
       >
         <slot name="text" slot="code"></slot>
-
-        <div part="info" slot="info">
-          <span class="item">
-            <sl-tooltip content="Number of times executed">
-              <stencila-icon name="arrow-repeat"></stencila-icon>
-              <span>${this.executeCount ?? 0}</span>
-            </sl-tooltip>
-          </span>
-
-          <span class="item">
-            <sl-tooltip content="Time of last execution">
-              <stencila-icon name="clock"></stencila-icon>
-              <span>-</span>
-            </sl-tooltip>
-          </span>
-
-          <span class="item">
-            <sl-tooltip content="Duration of last execution">
-              <stencila-icon name="hourglass"></stencila-icon>
-              <span>-</span>
-            </sl-tooltip>
-          </span>
-        </div>
       </stencila-code-editor>
 
-      <slot name="outputs"></slot>
+      <div
+        part="footer"
+        class="${this.isCodeVisible
+          ? tw`flex flex-row p-1 bg-gray-50`
+          : tw`hidden`}"
+      >
+        <span class="${tw`mr-2`}">
+          <sl-tooltip content="Number of times executed">
+            <stencila-icon name="arrow-repeat"></stencila-icon>
+            <span>${this.executeCount ?? 0}</span>
+          </sl-tooltip>
+        </span>
+
+        <span class="${tw`mr-2`}">
+          <sl-tooltip content="Time of last execution">
+            <stencila-icon name="clock"></stencila-icon>
+            <span>-</span>
+          </sl-tooltip>
+        </span>
+
+        <span class="${tw`mr-2`}">
+          <sl-tooltip content="Duration of last execution">
+            <stencila-icon name="hourglass"></stencila-icon>
+            <span>-</span>
+          </sl-tooltip>
+        </span>
+      </div>
+
+      <slot part="outputs" name="outputs"></slot>
     </div>`
   }
 }

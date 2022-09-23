@@ -1461,6 +1461,8 @@ async fn get_handler(
         );
     }
 
+    let static_root = ["/~static/", STATICS_VERSION].concat();
+
     let format = params.format.unwrap_or_else(|| "html".into());
     let mode = params.mode.unwrap_or_else(|| "static".into());
     let theme = params.theme.unwrap_or_else(|| "default".into());
@@ -1476,7 +1478,7 @@ async fn get_handler(
         )
     } else if mode == "shell" {
         // Request for a shell terminal at the given path
-        let dir = if fs_path.is_dir() {
+        let directory = if fs_path.is_dir() {
             fs_path.to_string_lossy()
         } else {
             fs_path.parent().unwrap_or(&fs_path).to_string_lossy()
@@ -1490,17 +1492,14 @@ async fn get_handler(
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <link href="{static_root}/web/shell.css" rel="stylesheet">
             <script src="{static_root}/web/shell.js"></script>
+            <script>window.stencilaConfig = {{ mode: "shell" }}</script>
         </head>
         <body>
-          <div id="terminal-container">
-            <div id="terminal"></div>
-          </div>
-          <script>
-            stencilaShell("terminal", "{dir}")
-          </script>
+          <stencila-document-header></stencila-document-header>
+          <div id="stencila-shell-terminal"><div></div></div>
+          <script>window.stencilaShellTerminal("{directory}")</script>
         </body>
-    </html>"#,
-            static_root = ["/~static/", STATICS_VERSION].concat()
+    </html>"#
         );
 
         (html.as_bytes().to_vec(), "text/html".to_string(), false)
@@ -1511,6 +1510,51 @@ async fn get_handler(
             "text/html".to_string(),
             false,
         )
+    } else if mode == "code" && fs_path.is_file() {
+        // Request for code editor of file
+        // This is temporary. In future, we'll load the content from the in-memory
+        // version of the document
+
+        // Pass the code editor component a filename so it can match to language
+        let filename = fs_path
+            .file_name()
+            .unwrap_or(fs_path.as_os_str())
+            .to_string_lossy();
+
+        let content = match fs::read(&fs_path) {
+            Ok(content) => content,
+            Err(error) => {
+                return error_result(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    &format!("When reading file `{}`", error),
+                )
+            }
+        };
+        let content = String::from_utf8_lossy(&content);
+
+        // TODO: html escape the content
+        let html = format!(
+            r#"<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <link href="{static_root}/web/code.css" rel="stylesheet">
+            <script src="{static_root}/web/code.js"></script>
+            <script>window.stencilaConfig = {{ mode: "code" }}</script>
+        </head>
+        <body>
+          <stencila-document-header></stencila-document-header>
+          <div id="stencila-code-editor-container">
+            <stencila-code-editor filename="{filename}">
+                <pre slot="code">{content}</pre>
+            </stencila-code-editor>
+          </div>
+        </body>
+    </html>"#
+        );
+
+        (html.as_bytes().to_vec(), "text/html".to_string(), false)
     } else if format == "raw" {
         // Request for raw content of the file (e.g. an image within the HTML encoding of a
         // Markdown document)

@@ -1,5 +1,5 @@
 import { capitalCase, camelCase } from 'change-case'
-import { html } from 'lit'
+import { html, PropertyValueMap } from 'lit'
 import { customElement, property } from 'lit/decorators'
 import { css } from 'twind/css'
 
@@ -62,7 +62,7 @@ export default class StencilaCodeEditor extends StencilaElement {
    * The code language
    */
   @property({ reflect: true })
-  language: string = 'other'
+  language?: string
 
   /**
    * A list of languages supported by this editor
@@ -71,7 +71,7 @@ export default class StencilaCodeEditor extends StencilaElement {
    * If the list is empty, no selector will be provided.
    */
   @property({ type: Array })
-  private languagesSupported = [
+  private languages = [
     'C',
     'C++',
     'Calc',
@@ -103,10 +103,18 @@ export default class StencilaCodeEditor extends StencilaElement {
   ]
 
   /**
+   * An alternative to specifying `language`
+   *
+   * Used to resolve the language of the code on initialization.
+   */
+  @property()
+  filename?: string
+
+  /**
    * The editor theme
    */
   @property({ reflect: true })
-  theme: string = 'Tomorrow'
+  theme: string = 'tomorrow'
 
   /**
    * A list of themes supported by this editor
@@ -147,6 +155,23 @@ export default class StencilaCodeEditor extends StencilaElement {
    * here.
    */
   private async editorExtensions() {
+    let languageDesc: LanguageDescription | null
+    if (this.language !== undefined) {
+      languageDesc =
+        this.matchLanguage(this.language) ?? this.fallbackLanguage()
+    } else if (this.filename !== undefined) {
+      languageDesc =
+        this.matchLanguage(this.filename) ?? this.fallbackLanguage()
+      if (languageDesc !== null) {
+        // Set language so it appears in the select box
+        this.language = languageDesc.name.toLowerCase()
+      }
+    } else {
+      languageDesc = this.fallbackLanguage()
+    }
+
+    const languageSupport = await languageDesc.load()
+
     return [
       // Fixed extensions based off `basic-setup`
       lineNumbers(),
@@ -177,8 +202,8 @@ export default class StencilaCodeEditor extends StencilaElement {
       ]),
 
       // Change-able extensions
-      this.languageConfig.of(await this.getLanguageSupport(this.language)),
-      this.themeConfig.of(this.getTheme(this.theme)),
+      this.languageConfig.of(languageSupport),
+      this.themeConfig.of(this.getThemeExtension(this.theme)),
     ]
   }
 
@@ -281,43 +306,20 @@ export default class StencilaCodeEditor extends StencilaElement {
   /**
    * Get a CodeMirror `LanguageSupport` for a language
    */
-  private getLanguageSupport(language: string): Promise<LanguageSupport> {
-    const languageDesc = this.matchLanguage(language) ?? this.fallbackLanguage()
+  private getLanguageSupport(language?: string): Promise<LanguageSupport> {
+    const languageDesc =
+      language !== undefined
+        ? this.matchLanguage(language) ?? this.fallbackLanguage()
+        : this.fallbackLanguage()
     return languageDesc.load()
-  }
-
-  /**
-   * On a change in the language selector update the property, dispatch
-   * an event and dispatch an effect to the editor
-   */
-  private async onLanguageChange(event: Event) {
-    this.language = (event.target as HTMLSelectElement).value
-
-    // TODO: Dispatch event
-
-    const languageSupport = await this.getLanguageSupport(this.language)
-    const effect = this.languageConfig.reconfigure(languageSupport)
-    this.dispatchEffect(effect)
   }
 
   /**
    * Get a CodeMirror theme `Extension`
    */
-  private getTheme(title: string): Extension {
+  private getThemeExtension(title: string): Extension {
     const name = camelCase(title)
     return themes[name]
-  }
-
-  /**
-   * On a change in the theme selector update the property and dispatch
-   * an effect to the editor
-   */
-  private async onThemeChange(event: Event) {
-    this.theme = (event.target as HTMLSelectElement).value
-
-    const theme = this.getTheme(this.theme)
-    const effect = this.themeConfig.reconfigure(theme)
-    this.dispatchEffect(effect)
   }
 
   /**
@@ -368,6 +370,28 @@ export default class StencilaCodeEditor extends StencilaElement {
     }
   }
 
+  /**
+   * Perform reactive updates to properties
+   *
+   * This allows for changes made both within this component (via dropdowns)
+   * and outside (via patches on attributes) to be reflected.
+   */
+  protected async update(changedProperties: Map<string, any>) {
+    super.update(changedProperties)
+
+    if (changedProperties.has('language')) {
+      const languageSupport = await this.getLanguageSupport(this.language)
+      const effect = this.languageConfig.reconfigure(languageSupport)
+      this.dispatchEffect(effect)
+    }
+
+    if (changedProperties.has('theme')) {
+      const theme = this.getThemeExtension(this.theme)
+      const effect = this.themeConfig.reconfigure(theme)
+      this.dispatchEffect(effect)
+    }
+  }
+
   render() {
     return html`<div
       class="${tw(
@@ -389,7 +413,7 @@ export default class StencilaCodeEditor extends StencilaElement {
             'border-radius'
           )}
 
-          [part='language'] sl-select::part(control) {
+          [part='header'] sl-select::part(control) {
             ${varApply(
               'border-style',
               'border-width',
@@ -398,51 +422,21 @@ export default class StencilaCodeEditor extends StencilaElement {
             )}
           }
 
-          [part='language'] sl-select::part(control),
-          [part='language'] sl-menu-item::part(display-label),
-          [part='language'] sl-menu-item::part(prefix),
-          [part='language'] sl-menu-item::part(label) {
+          [part='header'] sl-select::part(control),
+          [part='header'] sl-menu-item::part(display-label),
+          [part='header'] sl-menu-item::part(prefix),
+          [part='header'] sl-menu-item::part(label) {
             ${varApply('text-font', 'text-size', 'text-color')}
           }
         `
       )}"
     >
-      <div class="${tw`flex flex-row items-center justify-between`}">
-        <div class="start">
-          <slot name="info"></slot>
-        </div>
-        <div part="language" class="${tw`w-40`}">
-          <sl-select size="small" @sl-change=${this.onLanguageChange}>
-            <stencila-icon
-              slot="prefix"
-              name="code"
-              label="Programming language"
-            ></stencila-icon>
-            ${this.languagesSupported.map((lang) => {
-              return html`<sl-menu-item value="${lang}">
-                <stencila-icon
-                  slot="prefix"
-                  name="lightning-fill"
-                  label="Executable"
-                  class="${tw`text-yellow-500`}"
-                ></stencila-icon>
-                ${lang}
-              </sl-menu-item>`
-            })}
-          </sl-select>
-        </div>
-        <div part="theme" class="${tw`w-40`}">
-          <sl-select size="small" @sl-change=${this.onThemeChange}>
-            <stencila-icon
-              slot="prefix"
-              name="palette"
-              label="Theme"
-            ></stencila-icon>
-            ${this.themes.map(
-              (theme) =>
-                html`<sl-menu-item value="${theme}"> ${theme} </sl-menu-item>`
-            )}
-          </sl-select>
+      <div
+        part="header"
+        class="${tw`flex flex-row items-center justify-between`}"
+      >
+        <div class="end">
+          ${this.renderLanguageDropdown()} ${this.renderThemeDropdown()}
         </div>
       </div>
 
@@ -452,9 +446,53 @@ export default class StencilaCodeEditor extends StencilaElement {
         @slotchange=${this.onCodeSlotChange}
         class="${tw`hidden`}"
       ></slot>
-      <div id="codemirror"></div>
-
-      <slot name="messages"></slot>
+      <div part="code" id="codemirror"></div>
     </div>`
+  }
+
+  private renderLanguageDropdown() {
+    if (this.languages.length === 0) {
+      return html``
+    }
+
+    return html` <sl-select
+      size="small"
+      value=${this.language?.toLowerCase() ?? 'other'}
+      @sl-change=${(event: Event) =>
+        (this.language = (event.target as HTMLSelectElement).value)}
+    >
+      <stencila-icon
+        slot="prefix"
+        name="code"
+        label="Programming language"
+      ></stencila-icon>
+      ${this.languages.map(
+        (language) =>
+          html`<sl-menu-item value="${language.toLowerCase()}">
+            ${language}
+          </sl-menu-item>`
+      )}
+    </sl-select>`
+  }
+
+  private renderThemeDropdown() {
+    if (this.themes.length === 0) {
+      return html``
+    }
+
+    return html` <sl-select
+      size="small"
+      value=${camelCase(this.theme)}
+      @sl-change=${(event: Event) =>
+        (this.theme = (event.target as HTMLSelectElement).value)}
+    >
+      <stencila-icon slot="prefix" name="palette" label="Theme"></stencila-icon>
+      ${this.themes.map(
+        (theme) =>
+          html`<sl-menu-item value="${camelCase(theme)}">
+            ${theme}
+          </sl-menu-item>`
+      )}
+    </sl-select>`
   }
 }
