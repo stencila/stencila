@@ -114,7 +114,8 @@ export default class StencilaCodeEditor extends StencilaElement {
    * The editor theme
    */
   @property({ reflect: true })
-  theme: string = 'tomorrow'
+  theme: string =
+    window.localStorage.getItem('StencilaCodeEditor.theme') ?? 'tomorrow'
 
   /**
    * A list of themes supported by this editor
@@ -389,6 +390,8 @@ export default class StencilaCodeEditor extends StencilaElement {
       const theme = this.getThemeExtension(this.theme)
       const effect = this.themeConfig.reconfigure(theme)
       this.dispatchEffect(effect)
+
+      window.localStorage.setItem('StencilaCodeEditor.theme', this.theme)
     }
   }
 
