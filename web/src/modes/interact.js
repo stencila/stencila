@@ -1,1 +1,1 @@
-import('./interact-imports')
+import('./interact.ts')

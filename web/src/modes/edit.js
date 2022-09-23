@@ -1,1 +1,1 @@
-import('./edit-imports')
+import('./edit.ts')

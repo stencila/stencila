@@ -1,1 +1,1 @@
-import('./static-imports')
+import('./static.ts')

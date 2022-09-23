@@ -1,1 +1,1 @@
-import('./write-imports')
+import('./write.ts')

@@ -1,10 +1,3 @@
-/**
- * Browser bundle for user mode `Static`
- *
- * Only includes web components necessary for reading a static page
- * of the document.
- */
-
 import { initialize } from '../components/utils/css'
 initialize()
 

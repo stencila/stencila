@@ -1,1 +1,1 @@
-import('./dynamic-imports')
+import('./dynamic.ts')
