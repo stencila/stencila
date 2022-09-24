@@ -11,6 +11,7 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
 import '@shoelace-style/shoelace/dist/components/menu-label/menu-label'
 import '@shoelace-style/shoelace/dist/components/menu/menu'
 
+import { LogLevel } from '../../clients/document-client'
 import { DevStatus, devStatusTag } from '../../dev-status'
 import {
   currentMode,
@@ -21,9 +22,9 @@ import {
   modeIcon,
   modeLabel,
 } from '../../mode'
-import StencilaElement from '../utils/element'
 import '../base/icon-button'
 import { twSheet } from '../utils/css'
+import StencilaElement from '../utils/element'
 
 const { tw, sheet } = twSheet()
 
@@ -70,7 +71,17 @@ type Config = typeof config
 export default class StencilaDocumentHeader extends StencilaElement {
   static styles = [sheet.target]
 
-  render() {
+  constructor() {
+    super()
+
+    // Request update of this component on client connection / disconnection events
+    const requestUpdate = (event: Event) => this.requestUpdate()
+    window.addEventListener('stencila-client-connecting', requestUpdate)
+    window.addEventListener('stencila-client-connected', requestUpdate)
+    window.addEventListener('stencila-client-disconnected', requestUpdate)
+  }
+
+  protected render() {
     return html`<header>
       ${this.renderTopbar(config)}
       ${config.breadcrumbs?.length > 1
@@ -274,10 +285,67 @@ export default class StencilaDocumentHeader extends StencilaElement {
           <sl-button slot="trigger" variant="default" size="large" circle
             ><stencila-icon name="three-dots-vertical"></stencila-icon
           ></sl-button>
-          <sl-menu></sl-menu>
+          <sl-menu>
+            ${this.renderConnectionMenuItem()} ${this.renderDebugMenuItem()}
+          </sl-menu>
         </sl-dropdown>
       </div>
     `
+  }
+
+  renderConnectionMenuItem() {
+    const mode = currentMode()
+    const client = window.stencilaClient
+    if (mode == Mode.Static || !client) {
+      return html``
+    }
+
+    const status = client.status()
+    if (
+      status === 'connecting' ||
+      status === 'connected' ||
+      status === 'reconnecting'
+    ) {
+      return html`<sl-menu-item
+        @click=${() => window.stencilaClient.disconnect()}
+      >
+        <div>
+          <stencila-icon name="wifi-off"></stencila-icon>
+          Disconnect
+        </div>
+        <div class="${tw`text-xs font-light`}">
+          Currently ${status} to server
+        </div>
+      </sl-menu-item>`
+    } else {
+      return html`<sl-menu-item @click=${() => window.stencilaClient.connect()}>
+        <div>
+          <stencila-icon name="wifi"></stencila-icon>
+          Connect
+        </div>
+        <div class="${tw`text-xs font-light`}">
+          Currently disconnected from server
+        </div>
+      </sl-menu-item>`
+    }
+  }
+
+  renderDebugMenuItem() {
+    const on = window.stencilaClient.logLevel == LogLevel.Debug
+    return html`<sl-menu-item
+      @click=${() => {
+        window.stencilaClient.logLevel = on ? LogLevel.Info : LogLevel.Debug
+        this.requestUpdate()
+      }}
+    >
+      <div>
+        <stencila-icon name="bug"></stencila-icon>
+        Turn ${on ? 'off' : 'on'} debugging
+      </div>
+      <div class="${tw`text-xs font-light`}">
+        Debug level logging is currently ${on ? 'enabled' : 'disabled'}
+      </div>
+    </sl-menu-item>`
   }
 
   @state()
@@ -345,6 +413,8 @@ export default class StencilaDocumentHeader extends StencilaElement {
             html`<sl-divider></sl-divider>
               <sl-menu-label>Mode</sl-menu-label>
               ${this.renderModeMenuItems(modes)}`}
+            <sl-divider></sl-divider>
+            ${this.renderConnectionMenuItem()} ${this.renderDebugMenuItem()}
           </sl-menu>
         </sl-dropdown>
       </div>

@@ -9,6 +9,7 @@ import StencilaElement from '../utils/element'
 const icons: Record<string, string> = {
   'arrow-repeat': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/arrow-repeat.svg'),
   'book': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/book.svg'),
+  'bug': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/bug.svg'),
   'braces-asterisk': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/braces-asterisk.svg'),
   'check-circle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/check-circle.svg'),
   'circle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/circle.svg'),
