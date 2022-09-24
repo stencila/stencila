@@ -393,9 +393,9 @@ export function initialize() {
               (level) =>
                 `--sl-color-${variant}-${level}: var(--stencila-color-${variant}-${level});`
             )
-            .join()
+            .join('\n')
         )
-        .join()
+        .join('\n')
     }
 
     --stencila-color-neutral-0: #FFF;
@@ -595,13 +595,16 @@ export function initialize() {
 
   .sl-toast-stack {
     position: fixed;
-    top: 0;
     inset-inline-end: 0;
     z-index: var(--sl-z-index-toast);
-    width: 28rem;
     max-width: 100%;
     max-height: 100%;
     overflow: auto;
+
+    /* Customized to appear bottom-right */
+    bottom: 1rem;
+    right: 1rem;
+    width: 25rem;
   }
 
   .sl-toast-stack sl-alert {
