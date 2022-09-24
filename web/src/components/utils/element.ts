@@ -8,6 +8,7 @@ export default class StencilaElement extends LitElement {
    * Emit a custom event
    *
    * @param name The name of the custom event
+   * @param detail The event details
    * @param options Options for the custom event
    * @returns CustomEvent
    */
