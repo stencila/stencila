@@ -334,7 +334,9 @@ export default class StencilaDocumentHeader extends StencilaElement {
     const on = window.stencilaClient.logLevel == LogLevel.Debug
     return html`<sl-menu-item
       @click=${() => {
-        window.stencilaClient.logLevel = on ? LogLevel.Info : LogLevel.Debug
+        window.stencilaClient.changeLogLevel(
+          on ? LogLevel.Info : LogLevel.Debug
+        )
         this.requestUpdate()
       }}
     >

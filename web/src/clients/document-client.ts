@@ -23,6 +23,11 @@ export enum LogLevel {
   Error = 0,
 }
 
+const localStorageKeys = {
+  browserId: 'StencilaDocumentClient.browserId',
+  logLevel: 'StencilaDocumentClient.logLevel',
+}
+
 /**
  * A browser-based client for communicating with a document instance on a Stencila document server
  */
@@ -87,10 +92,10 @@ export class DocumentClient {
     this.clientId = this.generateId('cl')
 
     // Retrieve or generate/store the browser id
-    let browserId = window.localStorage.getItem('StencilaClient.browserId')
+    let browserId = window.localStorage.getItem(localStorageKeys.browserId)
     if (browserId === null) {
       browserId = this.generateId('br')
-      window.localStorage.setItem('StencilaClient.browserId', browserId)
+      window.localStorage.setItem(localStorageKeys.browserId, browserId)
     }
     this.browserId = browserId
 
@@ -114,6 +119,11 @@ export class DocumentClient {
     }
 
     this.connectionUrl = connectionUrl
+
+    const logLevel = window.localStorage.getItem(localStorageKeys.logLevel)
+    if (logLevel !== null) {
+      this.logLevel = new Number(logLevel) as LogLevel
+    }
 
     window.addEventListener('stencila-document-patch', (event) => {
       const { detail: patch } = event as DocumentPatchEvent
@@ -156,6 +166,11 @@ export class DocumentClient {
   error(message: string) {
     if (this.logLevel >= LogLevel.Error)
       notify(message, 'danger', 'exclamation-octagon')
+  }
+
+  changeLogLevel(level: LogLevel) {
+    this.logLevel = level
+    window.localStorage.setItem(localStorageKeys.logLevel, level.toString())
   }
 
   /**
