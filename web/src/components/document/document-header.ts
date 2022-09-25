@@ -82,7 +82,14 @@ export default class StencilaDocumentHeader extends StencilaElement {
   }
 
   protected render() {
-    return html`<header>
+    return html`<header
+      class=${tw(css`
+        /* Reduce contrast of hovered menu item background */
+        sl-menu-item::part(base):hover {
+          background-color: var(--sl-color-primary-50);
+        }
+      `)}
+    >
       ${this.renderTopbar(config)}
       ${config.breadcrumbs?.length > 1
         ? this.renderBreadcrumbs(config.breadcrumbs)
@@ -213,7 +220,7 @@ export default class StencilaDocumentHeader extends StencilaElement {
       const target = mode > Mode.Write ? '_blank' : ''
       const disabled = devStatus < DevStatus.Alpha
       return html`<a
-        href="${disabled ? '' : `?mode=${label.toLowerCase()}`}"
+        href="${disabled ? '#' : `?mode=${label.toLowerCase()}`}"
         target="${target}"
         class="${tw(css`
           sl-menu-item::part(base) {
@@ -331,7 +338,8 @@ export default class StencilaDocumentHeader extends StencilaElement {
   }
 
   renderDebugMenuItem() {
-    const on = window.stencilaClient.logLevel == LogLevel.Debug
+    const on =
+      (window.stencilaClient?.logLevel ?? LogLevel.Info) == LogLevel.Debug
     return html`<sl-menu-item
       @click=${() => {
         window.stencilaClient.changeLogLevel(
