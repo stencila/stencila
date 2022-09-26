@@ -17,7 +17,7 @@ export default class StencilaTag extends StencilaElement {
    * The size of the tag
    */
   @property()
-  size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'xxs'
+  size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'sm'
 
   /**
    * The color hue of the tag (background and text)
@@ -28,11 +28,11 @@ export default class StencilaTag extends StencilaElement {
   render() {
     return html`<span
       part="base"
-      class="${tw`rounded-lg border(${this.color}-200) bg(${
+      class="${tw`rounded-lg border(1 ${this.color}-100) bg(${
         this.color
-      }-50) text(${this.color}-400 ${
+      }-50) inline-block align-middle leading-4 text(${this.color}-400 ${
         this.size === 'xxs' ? '[10px]' : this.size
-      }) font-light py-0.5 px-1`}"
+      }) font-light px-1`}"
       ><slot></slot
     ></span>`
   }
