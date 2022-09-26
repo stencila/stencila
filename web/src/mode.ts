@@ -81,9 +81,9 @@ export function modeIcon(mode: Mode): IconName {
     case Mode.Static:
       return 'wifi-off'
     case Mode.Dynamic:
-      return 'wifi'
+      return 'broadcast-pin'
     case Mode.Inspect:
-      return 'search'
+      return 'eye'
     case Mode.Interact:
       return 'sliders'
     case Mode.Alter:
