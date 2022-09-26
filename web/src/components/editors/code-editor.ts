@@ -47,7 +47,9 @@ import * as themes from 'thememirror/dist'
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
 import '@shoelace-style/shoelace/dist/components/select/select'
+import '@shoelace-style/shoelace/dist/components/switch/switch'
 
+import SlSwitch from '@shoelace-style/shoelace/dist/components/switch/switch'
 import { twSheet, varApply, varLocal } from '../utils/css'
 import StencilaElement from '../utils/element'
 
@@ -116,6 +118,18 @@ export default class StencilaCodeEditor extends StencilaElement {
   readOnly: boolean = false
 
   /**
+   * Whether the editor is single line
+   */
+  @property({ attribute: 'single-line', type: Boolean })
+  singleLine: boolean = false
+
+  /**
+   * Whether line wrapping is on
+   */
+  @property({ attribute: 'line-wrapping', type: Boolean })
+  lineWrapping: boolean = false
+
+  /**
    * The editor theme
    */
   @property({ reflect: true })
@@ -147,9 +161,14 @@ export default class StencilaCodeEditor extends StencilaElement {
   private editableConfig = new Compartment()
 
   /**
-   * The CodeMirror ` EditorState.readonly` configuration
+   * The CodeMirror `EditorState.readonly` configuration
    */
   private readOnlyConfig = new Compartment()
+
+  /**
+   * A CodeMirror compartment for dynamically configuring line wrapping
+   */
+  private lineWrapppingConfig = new Compartment()
 
   /**
    * The CodeMirror theme configuration
@@ -190,11 +209,8 @@ export default class StencilaCodeEditor extends StencilaElement {
 
     return [
       // Fixed extensions based off `basic-setup`
-      lineNumbers(),
-      highlightActiveLineGutter(),
       highlightSpecialChars(),
       history(),
-      foldGutter(),
       drawSelection(),
       dropCursor(),
       EditorState.allowMultipleSelections.of(true),
@@ -218,10 +234,15 @@ export default class StencilaCodeEditor extends StencilaElement {
         ...lintKeymap,
       ]),
 
+      // Extensions based on properties but not change-able
+      this.getTransactionFilter(this.singleLine),
+      ...this.getGutterExtensions(this.singleLine),
+
       // Change-able extensions
       this.languageConfig.of(languageSupport),
       this.editableConfig.of(EditorView.editable.of(!this.readOnly)),
       this.readOnlyConfig.of(EditorState.readOnly.of(this.readOnly)),
+      this.lineWrapppingConfig.of(EditorView.lineWrapping),
       this.themeConfig.of(this.getThemeExtension(this.theme)),
     ]
   }
@@ -334,6 +355,26 @@ export default class StencilaCodeEditor extends StencilaElement {
   }
 
   /**
+   * Get a CodeMirror `Extension` for the editor transaction filter
+   */
+  private getTransactionFilter(singleLine: boolean): Extension {
+    return singleLine
+      ? EditorState.transactionFilter.of((transaction) =>
+          transaction.newDoc.lines > 1 ? [] : transaction
+        )
+      : EditorState.transactionFilter.of((transaction) => transaction)
+  }
+
+  /**
+   * Get a set of CodeMirror `Extension`s for the editor's gutter
+   */
+  private getGutterExtensions(singleLine: boolean): Extension[] {
+    return singleLine
+      ? []
+      : [lineNumbers(), highlightActiveLineGutter(), foldGutter()]
+  }
+
+  /**
    * Get a CodeMirror theme `Extension`
    */
   private getThemeExtension(title: string): Extension {
@@ -413,6 +454,14 @@ export default class StencilaCodeEditor extends StencilaElement {
       )
     }
 
+    if (changedProperties.has('lineWrapping')) {
+      this.dispatchEffect(
+        this.lineWrapppingConfig.reconfigure(
+          this.lineWrapping ? EditorView.lineWrapping : []
+        )
+      )
+    }
+
     if (changedProperties.has('theme')) {
       const theme = this.getThemeExtension(this.theme)
       const effect = this.themeConfig.reconfigure(theme)
@@ -443,6 +492,8 @@ export default class StencilaCodeEditor extends StencilaElement {
             'border-radius'
           )}
 
+          display: ${this.singleLine ? 'inline-block' : 'block'};
+
           [part='header'] sl-select::part(control) {
             ${varApply(
               'border-style',
@@ -471,7 +522,8 @@ export default class StencilaCodeEditor extends StencilaElement {
         class="${tw`flex flex-row items-center justify-between`}"
       >
         <div class="end">
-          ${this.renderLanguageDropdown()} ${this.renderThemeDropdown()}
+          ${this.renderWordWrappingSwitch()} ${this.renderLanguageDropdown()}
+          ${this.renderThemeDropdown()}
         </div>
       </div>
 
@@ -483,6 +535,16 @@ export default class StencilaCodeEditor extends StencilaElement {
       ></slot>
       <div part="code" id="codemirror"></div>
     </div>`
+  }
+
+  private renderWordWrappingSwitch() {
+    return html`<sl-switch
+      ?checked=${this.lineWrapping}
+      @sl-change=${(event: Event) =>
+        (this.lineWrapping = (event.target as SlSwitch).checked)}
+    >
+      Line wrapping
+    </sl-switch>`
   }
 
   private renderLanguageDropdown() {
