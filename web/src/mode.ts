@@ -159,5 +159,5 @@ export function modeFromString(mode: string): Mode {
  * Get the current mode from the config
  */
 export function currentMode(): Mode {
-  return modeFromString(window.stencilaConfig.mode) ?? Mode.Static
+  return modeFromString(window.stencilaConfig.mode ?? 'static')
 }
