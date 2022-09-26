@@ -34,19 +34,27 @@ export function devStatusLabel(status: DevStatus): string {
 /**
  * Get the "tag" element for a status
  */
-export function devStatusTag(status: DevStatus) {
+export function devStatusTag(status: DevStatus, size = 'sm') {
   switch (status) {
     case DevStatus.Planned:
-      return html`<stencila-tag color="indigo">Planned</stencila-tag>`
+      return html`<stencila-tag color="indigo" size=${size}
+        >Planned</stencila-tag
+      >`
     case DevStatus.InProgress:
-      return html`<stencila-tag color="purple">In progress</stencila-tag>`
+      return html`<stencila-tag color="purple" size=${size}
+        >In progress</stencila-tag
+      >`
     case DevStatus.ComingSoon:
-      return html`<stencila-tag color="blue">Coming soon</stencila-tag>`
+      return html`<stencila-tag color="blue" size=${size}
+        >Coming soon</stencila-tag
+      >`
     case DevStatus.Alpha:
-      return html`<stencila-tag color="yellow">Alpha</stencila-tag>`
+      return html`<stencila-tag color="yellow" size=${size}
+        >Alpha</stencila-tag
+      >`
     case DevStatus.Beta:
-      return html`<stencila-tag color="green">Beta</stencila-tag>`
+      return html`<stencila-tag color="green" size=${size}>Beta</stencila-tag>`
     case DevStatus.Stable:
-      return html`<stencila-tag color="grey">Stable</stencila-tag>`
+      return html`<stencila-tag color="grey" size=${size}>Stable</stencila-tag>`
   }
 }
