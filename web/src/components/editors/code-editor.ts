@@ -146,6 +146,12 @@ export default class StencilaCodeEditor extends StencilaElement {
   private themes = Object.keys(themes).map((name) => capitalCase(name))
 
   /**
+   * Whether controls for changing langugae, theme, line wrapping etc should be shown
+   */
+  @property({ attribute: 'no-controls', type: Boolean })
+  noControls: boolean = false
+
+  /**
    * The CodeMirror editor
    */
   private editorView?: EditorView
@@ -517,15 +523,17 @@ export default class StencilaCodeEditor extends StencilaElement {
         `
       )}"
     >
-      <div
-        part="header"
-        class="${tw`flex flex-row items-center justify-between`}"
-      >
-        <div class="end">
-          ${this.renderWordWrappingSwitch()} ${this.renderLanguageDropdown()}
-          ${this.renderThemeDropdown()}
-        </div>
-      </div>
+      ${!this.noControls
+        ? html`<div
+            part="header"
+            class="${tw`flex flex-row items-center justify-between`}"
+          >
+            <div class="end">
+              ${this.renderWordWrappingSwitch()}
+              ${this.renderLanguageDropdown()} ${this.renderThemeDropdown()}
+            </div>
+          </div>`
+        : ''}
 
       <slot
         part="code"

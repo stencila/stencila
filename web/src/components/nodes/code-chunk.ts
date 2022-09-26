@@ -1,6 +1,5 @@
-import { sentenceCase } from 'change-case'
 import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators'
+import { customElement, state } from 'lit/decorators'
 import { apply as twApply, css } from 'twind/css'
 
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
@@ -12,7 +11,6 @@ import '../base/tag'
 import '../editors/code-editor'
 import { twSheet, varApply, varLocal, varPass } from '../utils/css'
 import StencilaCodeExecutable from './code-executable'
-import { currentMode, Mode } from '../../mode'
 
 const { tw, sheet } = twSheet()
 
@@ -44,7 +42,6 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
   }
 
   render() {
-    const mode = currentMode()
     return html`<div
       class="${tw(
         css`
@@ -124,15 +121,14 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
           <stencila-tag size="sm" color="green">${this.id}</stencila-tag>
         </div>
 
-        <div class="end">${this.renderLanguageSelector()}</div>
+        <div class="end">${this.renderLanguageSelector(tw)}</div>
       </div>
 
       <stencila-code-editor
         part="code"
         language=${this.programmingLanguage}
-        ?read-only=${mode <= Mode.Inspect && mode != Mode.Edit}
-        languages="[]"
-        themes="[]"
+        ?read-only=${this.isReadOnly()}
+        no-controls
         class="${this.isCodeVisible ? '' : tw`hidden`}"
       >
         <slot name="text" slot="code"></slot>
@@ -168,95 +164,5 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
         <slot name="outputs" @slotchange=${this.onOutputsSlotChange}></slot>
       </div>
     </div>`
-  }
-
-  private renderLanguageSelector() {
-    const languages = window.stencilaConfig.executableLanguages ?? []
-
-    if (languages.length === 0) {
-      return html`<span class="language">${this.programmingLanguage}</span>`
-    }
-
-    return html`<span
-      class=${tw(css`
-        ${twApply(`flex flex-row items-center`)}
-        sl-tooltip {
-          --show-delay: 1000;
-        }
-        sl-select {
-          width: 13ch;
-        }
-        sl-select.code-invisible::part(control) {
-          ${twApply('cursor-pointer')}
-        }
-        sl-select::part(control) {
-          background-color: transparent;
-          border: none;
-        }
-        sl-select::part(icon) {
-          display: ${this.isCodeVisible ? 'inherit' : 'none'};
-        }
-        sl-select::part(menu) {
-          overflow: hidden;
-        }
-        sl-menu-item::part(label) {
-          ${twApply('text-sm')}
-        }
-      `)}
-    >
-      <sl-tooltip>
-        <span slot="content"
-          >${this.isCodeVisible ? 'Hide' : 'Show'} code<br />Shift click to
-          ${this.isCodeVisible ? 'hide' : 'show'} for all code elements</span
-        >
-        <stencila-icon
-          name="${this.isCodeVisible ? 'eye' : 'eye-slash'}"
-          @click=${this.onCodeVisibilityClicked}
-        ></stencila-icon>
-      </sl-tooltip>
-      ${!this.isCodeVisible
-        ? html`<sl-select
-            size="small"
-            value=${this.programmingLanguage?.toLowerCase() ?? 'other'}
-            disabled
-            @click=${this.onCodeVisibilityClicked}
-            class="code-${this.isCodeVisible ? 'visible' : 'invisible'}"
-          >
-            <sl-menu-item value=${this.programmingLanguage.toLowerCase()}>
-              ${labelForLanguage(this.programmingLanguage)}
-            </sl-menu-item>
-          </sl-select>`
-        : html`<sl-select
-            size="small"
-            value=${this.programmingLanguage?.toLowerCase() ?? 'other'}
-            @sl-change=${(event: Event) =>
-              (this.programmingLanguage = (
-                event.target as HTMLSelectElement
-              ).value)}
-          >
-            ${languages.map(
-              (language) =>
-                html`<sl-menu-item value="${language.toLowerCase()}">
-                  ${labelForLanguage(language)}
-                </sl-menu-item>`
-            )}
-          </sl-select>`}
-    </span>`
-  }
-}
-
-function labelForLanguage(language: string): string {
-  switch (language.toLowerCase()) {
-    case 'javascript':
-      return 'JavaScript'
-    case 'typescript':
-      return 'TypeScript'
-    case 'json':
-    case 'sql':
-      return language.toUpperCase()
-    case 'prql':
-      return 'PrQL'
-    default:
-      return sentenceCase(language)
   }
 }
