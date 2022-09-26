@@ -1,5 +1,4 @@
-import { initialize } from '../components/utils/css'
-initialize()
+import '../themes/base'
 
 import '../components/document/document-header'
 import '../components/editors/code-editor'

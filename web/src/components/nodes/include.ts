@@ -6,13 +6,13 @@ import StencilaExecutable from './executable'
 
 const { tw, sheet } = twSheet()
 
-@customElement('stencila-parameter')
-export default class StencilaParameter extends StencilaExecutable {
+@customElement('stencila-include')
+export default class StencilaInclude extends StencilaExecutable {
   static styles = [sheet.target]
 
   render() {
     return html`<span
-      ><stencila-tag color="yellow">${this.id}</stencila-tag></span
+      ><stencila-tag color="indigo">${this.id}</stencila-tag></span
     >`
   }
 }
