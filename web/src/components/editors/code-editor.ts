@@ -1,5 +1,5 @@
-import { capitalCase, camelCase } from 'change-case'
-import { html, PropertyValueMap } from 'lit'
+import { camelCase, capitalCase } from 'change-case'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 import { css } from 'twind/css'
 
@@ -35,7 +35,6 @@ import {
   drawSelection,
   dropCursor,
   EditorView,
-  highlightActiveLine,
   highlightActiveLineGutter,
   highlightSpecialChars,
   keymap,
@@ -111,6 +110,12 @@ export default class StencilaCodeEditor extends StencilaElement {
   filename?: string
 
   /**
+   * Whether the editor is read-only i.e. only syntax highlighting
+   */
+  @property({ attribute: 'read-only', type: Boolean })
+  readOnly: boolean = false
+
+  /**
    * The editor theme
    */
   @property({ reflect: true })
@@ -135,6 +140,11 @@ export default class StencilaCodeEditor extends StencilaElement {
    * The CodeMirror language configuration
    */
   private languageConfig = new Compartment()
+
+  /**
+   * The CodeMirror read-only configuration
+   */
+  private readOnlyConfig = new Compartment()
 
   /**
    * The CodeMirror theme configuration
@@ -190,7 +200,8 @@ export default class StencilaCodeEditor extends StencilaElement {
       autocompletion(),
       rectangularSelection(),
       crosshairCursor(),
-      highlightActiveLine(),
+      // Do not include as quite visually noisy
+      // highlightActiveLine(),
       highlightSelectionMatches(),
       keymap.of([
         ...closeBracketsKeymap,
@@ -204,6 +215,7 @@ export default class StencilaCodeEditor extends StencilaElement {
 
       // Change-able extensions
       this.languageConfig.of(languageSupport),
+      this.readOnlyConfig.of(EditorView.editable.of(!this.readOnly)),
       this.themeConfig.of(this.getThemeExtension(this.theme)),
     ]
   }
@@ -386,6 +398,13 @@ export default class StencilaCodeEditor extends StencilaElement {
       this.dispatchEffect(effect)
     }
 
+    if (changedProperties.has('readOnly')) {
+      const effect = this.readOnlyConfig.reconfigure(
+        EditorView.editable.of(!this.readOnly)
+      )
+      this.dispatchEffect(effect)
+    }
+
     if (changedProperties.has('theme')) {
       const theme = this.getThemeExtension(this.theme)
       const effect = this.themeConfig.reconfigure(theme)
@@ -430,6 +449,11 @@ export default class StencilaCodeEditor extends StencilaElement {
           [part='header'] sl-menu-item::part(prefix),
           [part='header'] sl-menu-item::part(label) {
             ${varApply('text-font', 'text-size', 'text-color')}
+          }
+
+          /* Removed dotted outline when editor is focussed */
+          .cm-editor.cm-focused {
+            outline: none;
           }
         `
       )}"
