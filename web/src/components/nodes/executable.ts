@@ -49,7 +49,7 @@ export default class StencilaExecutable extends StencilaEntity {
     return mode >= Mode.Alter && mode != Mode.Edit
   }
 
-  protected onExecuteIconClicked(event: PointerEvent) {
+  protected execute() {
     this.emit('stencila-document-execute', {
       nodeId: this.id,
       ordering: 'Topological',
@@ -65,7 +65,7 @@ export default class StencilaExecutable extends StencilaEntity {
       ? html`<sl-tooltip content="${title}">
           <stencila-icon
             name="${icon}"
-            @click="${this.onExecuteIconClicked}"
+            @click="${this.execute}"
             class=${tw`cursor-pointer`}
           ></stencila-icon>
         </sl-tooltip>`

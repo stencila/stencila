@@ -7,9 +7,16 @@ import {
   autocompletion,
   closeBrackets,
   closeBracketsKeymap,
+  completeAnyWord,
   completionKeymap,
+  startCompletion,
 } from '@codemirror/autocomplete'
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
+import {
+  defaultKeymap,
+  history,
+  historyKeymap,
+  indentWithTab,
+} from '@codemirror/commands'
 import {
   bracketMatching,
   defaultHighlightStyle,
@@ -219,6 +226,7 @@ export default class StencilaCodeEditor extends StencilaElement {
       history(),
       drawSelection(),
       dropCursor(),
+      EditorState.languageData.of(() => [{ autocomplete: completeAnyWord }]),
       EditorState.allowMultipleSelections.of(true),
       indentOnInput(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
@@ -232,17 +240,34 @@ export default class StencilaCodeEditor extends StencilaElement {
       highlightSelectionMatches(),
       keymap.of([
         ...closeBracketsKeymap,
-        ...defaultKeymap,
         ...searchKeymap,
         ...historyKeymap,
         ...foldKeymap,
         ...completionKeymap,
         ...lintKeymap,
+        ...(this.singleLine ? [] : [indentWithTab]),
+        {
+          key: 'Ctrl-Space',
+          run: startCompletion,
+        },
+        {
+          key: 'Ctrl-Enter',
+          run: () => {
+            this.emit('ctrl-enter')
+            return true
+          },
+        },
+        ...defaultKeymap,
       ]),
 
       // Extensions based on properties but not change-able
-      this.getTransactionFilter(this.singleLine),
-      ...this.getGutterExtensions(this.singleLine),
+      ...(this.singleLine
+        ? [
+            EditorState.transactionFilter.of((transaction) =>
+              transaction.newDoc.lines > 1 ? [] : transaction
+            ),
+          ]
+        : [lineNumbers(), highlightActiveLineGutter(), foldGutter()]),
 
       // Change-able extensions
       this.languageConfig.of(languageSupport),
@@ -358,26 +383,6 @@ export default class StencilaCodeEditor extends StencilaElement {
         ? this.matchLanguage(language) ?? this.fallbackLanguage()
         : this.fallbackLanguage()
     return languageDesc.load()
-  }
-
-  /**
-   * Get a CodeMirror `Extension` for the editor transaction filter
-   */
-  private getTransactionFilter(singleLine: boolean): Extension {
-    return singleLine
-      ? EditorState.transactionFilter.of((transaction) =>
-          transaction.newDoc.lines > 1 ? [] : transaction
-        )
-      : EditorState.transactionFilter.of((transaction) => transaction)
-  }
-
-  /**
-   * Get a set of CodeMirror `Extension`s for the editor's gutter
-   */
-  private getGutterExtensions(singleLine: boolean): Extension[] {
-    return singleLine
-      ? []
-      : [lineNumbers(), highlightActiveLineGutter(), foldGutter()]
   }
 
   /**
@@ -519,6 +524,18 @@ export default class StencilaCodeEditor extends StencilaElement {
           /* Removed dotted outline when editor is focussed */
           .cm-editor.cm-focused {
             outline: none;
+          }
+
+          /* Improve appearance of autocomplete prompt */
+          .cm-tooltip.cm-tooltip-autocomplete > ul > li {
+            font-size: 90%;
+            padding-bottom: 2px;
+            padding-top: 2px;
+          }
+          .cm-completionIcon {
+            min-width: 1.375em;
+            min-width: 2ch;
+            margin-right: 1ch;
           }
         `
       )}"

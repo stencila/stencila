@@ -129,6 +129,7 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
         language=${this.programmingLanguage}
         ?read-only=${!this.isEditable()}
         no-controls
+        @ctrl-enter=${this.execute}
         class="${this.isCodeVisible ? '' : tw`hidden`}"
       >
         <slot name="text" slot="code"></slot>

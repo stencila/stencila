@@ -5,6 +5,7 @@ import { apply as twApply, css } from 'twind/css'
 import '@shoelace-style/shoelace/dist/components/breadcrumb-item/breadcrumb-item'
 import '@shoelace-style/shoelace/dist/components/breadcrumb/breadcrumb'
 import '@shoelace-style/shoelace/dist/components/button/button'
+import '@shoelace-style/shoelace/dist/components/dialog/dialog'
 import '@shoelace-style/shoelace/dist/components/divider/divider'
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown'
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
@@ -25,6 +26,7 @@ import {
 import '../base/icon-button'
 import { twSheet } from '../utils/css'
 import StencilaElement from '../utils/element'
+import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog'
 
 const { tw, sheet } = twSheet()
 
@@ -84,6 +86,8 @@ export default class StencilaDocumentHeader extends StencilaElement {
   protected render() {
     return html`<header
       class=${tw(css`
+        ${twApply('font-sans')}
+
         /* Reduce contrast of hovered menu item background */
         sl-menu-item::part(base):hover {
           background-color: var(--sl-color-primary-50);
@@ -94,12 +98,13 @@ export default class StencilaDocumentHeader extends StencilaElement {
       ${config.breadcrumbs?.length > 1
         ? this.renderBreadcrumbs(config.breadcrumbs)
         : ''}
+      ${this.renderKeyboardDialog()}
     </header>`
   }
 
   private renderTopbar(config: Config) {
     const { logo, title, links, modes } = config
-    return html`<nav class="${tw`border(b gray-200) bg-white font-sans`}">
+    return html`<nav class="${tw`border(b gray-200) bg-white`}">
       <div class="${tw`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8`}">
         <div class="${tw`flex h-16 justify-between`}">
           <div class="${tw`flex`}">
@@ -249,7 +254,9 @@ export default class StencilaDocumentHeader extends StencilaElement {
               name="${modeIcon(mode)}"
             ></stencila-icon>
             <span class="label">${label}</span>
-            ${devStatus != DevStatus.Stable ? devStatusTag(devStatus) : ''}
+            ${devStatus != DevStatus.Stable
+              ? devStatusTag(devStatus, 'xxs')
+              : ''}
           </div>
           <div class="desc">${modeDesc(mode)}</div>
         </sl-menu-item></a
@@ -293,7 +300,8 @@ export default class StencilaDocumentHeader extends StencilaElement {
             ><stencila-icon name="three-dots-vertical"></stencila-icon
           ></sl-button>
           <sl-menu>
-            ${this.renderConnectionMenuItem()} ${this.renderDebugMenuItem()}
+            ${this.renderConnectionMenuItem()} ${this.renderKeyboardMenuItem()}
+            ${this.renderDebugMenuItem()}
           </sl-menu>
         </sl-dropdown>
       </div>
@@ -356,6 +364,55 @@ export default class StencilaDocumentHeader extends StencilaElement {
         Debug level logging is currently ${on ? 'enabled' : 'disabled'}
       </div>
     </sl-menu-item>`
+  }
+
+  renderKeyboardMenuItem() {
+    return html`<sl-menu-item
+      @click=${() => {
+        const dialog = this.renderRoot.querySelector(
+          '#keyboard-dialog'
+        )! as SlDialog
+        return dialog.show()
+      }}
+    >
+      <div>
+        <stencila-icon name="keyboard"></stencila-icon>
+        Keyboard shortcuts
+      </div>
+      <div class="${tw`text-xs font-light`}">
+        Get help on which keyboard shortcuts to use where
+      </div>
+    </sl-menu-item>`
+  }
+
+  renderKeyboardDialog() {
+    return html`<sl-dialog
+      label="Keyboard shortcuts"
+      id="keyboard-dialog"
+      class=${tw(css`
+        h2 {
+          ${twApply('mb-3 text(lg gray-600)')}
+        }
+        p {
+          ${twApply('mb-2 text(sm gray-500)')}
+        }
+        kbd {
+          ${twApply('mr-2 rounded border(1 gray-400) p-1 text(xs gray-400)')}
+        }
+      `)}
+    >
+      <h2>
+        <stencila-icon name="code"></stencila-icon>
+        Code editors
+      </h2>
+      <dl>
+        <p><kbd>Tab</kbd>Indent line/s</p>
+        <p><kbd>Esc+Tab</kbd>Do not indent, move to next input</p>
+        <p><kbd>Esc+Shift+Tab</kbd>Do not indent, move to previous input</p>
+        <p><kbd>Ctrl+Space</kbd>Bring up autocompletion prompt</p>
+        <p><kbd>Ctrl+Enter</kbd>Execute the code (if executable)</p>
+      </dl>
+    </sl-dialog>`
   }
 
   @state()
