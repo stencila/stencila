@@ -1,13 +1,18 @@
+import { sentenceCase } from 'change-case'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 import { apply as twApply, css } from 'twind/css'
 
+import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
+import '@shoelace-style/shoelace/dist/components/select/select'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 
-import '../editors/code-editor'
 import '../base/icon'
-import StencilaElement from '../utils/element'
+import '../base/tag'
+import '../editors/code-editor'
 import { twSheet, varApply, varLocal, varPass } from '../utils/css'
+import StencilaCodeExecutable from './code-executable'
+import { currentMode, Mode } from '../../mode'
 
 const { tw, sheet } = twSheet()
 
@@ -27,148 +32,105 @@ const { tw, sheet } = twSheet()
  * @cssprop [--text-color = --stencila-text-color] - The color of text within the code chunk
  */
 @customElement('stencila-code-chunk')
-export default class StencilaCodeChunk extends StencilaElement {
+export default class StencilaCodeChunk extends StencilaCodeExecutable {
   static styles = [sheet.target]
 
-  @property()
-  id: string
-
-  @property({
-    attribute: 'programming-language',
-  })
-  programmingLanguage: string
-
-  @property({
-    attribute: 'execute-status',
-  })
-  executeStatus?: ExecuteStatus
-
-  @property({
-    attribute: 'execute-required',
-  })
-  executeRequired?: ExecuteRequired
-
-  @property({
-    attribute: 'execute-count',
-  })
-  executeCount?: number
-
-  private onRunClicked(event: PointerEvent) {
-    this.emit('stencila-code-execute', {
-      nodeId: this.id,
-      ordering: 'Topological',
-    })
-  }
-
   @state()
-  private isCodeVisible: boolean
+  private hasOutputs: boolean
 
-  private onCodeVisibilityChanged(event: CustomEvent) {
-    this.isCodeVisible = event.detail.isVisible
-  }
-
-  private onCodeVisibilityClicked(event: PointerEvent) {
-    if (event.shiftKey) {
-      this.emit('stencila-code-visibility-change', {
-        isVisible: !this.isCodeVisible,
-      })
-    } else {
-      this.isCodeVisible = !this.isCodeVisible
-    }
-  }
-
-  connectedCallback() {
-    super.connectedCallback()
-
-    window.addEventListener(
-      'stencila-code-visibility-change',
-      this.onCodeVisibilityChanged.bind(this)
-    )
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback()
-
-    window.removeEventListener(
-      'stencila-code-visibility-change',
-      this.onCodeVisibilityChanged.bind(this)
-    )
+  private async onOutputsSlotChange(event: Event) {
+    const slotted = (event.target as HTMLSlotElement).assignedNodes()[0]
+    this.hasOutputs = slotted.childNodes.length > 0
   }
 
   render() {
-    const runButton = runButtonFromStatusAndRequired(
-      this.executeStatus,
-      this.executeRequired
-    )
-
+    const mode = currentMode()
     return html`<div
       class="${tw(
         css`
           ${varLocal(
-            'border-style',
-            'border-width',
-            'border-color',
-            'border-radius',
-            'bg-color',
-            'icon-color',
-            'text-font',
-            'text-size',
-            'text-color'
+            'ui-border-style',
+            'ui-border-width',
+            'ui-border-color',
+            'ui-border-radius',
+            'ui-background-color',
+            'ui-icon-color',
+            'ui-font-family',
+            'ui-font-size',
+            'ui-text-color'
           )}
 
           ${varApply(
-            'border-style',
-            'border-width',
-            'border-color',
-            'border-radius',
-            'bg-color',
-            'icon-color',
-            'text-font',
-            'text-size',
-            'text-color'
+            'ui-border-style',
+            'ui-border-width',
+            'ui-border-color',
+            'ui-border-radius',
+            'ui-icon-color',
+            'ui-font-family',
+            'ui-font-size',
+            'ui-text-color'
           )}
 
-          stencila-code-editor {
-            ${varPass(
-              'border-style',
-              'border-width',
-              'border-color',
-              'border-radius',
-              'bg-color',
-              'icon-color',
-              'text-font',
-              'text-size',
-              'text-color'
+          overflow: hidden;
+          ${twApply('my-2')}
+
+          [part='header'] {
+            ${varApply(
+              'ui-border-style',
+              'ui-border-width',
+              'ui-border-color',
+              'ui-background-color'
             )}
+            ${twApply(
+              'flex flex-row items-center justify-between p-1 border(t-0 l-0 r-0)'
+            )}
+          }
+
+          [part='header'].code-invisible {
+            ${twApply('border-b-0')}
+          }
+
+          stencila-code-editor {
+            ${varPass('ui-font-family', 'ui-font-size', 'ui-text-color')}
+            border: none;
+          }
+
+          [part='footer'] {
+            ${varApply(
+              'ui-border-style',
+              'ui-border-width',
+              'ui-border-color',
+              'ui-background-color'
+            )}
+            ${twApply('flex flex-row items-center p-1 border(b-0 l-0 r-0)')}
+          }
+
+          [part='footer'].code-invisible {
+            ${twApply('hidden')}
+          }
+
+          [part='outputs'].has-outputs {
+            ${twApply('p-1')}
           }
         `
       )}"
     >
-      <div part="header" class="${tw`flex flex-row p-1 bg-gray-50`}">
-        <span class="${tw`mr-2`}">
-          <sl-tooltip content="${runButton.title}">
-            <stencila-icon
-              name="${runButton.icon}"
-              @click="${this.onRunClicked}"
-            ></stencila-icon> </sl-tooltip
-        ></span>
+      <div
+        part="header"
+        class="code-${this.isCodeVisible ? 'visible' : 'invisible'}"
+      >
+        <div class=${tw`flex flex-row items-center`}>
+          <span class="${tw`mr-2`}"> ${this.renderExecuteIcon()} </span>
+          <stencila-tag size="sm" color="green">${this.id}</stencila-tag>
+        </div>
 
-        <sl-tooltip>
-          <span slot="content"
-            >${this.isCodeVisible ? 'Hide' : 'Show'} code<br />Shift click to
-            ${this.isCodeVisible ? 'hide' : 'show'} for all code elements</span
-          >
-          <stencila-icon
-            name="${this.isCodeVisible ? 'eye' : 'eye-slash'}"
-            @click="${this.onCodeVisibilityClicked}"
-          ></stencila-icon>
-        </sl-tooltip>
+        <div class="end">${this.renderLanguageSelector()}</div>
       </div>
 
       <stencila-code-editor
         part="code"
-        language="${this.programmingLanguage}"
-        theme="dracula"
+        language=${this.programmingLanguage}
+        ?read-only=${mode <= Mode.Inspect && mode != Mode.Edit}
         languages="[]"
         themes="[]"
         class="${this.isCodeVisible ? '' : tw`hidden`}"
@@ -178,9 +140,7 @@ export default class StencilaCodeChunk extends StencilaElement {
 
       <div
         part="footer"
-        class="${this.isCodeVisible
-          ? tw`flex flex-row p-1 bg-gray-50`
-          : tw`hidden`}"
+        class="code-${this.isCodeVisible ? 'visible' : 'invisible'}"
       >
         <span class="${tw`mr-2`}">
           <sl-tooltip content="Number of times executed">
@@ -204,138 +164,99 @@ export default class StencilaCodeChunk extends StencilaElement {
         </span>
       </div>
 
-      <slot part="outputs" name="outputs"></slot>
+      <div part="outputs" class=${this.hasOutputs ? 'has-outputs' : ''}>
+        <slot name="outputs" @slotchange=${this.onOutputsSlotChange}></slot>
+      </div>
     </div>`
+  }
+
+  private renderLanguageSelector() {
+    const languages = window.stencilaConfig.executableLanguages ?? []
+
+    if (languages.length === 0) {
+      return html`<span class="language">${this.programmingLanguage}</span>`
+    }
+
+    return html`<span
+      class=${tw(css`
+        ${twApply(`flex flex-row items-center`)}
+        sl-tooltip {
+          --show-delay: 1000;
+        }
+        sl-select {
+          width: 13ch;
+        }
+        sl-select.code-invisible::part(control) {
+          ${twApply('cursor-pointer')}
+        }
+        sl-select::part(control) {
+          background-color: transparent;
+          border: none;
+        }
+        sl-select::part(icon) {
+          display: ${this.isCodeVisible ? 'inherit' : 'none'};
+        }
+        sl-select::part(menu) {
+          overflow: hidden;
+        }
+        sl-menu-item::part(label) {
+          ${twApply('text-sm')}
+        }
+      `)}
+    >
+      <sl-tooltip>
+        <span slot="content"
+          >${this.isCodeVisible ? 'Hide' : 'Show'} code<br />Shift click to
+          ${this.isCodeVisible ? 'hide' : 'show'} for all code elements</span
+        >
+        <stencila-icon
+          name="${this.isCodeVisible ? 'eye' : 'eye-slash'}"
+          @click=${this.onCodeVisibilityClicked}
+        ></stencila-icon>
+      </sl-tooltip>
+      ${!this.isCodeVisible
+        ? html`<sl-select
+            size="small"
+            value=${this.programmingLanguage?.toLowerCase() ?? 'other'}
+            disabled
+            @click=${this.onCodeVisibilityClicked}
+            class="code-${this.isCodeVisible ? 'visible' : 'invisible'}"
+          >
+            <sl-menu-item value=${this.programmingLanguage.toLowerCase()}>
+              ${labelForLanguage(this.programmingLanguage)}
+            </sl-menu-item>
+          </sl-select>`
+        : html`<sl-select
+            size="small"
+            value=${this.programmingLanguage?.toLowerCase() ?? 'other'}
+            @sl-change=${(event: Event) =>
+              (this.programmingLanguage = (
+                event.target as HTMLSelectElement
+              ).value)}
+          >
+            ${languages.map(
+              (language) =>
+                html`<sl-menu-item value="${language.toLowerCase()}">
+                  ${labelForLanguage(language)}
+                </sl-menu-item>`
+            )}
+          </sl-select>`}
+    </span>`
   }
 }
 
-export type ExecuteStatus =
-  | 'Scheduled'
-  | 'ScheduledPreviouslyFailed'
-  | 'Running'
-  | 'RunningPreviouslyFailed'
-  | 'Succeeded'
-  | 'Failed'
-  | 'Cancelled'
-
-export type ExecuteRequired =
-  | 'NeverExecuted'
-  | 'SemanticsChanged'
-  | 'DependenciesChanged'
-  | 'DependenciesFailed'
-  | 'Failed'
-  | 'No'
-
-export function runButtonFromStatusAndRequired(
-  executeStatus?: ExecuteStatus,
-  executeRequired?: ExecuteRequired
-): {
-  icon: string
-  color: string
-  title: string
-} {
-  // If scheduled or running then show that status
-  switch (executeStatus) {
-    case 'Scheduled': {
-      return {
-        icon: 'timer',
-        color: 'neutral-500, #6e7591',
-        title: 'Scheduled',
-      }
-    }
-    case 'ScheduledPreviouslyFailed': {
-      return {
-        icon: 'timer',
-        color: 'danger-500, #cf445e',
-        title: 'Scheduled (previously failed)',
-      }
-    }
-    case 'Running': {
-      return {
-        icon: 'arrow-repeat',
-        color: 'neutral-500, #6e7591',
-        title: 'Running',
-      }
-    }
-    case 'RunningPreviouslyFailed': {
-      return {
-        icon: 'arrow-repeat',
-        color: 'danger-500, #cf445e',
-        title: 'Running (previously failed)',
-      }
-    }
-  }
-
-  // Otherwise, if execution is required show why
-  switch (executeRequired) {
-    case 'NeverExecuted': {
-      return {
-        icon: 'dash-circle',
-        color: 'neutral-500, #6e7591',
-        title: 'Not run yet',
-      }
-    }
-    case 'DependenciesFailed': {
-      return {
-        icon: 'refresh',
-        color: 'danger-500, #cf445e',
-        title: 'Dependencies failed',
-      }
-    }
-    case 'DependenciesChanged': {
-      return {
-        icon: 'refresh',
-        color: 'warn-600, #ba8925',
-        title: 'Dependencies changed',
-      }
-    }
-    case 'SemanticsChanged': {
-      return {
-        icon: 'refresh',
-        color: 'warn-600, #ba8925',
-        title: 'Semantics changed',
-      }
-    }
-    case 'Failed': {
-      return {
-        icon: 'exclamation-circle',
-        color: 'danger-500, #cf445e',
-        title: 'Failed',
-      }
-    }
-  }
-
-  // Otherwise, show last status
-  switch (executeStatus) {
-    case 'Succeeded': {
-      return {
-        icon: 'check-circle',
-        color: 'success-500, #3c8455',
-        title: 'Succeeded',
-      }
-    }
-    case 'Failed': {
-      return {
-        icon: 'exclamation-circle',
-        color: 'danger-500, #cf445e',
-        title: 'Failed',
-      }
-    }
-    case 'Cancelled': {
-      return {
-        icon: 'slash-circle',
-        color: 'warn-600, #ba8925',
-        title: 'Cancelled',
-      }
-    }
-  }
-
-  // Although this should be redundant, it avoids this function every returning undefined
-  // which causes other errors (e.g. if there is a patching error or a new variant added to
-  // the above enums)
-  return {
-    icon: 'question',
-    color: 'neutral-500, #6e7591',
-    title: 'Unknown status',
+function labelForLanguage(language: string): string {
+  switch (language.toLowerCase()) {
+    case 'javascript':
+      return 'JavaScript'
+    case 'typescript':
+      return 'TypeScript'
+    case 'json':
+    case 'sql':
+      return language.toUpperCase()
+    case 'prql':
+      return 'PrQL'
+    default:
+      return sentenceCase(language)
   }
 }
