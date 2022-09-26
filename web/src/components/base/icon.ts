@@ -80,8 +80,8 @@ export default class StencilaIcon extends StencilaElement {
 
   render() {
     return html`<sl-icon
-      src="${getIconSrc(this.name)}"
-      ${this.label ? `label=${this.label}` : ''}
+      src=${getIconSrc(this.name)}
+      label=${this.label ? this.label : ''}
     ></sl-icon>`
   }
 }
