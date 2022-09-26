@@ -1,5 +1,7 @@
 import { html } from 'lit'
 import { property, state } from 'lit/decorators'
+import { TW } from 'twind'
+import { currentMode, Mode } from '../../mode'
 
 import StencilaEntity from './entity'
 
@@ -39,24 +41,37 @@ export default class StencilaExecutable extends StencilaEntity {
   })
   executeCount?: number
 
-  protected onRunClicked(event: PointerEvent) {
+  /**
+   * Is the node executable in the current mode
+   */
+  protected isExecutable(): boolean {
+    const mode = currentMode()
+    return mode >= Mode.Alter && mode != Mode.Edit
+  }
+
+  protected onExecuteIconClicked(event: PointerEvent) {
     this.emit('stencila-document-execute', {
       nodeId: this.id,
       ordering: 'Topological',
     })
   }
 
-  renderExecuteIcon() {
+  renderExecuteIcon(tw: TW) {
     const { icon, color, title } = this.runButtonFromStatusAndRequired(
       this.executeStatus,
       this.executeRequired
     )
-    return html`<sl-tooltip content="${title}">
-      <stencila-icon
-        name="${icon}"
-        @click="${this.onRunClicked}"
-      ></stencila-icon>
-    </sl-tooltip>`
+    return this.isExecutable()
+      ? html`<sl-tooltip content="${title}">
+          <stencila-icon
+            name="${icon}"
+            @click="${this.onExecuteIconClicked}"
+            class=${tw`cursor-pointer`}
+          ></stencila-icon>
+        </sl-tooltip>`
+      : html`<sl-tooltip content="${title}">
+          <stencila-icon name="${icon}"></stencila-icon>
+        </sl-tooltip>`
   }
 
   runButtonFromStatusAndRequired(

@@ -117,7 +117,7 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
         class="code-${this.isCodeVisible ? 'visible' : 'invisible'}"
       >
         <div class=${tw`flex flex-row items-center`}>
-          <span class="${tw`mr-2`}"> ${this.renderExecuteIcon()} </span>
+          <span class="${tw`mr-2`}"> ${this.renderExecuteIcon(tw)} </span>
           <stencila-tag size="sm" color="green">${this.id}</stencila-tag>
         </div>
 
@@ -127,7 +127,7 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
       <stencila-code-editor
         part="code"
         language=${this.programmingLanguage}
-        ?read-only=${this.isReadOnly()}
+        ?read-only=${!this.isEditable()}
         no-controls
         class="${this.isCodeVisible ? '' : tw`hidden`}"
       >

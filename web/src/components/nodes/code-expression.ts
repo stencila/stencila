@@ -50,13 +50,13 @@ export default class StencilaCodeExpression extends StencilaCodeExecutable {
         `
       )}"
     >
-      ${this.renderExecuteIcon()}
+      ${this.renderExecuteIcon(tw)}
       <stencila-tag color="green">${this.id}</stencila-tag>
       ${this.renderLanguageSelector(tw)}
       <stencila-code-editor
         part="code"
         language=${this.programmingLanguage}
-        ?read-only=${this.isReadOnly()}
+        ?read-only=${!this.isEditable()}
         single-line
         line-wrapping
         no-controls

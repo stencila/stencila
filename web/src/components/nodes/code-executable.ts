@@ -1,7 +1,7 @@
 import { sentenceCase } from 'change-case'
 import { html } from 'lit'
 import { property, state } from 'lit/decorators'
-import { apply as twApply, css } from 'twind/css'
+import { apply as twApply, css, TW } from 'twind/css'
 
 import { currentMode, Mode } from '../../mode'
 import Executable from './executable'
@@ -33,11 +33,11 @@ export default class StencilaCodeExecutable extends Executable {
   }
 
   /**
-   * Is the node read-only (i.e. code and `programmingLanguage` can not be changed)
+   * Is the node editable (i.e. code and `programmingLanguage` can be changed) in the current mode
    */
-  protected isReadOnly(): boolean {
+  protected isEditable(): boolean {
     const mode = currentMode()
-    return mode <= Mode.Inspect && mode != Mode.Edit
+    return mode >= Mode.Alter && mode != Mode.Edit
   }
 
   connectedCallback() {
@@ -58,7 +58,7 @@ export default class StencilaCodeExecutable extends Executable {
     )
   }
 
-  protected renderLanguageSelector(tw) {
+  protected renderLanguageSelector(tw: TW) {
     const languages = window.stencilaConfig.executableLanguages ?? []
 
     if (languages.length === 0) {
@@ -83,7 +83,9 @@ export default class StencilaCodeExecutable extends Executable {
           ${twApply('cursor-pointer')}
         }
         sl-select::part(icon) {
-          display: ${this.isCodeVisible ? 'inherit' : 'none'};
+          display: ${this.isCodeVisible && this.isEditable()
+            ? 'inherit'
+            : 'none'};
         }
         sl-select::part(menu) {
           overflow: hidden;
@@ -101,6 +103,7 @@ export default class StencilaCodeExecutable extends Executable {
         <stencila-icon
           name="${this.isCodeVisible ? 'eye' : 'eye-slash'}"
           @click=${this.onCodeVisibilityClicked}
+          class=${tw`cursor-pointer`}
         ></stencila-icon>
       </sl-tooltip>
       ${!this.isCodeVisible
@@ -118,6 +121,7 @@ export default class StencilaCodeExecutable extends Executable {
         : html`<sl-select
             size="small"
             value=${this.programmingLanguage?.toLowerCase() ?? 'other'}
+            ?disabled=${!this.isEditable()}
             @sl-change=${(event: Event) =>
               (this.programmingLanguage = (
                 event.target as HTMLSelectElement
