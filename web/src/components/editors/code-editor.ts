@@ -142,7 +142,12 @@ export default class StencilaCodeEditor extends StencilaElement {
   private languageConfig = new Compartment()
 
   /**
-   * The CodeMirror read-only configuration
+   * The CodeMirror `EditorView.editable` configuration
+   */
+  private editableConfig = new Compartment()
+
+  /**
+   * The CodeMirror ` EditorState.readonly` configuration
    */
   private readOnlyConfig = new Compartment()
 
@@ -215,7 +220,8 @@ export default class StencilaCodeEditor extends StencilaElement {
 
       // Change-able extensions
       this.languageConfig.of(languageSupport),
-      this.readOnlyConfig.of(EditorView.editable.of(!this.readOnly)),
+      this.editableConfig.of(EditorView.editable.of(!this.readOnly)),
+      this.readOnlyConfig.of(EditorState.readOnly.of(this.readOnly)),
       this.themeConfig.of(this.getThemeExtension(this.theme)),
     ]
   }
@@ -399,10 +405,12 @@ export default class StencilaCodeEditor extends StencilaElement {
     }
 
     if (changedProperties.has('readOnly')) {
-      const effect = this.readOnlyConfig.reconfigure(
-        EditorView.editable.of(!this.readOnly)
+      this.dispatchEffect(
+        this.editableConfig.reconfigure(EditorView.editable.of(!this.readOnly))
       )
-      this.dispatchEffect(effect)
+      this.dispatchEffect(
+        this.readOnlyConfig.reconfigure(EditorState.readOnly.of(this.readOnly))
+      )
     }
 
     if (changedProperties.has('theme')) {
