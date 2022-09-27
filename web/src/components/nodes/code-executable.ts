@@ -16,20 +16,23 @@ export default class StencilaCodeExecutable extends Executable {
   })
   programmingLanguage: string
 
+  /**
+   * Is the code of the node (the `text` property) visible?
+   */
   @state()
-  protected isCodeVisible: boolean
+  protected _isCodeVisible: boolean
 
   private onCodeVisibilityChanged(event: CustomEvent) {
-    this.isCodeVisible = event.detail.isVisible
+    this._isCodeVisible = event.detail.isVisible
   }
 
   protected onCodeVisibilityClicked(event: PointerEvent) {
     if (event.shiftKey) {
       this.emit('stencila-code-visibility-change', {
-        isVisible: !this.isCodeVisible,
+        isVisible: !this._isCodeVisible,
       })
     } else {
-      this.isCodeVisible = !this.isCodeVisible
+      this._isCodeVisible = !this._isCodeVisible
     }
   }
 
@@ -101,7 +104,7 @@ export default class StencilaCodeExecutable extends Executable {
           ${twApply('cursor-pointer')}
         }
         sl-select::part(icon) {
-          display: ${this.isCodeVisible && this.isEditable()
+          display: ${this._isCodeVisible && this.isEditable()
             ? 'inherit'
             : 'none'};
         }
@@ -115,22 +118,22 @@ export default class StencilaCodeExecutable extends Executable {
     >
       <sl-tooltip>
         <span slot="content"
-          >${this.isCodeVisible ? 'Hide' : 'Show'} code<br />Shift click to
-          ${this.isCodeVisible ? 'hide' : 'show'} for all code elements</span
+          >${this._isCodeVisible ? 'Hide' : 'Show'} code<br />Shift click to
+          ${this._isCodeVisible ? 'hide' : 'show'} for all code elements</span
         >
         <stencila-icon
-          name="${this.isCodeVisible ? 'eye' : 'eye-slash'}"
+          name="${this._isCodeVisible ? 'eye' : 'eye-slash'}"
           @click=${this.onCodeVisibilityClicked}
           class=${tw`cursor-pointer`}
         ></stencila-icon>
       </sl-tooltip>
-      ${!this.isCodeVisible
+      ${!this._isCodeVisible
         ? html`<sl-select
             size="small"
             value=${this.programmingLanguage?.toLowerCase() ?? 'other'}
             disabled
             @click=${this.onCodeVisibilityClicked}
-            class="code-${this.isCodeVisible ? 'visible' : 'invisible'}"
+            class="code-${this._isCodeVisible ? 'visible' : 'invisible'}"
           >
             <sl-menu-item value=${this.programmingLanguage.toLowerCase()}>
               ${this.labelForLanguage(this.programmingLanguage)}
