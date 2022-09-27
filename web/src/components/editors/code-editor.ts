@@ -150,7 +150,9 @@ export default class StencilaCodeEditor extends StencilaElement {
    * If the list is empty, no selector will be provided.
    */
   @property({ type: Array })
-  private themes = Object.keys(themes).map((name) => capitalCase(name))
+  private themes = Object.keys(themes)
+    .filter((name) => name !== 'createTheme')
+    .map((name) => capitalCase(name))
 
   /**
    * Whether controls for changing langugae, theme, line wrapping etc should be shown
