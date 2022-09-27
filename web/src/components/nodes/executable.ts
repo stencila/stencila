@@ -1,6 +1,7 @@
 import { html } from 'lit'
-import { property, state } from 'lit/decorators'
+import { property } from 'lit/decorators'
 import { TW } from 'twind'
+import 'twind/colors'
 import { currentMode, Mode } from '../../mode'
 
 import StencilaEntity from './entity'
@@ -57,24 +58,27 @@ export default class StencilaExecutable extends StencilaEntity {
   }
 
   renderExecuteIcon(tw: TW) {
-    const { icon, color, title } = this.runButtonFromStatusAndRequired(
+    const { title, icon, color } = this.executeIconFromStatusAndRequired(
       this.executeStatus,
       this.executeRequired
     )
-    return this.isExecutable()
-      ? html`<sl-tooltip content="${title}">
-          <stencila-icon
-            name="${icon}"
-            @click="${this.execute}"
-            class=${tw`cursor-pointer`}
-          ></stencila-icon>
-        </sl-tooltip>`
-      : html`<sl-tooltip content="${title}">
-          <stencila-icon name="${icon}"></stencila-icon>
-        </sl-tooltip>`
+    const isExecutable = this.isExecutable()
+    return html`<sl-tooltip content="${title}">
+      <stencila-icon
+        name=${icon}
+        @click=${isExecutable ? this.execute : null}
+        class=${isExecutable
+          ? tw`text-${color}-600 ${
+              this.executeStatus === 'Running'
+                ? 'cursor-wait'
+                : 'cursor-pointer'
+            }`
+          : tw`text-${color}-600`}
+      ></stencila-icon>
+    </sl-tooltip>`
   }
 
-  runButtonFromStatusAndRequired(
+  executeIconFromStatusAndRequired(
     executeStatus?: ExecuteStatus,
     executeRequired?: ExecuteRequired
   ): {
@@ -86,29 +90,29 @@ export default class StencilaExecutable extends StencilaEntity {
     switch (executeStatus) {
       case 'Scheduled': {
         return {
-          icon: 'timer',
-          color: 'neutral-500, #6e7591',
+          icon: 'stopwatch',
+          color: 'green',
           title: 'Scheduled',
         }
       }
       case 'ScheduledPreviouslyFailed': {
         return {
-          icon: 'timer',
-          color: 'danger-500, #cf445e',
+          icon: 'stopwatch',
+          color: 'red',
           title: 'Scheduled (previously failed)',
         }
       }
       case 'Running': {
         return {
           icon: 'arrow-repeat',
-          color: 'neutral-500, #6e7591',
+          color: 'green',
           title: 'Running',
         }
       }
       case 'RunningPreviouslyFailed': {
         return {
           icon: 'arrow-repeat',
-          color: 'danger-500, #cf445e',
+          color: 'red',
           title: 'Running (previously failed)',
         }
       }
@@ -119,35 +123,35 @@ export default class StencilaExecutable extends StencilaEntity {
       case 'NeverExecuted': {
         return {
           icon: 'dash-circle',
-          color: 'neutral-500, #6e7591',
+          color: 'neutral',
           title: 'Not run yet',
         }
       }
       case 'DependenciesFailed': {
         return {
-          icon: 'refresh',
-          color: 'danger-500, #cf445e',
+          icon: 'arrow-clockwise',
+          color: 'red',
           title: 'Dependencies failed',
         }
       }
       case 'DependenciesChanged': {
         return {
-          icon: 'refresh',
-          color: 'warn-600, #ba8925',
+          icon: 'arrow-clockwise',
+          color: 'amber',
           title: 'Dependencies changed',
         }
       }
       case 'SemanticsChanged': {
         return {
-          icon: 'refresh',
-          color: 'warn-600, #ba8925',
+          icon: 'arrow-clockwise',
+          color: 'amber',
           title: 'Semantics changed',
         }
       }
       case 'Failed': {
         return {
           icon: 'exclamation-circle',
-          color: 'danger-500, #cf445e',
+          color: 'red',
           title: 'Failed',
         }
       }
@@ -158,21 +162,21 @@ export default class StencilaExecutable extends StencilaEntity {
       case 'Succeeded': {
         return {
           icon: 'check-circle',
-          color: 'success-500, #3c8455',
+          color: 'green',
           title: 'Succeeded',
         }
       }
       case 'Failed': {
         return {
           icon: 'exclamation-circle',
-          color: 'danger-500, #cf445e',
+          color: 'red',
           title: 'Failed',
         }
       }
       case 'Cancelled': {
         return {
           icon: 'slash-circle',
-          color: 'warn-600, #ba8925',
+          color: 'amber',
           title: 'Cancelled',
         }
       }
@@ -183,7 +187,7 @@ export default class StencilaExecutable extends StencilaEntity {
     // the above enums)
     return {
       icon: 'question',
-      color: 'neutral-500, #6e7591',
+      color: 'neutral',
       title: 'Unknown status',
     }
   }

@@ -253,12 +253,19 @@ export default class StencilaCodeEditor extends StencilaElement {
         {
           key: 'Ctrl-Enter',
           run: () => {
-            this.emit('ctrl-enter')
+            this.emit('stencila-ctrl-enter')
             return true
           },
         },
         ...defaultKeymap,
       ]),
+
+      // Extension to emit an event when code changes
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged) {
+          this.emit('stencila-code-content-change', { update })
+        }
+      }),
 
       // Extensions based on properties but not change-able
       ...(this.singleLine

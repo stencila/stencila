@@ -4,6 +4,7 @@ import { property, state } from 'lit/decorators'
 import { apply as twApply, css, TW } from 'twind/css'
 
 import { currentMode, Mode } from '../../mode'
+import { codemirror } from '../../patches'
 import Executable from './executable'
 
 /**
@@ -43,6 +44,15 @@ export default class StencilaCodeExecutable extends Executable {
   connectedCallback() {
     super.connectedCallback()
 
+    this.addEventListener('stencila-code-content-change', (event) => {
+      const { update } = event.detail
+      const patch = {
+        target: this.id,
+        ops: codemirror.updateToOps(update, ['text']),
+      }
+      return this.emit('stencila-document-patch', patch)
+    })
+
     window.addEventListener(
       'stencila-code-visibility-change',
       this.onCodeVisibilityChanged.bind(this)
@@ -56,6 +66,26 @@ export default class StencilaCodeExecutable extends Executable {
       'stencila-code-visibility-change',
       this.onCodeVisibilityChanged.bind(this)
     )
+  }
+
+  protected async update(changedProperties: Map<string, any>) {
+    super.update(changedProperties)
+
+    if (changedProperties.has('programmingLanguage')) {
+      const patch = {
+        target: this.id,
+        ops: [
+          {
+            type: 'Replace',
+            address: ['programmingLanguage'],
+            items: 1,
+            length: 1,
+            value: this.programmingLanguage.toLowerCase(),
+          },
+        ],
+      }
+      return this.emit('stencila-document-patch', patch)
+    }
   }
 
   protected renderLanguageSelector(tw: TW) {

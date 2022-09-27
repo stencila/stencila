@@ -133,7 +133,7 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
         language=${this.programmingLanguage}
         ?read-only=${!this.isEditable()}
         no-controls
-        @ctrl-enter=${this.execute}
+        @stencila-ctrl-enter=${this.execute}
         class="${this.isCodeVisible ? '' : tw`hidden`}"
       >
         <slot name="text" slot="code"></slot>
@@ -143,24 +143,24 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
         part="footer"
         class="code-${this.isCodeVisible ? 'visible' : 'invisible'}"
       >
-        <span class="${tw`mr-2`}">
+        <span class="${tw`mr-3 w-12`}">
           <sl-tooltip content="Number of times executed">
             <stencila-icon name="arrow-repeat"></stencila-icon>
             <span>${this.executeCount ?? 0}</span>
           </sl-tooltip>
         </span>
 
-        <span class="${tw`mr-2`}">
-          <sl-tooltip content="Time of last execution">
-            <stencila-icon name="clock"></stencila-icon>
-            <slot name="execute-ended"></slot>
-          </sl-tooltip>
-        </span>
-
-        <span>
+        <span class="${tw`mr-3 w-20`}">
           <sl-tooltip content="Duration of last execution">
             <stencila-icon name="hourglass"></stencila-icon>
             <slot name="execute-duration"></slot>
+          </sl-tooltip>
+        </span>
+
+        <span class="${tw`mr-3`}">
+          <sl-tooltip content="Time of last execution">
+            <stencila-icon name="clock"></stencila-icon>
+            <slot name="execute-ended"></slot>
           </sl-tooltip>
         </span>
       </div>

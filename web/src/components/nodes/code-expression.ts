@@ -60,7 +60,7 @@ export default class StencilaCodeExpression extends StencilaCodeExecutable {
         single-line
         line-wrapping
         no-controls
-        @ctrl-enter=${this.execute}
+        @stencila-ctrl-enter=${this.execute}
         class="${this.isCodeVisible ? '' : tw`hidden`}"
       >
         <slot name="text" slot="code"></slot>
