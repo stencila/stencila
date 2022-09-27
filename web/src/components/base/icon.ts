@@ -8,6 +8,7 @@ import StencilaElement from '../utils/element'
 // prettier-ignore
 const icons: Record<string, string> = {
   'arrow-repeat': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/arrow-repeat.svg'),
+  'arrow-clockwise': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/arrow-clockwise.svg'),
   'book': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/book.svg'),
   'braces-asterisk': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/braces-asterisk.svg'),
   'broadcast-pin': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/broadcast-pin.svg'),
@@ -39,6 +40,7 @@ const icons: Record<string, string> = {
   'search': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/search.svg'),
   'sliders': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/sliders.svg'),
   'stars': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/stars.svg'),
+  'stopwatch': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/stopwatch.svg'),
   'terminal-fill': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/terminal-fill.svg'),
   'three-dots-vertical': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/three-dots-vertical.svg'),
   'wifi-off': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/wifi-off.svg'),
