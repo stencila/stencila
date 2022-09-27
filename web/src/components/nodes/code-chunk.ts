@@ -11,6 +11,8 @@ import '../base/tag'
 import '../editors/code-editor'
 import { twSheet, varApply, varLocal, varPass } from '../utils/css'
 import StencilaCodeExecutable from './code-executable'
+import './duration'
+import './timestamp'
 
 const { tw, sheet } = twSheet()
 
@@ -99,7 +101,9 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
               'ui-border-color',
               'ui-background-color'
             )}
-            ${twApply('flex flex-row items-center p-1 border(b-0 l-0 r-0)')}
+            ${twApply(
+              'flex flex-row items-center p-1 border(b-0 l-0 r-0) text(sm)'
+            )}
           }
 
           [part='footer'].code-invisible {
@@ -149,14 +153,14 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
         <span class="${tw`mr-2`}">
           <sl-tooltip content="Time of last execution">
             <stencila-icon name="clock"></stencila-icon>
-            <span>-</span>
+            <slot name="execute-ended"></slot>
           </sl-tooltip>
         </span>
 
-        <span class="${tw`mr-2`}">
+        <span>
           <sl-tooltip content="Duration of last execution">
             <stencila-icon name="hourglass"></stencila-icon>
-            <span>-</span>
+            <slot name="execute-duration"></slot>
           </sl-tooltip>
         </span>
       </div>
