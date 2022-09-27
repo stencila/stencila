@@ -126,32 +126,16 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
 pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockContent> {
     let mut inlines = Inlines {
         default_lang: default_lang.clone(),
-        active: false,
-        text: String::new(),
-        nodes: Vec::new(),
-        marks: Vec::new(),
+        ..Default::default()
     };
 
-    let mut html = Html {
-        html: String::new(),
-        tags: Vec::new(),
-    };
+    let mut html = Html::default();
 
-    let mut lists = Lists {
-        items: Vec::new(),
-        marks: Vec::new(),
-        is_checked: None,
-    };
+    let mut lists = Lists::default();
 
-    let mut tables = Tables {
-        rows: Vec::new(),
-        cells: Vec::new(),
-    };
+    let mut tables = Tables::default();
 
-    let mut blocks = Blocks {
-        nodes: Vec::new(),
-        marks: Vec::new(),
-    };
+    let mut blocks = Blocks::default();
 
     let mut options = Options::empty();
     options.insert(Options::ENABLE_TABLES);
@@ -488,6 +472,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
 }
 
 /// Stores block content
+#[derive(Default)]
 struct Blocks {
     nodes: Vec<BlockContent>,
     marks: Vec<usize>,
@@ -524,6 +509,7 @@ impl Blocks {
 /// Stores list items
 ///
 /// It is necessary to maintain marks to handle nested lists
+#[derive(Default)]
 struct Lists {
     /// Stack of list items
     items: Vec<ListItem>,
@@ -560,6 +546,7 @@ impl Lists {
 }
 
 /// Stores table rows and cells
+#[derive(Default)]
 struct Tables {
     rows: Vec<TableRow>,
     cells: Vec<TableCell>,
@@ -600,6 +587,7 @@ impl Tables {
 }
 
 /// Stores and parses inline content
+#[derive(Default)]
 struct Inlines {
     default_lang: Option<String>,
     active: bool,
@@ -1515,6 +1503,7 @@ fn symbol(input: &str) -> IResult<&str, String> {
 ///
 /// Simply accumulates HTML until tags balance, at which point the HTML is parsed,
 /// with text content being parsed as Markdown by calling back to `decode_fragment`.
+#[derive(Default)]
 struct Html {
     html: String,
     tags: Vec<String>,
