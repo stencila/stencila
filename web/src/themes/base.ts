@@ -8,13 +8,7 @@
  * necessary.
  */
 
-import {
-  addStylesheet,
-  awaitElems,
-  varGlobal,
-  vars,
-  varUse,
-} from '../components/utils/css'
+import { addStylesheet, varGlobal, vars, varUse } from '../components/utils/css'
 
 // Create variables used in main content and in Web Components
 const stencilaGlobalVariables = Object.entries(vars)
@@ -326,6 +320,10 @@ const shoelaceSemanticColors = [
   )
   .join('\n')
 
+// A variable for the code editor theme intended to be overridden by
+// theme authors
+const stencilaCodeEditorTheme = '--stencila-code-editor-theme: fooayuLight;'
+
 // Add a stylesheet for all variables
 addStylesheet(`
   :root,
@@ -334,6 +332,7 @@ addStylesheet(`
     ${stencilaLiteralColors}
     ${stencilaSemanticColors}
     ${shoelaceSemanticColors}
+    ${stencilaCodeEditorTheme}
   }
 `)
 

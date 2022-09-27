@@ -140,8 +140,13 @@ export default class StencilaCodeEditor extends StencilaElement {
    * The editor theme
    */
   @property({ reflect: true })
-  theme: string =
-    window.localStorage.getItem('StencilaCodeEditor.theme') ?? 'tomorrow'
+  theme?: string =
+    window
+      .getComputedStyle(document.documentElement)
+      .getPropertyValue('--stencila-code-editor-theme')
+      .trim() ||
+    window.localStorage.getItem('StencilaCodeEditor.theme') ||
+    'tomorrow'
 
   /**
    * A list of themes supported by this editor
@@ -395,11 +400,15 @@ export default class StencilaCodeEditor extends StencilaElement {
   }
 
   /**
-   * Get a CodeMirror theme `Extension`
+   * Get a CodeMirror theme `Extension` by name
+   *
+   * If no theme name is provided, or if it does not exists,
+   * returns a default theme.
    */
-  private getThemeExtension(title: string): Extension {
-    const name = camelCase(title)
-    return themes[name]
+  private getThemeExtension(title?: string): Extension {
+    const name = title ? camelCase(title) : 'ayuLight'
+    const theme = themes[name]
+    return theme ? theme : themes.ayuLight
   }
 
   /**
@@ -487,7 +496,9 @@ export default class StencilaCodeEditor extends StencilaElement {
       const effect = this.themeConfig.reconfigure(theme)
       this.dispatchEffect(effect)
 
-      window.localStorage.setItem('StencilaCodeEditor.theme', this.theme)
+      if (this.theme) {
+        window.localStorage.setItem('StencilaCodeEditor.theme', this.theme)
+      }
     }
   }
 
