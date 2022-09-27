@@ -8,7 +8,7 @@ use stencila_schema::*;
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype,
     attr_itemtype_str, attr_prop, attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder,
-    json, nothing, EncodeContext, ToHtml,
+    elem_property, json, nothing, EncodeContext, ToHtml, elem_meta_opt,
 };
 
 impl ToHtml for InlineContent {
@@ -350,12 +350,12 @@ impl ToHtml for CodeExpression {
     fn to_html(&self, context: &EncodeContext) -> String {
         let lang = attr_and_meta("programming_language", &self.programming_language);
 
-        let compile_digest = attr_and_meta_opt(
+        let compile_digest = elem_meta_opt(
             "compile_digest",
             self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
         );
 
-        let execute_digest = attr_and_meta_opt(
+        let execute_digest = elem_meta_opt(
             "execute_digest",
             self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
         );
@@ -379,20 +379,6 @@ impl ToHtml for CodeExpression {
             self.execute_status
                 .as_ref()
                 .map(|status| (*status).as_ref().to_string()),
-        );
-
-        let execute_ended = attr_and_meta_opt(
-            "execute_ended",
-            self.execute_ended
-                .as_ref()
-                .map(|date| (**date).value.to_string()),
-        );
-
-        let execute_duration = attr_and_meta_opt(
-            "execute_duration",
-            self.execute_duration
-                .as_ref()
-                .map(|seconds| seconds.to_string()),
         );
 
         let execute_count = attr_and_meta_opt(
@@ -420,6 +406,18 @@ impl ToHtml for CodeExpression {
             ),
         );
 
+        let execute_ended = elem_property(
+            &[attr_prop("execute_ended"), attr_slot("execute-ended")],
+            &self.execute_ended,
+            context,
+        );
+
+        let execute_duration = elem_property(
+            &[attr_prop("execute_duration"), attr_slot("execute-duration")],
+            &self.execute_duration,
+            context,
+        );
+
         let output = elem_placeholder(
             "output",
             &[attr_prop("output"), attr_slot("output")],
@@ -443,25 +441,21 @@ impl ToHtml for CodeExpression {
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 lang.0,
-                compile_digest.0,
-                execute_digest.0,
                 execute_required.0,
-                execute_kernel.0,
                 execute_status.0,
-                execute_ended.0,
-                execute_duration.0,
+                execute_kernel.0,
                 execute_count.0,
             ],
             &[
                 lang.1,
-                compile_digest.1,
-                execute_digest.1,
+                compile_digest,
+                execute_digest,
                 execute_required.1,
-                execute_kernel.1,
                 execute_status.1,
-                execute_ended.1,
-                execute_duration.1,
+                execute_kernel.1,
                 execute_count.1,
+                execute_ended,
+                execute_duration,
                 text,
                 dependencies,
                 output,

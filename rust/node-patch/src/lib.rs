@@ -364,7 +364,6 @@ impl Operation {
             CodeError
 
             // Properties of creative works
-            Date
             Person
             Organization
 
@@ -374,6 +373,11 @@ impl Operation {
             Cord
             Number
             Integer
+            Date
+            Time
+            DateTime
+            Timestamp
+            Duration
             Boolean
             Array
             Object
@@ -449,14 +453,16 @@ impl Operation {
             EnumValidator // Because "replaceable"
             CodeError
 
-            // Properties of creative works
-            Date
-
             // Primitives
             Primitive
             String
             Number
             Integer
+            Date
+            Time
+            DateTime
+            Timestamp
+            Duration
             Boolean
             Array
             Object

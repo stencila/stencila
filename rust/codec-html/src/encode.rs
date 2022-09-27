@@ -214,15 +214,7 @@ fn nothing() -> String {
 /// This, and other functions below, us slice `concat`, rather than `format!`
 /// for performance (given that HTML generation may be done on every, or nearly every, keystroke).
 fn elem(name: &str, attrs: &[String], content: &str) -> String {
-    let attrs = attrs.iter().fold(String::new(), |mut attrs, attr| {
-        if !attr.is_empty() {
-            if !attrs.is_empty() {
-                attrs.push(' ');
-            }
-            attrs.push_str(attr);
-        }
-        attrs
-    });
+    let attrs = attrs_join(attrs);
     [
         "<",
         name,
@@ -260,6 +252,16 @@ fn elem_meta(name: &str, content: &str) -> String {
     elem_empty("meta", &[attr_itemprop(name), attr("content", content)])
 }
 
+/// Encode an optional property as a `<meta>` element
+///
+/// If the property value is `None` returns an empty string.
+fn elem_meta_opt(name: &str, value: Option<String>) -> String {
+    match value {
+        Some(value) => elem_meta(name, &value),
+        None => nothing(),
+    }
+}
+
 /// Encode an optional property as an element
 ///
 /// If the property is `None` then the element will be empty but will act
@@ -280,6 +282,22 @@ fn elem_placeholder<T: ToHtml>(
             None => nothing(),
         },
     )
+}
+
+/// Encode an element that represents an optional property of a node
+///
+/// Use this for properties of nodes that can not be represented by simply
+/// string attributes e.g. `DateTime`, `Timestamp`, `Duration`. It modifies the
+/// HTML of the item by adding attributes to the element's HTML.
+fn elem_property<T>(attrs: &[String], property: &Option<T>, context: &EncodeContext) -> String
+where
+    T: Default + ToHtml,
+{
+    let elem = match property {
+        Some(property) => property.to_html(context),
+        None => return nothing(),
+    };
+    elem.replacen('>', &[" ", &attrs_join(attrs), ">"].concat(), 1)
 }
 
 /// Encode a HTML element attribute, ensuring that the value is escaped correctly
@@ -394,6 +412,19 @@ fn attr_and_meta_opt(name: &str, value: Option<String>) -> (String, String) {
         Some(value) => attr_and_meta(name, &value),
         None => (nothing(), nothing()),
     }
+}
+
+/// Join a set of individual attributes together
+fn attrs_join(attrs: &[String]) -> String {
+    attrs.iter().fold(String::new(), |mut attrs, attr| {
+        if !attr.is_empty() {
+            if !attrs.is_empty() {
+                attrs.push(' ');
+            }
+            attrs.push_str(attr);
+        }
+        attrs
+    })
 }
 
 /// Encode a node as JSON

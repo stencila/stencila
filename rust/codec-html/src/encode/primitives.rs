@@ -40,6 +40,8 @@ atomic_to_html!(Boolean);
 atomic_to_html!(Integer);
 atomic_to_html!(Number);
 
+atomic_to_html!(u32);
+
 /// Encode a `String` to HTML
 ///
 /// This is the only `Node` type that is NOT represented by an element
@@ -134,22 +136,30 @@ impl ToHtml for DateTime {
 /// Encode a `Timestamp` to HTML
 impl ToHtml for Timestamp {
     fn to_html(&self, _context: &EncodeContext) -> String {
-        // Convert the time stamp to a `chrono:NaiveDate` and print as ISO 8601 string
-        self.to_iso8601().unwrap_or_default()
+        let iso8601 = self.to_iso8601().unwrap_or_else(|_| self.value.to_string());
+        elem(
+            "stencila-timestamp",
+            &[
+                attr("value", &self.value.to_string()),
+                attr("time-unit", self.time_unit.as_ref()),
+                attr("datetime", &iso8601),
+            ],
+            &iso8601,
+        )
     }
 }
 
 /// Encode a `Duration` to HTML
 impl ToHtml for Duration {
     fn to_html(&self, _context: &EncodeContext) -> String {
+        let content = self.humanize();
         elem(
-            "span",
-            &[],
+            "stencila-duration",
             &[
-                elem("span", &[attr_prop("value")], &self.value.to_string()),
-                elem("span", &[attr_prop("timeUnit")], &self.time_unit.to_si()),
-            ]
-            .concat(),
+                attr("value", &self.value.to_string()),
+                attr("time-unit", self.time_unit.as_ref()),
+            ],
+            &content,
         )
     }
 }
