@@ -15,8 +15,7 @@ export const STRUCT_ATTRIBUTES: Record<string, string> = {
   executeRequired: 'execute-required',
   executeKernel: 'execute-kernel',
   executeStatus: 'execute-status',
-  executeEnded: 'execute-ended',
-  executeDuration: 'execute-duration',
+  executeCount: 'execute-count',
   // TableCell
   rowspan: 'rowspan',
   colspan: 'colspan',

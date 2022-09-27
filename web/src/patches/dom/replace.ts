@@ -51,8 +51,15 @@ export function applyReplace(op: OperationReplace, target?: ElementId): void {
       else applyReplaceVec(parent, slot, items, length, html)
     }
   } else {
-    assertString(value)
-    applyReplaceText(parent, slot, items, value)
+    let text: string
+    if (typeof value === 'string') {
+      text = value
+    } else if (value === null) {
+      throw panic('Got a null value')
+    } else {
+      text = value.toString()
+    }
+    applyReplaceText(parent, slot, items, text)
   }
 }
 

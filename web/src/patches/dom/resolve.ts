@@ -86,6 +86,11 @@ export function resolveSlot(
     assertElement(parent)
     const child: Element | null = parent.querySelector(slotSelector(slot))
 
+    // If the child is a Stencila custom element then just return it
+    if (child?.tagName.startsWith('STENCILA')) {
+      return child
+    }
+
     // The `text` slot (e.g. on `CodeFragment`) should always represented by the text content of the selected element
     // and is usually "implicit" (so, if there is no explicitly marked text slot, use the parent)
     if (slot === 'text') {
