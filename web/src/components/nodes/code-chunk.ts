@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement, state } from 'lit/decorators'
+import { customElement } from 'lit/decorators'
 import { apply as twApply, css } from 'twind/css'
 
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
@@ -9,7 +9,7 @@ import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import '../base/icon'
 import '../base/tag'
 import '../editors/code-editor'
-import { twSheet, varApply, varLocal, varPass } from '../utils/css'
+import { twSheet, varApply, varLocal, varPass, varUse } from '../utils/css'
 import StencilaCodeExecutable from './code-executable'
 import './duration'
 import './timestamp'
@@ -34,14 +34,6 @@ const { tw, sheet } = twSheet()
 @customElement('stencila-code-chunk')
 export default class StencilaCodeChunk extends StencilaCodeExecutable {
   static styles = [sheet.target]
-
-  @state()
-  private hasOutputs: boolean
-
-  private async onOutputsSlotChange(event: Event) {
-    const slotted = (event.target as HTMLSlotElement).assignedNodes()[0]
-    this.hasOutputs = slotted.childNodes.length > 0
-  }
 
   render() {
     return html`<div
@@ -111,6 +103,12 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
           }
 
           [part='outputs'].has-outputs {
+            ${varUse(
+              'main-background-color',
+              'main-font-family',
+              'main-text-color',
+              'main-font-size'
+            )}
             ${twApply('p-1')}
           }
         `

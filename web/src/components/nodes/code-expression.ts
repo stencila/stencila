@@ -9,7 +9,7 @@ import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import '../base/icon'
 import '../base/tag'
 import '../editors/code-editor'
-import { twSheet, varApply, varLocal } from '../utils/css'
+import { twSheet, varApply, varLocal, varUse } from '../utils/css'
 import StencilaCodeExecutable from './code-executable'
 
 const { tw, sheet } = twSheet()
@@ -47,12 +47,23 @@ export default class StencilaCodeExpression extends StencilaCodeExecutable {
           )}
 
           ${twApply('inline-block my-1 py-0.5 px-1')}
+
+          [part='output'].has-outputs {
+            ${varUse(
+              'main-background-color',
+              'main-font-family',
+              'main-text-color',
+              'main-font-size'
+            )}
+            ${twApply('py-1 px-2')}
+          }
         `
       )}"
     >
       ${this.renderExecuteIcon(tw)}
       <stencila-tag color="green">${this.id}</stencila-tag>
       ${this.renderLanguageSelector(tw)}
+
       <stencila-code-editor
         part="code"
         language=${this.programmingLanguage}
@@ -65,6 +76,10 @@ export default class StencilaCodeExpression extends StencilaCodeExecutable {
       >
         <slot name="text" slot="code"></slot>
       </stencila-code-editor>
+
+      <span part="output" class=${this.hasOutputs ? 'has-outputs' : ''}>
+        <slot name="output" @slotchange=${this.onOutputsSlotChange}></slot>
+      </span>
     </span>`
   }
 }

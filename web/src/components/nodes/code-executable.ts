@@ -41,6 +41,14 @@ export default class StencilaCodeExecutable extends Executable {
     return mode >= Mode.Alter && mode != Mode.Edit
   }
 
+  @state()
+  protected hasOutputs: boolean
+
+  protected async onOutputsSlotChange(event: Event) {
+    const slotted = (event.target as HTMLSlotElement).assignedNodes()[0]
+    this.hasOutputs = slotted.childNodes.length > 0
+  }
+
   connectedCallback() {
     super.connectedCallback()
 
