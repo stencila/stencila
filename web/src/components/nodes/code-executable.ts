@@ -76,26 +76,6 @@ export default class StencilaCodeExecutable extends Executable {
     )
   }
 
-  protected async update(changedProperties: Map<string, any>) {
-    super.update(changedProperties)
-
-    if (changedProperties.has('programmingLanguage')) {
-      const patch = {
-        target: this.id,
-        ops: [
-          {
-            type: 'Replace',
-            address: ['programmingLanguage'],
-            items: 1,
-            length: 1,
-            value: this.programmingLanguage.toLowerCase(),
-          },
-        ],
-      }
-      return this.emit('stencila-document-patch', patch)
-    }
-  }
-
   protected renderLanguageSelector(tw: TW) {
     const languages = window.stencilaConfig.executableLanguages ?? []
 
