@@ -11,7 +11,7 @@ export default class StencilaDuration extends StencilaElement {
   @property({ type: Number })
   value: number
 
-  @property()
+  @property({ attribute: 'time-unit' })
   timeUnit:
     | 'Year'
     | 'Month'
@@ -25,7 +25,7 @@ export default class StencilaDuration extends StencilaElement {
     | 'Nanosecond'
     | 'Picosecond'
     | 'Femtosecond'
-    | 'Attosecond' = 'Microsecond'
+    | 'Attosecond' = 'Millisecond'
 
   render() {
     const [value, unit] = (() => {

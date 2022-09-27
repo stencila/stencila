@@ -12,7 +12,7 @@ export default class StencilaTimestamp extends StencilaElement {
   @property({ type: Number })
   value: number
 
-  @property()
+  @property({ attribute: 'time-unit' })
   timeUnit:
     | 'Year'
     | 'Month'
@@ -26,7 +26,7 @@ export default class StencilaTimestamp extends StencilaElement {
     | 'Nanosecond'
     | 'Picosecond'
     | 'Femtosecond'
-    | 'Attosecond' = 'Microsecond'
+    | 'Attosecond' = 'Millisecond'
 
   render() {
     const millis = (() => {
@@ -60,7 +60,7 @@ export default class StencilaTimestamp extends StencilaElement {
       }
     })()
 
-    const date = new Date(millis * 1000)
+    const date = new Date(millis)
     const iso8601 = date.toISOString()
 
     return html`<relative-time datetime=${iso8601}></relative-time>`
