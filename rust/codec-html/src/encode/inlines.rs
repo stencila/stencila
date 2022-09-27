@@ -454,10 +454,10 @@ impl ToHtml for CodeExpression {
                 execute_status.1,
                 execute_kernel.1,
                 execute_count.1,
-                execute_ended,
-                execute_duration,
                 text,
                 dependencies,
+                execute_ended,
+                execute_duration,
                 output,
                 errors,
             ]
