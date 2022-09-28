@@ -4,7 +4,7 @@ use codec::{
         regex::Regex,
         serde_json,
     },
-    stencila_schema::{Article, BlockContent, CodeChunk, InlineContent, Node, Parameter},
+    stencila_schema::{Article, BlockContent, CodeChunk, For, If, InlineContent, Node, Parameter},
     utils::vec_string,
     Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
@@ -161,7 +161,9 @@ impl CodecTrait for ScriptCodec {
             Some(format) => format.to_lowercase(),
             None => bail!("A format option (the programming language of the script) is required"),
         };
-        let comment_start = match lang.as_str() {
+        let lang = lang.as_str();
+
+        let comment_start = match lang {
             "bash" | "py" | "r" | "sh" | "zsh" => "# ",
             "js" => "// ",
             "sql" => "-- ",
@@ -170,22 +172,95 @@ impl CodecTrait for ScriptCodec {
                 lang
             ),
         };
-        let params_prelude = match lang.as_str() {
-            "js" => "// @skip\nconst __param__ = (type, index, def) => (type === 'string' ? String : JSON.parse)(process.argv[2 + index] || def)\n\n",
+
+        let indentation = match lang {
+            "py" => "    ",
+            _ => "  ",
+        };
+
+        let (for_supported, if_supported) = match lang {
+            "js" | "py" | "r" | "sh" | "bash" | "zsh" => (true, true),
+            _ => (false, false),
+        };
+
+        let empty_block = match lang {
+            "py" => "pass\n",
+            "bash" | "sh" | "zsh" => "true\n",
+            _ => "", // Not necessary
+        };
+
+        let for_var = match lang {
+            "js" => ("for$index", "const for$index = $expr;\n\n"),
+            "py" => ("for$index", "for$index = $expr\n\n"),
+            "r" => ("for$index", "for$index = $expr;\n\n"),
+            "bash" | "sh" | "zsh" => ("for$index", "for$index=$($expr)\n\n"),
+            _ => ("", ""), // Not supported
+        };
+        let for_start = match lang {
+            "js" => "for ($symbol of $expr) {\n\n",
+            "py" => "for $symbol in $expr:\n\n",
+            "r" => "for ($symbol in $expr) {\n\n",
+            "bash" | "sh" | "zsh" => "for $symbol in $expr; do\n\n",
+            _ => "", // Not supported
+        };
+        let for_end = match lang {
+            "js" | "r" => "\n}\n\n",
+            "py" => "\n\n",
+            "bash" | "sh" | "zsh" => "\ndone\n\n",
+            _ => "", // Not necessary or not supported
+        };
+        let for_otherwise_start = match lang {
+            "js" => "if ($expr.length == 0) {\n\n",
+            "py" => "if len($expr) == 0:\n\n",
+            "r" => "if (length($expr) == 0) {\n\n",
+            "bash" | "sh" | "zsh" => "if [ $expr ]; then\n\n",
+            _ => "", // Not supported
+        };
+        let for_otherwise_end = match lang {
+            "js" | "r" => "\n}\n\n",
+            "py" => "\n\n",
+            "bash" | "sh" | "zsh" => "\nfi\n\n",
+            _ => "", // Not necessary or not supported
+        };
+
+        let if_start = match lang {
+            "js" => "if ($expr) {\n\n",
+            "py" => "if $expr:\n\n",
+            "r" => "if ($expr) {\n\n",
+            "bash" | "sh" | "zsh" => "if [ $expr ]; then\n\n",
+            _ => "", // Not supported
+        };
+        let if_alternative = match lang {
+            "js" | "r" => "\n\n} else if ($expr) {\n\n",
+            "py" => "\nelif $expr:\n\n",
+            "bash" | "sh" | "zsh" => "\nelif [ $expr ]; then\n\n",
+            _ => "", // Not supported
+        };
+        let if_otherwise = match lang {
+            "js" | "r" => "\n} else {\n\n",
+            "py" => "\nelse:\n\n",
+            "bash" | "sh" | "zsh" => "\nelse\n\n",
+            _ => "", // Not supported
+        };
+        let if_end = match lang {
+            "js" | "r" => "\n}\n\n",
+            "py" => "\n\n",
+            "bash" | "sh" | "zsh" => "\nfi\n\n",
+            _ => "", // Not supported
+        };
+
+        let params_prelude = match lang {
+            "js" => "// @skip\nconst $param = (type, index, def) => (type === 'string' ? String : JSON.parse)(process.argv[2 + index] || def)\n\n",
             "py" =>"# @skip\ndef __param__(type, index, default): import sys, json; return (str if type == 'string' else json.loads)(sys.argv[1 + index] if len(sys.argv) > index + 1 else default)\n\n",
             "r" =>"# @skip\nparam__ <- function(type, index, def) { argv <- commandArgs(trailingOnly=TRUE); ifelse(type == 'string', identity, jsonlite::fromJSON)(ifelse(length(argv) > index + 1, argv[1 + index], def)) }\n\n",
-            _ => "",
+            _ => "", // Not supported
         };
-        let param_template = match lang.as_str() {
+        let param_template = match lang {
             "bash" | "sh" | "zsh" => "$name=${1:-$default}\n\n",
-            "js" => "let $name = __param__('$type', $index, $default);\n\n",
+            "js" => "let $name = $param('$type', $index, $default);\n\n",
             "py" => "$name = __param__('$type', $index, $default)\n\n",
             "r" => "$name = param__('$type', $index, $default)\n\n",
-            "sql" => "", // Not supported
-            _ => bail!(
-                "No param template defined for programming language `{}`",
-                lang
-            ),
+            _ => "", // Not supported
         };
 
         // Get blocks, returning early if none
@@ -200,9 +275,6 @@ impl CodecTrait for ScriptCodec {
         let mut script = String::new();
         let mut code = String::new();
 
-        // Iterate over blocks, adding `CodeChunk`s and `Parameters` as code, and everything else, as Markdown comments
-        let mut comment_blocks = Vec::new();
-        let mut params_preluded = false;
         let blocks_to_comment = |blocks: &Vec<&BlockContent>| -> String {
             blocks
                 .iter()
@@ -212,8 +284,51 @@ impl CodecTrait for ScriptCodec {
                 .map(|line| [comment_start, line].concat())
                 .join("\n")
         };
+
+        let blocks_to_code = |blocks: &Vec<BlockContent>| -> String {
+            let mut inner = Self::to_string(
+                &Node::Article(Article {
+                    content: Some(blocks.clone()),
+                    ..Default::default()
+                }),
+                Some(EncodeOptions {
+                    format: Some(lang.to_string()),
+                    ..options.clone()
+                }),
+            )
+            .unwrap_or_default()
+            .trim()
+            .to_string();
+
+            if !empty_block.is_empty() {
+                if inner.is_empty() {
+                    inner = empty_block.to_string();
+                } else if !inner.lines().any(|line| !line.starts_with(comment_start)) {
+                    inner.push_str("\n\n");
+                    inner.push_str(empty_block);
+                }
+            }
+
+            inner
+        };
+
+        let indent = |content: &str| -> String {
+            content
+                .lines()
+                .map(|line| [indentation, line].concat())
+                .join("\n")
+        };
+
+        // Iterate over blocks, adding `For`s, `If`s, `CodeChunk`s, `Parameter`s etc as code, and
+        // everything else, as Markdown comments
+        let mut comment_blocks = Vec::new();
+        let mut params_preluded = false;
+        let mut for_index = 0;
         for block in blocks {
-            if let BlockContent::CodeChunk(CodeChunk { text, .. }) = block {
+            if matches!(block, BlockContent::For(..)) && for_supported
+                || matches!(block, BlockContent::If(..)) && if_supported
+                || matches!(block, BlockContent::CodeChunk(..))
+            {
                 if !comment_blocks.is_empty() {
                     script.push_str(&blocks_to_comment(&comment_blocks));
                     script.push_str("\n\n");
@@ -226,12 +341,75 @@ impl CodecTrait for ScriptCodec {
                     code.clear();
                 }
 
-                script.push_str(text);
+                if let BlockContent::For(For {
+                    symbol,
+                    expression,
+                    content,
+                    otherwise,
+                    ..
+                }) = block
+                {
+                    for_index += 1;
 
-                if text.ends_with('\n') {
-                    script.push('\n');
-                } else {
-                    script.push_str("\n\n");
+                    let expr = if otherwise.is_some() && !for_var.0.is_empty() {
+                        let index = for_index.to_string();
+                        let assign = for_var
+                            .1
+                            .replace("$index", &index)
+                            .replace("$expr", &expression.text);
+                        code.push_str(&assign);
+                        for_var.0.replace("$index", &index)
+                    } else {
+                        expression.text.clone()
+                    };
+
+                    code.push_str(&for_start.replace("$symbol", symbol).replace("$expr", &expr));
+                    code.push_str(&indent(&blocks_to_code(content)));
+                    code.push('\n');
+                    code.push_str(for_end);
+
+                    if let Some(otherwise) = otherwise {
+                        code.push_str(&for_otherwise_start.replace("$expr", &expr));
+                        code.push_str(&indent(&blocks_to_code(otherwise)));
+                        code.push('\n');
+                        code.push_str(for_otherwise_end);
+                    }
+                } else if let BlockContent::If(If {
+                    condition,
+                    content,
+                    alternatives,
+                    otherwise,
+                    ..
+                }) = block
+                {
+                    code.push_str(&if_start.replace("$expr", &condition.text));
+                    code.push_str(&indent(&blocks_to_code(content)));
+                    code.push('\n');
+
+                    for alternative in alternatives.iter().flatten() {
+                        let If {
+                            condition, content, ..
+                        } = alternative;
+                        code.push_str(&if_alternative.replace("$expr", &condition.text));
+                        code.push_str(&indent(&blocks_to_code(content)));
+                        code.push('\n');
+                    }
+
+                    if let Some(otherwise) = otherwise {
+                        code.push_str(if_otherwise);
+                        code.push_str(&indent(&blocks_to_code(otherwise)));
+                        code.push('\n');
+                    }
+
+                    code.push_str(if_end);
+                } else if let BlockContent::CodeChunk(CodeChunk { text, .. }) = block {
+                    script.push_str(text);
+
+                    if text.ends_with('\n') {
+                        script.push('\n');
+                    } else {
+                        script.push_str("\n\n");
+                    }
                 }
             } else {
                 if !code.is_empty() {
@@ -241,40 +419,42 @@ impl CodecTrait for ScriptCodec {
 
                 comment_blocks.push(block);
 
-                // Get parameters and add a code section to instantiate them
-                let mut params = ParameterGetter::default();
-                walk(block, &mut params);
-                if !params.params.is_empty() {
-                    if !params_preluded {
-                        code += params_prelude;
-                        params_preluded = true;
-                    }
+                // If supported, get parameters and add a code section to instantiate them
+                if !param_template.is_empty() {
+                    let mut params = ParameterGetter::default();
+                    walk(block, &mut params);
+                    if !params.params.is_empty() {
+                        if !params_preluded {
+                            code += params_prelude;
+                            params_preluded = true;
+                        }
 
-                    for (index, param) in params.params.into_iter().enumerate() {
-                        let typ = param
-                            .validator
-                            .map(|validator| {
-                                validator
-                                    .as_ref()
-                                    .as_ref()
-                                    .strip_suffix("Validator")
-                                    .unwrap_or_default()
-                                    .to_string()
-                                    .to_lowercase()
-                            })
-                            .unwrap_or_else(|| "string".to_string());
-                        let default = param
-                            .default
-                            .unwrap_or_else(|| Box::new(Node::String(String::new())));
-                        let param_line = param_template
-                            .replace("$name", &param.name)
-                            .replace("$type", &typ)
-                            .replace("$index", &index.to_string())
-                            .replace(
-                                "$default",
-                                &serde_json::to_string(&default).unwrap_or_default(),
-                            );
-                        code += &[comment_start, "@skip\n", &param_line].concat();
+                        for (index, param) in params.params.into_iter().enumerate() {
+                            let typ = param
+                                .validator
+                                .map(|validator| {
+                                    validator
+                                        .as_ref()
+                                        .as_ref()
+                                        .strip_suffix("Validator")
+                                        .unwrap_or_default()
+                                        .to_string()
+                                        .to_lowercase()
+                                })
+                                .unwrap_or_else(|| "string".to_string());
+                            let default = param
+                                .default
+                                .unwrap_or_else(|| Box::new(Node::String(String::new())));
+                            let param_line = param_template
+                                .replace("$name", &param.name)
+                                .replace("$type", &typ)
+                                .replace("$index", &index.to_string())
+                                .replace(
+                                    "$default",
+                                    &serde_json::to_string(&default).unwrap_or_default(),
+                                );
+                            code += &[comment_start, "@skip\n", &param_line].concat();
+                        }
                     }
                 }
             }
