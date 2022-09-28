@@ -615,7 +615,7 @@ impl Graph {
         let kernel = kernel_selector.select(&kernels);
         let kernel_forkable = match kernel {
             Some(kernel) => kernel.forkable,
-            None => bail!("There is no kernel available capable of executing the code"),
+            None => false
         };
 
         let is_fork = Self::should_run_in_fork(kernel_forkable, &resource_info, 0, &options);
@@ -679,7 +679,8 @@ impl Graph {
 
             let resource_info = self.get_resource_info(resource)?;
 
-            // Only include code for which there is a kernel capable of executing it
+            // Select a kernel for the language (for some nodes e.g. `Call` the languages is 'unknown'
+            // so kernel will be None)
             let kernel_selector = KernelSelector::from_format_and_tags(
                 code.language,
                 Some(&tags.merge(&resource_info.tags)),
@@ -687,7 +688,7 @@ impl Graph {
             let kernel = kernel_selector.select(&kernels);
             let kernel_forkable = match kernel {
                 Some(kernel) => kernel.forkable,
-                None => continue,
+                None => false,
             };
 
             // If this is not the explicitly executed resource `start`
@@ -881,7 +882,8 @@ impl Graph {
 
             let resource_info = self.get_resource_info(resource)?;
 
-            // Only execute resources for which there is a kernel capable of executing code
+            // Select a kernel for the language (for some nodes e.g. `Call` the languages is 'unknown'
+            // so kernel will be None)
             let kernel_selector = KernelSelector::from_format_and_tags(
                 code.language,
                 Some(&tags.merge(&resource_info.tags)),
@@ -889,7 +891,7 @@ impl Graph {
             let kernel = kernel_selector.select(&kernels);
             let kernel_forkable = match kernel {
                 Some(kernel) => kernel.forkable,
-                None => continue,
+                None => false,
             };
 
             // Determine if the taks should run in a fork
