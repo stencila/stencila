@@ -114,7 +114,16 @@ impl ToMd for Quote {
 
 impl ToMd for CodeExpression {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        ["`", &self.text, "`{", &self.programming_language, " exec}"].concat()
+        let lang = &self.programming_language;
+        [
+            "`",
+            &self.text,
+            "`{",
+            lang,
+            if lang.trim().is_empty() { "" } else { " " },
+            "exec}",
+        ]
+        .concat()
     }
 }
 
