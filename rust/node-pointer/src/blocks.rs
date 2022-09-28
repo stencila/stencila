@@ -72,7 +72,9 @@ pointable_struct!(CodeError);
 
 pointable_struct!(FigureSimple, caption);
 pointable_variants!(FigureCaption, FigureCaption::VecBlockContent);
+pointable_struct!(For, content);
 pointable_struct!(Heading, content);
+pointable_struct!(If, content);
 pointable_struct!(Include, content);
 
 pointable_struct!(List, items);

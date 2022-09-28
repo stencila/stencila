@@ -2713,6 +2713,76 @@ File <- function(
 }
 
 
+#' Repeat a block content for each item in an array
+#'
+#' @name For
+#' @param content The content to repeat for each item \bold{Required}.
+#' @param expression An expression that evaluates to an array of items to be iterated over \bold{Required}.
+#' @param symbol The name to give to the variable representing each item in the iterated array \bold{Required}.
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
+#' @param executeAuto Under which circumstances the code should be automatically executed.
+#' @param executeCount A count of the number of times that the node has been executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
+#' @param executeRequired Whether, and why, the code requires execution or re-execution.
+#' @param executeStatus Status of the most recent, including any current, execution.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param otherwise The content to render if there are no items
+#' @return A `list` of class `For`
+#' @seealso \code{\link{Executable}}
+#' @export
+For <- function(
+  content,
+  expression,
+  symbol,
+  codeDependencies,
+  codeDependents,
+  compileDigest,
+  errors,
+  executeAuto,
+  executeCount,
+  executeDigest,
+  executeDuration,
+  executeEnded,
+  executeKernel,
+  executeRequired,
+  executeStatus,
+  id,
+  meta,
+  otherwise
+){
+  self <- Executable(
+    codeDependencies = codeDependencies,
+    codeDependents = codeDependents,
+    compileDigest = compileDigest,
+    errors = errors,
+    executeAuto = executeAuto,
+    executeCount = executeCount,
+    executeDigest = executeDigest,
+    executeDuration = executeDuration,
+    executeEnded = executeEnded,
+    executeKernel = executeKernel,
+    executeRequired = executeRequired,
+    executeStatus = executeStatus,
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("For")
+  self[["content"]] <- check_property("For", "content", TRUE, missing(content), Array(BlockContent), content)
+  self[["expression"]] <- check_property("For", "expression", TRUE, missing(expression), CodeExpression, expression)
+  self[["symbol"]] <- check_property("For", "symbol", TRUE, missing(symbol), "character", symbol)
+  self[["otherwise"]] <- check_property("For", "otherwise", FALSE, missing(otherwise), Array(BlockContent), otherwise)
+  class(self) <- c(class(self), "For")
+  self
+}
+
+
 #' A function with a name, which might take Parameters and return a value of a certain type.
 #'
 #' @name Function
@@ -2814,6 +2884,76 @@ Heading <- function(
   self[["content"]] <- check_property("Heading", "content", TRUE, missing(content), Array(InlineContent), content)
   self[["depth"]] <- check_property("Heading", "depth", FALSE, missing(depth), "numeric", depth)
   class(self) <- c(class(self), "Heading")
+  self
+}
+
+
+#' Show and execute alternative content conditional upon an executed expression
+#'
+#' @name If
+#' @param condition An expression that evaluates to an array of items to be iterated over \bold{Required}.
+#' @param content The content to show and execute if the condition evaluates to true \bold{Required}.
+#' @param alternatives Alternatives if clauses which will be evaluated if the condition evaluates to false
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
+#' @param executeAuto Under which circumstances the code should be automatically executed.
+#' @param executeCount A count of the number of times that the node has been executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
+#' @param executeRequired Whether, and why, the code requires execution or re-execution.
+#' @param executeStatus Status of the most recent, including any current, execution.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param otherwise Content to show and execute if the condition, and all the alternatives, evaluate to false
+#' @return A `list` of class `If`
+#' @seealso \code{\link{Executable}}
+#' @export
+If <- function(
+  condition,
+  content,
+  alternatives,
+  codeDependencies,
+  codeDependents,
+  compileDigest,
+  errors,
+  executeAuto,
+  executeCount,
+  executeDigest,
+  executeDuration,
+  executeEnded,
+  executeKernel,
+  executeRequired,
+  executeStatus,
+  id,
+  meta,
+  otherwise
+){
+  self <- Executable(
+    codeDependencies = codeDependencies,
+    codeDependents = codeDependents,
+    compileDigest = compileDigest,
+    errors = errors,
+    executeAuto = executeAuto,
+    executeCount = executeCount,
+    executeDigest = executeDigest,
+    executeDuration = executeDuration,
+    executeEnded = executeEnded,
+    executeKernel = executeKernel,
+    executeRequired = executeRequired,
+    executeStatus = executeStatus,
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("If")
+  self[["condition"]] <- check_property("If", "condition", TRUE, missing(condition), CodeExpression, condition)
+  self[["content"]] <- check_property("If", "content", TRUE, missing(content), Array(BlockContent), content)
+  self[["alternatives"]] <- check_property("If", "alternatives", FALSE, missing(alternatives), Array(If), alternatives)
+  self[["otherwise"]] <- check_property("If", "otherwise", FALSE, missing(otherwise), Array(BlockContent), otherwise)
+  class(self) <- c(class(self), "If")
   self
 }
 
@@ -5336,7 +5476,7 @@ TimeUnit <- Enum("Year", "Month", "Week", "Day", "Hour", "Minute", "Second", "Mi
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-BlockContent <- Union(Call, Claim, CodeBlock, CodeChunk, Figure, Heading, Include, List, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
+BlockContent <- Union(Call, Claim, CodeBlock, CodeChunk, Figure, For, Heading, If, Include, List, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
 
 
 #' All type schemas that are derived from CodeExecutable
@@ -5378,14 +5518,14 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Claim, Collection
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, DateTimeValidator, DateValidator, DefinedTerm, Delete, Directory, DurationValidator, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TimeValidator, TimestampValidator, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, DateTimeValidator, DateValidator, DefinedTerm, Delete, Directory, DurationValidator, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, For, Function, Grant, Heading, If, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TimeValidator, TimestampValidator, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Executable
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-ExecutableTypes <- Union(Executable, Call, CallArgument, CodeChunk, CodeExecutable, CodeExpression, Include, Parameter)
+ExecutableTypes <- Union(Executable, Call, CallArgument, CodeChunk, CodeExecutable, CodeExpression, For, If, Include, Parameter)
 
 
 #' All type schemas that are derived from Grant
@@ -5434,7 +5574,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, DateTimeValidator, DateValidator, DefinedTerm, Delete, Directory, DurationValidator, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TimeValidator, TimestampValidator, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", Date, Time, DateTime, Timestamp, Duration, "list", Array(Any()))
+Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, DateTimeValidator, DateValidator, DefinedTerm, Delete, Directory, DurationValidator, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, For, Function, Grant, Heading, If, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TimeValidator, TimestampValidator, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", Date, Time, DateTime, Timestamp, Duration, "list", Array(Any()))
 
 
 #' All type schemas that are derived from NumberValidator

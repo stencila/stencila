@@ -2438,6 +2438,69 @@ class File(CreativeWork):
             self.path = path
 
 
+class For(Executable):
+    """Repeat a block content for each item in an array"""
+
+    content: Array["BlockContent"]
+    """The content to repeat for each item"""
+
+    expression: "CodeExpression"
+    """An expression that evaluates to an array of items to be iterated over"""
+
+    symbol: String
+    """The name to give to the variable representing each item in the iterated array"""
+
+    otherwise: Optional[Array["BlockContent"]] = None
+    """The content to render if there are no items"""
+
+
+    def __init__(
+        self,
+        content: Array["BlockContent"],
+        expression: "CodeExpression",
+        symbol: String,
+        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        compileDigest: Optional[String] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["ExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
+        executeKernel: Optional[String] = None,
+        executeRequired: Optional["ExecuteRequired"] = None,
+        executeStatus: Optional["ExecuteStatus"] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
+        otherwise: Optional[Array["BlockContent"]] = None
+    ) -> None:
+        super().__init__(
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            errors=errors,
+            executeAuto=executeAuto,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeKernel=executeKernel,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
+            id=id,
+            meta=meta
+        )
+        if content is not None:
+            self.content = content
+        if expression is not None:
+            self.expression = expression
+        if symbol is not None:
+            self.symbol = symbol
+        if otherwise is not None:
+            self.otherwise = otherwise
+
+
 class Function(Entity):
     """
     A function with a name, which might take Parameters and return a value of a
@@ -2538,6 +2601,72 @@ class Heading(Entity):
             self.content = content
         if depth is not None:
             self.depth = depth
+
+
+class If(Executable):
+    """
+    Show and execute alternative content conditional upon an executed
+    expression
+    """
+
+    condition: "CodeExpression"
+    """An expression that evaluates to an array of items to be iterated over"""
+
+    content: Array["BlockContent"]
+    """The content to show and execute if the condition evaluates to true"""
+
+    alternatives: Optional[Array["If"]] = None
+    """Alternatives if clauses which will be evaluated if the condition evaluates to false"""
+
+    otherwise: Optional[Array["BlockContent"]] = None
+    """Content to show and execute if the condition, and all the alternatives, evaluate to false"""
+
+
+    def __init__(
+        self,
+        condition: "CodeExpression",
+        content: Array["BlockContent"],
+        alternatives: Optional[Array["If"]] = None,
+        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        compileDigest: Optional[String] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["ExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
+        executeKernel: Optional[String] = None,
+        executeRequired: Optional["ExecuteRequired"] = None,
+        executeStatus: Optional["ExecuteStatus"] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
+        otherwise: Optional[Array["BlockContent"]] = None
+    ) -> None:
+        super().__init__(
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            errors=errors,
+            executeAuto=executeAuto,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeKernel=executeKernel,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
+            id=id,
+            meta=meta
+        )
+        if condition is not None:
+            self.condition = condition
+        if content is not None:
+            self.content = content
+        if alternatives is not None:
+            self.alternatives = alternatives
+        if otherwise is not None:
+            self.otherwise = otherwise
 
 
 class ImageObject(MediaObject):
@@ -5231,7 +5360,7 @@ class TimeUnit(Enum):
 """
 Union type for valid block content.
 """
-BlockContent = Union["Call", "Claim", "CodeBlock", "CodeChunk", "Figure", "Heading", "Include", "List", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
+BlockContent = Union["Call", "Claim", "CodeBlock", "CodeChunk", "Figure", "For", "Heading", "If", "Include", "List", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
 
 
 """
@@ -5267,13 +5396,13 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Co
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "For", "Function", "Grant", "Heading", "If", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
 All type schemas that are derived from Executable
 """
-ExecutableTypes = Union["Executable", "Call", "CallArgument", "CodeChunk", "CodeExecutable", "CodeExpression", "Include", "Parameter"]
+ExecutableTypes = Union["Executable", "Call", "CallArgument", "CodeChunk", "CodeExecutable", "CodeExpression", "For", "If", "Include", "Parameter"]
 
 
 """
@@ -5316,7 +5445,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 Union type for all types of nodes in this schema, including primitives and
     entities
 """
-Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration", "Object", "Array"]
+Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "For", "Function", "Grant", "Heading", "If", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration", "Object", "Array"]
 
 
 """

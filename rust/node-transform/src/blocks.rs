@@ -129,8 +129,10 @@ impl Transform for BlockContent {
                     ..Default::default()
                 })
             }
+            BlockContent::For(node) => Node::For(node),
             BlockContent::Heading(node) => Node::Heading(node),
             BlockContent::Include(node) => Node::Include(node),
+            BlockContent::If(node) => Node::If(node),
             BlockContent::List(node) => Node::List(node),
             BlockContent::MathBlock(node) => Node::MathBlock(node),
             BlockContent::Paragraph(node) => Node::Paragraph(node),

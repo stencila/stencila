@@ -8,7 +8,9 @@ anyOf:
   - $ref: CodeBlock
   - $ref: CodeChunk
   - $ref: Figure
+  - $ref: For
   - $ref: Heading
+  - $ref: If
   - $ref: Include
   - $ref: List
   - $ref: MathBlock

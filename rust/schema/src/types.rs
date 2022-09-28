@@ -2715,6 +2715,74 @@ pub enum File_ {
   File
 }
 
+/// Repeat a block content for each item in an array
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct For {
+    /// The name of this type
+    #[derivative(Default(value = "For_::For"))]
+    pub type_: For_,
+
+    /// The content to repeat for each item
+    pub content: Vec<BlockContent>,
+
+    /// An expression that evaluates to an array of items to be iterated over
+    pub expression: CodeExpression,
+
+    /// The name to give to the variable representing each item in the iterated array
+    pub symbol: String,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
+
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// The content to render if there are no items
+    pub otherwise: Option<Vec<BlockContent>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum For_ {
+  For
+}
+
 /// A function with a name, which might take Parameters and return a value of a certain type.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
@@ -2812,6 +2880,74 @@ pub struct Heading {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Heading_ {
   Heading
+}
+
+/// Show and execute alternative content conditional upon an executed expression
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct If {
+    /// The name of this type
+    #[derivative(Default(value = "If_::If"))]
+    pub type_: If_,
+
+    /// An expression that evaluates to an array of items to be iterated over
+    pub condition: CodeExpression,
+
+    /// The content to show and execute if the condition evaluates to true
+    pub content: Vec<BlockContent>,
+
+    /// Alternatives if clauses which will be evaluated if the condition evaluates to false
+    pub alternatives: Option<Vec<If>>,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
+
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Content to show and execute if the condition, and all the alternatives, evaluate to false
+    pub otherwise: Option<Vec<BlockContent>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum If_ {
+  If
 }
 
 /// An image file.
@@ -6037,7 +6173,9 @@ pub enum BlockContent {
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
     Figure(FigureSimple),
+    For(For),
     Heading(Heading),
+    If(If),
     Include(Include),
     List(List),
     MathBlock(MathBlock),
@@ -6148,9 +6286,11 @@ pub enum EntityTypes {
     Executable(Executable),
     Figure(Figure),
     File(File),
+    For(For),
     Function(Function),
     Grant(Grant),
     Heading(Heading),
+    If(If),
     ImageObject(ImageObject),
     Include(Include),
     IntegerValidator(IntegerValidator),
@@ -6213,6 +6353,8 @@ pub enum ExecutableTypes {
     CodeChunk(CodeChunk),
     CodeExecutable(CodeExecutable),
     CodeExpression(CodeExpression),
+    For(For),
+    If(If),
     Include(Include),
     Parameter(Parameter),
 }
@@ -6345,9 +6487,11 @@ pub enum Node {
     Executable(Executable),
     Figure(Figure),
     File(File),
+    For(For),
     Function(Function),
     Grant(Grant),
     Heading(Heading),
+    If(If),
     ImageObject(ImageObject),
     Include(Include),
     IntegerValidator(IntegerValidator),
