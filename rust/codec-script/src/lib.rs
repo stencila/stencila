@@ -10,6 +10,7 @@ use codec::{
 };
 use codec_md::ToMd;
 use common::itertools::Itertools;
+use formats::Format;
 use node_pointer::{walk, Visitor};
 
 // A codec for programming language scripts
@@ -32,18 +33,21 @@ impl CodecTrait for ScriptCodec {
             None => bail!("A format option (the programming language of the script) is required"),
         };
 
+        let lang = formats::match_name(&lang);
+        use Format::*;
+
         // Define single line comment regexes for each language
-        let single_line_regex = Regex::new(match lang.as_str() {
-            "js" => r"^//\s*(.*)$",
-            "sql" => r"^--\s*(.*)$",
-            "bash" | "py" | "r" | "sh" | "zsh" => r"^#\s*(.*)$",
+        let single_line_regex = Regex::new(match lang {
+            JavaScript => r"^//\s*(.*)$",
+            SQL => r"^--\s*(.*)$",
+            Bash | Python | R | Shell | Zsh => r"^#\s*(.*)$",
             _ => bail!("Unhandled programming language `{}`", lang),
         })
         .expect("Regex should compile");
 
         // Define multi-line block comment regexes (begin, mid, end)
-        let multi_line_regexes = match lang.as_str() {
-            "js" | "sql" => Some((r"^/\*+\s*(.*)$", r"^\s*\*?\s*(.*)$", r"^\s*(.*?)\*+/$")),
+        let multi_line_regexes = match lang {
+            JavaScript | SQL => Some((r"^/\*+\s*(.*)$", r"^\s*\*?\s*(.*)$", r"^\s*(.*?)\*+/$")),
             _ => None,
         }
         .map(|regexes| {
@@ -62,7 +66,7 @@ impl CodecTrait for ScriptCodec {
         };
         let code_chunk = |code: &str| -> BlockContent {
             BlockContent::CodeChunk(CodeChunk {
-                programming_language: lang.clone(),
+                programming_language: lang.to_string().to_lowercase(),
                 text: code.trim().to_string(),
                 ..Default::default()
             })
@@ -161,12 +165,13 @@ impl CodecTrait for ScriptCodec {
             Some(format) => format.to_lowercase(),
             None => bail!("A format option (the programming language of the script) is required"),
         };
-        let lang = lang.as_str();
+        let lang = formats::match_name(&lang);
+        use Format::*;
 
         let comment_start = match lang {
-            "bash" | "py" | "r" | "sh" | "zsh" => "# ",
-            "js" => "// ",
-            "sql" => "-- ",
+            Bash | Python | R | Shell | Zsh => "# ",
+            JavaScript => "// ",
+            SQL => "-- ",
             _ => bail!(
                 "No comment start defined for programming language `{}`",
                 lang
@@ -174,92 +179,92 @@ impl CodecTrait for ScriptCodec {
         };
 
         let indentation = match lang {
-            "py" => "    ",
+            Python => "    ",
             _ => "  ",
         };
 
         let (for_supported, if_supported) = match lang {
-            "js" | "py" | "r" | "sh" | "bash" | "zsh" => (true, true),
+            JavaScript | Python | R | Shell | Bash | Zsh => (true, true),
             _ => (false, false),
         };
 
         let empty_block = match lang {
-            "py" => "pass\n",
-            "bash" | "sh" | "zsh" => "true\n",
+            Python => "pass\n",
+            Bash | Shell | Zsh => "true\n",
             _ => "", // Not necessary
         };
 
         let for_var = match lang {
-            "js" => ("for$index", "const for$index = $expr;\n\n"),
-            "py" => ("for$index", "for$index = $expr\n\n"),
-            "r" => ("for$index", "for$index = $expr;\n\n"),
-            "bash" | "sh" | "zsh" => ("for$index", "for$index=$($expr)\n\n"),
+            JavaScript => ("for$index", "const for$index = $expr;\n\n"),
+            Python => ("for$index", "for$index = $expr\n\n"),
+            R => ("for$index", "for$index = $expr;\n\n"),
+            Bash | Shell | Zsh => ("for$index", "for$index=$($expr)\n\n"),
             _ => ("", ""), // Not supported
         };
         let for_start = match lang {
-            "js" => "for ($symbol of $expr) {\n\n",
-            "py" => "for $symbol in $expr:\n\n",
-            "r" => "for ($symbol in $expr) {\n\n",
-            "bash" | "sh" | "zsh" => "for $symbol in $expr; do\n\n",
+            JavaScript => "for ($symbol of $expr) {\n\n",
+            Python => "for $symbol in $expr:\n\n",
+            R => "for ($symbol in $expr) {\n\n",
+            Bash | Shell | Zsh => "for $symbol in $expr; do\n\n",
             _ => "", // Not supported
         };
         let for_end = match lang {
-            "js" | "r" => "\n}\n\n",
-            "py" => "\n\n",
-            "bash" | "sh" | "zsh" => "\ndone\n\n",
+            JavaScript | R => "\n}\n\n",
+            Python => "\n\n",
+            Bash | Shell | Zsh => "\ndone\n\n",
             _ => "", // Not necessary or not supported
         };
         let for_otherwise_start = match lang {
-            "js" => "if ($expr.length == 0) {\n\n",
-            "py" => "if len($expr) == 0:\n\n",
-            "r" => "if (length($expr) == 0) {\n\n",
-            "bash" | "sh" | "zsh" => "if [ $expr ]; then\n\n",
+            JavaScript => "if ($expr.length == 0) {\n\n",
+            Python => "if len($expr) == 0:\n\n",
+            R => "if (length($expr) == 0) {\n\n",
+            Bash | Shell | Zsh => "if [ $expr ]; then\n\n",
             _ => "", // Not supported
         };
         let for_otherwise_end = match lang {
-            "js" | "r" => "\n}\n\n",
-            "py" => "\n\n",
-            "bash" | "sh" | "zsh" => "\nfi\n\n",
+            JavaScript | R => "\n}\n\n",
+            Python => "\n\n",
+            Bash | Shell | Zsh => "\nfi\n\n",
             _ => "", // Not necessary or not supported
         };
 
         let if_start = match lang {
-            "js" => "if ($expr) {\n\n",
-            "py" => "if $expr:\n\n",
-            "r" => "if ($expr) {\n\n",
-            "bash" | "sh" | "zsh" => "if [ $expr ]; then\n\n",
+            JavaScript => "if ($expr) {\n\n",
+            Python => "if $expr:\n\n",
+            R => "if ($expr) {\n\n",
+            Bash | Shell | Zsh => "if [ $expr ]; then\n\n",
             _ => "", // Not supported
         };
         let if_alternative = match lang {
-            "js" | "r" => "\n\n} else if ($expr) {\n\n",
-            "py" => "\nelif $expr:\n\n",
-            "bash" | "sh" | "zsh" => "\nelif [ $expr ]; then\n\n",
+            JavaScript | R => "\n\n} else if ($expr) {\n\n",
+            Python => "\nelif $expr:\n\n",
+            Bash | Shell | Zsh => "\nelif [ $expr ]; then\n\n",
             _ => "", // Not supported
         };
         let if_otherwise = match lang {
-            "js" | "r" => "\n} else {\n\n",
-            "py" => "\nelse:\n\n",
-            "bash" | "sh" | "zsh" => "\nelse\n\n",
+            JavaScript | R => "\n} else {\n\n",
+            Python => "\nelse:\n\n",
+            Bash | Shell | Zsh => "\nelse\n\n",
             _ => "", // Not supported
         };
         let if_end = match lang {
-            "js" | "r" => "\n}\n\n",
-            "py" => "\n\n",
-            "bash" | "sh" | "zsh" => "\nfi\n\n",
+            JavaScript | R => "\n}\n\n",
+            Python => "\n\n",
+            Bash | Shell | Zsh => "\nfi\n\n",
             _ => "", // Not supported
         };
 
         let params_prelude = match lang {
-            "js" => "// @skip\nconst $param = (type, index, def) => (type === 'string' ? String : JSON.parse)(process.argv[2 + index] || def)\n\n",
-            "py" =>"# @skip\ndef __param__(type, index, default): import sys, json; return (str if type == 'string' else json.loads)(sys.argv[1 + index] if len(sys.argv) > index + 1 else default)\n\n",
-            "r" =>"# @skip\nparam__ <- function(type, index, def) { argv <- commandArgs(trailingOnly=TRUE); ifelse(type == 'string', identity, jsonlite::fromJSON)(ifelse(length(argv) > index + 1, argv[1 + index], def)) }\n\n",
+            JavaScript => "// @skip\nconst $param = (type, index, def) => (type === 'string' ? String : JSON.parse)(process.argv[2 + index] || def)\n\n",
+            Python =>"# @skip\ndef __param__(type, index, default): import sys, json; return (str if type == 'string' else json.loads)(sys.argv[1 + index] if len(sys.argv) > index + 1 else default)\n\n",
+            R =>"# @skip\nparam__ <- function(type, index, def) { argv <- commandArgs(trailingOnly=TRUE); ifelse(type == 'string', identity, jsonlite::fromJSON)(ifelse(length(argv) > index + 1, argv[1 + index], def)) }\n\n",
             _ => "", // Not supported
         };
         let param_template = match lang {
-            "bash" | "sh" | "zsh" => "$name=${1:-$default}\n\n",
-            "js" => "let $name = $param('$type', $index, $default);\n\n",
-            "py" => "$name = __param__('$type', $index, $default)\n\n",
-            "r" => "$name = param__('$type', $index, $default)\n\n",
+            Bash | Shell | Zsh => "$name=${1:-$default}\n\n",
+            JavaScript => "let $name = $param('$type', $index, $default);\n\n",
+            Python => "$name = __param__('$type', $index, $default)\n\n",
+            R => "$name = param__('$type', $index, $default)\n\n",
             _ => "", // Not supported
         };
 

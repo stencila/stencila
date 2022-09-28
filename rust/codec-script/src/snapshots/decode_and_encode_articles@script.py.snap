@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 339
+assertion_line: 527
 expression: article
 input_file: fixtures/articles/scripts/script.py
 ---
@@ -15,7 +15,7 @@ input_file: fixtures/articles/scripts/script.py
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "py",
+      "programmingLanguage": "python",
       "text": "a = 1"
     },
     {
@@ -32,7 +32,7 @@ input_file: fixtures/articles/scripts/script.py
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "py",
+      "programmingLanguage": "python",
       "text": "b = 2\n\ndef fn1(x):\n    x * x"
     },
     {
@@ -99,7 +99,7 @@ input_file: fixtures/articles/scripts/script.py
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "py",
+      "programmingLanguage": "python",
       "text": "c = 3"
     },
     {
@@ -123,7 +123,7 @@ input_file: fixtures/articles/scripts/script.py
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "py",
+      "programmingLanguage": "python",
       "text": "print('a + b + c + d = %s' % (a + b + c + d))"
     }
   ]

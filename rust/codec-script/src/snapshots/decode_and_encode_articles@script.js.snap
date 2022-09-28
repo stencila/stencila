@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 323
+assertion_line: 527
 expression: article
 input_file: fixtures/articles/scripts/script.js
 ---
@@ -15,7 +15,7 @@ input_file: fixtures/articles/scripts/script.js
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "js",
+      "programmingLanguage": "javascript",
       "text": "a = 1"
     },
     {
@@ -32,7 +32,7 @@ input_file: fixtures/articles/scripts/script.js
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "js",
+      "programmingLanguage": "javascript",
       "text": "b = 2\n\nfunction fn1(x) {\n  x * x\n}"
     },
     {
@@ -99,7 +99,7 @@ input_file: fixtures/articles/scripts/script.js
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "js",
+      "programmingLanguage": "javascript",
       "text": "c = 3"
     },
     {
@@ -123,7 +123,7 @@ input_file: fixtures/articles/scripts/script.js
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "js",
+      "programmingLanguage": "javascript",
       "text": "console.log('a + b + c + d = ', a + b + c + d)"
     }
   ]

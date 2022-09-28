@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 352
+assertion_line: 537
 expression: script
 input_file: fixtures/articles/scripts/script.js
 ---
@@ -35,10 +35,10 @@ c = 3
 // Parameter d: &[d]{int}
 
 // @skip
-const __param__ = (type, index, def) => (type === 'string' ? String : JSON.parse)(process.argv[2 + index] || def)
+const $param = (type, index, def) => (type === 'string' ? String : JSON.parse)(process.argv[2 + index] || def)
 
 // @skip
-let d = __param__('integer', 0, "");
+let d = $param('integer', 0, "");
 
 console.log('a + b + c + d = ', a + b + c + d)
 
