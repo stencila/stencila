@@ -1341,6 +1341,7 @@ dependencies = [
  "codec",
  "codec-md",
  "common",
+ "formats",
  "node-pointer",
  "test-props",
  "test-snaps",
