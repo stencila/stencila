@@ -439,7 +439,8 @@ prop_compose! {
     ///
     /// Restrictions:
     ///   - Always starts and ends with a string.
-    ///   - Ensures that nodes such as `Strong` and `Emphasis` are surrounded by spaces (for Markdown).
+    ///   - Ensures that nodes such as `Strong`, `Emphasis`, and `Strikeout` (and deprecated `Delete`)
+    ///     are surrounded by spaces (for compatibility with  Markdown decoding).
     ///   - No leading or trailing whitespace (for Markdown).
     pub fn vec_inline_content(freedom: Freedom, exclude_types: Vec<String>)(
         length in 1usize..(match freedom {
@@ -454,7 +455,10 @@ prop_compose! {
         let mut content: Vec<InlineContent> = interleave(strings, others).collect();
         for index in 0..content.len() {
             let spaces = match content[index] {
-                InlineContent::Emphasis(..) | InlineContent::Strong(..) | InlineContent::Delete(..) => {
+                InlineContent::Emphasis(..) |
+                    InlineContent::Strong(..) |
+                    InlineContent::Strikeout(..) |
+                    InlineContent::Delete(..) => {
                    true
                 },
                 _ => false
@@ -476,6 +480,7 @@ prop_compose! {
                     }
                 }
             }
+
             if index == content.len() - 1 {
                 if let InlineContent::String(string) = &mut content[index] {
                     if string.ends_with(char::is_whitespace) {
