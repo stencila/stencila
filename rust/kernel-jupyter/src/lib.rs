@@ -868,6 +868,10 @@ impl KernelTrait for JupyterKernel {
         }
     }
 
+    async fn derive(&mut self, _what: &str, _from: &str) -> Result<Vec<Node>> {
+        bail!("Not yet implemented")
+    }
+
     async fn exec_sync(
         &mut self,
         code: &str,
