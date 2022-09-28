@@ -587,6 +587,90 @@ impl ToMd for CallArgument {
     }
 }
 
+impl ToMd for For {
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        let Self {
+            symbol,
+            expression:
+                CodeExpression {
+                    programming_language,
+                    text,
+                    ..
+                },
+            content,
+            otherwise,
+            ..
+        } = self;
+
+        let mut begin = ["::: for ", symbol, " in ", text].concat();
+        if !programming_language.is_empty() {
+            begin.push_str(&[" {", programming_language, "}"].concat());
+        }
+        begin.push_str("\n\n");
+
+        let otherwise = match otherwise.as_ref() {
+            Some(content) => match content.is_empty() {
+                true => String::new(),
+                false => ["::: else\n\n", &content.to_md(options)].concat(),
+            },
+            None => String::new(),
+        };
+
+        [&begin, &content.to_md(options), &otherwise, ":::\n\n"].concat()
+    }
+}
+
+impl ToMd for If {
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        let Self {
+            condition:
+                CodeExpression {
+                    programming_language,
+                    text,
+                    ..
+                },
+            content,
+            alternatives,
+            otherwise,
+            ..
+        } = self;
+
+        let mut begin = ["::: if ", text].concat();
+        if !programming_language.is_empty() {
+            begin.push_str(&[" {", programming_language, "}"].concat());
+        }
+        begin.push_str("\n\n");
+
+        let alts = alternatives
+            .iter()
+            .flatten()
+            .map(|alternative| {
+                alternative
+                    .to_md(options)
+                    .replacen("::: if", "::: elif", 1)
+                    .replacen(":::\n\n", "", 1)
+            })
+            .join("");
+
+        let otherwise = match otherwise.as_ref() {
+            Some(content) => match content.is_empty() {
+                true => String::new(),
+                false => ["::: else\n\n", &content.to_md(options)].concat(),
+            },
+            None => String::new(),
+        };
+
+        [
+            &begin,
+            &content.to_md(options),
+            &alts,
+            &otherwise,
+            ":::\n\n",
+        ]
+        .concat()
+    }
+}
+
 macro_rules! content_to_md {
     ($type:ty) => {
         impl ToMd for $type {
@@ -679,7 +763,9 @@ impl ToMd for BlockContent {
             BlockContent::Call(node) => node.to_md(options),
             BlockContent::CodeBlock(node) => node.to_md(options),
             BlockContent::CodeChunk(node) => node.to_md(options),
+            BlockContent::For(node) => node.to_md(options),
             BlockContent::Heading(node) => node.to_md(options),
+            BlockContent::If(node) => node.to_md(options),
             BlockContent::Include(node) => node.to_md(options),
             BlockContent::List(node) => node.to_md(options),
             BlockContent::MathBlock(node) => node.to_md(options),

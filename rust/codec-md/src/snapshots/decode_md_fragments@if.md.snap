@@ -1,0 +1,274 @@
+---
+source: rust/codec-md/src/decode.rs
+assertion_line: 2109
+expression: "decode_fragment(content, None)"
+input_file: fixtures/fragments/md/if.md
+---
+[
+  {
+    "type": "Heading",
+    "content": [
+      "Simple"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "If",
+    "condition": {
+      "type": "CodeExpression",
+      "programmingLanguage": "",
+      "text": "true"
+    },
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "This paragraph should be shown."
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Else"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "An ",
+      {
+        "type": "CodeFragment",
+        "text": "else"
+      },
+      " clause specifies the content to be rendered if the condition is not truthy,"
+    ]
+  },
+  {
+    "type": "If",
+    "condition": {
+      "type": "CodeExpression",
+      "programmingLanguage": "",
+      "text": "false"
+    },
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "This paragraph should NOT be shown."
+        ]
+      }
+    ],
+    "otherwise": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "This paragraph should be shown."
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Elifs"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Multiple ",
+      {
+        "type": "CodeFragment",
+        "text": "elif"
+      },
+      " clauses are possible,"
+    ]
+  },
+  {
+    "type": "If",
+    "condition": {
+      "type": "CodeExpression",
+      "programmingLanguage": "",
+      "text": "false"
+    },
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "This first paragraph should NOT be shown."
+        ]
+      }
+    ],
+    "alternatives": [
+      {
+        "type": "If",
+        "condition": {
+          "type": "CodeExpression",
+          "programmingLanguage": "",
+          "text": "false"
+        },
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This second paragraph should NOT be shown."
+            ]
+          }
+        ]
+      },
+      {
+        "type": "If",
+        "condition": {
+          "type": "CodeExpression",
+          "programmingLanguage": "",
+          "text": "true"
+        },
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This third paragraph ",
+              {
+                "type": "Strong",
+                "content": [
+                  "should"
+                ]
+              },
+              " be shown."
+            ]
+          }
+        ]
+      },
+      {
+        "type": "If",
+        "condition": {
+          "type": "CodeExpression",
+          "programmingLanguage": "",
+          "text": "true"
+        },
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This fourth paragraph should NOT be shown because the above ",
+              {
+                "type": "CodeFragment",
+                "text": "elif"
+              },
+              " was."
+            ]
+          }
+        ]
+      }
+    ],
+    "otherwise": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "This final paragraph should NOT be shown because the above ",
+          {
+            "type": "CodeFragment",
+            "text": "elif"
+          },
+          " was."
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Nested"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Probably best to be avoided but possible (and not allowed in prop tests),"
+    ]
+  },
+  {
+    "type": "If",
+    "condition": {
+      "type": "CodeExpression",
+      "programmingLanguage": "",
+      "text": "true"
+    },
+    "content": [
+      {
+        "type": "If",
+        "condition": {
+          "type": "CodeExpression",
+          "programmingLanguage": "",
+          "text": "true"
+        },
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This paragraph should be shown."
+            ]
+          }
+        ]
+      }
+    ],
+    "otherwise": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "This paragraph should not be shown"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "In the following example the nested if has the ",
+      {
+        "type": "CodeFragment",
+        "text": "else"
+      },
+      ","
+    ]
+  },
+  {
+    "type": "If",
+    "condition": {
+      "type": "CodeExpression",
+      "programmingLanguage": "",
+      "text": "true"
+    },
+    "content": [
+      {
+        "type": "If",
+        "condition": {
+          "type": "CodeExpression",
+          "programmingLanguage": "",
+          "text": "true"
+        },
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This paragraph should be shown."
+            ]
+          }
+        ],
+        "otherwise": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This paragraph should not be shown"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

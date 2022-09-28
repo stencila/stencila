@@ -707,6 +707,103 @@ prop_compose! {
     }
 }
 
+prop_compose! {
+    /// Generate a For node
+    pub fn for_(freedom: Freedom, exclude_types: Vec<String>)(
+        symbol in match freedom {
+            Freedom::Min => "item",
+            Freedom::Low => r"[A-Za-z][A-Za-z0-9]*",
+            _ => any::<String>()
+        },
+        programming_language in match freedom {
+            Freedom::Min => "py",
+            Freedom::Low => r"js|py|r",
+            Freedom::High => r"[A-Za-z0-9-]+",
+            _ => any::<String>()
+        },
+        text in match freedom {
+            Freedom::Min => "text",
+            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            _ => any::<String>()
+        },
+        content in vec_block_content(freedom, exclude_types.clone()),
+        otherwise in of(vec_block_content(freedom, exclude_types))
+    ) -> BlockContent {
+        BlockContent::For(For{
+            symbol,
+            expression: CodeExpression {
+                programming_language,
+                text,
+                ..Default::default()
+            },
+            content,
+            otherwise,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate an If node
+    pub fn if_(freedom: Freedom, exclude_types: Vec<String>)(
+        programming_language in match freedom {
+            Freedom::Min => "py",
+            Freedom::Low => r"js|py|r",
+            Freedom::High => r"[A-Za-z0-9-]+",
+            _ => any::<String>()
+        },
+        text in match freedom {
+            Freedom::Min => "text",
+            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            _ => any::<String>()
+        },
+        content in vec_block_content(freedom, [exclude_types.clone(), vec!["If".to_string()]].concat()),
+        alternatives in of(vec(elif(freedom, exclude_types.clone()), size_range(1..5))),
+        otherwise in of(vec_block_content(freedom, exclude_types))
+    ) -> BlockContent {
+        BlockContent::If(If{
+            condition: CodeExpression {
+                programming_language,
+                text,
+                ..Default::default()
+            },
+            content,
+            alternatives,
+            otherwise,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate an If node to be an alternative in another if (can't have recursive props
+    /// and these lack `alternatives` and `otherwise`)
+    pub fn elif(freedom: Freedom, exclude_types: Vec<String>)(
+        programming_language in match freedom {
+            Freedom::Min => "py",
+            Freedom::Low => r"js|py|r",
+            Freedom::High => r"[A-Za-z0-9-]+",
+            _ => any::<String>()
+        },
+        text in match freedom {
+            Freedom::Min => "text",
+            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            _ => any::<String>()
+        },
+        content in vec_block_content(freedom, [exclude_types, vec!["If".to_string()]].concat())
+    ) -> If {
+        If {
+            condition: CodeExpression {
+                programming_language,
+                text,
+                ..Default::default()
+            },
+            content,
+            ..Default::default()
+        }
+    }
+}
+
 /// Generate a thematic break
 pub fn thematic_break() -> impl Strategy<Value = BlockContent> {
     Just(BlockContent::ThematicBreak(ThematicBreak::default()))
@@ -779,8 +876,14 @@ pub fn block_content(
     if !exclude_types.contains(&"CodeChunk".to_string()) {
         strategies.push(code_chunk(freedom).boxed())
     }
+    if !exclude_types.contains(&"For".to_string()) {
+        strategies.push(for_(freedom, exclude_types.clone()).boxed())
+    }
     if !exclude_types.contains(&"Heading".to_string()) {
         strategies.push(heading(freedom, exclude_types.clone()).boxed())
+    }
+    if !exclude_types.contains(&"If".to_string()) {
+        strategies.push(if_(freedom, exclude_types.clone()).boxed())
     }
     if !exclude_types.contains(&"Include".to_string()) {
         strategies.push(include(freedom).boxed())

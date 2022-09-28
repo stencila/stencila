@@ -1,4 +1,7 @@
-use std::collections::HashMap;
+use std::{
+    collections::{HashMap, VecDeque},
+    vec,
+};
 
 use nom::{
     branch::alt,
@@ -10,9 +13,9 @@ use nom::{
         is_digit,
     },
     combinator::{all_consuming, map, map_res, not, opt, peek, recognize},
-    multi::{fold_many0, many0, many1, separated_list0, separated_list1},
+    multi::{fold_many0, many0, many1, many_m_n, separated_list0, separated_list1},
     number::complete::double,
-    sequence::{delimited, pair, preceded, terminated, tuple},
+    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     IResult,
 };
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
@@ -137,6 +140,8 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
 
     let mut blocks = Blocks::default();
 
+    let mut divs = VecDeque::new();
+
     let mut options = Options::empty();
     options.insert(Options::ENABLE_TABLES);
     // Not enabled because currently not handled
@@ -185,7 +190,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
             Event::End(tag) => match tag {
                 // Block nodes with block content
                 Tag::BlockQuote => {
-                    let content = blocks.pop_tail();
+                    let content = blocks.pop_mark();
                     blocks.push_node(BlockContent::QuoteBlock(QuoteBlock {
                         content,
                         ..Default::default()
@@ -198,7 +203,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         Some(ListOrder::Unordered)
                     };
 
-                    let items = lists.pop_tail();
+                    let items = lists.pop_mark();
 
                     blocks.push_node(BlockContent::List(List {
                         items,
@@ -210,7 +215,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 Tag::Item => {
                     let mut content = Vec::new();
 
-                    let inlines = inlines.pop_tail();
+                    let inlines = inlines.pop_mark();
                     if !inlines.is_empty() {
                         content.push(BlockContent::Paragraph(Paragraph {
                             content: inlines,
@@ -218,7 +223,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         }))
                     }
 
-                    let mut blocks = blocks.pop_tail();
+                    let mut blocks = blocks.pop_mark();
                     content.append(&mut blocks);
 
                     let content = Some(ListItemContent::VecBlockContent(content));
@@ -235,7 +240,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 Tag::TableHead => tables.push_header(),
                 Tag::TableRow => tables.push_row(),
                 Tag::TableCell => {
-                    let inlines = inlines.pop_tail();
+                    let inlines = inlines.pop_mark();
                     let content = if inlines.is_empty() {
                         None
                     } else {
@@ -259,23 +264,102 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 }
                 Tag::Paragraph => {
                     let trimmed = inlines.text.trim();
-                    let node = if trimmed.starts_with("$$") && trimmed.ends_with("$$") {
-                        BlockContent::MathBlock(MathBlock {
+                    let block = if trimmed.starts_with("$$") && trimmed.ends_with("$$") {
+                        Some(BlockContent::MathBlock(MathBlock {
                             text: trimmed[2..trimmed.len() - 2].trim().to_string(),
                             math_language: Some(Box::new("tex".to_string())),
                             ..Default::default()
-                        })
+                        }))
                     } else if let Ok((.., include)) = include(trimmed) {
-                        BlockContent::Include(include)
+                        Some(BlockContent::Include(include))
                     } else if let Ok((.., call)) = call(trimmed) {
-                        BlockContent::Call(call)
+                        Some(BlockContent::Call(call))
+                    } else if let Ok((.., for_)) = for_(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(BlockContent::For(for_));
+                        None
+                    } else if let Ok((.., (true, if_))) = if_elif(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(BlockContent::If(if_));
+                        None
+                    } else if let Ok((.., (false, elif))) = if_elif(trimmed) {
+                        if let Some(BlockContent::If(if_)) = divs.back_mut() {
+                            let content = blocks.pop_div();
+                            if let Some(alternatives) = &mut if_.alternatives {
+                                if let Some(last) = alternatives.last_mut() {
+                                    last.content = content;
+                                } else {
+                                    tracing::error!(
+                                        "Expected there to be at least one alternative already"
+                                    )
+                                }
+                                alternatives.push(elif);
+                            } else {
+                                if_.content = content;
+                                if_.alternatives = Some(vec![elif]);
+                            }
+
+                            blocks.push_div();
+                            None
+                        } else {
+                            tracing::warn!("Found an `::: elif` without a preceding `::: if`");
+                            Some(BlockContent::Paragraph(Paragraph {
+                                content: vec![InlineContent::String(trimmed.to_string())],
+                                ..Default::default()
+                            }))
+                        }
+                    } else if let Ok(..) = else_(trimmed) {
+                        blocks.push_div();
+                        if let Some(div) = divs.back_mut() {
+                            match div {
+                                // Create a placeholder to indicate that when the else finishes
+                                // the tail of blocks should be popped to the `otherwise` of the current
+                                // `For` or `If`
+                                BlockContent::For(for_) => {
+                                    for_.otherwise = Some(Vec::new());
+                                }
+                                BlockContent::If(if_) => {
+                                    if_.otherwise = Some(Vec::new());
+                                }
+                                _ => {}
+                            }
+                        }
+                        None
+                    } else if let Ok(..) = divend(trimmed) {
+                        divs.pop_back().map(|div| match div {
+                            BlockContent::For(mut for_) => {
+                                for_.otherwise = for_.otherwise.map(|_| blocks.pop_div());
+                                for_.content = blocks.pop_div();
+                                BlockContent::For(for_)
+                            }
+                            BlockContent::If(mut if_) => {
+                                if_.otherwise = if_.otherwise.map(|_| blocks.pop_div());
+
+                                let content = blocks.pop_div();
+                                if let Some(last_alternative) =
+                                    if_.alternatives.iter_mut().flatten().last()
+                                {
+                                    last_alternative.content = content;
+                                } else {
+                                    if_.content = content;
+                                }
+
+                                BlockContent::If(if_)
+                            }
+                            _ => BlockContent::Paragraph(Paragraph {
+                                content: inlines.pop_all(),
+                                ..Paragraph::default()
+                            }),
+                        })
                     } else {
-                        BlockContent::Paragraph(Paragraph {
+                        Some(BlockContent::Paragraph(Paragraph {
                             content: inlines.pop_all(),
                             ..Default::default()
-                        })
+                        }))
                     };
-                    blocks.push_node(node);
+                    if let Some(block) = block {
+                        blocks.push_node(block);
+                    }
                 }
                 Tag::CodeBlock(kind) => {
                     let (mut lang, exec) = match kind {
@@ -329,28 +413,28 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
 
                 // Inline nodes with inline content
                 Tag::Emphasis => {
-                    let content = inlines.pop_tail();
+                    let content = inlines.pop_mark();
                     inlines.push_node(InlineContent::Emphasis(Emphasis {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Strong => {
-                    let content = inlines.pop_tail();
+                    let content = inlines.pop_mark();
                     inlines.push_node(InlineContent::Strong(Strong {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Strikethrough => {
-                    let content = inlines.pop_tail();
+                    let content = inlines.pop_mark();
                     inlines.push_node(InlineContent::Strikeout(Strikeout {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Link(_link_type, url, title) => {
-                    let content = inlines.pop_tail();
+                    let content = inlines.pop_mark();
                     let title = {
                         let title = title.to_string();
                         if !title.is_empty() {
@@ -367,7 +451,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                     }))
                 }
                 Tag::Image(_link_type, url, title) => {
-                    let caption = inlines.pop_tail();
+                    let caption = inlines.pop_mark();
                     let caption = if caption.is_empty() {
                         None
                     } else {
@@ -476,6 +560,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
 struct Blocks {
     nodes: Vec<BlockContent>,
     marks: Vec<usize>,
+    divs: Vec<usize>,
 }
 
 impl Blocks {
@@ -495,9 +580,24 @@ impl Blocks {
     }
 
     /// Pop the nodes since the last mark
-    fn pop_tail(&mut self) -> Vec<BlockContent> {
-        let n = self.marks.pop().expect("Unable to pop marks!");
-        self.nodes.split_off(n)
+    fn pop_mark(&mut self) -> Vec<BlockContent> {
+        match self.marks.pop() {
+            Some(n) => self.nodes.split_off(n),
+            None => Vec::new(),
+        }
+    }
+
+    /// Push a div marker
+    fn push_div(&mut self) {
+        self.divs.push(self.nodes.len())
+    }
+
+    /// Pop the nodes since the last div marker
+    fn pop_div(&mut self) -> Vec<BlockContent> {
+        match self.divs.pop() {
+            Some(n) => self.nodes.split_off(n),
+            None => Vec::new(),
+        }
     }
 
     /// Pop all the nodes
@@ -535,7 +635,7 @@ impl Lists {
     }
 
     /// Pop the items since the last mark
-    fn pop_tail(&mut self) -> Vec<ListItem> {
+    fn pop_mark(&mut self) -> Vec<ListItem> {
         if self.marks.is_empty() {
             vec![]
         } else {
@@ -675,7 +775,7 @@ impl Inlines {
     }
 
     /// Pop the nodes since the last mark
-    fn pop_tail(&mut self) -> Vec<InlineContent> {
+    fn pop_mark(&mut self) -> Vec<InlineContent> {
         self.parse_text();
         if self.marks.is_empty() {
             vec![]
@@ -1199,9 +1299,9 @@ fn curly_attrs(input: &str) -> IResult<&str, Vec<(String, Option<Node>)>> {
     alt((
         map(tag("{}"), |_| Vec::new()),
         delimited(
-            char('{'),
+            terminated(char('{'), multispace0),
             separated_list0(multispace1, curly_attr),
-            char('}'),
+            preceded(multispace0, char('}')),
         ),
     ))(input)
 }
@@ -1499,6 +1599,89 @@ fn symbol(input: &str) -> IResult<&str, String> {
     )(input)
 }
 
+fn for_(input: &str) -> IResult<&str, For> {
+    map_res(
+        all_consuming(preceded(
+            tuple((semis3plus, multispace0, tag("for"), multispace1)),
+            tuple((
+                separated_pair(
+                    symbol,
+                    tuple((multispace1, tag("in"), multispace1)),
+                    is_not("{"),
+                ),
+                opt(curly_attrs),
+            )),
+        )),
+        |((symbol, expr), options)| -> Result<For> {
+            let lang = options
+                .iter()
+                .flatten()
+                .next()
+                .map(|tuple| tuple.0.to_string())
+                .unwrap_or_default();
+            Ok(For {
+                symbol,
+                expression: CodeExpression {
+                    programming_language: lang,
+                    text: expr.trim().to_string(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+        },
+    )(input)
+}
+
+fn if_elif(input: &str) -> IResult<&str, (bool, If)> {
+    map_res(
+        all_consuming(preceded(
+            tuple((semis3plus, multispace0)),
+            tuple((
+                alt((tag("if"), tag("elif"))),
+                multispace1,
+                is_not("{"),
+                opt(curly_attrs),
+            )),
+        )),
+        |(tag, _spaces, expr, options)| -> Result<(bool, If)> {
+            let lang = options
+                .iter()
+                .flatten()
+                .next()
+                .map(|tuple| tuple.0.to_string())
+                .unwrap_or_default();
+            Ok((
+                tag == "if",
+                If {
+                    condition: CodeExpression {
+                        programming_language: lang,
+                        text: expr.trim().to_string(),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+            ))
+        },
+    )(input)
+}
+
+fn else_(input: &str) -> IResult<&str, &str> {
+    all_consuming(recognize(tuple((
+        semis3plus,
+        multispace0,
+        tag("else"),
+        multispace0,
+    ))))(input)
+}
+
+fn divend(input: &str) -> IResult<&str, &str> {
+    all_consuming(recognize(tuple((semis3plus, multispace0))))(input)
+}
+
+fn semis3plus(input: &str) -> IResult<&str, &str> {
+    recognize(many_m_n(3, 100, char(':')))(input)
+}
+
 /// Stores and parses HTML content
 ///
 /// Simply accumulates HTML until tags balance, at which point the HTML is parsed,
@@ -1673,6 +1856,19 @@ mod tests {
                 ("def", Some(Node::String("2022-09-15".to_string()))),
             ]
         );
+
+        // Multiple spaces are fine
+        assert_json_eq!(
+            curly_attrs(r#"{   a     b=21 c : 1.234 d="   Internal  spaces "  }"#)
+                .unwrap()
+                .1,
+            vec![
+                ("a", None),
+                ("b", Some(Node::Integer(21))),
+                ("c", Some(Node::Number(Number(1.234)))),
+                ("d", Some(Node::String("   Internal  spaces ".to_string())))
+            ]
+        );
     }
 
     #[test]
@@ -1764,6 +1960,139 @@ mod tests {
                 ..Default::default()
             }
         );
+    }
+
+    #[test]
+    fn test_for() {
+        // Simple
+        assert_eq!(
+            for_("::: for item in expr").unwrap().1,
+            For {
+                symbol: "item".to_string(),
+                expression: CodeExpression {
+                    text: "expr".to_string(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }
+        );
+
+        // With less/extra spacing
+        assert_eq!(
+            for_(":::for item  in    expr").unwrap().1,
+            For {
+                symbol: "item".to_string(),
+                expression: CodeExpression {
+                    text: "expr".to_string(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }
+        );
+
+        // With language specified
+        assert_eq!(
+            for_("::: for item in expr {python}").unwrap().1,
+            For {
+                symbol: "item".to_string(),
+                expression: CodeExpression {
+                    text: "expr".to_string(),
+                    programming_language: "python".to_string(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }
+        );
+
+        // With more complex expression
+        assert_eq!(
+            for_("::: for i in 1:10").unwrap().1,
+            For {
+                symbol: "i".to_string(),
+                expression: CodeExpression {
+                    text: "1:10".to_string(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            for_("::: for row in select * from table { sql }")
+                .unwrap()
+                .1,
+            For {
+                symbol: "row".to_string(),
+                expression: CodeExpression {
+                    text: "select * from table".to_string(),
+                    programming_language: "sql".to_string(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }
+        );
+    }
+
+    #[test]
+    fn test_if() {
+        // Simple
+        assert_eq!(
+            if_elif("::: if expr").unwrap().1 .1,
+            If {
+                condition: CodeExpression {
+                    text: "expr".to_string(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }
+        );
+
+        // With less/extra spacing
+        assert_eq!(
+            if_elif(":::if    expr").unwrap().1 .1,
+            If {
+                condition: CodeExpression {
+                    text: "expr".to_string(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }
+        );
+
+        // With language specified
+        assert_eq!(
+            if_elif("::: if expr {python}").unwrap().1 .1,
+            If {
+                condition: CodeExpression {
+                    text: "expr".to_string(),
+                    programming_language: "python".to_string(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }
+        );
+
+        // With more complex expression
+        assert_eq!(
+            if_elif("::: if a > 1 and b[8] < 1.23").unwrap().1 .1,
+            If {
+                condition: CodeExpression {
+                    text: "a > 1 and b[8] < 1.23".to_string(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }
+        );
+    }
+
+    #[test]
+    fn test_divend() {
+        assert!(divend(":::").is_ok());
+        assert!(divend("::::").is_ok());
+        assert!(divend("::::::").is_ok());
+
+        assert!(divend(":::some chars").is_err());
+        assert!(divend("::").is_err());
+        assert!(divend(":").is_err());
     }
 
     #[test]
