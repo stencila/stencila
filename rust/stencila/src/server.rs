@@ -1711,7 +1711,7 @@ pub async fn html_rewrite(
     token: &str,
     home: &Path,
     document_id: &str,
-    document_path: &Path,
+    _document_path: &Path,
 ) -> String {
     let static_root = ["/~static/", STATICS_VERSION].concat();
     let kernel_languages = kernels::languages().await.unwrap_or_default();

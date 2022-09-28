@@ -615,7 +615,7 @@ impl Graph {
         let kernel = kernel_selector.select(&kernels);
         let kernel_forkable = match kernel {
             Some(kernel) => kernel.forkable,
-            None => false
+            None => false,
         };
 
         let is_fork = Self::should_run_in_fork(kernel_forkable, &resource_info, 0, &options);
