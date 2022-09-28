@@ -407,6 +407,7 @@ impl Server {
 
         let rpc_ws = warp::path("~rpc")
             .and(warp::ws())
+            .and(warp::path::tail())
             .and(warp::query::<WsParams>())
             .and(authenticate())
             .map(rpc_ws_handler);
@@ -1490,8 +1491,8 @@ async fn get_handler(
         <head>
             <meta charset="utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <link href="{static_root}/web/shell.css" rel="stylesheet">
-            <script src="{static_root}/web/shell.js"></script>
+            <link href="{static_root}/web/modes/shell.css" rel="stylesheet">
+            <script src="{static_root}/web/modes/shell.js"></script>
             <script>window.stencilaConfig = {{ mode: "shell" }}</script>
         </head>
         <body>
@@ -1539,8 +1540,8 @@ async fn get_handler(
         <head>
             <meta charset="utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <link href="{static_root}/web/code.css" rel="stylesheet">
-            <script src="{static_root}/web/code.js"></script>
+            <link href="{static_root}/web/modes/code.css" rel="stylesheet">
+            <script src="{static_root}/web/modes/code.js"></script>
             <script>window.stencilaConfig = {{ mode: "code" }}</script>
         </head>
         <body>
@@ -1588,7 +1589,18 @@ async fn get_handler(
                 };
 
                 let content = match format.as_str() {
-                    "html" => html_rewrite(&content, &mode, &theme, &token, &home, &fs_path),
+                    "html" => {
+                        html_rewrite(
+                            &content,
+                            &mode,
+                            &theme,
+                            &token,
+                            &home,
+                            &document_id,
+                            &fs_path,
+                        )
+                        .await
+                    }
                     _ => content,
                 }
                 .as_bytes()
@@ -1692,36 +1704,25 @@ fn html_directory_listing(home: &Path, dir: &Path) -> String {
 /// Only local files somewhere withing the current working directory are
 /// served.
 #[allow(clippy::too_many_arguments)]
-pub fn html_rewrite(
+pub async fn html_rewrite(
     body: &str,
     mode: &str,
     theme: &str,
     token: &str,
     home: &Path,
-    document: &Path,
+    document_id: &str,
+    document_path: &Path,
 ) -> String {
     let static_root = ["/~static/", STATICS_VERSION].concat();
+    let kernel_languages = kernels::languages().await.unwrap_or_default();
 
-    let config = serde_json::to_string(&json!({ "token": token, "mode": mode })).unwrap();
-
-    // Head element for theme
-    let themes = format!(
-        r#"<link href="{static_root}/web/themes/{theme}.css" rel="stylesheet">"#,
-        static_root = static_root,
-        theme = theme
-    );
-
-    // Head elements for web client
-    let web = format!(
-        r#"
-    <script src="{static_root}/web/{mode}.js"></script>
-    <script>
-        //const startup = stencilaWebClient.main("{client}", "{document}", null, "{token}");
-        //startup().catch((err) => console.error('Error during startup', err))
-    </script>"#,
-        client = uuids::generate("cl"),
-        document = document.display()
-    );
+    let config = serde_json::to_string(&json!({
+        "token": token,
+        "mode": mode,
+        "documentId": document_id,
+        "executableLanguages": kernel_languages
+    }))
+    .unwrap();
 
     // Rewrite body content so that links to files work
     static REGEX: Lazy<Regex> =
@@ -1753,8 +1754,9 @@ pub fn html_rewrite(
         <script>
             window.stencilaConfig = {config};
         </script>
-        {themes}
-        {web}
+        <link href="{static_root}/web/utils/curtain.css" rel="stylesheet">
+        <link href="{static_root}/web/themes/{theme}.css" rel="stylesheet">
+        <script src="{static_root}/web/modes/{mode}.js"></script>
     </head>
     <body>
         {body}
@@ -1769,6 +1771,9 @@ pub fn html_rewrite(
 struct WsParams {
     /// The id of the client
     client: Option<String>,
+
+    /// The id of the browser
+    browser: Option<String>,
 }
 
 /// Perform a WebSocket handshake / upgrade
@@ -1780,14 +1785,21 @@ struct WsParams {
 #[tracing::instrument(skip(_cookie))]
 fn rpc_ws_handler(
     ws: warp::ws::Ws,
+    path: warp::path::Tail,
     params: WsParams,
     (_secure, _token, _claims, _cookie): (bool, String, jwt::Claims, Option<String>),
 ) -> Box<dyn warp::Reply> {
     record_http_request("WS", "/~rpc");
     record_activity();
 
+    // If the client did not provide ids then generate them here. Note that the client
+    // normally generates longer random parts than the 20 generated here which may be
+    // a useful way of debugging where those ids were generated and therefore whether or not
+    // client supplied them
     let client_id = params.client.unwrap_or_else(|| generate("cl").to_string());
-    Box::new(ws.on_upgrade(|socket| rpc_ws_connected(socket, client_id)))
+    let browser_id = params.browser.unwrap_or_else(|| generate("br").to_string());
+
+    Box::new(ws.on_upgrade(|socket| rpc_ws_connected(socket, client_id, browser_id)))
 }
 
 /// Handle a WebSocket connection
@@ -1795,8 +1807,12 @@ fn rpc_ws_handler(
 /// This function is called after the handshake, when a WebSocket client
 /// has successfully connected.
 #[tracing::instrument(skip(socket))]
-async fn rpc_ws_connected(socket: warp::ws::WebSocket, client_id: String) {
-    tracing::trace!("WebSocket client `{}` connected", client_id);
+async fn rpc_ws_connected(socket: warp::ws::WebSocket, client_id: String, browser_id: String) {
+    tracing::trace!(
+        "WebSocket client `{}` in browser `{}` connected",
+        client_id,
+        browser_id
+    );
 
     let (mut ws_sender, mut ws_receiver) = socket.split();
 
