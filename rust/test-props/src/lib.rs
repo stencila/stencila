@@ -757,9 +757,10 @@ prop_compose! {
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         },
-        content in vec_block_content(freedom, [exclude_types.clone(), vec!["If".to_string()]].concat()),
+        // Use Freedom::Min for nested block content to avoid stack overflow (using too much memory)
+        content in vec_block_content(Freedom::Min, exclude_types.clone()),
         alternatives in of(vec(elif(freedom, exclude_types.clone()), size_range(1..5))),
-        otherwise in of(vec_block_content(freedom, exclude_types))
+        otherwise in of(vec_block_content(Freedom::Min, exclude_types))
     ) -> BlockContent {
         BlockContent::If(If{
             condition: CodeExpression {
@@ -790,7 +791,7 @@ prop_compose! {
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         },
-        content in vec_block_content(freedom, [exclude_types, vec!["If".to_string()]].concat())
+        content in vec_block_content(Freedom::Min, exclude_types)
     ) -> If {
         If {
             condition: CodeExpression {

@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 2109
+assertion_line: 2108
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/if.md
 ---
@@ -189,7 +189,7 @@ input_file: fixtures/fragments/md/if.md
   {
     "type": "Paragraph",
     "content": [
-      "Probably best to be avoided but possible (and not allowed in prop tests),"
+      "Probably best to be avoided but possible,"
     ]
   },
   {

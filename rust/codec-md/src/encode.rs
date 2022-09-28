@@ -645,10 +645,8 @@ impl ToMd for If {
             .iter()
             .flatten()
             .map(|alternative| {
-                alternative
-                    .to_md(options)
-                    .replacen("::: if", "::: elif", 1)
-                    .replacen(":::\n\n", "", 1)
+                let md = alternative.to_md(options).replacen("::: if", "::: elif", 1);
+                md.strip_suffix(":::\n\n").unwrap_or(&md).to_string()
             })
             .join("");
 
