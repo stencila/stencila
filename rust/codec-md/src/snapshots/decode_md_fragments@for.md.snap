@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 2112
+assertion_line: 2108
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/for.md
 ---
@@ -137,7 +137,7 @@ input_file: fixtures/fragments/md/for.md
       "Here is a test that missing content will still be parsed as a ",
       {
         "type": "CodeFragment",
-        "text": "ForEach"
+        "text": "For"
       },
       ","
     ]
@@ -166,7 +166,7 @@ input_file: fixtures/fragments/md/for.md
       " be parsed as a ",
       {
         "type": "CodeFragment",
-        "text": "ForEach"
+        "text": "For"
       },
       ","
     ]
@@ -208,7 +208,7 @@ input_file: fixtures/fragments/md/for.md
     "expression": {
       "type": "CodeExpression",
       "programmingLanguage": "py",
-      "text": "text"
+      "text": "[]"
     },
     "symbol": "item",
     "otherwise": [

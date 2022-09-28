@@ -189,7 +189,7 @@ input_file: fixtures/fragments/md/if.md
   {
     "type": "Paragraph",
     "content": [
-      "Probably best to be avoided but possible,"
+      "Probably best avoided, but possible,"
     ]
   },
   {
