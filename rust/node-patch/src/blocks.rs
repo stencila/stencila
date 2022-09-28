@@ -196,6 +196,42 @@ patchable_struct!(
 );
 patchable_struct!(CallArgument, id, name, validator, value, symbol);
 
+patchable_struct!(
+    For,
+    id,
+    symbol,
+    expression,
+    content,
+    otherwise,
+    code_dependents,
+    compile_digest,
+    execute_digest,
+    execute_required,
+    execute_kernel,
+    execute_status,
+    execute_ended,
+    execute_duration,
+    errors,
+);
+
+patchable_struct!(
+    If,
+    id,
+    condition,
+    content,
+    alternatives,
+    otherwise,
+    code_dependents,
+    compile_digest,
+    execute_digest,
+    execute_required,
+    execute_kernel,
+    execute_status,
+    execute_ended,
+    execute_duration,
+    errors,
+);
+
 patchable_struct!(ThematicBreak);
 
 patchable_struct!(Claim, content, claim_type);
