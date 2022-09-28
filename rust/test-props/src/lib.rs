@@ -126,17 +126,26 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a programming language string
+    pub fn prog_lang(freedom: Freedom)(
+        lang in match freedom {
+            Freedom::Min => "python",
+            Freedom::Low => r"bash|javascript|python|r|sql|shell|zsh",
+            Freedom::High => r"[A-Za-z0-9-]+",
+            _ => any::<String>()
+        }
+    ) -> String {
+        lang
+    }
+}
+
+prop_compose! {
     /// Generate a code expression node with arbitrary text and programming language
     ///
     /// With `Freedom::Low` only allow language codes that are recognized when decoding
     /// formats such as R Markdown.
     pub fn code_expression(freedom: Freedom)(
-        programming_language in match freedom {
-            Freedom::Min => "py",
-            Freedom::Low => r"js|py|r",
-            Freedom::High => r"[A-Za-z0-9-]+",
-            _ => any::<String>()
-        },
+        programming_language in prog_lang(freedom),
         text in match freedom {
             Freedom::Min => "text",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
@@ -692,12 +701,7 @@ prop_compose! {
     /// With `Freedom::Low` only allow language codes that are recognized when decoding
     /// formats such as R Markdown.
     pub fn code_chunk(freedom: Freedom)(
-        programming_language in match freedom {
-            Freedom::Min => "py",
-            Freedom::Low => r"js|py|r",
-            Freedom::High => r"[A-Za-z0-9-]+",
-            _ => any::<String>()
-        },
+        programming_language in prog_lang(freedom),
         text in match freedom {
             Freedom::Min => "text",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
@@ -720,12 +724,7 @@ prop_compose! {
             Freedom::Low => r"[A-Za-z][A-Za-z0-9]*",
             _ => any::<String>()
         },
-        programming_language in match freedom {
-            Freedom::Min => "py",
-            Freedom::Low => r"js|py|r",
-            Freedom::High => r"[A-Za-z0-9-]+",
-            _ => any::<String>()
-        },
+        programming_language in prog_lang(freedom),
         text in match freedom {
             Freedom::Min => "text",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
@@ -751,12 +750,7 @@ prop_compose! {
 prop_compose! {
     /// Generate an If node
     pub fn if_(freedom: Freedom, exclude_types: Vec<String>)(
-        programming_language in match freedom {
-            Freedom::Min => "py",
-            Freedom::Low => r"js|py|r",
-            Freedom::High => r"[A-Za-z0-9-]+",
-            _ => any::<String>()
-        },
+        programming_language in prog_lang(freedom),
         text in match freedom {
             Freedom::Min => "text",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
@@ -785,12 +779,7 @@ prop_compose! {
     /// Generate an If node to be an alternative in another if (can't have recursive props
     /// and these lack `alternatives` and `otherwise`)
     pub fn elif(freedom: Freedom, exclude_types: Vec<String>)(
-        programming_language in match freedom {
-            Freedom::Min => "py",
-            Freedom::Low => r"js|py|r",
-            Freedom::High => r"[A-Za-z0-9-]+",
-            _ => any::<String>()
-        },
+        programming_language in prog_lang(freedom),
         text in match freedom {
             Freedom::Min => "text",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
