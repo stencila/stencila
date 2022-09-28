@@ -11,7 +11,10 @@ proptest! {
     #[test]
     fn test(input in article(
         Freedom::Max,
-        [HtmlCodec::spec().unsupported_types, vec!["Parameter".to_string()]].concat(),
+        [
+            HtmlCodec::spec().unsupported_types,
+            vec!["Parameter".to_string(), "For".to_string(), "If".to_string()
+        ]].concat(),
         HtmlCodec::spec().unsupported_properties
     )) {
         let string = HtmlCodec::to_string(&input, None).unwrap();

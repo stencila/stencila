@@ -151,9 +151,9 @@ impl ToHtml for Article {
         );
 
         if !context.options.standalone {
-            return article
+            return article;
         }
-        
+
         let header = elem("stencila-document-header", &[], "");
         let footer = elem("stencila-document-footer", &[], "");
         let nav = elem("stencila-document-nav", &[], "");
