@@ -516,6 +516,10 @@ impl ToPandoc for Call {
     }
 }
 
+unimplemented_to_pandoc!(For);
+
+unimplemented_to_pandoc!(If);
+
 impl ToPandoc for List {
     fn to_pandoc_block(&self, context: &mut EncodeContext) -> pandoc::Block {
         let items = self
