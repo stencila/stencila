@@ -423,6 +423,11 @@ impl Codecs {
     ) -> Result<()> {
         let (format, format_spec) = Self::format_from_path(path, format)?;
 
+        let options = Some(EncodeOptions {
+            format: Some(format_spec.extension.clone()),
+            ..options.unwrap_or_default()
+        });
+
         if let Some(future) = dispatch_builtins!(format, to_remote, node, path, options) {
             return future.await;
         }
