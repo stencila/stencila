@@ -554,6 +554,13 @@ pub mod commands {
         #[clap(long, short)]
         compact: bool,
 
+        /// The maximum column width of the encoded content
+        ///
+        /// Observed when encoding to formats such as Markdown by wrapping lines
+        /// longer this value if possible.
+        #[clap(long, short, default_value_t = 100)]
+        max_width: usize,
+
         /// Whether to ensure that the encoded document is standalone
         ///
         /// Some formats (e.g. Markdown, DOCX) are always standalone.
@@ -632,6 +639,7 @@ pub mod commands {
                 bundle: self.bundle,
                 theme: self.theme.clone(),
                 format: self.to.clone(),
+                max_width: Some(self.max_width),
                 lossy: self.lossy,
                 rpng_types: self.rpng_types.clone(),
                 rpng_link: self.rpng_link,
