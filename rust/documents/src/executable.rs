@@ -1107,6 +1107,12 @@ impl Executable for Call {
     }
 }
 
+// TODO
+impl Executable for For {}
+
+// TODO
+impl Executable for If {}
+
 // Nodes types that simply need an `id` assigned so that custom web component patch events have a target
 
 macro_rules! executable_assemble_id_only {
