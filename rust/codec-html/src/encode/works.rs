@@ -51,11 +51,6 @@ impl ToHtml for CreativeWork {
 
 impl ToHtml for Article {
     fn to_html(&self, context: &EncodeContext) -> String {
-        let header = elem("stencila-document-header", &[], "");
-        let footer = elem("stencila-document-footer", &[], "");
-        let nav = elem("stencila-document-nav", &[], "");
-        let toc = elem("stencila-document-toc", &[], "");
-
         let title = match &self.title {
             Some(title) => {
                 let title = match &**title {
@@ -149,22 +144,22 @@ impl ToHtml for Article {
             &self.content.to_html(context),
         );
 
-        elem(
+        let article = elem(
             "article",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[
-                header,
-                title,
-                authors,
-                affiliations,
-                abstract_,
-                content,
-                footer,
-                nav,
-                toc,
-            ]
-            .concat(),
-        )
+            &[title, authors, affiliations, abstract_, content].concat(),
+        );
+
+        if !context.options.standalone {
+            return article
+        }
+        
+        let header = elem("stencila-document-header", &[], "");
+        let footer = elem("stencila-document-footer", &[], "");
+        let nav = elem("stencila-document-nav", &[], "");
+        let toc = elem("stencila-document-toc", &[], "");
+        let main = elem("main", &[], &article);
+        [header, nav, toc, main, footer].concat()
     }
 }
 

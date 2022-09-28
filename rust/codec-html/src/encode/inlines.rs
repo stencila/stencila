@@ -7,8 +7,8 @@ use stencila_schema::*;
 
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype,
-    attr_itemtype_str, attr_prop, attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder,
-    elem_property, json, nothing, EncodeContext, ToHtml, elem_meta_opt,
+    attr_itemtype_str, attr_prop, attr_slot, concat, elem, elem_empty, elem_meta, elem_meta_opt,
+    elem_placeholder, elem_property, json, nothing, EncodeContext, ToHtml,
 };
 
 impl ToHtml for InlineContent {
@@ -108,7 +108,7 @@ fn file_uri_to_data_uri(url: &str) -> String {
 }
 
 fn content_url_to_src_attr(content_url: &str, context: &EncodeContext) -> String {
-    let url = match context.bundle {
+    let url = match context.options.bundle {
         true => file_uri_to_data_uri(content_url),
         false => content_url.to_string(),
     };
@@ -424,7 +424,7 @@ impl ToHtml for CodeExpression {
             &self.output,
             &EncodeContext {
                 inline: true,
-                ..*context
+                ..context.clone()
             },
         );
 

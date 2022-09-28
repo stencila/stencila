@@ -1,12 +1,10 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 481
+assertion_line: 512
 expression: html
 input_file: fixtures/nodes/include.json
 ---
 <article data-root itemtype="https://schema.org/Article" itemscope>
-  <stencila-document-toolbar>
-  </stencila-document-toolbar>
   <div data-prop="content">
     <stencila-include itemtype="https://schema.stenci.la/Include" itemscope source="heading.json">
       <meta itemprop="source" content="heading.json"/>

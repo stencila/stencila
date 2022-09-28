@@ -6,8 +6,8 @@ use stencila_schema::*;
 
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype, attr_prop,
-    attr_slot, concat, data::label_and_input, elem, elem_empty, elem_meta, elem_placeholder,
-    elem_property, json, nothing, EncodeContext, ToHtml, elem_meta_opt,
+    attr_slot, concat, data::label_and_input, elem, elem_empty, elem_meta, elem_meta_opt,
+    elem_placeholder, elem_property, json, nothing, EncodeContext, ToHtml,
 };
 
 impl ToHtml for BlockContent {
@@ -532,7 +532,10 @@ impl ToHtml for Call {
 
                     elem(
                         "stencila-call-argument",
-                        &[attr_itemtype::<Self>(), attr("index", &index.to_string())],
+                        &[
+                            attr_itemtype::<CallArgument>(),
+                            attr("index", &index.to_string()),
+                        ],
                         &[name, symbol, value].concat(),
                     )
                 })
@@ -599,6 +602,26 @@ impl ToHtml for Call {
                 content,
             ]
             .concat(),
+        )
+    }
+}
+
+impl ToHtml for For {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        elem(
+            "stencila-for",
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            "",
+        )
+    }
+}
+
+impl ToHtml for If {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        elem(
+            "stencila-if",
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            "",
         )
     }
 }

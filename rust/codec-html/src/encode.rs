@@ -37,13 +37,12 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
 /// the operation is a `Node` and the operation is applied to a `Node`) to a `DomOperation`
 /// (where any value is either a HTML or JSON string and the operation is applied to a browser DOM).
 pub fn encode_root(node: &Node, options: Option<EncodeOptions>) -> String {
-    let EncodeOptions {
-        bundle, compact, ..
-    } = options.unwrap_or_default();
+    let options = options.unwrap_or_default();
+    let compact = options.compact;
 
     let context = EncodeContext {
         root: node,
-        bundle,
+        options,
         ..Default::default()
     };
     let html = node.to_html(&context);
@@ -156,27 +155,28 @@ pub fn wrap_standalone(html: &str, options: EncodeOptions, title: &str, extra_cs
 ///
 /// Used by child nodes to retrieve necessary information about the
 /// parent nodes when rendering themselves.
+#[derive(Clone)]
 pub struct EncodeContext<'a> {
     /// The root node being encoded
     pub root: &'a Node,
-
-    /// Whether <img>, <audio> and <video> elements should use dataURIs
-    pub bundle: bool,
 
     /// Whether currently within inline content
     pub inline: bool,
 
     /// The mode for user interaction with node Web Components
     pub mode: EncodeMode,
+
+    /// The encoding options
+    pub options: EncodeOptions,
 }
 
 impl<'a> Default for EncodeContext<'a> {
     fn default() -> Self {
         EncodeContext {
             root: &Node::Null(Null {}),
-            bundle: false,
             inline: false,
             mode: EncodeMode::Write,
+            options: EncodeOptions::default(),
         }
     }
 }
@@ -522,6 +522,7 @@ mod tests {
                 &decoded,
                 Some(EncodeOptions {
                     compact: false,
+                    standalone: false,
                     ..Default::default()
                 }),
             )

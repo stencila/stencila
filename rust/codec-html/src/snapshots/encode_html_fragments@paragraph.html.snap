@@ -1,13 +1,10 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 455
+assertion_line: 530
 expression: encoded
 input_file: fixtures/fragments/html/paragraph.html
-
 ---
 <article data-root itemtype="https://schema.org/Article" itemscope>
-  <stencila-document-toolbar>
-  </stencila-document-toolbar>
   <div data-prop="content">
     <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
       <span>First paragraph.</span>
