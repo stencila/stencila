@@ -1,0 +1,32 @@
+---
+source: rust/css-utils/src/lib.rs
+assertion_line: 256
+expression: "parse_tailwind(r\"sm:text-md md:text(lg) lg:(text(xl)) xl:(text-5xl)\")?.join(\"\\n\\n\")"
+---
+@media (min-width: 640px) {
+  :root {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    font-size: 3rem;
+    line-height: 100%;
+  }
+}
