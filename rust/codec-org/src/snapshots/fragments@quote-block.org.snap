@@ -1,0 +1,39 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 79
+expression: node
+input_file: fixtures/fragments/org/quote-block.org
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "Simple, single line"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "Multiple paragraphs"
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            "The second paragraph"
+          ]
+        }
+      ]
+    }
+  ]
+}

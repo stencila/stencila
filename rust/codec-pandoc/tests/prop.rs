@@ -21,7 +21,7 @@ proptest! {
             rpng_text: true,
             ..Default::default()
         })).unwrap();
-        let output = decode_pandoc(pandoc).unwrap();
+        let output = decode_pandoc(pandoc, "pandoc").unwrap();
         assert_json_eq!(input, output);
     }
 }

@@ -63,6 +63,7 @@ default = [
   "codecs/codec-json5",
   "codecs/codec-latex",
   "codecs/codec-md",
+  "codecs/codec-org",
   "codecs/codec-pandoc",
   "codecs/codec-pdf",
   "codecs/codec-person",

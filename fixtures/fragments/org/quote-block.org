@@ -1,0 +1,12 @@
+#+begin_quote
+Simple, single line
+
+#+end_quote
+
+#+begin_quote
+Multiple paragraphs
+
+The second paragraph
+
+#+end_quote
+

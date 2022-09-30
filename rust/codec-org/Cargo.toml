@@ -1,0 +1,14 @@
+[package]
+name = "codec-org"
+description = "A codec for Org Mode"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec-pandoc = { path = "../codec-pandoc" }
+codec = { path = "../codec" }
+
+[dev-dependencies]
+test-props = { path = "../test-props" }
+test-snaps = { path = "../test-snaps" }
+test-utils = { path = "../test-utils" }

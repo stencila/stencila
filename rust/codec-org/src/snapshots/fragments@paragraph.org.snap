@@ -1,0 +1,29 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 79
+expression: node
+input_file: fixtures/fragments/org/paragraph.org
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "First paragraph."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Second paragraph."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Third paragraph, split over multiple lines."
+      ]
+    }
+  ]
+}

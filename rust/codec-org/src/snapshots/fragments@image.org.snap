@@ -1,0 +1,22 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 79
+expression: node
+input_file: fixtures/fragments/org/image.org
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "An image ",
+        {
+          "type": "ImageObject",
+          "contentUrl": "image.png"
+        },
+        "."
+      ]
+    }
+  ]
+}

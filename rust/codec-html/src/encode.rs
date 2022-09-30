@@ -57,14 +57,14 @@ pub fn encode_root(node: &Node, options: Option<EncodeOptions>) -> String {
     if compact {
         html
     } else {
-        indent(&html)
+        indent(&html).unwrap_or(html)
     }
 }
 
 /// Indent generated HTML
 ///
 /// Originally based on https://gist.github.com/lwilli/14fb3178bd9adac3a64edfbc11f42e0d
-fn indent(html: &str) -> String {
+fn indent(html: &str) -> Result<String> {
     use quick_xml::events::Event;
     use quick_xml::{Reader, Writer};
 
@@ -76,21 +76,14 @@ fn indent(html: &str) -> String {
     let mut writer = Writer::new_with_indent(Vec::new(), b' ', 2);
 
     loop {
-        let ev = reader.read_event(&mut buf);
-
-        match ev {
-            Ok(Event::Eof) => break,
-            Ok(event) => writer.write_event(event),
-            Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
-        }
-        .expect("Failed to parse XML");
-
+        match reader.read_event(&mut buf)? {
+            Event::Eof => break,
+            event => writer.write_event(event)?,
+        };
         buf.clear();
     }
 
-    std::str::from_utf8(&*writer.into_inner())
-        .expect("Failed to convert a slice of bytes to a string slice")
-        .to_string()
+    Ok(std::str::from_utf8(&*writer.into_inner())?.to_string())
 }
 
 /// Wrap generated HTML so that it is standalone

@@ -1,0 +1,22 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 79
+expression: node
+input_file: fixtures/fragments/org/code-fragment.org
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "Some ",
+        {
+          "type": "CodeFragment",
+          "text": "code"
+        },
+        " in a paragraph."
+      ]
+    }
+  ]
+}

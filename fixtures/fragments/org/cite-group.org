@@ -1,0 +1,2 @@
+A group of citations like [cite:@vincent; @van] or [cite:@vincent; @van
+; @goh].

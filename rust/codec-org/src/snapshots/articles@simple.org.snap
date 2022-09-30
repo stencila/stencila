@@ -1,0 +1,136 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 69
+expression: node
+input_file: fixtures/articles/simple.org
+---
+{
+  "type": "Article",
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Bentley"
+      ],
+      "givenNames": [
+        "Nokome"
+      ]
+    }
+  ],
+  "content": [
+    {
+      "type": "Heading",
+      "content": [
+        "Introduction"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A simple Org Mode article for testing. When making changes please note that test snapshots based on this fixture may need to be updated."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Methods"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "This is the methods section."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Results"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "The results include a table (Table 1)."
+      ]
+    },
+    {
+      "type": "Table",
+      "rows": [
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "cellType": "Header",
+              "content": [
+                "Group"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "cellType": "Header",
+              "content": [
+                "Value"
+              ]
+            }
+          ],
+          "rowType": "Header"
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                "A"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "1.1"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                "B"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "2.2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Discussion"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "This is the discussion section."
+      ]
+    }
+  ],
+  "title": [
+    "A simple Org Mode article for testing"
+  ]
+}

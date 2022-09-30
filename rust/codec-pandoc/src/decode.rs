@@ -16,7 +16,7 @@ use codec::{
 use codec_json::JsonCodec;
 use codec_rpng::RpngCodec;
 use codec_txt::ToTxt;
-use formats::FormatNodeType;
+use formats::{Format, FormatNodeType};
 use node_coerce::coerce;
 
 use crate::from_pandoc;
@@ -31,7 +31,7 @@ pub async fn decode(
     args: &[&str],
 ) -> Result<Node> {
     let pandoc = from_pandoc(input, path, format, args).await?;
-    decode_pandoc(pandoc)
+    decode_pandoc(pandoc, format)
 }
 
 /// Decode a fragment to a vector of `BlockContent`
@@ -48,13 +48,13 @@ pub async fn decode_fragment(
     }
 
     let pandoc = from_pandoc(input, None, format, args).await?;
-    let context = DecodeContext {};
+    let context = DecodeContext::new(format);
     Ok(translate_blocks(&pandoc.blocks, &context))
 }
 
 /// Decode a Pandoc document to a `Node`
-pub fn decode_pandoc(pandoc: pandoc::Pandoc) -> Result<Node> {
-    let context = DecodeContext {};
+pub fn decode_pandoc(pandoc: pandoc::Pandoc, format: &str) -> Result<Node> {
+    let context = DecodeContext::new(format);
     let mut article = translate_meta(pandoc.meta, &context)?;
 
     let content = translate_blocks(&pandoc.blocks, &context);
@@ -122,7 +122,17 @@ fn translate_meta_value(value: &pandoc::MetaValue, context: &DecodeContext) -> s
 }
 
 /// Decoding context
-struct DecodeContext {}
+struct DecodeContext {
+    format: Format,
+}
+
+impl DecodeContext {
+    fn new(format: &str) -> Self {
+        Self {
+            format: formats::match_name(format),
+        }
+    }
+}
 
 /// Translate a vector of Pandoc `Block` elements to a vector of `BlockContent` nodes
 fn translate_blocks(elements: &[pandoc::Block], context: &DecodeContext) -> Vec<BlockContent> {
@@ -191,11 +201,30 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
 
         pandoc::Block::CodeBlock(attrs, text) => {
             let id = get_id(attrs).map(Box::new);
-            let programming_language = get_attr(attrs, "classes").map(Box::new);
+            let programming_language = get_attr(attrs, "classes");
+            let mut text = text.clone();
+
+            // For Org, `#+begin_example` means "no language specified"
+            let programming_language = if matches!(context.format, Format::Org)
+                && programming_language.as_deref().unwrap_or_default() == "example"
+            {
+                None
+            } else {
+                programming_language.map(Box::new)
+            };
+
+            // For Org, `#+begin_example` blocks do not get trainling newline removed as for other code blocks
+            if matches!(context.format, Format::Org)
+                && programming_language.is_none()
+                && text.ends_with('\n')
+            {
+                text.pop();
+            }
+
             vec![BlockContent::CodeBlock(CodeBlock {
                 id,
                 programming_language,
-                text: text.clone(),
+                text,
                 ..Default::default()
             })]
         }

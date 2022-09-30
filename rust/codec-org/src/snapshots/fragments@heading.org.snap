@@ -1,0 +1,32 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 79
+expression: node
+input_file: fixtures/fragments/org/heading.org
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Heading",
+      "content": [
+        "Heading 1"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Heading 2"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Heading 3"
+      ],
+      "depth": 3
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+A [[https://stenci.la][link]].
+
+A [[][link]] with no target.

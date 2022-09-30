@@ -1,0 +1,24 @@
+---
+source: rust/codec-org/src/lib.rs
+assertion_line: 79
+expression: node
+input_file: fixtures/fragments/org/emphasis.org
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "Some ",
+        {
+          "type": "Emphasis",
+          "content": [
+            "emphasized"
+          ]
+        },
+        " text."
+      ]
+    }
+  ]
+}
