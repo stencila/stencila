@@ -7,7 +7,7 @@ edition = "2021"
 common = { path = "../common" }
 lightningcss = "1.0.0-alpha.35"
 nom = "7.1.0"
-tailwind-css = { git = "https://github.com/nokome/tailwind-rs", rev = "d7875e365204d8e0e9e5a80d025a88dd286bc0f6" }
+tailwind-css = { git = "https://github.com/nokome/tailwind-rs", rev = "ef1da947888932e56ab57edfd7dbb41663a4cde0" }
 
 [dev-dependencies]
 test-snaps = { path = "../test-snaps" }

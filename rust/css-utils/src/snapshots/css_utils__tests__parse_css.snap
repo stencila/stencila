@@ -1,6 +1,6 @@
 ---
 source: rust/css-utils/src/lib.rs
-assertion_line: 216
+assertion_line: 87
 expression: "parse_css(r#\"\n            .foo {\n                color: pink;\n                & .bar {\n                    color: red;\n                    & .baz .quax {\n                        color: orange;\n                    }\n                }\n            }\n            \"#)?.join(\"\\n\\n\")"
 ---
 .foo {

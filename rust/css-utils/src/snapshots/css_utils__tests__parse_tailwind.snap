@@ -1,6 +1,6 @@
 ---
 source: rust/css-utils/src/lib.rs
-assertion_line: 248
+assertion_line: 121
 expression: "parse_tailwind(r\"text-md text-red-200 bg-red-100\")?.join(\"\\n\\n\")"
 ---
 :root {
