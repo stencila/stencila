@@ -57,6 +57,7 @@ import '@shoelace-style/shoelace/dist/components/select/select'
 import '@shoelace-style/shoelace/dist/components/switch/switch'
 
 import SlSwitch from '@shoelace-style/shoelace/dist/components/switch/switch'
+import { updateToOps } from '../../patches/codemirror'
 import { twSheet, varApply, varLocal } from '../utils/css'
 import StencilaElement from '../utils/element'
 
@@ -160,10 +161,36 @@ export default class StencilaCodeEditor extends StencilaElement {
     .map((name) => capitalCase(name))
 
   /**
-   * Whether controls for changing langugae, theme, line wrapping etc should be shown
+   * Whether controls for changing language, theme, line wrapping etc should be shown
    */
   @property({ attribute: 'no-controls', type: Boolean })
   noControls: boolean = false
+
+  /**
+   * The name of the node property to send patch operations for when code changes
+   *
+   * Defaults to `text` (the name of the property of `CodeChunk` and `CodeExpression`).
+   * Needed for higher-level components that have more than one editor to ensure changes
+   * are emitted as patch operations for the correct property.
+   */
+  @property({ attribute: 'property-name' })
+  propertyName: string = 'text'
+
+  /**
+   * The element containing the code content
+   */
+  private codeElem?: HTMLPreElement
+
+  /**
+   * A mutation observer to watch for changes in the code content
+   */
+  private codeObserver?: MutationObserver
+
+  /**
+   * A boolean flag to avoid `stencila-code-content-change` events being
+   * fired when the editor content is being updated from the `codeElem`
+   */
+  private codeUpdating: boolean = false
 
   /**
    * The CodeMirror editor
@@ -269,8 +296,10 @@ export default class StencilaCodeEditor extends StencilaElement {
 
       // Extension to emit an event when code changes
       EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          this.emit('stencila-code-content-change', { update })
+        if (update.docChanged && !this.codeUpdating) {
+          this.emit('stencila-code-content-change', {
+            ops: updateToOps(update, [this.propertyName]),
+          })
         }
       }),
 
@@ -427,13 +456,14 @@ export default class StencilaCodeEditor extends StencilaElement {
 
   /**
    * On a change in the `code` slot (including initial render) update the editor
+   * and create a `MutationObserver` to update its content when the code changes.
    */
   private async onCodeSlotChange(event: Event) {
-    // Get the text content from the slot
-    const childNodes = (event.target as HTMLSlotElement).assignedNodes({
+    // Get the `code` element and its content
+    this.codeElem = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
-    })
-    const content = childNodes.map((node) => node.textContent ?? '').join('')
+    })[0] as HTMLPreElement
+    const content = this.codeElem.textContent ?? ''
 
     // If the editor view does not yet exist then create it, otherwise create a transaction
     // to update its content
@@ -457,6 +487,39 @@ export default class StencilaCodeEditor extends StencilaElement {
 
       this.editorView.dispatch(transaction)
     }
+
+    // Create an observer
+    this.codeObserver = new MutationObserver((mutations) =>
+      this.onCodeMutation(mutations)
+    )
+    this.codeObserver.observe(this.codeElem, {
+      subtree: true,
+      characterData: true,
+    })
+  }
+
+  /**
+   * Handle a mutation event on the `code` slot
+   *
+   * Gets the new code and updates the content of the editor.
+   */
+  onCodeMutation(mutationList: MutationRecord[]) {
+    const content = this.codeElem?.textContent ?? ''
+
+    this.codeUpdating = true
+    const docState = this.editorView!.state
+    const transaction =
+      docState?.update({
+        changes: {
+          from: 0,
+          to: docState.doc.length,
+          insert: content,
+        },
+        selection: this.editorView!.state.selection,
+      }) ?? {}
+    this.codeUpdating = false
+
+    this.editorView!.dispatch(transaction)
   }
 
   /**
