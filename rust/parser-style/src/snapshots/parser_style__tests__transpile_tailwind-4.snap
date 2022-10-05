@@ -1,0 +1,8 @@
+---
+source: rust/parser-style/src/lib.rs
+assertion_line: 229
+expression: "transpile_tailwind(r\"border(rose-400)\")?[0]"
+---
+:root {
+  border-color: #fb7185;
+}

@@ -1,8 +1,0 @@
----
-source: rust/css-utils/src/lib.rs
-assertion_line: 131
-expression: "parse_tailwind(r\"border(dashed)\")?[0]"
----
-:root {
-  border-style: dashed;
-}

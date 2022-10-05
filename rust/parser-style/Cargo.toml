@@ -1,5 +1,5 @@
 [package]
-name = "css-utils"
+name = "parser-style"
 version = "0.0.0"
 edition = "2021"
 
@@ -7,6 +7,7 @@ edition = "2021"
 common = { path = "../common" }
 lightningcss = "1.0.0-alpha.35"
 nom = "7.1.0"
+parser = { path = "../parser" }
 tailwind-css = { git = "https://github.com/nokome/tailwind-rs", rev = "99c37acd301fbf65357d6ec621a4d4d6a505adcc" }
 
 [dev-dependencies]

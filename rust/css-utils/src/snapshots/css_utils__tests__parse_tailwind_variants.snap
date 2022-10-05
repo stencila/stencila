@@ -1,9 +1,0 @@
----
-source: rust/css-utils/src/lib.rs
-assertion_line: 134
-expression: "parse_tailwind(r\"sm:text-md sm:text(md) sm:(text(md)) sm:(text-md)\")?.join(\"\\n\\n\")"
----
-:root {
-  font-size: 1rem;
-  line-height: 1.5rem;
-}

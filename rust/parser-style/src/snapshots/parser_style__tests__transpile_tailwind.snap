@@ -1,0 +1,11 @@
+---
+source: rust/parser-style/src/lib.rs
+assertion_line: 221
+expression: "transpile_tailwind(r\"text-md text-red-200 bg-red-100\")?[0]"
+---
+:root {
+  color: #fecaca;
+  background-color: #fee2e2;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}

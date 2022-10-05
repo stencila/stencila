@@ -1,8 +1,0 @@
----
-source: rust/css-utils/src/lib.rs
-assertion_line: 125
-expression: "parse_tailwind(r\"rounded(lg\")?[0]"
----
-:root {
-  border-radius: .25rem;
-}

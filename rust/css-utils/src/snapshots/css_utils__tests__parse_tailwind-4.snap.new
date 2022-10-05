@@ -1,8 +1,0 @@
----
-source: rust/css-utils/src/lib.rs
-assertion_line: 129
-expression: "parse_tailwind(r\"border(rose-400)\")?[0]"
----
-:root {
-  border-color: #fb7185;
-}

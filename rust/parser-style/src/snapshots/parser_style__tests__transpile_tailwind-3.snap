@@ -1,0 +1,8 @@
+---
+source: rust/parser-style/src/lib.rs
+assertion_line: 227
+expression: "transpile_tailwind(r\"border(2 x-4 t-8 b-0)\")?[0]"
+---
+:root {
+  border-width: 2px;
+}
