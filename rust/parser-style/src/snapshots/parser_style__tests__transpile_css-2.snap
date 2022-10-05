@@ -1,6 +1,6 @@
 ---
 source: rust/parser-style/src/lib.rs
-assertion_line: 203
+assertion_line: 215
 expression: "transpile_css(r#\"\n            @media (min-width: 640px) {\n                :root {\n                    font-size: 1rem;\n                    line-height: 1.5rem;\n                }\n            }\n            \"#)?.join(\"\\n\\n\")"
 ---
 @media (min-width: 640px) {

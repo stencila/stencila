@@ -1,0 +1,76 @@
+---
+source: rust/parser-style/src/lib.rs
+assertion_line: 192
+expression: resource_info
+input_file: fixtures/fragments/style/uses.style
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/style/uses.style",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "sql"
+  },
+  "relations": [
+    [
+      {
+        "type": "Uses",
+        "range": [
+          4,
+          8,
+          4,
+          12
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/style/uses.style",
+        "name": "var2",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          6,
+          9,
+          6,
+          13
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/style/uses.style",
+        "name": "var3",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          2,
+          0,
+          2,
+          12
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/style/uses.style",
+        "name": "var1",
+        "kind": ""
+      }
+    ]
+  ],
+  "compile_digest": "2923147024360064239.13413124958279359945.0.0.0",
+  "tags": [
+    {
+      "name": "uses",
+      "value": "var1",
+      "global": false
+    }
+  ]
+}

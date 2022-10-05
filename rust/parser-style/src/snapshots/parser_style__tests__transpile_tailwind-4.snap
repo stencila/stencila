@@ -1,6 +1,6 @@
 ---
 source: rust/parser-style/src/lib.rs
-assertion_line: 229
+assertion_line: 241
 expression: "transpile_tailwind(r\"border(rose-400)\")?[0]"
 ---
 :root {

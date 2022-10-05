@@ -26,7 +26,8 @@ use parser::{
 
 /// Regex for detecting document variables used in styles
 pub static VAR_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"$\{\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*\}").expect("Unable to create regex")
+    Regex::new(r"(?:\$([a-zA-Z_][a-zA-Z_0-9]*)\b)|(?:\$\{\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*\})")
+        .expect("Unable to create regex")
 });
 
 /// A parser for the "Style" language
@@ -53,7 +54,7 @@ impl ParserTrait for StyleParser {
                 }
 
                 // Parse comment line
-                if line.trim_start().starts_with('#') {
+                if line.trim_start().starts_with("//") {
                     comments.push((row, line));
                     return pairs;
                 }
@@ -62,18 +63,14 @@ impl ParserTrait for StyleParser {
 
                 // Parse line for uses of variables
                 for captures in VAR_REGEX.captures_iter(expr) {
-                    if captures.get(2).is_none() {
-                        let symbol = captures.get(1).expect("Should always have group 1");
-                        pairs.push((
-                            relations::uses((
-                                row,
-                                start + symbol.start(),
-                                row,
-                                start + symbol.end(),
-                            )),
-                            resources::symbol(path, symbol.as_str(), "Number"),
-                        ))
-                    }
+                    let symbol = captures
+                        .get(1)
+                        .or_else(|| captures.get(2))
+                        .expect("Should always have one group");
+                    pairs.push((
+                        relations::uses((row, start + symbol.start(), row, start + symbol.end())),
+                        resources::symbol(path, symbol.as_str(), ""),
+                    ))
                 }
 
                 // Add line to semantics
@@ -101,7 +98,7 @@ impl ParserTrait for StyleParser {
                 Self::spec().language,
                 row,
                 line,
-                Some("Number".to_string()),
+                None,
                 &mut resource_info,
             );
         }
@@ -176,10 +173,25 @@ fn transpile_css(css: &str) -> Result<Vec<String>> {
 
 #[cfg(test)]
 mod tests {
-    use test_snaps::insta::assert_snapshot;
+    use test_snaps::{
+        insta::{assert_json_snapshot, assert_snapshot},
+        snapshot_fixtures,
+    };
+    use test_utils::fixtures;
     use test_utils::pretty_assertions::assert_eq;
 
     use super::*;
+
+    #[test]
+    fn parse_style_fragments() {
+        snapshot_fixtures("fragments/style/*.style", |path| {
+            let code = std::fs::read_to_string(path).expect("Unable to read");
+            let path = path.strip_prefix(fixtures()).expect("Unable to strip");
+            let resource = resources::code(path, "", "SoftwareSourceCode", Format::SQL);
+            let resource_info = StyleParser::parse(resource, path, &code).expect("Unable to parse");
+            assert_json_snapshot!(resource_info);
+        })
+    }
 
     #[test]
     fn test_transpile_css() -> Result<()> {

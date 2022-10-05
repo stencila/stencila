@@ -1,6 +1,6 @@
 ---
 source: rust/parser-style/src/lib.rs
-assertion_line: 225
+assertion_line: 237
 expression: "transpile_tailwind(r\"rounded(lg\")?[0]"
 ---
 :root {
