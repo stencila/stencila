@@ -118,7 +118,17 @@ mod tests {
     #[test]
     fn test_parse_tailwind() -> Result<()> {
         // Basic
-        assert_snapshot!(parse_tailwind(r"text-md text-red-200 bg-red-100")?.join("\n\n"));
+        assert_snapshot!(parse_tailwind(r"text-md text-red-200 bg-red-100")?[0]);
+
+        // Tests of support for Tailwind classes by `tailwind-css`
+        // Border radius
+        assert_snapshot!(parse_tailwind(r"rounded(lg")?[0]);
+        // Border width
+        assert_snapshot!(parse_tailwind(r"border(2 x-4 t-8 b-0)")?[0]);
+        // Border color
+        assert_snapshot!(parse_tailwind(r"border(rose-400)")?[0]);
+        // Border style
+        assert_snapshot!(parse_tailwind(r"border(dashed)")?[0]);
 
         Ok(())
     }
