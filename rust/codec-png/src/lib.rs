@@ -127,6 +127,7 @@ pub async fn nodes_to_bytes(
             min-height: 1px; /* To avoid 'Error -32000: Cannot take screenshot with 0 height' */
             min-width: 1px;
         }",
+        "",
     );
 
     // It can be useful to insect the generated HTML during development. Uncomment this to do so..
