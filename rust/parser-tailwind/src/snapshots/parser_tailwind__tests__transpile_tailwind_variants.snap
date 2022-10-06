@@ -1,0 +1,9 @@
+---
+source: rust/parser-tailwind/src/lib.rs
+assertion_line: 237
+expression: "transpile_tailwind(r\"sm:text-md sm:text(md) sm:(text(md)) sm:(text-md)\")?"
+---
+:root {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}

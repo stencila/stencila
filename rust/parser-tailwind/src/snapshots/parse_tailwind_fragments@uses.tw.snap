@@ -1,13 +1,13 @@
 ---
-source: rust/parser-style/src/lib.rs
-assertion_line: 192
+source: rust/parser-tailwind/src/lib.rs
+assertion_line: 175
 expression: resource_info
-input_file: fixtures/fragments/style/uses.style
+input_file: fixtures/fragments/tw/uses.tw
 ---
 {
   "resource": {
     "type": "Code",
-    "path": "fragments/style/uses.style",
+    "path": "fragments/tw/uses.tw",
     "id": "",
     "kind": "SoftwareSourceCode",
     "language": "sql"
@@ -17,15 +17,32 @@ input_file: fixtures/fragments/style/uses.style
       {
         "type": "Uses",
         "range": [
-          4,
+          0,
           8,
-          4,
+          0,
           12
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/style/uses.style",
+        "path": "fragments/tw/uses.tw",
+        "name": "var1",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Uses",
+        "range": [
+          0,
+          25,
+          0,
+          29
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/tw/uses.tw",
         "name": "var2",
         "kind": ""
       }
@@ -34,43 +51,20 @@ input_file: fixtures/fragments/style/uses.style
       {
         "type": "Uses",
         "range": [
-          6,
-          9,
-          6,
-          13
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/style/uses.style",
-        "name": "var3",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
           0,
-          2,
-          12
+          39,
+          0,
+          43
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/style/uses.style",
-        "name": "var1",
+        "path": "fragments/tw/uses.tw",
+        "name": "var3",
         "kind": ""
       }
     ]
   ],
-  "compile_digest": "2923147024360064239.13413124958279359945.0.0.0",
-  "tags": [
-    {
-      "name": "uses",
-      "value": "var1",
-      "global": false
-    }
-  ]
+  "compile_digest": "2559229706754875908.2559229706754875908.0.0.0",
+  "tags": []
 }

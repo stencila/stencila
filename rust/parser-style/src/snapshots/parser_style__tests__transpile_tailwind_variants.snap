@@ -1,9 +1,0 @@
----
-source: rust/parser-style/src/lib.rs
-assertion_line: 256
-expression: "transpile_tailwind(r\"sm:text-md sm:text(md) sm:(text(md)) sm:(text-md)\")?.join(\"\\n\\n\")"
----
-:root {
-  font-size: 1rem;
-  line-height: 1.5rem;
-}
