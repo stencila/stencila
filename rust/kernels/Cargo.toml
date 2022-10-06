@@ -30,4 +30,5 @@ kernel-python = { path = "../kernel-python", optional = true }
 kernel-r = { path = "../kernel-r", optional = true }
 kernel-sql = { path = "../kernel-sql", optional = true }
 kernel-store = { path = "../kernel-store", optional = true }
+kernel-tailwind = { path = "../kernel-tailwind", optional = true }
 kernel-zsh = { path = "../kernel-zsh", optional = true }

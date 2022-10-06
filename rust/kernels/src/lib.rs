@@ -47,6 +47,9 @@ enum MetaKernel {
     #[cfg(feature = "kernel-calc")]
     Calc(kernel_calc::CalcKernel),
 
+    #[cfg(feature = "kernel-tailwind")]
+    Tailwind(kernel_tailwind::TailwindKernel),
+
     #[cfg(feature = "kernel-sql")]
     Sql(kernel_sql::SqlKernel),
 
@@ -90,6 +93,12 @@ impl MetaKernel {
         );
 
         matches_kernel!(
+            "kernel-tailwind",
+            MetaKernel::Tailwind,
+            kernel_tailwind::TailwindKernel::new()
+        );
+
+        matches_kernel!(
             "kernel-sql",
             MetaKernel::Sql,
             kernel_sql::SqlKernel::new(selector, resource_changes_sender.clone())
@@ -129,6 +138,9 @@ impl MetaKernel {
             #[cfg(feature = "kernel-calc")]
             MetaKernel::Calc(kernel) => Ok((MetaKernel::Calc(kernel.clone()), true)),
 
+            #[cfg(feature = "kernel-tailwind")]
+            MetaKernel::Tailwind(kernel) => Ok((MetaKernel::Tailwind(kernel.clone()), true)),
+
             #[cfg(feature = "kernel-sql")]
             MetaKernel::Sql(kernel) => Ok((MetaKernel::Sql(kernel.clone()), true)),
 
@@ -157,10 +169,10 @@ macro_rules! dispatch_variants {
             MetaKernel::Store(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-calc")]
             MetaKernel::Calc(kernel) => kernel.$method($($arg),*),
+            #[cfg(feature = "kernel-tailwind")]
+            MetaKernel::Tailwind(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-sql")]
             MetaKernel::Sql(kernel) => kernel.$method($($arg),*),
-            #[cfg(feature = "kernel-prql")]
-            MetaKernel::Prql(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-micro")]
             MetaKernel::Micro(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-jupyter")]
@@ -1265,7 +1277,7 @@ impl KernelSpace {
 
     /// A read-evaluate-print function
     ///
-    /// Primarily intended for use in interactive mode to execute a line of code REPL style
+    /// Primarily intended for use in interactive mode to execute a line of code REPL Tailwind
     /// (see the `Execute` CLI command).
     #[cfg(feature = "cli")]
     pub async fn repl(
@@ -1432,6 +1444,9 @@ pub async fn available() -> Vec<Kernel> {
 
     #[cfg(feature = "kernel-calc")]
     available.push(kernel_calc::CalcKernel::new().spec().await);
+
+    #[cfg(feature = "kernel-tailwind")]
+    available.push(kernel_tailwind::TailwindKernel::new().spec().await);
 
     #[cfg(feature = "kernel-sql")]
     available.push(
