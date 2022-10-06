@@ -36,7 +36,7 @@ There are no items
 
 # Deviations
 
-Here is a test that missing content will still be parsed as a `ForEach`,
+Here is a test that missing content will still be parsed as a `For`,
 
 ::: for item in [1,2,3]
 
@@ -44,7 +44,7 @@ Here is a test that missing content will still be parsed as a `ForEach`,
 
 :::
 
-However note that there must be empty lines between sections. e.g this should _not_ be parsed as a `ForEach`,
+However note that there must be empty lines between sections. e.g this should _not_ be parsed as a `For`,
 
 ::: for item in [1,2,3]
 ::: else
@@ -56,7 +56,7 @@ Some Markdown that did not parse correctly during prop tests
 
 ## Table in `otherwise`
 
-::: for item in text {py}
+::: for item in [] {py}
 
 Content paragraph
 

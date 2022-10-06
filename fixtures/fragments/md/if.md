@@ -48,7 +48,7 @@ This final paragraph should NOT be shown because the above `elif` was.
 
 # Nested
 
-Probably best to be avoided but possible (and not allowed in prop tests),
+Probably best avoided, but possible,
 
 ::: if true
 
