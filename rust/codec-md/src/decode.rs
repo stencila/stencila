@@ -325,8 +325,16 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                             }
                         }
                         None
-                    } else if let Ok(..) = divend(trimmed) {
+                    } else if let Ok((.., div)) = division(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(BlockContent::Division(div));
+                        None
+                    } else if let Ok(..) = div_end(trimmed) {
                         divs.pop_back().map(|div| match div {
+                            BlockContent::Division(mut div) => {
+                                div.content = blocks.pop_div();
+                                BlockContent::Division(div)
+                            }
                             BlockContent::For(mut for_) => {
                                 for_.otherwise = for_.otherwise.map(|_| blocks.pop_div());
                                 for_.content = blocks.pop_div();
@@ -806,6 +814,7 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
             cite,
             math,
             parameter,
+            span,
             subscript,
             superscript,
             string,
@@ -874,6 +883,34 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
                 },
             };
             Ok(node)
+        },
+    )(input)
+}
+
+/// Parse a `Span`.
+pub fn span(input: &str) -> IResult<&str, InlineContent> {
+    map_res(
+        pair(
+            delimited(char('['), is_not("]"), char(']')),
+            alt((
+                map(delimited(char('{'), is_not("}"), char('}')), |text| {
+                    (text, "tailwind")
+                }),
+                pair(
+                    delimited(char('`'), is_not("`"), char('`')),
+                    delimited(char('{'), is_not("}"), char('}')),
+                ),
+            )),
+        ),
+        |(content, (text, lang))| -> Result<InlineContent> {
+            let content = decode_fragment(content, None).to_inlines();
+
+            Ok(InlineContent::Span(Span {
+                programming_language: lang.to_string(),
+                text: text.to_string(),
+                content,
+                ..Default::default()
+            }))
         },
     )(input)
 }
@@ -1599,6 +1636,33 @@ fn symbol(input: &str) -> IResult<&str, String> {
     )(input)
 }
 
+/// Parse a `Division` node
+///
+/// Note: This and the following 'div like' parsers are all consuming because they are used
+/// to test a match against a whole line.
+fn division(input: &str) -> IResult<&str, Division> {
+    map_res(
+        all_consuming(preceded(
+            tuple((semis3plus, multispace0)),
+            alt((
+                tuple((
+                    delimited(char('`'), is_not("`"), char('`')),
+                    delimited(char('{'), is_not("}"), char('}')),
+                )),
+                map(is_not("\r\n"), |text| (text, "tailwind")),
+            )),
+        )),
+        |(text, programming_language)| -> Result<Division> {
+            Ok(Division {
+                programming_language: programming_language.to_string(),
+                text: text.to_string(),
+                ..Default::default()
+            })
+        },
+    )(input)
+}
+
+/// Parse a `For` node
 fn for_(input: &str) -> IResult<&str, For> {
     map_res(
         all_consuming(preceded(
@@ -1632,6 +1696,7 @@ fn for_(input: &str) -> IResult<&str, For> {
     )(input)
 }
 
+/// Parse an `if` or `elif` section
 fn if_elif(input: &str) -> IResult<&str, (bool, If)> {
     map_res(
         all_consuming(preceded(
@@ -1665,6 +1730,7 @@ fn if_elif(input: &str) -> IResult<&str, (bool, If)> {
     )(input)
 }
 
+/// Parse an `else` section
 fn else_(input: &str) -> IResult<&str, &str> {
     all_consuming(recognize(tuple((
         semis3plus,
@@ -1674,10 +1740,12 @@ fn else_(input: &str) -> IResult<&str, &str> {
     ))))(input)
 }
 
-fn divend(input: &str) -> IResult<&str, &str> {
+/// Parse the end of a division
+fn div_end(input: &str) -> IResult<&str, &str> {
     all_consuming(recognize(tuple((semis3plus, multispace0))))(input)
 }
 
+/// Parse at least three semicolons
 fn semis3plus(input: &str) -> IResult<&str, &str> {
     recognize(many_m_n(3, 100, char(':')))(input)
 }
@@ -1868,6 +1936,36 @@ mod tests {
                 ("c", Some(Node::Number(Number(1.234)))),
                 ("d", Some(Node::String("   Internal  spaces ".to_string())))
             ]
+        );
+    }
+
+    #[test]
+    fn test_spans() {
+        assert_eq!(
+            span(r#"[some _inline_ content]{text-red-300}"#).unwrap().1,
+            InlineContent::Span(Span {
+                programming_language: "tailwind".to_string(),
+                text: "text-red-300".to_string(),
+                content: vec![
+                    InlineContent::String("some ".to_string()),
+                    InlineContent::Emphasis(Emphasis {
+                        content: vec![InlineContent::String("inline".to_string())],
+                        ..Default::default()
+                    }),
+                    InlineContent::String(" content".to_string())
+                ],
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(
+            span(r#"[content]`f"text-{color}-300"`{python}"#).unwrap().1,
+            InlineContent::Span(Span {
+                programming_language: "python".to_string(),
+                text: "f\"text-{color}-300\"".to_string(),
+                content: vec![InlineContent::String("content".to_string())],
+                ..Default::default()
+            })
         );
     }
 
@@ -2086,13 +2184,13 @@ mod tests {
 
     #[test]
     fn test_divend() {
-        assert!(divend(":::").is_ok());
-        assert!(divend("::::").is_ok());
-        assert!(divend("::::::").is_ok());
+        assert!(div_end(":::").is_ok());
+        assert!(div_end("::::").is_ok());
+        assert!(div_end("::::::").is_ok());
 
-        assert!(divend(":::some chars").is_err());
-        assert!(divend("::").is_err());
-        assert!(divend(":").is_err());
+        assert!(div_end(":::some chars").is_err());
+        assert!(div_end("::").is_err());
+        assert!(div_end(":").is_err());
     }
 
     #[test]

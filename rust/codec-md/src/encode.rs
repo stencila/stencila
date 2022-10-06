@@ -5,6 +5,7 @@ use codec::{
     stencila_schema::*,
     EncodeOptions,
 };
+use formats::Format;
 
 use crate::utils::escape;
 
@@ -596,6 +597,50 @@ impl ToMd for CallArgument {
     }
 }
 
+impl ToMd for Division {
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        let Self {
+            programming_language,
+            text,
+            content,
+            ..
+        } = self;
+
+        let lang = formats::match_name(programming_language);
+        let spec = if lang == Format::Tailwind {
+            text.to_owned()
+        } else {
+            ["`", text, "`{", programming_language, "}"].concat()
+        };
+
+        let content = content.to_md(options);
+
+        ["::: ", &spec, "\n\n", &content, ":::\n\n"].concat()
+    }
+}
+
+impl ToMd for Span {
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        let Self {
+            programming_language,
+            text,
+            content,
+            ..
+        } = self;
+
+        let lang = formats::match_name(programming_language);
+        let spec = if lang == Format::Tailwind {
+            ["{", text, "}"].concat()
+        } else {
+            ["`", text, "`{", programming_language, "}"].concat()
+        };
+
+        let content = content.to_md(options);
+
+        ["[", &content, "]", &spec].concat()
+    }
+}
+
 impl ToMd for For {
     fn to_md(&self, options: &EncodeOptions) -> String {
         let Self {
@@ -770,6 +815,7 @@ impl ToMd for BlockContent {
             BlockContent::Call(node) => node.to_md(options),
             BlockContent::CodeBlock(node) => node.to_md(options),
             BlockContent::CodeChunk(node) => node.to_md(options),
+            BlockContent::Division(node) => node.to_md(options),
             BlockContent::For(node) => node.to_md(options),
             BlockContent::Heading(node) => node.to_md(options),
             BlockContent::If(node) => node.to_md(options),
