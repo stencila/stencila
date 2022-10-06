@@ -57,6 +57,8 @@ impl CodecTrait for PandocCodec {
                 "Claim",
                 "Collection",
                 "Figure",
+                "Division",
+                "Span",
                 "For",
                 "If",
                 "Note"

@@ -668,6 +668,9 @@ impl ToPandoc for [BlockContent] {
     }
 }
 
+unimplemented_to_pandoc!(Division);
+unimplemented_to_pandoc!(Span);
+
 impl ToPandoc for Article {
     fn to_pandoc(&self, context: &mut EncodeContext) -> pandoc::Pandoc {
         let meta = HashMap::new();
