@@ -21,6 +21,7 @@ anyOf:
   - $ref: Note
   - $ref: Parameter
   - $ref: Quote
+  - $ref: Span
   - $ref: Strikeout
   - $ref: Strong
   - $ref: Subscript

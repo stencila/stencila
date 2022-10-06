@@ -267,7 +267,7 @@ Executable <- function(
   )
   self$type <- as_scalar("Executable")
   self[["codeDependencies"]] <- check_property("Executable", "codeDependencies", FALSE, missing(codeDependencies), Array(Union(CodeChunk, File, Parameter)), codeDependencies)
-  self[["codeDependents"]] <- check_property("Executable", "codeDependents", FALSE, missing(codeDependents), Array(Union(Call, CodeChunk, CodeExpression, File)), codeDependents)
+  self[["codeDependents"]] <- check_property("Executable", "codeDependents", FALSE, missing(codeDependents), Array(Union(Call, CodeChunk, CodeExpression, Division, Span, File)), codeDependents)
   self[["compileDigest"]] <- check_property("Executable", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
   self[["errors"]] <- check_property("Executable", "errors", FALSE, missing(errors), Array(CodeError), errors)
   self[["executeAuto"]] <- check_property("Executable", "executeAuto", FALSE, missing(executeAuto), ExecuteAuto, executeAuto)
@@ -2338,6 +2338,155 @@ Directory <- function(
   self[["parts"]] <- check_property("Directory", "parts", TRUE, missing(parts), Array(Union(File, Directory)), parts)
   self[["path"]] <- check_property("Directory", "path", TRUE, missing(path), "character", path)
   class(self) <- c(class(self), "Directory")
+  self
+}
+
+
+#' A document node that has styling applied to it and/or its content
+#'
+#' @name Styled
+#' @param classes A list of class names associated with the document node \bold{Required}.
+#' @param css A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property. \bold{Required}.
+#' @param programmingLanguage The programming language of the code. \bold{Required}.
+#' @param text The text of the code. \bold{Required}.
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
+#' @param executeAuto Under which circumstances the code should be automatically executed.
+#' @param executeCount A count of the number of times that the node has been executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
+#' @param executeRequired Whether, and why, the code requires execution or re-execution.
+#' @param executeStatus Status of the most recent, including any current, execution.
+#' @param id The identifier for this item.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
+#' @param meta Metadata associated with this item.
+#' @return A `list` of class `Styled`
+#' @seealso \code{\link{CodeExecutable}}
+#' @export
+Styled <- function(
+  classes,
+  css,
+  programmingLanguage,
+  text,
+  codeDependencies,
+  codeDependents,
+  compileDigest,
+  errors,
+  executeAuto,
+  executeCount,
+  executeDigest,
+  executeDuration,
+  executeEnded,
+  executeKernel,
+  executeRequired,
+  executeStatus,
+  id,
+  mediaType,
+  meta
+){
+  self <- CodeExecutable(
+    programmingLanguage = programmingLanguage,
+    text = text,
+    codeDependencies = codeDependencies,
+    codeDependents = codeDependents,
+    compileDigest = compileDigest,
+    errors = errors,
+    executeAuto = executeAuto,
+    executeCount = executeCount,
+    executeDigest = executeDigest,
+    executeDuration = executeDuration,
+    executeEnded = executeEnded,
+    executeKernel = executeKernel,
+    executeRequired = executeRequired,
+    executeStatus = executeStatus,
+    id = id,
+    mediaType = mediaType,
+    meta = meta
+  )
+  self$type <- as_scalar("Styled")
+  self[["classes"]] <- check_property("Styled", "classes", TRUE, missing(classes), Array("character"), classes)
+  self[["css"]] <- check_property("Styled", "css", TRUE, missing(css), "character", css)
+  class(self) <- c(class(self), "Styled")
+  self
+}
+
+
+#' Styled block content
+#'
+#' @name Division
+#' @param classes A list of class names associated with the document node \bold{Required}.
+#' @param content The content within the division \bold{Required}.
+#' @param css A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property. \bold{Required}.
+#' @param programmingLanguage The programming language of the code. \bold{Required}.
+#' @param text The text of the code. \bold{Required}.
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
+#' @param executeAuto Under which circumstances the code should be automatically executed.
+#' @param executeCount A count of the number of times that the node has been executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
+#' @param executeRequired Whether, and why, the code requires execution or re-execution.
+#' @param executeStatus Status of the most recent, including any current, execution.
+#' @param id The identifier for this item.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
+#' @param meta Metadata associated with this item.
+#' @return A `list` of class `Division`
+#' @seealso \code{\link{Styled}}
+#' @export
+Division <- function(
+  classes,
+  content,
+  css,
+  programmingLanguage,
+  text,
+  codeDependencies,
+  codeDependents,
+  compileDigest,
+  errors,
+  executeAuto,
+  executeCount,
+  executeDigest,
+  executeDuration,
+  executeEnded,
+  executeKernel,
+  executeRequired,
+  executeStatus,
+  id,
+  mediaType,
+  meta
+){
+  self <- Styled(
+    classes = classes,
+    css = css,
+    programmingLanguage = programmingLanguage,
+    text = text,
+    codeDependencies = codeDependencies,
+    codeDependents = codeDependents,
+    compileDigest = compileDigest,
+    errors = errors,
+    executeAuto = executeAuto,
+    executeCount = executeCount,
+    executeDigest = executeDigest,
+    executeDuration = executeDuration,
+    executeEnded = executeEnded,
+    executeKernel = executeKernel,
+    executeRequired = executeRequired,
+    executeStatus = executeStatus,
+    id = id,
+    mediaType = mediaType,
+    meta = meta
+  )
+  self$type <- as_scalar("Division")
+  self[["content"]] <- check_property("Division", "content", TRUE, missing(content), Array(BlockContent), content)
+  class(self) <- c(class(self), "Division")
   self
 }
 
@@ -4733,6 +4882,82 @@ SoftwareSourceCode <- function(
 }
 
 
+#' Styled inline content
+#'
+#' @name Span
+#' @param classes A list of class names associated with the document node \bold{Required}.
+#' @param content The content within the span \bold{Required}.
+#' @param css A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property. \bold{Required}.
+#' @param programmingLanguage The programming language of the code. \bold{Required}.
+#' @param text The text of the code. \bold{Required}.
+#' @param codeDependencies The upstream dependencies.
+#' @param codeDependents The downstream dependents.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the node.
+#' @param executeAuto Under which circumstances the code should be automatically executed.
+#' @param executeCount A count of the number of times that the node has been executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration of the last execution.
+#' @param executeEnded The timestamp when the last execution ended.
+#' @param executeKernel The id of the kernel that the node was last executed in.
+#' @param executeRequired Whether, and why, the code requires execution or re-execution.
+#' @param executeStatus Status of the most recent, including any current, execution.
+#' @param id The identifier for this item.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
+#' @param meta Metadata associated with this item.
+#' @return A `list` of class `Span`
+#' @seealso \code{\link{Styled}}
+#' @export
+Span <- function(
+  classes,
+  content,
+  css,
+  programmingLanguage,
+  text,
+  codeDependencies,
+  codeDependents,
+  compileDigest,
+  errors,
+  executeAuto,
+  executeCount,
+  executeDigest,
+  executeDuration,
+  executeEnded,
+  executeKernel,
+  executeRequired,
+  executeStatus,
+  id,
+  mediaType,
+  meta
+){
+  self <- Styled(
+    classes = classes,
+    css = css,
+    programmingLanguage = programmingLanguage,
+    text = text,
+    codeDependencies = codeDependencies,
+    codeDependents = codeDependents,
+    compileDigest = compileDigest,
+    errors = errors,
+    executeAuto = executeAuto,
+    executeCount = executeCount,
+    executeDigest = executeDigest,
+    executeDuration = executeDuration,
+    executeEnded = executeEnded,
+    executeKernel = executeKernel,
+    executeRequired = executeRequired,
+    executeStatus = executeStatus,
+    id = id,
+    mediaType = mediaType,
+    meta = meta
+  )
+  self$type <- as_scalar("Span")
+  self[["content"]] <- check_property("Span", "content", TRUE, missing(content), Array(InlineContent), content)
+  class(self) <- c(class(self), "Span")
+  self
+}
+
+
 #' Content that is marked as struck out
 #'
 #' @name Strikeout
@@ -5476,14 +5701,14 @@ TimeUnit <- Enum("Year", "Month", "Week", "Day", "Hour", "Minute", "Second", "Mi
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-BlockContent <- Union(Call, Claim, CodeBlock, CodeChunk, Figure, For, Heading, If, Include, List, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
+BlockContent <- Union(Call, Claim, CodeBlock, CodeChunk, Division, Figure, For, Heading, If, Include, List, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
 
 
 #' All type schemas that are derived from CodeExecutable
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-CodeExecutableTypes <- Union(CodeExecutable, CodeChunk, CodeExpression)
+CodeExecutableTypes <- Union(CodeExecutable, CodeChunk, CodeExpression, Division, Span, Styled)
 
 
 #' All type schemas that are derived from CodeStatic
@@ -5518,14 +5743,14 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Claim, Collection
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, DateTimeValidator, DateValidator, DefinedTerm, Delete, Directory, DurationValidator, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, For, Function, Grant, Heading, If, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TimeValidator, TimestampValidator, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, DateTimeValidator, DateValidator, DefinedTerm, Delete, Directory, Division, DurationValidator, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, For, Function, Grant, Heading, If, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Span, Strikeout, StringValidator, Strong, Styled, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TimeValidator, TimestampValidator, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Executable
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-ExecutableTypes <- Union(Executable, Call, CallArgument, CodeChunk, CodeExecutable, CodeExpression, For, If, Include, Parameter)
+ExecutableTypes <- Union(Executable, Call, CallArgument, CodeChunk, CodeExecutable, CodeExpression, Division, For, If, Include, Parameter, Span, Styled)
 
 
 #' All type schemas that are derived from Grant
@@ -5546,7 +5771,7 @@ IncludeTypes <- Union(Include, Call)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-InlineContent <- Union(AudioObject, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Note, Parameter, Quote, Strikeout, Strong, Subscript, Superscript, Underline, VideoObject, "NULL", "logical", "numeric", "character", Date, Time, DateTime, Timestamp, Duration)
+InlineContent <- Union(AudioObject, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Note, Parameter, Quote, Span, Strikeout, Strong, Subscript, Superscript, Underline, VideoObject, "NULL", "logical", "numeric", "character", Date, Time, DateTime, Timestamp, Duration)
 
 
 #' All type schemas that are derived from Mark
@@ -5574,7 +5799,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, DateTimeValidator, DateValidator, DefinedTerm, Delete, Directory, DurationValidator, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, For, Function, Grant, Heading, If, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Strikeout, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TimeValidator, TimestampValidator, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", Date, Time, DateTime, Timestamp, Duration, "list", Array(Any()))
+Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Call, CallArgument, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, CodeStatic, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, DateTimeValidator, DateValidator, DefinedTerm, Delete, Directory, Division, DurationValidator, Emphasis, EnumValidator, Enumeration, Executable, Figure, File, For, Function, Grant, Heading, If, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Span, Strikeout, StringValidator, Strong, Styled, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TimeValidator, TimestampValidator, TupleValidator, Underline, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", Date, Time, DateTime, Timestamp, Duration, "list", Array(Any()))
 
 
 #' All type schemas that are derived from NumberValidator
@@ -5596,6 +5821,13 @@ ParameterTypes <- Union(Parameter, CallArgument)
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 Primitive <- Union("NULL", "logical", "numeric", "character", Date, Time, DateTime, Timestamp, Duration, "list", Array(Any()))
+
+
+#' All type schemas that are derived from Styled
+#'
+#' @return A `list` of class `Union` describing valid subtypes of this type
+#' @export
+StyledTypes <- Union(Styled, Division, Span)
 
 
 #' All type schemas that are derived from Thing

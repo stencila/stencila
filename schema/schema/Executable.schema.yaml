@@ -27,6 +27,8 @@ properties:
         - $ref: Call
         - $ref: CodeChunk
         - $ref: CodeExpression
+        - $ref: Division
+        - $ref: Span
         - $ref: File
     $comment: |
       Note that in comparison to `codeDependencies`, this property does not allow for `Parameter`

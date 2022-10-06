@@ -266,7 +266,7 @@ class Executable(Entity):
     codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None
     """The upstream dependencies."""
 
-    codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None
+    codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None
     """The downstream dependents."""
 
     compileDigest: Optional[String] = None
@@ -303,7 +303,7 @@ class Executable(Entity):
     def __init__(
         self,
         codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -368,7 +368,7 @@ class CodeExecutable(Executable):
         programmingLanguage: String,
         text: String,
         codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -429,7 +429,7 @@ class CodeChunk(CodeExecutable):
         text: String,
         caption: Optional[Union[Array["BlockContent"], String]] = None,
         codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -488,7 +488,7 @@ class CodeExpression(CodeExecutable):
         programmingLanguage: String,
         text: String,
         codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -547,7 +547,7 @@ class Include(Executable):
         self,
         source: String,
         codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
         compileDigest: Optional[String] = None,
         content: Optional[Array["BlockContent"]] = None,
         errors: Optional[Array["CodeError"]] = None,
@@ -605,7 +605,7 @@ class Call(Include):
         source: String,
         arguments: Optional[Array["CallArgument"]] = None,
         codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
         compileDigest: Optional[String] = None,
         content: Optional[Array["BlockContent"]] = None,
         errors: Optional[Array["CodeError"]] = None,
@@ -672,7 +672,7 @@ class Parameter(Executable):
         self,
         name: String,
         codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
         compileDigest: Optional[String] = None,
         default: Optional[Any] = None,
         derivedFrom: Optional[String] = None,
@@ -732,7 +732,7 @@ class CallArgument(Parameter):
         self,
         name: String,
         codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
         compileDigest: Optional[String] = None,
         default: Optional[Any] = None,
         derivedFrom: Optional[String] = None,
@@ -2141,6 +2141,118 @@ class Directory(Collection):
             self.path = path
 
 
+class Styled(CodeExecutable):
+    """A document node that has styling applied to it and/or its content"""
+
+    classes: Array[String]
+    """A list of class names associated with the document node"""
+
+    css: String
+    """A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property."""
+
+
+    def __init__(
+        self,
+        classes: Array[String],
+        css: String,
+        programmingLanguage: String,
+        text: String,
+        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        compileDigest: Optional[String] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["ExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
+        executeKernel: Optional[String] = None,
+        executeRequired: Optional["ExecuteRequired"] = None,
+        executeStatus: Optional["ExecuteStatus"] = None,
+        id: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            programmingLanguage=programmingLanguage,
+            text=text,
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            errors=errors,
+            executeAuto=executeAuto,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeKernel=executeKernel,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
+            id=id,
+            mediaType=mediaType,
+            meta=meta
+        )
+        if classes is not None:
+            self.classes = classes
+        if css is not None:
+            self.css = css
+
+
+class Division(Styled):
+    """Styled block content"""
+
+    content: Array["BlockContent"]
+    """The content within the division"""
+
+
+    def __init__(
+        self,
+        classes: Array[String],
+        content: Array["BlockContent"],
+        css: String,
+        programmingLanguage: String,
+        text: String,
+        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        compileDigest: Optional[String] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["ExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
+        executeKernel: Optional[String] = None,
+        executeRequired: Optional["ExecuteRequired"] = None,
+        executeStatus: Optional["ExecuteStatus"] = None,
+        id: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            classes=classes,
+            css=css,
+            programmingLanguage=programmingLanguage,
+            text=text,
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            errors=errors,
+            executeAuto=executeAuto,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeKernel=executeKernel,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
+            id=id,
+            mediaType=mediaType,
+            meta=meta
+        )
+        if content is not None:
+            self.content = content
+
+
 class Duration:
     """A value that represents the difference between two timestamps"""
 
@@ -2460,7 +2572,7 @@ class For(Executable):
         expression: "CodeExpression",
         symbol: String,
         codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -2628,7 +2740,7 @@ class If(Executable):
         content: Array["BlockContent"],
         alternatives: Optional[Array["If"]] = None,
         codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "File"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -4323,6 +4435,61 @@ Python2.3, .Net Framework 3.0).
             self.targetProducts = targetProducts
 
 
+class Span(Styled):
+    """Styled inline content"""
+
+    content: Array["InlineContent"]
+    """The content within the span"""
+
+
+    def __init__(
+        self,
+        classes: Array[String],
+        content: Array["InlineContent"],
+        css: String,
+        programmingLanguage: String,
+        text: String,
+        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        compileDigest: Optional[String] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["ExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
+        executeKernel: Optional[String] = None,
+        executeRequired: Optional["ExecuteRequired"] = None,
+        executeStatus: Optional["ExecuteStatus"] = None,
+        id: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            classes=classes,
+            css=css,
+            programmingLanguage=programmingLanguage,
+            text=text,
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            errors=errors,
+            executeAuto=executeAuto,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeKernel=executeKernel,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
+            id=id,
+            mediaType=mediaType,
+            meta=meta
+        )
+        if content is not None:
+            self.content = content
+
+
 class Strikeout(Mark):
     """Content that is marked as struck out"""
 
@@ -5360,13 +5527,13 @@ class TimeUnit(Enum):
 """
 Union type for valid block content.
 """
-BlockContent = Union["Call", "Claim", "CodeBlock", "CodeChunk", "Figure", "For", "Heading", "If", "Include", "List", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
+BlockContent = Union["Call", "Claim", "CodeBlock", "CodeChunk", "Division", "Figure", "For", "Heading", "If", "Include", "List", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
 
 
 """
 All type schemas that are derived from CodeExecutable
 """
-CodeExecutableTypes = Union["CodeExecutable", "CodeChunk", "CodeExpression"]
+CodeExecutableTypes = Union["CodeExecutable", "CodeChunk", "CodeExpression", "Division", "Span", "Styled"]
 
 
 """
@@ -5396,13 +5563,13 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Co
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "For", "Function", "Grant", "Heading", "If", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "Division", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "For", "Function", "Grant", "Heading", "If", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Span", "Strikeout", "StringValidator", "Strong", "Styled", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
 All type schemas that are derived from Executable
 """
-ExecutableTypes = Union["Executable", "Call", "CallArgument", "CodeChunk", "CodeExecutable", "CodeExpression", "For", "If", "Include", "Parameter"]
+ExecutableTypes = Union["Executable", "Call", "CallArgument", "CodeChunk", "CodeExecutable", "CodeExpression", "Division", "For", "If", "Include", "Parameter", "Span", "Styled"]
 
 
 """
@@ -5420,7 +5587,7 @@ IncludeTypes = Union["Include", "Call"]
 """
 Union type for valid inline content.
 """
-InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Parameter", "Quote", "Strikeout", "Strong", "Subscript", "Superscript", "Underline", "VideoObject", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration"]
+InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Parameter", "Quote", "Span", "Strikeout", "Strong", "Subscript", "Superscript", "Underline", "VideoObject", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration"]
 
 
 """
@@ -5445,7 +5612,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 Union type for all types of nodes in this schema, including primitives and
     entities
 """
-Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "For", "Function", "Grant", "Heading", "If", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Strikeout", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration", "Object", "Array"]
+Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "Division", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "For", "Function", "Grant", "Heading", "If", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Span", "Strikeout", "StringValidator", "Strong", "Styled", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration", "Object", "Array"]
 
 
 """
@@ -5464,6 +5631,12 @@ ParameterTypes = Union["Parameter", "CallArgument"]
 Union type for all primitives values
 """
 Primitive = Union[None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration", "Object", "Array"]
+
+
+"""
+All type schemas that are derived from Styled
+"""
+StyledTypes = Union["Styled", "Division", "Span"]
 
 
 """

@@ -2328,6 +2328,151 @@ pub enum Directory_ {
   Directory
 }
 
+/// A document node that has styling applied to it and/or its content
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Styled {
+    /// The name of this type
+    #[derivative(Default(value = "Styled_::Styled"))]
+    pub type_: Styled_,
+
+    /// A list of class names associated with the document node
+    pub classes: Vec<String>,
+
+    /// A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
+    pub css: String,
+
+    /// The programming language of the code.
+    pub programming_language: String,
+
+    /// The text of the code.
+    pub text: String,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
+
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Styled_ {
+  Styled
+}
+
+/// Styled block content
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Division {
+    /// The name of this type
+    #[derivative(Default(value = "Division_::Division"))]
+    pub type_: Division_,
+
+    /// A list of class names associated with the document node
+    pub classes: Vec<String>,
+
+    /// The content within the division
+    pub content: Vec<BlockContent>,
+
+    /// A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
+    pub css: String,
+
+    /// The programming language of the code.
+    pub programming_language: String,
+
+    /// The text of the code.
+    pub text: String,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
+
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Division_ {
+  Division
+}
+
 /// A value that represents the difference between two timestamps
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize)]
@@ -4703,6 +4848,80 @@ pub enum SoftwareSourceCode_ {
   SoftwareSourceCode
 }
 
+/// Styled inline content
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Span {
+    /// The name of this type
+    #[derivative(Default(value = "Span_::Span"))]
+    pub type_: Span_,
+
+    /// A list of class names associated with the document node
+    pub classes: Vec<String>,
+
+    /// The content within the span
+    pub content: Vec<InlineContent>,
+
+    /// A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
+    pub css: String,
+
+    /// The programming language of the code.
+    pub programming_language: String,
+
+    /// The text of the code.
+    pub text: String,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
+
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Span_ {
+  Span
+}
+
 /// Content that is marked as struck out
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
@@ -5499,6 +5718,8 @@ pub enum ExecutableCodeDependents {
     Call(Call),
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
+    Division(Division),
+    Span(Span),
     File(File),
 }
 
@@ -6172,6 +6393,7 @@ pub enum BlockContent {
     Claim(ClaimSimple),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
+    Division(Division),
     Figure(FigureSimple),
     For(For),
     Heading(Heading),
@@ -6192,6 +6414,9 @@ pub enum CodeExecutableTypes {
     CodeExecutable(CodeExecutable),
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
+    Division(Division),
+    Span(Span),
+    Styled(Styled),
 }
 
 /// All type schemas that are derived from CodeStatic
@@ -6279,6 +6504,7 @@ pub enum EntityTypes {
     DefinedTerm(DefinedTerm),
     Delete(Delete),
     Directory(Directory),
+    Division(Division),
     DurationValidator(DurationValidator),
     Emphasis(Emphasis),
     EnumValidator(EnumValidator),
@@ -6323,9 +6549,11 @@ pub enum EntityTypes {
     SoftwareEnvironment(SoftwareEnvironment),
     SoftwareSession(SoftwareSession),
     SoftwareSourceCode(SoftwareSourceCode),
+    Span(Span),
     Strikeout(Strikeout),
     StringValidator(StringValidator),
     Strong(Strong),
+    Styled(Styled),
     Subscript(Subscript),
     Superscript(Superscript),
     Table(Table),
@@ -6353,10 +6581,13 @@ pub enum ExecutableTypes {
     CodeChunk(CodeChunk),
     CodeExecutable(CodeExecutable),
     CodeExpression(CodeExpression),
+    Division(Division),
     For(For),
     If(If),
     Include(Include),
     Parameter(Parameter),
+    Span(Span),
+    Styled(Styled),
 }
 
 /// All type schemas that are derived from Grant
@@ -6393,6 +6624,7 @@ pub enum InlineContent {
     Note(Note),
     Parameter(Parameter),
     Quote(Quote),
+    Span(Span),
     Strikeout(Strikeout),
     Strong(Strong),
     Subscript(Subscript),
@@ -6480,6 +6712,7 @@ pub enum Node {
     DefinedTerm(DefinedTerm),
     Delete(Delete),
     Directory(Directory),
+    Division(Division),
     DurationValidator(DurationValidator),
     Emphasis(Emphasis),
     EnumValidator(EnumValidator),
@@ -6524,9 +6757,11 @@ pub enum Node {
     SoftwareEnvironment(SoftwareEnvironment),
     SoftwareSession(SoftwareSession),
     SoftwareSourceCode(SoftwareSourceCode),
+    Span(Span),
     Strikeout(Strikeout),
     StringValidator(StringValidator),
     Strong(Strong),
+    Styled(Styled),
     Subscript(Subscript),
     Superscript(Superscript),
     Table(Table),
@@ -6588,6 +6823,15 @@ pub enum Primitive {
     Duration(Duration),
     Object(Object),
     Array(Array),
+}
+
+/// All type schemas that are derived from Styled
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum StyledTypes {
+    Styled(Styled),
+    Division(Division),
+    Span(Span),
 }
 
 /// All type schemas that are derived from Thing
