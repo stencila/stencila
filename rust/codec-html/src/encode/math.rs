@@ -28,7 +28,7 @@ fn to_mathml(lang: Option<&String>, text: &str, block: bool) -> Result<String> {
 }
 
 impl ToHtml for MathBlock {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let (lang_attr, lang_meta) = match &self.math_language {
             Some(math_language) => (
                 attr("math-language", math_language),
@@ -61,7 +61,7 @@ impl ToHtml for MathBlock {
 }
 
 impl ToHtml for MathFragment {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let (lang_attr, lang_meta) = match &self.math_language {
             Some(math_language) => (
                 attr("math-language", math_language),

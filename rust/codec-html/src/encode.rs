@@ -6,10 +6,9 @@ use codec::{
     common::{
         eyre::Result,
         inflector::cases::{camelcase::to_camel_case, kebabcase::to_kebab_case},
+        itertools::Itertools,
         once_cell::sync::Lazy,
-        serde, serde_json,
-        strum::AsRefStr,
-        tracing,
+        serde, serde_json, tracing,
     },
     EncodeOptions,
 };
@@ -19,33 +18,15 @@ use stencila_schema::*;
 /// Encode a `Node` to a HTML document
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
     let options = options.unwrap_or_default();
-
-    let html = encode_root(node, Some(options.clone()));
-
-    let html = if options.standalone {
-        wrap_standalone(&html, options, "", "")
-    } else {
-        html
-    };
-
-    Ok(html)
-}
-
-/// Generate the HTML fragment for a root node
-///
-/// This function is used when translating a `Operation` (where any value of
-/// the operation is a `Node` and the operation is applied to a `Node`) to a `DomOperation`
-/// (where any value is either a HTML or JSON string and the operation is applied to a browser DOM).
-pub fn encode_root(node: &Node, options: Option<EncodeOptions>) -> String {
-    let options = options.unwrap_or_default();
     let compact = options.compact;
+    let standalone = options.standalone;
 
-    let context = EncodeContext {
+    let mut context = EncodeContext {
         root: node,
-        options,
+        options: options.clone(),
         ..Default::default()
     };
-    let html = node.to_html(&context);
+    let html = node.to_html(&mut context);
 
     // Add the `data-root` attribute.
     // This is currently used in `themes` (for CSS scope) and in `web` (for address resolution).
@@ -53,11 +34,20 @@ pub fn encode_root(node: &Node, options: Option<EncodeOptions>) -> String {
     // a way of avoid this entirely.
     let html = html.replacen(' ', " data-root ", 1);
 
-    if compact {
-        html
+    let html = if compact { html } else { indent(&html) };
+
+    let html = if standalone {
+        let styles = context
+            .styles
+            .iter()
+            .map(|(_class_name, css)| ["<style>", css, "</style>"].concat())
+            .join("\n");
+        wrap_standalone(&html, options, "", "", &styles)
     } else {
-        indent(&html)
-    }
+        html
+    };
+
+    Ok(html)
 }
 
 /// Indent generated HTML
@@ -93,24 +83,26 @@ fn indent(html: &str) -> String {
 }
 
 /// Wrap generated HTML so that it is standalone
-pub fn wrap_standalone(html: &str, options: EncodeOptions, title: &str, extra_css: &str) -> String {
+pub fn wrap_standalone(
+    html: &str,
+    options: EncodeOptions,
+    title: &str,
+    _extra_css: &str,
+    styles: &str,
+) -> String {
     let title = if title.is_empty() { "Untitled" } else { title };
+    let mode = options.mode.as_ref().to_lowercase();
     let theme = options.theme.unwrap_or_else(|| "stencila".to_string());
+
+    let static_root = "/~static/dev";
 
     // Get the theme CSS
     let theme_css =
         get_static_bytes(&format!("themes/themes/{theme}/styles.css")).unwrap_or_default();
-    let theme_css = String::from_utf8_lossy(&theme_css);
+    let _theme_css = String::from_utf8_lossy(&theme_css);
 
-    let components = match options.components {
-        true => {
-            r#"
-        <script src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.esm.js" type="module"></script>
-        <script src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.js" nomodule=""></script>
-            "#
-        }
-        false => "",
-    };
+    // TODO <style>{theme_css}</style>
+    // TODO <style>{extra_css}</style>
 
     let html = format!(
         r#"<!DOCTYPE html>
@@ -119,23 +111,14 @@ pub fn wrap_standalone(html: &str, options: EncodeOptions, title: &str, extra_cs
         <title>{title}</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <style>
-            {theme_css}
-        </style>
-        <style>
-            {extra_css}
-        </style>
-        {components}
+        <link href="{static_root}/web/utils/curtain.css" rel="stylesheet">
+        <script src="{static_root}/web/modes/{mode}.js"></script>
+        {styles}
     </head>
     <body>
         {html}
     </body>
-</html>"#,
-        title = title,
-        theme_css = theme_css,
-        extra_css = extra_css,
-        components = components,
-        html = html
+</html>"#
     );
 
     #[cfg(skip)]
@@ -160,11 +143,14 @@ pub struct EncodeContext<'a> {
     /// The root node being encoded
     pub root: &'a Node,
 
+    /// The styles to be added to the document
+    ///
+    /// The key of this map is the class name (a hash digest of the CSS) and the value
+    /// is the CSS itself. This avoids having unnecessary duplicated styles.
+    pub styles: HashMap<String, String>,
+
     /// Whether currently within inline content
     pub inline: bool,
-
-    /// The mode for user interaction with node Web Components
-    pub mode: EncodeMode,
 
     /// The encoding options
     pub options: EncodeOptions,
@@ -174,28 +160,20 @@ impl<'a> Default for EncodeContext<'a> {
     fn default() -> Self {
         EncodeContext {
             root: &Node::Null(Null {}),
+            styles: HashMap::new(),
             inline: false,
-            mode: EncodeMode::Write,
             options: EncodeOptions::default(),
         }
     }
 }
 
-#[derive(Clone, Copy, AsRefStr)]
-#[strum(serialize_all = "lowercase", crate = "common::strum")]
-pub enum EncodeMode {
-    Read,
-    Run,
-    Write,
-}
-
 /// Trait for encoding a node as HTML
 pub trait ToHtml {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         elem("span", &[attr("class", "unsupported")], "<not implemented>")
     }
 
-    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+    fn to_attrs(&self, _context: &mut EncodeContext) -> Vec<String> {
         Vec::new()
     }
 }
@@ -272,7 +250,7 @@ fn elem_placeholder<T: ToHtml>(
     name: &str,
     attrs: &[String],
     content: &Option<T>,
-    context: &EncodeContext,
+    context: &mut EncodeContext,
 ) -> String {
     elem(
         name,
@@ -289,7 +267,7 @@ fn elem_placeholder<T: ToHtml>(
 /// Use this for properties of nodes that can not be represented by simply
 /// string attributes e.g. `DateTime`, `Timestamp`, `Duration`. It modifies the
 /// HTML of the item by adding attributes to the element's HTML.
-fn elem_property<T>(attrs: &[String], property: &Option<T>, context: &EncodeContext) -> String
+fn elem_property<T>(attrs: &[String], property: &Option<T>, context: &mut EncodeContext) -> String
 where
     T: Default + ToHtml,
 {
@@ -452,7 +430,7 @@ where
 }
 
 /// Iterate over a slice of nodes, calling `to_html` on each item, and concatenate
-pub fn concat_html<T: ToHtml>(slice: &[T], context: &EncodeContext) -> String {
+pub fn concat_html<T: ToHtml>(slice: &[T], context: &mut EncodeContext) -> String {
     concat(slice, |item| item.to_html(context))
 }
 
@@ -468,7 +446,7 @@ where
 
 /// Iterate over a slice of nodes, calling `to_html` on each item, and join using a separator
 #[allow(dead_code)]
-pub fn join_html<T: ToHtml>(slice: &[T], context: &EncodeContext, sep: &str) -> String {
+pub fn join_html<T: ToHtml>(slice: &[T], context: &mut EncodeContext, sep: &str) -> String {
     join(slice, |item| item.to_html(context), sep)
 }
 
@@ -480,6 +458,7 @@ mod math;
 mod nodes;
 mod others;
 mod primitives;
+mod styled;
 
 #[allow(clippy::deprecated_cfg_attr)]
 mod works;

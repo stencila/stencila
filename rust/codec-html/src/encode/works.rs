@@ -14,7 +14,7 @@ use super::{
 };
 
 impl ToHtml for CreativeWorkTypes {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         match self {
             CreativeWorkTypes::Article(node) => node.to_html(context),
             CreativeWorkTypes::AudioObject(node) => node.to_html(context),
@@ -31,7 +31,7 @@ impl ToHtml for CreativeWorkTypes {
 }
 
 impl ToHtml for CreativeWorkContent {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         match self {
             CreativeWorkContent::String(node) => node.to_html(context),
             CreativeWorkContent::VecNode(nodes) => nodes.to_html(context),
@@ -40,7 +40,7 @@ impl ToHtml for CreativeWorkContent {
 }
 
 impl ToHtml for CreativeWork {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "article",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -50,7 +50,7 @@ impl ToHtml for CreativeWork {
 }
 
 impl ToHtml for Article {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let title = match &self.title {
             Some(title) => {
                 let title = match &**title {
@@ -310,7 +310,7 @@ fn affiliation_org_to_html(org: &Organization) -> String {
 }
 
 impl ToHtml for File {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         let header = elem("stencila-document-header", &[], "");
 
         elem(
@@ -322,7 +322,7 @@ impl ToHtml for File {
 }
 
 impl ToHtml for Directory {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         let header = elem("stencila-document-header", &[], "");
 
         let parts = concat(&self.parts, |part| {
@@ -351,7 +351,7 @@ impl ToHtml for Directory {
 macro_rules! to_content_html {
     ($type: ty, $variant: path, $transform:ident) => {
         impl ToHtml for $type {
-            fn to_html(&self, context: &EncodeContext) -> String {
+            fn to_html(&self, context: &mut EncodeContext) -> String {
                 $variant(self.clone()).$transform().to_html(context)
             }
         }

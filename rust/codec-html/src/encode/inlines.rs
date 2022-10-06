@@ -12,7 +12,7 @@ use super::{
 };
 
 impl ToHtml for InlineContent {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         match self {
             InlineContent::AudioObject(node) => node.to_html(context),
             InlineContent::Boolean(node) => node.to_html(context),
@@ -35,6 +35,7 @@ impl ToHtml for InlineContent {
             InlineContent::Number(node) => node.to_html(context),
             InlineContent::Parameter(node) => node.to_html(context),
             InlineContent::Quote(node) => node.to_html(context),
+            InlineContent::Span(node) => node.to_html(context),
             // Unlike everything else, `String` instances are not wrapped in an element.
             // However, `InlineContent::String` (and `Node::String` instances) should be
             // because they are usually part of a vector (e.g. `Paragraph.content`).
@@ -58,7 +59,7 @@ impl ToHtml for InlineContent {
 macro_rules! mark_to_html {
     ($type:ident, $tag:literal) => {
         impl ToHtml for $type {
-            fn to_html(&self, context: &EncodeContext) -> String {
+            fn to_html(&self, context: &mut EncodeContext) -> String {
                 elem(
                     $tag,
                     &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -107,7 +108,7 @@ fn file_uri_to_data_uri(url: &str) -> String {
     }
 }
 
-fn content_url_to_src_attr(content_url: &str, context: &EncodeContext) -> String {
+fn content_url_to_src_attr(content_url: &str, context: &mut EncodeContext) -> String {
     let url = match context.options.bundle {
         true => file_uri_to_data_uri(content_url),
         false => content_url.to_string(),
@@ -116,7 +117,7 @@ fn content_url_to_src_attr(content_url: &str, context: &EncodeContext) -> String
 }
 
 impl ToHtml for AudioObjectSimple {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "audio",
             &[
@@ -131,7 +132,7 @@ impl ToHtml for AudioObjectSimple {
 }
 
 impl ToHtml for ImageObjectSimple {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         fn decode_base64(data: &str) -> String {
             match base64::decode(data) {
                 Ok(data) => String::from_utf8_lossy(&data).to_string(),
@@ -196,7 +197,7 @@ impl ToHtml for ImageObjectSimple {
 }
 
 impl ToHtml for VideoObjectSimple {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let src_attr = content_url_to_src_attr(&self.content_url, context);
         let type_attr = match &self.media_type {
             Some(media_type) => attr("type", media_type),
@@ -215,7 +216,7 @@ impl ToHtml for VideoObjectSimple {
 }
 
 impl ToHtml for Cite {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let content = match &self.content {
             Some(nodes) => nodes.to_html(context),
             None => {
@@ -337,7 +338,7 @@ impl ToHtml for Cite {
 }
 
 impl ToHtml for CiteGroup {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "span",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -347,7 +348,7 @@ impl ToHtml for CiteGroup {
 }
 
 impl ToHtml for CodeExpression {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let lang = attr_and_meta("programming_language", &self.programming_language);
 
         let compile_digest = elem_meta_opt(
@@ -422,7 +423,7 @@ impl ToHtml for CodeExpression {
             "output",
             &[attr_prop("output"), attr_slot("output")],
             &self.output,
-            &EncodeContext {
+            &mut EncodeContext {
                 inline: true,
                 ..context.clone()
             },
@@ -471,7 +472,7 @@ impl ToHtml for CodeFragment {
     ///
     /// See `CodeBlock::to_html` for why `programming_language` is encoded
     /// as both a `class` attribute and a `<meta>` element.
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let (lang_attr, lang_class, lang_meta) = match &self.programming_language {
             Some(programming_language) => (
                 attr("programming-language", programming_language),
@@ -496,7 +497,7 @@ impl ToHtml for CodeFragment {
 }
 
 impl ToHtml for Link {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "a",
             &[
@@ -510,7 +511,7 @@ impl ToHtml for Link {
 }
 
 impl ToHtml for Note {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         elem(
             "code",
             &[
@@ -524,7 +525,7 @@ impl ToHtml for Note {
 }
 
 impl ToHtml for Quote {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "q",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],

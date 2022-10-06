@@ -11,7 +11,7 @@ use stencila_schema::Node;
 /// Not all node types have `impl ToHtml` in which case this function
 /// returns HTML indicating that that is the case.
 impl ToHtml for Node {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         // Call `array_to_html` to avoid `Vec<Primitive>.to_html()` for arrays
         if let Node::Array(array) = self {
             return array_to_html(array, context);

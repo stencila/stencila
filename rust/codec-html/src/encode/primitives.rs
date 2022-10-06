@@ -11,7 +11,7 @@ use super::{
 };
 
 impl ToHtml for Primitive {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         // Call `array_to_html` to avoid `Vec<Primitive>.to_html()` for arrays
         if let Primitive::Array(array) = self {
             return array_to_html(array, context);
@@ -25,7 +25,7 @@ impl ToHtml for Primitive {
 macro_rules! atomic_to_html {
     ($type:ty) => {
         impl ToHtml for $type {
-            fn to_html(&self, _context: &EncodeContext) -> String {
+            fn to_html(&self, _context: &mut EncodeContext) -> String {
                 elem(
                     "span",
                     &[attr_itemtype_str(stringify!($type))],
@@ -52,14 +52,14 @@ atomic_to_html!(u32);
 ///
 /// The string is escaped so that the generated HTML can be safely interpolated within HTML.
 impl ToHtml for String {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         encode_safe(self).to_string()
     }
 }
 
 /// Encode a `Date` to HTML
 impl ToHtml for Date {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         // To allow for alternative formatting the Date could be decomposed as follows.
         // However, for now, keeping things simple by just encoding the raw value.
         /*
@@ -95,7 +95,7 @@ impl ToHtml for Date {
 
 /// Encode a `Time` to HTML
 impl ToHtml for Time {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         // As for `Date` this could be broken into parts but for now is kept simple
         elem(
             "span",
@@ -115,7 +115,7 @@ impl ToHtml for Time {
 
 /// Encode a `DateTime` to HTML
 impl ToHtml for DateTime {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         // As for `Date` this could be broken into parts but for now is kept simple
         elem(
             "span",
@@ -135,7 +135,7 @@ impl ToHtml for DateTime {
 
 /// Encode a `Timestamp` to HTML
 impl ToHtml for Timestamp {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         let iso8601 = self.to_iso8601().unwrap_or_else(|_| self.value.to_string());
         elem(
             "stencila-timestamp",
@@ -151,7 +151,7 @@ impl ToHtml for Timestamp {
 
 /// Encode a `Duration` to HTML
 impl ToHtml for Duration {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         let content = self.humanize();
         elem(
             "stencila-duration",
@@ -171,7 +171,7 @@ impl ToHtml for Duration {
 // arrays have special handling in the `../web/patches` TypeScript so changes made to the HTML structure
 // will need concomitant changes there.
 #[allow(clippy::ptr_arg)]
-pub fn array_to_html(array: &Array, context: &EncodeContext) -> String {
+pub fn array_to_html(array: &Array, context: &mut EncodeContext) -> String {
     let (container_tag, item_tag) = match context.inline {
         true => ("span", "span"),
         false => ("ol", "li"),
@@ -189,7 +189,7 @@ pub fn array_to_html(array: &Array, context: &EncodeContext) -> String {
 /// Note that objects have special handling in the `../web/patches` TypeScript so changes made to
 /// the HTML structure will need concomitant changes there.
 impl ToHtml for Object {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let (container_tag, key_tag, value_tag) = match context.inline {
             true => ("span", "span", "span"),
             false => ("dl", "dt", "dd"),

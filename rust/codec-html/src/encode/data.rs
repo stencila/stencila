@@ -15,7 +15,10 @@
 
 use std::string::ToString;
 
-use codec::common::{serde_json, tracing};
+use codec::{
+    common::{serde_json, tracing},
+    Mode,
+};
 use codec_txt::ToTxt;
 use node_dispatch::dispatch_validator;
 use stencila_schema::*;
@@ -23,12 +26,12 @@ use stencila_schema::*;
 use super::{
     attr, attr_and_meta_opt, attr_bool, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str,
     attr_prop, attr_slot, concat, concat_html, elem, elem_empty, elem_meta, elem_placeholder,
-    nothing, EncodeContext, EncodeMode, ToHtml,
+    nothing, EncodeContext, ToHtml,
 };
 
 /// Encode a `Datatable`
 impl ToHtml for Datatable {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let columns = elem(
             "tr",
             &[attr_prop("columns")],
@@ -73,7 +76,7 @@ impl ToHtml for Datatable {
 
 /// Encode a `DatatableColumn`
 impl ToHtml for DatatableColumn {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let name = elem("span", &[attr_prop("name")], &self.name.to_html(context));
         elem("th", &[attr_itemtype::<Self>()], &[name].concat())
     }
@@ -81,7 +84,7 @@ impl ToHtml for DatatableColumn {
 
 /// Encode a `Parameter`
 impl ToHtml for Parameter {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         // Meta elements for `validator`, `default`, and `value` that add HTML Microdata and
         // are used as "proxies" to the attributes added to the <input> element when patching the DOM
 
@@ -191,7 +194,7 @@ pub(crate) fn label_and_input(
     validator: &Option<Box<ValidatorTypes>>,
     value: &Option<Box<Node>>,
     default: &Option<Box<Node>>,
-    context: &EncodeContext,
+    context: &mut EncodeContext,
 ) -> (String, String) {
     // Generate a unique id for the <input> to be able to associate the
     // <label> with it. We avoid using `self.id` or `self.name` which could
@@ -284,9 +287,10 @@ pub(crate) fn label_and_input(
                 nothing()
             };
 
-        let disabled_attr = match context.mode {
-            EncodeMode::Read => "disabled".to_string(),
-            _ => nothing(),
+        let disabled_attr = if context.options.mode < Mode::Interact {
+            "disabled".to_string()
+        } else {
+            nothing()
         };
 
         elem_empty(
@@ -309,11 +313,11 @@ pub(crate) fn label_and_input(
 
 /// Encode a `ValidatorTypes` variant
 impl ToHtml for ValidatorTypes {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         dispatch_validator!(self, to_html, context)
     }
 
-    fn to_attrs(&self, context: &EncodeContext) -> Vec<String> {
+    fn to_attrs(&self, context: &mut EncodeContext) -> Vec<String> {
         dispatch_validator!(self, to_attrs, context)
     }
 }
@@ -324,7 +328,7 @@ impl ToHtml for ValidatorTypes {
 /// really be part of the `ValidatorTypes` enum and never be instantiated.
 /// So this just logs a warning returns an empty string.
 impl ToHtml for Validator {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         tracing::warn!("Unexpected instantiation of `Validator` type");
         String::new()
     }
@@ -334,7 +338,7 @@ impl ToHtml for Validator {
 ///
 /// No properties, so just an empty element used to indicate the type
 impl ToHtml for ArrayValidator {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         todo!()
     }
 }
@@ -343,14 +347,14 @@ impl ToHtml for ArrayValidator {
 ///
 /// No properties, so just an empty element used to indicate the type
 impl ToHtml for BooleanValidator {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         elem_empty(
             "stencila-boolean-validator",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
         )
     }
 
-    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+    fn to_attrs(&self, _context: &mut EncodeContext) -> Vec<String> {
         vec![attr("type", "checkbox")]
     }
 }
@@ -359,7 +363,7 @@ impl ToHtml for BooleanValidator {
 ///
 /// Encodes the constant `value`.
 impl ToHtml for ConstantValidator {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let value = elem(
             "span",
             &[attr_prop("value"), attr_slot("value")],
@@ -372,7 +376,7 @@ impl ToHtml for ConstantValidator {
         )
     }
 
-    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+    fn to_attrs(&self, _context: &mut EncodeContext) -> Vec<String> {
         // The `type=text` could be changed to depend on the
         // `Node` type of the `value`.
         vec![attr("type", "text"), attr_bool("readonly")]
@@ -384,7 +388,7 @@ impl ToHtml for ConstantValidator {
 /// Encodes the possible `values`. Each of these will be an element
 /// indicating the type of the value.
 impl ToHtml for EnumValidator {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let values = elem(
             "div",
             &[attr_prop("values"), attr_slot("values")],
@@ -399,7 +403,7 @@ impl ToHtml for EnumValidator {
 }
 
 fn numeric_validator_content(
-    context: &EncodeContext,
+    context: &mut EncodeContext,
     minimum: &Option<Number>,
     exclusive_minimum: &Option<Number>,
     maximum: &Option<Number>,
@@ -483,7 +487,7 @@ fn numeric_validator_attrs(
 
 /// Encode a `IntegerValidator`
 impl ToHtml for IntegerValidator {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "stencila-integer-validator",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -498,7 +502,7 @@ impl ToHtml for IntegerValidator {
         )
     }
 
-    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+    fn to_attrs(&self, _context: &mut EncodeContext) -> Vec<String> {
         numeric_validator_attrs(
             &self.minimum.or(self.exclusive_minimum),
             &self.maximum.or(self.exclusive_maximum),
@@ -509,7 +513,7 @@ impl ToHtml for IntegerValidator {
 
 /// Encode a `NumberValidator`
 impl ToHtml for NumberValidator {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "stencila-number-validator",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -524,7 +528,7 @@ impl ToHtml for NumberValidator {
         )
     }
 
-    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+    fn to_attrs(&self, _context: &mut EncodeContext) -> Vec<String> {
         numeric_validator_attrs(
             &self.minimum.or(self.exclusive_minimum),
             &self.maximum.or(self.exclusive_maximum),
@@ -537,7 +541,7 @@ impl ToHtml for NumberValidator {
 ///
 /// Encodes all properties
 impl ToHtml for StringValidator {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let min_length = elem_placeholder(
             "span",
             &[attr_prop("min_length"), attr_slot("min-length")],
@@ -566,7 +570,7 @@ impl ToHtml for StringValidator {
         )
     }
 
-    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+    fn to_attrs(&self, _context: &mut EncodeContext) -> Vec<String> {
         // See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/text for
         // attributes supported here.
         let mut attrs = Vec::with_capacity(4);
@@ -585,7 +589,7 @@ impl ToHtml for StringValidator {
 }
 
 fn datetime_validator_content<T>(
-    context: &EncodeContext,
+    context: &mut EncodeContext,
     minimum: &Option<T>,
     maximum: &Option<T>,
 ) -> String
@@ -630,7 +634,7 @@ where
 
 /// Encode a `DateValidator`
 impl ToHtml for DateValidator {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "stencila-date-validator",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -638,7 +642,7 @@ impl ToHtml for DateValidator {
         )
     }
 
-    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+    fn to_attrs(&self, _context: &mut EncodeContext) -> Vec<String> {
         datetime_validator_attrs("date", &self.minimum, &self.maximum)
     }
 }
@@ -647,7 +651,7 @@ impl ToHtml for DateValidator {
 ///
 /// No properties, so just an empty element used to indicate the type
 impl ToHtml for TimeValidator {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "stencila-time-validator",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -655,7 +659,7 @@ impl ToHtml for TimeValidator {
         )
     }
 
-    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+    fn to_attrs(&self, _context: &mut EncodeContext) -> Vec<String> {
         datetime_validator_attrs("time", &self.minimum, &self.maximum)
     }
 }
@@ -664,7 +668,7 @@ impl ToHtml for TimeValidator {
 ///
 /// No properties, so just an empty element used to indicate the type
 impl ToHtml for DateTimeValidator {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "stencila-datetime-validator",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -672,7 +676,7 @@ impl ToHtml for DateTimeValidator {
         )
     }
 
-    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+    fn to_attrs(&self, _context: &mut EncodeContext) -> Vec<String> {
         datetime_validator_attrs("datetime-local", &self.minimum, &self.maximum)
     }
 }
@@ -681,7 +685,7 @@ impl ToHtml for DateTimeValidator {
 ///
 /// No properties, so just an empty element used to indicate the type
 impl ToHtml for TimestampValidator {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         tracing::error!("ToHtml not yet implemented for TimestampValidator");
         String::new()
     }
@@ -691,7 +695,7 @@ impl ToHtml for TimestampValidator {
 ///
 /// No properties, so just an empty element used to indicate the type
 impl ToHtml for DurationValidator {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         tracing::error!("ToHtml not yet implemented for DurationValidator");
         String::new()
     }
@@ -701,7 +705,7 @@ impl ToHtml for DurationValidator {
 ///
 /// Encodes each of the validators in `items`
 impl ToHtml for TupleValidator {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "stencila-tuple-validator",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],

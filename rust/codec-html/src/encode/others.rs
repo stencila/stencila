@@ -8,7 +8,7 @@ use super::{attr, elem, EncodeContext, ToHtml};
 /// encoded is a _partial_ copy of a node. So any properties encoded here must be copied
 /// across in the `node-execute::compile` module.
 impl ToHtml for ExecutableCodeDependencies {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         let (
             node_kind,
             id,
@@ -79,7 +79,7 @@ impl ToHtml for ExecutableCodeDependencies {
 
 /// Encode a dependent of an executable code node
 impl ToHtml for ExecutableCodeDependents {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         let (
             node_kind,
             id,
@@ -136,6 +136,40 @@ impl ToHtml for ExecutableCodeDependents {
                 None,
                 Some(programming_language),
                 None,
+                execute_required.as_ref().map(|value| value.as_ref()),
+                execute_status.as_ref().map(|value| value.as_ref()),
+            ),
+
+            ExecutableCodeDependents::Division(Division {
+                id,
+                programming_language,
+                execute_auto,
+                execute_required,
+                execute_status,
+                ..
+            }) => (
+                "Division",
+                id.as_deref(),
+                None,
+                Some(programming_language),
+                execute_auto.as_ref().map(|value| value.as_ref()),
+                execute_required.as_ref().map(|value| value.as_ref()),
+                execute_status.as_ref().map(|value| value.as_ref()),
+            ),
+
+            ExecutableCodeDependents::Span(Span {
+                id,
+                programming_language,
+                execute_auto,
+                execute_required,
+                execute_status,
+                ..
+            }) => (
+                "Span",
+                id.as_deref(),
+                None,
+                Some(programming_language),
+                execute_auto.as_ref().map(|value| value.as_ref()),
                 execute_required.as_ref().map(|value| value.as_ref()),
                 execute_status.as_ref().map(|value| value.as_ref()),
             ),
