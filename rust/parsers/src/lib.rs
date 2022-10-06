@@ -51,6 +51,8 @@ macro_rules! dispatch_builtins {
             Format::Rust => Some(parser_rust::RustParser::$method($($arg),*)),
             #[cfg(feature = "parser-sql")]
             Format::SQL => Some(parser_sql::SqlParser::$method($($arg),*)),
+            #[cfg(feature = "parser-tailwind")]
+            Format::Tailwind => Some(parser_tailwind::TailwindParser::$method($($arg),*)),
             #[cfg(feature = "parser-ts")]
             Format::TypeScript => Some(parser_ts::TsParser::$method($($arg),*)),
             // Fallback to empty result
@@ -84,6 +86,8 @@ impl Parsers {
             ("rust", parser_rust::RustParser::spec()),
             #[cfg(feature = "parser-sql")]
             ("sql", parser_sql::SqlParser::spec()),
+            #[cfg(feature = "parser-tailwind")]
+            ("tailwind", parser_tailwind::TailwindParser::spec()),
             #[cfg(feature = "parser-ts")]
             ("ts", parser_ts::TsParser::spec()),
         ]
