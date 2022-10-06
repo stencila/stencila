@@ -70,6 +70,8 @@ pointable_struct!(CodeChunk, caption, errors);
 pointable_variants!(CodeChunkCaption, CodeChunkCaption::VecBlockContent);
 pointable_struct!(CodeError);
 
+pointable_struct!(Division, content);
+
 pointable_struct!(FigureSimple, caption);
 pointable_variants!(FigureCaption, FigureCaption::VecBlockContent);
 pointable_struct!(For, content);

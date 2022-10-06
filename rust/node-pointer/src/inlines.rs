@@ -75,6 +75,7 @@ pointable_struct!(NontextualAnnotation, content);
 pointable_struct!(Note, content);
 pointable_struct!(Parameter, default, validator, value);
 pointable_struct!(Quote, content);
+pointable_struct!(Span, content);
 pointable_struct!(Strikeout, content);
 pointable_struct!(Strong, content);
 pointable_struct!(Subscript, content);

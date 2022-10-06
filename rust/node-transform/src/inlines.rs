@@ -102,6 +102,7 @@ impl Transform for InlineContent {
             InlineContent::Number(node) => Node::Number(node),
             InlineContent::Parameter(node) => Node::Parameter(node),
             InlineContent::Quote(node) => Node::Quote(node),
+            InlineContent::Span(node) => Node::Span(node),
             InlineContent::Strikeout(node) => Node::Strikeout(node),
             InlineContent::String(node) => Node::String(node),
             InlineContent::Strong(node) => Node::Strong(node),

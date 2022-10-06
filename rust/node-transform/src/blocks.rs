@@ -113,6 +113,7 @@ impl Transform for BlockContent {
             }
             BlockContent::CodeBlock(node) => Node::CodeBlock(node),
             BlockContent::CodeChunk(node) => Node::CodeChunk(node),
+            BlockContent::Division(node) => Node::Division(node),
             BlockContent::Figure(node) => {
                 let FigureSimple {
                     caption,

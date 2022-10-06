@@ -159,6 +159,27 @@ patchable_variants!(
 );
 
 patchable_struct!(
+    Division,
+    id,
+    programming_language,
+    text,
+    css,
+    classes,
+    errors,
+    code_dependencies,
+    code_dependents,
+    compile_digest,
+    execute_auto,
+    execute_digest,
+    execute_required,
+    execute_kernel,
+    execute_status,
+    execute_ended,
+    execute_duration,
+    execute_count
+);
+
+patchable_struct!(
     Include,
     id,
     source,

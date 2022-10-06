@@ -74,6 +74,7 @@ patchable_node_variants!(
     Node::CodeChunk
     Node::CodeExpression
     Node::CodeFragment
+    Node::Division
     Node::Datatable
     Node::DatatableColumn
     Node::Date
@@ -99,6 +100,7 @@ patchable_node_variants!(
     Node::Parameter
     Node::Quote
     Node::QuoteBlock
+    Node::Span
     Node::Strikeout
     Node::String
     Node::Strong
