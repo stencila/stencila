@@ -24,7 +24,7 @@ use parser::{
 };
 
 /// Regex for detecting variables (to be interpolated) within Tailwind expressions
-/// 
+///
 /// Allows for $var and ${var} patterns
 pub static VAR_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?:\$([a-zA-Z_][a-zA-Z_0-9]*)\b)|(?:\$\{\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*\})")
