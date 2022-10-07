@@ -22,6 +22,7 @@ impl CodecTrait for ScriptCodec {
             status: "beta".to_string(),
             formats: vec_string!["bash", "js", "py", "r", "sh", "sql", "zsh"],
             root_types: vec_string!["Article"],
+            unsupported_types: vec_string!["If", "For", "Div", "Span"],
             ..Default::default()
         }
     }
@@ -197,7 +198,7 @@ impl CodecTrait for ScriptCodec {
         let for_var = match lang {
             JavaScript => ("for$index", "const for$index = $expr;\n\n"),
             Python => ("for$index", "for$index = $expr\n\n"),
-            R => ("for$index", "for$index = $expr;\n\n"),
+            R => ("for$index", "for$index = $expr\n\n"),
             Bash | Shell | Zsh => ("for$index", "for$index=$($expr)\n\n"),
             _ => ("", ""), // Not supported
         };
