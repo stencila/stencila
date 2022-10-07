@@ -13,8 +13,15 @@ proptest! {
         Freedom::Max,
         [
             HtmlCodec::spec().unsupported_types,
-            vec!["Parameter".to_string(), "For".to_string(), "If".to_string()
-        ]].concat(),
+            vec![
+                // Exclude types for which decoding support is not yet enabled
+                "Parameter".to_string(),
+                "For".to_string(),
+                "If".to_string(),
+                "Division".to_string(),
+                "Span".to_string()
+            ]
+        ].concat(),
         HtmlCodec::spec().unsupported_properties
     )) {
         let string = HtmlCodec::to_string(&input, None).unwrap();
