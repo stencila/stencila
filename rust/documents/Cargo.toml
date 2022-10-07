@@ -26,6 +26,7 @@ node-transform = { path = "../node-transform" }
 node-validate = { path = "../node-validate" }
 notify = "4.0.17"
 parsers = { path = "../parsers" }
+parser-tailwind = { path = "../parser-tailwind" }
 path-utils = { path = "../path-utils" }
 providers = { path = "../providers" }
 statics = { path = "../statics" }

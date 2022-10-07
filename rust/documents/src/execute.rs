@@ -20,7 +20,7 @@ use graph_triples::{Resource, TagMap};
 use kernels::KernelSpace;
 use node_address::{Address, AddressMap};
 use node_patch::{diff, mutate, Patch};
-use stencila_schema::{CodeChunk, CodeExpression, ExecuteStatus, Node};
+use stencila_schema::{CodeChunk, CodeExpression, Division, ExecuteStatus, Node, Span};
 
 use crate::{
     document::CallDocuments,
@@ -202,7 +202,7 @@ pub async fn execute(
 
             // Has the task been cancelled?
             if cancelled.contains(&node_id) {
-                tracing::trace!(
+                tracing::debug!(
                     "Execution of node `{}` was cancelled before it was started",
                     node_id
                 );
@@ -294,7 +294,7 @@ pub async fn execute(
                         tracing::trace!("Task `{}` is not interruptable", task_info.task.id);
                     };
 
-                    // Wait for the task to finish (or be cancelled and update the executed node when it has
+                    // Wait for the task to finish (or be cancelled and update the executed node when it has)
                     let task_result = task_info.result().await?;
                     executed.execute_end(task_info, task_result).await?;
                 }
@@ -302,7 +302,9 @@ pub async fn execute(
                 // Update the resource to indicate that the resource was executed
                 let execute_failed = match &executed {
                     Node::CodeChunk(CodeChunk { execute_status, .. })
-                    | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
+                    | Node::CodeExpression(CodeExpression { execute_status, .. })
+                    | Node::Division(Division { execute_status, .. })
+                    | Node::Span(Span { execute_status, .. }) => {
                         matches!(execute_status, Some(ExecuteStatus::Failed))
                     }
                     _ => false,
@@ -469,7 +471,9 @@ impl NodeInfo {
     fn get_execute_status(&self) -> Option<ExecuteStatus> {
         match &self.node {
             Node::CodeChunk(CodeChunk { execute_status, .. })
-            | Node::CodeExpression(CodeExpression { execute_status, .. }) => execute_status.clone(),
+            | Node::CodeExpression(CodeExpression { execute_status, .. })
+            | Node::Division(Division { execute_status, .. })
+            | Node::Span(Span { execute_status, .. }) => execute_status.clone(),
             // At present, assumes the execution of parameters always succeeds
             Node::Parameter(..) => Some(ExecuteStatus::Succeeded),
             _ => None,
@@ -483,7 +487,9 @@ impl NodeInfo {
             Some(self.node_address.clone()),
             &|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
+                | Node::CodeExpression(CodeExpression { execute_status, .. })
+                | Node::Division(Division { execute_status, .. })
+                | Node::Span(Span { execute_status, .. }) => {
                     *execute_status = Some(match execute_status {
                         Some(ExecuteStatus::Failed) => ExecuteStatus::ScheduledPreviouslyFailed,
                         _ => ExecuteStatus::Scheduled,
@@ -501,7 +507,9 @@ impl NodeInfo {
             Some(self.node_address.clone()),
             &|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
+                | Node::CodeExpression(CodeExpression { execute_status, .. })
+                | Node::Division(Division { execute_status, .. })
+                | Node::Span(Span { execute_status, .. }) => {
                     *execute_status = Some(match execute_status {
                         Some(ExecuteStatus::Failed)
                         | Some(ExecuteStatus::ScheduledPreviouslyFailed) => {
@@ -522,7 +530,9 @@ impl NodeInfo {
             Some(self.node_address.clone()),
             &|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
+                | Node::CodeExpression(CodeExpression { execute_status, .. })
+                | Node::Division(Division { execute_status, .. })
+                | Node::Span(Span { execute_status, .. }) => {
                     *execute_status = Some(ExecuteStatus::Cancelled);
                 }
                 _ => {}
@@ -537,21 +547,20 @@ impl NodeInfo {
             Some(self.node_address.clone()),
             &|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                    match execute_status {
-                        Some(ExecuteStatus::Scheduled)
-                        | Some(ExecuteStatus::ScheduledPreviouslyFailed) => {
-                            *execute_status = self.previous_execute_status.clone()
-                        }
-
-                        Some(ExecuteStatus::Running)
-                        | Some(ExecuteStatus::RunningPreviouslyFailed) => {
-                            *execute_status = Some(ExecuteStatus::Cancelled)
-                        }
-
-                        _ => {}
+                | Node::CodeExpression(CodeExpression { execute_status, .. })
+                | Node::Division(Division { execute_status, .. })
+                | Node::Span(Span { execute_status, .. }) => match execute_status {
+                    Some(ExecuteStatus::Scheduled)
+                    | Some(ExecuteStatus::ScheduledPreviouslyFailed) => {
+                        *execute_status = self.previous_execute_status.clone()
                     }
-                }
+
+                    Some(ExecuteStatus::Running) | Some(ExecuteStatus::RunningPreviouslyFailed) => {
+                        *execute_status = Some(ExecuteStatus::Cancelled)
+                    }
+
+                    _ => {}
+                },
                 _ => {}
             },
         )
@@ -576,6 +585,11 @@ fn handle_cancel_request(
 ) -> bool {
     let node_id = request.start;
     let scope = request.scope.unwrap_or(PlanScope::Single);
+    tracing::debug!(
+        "Handling cancel request for node `{:?}` and scope `{:?}`",
+        node_id,
+        scope
+    );
 
     match scope {
         PlanScope::Single => {

@@ -2,6 +2,7 @@ use std::{collections::HashMap, path::Path, sync::Arc};
 
 use common::{
     eyre::Result,
+    itertools::Itertools,
     tokio::sync::{mpsc::UnboundedSender, RwLock},
     tracing,
 };
@@ -12,8 +13,8 @@ use node_patch::diff_address;
 use node_pointer::resolve;
 use path_utils::path_slash::PathBufExt;
 use stencila_schema::{
-    Call, CodeChunk, CodeExpression, ExecutableCodeDependencies, ExecutableCodeDependents,
-    ExecuteRequired, File, Include, Node, Parameter,
+    Call, CodeChunk, CodeExpression, Division, ExecutableCodeDependencies,
+    ExecutableCodeDependents, ExecuteRequired, File, Include, Node, Parameter, Span,
 };
 
 use crate::{
@@ -255,6 +256,22 @@ pub async fn compile(
                                     ..Default::default()
                                 }))
                             }
+                            Node::Division(dependant) => {
+                                Some(ExecutableCodeDependents::Division(Division {
+                                    id: dependant.id.clone(),
+                                    programming_language: dependant.programming_language.clone(),
+                                    execute_required: new_execute_required.clone(),
+                                    execute_status: dependant.execute_status.clone(),
+                                    ..Default::default()
+                                }))
+                            }
+                            Node::Span(dependant) => Some(ExecutableCodeDependents::Span(Span {
+                                id: dependant.id.clone(),
+                                programming_language: dependant.programming_language.clone(),
+                                execute_required: new_execute_required.clone(),
+                                execute_status: dependant.execute_status.clone(),
+                                ..Default::default()
+                            })),
                             _ => None,
                         }
                     }
@@ -292,13 +309,23 @@ pub async fn compile(
                     *compile_digest = new_compile_digest;
                     *execute_required = new_execute_required.to_owned();
                 }
-                Node::Parameter(Parameter { compile_digest, .. }) => {
-                    *compile_digest = new_compile_digest;
-                }
-                Node::Include(Include { compile_digest, .. }) => {
+                Node::Parameter(Parameter { compile_digest, .. })
+                | Node::Include(Include { compile_digest, .. }) => {
                     *compile_digest = new_compile_digest;
                 }
                 Node::Call(Call {
+                    code_dependencies,
+                    compile_digest,
+                    execute_required,
+                    ..
+                })
+                | Node::Division(Division {
+                    code_dependencies,
+                    compile_digest,
+                    execute_required,
+                    ..
+                })
+                | Node::Span(Span {
                     code_dependencies,
                     compile_digest,
                     execute_required,
@@ -313,7 +340,7 @@ pub async fn compile(
 
             diff_address(address.clone().unwrap(), node, &after)
         })
-        .collect();
+        .collect_vec();
 
     // Send the interdependency patches
     send_patches(patch_sender, patches, When::Never);
