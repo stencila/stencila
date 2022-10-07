@@ -11,6 +11,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+use codecs::EncodeOptions;
 use jwt::JwtError;
 use warp::{
     http::{
@@ -1578,7 +1579,17 @@ async fn get_handler(
             Ok(document_id) => {
                 let document = DOCUMENTS.get(&document_id).await.unwrap();
                 let document = document.lock().await;
-                let content = match document.dump(Some(format.clone()), None).await {
+                let content = match document
+                    .dump(
+                        Some(format.clone()),
+                        None,
+                        Some(EncodeOptions {
+                            standalone: true,
+                            ..Default::default()
+                        }),
+                    )
+                    .await
+                {
                     Ok(content) => content,
                     Err(error) => {
                         return error_result(
@@ -1707,13 +1718,13 @@ fn html_directory_listing(home: &Path, dir: &Path) -> String {
 pub async fn html_rewrite(
     body: &str,
     mode: &str,
-    theme: &str,
+    _theme: &str,
     token: &str,
     home: &Path,
     document_id: &str,
     _document_path: &Path,
 ) -> String {
-    let static_root = ["/~static/", STATICS_VERSION].concat();
+    let _static_root = ["/~static/", STATICS_VERSION].concat();
     let kernel_languages = kernels::languages().await.unwrap_or_default();
 
     let config = serde_json::to_string(&json!({
@@ -1754,9 +1765,6 @@ pub async fn html_rewrite(
         <script>
             window.stencilaConfig = {config};
         </script>
-        <link href="{static_root}/web/utils/curtain.css" rel="stylesheet">
-        <link href="{static_root}/web/themes/{theme}.css" rel="stylesheet">
-        <script src="{static_root}/web/modes/{mode}.js"></script>
     </head>
     <body>
         {body}

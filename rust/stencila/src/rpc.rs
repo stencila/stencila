@@ -289,7 +289,7 @@ async fn documents_dump(params: &Params) -> Result<(serde_json::Value, Subscript
         .await?
         .lock()
         .await
-        .dump(format, node_id)
+        .dump(format, node_id, None)
         .await?;
     Ok((json!(content), Subscription::None))
 }

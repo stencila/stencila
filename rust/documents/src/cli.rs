@@ -563,7 +563,7 @@ impl Run for Run_ {
             let out = output.display().to_string();
             if out == "-" {
                 let format = self.to.clone().unwrap_or_else(|| "json".to_string());
-                let content = document.dump(Some(format.clone()), None).await?;
+                let content = document.dump(Some(format.clone()), None, None).await?;
                 return result::content(&format, &content);
             } else {
                 document

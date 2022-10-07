@@ -12,6 +12,7 @@ use std::{
 
 use notify::DebouncedEvent;
 
+use codecs::EncodeOptions;
 use common::{
     async_recursion::async_recursion,
     eyre::{bail, Result},
@@ -652,7 +653,7 @@ impl Document {
         let content_to_write = if let Some(input_format) = format.as_ref() {
             let input_format = formats::match_path(&input_format).spec();
             if input_format != self.format {
-                self.dump(None, None).await?
+                self.dump(None, None, None).await?
             } else {
                 self.content.clone()
             }
@@ -768,8 +769,15 @@ impl Document {
     ///    the document's existing format.
     ///
     /// - `node_id`: the id of the node within the document to dump
+    ///
+    /// - `options`: any encoding options
     #[tracing::instrument(skip(self))]
-    pub async fn dump(&self, format: Option<String>, node_id: Option<String>) -> Result<String> {
+    pub async fn dump(
+        &self,
+        format: Option<String>,
+        node_id: Option<String>,
+        options: Option<EncodeOptions>,
+    ) -> Result<String> {
         let format = match format {
             Some(format) => format,
             None => return Ok(self.content.clone()),
@@ -780,9 +788,9 @@ impl Document {
             let address = self.addresses.read().await.get(&node_id).cloned();
             let pointer = resolve(root, address, Some(node_id))?;
             let node = pointer.to_node()?;
-            codecs::to_string(&node, &format, None).await
+            codecs::to_string(&node, &format, options).await
         } else {
-            codecs::to_string(root, &format, None).await
+            codecs::to_string(root, &format, options).await
         }
     }
 
