@@ -404,7 +404,7 @@ impl Operation {
     fn value_html(value: &Value, root: &Node) -> Option<String> {
         use codec_html::{EncodeContext, ToHtml};
 
-        let context = EncodeContext {
+        let mut context = EncodeContext {
             root,
             ..Default::default()
         };
@@ -413,13 +413,13 @@ impl Operation {
         macro_rules! to_html {
             ($type:ty) => {
                 if let Some(node) = value.downcast_ref::<$type>() {
-                    return Some(node.to_html(&context));
+                    return Some(node.to_html(&mut context));
                 }
                 if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
-                    return Some(boxed.to_html(&context));
+                    return Some(boxed.to_html(&mut context));
                 }
                 if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
-                    return Some(nodes.to_html(&context));
+                    return Some(nodes.to_html(&mut context));
                 }
             };
             ($($type:ty)*) => {
@@ -496,19 +496,19 @@ impl Operation {
             let html = if let Some(str) = value.as_str() {
                 str.to_string()
             } else if let Ok(nodes) = serde_json::from_value::<InlineContent>(value.clone()) {
-                nodes.to_html(&context)
+                nodes.to_html(&mut context)
             } else if let Ok(nodes) = serde_json::from_value::<Vec<InlineContent>>(value.clone()) {
-                nodes.to_html(&context)
+                nodes.to_html(&mut context)
             } else if let Ok(nodes) = serde_json::from_value::<BlockContent>(value.clone()) {
-                nodes.to_html(&context)
+                nodes.to_html(&mut context)
             } else if let Ok(nodes) = serde_json::from_value::<Vec<BlockContent>>(value.clone()) {
-                nodes.to_html(&context)
+                nodes.to_html(&mut context)
             } else if let Ok(nodes) = serde_json::from_value::<ListItem>(value.clone()) {
-                nodes.to_html(&context)
+                nodes.to_html(&mut context)
             } else if let Ok(nodes) = serde_json::from_value::<Vec<ListItem>>(value.clone()) {
-                nodes.to_html(&context)
+                nodes.to_html(&mut context)
             } else if let Ok(nodes) = serde_json::from_value::<ValidatorTypes>(value.clone()) {
-                nodes.to_html(&context)
+                nodes.to_html(&mut context)
             } else {
                 tracing::error!(
                     "Unhandled JSON value type when generating HTML for patch operation: {}",
