@@ -1181,6 +1181,7 @@ dependencies = [
  "asciimath-rs",
  "codec",
  "codec-txt",
+ "hash-utils",
  "html-escape",
  "kuchiki",
  "latex2mathml",
@@ -1790,18 +1791,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b0dd6aab3061be00b739299a1d8b10da43848f0d857b30f30ab83226680cd06"
 
 [[package]]
-name = "css-utils"
-version = "0.0.0"
-dependencies = [
- "common",
- "lightningcss",
- "nom",
- "tailwind-css",
- "test-snaps",
- "test-utils",
-]
-
-[[package]]
 name = "cssparser"
 version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2228,6 +2217,7 @@ dependencies = [
  "node-transform",
  "node-validate",
  "notify",
+ "parser-tailwind",
  "parsers",
  "path-utils",
  "providers",
@@ -3603,9 +3593,9 @@ checksum = "879d54834c8c76457ef4293a689b2a8c59b076067ad77b15efafbb05f92a592b"
 
 [[package]]
 name = "itertools"
-version = "0.10.3"
+version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9a9d19fa1e79b6215ff29b9d6880b706147f16e9b1dbb1e4e5947b5b02bc5e3"
+checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
 dependencies = [
  "either",
 ]
@@ -3849,6 +3839,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-tailwind"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "parser-tailwind",
+]
+
+[[package]]
 name = "kernel-zsh"
 version = "0.0.0"
 dependencies = [
@@ -3888,6 +3886,7 @@ dependencies = [
  "kernel-r",
  "kernel-sql",
  "kernel-store",
+ "kernel-tailwind",
  "kernel-zsh",
  "parsers",
 ]
@@ -5244,6 +5243,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "parser-tailwind"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "lightningcss",
+ "nom",
+ "parser",
+ "tailwind-css",
+ "test-snaps",
+ "test-utils",
+]
+
+[[package]]
 name = "parser-treesitter"
 version = "0.0.0"
 dependencies = [
@@ -5279,6 +5291,7 @@ dependencies = [
  "parser-r",
  "parser-rust",
  "parser-sql",
+ "parser-tailwind",
  "parser-ts",
  "test-utils",
 ]
@@ -7471,16 +7484,16 @@ dependencies = [
 
 [[package]]
 name = "tailwind-ast"
-version = "0.4.0"
-source = "git+https://github.com/nokome/tailwind-rs?rev=d7875e365204d8e0e9e5a80d025a88dd286bc0f6#d7875e365204d8e0e9e5a80d025a88dd286bc0f6"
+version = "0.4.1"
+source = "git+https://github.com/nokome/tailwind-rs?rev=99c37acd301fbf65357d6ec621a4d4d6a505adcc#99c37acd301fbf65357d6ec621a4d4d6a505adcc"
 dependencies = [
  "nom",
 ]
 
 [[package]]
 name = "tailwind-css"
-version = "0.12.3"
-source = "git+https://github.com/nokome/tailwind-rs?rev=d7875e365204d8e0e9e5a80d025a88dd286bc0f6#d7875e365204d8e0e9e5a80d025a88dd286bc0f6"
+version = "0.13.0"
+source = "git+https://github.com/nokome/tailwind-rs?rev=99c37acd301fbf65357d6ec621a4d4d6a505adcc#99c37acd301fbf65357d6ec621a4d4d6a505adcc"
 dependencies = [
  "css-color",
  "itertools",
