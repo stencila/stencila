@@ -903,12 +903,10 @@ pub fn span(input: &str) -> IResult<&str, InlineContent> {
             )),
         ),
         |(content, (text, lang))| -> Result<InlineContent> {
-            let content = decode_fragment(content, None).to_inlines();
-
             Ok(InlineContent::Span(Span {
                 programming_language: lang.to_string(),
                 text: text.to_string(),
-                content,
+                content: vec![InlineContent::String(content.to_string())],
                 ..Default::default()
             }))
         },
@@ -1509,9 +1507,9 @@ fn primitive_node(input: &str) -> IResult<&str, Node> {
 /// Will greedily take as many characters as possible, excluding those that appear at the
 /// start of other inline parsers e.g. '$', '['
 fn string(input: &str) -> IResult<&str, InlineContent> {
-    const CHARS: &str = "@^~$[";
+    const CHARS: &str = "@^~$&[{`";
     map_res(
-        take_while1(|chr: char| CHARS.contains(chr)),
+        take_while1(|chr: char| !CHARS.contains(chr)),
         |res: &str| -> Result<InlineContent> { Ok(InlineContent::String(String::from(res))) },
     )(input)
 }
@@ -1942,18 +1940,11 @@ mod tests {
     #[test]
     fn test_spans() {
         assert_eq!(
-            span(r#"[some _inline_ content]{text-red-300}"#).unwrap().1,
+            span(r#"[some string content]{text-red-300}"#).unwrap().1,
             InlineContent::Span(Span {
                 programming_language: "tailwind".to_string(),
                 text: "text-red-300".to_string(),
-                content: vec![
-                    InlineContent::String("some ".to_string()),
-                    InlineContent::Emphasis(Emphasis {
-                        content: vec![InlineContent::String("inline".to_string())],
-                        ..Default::default()
-                    }),
-                    InlineContent::String(" content".to_string())
-                ],
+                content: vec![InlineContent::String("some string content".to_string())],
                 ..Default::default()
             })
         );
