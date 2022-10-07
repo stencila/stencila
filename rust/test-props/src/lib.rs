@@ -130,7 +130,7 @@ prop_compose! {
     pub fn prog_lang(freedom: Freedom)(
         lang in match freedom {
             Freedom::Min => "python",
-            Freedom::Low => r"bash|javascript|python|r|sql|shell|zsh",
+            Freedom::Low => r"bash|javascript|python|r|sql|shell|tailwind|zsh",
             Freedom::High => r"[A-Za-z0-9-]+",
             _ => any::<String>()
         }
@@ -375,6 +375,27 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a Span node
+    pub fn span(freedom: Freedom)(
+        programming_language in prog_lang(freedom),
+        text in match freedom {
+            Freedom::Min => "text",
+            Freedom::Low => r"[A-Za-z0-9- ]+",
+            _ => any::<String>()
+        },
+        // For Markdown compatibility only allow in string inline content
+        content in string(freedom)
+    ) -> InlineContent {
+        InlineContent::Span(Span{
+            programming_language,
+            text,
+            content: vec![content],
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
     /// Generate a strong node with arbitrary content
     pub fn strong(freedom: Freedom)(
         content in inline_inner_content(freedom)
@@ -428,6 +449,7 @@ pub fn inline_content(
         ("MathFragment", math_fragment(freedom).boxed()),
         ("Parameter", parameter(freedom, &exclude_types).boxed()),
         ("Quote", quote(freedom).boxed()),
+        ("Span", span(freedom).boxed()),
         ("Strikeout", strikeout(freedom).boxed()),
         ("Strong", strong(freedom).boxed()),
         ("Subscript", subscript(freedom).boxed()),
@@ -465,6 +487,7 @@ prop_compose! {
         for index in 0..content.len() {
             let spaces = match content[index] {
                 InlineContent::Emphasis(..) |
+                    InlineContent::Span(..) |
                     InlineContent::Strong(..) |
                     InlineContent::Strikeout(..) |
                     InlineContent::Delete(..) => {
@@ -717,6 +740,26 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a Division node
+    pub fn division(freedom: Freedom, exclude_types: &[String])(
+        programming_language in prog_lang(freedom),
+        text in match freedom {
+            Freedom::Min => "text",
+            Freedom::Low => r"[A-Za-z0-9- ]+",
+            _ => any::<String>()
+        },
+        content in vec_block_content(freedom, exclude_types.to_vec()),
+    ) -> BlockContent {
+        BlockContent::Division(Division{
+            programming_language,
+            text,
+            content,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
     /// Generate a For node
     pub fn for_(freedom: Freedom, exclude_types: Vec<String>)(
         symbol in match freedom {
@@ -870,6 +913,9 @@ pub fn block_content(
     }
     if !exclude_types.contains(&"CodeChunk".to_string()) {
         strategies.push(code_chunk(freedom).boxed())
+    }
+    if !exclude_types.contains(&"Division".to_string()) {
+        strategies.push(division(freedom, &exclude_types).boxed())
     }
     if !exclude_types.contains(&"For".to_string()) {
         strategies.push(for_(freedom, exclude_types.clone()).boxed())
