@@ -586,7 +586,7 @@ async fn inline_object_element_to_node(
         embedded_object
             .description
             .and_then(|desc| match node_type.trim() {
-                "CodeChunk" | "CodeExpression" | "MathFragment" | "MathBlock" | "Parameter" => {
+                "CodeChunk" | "CodeExpression" | "MathFragment" | "MathBlock" | "Parameter" | "Button" => {
                     Some(desc)
                 }
                 _ => None,

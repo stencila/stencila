@@ -40,6 +40,12 @@ impl ToHtml for ExecutableCodeDependencies {
                 name,
                 execute_required,
                 ..
+            })
+            | ExecutableCodeDependencies::Button(Button {
+                id,
+                name,
+                execute_required,
+                ..
             }) => (
                 "Parameter",
                 id.as_deref(),

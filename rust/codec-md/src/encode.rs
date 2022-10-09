@@ -1,7 +1,7 @@
 use std::cmp::max;
 
 use codec::{
-    common::{eyre::Result, itertools::Itertools, serde_json},
+    common::{eyre::Result, inflector::Inflector, itertools::Itertools, serde_json},
     stencila_schema::*,
     EncodeOptions,
 };
@@ -270,6 +270,31 @@ impl ToMd for Parameter {
         };
 
         ["&[", &self.name, "]", &attrs].concat()
+    }
+}
+
+impl ToMd for Button {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
+        let (label, options) = match &self.label {
+            Some(label) => {
+                let label_as_name = label.to_snake_case();
+                let options = if label_as_name == self.name {
+                    String::new()
+                } else {
+                    ["{name=", &self.name, "}"].concat()
+                };
+                (label.to_string(), options)
+            }
+            None => {
+                let label = self
+                    .label
+                    .as_deref()
+                    .map_or_else(|| self.name.to_sentence_case(), String::from);
+                (label, String::new())
+            }
+        };
+
+        ["#[", &label, "]", &options].concat()
     }
 }
 
@@ -641,6 +666,14 @@ impl ToMd for Span {
     }
 }
 
+impl ToMd for Form {
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        let content = self.content.to_md(options);
+
+        ["::: form\n\n", &content, ":::\n\n"].concat()
+    }
+}
+
 impl ToMd for For {
     fn to_md(&self, options: &EncodeOptions) -> String {
         let Self {
@@ -755,6 +788,7 @@ impl ToMd for Node {
             Node::CreativeWork(node) => node.to_md(options),
             Node::Division(node) => node.to_md(options),
             Node::Emphasis(node) => node.to_md(options),
+            Node::Form(node) => node.to_md(options),
             Node::Heading(node) => node.to_md(options),
             Node::Integer(node) => node.to_md(options),
             Node::Link(node) => node.to_md(options),
@@ -785,6 +819,7 @@ impl ToMd for InlineContent {
         match self {
             InlineContent::AudioObject(node) => node.to_md(options),
             InlineContent::Boolean(node) => node.to_md(options),
+            InlineContent::Button(node) => node.to_md(options),
             InlineContent::CodeExpression(node) => node.to_md(options),
             InlineContent::CodeFragment(node) => node.to_md(options),
             InlineContent::Emphasis(node) => node.to_md(options),
@@ -820,6 +855,7 @@ impl ToMd for BlockContent {
             BlockContent::CodeChunk(node) => node.to_md(options),
             BlockContent::Division(node) => node.to_md(options),
             BlockContent::For(node) => node.to_md(options),
+            BlockContent::Form(node) => node.to_md(options),
             BlockContent::Heading(node) => node.to_md(options),
             BlockContent::If(node) => node.to_md(options),
             BlockContent::Include(node) => node.to_md(options),

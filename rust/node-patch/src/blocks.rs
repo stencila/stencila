@@ -109,13 +109,17 @@ patchable_variants!(
     ExecutableCodeDependencies,
     ExecutableCodeDependencies::CodeChunk,
     ExecutableCodeDependencies::Parameter,
+    ExecutableCodeDependencies::Button,
     ExecutableCodeDependencies::File
 );
 patchable_variants!(
     ExecutableCodeDependents,
     ExecutableCodeDependents::Call,
     ExecutableCodeDependents::CodeChunk,
-    ExecutableCodeDependents::CodeExpression
+    ExecutableCodeDependents::CodeExpression,
+    ExecutableCodeDependents::Division,
+    ExecutableCodeDependents::Span,
+    ExecutableCodeDependents::File
 );
 patchable_enum!(ExecuteAuto);
 patchable_enum!(ExecuteRequired);
@@ -224,6 +228,21 @@ patchable_struct!(
     expression,
     content,
     otherwise,
+    code_dependents,
+    compile_digest,
+    execute_digest,
+    execute_required,
+    execute_kernel,
+    execute_status,
+    execute_ended,
+    execute_duration,
+    errors,
+);
+
+patchable_struct!(
+    Form,
+    id,
+    content,
     code_dependents,
     compile_digest,
     execute_digest,

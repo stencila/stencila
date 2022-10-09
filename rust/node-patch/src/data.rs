@@ -13,6 +13,20 @@ impl Patchable for Datatable {
 
 patchable_struct!(DatatableColumn, name, validator, values);
 
+patchable_struct!(
+    Button,
+    name,
+    label,
+    code_dependencies,
+    compile_digest,
+    execute_digest,
+    execute_required,
+    execute_kernel,
+    execute_status,
+    execute_count,
+    execute_ended
+);
+
 // Previously we implemented a custom `Patchable` for `Parameter` to ensure that values of
 // `default` and `value` fields (which can be any `Node`) meet the requirements of the `validator`.
 // However, doing that here causes a lot of inconsistencies, especially in the UI. For that

@@ -278,6 +278,10 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         blocks.push_div();
                         divs.push_back(BlockContent::For(for_));
                         None
+                    } else if let Ok((.., form)) = form(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(BlockContent::Form(form));
+                        None
                     } else if let Ok((.., (true, if_))) = if_elif(trimmed) {
                         blocks.push_div();
                         divs.push_back(BlockContent::If(if_));
@@ -339,6 +343,10 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                                 for_.otherwise = for_.otherwise.map(|_| blocks.pop_div());
                                 for_.content = blocks.pop_div();
                                 BlockContent::For(for_)
+                            }
+                            BlockContent::Form(mut form) => {
+                                form.content = blocks.pop_div();
+                                BlockContent::Form(form)
                             }
                             BlockContent::If(mut if_) => {
                                 if_.otherwise = if_.otherwise.map(|_| blocks.pop_div());
@@ -808,6 +816,7 @@ impl Inlines {
 fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
     fold_many0(
         alt((
+            button,
             code_attrs,
             code_expr,
             cite_group,
@@ -930,47 +939,6 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 .map(|node| node.to_txt());
             let typ = typ.as_deref();
 
-            fn to_option_string(node: Node) -> Option<String> {
-                match node {
-                    Node::String(num) => Some(num),
-                    _ => Some(node.to_txt()),
-                }
-            }
-            fn to_option_number(node: Node) -> Option<Number> {
-                match node {
-                    Node::Number(num) => Some(num),
-                    Node::Integer(num) => Some(Number(num as f64)),
-                    _ => node.to_txt().parse().ok(),
-                }
-            }
-            fn to_option_u32(node: Node) -> Option<u32> {
-                match node {
-                    Node::Integer(int) => Some(int as u32),
-                    _ => node.to_txt().parse().ok(),
-                }
-            }
-            fn to_option_date(node: Node) -> Option<Date> {
-                match node {
-                    Node::Date(date) => Some(date),
-                    Node::String(string) => Some(Date::from(string)),
-                    _ => None,
-                }
-            }
-            fn to_option_time(node: Node) -> Option<Time> {
-                match node {
-                    Node::Time(time) => Some(time),
-                    Node::String(string) => Some(Time::from(string)),
-                    _ => None,
-                }
-            }
-            fn to_option_datetime(node: Node) -> Option<DateTime> {
-                match node {
-                    Node::DateTime(datetime) => Some(datetime),
-                    Node::String(string) => Some(DateTime::from(string)),
-                    _ => None,
-                }
-            }
-
             let validator = if matches!(typ, Some("boolean")) || matches!(typ, Some("bool")) {
                 Some(ValidatorTypes::BooleanValidator(BooleanValidator::default()))
             } else if matches!(typ, Some("enum")) {
@@ -999,18 +967,18 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .remove("minimum")
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
                 let maximum = options
                     .remove("maximum")
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
                 let multiple_of = options
                     .remove("multiple_of")
                     .or_else(|| options.remove("mult"))
                     .or_else(|| options.remove("step"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
                 Some(ValidatorTypes::IntegerValidator(IntegerValidator {
                     minimum,
                     maximum,
@@ -1022,17 +990,17 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .remove("minimum")
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
                 let maximum = options
                     .remove("maximum")
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
                 let multiple_of = options
                     .remove("multiple_of")
                     .or_else(|| options.remove("mult"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
                 Some(ValidatorTypes::NumberValidator(NumberValidator {
                     minimum,
                     maximum,
@@ -1045,13 +1013,13 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .or_else(|| options.remove("minlength"))
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_u32);
+                    .and_then(node_to_option_u32);
                 let max_length = options
                     .remove("max_length")
                     .or_else(|| options.remove("maxlength"))
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_u32);
+                    .and_then(node_to_option_u32);
                 let pattern = options
                     .remove("pattern")
                     .or_else(|| options.remove("regex"))
@@ -1071,12 +1039,12 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .remove("minimum")
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_date);
+                    .and_then(node_to_option_date);
                 let maximum = options
                     .remove("maximum")
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_date);
+                    .and_then(node_to_option_date);
                 Some(ValidatorTypes::DateValidator(DateValidator {
                     minimum,
                     maximum,
@@ -1087,12 +1055,12 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .remove("minimum")
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_time);
+                    .and_then(node_to_option_time);
                 let maximum = options
                     .remove("maximum")
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_time);
+                    .and_then(node_to_option_time);
                 Some(ValidatorTypes::TimeValidator(TimeValidator {
                     minimum,
                     maximum,
@@ -1103,12 +1071,12 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .remove("minimum")
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_datetime);
+                    .and_then(node_to_option_datetime);
                 let maximum = options
                     .remove("maximum")
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_datetime);
+                    .and_then(node_to_option_datetime);
                 Some(ValidatorTypes::DateTimeValidator(DateTimeValidator {
                     minimum,
                     maximum,
@@ -1123,7 +1091,7 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 .remove("derived-from")
                 .or_else(|| options.remove("from"))
                 .and_then(|value| value)
-                .and_then(to_option_string)
+                .and_then(node_to_option_string)
                 .map(Box::new);
 
             let name = name
@@ -1152,6 +1120,32 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 default,
                 value,
                 derived_from,
+                ..Default::default()
+            }))
+        },
+    )(input)
+}
+
+/// Parse a `Button`
+pub fn button(input: &str) -> IResult<&str, InlineContent> {
+    map_res(
+        pair(
+            delimited(tag("#["), is_not("]"), char(']')),
+            opt(curly_attrs),
+        ),
+        |(label, options)| -> Result<InlineContent> {
+            let mut options: HashMap<String, Option<Node>> =
+                options.unwrap_or_default().into_iter().collect();
+
+            let name = options
+                .remove("name")
+                .and_then(|value| value)
+                .and_then(node_to_option_string)
+                .unwrap_or_else(|| label.to_snake_case());
+
+            Ok(InlineContent::Button(Button {
+                name,
+                label: Some(Box::new(label.to_string())),
                 ..Default::default()
             }))
         },
@@ -1507,7 +1501,7 @@ fn primitive_node(input: &str) -> IResult<&str, Node> {
 /// Will greedily take as many characters as possible, excluding those that appear at the
 /// start of other inline parsers e.g. '$', '['
 fn string(input: &str) -> IResult<&str, InlineContent> {
-    const CHARS: &str = "@^~$&[{`";
+    const CHARS: &str = "~@#$^&[{`";
     map_res(
         take_while1(|chr: char| !CHARS.contains(chr)),
         |res: &str| -> Result<InlineContent> { Ok(InlineContent::String(String::from(res))) },
@@ -1694,6 +1688,14 @@ fn for_(input: &str) -> IResult<&str, For> {
     )(input)
 }
 
+/// Parse a `Form` node
+fn form(input: &str) -> IResult<&str, Form> {
+    map_res(
+        all_consuming(tuple((semis3plus, multispace0, tag("form"), multispace0))),
+        |_| -> Result<Form> { Ok(Form::default()) },
+    )(input)
+}
+
 /// Parse an `if` or `elif` section
 fn if_elif(input: &str) -> IResult<&str, (bool, If)> {
     map_res(
@@ -1746,6 +1748,47 @@ fn div_end(input: &str) -> IResult<&str, &str> {
 /// Parse at least three semicolons
 fn semis3plus(input: &str) -> IResult<&str, &str> {
     recognize(many_m_n(3, 100, char(':')))(input)
+}
+
+fn node_to_option_string(node: Node) -> Option<String> {
+    match node {
+        Node::String(num) => Some(num),
+        _ => Some(node.to_txt()),
+    }
+}
+fn node_to_option_number(node: Node) -> Option<Number> {
+    match node {
+        Node::Number(num) => Some(num),
+        Node::Integer(num) => Some(Number(num as f64)),
+        _ => node.to_txt().parse().ok(),
+    }
+}
+fn node_to_option_u32(node: Node) -> Option<u32> {
+    match node {
+        Node::Integer(int) => Some(int as u32),
+        _ => node.to_txt().parse().ok(),
+    }
+}
+fn node_to_option_date(node: Node) -> Option<Date> {
+    match node {
+        Node::Date(date) => Some(date),
+        Node::String(string) => Some(Date::from(string)),
+        _ => None,
+    }
+}
+fn node_to_option_time(node: Node) -> Option<Time> {
+    match node {
+        Node::Time(time) => Some(time),
+        Node::String(string) => Some(Time::from(string)),
+        _ => None,
+    }
+}
+fn node_to_option_datetime(node: Node) -> Option<DateTime> {
+    match node {
+        Node::DateTime(datetime) => Some(datetime),
+        Node::String(string) => Some(DateTime::from(string)),
+        _ => None,
+    }
 }
 
 /// Stores and parses HTML content
@@ -2119,6 +2162,11 @@ mod tests {
                 ..Default::default()
             }
         );
+    }
+
+    #[test]
+    fn test_form() {
+        assert_eq!(form("::: form").unwrap().1, Form::default());
     }
 
     #[test]

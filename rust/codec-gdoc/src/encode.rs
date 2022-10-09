@@ -35,6 +35,7 @@ pub(crate) async fn encode(node: &Node, path: &Path, options: Option<EncodeOptio
             "CodeExpression",
             "CodeChunk",
             "Parameter",
+            "Button",
             // When pulling a Google Doc as JSON, math nodes are empty e.g.
             //
             //     {

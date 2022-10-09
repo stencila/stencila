@@ -616,6 +616,18 @@ impl ToHtml for For {
     }
 }
 
+impl ToHtml for Form {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
+        let content = self.content.to_html(context);
+
+        elem(
+            "stencila-form",
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &content,
+        )
+    }
+}
+
 impl ToHtml for If {
     fn to_html(&self, _context: &mut EncodeContext) -> String {
         elem(

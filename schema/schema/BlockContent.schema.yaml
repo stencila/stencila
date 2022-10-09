@@ -10,6 +10,7 @@ anyOf:
   - $ref: Division
   - $ref: Figure
   - $ref: For
+  - $ref: Form
   - $ref: Heading
   - $ref: If
   - $ref: Include

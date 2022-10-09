@@ -62,6 +62,7 @@ impl Pointable for InlineContent {
 // Implementations for `InlineContent` structs (usually only properties that are content or `Node`s)
 
 pointable_struct!(AudioObjectSimple);
+pointable_struct!(Button);
 pointable_struct!(Cite, content);
 pointable_struct!(CiteGroup, items);
 pointable_struct!(CodeExpression);

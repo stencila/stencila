@@ -47,7 +47,7 @@ impl CodecTrait for DocxCodec {
             .map(|options| options.rpng_types.clone())
             .unwrap_or_default();
         if rpng_types.is_empty() {
-            rpng_types = vec_string!["CodeExpression", "CodeChunk", "Parameter"]
+            rpng_types = vec_string!["CodeExpression", "CodeChunk", "Parameter", "Button"]
         }
 
         encode(

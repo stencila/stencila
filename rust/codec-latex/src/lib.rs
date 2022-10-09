@@ -24,6 +24,8 @@ impl CodecTrait for LatexCodec {
                     "CodeChunk",
                     "CodeExpression",
                     "Parameter",
+                    "Button",
+                    "Form",
                     "Include",
                     "Call"
                 ],

@@ -474,8 +474,8 @@ impl NodeInfo {
             | Node::CodeExpression(CodeExpression { execute_status, .. })
             | Node::Division(Division { execute_status, .. })
             | Node::Span(Span { execute_status, .. }) => execute_status.clone(),
-            // At present, assumes the execution of parameters always succeeds
-            Node::Parameter(..) => Some(ExecuteStatus::Succeeded),
+            // At present, assumes the execution of parameters and buttons always succeeds
+            Node::Parameter(..) | Node::Button(..) => Some(ExecuteStatus::Succeeded),
             _ => None,
         }
     }

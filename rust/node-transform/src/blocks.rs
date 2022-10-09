@@ -131,6 +131,7 @@ impl Transform for BlockContent {
                 })
             }
             BlockContent::For(node) => Node::For(node),
+            BlockContent::Form(node) => Node::Form(node),
             BlockContent::Heading(node) => Node::Heading(node),
             BlockContent::Include(node) => Node::Include(node),
             BlockContent::If(node) => Node::If(node),

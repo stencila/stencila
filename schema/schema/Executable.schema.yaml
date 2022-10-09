@@ -15,6 +15,7 @@ properties:
         - $ref: CodeChunk
         - $ref: File
         - $ref: Parameter
+        - $ref: Button
     $comment: |
       Note that this excludes `CodeExpression` nodes since they should not have side effects
       (e.g. assigning variables) that would cause another node to be dependent upon them.

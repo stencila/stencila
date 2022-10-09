@@ -75,6 +75,7 @@ pointable_struct!(Division, content);
 pointable_struct!(FigureSimple, caption);
 pointable_variants!(FigureCaption, FigureCaption::VecBlockContent);
 pointable_struct!(For, content);
+pointable_struct!(Form, content);
 pointable_struct!(Heading, content);
 pointable_struct!(If, content);
 pointable_struct!(Include, content);

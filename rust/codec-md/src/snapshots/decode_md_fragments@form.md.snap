@@ -1,0 +1,74 @@
+---
+source: rust/codec-md/src/decode.rs
+assertion_line: 2245
+expression: "decode_fragment(content, None)"
+input_file: fixtures/fragments/md/form.md
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "A form with two parameters and a code chunk that uses them:"
+    ]
+  },
+  {
+    "type": "Form",
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          {
+            "type": "Parameter",
+            "name": "par1",
+            "validator": {
+              "type": "NumberValidator"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Paragraph",
+        "content": [
+          {
+            "type": "Parameter",
+            "name": "par2",
+            "validator": {
+              "type": "NumberValidator"
+            }
+          }
+        ]
+      },
+      {
+        "type": "CodeChunk",
+        "programmingLanguage": "python",
+        "text": "par1 + par2"
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A form with nested division (not often used but should be possible)"
+    ]
+  },
+  {
+    "type": "Form",
+    "content": [
+      {
+        "type": "Division",
+        "classes": [],
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "Some warning that the user should be aware of when using the form"
+            ]
+          }
+        ],
+        "css": "",
+        "programmingLanguage": "tailwind",
+        "text": "bg-red-100"
+      }
+    ]
+  }
+]

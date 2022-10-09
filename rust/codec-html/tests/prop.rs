@@ -16,6 +16,8 @@ proptest! {
             vec![
                 // Exclude types for which decoding support is not yet enabled
                 "Parameter".to_string(),
+                "Button".to_string(),
+                "Form".to_string(),
                 "For".to_string(),
                 "If".to_string(),
                 "Division".to_string(),

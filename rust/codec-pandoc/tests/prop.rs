@@ -13,7 +13,7 @@ proptest! {
         let pandoc = encode_node(&input, Some(EncodeOptions{
             // To avoid loss, use RPNGs for the following types
             rpng_types: vec_string![
-                "CodeChunk", "CodeExpression", "Parameter"
+                "CodeChunk", "CodeExpression", "Parameter", "Button"
             ],
             // Because RPNGs are generated as temporary files in a directory that is
             // cleaned up at the end of the encode function (and thus not available to

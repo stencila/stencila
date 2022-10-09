@@ -271,6 +271,68 @@ pub enum Executable_ {
   Executable
 }
 
+/// A button.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Button {
+    /// The name of this type
+    #[derivative(Default(value = "Button_::Button"))]
+    pub type_: Button_,
+
+    /// The name of the variable associated with the button.
+    pub name: String,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
+
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// A label for the button
+    pub label: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Button_ {
+  Button
+}
+
 /// Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
@@ -2926,6 +2988,65 @@ pub struct For {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum For_ {
   For
+}
+
+/// A form to batch updates in document parameters
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Form {
+    /// The name of this type
+    #[derivative(Default(value = "Form_::Form"))]
+    pub type_: Form_,
+
+    /// The content within the form, usually containing at least one `Parameter`.
+    pub content: Vec<BlockContent>,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
+
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Form_ {
+  Form
 }
 
 /// A function with a name, which might take Parameters and return a value of a certain type.
@@ -5709,6 +5830,7 @@ pub enum ExecutableCodeDependencies {
     CodeChunk(CodeChunk),
     File(File),
     Parameter(Parameter),
+    Button(Button),
 }
 
 /// Types permitted for the `codeDependents` property of a `Executable` node.
@@ -6396,6 +6518,7 @@ pub enum BlockContent {
     Division(Division),
     Figure(FigureSimple),
     For(For),
+    Form(Form),
     Heading(Heading),
     If(If),
     Include(Include),
@@ -6480,6 +6603,7 @@ pub enum EntityTypes {
     AudioObject(AudioObject),
     BooleanValidator(BooleanValidator),
     Brand(Brand),
+    Button(Button),
     Call(Call),
     CallArgument(CallArgument),
     Cite(Cite),
@@ -6513,6 +6637,7 @@ pub enum EntityTypes {
     Figure(Figure),
     File(File),
     For(For),
+    Form(Form),
     Function(Function),
     Grant(Grant),
     Heading(Heading),
@@ -6576,6 +6701,7 @@ pub enum EntityTypes {
 #[serde(untagged)]
 pub enum ExecutableTypes {
     Executable(Executable),
+    Button(Button),
     Call(Call),
     CallArgument(CallArgument),
     CodeChunk(CodeChunk),
@@ -6583,6 +6709,7 @@ pub enum ExecutableTypes {
     CodeExpression(CodeExpression),
     Division(Division),
     For(For),
+    Form(Form),
     If(If),
     Include(Include),
     Parameter(Parameter),
@@ -6611,6 +6738,7 @@ pub enum IncludeTypes {
 #[serde(untagged)]
 pub enum InlineContent {
     AudioObject(AudioObjectSimple),
+    Button(Button),
     Cite(Cite),
     CiteGroup(CiteGroup),
     CodeExpression(CodeExpression),
@@ -6688,6 +6816,7 @@ pub enum Node {
     AudioObject(AudioObject),
     BooleanValidator(BooleanValidator),
     Brand(Brand),
+    Button(Button),
     Call(Call),
     CallArgument(CallArgument),
     Cite(Cite),
@@ -6721,6 +6850,7 @@ pub enum Node {
     Figure(Figure),
     File(File),
     For(For),
+    Form(Form),
     Function(Function),
     Grant(Grant),
     Heading(Heading),

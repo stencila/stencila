@@ -2,7 +2,7 @@
 
 use std::{fmt::Write, fs, path::PathBuf};
 
-use codec::common::{base64, tracing};
+use codec::common::{base64, inflector::Inflector, tracing};
 use stencila_schema::*;
 
 use super::{
@@ -16,6 +16,7 @@ impl ToHtml for InlineContent {
         match self {
             InlineContent::AudioObject(node) => node.to_html(context),
             InlineContent::Boolean(node) => node.to_html(context),
+            InlineContent::Button(node) => node.to_html(context),
             InlineContent::Cite(node) => node.to_html(context),
             InlineContent::CiteGroup(node) => node.to_html(context),
             InlineContent::CodeExpression(node) => node.to_html(context),
@@ -211,6 +212,21 @@ impl ToHtml for VideoObjectSimple {
                 "controls".to_string(),
             ],
             &elem("source", &[src_attr, type_attr], ""),
+        )
+    }
+}
+
+impl ToHtml for Button {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
+        let label = self
+            .label
+            .as_deref()
+            .map_or_else(|| self.name.to_title_case(), |label| label.to_string());
+
+        elem(
+            "stencila-button",
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &label,
         )
     }
 }

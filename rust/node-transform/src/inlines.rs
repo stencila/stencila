@@ -58,6 +58,7 @@ impl Transform for InlineContent {
                 })
             }
             InlineContent::Boolean(node) => Node::Boolean(node),
+            InlineContent::Button(node) => Node::Button(node),
             InlineContent::Cite(node) => Node::Cite(node),
             InlineContent::CiteGroup(node) => Node::CiteGroup(node),
             InlineContent::CodeExpression(node) => Node::CodeExpression(node),

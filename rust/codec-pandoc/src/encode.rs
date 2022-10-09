@@ -359,6 +359,8 @@ impl ToPandoc for Parameter {
     }
 }
 
+unimplemented_to_pandoc!(Button);
+
 impl ToPandoc for Quote {
     fn to_pandoc_inline(&self, context: &mut EncodeContext) -> pandoc::Inline {
         pandoc::Inline::Quoted(
@@ -668,6 +670,7 @@ impl ToPandoc for [BlockContent] {
     }
 }
 
+unimplemented_to_pandoc!(Form);
 unimplemented_to_pandoc!(Division);
 unimplemented_to_pandoc!(Span);
 

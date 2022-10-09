@@ -126,6 +126,28 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a `Button` node
+    pub fn button(freedom: Freedom)(
+        name in match freedom {
+            Freedom::Min => "name",
+            _ => r"[A-Za-z0-9_]+",
+        },
+        label in match freedom {
+            Freedom::Min => "Label",
+            Freedom::Low => r"[A-Za-z0-9]+",
+            Freedom::High => r"[A-Za-z0-9 -_!]+",
+            _ => any::<String>()
+        }
+    ) -> InlineContent {
+        InlineContent::Button(Button{
+            name,
+            label: Some(Box::new(label)),
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
     /// Generate a programming language string
     pub fn prog_lang(freedom: Freedom)(
         lang in match freedom {
@@ -442,6 +464,7 @@ pub fn inline_content(
         ("AudioObject", audio_object_simple(freedom).boxed()),
         ("ImageObject", image_object_simple(freedom).boxed()),
         ("VideoObject", video_object_simple(freedom).boxed()),
+        ("Button", button(freedom).boxed()),
         ("CodeExpression", code_expression(freedom).boxed()),
         ("CodeFragment", code_fragment(freedom).boxed()),
         ("Emphasis", emphasis(freedom).boxed()),
@@ -791,6 +814,18 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a Form node
+    pub fn form(freedom: Freedom, exclude_types: Vec<String>)(
+        content in vec_block_content(freedom, exclude_types),
+    ) -> BlockContent {
+        BlockContent::Form(Form {
+            content,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
     /// Generate an If node
     pub fn if_(freedom: Freedom, exclude_types: Vec<String>)(
         programming_language in prog_lang(freedom),
@@ -919,6 +954,9 @@ pub fn block_content(
     }
     if !exclude_types.contains(&"For".to_string()) {
         strategies.push(for_(freedom, exclude_types.clone()).boxed())
+    }
+    if !exclude_types.contains(&"Form".to_string()) {
+        strategies.push(form(freedom, exclude_types.clone()).boxed())
     }
     if !exclude_types.contains(&"Heading".to_string()) {
         strategies.push(heading(freedom, exclude_types.clone()).boxed())
