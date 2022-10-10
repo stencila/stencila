@@ -14,7 +14,7 @@ use node_pointer::resolve;
 use path_utils::path_slash::PathBufExt;
 use stencila_schema::{
     Call, CodeChunk, CodeExpression, Division, ExecutableCodeDependencies,
-    ExecutableCodeDependents, ExecuteRequired, File, Include, Node, Parameter, Span,
+    ExecutableCodeDependents, ExecuteRequired, File, Include, Node, Parameter, Span, Button,
 };
 
 use crate::{
@@ -71,7 +71,6 @@ pub async fn compile(
     let mut context = CompileContext {
         path: path.into(),
         project: project.into(),
-        call_docs: call_docs.clone(),
         ..Default::default()
     };
     for (id, address) in address_map.iter() {
@@ -211,6 +210,22 @@ pub async fn compile(
                                     ..Default::default()
                                 }))
                             }
+                            Node::Button(node) => {
+                                let execute_required = if node.execute_digest.is_none() {
+                                    ExecuteRequired::NeverExecuted
+                                } else if node.execute_digest == node.compile_digest {
+                                    ExecuteRequired::No
+                                } else {
+                                    ExecuteRequired::SemanticsChanged
+                                };
+
+                                Some(ExecutableCodeDependencies::Button(Button {
+                                    id: node.id.clone(),
+                                    name: node.name.clone(),
+                                    execute_required: Some(execute_required),
+                                    ..Default::default()
+                                }))
+                            }
                             _ => None,
                         }
                     }
@@ -310,6 +325,7 @@ pub async fn compile(
                     *execute_required = new_execute_required.to_owned();
                 }
                 Node::Parameter(Parameter { compile_digest, .. })
+                | Node::Button(Button { compile_digest, .. })
                 | Node::Include(Include { compile_digest, .. }) => {
                     *compile_digest = new_compile_digest;
                 }

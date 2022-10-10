@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::Path, sync::Arc};
+use std::{path::Path, sync::Arc};
 
 use common::{
     eyre::Result,
@@ -8,7 +8,7 @@ use node_address::{Address, AddressMap};
 use stencila_schema::Node;
 
 use crate::{
-    document::CallDocuments,
+    document::{CallDocuments},
     executable::{AssembleContext, Executable},
     messages::{PatchRequest, When},
     utils::send_patches,
@@ -37,10 +37,7 @@ pub async fn assemble(
     let mut address = Address::default();
     let mut context = AssembleContext {
         path: path.into(),
-        call_docs: call_docs.clone(),
-        address_map: AddressMap::default(),
-        ids: HashMap::default(),
-        patches: Vec::default(),
+        ..Default::default()
     };
     root.write()
         .await

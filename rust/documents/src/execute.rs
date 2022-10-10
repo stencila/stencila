@@ -249,7 +249,6 @@ pub async fn execute(
                         &*kernel_space.read().await,
                         &kernel_selector,
                         is_fork,
-                        &*call_docs.read().await,
                     )
                     .await
                 {
