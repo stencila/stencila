@@ -10,10 +10,7 @@ use node_address::Address;
 use node_patch::diff_address;
 use node_transform::Transform;
 use path_utils::merge;
-use stencila_schema::{
-    BlockContent, Include,
-    InlineContent, Paragraph,
-};
+use stencila_schema::{BlockContent, Include, InlineContent, Paragraph};
 
 use crate::{
     assert_id,

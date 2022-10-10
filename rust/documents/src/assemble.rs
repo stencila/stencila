@@ -8,7 +8,6 @@ use node_address::{Address, AddressMap};
 use stencila_schema::Node;
 
 use crate::{
-    document::{CallDocuments},
     executable::{AssembleContext, Executable},
     messages::{PatchRequest, When},
     utils::send_patches,
@@ -16,7 +15,7 @@ use crate::{
 
 /// Assemble a node, usually the `root` node of a document
 ///
-/// Uses a `RwLock` for `root` and `call_docs` so that write lock can be held for as short as
+/// Uses a `RwLock` for `root` so that write lock can be held for as short as
 /// time as possible and for consistency with the `execute` function.
 ///
 /// # Arguments
@@ -25,13 +24,10 @@ use crate::{
 ///
 /// - `root`: The root node to be compiled
 ///
-/// - `call_docs`: The [`CallDocuments`] to which documents that a `Call`ed by this one will be added
-///
 /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
 pub async fn assemble(
     path: &Path,
     root: &Arc<RwLock<Node>>,
-    call_docs: &Arc<RwLock<CallDocuments>>,
     patch_sender: &UnboundedSender<PatchRequest>,
 ) -> Result<AddressMap> {
     let mut address = Address::default();

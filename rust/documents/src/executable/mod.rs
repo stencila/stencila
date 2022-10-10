@@ -30,7 +30,6 @@ pub trait Executable {
         _kernel_space: &KernelSpace,
         _kernel_selector: &KernelSelector,
         _is_fork: bool,
-        //_call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
         Ok(None)
     }
@@ -40,28 +39,22 @@ pub trait Executable {
     }
 }
 
+/// The context passed down through calls to the `Executable::assemble` method
 #[derive(Debug, Default)]
 pub struct AssembleContext {
-    /// The path of the document being compiled.
+    /// The path of the document being compiled
+    ///
     /// Used to resolve relative paths e.g. in `Include` nodes
     pub path: PathBuf,
 
     /// Counts of the number of node ids with each prefix assigned
+    ///
+    /// Used to generate unique auto-incremented integer ids by node
+    /// type.
     pub ids: HashMap<String, usize>,
 
     /// A map of node ids to addresses
     pub address_map: AddressMap,
-
-    /// A stack of ids of container nodes
-    pub(crate) container_ids: Vec<String>,
-
-    /// A map of node ids to the ids of nodes they contain
-    //pub(crate) container_map: ContainerMap,
-
-    /// A map of `Call` ids to their `source`
-    /// Used so a document can maintain a `Document` for each `Call`
-    /// (thereby reducing startup times associated with each execution of the call)
-    //pub call_docs: Arc<RwLock<CallDocuments>>,
 
     /// A list of patch operations representing changes to nodes.
     pub patches: Vec<Patch>,
@@ -82,7 +75,7 @@ impl AssembleContext {
         [prefix, "-", &count.to_string()].concat()
     }
 
-    /// Register a node id
+    /// Register a node id by adding its id and address to the address map
     pub(crate) fn register_id(&mut self, id: String, address: Address) {
         self.address_map.insert(id, address);
     }
@@ -111,21 +104,22 @@ macro_rules! register_id {
 #[macro_export]
 macro_rules! assert_id {
     ($node:expr) => {
-        $node
-            .id
-            .as_deref()
-            .ok_or_else(|| common::eyre::eyre!("Node should have `id` assigned in assemble phase"))
+        $node.id.as_deref().ok_or_else(|| {
+            common::eyre::eyre!("Node should have had an `id` assigned in the assemble phase")
+        })
     };
 }
 
 #[derive(Debug, Default)]
 pub struct CompileContext {
-    /// The path of the document being compiled.
+    /// The path of the document being compiled
+    ///
     /// Used to resolve relative paths e.g. in `ImageObject` nodes
     pub path: PathBuf,
 
-    /// The project that the document is within.
-    /// Used to restrict any file links to be within the project
+    /// The project that the document is within
+    ///
+    /// Used to restrict any file links to be within the project.
     pub project: PathBuf,
 
     /// The programming language of the last code node encountered during
@@ -137,10 +131,6 @@ pub struct CompileContext {
 
     /// Any global tags defined in code chunks
     pub global_tags: TagMap,
-
-    /// A map of `Call` ids to their `source`
-    /// Used so a document can get the parameters of the called doc
-    //pub call_docs: Arc<RwLock<CallDocuments>>,
 
     /// A list of patch operations representing changes to nodes.
     pub patches: Vec<Patch>,
@@ -170,12 +160,10 @@ macro_rules! ensure_lang {
 #[derive(Debug, Default)]
 pub struct ExecuteContext {}
 
-
 mod button;
 mod call;
 mod code_chunk;
 mod code_expression;
-mod shared;
 mod division;
 mod for_;
 mod form;
@@ -185,5 +173,6 @@ mod link;
 mod media;
 mod others;
 mod parameter;
+mod shared;
 mod software_source_code;
 mod span;

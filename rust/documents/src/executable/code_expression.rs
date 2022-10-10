@@ -81,7 +81,6 @@ impl Executable for CodeExpression {
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         is_fork: bool,
-        //_call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
         tracing::trace!("Executing `CodeExpression` `{:?}`", self.id);
 

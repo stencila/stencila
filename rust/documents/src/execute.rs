@@ -23,7 +23,6 @@ use node_patch::{diff, mutate, Patch};
 use stencila_schema::{CodeChunk, CodeExpression, Division, ExecuteStatus, Node, Span};
 
 use crate::{
-    document::CallDocuments,
     executable::Executable,
     messages::{CancelRequest, PatchRequest, When},
     utils::{resource_to_node, send_patch, send_patches},
@@ -60,7 +59,6 @@ pub async fn execute(
     address_map: &Arc<RwLock<AddressMap>>,
     tag_map: &Arc<RwLock<TagMap>>,
     kernel_space: &Arc<RwLock<KernelSpace>>,
-    call_docs: &Arc<RwLock<CallDocuments>>,
     patch_request_sender: &UnboundedSender<PatchRequest>,
     cancel_request_receiver: &mut Receiver<CancelRequest>,
 ) -> Result<()> {
@@ -221,7 +219,6 @@ pub async fn execute(
 
             // Create clones of variables needed to execute the task
             let kernel_space = kernel_space.clone();
-            let call_docs = call_docs.clone();
             let mut resource_info = task.resource_info.clone();
             let kernel_selector = task.kernel_selector.clone();
             let is_fork = task.is_fork;

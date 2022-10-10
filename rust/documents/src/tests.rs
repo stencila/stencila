@@ -57,11 +57,10 @@ async fn md_articles() -> Result<()> {
             }
         });
 
-        let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
         let tag_map = Arc::new(RwLock::new(TagMap::default()));
 
         // Assemble the article and snapshot the result
-        let address_map = assemble(path, &root, &call_docs, &patch_request_sender).await?;
+        let address_map = assemble(path, &root, &patch_request_sender).await?;
         snapshot_set_suffix(&[name, "-assemble"].concat(), || {
             assert_json_snapshot!(&address_map)
         });
@@ -74,7 +73,6 @@ async fn md_articles() -> Result<()> {
             &root,
             &address_map,
             &tag_map,
-            &call_docs,
             &patch_request_sender,
         )
         .await?;
@@ -166,7 +164,6 @@ async fn md_articles() -> Result<()> {
             &address_map,
             &tag_map,
             &Arc::new(RwLock::new(KernelSpace::new(None, None))),
-            &call_docs,
             &patch_request_sender,
             &mut cancel_request_receiver,
         )
@@ -228,7 +225,6 @@ async fn regression_creative_work() -> Result<()> {
 /// Returns the plan and generated patches.
 async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
     let root = Arc::new(RwLock::new(node));
-    let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
     let tags = Arc::new(RwLock::new(TagMap::default()));
 
     let (patch_request_sender, mut patch_request_receiver) =
@@ -243,7 +239,7 @@ async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)>
 
     let (_cancel_request_sender, mut cancel_request_receiver) = mpsc::channel::<CancelRequest>(1);
 
-    let address_map = assemble(&PathBuf::new(), &root, &call_docs, &patch_request_sender).await?;
+    let address_map = assemble(&PathBuf::new(), &root, &patch_request_sender).await?;
     let address_map = &Arc::new(RwLock::new(address_map));
 
     let graph = compile(
@@ -252,7 +248,6 @@ async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)>
         &root,
         address_map,
         &tags,
-        &call_docs,
         &patch_request_sender,
     )
     .await?;
@@ -265,7 +260,6 @@ async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)>
         address_map,
         &tags,
         &Arc::new(RwLock::new(KernelSpace::new(None, None))),
-        &call_docs,
         &patch_request_sender,
         &mut cancel_request_receiver,
     )

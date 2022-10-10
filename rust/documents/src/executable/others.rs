@@ -8,7 +8,7 @@ use graph_triples::{
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
-use node_pointer::Pointer;
+use node_pointer::{Pointer};
 
 use stencila_schema::*;
 
@@ -114,7 +114,6 @@ impl Executable for Node {
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         is_fork: bool,
-        //call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
         dispatch_node!(
             self,
@@ -123,7 +122,7 @@ impl Executable for Node {
             resource_info,
             kernel_space,
             kernel_selector,
-            is_fork //call_docs
+            is_fork
         )
         .await
     }
@@ -162,7 +161,6 @@ macro_rules! executable_enum {
                 kernel_space: &KernelSpace,
                 kernel_selector: &KernelSelector,
                 is_fork: bool,
-                //call_docs: &CallDocuments,
             ) -> Result<Option<TaskInfo>> {
                 $dispatch_macro!(
                     self,
@@ -170,7 +168,7 @@ macro_rules! executable_enum {
                     resource_info,
                     kernel_space,
                     kernel_selector,
-                    is_fork //call_docs
+                    is_fork
                 )
                 .await
             }

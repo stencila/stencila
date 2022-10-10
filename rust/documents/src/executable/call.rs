@@ -150,7 +150,6 @@ impl Executable for Call {
         _kernel_space: &KernelSpace,
         _kernel_selector: &KernelSelector,
         _is_fork: bool,
-        //call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
         let id = assert_id!(self)?;
         tracing::trace!("Executing `Call` `{}`", id);

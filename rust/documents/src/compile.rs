@@ -18,7 +18,6 @@ use stencila_schema::{
 };
 
 use crate::{
-    document::CallDocuments,
     executable::{CompileContext, Executable},
     messages::{PatchRequest, When},
     utils::send_patches,
@@ -51,8 +50,6 @@ use crate::{
 /// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
 ///                  included in the plan within the `root` node; takes a read lock)
 ///
-/// - `call_docs`: The [`CallDocuments`] to which documents that a `Call`ed by this one will be added
-///
 /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
 ///                   executed nodes
 pub async fn compile(
@@ -61,7 +58,6 @@ pub async fn compile(
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
     tag_map: &Arc<RwLock<TagMap>>,
-    call_docs: &Arc<RwLock<CallDocuments>>,
     patch_sender: &UnboundedSender<PatchRequest>,
 ) -> Result<Graph> {
     let root = root.read().await;

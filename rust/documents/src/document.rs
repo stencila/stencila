@@ -93,8 +93,6 @@ enum DocumentStatus {
     Deleted,
 }
 
-pub type CallDocuments = HashMap<String, Mutex<Document>>;
-
 /// An in-memory representation of a document
 #[derive(Debug, Serialize)]
 #[serde(crate = "common::serde")]
@@ -179,10 +177,6 @@ pub struct Document {
     /// Skipped during serialization because will often be large.
     #[serde(skip)]
     pub(crate) root: Arc<RwLock<Node>>,
-
-    /// The other documents that this document calls
-    #[serde(skip)]
-    pub(crate) call_docs: Arc<RwLock<CallDocuments>>,
 
     /// Addresses of nodes in `root` that have an `id`
     ///
@@ -347,7 +341,6 @@ impl Document {
             mpsc::channel::<ResourceChange>(100);
 
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
-        let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
         let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let tags = Arc::new(RwLock::new(TagMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
@@ -371,7 +364,6 @@ impl Document {
             &project,
             &format,
             &root,
-            &call_docs,
             &addresses,
             &tags,
             &graph,
@@ -395,7 +387,6 @@ impl Document {
             content: Default::default(),
 
             root,
-            call_docs,
             addresses,
             tags,
             graph,
@@ -438,15 +429,7 @@ impl Document {
         let tags = Arc::new(RwLock::new(self.tags.read().await.clone()));
         let graph = Arc::new(RwLock::new(self.graph.read().await.clone()));
 
-        // Fields that need to be forked (kernels and call_docs which have kernels)
-
-        let self_call_docs = self.call_docs.read().await;
-        let mut call_docs = CallDocuments::new();
-        for (call_id, doc) in self_call_docs.iter() {
-            let doc = doc.lock().await.fork().await?;
-            call_docs.insert(call_id.clone(), Mutex::new(doc));
-        }
-        let call_docs = Arc::new(RwLock::new(call_docs));
+        // Fields that need to be forked
 
         let (kernels, kernels_restarted) = self
             .kernels
@@ -472,7 +455,6 @@ impl Document {
             &project,
             &format,
             &root,
-            &call_docs,
             &addresses,
             &tags,
             &graph,
@@ -496,7 +478,6 @@ impl Document {
             content: Default::default(),
 
             root,
-            call_docs,
             addresses,
             tags,
             graph,
@@ -1138,8 +1119,6 @@ impl Document {
     ///
     /// - `addresses`: The [`AddressMap`] to be updated
     ///
-    /// - `call_docs`:  The [`CallableMap`] of `Document` for each `Call` to be updated
-    ///
     /// - `patch_sender`: A [`PatchRequest`] channel to send patches describing the changes to
     ///                   assembled nodes
     ///
@@ -1161,7 +1140,6 @@ impl Document {
         project: &Path,
         root: &Arc<RwLock<Node>>,
         address_map: &Arc<RwLock<AddressMap>>,
-        call_docs: &Arc<RwLock<CallDocuments>>,
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         compile_sender: &mpsc::Sender<CompileRequest>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
@@ -1206,28 +1184,10 @@ impl Document {
                 request_ids.iter().join(",")
             );
 
-            // Assemble the root node
-            match assemble(path, root, call_docs, patch_sender).await {
+            // Assemble the root node and update the address_map
+            match assemble(path, root, patch_sender).await {
                 Ok(new_address_map) => {
-                    // Update the address map
                     *address_map.write().await = new_address_map;
-
-                    /*
-                    // Ensure that each `Call` node has a `Document` for when it is executed
-                    let mut call_docs = call_docs.write().await;
-                    for (call_id, (doc_path, doc_format)) in call_map {
-                        let signature = [
-                            doc_path.to_string_lossy().as_ref(),
-                            doc_format.as_deref().unwrap_or(""),
-                        ]
-                        .concat();
-                        if !call_docs.has_signature(&call_id, &signature) {
-                            let callable =
-                                Box::new(Document::open(doc_path, doc_format).await.unwrap());
-                            call_docs.insert(call_id, signature, callable);
-                        }
-                    }
-                    */
                 }
                 Err(error) => tracing::error!("While assembling document `{}`: {}", id, error),
             };
@@ -1396,7 +1356,6 @@ impl Document {
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
         tags: &Arc<RwLock<TagMap>>,
-        call_docs: &Arc<RwLock<CallDocuments>>,
         graph: &Arc<RwLock<Graph>>,
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
@@ -1440,17 +1399,7 @@ impl Document {
             );
 
             // Compile the root node
-            match compile(
-                path,
-                project,
-                root,
-                addresses,
-                tags,
-                call_docs,
-                patch_sender,
-            )
-            .await
-            {
+            match compile(path, project, root, addresses, tags, patch_sender).await {
                 Ok(new_graph) => {
                     *graph.write().await = new_graph;
                 }
@@ -1591,8 +1540,6 @@ impl Document {
     ///
     /// - `kernel_space`:  The [`KernelSpace`] to use for execution
     ///
-    /// - `call_docs`:  The [`Document`]s to call for each `Call` node
-    ///
     /// - `patch_sender`: A [`PatchRequest`] channel sender to send patches describing the changes to
     ///                   executed nodes
     ///
@@ -1613,7 +1560,6 @@ impl Document {
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<RwLock<KernelSpace>>,
-        call_docs: &Arc<RwLock<CallDocuments>>,
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         write_sender: &mpsc::UnboundedSender<WriteRequest>,
         cancel_receiver: &mut mpsc::Receiver<CancelRequest>,
@@ -1719,7 +1665,6 @@ impl Document {
                 addresses,
                 tags,
                 kernel_space,
-                call_docs,
                 patch_sender,
                 cancel_receiver,
             )

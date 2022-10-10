@@ -16,7 +16,7 @@ use node_address::AddressMap;
 use stencila_schema::Node;
 
 use crate::{
-    document::{CallDocuments, Document},
+    document::Document,
     messages::{
         AssembleRequest, CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, Response,
         WriteRequest,
@@ -31,7 +31,6 @@ impl Document {
         project: &Path,
         format: &FormatSpec,
         root: &Arc<RwLock<Node>>,
-        call_docs: &Arc<RwLock<CallDocuments>>,
         addresses: &Arc<RwLock<AddressMap>>,
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
@@ -104,7 +103,6 @@ impl Document {
         let project_clone = project.to_path_buf();
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
-        let call_docs_clone = call_docs.clone();
         let patch_sender_clone = patch_request_sender.clone();
         let compile_sender_clone = compile_request_sender.clone();
         let execute_sender_clone = execute_request_sender.clone();
@@ -117,7 +115,6 @@ impl Document {
                 &project_clone,
                 &root_clone,
                 &addresses_clone,
-                &call_docs_clone,
                 &patch_sender_clone,
                 &compile_sender_clone,
                 &execute_sender_clone,
@@ -134,7 +131,6 @@ impl Document {
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
         let tags_clone = tags.clone();
-        let call_docs_clone = call_docs.clone();
         let graph_clone = graph.clone();
         let patch_sender_clone = patch_request_sender.clone();
         let execute_sender_clone = execute_request_sender.clone();
@@ -148,7 +144,6 @@ impl Document {
                 &root_clone,
                 &addresses_clone,
                 &tags_clone,
-                &call_docs_clone,
                 &graph_clone,
                 &patch_sender_clone,
                 &execute_sender_clone,
@@ -167,7 +162,6 @@ impl Document {
         let tags_clone = tags.clone();
         let graph_clone = graph.clone();
         let kernels_clone = kernels.clone();
-        let call_docs_clone = call_docs.clone();
         let patch_sender_clone = patch_request_sender.clone();
         let response_sender_clone = response_sender.clone();
         tokio::spawn(async move {
@@ -180,7 +174,6 @@ impl Document {
                 &tags_clone,
                 &graph_clone,
                 &kernels_clone,
-                &call_docs_clone,
                 &patch_sender_clone,
                 &write_request_sender,
                 &mut cancel_request_receiver,

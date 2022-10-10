@@ -68,7 +68,6 @@ impl Executable for CodeChunk {
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         is_fork: bool,
-        //_call_docs: &CallDocuments,
     ) -> Result<Option<TaskInfo>> {
         let id = assert_id!(self)?;
         tracing::trace!(
