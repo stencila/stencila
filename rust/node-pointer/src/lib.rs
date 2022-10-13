@@ -109,7 +109,7 @@ impl<'lt> Pointer<'lt> {
             Pointer::Inline(node) => node.to_node(),
             Pointer::Block(node) => node.to_node(),
             Pointer::Node(node) => node.to_node(),
-            _ => bail!("Invalid node pointer: {:?}", self),
+            _ => bail!("Invalid pointer variant: {:?}", self),
         })
     }
 }
