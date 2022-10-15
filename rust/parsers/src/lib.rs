@@ -62,7 +62,9 @@ macro_rules! dispatch_builtins {
             Format::JavaScript => Some(parser_js::JsParser::$method($($arg),*)),
             #[cfg(feature = "parser-json")]
             Format::Json => Some(parser_json::JsonParser::$method($($arg),*)),
-            #[cfg(feature = "parser-prql")]
+            #[cfg(feature = "parser-json5")]
+            Format::Json5 => Some(parser_json5::Json5Parser::$method($($arg),*)),
+           #[cfg(feature = "parser-prql")]
             Format::PrQL => Some(parser_prql::PrqlParser::$method($($arg),*)),
             #[cfg(feature = "parser-py")]
             Format::Python => Some(parser_py::PyParser::$method($($arg),*)),
@@ -99,6 +101,8 @@ impl Parsers {
             ("js", parser_js::JsParser::spec()),
             #[cfg(feature = "parser-json")]
             ("json", parser_json::JsonParser::spec()),
+            #[cfg(feature = "parser-json5")]
+            ("json5", parser_json5::Json5Parser::spec()),
             #[cfg(feature = "parser-py")]
             ("prql", parser_prql::PrqlParser::spec()),
             #[cfg(feature = "parser-py")]

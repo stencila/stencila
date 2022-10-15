@@ -27,7 +27,7 @@ macro_rules! primitive_to_txt {
     ($type:ty) => {
         impl ToTxt for $type {
             fn to_txt(&self) -> String {
-                json5::to_string(self).expect("Should always convert to JSON5")
+                codec::common::json5::to_string(self).expect("Should always convert to JSON5")
             }
         }
     };
