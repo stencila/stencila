@@ -1,12 +1,13 @@
-use std::{collections::BTreeMap, sync::Arc};
+use std::{collections::BTreeMap, path::PathBuf, sync::Arc};
 
+use common::itertools::Itertools;
 use formats::Format;
 use parser::{
     common::{
         eyre::{bail, Result},
         once_cell::sync::Lazy,
     },
-    graph_triples::{Resource, ResourceInfo},
+    graph_triples::{resources, Resource, ResourceInfo},
     ParserTrait,
 };
 
@@ -17,8 +18,26 @@ pub use parser::Parser;
 // detail of having a static list of parsers. They are intended as the
 // only public interface for this crate.
 
+/// Parse a code resource
 pub fn parse(resource: Resource, code: &str) -> Result<ResourceInfo> {
     PARSERS.parse(resource, code)
+}
+
+/// Parse some code in a given language
+pub fn parse_language(language: Format, code: &str) -> Result<ResourceInfo> {
+    PARSERS.parse(
+        resources::code(&PathBuf::from("<string>"), "", "", language),
+        code,
+    )
+}
+
+/// List the languages supported by registered parsers
+pub fn languages() -> Vec<Format> {
+    PARSERS
+        .inner
+        .values()
+        .map(|parser| parser.language)
+        .collect_vec()
 }
 
 /// The set of registered parsers in the current process
@@ -41,6 +60,8 @@ macro_rules! dispatch_builtins {
             Format::Calc => Some(parser_calc::CalcParser::$method($($arg),*)),
             #[cfg(feature = "parser-js")]
             Format::JavaScript => Some(parser_js::JsParser::$method($($arg),*)),
+            #[cfg(feature = "parser-json")]
+            Format::Json => Some(parser_json::JsonParser::$method($($arg),*)),
             #[cfg(feature = "parser-prql")]
             Format::PrQL => Some(parser_prql::PrqlParser::$method($($arg),*)),
             #[cfg(feature = "parser-py")]
@@ -76,6 +97,8 @@ impl Parsers {
             ("calc", parser_calc::CalcParser::spec()),
             #[cfg(feature = "parser-js")]
             ("js", parser_js::JsParser::spec()),
+            #[cfg(feature = "parser-json")]
+            ("json", parser_json::JsonParser::spec()),
             #[cfg(feature = "parser-py")]
             ("prql", parser_prql::PrqlParser::spec()),
             #[cfg(feature = "parser-py")]
