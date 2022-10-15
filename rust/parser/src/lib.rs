@@ -37,6 +37,6 @@ pub trait ParserTrait {
     /// Get the [`Parser`] specification
     fn spec() -> Parser;
 
-    /// Parse a `Resource::Code` object into a [`ResourceInfo`] object
+    /// Parse a [`Resource::Code`] object into a [`ResourceInfo`] object
     fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo>;
 }

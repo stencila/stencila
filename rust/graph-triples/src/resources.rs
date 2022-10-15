@@ -87,6 +87,7 @@ impl Resource {
             None,
             None,
             None,
+            None,
             Some(self.digest()),
             None,
             None,
@@ -437,6 +438,9 @@ pub struct ResourceInfo {
     /// will be inferred from its `relations`.
     pub execute_pure: Option<bool>,
 
+    /// For code resources, whether the code had syntax errors when it was last parsed
+    pub syntax_errors: Option<bool>,
+
     /// The [`ResourceDigest`] of the resource when it was last compiled
     pub compile_digest: Option<ResourceDigest>,
 
@@ -464,6 +468,7 @@ impl ResourceInfo {
             depth: None,
             execute_auto: None,
             execute_pure: None,
+            syntax_errors: None,
             compile_digest: None,
             execute_digest: None,
             execute_failed: None,
@@ -472,11 +477,13 @@ impl ResourceInfo {
     }
 
     /// Create a new `ResourceInfo` object
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         resource: Resource,
         relations: Option<Pairs>,
         execute_auto: Option<ExecuteAuto>,
         execute_pure: Option<bool>,
+        syntax_errors: Option<bool>,
         compile_digest: Option<ResourceDigest>,
         execute_digest: Option<ResourceDigest>,
         execute_failed: Option<bool>,
@@ -489,6 +496,7 @@ impl ResourceInfo {
             depth: None,
             execute_auto,
             execute_pure,
+            syntax_errors,
             compile_digest,
             execute_digest,
             execute_failed,

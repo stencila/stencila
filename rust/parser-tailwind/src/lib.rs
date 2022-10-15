@@ -46,6 +46,8 @@ impl ParserTrait for TailwindParser {
     }
 
     fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
+        let syntax_errors = transpile_string(code).is_err().then_some(true);
+
         let relations = VAR_REGEX
             .captures_iter(code)
             .map(|captures| {
@@ -67,6 +69,7 @@ impl ParserTrait for TailwindParser {
             Some(relations),
             None,
             None,
+            syntax_errors,
             Some(compile_digest),
             None,
             None,

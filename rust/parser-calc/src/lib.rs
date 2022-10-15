@@ -38,6 +38,9 @@ impl ParserTrait for CalcParser {
         // The semantic content of the code (includes the language name and ignores comments)
         let mut semantics = Self::spec().language.to_string();
         let mut comments = Vec::new();
+        let mut syntax_errors = None;
+        let parser = fasteval::Parser::new();
+        let mut slab = fasteval::Slab::new();
         let relations = code
             .split('\n')
             .enumerate()
@@ -65,6 +68,12 @@ impl ParserTrait for CalcParser {
                 } else {
                     (0, line)
                 };
+
+                // Parse the expression using fasteval to check there is no syntax errors in expression
+                if let Err(..) = parser.parse(expr, &mut slab.ps) {
+                    syntax_errors = Some(true);
+                    return pairs;
+                }
 
                 // Parse line for uses of variables
                 for captures in VAR_REGEX.captures_iter(expr) {
@@ -94,6 +103,7 @@ impl ParserTrait for CalcParser {
             Some(relations),
             None,
             None,
+            syntax_errors,
             Some(ResourceDigest::from_strings(code, Some(&semantics))),
             None,
             None,
