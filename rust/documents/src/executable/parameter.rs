@@ -74,7 +74,7 @@ impl Executable for Parameter {
     /// `Timestamp`s and `DateTime`s.
     ///
     /// By definition, a `Parameter` is always "impure" (has a side effect).
-    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
 
         // Add a resource for the parameter itself
@@ -110,7 +110,8 @@ impl Executable for Parameter {
             resource,
             Some(relations),
             None,
-            Some(false), // Always impure because affects the kernel space
+            Some(false), // Always impure because affects the kernel space,
+            None,
             Some(compile_digest),
             self.execute_digest
                 .as_ref()

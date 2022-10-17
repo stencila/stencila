@@ -7,7 +7,6 @@ use graph_triples::{
 };
 
 use node_address::Address;
-use node_patch::produce;
 
 use stencila_schema::{
     AudioObject, AudioObjectSimple, ImageObject, ImageObjectSimple, MediaObject, VideoObject,
@@ -82,7 +81,7 @@ macro_rules! executable_media_object {
                 Ok(())
             }
 
-            async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+            async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
                 let id = assert_id!(self)?;
                 let resource = resources::node(&context.path, &id, stringify!($type));
 
@@ -93,16 +92,20 @@ macro_rules! executable_media_object {
                     let url = url.strip_prefix("file://").unwrap_or(&url);
                     resources::file(&Path::new(&url))
                 };
+                self.content_url = url;
+
                 let relations = vec![(Relation::Embed, object)];
-
-                let resource_info =
-                    ResourceInfo::new(resource, Some(relations), None, None, None, None, None);
+                let resource_info = ResourceInfo::new(
+                    resource,
+                    Some(relations),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                );
                 context.resource_infos.push(resource_info);
-
-                let patch = produce(self, Some(id.clone()), None, |draft| {
-                    draft.content_url = url.clone();
-                });
-                context.patches.push(patch);
 
                 Ok(())
             }

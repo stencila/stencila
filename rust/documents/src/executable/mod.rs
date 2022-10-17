@@ -1,7 +1,6 @@
 use std::{collections::HashMap, path::PathBuf};
 
 use common::{async_trait::async_trait, eyre::Result};
-use formats::Format;
 use graph_triples::{ResourceInfo, TagMap};
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, AddressMap};
@@ -9,9 +8,15 @@ use node_patch::Patch;
 
 /// Trait for executable document nodes
 ///
-/// This trait is implemented below for all (or at least most) node types.
+/// This trait is implemented below for all (or at least, most) node types.
 #[async_trait]
 pub trait Executable {
+    /// Assemble a node
+    ///
+    /// Should ensure that the node has a id and that its address is registered
+    /// against that id. The resulting `AddressMap` allows the use of pointers
+    /// to reach in to the node tree and compile or execute a node when needed
+    /// and potentially in a different order to how they appear in the tree.
     async fn assemble(
         &mut self,
         _address: &mut Address,
@@ -20,7 +25,8 @@ pub trait Executable {
         Ok(())
     }
 
-    async fn compile(&self, _context: &mut CompileContext) -> Result<()> {
+    /// Compile a node
+    async fn compile(&mut self, _context: &mut CompileContext) -> Result<()> {
         Ok(())
     }
 
@@ -35,6 +41,10 @@ pub trait Executable {
     }
 
     async fn execute_end(&mut self, _task_info: TaskInfo, _task_result: TaskResult) -> Result<()> {
+        Ok(())
+    }
+
+    async fn execute(&mut self, _context: &mut ExecuteContext) -> Result<()> {
         Ok(())
     }
 }
@@ -105,13 +115,16 @@ macro_rules! register_id {
 macro_rules! assert_id {
     ($node:expr) => {
         $node.id.as_deref().ok_or_else(|| {
-            common::eyre::eyre!("Node should have had an `id` assigned in the assemble phase")
+            common::eyre::eyre!(
+                "Node of type `{}` does not have an id",
+                std::any::type_name::<Self>()
+            )
         })
     };
 }
 
-#[derive(Debug, Default)]
-pub struct CompileContext {
+#[derive(Debug)]
+pub struct CompileContext<'lt> {
     /// The path of the document being compiled
     ///
     /// Used to resolve relative paths e.g. in `ImageObject` nodes
@@ -122,43 +135,22 @@ pub struct CompileContext {
     /// Used to restrict any file links to be within the project.
     pub project: PathBuf,
 
-    /// The programming language of the last code node encountered during
-    /// compilation
-    pub programming_language: Format,
+    /// The document's kernel space
+    ///
+    /// Used to guess programming languages from syntax and variables used
+    pub kernel_space: &'lt KernelSpace,
 
     /// A list of resources compiled from the nodes
     pub resource_infos: Vec<ResourceInfo>,
 
     /// Any global tags defined in code chunks
-    pub global_tags: TagMap,
-
-    /// A list of patch operations representing changes to nodes.
-    pub patches: Vec<Patch>,
+    pub global_tags: TagMap
 }
 
-/// Set the programming of a node or of the context
-///
-/// Ok, bad name but it's like `ensure_id!`: if the node does
-/// not have a `programming_language` then we'll use the context's
-/// and if it does than we'll set the context's.
-#[macro_export]
-macro_rules! ensure_lang {
-    ($node:expr, $context:expr) => {
-        if $node.programming_language.is_empty() {
-            match $context.programming_language {
-                formats::Format::Unknown => String::new(),
-                _ => $context.programming_language.spec().title,
-            }
-        } else {
-            let format = formats::match_name(&$node.programming_language);
-            $context.programming_language = format;
-            format.spec().title
-        }
-    };
+#[derive(Debug)]
+pub struct ExecuteContext<'lt> {
+    kernel_space: &'lt KernelSpace,
 }
-
-#[derive(Debug, Default)]
-pub struct ExecuteContext {}
 
 mod button;
 mod call;
@@ -167,6 +159,7 @@ mod code_expression;
 mod division;
 mod for_;
 mod form;
+mod generics;
 mod if_;
 mod include;
 mod link;

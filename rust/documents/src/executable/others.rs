@@ -2,18 +2,15 @@ use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
 };
-use graph_triples::{
-    ResourceInfo,
-};
+use graph_triples::ResourceInfo;
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
-use node_pointer::{Pointer};
 
 use stencila_schema::*;
 
 use crate::{
-    executable::{AssembleContext, CompileContext, Executable},
+    executable::{AssembleContext, CompileContext, Executable, ExecuteContext},
     register_id,
 };
 
@@ -104,8 +101,12 @@ impl Executable for Node {
         dispatch_node!(self, Box::pin(async { Ok(()) }), assemble, address, context).await
     }
 
-    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         dispatch_node!(self, Box::pin(async { Ok(()) }), compile, context).await
+    }
+
+    async fn execute(&mut self, context: &mut ExecuteContext) -> Result<()> {
+        dispatch_node!(self, Box::pin(async { Ok(()) }), execute, context).await
     }
 
     async fn execute_begin(
@@ -151,8 +152,12 @@ macro_rules! executable_enum {
                 $dispatch_macro!(self, assemble, address, context).await
             }
 
-            async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+            async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
                 $dispatch_macro!(self, compile, context).await
+            }
+
+            async fn execute(&mut self, context: &mut ExecuteContext) -> Result<()> {
+                $dispatch_macro!(self, execute, context).await
             }
 
             async fn execute_begin(
@@ -188,73 +193,6 @@ executable_enum!(CreativeWorkTypes, dispatch_work);
 executable_enum!(BlockContent, dispatch_block);
 executable_enum!(InlineContent, dispatch_inline);
 
-// The following implementations of `Executable` for generic types, only implement `assemble`
-// to "collect up" `Executable` children into the `AssembleContext`.
-
-#[async_trait]
-impl<T> Executable for Option<T>
-where
-    T: Executable + Send + Sync,
-{
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        match self {
-            Some(value) => value.assemble(address, context).await,
-            None => Ok(()),
-        }
-    }
-}
-
-#[async_trait]
-impl<T> Executable for Box<T>
-where
-    T: Executable + Send + Sync,
-{
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        (**self).assemble(address, context).await
-    }
-}
-
-#[async_trait]
-impl<T> Executable for Vec<T>
-where
-    T: Executable + Send + Sync,
-{
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        for (index, item) in self.iter_mut().enumerate() {
-            address.push_back(Slot::Index(index));
-            item.assemble(address, context).await?;
-            address.pop_back();
-        }
-        Ok(())
-    }
-}
-
-/// Implementation of `Executable` for `Pointer` allowing us to execute nodes in an address map
-#[async_trait]
-impl<'lt> Executable for Pointer<'lt> {
-    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
-        match self {
-            Pointer::Inline(inline) => inline.compile(context).await,
-            Pointer::Block(block) => block.compile(context).await,
-            Pointer::Node(node) => node.compile(context).await,
-            Pointer::Work(work) => work.compile(context).await,
-            _ => bail!("Unhandled pointer variant {:?}", self),
-        }
-    }
-}
-
 /// Implementation of `Executable` for various fields of a struct
 macro_rules! executable_fields {
     ($type:ty $(, $field:ident)* ) => {
@@ -265,6 +203,13 @@ macro_rules! executable_fields {
                     address.push_back(Slot::Name(stringify!($field).to_string()));
                     self.$field.assemble(address, context).await?;
                     address.pop_back();
+                )*
+                Ok(())
+            }
+
+            async fn execute(&mut self, context: &mut ExecuteContext) -> Result<()> {
+                $(
+                    self.$field.execute(context).await?;
                 )*
                 Ok(())
             }

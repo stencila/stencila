@@ -9,12 +9,9 @@ use kernels::{KernelSelector, KernelSpace, TaskInfo};
 use node_address::Address;
 use stencila_schema::{Button, Cord, ExecuteRequired, Node, Timestamp};
 
-use crate::{
-    assert_id,
-    register_id,
-};
+use crate::{assert_id, register_id};
 
-use super::{AssembleContext, CompileContext, Executable};
+use super::{AssembleContext, CompileContext, Executable, ExecuteContext};
 
 #[async_trait]
 impl Executable for Button {
@@ -39,7 +36,7 @@ impl Executable for Button {
     ///
     /// By definition, a `Parameter` is always "impure" (has a side effect of setting a variable)
     /// and is assumed to always succeed.
-    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
 
         let resource = resources::code(&context.path, id, "Button", Format::Json);
@@ -59,11 +56,30 @@ impl Executable for Button {
             relations,
             None,
             execute_pure,
+            None,
             compile_digest,
             execute_digest,
             execute_failed,
         );
         context.resource_infos.push(resource_info);
+
+        Ok(())
+    }
+
+    async fn execute(&mut self, context: &mut ExecuteContext) -> Result<()> {
+        tracing::trace!("Executing button with id `{:?}`", self.id);
+
+        // Calculate the current timestamp and set it in the kernel space
+        let value = Timestamp::now();
+        let kernel_id = context
+            .kernel_space
+            .set(
+                &self.name,
+                Node::Timestamp(value.clone()),
+                &KernelSelector::from_lang_and_tags(Some("json"), None),
+            )
+            .await?;
+        self.execute_kernel = Some(Box::new(kernel_id));
 
         Ok(())
     }
@@ -80,7 +96,7 @@ impl Executable for Button {
         _is_fork: bool,
     ) -> Result<Option<TaskInfo>> {
         let id = assert_id!(self)?;
-        tracing::trace!("Executing Button `{id}`");
+        tracing::trace!("Execute begin for `{id}`");
 
         // Calculate the current timestamp and set it in the kernel space
         let value = Timestamp::now();

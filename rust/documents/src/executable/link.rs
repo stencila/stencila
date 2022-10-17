@@ -6,9 +6,7 @@ use graph_triples::{
 
 use node_address::Address;
 use path_utils::merge;
-use stencila_schema::{
-    Link,
-};
+use stencila_schema::Link;
 
 use crate::{
     assert_id,
@@ -27,7 +25,7 @@ impl Executable for Link {
         Ok(())
     }
 
-    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
         let resource = resources::node(&context.path, id, "Link");
 
@@ -39,8 +37,16 @@ impl Executable for Link {
         };
         let relations = vec![(Relation::Links, object)];
 
-        let resource_info =
-            ResourceInfo::new(resource, Some(relations), None, None, None, None, None);
+        let resource_info = ResourceInfo::new(
+            resource,
+            Some(relations),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        );
         context.resource_infos.push(resource_info);
 
         Ok(())

@@ -1,10 +1,12 @@
 use common::{async_trait::async_trait, eyre::Result, tracing};
+use formats::Format;
 use graph_triples::{
     resources::{self, ResourceDigest},
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::Address;
+use node_patch::produce;
 use stencila_schema::{CodeExpression, Cord, Duration, ExecuteRequired, ExecuteStatus, Timestamp};
 
 use crate::{assert_id, register_id};
@@ -30,9 +32,16 @@ impl Executable for CodeExpression {
     ///
     /// A `CodeExpression` is assumed to be pure (i.e. have no side effects and can be executed
     /// in a fork).
-    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
-        let lang = ensure_lang!(self, context);
+
+        // Guess language if specified or necessary
+        if matches!(self.guess_language, Some(true)) || self.programming_language.is_empty() {
+            self.programming_language = context
+                .kernel_space
+                .guess_language(&self.text, Format::Unknown, None, None)
+                .to_string();
+        };
 
         // Generate `ResourceInfo` by parsing the code. If there is a passing error
         // still generate resource info but do not generate errors since the user may
@@ -41,7 +50,7 @@ impl Executable for CodeExpression {
             &context.path,
             id,
             "CodeExpression",
-            formats::match_name(&lang),
+            formats::match_name(&self.programming_language),
         );
         let mut resource_info = match parsers::parse(resource.clone(), &self.text) {
             Ok(resource_info) => resource_info,

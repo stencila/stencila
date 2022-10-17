@@ -30,7 +30,7 @@ impl Executable for SoftwareSourceCode {
         Ok(())
     }
 
-    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
 
         if let (Some(code), Some(language)) =

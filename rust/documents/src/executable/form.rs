@@ -12,10 +12,7 @@ use graph_triples::{
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
 use node_address::Address;
 
-use stencila_schema::{
-    CodeError, Cord, ExecuteRequired, Form,
-    FormDeriveAction, Node, Timestamp,
-};
+use stencila_schema::{CodeError, Cord, ExecuteRequired, Form, FormDeriveAction, Node, Timestamp};
 
 use crate::{
     assert_id,
@@ -52,7 +49,7 @@ impl Executable for Form {
     /// Compile a `Form` node
     ///
     /// Adds a resource to the context so that the form can be executed.
-    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
 
         let resource = resources::code(&context.path, id, "Form", Format::Unknown);
@@ -78,6 +75,7 @@ impl Executable for Form {
             relations,
             None,
             execute_pure,
+            None,
             compile_digest,
             execute_digest,
             execute_failed,

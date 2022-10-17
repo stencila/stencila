@@ -1,4 +1,5 @@
 use common::{async_trait::async_trait, eyre::Result, tracing};
+use formats::Format;
 use graph_triples::{
     resources::{self, ResourceDigest},
     ResourceInfo,
@@ -27,14 +28,26 @@ impl Executable for CodeChunk {
     /// Performs semantic analysis of the code (if language is supported) and adds the resulting
     /// relations to the compilation context. If the `programming_language` is an empty string
     /// then use the current language of the context.
-    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
-        let lang = ensure_lang!(self, context);
+
+        // Guess language if specified or necessary
+        if matches!(self.guess_language, Some(true)) || self.programming_language.is_empty() {
+            self.programming_language = context
+                .kernel_space
+                .guess_language(&self.text, Format::Unknown, None, None)
+                .to_string();
+        };
 
         // Generate `ResourceInfo` by parsing the code. If there is a passing error
         // still generate resource info but do not generate errors since the user may
         // still be in the process of writing code
-        let resource = resources::code(&context.path, id, "CodeChunk", formats::match_name(&lang));
+        let resource = resources::code(
+            &context.path,
+            id,
+            "CodeChunk",
+            formats::match_name(&self.programming_language),
+        );
         let mut resource_info = match parsers::parse(resource.clone(), &self.text) {
             Ok(resource_info) => resource_info,
             Err(..) => ResourceInfo::default(resource),

@@ -37,7 +37,7 @@ impl Executable for Division {
     }
 
     /// Compile a `Division`
-    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
 
         let lang = match self.programming_language.is_empty() {
@@ -80,6 +80,7 @@ impl Executable for Division {
         // the content is styled prior to execution
         let no_dependencies = resource_info.dependencies.is_none();
         if lang == Format::Tailwind && no_dependencies {
+            /*
             let patch = match parser_tailwind::transpile_string(&self.text) {
                 Ok(css) => {
                     // On success, update both `css` and `errors`
@@ -99,7 +100,7 @@ impl Executable for Division {
                     })
                 }
             };
-            context.patches.push(patch);
+            */
         }
 
         context.resource_infos.push(resource_info);

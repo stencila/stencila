@@ -34,7 +34,7 @@ impl Executable for Call {
         Ok(())
     }
 
-    async fn compile(&self, _context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, _context: &mut CompileContext) -> Result<()> {
         let _id = assert_id!(self)?;
 
         /*

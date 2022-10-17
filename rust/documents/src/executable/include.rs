@@ -91,7 +91,7 @@ impl Executable for Include {
         Ok(())
     }
 
-    async fn compile(&self, context: &mut CompileContext) -> Result<()> {
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
 
         // Add resource relations to the context
@@ -105,6 +105,7 @@ impl Executable for Include {
             Some(relations),
             self.execute_auto.clone(),
             Some(true), // Never has side effects
+            None,
             Some(digest),
             None,
             None,
@@ -112,7 +113,7 @@ impl Executable for Include {
         context.resource_infos.push(resource_info);
 
         // Compile any included content
-        if let Some(content) = &self.content {
+        if let Some(content) = &mut self.content {
             content.compile(context).await?
         }
 
