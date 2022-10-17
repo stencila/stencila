@@ -286,7 +286,8 @@ pub fn match_name(name: &str) -> Format {
     let name = name.to_lowercase();
     for format in Format::iter() {
         let spec = format.spec();
-        if name == spec.title.to_lowercase()
+        if name == format.to_string().to_lowercase()
+            || name == spec.title.to_lowercase()
             || name == spec.extension
             || spec.aliases.contains(&name)
         {
