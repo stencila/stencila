@@ -294,12 +294,10 @@ export default class StencilaCodeEditor extends StencilaElement {
         ...defaultKeymap,
       ]),
 
-      // Extension to emit an event when code changes
+      // Extension to emit an event when code changes (if not in read-only mode)
       EditorView.updateListener.of((update) => {
-        if (update.docChanged && !this.codeUpdating) {
-          this.emit('stencila-code-content-change', {
-            ops: updateToOps(update, [this.propertyName]),
-          })
+        if (!this.readOnly && update.docChanged && !this.codeUpdating) {
+          this.emitOperations(...updateToOps(update, [this.propertyName]))
         }
       }),
 
@@ -355,6 +353,14 @@ export default class StencilaCodeEditor extends StencilaElement {
       extensions: ['r'],
       async load() {
         return import('codemirror-lang-r').then((m) => m.r())
+      },
+    }),
+    // Use custom grammar for Tailwind
+    LanguageDescription.of({
+      name: 'Tailwind',
+      extensions: ['tw'],
+      async load() {
+        return import('codemirror-lang-tailwind').then((m) => m.tailwind())
       },
     }),
     ...languages,
@@ -441,6 +447,13 @@ export default class StencilaCodeEditor extends StencilaElement {
   }
 
   /**
+   * Get the current content of the editor
+   */
+  public getCode(): string {
+    return this.editorView?.state.doc.toString() ?? ''
+  }
+
+  /**
    * Dispatch a CodeMirror `StateEffect` to the editor
    */
   private dispatchEffect(effect: StateEffect<unknown>) {
@@ -515,7 +528,6 @@ export default class StencilaCodeEditor extends StencilaElement {
           to: docState.doc.length,
           insert: content,
         },
-        selection: this.editorView!.state.selection,
       }) ?? {}
     this.codeUpdating = false
 
@@ -569,6 +581,8 @@ export default class StencilaCodeEditor extends StencilaElement {
     return html`<div
       class="${tw(
         css`
+          @apply w-full;
+
           ${varLocal(
             'border-style',
             'border-width',
