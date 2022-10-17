@@ -1,26 +1,27 @@
 use std::{collections::HashMap, path::Path, sync::Arc};
 
 use common::{
-    eyre::Result,
+    eyre::{Context, Result},
     itertools::Itertools,
     tokio::sync::{mpsc::UnboundedSender, RwLock},
     tracing,
 };
 use graph::Graph;
 use graph_triples::{resources, Resource, TagMap};
+use kernels::KernelSpace;
 use node_address::AddressMap;
-use node_patch::diff_address;
-use node_pointer::resolve;
+use node_patch::{diff, diff_address};
+use node_pointer::{resolve, resolve_mut};
 use path_utils::path_slash::PathBufExt;
 use stencila_schema::{
-    Call, CodeChunk, CodeExpression, Division, ExecutableCodeDependencies,
-    ExecutableCodeDependents, ExecuteRequired, File, Include, Node, Parameter, Span, Button,
+    Button, Call, CodeChunk, CodeExpression, Division, ExecutableCodeDependencies,
+    ExecutableCodeDependents, ExecuteRequired, File, Include, Node, Parameter, Span,
 };
 
 use crate::{
     executable::{CompileContext, Executable},
     messages::{PatchRequest, When},
-    utils::send_patches,
+    utils::{send_patch, send_patches},
 };
 
 /// Compile a node, usually the `root` node of a document
@@ -50,6 +51,8 @@ use crate::{
 /// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
 ///                  included in the plan within the `root` node; takes a read lock)
 ///
+/// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
+///
 /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
 ///                   executed nodes
 pub async fn compile(
@@ -58,31 +61,44 @@ pub async fn compile(
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
     tag_map: &Arc<RwLock<TagMap>>,
+    kernel_space: &Arc<RwLock<KernelSpace>>,
     patch_sender: &UnboundedSender<PatchRequest>,
 ) -> Result<Graph> {
     let root = root.read().await;
     let address_map = address_map.read().await;
+    let kernel_space = kernel_space.read().await;
 
     // Call compile on each node in the address map
     let mut context = CompileContext {
         path: path.into(),
         project: project.into(),
-        ..Default::default()
+        kernel_space: &*kernel_space,
+        resource_infos: Vec::default(),
+        global_tags: TagMap::default(),
     };
+    let mut patches = Vec::new();
     for (id, address) in address_map.iter() {
         let pointer = resolve(&*root, Some(address.clone()), Some(id.clone()))?;
-        pointer.compile(&mut context).await?;
+
+        let before = pointer.to_node()?;
+        let mut after = pointer.to_node()?;
+        after.compile(&mut context).await?;
+
+        let mut patch = diff(&before, &after);
+        match &mut patch.address {
+            Some(patch_address) => patch_address.prepend(address),
+            None => patch.address = Some(address.clone()),
+        }
+        patches.push(patch);
     }
-    let resource_infos = context.resource_infos;
+    send_patches(patch_sender, patches, When::Never);
 
     // Update the document's global tag map with those from those collected by the compile context
     *tag_map.write().await = context.global_tags;
 
-    // Send any generated patches
-    send_patches(patch_sender, context.patches, When::Never);
-
     // Construct a new `Graph` from the collected `ResourceInfo`s and get an updated
     // set of resource infos from it (with data on inter-dependencies etc)
+    let resource_infos = context.resource_infos;
     let graph = Graph::from_resource_infos(path, resource_infos)?;
 
     // Generate patches for properties that can only be derived from the graph (i.e. those based on inter-dependencies)

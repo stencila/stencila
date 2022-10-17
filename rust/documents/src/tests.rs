@@ -21,7 +21,6 @@ use test_snaps::{fixtures, insta::assert_json_snapshot, snapshot_set_suffix};
 use crate::{
     assemble::assemble,
     compile::compile,
-    document::CallDocuments,
     execute::execute,
     messages::{CancelRequest, PatchRequest},
 };

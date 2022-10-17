@@ -1337,6 +1337,8 @@ impl Document {
     ///
     /// - `graph`:  The [`Graph`] to be updated
     ///
+    /// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
+    ///
     /// - `patch_sender`: A [`PatchRequest`] channel to send patches describing the changes to
     ///                   compiled nodes
     ///
@@ -1357,6 +1359,7 @@ impl Document {
         addresses: &Arc<RwLock<AddressMap>>,
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
+        kernel_space: &Arc<RwLock<KernelSpace>>,
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
         write_sender: &mpsc::UnboundedSender<WriteRequest>,
@@ -1399,7 +1402,17 @@ impl Document {
             );
 
             // Compile the root node
-            match compile(path, project, root, addresses, tags, patch_sender).await {
+            match compile(
+                path,
+                project,
+                root,
+                addresses,
+                tags,
+                kernel_space,
+                patch_sender,
+            )
+            .await
+            {
                 Ok(new_graph) => {
                     *graph.write().await = new_graph;
                 }

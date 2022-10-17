@@ -132,6 +132,7 @@ impl Document {
         let addresses_clone = addresses.clone();
         let tags_clone = tags.clone();
         let graph_clone = graph.clone();
+        let kernels_clone = kernels.clone();
         let patch_sender_clone = patch_request_sender.clone();
         let execute_sender_clone = execute_request_sender.clone();
         let write_sender_clone = write_request_sender.clone();
@@ -145,6 +146,7 @@ impl Document {
                 &addresses_clone,
                 &tags_clone,
                 &graph_clone,
+                &kernels_clone,
                 &patch_sender_clone,
                 &execute_sender_clone,
                 &write_sender_clone,
