@@ -23,7 +23,9 @@ use kernel::{
     },
     formats::Format,
     graph_triples::ResourceChange,
-    stencila_schema::{CodeError, Datatable, Node},
+    stencila_schema::{
+        BlockContent, CodeChunk, CodeError, Datatable, Form, InlineContent, Node, Paragraph,
+    },
     Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
 
@@ -380,7 +382,8 @@ impl KernelTrait for SqlKernel {
             .expect("connect() should ensure connection");
         let url = self.url.as_ref().expect("connect() should ensure URL");
 
-        if what.to_lowercase() == "parameter" {
+        let what = what.to_lowercase();
+        if what == "parameter" {
             let column =
                 column.ok_or_else(|| eyre!("A column name is required in derive from path"))?;
             let table =
@@ -398,7 +401,7 @@ impl KernelTrait for SqlKernel {
                 }
             };
             Ok(vec![Node::Parameter(parameter)])
-        } else if what.to_lowercase() == "parameters" {
+        } else if what == "parameters" {
             let table =
                 table.ok_or_else(|| eyre!("A table name is required in derive from path"))?;
             let schema = schema.map(|string| string.as_str());
@@ -412,6 +415,69 @@ impl KernelTrait for SqlKernel {
                 }
             };
             Ok(parameters.into_iter().map(Node::Parameter).collect())
+        } else if what.starts_with("form") {
+            let parts: Vec<_> = what.splitn(2, ':').collect();
+            let action = parts.get(1);
+
+            let table =
+                table.ok_or_else(|| eyre!("A table name is required in derive from path"))?;
+            let schema = schema.map(|string| string.as_str());
+
+            let parameters = match pool {
+                MetaPool::Duck(pool) => duck::table_to_parameters(url, pool, table, schema).await?,
+                MetaPool::Postgres(pool) => {
+                    postgres::table_to_parameters(url, pool, table, schema).await?
+                }
+                MetaPool::Sqlite(pool) => {
+                    sqlite::table_to_parameters(url, pool, table, schema).await?
+                }
+            };
+
+            let columns = parameters
+                .iter()
+                .map(|param| param.name.to_string())
+                .collect_vec();
+            let params = parameters
+                .iter()
+                .map(|param| ["$", &param.name].concat())
+                .collect_vec();
+            let mut content: Vec<BlockContent> = parameters
+                .into_iter()
+                .map(|param| {
+                    BlockContent::Paragraph(Paragraph {
+                        content: vec![InlineContent::Parameter(param)],
+                        ..Default::default()
+                    })
+                })
+                .collect();
+            if let Some(action) = action {
+                let sql = match *action {
+                    "create" => {
+                        format!("INSERT INTO \"{table}\"\nVALUES ({});", params.join(", "))
+                    }
+                    "update" => {
+                        let sets = columns
+                            .iter()
+                            .map(|column| [column, " = $", column].concat())
+                            .join("\n");
+                        format!("UPDATE \"{table}\" SET {} WHERE ...;", sets)
+                    }
+                    "delete" => format!("DELETE FROM \"{table}\"\nWHERE ...;"),
+                    _ => format!("-- Unknown form action '{action}'"),
+                };
+                content.push(BlockContent::CodeChunk(CodeChunk {
+                    programming_language: "sql".to_string(),
+                    text: sql,
+                    ..Default::default()
+                }))
+            }
+
+            let form = Form {
+                content,
+                ..Default::default()
+            };
+
+            Ok(vec![Node::Form(form)])
         } else {
             bail!("Do not know how to derive `{}` from database", what)
         }
@@ -423,8 +489,10 @@ impl KernelTrait for SqlKernel {
             Format::PrQL => match prql_compiler::compile(code) {
                 Ok(sql) => sql,
                 Err(error) => {
+                    let (message, ..) = prql_compiler::format_error(error, "<code>", code, false);
+
                     let mut task = Task::begin_sync();
-                    task.end(TaskResult::syntax_error(&error.to_string()));
+                    task.end(TaskResult::syntax_error(&message));
                     return Ok(task);
                 }
             },
