@@ -388,6 +388,9 @@ impl Operation {
             u32
             i32
             f32
+
+            // Used for vectors of vectors of blocks in `For` iterations
+            Vec<BlockContent>
         );
 
         // The value may be a JSON value (if this patch was sent from a client).
@@ -506,6 +509,8 @@ impl Operation {
             } else if let Ok(nodes) = serde_json::from_value::<ListItem>(value.clone()) {
                 nodes.to_html(&mut context)
             } else if let Ok(nodes) = serde_json::from_value::<Vec<ListItem>>(value.clone()) {
+                nodes.to_html(&mut context)
+            } else if let Ok(nodes) = serde_json::from_value::<IfClause>(value.clone()) {
                 nodes.to_html(&mut context)
             } else if let Ok(nodes) = serde_json::from_value::<ValidatorTypes>(value.clone()) {
                 nodes.to_html(&mut context)

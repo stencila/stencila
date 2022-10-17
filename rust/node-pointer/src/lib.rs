@@ -1,4 +1,4 @@
-use common::eyre::{bail, Result};
+use common::eyre::{bail, eyre, Result};
 use node_transform::Transform;
 use stencila_schema::{BlockContent, CreativeWorkTypes, InlineContent, Node};
 
@@ -15,7 +15,16 @@ pub fn resolve<Type: Pointable>(
     id: Option<String>,
 ) -> Result<Pointer> {
     if let Some(mut address) = address {
-        let pointer = node.resolve(&mut address)?;
+        let pointer = if cfg!(debug_assertions) {
+            // During development provide better error reporting
+            // It is necessary to capture display of address before it gets mutated in resolve
+            let address_display = address.to_string();
+            node.resolve(&mut address).map_err(|error| {
+                eyre!("While attempting to resolve address `{address_display}`: {error}")
+            })?
+        } else {
+            node.resolve(&mut address)?
+        };
         match pointer {
             Pointer::None => bail!("Unable to find node with address `{}`", address),
             _ => Ok(pointer),

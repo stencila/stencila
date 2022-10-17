@@ -84,8 +84,11 @@ patchable_node_variants!(
     Node::Duration
     Node::Emphasis
     Node::Figure
+    Node::For
+    Node::Form
     Node::Heading
     Node::ImageObject
+    Node::If
     Node::Include
     Node::Integer
     Node::Link

@@ -225,9 +225,11 @@ patchable_struct!(
     For,
     id,
     symbol,
-    expression,
+    text,
+    programming_language,
     content,
     otherwise,
+    iterations,
     code_dependents,
     compile_digest,
     execute_digest,
@@ -242,6 +244,9 @@ patchable_struct!(
 patchable_struct!(
     Form,
     id,
+    derive_from,
+    derive_action,
+    derive_item,
     content,
     code_dependents,
     compile_digest,
@@ -254,13 +259,17 @@ patchable_struct!(
     errors,
 );
 
+patchable_enum!(FormDeriveAction);
+patchable_variants!(
+    FormDeriveItem,
+    FormDeriveItem::Integer,
+    FormDeriveItem::String
+);
+
 patchable_struct!(
     If,
     id,
-    condition,
-    content,
-    alternatives,
-    otherwise,
+    clauses,
     code_dependents,
     compile_digest,
     execute_digest,
@@ -269,6 +278,14 @@ patchable_struct!(
     execute_status,
     execute_ended,
     execute_duration,
+);
+patchable_struct!(
+    IfClause,
+    text,
+    programming_language,
+    guess_language,
+    is_active,
+    content,
     errors,
 );
 
