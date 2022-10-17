@@ -945,6 +945,51 @@ impl KernelSpace {
         symbols.clone()
     }
 
+    /// Guess the language of some code based on syntax and symbols used
+    ///
+    /// Attempts to parse the code using each parser and will return the language
+    /// which parses successfully and which has the most number of symbols (involved
+    /// in relations) that are resident in the corresponding kernel.
+    pub fn guess_language(
+        &self,
+        code: &str,
+        fallback: Format,
+        include: Option<&[Format]>,
+        exclude: Option<&[Format]>,
+    ) -> Format {
+        // Languages in order of increasing permissiveness of parsers
+        let include = include.unwrap_or(&[
+            Format::Json5,
+            Format::Json,
+            Format::PrQL,
+            Format::SQL,
+            Format::Calc,
+            Format::JavaScript,
+            Format::Python,
+            Format::Tailwind,
+            Format::R, // The R parser seems to be very permissive (generates few (no?) errors)
+            Format::Bash,
+            Format::Zsh,
+        ]);
+        let exclude = exclude.map_or_else(Vec::new, Vec::from);
+        let alternatives = include.iter().filter(|lang| !exclude.contains(lang));
+
+        if code.is_empty() {
+            return fallback;
+        }
+
+        // TODO check against existing kernels and variables in them
+        for language in alternatives {
+            if let Ok(resource_info) = parsers::parse_language(*language, code) {
+                if resource_info.syntax_errors.is_none() {
+                    return *language;
+                }
+            }
+        }
+
+        fallback
+    }
+
     /// Start a kernel
     pub async fn start(&self, selector: &KernelSelector) -> Result<KernelId> {
         let kernels = &mut *self.kernels.lock().await;
@@ -1037,19 +1082,27 @@ impl KernelSpace {
     }
 
     /// Derive one or more nodes from a symbol in the kernel space
-    pub async fn derive(&self, what: &str, from: &str) -> Result<Vec<Node>> {
+    ///
+    /// Determine's the home kernel for the `from` symbol and dispatches a `derive()`
+    /// call to that kernel.
+    ///
+    /// Returns a tuple of the kernel id and the derived nodes.
+    pub async fn derive(&self, what: &str, from: &str) -> Result<(String, Vec<Node>)> {
+        tracing::trace!("Deriving `{what}` from `{from}`");
+
         let parts: Vec<&str> = from.splitn(2, '.').collect();
         let symbol = parts[0];
         let symbols = &mut *self.symbols.lock().await;
         let symbol_info = symbols
             .get(symbol)
             .ok_or_else(|| eyre!("Unknown symbol to derive from `{}`", symbol))?;
+        let kernel_id = symbol_info.home.clone();
 
         let kernels = &mut *self.kernels.lock().await;
-        let kernel = kernels.get_mut(&symbol_info.home)?;
+        let kernel = kernels.get_mut(&kernel_id)?;
 
         let nodes = kernel.derive(what, from).await?;
-        Ok(nodes)
+        Ok((kernel_id, nodes))
     }
 
     /// Execute some code in the kernel space
