@@ -1,33 +1,16 @@
 title: If
 '@id': stencila:If
-category: text
+category: code
 description: Show and execute alternative content conditional upon an executed expression
 role: primary
 status: unstable
 extends: Executable
 properties:
-  condition:
-    '@id': stencila:condition
-    description: An expression that evaluates to an array of items to be iterated over
-    $ref: CodeExpression
-  content:
-    '@id': stencila:content
-    description: The content to show and execute if the condition evaluates to true
+  clauses:
+    '@id': 'stencila:clauses'
+    description: The clauses making up the `If` node
     type: array
     items:
-      $ref: BlockContent
-  alternatives:
-    '@id': stencila:alternatives
-    description: Alternatives if clauses which will be evaluated if the condition evaluates to false
-    type: array
-    items:
-      $ref: If
-  otherwise:
-    '@id': stencila:otherwise
-    description: Content to show and execute if the condition, and all the alternatives, evaluate to false
-    type: array
-    items:
-      $ref: BlockContent
+      $ref: IfClause
 required:
-  - condition
-  - content
+  - clauses

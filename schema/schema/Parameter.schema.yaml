@@ -39,7 +39,7 @@ properties:
       document that are already represented in the URL of the document.
   derivedFrom:
     '@id': stencila:derivedFrom
-    description: The dotted path to the object that the parameter should be derived from
+    description: The dotted path to the object (e.g. a database table column) that the parameter should be derived from
     type: string
 required:
   - name

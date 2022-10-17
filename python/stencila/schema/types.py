@@ -18,6 +18,8 @@ ECitationMode = Enum("CitationMode", ["Parenthetical", "Narrative", "NarrativeAu
 
 EClaimType = Enum("ClaimType", ["Statement", "Theorem", "Lemma", "Proof", "Postulate", "Hypothesis", "Proposition", "Corollary"])
 
+EDeriveAction = Enum("DeriveAction", ["Create", "Update", "Delete"])
+
 EItemListOrder = Enum("ItemListOrder", ["Ascending", "Descending", "Unordered"])
 
 ENoteType = Enum("NoteType", ["Footnote", "Endnote", "Sidenote"])
@@ -263,10 +265,10 @@ class Executable(Entity):
     `CodeExpression`, `Call`).
     """
 
-    codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None
+    codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None
     """The upstream dependencies."""
 
-    codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None
+    codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None
     """The downstream dependents."""
 
     compileDigest: Optional[String] = None
@@ -302,8 +304,8 @@ class Executable(Entity):
 
     def __init__(
         self,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -347,6 +349,57 @@ class Executable(Entity):
             self.executeStatus = executeStatus
 
 
+class Button(Executable):
+    """A button."""
+
+    name: String
+    """The name of the variable associated with the button."""
+
+    label: Optional[String] = None
+    """A label for the button"""
+
+
+    def __init__(
+        self,
+        name: String,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
+        compileDigest: Optional[String] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["ExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
+        executeKernel: Optional[String] = None,
+        executeRequired: Optional["ExecuteRequired"] = None,
+        executeStatus: Optional["ExecuteStatus"] = None,
+        id: Optional[String] = None,
+        label: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            errors=errors,
+            executeAuto=executeAuto,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeKernel=executeKernel,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
+            id=id,
+            meta=meta
+        )
+        if name is not None:
+            self.name = name
+        if label is not None:
+            self.label = label
+
+
 class CodeExecutable(Executable):
     """
     Base type for executable code nodes (i.e. `CodeChunk` and
@@ -359,6 +412,9 @@ class CodeExecutable(Executable):
     text: String
     """The text of the code."""
 
+    guessLanguage: Optional[Boolean] = None
+    """Whether the programming language of the code should be guessed based on syntax and variables used"""
+
     mediaType: Optional[String] = None
     """Media type, typically expressed using a MIME format, of the code."""
 
@@ -367,8 +423,8 @@ class CodeExecutable(Executable):
         self,
         programmingLanguage: String,
         text: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -379,6 +435,7 @@ class CodeExecutable(Executable):
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
+        guessLanguage: Optional[Boolean] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
         meta: Optional[Object] = None
@@ -403,6 +460,8 @@ class CodeExecutable(Executable):
             self.programmingLanguage = programmingLanguage
         if text is not None:
             self.text = text
+        if guessLanguage is not None:
+            self.guessLanguage = guessLanguage
         if mediaType is not None:
             self.mediaType = mediaType
 
@@ -428,8 +487,8 @@ class CodeChunk(CodeExecutable):
         programmingLanguage: String,
         text: String,
         caption: Optional[Union[Array["BlockContent"], String]] = None,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -441,6 +500,7 @@ class CodeChunk(CodeExecutable):
         executePure: Optional[Boolean] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
+        guessLanguage: Optional[Boolean] = None,
         id: Optional[String] = None,
         label: Optional[String] = None,
         mediaType: Optional[String] = None,
@@ -462,6 +522,7 @@ class CodeChunk(CodeExecutable):
             executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
+            guessLanguage=guessLanguage,
             id=id,
             mediaType=mediaType,
             meta=meta
@@ -487,8 +548,8 @@ class CodeExpression(CodeExecutable):
         self,
         programmingLanguage: String,
         text: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -499,6 +560,7 @@ class CodeExpression(CodeExecutable):
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
+        guessLanguage: Optional[Boolean] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
         meta: Optional[Object] = None,
@@ -519,6 +581,7 @@ class CodeExpression(CodeExecutable):
             executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
+            guessLanguage=guessLanguage,
             id=id,
             mediaType=mediaType,
             meta=meta
@@ -546,8 +609,8 @@ class Include(Executable):
     def __init__(
         self,
         source: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         content: Optional[Array["BlockContent"]] = None,
         errors: Optional[Array["CodeError"]] = None,
@@ -604,8 +667,8 @@ class Call(Include):
         self,
         source: String,
         arguments: Optional[Array["CallArgument"]] = None,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         content: Optional[Array["BlockContent"]] = None,
         errors: Optional[Array["CodeError"]] = None,
@@ -656,7 +719,7 @@ class Parameter(Executable):
     """The default value of the parameter."""
 
     derivedFrom: Optional[String] = None
-    """The dotted path to the object that the parameter should be derived from"""
+    """The dotted path to the object (e.g. a database table column) that the parameter should be derived from"""
 
     hidden: Optional[Boolean] = None
     """Whether the parameter should be hidden."""
@@ -671,8 +734,8 @@ class Parameter(Executable):
     def __init__(
         self,
         name: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         default: Optional[Any] = None,
         derivedFrom: Optional[String] = None,
@@ -731,8 +794,8 @@ class CallArgument(Parameter):
     def __init__(
         self,
         name: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         default: Optional[Any] = None,
         derivedFrom: Optional[String] = None,
@@ -2157,8 +2220,8 @@ class Styled(CodeExecutable):
         css: String,
         programmingLanguage: String,
         text: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -2169,6 +2232,7 @@ class Styled(CodeExecutable):
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
+        guessLanguage: Optional[Boolean] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
         meta: Optional[Object] = None
@@ -2188,6 +2252,7 @@ class Styled(CodeExecutable):
             executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
+            guessLanguage=guessLanguage,
             id=id,
             mediaType=mediaType,
             meta=meta
@@ -2212,8 +2277,8 @@ class Division(Styled):
         css: String,
         programmingLanguage: String,
         text: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -2224,6 +2289,7 @@ class Division(Styled):
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
+        guessLanguage: Optional[Boolean] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
         meta: Optional[Object] = None
@@ -2245,6 +2311,7 @@ class Division(Styled):
             executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
+            guessLanguage=guessLanguage,
             id=id,
             mediaType=mediaType,
             meta=meta
@@ -2550,17 +2617,17 @@ class File(CreativeWork):
             self.path = path
 
 
-class For(Executable):
+class For(CodeExecutable):
     """Repeat a block content for each item in an array"""
 
     content: Array["BlockContent"]
     """The content to repeat for each item"""
 
-    expression: "CodeExpression"
-    """An expression that evaluates to an array of items to be iterated over"""
-
     symbol: String
     """The name to give to the variable representing each item in the iterated array"""
+
+    iterations: Optional[Array[Array["BlockContent"]]] = None
+    """The content repeated for each iteration"""
 
     otherwise: Optional[Array["BlockContent"]] = None
     """The content to render if there are no items"""
@@ -2569,10 +2636,11 @@ class For(Executable):
     def __init__(
         self,
         content: Array["BlockContent"],
-        expression: "CodeExpression",
+        programmingLanguage: String,
         symbol: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        text: String,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -2583,9 +2651,79 @@ class For(Executable):
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
+        guessLanguage: Optional[Boolean] = None,
         id: Optional[String] = None,
+        iterations: Optional[Array[Array["BlockContent"]]] = None,
+        mediaType: Optional[String] = None,
         meta: Optional[Object] = None,
         otherwise: Optional[Array["BlockContent"]] = None
+    ) -> None:
+        super().__init__(
+            programmingLanguage=programmingLanguage,
+            text=text,
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            errors=errors,
+            executeAuto=executeAuto,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeKernel=executeKernel,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
+            guessLanguage=guessLanguage,
+            id=id,
+            mediaType=mediaType,
+            meta=meta
+        )
+        if content is not None:
+            self.content = content
+        if symbol is not None:
+            self.symbol = symbol
+        if iterations is not None:
+            self.iterations = iterations
+        if otherwise is not None:
+            self.otherwise = otherwise
+
+
+class Form(Executable):
+    """A form to batch updates in document parameters"""
+
+    content: Array["BlockContent"]
+    """The content within the form, usually containing at least one `Parameter`."""
+
+    deriveAction: Optional["EDeriveAction"] = None
+    """The action (create, update or delete) to derive for the form"""
+
+    deriveFrom: Optional[String] = None
+    """The dotted path to the object (e.g a database table) that the form should be derived from"""
+
+    deriveItem: Optional[Union[Integer, String]] = None
+    """An identifier for the item to be the target of Update or Delete actions"""
+
+
+    def __init__(
+        self,
+        content: Array["BlockContent"],
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
+        compileDigest: Optional[String] = None,
+        deriveAction: Optional["EDeriveAction"] = None,
+        deriveFrom: Optional[String] = None,
+        deriveItem: Optional[Union[Integer, String]] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["ExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
+        executeKernel: Optional[String] = None,
+        executeRequired: Optional["ExecuteRequired"] = None,
+        executeStatus: Optional["ExecuteStatus"] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             codeDependencies=codeDependencies,
@@ -2605,12 +2743,12 @@ class For(Executable):
         )
         if content is not None:
             self.content = content
-        if expression is not None:
-            self.expression = expression
-        if symbol is not None:
-            self.symbol = symbol
-        if otherwise is not None:
-            self.otherwise = otherwise
+        if deriveAction is not None:
+            self.deriveAction = deriveAction
+        if deriveFrom is not None:
+            self.deriveFrom = deriveFrom
+        if deriveItem is not None:
+            self.deriveItem = deriveItem
 
 
 class Function(Entity):
@@ -2721,26 +2859,15 @@ class If(Executable):
     expression
     """
 
-    condition: "CodeExpression"
-    """An expression that evaluates to an array of items to be iterated over"""
-
-    content: Array["BlockContent"]
-    """The content to show and execute if the condition evaluates to true"""
-
-    alternatives: Optional[Array["If"]] = None
-    """Alternatives if clauses which will be evaluated if the condition evaluates to false"""
-
-    otherwise: Optional[Array["BlockContent"]] = None
-    """Content to show and execute if the condition, and all the alternatives, evaluate to false"""
+    clauses: Array["IfClause"]
+    """The clauses making up the `If` node"""
 
 
     def __init__(
         self,
-        condition: "CodeExpression",
-        content: Array["BlockContent"],
-        alternatives: Optional[Array["If"]] = None,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        clauses: Array["IfClause"],
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -2752,8 +2879,7 @@ class If(Executable):
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
         id: Optional[String] = None,
-        meta: Optional[Object] = None,
-        otherwise: Optional[Array["BlockContent"]] = None
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             codeDependencies=codeDependencies,
@@ -2771,14 +2897,67 @@ class If(Executable):
             id=id,
             meta=meta
         )
-        if condition is not None:
-            self.condition = condition
+        if clauses is not None:
+            self.clauses = clauses
+
+
+class IfClause(CodeExecutable):
+    """A clause within a `If` node"""
+
+    content: Array["BlockContent"]
+    """The content to render if the result is true-thy"""
+
+    isActive: Optional[Boolean] = None
+    """Whether this clause is the active clause in the parent `If` node"""
+
+
+    def __init__(
+        self,
+        content: Array["BlockContent"],
+        programmingLanguage: String,
+        text: String,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
+        compileDigest: Optional[String] = None,
+        errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["ExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
+        executeDigest: Optional[String] = None,
+        executeDuration: Optional["Duration"] = None,
+        executeEnded: Optional["Timestamp"] = None,
+        executeKernel: Optional[String] = None,
+        executeRequired: Optional["ExecuteRequired"] = None,
+        executeStatus: Optional["ExecuteStatus"] = None,
+        guessLanguage: Optional[Boolean] = None,
+        id: Optional[String] = None,
+        isActive: Optional[Boolean] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None
+    ) -> None:
+        super().__init__(
+            programmingLanguage=programmingLanguage,
+            text=text,
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
+            compileDigest=compileDigest,
+            errors=errors,
+            executeAuto=executeAuto,
+            executeCount=executeCount,
+            executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeKernel=executeKernel,
+            executeRequired=executeRequired,
+            executeStatus=executeStatus,
+            guessLanguage=guessLanguage,
+            id=id,
+            mediaType=mediaType,
+            meta=meta
+        )
         if content is not None:
             self.content = content
-        if alternatives is not None:
-            self.alternatives = alternatives
-        if otherwise is not None:
-            self.otherwise = otherwise
+        if isActive is not None:
+            self.isActive = isActive
 
 
 class ImageObject(MediaObject):
@@ -4449,8 +4628,8 @@ class Span(Styled):
         css: String,
         programmingLanguage: String,
         text: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "File", "Parameter"]]] = None,
-        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "Span", "File"]]] = None,
+        codeDependencies: Optional[Array[Union["Button", "CodeChunk", "File", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["Call", "CodeChunk", "CodeExpression", "Division", "If", "File", "For", "Span"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["ExecuteAuto"] = None,
@@ -4461,6 +4640,7 @@ class Span(Styled):
         executeKernel: Optional[String] = None,
         executeRequired: Optional["ExecuteRequired"] = None,
         executeStatus: Optional["ExecuteStatus"] = None,
+        guessLanguage: Optional[Boolean] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
         meta: Optional[Object] = None
@@ -4482,6 +4662,7 @@ class Span(Styled):
             executeKernel=executeKernel,
             executeRequired=executeRequired,
             executeStatus=executeStatus,
+            guessLanguage=guessLanguage,
             id=id,
             mediaType=mediaType,
             meta=meta
@@ -5527,13 +5708,13 @@ class TimeUnit(Enum):
 """
 Union type for valid block content.
 """
-BlockContent = Union["Call", "Claim", "CodeBlock", "CodeChunk", "Division", "Figure", "For", "Heading", "If", "Include", "List", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
+BlockContent = Union["Call", "Claim", "CodeBlock", "CodeChunk", "Division", "Figure", "For", "Form", "Heading", "If", "Include", "List", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
 
 
 """
 All type schemas that are derived from CodeExecutable
 """
-CodeExecutableTypes = Union["CodeExecutable", "CodeChunk", "CodeExpression", "Division", "Span", "Styled"]
+CodeExecutableTypes = Union["CodeExecutable", "CodeChunk", "CodeExpression", "Division", "For", "IfClause", "Span", "Styled"]
 
 
 """
@@ -5563,13 +5744,13 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Co
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "Division", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "For", "Function", "Grant", "Heading", "If", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Span", "Strikeout", "StringValidator", "Strong", "Styled", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Button", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "Division", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "For", "Form", "Function", "Grant", "Heading", "If", "IfClause", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Span", "Strikeout", "StringValidator", "Strong", "Styled", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
 All type schemas that are derived from Executable
 """
-ExecutableTypes = Union["Executable", "Call", "CallArgument", "CodeChunk", "CodeExecutable", "CodeExpression", "Division", "For", "If", "Include", "Parameter", "Span", "Styled"]
+ExecutableTypes = Union["Executable", "Button", "Call", "CallArgument", "CodeChunk", "CodeExecutable", "CodeExpression", "Division", "For", "Form", "If", "IfClause", "Include", "Parameter", "Span", "Styled"]
 
 
 """
@@ -5587,7 +5768,7 @@ IncludeTypes = Union["Include", "Call"]
 """
 Union type for valid inline content.
 """
-InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Parameter", "Quote", "Span", "Strikeout", "Strong", "Subscript", "Superscript", "Underline", "VideoObject", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration"]
+InlineContent = Union["AudioObject", "Button", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Parameter", "Quote", "Span", "Strikeout", "Strong", "Subscript", "Superscript", "Underline", "VideoObject", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration"]
 
 
 """
@@ -5612,7 +5793,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 Union type for all types of nodes in this schema, including primitives and
     entities
 """
-Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "Division", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "For", "Function", "Grant", "Heading", "If", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Span", "Strikeout", "StringValidator", "Strong", "Styled", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration", "Object", "Array"]
+Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Button", "Call", "CallArgument", "Cite", "CiteGroup", "Claim", "CodeBlock", "CodeChunk", "CodeError", "CodeExecutable", "CodeExpression", "CodeFragment", "CodeStatic", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DateTimeValidator", "DateValidator", "DefinedTerm", "Delete", "Directory", "Division", "DurationValidator", "Emphasis", "EnumValidator", "Enumeration", "Executable", "Figure", "File", "For", "Form", "Function", "Grant", "Heading", "If", "IfClause", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Span", "Strikeout", "StringValidator", "Strong", "Styled", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TimeValidator", "TimestampValidator", "TupleValidator", "Underline", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Date", "Time", "DateTime", "Timestamp", "Duration", "Object", "Array"]
 
 
 """

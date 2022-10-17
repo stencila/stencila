@@ -801,11 +801,8 @@ prop_compose! {
     ) -> BlockContent {
         BlockContent::For(For{
             symbol,
-            expression: CodeExpression {
-                programming_language,
-                text,
-                ..Default::default()
-            },
+            programming_language,
+            text,
             content,
             otherwise,
             ..Default::default()
@@ -828,34 +825,17 @@ prop_compose! {
 prop_compose! {
     /// Generate an If node
     pub fn if_(freedom: Freedom, exclude_types: Vec<String>)(
-        programming_language in prog_lang(freedom),
-        text in match freedom {
-            Freedom::Min => "text",
-            Freedom::Low => r"[A-Za-z0-9-_ ]+",
-            _ => any::<String>()
-        },
-        // Use Freedom::Min for nested block content to avoid stack overflow (using too much memory)
-        content in vec_block_content(Freedom::Min, exclude_types.clone()),
-        alternatives in of(vec(elif(freedom, exclude_types.clone()), size_range(1..5))),
-        otherwise in of(vec_block_content(Freedom::Min, exclude_types))
+        clauses in vec(elif(freedom, exclude_types.clone()), size_range(1..5)),
     ) -> BlockContent {
         BlockContent::If(If{
-            condition: CodeExpression {
-                programming_language,
-                text,
-                ..Default::default()
-            },
-            content,
-            alternatives,
-            otherwise,
+            clauses,
             ..Default::default()
         })
     }
 }
 
 prop_compose! {
-    /// Generate an If node to be an alternative in another if (can't have recursive props
-    /// and these lack `alternatives` and `otherwise`)
+    /// Generate an IfClause
     pub fn elif(freedom: Freedom, exclude_types: Vec<String>)(
         programming_language in prog_lang(freedom),
         text in match freedom {
@@ -863,14 +843,12 @@ prop_compose! {
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         },
+        // Use Freedom::Min for nested block content to avoid stack overflow (using too much memory)
         content in vec_block_content(Freedom::Min, exclude_types)
-    ) -> If {
-        If {
-            condition: CodeExpression {
-                programming_language,
-                text,
-                ..Default::default()
-            },
+    ) -> IfClause {
+        IfClause {
+            programming_language,
+            text,
             content,
             ..Default::default()
         }

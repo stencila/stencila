@@ -12,5 +12,23 @@ properties:
     type: array
     items:
       $ref: BlockContent
+  deriveFrom:
+    '@id': stencila:deriveFrom
+    description: The dotted path to the object (e.g a database table) that the form should be derived from
+    type: string
+  deriveAction:
+    '@id': stencila:deriveAction
+    description: The action (create, update or delete) to derive for the form
+    enum:
+      - Create
+      - Update
+      - Delete
+    default: Create
+  deriveItem:
+    '@id': stencila:deriveItem
+    description: An identifier for the item to be the target of Update or Delete actions
+    anyOf:
+      - type: integer
+      - type: string
 required:
   - content

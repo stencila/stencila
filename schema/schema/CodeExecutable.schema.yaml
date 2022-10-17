@@ -17,6 +17,10 @@ properties:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
+  guessLanguage:
+    '@id': stencila:guessLanguage
+    description: Whether the programming language of the code should be guessed based on syntax and variables used
+    type: boolean
   mediaType:
     '@id': schema:encodingFormat
     aliases:

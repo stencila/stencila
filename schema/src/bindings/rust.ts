@@ -135,6 +135,7 @@ const noBoxTypes = [
   'ExecuteAuto',
   'ExecuteRequired',
   'ExecuteStatus',
+  'FormDeriveAction',
   'ListOrder',
   'NoteNoteType',
   'SoftwareSessionStatus',

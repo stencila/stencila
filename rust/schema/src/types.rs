@@ -385,6 +385,9 @@ pub struct CodeExecutable {
     /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
 
+    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    pub guess_language: Option<Boolean>,
+
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
@@ -456,6 +459,9 @@ pub struct CodeChunk {
     /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
 
+    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    pub guess_language: Option<Boolean>,
+
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
@@ -526,6 +532,9 @@ pub struct CodeExpression {
 
     /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
+
+    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    pub guess_language: Option<Boolean>,
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
@@ -707,7 +716,7 @@ pub struct Parameter {
     /// The default value of the parameter.
     pub default: Option<Box<Node>>,
 
-    /// The dotted path to the object that the parameter should be derived from
+    /// The dotted path to the object (e.g. a database table column) that the parameter should be derived from
     pub derived_from: Option<Box<String>>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
@@ -781,7 +790,7 @@ pub struct CallArgument {
     /// The default value of the parameter.
     pub default: Option<Box<Node>>,
 
-    /// The dotted path to the object that the parameter should be derived from
+    /// The dotted path to the object (e.g. a database table column) that the parameter should be derived from
     pub derived_from: Option<Box<String>>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
@@ -2448,6 +2457,9 @@ pub struct Styled {
     /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
 
+    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    pub guess_language: Option<Boolean>,
+
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
@@ -2521,6 +2533,9 @@ pub struct Division {
 
     /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
+
+    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    pub guess_language: Option<Boolean>,
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
@@ -2935,11 +2950,14 @@ pub struct For {
     /// The content to repeat for each item
     pub content: Vec<BlockContent>,
 
-    /// An expression that evaluates to an array of items to be iterated over
-    pub expression: CodeExpression,
+    /// The programming language of the code.
+    pub programming_language: String,
 
     /// The name to give to the variable representing each item in the iterated array
     pub symbol: String,
+
+    /// The text of the code.
+    pub text: String,
 
     /// The upstream dependencies.
     pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
@@ -2977,9 +2995,18 @@ pub struct For {
     /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
 
+    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    pub guess_language: Option<Boolean>,
+
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
+
+    /// The content repeated for each iteration
+    pub iterations: Option<Vec<Vec<BlockContent>>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
 
     /// The content to render if there are no items
     pub otherwise: Option<Vec<BlockContent>>,
@@ -3011,6 +3038,15 @@ pub struct Form {
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<Box<Cord>>,
+
+    /// The action (create, update or delete) to derive for the form
+    pub derive_action: Option<FormDeriveAction>,
+
+    /// The dotted path to the object (e.g a database table) that the form should be derived from
+    pub derive_from: Option<Box<String>>,
+
+    /// An identifier for the item to be the target of Update or Delete actions
+    pub derive_item: Option<Box<FormDeriveItem>>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
@@ -3158,14 +3194,8 @@ pub struct If {
     #[derivative(Default(value = "If_::If"))]
     pub type_: If_,
 
-    /// An expression that evaluates to an array of items to be iterated over
-    pub condition: CodeExpression,
-
-    /// The content to show and execute if the condition evaluates to true
-    pub content: Vec<BlockContent>,
-
-    /// Alternatives if clauses which will be evaluated if the condition evaluates to false
-    pub alternatives: Option<Vec<If>>,
+    /// The clauses making up the `If` node
+    pub clauses: Vec<IfClause>,
 
     /// The upstream dependencies.
     pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
@@ -3206,14 +3236,85 @@ pub struct If {
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
-
-    /// Content to show and execute if the condition, and all the alternatives, evaluate to false
-    pub otherwise: Option<Vec<BlockContent>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum If_ {
   If
+}
+
+/// A clause within a `If` node
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct IfClause {
+    /// The name of this type
+    #[derivative(Default(value = "IfClause_::IfClause"))]
+    pub type_: IfClause_,
+
+    /// The content to render if the result is true-thy
+    pub content: Vec<BlockContent>,
+
+    /// The programming language of the code.
+    pub programming_language: String,
+
+    /// The text of the code.
+    pub text: String,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
+
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    pub guess_language: Option<Boolean>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Whether this clause is the active clause in the parent `If` node
+    pub is_active: Option<Boolean>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum IfClause_ {
+  IfClause
 }
 
 /// An image file.
@@ -5030,6 +5131,9 @@ pub struct Span {
     /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
 
+    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    pub guess_language: Option<Boolean>,
+
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
@@ -5827,10 +5931,10 @@ pub enum CitePageStart {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ExecutableCodeDependencies {
+    Button(Button),
     CodeChunk(CodeChunk),
     File(File),
     Parameter(Parameter),
-    Button(Button),
 }
 
 /// Types permitted for the `codeDependents` property of a `Executable` node.
@@ -5841,8 +5945,10 @@ pub enum ExecutableCodeDependents {
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
     Division(Division),
-    Span(Span),
+    If(If),
     File(File),
+    For(For),
+    Span(Span),
 }
 
 /// Types permitted for the `caption` property of a `CodeChunk` node.
@@ -6007,6 +6113,21 @@ pub enum DirectoryParts {
 #[serde(untagged)]
 pub enum FigureCaption {
     VecBlockContent(Vec<BlockContent>),
+    String(String),
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+pub enum FormDeriveAction {
+    Create,
+    Update,
+    Delete,
+}
+
+/// Types permitted for the `deriveItem` property of a `Form` node.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum FormDeriveItem {
+    Integer(Integer),
     String(String),
 }
 
@@ -6538,6 +6659,8 @@ pub enum CodeExecutableTypes {
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
     Division(Division),
+    For(For),
+    IfClause(IfClause),
     Span(Span),
     Styled(Styled),
 }
@@ -6642,6 +6765,7 @@ pub enum EntityTypes {
     Grant(Grant),
     Heading(Heading),
     If(If),
+    IfClause(IfClause),
     ImageObject(ImageObject),
     Include(Include),
     IntegerValidator(IntegerValidator),
@@ -6711,6 +6835,7 @@ pub enum ExecutableTypes {
     For(For),
     Form(Form),
     If(If),
+    IfClause(IfClause),
     Include(Include),
     Parameter(Parameter),
     Span(Span),
@@ -6855,6 +6980,7 @@ pub enum Node {
     Grant(Grant),
     Heading(Heading),
     If(If),
+    IfClause(IfClause),
     ImageObject(ImageObject),
     Include(Include),
     IntegerValidator(IntegerValidator),
