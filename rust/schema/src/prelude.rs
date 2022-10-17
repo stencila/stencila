@@ -336,6 +336,11 @@ impl From<chrono::DateTime<chrono::Utc>> for DateTime {
 }
 
 impl Timestamp {
+    // Get the `Timestamp` now
+    pub fn now() -> Self {
+        Self::from(chrono::Utc::now())
+    }
+
     /// Convert a timestamp to a `chrono::NaiveDateTime`
     pub fn to_chrono_datetime(
         &self,
