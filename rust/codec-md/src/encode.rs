@@ -153,7 +153,7 @@ impl ToMd for Parameter {
     fn to_md(&self, _options: &EncodeOptions) -> String {
         // If the parameter is derived, then only encode its name and what it is derived from
         if let Some(from) = self.derived_from.as_deref() {
-            return ["&[", &self.name, "]{from=", from.as_str(), "}"].concat();
+            return ["&[", &self.name, "]{from:", from.as_str(), "}"].concat();
         }
 
         let mut options = String::new();
@@ -165,82 +165,82 @@ impl ToMd for Parameter {
                 ValidatorTypes::EnumValidator(validator) => {
                     let json = serde_json::to_string(&validator.values)
                         .unwrap_or_else(|_| "[]".to_string());
-                    options += &["enum vals=", &escape(&json)].concat();
+                    options += &["enum vals:", &escape(&json)].concat();
                 }
                 ValidatorTypes::IntegerValidator(validator) => {
                     options += "int";
                     if let Some(min) = validator.minimum {
-                        options += " min=";
+                        options += " min:";
                         options += &min.to_string();
                     }
                     if let Some(max) = validator.maximum {
-                        options += " max=";
+                        options += " max:";
                         options += &max.to_string();
                     }
                     if let Some(mult) = validator.multiple_of {
-                        options += " mult=";
+                        options += " mult:";
                         options += &mult.to_string();
                     }
                 }
                 ValidatorTypes::NumberValidator(validator) => {
                     options += "num";
                     if let Some(min) = validator.minimum {
-                        options += " min=";
+                        options += " min:";
                         options += &min.to_string();
                     }
                     if let Some(max) = validator.maximum {
-                        options += " max=";
+                        options += " max:";
                         options += &max.to_string();
                     }
                     if let Some(mult) = validator.multiple_of {
-                        options += " mult=";
+                        options += " mult:";
                         options += &mult.to_string();
                     }
                 }
                 ValidatorTypes::StringValidator(validator) => {
                     options += "str";
                     if let Some(min) = validator.min_length {
-                        options += " min=";
+                        options += " min:";
                         options += &min.to_string();
                     }
                     if let Some(max) = validator.max_length {
-                        options += " max=";
+                        options += " max:";
                         options += &max.to_string();
                     }
                     if let Some(pattern) = validator.pattern.as_deref() {
-                        options += &[" pattern=\"", &escape(pattern), "\""].concat();
+                        options += &[" pattern:\"", &escape(pattern), "\""].concat();
                     }
                 }
                 ValidatorTypes::DateValidator(validator) => {
                     options += "date";
                     if let Some(min) = &validator.minimum {
-                        options += " min=";
+                        options += " min:";
                         options += &min.to_string();
                     }
                     if let Some(max) = &validator.maximum {
-                        options += " max=";
+                        options += " max:";
                         options += &max.to_string();
                     }
                 }
                 ValidatorTypes::TimeValidator(validator) => {
                     options += "time";
                     if let Some(min) = &validator.minimum {
-                        options += " min=";
+                        options += " min:";
                         options += &min.to_string();
                     }
                     if let Some(max) = &validator.maximum {
-                        options += " max=";
+                        options += " max:";
                         options += &max.to_string();
                     }
                 }
                 ValidatorTypes::DateTimeValidator(validator) => {
                     options += "datetime";
                     if let Some(min) = &validator.minimum {
-                        options += " min=";
+                        options += " min:";
                         options += &min.to_string();
                     }
                     if let Some(max) = &validator.maximum {
-                        options += " max=";
+                        options += " max:";
                         options += &max.to_string();
                     }
                 }
@@ -281,7 +281,7 @@ impl ToMd for Button {
                 let options = if label_as_name == self.name {
                     String::new()
                 } else {
-                    ["{name=", &self.name, "}"].concat()
+                    ["{name:", &self.name, "}"].concat()
                 };
                 (label.to_string(), options)
             }
@@ -546,15 +546,15 @@ impl ToMd for Include {
         let mut options = Vec::new();
 
         if let Some(media_type) = self.media_type.as_deref() {
-            options.push(["format=", media_type].concat())
+            options.push(["format:", media_type].concat())
         }
 
         if let Some(select) = self.select.as_deref() {
-            options.push(["select=", select].concat())
+            options.push(["select:", select].concat())
         }
 
         if let Some(execute_auto) = &self.execute_auto {
-            options.push(["autorun=", execute_auto.as_ref()].concat())
+            options.push(["autorun:", execute_auto.as_ref()].concat())
         }
 
         let attrs = if options.is_empty() {
@@ -580,15 +580,15 @@ impl ToMd for Call {
         let mut options = Vec::new();
 
         if let Some(media_type) = self.media_type.as_deref() {
-            options.push(["format=", media_type].concat())
+            options.push(["format:", media_type].concat())
         }
 
         if let Some(select) = self.select.as_deref() {
-            options.push(["select=", select].concat())
+            options.push(["select:", select].concat())
         }
 
         if let Some(execute_auto) = &self.execute_auto {
-            options.push(["autorun=", execute_auto.as_ref()].concat())
+            options.push(["autorun:", execute_auto.as_ref()].concat())
         }
 
         let attrs = if options.is_empty() {
@@ -670,7 +670,31 @@ impl ToMd for Form {
     fn to_md(&self, options: &EncodeOptions) -> String {
         let content = self.content.to_md(options);
 
-        ["::: form\n\n", &content, ":::\n\n"].concat()
+        let mut options = Vec::new();
+        if let Some(from) = &self.derive_from {
+            options.push(["from:", from].concat())
+        }
+        if let Some(action) = &self.derive_action {
+            options.push(["action:", &action.as_ref().to_lowercase()].concat())
+        }
+        if let Some(item) = &self.derive_item {
+            options.push(
+                [
+                    "item:",
+                    &match item.as_ref() {
+                        FormDeriveItem::Integer(int) => int.to_string(),
+                        FormDeriveItem::String(string) => string.clone(),
+                    },
+                ]
+                .concat(),
+            );
+        }
+        let options = match options.is_empty() {
+            true => String::new(),
+            false => [" {", &options.join(" "), "}"].concat(),
+        };
+
+        ["::: form", &options, "\n\n", &content, ":::\n\n"].concat()
     }
 }
 
@@ -678,12 +702,8 @@ impl ToMd for For {
     fn to_md(&self, options: &EncodeOptions) -> String {
         let Self {
             symbol,
-            expression:
-                CodeExpression {
-                    programming_language,
-                    text,
-                    ..
-                },
+            text,
+            programming_language,
             content,
             otherwise,
             ..
@@ -709,50 +729,49 @@ impl ToMd for For {
 
 impl ToMd for If {
     fn to_md(&self, options: &EncodeOptions) -> String {
-        let Self {
-            condition:
-                CodeExpression {
-                    programming_language,
-                    text,
-                    ..
-                },
-            content,
-            alternatives,
-            otherwise,
-            ..
-        } = self;
-
-        let mut begin = ["::: if ", text].concat();
-        if !programming_language.is_empty() {
-            begin.push_str(&[" {", programming_language, "}"].concat());
-        }
-        begin.push_str("\n\n");
-
-        let alts = alternatives
+        let clauses_count = self.clauses.len();
+        self.clauses
             .iter()
-            .flatten()
-            .map(|alternative| {
-                let md = alternative.to_md(options).replacen("::: if", "::: elif", 1);
-                md.strip_suffix(":::\n\n").unwrap_or(&md).to_string()
+            .enumerate()
+            .map(|(index, clause)| {
+                let text = if clause.text.contains('{') {
+                    ["`", &clause.text.replace('`', "\\`"), "`"].concat()
+                } else {
+                    clause.text.clone()
+                };
+
+                let curly_attrs = if !clause.programming_language.is_empty()
+                    && (clause.programming_language.to_lowercase() != "unknown")
+                    && !matches!(clause.guess_language, Some(true))
+                {
+                    [" {", &clause.programming_language, "}"].concat()
+                } else {
+                    String::new()
+                };
+
+                [
+                    "::: ",
+                    if index == 0 {
+                        "if"
+                    } else if index == clauses_count - 1 && clause.text.is_empty() {
+                        "else"
+                    } else {
+                        "elif"
+                    },
+                    " ",
+                    &text,
+                    &curly_attrs,
+                    "\n\n",
+                    clause.content.to_md(options).as_str(),
+                    if index == (clauses_count - 1) {
+                        ":::\n\n"
+                    } else {
+                        ""
+                    },
+                ]
+                .concat()
             })
-            .join("");
-
-        let otherwise = match otherwise.as_ref() {
-            Some(content) => match content.is_empty() {
-                true => String::new(),
-                false => ["::: else\n\n", &content.to_md(options)].concat(),
-            },
-            None => String::new(),
-        };
-
-        [
-            &begin,
-            &content.to_md(options),
-            &alts,
-            &otherwise,
-            ":::\n\n",
-        ]
-        .concat()
+            .join("")
     }
 }
 

@@ -24,6 +24,7 @@ use codec::{
     common::{
         eyre::{bail, Result},
         inflector::Inflector,
+        json5,
         once_cell::sync::Lazy,
         regex::Regex,
         serde_json, serde_yaml, tracing,
@@ -282,26 +283,24 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         blocks.push_div();
                         divs.push_back(BlockContent::Form(form));
                         None
-                    } else if let Ok((.., (true, if_))) = if_elif(trimmed) {
+                    } else if let Ok((.., (true, if_clause))) = if_elif(trimmed) {
                         blocks.push_div();
-                        divs.push_back(BlockContent::If(if_));
+                        divs.push_back(BlockContent::If(If {
+                            clauses: vec![if_clause],
+                            ..Default::default()
+                        }));
                         None
-                    } else if let Ok((.., (false, elif))) = if_elif(trimmed) {
+                    } else if let Ok((.., (false, if_clause))) = if_elif(trimmed) {
                         if let Some(BlockContent::If(if_)) = divs.back_mut() {
                             let content = blocks.pop_div();
-                            if let Some(alternatives) = &mut if_.alternatives {
-                                if let Some(last) = alternatives.last_mut() {
-                                    last.content = content;
-                                } else {
-                                    tracing::error!(
-                                        "Expected there to be at least one alternative already"
-                                    )
-                                }
-                                alternatives.push(elif);
+                            if let Some(last) = if_.clauses.last_mut() {
+                                last.content = content;
                             } else {
-                                if_.content = content;
-                                if_.alternatives = Some(vec![elif]);
+                                tracing::error!(
+                                    "Expected there to be at least one if clause already"
+                                )
                             }
+                            if_.clauses.push(if_clause);
 
                             blocks.push_div();
                             None
@@ -313,21 +312,32 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                             }))
                         }
                     } else if let Ok(..) = else_(trimmed) {
-                        blocks.push_div();
                         if let Some(div) = divs.back_mut() {
                             match div {
                                 // Create a placeholder to indicate that when the else finishes
                                 // the tail of blocks should be popped to the `otherwise` of the current
-                                // `For` or `If`
+                                // `For`
                                 BlockContent::For(for_) => {
                                     for_.otherwise = Some(Vec::new());
                                 }
+                                // Add a last clause of `If` with no text or language
                                 BlockContent::If(if_) => {
-                                    if_.otherwise = Some(Vec::new());
+                                    let content = blocks.pop_div();
+                                    if let Some(last) = if_.clauses.last_mut() {
+                                        last.content = content;
+                                    } else {
+                                        tracing::error!(
+                                            "Expected there to be at least one if clause already"
+                                        )
+                                    }
+                                    if_.clauses.push(IfClause::default());
                                 }
-                                _ => {}
+                                _ => {
+                                    tracing::warn!("Found an `::: else` without a preceding `::: if` or `::: for`");
+                                }
                             }
                         }
+                        blocks.push_div();
                         None
                     } else if let Ok((.., div)) = division(trimmed) {
                         blocks.push_div();
@@ -349,15 +359,13 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                                 BlockContent::Form(form)
                             }
                             BlockContent::If(mut if_) => {
-                                if_.otherwise = if_.otherwise.map(|_| blocks.pop_div());
-
                                 let content = blocks.pop_div();
-                                if let Some(last_alternative) =
-                                    if_.alternatives.iter_mut().flatten().last()
-                                {
-                                    last_alternative.content = content;
+                                if let Some(last_clause) = if_.clauses.iter_mut().last() {
+                                    last_clause.content = content;
                                 } else {
-                                    if_.content = content;
+                                    tracing::error!(
+                                        "Expected at least one if clause but there was none"
+                                    );
                                 }
 
                                 BlockContent::If(if_)
@@ -1353,7 +1361,9 @@ fn curly_attr(input: &str) -> IResult<&str, (String, Option<Node>)> {
             map(is_not(" =:}"), |name| (name, None)),
         )),
         |(name, value): (&str, Option<Node>)| -> Result<(String, Option<Node>)> {
-            Ok((name.to_snake_case(), value))
+            // Previously this used snake case by that was problematic for attributes such as "json5"
+            // (got converted to "json_5"). Instead, we replace dashes with underscores.
+            Ok((name.replace('-', "_"), value))
         },
     )(input)
 }
@@ -1665,23 +1675,17 @@ fn for_(input: &str) -> IResult<&str, For> {
                     tuple((multispace1, tag("in"), multispace1)),
                     is_not("{"),
                 ),
-                opt(curly_attrs),
+                opt(preceded(
+                    multispace0,
+                    delimited(char('{'), is_not("}"), char('}')),
+                )),
             )),
         )),
-        |((symbol, expr), options)| -> Result<For> {
-            let lang = options
-                .iter()
-                .flatten()
-                .next()
-                .map(|tuple| tuple.0.to_string())
-                .unwrap_or_default();
+        |((symbol, expr), lang)| -> Result<For> {
             Ok(For {
                 symbol,
-                expression: CodeExpression {
-                    programming_language: lang,
-                    text: expr.trim().to_string(),
-                    ..Default::default()
-                },
+                text: expr.trim().to_string(),
+                programming_language: lang.map_or_else(String::new, |lang| lang.trim().to_string()),
                 ..Default::default()
             })
         },
@@ -1691,38 +1695,82 @@ fn for_(input: &str) -> IResult<&str, For> {
 /// Parse a `Form` node
 fn form(input: &str) -> IResult<&str, Form> {
     map_res(
-        all_consuming(tuple((semis3plus, multispace0, tag("form"), multispace0))),
-        |_| -> Result<Form> { Ok(Form::default()) },
+        all_consuming(preceded(
+            tuple((semis3plus, multispace0, tag("form"), multispace0)),
+            opt(curly_attrs),
+        )),
+        |options| -> Result<Form> {
+            let mut options: HashMap<_, _> = options.unwrap_or_default().into_iter().collect();
+
+            let derive_from = options
+                .remove("from")
+                .and_then(|value| value)
+                .and_then(node_to_option_string)
+                .map(Box::new);
+
+            let derive_action = options
+                .remove("action")
+                .and_then(|value| value)
+                .and_then(node_to_option_string)
+                .and_then(|value| match value.to_lowercase().as_str() {
+                    "create" => Some(FormDeriveAction::Create),
+                    "update" => Some(FormDeriveAction::Update),
+                    "delete" => Some(FormDeriveAction::Delete),
+                    _ => None,
+                });
+
+            let derive_item = options
+                .remove("item")
+                .and_then(|value| value)
+                .and_then(|node| match node {
+                    Node::Integer(int) => Some(FormDeriveItem::Integer(int)),
+                    Node::String(string) => Some(FormDeriveItem::String(string)),
+                    _ => None,
+                })
+                .map(Box::new);
+
+            Ok(Form {
+                derive_from,
+                derive_action,
+                derive_item,
+                ..Default::default()
+            })
+        },
     )(input)
 }
 
-/// Parse an `if` or `elif` section
-fn if_elif(input: &str) -> IResult<&str, (bool, If)> {
+/// Parse an `if` or `elif` section into an `IfClause`
+fn if_elif(input: &str) -> IResult<&str, (bool, IfClause)> {
     map_res(
         all_consuming(preceded(
             tuple((semis3plus, multispace0)),
             tuple((
                 alt((tag("if"), tag("elif"))),
-                multispace1,
-                is_not("{"),
+                alt((
+                    preceded(
+                        multispace1,
+                        delimited(char('`'), escaped(none_of("`"), '\\', char('`')), char('`')),
+                    ),
+                    preceded(multispace1, is_not("{")),
+                    multispace0,
+                )),
                 opt(curly_attrs),
             )),
         )),
-        |(tag, _spaces, expr, options)| -> Result<(bool, If)> {
+        |(tag, expr, options)| -> Result<(bool, IfClause)> {
+            let text = expr.trim().to_string();
             let lang = options
                 .iter()
                 .flatten()
                 .next()
-                .map(|tuple| tuple.0.to_string())
+                .map(|tuple| tuple.0.trim().to_string())
                 .unwrap_or_default();
             Ok((
                 tag == "if",
-                If {
-                    condition: CodeExpression {
-                        programming_language: lang,
-                        text: expr.trim().to_string(),
-                        ..Default::default()
-                    },
+                IfClause {
+                    guess_language: lang.is_empty().then_some(true),
+                    programming_language: lang,
+                    text,
                     ..Default::default()
                 },
             ))
@@ -1736,7 +1784,8 @@ fn else_(input: &str) -> IResult<&str, &str> {
         semis3plus,
         multispace0,
         tag("else"),
-        multispace0,
+        // Allow for, but ignore, trailing content
+        opt(pair(multispace1, is_not(""))),
     ))))(input)
 }
 
@@ -2101,10 +2150,7 @@ mod tests {
             for_("::: for item in expr").unwrap().1,
             For {
                 symbol: "item".to_string(),
-                expression: CodeExpression {
-                    text: "expr".to_string(),
-                    ..Default::default()
-                },
+                text: "expr".to_string(),
                 ..Default::default()
             }
         );
@@ -2114,10 +2160,7 @@ mod tests {
             for_(":::for item  in    expr").unwrap().1,
             For {
                 symbol: "item".to_string(),
-                expression: CodeExpression {
-                    text: "expr".to_string(),
-                    ..Default::default()
-                },
+                text: "expr".to_string(),
                 ..Default::default()
             }
         );
@@ -2127,11 +2170,8 @@ mod tests {
             for_("::: for item in expr {python}").unwrap().1,
             For {
                 symbol: "item".to_string(),
-                expression: CodeExpression {
-                    text: "expr".to_string(),
-                    programming_language: "python".to_string(),
-                    ..Default::default()
-                },
+                text: "expr".to_string(),
+                programming_language: "python".to_string(),
                 ..Default::default()
             }
         );
@@ -2141,10 +2181,7 @@ mod tests {
             for_("::: for i in 1:10").unwrap().1,
             For {
                 symbol: "i".to_string(),
-                expression: CodeExpression {
-                    text: "1:10".to_string(),
-                    ..Default::default()
-                },
+                text: "1:10".to_string(),
                 ..Default::default()
             }
         );
@@ -2154,11 +2191,8 @@ mod tests {
                 .1,
             For {
                 symbol: "row".to_string(),
-                expression: CodeExpression {
-                    text: "select * from table".to_string(),
-                    programming_language: "sql".to_string(),
-                    ..Default::default()
-                },
+                text: "select * from table".to_string(),
+                programming_language: "sql".to_string(),
                 ..Default::default()
             }
         );
@@ -2173,49 +2207,37 @@ mod tests {
     fn test_if() {
         // Simple
         assert_eq!(
-            if_elif("::: if expr").unwrap().1 .1,
+            if_elif_else("::: if expr").unwrap().1 .1,
             If {
-                condition: CodeExpression {
-                    text: "expr".to_string(),
-                    ..Default::default()
-                },
+                text: "expr".to_string(),
                 ..Default::default()
             }
         );
 
         // With less/extra spacing
         assert_eq!(
-            if_elif(":::if    expr").unwrap().1 .1,
+            if_elif_else(":::if    expr").unwrap().1 .1,
             If {
-                condition: CodeExpression {
-                    text: "expr".to_string(),
-                    ..Default::default()
-                },
+                text: "expr".to_string(),
                 ..Default::default()
             }
         );
 
         // With language specified
         assert_eq!(
-            if_elif("::: if expr {python}").unwrap().1 .1,
+            if_elif_else("::: if expr {python}").unwrap().1 .1,
             If {
-                condition: CodeExpression {
-                    text: "expr".to_string(),
-                    programming_language: "python".to_string(),
-                    ..Default::default()
-                },
+                text: "expr".to_string(),
+                programming_language: "python".to_string(),
                 ..Default::default()
             }
         );
 
         // With more complex expression
         assert_eq!(
-            if_elif("::: if a > 1 and b[8] < 1.23").unwrap().1 .1,
+            if_elif_else("::: if a > 1 and b[8] < 1.23").unwrap().1 .1,
             If {
-                condition: CodeExpression {
-                    text: "a > 1 and b[8] < 1.23".to_string(),
-                    ..Default::default()
-                },
+                text: "a > 1 and b[8] < 1.23".to_string(),
                 ..Default::default()
             }
         );
