@@ -1,5 +1,17 @@
 import 'construct-style-sheets-polyfill'
-import { create, cssomSheet } from 'twind'
+import { Configuration, create, cssomSheet } from 'twind'
+import * as colors from 'twind/colors'
+
+const twConfig: Configuration = {
+  theme: {
+    extend: {
+      colors: {
+        slate: colors.blueGray,
+        violet: colors.violet,
+      },
+    },
+  },
+}
 
 /**
  * Create a [Constructable Stylesheet](https://web.dev/constructable-stylesheets/)
@@ -19,7 +31,7 @@ import { create, cssomSheet } from 'twind'
  */
 export function twSheet() {
   const sheet = cssomSheet({ target: new CSSStyleSheet() })
-  const { tw } = create({ sheet })
+  const { tw } = create({ ...twConfig, sheet })
   return { tw, sheet }
 }
 
