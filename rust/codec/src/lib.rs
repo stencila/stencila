@@ -4,7 +4,7 @@ use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
     serde::{Deserialize, Serialize},
-    strum::AsRefStr,
+    strum::{AsRefStr, EnumString},
     tokio::{
         fs::File,
         io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
@@ -207,9 +207,10 @@ pub struct DecodeOptions {
     pub format: Option<String>,
 }
 
-/// User mode
-#[derive(Debug, Clone, AsRefStr, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Mode {
+/// User mode for encoding
+#[derive(Debug, Clone, Copy, EnumString, AsRefStr, PartialEq, Eq, PartialOrd, Ord)]
+#[strum(serialize_all = "lowercase", ascii_case_insensitive, crate = "common::strum")]
+pub enum EncodeMode {
     Static = 0,
     Dynamic = 1,
     Interact = 2,
@@ -231,7 +232,7 @@ pub struct EncodeOptions {
     /// The user mode for the encoded document
     ///
     /// Codecs may alter how they encode documents based on the mode.
-    pub mode: Mode,
+    pub mode: EncodeMode,
 
     /// Whether to encode in compact form
     ///
@@ -301,7 +302,7 @@ pub struct EncodeOptions {
 impl Default for EncodeOptions {
     fn default() -> Self {
         Self {
-            mode: Mode::Write,
+            mode: EncodeMode::Write,
             compact: true,
             standalone: false,
             bundle: false,

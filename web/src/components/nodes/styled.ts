@@ -121,7 +121,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
       no-controls
       @stencila-ctrl-enter=${() => this.execute()}
     >
-      <code slot="code">${this.text}</code>
+      <slot name="text" slot="code"></slot>
     </stencila-code-editor>`
   }
 

@@ -17,14 +17,14 @@ use std::string::ToString;
 
 use codec::{
     common::{serde_json, tracing},
-    Mode,
+    EncodeMode,
 };
 use codec_txt::ToTxt;
 use node_dispatch::dispatch_validator;
 use stencila_schema::*;
 
 use super::{
-    attr, attr_and_meta_opt, attr_bool, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str,
+    attr, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str,
     attr_prop, attr_slot, concat, concat_html, elem, elem_empty, elem_meta, elem_placeholder,
     nothing, EncodeContext, ToHtml,
 };
@@ -287,7 +287,7 @@ pub(crate) fn label_and_input(
                 nothing()
             };
 
-        let disabled_attr = if context.options.mode < Mode::Interact {
+        let disabled_attr = if context.options.mode < EncodeMode::Interact {
             "disabled".to_string()
         } else {
             nothing()
@@ -379,7 +379,7 @@ impl ToHtml for ConstantValidator {
     fn to_attrs(&self, _context: &mut EncodeContext) -> Vec<String> {
         // The `type=text` could be changed to depend on the
         // `Node` type of the `value`.
-        vec![attr("type", "text"), attr_bool("readonly")]
+        vec![attr("type", "text"), "readonly".to_string()]
     }
 }
 

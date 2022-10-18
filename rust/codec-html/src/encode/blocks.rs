@@ -607,33 +607,140 @@ impl ToHtml for Call {
 }
 
 impl ToHtml for For {
-    fn to_html(&self, _context: &mut EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
+        let symbol = attr("symbol", &self.symbol);
+
+        let programming_language = attr("programming-language", &self.programming_language);
+
+        let text = elem("code", &[attr_slot("text")], &self.text);
+
+        let errors = elem_placeholder(
+            "div",
+            &[attr_prop("errors"), attr_slot("errors")],
+            &self.errors,
+            context,
+        );
+
+        let content = elem(
+            "div",
+            &[attr_prop("content"), attr_slot("content")],
+            &self.content.to_html(context),
+        );
+
+        let iterations = self
+            .iterations
+            .as_ref()
+            .map(|iterations| {
+                iterations
+                    .iter()
+                    .enumerate()
+                    .map(|(index, blocks)| {
+                        elem(
+                            "stencila-for-iteration",
+                            &[attr("index", &index.to_string())],
+                            &blocks.to_html(context),
+                        )
+                    })
+                    .join("")
+            })
+            .unwrap_or_default();
+        let iterations = elem(
+            "div",
+            &[attr_prop("iterations"), attr_slot("iterations")],
+            &iterations,
+        );
+
+        let otherwise = elem_placeholder(
+            "div",
+            &[attr_prop("otherwise"), attr_slot("otherwise")],
+            &self.otherwise,
+            context,
+        );
+
         elem(
             "stencila-for",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            "",
+            &[
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                symbol,
+                programming_language,
+            ],
+            &[text, errors, content, iterations, otherwise].concat(),
         )
     }
 }
 
 impl ToHtml for Form {
     fn to_html(&self, context: &mut EncodeContext) -> String {
-        let content = self.content.to_html(context);
+        let errors = elem_placeholder(
+            "div",
+            &[attr_prop("errors"), attr_slot("errors")],
+            &self.errors,
+            context,
+        );
+
+        let content = elem(
+            "div",
+            &[attr_prop("content"), attr_slot("content")],
+            &self.content.to_html(context),
+        );
 
         elem(
             "stencila-form",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &content,
+            &[errors, content].concat(),
         )
     }
 }
 
 impl ToHtml for If {
-    fn to_html(&self, _context: &mut EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
+        let clauses = elem(
+            "div",
+            &[attr_slot("clauses")],
+            &self.clauses.to_html(context),
+        );
+
         elem(
             "stencila-if",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            "",
+            &clauses,
+        )
+    }
+}
+
+impl ToHtml for IfClause {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
+        let programming_language = attr("programming-language", &self.programming_language);
+        let guess_language = match self.guess_language {
+            Some(value) => attr("guess-language", &value.to_string()),
+            _ => nothing(),
+        };
+        let is_active = match self.is_active {
+            Some(value) => attr("is-active", &value.to_string()),
+            _ => nothing(),
+        };
+
+        let text = elem("pre", &[attr_slot("text")], &self.text);
+
+        let errors = elem("div", &[attr_slot("errors")], &self.errors.to_html(context));
+
+        let content = elem(
+            "div",
+            &[attr_slot("content")],
+            &self.content.to_html(context),
+        );
+
+        elem(
+            "stencila-if-clause",
+            &[
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                programming_language,
+                guess_language,
+                is_active,
+            ],
+            &[text, errors, content].concat(),
         )
     }
 }

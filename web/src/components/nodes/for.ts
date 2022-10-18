@@ -192,7 +192,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
       ?disabled=${readOnly}
       @stencila-ctrl-enter=${() => this.execute()}
     >
-      <code slot="code">${this.text}</code>
+      <slot name="text" slot="code"></slot>
     </stencila-code-editor>`
 
     const programmingLanguageMenu = html`<stencila-executable-language

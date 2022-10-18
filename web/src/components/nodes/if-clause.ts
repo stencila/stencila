@@ -231,7 +231,11 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       }}
       @stencila-ctrl-enter=${() => this.execute()}
     >
-      <code slot="code">${this.text}</code>
+      <slot
+        name="text"
+        slot="code"
+        @slotchange=${(event: Event) => this.onTextSlotChange(event)}
+      ></slot>
     </stencila-code-editor>`
 
     const programmingLanguageMenu = html`<stencila-executable-language

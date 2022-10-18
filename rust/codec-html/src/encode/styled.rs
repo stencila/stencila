@@ -41,8 +41,6 @@ fn escape_css(css: &String, context: &mut EncodeContext) -> String {
 impl ToHtml for Division {
     fn to_html(&self, context: &mut EncodeContext) -> String {
         let attrs = if context.options.mode >= EncodeMode::Inspect {
-            let text = attr("text", &self.text);
-
             let programming_language = attr("programming-language", &self.programming_language);
 
             let guess_language = match self.guess_language {
@@ -50,27 +48,25 @@ impl ToHtml for Division {
                 _ => nothing(),
             };
 
-            vec![
-                attr_id(&self.id),
-                text,
-                programming_language,
-                guess_language,
-            ]
+            vec![attr_id(&self.id), programming_language, guess_language]
         } else if context.options.mode >= EncodeMode::Dynamic {
             vec![attr_id(&self.id)]
         } else {
             vec![]
         };
 
-        let errors = if context.options.mode >= EncodeMode::Inspect {
-            elem_placeholder(
-                "div",
-                &[attr_prop("errors"), attr_slot("errors")],
-                &self.errors,
-                context,
+        let (text, errors) = if context.options.mode >= EncodeMode::Inspect {
+            (
+                elem("pre", &[attr_slot("text")], &self.text),
+                elem_placeholder(
+                    "div",
+                    &[attr_prop("errors"), attr_slot("errors")],
+                    &self.errors,
+                    context,
+                ),
             )
         } else {
-            nothing()
+            (nothing(), nothing())
         };
 
         let css = if context.options.mode >= EncodeMode::Dynamic {
@@ -95,7 +91,7 @@ impl ToHtml for Division {
         elem(
             "stencila-division",
             &attrs,
-            &[errors, css, content].concat(),
+            &[text, errors, css, content].concat(),
         )
     }
 }
@@ -103,8 +99,6 @@ impl ToHtml for Division {
 impl ToHtml for Span {
     fn to_html(&self, context: &mut EncodeContext) -> String {
         let attrs = if context.options.mode >= EncodeMode::Inspect {
-            let text = attr("text", &self.text);
-
             let programming_language = attr("programming-language", &self.programming_language);
 
             let guess_language = match self.guess_language {
@@ -112,27 +106,25 @@ impl ToHtml for Span {
                 _ => nothing(),
             };
 
-            vec![
-                attr_id(&self.id),
-                text,
-                programming_language,
-                guess_language,
-            ]
+            vec![attr_id(&self.id), programming_language, guess_language]
         } else if context.options.mode >= EncodeMode::Dynamic {
             vec![attr_id(&self.id)]
         } else {
             vec![]
         };
 
-        let errors = if context.options.mode >= EncodeMode::Inspect {
-            elem_placeholder(
-                "span",
-                &[attr_prop("errors"), attr_slot("errors")],
-                &self.errors,
-                context,
+        let (text, errors) = if context.options.mode >= EncodeMode::Inspect {
+            (
+                elem("code", &[attr_slot("text")], &self.text),
+                elem_placeholder(
+                    "span",
+                    &[attr_prop("errors"), attr_slot("errors")],
+                    &self.errors,
+                    context,
+                ),
             )
         } else {
-            nothing()
+            (nothing(), nothing())
         };
 
         let css = if context.options.mode >= EncodeMode::Dynamic {
@@ -154,6 +146,10 @@ impl ToHtml for Span {
             &self.content.to_html(context),
         );
 
-        elem("stencila-span", &attrs, &[errors, css, content].concat())
+        elem(
+            "stencila-span",
+            &attrs,
+            &[text, errors, css, content].concat(),
+        )
     }
 }

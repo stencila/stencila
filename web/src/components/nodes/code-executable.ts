@@ -16,12 +16,6 @@ import Executable from './executable'
  */
 export default class StencilaCodeExecutable extends Executable {
   /**
-   * The `CodeExecutable.text` property
-   */
-  @property({ reflect: true })
-  text: string = ''
-
-  /**
    * The `CodeExecutable.programmingLanguage` property
    */
   @property({ attribute: 'programming-language', reflect: true })
@@ -35,6 +29,47 @@ export default class StencilaCodeExecutable extends Executable {
    */
   @property({ attribute: 'guess-language', reflect: true })
   guessLanguage: string = 'true'
+
+  /**
+   * The `CodeExecutable.text` property
+   *
+   * Note that we use a convention of representing the `CodeExecutable.text` property
+   * as `<slot name="text">`, rather than as an attribute `text="..."` for better
+   * discover-ability.
+   *
+   * Also, using a slot is a more natural fit with using a code editor
+   * on that content. We "relay" the `text` slot to the <stencila-code-editor>
+   * using `<slot name="text" slot="code"></slot>` in components derived from this class.
+   *
+   * However, we also maintain this state so that derived components can use it
+   * to update other state e.g. the `IfClause.isElse` property.
+   */
+  @state()
+  protected text: string = ''
+
+  /**
+   * An observer to update `text` from the slot
+   */
+  private textObserver: MutationObserver
+
+  /**
+   * Handle a change, including on initial load, of the `text` slot
+   */
+  protected onTextSlotChange(event: Event) {
+    const textElem = (event.target as HTMLSlotElement).assignedElements({
+      flatten: true,
+    })[0]
+
+    this.text = textElem.textContent ?? ''
+
+    this.textObserver = new MutationObserver(() => {
+      this.text = textElem.textContent ?? ''
+    })
+    this.textObserver.observe(textElem, {
+      subtree: true,
+      characterData: true,
+    })
+  }
 
   /**
    * Is the code of the node (the `text` property) visible?

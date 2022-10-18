@@ -91,7 +91,7 @@ pub fn wrap_standalone(
     styles: &str,
 ) -> String {
     let title = if title.is_empty() { "Untitled" } else { title };
-    let mode = options.mode.as_ref().to_lowercase();
+    let mode = options.mode.as_ref();
     let theme = options.theme.unwrap_or_else(|| "stencila".to_string());
 
     let static_root = "/~static/dev";
@@ -287,13 +287,6 @@ fn attr(name: &str, value: &str) -> String {
         "\"",
     ]
     .concat()
-}
-
-/// Encode a boolean attribute (a flag; does not have a value)
-///
-/// Will ensure that the name is camelCased.
-fn attr_bool(name: &str) -> String {
-    to_kebab_case(name)
 }
 
 /// Encode one of the attributes used to identify a property of a Stencila node
