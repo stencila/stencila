@@ -215,7 +215,7 @@ export default class StencilaCodeEditor extends StencilaElement {
   /**
    * A CodeMirror compartment for dynamically configuring line wrapping
    */
-  private lineWrapppingConfig = new Compartment()
+  private lineWrappingConfig = new Compartment()
 
   /**
    * The CodeMirror theme configuration
@@ -314,7 +314,7 @@ export default class StencilaCodeEditor extends StencilaElement {
       this.languageConfig.of(languageSupport),
       this.editableConfig.of(EditorView.editable.of(!this.readOnly)),
       this.readOnlyConfig.of(EditorState.readOnly.of(this.readOnly)),
-      this.lineWrapppingConfig.of(EditorView.lineWrapping),
+      this.lineWrappingConfig.of(EditorView.lineWrapping),
       this.themeConfig.of(this.getThemeExtension(this.theme)),
     ]
   }
@@ -560,7 +560,7 @@ export default class StencilaCodeEditor extends StencilaElement {
 
     if (changedProperties.has('lineWrapping')) {
       this.dispatchEffect(
-        this.lineWrapppingConfig.reconfigure(
+        this.lineWrappingConfig.reconfigure(
           this.lineWrapping ? EditorView.lineWrapping : []
         )
       )
@@ -650,11 +650,11 @@ export default class StencilaCodeEditor extends StencilaElement {
         : ''}
 
       <slot
-        part="code"
         name="code"
         @slotchange=${this.onCodeSlotChange}
         class="${tw`hidden`}"
       ></slot>
+
       <div part="code" id="codemirror"></div>
     </div>`
   }
