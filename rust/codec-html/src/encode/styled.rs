@@ -30,8 +30,8 @@ fn escape_css(css: &String, context: &mut EncodeContext) -> String {
     if css.is_empty() {
         // It seems necessary for the CSS to have at least some content so that
         // the browser's mutation observer is able to observe the initial transpile of CSS.
-        // Without it, the first patch adding CSS is ignored.
-        "\n/**/".to_string()
+        // Without this space, the first patch adding CSS, is ignored.
+        " ".to_string()
     } else {
         // HTML escape the CSS
         css.to_html(context)
