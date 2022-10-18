@@ -1,8 +1,7 @@
 use std::{collections::HashMap, path::Path, sync::Arc};
 
 use common::{
-    eyre::{Context, Result},
-    itertools::Itertools,
+    eyre::Result,
     tokio::sync::{mpsc::UnboundedSender, RwLock},
     tracing,
 };
@@ -10,8 +9,8 @@ use graph::Graph;
 use graph_triples::{resources, Resource, TagMap};
 use kernels::KernelSpace;
 use node_address::AddressMap;
-use node_patch::{diff, diff_address};
-use node_pointer::{resolve, resolve_mut};
+use node_patch::diff_id;
+use node_pointer::resolve;
 use path_utils::path_slash::PathBufExt;
 use stencila_schema::{
     Button, Call, CodeChunk, CodeExpression, Division, ExecutableCodeDependencies,
@@ -21,7 +20,7 @@ use stencila_schema::{
 use crate::{
     executable::{CompileContext, Executable},
     messages::{PatchRequest, When},
-    utils::{send_patch, send_patches},
+    utils::send_patch,
 };
 
 /// Compile a node, usually the `root` node of a document
@@ -76,7 +75,6 @@ pub async fn compile(
         resource_infos: Vec::default(),
         global_tags: TagMap::default(),
     };
-    let mut patches = Vec::new();
     for (id, address) in address_map.iter() {
         let pointer = resolve(&*root, Some(address.clone()), Some(id.clone()))?;
 
@@ -84,14 +82,9 @@ pub async fn compile(
         let mut after = pointer.to_node()?;
         after.compile(&mut context).await?;
 
-        let mut patch = diff(&before, &after);
-        match &mut patch.address {
-            Some(patch_address) => patch_address.prepend(address),
-            None => patch.address = Some(address.clone()),
-        }
-        patches.push(patch);
+        let patch = diff_id(&id, &before, &after);
+        send_patch(patch_sender, patch, When::Never)
     }
-    send_patches(patch_sender, patches, When::Never);
 
     // Update the document's global tag map with those from those collected by the compile context
     *tag_map.write().await = context.global_tags;
@@ -167,10 +160,10 @@ pub async fn compile(
 
                 Some((
                     node_id.clone(),
-                    (address, node, resource_info, Some(execute_required)),
+                    (node, resource_info, Some(execute_required)),
                 ))
             } else if let Resource::Node(resources::Node { id: node_id, .. }) = resource {
-                Some((node_id.clone(), (address, node, resource_info, None)))
+                Some((node_id.clone(), (node, resource_info, None)))
             } else {
                 None
             }
@@ -180,198 +173,194 @@ pub async fn compile(
     drop(root);
     drop(address_map);
 
-    // In this second pass, iterate over the nodes collected above, derive some more properties, and calculate patches
-    let patches = nodes
-        .values()
-        .map(|(address, node, resource_info, new_execute_required)| {
-            let dependencies = resource_info
-                .dependencies
-                .iter()
-                .flatten()
-                .filter_map(|dependency| match dependency {
-                    Resource::Code(code) => {
-                        let (_address, node, .., new_execute_required) = match nodes.get(&code.id) {
-                            Some(entry) => entry,
-                            None => return None,
-                        };
-                        match node {
-                            Node::CodeChunk(node) => {
-                                Some(ExecutableCodeDependencies::CodeChunk(CodeChunk {
-                                    id: node.id.clone(),
-                                    label: node.label.clone(),
-                                    programming_language: node.programming_language.clone(),
-                                    execute_auto: node.execute_auto.clone(),
-                                    execute_required: new_execute_required.clone(),
-                                    execute_status: node.execute_status.clone(),
-                                    ..Default::default()
-                                }))
-                            }
-                            Node::Parameter(node) => {
-                                let execute_required = if node.execute_digest.is_none() {
-                                    ExecuteRequired::NeverExecuted
-                                } else if node.execute_digest == node.compile_digest {
-                                    ExecuteRequired::No
-                                } else {
-                                    ExecuteRequired::SemanticsChanged
-                                };
-
-                                Some(ExecutableCodeDependencies::Parameter(Parameter {
-                                    id: node.id.clone(),
-                                    name: node.name.clone(),
-                                    execute_required: Some(execute_required),
-                                    ..Default::default()
-                                }))
-                            }
-                            Node::Button(node) => {
-                                let execute_required = if node.execute_digest.is_none() {
-                                    ExecuteRequired::NeverExecuted
-                                } else if node.execute_digest == node.compile_digest {
-                                    ExecuteRequired::No
-                                } else {
-                                    ExecuteRequired::SemanticsChanged
-                                };
-
-                                Some(ExecutableCodeDependencies::Button(Button {
-                                    id: node.id.clone(),
-                                    name: node.name.clone(),
-                                    execute_required: Some(execute_required),
-                                    ..Default::default()
-                                }))
-                            }
-                            _ => None,
+    // In this second pass, iterate over the nodes collected above, derive some more properties,
+    // and calculate and send patches
+    for (id, (node, resource_info, new_execute_required)) in &nodes {
+        let dependencies = resource_info
+            .dependencies
+            .iter()
+            .flatten()
+            .filter_map(|dependency| match dependency {
+                Resource::Code(code) => {
+                    let (node, .., new_execute_required) = match nodes.get(&code.id) {
+                        Some(entry) => entry,
+                        None => return None,
+                    };
+                    match node {
+                        Node::CodeChunk(node) => {
+                            Some(ExecutableCodeDependencies::CodeChunk(CodeChunk {
+                                id: node.id.clone(),
+                                label: node.label.clone(),
+                                programming_language: node.programming_language.clone(),
+                                execute_auto: node.execute_auto.clone(),
+                                execute_required: new_execute_required.clone(),
+                                execute_status: node.execute_status.clone(),
+                                ..Default::default()
+                            }))
                         }
-                    }
-                    Resource::File(file) => Some(ExecutableCodeDependencies::File(File {
-                        path: graph
-                            .relative_path(&file.path, true)
-                            .to_slash_lossy()
-                            .to_string(),
-                        ..Default::default()
-                    })),
-                    _ => None,
-                })
-                .collect();
+                        Node::Parameter(node) => {
+                            let execute_required = if node.execute_digest.is_none() {
+                                ExecuteRequired::NeverExecuted
+                            } else if node.execute_digest == node.compile_digest {
+                                ExecuteRequired::No
+                            } else {
+                                ExecuteRequired::SemanticsChanged
+                            };
 
-            let dependents = resource_info
-                .dependents
-                .iter()
-                .flatten()
-                .filter_map(|dependency| match dependency {
-                    Resource::Code(code) => {
-                        let (_address, node, .., new_execute_required) = match nodes.get(&code.id) {
-                            Some(entry) => entry,
-                            None => return None,
-                        };
-                        match node {
-                            Node::CodeChunk(dependant) => {
-                                Some(ExecutableCodeDependents::CodeChunk(CodeChunk {
-                                    id: dependant.id.clone(),
-                                    label: dependant.label.clone(),
-                                    programming_language: dependant.programming_language.clone(),
-                                    execute_auto: dependant.execute_auto.clone(),
-                                    execute_required: new_execute_required.clone(),
-                                    execute_status: dependant.execute_status.clone(),
-                                    ..Default::default()
-                                }))
-                            }
-                            Node::CodeExpression(dependant) => {
-                                Some(ExecutableCodeDependents::CodeExpression(CodeExpression {
-                                    id: dependant.id.clone(),
-                                    programming_language: dependant.programming_language.clone(),
-                                    execute_required: new_execute_required.clone(),
-                                    execute_status: dependant.execute_status.clone(),
-                                    ..Default::default()
-                                }))
-                            }
-                            Node::Division(dependant) => {
-                                Some(ExecutableCodeDependents::Division(Division {
-                                    id: dependant.id.clone(),
-                                    programming_language: dependant.programming_language.clone(),
-                                    execute_required: new_execute_required.clone(),
-                                    execute_status: dependant.execute_status.clone(),
-                                    ..Default::default()
-                                }))
-                            }
-                            Node::Span(dependant) => Some(ExecutableCodeDependents::Span(Span {
+                            Some(ExecutableCodeDependencies::Parameter(Parameter {
+                                id: node.id.clone(),
+                                name: node.name.clone(),
+                                execute_required: Some(execute_required),
+                                ..Default::default()
+                            }))
+                        }
+                        Node::Button(node) => {
+                            let execute_required = if node.execute_digest.is_none() {
+                                ExecuteRequired::NeverExecuted
+                            } else if node.execute_digest == node.compile_digest {
+                                ExecuteRequired::No
+                            } else {
+                                ExecuteRequired::SemanticsChanged
+                            };
+
+                            Some(ExecutableCodeDependencies::Button(Button {
+                                id: node.id.clone(),
+                                name: node.name.clone(),
+                                execute_required: Some(execute_required),
+                                ..Default::default()
+                            }))
+                        }
+                        _ => None,
+                    }
+                }
+                Resource::File(file) => Some(ExecutableCodeDependencies::File(File {
+                    path: graph
+                        .relative_path(&file.path, true)
+                        .to_slash_lossy()
+                        .to_string(),
+                    ..Default::default()
+                })),
+                _ => None,
+            })
+            .collect();
+
+        let dependents = resource_info
+            .dependents
+            .iter()
+            .flatten()
+            .filter_map(|dependency| match dependency {
+                Resource::Code(code) => {
+                    let (node, .., new_execute_required) = match nodes.get(&code.id) {
+                        Some(entry) => entry,
+                        None => return None,
+                    };
+                    match node {
+                        Node::CodeChunk(dependant) => {
+                            Some(ExecutableCodeDependents::CodeChunk(CodeChunk {
+                                id: dependant.id.clone(),
+                                label: dependant.label.clone(),
+                                programming_language: dependant.programming_language.clone(),
+                                execute_auto: dependant.execute_auto.clone(),
+                                execute_required: new_execute_required.clone(),
+                                execute_status: dependant.execute_status.clone(),
+                                ..Default::default()
+                            }))
+                        }
+                        Node::CodeExpression(dependant) => {
+                            Some(ExecutableCodeDependents::CodeExpression(CodeExpression {
                                 id: dependant.id.clone(),
                                 programming_language: dependant.programming_language.clone(),
                                 execute_required: new_execute_required.clone(),
                                 execute_status: dependant.execute_status.clone(),
                                 ..Default::default()
-                            })),
-                            _ => None,
+                            }))
                         }
+                        Node::Division(dependant) => {
+                            Some(ExecutableCodeDependents::Division(Division {
+                                id: dependant.id.clone(),
+                                programming_language: dependant.programming_language.clone(),
+                                execute_required: new_execute_required.clone(),
+                                execute_status: dependant.execute_status.clone(),
+                                ..Default::default()
+                            }))
+                        }
+                        Node::Span(dependant) => Some(ExecutableCodeDependents::Span(Span {
+                            id: dependant.id.clone(),
+                            programming_language: dependant.programming_language.clone(),
+                            execute_required: new_execute_required.clone(),
+                            execute_status: dependant.execute_status.clone(),
+                            ..Default::default()
+                        })),
+                        _ => None,
                     }
-                    Resource::File(file) => Some(ExecutableCodeDependents::File(File {
-                        path: file.path.to_slash_lossy().to_string(),
-                        ..Default::default()
-                    })),
-                    _ => None,
-                })
-                .collect();
+                }
+                Resource::File(file) => Some(ExecutableCodeDependents::File(File {
+                    path: file.path.to_slash_lossy().to_string(),
+                    ..Default::default()
+                })),
+                _ => None,
+            })
+            .collect();
 
-            let new_compile_digest = resource_info
-                .compile_digest
-                .as_ref()
-                .map(|digest| Box::new(digest.to_cord()));
+        let new_compile_digest = resource_info
+            .compile_digest
+            .as_ref()
+            .map(|digest| Box::new(digest.to_cord()));
 
-            let mut after = node.clone();
-            match &mut after {
-                Node::CodeChunk(CodeChunk {
-                    code_dependencies,
-                    code_dependents,
-                    compile_digest,
-                    execute_required,
-                    ..
-                })
-                | Node::CodeExpression(CodeExpression {
-                    code_dependencies,
-                    code_dependents,
-                    compile_digest,
-                    execute_required,
-                    ..
-                }) => {
-                    *code_dependencies = Some(dependencies);
-                    *code_dependents = Some(dependents);
-                    *compile_digest = new_compile_digest;
-                    *execute_required = new_execute_required.to_owned();
-                }
-                Node::Parameter(Parameter { compile_digest, .. })
-                | Node::Button(Button { compile_digest, .. })
-                | Node::Include(Include { compile_digest, .. }) => {
-                    *compile_digest = new_compile_digest;
-                }
-                Node::Call(Call {
-                    code_dependencies,
-                    compile_digest,
-                    execute_required,
-                    ..
-                })
-                | Node::Division(Division {
-                    code_dependencies,
-                    compile_digest,
-                    execute_required,
-                    ..
-                })
-                | Node::Span(Span {
-                    code_dependencies,
-                    compile_digest,
-                    execute_required,
-                    ..
-                }) => {
-                    *code_dependencies = Some(dependencies);
-                    *compile_digest = new_compile_digest;
-                    *execute_required = new_execute_required.to_owned();
-                }
-                _ => (),
+        let mut after = node.clone();
+        match &mut after {
+            Node::CodeChunk(CodeChunk {
+                code_dependencies,
+                code_dependents,
+                compile_digest,
+                execute_required,
+                ..
+            })
+            | Node::CodeExpression(CodeExpression {
+                code_dependencies,
+                code_dependents,
+                compile_digest,
+                execute_required,
+                ..
+            }) => {
+                *code_dependencies = Some(dependencies);
+                *code_dependents = Some(dependents);
+                *compile_digest = new_compile_digest;
+                *execute_required = new_execute_required.to_owned();
             }
+            Node::Parameter(Parameter { compile_digest, .. })
+            | Node::Button(Button { compile_digest, .. })
+            | Node::Include(Include { compile_digest, .. }) => {
+                *compile_digest = new_compile_digest;
+            }
+            Node::Call(Call {
+                code_dependencies,
+                compile_digest,
+                execute_required,
+                ..
+            })
+            | Node::Division(Division {
+                code_dependencies,
+                compile_digest,
+                execute_required,
+                ..
+            })
+            | Node::Span(Span {
+                code_dependencies,
+                compile_digest,
+                execute_required,
+                ..
+            }) => {
+                *code_dependencies = Some(dependencies);
+                *compile_digest = new_compile_digest;
+                *execute_required = new_execute_required.to_owned();
+            }
+            _ => (),
+        }
 
-            diff_address(address.clone().unwrap(), node, &after)
-        })
-        .collect_vec();
-
-    // Send the interdependency patches
-    send_patches(patch_sender, patches, When::Never);
+        let patch = diff_id(id, node, &after);
+        send_patch(patch_sender, patch, When::Never);
+    }
 
     Ok(graph)
 }
