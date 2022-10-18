@@ -33,4 +33,10 @@ export const STRUCT_ATTRIBUTES: Record<string, string> = {
   minLength: 'minlength',
   maxLength: 'maxlength',
   pattern: 'pattern',
+  // For
+  symbol: 'symbol',
+  text: 'text',
+  // If
+  isActive: 'is-active',
+  guessLanguage: 'guess-language',
 }
