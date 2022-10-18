@@ -1,28 +1,40 @@
-import { sentenceCase } from 'change-case'
+import { capitalCase } from 'change-case'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
-import { apply as twApply, css, TW } from 'twind/css'
-import { capitalCase } from 'change-case'
 
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown'
 import '@shoelace-style/shoelace/dist/components/menu/menu'
 
 import { currentMode, Mode } from '../../mode'
-import StencilaElement from '../utils/element'
-import Executable from './executable'
 import '../base/icon-button'
 import { twSheet } from '../utils/css'
-import SlDropdown from '@shoelace-style/shoelace/dist/components/dropdown/dropdown'
+import StencilaElement from '../utils/element'
+import Executable from './executable'
 
 /**
  * A base component to represent the `CodeExecutable` node type
  */
 export default class StencilaCodeExecutable extends Executable {
-  @property({
-    attribute: 'programming-language',
-    reflect: true,
-  })
-  programmingLanguage: string
+  /**
+   * The `CodeExecutable.text` property
+   */
+  @property({ reflect: true })
+  text: string = ''
+
+  /**
+   * The `CodeExecutable.programmingLanguage` property
+   */
+  @property({ attribute: 'programming-language', reflect: true })
+  programmingLanguage: string = ''
+
+  /**
+   * The `CodeExecutable.guessLanguage` property
+   *
+   * Because an _optional_ boolean property in Rust and because of how patching works
+   * must be a string, not a HTML boolean property.
+   */
+  @property({ attribute: 'guess-language', reflect: true })
+  guessLanguage: string = 'true'
 
   /**
    * Is the code of the node (the `text` property) visible?
@@ -89,101 +101,6 @@ export default class StencilaCodeExecutable extends Executable {
       'stencila-code-visibility-change',
       this.onCodeVisibilityChanged.bind(this)
     )
-  }
-
-  protected renderLanguageSelector(tw: TW) {
-    const languages = window.stencilaConfig.executableLanguages ?? []
-
-    if (languages.length === 0) {
-      return html`<span class="language">${this.programmingLanguage}</span>`
-    }
-
-    return html`<span
-      class=${tw(css`
-        ${twApply(`inline-block`)}
-        sl-select {
-          display: inline;
-          width: 13ch;
-        }
-        sl-select::part(form-control) {
-          display: inline-block;
-        }
-        sl-select::part(control) {
-          background-color: transparent;
-          border: none;
-        }
-        sl-select.code-invisible::part(control) {
-          ${twApply('cursor-pointer')}
-        }
-        sl-select::part(icon) {
-          display: ${this._isCodeVisible && this.isEditable()
-            ? 'inherit'
-            : 'none'};
-        }
-        sl-select::part(menu) {
-          overflow: hidden;
-        }
-        sl-menu-item::part(label) {
-          ${twApply('text-sm')}
-        }
-      `)}
-    >
-      <sl-tooltip>
-        <span slot="content"
-          >${this._isCodeVisible ? 'Hide' : 'Show'} code<br />Shift click to
-          ${this._isCodeVisible ? 'hide' : 'show'} for all code elements</span
-        >
-        <stencila-icon
-          name="${this._isCodeVisible ? 'eye' : 'eye-slash'}"
-          @click=${this.onCodeVisibilityClicked}
-          class=${tw`cursor-pointer`}
-        ></stencila-icon>
-      </sl-tooltip>
-      ${!this._isCodeVisible
-        ? html`<sl-select
-            size="small"
-            value=${this.programmingLanguage?.toLowerCase() ?? 'other'}
-            disabled
-            @click=${this.onCodeVisibilityClicked}
-            class="code-${this._isCodeVisible ? 'visible' : 'invisible'}"
-          >
-            <sl-menu-item value=${this.programmingLanguage.toLowerCase()}>
-              ${this.labelForLanguage(this.programmingLanguage)}
-            </sl-menu-item>
-          </sl-select>`
-        : html`<sl-select
-            size="small"
-            value=${this.programmingLanguage?.toLowerCase() ?? 'other'}
-            ?disabled=${!this.isEditable()}
-            @sl-change=${(event: Event) =>
-              (this.programmingLanguage = (
-                event.target as HTMLSelectElement
-              ).value)}
-          >
-            ${languages.map(
-              (language) =>
-                html`<sl-menu-item value="${language.toLowerCase()}">
-                  ${this.labelForLanguage(language)}
-                </sl-menu-item>`
-            )}
-          </sl-select>`}
-    </span>`
-  }
-
-  protected labelForLanguage(language: string): string {
-    switch (language.toLowerCase()) {
-      case 'javascript':
-        return 'JavaScript'
-      case 'typescript':
-        return 'TypeScript'
-      case 'json':
-      case 'sql':
-        return language.toUpperCase()
-      case 'prql':
-        return 'PrQL'
-      default:
-        return sentenceCase(language)
-    }
   }
 }
 
@@ -266,8 +183,16 @@ export class StencilaExecutableLanguage extends StencilaElement {
     }
 
     return html`
-      <sl-dropdown class=${tw`flex items-center`}>
-        <stencila-icon-button slot="trigger" name=${icon} color=${this.color}>
+      <sl-dropdown
+        class=${tw`flex items-center`}
+        ?disabled=${currentMode() < Mode.Alter}
+      >
+        <stencila-icon-button
+          slot="trigger"
+          name=${icon}
+          color=${this.color}
+          ?disabled=${currentMode() < Mode.Alter}
+        >
         </stencila-icon-button>
 
         <sl-menu

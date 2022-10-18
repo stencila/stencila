@@ -1,6 +1,7 @@
 import { html } from 'lit'
 import { state } from 'lit/decorators'
 import { TW } from 'twind'
+import { currentMode, Mode } from '../../mode'
 import StencilaCodeExecutable from './code-executable'
 
 /**
@@ -113,6 +114,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
     return html`<stencila-code-editor
       class=${tw`min-w-0 w-full rounded overflow-hidden border(& slate-200) focus:border(& slate-400) focus:ring(2 slate-100) bg-slate-50 font-normal pr-1`}
       language=${this.programmingLanguage}
+      ?read-only=${currentMode() < Mode.Alter}
       single-line
       line-wrapping
       no-controls

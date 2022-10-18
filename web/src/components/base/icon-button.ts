@@ -41,10 +41,23 @@ export default class StencilaIconButton extends StencilaElement {
   @property()
   label?: string
 
+  /**
+   * Whether the button is disabled
+   */
+  @property({ type: Boolean })
+  disabled: boolean = false
+
   render() {
     return html`<span
-      class=${tw`flex items-center p-1 rounded-full outline-none cursor-pointer bg-${this.color}-200(hover:& focus:&) focus:ring(1 ${this.color}-300) text-${this.color}-800 ${this.adjust}`}
-      tabindex="0"
+      class=${tw`flex items-center p-1 rounded-full outline-none text-${
+        this.color
+      }-800 ${
+        !this.disabled
+          ? `cursor-pointer bg-${this.color}-200(hover:& focus:&) focus:ring(1 ${this.color}-300)`
+          : ''
+      } ${this.adjust}`}
+      tabindex=${this.disabled ? '-1' : '0'}
+      ?disabled=${this.disabled}
       role="button"
     >
       <stencila-icon name=${this.name} label=${this.label}> </stencila-icon>
