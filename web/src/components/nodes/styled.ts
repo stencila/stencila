@@ -68,7 +68,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
     })[0]
 
     // Handle initial load of slot
-    this.onCssChanged(cssElem.textContent ?? '')
+    this.onCssChanged(cssElem.textContent ?? '', true)
 
     this.cssObserver = new MutationObserver(() => {
       // Handle subsequent mutations
@@ -86,7 +86,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
    * Updates the custom stylesheet for this `Styled` creating a new
    * `CSSStyleSheet` if necessary.
    */
-  private onCssChanged(css: string) {
+  private onCssChanged(css: string, initial: boolean = false) {
     // If necessary create a new stylesheet for the new CSS
     if (this.cssStyleSheet === undefined) {
       this.cssStyleSheet = new CSSStyleSheet()
@@ -99,8 +99,9 @@ export default class StencilaStyled extends StencilaCodeExecutable {
     // Replace the content of the stylesheet with the new CSS
     // Use the unique class name for the element
     let stylesheet = css.replace(':root', `.${this.cssClass}`)
-    // Add transitions ofr all properties if the CSS does not have any transitions defined.
-    if (!stylesheet.includes('transition-property:')) {
+    // Add transitions for all properties if this is not the initial render and the
+    // CSS does not have any transitions defined.
+    if (!initial && !stylesheet.includes('transition-property:')) {
       stylesheet += `.${this.cssClass} {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
