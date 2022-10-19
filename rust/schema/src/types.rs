@@ -3682,8 +3682,14 @@ pub struct Math {
     #[derivative(Default(value = "Math_::Math"))]
     pub type_: Math_,
 
+    /// The language used for the equation e.g tex, mathml, asciimath.
+    pub math_language: String,
+
     /// The text of the equation in the language.
     pub text: String,
+
+    /// A digest of the `text` and `mathLanguage` used to avoid unnecessary transpilation to MathML
+    pub compile_digest: Option<Box<Cord>>,
 
     /// Errors that occurred when parsing the math equation.
     pub errors: Option<Vec<String>>,
@@ -3692,8 +3698,8 @@ pub struct Math {
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
-    /// The language used for the equation e.g tex, mathml, asciimath.
-    pub math_language: Option<Box<String>>,
+    /// The MathML transpiled from the `text`
+    pub mathml: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -3711,8 +3717,14 @@ pub struct MathBlock {
     #[derivative(Default(value = "MathBlock_::MathBlock"))]
     pub type_: MathBlock_,
 
+    /// The language used for the equation e.g tex, mathml, asciimath.
+    pub math_language: String,
+
     /// The text of the equation in the language.
     pub text: String,
+
+    /// A digest of the `text` and `mathLanguage` used to avoid unnecessary transpilation to MathML
+    pub compile_digest: Option<Box<Cord>>,
 
     /// Errors that occurred when parsing the math equation.
     pub errors: Option<Vec<String>>,
@@ -3724,8 +3736,8 @@ pub struct MathBlock {
     /// A short label for the math block.
     pub label: Option<Box<String>>,
 
-    /// The language used for the equation e.g tex, mathml, asciimath.
-    pub math_language: Option<Box<String>>,
+    /// The MathML transpiled from the `text`
+    pub mathml: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -3743,8 +3755,14 @@ pub struct MathFragment {
     #[derivative(Default(value = "MathFragment_::MathFragment"))]
     pub type_: MathFragment_,
 
+    /// The language used for the equation e.g tex, mathml, asciimath.
+    pub math_language: String,
+
     /// The text of the equation in the language.
     pub text: String,
+
+    /// A digest of the `text` and `mathLanguage` used to avoid unnecessary transpilation to MathML
+    pub compile_digest: Option<Box<Cord>>,
 
     /// Errors that occurred when parsing the math equation.
     pub errors: Option<Vec<String>>,
@@ -3753,8 +3771,8 @@ pub struct MathFragment {
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
-    /// The language used for the equation e.g tex, mathml, asciimath.
-    pub math_language: Option<Box<String>>,
+    /// The MathML transpiled from the `text`
+    pub mathml: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

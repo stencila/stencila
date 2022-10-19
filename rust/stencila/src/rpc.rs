@@ -59,6 +59,7 @@ impl Request {
             "documents.load" => documents_load(&self.params).await,
             "documents.dump" => documents_dump(&self.params).await,
             "documents.patch" => documents_patch(&self.params).await,
+            "documents.compile" => documents_compile(&self.params).await,
             "documents.execute" => documents_execute(&self.params).await,
             "documents.cancel" => documents_cancel(&self.params).await,
             "documents.restart" => documents_restart(&self.params).await,
@@ -339,6 +340,26 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
         .lock()
         .await
         .patch_request(patch, assemble, compile, execute, write)
+        .await?;
+    Ok((json!(true), Subscription::None))
+}
+
+async fn documents_compile(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let id = required_string(params, "documentId")?;
+    let execute = optional_string(params, "execute")?
+        .and_then(|value| When::from_str(&value).ok())
+        .unwrap_or(When::Never);
+    let write = optional_string(params, "write")?
+        .and_then(|value| When::from_str(&value).ok())
+        .unwrap_or(When::Soon);
+    let node_id = optional_string(params, "nodeId")?;
+
+    DOCUMENTS
+        .get(&id)
+        .await?
+        .lock()
+        .await
+        .compile_request(execute, write, node_id)
         .await?;
     Ok((json!(true), Subscription::None))
 }

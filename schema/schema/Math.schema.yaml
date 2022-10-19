@@ -11,6 +11,18 @@ $comment: |
   This type has a similar structure and purpose to `Code` which is a base type
   for `CodeFragment`, `CodeBlock` etc.
 properties:
+  mathLanguage:
+    '@id': stencila:mathLanguage
+    description: The language used for the equation e.g tex, mathml, asciimath.
+    type: string
+  text:
+    '@id': schema:text
+    description: The text of the equation in the language.
+    type: string
+  compileDigest:
+    '@id': stencila:compileDigest
+    description: A digest of the `text` and `mathLanguage` used to avoid unnecessary transpilation to MathML
+    type: string
   errors:
     '@id': stencila:errors
     description: Errors that occurred when parsing the math equation.
@@ -22,14 +34,10 @@ properties:
     type: array
     items:
       type: string
-  mathLanguage:
-    '@id': stencila:mathLanguage
-    description: The language used for the equation e.g tex, mathml, asciimath.
-    type: string
-    default: 'tex'
-  text:
-    '@id': schema:text
-    description: The text of the equation in the language.
+  mathml:
+    '@id': stencila:mathml
+    description: The MathML transpiled from the `text`
     type: string
 required:
+  - mathLanguage
   - text

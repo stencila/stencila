@@ -6,6 +6,7 @@ const twConfig: Configuration = {
   theme: {
     extend: {
       colors: {
+        emerald: colors.emerald,
         slate: colors.blueGray,
         violet: colors.violet,
       },
