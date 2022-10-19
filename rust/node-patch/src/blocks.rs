@@ -67,7 +67,7 @@ patchable_struct!(Heading, content, depth);
 
 patchable_struct!(Paragraph, content);
 
-patchable_struct!(MathBlock, math_language, text);
+patchable_struct!(MathBlock, math_language, text, compile_digest, errors, mathml);
 
 patchable_struct!(QuoteBlock, content);
 
@@ -166,6 +166,7 @@ patchable_struct!(
     Division,
     id,
     programming_language,
+    guess_language,
     text,
     css,
     classes,
@@ -227,6 +228,7 @@ patchable_struct!(
     symbol,
     text,
     programming_language,
+    guess_language,
     content,
     otherwise,
     iterations,

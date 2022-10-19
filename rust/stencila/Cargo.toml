@@ -80,6 +80,7 @@ default = [
   "parsers/parser-calc",
   "parsers/parser-js",
   "parsers/parser-json",
+  "parsers/parser-json5",
   "parsers/parser-prql",
   "parsers/parser-py",
   "parsers/parser-r",

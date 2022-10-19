@@ -34,8 +34,6 @@ macro_rules! executable_assemble_id_only {
 
 executable_assemble_id_only!(CodeBlock, "cb");
 executable_assemble_id_only!(CodeFragment, "cf");
-executable_assemble_id_only!(MathBlock, "mb");
-executable_assemble_id_only!(MathFragment, "mf");
 
 // Node types that do not need anything done
 

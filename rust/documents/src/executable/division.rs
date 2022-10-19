@@ -6,10 +6,10 @@ use graph_triples::{
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::Address;
-use node_patch::produce;
 
 use stencila_schema::{
-    CodeError, Cord, Division, Duration, ExecuteRequired, ExecuteStatus, Node, Timestamp,
+    CodeError, Cord, Division, Duration, ExecuteAuto, ExecuteRequired, ExecuteStatus, Node,
+    Timestamp,
 };
 
 use crate::{assert_id, register_id};
@@ -18,10 +18,9 @@ use super::{shared::code_execute_status, AssembleContext, CompileContext, Execut
 
 #[async_trait]
 impl Executable for Division {
-    /// Compile a `Division`
+    /// Assemble a `Division` node
     ///
-    /// Ensures that the division has an `id`, and that it is registered, and
-    /// assembles the `content`.
+    /// Registers the `id` of the division and assembles its `content`.
     async fn assemble(
         &mut self,
         address: &mut Address,
@@ -36,18 +35,28 @@ impl Executable for Division {
         Ok(())
     }
 
-    /// Compile a `Division`
+    /// Compile a `Division` node
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
 
+        // Infer the language of the expression, falling back to Tailwind
         let lang = match self.programming_language.is_empty() {
             true => Format::Tailwind,
-            false => formats::match_name(&self.programming_language),
+            false => {
+                if (matches!(self.guess_language, Some(true))
+                    || self.programming_language.to_lowercase() == "unknown")
+                {
+                    context
+                        .kernel_space
+                        .guess_language(&self.text, Format::Tailwind, None, None)
+                } else {
+                    formats::match_name(&self.programming_language)
+                }
+            }
         };
 
-        // Generate `ResourceInfo` by parsing the code. If there is a passing error
-        // still generate resource info but do not generate errors since the user may
-        // still be in the process of writing code
+        // Generate `ResourceInfo` by parsing the code. If there is a passing error still generate resource info
+        // but do not generate errors since the user may still be in the process of writing code
         let resource = resources::code(&context.path, id, "Division", lang);
         let mut resource_info = match parsers::parse(resource.clone(), &self.text) {
             Ok(resource_info) => resource_info,
@@ -71,43 +80,18 @@ impl Executable for Division {
             )
         });
 
-        // Force code expression execution semantics (in case `@impure` or `@autorun` tags
-        // where inadvertently used in code) by setting to `None`
-        resource_info.execute_auto = None;
-        resource_info.execute_pure = None;
-
-        // If the language is Tailwind, and there are no dependencies, then transpile the to CSS now so that
-        // the content is styled prior to execution
-        let no_dependencies = resource_info.dependencies.is_none();
-        if lang == Format::Tailwind && no_dependencies {
-            /*
-            let patch = match parser_tailwind::transpile_string(&self.text) {
-                Ok(css) => {
-                    // On success, update both `css` and `errors`
-                    produce(self, Some(id.clone()), None, |draft| {
-                        draft.css = css.clone();
-                        draft.errors = None;
-                    })
-                }
-                Err(error) => {
-                    // On error, update the `error` property but do not alter any CSS
-                    produce(self, Some(id.clone()), None, |draft| {
-                        draft.errors = Some(vec![CodeError {
-                            error_type: Some(Box::new("SyntaxError".to_string())),
-                            error_message: error.to_string(),
-                            ..Default::default()
-                        }]);
-                    })
-                }
-            };
-            */
-        }
+        // Assume side-effect free code expression execution semantics
+        resource_info.execute_auto = Some(ExecuteAuto::Always);
+        resource_info.execute_pure = Some(true);
 
         context.resource_infos.push(resource_info);
 
         Ok(())
     }
 
+    /// Begin executing a `Division` node
+    ///
+    /// Starts an async tak in the kernel space
     async fn execute_begin(
         &mut self,
         resource_info: &ResourceInfo,
@@ -115,7 +99,8 @@ impl Executable for Division {
         kernel_selector: &KernelSelector,
         is_fork: bool,
     ) -> Result<Option<TaskInfo>> {
-        tracing::trace!("Executing `Division` `{:?}`", self.id);
+        let id = assert_id!(self)?;
+        tracing::trace!("Executing `Division` `{}`", id);
 
         let task_info = kernel_space
             .exec(&self.text, resource_info, is_fork, kernel_selector)
@@ -124,10 +109,15 @@ impl Executable for Division {
         Ok(Some(task_info))
     }
 
+    /// End executing a `Division` node
+    ///
+    /// Updates various various properties of the node based on the task info and result.
+    /// Most importantly, updates the `css` property by transpiling the result of the
+    /// evaluation.
     async fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
         let TaskResult {
             outputs,
-            messages: errors,
+            messages: mut errors,
         } = task_result;
 
         // Update both `compile_digest` and `execute_digest` to the compile digest
@@ -156,30 +146,37 @@ impl Executable for Division {
         self.execute_kernel = task_info.kernel_id.map(Box::new);
         self.execute_count = Some(self.execute_count.unwrap_or_default() + 1);
 
-        // Update output and errors
+        // Transpile the returned Tailwind string. To avoid unstyled content, if there is
+        // an error we do not reset the CSS
+        if let Some(node) = outputs.first() {
+            match node {
+                Node::String(string) => match parser_tailwind::transpile_string(string) {
+                    Ok(css) => self.css = css,
+                    Err(error) => {
+                        errors.push(CodeError {
+                            error_type: Some(Box::new("SyntaxError".to_string())),
+                            error_message: error.to_string(),
+                            ..Default::default()
+                        });
+                    }
+                },
+                _ => errors.push(CodeError {
+                    error_type: Some(Box::new("TypeError".to_string())),
+                    error_message: format!(
+                        "Expected expression to evaluate to a string, got a `{}` instead",
+                        node.as_ref()
+                    ),
+                    ..Default::default()
+                }),
+            }
+        }
+
+        // Update errors
         self.errors = if errors.is_empty() {
             None
         } else {
             Some(errors)
         };
-
-        if let Some(tailwind) = outputs.last() {
-            let tailwind = match tailwind {
-                Node::String(string) => string,
-                //Node::Array(array) => arr
-                _ => "",
-            };
-            match parser_tailwind::transpile_string(tailwind) {
-                Ok(css) => self.css = css,
-                Err(error) => {
-                    self.errors = Some(vec![CodeError {
-                        error_type: Some(Box::new("SyntaxError".to_string())),
-                        error_message: error.to_string(),
-                        ..Default::default()
-                    }]);
-                }
-            };
-        }
 
         Ok(())
     }

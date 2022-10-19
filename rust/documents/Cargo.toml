@@ -16,6 +16,7 @@ graph = { path = "../graph" }
 graph-triples = { path = "../graph-triples" }
 ignore = "0.4.18"
 kernels = { path = "../kernels" }
+math-utils = { path = "../math-utils" }
 node-address = { path = "../node-address" }
 node-dispatch = { path = "../node-dispatch" }
 node-patch = { path = "../node-patch" }
@@ -25,15 +26,15 @@ node-reshape = { path = "../node-reshape" }
 node-transform = { path = "../node-transform" }
 node-validate = { path = "../node-validate" }
 notify = "4.0.17"
-parsers = { path = "../parsers" }
 parser-tailwind = { path = "../parser-tailwind" }
+parsers = { path = "../parsers" }
 path-utils = { path = "../path-utils" }
 providers = { path = "../providers" }
 statics = { path = "../statics" }
 stencila-schema = { path = "../schema" }
 uuids = { path = "../uuids" }
 
-cli-utils = { path = "../cli-utils", optional = true}
+cli-utils = { path = "../cli-utils", optional = true }
 
 [dev-dependencies]
 codec = { path = "../codec" }

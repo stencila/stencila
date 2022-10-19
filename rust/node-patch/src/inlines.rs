@@ -226,7 +226,7 @@ patchable_struct!(CodeFragment, programming_language, text);
 patchable_struct!(Delete, content);
 patchable_struct!(Emphasis, content);
 patchable_struct!(Link, content, target);
-patchable_struct!(MathFragment, math_language, text);
+patchable_struct!(MathFragment, math_language, text, compile_digest, errors, mathml);
 patchable_struct!(NontextualAnnotation, content);
 patchable_struct!(Note, content);
 patchable_struct!(Quote, content);
