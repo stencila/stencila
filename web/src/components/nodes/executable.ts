@@ -1,10 +1,11 @@
 import { html } from 'lit'
-import { property } from 'lit/decorators'
+import { property, state } from 'lit/decorators'
 import { TW } from 'twind'
 import 'twind/colors'
 import { currentMode, Mode } from '../../mode'
 
 import StencilaEntity from './entity'
+import '../base/icon-button'
 
 export type ExecuteStatus =
   | 'Scheduled'
@@ -43,6 +44,43 @@ export default class StencilaExecutable extends StencilaEntity {
   executeCount?: number
 
   /**
+   * Whether the expression has any errors
+   */
+  @state()
+  protected hasErrors: boolean = false
+
+  /**
+   * An observer to update `hasErrors`
+   */
+  private errorsObserver: MutationObserver
+
+  /**
+   * Handle a change, including on initial load, of the errors slot
+   */
+  protected onErrorsSlotChange(event: Event) {
+    const errorsElem = (event.target as HTMLSlotElement).assignedElements({
+      flatten: true,
+    })[0]
+
+    this.hasErrors = errorsElem.childElementCount > 0
+
+    this.errorsObserver = new MutationObserver(() => {
+      this.hasErrors = errorsElem.childElementCount > 0
+    })
+    this.errorsObserver.observe(errorsElem, {
+      childList: true,
+    })
+  }
+
+  /**
+   * Is the node read only in the current mode
+   */
+  protected isReadOnly(): boolean {
+    const mode = currentMode()
+    return mode < Mode.Alter || mode == Mode.Edit
+  }
+
+  /**
    * Is the node executable in the current mode
    */
   protected isExecutable(): boolean {
@@ -50,23 +88,37 @@ export default class StencilaExecutable extends StencilaEntity {
     return mode >= Mode.Alter && mode != Mode.Edit
   }
 
-  protected execute() {
-    this.emit('stencila-document-execute', {
+  /**
+   * Compile the node
+   */
+  protected compile() {
+    this.emit('stencila-document-compile', {
       nodeId: this.id,
-      ordering: 'Topological',
     })
   }
 
-  renderExecuteIcon(tw: TW) {
+  /**
+   * Execute the node
+   */
+  protected execute(
+    ordering: 'Single' | 'Appearance' | 'Topological' = 'Topological'
+  ) {
+    this.emit('stencila-document-execute', {
+      nodeId: this.id,
+      ordering,
+    })
+  }
+
+  renderExecuteButton(tw: TW) {
     const { title, icon, color } = this.executeIconFromStatusAndRequired(
       this.executeStatus,
       this.executeRequired
     )
     const isExecutable = this.isExecutable()
     return html`<sl-tooltip content="${title}">
-      <stencila-icon
+      <stencila-icon-button
         name=${icon}
-        @click=${isExecutable ? this.execute : null}
+        @click=${isExecutable ? () => this.execute() : null}
         class=${isExecutable
           ? tw`text-${color}-600 ${
               this.executeStatus === 'Running'
@@ -74,7 +126,7 @@ export default class StencilaExecutable extends StencilaEntity {
                 : 'cursor-pointer'
             }`
           : tw`text-${color}-600`}
-      ></stencila-icon>
+      ></stencila-icon-button>
     </sl-tooltip>`
   }
 
@@ -186,7 +238,7 @@ export default class StencilaExecutable extends StencilaEntity {
     // which causes other errors (e.g. if there is a patching error or a new variant added to
     // the above enums)
     return {
-      icon: 'question',
+      icon: 'question-circle',
       color: 'neutral',
       title: 'Unknown status',
     }

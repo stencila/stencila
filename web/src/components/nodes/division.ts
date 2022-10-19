@@ -44,7 +44,7 @@ export default class StencilaDivision extends StencilaStyled {
             part="header"
             class=${tw`flex justify-between items-center bg-slate-100 p-1 font(mono bold) text(sm slate-800)`}
           >
-            <span class=${tw`flex items-center text-base ml-1 ml-1 p-1`}>
+            <span class=${tw`flex items-center text-base ml-1 mr-2`}>
               <stencila-icon name="brush"></stencila-icon>
             </span>
             <span class=${tw`mr-2`}>div</span>

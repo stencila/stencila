@@ -38,10 +38,7 @@ export default class StencilaIf extends StencilaExecutable {
       )
     }
 
-    const mode = currentMode()
-    const readOnly = mode < Mode.Alter || mode === Mode.Edit
-
-    const addButton = !readOnly
+    const addButton = !this.isReadOnly()
       ? html`<stencila-icon-button
           name="plus-lg"
           color="violet"

@@ -46,6 +46,7 @@ import {
   highlightSpecialChars,
   keymap,
   lineNumbers,
+  placeholder,
   rectangularSelection,
 } from '@codemirror/view'
 
@@ -65,7 +66,7 @@ const { tw, sheet } = twSheet()
 
 @customElement('stencila-code-editor')
 export default class StencilaCodeEditor extends StencilaElement {
-  static styles = [sheet.target]
+  static styles = sheet.target
 
   /**
    * The code language
@@ -165,6 +166,12 @@ export default class StencilaCodeEditor extends StencilaElement {
    */
   @property({ attribute: 'no-controls', type: Boolean })
   noControls: boolean = false
+
+  /**
+   * Placeholder text
+   */
+  @property()
+  placeholder?: string
 
   /**
    * The name of the node property to send patch operations for when code changes
@@ -309,6 +316,7 @@ export default class StencilaCodeEditor extends StencilaElement {
             ),
           ]
         : [lineNumbers(), highlightActiveLineGutter(), foldGutter()]),
+      ...(this.placeholder ? [placeholder(this.placeholder)] : []),
 
       // Change-able extensions
       this.languageConfig.of(languageSupport),
@@ -621,6 +629,11 @@ export default class StencilaCodeEditor extends StencilaElement {
           /* Removed dotted outline when editor is focussed */
           .cm-editor.cm-focused {
             outline: none;
+          }
+
+          /* Make placeholder color more similar to browser input placeholder color */
+          .cm-placeholder {
+            color: #c8c8c8;
           }
 
           /* Improve appearance of autocomplete prompt */

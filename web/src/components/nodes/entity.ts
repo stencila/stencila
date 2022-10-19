@@ -15,35 +15,6 @@ export default class StencilaEntity extends StencilaElement {
   id: string
 
   /**
-   * Emit a patch with operations to replace each of the changed
-   * properties
-   *
-   * Excludes protected and private property with a name starting
-   * with an underscore and which are assumed to be used for
-   * component state only.
-   */
-  protected async update(changedProperties: Map<string, unknown>) {
-    super.update(changedProperties)
-
-    const ops = Array.from(changedProperties.keys())
-      .filter((name) => !name.startsWith('_'))
-      .map((name) => ({
-        type: 'Replace',
-        address: [name],
-        items: 1,
-        length: 1,
-        value: this[name],
-      }))
-
-    const patch = {
-      target: this.id,
-      ops,
-    }
-
-    return this.emit('stencila-document-patch', patch)
-  }
-
-  /**
    * Render a 'tag' showing the type and id of the entity
    */
   protected renderTag(tw: TW, color: string = 'neutral') {

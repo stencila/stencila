@@ -1,4 +1,5 @@
-import { html, PropertyValueMap } from 'lit'
+import { SlInput } from '@shoelace-style/shoelace'
+import { css, html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 import { currentMode, Mode } from '../../mode'
 
@@ -15,7 +16,15 @@ const { tw, sheet } = twSheet()
  */
 @customElement('stencila-for')
 export default class StencilaFor extends StencilaCodeExecutable {
-  static styles = sheet.target
+  static styles = [
+    sheet.target,
+    css`
+      sl-input::part(base) {
+        font-family: monospace;
+        border-color: rgba(191, 219, 254, var(--tw-border-opacity));
+      }
+    `,
+  ]
 
   /**
    * The `For.symbol` property
@@ -159,48 +168,61 @@ export default class StencilaFor extends StencilaCodeExecutable {
     }
   }
 
-  protected render() {
-    const mode = currentMode()
-    const readOnly = mode < Mode.Alter || mode === Mode.Edit
+  protected renderSymbolInput() {
+    const replace = (event: Event): boolean => {
+      const input = event.target as SlInput
+      if (input.reportValidity()) {
+        this.symbol = (event.target as HTMLInputElement).value
+        this.emitReplaceOperations('symbol')
+        return true
+      }
+      return false
+    }
 
-    const symbolEditor = html`<sl-input
+    return html`<sl-input
       class=${tw`min-w-0 w-1/4`}
       size="small"
       placeholder="item"
+      pattern="[a-zA-Z][a-zA-Z0-0_]*"
+      required="true"
       value=${this.symbol}
-      ?disabled=${readOnly}
-      @sl-change=${(event: Event) => {
-        this.symbol = (event.target as HTMLInputElement).value
-        this.emitReplaceOperations('symbol')
-      }}
+      ?disabled=${this.isReadOnly()}
+      @sl-change=${replace}
+      @sl-blur=${replace}
       @keypress=${(event: KeyboardEvent) => {
         if (event.key == 'Enter' && event.ctrlKey) {
           event.preventDefault()
-          this.symbol = (event.target as HTMLInputElement).value
-          this.emitReplaceOperations('symbol')
-          this.execute('Single')
+          if (replace(event)) {
+            this.execute('Single')
+          }
         }
       }}
     ></sl-input>`
+  }
 
-    const textEditor = html`<stencila-code-editor
+  protected renderTextEditor() {
+    return html`<stencila-code-editor
       class=${tw`min-w-0 w-full rounded overflow-hidden border(& blue-200) focus:border(& blue-400) focus:ring(2 blue-100) bg-blue-50 font-normal`}
       language=${this.programmingLanguage}
       single-line
       line-wrapping
       no-controls
-      ?disabled=${readOnly}
+      placeholder="items"
+      ?read-only=${this.isReadOnly()}
       @stencila-ctrl-enter=${() => this.execute()}
     >
       <slot name="text" slot="code"></slot>
     </stencila-code-editor>`
+  }
 
+  protected render() {
     const programmingLanguageMenu = html`<stencila-executable-language
       class=${tw`ml-2 text(base gray-500)`}
       programming-language=${this.programmingLanguage}
       guess-language=${this.guessLanguage == 'true'}
       exclude='["tailwind"]'
       color="blue"
+      ?disabled=${this.isReadOnly()}
       @stencila-document-patch=${(event: CustomEvent) => {
         // Update `this.programmingLanguage` (and `guessLanguage` for completeness)
         // so that the code editor language updates
@@ -239,7 +261,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     const errorsContainer = html`<div
       part="errors"
-      class=${tw`border(t violet-200) ${this.hasErrors || 'hidden'}`}
+      class=${tw`border(t blue-200) ${this.hasErrors || 'hidden'}`}
     >
       <slot
         name="errors"
@@ -348,9 +370,9 @@ export default class StencilaFor extends StencilaCodeExecutable {
           <stencila-icon name="repeat"></stencila-icon>
         </span>
         <span class=${tw`mr-1`}>for</span>
-        ${symbolEditor}
+        ${this.renderSymbolInput()}
         <span class=${tw`mx-1`}>in</span>
-        ${textEditor} ${programmingLanguageMenu} ${contentExpandButton}
+        ${this.renderTextEditor()} ${programmingLanguageMenu} ${contentExpandButton}
       </div>
       ${errorsContainer}
       ${contentContainer} ${otherwiseHeader} ${otherwiseContainer}

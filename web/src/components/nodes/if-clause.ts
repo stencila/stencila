@@ -194,9 +194,6 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       label == 'if' || label == 'elif' ? 'arrow-right' : 'arrow-return-right'
     const isActive = this.isActive == 'true'
 
-    const mode = currentMode()
-    const readOnly = mode < Mode.Alter || mode === Mode.Edit
-
     const iconElem = html`<span
       class=${tw`flex items-center text-base mx-2 p-1 ${
         isActive ? 'rounded-full border(& violet-300) bg-violet-100' : ''
@@ -213,7 +210,8 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       single-line
       line-wrapping
       no-controls
-      ?read-only=${readOnly}
+      placeholder="condition"
+      ?read-only=${this.isReadOnly()}
       @stencila-document-patch=${(event: CustomEvent) => {
         const patch = event.detail as Patch
 
@@ -244,7 +242,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       guess-language=${this.guessLanguage == 'true'}
       exclude='["tailwind"]'
       color="violet"
-      ?disabled=${readOnly}
+      ?disabled=${this.isReadOnly()}
       @stencila-document-patch=${(event: CustomEvent) => {
         // Update `this.programmingLanguage` (and `guessLanguage` for completeness)
         // so that the code editor language updates
@@ -285,7 +283,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       })
     }
 
-    const moveButton = !readOnly
+    const moveButton = !this.isReadOnly()
       ? html`<span
           class=${tw`flex justify-between items-center h-6 ml-2 rounded-full outline-none bg-violet-200(hover:& focus:&) focus:ring(1 violet-300)`}
           tabindex="0"
@@ -336,7 +334,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       )
     }
 
-    const removeButton = !readOnly
+    const removeButton = !this.isReadOnly()
       ? html`<stencila-icon-button
           name="x-circle"
           color="violet"
