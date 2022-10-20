@@ -135,7 +135,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
   }
 
   protected renderErrorsSlot(tw: TW) {
-    return html` <slot
+    return html`<slot
       name="errors"
       @slotchange=${(event: Event) => this.onErrorsSlotChange(event)}
     ></slot>`
@@ -200,7 +200,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
       name=${direction === 'vertical' ? 'chevron-right' : 'chevron-left'}
       color="slate"
       adjust=${`ml-2 rotate-${
-        this.isExpanded ? (direction === 'vertical' ? '90' : 180) : '0'
+        this.isExpanded ? (direction === 'vertical' ? 90 : 180) : 0
       } transition-transform`}
       @click=${() => {
         this.isExpanded = !this.isExpanded
