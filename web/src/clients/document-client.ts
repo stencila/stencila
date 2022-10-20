@@ -2,6 +2,7 @@ import { customAlphabet } from 'nanoid'
 import { Client as WsClient } from 'rpc-websockets'
 
 import { notify } from '../components/base/alert'
+import { currentMode, Mode } from '../mode'
 import { panic } from '../patches/checks'
 import { applyPatch } from '../patches/dom'
 import {
@@ -53,6 +54,9 @@ export class DocumentClient {
    */
   private browserId: string
 
+  /**
+   * The id of the document instance that this client is connected to
+   */
   private documentId: string
 
   /**
@@ -99,7 +103,7 @@ export class DocumentClient {
     }
     this.browserId = browserId
 
-    const { origin, path, token } = config ?? {}
+    const { origin, path, token, documentId } = config ?? {}
 
     // If arguments not supplied fallback to constructing them from the path or
     // server supplied config
@@ -119,16 +123,40 @@ export class DocumentClient {
     }
 
     this.connectionUrl = connectionUrl
+    this.documentId = documentId ?? ''
 
+    // Initialize log level from local storage if possible
     const logLevel = window.localStorage.getItem(localStorageKeys.logLevel)
     if (logLevel !== null) {
       this.logLevel = new Number(logLevel) as LogLevel
     }
 
+    // Listen for within browser events and forward on to the methods below
+
     window.addEventListener('stencila-document-patch', (event) => {
       const { detail: patch } = event as DocumentPatchEvent
       this.sendPatch(patch)
     })
+
+    window.addEventListener(
+      'stencila-document-compile',
+      (event: CustomEvent) => {
+        const {
+          detail: { nodeId, ordering },
+        } = event
+        this.compile(nodeId, ordering)
+      }
+    )
+
+    window.addEventListener(
+      'stencila-document-execute',
+      (event: CustomEvent) => {
+        const {
+          detail: { nodeId, ordering },
+        } = event
+        this.execute(nodeId, ordering)
+      }
+    )
   }
 
   /**
@@ -168,6 +196,11 @@ export class DocumentClient {
       notify(message, 'danger', 'exclamation-octagon')
   }
 
+  /**
+   * Change the log level of the client
+   *
+   * Stores the setting to the browser's local storage.
+   */
   changeLogLevel(level: LogLevel) {
     this.logLevel = level
     window.localStorage.setItem(localStorageKeys.logLevel, level.toString())
@@ -212,6 +245,11 @@ export class DocumentClient {
     // Emit event and logs
     this.emit('stencila-client-connected')
     this.debug(`Successfully connected to server: ${this.origin}`)
+
+    // Subscribe to patches depending upon mode
+    if (currentMode() >= Mode.Dynamic) {
+      this.subscribe('patched', (event) => this.receivePatch(event))
+    }
   }
 
   /**
@@ -248,13 +286,15 @@ export class DocumentClient {
    * Make a WebSocket JSON-RPC call
    */
   call(method: string, params: Record<string, unknown>): Promise<unknown> {
-    // TODO: Handle errors e.g if not connected or if call returns an
-    // error by creating a <stencila-alert> element
     if (!this.wsClient) {
-      this.error(`Not yet connected`)
+      this.error(`Not yet connected to server`)
       return Promise.resolve()
     }
-    return this.wsClient.call(method, params)
+    return this.wsClient
+      .call(method, { ...params, documentId: this.documentId })
+      .catch((error) => {
+        this.error(`Error when making request to server: ${error.message}`)
+      })
   }
 
   /**
@@ -299,7 +339,7 @@ export class DocumentClient {
     topic: DocumentTopic,
     handler: (event: DocumentEvent) => void
   ): Promise<Document> {
-    this.wsClient?.on(`documents.${topic}`, handler)
+    this.wsClient?.on(`documents:${this.documentId}:${topic}`, handler)
     return this.call('documents.subscribe', {
       topic,
     }) as Promise<Document>
@@ -309,7 +349,7 @@ export class DocumentClient {
    * Unsubscribe from a document topic
    */
   async unsubscribe(topic: DocumentTopic): Promise<Document> {
-    this.wsClient?.off(`documents.${topic}`)
+    this.wsClient?.off(`documents:${this.documentId}:${topic}`)
     return this.call('documents.unsubscribe', {
       topic,
     }) as Promise<Document>
@@ -333,8 +373,11 @@ export class DocumentClient {
   ): Promise<void> {
     // During development it's very useful to see the patch operations being sent
     if (process.env.NODE_ENV !== 'production') {
-      const { actor, target, ops } = patch
-      console.log('📢 Sending patch:', JSON.stringify({ actor, target }))
+      const { actor, target, address, ops } = patch
+      console.log(
+        '📢 Sending patch:',
+        JSON.stringify({ actor, target, address })
+      )
       for (const op of ops) console.log('  ', JSON.stringify(op))
     }
 
@@ -396,12 +439,29 @@ export class DocumentClient {
   }
 
   /**
+   * Compile a node or multiple nodes
+   */
+  async compile(nodeId: null | string): Promise<void> {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('📘 Compiling node:', nodeId)
+    }
+
+    return this.call('documents.compile', {
+      nodeId,
+    }) as Promise<void>
+  }
+
+  /**
    * Execute a node or multiple nodes
    */
   async execute(
     nodeId: null | string,
     ordering: 'Single' | 'Appearance' | 'Topological' = 'Topological'
   ): Promise<void> {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🏃 Executing node:', nodeId, ordering)
+    }
+
     return this.call('documents.execute', {
       nodeId,
       ordering,
@@ -415,6 +475,10 @@ export class DocumentClient {
     nodeId: null | string,
     scope: 'Single' | 'All' = 'All'
   ): Promise<void> {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔇 Cancelling execution of node:', nodeId, scope)
+    }
+
     return this.call('documents.cancel', {
       nodeId,
       scope,
