@@ -90,9 +90,9 @@ export default class CodeError extends StencilaEntity {
         </span>`
       : html`<div
           part="base"
-          class=${tw`bg-red-50 p-2 pr-1 font(mono) text(sm red-800)`}
+          class=${tw`bg-red-50 overflow-x-auto font(mono) text(sm red-800)`}
         >
-          <div part="header" class=${tw`flex justify-between`}>
+          <div part="header" class=${tw`flex justify-between p-2 pr-1`}>
             <span part="type" class=${tw`font(bold)`}>
               <slot name="type"></slot>
             </span>
@@ -101,12 +101,12 @@ export default class CodeError extends StencilaEntity {
 
           <pre
             part="message"
-            ${tw`overflow-x-auto`}
+            class=${tw`flex justify-between p-2 pr-1`}
           ><slot name="message"></slot></pre>
 
           <pre
             part="stacktrace"
-            class=${tw`pt-4 pb-2 overflow-x-auto ${
+            class=${tw`border(t red-100) p-2 pt-4 overflow-x-auto ${
               this.isStacktraceVisible || 'hidden'
             }`}
           ><slot
