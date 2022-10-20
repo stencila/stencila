@@ -245,18 +245,14 @@ impl ToHtml for CodeChunkCaption {
 /// (or similar) with a `level` property for info, warnings, errors etc.
 impl ToHtml for CodeError {
     fn to_html(&self, context: &mut EncodeContext) -> String {
-        let error_type = elem(
-            "span",
-            &[attr_prop("errorType"), attr_slot("type")],
-            self.error_type
-                .as_deref()
-                .map(|value| value.as_str())
-                .unwrap_or("Error"),
-        );
+        let error_type = self
+            .error_type
+            .as_ref()
+            .map_or_else(nothing, |error_type| attr("error-type", error_type));
 
         let error_message = elem(
             "span",
-            &[attr_prop("errorMessage"), attr_slot("message")],
+            &[attr_itemprop("errorMessage"), attr_slot("message")],
             &self.error_message.to_html(context),
         );
 
@@ -266,15 +262,15 @@ impl ToHtml for CodeError {
         // generating HTML for patches.
         let stack_trace = elem_placeholder(
             "span",
-            &[attr_prop("stackTrace"), attr_slot("stacktrace")],
+            &[attr_itemprop("stackTrace"), attr_slot("stacktrace")],
             &self.stack_trace,
             context,
         );
 
         elem(
             "stencila-code-error",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[error_type, error_message, stack_trace].concat(),
+            &[attr_itemtype::<Self>(), attr_id(&self.id), error_type],
+            &[error_message, stack_trace].concat(),
         )
     }
 }
@@ -509,37 +505,8 @@ impl ToHtml for Call {
             &[attr_prop("arguments"), attr_slot("arguments")],
             &self
                 .arguments
-                .iter()
-                .flatten()
-                .enumerate()
-                .map(|(index, arg)| {
-                    let symbol_value_attr = match &arg.symbol {
-                        Some(symbol) => attr("value", symbol),
-                        None => "".to_string(),
-                    };
-                    let symbol = elem_empty(
-                        "input",
-                        &[attr_prop("symbol"), attr_slot("symbol"), symbol_value_attr],
-                    );
-
-                    let (name, value) = label_and_input(
-                        &arg.name,
-                        &arg.validator,
-                        &arg.value,
-                        &arg.default,
-                        context,
-                    );
-
-                    elem(
-                        "stencila-call-argument",
-                        &[
-                            attr_itemtype::<CallArgument>(),
-                            attr("index", &index.to_string()),
-                        ],
-                        &[name, symbol, value].concat(),
-                    )
-                })
-                .join(""),
+                .as_ref()
+                .map_or_else(nothing, |args| args.to_html(context)),
         );
 
         let dependencies = elem(
@@ -602,6 +569,35 @@ impl ToHtml for Call {
                 content,
             ]
             .concat(),
+        )
+    }
+}
+
+impl ToHtml for CallArgument {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
+        let name = attr("name", &self.name);
+
+        let programming_language = self
+            .programming_language
+            .as_ref()
+            .map_or_else(nothing, |lang| attr("programming_language", lang));
+
+        let guess_language = self
+            .guess_language
+            .as_ref()
+            .map_or_else(nothing, |guess| attr("guess_language", &guess.to_string()));
+
+        let text = elem_placeholder("pre", &[attr_slot("text")], &self.text, context);
+
+        elem(
+            "stencila-call-argument",
+            &[
+                attr_itemtype::<Self>(),
+                name,
+                programming_language,
+                guess_language,
+            ],
+            &text,
         )
     }
 }

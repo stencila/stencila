@@ -1,14 +1,32 @@
 import { html } from 'lit'
-import { customElement, state } from 'lit/decorators'
+import { customElement, property, state } from 'lit/decorators'
 
 import { twSheet } from '../utils/css'
 import StencilaEntity from './entity'
 
 const { tw, sheet } = twSheet()
 
+/**
+ * A component representing a Stencila `CodeError` node
+ *
+ * @slot message The `CodeError.errorMessage` property
+ * @slot stacktrace The `CodeError.stackTrace` property
+ */
 @customElement('stencila-code-error')
 export default class CodeError extends StencilaEntity {
   static styles = sheet.target
+
+  static color = 'red'
+
+  /**
+   * The `CodeError.errorType` property
+   *
+   * This is a property, rather than a slot, because it should be a simple, unformatted string,
+   * and having it as a property makes it easier to do things like have different icons for
+   * different error types.
+   */
+  @property({ attribute: 'error-type' })
+  errorType?: string
 
   /**
    * Whether the error has any stacktrace
@@ -44,14 +62,24 @@ export default class CodeError extends StencilaEntity {
   @state()
   private isStacktraceVisible: boolean = false
 
-  render() {
+  /**
+   * Get the icon icon for the error type
+   *
+   * At present just returns a single icon but in future this may vary
+   * with the error type.
+   */
+  protected getIcon() {
+    return 'exclamation-octagon'
+  }
+
+  protected render() {
     const inline =
       this.parentElement?.tagName.toLowerCase() === 'span' ? true : false
 
     const viewStacktraceButton =
       this.hasStacktrace && !inline
         ? html`<span
-            class=${tw`flex items-center p-1 rounded-full outline-none focus:ring(2 red-200) cursor-pointer`}
+            class=${tw`flex items-center p-1 rounded-full outline-none focus:ring(2 ${CodeError.color}-200) cursor-pointer`}
             tabindex="0"
             @keydown=${(event: KeyboardEvent) => {
               if (
@@ -79,22 +107,26 @@ export default class CodeError extends StencilaEntity {
     return inline
       ? html`<span
           part="base"
-          class=${tw`inline-block max-w-xs bg-red-50 p-1 font(mono) text(sm red-800)`}
+          class=${tw`max-w-xs bg-${CodeError.color}-50 px-1 font(mono) text(sm ${CodeError.color}-800)`}
         >
-          <span part="type" class=${tw`font(bold)`}>
-            <slot name="type"></slot>
-          </span>
-          <code part="message" class=${tw`ml-1`}
-            ><slot name="message"></slot
-          ></code>
+          <stencila-icon
+            name=${this.getIcon()}
+            class=${tw`inline-block align-middle`}
+          ></stencila-icon>
+          <span class=${tw`font-bold`}>${this.errorType ?? 'Error'}</span>
+          <code part="message"><slot name="message"></slot></code>
         </span>`
       : html`<div
           part="base"
-          class=${tw`bg-red-50 overflow-x-auto font(mono) text(sm red-800)`}
+          class=${tw`bg-${CodeError.color}-50 overflow-x-auto font(mono) text(sm ${CodeError.color}-800)`}
         >
           <div part="header" class=${tw`flex justify-between p-2 pr-1`}>
-            <span part="type" class=${tw`font(bold)`}>
-              <slot name="type"></slot>
+            <span class=${tw`flex items-center`}>
+              <stencila-icon
+                name=${this.getIcon()}
+                class=${tw`mr-2`}
+              ></stencila-icon>
+              <span class=${tw`font-bold`}>${this.errorType ?? 'Error'}</span>
             </span>
             ${viewStacktraceButton}
           </div>
@@ -106,7 +138,9 @@ export default class CodeError extends StencilaEntity {
 
           <pre
             part="stacktrace"
-            class=${tw`border(t red-100) p-2 pt-4 overflow-x-auto ${
+            class=${tw`border(t ${
+              CodeError.color
+            }-100) p-2 pt-4 overflow-x-auto ${
               this.isStacktraceVisible || 'hidden'
             }`}
           ><slot
