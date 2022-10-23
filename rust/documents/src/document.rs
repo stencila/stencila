@@ -916,7 +916,9 @@ impl Document {
                 }
 
                 // Apply the patch to the root node
-                apply(root, &patch);
+                if let Err(error) = apply(root, &patch) {
+                    tracing::error!("While patching document `{}`: {}", id, error);
+                }
 
                 // Increment version counter
                 counter += 1;
