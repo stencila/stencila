@@ -811,6 +811,7 @@ impl ToMd for CreativeWorkContent {
 impl ToMd for Node {
     fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
+            Node::Article(node) => node.to_md(options),
             Node::AudioObject(..) => self.to_inline().to_md(options),
             Node::Boolean(node) => node.to_md(options),
             Node::Button(node) => node.to_md(options),
@@ -819,6 +820,7 @@ impl ToMd for Node {
             Node::CodeChunk(node) => node.to_md(options),
             Node::CodeExpression(node) => node.to_md(options),
             Node::CodeFragment(node) => node.to_md(options),
+            Node::CreativeWork(node) => node.to_md(options),
             Node::Division(node) => node.to_md(options),
             Node::Emphasis(node) => node.to_md(options),
             Node::For(node) => node.to_md(options),
