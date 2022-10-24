@@ -50,7 +50,7 @@ export default class StencilaIf extends StencilaExecutable {
           @click=${() => add()}
         >
         </stencila-icon-button>`
-      : ''
+      : html`<span></span>`
 
     return html`<div
       part="base"
