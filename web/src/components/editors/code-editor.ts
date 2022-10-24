@@ -545,7 +545,7 @@ export default class StencilaCodeEditor extends StencilaElement {
    */
   onCodeMutation(mutationList: MutationRecord[]) {
     const content = this.codeElem?.textContent ?? ''
-    this.setContent(content)
+    this.setCode(content)
   }
 
   /**
@@ -674,7 +674,11 @@ export default class StencilaCodeEditor extends StencilaElement {
         @slotchange=${(event: Event) => this.onCodeSlotChange(event)}
       ></slot>
 
-      <div part="code" id="codemirror"></div>
+      <div
+        part="code"
+        id="codemirror"
+        class=${this.readOnly ? tw`cursor-not-allowed` : ''}
+      ></div>
     </div>`
   }
 
