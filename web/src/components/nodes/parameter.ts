@@ -186,7 +186,7 @@ export default class StencilaParameter extends StencilaExecutable {
     return html`<span
       part="base"
       class=${tw`inline-flex items-center my-1 rounded border(& ${StencilaParameter.color}-200)
-                 bg-${StencilaParameter.color}-100 py-0.5 px-1
+                 bg-${StencilaParameter.color}-50 py-1 px-1
                  font(mono) text(sm ${StencilaParameter.color}-700)`}
     >
       <span class=${tw`inline-flex items-center ml-1`}>
