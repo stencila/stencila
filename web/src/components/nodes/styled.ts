@@ -134,6 +134,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
       programming-language=${this.programmingLanguage}
       guess-language=${this.guessLanguage == 'true'}
       color=${StencilaStyled.color}
+      ?disabled=${this.isReadOnly()}
     ></stencila-executable-language>`
   }
 
