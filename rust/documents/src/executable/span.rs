@@ -8,8 +8,7 @@ use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::Address;
 
 use stencila_schema::{
-    CodeError, Cord, Span, Duration, ExecuteAuto, ExecuteRequired, ExecuteStatus, Node,
-    Timestamp,
+    CodeError, Cord, Duration, ExecuteAuto, ExecuteRequired, ExecuteStatus, Node, Span, Timestamp,
 };
 
 use crate::{assert_id, register_id};
@@ -83,6 +82,21 @@ impl Executable for Span {
         // Assume side-effect free code expression execution semantics
         resource_info.execute_auto = Some(ExecuteAuto::Always);
         resource_info.execute_pure = Some(true);
+
+        // If the language is Tailwind, and it has not relations (i.e. no variable interpolation) then
+        // attempt to transpile it to CSS.
+        // Fail silently (do not store errors) since the user may still be in the middle
+        // of typing during this compile,
+        if matches!(lang, Format::Tailwind)
+            && resource_info
+                .relations
+                .as_ref()
+                .map_or_else(|| true, |relations| relations.is_empty())
+        {
+            if let Ok(css) = parser_tailwind::transpile_string(&self.text) {
+                self.css = css;
+            }
+        }
 
         context.resource_infos.push(resource_info);
 

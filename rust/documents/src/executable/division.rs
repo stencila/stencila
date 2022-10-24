@@ -84,6 +84,21 @@ impl Executable for Division {
         resource_info.execute_auto = Some(ExecuteAuto::Always);
         resource_info.execute_pure = Some(true);
 
+        // If the language is Tailwind, and it has not relations (i.e. no variable interpolation) then
+        // attempt to transpile it to CSS.
+        // Fail silently (do not store errors) since the user may still be in the middle
+        // of typing during this compile,
+        if matches!(lang, Format::Tailwind)
+            && resource_info
+                .relations
+                .as_ref()
+                .map_or_else(|| true, |relations| relations.is_empty())
+        {
+            if let Ok(css) = parser_tailwind::transpile_string(&self.text) {
+                self.css = css;
+            }
+        }
+
         context.resource_infos.push(resource_info);
 
         Ok(())
