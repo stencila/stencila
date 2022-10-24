@@ -657,23 +657,18 @@ impl ToMd for Division {
 
 impl ToMd for Span {
     fn to_md(&self, options: &EncodeOptions) -> String {
-        let Self {
-            programming_language,
-            text,
-            content,
-            ..
-        } = self;
+        let content = self.content.to_md(options);
 
-        let lang = formats::match_name(programming_language);
-        let spec = if lang == Format::Tailwind {
-            ["{", text, "}"].concat()
+        let text = ["`", &self.text, "`"].concat();
+
+        let lang = formats::match_name(&self.programming_language);
+        let lang = if !matches!(lang, Format::Tailwind | Format::Unknown) {
+            ["{", &self.programming_language, "}"].concat()
         } else {
-            ["`", text, "`{", programming_language, "}"].concat()
+            String::new()
         };
 
-        let content = content.to_md(options);
-
-        ["[", &content, "]", &spec].concat()
+        ["[", &content, "]", &text, &lang].concat()
     }
 }
 
