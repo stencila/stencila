@@ -1,10 +1,8 @@
-import { capitalCase } from 'change-case'
-import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators'
-
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown'
 import '@shoelace-style/shoelace/dist/components/menu/menu'
-
+import { capitalCase } from 'change-case'
+import { css, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
 import { currentMode, Mode } from '../../mode'
 import '../base/icon-button'
 import { twSheet } from '../utils/css'
@@ -13,6 +11,8 @@ import Executable from './executable'
 
 /**
  * A base component to represent the `CodeExecutable` node type
+ *
+ * @slot text The `CodeExecutable.text` property
  */
 export default class StencilaCodeExecutable extends Executable {
   /**
@@ -24,11 +24,10 @@ export default class StencilaCodeExecutable extends Executable {
   /**
    * The `CodeExecutable.guessLanguage` property
    *
-   * Because an _optional_ boolean property in Rust and because of how patching works
-   * must be a string, not a HTML boolean property.
+   * Because of how patching works, this property must must be a string, not a HTML boolean attribute.
    */
   @property({ attribute: 'guess-language', reflect: true })
-  guessLanguage: string = 'true'
+  guessLanguage?: string
 
   /**
    * The `CodeExecutable.text` property
@@ -154,7 +153,14 @@ const { tw, sheet } = twSheet()
  */
 @customElement('stencila-executable-language')
 export class StencilaExecutableLanguage extends StencilaElement {
-  static styles = sheet.target
+  static styles = [
+    sheet.target,
+    css`
+      sl-menu-item::part(label) {
+        line-height: 1;
+      }
+    `,
+  ]
 
   static languages = [
     ['bash', '', 'Bash'],
@@ -197,16 +203,21 @@ export class StencilaExecutableLanguage extends StencilaElement {
   exclude: string[] = []
 
   /**
-   * The color palette for the icon
+   * The color palette for the trigger icon
    */
   @property()
   color: string = 'gray'
+
+  /**
+   * Whether the menu is disabled
+   */
+  @property({ type: Boolean })
+  disabled: boolean = false
 
   render() {
     const languages = StencilaExecutableLanguage.languages.filter(
       ([lang]) => this.include.includes(lang) && !this.exclude.includes(lang)
     )
-
     const language = this.programmingLanguage.toLowerCase()
 
     let icon = 'code'
@@ -218,15 +229,12 @@ export class StencilaExecutableLanguage extends StencilaElement {
     }
 
     return html`
-      <sl-dropdown
-        class=${tw`flex items-center`}
-        ?disabled=${currentMode() < Mode.Alter}
-      >
+      <sl-dropdown class=${tw`flex items-center`} ?disabled=${this.disabled}>
         <stencila-icon-button
           slot="trigger"
           name=${icon}
           color=${this.color}
-          ?disabled=${currentMode() < Mode.Alter}
+          ?disabled=${this.disabled}
         >
         </stencila-icon-button>
 
@@ -236,7 +244,7 @@ export class StencilaExecutableLanguage extends StencilaElement {
             if (value == 'guess') {
               // Toggle `guessLanguage`
               this.guessLanguage = !this.guessLanguage
-              this.emitReplaceOperations('guessLanguage')
+              this.changeProperty('guessLanguage')
             } else {
               // Change the `programmingLanguage` and set `guessLanguage` to false if necessary
               const changedProperties: string[] = []
@@ -247,7 +255,7 @@ export class StencilaExecutableLanguage extends StencilaElement {
                   this.guessLanguage = false
                   changedProperties.push('guessLanguage')
                 }
-                this.emitReplaceOperations(...changedProperties)
+                this.changeProperty(...changedProperties)
               }
             }
           }}
@@ -263,7 +271,7 @@ export class StencilaExecutableLanguage extends StencilaElement {
                   name="${value}-color"
                   class=${cls}
                 ></stencila-icon>
-                ${title}
+                <span class=${tw`text-sm`}>${title}</span>
               </sl-menu-item>`
           )}
           ${language?.trim().length > 0 &&
@@ -289,7 +297,7 @@ export class StencilaExecutableLanguage extends StencilaElement {
               slot="prefix"
               name="magic"
             ></stencila-icon>
-            Guess
+            <span class=${tw`text-sm`}>Guess</span>
           </sl-menu-item>
         </sl-menu>
       </sl-dropdown>

@@ -14,10 +14,14 @@ const { tw, sheet } = twSheet()
 export default class StencilaSpan extends StencilaStyled {
   static styles = sheet.target
 
+  static color = 'blue'
+
+  static formats = ['markdown', 'yaml', 'json']
+
   protected renderErrorsContainer(tw: TW) {
     return html`<span
       part="errors"
-      class=${tw`inline-flex bg-red-50 border(l slate-200) ${
+      class=${tw`bg-red-50 border(l ${StencilaSpan.color}-200) pt-1 ${
         this.hasErrors || 'hidden'
       }`}
     >
@@ -28,7 +32,7 @@ export default class StencilaSpan extends StencilaStyled {
   protected renderContentContainer(tw: TW) {
     return html`<span
       part="content"
-      class=${tw`inline-flex border(l slate-200) py-1 px-2 ${
+      class=${tw`inline-flex border(l ${StencilaSpan.color}-200) py-1 px-2 ${
         this.isExpanded || 'hidden'
       }`}
     >
@@ -42,11 +46,12 @@ export default class StencilaSpan extends StencilaStyled {
       ? html`${this.renderCssSlot(tw)} ${this.renderContentSlot(tw)}`
       : html`<span
           part="base"
-          class=${tw`inline-flex rounded overflow-hidden border(& slate-200)`}
+          class=${tw`inline-flex my-1 rounded overflow-hidden border(& ${StencilaSpan.color}-200)`}
         >
           <span
             part="start"
-            class=${tw`inline-flex items-center bg-slate-100 py-0.5 px-1 font(mono bold) text(sm slate-800)`}
+            class=${tw`inline-flex items-center bg-${StencilaSpan.color}-50 py-0.5 px-1
+                       font(mono bold) text(sm ${StencilaSpan.color}-700)`}
           >
             <span class=${tw`text-base ml-1`}>
               <stencila-icon name="brush"></stencila-icon>
@@ -54,8 +59,20 @@ export default class StencilaSpan extends StencilaStyled {
             <span class=${tw`ml-1 mr-2 `}>span</span>
             ${this.renderTextEditor(tw)} ${this.renderLanguageMenu(tw)}
           </span>
+
           ${this.renderErrorsContainer(tw)} ${this.renderCssSlot(tw)}
           ${this.renderContentContainer(tw)}
+
+          <span
+            part="end"
+            class=${tw`inline-flex items-center bg-${StencilaSpan.color}-50
+                      border(l ${StencilaSpan.color}-200) px-1 text(sm ${StencilaSpan.color}-700)`}
+          >
+            ${this.renderEntityDownload(
+              StencilaSpan.formats,
+              StencilaSpan.color
+            )}
+          </span>
         </span>`
   }
 }

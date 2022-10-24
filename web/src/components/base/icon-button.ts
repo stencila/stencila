@@ -51,7 +51,7 @@ export default class StencilaIconButton extends StencilaElement {
     return html`<span
       class=${tw`flex items-center p-1 rounded-full outline-none text-${
         this.color
-      }-800 ${
+      }-700 ${
         !this.disabled
           ? `cursor-pointer bg-${this.color}-200(hover:& focus:&) focus:ring(1 ${this.color}-300)`
           : ''

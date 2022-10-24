@@ -23,7 +23,7 @@ export default class StencilaElement extends LitElement {
    * Emit a patch event for the closest element having an `id` with
    * a `Replace` operations for one or more properties
    */
-  protected emitReplaceOperations(...properties: string[]) {
+  protected changeProperty(...properties: string[]) {
     const ops = properties.map(
       (property) =>
         ({

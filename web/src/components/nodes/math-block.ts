@@ -13,30 +13,50 @@ const { tw, sheet } = twSheet()
 export default class StencilaMathBlock extends StencilaMath {
   static styles = sheet.target
 
+  static color = 'blue'
+
+  static formats = ['markdown', 'yaml', 'json']
+
   render() {
     const mode = currentMode()
     return mode < Mode.Inspect
       ? html`${this.renderMathMLSlot(tw, false)}`
       : html`<div
           part="base"
-          class=${tw`my-4 rounded border(& emerald-200) overflow-hidden`}
+          class=${tw`my-4 rounded border(& ${StencilaMathBlock.color}-200) overflow-hidden`}
         >
           <div
             part="header"
-            class=${tw`flex justify-between items-center bg-emerald-100 p-1 font(mono bold) text(sm emerald-800)`}
+            class=${tw`flex justify-between items-center bg-${StencilaMathBlock.color}-50
+                        p-1 font(mono bold) text(sm ${StencilaMathBlock.color}-700)`}
           >
             <span class=${tw`flex items-center text-base ml-1 p-1`}>
               <stencila-icon name="math"></stencila-icon>
             </span>
             <span class=${tw`mr-2`}>math</span>
-            ${this.renderTextEditor(tw)} ${this.renderLanguageMenu(tw)}
-            ${this.renderExpandButton(tw)}
+            ${this.renderTextEditor(tw, StencilaMathBlock.color)}
+            ${this.renderLanguageMenu(tw, StencilaMathBlock.color)}
+            ${this.renderExpandButton(tw, StencilaMathBlock.color)}
           </div>
+
           ${this.renderMathMLSlot(
             tw,
             false,
-            `border(t emerald-200) p-2 ${this.isExpanded || 'hidden'}`
+            `border(t ${StencilaMathBlock.color}-200) p-2 ${
+              this.isExpanded || 'hidden'
+            }`
           )}
+
+          <div
+            part="footer"
+            class=${tw`grid justify-items-end items-center bg-${StencilaMathBlock.color}-50
+                       border(t ${StencilaMathBlock.color}-200) p-1 text(sm ${StencilaMathBlock.color}-700)`}
+          >
+            ${this.renderEntityDownload(
+              StencilaMathBlock.formats,
+              StencilaMathBlock.color
+            )}
+          </div>
         </div>`
   }
 }

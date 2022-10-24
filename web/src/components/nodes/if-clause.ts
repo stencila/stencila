@@ -1,6 +1,5 @@
 import { html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
-import { currentMode, Mode } from '../../mode'
 
 import { Patch } from '../../types'
 import '../base/icon-button'
@@ -12,6 +11,7 @@ import './code-executable'
 import StencilaCodeExecutable, {
   StencilaExecutableLanguage,
 } from './code-executable'
+import StencilaIf from './if'
 
 const { tw, sheet } = twSheet()
 
@@ -47,6 +47,8 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
 
   /**
    * The index of this clause within an `If` node
+   *
+   * Used for display and to emit patches with address for this clause.
    */
   @state()
   private index: number
@@ -129,7 +131,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
 
   /**
    * Override of `Element.emitPatch` to make the parent `If` node the `target` of
-   * the patch (by using the id of the containing <stencila-if>) prepending the address
+   * the patch (by using the id of the containing <stencila-if>) and prepending the address
    * with the relative address of this `IfClause`
    */
   protected async emitPatch(patch: Patch) {
@@ -158,7 +160,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
 
   /**
    * Override of `Executable.execute` to execute the parent `If` node by using
-   * the id of the containing <stencila-if> node
+   * the id of the containing <stencila-if> element
    */
   protected execute() {
     this.emit('stencila-document-execute', {
@@ -196,7 +198,9 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
 
     const iconElem = html`<span
       class=${tw`flex items-center text-base mx-2 p-1 ${
-        isActive ? 'rounded-full border(& violet-300) bg-violet-100' : ''
+        isActive
+          ? `rounded-full border(& ${StencilaIf.color}-300) bg-violet-100`
+          : ''
       }`}
     >
       <stencila-icon name=${iconName}></stencila-icon>
@@ -205,7 +209,8 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     const labelElem = html`<span class=${tw`mr-1 w-12`}>${label}</span>`
 
     const textEditor = html`<stencila-code-editor
-      class=${tw`min-w-0 w-full rounded overflow-hidden border(& violet-200) focus:border(& violet-400) focus:ring(2 violet-100) bg-violet-50 font-normal`}
+      class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${StencilaIf.color}-200)
+                 focus:border(& ${StencilaIf.color}-400) focus:ring(2 ${StencilaIf.color}-100) bg-violet-50 font-normal`}
       language=${this.programmingLanguage}
       single-line
       line-wrapping
@@ -241,7 +246,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       programming-language=${this.programmingLanguage}
       guess-language=${this.guessLanguage == 'true'}
       exclude='["tailwind"]'
-      color="violet"
+      color=${StencilaIf.color}
       ?disabled=${this.isReadOnly()}
       @stencila-document-patch=${(event: CustomEvent) => {
         // Update `this.programmingLanguage` (and `guessLanguage` for completeness)
@@ -285,7 +290,8 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
 
     const moveButton = !this.isReadOnly()
       ? html`<span
-          class=${tw`flex justify-between items-center h-6 ml-2 rounded-full outline-none bg-violet-200(hover:& focus:&) focus:ring(1 violet-300)`}
+          class=${tw`flex justify-between items-center h-6 ml-2 rounded-full outline-none
+                     bg-${StencilaIf.color}-200(hover:& focus:&) focus:ring(1 ${StencilaIf.color}-300)`}
           tabindex="0"
           @keydown=${(event: KeyboardEvent) => {
             const retainFocus = () => (event.target as HTMLElement).focus()
@@ -337,7 +343,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     const removeButton = !this.isReadOnly()
       ? html`<stencila-icon-button
           name="x-circle"
-          color="violet"
+          color=${StencilaIf.color}
           adjust="ml-2"
           @keydown=${(event: KeyboardEvent) =>
             event.key == 'Enter' && event.shiftKey && remove()}
@@ -348,7 +354,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
 
     const expandButton = html`<stencila-icon-button
       name="chevron-right"
-      color="violet"
+      color=${StencilaIf.color}
       adjust=${`ml-2 rotate-${
         this.isExpanded ? '90' : '0'
       } transition-transform`}
@@ -378,7 +384,9 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
 
     const errorsContainer = html`<div
       part="errors"
-      class=${tw`border(t violet-200) ${this.hasErrors || 'hidden'}`}
+      class=${tw`border(t ${StencilaIf.color}-200) ${
+        this.hasErrors || 'hidden'
+      }`}
     >
       <slot
         name="errors"
@@ -388,7 +396,9 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
 
     const contentContainer = html`<div
       part="content"
-      class=${tw`border(t violet-200) p-2 ${this.isExpanded || 'hidden'}`}
+      class=${tw`border(t ${StencilaIf.color}-200) p-2 ${
+        this.isExpanded || 'hidden'
+      }`}
     >
       ${!this.hasContent
         ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
@@ -399,10 +409,11 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       ></slot>
     </div>`
 
-    return html`<div part="base" class=${tw`border(b violet-200)`}>
+    return html`<div part="base" class=${tw`border(b ${StencilaIf.color}-200)`}>
       <div
         part="header"
-        class=${tw`flex justify-between items-center bg-violet-50 p-1 font(mono bold) text(sm violet-800)`}
+        class=${tw`flex justify-between items-center bg-${StencilaIf.color}-50 p-1
+                   font(mono bold) text(sm ${StencilaIf.color}-700)`}
       >
         ${iconElem} ${labelElem} ${textEditor} ${programmingLanguageMenu}
         ${moveButton} ${removeButton} ${expandButton}

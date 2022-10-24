@@ -8,6 +8,8 @@ import StencilaCodeExecutable from './code-executable'
  * A base class for Stencila `Styled` nodes `Division` and `Span`
  */
 export default class StencilaStyled extends StencilaCodeExecutable {
+  static color = 'blue'
+
   /**
    * Whether the `content` is visible
    */
@@ -113,12 +115,13 @@ export default class StencilaStyled extends StencilaCodeExecutable {
 
   protected renderTextEditor(tw: TW) {
     return html`<stencila-code-editor
-      class=${tw`min-w-0 w-full rounded overflow-hidden border(& slate-200) focus:border(& slate-400) focus:ring(2 slate-100) bg-slate-50 font-normal pr-1`}
+      class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${StencilaStyled.color}-200) focus:border(& ${StencilaStyled.color}-400) focus:ring(2 ${StencilaStyled.color}-100) bg-${StencilaStyled.color}-50 font-normal pr-1`}
       language=${this.programmingLanguage}
-      ?read-only=${currentMode() < Mode.Alter}
       single-line
       line-wrapping
       no-controls
+      placeholder="Not yet compiled or no rules"
+      ?read-only=${this.isReadOnly()}
       @stencila-ctrl-enter=${() => this.execute()}
     >
       <slot name="text" slot="code"></slot>
@@ -127,10 +130,10 @@ export default class StencilaStyled extends StencilaCodeExecutable {
 
   protected renderLanguageMenu(tw: TW) {
     return html`<stencila-executable-language
-      class=${tw`ml-2 text(base slate-500)`}
+      class=${tw`ml-2 text(base ${StencilaStyled.color}-500)`}
       programming-language=${this.programmingLanguage}
       guess-language=${this.guessLanguage == 'true'}
-      color="slate"
+      color=${StencilaStyled.color}
     ></stencila-executable-language>`
   }
 
@@ -144,7 +147,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
   protected renderViewCssButton(tw: TW) {
     return html` <stencila-icon-button
       name=${this.isCssVisible ? 'eye-slash' : 'eye'}
-      color="slate"
+      color=${StencilaStyled.color}
       adjust="ml-2"
       @click=${() => {
         this.isCssVisible = !this.isCssVisible
@@ -171,14 +174,15 @@ export default class StencilaStyled extends StencilaCodeExecutable {
     return html`<div class=${this.isCssVisible ? 'block' : 'hidden'}>
       <div
         part="css-header"
-        class=${tw`flex justify-between items-center bg-slate-100 border(t b slate-200) p-1 font(mono bold) text(sm slate-800)`}
+        class=${tw`flex justify-between items-center bg-${StencilaStyled.color}-50 border(t b ${StencilaStyled.color}-200)
+                   p-1 font(sans) text(xs ${StencilaStyled.color}-700)`}
       >
         <span class=${tw`flex items-center`}>
           <stencila-icon
-            name="code"
-            class=${tw`ml-2 mr-3 text-base`}
+            name="css-color"
+            class=${tw`ml-1 mr-1 text-base`}
           ></stencila-icon>
-          <span>css</span>
+          <span>CSS</span>
         </span>
       </div>
 
@@ -198,7 +202,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
   ) {
     return html`<stencila-icon-button
       name=${direction === 'vertical' ? 'chevron-right' : 'chevron-left'}
-      color="slate"
+      color=${StencilaStyled.color}
       adjust=${`ml-2 rotate-${
         this.isExpanded ? (direction === 'vertical' ? 90 : 180) : 0
       } transition-transform`}

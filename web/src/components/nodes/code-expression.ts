@@ -16,68 +16,24 @@ const { tw, sheet } = twSheet()
 
 @customElement('stencila-code-expression')
 export default class StencilaCodeExpression extends StencilaCodeExecutable {
-  static styles = [sheet.target]
+  static styles = sheet.target
 
   render() {
-    return html`<span
-      class="${tw(
-        css`
-          ${varLocal(
-            'ui-border-style',
-            'ui-border-width',
-            'ui-border-color',
-            'ui-border-radius',
-            'ui-background-color',
-            'ui-icon-color',
-            'ui-font-family',
-            'ui-font-size',
-            'ui-text-color'
-          )}
-
-          ${varApply(
-            'ui-border-style',
-            'ui-border-width',
-            'ui-border-color',
-            'ui-border-radius',
-            'ui-background-color',
-            'ui-icon-color',
-            'ui-font-family',
-            'ui-font-size',
-            'ui-text-color'
-          )}
-
-          ${twApply('inline-block my-1 py-0.5 px-1')}
-
-          [part='output'].has-outputs {
-            ${varUse(
-              'main-background-color',
-              'main-font-family',
-              'main-text-color',
-              'main-font-size'
-            )}
-            ${twApply('py-1 px-2')}
-          }
-        `
-      )}"
-    >
-      ${this.renderExecuteIcon(tw)}
-      <stencila-tag color="green">${this.id}</stencila-tag>
-      ${this.renderLanguageSelector(tw)}
-
+    return html`<span class="${tw``}">
       <stencila-code-editor
-        part="code"
+        class=${tw`min-w-0 w-full rounded overflow-hidden border(& blue-200) focus:border(& blue-400) focus:ring(2 blue-100) bg-blue-50 font-normal`}
         language=${this.programmingLanguage}
-        ?read-only=${!this.isEditable()}
         single-line
         line-wrapping
         no-controls
-        @stencila-ctrl-enter=${this.execute}
-        class="${this.isCodeVisible ? '' : tw`hidden`}"
+        placeholder="items"
+        ?read-only=${this.isReadOnly()}
+        @stencila-ctrl-enter=${() => this.execute()}
       >
         <slot name="text" slot="code"></slot>
       </stencila-code-editor>
 
-      <span part="output" class=${this.hasOutputs ? 'has-outputs' : ''}>
+      <span part="output" class=${this._hasOutputs ? 'has-outputs' : ''}>
         <slot name="output" @slotchange=${this.onOutputsSlotChange}></slot>
       </span>
     </span>`

@@ -462,6 +462,25 @@ export default class StencilaCodeEditor extends StencilaElement {
   }
 
   /**
+   * Set the content of the editor
+   */
+  public setCode(code: string) {
+    this.codeUpdating = true
+    const docState = this.editorView!.state
+    const transaction =
+      docState?.update({
+        changes: {
+          from: 0,
+          to: docState.doc.length,
+          insert: code,
+        },
+      }) ?? {}
+    this.codeUpdating = false
+
+    this.editorView!.dispatch(transaction)
+  }
+
+  /**
    * Dispatch a CodeMirror `StateEffect` to the editor
    */
   private dispatchEffect(effect: StateEffect<unknown>) {
@@ -526,20 +545,7 @@ export default class StencilaCodeEditor extends StencilaElement {
    */
   onCodeMutation(mutationList: MutationRecord[]) {
     const content = this.codeElem?.textContent ?? ''
-
-    this.codeUpdating = true
-    const docState = this.editorView!.state
-    const transaction =
-      docState?.update({
-        changes: {
-          from: 0,
-          to: docState.doc.length,
-          insert: content,
-        },
-      }) ?? {}
-    this.codeUpdating = false
-
-    this.editorView!.dispatch(transaction)
+    this.setContent(content)
   }
 
   /**
@@ -664,8 +670,8 @@ export default class StencilaCodeEditor extends StencilaElement {
 
       <slot
         name="code"
-        @slotchange=${this.onCodeSlotChange}
         class="${tw`hidden`}"
+        @slotchange=${(event: Event) => this.onCodeSlotChange(event)}
       ></slot>
 
       <div part="code" id="codemirror"></div>

@@ -64,9 +64,9 @@ export default class StencilaMath extends StencilaExecutable {
     if (display) display.innerHTML = mathml
   }
 
-  protected renderTextEditor(tw: TW) {
+  protected renderTextEditor(tw: TW, color: string) {
     return html`<stencila-code-editor
-      class=${tw`min-w-0 w-full rounded overflow-hidden border(& emerald-200) focus:border(& emerald-400) focus:ring(2 emerald-100) bg-emerald-50 font-normal pr-1`}
+      class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${color}-200) focus:border(& ${color}-400) focus:ring(2 ${color}-100) bg-emerald-50 font-normal pr-1`}
       language=${this.mathLanguage}
       single-line
       line-wrapping
@@ -78,9 +78,9 @@ export default class StencilaMath extends StencilaExecutable {
     </stencila-code-editor>`
   }
 
-  protected renderLanguageMenu(tw: TW) {
+  protected renderLanguageMenu(tw: TW, color: string) {
     return html`<stencila-math-language
-      class=${tw`ml-2 text(base emerald-500)`}
+      class=${tw`ml-2 text(base ${color}-500)`}
       math-language=${this.mathLanguage}
       ?disabled=${this.isReadOnly()}
     ></stencila-math-language>`
@@ -88,11 +88,12 @@ export default class StencilaMath extends StencilaExecutable {
 
   protected renderExpandButton(
     tw: TW,
+    color: string,
     direction: 'vertical' | 'horizontal' = 'vertical'
   ) {
     return html`<stencila-icon-button
       name=${direction === 'vertical' ? 'chevron-right' : 'chevron-left'}
-      color="emerald"
+      color=${color}
       adjust=${`ml-1 rotate-${
         this.isExpanded ? (direction === 'vertical' ? '90' : 180) : '0'
       } transition-transform`}
@@ -193,7 +194,7 @@ export class StencilaMathLanguage extends StencilaElement {
             const value = event.detail.item.value
             if (this.mathLanguage !== value) {
               this.mathLanguage = value
-              this.emitReplaceOperations('mathLanguage')
+              this.changeProperty('mathLanguage')
             }
           }}}"
         >

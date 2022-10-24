@@ -14,10 +14,16 @@ const { tw, sheet } = twSheet()
 export default class StencilaDivision extends StencilaStyled {
   static styles = sheet.target
 
+  static color = 'blue'
+
+  static formats = ['markdown', 'python', 'javascript', 'r', 'yaml', 'json']
+
   protected renderErrorsContainer(tw: TW) {
     return html`<div
       part="errors"
-      class=${tw`border(t slate-200) ${this.hasErrors || 'hidden'}`}
+      class=${tw`border(t ${StencilaDivision.color}-200) ${
+        this.hasErrors || 'hidden'
+      }`}
     >
       ${this.renderErrorsSlot(tw)}
     </div>`
@@ -26,7 +32,9 @@ export default class StencilaDivision extends StencilaStyled {
   protected renderContentContainer(tw: TW) {
     return html`<div
       part="content"
-      class=${tw`border(t slate-200) p-2 ${this.isExpanded || 'hidden'}`}
+      class=${tw`border(t ${StencilaDivision.color}-200) p-2 ${
+        this.isExpanded || 'hidden'
+      }`}
     >
       ${this.renderContentSlot(tw)}
     </div>`
@@ -38,11 +46,12 @@ export default class StencilaDivision extends StencilaStyled {
       ? html`${this.renderCssSlot(tw)} ${this.renderContentSlot(tw)}`
       : html`<div
           part="base"
-          class=${tw`my-4 rounded border(& slate-200) overflow-hidden`}
+          class=${tw`my-4 rounded border(& ${StencilaDivision.color}-200) overflow-hidden`}
         >
           <div
             part="header"
-            class=${tw`flex justify-between items-center bg-slate-100 p-1 font(mono bold) text(sm slate-800)`}
+            class=${tw`flex justify-between items-center bg-${StencilaDivision.color}-50
+                       p-1 font(mono bold) text(sm ${StencilaDivision.color}-700)`}
           >
             <span class=${tw`flex items-center text-base ml-1 mr-2`}>
               <stencila-icon name="brush"></stencila-icon>
@@ -51,8 +60,20 @@ export default class StencilaDivision extends StencilaStyled {
             ${this.renderTextEditor(tw)} ${this.renderLanguageMenu(tw)}
             ${this.renderViewCssButton(tw)} ${this.renderExpandButton(tw)}
           </div>
+
           ${this.renderErrorsContainer(tw)} ${this.renderCssViewer(tw)}
           ${this.renderContentContainer(tw)}
+
+          <div
+            part="footer"
+            class=${tw`grid justify-items-end items-center bg-${StencilaDivision.color}-50
+                       border(t ${StencilaDivision.color}-200) p-1 text(sm ${StencilaDivision.color}-700)`}
+          >
+            ${this.renderEntityDownload(
+              StencilaDivision.formats,
+              StencilaDivision.color
+            )}
+          </div>
         </div>`
   }
 }

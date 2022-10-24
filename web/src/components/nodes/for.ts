@@ -21,10 +21,13 @@ export default class StencilaFor extends StencilaCodeExecutable {
     css`
       sl-input::part(base) {
         font-family: monospace;
-        border-color: rgba(191, 219, 254, var(--tw-border-opacity));
       }
     `,
   ]
+
+  static color = 'blue'
+
+  static formats = ['markdown', 'yaml', 'json']
 
   /**
    * The `For.symbol` property
@@ -173,7 +176,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
       const input = event.target as SlInput
       if (input.reportValidity()) {
         this.symbol = (event.target as HTMLInputElement).value
-        this.emitReplaceOperations('symbol')
+        this.changeProperty('symbol')
         return true
       }
       return false
@@ -202,7 +205,8 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
   protected renderTextEditor() {
     return html`<stencila-code-editor
-      class=${tw`min-w-0 w-full rounded overflow-hidden border(& blue-200) focus:border(& blue-400) focus:ring(2 blue-100) bg-blue-50 font-normal`}
+      class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${StencilaFor.color}-200)
+                focus:border(& ${StencilaFor.color}-400) focus:ring(2 ${StencilaFor.color}-100) bg-${StencilaFor.color}-50 font-normal`}
       language=${this.programmingLanguage}
       single-line
       line-wrapping
@@ -221,7 +225,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
       programming-language=${this.programmingLanguage}
       guess-language=${this.guessLanguage == 'true'}
       exclude='["tailwind"]'
-      color="blue"
+      color=${StencilaFor.color}
       ?disabled=${this.isReadOnly()}
       @stencila-document-patch=${(event: CustomEvent) => {
         // Update `this.programmingLanguage` (and `guessLanguage` for completeness)
@@ -239,7 +243,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
         | 'isIterationsExpanded'
     ) => html`<stencila-icon-button
       name="chevron-right"
-      color="blue"
+      color=${StencilaFor.color}
       adjust=${`ml-2 rotate-${
         this[property] ? '90' : '0'
       } transition-transform`}
@@ -261,7 +265,9 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     const errorsContainer = html`<div
       part="errors"
-      class=${tw`border(t blue-200) ${this.hasErrors || 'hidden'}`}
+      class=${tw`border(t ${StencilaFor.color}-200) ${
+        this.hasErrors || 'hidden'
+      }`}
     >
       <slot
         name="errors"
@@ -273,7 +279,9 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     const contentContainer = html`<div
       part="content"
-      class=${tw`border(t blue-200) p-2 ${this.isContentExpanded || 'hidden'}`}
+      class=${tw`border(t ${StencilaFor.color}-200) p-2 ${
+        this.isContentExpanded || 'hidden'
+      }`}
     >
       ${!this.hasContent
         ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
@@ -288,13 +296,14 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     const otherwiseHeader = html`<div
       part="otherwise-header"
-      class=${tw`flex justify-between items-center bg-blue-50 border(t blue-200) p-1 font(mono bold) text(sm blue-800)`}
+      class=${tw`flex justify-between items-center bg-${StencilaFor.color}-50 border(t ${StencilaFor.color}-200)
+                 p-1 font(mono bold) text(sm ${StencilaFor.color}-700)`}
     >
       <span class=${tw`flex items-center`}>
         <span
           class=${tw`flex items-center text-base ml-1 mr-2 p-1 ${
             !this.hasIterations && this.hasOtherwise
-              ? 'rounded-full border(& blue-300) bg-blue-100'
+              ? `rounded-full border(& ${StencilaFor.color}-300) bg-${StencilaFor.color}-100`
               : ''
           }`}
         >
@@ -307,7 +316,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     const otherwiseContainer = html`<div
       part="otherwise"
-      class=${tw`border(t blue-200) p-2 ${
+      class=${tw`border(t ${StencilaFor.color}-200) p-2 ${
         this.isOtherwiseExpanded || 'hidden'
       }`}
     >
@@ -324,7 +333,10 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     const iterationsHeader = html`<div
       part="iterations-header"
-      class=${tw`flex justify-between items-center bg-blue-50 border(t blue-200) p-1 font(mono bold) text(sm blue-800) ${
+      class=${tw`flex justify-between items-center bg-${
+        StencilaFor.color
+      }-50 border(t ${StencilaFor.color}-200)
+                 p-1 font(mono bold) text(sm ${StencilaFor.color}-700) ${
         this.hasIterations || 'hidden'
       }`}
     >
@@ -332,7 +344,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
         <span
           class=${tw`flex items-center text-base ml-1 mr-2 p-1 ${
             this.hasIterations
-              ? 'rounded-full border(& blue-300) bg-blue-100'
+              ? `rounded-full border(& ${StencilaFor.color}-300) bg-${StencilaFor.color}-100`
               : ''
           }`}
         >
@@ -345,9 +357,9 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     const iterationsContainer = html`<div
       part="iterations"
-      class=${tw`${this.hasIterations || 'border(t blue-200) p-2'} ${
-        this.isIterationsExpanded || 'hidden'
-      }`}
+      class=${tw`${
+        this.hasIterations || `border(t ${StencilaFor.color}-200) p-2`
+      } ${this.isIterationsExpanded || 'hidden'}`}
     >
       ${!this.hasIterations
         ? html`<p class=${tw`text(center gray-300)`}>No items</p>`
@@ -360,11 +372,11 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     return html`<div
       part="base"
-      class=${tw`my-4 rounded border(& blue-200) overflow-hidden`}
+      class=${tw`my-4 rounded border(& ${StencilaFor.color}-200) overflow-hidden`}
     >
       <div
         part="header"
-        class=${tw`flex items-center bg-blue-50 p-1 font(mono bold) text(sm blue-800)`}
+        class=${tw`flex items-center bg-${StencilaFor.color}-50 p-1 font(mono bold) text(sm ${StencilaFor.color}-700)`}
       >
         <span class=${tw`flex items-center text-base ml-1 mr-2 p-1`}>
           <stencila-icon name="repeat"></stencila-icon>
@@ -372,11 +384,19 @@ export default class StencilaFor extends StencilaCodeExecutable {
         <span class=${tw`mr-1`}>for</span>
         ${this.renderSymbolInput()}
         <span class=${tw`mx-1`}>in</span>
-        ${this.renderTextEditor()} ${programmingLanguageMenu} ${contentExpandButton}
+        ${this.renderTextEditor()} ${programmingLanguageMenu}
+        ${contentExpandButton}
       </div>
-      ${errorsContainer}
-      ${contentContainer} ${otherwiseHeader} ${otherwiseContainer}
-      ${iterationsHeader} ${iterationsContainer}
+
+      ${errorsContainer} ${contentContainer} ${otherwiseHeader}
+      ${otherwiseContainer} ${iterationsHeader} ${iterationsContainer}
+
+      <div
+        part="footer"
+        class=${tw`grid justify-items-end items-center bg-${StencilaFor.color}-50
+                       border(t ${StencilaFor.color}-200) p-1 text(sm ${StencilaFor.color}-700)`}
+      >
+        ${this.renderEntityDownload(StencilaFor.formats, StencilaFor.color)}
       </div>
     </div>`
   }

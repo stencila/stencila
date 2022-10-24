@@ -107,7 +107,7 @@ export default class CodeError extends StencilaEntity {
     return inline
       ? html`<span
           part="base"
-          class=${tw`max-w-xs bg-${CodeError.color}-50 px-1 font(mono) text(sm ${CodeError.color}-800)`}
+          class=${tw`max-w-xs bg-${CodeError.color}-50 px-1 font(mono) text(sm ${CodeError.color}-700)`}
         >
           <stencila-icon
             name=${this.getIcon()}
@@ -118,7 +118,7 @@ export default class CodeError extends StencilaEntity {
         </span>`
       : html`<div
           part="base"
-          class=${tw`bg-${CodeError.color}-50 overflow-x-auto font(mono) text(sm ${CodeError.color}-800)`}
+          class=${tw`bg-${CodeError.color}-50 overflow-x-auto font(mono) text(sm ${CodeError.color}-700)`}
         >
           <div part="header" class=${tw`flex justify-between p-2 pr-1`}>
             <span class=${tw`flex items-center`}>

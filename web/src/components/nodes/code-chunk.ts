@@ -102,13 +102,16 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
             ${twApply('hidden')}
           }
 
-          [part='outputs'].has-outputs {
+          [part='outputs'] {
             ${varUse(
               'main-background-color',
               'main-font-family',
               'main-text-color',
               'main-font-size'
             )}
+          }
+
+          [part='outputs'].has-outputs {
             ${twApply('p-1')}
           }
         `
@@ -116,14 +119,12 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
     >
       <div
         part="header"
-        class="code-${this.isCodeVisible ? 'visible' : 'invisible'}"
+        class="code-${this._isCodeVisible ? 'visible' : 'invisible'}"
       >
         <div class=${tw`flex flex-row items-center`}>
-          <span class="${tw`mr-2`}"> ${this.renderExecuteIcon(tw)} </span>
-          <stencila-tag size="sm" color="green">${this.id}</stencila-tag>
+          <span class="${tw`mr-2`}"> ${this.renderExecuteButton(tw)} </span>
+          ${this.renderTag(tw, 'green')}
         </div>
-
-        <div class="end">${this.renderLanguageSelector(tw)}</div>
       </div>
 
       <stencila-code-editor
@@ -131,15 +132,15 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
         language=${this.programmingLanguage}
         ?read-only=${!this.isEditable()}
         no-controls
-        @stencila-ctrl-enter=${this.execute}
-        class="${this.isCodeVisible ? '' : tw`hidden`}"
+        @stencila-ctrl-enter=${() => this.execute('Topological')}
+        class="${this._isCodeVisible ? '' : tw`hidden`}"
       >
         <slot name="text" slot="code"></slot>
       </stencila-code-editor>
 
       <div
         part="footer"
-        class="code-${this.isCodeVisible ? 'visible' : 'invisible'}"
+        class="code-${this._isCodeVisible ? 'visible' : 'invisible'}"
       >
         <span class="${tw`mr-3 w-12`}">
           <sl-tooltip content="Number of times executed">
@@ -163,7 +164,11 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
         </span>
       </div>
 
-      <div part="outputs" class=${this.hasOutputs ? 'has-outputs' : ''}>
+      <div part="errors">
+        <slot name="errors"></slot>
+      </div>
+
+      <div part="outputs" class=${this._hasOutputs ? 'has-outputs' : ''}>
         <slot name="outputs" @slotchange=${this.onOutputsSlotChange}></slot>
       </div>
     </div>`

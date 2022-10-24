@@ -25,10 +25,13 @@ export default class StencilaInclude extends StencilaExecutable {
     css`
       sl-input::part(base) {
         font-family: monospace;
-        border-color: rgba(221, 214, 254, var(--tw-border-opacity));
       }
     `,
   ]
+
+  static color = 'blue'
+
+  static formats = ['markdown', 'yaml', 'json']
 
   /**
    * The `Include.source` property
@@ -86,12 +89,12 @@ export default class StencilaInclude extends StencilaExecutable {
     })
   }
 
-  protected renderSourceInput(tw: TW) {
+  protected renderSourceInput(tw: TW, action: 'compile' | 'execute') {
     const replace = (event: Event): boolean => {
       const input = event.target as SlInput
       if (input.reportValidity()) {
         this.source = (event.target as HTMLInputElement).value
-        this.emitReplaceOperations('source')
+        this.changeProperty('source')
         return true
       }
       return false
@@ -110,19 +113,19 @@ export default class StencilaInclude extends StencilaExecutable {
         if (event.key == 'Enter' && event.ctrlKey) {
           event.preventDefault()
           if (replace(event)) {
-            this.compile()
+            action == 'compile' ? this.compile() : this.execute()
           }
         }
       }}
     ></sl-input>`
   }
 
-  protected renderSelectInput(tw: TW) {
+  protected renderSelectInput(tw: TW, action: 'compile' | 'execute') {
     const replace = (event: Event): boolean => {
       const input = event.target as SlInput
       if (input.reportValidity()) {
         this.select = (event.target as HTMLInputElement).value
-        this.emitReplaceOperations('select')
+        this.changeProperty('select')
         return true
       }
       return false
@@ -139,7 +142,7 @@ export default class StencilaInclude extends StencilaExecutable {
         if (event.key == 'Enter' && event.ctrlKey) {
           event.preventDefault()
           if (replace(event)) {
-            this.compile()
+            action == 'compile' ? this.compile() : this.execute()
           }
         }
       }}
@@ -196,25 +199,38 @@ export default class StencilaInclude extends StencilaExecutable {
   }
 
   protected render() {
-    const color = 'purple'
     return html`<div
       part="base"
-      class=${tw`my-4 rounded border(& ${color}-200) overflow-hidden`}
+      class=${tw`my-4 rounded border(& ${StencilaInclude.color}-200) overflow-hidden`}
     >
       <div
         part="header"
-        class=${tw`flex items-center bg-${color}-100 p-1 font(mono bold) text(sm ${color}-800)`}
+        class=${tw`flex items-center bg-${StencilaInclude.color}-50 p-1
+                   font(mono bold) text(sm ${StencilaInclude.color}-700)`}
       >
         <span class=${tw`flex items-center text-base mr-2`}>
           <stencila-icon name="box-arrow-in-right"></stencila-icon>
         </span>
         <span class=${tw`mr-2`}>include</span>
-        ${this.renderSourceInput(tw)}
+        ${this.renderSourceInput(tw, 'compile')}
         <span class=${tw`mx-2`}>select</span>
-        ${this.renderSelectInput(tw)} ${this.renderExpandButton(tw, color)}
+        ${this.renderSelectInput(tw, 'compile')}
+        ${this.renderExpandButton(tw, StencilaInclude.color)}
       </div>
-      ${this.renderErrorsContainer(tw, color)}
-      ${this.renderContentContainer(tw, color)}
+
+      ${this.renderErrorsContainer(tw, StencilaInclude.color)}
+      ${this.renderContentContainer(tw, StencilaInclude.color)}
+
+      <div
+        part="footer"
+        class=${tw`grid justify-items-end items-center bg-${StencilaInclude.color}-50
+                       border(t ${StencilaInclude.color}-200) p-1 text(sm ${StencilaInclude.color}-700)`}
+      >
+        ${this.renderEntityDownload(
+          StencilaInclude.formats,
+          StencilaInclude.color
+        )}
+      </div>
     </div>`
   }
 }

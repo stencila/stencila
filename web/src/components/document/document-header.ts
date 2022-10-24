@@ -23,6 +23,7 @@ import {
   modeIcon,
   modeLabel,
 } from '../../mode'
+import '../base/icon'
 import '../base/icon-button'
 import { twSheet } from '../utils/css'
 import StencilaElement from '../utils/element'

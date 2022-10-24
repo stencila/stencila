@@ -1,7 +1,6 @@
 import HtmlFragment from 'html-fragment'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
-import { currentMode, Mode } from '../../mode'
 
 import { twSheet } from '../utils/css'
 import StencilaExecutable from './executable'
@@ -16,6 +15,10 @@ const { tw, sheet } = twSheet()
 @customElement('stencila-if')
 export default class StencilaIf extends StencilaExecutable {
   static styles = sheet.target
+
+  static color = 'blue'
+
+  static formats = ['markdown', 'yaml', 'json']
 
   protected render() {
     const add = () => {
@@ -41,7 +44,7 @@ export default class StencilaIf extends StencilaExecutable {
     const addButton = !this.isReadOnly()
       ? html`<stencila-icon-button
           name="plus-lg"
-          color="violet"
+          color=${StencilaIf.color}
           adjust="ml-3"
           @keydown=${(event: KeyboardEvent) => event.key == 'Enter' && add()}
           @click=${() => add()}
@@ -51,7 +54,7 @@ export default class StencilaIf extends StencilaExecutable {
 
     return html`<div
       part="base"
-      class=${tw`my-4 rounded border(& violet-200) overflow-hidden`}
+      class=${tw`my-4 rounded border(& ${StencilaIf.color}-200) overflow-hidden`}
     >
       <div part="clauses">
         <slot name="clauses"></slot>
@@ -59,9 +62,11 @@ export default class StencilaIf extends StencilaExecutable {
 
       <div
         part="footer"
-        class=${tw`flex justify-between items-center bg-violet-50 p-1 font(mono bold) text(sm violet-800)`}
+        class=${tw`flex justify-between items-center bg-${StencilaIf.color}-50 p-1
+                  font(mono bold) text(sm ${StencilaIf.color}-700)`}
       >
         ${addButton}
+        ${this.renderEntityDownload(StencilaIf.formats, StencilaIf.color)}
       </div>
     </div>`
   }
