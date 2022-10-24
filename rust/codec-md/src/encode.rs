@@ -155,7 +155,7 @@ impl ToMd for Parameter {
     fn to_md(&self, _options: &EncodeOptions) -> String {
         // If the parameter is derived, then only encode its name and what it is derived from
         if let Some(from) = self.derived_from.as_deref() {
-            return ["&[", &self.name, "]{from:", from.as_str(), "}"].concat();
+            return ["&[", &self.name, "]{from=", from.as_str(), "}"].concat();
         }
 
         let mut options = String::new();
@@ -283,7 +283,7 @@ impl ToMd for Button {
                 let options = if label_as_name == self.name {
                     String::new()
                 } else {
-                    ["{name:", &self.name, "}"].concat()
+                    ["{name=", &self.name, "}"].concat()
                 };
                 (label.to_string(), options)
             }
@@ -549,15 +549,19 @@ impl ToMd for Include {
         let mut options = Vec::new();
 
         if let Some(media_type) = self.media_type.as_deref() {
-            options.push(["format:", media_type].concat())
+            if !media_type.is_empty() {
+                options.push(["format=", media_type].concat())
+            }
         }
 
         if let Some(select) = self.select.as_deref() {
-            options.push(["select:", select].concat())
+            if !select.is_empty() {
+                options.push(["select=", select].concat())
+            }
         }
 
         if let Some(execute_auto) = &self.execute_auto {
-            options.push(["autorun:", execute_auto.as_ref()].concat())
+            options.push(["autorun=", execute_auto.as_ref()].concat())
         }
 
         let attrs = if options.is_empty() {
@@ -678,15 +682,15 @@ impl ToMd for Form {
 
         let mut options = Vec::new();
         if let Some(from) = &self.derive_from {
-            options.push(["from:", from].concat())
+            options.push(["from=", from].concat())
         }
         if let Some(action) = &self.derive_action {
-            options.push(["action:", &action.as_ref().to_lowercase()].concat())
+            options.push(["action=", &action.as_ref().to_lowercase()].concat())
         }
         if let Some(item) = &self.derive_item {
             options.push(
                 [
-                    "item:",
+                    "item=",
                     &match item.as_ref() {
                         FormDeriveItem::Integer(int) => int.to_string(),
                         FormDeriveItem::String(string) => string.clone(),
