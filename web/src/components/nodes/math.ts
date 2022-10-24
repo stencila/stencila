@@ -66,7 +66,8 @@ export default class StencilaMath extends StencilaExecutable {
 
   protected renderTextEditor(tw: TW, color: string) {
     return html`<stencila-code-editor
-      class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${color}-200) focus:border(& ${color}-400) focus:ring(2 ${color}-100) bg-emerald-50 font-normal pr-1`}
+      class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${color}-200) bg-${color}-50
+                 focus:border(& ${color}-400) focus:ring(2 ${color}-100) font-normal pr-1`}
       language=${this.mathLanguage}
       single-line
       line-wrapping
