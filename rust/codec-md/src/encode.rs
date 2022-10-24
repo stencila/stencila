@@ -6,6 +6,7 @@ use codec::{
     EncodeOptions,
 };
 use formats::Format;
+use node_transform::Transform;
 
 use crate::utils::escape;
 
@@ -142,8 +143,9 @@ delimited_inline_text_to_md!(CodeFragment, "`");
 
 impl ToMd for MathFragment {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        match self.math_language.as_ref().map(|string| string.as_str()) {
-            Some("asciimath") => ["`", &self.text, "`{asciimath}"].concat(),
+        match self.math_language.as_str() {
+            "asciimath" => ["`", &self.text, "`{asciimath}"].concat(),
+            "mathml" => ["`", &self.text, "`{mathml}"].concat(),
             _ => ["$", &self.text, "$"].concat(),
         }
     }
@@ -165,82 +167,82 @@ impl ToMd for Parameter {
                 ValidatorTypes::EnumValidator(validator) => {
                     let json = serde_json::to_string(&validator.values)
                         .unwrap_or_else(|_| "[]".to_string());
-                    options += &["enum vals:", &escape(&json)].concat();
+                    options += &["enum vals=", &escape(&json)].concat();
                 }
                 ValidatorTypes::IntegerValidator(validator) => {
                     options += "int";
                     if let Some(min) = validator.minimum {
-                        options += " min:";
+                        options += " min=";
                         options += &min.to_string();
                     }
                     if let Some(max) = validator.maximum {
-                        options += " max:";
+                        options += " max=";
                         options += &max.to_string();
                     }
                     if let Some(mult) = validator.multiple_of {
-                        options += " mult:";
+                        options += " mult=";
                         options += &mult.to_string();
                     }
                 }
                 ValidatorTypes::NumberValidator(validator) => {
                     options += "num";
                     if let Some(min) = validator.minimum {
-                        options += " min:";
+                        options += " min=";
                         options += &min.to_string();
                     }
                     if let Some(max) = validator.maximum {
-                        options += " max:";
+                        options += " max=";
                         options += &max.to_string();
                     }
                     if let Some(mult) = validator.multiple_of {
-                        options += " mult:";
+                        options += " mult=";
                         options += &mult.to_string();
                     }
                 }
                 ValidatorTypes::StringValidator(validator) => {
                     options += "str";
                     if let Some(min) = validator.min_length {
-                        options += " min:";
+                        options += " min=";
                         options += &min.to_string();
                     }
                     if let Some(max) = validator.max_length {
-                        options += " max:";
+                        options += " max=";
                         options += &max.to_string();
                     }
                     if let Some(pattern) = validator.pattern.as_deref() {
-                        options += &[" pattern:\"", &escape(pattern), "\""].concat();
+                        options += &[" pattern=\"", &escape(pattern), "\""].concat();
                     }
                 }
                 ValidatorTypes::DateValidator(validator) => {
                     options += "date";
                     if let Some(min) = &validator.minimum {
-                        options += " min:";
+                        options += " min=";
                         options += &min.to_string();
                     }
                     if let Some(max) = &validator.maximum {
-                        options += " max:";
+                        options += " max=";
                         options += &max.to_string();
                     }
                 }
                 ValidatorTypes::TimeValidator(validator) => {
                     options += "time";
                     if let Some(min) = &validator.minimum {
-                        options += " min:";
+                        options += " min=";
                         options += &min.to_string();
                     }
                     if let Some(max) = &validator.maximum {
-                        options += " max:";
+                        options += " max=";
                         options += &max.to_string();
                     }
                 }
                 ValidatorTypes::DateTimeValidator(validator) => {
                     options += "datetime";
                     if let Some(min) = &validator.minimum {
-                        options += " min:";
+                        options += " min=";
                         options += &min.to_string();
                     }
                     if let Some(max) = &validator.maximum {
-                        options += " max:";
+                        options += " max=";
                         options += &max.to_string();
                     }
                 }
@@ -366,8 +368,9 @@ impl ToMd for CodeChunk {
 
 impl ToMd for MathBlock {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        match self.math_language.as_ref().map(|string| string.as_str()) {
-            Some("asciimath") => ["```asciimath\n", &self.text, "\n```\n\n"].concat(),
+        match self.math_language.as_str() {
+            "asciimath" => ["```asciimath\n", &self.text, "\n```\n\n"].concat(),
+            "mathml" => ["```mathml\n", &self.text, "\n```\n\n"].concat(),
             _ => ["$$\n", &self.text, "\n$$\n\n"].concat(),
         }
     }
@@ -579,16 +582,24 @@ impl ToMd for Call {
 
         let mut options = Vec::new();
 
-        if let Some(media_type) = self.media_type.as_deref() {
-            options.push(["format:", media_type].concat())
+        if let Some(media_type) = self
+            .media_type
+            .as_deref()
+            .and_then(|value| (!value.is_empty()).then_some(value))
+        {
+            options.push(["format=", media_type].concat())
         }
 
-        if let Some(select) = self.select.as_deref() {
-            options.push(["select:", select].concat())
+        if let Some(select) = self
+            .select
+            .as_deref()
+            .and_then(|value| (!value.is_empty()).then_some(value))
+        {
+            options.push(["select=", select].concat())
         }
 
         if let Some(execute_auto) = &self.execute_auto {
-            options.push(["autorun:", execute_auto.as_ref()].concat())
+            options.push(["autorun=", execute_auto.as_ref()].concat())
         }
 
         let attrs = if options.is_empty() {
@@ -603,9 +614,9 @@ impl ToMd for Call {
 
 impl ToMd for CallArgument {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        if let Some(symbol) = &self.symbol {
-            if !symbol.trim().is_empty() {
-                return [&self.name, "=", symbol].concat();
+        if let Some(text) = &self.text {
+            if !text.trim().is_empty() {
+                return [&self.name, "=", text].concat();
             }
         }
 
@@ -800,18 +811,27 @@ impl ToMd for CreativeWorkContent {
 impl ToMd for Node {
     fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
-            Node::Article(node) => node.to_md(options),
+            Node::AudioObject(..) => self.to_inline().to_md(options),
             Node::Boolean(node) => node.to_md(options),
+            Node::Button(node) => node.to_md(options),
+            Node::Call(node) => node.to_md(options),
             Node::CodeBlock(node) => node.to_md(options),
+            Node::CodeChunk(node) => node.to_md(options),
+            Node::CodeExpression(node) => node.to_md(options),
             Node::CodeFragment(node) => node.to_md(options),
-            Node::CreativeWork(node) => node.to_md(options),
             Node::Division(node) => node.to_md(options),
             Node::Emphasis(node) => node.to_md(options),
+            Node::For(node) => node.to_md(options),
             Node::Form(node) => node.to_md(options),
             Node::Heading(node) => node.to_md(options),
+            Node::If(node) => node.to_md(options),
+            Node::ImageObject(..) => self.to_inline().to_md(options),
+            Node::Include(node) => node.to_md(options),
             Node::Integer(node) => node.to_md(options),
             Node::Link(node) => node.to_md(options),
             Node::List(node) => node.to_md(options),
+            Node::MathBlock(node) => node.to_md(options),
+            Node::MathFragment(node) => node.to_md(options),
             Node::Null(node) => node.to_md(options),
             Node::Number(node) => node.to_md(options),
             Node::Paragraph(node) => node.to_md(options),
@@ -824,7 +844,10 @@ impl ToMd for Node {
             Node::Strong(node) => node.to_md(options),
             Node::Subscript(node) => node.to_md(options),
             Node::Superscript(node) => node.to_md(options),
+            Node::Table(..) => self.to_block().to_md(options),
+            Node::ThematicBreak(node) => node.to_md(options),
             Node::Underline(node) => node.to_md(options),
+            Node::VideoObject(..) => self.to_inline().to_md(options),
             _ => format!(
                 "<!-- Markdown encoding for Node::{} is not yet supported -->\n\n",
                 self.as_ref()
