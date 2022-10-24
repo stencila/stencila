@@ -1,4 +1,4 @@
-import { css, html } from 'lit'
+import { css, html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import '@shoelace-style/shoelace/dist/components/input/input'
@@ -87,6 +87,21 @@ export default class StencilaInclude extends StencilaExecutable {
     this.contentObserver.observe(contentElem, {
       childList: true,
     })
+  }
+
+  /**
+   * Override to set `isExpanded` based on the changes in `hasContent`.
+   * This allows expansion/contraction based on changes to content as well as based on
+   * user interaction.
+   */
+  protected update(
+    changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
+  ): void {
+    super.update(changedProperties)
+
+    if (changedProperties.has('hasContent')) {
+      this.isExpanded = this.hasContent
+    }
   }
 
   protected renderSourceInput(tw: TW, action: 'compile' | 'execute') {
