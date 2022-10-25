@@ -195,6 +195,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     const iconName =
       label == 'if' || label == 'elif' ? 'arrow-right' : 'arrow-return-right'
     const isActive = this.isActive == 'true'
+    const readOnly = this.isReadOnly()
 
     const iconElem = html`<span
       class=${tw`flex items-center text-base mx-2 p-1 ${
@@ -216,7 +217,8 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       line-wrapping
       no-controls
       placeholder="condition"
-      ?read-only=${this.isReadOnly()}
+      ?read-only=${readOnly}
+      ?disabled=${readOnly}
       @stencila-document-patch=${(event: CustomEvent) => {
         const patch = event.detail as Patch
 
@@ -247,7 +249,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       guess-language=${this.guessLanguage == 'true'}
       exclude='["tailwind"]'
       color=${StencilaIf.color}
-      ?disabled=${this.isReadOnly()}
+      ?disabled=${readOnly}
       @stencila-document-patch=${(event: CustomEvent) => {
         // Update `this.programmingLanguage` (and `guessLanguage` for completeness)
         // so that the code editor language updates
@@ -266,7 +268,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       }
       this.requestUpdateAll()
 
-      this.emitOperations({
+      this.emitOps({
         type: 'Move',
         from: [this.index],
         to: [this.index - 1],
@@ -280,7 +282,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       }
       this.requestUpdateAll()
 
-      this.emitOperations({
+      this.emitOps({
         type: 'Move',
         from: [this.index],
         to: [this.index + 1],
@@ -288,7 +290,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       })
     }
 
-    const moveButton = !this.isReadOnly()
+    const moveButton = !readOnly
       ? html`<span
           class=${tw`flex justify-between items-center h-6 ml-2 rounded-full outline-none
                      bg-${StencilaIf.color}-200(hover:& focus:&) focus:ring(1 ${StencilaIf.color}-300)`}
@@ -326,7 +328,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       : ''
 
     const remove = () => {
-      this.emitOperations({
+      this.emitOps({
         type: 'Remove',
         address: [],
         items: 1,
@@ -340,7 +342,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       )
     }
 
-    const removeButton = !this.isReadOnly()
+    const removeButton = !readOnly
       ? html`<stencila-icon-button
           name="x-circle"
           color=${StencilaIf.color}

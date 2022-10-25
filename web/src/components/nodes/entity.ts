@@ -6,8 +6,10 @@ import { sentenceCase } from 'change-case'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 import { TW } from 'twind'
+import StencilaIconButton from '../base/icon-button'
 import StencilaCodeEditor from '../editors/code-editor'
 import { twSheet } from '../utils/css'
+import copy from 'clipboard-copy'
 
 import StencilaElement from '../utils/element'
 
@@ -99,10 +101,16 @@ export class StencilaEntityDownload extends StencilaElement {
 
       // Replace the content of the panel's editor with the dump
       editor.setCode(content)
+
+      // Ensure the copy-to-clipboard button is not checked
+      const button = this.renderRoot.querySelector(
+        'stencila-icon-button[name=clipboard]'
+      ) as StencilaIconButton
+      button.name = 'clipboard'
     }
 
     return html`<sl-dropdown
-      distance="10"
+      distance="12"
       placement="bottom-end"
       @sl-show=${() => {
         let activeFormat = window.localStorage.getItem(
@@ -125,8 +133,26 @@ export class StencilaEntityDownload extends StencilaElement {
       ></stencila-icon-button>
 
       <div
-        class=${tw`rounded border(& ${this.color}-200) bg-${this.color}-${this.shade}`}
+        class=${tw`relative rounded border(& ${this.color}-200) bg-${this.color}-${this.shade}`}
       >
+        <stencila-icon-button
+          name="clipboard"
+          adjust="absolute top-1 right-1 z-50"
+          @click=${(event: Event) => {
+            const editor = this.renderRoot.querySelector(
+              'sl-tab-panel[active] stencila-code-editor'
+            ) as StencilaCodeEditor
+            const text = editor.getCode()
+            copy(text)
+
+            const icon = event.target as StencilaIconButton
+            icon.name = 'clipboard-check'
+            setTimeout(() => {
+              icon.name = 'clipboard'
+            }, 5000)
+          }}
+        ></stencila-icon-button>
+
         <sl-tab-group
           @sl-tab-show=${(event: CustomEvent) => {
             const format = event.detail.name

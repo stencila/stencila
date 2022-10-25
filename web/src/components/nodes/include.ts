@@ -108,8 +108,8 @@ export default class StencilaInclude extends StencilaExecutable {
     const replace = (event: Event): boolean => {
       const input = event.target as SlInput
       if (input.reportValidity()) {
-        this.source = (event.target as HTMLInputElement).value
-        this.changeProperty('source')
+        const source = (event.target as HTMLInputElement).value
+        this.changeProperty('source', source)
         return true
       }
       return false
@@ -139,8 +139,8 @@ export default class StencilaInclude extends StencilaExecutable {
     const replace = (event: Event): boolean => {
       const input = event.target as SlInput
       if (input.reportValidity()) {
-        this.select = (event.target as HTMLInputElement).value
-        this.changeProperty('select')
+        const select = (event.target as HTMLInputElement).value
+        this.changeProperty('select', select)
         return true
       }
       return false

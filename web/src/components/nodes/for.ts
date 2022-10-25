@@ -175,8 +175,8 @@ export default class StencilaFor extends StencilaCodeExecutable {
     const replace = (event: Event): boolean => {
       const input = event.target as SlInput
       if (input.reportValidity()) {
-        this.symbol = (event.target as HTMLInputElement).value
-        this.changeProperty('symbol')
+        const symbol = (event.target as HTMLInputElement).value
+        this.changeProperty('symbol', symbol)
         return true
       }
       return false
@@ -204,6 +204,8 @@ export default class StencilaFor extends StencilaCodeExecutable {
   }
 
   protected renderTextEditor() {
+    const readOnly = this.isReadOnly()
+
     return html`<stencila-code-editor
       class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${StencilaFor.color}-200)
                 focus:border(& ${StencilaFor.color}-400) focus:ring(2 ${StencilaFor.color}-100) bg-${StencilaFor.color}-50 font-normal`}
@@ -212,7 +214,8 @@ export default class StencilaFor extends StencilaCodeExecutable {
       line-wrapping
       no-controls
       placeholder="items"
-      ?read-only=${this.isReadOnly()}
+      ?read-only=${readOnly}
+      ?disabled=${readOnly}
       @stencila-ctrl-enter=${() => this.execute()}
     >
       <slot name="text" slot="code"></slot>
@@ -220,13 +223,15 @@ export default class StencilaFor extends StencilaCodeExecutable {
   }
 
   protected render() {
+    const readOnly = this.isReadOnly()
+
     const programmingLanguageMenu = html`<stencila-executable-language
       class=${tw`ml-2 text(base gray-500)`}
       programming-language=${this.programmingLanguage}
       guess-language=${this.guessLanguage == 'true'}
       exclude='["tailwind"]'
       color=${StencilaFor.color}
-      ?disabled=${this.isReadOnly()}
+      ?disabled=${readOnly}
       @stencila-document-patch=${(event: CustomEvent) => {
         // Update `this.programmingLanguage` (and `guessLanguage` for completeness)
         // so that the code editor language updates

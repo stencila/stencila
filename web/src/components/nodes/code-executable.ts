@@ -243,19 +243,17 @@ export class StencilaExecutableLanguage extends StencilaElement {
             const value = event.detail.item.value
             if (value == 'guess') {
               // Toggle `guessLanguage`
-              this.guessLanguage = !this.guessLanguage
-              this.changeProperty('guessLanguage')
+              const guessLanguage = !this.guessLanguage
+              this.changeProperty('guessLanguage', guessLanguage)
             } else {
               // Change the `programmingLanguage` and set `guessLanguage` to false if necessary
-              const changedProperties: string[] = []
+              const changedProperties: [string, unknown][] = []
               if (this.programmingLanguage !== value) {
-                this.programmingLanguage = value
-                changedProperties.push('programmingLanguage')
+                changedProperties.push(['programmingLanguage', value])
                 if (this.guessLanguage) {
-                  this.guessLanguage = false
-                  changedProperties.push('guessLanguage')
+                  changedProperties.push(['guessLanguage', false])
                 }
-                this.changeProperty(...changedProperties)
+                this.changeProperties(changedProperties)
               }
             }
           }}

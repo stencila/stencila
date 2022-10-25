@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Web client for interacting with Stencila document server",
   "scripts": {
-    "build": "parcel build --no-source-maps src/modes/*.js",
-    "dev": "parcel watch src/modes/*.js",
+    "build": "parcel build --no-source-maps src/modes/*.js src/utils/curtain.css",
+    "dev": "parcel watch src/modes/*.js src/utils/curtain.css",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cover": "jest --coverage",
@@ -45,8 +45,8 @@
     "@stencila/schema": "^1.11.1"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "^6.2.0",
-    "@codemirror/commands": "^6.1.0",
+    "@codemirror/autocomplete": "^6.3.0",
+    "@codemirror/commands": "^6.1.1",
     "@codemirror/lang-cpp": "^6.0.1",
     "@codemirror/lang-css": "^6.0.0",
     "@codemirror/lang-java": "^6.0.0",
@@ -60,22 +60,26 @@
     "@codemirror/language": "^6.2.1",
     "@codemirror/language-data": "^6.1.0",
     "@codemirror/lint": "^6.0.0",
-    "@codemirror/search": "^6.2.0",
+    "@codemirror/search": "^6.2.1",
     "@codemirror/state": "^6.1.2",
-    "@codemirror/view": "^6.2.4",
+    "@codemirror/view": "^6.3.0",
     "@shoelace-style/shoelace": "^2.0.0-beta.82",
     "@stencila/components": "^0.55.0",
     "change-case": "^4.1.2",
+    "clipboard-copy": "^4.0.1",
     "codemirror-lang-r": "^0.1.0-2",
+    "codemirror-lang-tailwind": "file:../../codemirror-lang-tailwind/codemirror-lang-tailwind-0.1.0.tgz",
     "construct-style-sheets-polyfill": "^3.1.0",
     "fast-array-diff": "^1.0.1",
     "fast-deep-equal": "^3.1.3",
     "grapheme-splitter": "^1.0.4",
     "html-fragment": "^1.1.2",
+    "json5": "^2.2.1",
     "lit": "^2.3.1",
     "nanoid": "^4.0.0",
     "rpc-websockets": "^7.5.0",
     "thememirror": "^2.0.1",
+    "time-elements": "^3.0.0",
     "twind": "^0.16.17",
     "xterm": "^4.18.0",
     "xterm-addon-attach": "^0.6.0",
@@ -116,5 +120,10 @@
       ]
     }
   },
-  "prettier": "@stencila/dev-config/prettier-config.json"
+  "prettier": "@stencila/dev-config/prettier-config.json",
+  "alias": {
+    "process": {
+      "global": "{}"
+    }
+  }
 }

@@ -108,7 +108,7 @@ export default class StencilaCallArgument extends StencilaParameter {
     return html`<stencila-icon name=${this.getTypeIcon()}></stencila-icon>`
   }
 
-  protected renderInput(tw: TW) {
+  protected renderLabelAndInput(tw: TW) {
     return html`<div class=${tw`${this.useExpression && 'hidden'}`}>
       <input type="text" />
     </div>`
@@ -181,7 +181,7 @@ export default class StencilaCallArgument extends StencilaParameter {
       <span part="start" class=${tw`flex items-center`}>
         ${this.renderTypeIcon(tw)}
         <span class=${tw`ml-2 mr-2`}>${this.name}</span>
-        ${this.renderInput(tw)} ${this.renderExpression(tw)}
+        ${this.renderLabelAndInput(tw)} ${this.renderExpression(tw)}
       </span>
       ${this.renderExpressionToggle(tw)}
     </div>`

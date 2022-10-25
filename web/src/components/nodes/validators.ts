@@ -4,7 +4,7 @@ import SlRange from '@shoelace-style/shoelace/dist/components/range/range'
 import '@shoelace-style/shoelace/dist/components/select/select'
 import SlSelect from '@shoelace-style/shoelace/dist/components/select/select'
 import JSON5 from 'json5'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { ifDefined } from 'lit-html/directives/if-defined'
 import { customElement, property } from 'lit/decorators'
 import { TW } from 'twind'
@@ -40,23 +40,23 @@ export class StencilaValidator extends StencilaEntity {
     }
   }
 
-  public toJSON() {
-    return { type: 'Validator' }
-  }
+  /**
+   * The name of the icon for this type of validator
+   */
+  static icon = 'dash-circle'
 
   /**
-   * Get the name of an icon representing the type of value associated with
-   * this validator
+   * Serialize an instance of the validator to a JSON object
    */
-  public getIcon(): string {
-    return 'string'
+  public toJSON() {
+    return { type: 'Validator' }
   }
 
   /**
    * Handle a change to an input for the validator
    */
   public changeValue(value: boolean | number | string) {
-    this.emitOperations({
+    this.emitOps({
       type: 'Replace',
       address: ['value'],
       items: 1,
@@ -66,11 +66,10 @@ export class StencilaValidator extends StencilaEntity {
   }
 
   /**
-   * Change an property and emit an operation representing the change
+   * Change a property and emit an operation representing the change
    *
-   * Intended to be used instead of `emitOperations`. Prepends `validator`
-   * to the operation address so the change applies to the validator, rather than
-   * the parent node.
+   * Override that prepends `validator` to the operation address so the
+   * change applies to the validator, rather than the parent node.
    */
   protected changeProperty(property: string, value: unknown) {
     if (value === null || Number.isNaN(value)) {
@@ -94,7 +93,7 @@ export class StencilaValidator extends StencilaEntity {
             value,
           }
 
-    return this.emitOperations(op)
+    return this.emitOps(op)
   }
 
   /**
@@ -165,7 +164,7 @@ export class StencilaValidator extends StencilaEntity {
   /**
    * Reader inputs for the properties for the validator
    */
-  public renderSettings(tw: TW) {
+  public renderSettings(tw: TW, readOnly: boolean) {
     return html``
   }
 }
@@ -177,6 +176,8 @@ export class StencilaValidator extends StencilaEntity {
  */
 @customElement('stencila-enum-validator')
 export class StencilaEnumValidator extends StencilaValidator {
+  static icon = 'list'
+
   /**
    * The `EnumValidator.values` property
    */
@@ -185,10 +186,6 @@ export class StencilaEnumValidator extends StencilaValidator {
 
   public toJSON() {
     return { type: 'EnumValidator', values: this.values }
-  }
-
-  public getIcon() {
-    return 'list'
   }
 
   public renderInput(tw: TW, id: string) {
@@ -214,7 +211,7 @@ export class StencilaEnumValidator extends StencilaValidator {
     >`
   }
 
-  public renderSettings(tw: TW) {
+  public renderSettings(tw: TW, readOnly: boolean) {
     const update = (event: Event) => {
       const input = event.target as StencilaInput
 
@@ -246,6 +243,7 @@ export class StencilaEnumValidator extends StencilaValidator {
       type="text"
       size="small"
       value=${JSON5.stringify(this.values)}
+      ?disabled=${readOnly}
       @sl-input=${update}
       @sl-change=${update}
     ></stencila-input>`
@@ -259,24 +257,22 @@ export class StencilaEnumValidator extends StencilaValidator {
  */
 @customElement('stencila-boolean-validator')
 export class StencilaBooleanValidator extends StencilaValidator {
+  static icon = 'boolean'
+
   public toJSON() {
     return { type: 'BooleanValidator' }
-  }
-
-  public getIcon() {
-    return 'boolean'
   }
 
   public renderInput(tw: TW, id: string) {
     return html`<input
       id=${id}
       type="checkbox"
-      style="height: 2.2em; margin: 0 4px; accent-color: #bfdbfe;"
+      style="accent-color: #bfdbfe;"
       @change=${(event: Event) => {
         const input = event.target as HTMLInputElement
         const value = input.checked
 
-        this.emitOperations({
+        this.emitOps({
           type: 'Replace',
           address: ['value'],
           items: 1,
@@ -412,7 +408,7 @@ class StencilaNumericValidator extends StencilaValidator {
           min=${inputMin}
           max=${inputMax}
           step=${step}
-          style="height: 2em; padding-top: 0.25em; --track-color-active: #2563eb; --track-color-inactive: #bfdbfe;"
+          style="--track-color-active: #2563eb; --track-color-inactive: #bfdbfe;"
           @sl-change=${(event: Event) => {
             const input = event.target as SlRange
             this.changeValue(input.value)
@@ -421,16 +417,17 @@ class StencilaNumericValidator extends StencilaValidator {
       : html`<stencila-input
           id=${id}
           type="number"
+          size="small"
+          errors="tooltip"
           min=${inputMin}
           max=${inputMax}
           step=${step}
-          size="small"
           @sl-input=${update}
           @sl-change=${update}
         ></stencila-input>`
   }
 
-  protected renderMinimumInput(tw: TW) {
+  protected renderMinimumInput(tw: TW, readOnly: boolean) {
     const update = (event: Event) => {
       const input = event.target as StencilaInput
 
@@ -466,6 +463,7 @@ class StencilaNumericValidator extends StencilaValidator {
           <input
             type="checkbox"
             style="accent-color: #bfdbfe;"
+            ?disabled=${readOnly}
             @change=${(event: Event) => {
               const input = event.target as HTMLInputElement
               if (input.checked) {
@@ -485,7 +483,8 @@ class StencilaNumericValidator extends StencilaValidator {
           size="small"
           inputmode="numeric"
           pattern=${this.getInputPattern()}
-          value=${ifDefined(this.minimum)}
+          value=${ifDefined(this.minimum ?? this.exclusiveMinimum)}
+          ?disabled=${readOnly}
           @sl-input=${update}
           @sl-change=${update}
         ></stencila-input>
@@ -493,7 +492,7 @@ class StencilaNumericValidator extends StencilaValidator {
     </div>`
   }
 
-  protected renderMaximumInput(tw: TW) {
+  protected renderMaximumInput(tw: TW, readOnly: boolean) {
     const update = (event: Event) => {
       const input = event.target as StencilaInput
 
@@ -529,6 +528,7 @@ class StencilaNumericValidator extends StencilaValidator {
           <input
             type="checkbox"
             style="accent-color: #bfdbfe;"
+            ?disabled=${readOnly}
             @change=${(event: Event) => {
               const input = event.target as HTMLInputElement
               if (input.checked) {
@@ -548,7 +548,8 @@ class StencilaNumericValidator extends StencilaValidator {
           size="small"
           inputmode="numeric"
           pattern=${this.getInputPattern()}
-          value=${ifDefined(this.maximum)}
+          value=${ifDefined(this.maximum ?? this.exclusiveMaximum)}
+          ?disabled=${readOnly}
           @sl-input=${update}
           @sl-change=${update}
         ></stencila-input>
@@ -556,7 +557,7 @@ class StencilaNumericValidator extends StencilaValidator {
     </div>`
   }
 
-  protected renderMultipleOfInput(tw: TW) {
+  protected renderMultipleOfInput(tw: TW, readOnly: boolean) {
     const update = (event: Event) => {
       const input = event.target as StencilaInput
 
@@ -591,15 +592,17 @@ class StencilaNumericValidator extends StencilaValidator {
       inputmode="numeric"
       pattern=${this.getInputPattern()}
       value=${ifDefined(this.multipleOf)}
+      ?disabled=${readOnly}
       @sl-input=${update}
       @sl-change=${update}
     ></stencila-input>`
   }
 
-  public renderSettings(tw: TW) {
+  public renderSettings(tw: TW, readOnly: boolean) {
     return html`
-      ${this.renderMinimumInput(tw)} ${this.renderMaximumInput(tw)}
-      ${this.renderMultipleOfInput(tw)}
+      ${this.renderMinimumInput(tw, readOnly)}
+      ${this.renderMaximumInput(tw, readOnly)}
+      ${this.renderMultipleOfInput(tw, readOnly)}
     `
   }
 }
@@ -609,15 +612,13 @@ class StencilaNumericValidator extends StencilaValidator {
  */
 @customElement('stencila-integer-validator')
 export class StencilaIntegerValidator extends StencilaNumericValidator {
+  static icon = 'integer'
+
   public toJSON() {
     return {
       ...super.toJSON(),
       type: 'IntegerValidator',
     }
-  }
-
-  public getIcon() {
-    return 'integer'
   }
 
   protected getInputDesc() {
@@ -634,15 +635,13 @@ export class StencilaIntegerValidator extends StencilaNumericValidator {
  */
 @customElement('stencila-number-validator')
 export class StencilaNumberValidator extends StencilaNumericValidator {
+  static icon = 'number'
+
   public toJSON() {
     return {
       ...super.toJSON(),
       type: 'NumberValidator',
     }
-  }
-
-  public getIcon() {
-    return 'number'
   }
 
   protected getDefaultStep(min: number, max: number): number {
@@ -655,6 +654,8 @@ export class StencilaNumberValidator extends StencilaNumericValidator {
  */
 @customElement('stencila-string-validator')
 export class StencilaStringValidator extends StencilaValidator {
+  static icon = 'string'
+
   /**
    * The `StringValidator.minLength` property
    */
@@ -680,10 +681,6 @@ export class StencilaStringValidator extends StencilaValidator {
       maxLength: this.maxLength,
       pattern: this.pattern,
     }
-  }
-
-  public getIcon() {
-    return 'string'
   }
 
   public renderInput(tw: TW, id: string) {
@@ -730,7 +727,7 @@ export class StencilaStringValidator extends StencilaValidator {
     ></stencila-input>`
   }
 
-  protected renderMinLengthInput(tw: TW) {
+  protected renderMinLengthInput(tw: TW, readOnly: boolean) {
     const update = (event: Event) => {
       const input = event.target as StencilaInput
 
@@ -769,12 +766,13 @@ export class StencilaStringValidator extends StencilaValidator {
       inputmode="numeric"
       pattern="[0-9]*"
       value=${ifDefined(this.minLength)}
+      ?disabled=${readOnly}
       @sl-input=${update}
       @sl-change=${update}
     ></stencila-input>`
   }
 
-  protected renderMaxLengthInput(tw: TW) {
+  protected renderMaxLengthInput(tw: TW, readOnly: boolean) {
     const update = (event: Event) => {
       const input = event.target as StencilaInput
 
@@ -810,12 +808,13 @@ export class StencilaStringValidator extends StencilaValidator {
       inputmode="numeric"
       pattern="[0-9]*"
       value=${ifDefined(this.maxLength)}
+      ?disabled=${readOnly}
       @sl-input=${update}
       @sl-change=${update}
     ></stencila-input>`
   }
 
-  protected renderPatternInput(tw: TW) {
+  protected renderPatternInput(tw: TW, readOnly: boolean) {
     const update = (event: Event) => {
       const input = event.target as StencilaInput
 
@@ -844,15 +843,17 @@ export class StencilaStringValidator extends StencilaValidator {
       type="text"
       size="small"
       value=${ifDefined(this.pattern)}
+      ?disabled=${readOnly}
       @sl-input=${update}
       @sl-change=${update}
     ></stencila-input>`
   }
 
-  public renderSettings(tw: TW) {
+  public renderSettings(tw: TW, readOnly: boolean) {
     return html`
-      ${this.renderMinLengthInput(tw)} ${this.renderMaxLengthInput(tw)}
-      ${this.renderPatternInput(tw)}
+      ${this.renderMinLengthInput(tw, readOnly)}
+      ${this.renderMaxLengthInput(tw, readOnly)}
+      ${this.renderPatternInput(tw, readOnly)}
     `
   }
 }
@@ -862,14 +863,12 @@ export class StencilaStringValidator extends StencilaValidator {
  */
 @customElement('stencila-date-validator')
 export class StencilaDateValidator extends StencilaValidator {
+  static icon = 'date'
+
   public toJSON() {
     return {
       type: 'DateValidator',
     }
-  }
-
-  public getIcon() {
-    return 'date'
   }
 
   public renderInput(tw: TW, id: string) {
@@ -887,14 +886,12 @@ export class StencilaDateValidator extends StencilaValidator {
  */
 @customElement('stencila-time-validator')
 export class StencilaTimeValidator extends StencilaValidator {
+  static icon = 'clock'
+
   public toJSON() {
     return {
       type: 'TimeValidator',
     }
-  }
-
-  public getIcon() {
-    return 'clock'
   }
 
   public renderInput(tw: TW, id: string) {
@@ -912,14 +909,12 @@ export class StencilaTimeValidator extends StencilaValidator {
  */
 @customElement('stencila-datetime-validator')
 export class StencilaDateTimeValidator extends StencilaValidator {
+  static icon = 'date-time'
+
   public toJSON() {
     return {
       type: 'DateTimeValidator',
     }
-  }
-
-  public getIcon() {
-    return 'date-time'
   }
 
   public renderInput(tw: TW, id: string) {
@@ -937,14 +932,12 @@ export class StencilaDateTimeValidator extends StencilaValidator {
  */
 @customElement('stencila-timestamp-validator')
 export class StencilaTimestampValidator extends StencilaValidator {
+  static icon = 'stamp-light'
+
   public toJSON() {
     return {
       type: 'TimestampValidator',
     }
-  }
-
-  public getIcon() {
-    return 'stamp-light'
   }
 
   public renderInput(tw: TW, id: string) {
@@ -962,14 +955,12 @@ export class StencilaTimestampValidator extends StencilaValidator {
  */
 @customElement('stencila-duration-validator')
 export class StencilaDurationValidator extends StencilaValidator {
+  static icon = 'stopwatch'
+
   public toJSON() {
     return {
       type: 'DurationValidator',
     }
-  }
-
-  public getIcon() {
-    return 'stopwatch'
   }
 }
 
@@ -978,14 +969,12 @@ export class StencilaDurationValidator extends StencilaValidator {
  */
 @customElement('stencila-array-validator')
 export class StencilaArrayValidator extends StencilaValidator {
+  static icon = 'array'
+
   public toJSON() {
     return {
       type: 'ArrayValidator',
     }
-  }
-
-  public getIcon() {
-    return 'array'
   }
 }
 
@@ -994,13 +983,11 @@ export class StencilaArrayValidator extends StencilaValidator {
  */
 @customElement('stencila-tuple-validator')
 export class StencilaTupleValidator extends StencilaValidator {
+  static icon = 'tuple'
+
   public toJSON() {
     return {
       type: 'TupleValidator',
     }
-  }
-
-  public getIcon() {
-    return 'tuple'
   }
 }

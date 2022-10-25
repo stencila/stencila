@@ -1,13 +1,12 @@
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 import { twSheet } from '../utils/css'
 import StencilaExecutable from './executable'
 import { StencilaValidator } from './validators'
-// Import all validators to vavoid them being tree-shaken away
+// Import all validators to avoid them being tree-shaken away
 import './validators'
-import { TW } from 'twind'
-import { SlInput } from '@shoelace-style/shoelace'
-import { sentenceCase } from 'change-case'
+import StencilaInput from '../base/input'
+import { currentMode, Mode } from '../../mode'
 
 const { tw, sheet } = twSheet()
 
@@ -18,7 +17,14 @@ const { tw, sheet } = twSheet()
  */
 @customElement('stencila-parameter')
 export default class StencilaParameter extends StencilaExecutable {
-  static styles = sheet.target
+  static styles = [
+    sheet.target,
+    css`
+      sl-menu-item::part(label) {
+        line-height: 1;
+      }
+    `,
+  ]
 
   static color = 'blue'
 
@@ -83,16 +89,69 @@ export default class StencilaParameter extends StencilaExecutable {
     this.requestUpdate('validator')
   }
 
-  protected renderIcon() {
-    let name = 'dash-circle'
-    if (this.validator) {
-      name = this.validator.getIcon()
+  protected renderNameInput() {
+    const update = (event: Event) => {
+      const input = event.target as StencilaInput
+
+      const name = input.getValue().trim()
+
+      if (/^[a-zA-Z][a-zA-Z0-9_]*$/.test(name)) {
+        input.clearError()
+      } else {
+        input.setError(
+          'Please enter a name starting with a letter, and only containing letters, number or underscores'
+        )
+      }
+
+      if (event.type == 'sl-change' && input.isValid()) {
+        this.changeProperty('name', name)
+      }
     }
-    return html`<stencila-icon name=${name}></stencila-icon>`
+
+    return html`<stencila-input
+      type="text"
+      size="small"
+      errors="tooltip"
+      class=${tw`min-w-0 w-24`}
+      value=${this.name}
+      ?disabled=${this.isReadOnly()}
+      @sl-input=${update}
+      @sl-change=${update}
+    ></stencila-input>`
   }
 
-  protected renderInput(inputId: string) {
-    return this.validator?.renderInput(tw, inputId)
+  protected renderLabelInput() {
+    const update = (event: Event) => {
+      const input = event.target as StencilaInput
+
+      let label: string | undefined = input.getValue().trim()
+      if (label.length == 0) {
+        label = undefined
+      }
+
+      if (event.type == 'sl-change' && input.isValid()) {
+        this.changeProperty('label', label)
+      }
+    }
+
+    return html`<stencila-input
+      type="text"
+      label="Label"
+      size="small"
+      value=${this.label}
+      ?disabled=${this.isReadOnly()}
+      @sl-input=${update}
+      @sl-change=${update}
+    ></stencila-input>`
+  }
+
+  protected renderLabelAndInput() {
+    const inputId = `in-${Math.floor(Math.random() * 1e9)}`
+    return html`<label
+        for=${inputId}
+        class=${tw`${this.label ? '' : 'sr-only'}`}
+        >${this.label ?? this.name}</label
+      >&nbsp;${this.validator?.renderInput(tw, inputId)}`
   }
 
   protected renderValidatorSlot() {
@@ -103,57 +162,29 @@ export default class StencilaParameter extends StencilaExecutable {
     ></slot>`
   }
 
-  protected renderSettingsDropdown() {
-    return html`<sl-dropdown
-      class=${tw`ml-1`}
-      distance="10"
-      placement="bottom-end"
-    >
-      <stencila-icon-button
-        slot="trigger"
-        name="gear"
-        color=${StencilaParameter.color}
-      ></stencila-icon-button>
-      <div
-        class=${tw`flex flex-col gap-2 rounded border(& ${StencilaParameter.color}-200)
-                   bg-${StencilaParameter.color}-50 p-2 text(sm ${StencilaParameter.color}-900)`}
-      >
-        <sl-input
-          type="text"
-          label="Name"
-          size="small"
-          value=${this.name}
-          @sl-change=${(event: Event) => {
-            const input = event.target as SlInput
-            this.name = input.value
-            this.changeProperty('name')
-          }}
-        ></sl-input>
+  protected renderValidatorDropdown() {
+    const readOnly = this.isReadOnly()
 
-        <sl-input
-          type="text"
-          label="Label"
-          size="small"
-          value=${this.label}
-          @sl-change=${(event: Event) => {
-            const input = event.target as SlInput
-            this.label = input.value
-            this.changeProperty('label')
-          }}
-        ></sl-input>
+    // @ts-expect-error because TS doesn't know all validator classes have an icon
+    const icon = this.validator?.constructor.icon ?? 'dash-circle'
 
-        <div class=${tw`flex items-center justify-between`}>
-          <label>Type</label>
-          ${this.renderIcon()}
-        </div>
-        <select
-          size="small"
-          class=${tw`w-full rounded border(& gray-300) bg-white h-8`}
-          @change=${(event: Event) => {
-            const select = event.target as SlInput
+    return html`
+      <sl-dropdown class=${tw`flex items-center ml-1`} ?disabled=${readOnly}>
+        <stencila-icon-button
+          slot="trigger"
+          name=${icon}
+          color="blue"
+          class=${tw`text-base`}
+          ?disabled=${readOnly}
+        >
+        </stencila-icon-button>
 
-            const validator = this.validator.replaceType(select.value)
-            this.emitOperations({
+        <sl-menu
+          @sl-select=${(event: CustomEvent) => {
+            const name = event.detail.item.value
+
+            const validator = this.validator.replaceType(name)
+            this.emitOps({
               type: 'Replace',
               address: ['validator'],
               items: 1,
@@ -165,40 +196,79 @@ export default class StencilaParameter extends StencilaExecutable {
           }}
         >
           ${Object.entries(StencilaValidator.types()).map(
-            ([value, cls]: [string, any]) => html`<option
-              value=${value}
-              ?selected=${this.validator?.constructor == cls}
+            ([name, cls]: [string, any]) => html`<sl-menu-item
+              value=${name}
+              ?checked=${this.validator?.constructor == cls}
             >
-              ${sentenceCase(value)}
-            </option>`
+              <stencila-icon slot="prefix" name=${cls.icon}></stencila-icon>
+              <span class=${tw`text-sm`}> ${name} </span>
+            </sl-menu-item>`
           )}
-        </select>
+        </sl-menu>
+      </sl-dropdown>
+    `
+  }
 
-      ${this.validator?.renderSettings(tw)}
+  protected renderSettingsDropdown() {
+    const readOnly = this.isReadOnly()
+
+    return html`<sl-dropdown
+      class=${tw`ml-1`}
+      distance="10"
+      placement="bottom-end"
+    >
+      <stencila-icon-button
+        slot="trigger"
+        name="three-dots-vertical"
+        color=${StencilaParameter.color}
+      ></stencila-icon-button>
+      <div
+        class=${tw`flex flex-col gap-2 rounded border(& ${StencilaParameter.color}-200)
+            bg-${StencilaParameter.color}-50 p-2 text(sm ${StencilaParameter.color}-700)`}
+      >
+        ${this.renderLabelInput()}
+        ${this.validator?.renderSettings(tw, this.isReadOnly())}
+      </div>
     </sl-dropdown>`
   }
 
   protected render() {
-    const inputId = `in-${Math.floor(Math.random() * 1e9)}`
+    const mode = currentMode()
+    return mode <= Mode.Interact
+      ? html`<span class=${tw`inline-flex`}
+          >${this.renderValidatorSlot()} ${this.renderLabelAndInput()}</span
+        >`
+      : html`<span part="base" class=${tw`inline-flex my-1`}>
+          <span
+            part="start"
+            class=${tw`inline-flex items-center rounded-l overflow-hidden border(& ${StencilaParameter.color}-200)
+      bg-${StencilaParameter.color}-50 p-1 font(mono bold) text(sm ${StencilaParameter.color}-700)`}
+          >
+            <span class=${tw`inline-flex items-center text-base ml-1`}>
+              <stencila-icon name="sliders"></stencila-icon>
+            </span>
+            <span class=${tw`ml-2 mr-2`}>par</span>
+            ${this.renderNameInput()} ${this.renderValidatorSlot()}
+            ${this.renderValidatorDropdown()} ${this.renderSettingsDropdown()}
+          </span>
 
-    // Do not use `overflow-hidden` on the base <span> to avoid any tool tips on inputs
-    // getting cut off
-    return html`<span
-      part="base"
-      class=${tw`inline-flex items-center my-1 rounded border(& ${StencilaParameter.color}-200)
-                 bg-${StencilaParameter.color}-50 py-1 px-1
-                 font(mono) text(sm ${StencilaParameter.color}-700)`}
-    >
-      <span class=${tw`inline-flex items-center ml-1`}>
-        ${this.renderIcon()}
-      </span>
-      <label class=${tw`ml-2 mr-2`} for=${inputId}>${this.name}</label>
-      ${this.renderInput(inputId)} ${this.renderValidatorSlot()}
-      ${this.renderSettingsDropdown()}
-      ${this.renderEntityDownload(
-        StencilaParameter.formats,
-        StencilaParameter.color
-      )}
-    </span>`
+          <span
+            part="input"
+            class=${tw`inline-flex items-center border(t b ${StencilaParameter.color}-200) py-1 px-2`}
+          >
+            ${this.renderLabelAndInput()}
+          </span>
+
+          <span
+            part="end"
+            class=${tw`inline-flex items-center rounded-r overflow-hidden border(& ${StencilaParameter.color}-200) 
+      bg-${StencilaParameter.color}-50 px-1 text(sm ${StencilaParameter.color}-700)`}
+          >
+            ${this.renderEntityDownload(
+              StencilaParameter.formats,
+              StencilaParameter.color
+            )}
+          </span>
+        </span>`
   }
 }

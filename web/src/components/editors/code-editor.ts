@@ -127,6 +127,17 @@ export default class StencilaCodeEditor extends StencilaElement {
   readOnly: boolean = false
 
   /**
+   * Whether the editor should be shown as disabled
+   *
+   * This changes the appearance of the editor to match a disabled
+   * <input> element (e.g. lower opacity). It is orthogonal to `readOnly`
+   * but it is very unlikely that you'd want to have a `disabled` editor
+   * that is not `readOnly`.
+   */
+  @property({ type: Boolean })
+  disabled: boolean = false
+
+  /**
    * Whether the editor is single line
    */
   @property({ attribute: 'single-line', type: Boolean })
@@ -304,7 +315,7 @@ export default class StencilaCodeEditor extends StencilaElement {
       // Extension to emit an event when code changes (if not in read-only mode)
       EditorView.updateListener.of((update) => {
         if (!this.readOnly && update.docChanged && !this.codeUpdating) {
-          this.emitOperations(...updateToOps(update, [this.propertyName]))
+          this.emitOps(...updateToOps(update, [this.propertyName]))
         }
       }),
 
@@ -677,7 +688,7 @@ export default class StencilaCodeEditor extends StencilaElement {
       <div
         part="code"
         id="codemirror"
-        class=${this.readOnly ? tw`cursor-not-allowed` : ''}
+        class=${this.disabled ? tw`cursor-not-allowed opacity-70` : ''}
       ></div>
     </div>`
   }

@@ -90,6 +90,8 @@ const icons: Record<string, string> = {
   'chevron-right': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/chevron-right.svg'),
   'chevron-left': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/chevron-left.svg'),
   'circle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/circle.svg'),
+  'clipboard': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/clipboard.svg'),
+  'clipboard-check': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/clipboard-check.svg'),
   'clock': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/clock.svg'),
   'code-square': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/code-square.svg'),
   'code': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/code.svg'),

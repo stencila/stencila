@@ -146,6 +146,12 @@ export default class StencilaInput extends StencilaElement {
   required: boolean = false
 
   /**
+   * Is the input disabled?
+   */
+  @property({ type: Boolean })
+  disabled: boolean = false
+
+  /**
    * An error message for the input
    *
    * Use `setError` and `clearError` methods to alter this property.
@@ -178,12 +184,16 @@ export default class StencilaInput extends StencilaElement {
   }
 
   render() {
+    // The `style` on the tooltip content helps avoid a momentarily weird looking mini-tooltip when
+    // `this.error` is empty but the tooltip is still transitioning to closed.
     return html`<sl-tooltip
       placement="bottom"
       trigger="manual"
-      content=${this.error}
       ?open=${this.error && this.errors === 'tooltip'}
     >
+      <span slot="content" style="display:inline-block; min-width: 20em"
+        >${this.error}</span
+      >
       <sl-input
         ${ref(this.inner)}
         class=${this.error ? 'invalid' : ''}
@@ -199,6 +209,7 @@ export default class StencilaInput extends StencilaElement {
         max=${ifDefined(this.max)}
         step=${ifDefined(this.step)}
         ?required=${this.required}
+        ?disabled=${this.disabled}
       >
         <small slot="help-text"
           >${this.errors === 'below' ? this.error : ''}</small

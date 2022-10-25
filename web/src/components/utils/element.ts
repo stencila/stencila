@@ -20,28 +20,49 @@ export default class StencilaElement extends LitElement {
   }
 
   /**
-   * Emit a patch event for the closest element having an `id` with
-   * a `Replace` operations for one or more properties
+   * Change a property and emit an operation representing the change
    */
-  protected changeProperty(...properties: string[]) {
-    const ops = properties.map(
-      (property) =>
-        ({
-          type: 'Replace',
-          address: [property],
-          items: 1,
-          length: 1,
-          value: this[property],
-        } as Operation)
-    )
-    return this.emitOperations(...ops)
+  protected changeProperty(property: string, value: unknown) {
+    return this.changeProperties([[property, value]])
+  }
+
+  /**
+   * Change several properties and emit an operation representing the changes
+   */
+  protected changeProperties(properties: [string, unknown][]) {
+    const ops = properties.map(([property, value]) => {
+      if (value === null || Number.isNaN(value)) {
+        value = undefined
+      }
+
+      this[property] = value
+
+      const op: Operation =
+        value === undefined
+          ? {
+              type: 'Remove',
+              address: [property],
+              items: 1,
+            }
+          : {
+              type: 'Replace',
+              address: [property],
+              items: 1,
+              length: 1,
+              value,
+            }
+
+      return op
+    })
+
+    return this.emitOps(...ops)
   }
 
   /**
    * Emit a patch event for the closest element having an `id` with
    * one or more operations
    */
-  protected emitOperations(...ops: Operation[]) {
+  protected emitOps(...ops: Operation[]) {
     let target = this.closestElement('[id]')?.id
     return this.emitPatch({
       target,

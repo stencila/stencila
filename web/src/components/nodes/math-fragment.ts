@@ -28,7 +28,7 @@ export default class StencilaMathFragment extends StencilaMath {
           <span
             part="start"
             class=${tw`inline-flex items-center bg-${StencilaMathFragment.color}-50
-                      border(r ${StencilaMathFragment.color}-200) py-0.5 px-1 font(mono bold) text(sm ${StencilaMathFragment.color}-700)`}
+                      border(r ${StencilaMathFragment.color}-200) p-1 font(mono bold) text(sm ${StencilaMathFragment.color}-700)`}
           >
             <span class=${tw`inline-flex items-center text-base ml-1`}>
               <stencila-icon name="math"></stencila-icon>

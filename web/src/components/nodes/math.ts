@@ -65,14 +65,17 @@ export default class StencilaMath extends StencilaExecutable {
   }
 
   protected renderTextEditor(tw: TW, color: string) {
+    const readOnly = this.isReadOnly()
+
     return html`<stencila-code-editor
       class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${color}-200) bg-${color}-50
-                 focus:border(& ${color}-400) focus:ring(2 ${color}-100) font-normal pr-1`}
+                 focus:border(& ${color}-400) focus:ring(2 ${color}-100) font-normal`}
       language=${this.mathLanguage}
       single-line
       line-wrapping
       no-controls
-      ?read-only=${this.isReadOnly()}
+      ?read-only=${readOnly}
+      ?disabled=${readOnly}
       @stencila-ctrl-enter=${() => this.compile()}
     >
       <slot name="text" slot="code"></slot>
@@ -185,7 +188,7 @@ export class StencilaMathLanguage extends StencilaElement {
         <stencila-icon-button
           slot="trigger"
           name=${icon}
-          color="emerald"
+          color="blue"
           ?disabled=${this.disabled}
         >
         </stencila-icon-button>
@@ -194,8 +197,7 @@ export class StencilaMathLanguage extends StencilaElement {
           @sl-select="${(event: CustomEvent) => {
             const value = event.detail.item.value
             if (this.mathLanguage !== value) {
-              this.mathLanguage = value
-              this.changeProperty('mathLanguage')
+              this.changeProperty('mathLanguage', value)
             }
           }}}"
         >

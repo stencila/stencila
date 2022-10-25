@@ -114,14 +114,18 @@ export default class StencilaStyled extends StencilaCodeExecutable {
   }
 
   protected renderTextEditor(tw: TW) {
+    const readOnly = this.isReadOnly()
     return html`<stencila-code-editor
-      class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${StencilaStyled.color}-200) focus:border(& ${StencilaStyled.color}-400) focus:ring(2 ${StencilaStyled.color}-100) bg-${StencilaStyled.color}-50 font-normal pr-1`}
+      class=${tw`min-w-0 w-full rounded overflow-hidden 
+                 border(& ${StencilaStyled.color}-200) focus:border(& ${StencilaStyled.color}-400)
+                 focus:ring(2 ${StencilaStyled.color}-100) bg-${StencilaStyled.color}-50 font-normal`}
       language=${this.programmingLanguage}
       single-line
       line-wrapping
       no-controls
       placeholder="Not yet compiled or no rules"
-      ?read-only=${this.isReadOnly()}
+      ?read-only=${readOnly}
+      ?disabled=${readOnly}
       @stencila-ctrl-enter=${() => this.execute()}
     >
       <slot name="text" slot="code"></slot>

@@ -26,7 +26,7 @@ export default class StencilaIconButton extends StencilaElement {
    * The color of the button
    */
   @property()
-  color: string = 'gray'
+  color: string = 'blue'
 
   /**
    * Additional Tailwind utility classes to add to the button

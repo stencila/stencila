@@ -21,6 +21,8 @@ export default class StencilaIf extends StencilaExecutable {
   static formats = ['markdown', 'yaml', 'json']
 
   protected render() {
+    const readOnly = this.isReadOnly()
+
     const add = () => {
       const clauses = (
         this.renderRoot.querySelector('slot[name=clauses]') as HTMLSlotElement
@@ -28,7 +30,7 @@ export default class StencilaIf extends StencilaExecutable {
         flatten: true,
       })[0]
 
-      this.emitOperations({
+      this.emitOps({
         type: 'Add',
         address: ['clauses', clauses.childElementCount],
         length: 1,
@@ -41,7 +43,7 @@ export default class StencilaIf extends StencilaExecutable {
       )
     }
 
-    const addButton = !this.isReadOnly()
+    const addButton = !readOnly
       ? html`<stencila-icon-button
           name="plus-lg"
           color=${StencilaIf.color}
