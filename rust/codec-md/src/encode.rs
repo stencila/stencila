@@ -175,9 +175,17 @@ impl ToMd for Parameter {
                         options += " min=";
                         options += &min.to_string();
                     }
+                    if let Some(exmin) = validator.exclusive_minimum {
+                        options += " exmin=";
+                        options += &exmin.to_string();
+                    }
                     if let Some(max) = validator.maximum {
                         options += " max=";
                         options += &max.to_string();
+                    }
+                    if let Some(exmax) = validator.exclusive_maximum {
+                        options += " exmax=";
+                        options += &exmax.to_string();
                     }
                     if let Some(mult) = validator.multiple_of {
                         options += " mult=";
@@ -190,9 +198,17 @@ impl ToMd for Parameter {
                         options += " min=";
                         options += &min.to_string();
                     }
+                    if let Some(exmin) = validator.exclusive_minimum {
+                        options += " exmin=";
+                        options += &exmin.to_string();
+                    }
                     if let Some(max) = validator.maximum {
                         options += " max=";
                         options += &max.to_string();
+                    }
+                    if let Some(exmax) = validator.exclusive_maximum {
+                        options += " exmax=";
+                        options += &exmax.to_string();
                     }
                     if let Some(mult) = validator.multiple_of {
                         options += " mult=";
