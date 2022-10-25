@@ -34,6 +34,7 @@ patchable_struct!(
 patchable_struct!(
     Parameter,
     name,
+    label,
     validator,
     default,
     value,

@@ -753,6 +753,9 @@ pub struct Parameter {
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
+    /// A short label for the parameter.
+    pub label: Option<Box<String>>,
+
     /// The validator that the value is validated against.
     pub validator: Option<Box<ValidatorTypes>>,
 
@@ -820,6 +823,9 @@ pub struct CallArgument {
     /// Status of the most recent, including any current, execution.
     pub execute_status: Option<ExecuteStatus>,
 
+    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    pub guess_language: Option<Boolean>,
+
     /// Whether the parameter should be hidden.
     pub hidden: Option<Boolean>,
 
@@ -827,8 +833,14 @@ pub struct CallArgument {
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub id: Option<Box<String>>,
 
-    /// The name of a variable to use as the value of the parameter
-    pub symbol: Option<Box<String>>,
+    /// A short label for the parameter.
+    pub label: Option<Box<String>>,
+
+    /// The programming language of the code.
+    pub programming_language: Option<Box<String>>,
+
+    /// The text of the code.
+    pub text: Option<Box<String>>,
 
     /// The validator that the value is validated against.
     pub validator: Option<Box<ValidatorTypes>>,

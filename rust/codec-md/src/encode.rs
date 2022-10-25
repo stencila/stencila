@@ -153,9 +153,15 @@ impl ToMd for MathFragment {
 
 impl ToMd for Parameter {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        // If the parameter is derived, then only encode its name and what it is derived from
+        // If the parameter is derived, then only encode its name, label and what it
+        // is derived from
         if let Some(from) = self.derived_from.as_deref() {
-            return ["&[", &self.name, "]{from=", from.as_str(), "}"].concat();
+            let label = self
+                .label
+                .as_ref()
+                .map(|label| [" label=\"", label, "\""].concat())
+                .unwrap_or_default();
+            return ["&[", &self.name, "]{from=", from.as_str(), &label, "}"].concat();
         }
 
         let mut options = String::new();
@@ -279,6 +285,12 @@ impl ToMd for Parameter {
                 _ => serde_json::to_string(&default).unwrap_or_else(|_| "null".to_string()),
             };
             options += &[" def=", &escape(&value)].concat();
+        }
+
+        if let Some(label) = &self.label {
+            options += " label=\"";
+            options += label;
+            options += "\"";
         }
 
         let attrs = if options.is_empty() {

@@ -945,6 +945,11 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 .map(|node| node.to_txt());
             let typ = typ.as_deref();
 
+            let label = options
+                .remove("label")
+                .and_then(|node| node)
+                .map(|node| Box::new(node.to_txt()));
+
             let validator = if matches!(typ, Some("boolean")) || matches!(typ, Some("bool")) {
                 Some(ValidatorTypes::BooleanValidator(BooleanValidator::default()))
             } else if matches!(typ, Some("enum")) {
@@ -1178,6 +1183,7 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
 
             Ok(InlineContent::Parameter(Parameter {
                 name,
+                label,
                 validator,
                 default,
                 value,
