@@ -1,41 +1,60 @@
-use super::{EncodeContext, ToHtml};
+use codec::common::{serde::Serialize, serde_json};
 
-impl<Type> ToHtml for Option<Type>
+use super::{attr, nothing, EncodeContext, ToHtml};
+
+impl<T> ToHtml for Option<T>
 where
-    Type: ToHtml,
+    T: ToHtml,
 {
+    /// Encode an option as HTML
+    ///
+    /// Simply delegates to the optional type, returning an empty string
+    /// if `None`
     fn to_html(&self, context: &mut EncodeContext) -> String {
         match self {
             Some(value) => value.to_html(context),
-            None => "".to_string(),
+            None => nothing(),
         }
     }
 
-    fn to_attrs(&self, context: &mut EncodeContext) -> Vec<String> {
+    /// Encode an option as an HTML element attribute
+    ///
+    /// Simply delegates to the optional type, returning an empty string
+    /// if `None`
+    fn to_attr(&self, name: &str) -> String {
         match self {
-            Some(value) => value.to_attrs(context),
-            None => Vec::new(),
+            Some(value) => value.to_attr(name),
+            None => nothing(),
         }
     }
 }
 
-impl<Type> ToHtml for Box<Type>
+impl<T> ToHtml for Box<T>
 where
-    Type: ToHtml,
+    T: ToHtml,
 {
+    /// Encode a box as HTML
+    ///
+    /// Simply delegates to the boxed type.
     fn to_html(&self, context: &mut EncodeContext) -> String {
         self.as_ref().to_html(context)
     }
 
-    fn to_attrs(&self, context: &mut EncodeContext) -> Vec<String> {
-        self.as_ref().to_attrs(context)
+    /// Encode a box as an HTML element attribute
+    ///
+    /// Simply delegates to the boxed type.
+    fn to_attr(&self, name: &str) -> String {
+        self.as_ref().to_attr(name)
     }
 }
 
-impl<Type> ToHtml for Vec<Type>
+impl<T> ToHtml for Vec<T>
 where
-    Type: ToHtml,
+    T: ToHtml + Serialize,
 {
+    /// Encode a vector as HTML
+    ///
+    /// Encodes each item to HTML and concatenates
     fn to_html(&self, context: &mut EncodeContext) -> String {
         self.iter()
             .map(|item| item.to_html(context))
@@ -43,9 +62,11 @@ where
             .concat()
     }
 
-    fn to_attrs(&self, context: &mut EncodeContext) -> Vec<String> {
-        self.iter()
-            .flat_map(|item| item.to_attrs(context))
-            .collect()
+    /// Encode a vector as an HTML element attribute
+    fn to_attr(&self, name: &str) -> String {
+        attr(
+            name,
+            &serde_json::to_string(self).unwrap_or_else(|error| error.to_string()),
+        )
     }
 }

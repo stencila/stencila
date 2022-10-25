@@ -184,7 +184,7 @@ impl ToHtml for ExecutableCodeDependents {
                 ("File", None, Some(path), None, None, None, None)
             }
 
-            ExecutableCodeDependents::If(_) | ExecutableCodeDependents::For(_) => todo!()
+            ExecutableCodeDependents::If(_) | ExecutableCodeDependents::For(_) => todo!(),
         };
         elem(
             "stencila-code-dependency",

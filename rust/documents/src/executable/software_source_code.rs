@@ -1,13 +1,9 @@
 use common::{async_trait::async_trait, eyre::Result};
-use graph_triples::{
-    resources::{self},
-};
+use graph_triples::resources;
 
 use node_address::Address;
 
-use stencila_schema::{
-    SoftwareSourceCode,
-};
+use stencila_schema::SoftwareSourceCode;
 
 use crate::{
     assert_id,

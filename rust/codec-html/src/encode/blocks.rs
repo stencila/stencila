@@ -6,8 +6,8 @@ use stencila_schema::*;
 
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype, attr_prop,
-    attr_slot, concat, data::label_and_input, elem, elem_empty, elem_meta, elem_meta_opt,
-    elem_placeholder, elem_property, json, nothing, EncodeContext, ToHtml,
+    attr_slot, concat, elem, elem_empty, elem_meta, elem_meta_opt, elem_placeholder, elem_property,
+    json, nothing, EncodeContext, ToHtml,
 };
 
 impl ToHtml for BlockContent {
@@ -153,12 +153,14 @@ impl ToHtml for CodeChunk {
         );
 
         let execute_ended = elem_property(
+            "stencila-timestamp",
             &[attr_prop("execute_ended"), attr_slot("execute-ended")],
             &self.execute_ended,
             context,
         );
 
         let execute_duration = elem_property(
+            "stencila-duration",
             &[attr_prop("execute_duration"), attr_slot("execute-duration")],
             &self.execute_duration,
             context,
@@ -589,6 +591,13 @@ impl ToHtml for CallArgument {
 
         let text = elem_placeholder("pre", &[attr_slot("text")], &self.text, context);
 
+        let validator = elem_property(
+            "stencila-validator",
+            &[attr_slot("validator")],
+            &self.validator,
+            context,
+        );
+
         elem(
             "stencila-call-argument",
             &[
@@ -597,7 +606,7 @@ impl ToHtml for CallArgument {
                 programming_language,
                 guess_language,
             ],
-            &text,
+            &[validator, text].concat(),
         )
     }
 }

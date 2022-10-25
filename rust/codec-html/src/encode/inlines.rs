@@ -424,12 +424,14 @@ impl ToHtml for CodeExpression {
         );
 
         let execute_ended = elem_property(
+            "stencila-timestamp",
             &[attr_prop("execute_ended"), attr_slot("execute-ended")],
             &self.execute_ended,
             context,
         );
 
         let execute_duration = elem_property(
+            "stencila-duration",
             &[attr_prop("execute_duration"), attr_slot("execute-duration")],
             &self.execute_duration,
             context,

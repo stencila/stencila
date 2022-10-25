@@ -13,10 +13,7 @@ use kernels::{KernelSelector, KernelSpace, TaskInfo};
 use node_address::Address;
 use node_validate::Validator;
 
-use stencila_schema::{
-    CodeError, Cord, ExecuteRequired, Node,
-    Parameter, ValidatorTypes,
-};
+use stencila_schema::{CodeError, Cord, ExecuteRequired, Node, Parameter, ValidatorTypes};
 
 use crate::{
     assert_id,

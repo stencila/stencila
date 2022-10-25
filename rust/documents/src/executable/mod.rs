@@ -144,7 +144,7 @@ pub struct CompileContext<'lt> {
     pub resource_infos: Vec<ResourceInfo>,
 
     /// Any global tags defined in code chunks
-    pub global_tags: TagMap
+    pub global_tags: TagMap,
 }
 
 #[derive(Debug)]

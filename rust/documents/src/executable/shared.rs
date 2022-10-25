@@ -1,4 +1,4 @@
-use kernels::{TaskInfo};
+use kernels::TaskInfo;
 use stencila_schema::{CodeError, ExecuteStatus};
 
 /// Determine the status of an executable code node from kernel `TaskInfo` and list of messages

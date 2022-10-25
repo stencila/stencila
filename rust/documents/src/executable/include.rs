@@ -130,7 +130,7 @@ impl Executable for Include {
 
 /// Calculate a resource digest based on the `source`, `media_type` and `select` properties
 /// of an `Include` node
-fn digest_from_properties(include: &Include) {
+fn digest_from_properties(include: &Include) -> ResourceDigest {
     let mut content_str = include.source.clone();
     if let Some(media_type) = include.media_type.as_deref() {
         content_str.push_str(media_type);

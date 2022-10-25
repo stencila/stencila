@@ -1,7 +1,7 @@
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
-    serde_json, tracing,
+    tracing,
 };
 use formats::Format;
 use graph_triples::{
@@ -22,7 +22,9 @@ use super::{AssembleContext, CompileContext, ExecuteContext};
 impl Executable for For {
     /// Assemble a `For` node
     ///
-    /// Just registers the address of the node.
+    /// Register the `id` of the node itself as well as `otherwise` content.
+    /// Do not assemble `content` or `iteration` since these are not part of the
+    /// document's dependency graph.
     async fn assemble(
         &mut self,
         address: &mut Address,
@@ -30,13 +32,17 @@ impl Executable for For {
     ) -> Result<()> {
         register_id!("fo", self, address, context);
 
+        self.otherwise
+            .assemble(&mut address.add_name("otherwise"), context)
+            .await?;
+
         Ok(())
     }
 
     /// Compile a `For` node
     ///
-    /// Compiles the for's `CodeExpression` thereby creating a relation between the
-    /// expression
+    /// Defines a resource for the node itself with relations to its variables etc
+    /// used in `text`. No relation is necessary between the `For` and its `otherwise` content.
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         let id = assert_id!(self)?;
         tracing::trace!("Compiling `{id}`");
@@ -56,9 +62,9 @@ impl Executable for For {
             formats::match_name(&self.programming_language)
         };
 
-        // Add a resource for the `For` based on parsing the code
-        // TODO Add relations based on the `content` and `otherwise` so that this
-        // for loop reactively updates
+        // TODO: Define relation to expression
+        // TODO: Consider "inheriting" `Uses` relations from nodes in `content` so that the loop
+        // reactively updates when something that its content depends upon updates
         let resource = resources::code(&context.path, id, "For", format);
         let resource_info = match parsers::parse(resource.clone(), &self.text) {
             Ok(resource_info) => resource_info,
@@ -113,6 +119,37 @@ impl Executable for For {
                 None
             }
         };
+
+        /*
+
+        // Inherit errors and output from expression
+        let (items, errors) = {
+            if let Some(errors) = &self.errors {
+                (None, Some(errors.clone()))
+            } else if let Some(output) = &self.output {
+                match output.as_ref() {
+                    Node::Array(array) => (Some(array), None),
+                    _ => (
+                        None,
+                        Some(vec![CodeError {
+                            error_message: "Expected expression to evaluate to an array"
+                                .to_string(),
+                            ..Default::default()
+                        }]),
+                    ),
+                }
+            } else {
+                (
+                    None,
+                    Some(vec![CodeError {
+                        error_message: "Expected expression to have an output".to_string(),
+                        ..Default::default()
+                    }]),
+                )
+            }
+        };
+        self.errors = errors;
+        */
 
         // Execute the content for each item
         if let Some(items) = items {

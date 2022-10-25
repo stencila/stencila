@@ -390,6 +390,13 @@ impl TaskResult {
             }],
         )
     }
+
+    /// Does the result have any error messages
+    pub fn has_errors(&self) -> bool {
+        !self.messages.is_empty()
+        // When messages includes several types of messages this will be:
+        // self.messages.iter().any(|message| matches!(message, CodeError(..)))
+    }
 }
 
 /// A [`broadcast::channel`] sender of a [`TaskResult`]

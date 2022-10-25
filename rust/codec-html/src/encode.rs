@@ -1,5 +1,6 @@
 use std::{any::type_name, collections::HashMap};
 
+use codec::common::serde::Serialize;
 use html_escape::{encode_double_quoted_attribute, encode_safe};
 
 use codec::{
@@ -167,14 +168,27 @@ impl<'a> Default for EncodeContext<'a> {
     }
 }
 
-/// Trait for encoding a node as HTML
 pub trait ToHtml {
+    /// Encode a value as HTML
     fn to_html(&self, _context: &mut EncodeContext) -> String {
-        elem("span", &[attr("class", "unsupported")], "<not implemented>")
+        elem(
+            "span",
+            &[attr("style", "color:red")],
+            &[
+                "to_html is not yet implemented for ",
+                std::any::type_name::<Self>(),
+            ]
+            .concat(),
+        )
     }
 
-    fn to_attrs(&self, _context: &mut EncodeContext) -> Vec<String> {
-        Vec::new()
+    /// Encode a value as an HTML element attribute
+    fn to_attr(&self, _name: &str) -> String {
+        [
+            "to_attr is not yet implemented for ",
+            std::any::type_name::<Self>(),
+        ]
+        .concat()
     }
 }
 
@@ -262,23 +276,45 @@ fn elem_placeholder<T: ToHtml>(
     )
 }
 
-/// Encode an element that represents an optional property of a node
+/// Encode an element that represents a property of a node
 ///
 /// Use this for properties of nodes that can not be represented by simply
 /// string attributes e.g. `DateTime`, `Timestamp`, `Duration`. It modifies the
 /// HTML of the item by adding attributes to the element's HTML.
-fn elem_property<T>(attrs: &[String], property: &Option<T>, context: &mut EncodeContext) -> String
+///
+/// Note: if the property is `None`, then an empty element with `tag` and `attrs`
+/// will be generated.
+fn elem_property<T>(
+    tag: &str,
+    attrs: &[String],
+    property: &T,
+    context: &mut EncodeContext,
+) -> String
 where
-    T: Default + ToHtml,
+    T: ToHtml,
 {
-    let elem = match property {
-        Some(property) => property.to_html(context),
-        None => return nothing(),
-    };
-    elem.replacen('>', &[" ", &attrs_join(attrs), ">"].concat(), 1)
+    let html = property.to_html(context);
+    if html.is_empty() {
+        elem(tag, attrs, "")
+    } else {
+        html.replacen('>', &[" ", &attrs_join(attrs), ">"].concat(), 1)
+    }
 }
 
-/// Encode a HTML element attribute, ensuring that the value is escaped correctly
+fn elem_slot<T>(tag: &str, name: &str, property: &T, context: &mut EncodeContext) -> String
+where
+    T: ToHtml,
+{
+    let html = property.to_html(context);
+    let attrs = vec![attr_slot(name)];
+    if html.is_empty() {
+        elem(tag, &attrs, "")
+    } else {
+        html.replacen('>', &[" ", &attrs_join(&attrs), ">"].concat(), 1)
+    }
+}
+
+/// Encode an HTML element attribute, ensuring that the value is escaped correctly
 fn attr(name: &str, value: &str) -> String {
     [
         &to_kebab_case(name),
@@ -298,6 +334,17 @@ fn attr_prop(name: &str) -> String {
     } else {
         attr("data-prop", &to_camel_case(name))
     }
+}
+
+/// Encode a value as an attribute with a JSON value
+///
+/// When used for an attribute on a custom element developed using `LitElement` use `@property({type: Array})`
+/// ot `@property({type: Object})`.
+fn attr_json<T: Serialize>(name: &str, value: T) -> String {
+    attr(
+        name,
+        &serde_json::to_string(&value).unwrap_or_else(|error| error.to_string()),
+    )
 }
 
 /// A mapping of type and property names to their `itemtype` or `itemprop` values
@@ -450,8 +497,10 @@ mod inlines;
 mod math;
 mod nodes;
 mod others;
+mod parameter;
 mod primitives;
 mod styled;
+mod validators;
 
 #[allow(clippy::deprecated_cfg_attr)]
 mod works;

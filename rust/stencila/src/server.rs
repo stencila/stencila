@@ -4,6 +4,7 @@ use std::{
     fmt::{Debug, Write},
     fs,
     path::{Path, PathBuf},
+    str::FromStr,
     sync::{
         atomic::{AtomicU64, Ordering},
         Arc,
@@ -11,7 +12,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use codecs::EncodeOptions;
+use codecs::{EncodeMode, EncodeOptions};
 use jwt::JwtError;
 use warp::{
     http::{
@@ -1575,6 +1576,8 @@ async fn get_handler(
         (content, mime.to_string(), false)
     } else {
         // Request for a document in some format (usually HTML)
+        let mode = EncodeMode::from_str(&mode).unwrap_or(EncodeMode::Static);
+
         match DOCUMENTS.open(&fs_path, None).await {
             Ok(document_id) => {
                 let document = DOCUMENTS.get(&document_id).await.unwrap();
@@ -1585,6 +1588,7 @@ async fn get_handler(
                         None,
                         Some(EncodeOptions {
                             standalone: true,
+                            mode,
                             ..Default::default()
                         }),
                     )
@@ -1603,7 +1607,7 @@ async fn get_handler(
                     "html" => {
                         html_rewrite(
                             &content,
-                            &mode,
+                            mode,
                             &theme,
                             &token,
                             &home,
@@ -1717,7 +1721,7 @@ fn html_directory_listing(home: &Path, dir: &Path) -> String {
 #[allow(clippy::too_many_arguments)]
 pub async fn html_rewrite(
     body: &str,
-    mode: &str,
+    mode: EncodeMode,
     _theme: &str,
     token: &str,
     home: &Path,
@@ -1729,7 +1733,7 @@ pub async fn html_rewrite(
 
     let config = serde_json::to_string(&json!({
         "token": token,
-        "mode": mode,
+        "mode": mode.as_ref(),
         "documentId": document_id,
         "executableLanguages": kernel_languages
     }))

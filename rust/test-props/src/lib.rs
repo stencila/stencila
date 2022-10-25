@@ -220,7 +220,7 @@ prop_compose! {
     ) -> InlineContent {
         InlineContent::MathFragment(MathFragment{
             text,
-            math_language: Some(Box::new("tex".to_string())),
+            math_language: "tex".to_string(),
             ..Default::default()
         })
     }
@@ -654,7 +654,7 @@ prop_compose! {
     ) -> BlockContent {
         BlockContent::MathBlock(MathBlock{
             text,
-            math_language: Some(Box::new("tex".to_string())),
+            math_language: "tex".to_string(),
             ..Default::default()
         })
     }
@@ -825,7 +825,7 @@ prop_compose! {
 prop_compose! {
     /// Generate an If node
     pub fn if_(freedom: Freedom, exclude_types: Vec<String>)(
-        clauses in vec(elif(freedom, exclude_types.clone()), size_range(1..5)),
+        clauses in vec(elif(freedom, exclude_types), size_range(1..5)),
     ) -> BlockContent {
         BlockContent::If(If{
             clauses,

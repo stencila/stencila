@@ -1,5 +1,6 @@
 use std::{collections::HashMap, str::FromStr};
 
+use codecs::EncodeOptions;
 use common::{
     defaults::Defaults,
     eyre::{bail, Result},
@@ -290,7 +291,14 @@ async fn documents_dump(params: &Params) -> Result<(serde_json::Value, Subscript
         .await?
         .lock()
         .await
-        .dump(format, node_id, None)
+        .dump(
+            format,
+            node_id,
+            Some(EncodeOptions {
+                compact: false,
+                ..Default::default()
+            }),
+        )
         .await?;
     Ok((json!(content), Subscription::None))
 }

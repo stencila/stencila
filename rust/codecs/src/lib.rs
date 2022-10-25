@@ -13,7 +13,7 @@ use codec_format::FormatCodec;
 use formats::{match_name, match_path, Format, FormatNodeType, FormatSpec};
 
 // Re-exports for use in other crates that call the following functions
-pub use codec::{DecodeOptions, EncodeOptions};
+pub use codec::{DecodeOptions, EncodeMode, EncodeOptions};
 
 // The following high level functions hide the implementation
 // detail of having a static list of codecs. They are intended as the

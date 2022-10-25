@@ -171,7 +171,7 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
                 if let InlineContent::MathFragment(MathFragment { text, .. }) = &content[0] {
                     return vec![BlockContent::MathBlock(MathBlock {
                         text: text.to_owned(),
-                        math_language: Some(Box::new("tex".to_string())),
+                        math_language: "tex".to_string(),
                         ..Default::default()
                     })];
                 }
@@ -481,7 +481,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
         }
         pandoc::Inline::Math(_math_type, text) => vec![InlineContent::MathFragment(MathFragment {
             text: text.clone(),
-            math_language: Some(Box::new("tex".to_string())),
+            math_language: "tex".to_string(),
             ..Default::default()
         })],
 

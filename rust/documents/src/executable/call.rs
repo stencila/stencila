@@ -1,19 +1,13 @@
 use common::{async_trait::async_trait, eyre::Result, tracing};
-use graph_triples::{
-    ResourceInfo,
-};
+use graph_triples::ResourceInfo;
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
 use node_address::Address;
 use path_utils::merge;
-use stencila_schema::{Call};
+use stencila_schema::Call;
 
-use crate::{
-    assert_id,
-    register_id,
-};
+use crate::{assert_id, register_id};
 
 use super::{AssembleContext, CompileContext, Executable};
-
 
 #[async_trait]
 impl Executable for Call {

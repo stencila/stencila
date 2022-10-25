@@ -209,7 +209,11 @@ pub struct DecodeOptions {
 
 /// User mode for encoding
 #[derive(Debug, Clone, Copy, EnumString, AsRefStr, PartialEq, Eq, PartialOrd, Ord)]
-#[strum(serialize_all = "lowercase", ascii_case_insensitive, crate = "common::strum")]
+#[strum(
+    serialize_all = "lowercase",
+    ascii_case_insensitive,
+    crate = "common::strum"
+)]
 pub enum EncodeMode {
     Static = 0,
     Dynamic = 1,
