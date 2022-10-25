@@ -103,7 +103,7 @@ where
                                         ops[prev] = Operation::Move {
                                             from: address.clone(),
                                             items: *items,
-                                            to: Address::from((index as i32 + shift) as usize),
+                                            to: Address::from((index as i32 + shift - *items as i32) as usize),
                                         };
                                         matched = true;
                                         break;
@@ -346,7 +346,12 @@ where
     }
 
     fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
-        if address.len() == 1 {
+        if address.len() == 0 {
+            // Replace the entire vector
+            let value = Self::from_value(value)?;
+            *self = value;
+        } else if address.len() == 1 {
+            // Replace part of the vector stating from slot
             let value = Self::from_value(value)?;
             if let Some(Slot::Index(index)) = address.pop_front() {
                 *self = [&self[..index], &value, &self[(index + items)..]]
@@ -356,6 +361,7 @@ where
                 bail!(invalid_address::<Self>("first slot should be an index"))
             }
         } else if let Some(Slot::Index(index)) = address.pop_front() {
+            // Apply replace operation to an item in the vector
             if let Some(item) = self.get_mut(index) {
                 item.apply_replace(address, items, value)?;
             } else {
@@ -363,7 +369,7 @@ where
             }
         } else {
             bail!(invalid_address::<Self>(
-                "address is empty or does not start with an index slot"
+                "address does not start with an index slot"
             ))
         }
         Ok(())
@@ -374,10 +380,10 @@ where
             if let (Some(Slot::Index(from)), Some(Slot::Index(to))) =
                 (from.pop_front(), to.pop_front())
             {
-                *self = if from < to {
+                *self = if from < (to + items) {
                     [
                         &self[..from],
-                        &self[to..(to + items)],
+                        &self[(from + items)..(to + items)],
                         &self[from..(from + items)],
                         &self[(to + items)..],
                     ]
@@ -552,6 +558,18 @@ mod tests {
         );
         assert_eq!(apply_new(&b, &patch)?, empty);
 
+        let patch = Patch {
+            ops: vec![Operation::Replace {
+                address: Address::default(),
+                items: 2,
+                value: Box::new(vec![5, 6, 7]),
+                length: 3,
+                html: None,
+            }],
+            ..Default::default()
+        };
+        assert_eq!(apply_new(&vec![1, 2], &patch)?, vec![5, 6, 7]);
+
         // Add
 
         let a: Vec<Integer> = vec![1];
@@ -602,7 +620,17 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json_is!(
             patch.ops, [
-                { "type": "Move", "from": [0], "items": 1, "to": [3] }
+                { "type": "Move", "from": [0], "items": 1, "to": [2] }
+            ]
+        );
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        let a: Vec<Integer> = vec![1, 2, 3, 4];
+        let b: Vec<Integer> = vec![3, 4, 1, 2];
+        let patch = diff(&a, &b);
+        assert_json_is!(
+            patch.ops, [
+                { "type": "Move", "from": [2], "items": 2, "to": [0] }
             ]
         );
         assert_eq!(apply_new(&a, &patch)?, b);
@@ -793,7 +821,7 @@ mod tests {
         let b = vec![7, 3, 1];
         let patch = diff(&a, &b);
         assert_json_is!(patch.ops, [
-            { "type": "Move", "from": [0], "items": 1, "to": [3] },
+            { "type": "Move", "from": [0], "items": 1, "to": [2] },
         ]);
         assert_eq!(apply_new(&a, &patch)?, b);
 
@@ -806,7 +834,7 @@ mod tests {
         let b = vec![0, 1, 7, 3];
         let patch = diff(&a, &b);
         assert_json_is!(patch.ops, [
-            { "type": "Move", "from": [0], "items": 1, "to": [3] },
+            { "type": "Move", "from": [0], "items": 1, "to": [2] },
             { "type": "Add", "address": [1], "value": [1], "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch)?, b);
