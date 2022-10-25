@@ -105,7 +105,9 @@ export default class StencilaDocumentHeader extends StencilaElement {
 
   private renderTopbar(config: Config) {
     const { logo, title, links, modes } = config
-    return html`<nav class="${tw`border(b gray-200) bg-white`}">
+    return html`<nav
+      class="${tw`sm:fixed top-0 left-0 right-0 z-50 border(b gray-200) bg-white`}"
+    >
       <div class="${tw`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8`}">
         <div class="${tw`flex h-16 justify-between`}">
           <div class="${tw`flex`}">
