@@ -178,6 +178,7 @@ patchable_struct!(
     css,
     classes,
     errors,
+    content,
     code_dependencies,
     code_dependents,
     compile_digest,
