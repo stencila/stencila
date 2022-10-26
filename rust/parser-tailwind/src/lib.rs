@@ -10,26 +10,15 @@ use tailwind_css::{TailwindBuilder, TailwindErrorKind};
 use common::{
     eyre::{bail, eyre, Result},
     itertools::Itertools,
-    once_cell::sync::Lazy,
-    regex::Regex,
 };
 use parser::{
     formats::Format,
     graph_triples::{
-        relations,
-        resources::{self, ResourceDigest},
+        resources::ResourceDigest,
         Resource, ResourceInfo,
     },
-    Parser, ParserTrait,
+    Parser, ParserTrait, utils::parse_var_interps,
 };
-
-/// Regex for detecting variables (to be interpolated) within Tailwind expressions
-///
-/// Allows for $var and ${var} patterns
-pub static VAR_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?:\$([a-zA-Z_][a-zA-Z_0-9]*)\b)|(?:\$\{\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*\})")
-        .expect("Unable to create regex")
-});
 
 /// A parser for Tailwind expressions
 ///
@@ -48,19 +37,7 @@ impl ParserTrait for TailwindParser {
     fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
         let syntax_errors = transpile_string(code).is_err().then_some(true);
 
-        let relations = VAR_REGEX
-            .captures_iter(code)
-            .map(|captures| {
-                let symbol = captures
-                    .get(1)
-                    .or_else(|| captures.get(2))
-                    .expect("Should always have one group");
-                (
-                    relations::uses((0, symbol.start(), 0, symbol.end())),
-                    resources::symbol(path, symbol.as_str(), ""),
-                )
-            })
-            .collect();
+        let relations = parse_var_interps(code, path);
 
         let compile_digest = ResourceDigest::from_strings(code, None);
 
@@ -158,6 +135,7 @@ fn transpile_css(css: &str) -> Result<String> {
 
 #[cfg(test)]
 mod tests {
+    use parser::graph_triples::resources;
     use test_snaps::{
         insta::{assert_json_snapshot, assert_snapshot},
         snapshot_fixtures,

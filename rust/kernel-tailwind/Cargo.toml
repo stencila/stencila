@@ -6,4 +6,4 @@ edition = "2021"
 
 [dependencies]
 kernel = { path = "../kernel" }
-parser-tailwind = { path = "../parser-tailwind" }
+parser = { path = "../parser" }

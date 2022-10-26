@@ -11,7 +11,7 @@ use kernel::{
     stencila_schema::{CodeError, Node},
     Kernel, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
-use parser_tailwind::VAR_REGEX;
+use parser::utils::perform_var_interps;
 
 /**
  * A kernel that performs variable interpolation for Tailwind expressions
@@ -85,32 +85,10 @@ impl KernelTrait for TailwindKernel {
             bail!("Unexpected language for Tailwind kernel: {}", lang);
         }
 
+        let (code, messages) = perform_var_interps(code, &self.symbols);
+        let outputs = vec![Node::String(code)];
+
         let mut task = Task::begin_sync();
-
-        let mut messages = Vec::new();
-        let interpolated = VAR_REGEX.replace_all(code, |captures: &Captures| {
-            let symbol = captures
-                .get(1)
-                .or_else(|| captures.get(2))
-                .expect("Should always have one group")
-                .as_str();
-            match self.symbols.get(symbol) {
-                Some(value) => value.to_owned(),
-                None => {
-                    messages.push(CodeError {
-                        error_type: Some(Box::new("UnknownSymbol".to_string())),
-                        error_message: format!(
-                            "Symbol `{}` is not known to the Tailwind kernel",
-                            symbol
-                        ),
-                        ..Default::default()
-                    });
-                    captures[0].to_string()
-                }
-            }
-        });
-
-        let outputs = vec![Node::String(interpolated.to_string())];
         task.end(TaskResult::new(outputs, messages));
 
         Ok(task)

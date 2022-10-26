@@ -1,10 +1,20 @@
 //! Utility functions for use by parser implementations
 
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
-use common::{once_cell::sync::Lazy, regex::Regex};
+use common::{
+    once_cell::sync::Lazy,
+    regex::{Captures, Regex},
+};
 use formats::Format;
-use graph_triples::{relations, resources, stencila_schema::ExecuteAuto, Relation, Resource, Tag};
+use graph_triples::{
+    relations, resources,
+    stencila_schema::{CodeError, ExecuteAuto},
+    Relation, Resource, Tag,
+};
 
 use crate::ResourceInfo;
 
@@ -143,6 +153,63 @@ fn parse_comment_line(line: &str) -> Option<Tag> {
             global,
         }
     })
+}
+
+/// Regex for detecting variable interpolations within code
+///
+/// Allows for $var and ${var} patterns
+pub static VAR_INTERP_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?:\$([a-zA-Z][a-zA-Z_0-9]*)\b)|(?:\$\{\s*([a-zA-Z][a-zA-Z_0-9]*)\s*\})")
+        .expect("Unable to create regex")
+});
+
+/// Parse variable interpolations in code into a vector of relations
+///
+/// Used by parsers to define the relations between some code and other resources.
+pub fn parse_var_interps(code: &str, path: &Path) -> Vec<(Relation, Resource)> {
+    VAR_INTERP_REGEX
+        .captures_iter(code)
+        .map(|captures| {
+            let symbol = captures
+                .get(1)
+                .or_else(|| captures.get(2))
+                .expect("Should always have one group");
+            (
+                relations::uses((0, symbol.start(), 0, symbol.end())),
+                resources::symbol(path, symbol.as_str(), ""),
+            )
+        })
+        .collect()
+}
+
+/// Perform variable interpolations in code using a map of symbols to strings
+///
+/// Used by kernels before executing code to perform interpolation. Returns
+/// an error message for each variable that is not in the map.
+pub fn perform_var_interps(
+    code: &str,
+    symbols: &HashMap<String, String>,
+) -> (String, Vec<CodeError>) {
+    let mut messages = Vec::new();
+    let interpolated = VAR_INTERP_REGEX.replace_all(code, |captures: &Captures| {
+        let symbol = captures
+            .get(1)
+            .or_else(|| captures.get(2))
+            .expect("Should always have one group")
+            .as_str();
+        match symbols.get(symbol) {
+            Some(value) => value.to_owned(),
+            None => {
+                messages.push(CodeError {
+                    error_type: Some(Box::new("UnknownSymbol".to_string())),
+                    error_message: format!("Symbol `{}` is not available", symbol),
+                    ..Default::default()
+                });
+                captures[0].to_string()
+            }
+        }
+    });
+    (interpolated.to_string(), messages)
 }
 
 /// Is some text quoted?
