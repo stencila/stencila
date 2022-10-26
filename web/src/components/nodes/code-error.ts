@@ -75,6 +75,8 @@ export default class CodeError extends StencilaEntity {
   protected render() {
     const inline = this.parentElement?.tagName.toLowerCase() === 'span'
 
+    const first = this.parentElement?.firstChild == this
+
     const viewStacktraceButton =
       this.hasStacktrace && !inline
         ? html`<span
@@ -117,7 +119,10 @@ export default class CodeError extends StencilaEntity {
         </span>`
       : html`<div
           part="base"
-          class=${tw`bg-${CodeError.color}-50 overflow-x-auto font(mono) text(sm ${CodeError.color}-700)`}
+          class=${tw`${!first ? `border(t ${CodeError.color}-200)` : ''} bg-${
+            CodeError.color
+          }-50 overflow-x-auto font(mono)
+                     text(sm ${CodeError.color}-700)`}
         >
           <div part="header" class=${tw`flex justify-between p-2 pr-1`}>
             <span class=${tw`flex items-center`}>
