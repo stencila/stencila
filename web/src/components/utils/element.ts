@@ -8,14 +8,17 @@ export default class StencilaElement extends LitElement {
   /**
    * Get the closest ancestor element matching the selector
    *
+   * Compared to the native `closest()` method, this will traverse out of
+   * Shadow DOMs.
+   *
    * Based on https://stackoverflow.com/q/54520554
    */
-  protected closestElement(selector: string, el = this) {
+  static closestElement(el: Element, selector: string) {
     return (
       // @ts-ignore
       (el && el != document && el != window && el.closest(selector)) ||
       // @ts-ignore
-      this.closestElement(selector, el.getRootNode().host)
+      StencilaElement.closestElement(el.getRootNode().host, selector)
     )
   }
 
@@ -63,7 +66,7 @@ export default class StencilaElement extends LitElement {
    * one or more operations
    */
   protected emitOps(...ops: Operation[]) {
-    const target = this.closestElement('[id]')?.id
+    const target = StencilaElement.closestElement(this, '[id]')?.id
     return this.emitPatch({
       target,
       ops,

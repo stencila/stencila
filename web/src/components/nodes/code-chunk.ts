@@ -45,16 +45,20 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
   renderErrorsContainer() {
     return html`<div
       part="errors"
-      class=${tw`border(t ${StencilaCodeChunk.color}-200)`}
+      class=${this.hasErrors
+        ? tw`border(t ${StencilaCodeChunk.color}-200)`
+        : tw`hidden`}
     >
-      <slot name="errors"></slot>
+      <slot name="errors" @slotchange=${this.onErrorsSlotChange}></slot>
     </div>`
   }
 
   renderOutputsContainer() {
     return html`<div
       part="outputs"
-      class=${tw`border(t ${StencilaCodeChunk.color}-200) p-1`}
+      class=${this.hasOutputs
+        ? tw`border(t ${StencilaCodeChunk.color}-200) p-1`
+        : tw`hidden`}
     >
       <slot name="outputs" @slotchange=${this.onOutputsSlotChange}></slot>
     </div>`
@@ -72,7 +76,9 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
       >
         <span class=${tw`flex items-center text-base ml-1 mr-2`}>
           <stencila-icon name="lightning"></stencila-icon>
-          <span class=${tw`ml-2 mr-2`}>code</span>
+          <span class=${tw`ml-2 mr-2`}
+            >${this.programmingLanguage.toLowerCase()}</span
+          >
         </span>
         ${this.renderLanguageMenu(tw)}
       </div>

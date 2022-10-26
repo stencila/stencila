@@ -3,7 +3,7 @@ import '@shoelace-style/shoelace/dist/components/menu/menu'
 import { capitalCase } from 'change-case'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
-import { currentMode, Mode } from '../../mode'
+import { TW } from 'twind'
 import '../base/icon-button'
 import { twSheet } from '../utils/css'
 import StencilaElement from '../utils/element'
@@ -96,9 +96,24 @@ export default class StencilaCodeExecutable extends Executable {
   @state()
   protected hasOutputs: boolean
 
-  protected async onOutputsSlotChange(event: Event) {
-    const slotted = (event.target as HTMLSlotElement).assignedNodes()[0]
-    this.hasOutputs = slotted.childNodes.length > 0
+  /**
+   * An observer to update `hasOutputs`
+   */
+  private outputsObserver: MutationObserver
+
+  protected onOutputsSlotChange(event: Event) {
+    const outputsElem = (event.target as HTMLSlotElement).assignedElements({
+      flatten: true,
+    })[0]
+
+    this.hasOutputs = outputsElem.childElementCount > 0
+
+    this.outputsObserver = new MutationObserver(() => {
+      this.hasOutputs = outputsElem.childElementCount > 0
+    })
+    this.outputsObserver.observe(outputsElem, {
+      childList: true,
+    })
   }
 
   connectedCallback() {
@@ -170,6 +185,7 @@ export class StencilaExecutableLanguage extends StencilaElement {
     ['javascript', '', 'JavaScript', 'js'],
     ['json', '', 'JSON'],
     ['json5', '', 'JSON5'],
+    ['http', '', 'HTTP'],
     ['prql', '', 'PRQL'],
     ['python', '', 'Python', 'py', 'python3'],
     ['r', '', 'R'],
@@ -215,6 +231,19 @@ export class StencilaExecutableLanguage extends StencilaElement {
    */
   @property({ type: Boolean })
   disabled = false
+
+  /**
+   * Override to ensure that the property is changed on this element
+   * AND on the parent `EntityElement` that contains this menu
+   */
+  protected changeProperties(properties: [string, unknown][]) {
+    const parent = StencilaElement.closestElement(this.parentElement!, '[id]')!
+    for (const [property, value] of properties) {
+      parent[property] = value
+    }
+
+    return super.changeProperties(properties)
+  }
 
   render() {
     const languages = StencilaExecutableLanguage.languages.filter(
