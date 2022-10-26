@@ -143,13 +143,13 @@ export default class StencilaInput extends StencilaElement {
    * Makes the input a required field
    */
   @property({ type: Boolean })
-  required: boolean = false
+  required = false
 
   /**
    * Is the input disabled?
    */
   @property({ type: Boolean })
-  disabled: boolean = false
+  disabled = false
 
   /**
    * An error message for the input

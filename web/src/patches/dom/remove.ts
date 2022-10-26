@@ -10,7 +10,7 @@ import {
 } from '../checks'
 import { applyRemove as applyRemoveString } from '../string'
 import { STRUCT_ATTRIBUTES } from './consts'
-import { unescapeAttr, unescapeHtml } from './escape'
+import { escapeAttr, unescapeAttr } from './escape'
 import { hasProxy } from './proxies'
 import {
   isArrayElement,
@@ -168,7 +168,8 @@ export function applyRemoveText(
   assertIndex(index)
 
   const current = text.textContent ?? ''
-  const unescaped = isAttr(text) ? unescapeAttr(current) : unescapeHtml(current)
+  const unescaped = isAttr(text) ? unescapeAttr(current) : current
   const updated = applyRemoveString(unescaped, index, items)
-  text.textContent = updated
+  const escaped = isAttr(text) ? escapeAttr(updated) : updated
+  text.textContent = escaped
 }

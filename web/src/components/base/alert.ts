@@ -25,7 +25,7 @@ export function notify(
   const alert = Object.assign(document.createElement('stencila-alert'), {
     variant,
     closable: true,
-    duration: duration,
+    duration,
     innerHTML: `
         <stencila-icon name="${icon}" slot="icon"></stencila-icon>
         ${escapeHtml(message)}

@@ -13,7 +13,7 @@ import {
 } from '../checks'
 import { applyReplace as applyReplaceString } from '../string'
 import { applyAddObject, applyAddStruct } from './add'
-import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
+import { escapeAttr, unescapeAttr } from './escape'
 import { hasProxy } from './proxies'
 import {
   createFragment,
@@ -189,9 +189,8 @@ export function applyReplaceText(
   assertIndex(index)
 
   const current = text.textContent ?? ''
-  const unescaped = isAttr(text) ? unescapeAttr(current) : unescapeHtml(current)
+  const unescaped = isAttr(text) ? unescapeAttr(current) : current
   const updated = applyReplaceString(unescaped, index, items, value)
-  // It seems that, because setting textContent (?), it is not necessary to escape innerHTML
   const escaped = isAttr(text) ? escapeAttr(updated) : updated
   text.textContent = escaped
 }

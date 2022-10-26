@@ -12,7 +12,7 @@ import {
 } from '../checks'
 import { applyAdd as applyAddString } from '../string'
 import { STRUCT_ATTRIBUTES } from './consts'
-import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
+import { escapeAttr, unescapeAttr } from './escape'
 import { hasProxy } from './proxies'
 import {
   createFragment,
@@ -189,9 +189,8 @@ export function applyAddText(
   assertIndex(index)
 
   const current = text.textContent ?? ''
-  const unescaped = isAttr(text) ? unescapeAttr(current) : unescapeHtml(current)
+  const unescaped = isAttr(text) ? unescapeAttr(current) : current
   const updated = applyAddString(unescaped, index, value)
-  // It seems that, because setting textContent (?), it is not necessary to escape innerHTML
   const escaped = isAttr(text) ? escapeAttr(updated) : updated
   text.textContent = escaped
 }

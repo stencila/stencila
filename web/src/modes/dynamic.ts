@@ -1,5 +1,3 @@
-import('./static.ts')
-
 import { DocumentClient } from '../clients/document-client'
 import { waitForElems } from '../utils/curtain'
 
@@ -7,6 +5,8 @@ import '../components/nodes/division'
 import '../components/nodes/math-block'
 import '../components/nodes/math-fragment'
 import '../components/nodes/span'
+
+import('./static.ts')
 
 // Use DocumentClient to provide dynamically updating content via
 // received patches

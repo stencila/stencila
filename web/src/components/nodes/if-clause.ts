@@ -3,11 +3,9 @@ import { customElement, property, state } from 'lit/decorators'
 
 import { Patch } from '../../types'
 import '../base/icon-button'
-import '../editors/code-editor'
 import StencilaCodeEditor from '../editors/code-editor'
 import { twSheet } from '../utils/css'
 import './code-error'
-import './code-executable'
 import StencilaCodeExecutable, {
   StencilaExecutableLanguage,
 } from './code-executable'
@@ -43,7 +41,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
    * As for `guessLanguage`, needs to be a string.
    */
   @property({ attribute: 'is-active', reflect: true })
-  isActive: string = 'false'
+  isActive = 'false'
 
   /**
    * The index of this clause within an `If` node
@@ -75,7 +73,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
    * Whether the clause has any content
    */
   @state()
-  private hasContent: boolean = false
+  private hasContent = false
 
   /**
    * An observer to update `hasContent`
@@ -104,13 +102,13 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
    * Whether the content of the clause is visible to the user
    */
   @state()
-  private isExpanded: boolean = false
+  private isExpanded = false
 
   /**
    * Get the parent `If` element
    */
   private getIf() {
-    return this.parentElement!.parentElement! as HTMLElement
+    return this.parentElement!.parentElement!
   }
 
   /**

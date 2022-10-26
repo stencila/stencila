@@ -39,7 +39,7 @@ export default class StencilaCallArgument extends StencilaParameter {
    * Whether this user is specifying the call argument as an expression or value (with inputs)
    */
   @state()
-  private useExpression: boolean = false
+  private useExpression = false
 
   /**
    * Get the parent `Call` element

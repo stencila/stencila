@@ -5,7 +5,7 @@ import { apply as twApply, css } from 'twind/css'
 import '@shoelace-style/shoelace/dist/components/breadcrumb-item/breadcrumb-item'
 import '@shoelace-style/shoelace/dist/components/breadcrumb/breadcrumb'
 import '@shoelace-style/shoelace/dist/components/button/button'
-import '@shoelace-style/shoelace/dist/components/dialog/dialog'
+import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog'
 import '@shoelace-style/shoelace/dist/components/divider/divider'
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown'
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
@@ -27,7 +27,6 @@ import '../base/icon'
 import '../base/icon-button'
 import { twSheet } from '../utils/css'
 import StencilaElement from '../utils/element'
-import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog'
 
 const { tw, sheet } = twSheet()
 
@@ -36,7 +35,7 @@ const config = {
     url: 'https://stenci.la/img/stencila/stencilaLogo.svg',
     alt: 'Stencila',
   },
-  //title: 'Docs',
+  // title: 'Docs',
   /*
   links: [
     { label: 'Tutorials', url: '#tutorials', icon: 'stars' },
@@ -372,9 +371,7 @@ export default class StencilaDocumentHeader extends StencilaElement {
   renderKeyboardMenuItem() {
     return html`<sl-menu-item
       @click=${() => {
-        const dialog = this.renderRoot.querySelector(
-          '#keyboard-dialog'
-        )! as SlDialog
+        const dialog = this.renderRoot.querySelector('#keyboard-dialog')!
         return dialog.show()
       }}
     >
@@ -419,7 +416,7 @@ export default class StencilaDocumentHeader extends StencilaElement {
   }
 
   @state()
-  private mobileMenuIsOpen: boolean = false
+  private mobileMenuIsOpen = false
 
   private renderMobileMenu(
     links?: { label: string; url: string; icon?: string }[],

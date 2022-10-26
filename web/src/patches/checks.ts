@@ -7,7 +7,6 @@
  */
 
 import HtmlFragment from 'html-fragment'
-import { documents } from '../client'
 import { Slot } from '../types'
 
 /**
@@ -35,6 +34,8 @@ export function panic(message: string): Error {
   }
 
   // Reset the root, if not already in the process of doing so
+  // TODO: dispatch an event that the client listens for and does the reset
+  /*
   const client = window.stencilaWebClient
   if (!client.resettingRoot) {
     client.resettingRoot = true
@@ -54,6 +55,7 @@ export function panic(message: string): Error {
         console.error('While attempting to recover from panic', error)
       })
   }
+  */
 
   return new Error(message)
 }

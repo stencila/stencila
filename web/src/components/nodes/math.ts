@@ -24,13 +24,13 @@ export default class StencilaMath extends StencilaExecutable {
    * The `Math.mathLanguage` property
    */
   @property({ attribute: 'math-language' })
-  mathLanguage: string = ''
+  mathLanguage = ''
 
   /**
    * Whether the `mathml` is visible
    */
   @state()
-  protected isExpanded: boolean = true
+  protected isExpanded = true
 
   /**
    * An observer to update the display MathML when the raw `mathml` slot changes
@@ -122,7 +122,7 @@ export default class StencilaMath extends StencilaExecutable {
     return html`<slot name="errors"></slot>`
   }
 
-  protected renderMathMLSlot(tw: TW, inline: boolean, cls: string = '') {
+  protected renderMathMLSlot(tw: TW, inline: boolean, cls = '') {
     return html`
       <slot
         name="mathml"
@@ -169,7 +169,7 @@ export class StencilaMathLanguage extends StencilaElement {
    * Whether the menu is disabled
    */
   @property({ type: Boolean })
-  disabled: boolean = false
+  disabled = false
 
   render() {
     const languages = StencilaMathLanguage.languages

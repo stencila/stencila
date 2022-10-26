@@ -63,7 +63,7 @@ export default class StencilaElement extends LitElement {
    * one or more operations
    */
   protected emitOps(...ops: Operation[]) {
-    let target = this.closestElement('[id]')?.id
+    const target = this.closestElement('[id]')?.id
     return this.emitPatch({
       target,
       ops,

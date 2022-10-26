@@ -39,4 +39,6 @@ export const STRUCT_ATTRIBUTES: Record<string, string> = {
   // If
   isActive: 'is-active',
   guessLanguage: 'guess-language',
+  // CodeError
+  errorType: 'error-type',
 }

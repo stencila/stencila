@@ -1,12 +1,11 @@
 import { css, html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
-import '@shoelace-style/shoelace/dist/components/input/input'
+import SlInput from '@shoelace-style/shoelace/dist/components/input/input'
 
 import '../base/tag'
 import { twSheet } from '../utils/css'
 import StencilaExecutable from './executable'
-import SlInput from '@shoelace-style/shoelace/dist/components/input/input'
 import { TW } from 'twind'
 
 const { tw, sheet } = twSheet()
@@ -55,13 +54,13 @@ export default class StencilaInclude extends StencilaExecutable {
    * Whether the `Include.content` property is visible
    */
   @state()
-  protected isExpanded: boolean = true
+  protected isExpanded = true
 
   /**
    * Whether the `Include.content` property has content
    */
   @state()
-  private hasContent: boolean = false
+  private hasContent = false
 
   /**
    * An observer to update `hasContent`

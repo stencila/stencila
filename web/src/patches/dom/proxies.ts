@@ -253,8 +253,8 @@ function changeValue(
       value == null
         ? 'null'
         : // If value.value exists then use that (e.g. for Date parameters)
-        typeof value == 'object' && value['value'] !== undefined
-        ? value['value'].toString()
+        typeof value === 'object' && value.value !== undefined
+        ? value.value.toString()
         : // Otherwise just use value
           value.toString()
     elem.setAttribute('value', escapeAttr(val))

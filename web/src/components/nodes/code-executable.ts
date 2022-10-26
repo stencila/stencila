@@ -19,7 +19,7 @@ export default class StencilaCodeExecutable extends Executable {
    * The `CodeExecutable.programmingLanguage` property
    */
   @property({ attribute: 'programming-language', reflect: true })
-  programmingLanguage: string = ''
+  programmingLanguage = ''
 
   /**
    * The `CodeExecutable.guessLanguage` property
@@ -44,7 +44,7 @@ export default class StencilaCodeExecutable extends Executable {
    * to update other state e.g. the `IfClause.isElse` property.
    */
   @state()
-  protected text: string = ''
+  protected text = ''
 
   /**
    * An observer to update `text` from the slot
@@ -206,13 +206,13 @@ export class StencilaExecutableLanguage extends StencilaElement {
    * The color palette for the trigger icon
    */
   @property()
-  color: string = 'gray'
+  color = 'gray'
 
   /**
    * Whether the menu is disabled
    */
   @property({ type: Boolean })
-  disabled: boolean = false
+  disabled = false
 
   render() {
     const languages = StencilaExecutableLanguage.languages.filter(

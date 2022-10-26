@@ -55,9 +55,8 @@ import * as themes from 'thememirror/dist'
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
 import '@shoelace-style/shoelace/dist/components/select/select'
-import '@shoelace-style/shoelace/dist/components/switch/switch'
-
 import SlSwitch from '@shoelace-style/shoelace/dist/components/switch/switch'
+
 import { updateToOps } from '../../patches/codemirror'
 import { twSheet, varApply, varLocal } from '../utils/css'
 import StencilaElement from '../utils/element'
@@ -124,7 +123,7 @@ export default class StencilaCodeEditor extends StencilaElement {
    * Whether the editor is read-only i.e. only syntax highlighting
    */
   @property({ attribute: 'read-only', type: Boolean })
-  readOnly: boolean = false
+  readOnly = false
 
   /**
    * Whether the editor should be shown as disabled
@@ -135,19 +134,19 @@ export default class StencilaCodeEditor extends StencilaElement {
    * that is not `readOnly`.
    */
   @property({ type: Boolean })
-  disabled: boolean = false
+  disabled = false
 
   /**
    * Whether the editor is single line
    */
   @property({ attribute: 'single-line', type: Boolean })
-  singleLine: boolean = false
+  singleLine = false
 
   /**
    * Whether line wrapping is on
    */
   @property({ attribute: 'line-wrapping', type: Boolean })
-  lineWrapping: boolean = false
+  lineWrapping = false
 
   /**
    * The editor theme
@@ -176,7 +175,7 @@ export default class StencilaCodeEditor extends StencilaElement {
    * Whether controls for changing language, theme, line wrapping etc should be shown
    */
   @property({ attribute: 'no-controls', type: Boolean })
-  noControls: boolean = false
+  noControls = false
 
   /**
    * Placeholder text
@@ -192,7 +191,7 @@ export default class StencilaCodeEditor extends StencilaElement {
    * are emitted as patch operations for the correct property.
    */
   @property({ attribute: 'property-name' })
-  propertyName: string = 'text'
+  propertyName = 'text'
 
   /**
    * The element containing the code content
@@ -208,7 +207,7 @@ export default class StencilaCodeEditor extends StencilaElement {
    * A boolean flag to avoid `stencila-code-content-change` events being
    * fired when the editor content is being updated from the `codeElem`
    */
-  private codeUpdating: boolean = false
+  private codeUpdating = false
 
   /**
    * The CodeMirror editor
@@ -462,7 +461,7 @@ export default class StencilaCodeEditor extends StencilaElement {
   private getThemeExtension(title?: string): Extension {
     const name = title ? camelCase(title) : 'ayuLight'
     const theme = themes[name]
-    return theme ? theme : themes.ayuLight
+    return theme || themes.ayuLight
   }
 
   /**

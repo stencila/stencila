@@ -19,6 +19,8 @@ export interface DocumentConfig {
   executableLanguages?: string[]
 }
 
+export type ElementId = string
+
 /**
  * The id of a node within a document
  */

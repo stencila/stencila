@@ -32,7 +32,7 @@ export default class CodeError extends StencilaEntity {
    * Whether the error has any stacktrace
    */
   @state()
-  private hasStacktrace: boolean = false
+  private hasStacktrace = false
 
   /**
    * An observer to update `hasStacktrace`
@@ -60,7 +60,7 @@ export default class CodeError extends StencilaEntity {
    * Whether any stack trace is visible to the user
    */
   @state()
-  private isStacktraceVisible: boolean = false
+  private isStacktraceVisible = false
 
   /**
    * Get the icon icon for the error type
@@ -73,8 +73,7 @@ export default class CodeError extends StencilaEntity {
   }
 
   protected render() {
-    const inline =
-      this.parentElement?.tagName.toLowerCase() === 'span' ? true : false
+    const inline = this.parentElement?.tagName.toLowerCase() === 'span'
 
     const viewStacktraceButton =
       this.hasStacktrace && !inline

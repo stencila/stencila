@@ -4,7 +4,6 @@ import { customElement } from 'lit/decorators'
 
 import { twSheet } from '../utils/css'
 import StencilaExecutable from './executable'
-import './if-clause'
 import StencilaIfClause from './if-clause'
 
 const { tw, sheet } = twSheet()

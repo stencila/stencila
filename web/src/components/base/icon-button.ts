@@ -26,13 +26,13 @@ export default class StencilaIconButton extends StencilaElement {
    * The color of the button
    */
   @property()
-  color: string = 'blue'
+  color = 'blue'
 
   /**
    * Additional Tailwind utility classes to add to the button
    */
   @property()
-  adjust: string = ''
+  adjust = ''
 
   /**
    * An alternate description to use for accessibility.
@@ -45,7 +45,7 @@ export default class StencilaIconButton extends StencilaElement {
    * Whether the button is disabled
    */
   @property({ type: Boolean })
-  disabled: boolean = false
+  disabled = false
 
   render() {
     return html`<span

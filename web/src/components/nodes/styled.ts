@@ -14,13 +14,13 @@ export default class StencilaStyled extends StencilaCodeExecutable {
    * Whether the `content` is visible
    */
   @state()
-  protected isExpanded: boolean = true
+  protected isExpanded = true
 
   /**
    * Whether the generated CSS is visible
    */
   @state()
-  private isCssVisible: boolean = false
+  private isCssVisible = false
 
   /**
    * The CSS class name of the `content`
@@ -28,7 +28,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
    * Always added to the content element but only needed if there is a change to
    * the `css` slot at which time a stylesheet will be constructed that uses this class.
    */
-  private cssClass: string = `st-${Math.floor(Math.random() * 1e9)}`
+  private cssClass = `st-${Math.floor(Math.random() * 1e9)}`
 
   /**
    * Handle a change to the `content` slot to add `cssClass` to it
@@ -88,7 +88,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
    * Updates the custom stylesheet for this `Styled` creating a new
    * `CSSStyleSheet` if necessary.
    */
-  private onCssChanged(css: string, initial: boolean = false) {
+  private onCssChanged(css: string, initial = false) {
     // If necessary create a new stylesheet for the new CSS
     if (this.cssStyleSheet === undefined) {
       this.cssStyleSheet = new CSSStyleSheet()

@@ -47,7 +47,7 @@ export default class StencilaExecutable extends StencilaEntity {
    * Whether the expression has any errors
    */
   @state()
-  protected hasErrors: boolean = false
+  protected hasErrors = false
 
   /**
    * An observer to update `hasErrors`

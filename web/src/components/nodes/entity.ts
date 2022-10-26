@@ -56,13 +56,13 @@ export class StencilaEntityDownload extends StencilaElement {
    * The color palette to use for this component
    */
   @property()
-  color: string = 'gray'
+  color = 'gray'
 
   /**
    * The base color shade to use for this component
    */
   @property()
-  shade: number = 50
+  shade = 50
 
   /**
    * The formats that are available for the entity
@@ -96,7 +96,7 @@ export class StencilaEntityDownload extends StencilaElement {
       editor.setCode('')
 
       // Make a request to dump the node in the format
-      let nodeId = this.closestElement('[id]')?.id
+      const nodeId = this.closestElement('[id]')?.id
       const content = await window.stencilaClient.dump(format, nodeId)
 
       // Replace the content of the panel's editor with the dump

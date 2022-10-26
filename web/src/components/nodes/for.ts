@@ -39,13 +39,13 @@ export default class StencilaFor extends StencilaCodeExecutable {
    * Whether the `content` is visible
    */
   @state()
-  private isContentExpanded: boolean = false
+  private isContentExpanded = false
 
   /**
    * Whether or not the `content` slot has content
    */
   @state()
-  private hasContent: boolean = false
+  private hasContent = false
 
   /**
    * An observer to update `hasContent`
@@ -77,13 +77,13 @@ export default class StencilaFor extends StencilaCodeExecutable {
    * Whether the `otherwise` content is visible
    */
   @state()
-  private isOtherwiseExpanded: boolean = false
+  private isOtherwiseExpanded = false
 
   /**
    * Whether or not the `otherwise` slot has content
    */
   @state()
-  private hasOtherwise: boolean = false
+  private hasOtherwise = false
 
   /**
    * An observer to update `hasOtherwise`
@@ -115,13 +115,13 @@ export default class StencilaFor extends StencilaCodeExecutable {
    * Whether the `iterations` items are visible
    */
   @state()
-  private isIterationsExpanded: boolean = false
+  private isIterationsExpanded = false
 
   /**
    * Whether or not the for block has any `iterations`
    */
   @state()
-  private hasIterations: boolean = false
+  private hasIterations = false
 
   /**
    * An observer to update `isIterationsEmpty`
