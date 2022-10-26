@@ -3,9 +3,10 @@ import { customElement, property, state } from 'lit/decorators'
 import { twSheet } from '../utils/css'
 import StencilaExecutable from './executable'
 import { StencilaValidator } from './validators'
-// Import all validators to avoid them being tree-shaken away
-import './validators'
 import StencilaInput from '../base/input'
+// Imports to avoid things being tree-shaken away
+import './validators'
+import '../base/input'
 import { currentMode, Mode } from '../../mode'
 
 const { tw, sheet } = twSheet()

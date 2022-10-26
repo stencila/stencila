@@ -96,7 +96,7 @@ export class StencilaEntityDownload extends StencilaElement {
       editor.setCode('')
 
       // Make a request to dump the node in the format
-      const nodeId = this.closestElement('[id]')?.id
+      const nodeId = StencilaElement.closestElement(this, '[id]')?.id
       const content = await window.stencilaClient.dump(format, nodeId)
 
       // Replace the content of the panel's editor with the dump
