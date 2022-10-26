@@ -132,16 +132,6 @@ export default class StencilaStyled extends StencilaCodeExecutable {
     </stencila-code-editor>`
   }
 
-  protected renderLanguageMenu(tw: TW) {
-    return html`<stencila-executable-language
-      class=${tw`ml-2 text(base ${StencilaStyled.color}-500)`}
-      programming-language=${this.programmingLanguage}
-      guess-language=${this.guessLanguage == 'true'}
-      color=${StencilaStyled.color}
-      ?disabled=${this.isReadOnly()}
-    ></stencila-executable-language>`
-  }
-
   protected renderErrorsSlot(tw: TW) {
     return html`<slot
       name="errors"

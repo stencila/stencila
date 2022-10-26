@@ -60,9 +60,18 @@ export default class StencilaTimestamp extends StencilaElement {
       }
     })()
 
-    const date = new Date(millis)
-    const iso8601 = date.toISOString()
+    let date
+    try {
+      date = new Date(millis)
+    } catch (error) {
+      console.warn(error, millis)
+    }
 
-    return html`<relative-time datetime=${iso8601}></relative-time>`
+    if (date) {
+      const iso8601 = date.toISOString()
+      return html`<relative-time datetime=${iso8601}></relative-time>`
+    } else {
+      return html``
+    }
   }
 }

@@ -33,7 +33,7 @@ export default class StencilaCodeExpression extends StencilaCodeExecutable {
         <slot name="text" slot="code"></slot>
       </stencila-code-editor>
 
-      <span part="output" class=${this._hasOutputs ? 'has-outputs' : ''}>
+      <span part="output" class=${this.hasOutputs ? 'has-outputs' : ''}>
         <slot name="output" @slotchange=${this.onOutputsSlotChange}></slot>
       </span>
     </span>`

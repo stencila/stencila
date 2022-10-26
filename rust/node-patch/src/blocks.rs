@@ -83,6 +83,7 @@ patchable_struct!(
     CodeChunk,
     id,
     programming_language,
+    guess_language,
     text,
     outputs,
     errors,

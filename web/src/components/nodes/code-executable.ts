@@ -74,39 +74,31 @@ export default class StencilaCodeExecutable extends Executable {
    * Is the code of the node (the `text` property) visible?
    */
   @state()
-  protected _isCodeVisible: boolean
+  protected isCodeVisible: boolean
 
   private onCodeVisibilityChanged(event: CustomEvent) {
-    this._isCodeVisible = event.detail.isVisible
+    this.isCodeVisible = event.detail.isVisible
   }
 
   protected onCodeVisibilityClicked(event: PointerEvent) {
     if (event.shiftKey) {
       this.emit('stencila-code-visibility-change', {
-        isVisible: !this._isCodeVisible,
+        isVisible: !this.isCodeVisible,
       })
     } else {
-      this._isCodeVisible = !this._isCodeVisible
+      this.isCodeVisible = !this.isCodeVisible
     }
-  }
-
-  /**
-   * Is the node editable (i.e. code and `programmingLanguage` can be changed) in the current mode
-   */
-  protected isEditable(): boolean {
-    const mode = currentMode()
-    return mode >= Mode.Alter && mode != Mode.Edit
   }
 
   /**
    * Does the node have any outputs?
    */
   @state()
-  protected _hasOutputs: boolean
+  protected hasOutputs: boolean
 
   protected async onOutputsSlotChange(event: Event) {
     const slotted = (event.target as HTMLSlotElement).assignedNodes()[0]
-    this._hasOutputs = slotted.childNodes.length > 0
+    this.hasOutputs = slotted.childNodes.length > 0
   }
 
   connectedCallback() {
@@ -135,6 +127,16 @@ export default class StencilaCodeExecutable extends Executable {
       'stencila-code-visibility-change',
       this.onCodeVisibilityChanged.bind(this)
     )
+  }
+
+  protected renderLanguageMenu(tw: TW) {
+    return html`<stencila-executable-language
+      class=${tw`ml-2 text(base blue-500)`}
+      programming-language=${this.programmingLanguage}
+      guess-language=${this.guessLanguage == 'true'}
+      color="blue"
+      ?disabled=${this.isReadOnly()}
+    ></stencila-executable-language>`
   }
 }
 
