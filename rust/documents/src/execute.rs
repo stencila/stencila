@@ -223,8 +223,8 @@ pub async fn execute(
             let kernel_selector = task.kernel_selector.clone();
             let is_fork = task.is_fork;
 
-            // Merge the global tag map into the resource's
-            resource_info.tags.merge(&*tags);
+            // Insert the document's global tags into the resource's
+            resource_info.tags.insert_globals(&*tags);
 
             // Create a future for the task that will be spawned later
             let future = async move {
