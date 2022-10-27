@@ -23,6 +23,7 @@ parsers = { path = "../parsers", optional = true }
 kernel-bash = { path = "../kernel-bash", optional = true }
 kernel-calc = { path = "../kernel-calc", optional = true }
 kernel-deno = { path = "../kernel-deno", optional = true }
+kernel-http = { path = "../kernel-http", optional = true }
 kernel-jupyter = { path = "../kernel-jupyter", optional = true }
 kernel-micro = { path = "../kernel-micro", optional = true }
 kernel-node = { path = "../kernel-node", optional = true }

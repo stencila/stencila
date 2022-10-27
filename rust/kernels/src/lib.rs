@@ -47,6 +47,9 @@ enum MetaKernel {
     #[cfg(feature = "kernel-calc")]
     Calc(kernel_calc::CalcKernel),
 
+    #[cfg(feature = "kernel-http")]
+    Http(kernel_http::HttpKernel),
+
     #[cfg(feature = "kernel-tailwind")]
     Tailwind(kernel_tailwind::TailwindKernel),
 
@@ -90,6 +93,13 @@ impl MetaKernel {
             "kernel-calc",
             MetaKernel::Calc,
             kernel_calc::CalcKernel::new()
+        );
+
+        #[cfg(feature = "kernel-http")]
+        matches_kernel!(
+            "kernel-calc",
+            MetaKernel::Http,
+            kernel_http::HttpKernel::new()
         );
 
         matches_kernel!(
@@ -138,6 +148,9 @@ impl MetaKernel {
             #[cfg(feature = "kernel-calc")]
             MetaKernel::Calc(kernel) => Ok((MetaKernel::Calc(kernel.clone()), true)),
 
+            #[cfg(feature = "kernel-http")]
+            MetaKernel::Http(kernel) => Ok((MetaKernel::Http(kernel.clone()), true)),
+
             #[cfg(feature = "kernel-tailwind")]
             MetaKernel::Tailwind(kernel) => Ok((MetaKernel::Tailwind(kernel.clone()), true)),
 
@@ -169,6 +182,8 @@ macro_rules! dispatch_variants {
             MetaKernel::Store(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-calc")]
             MetaKernel::Calc(kernel) => kernel.$method($($arg),*),
+            #[cfg(feature = "kernel-http")]
+            MetaKernel::Http(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-tailwind")]
             MetaKernel::Tailwind(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "kernel-sql")]

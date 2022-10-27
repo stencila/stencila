@@ -68,6 +68,7 @@ export function getIconSrc(name: IconName): string {
 
 const calculator = require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/calculator.svg')
 const questionSquare = require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/question-square.svg')
+const globe = require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/globe.svg')
 
 // prettier-ignore
 const icons: Record<string, string> = {
@@ -103,13 +104,13 @@ const icons: Record<string, string> = {
   'exclamation-triangle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/exclamation-triangle.svg'),
   'eye-slash': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/eye-slash.svg'),
   'eye': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/eye.svg'),
-
   'eyeglasses': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/eyeglasses.svg'),
   'file-plus': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/file-plus.svg'),
   'file': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/file.svg'),
   'filter-square': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/filter-square.svg'),
   'filter': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/filter.svg'),
   'gear': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/gear.svg'),
+  'globe': globe,
   'hourglass': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/hourglass.svg'),
   'house': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/house.svg'),
   'info-circle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/info-circle.svg'),
@@ -182,6 +183,7 @@ const icons: Record<string, string> = {
   'calc': calculator,
   'javascript-color': '<svg viewBox="0 0 128 128"><path fill="#F0DB4F" d="M1.408 1.408h125.184v125.185H1.408z"></path><path fill="#323330" d="M116.347 96.736c-.917-5.711-4.641-10.508-15.672-14.981-3.832-1.761-8.104-3.022-9.377-5.926-.452-1.69-.512-2.642-.226-3.665.821-3.32 4.784-4.355 7.925-3.403 2.023.678 3.938 2.237 5.093 4.724 5.402-3.498 5.391-3.475 9.163-5.879-1.381-2.141-2.118-3.129-3.022-4.045-3.249-3.629-7.676-5.498-14.756-5.355l-3.688.477c-3.534.893-6.902 2.748-8.877 5.235-5.926 6.724-4.236 18.492 2.975 23.335 7.104 5.332 17.54 6.545 18.873 11.531 1.297 6.104-4.486 8.08-10.234 7.378-4.236-.881-6.592-3.034-9.139-6.949-4.688 2.713-4.688 2.713-9.508 5.485 1.143 2.499 2.344 3.63 4.26 5.795 9.068 9.198 31.76 8.746 35.83-5.176.165-.478 1.261-3.666.38-8.581zM69.462 58.943H57.753l-.048 30.272c0 6.438.333 12.34-.714 14.149-1.713 3.558-6.152 3.117-8.175 2.427-2.059-1.012-3.106-2.451-4.319-4.485-.333-.584-.583-1.036-.667-1.071l-9.52 5.83c1.583 3.249 3.915 6.069 6.902 7.901 4.462 2.678 10.459 3.499 16.731 2.059 4.082-1.189 7.604-3.652 9.448-7.401 2.666-4.915 2.094-10.864 2.07-17.444.06-10.735.001-21.468.001-32.237z"></path></svg>',
   'javascript': '<svg viewBox="0 0 128 128" fill="currentColor"><path d="M2 1v125h125V1H2zm66.119 106.513c-1.845 3.749-5.367 6.212-9.448 7.401-6.271 1.44-12.269.619-16.731-2.059-2.986-1.832-5.318-4.652-6.901-7.901l9.52-5.83c.083.035.333.487.667 1.071 1.214 2.034 2.261 3.474 4.319 4.485 2.022.69 6.461 1.131 8.175-2.427 1.047-1.81.714-7.628.714-14.065C58.433 78.073 58.48 68 58.48 58h11.709c0 11 .06 21.418 0 32.152.025 6.58.596 12.446-2.07 17.361zm48.574-3.308c-4.07 13.922-26.762 14.374-35.83 5.176-1.916-2.165-3.117-3.296-4.26-5.795 4.819-2.772 4.819-2.772 9.508-5.485 2.547 3.915 4.902 6.068 9.139 6.949 5.748.702 11.531-1.273 10.234-7.378-1.333-4.986-11.77-6.199-18.873-11.531-7.211-4.843-8.901-16.611-2.975-23.335 1.975-2.487 5.343-4.343 8.877-5.235l3.688-.477c7.081-.143 11.507 1.727 14.756 5.355.904.916 1.642 1.904 3.022 4.045-3.772 2.404-3.76 2.381-9.163 5.879-1.154-2.486-3.069-4.046-5.093-4.724-3.142-.952-7.104.083-7.926 3.403-.285 1.023-.226 1.975.227 3.665 1.273 2.903 5.545 4.165 9.377 5.926 11.031 4.474 14.756 9.271 15.672 14.981.882 4.916-.213 8.105-.38 8.581z"></path></svg>',
+  'http': globe,
   'prql': `<svg width="94" height="94" viewBox="0 0 94 94" fill="currentColor">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M42 67.763C31.7016 66.7705 24 62.7763 24 58V74C24 79.3959 33.8294 83.7936 46.1279 83.9929L37.9067 74.5H42V67.763ZM47.8721 83.9929L56.0933 74.5H52V67.763C62.2911 66.7712 69.9892 62.7819 70 58.0101V73.9899L70 74C70 79.3959 60.1706 83.7936 47.8721 83.9929Z"/>
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M42 48.763C31.7016 47.7705 24 43.7763 24 39V55C24 59.7763 31.7016 63.7705 42 64.763V48.763ZM52 64.763V48.763C62.2911 47.7712 69.9892 43.7819 70 39.0101V54.9899L70 55C70 59.7763 62.2984 63.7705 52 64.763Z"/>

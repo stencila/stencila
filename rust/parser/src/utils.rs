@@ -18,6 +18,22 @@ use graph_triples::{
 
 use crate::ResourceInfo;
 
+/// Apply all comment tags in code where a comment is a line starting with the specified character
+pub fn apply_tags_all(
+    path: &Path,
+    lang: Format,
+    code: &str,
+    chars: &str,
+    kind: Option<String>,
+    resource_info: &mut ResourceInfo,
+) {
+    for (row, line) in code.lines().enumerate() {
+        if line.starts_with(chars) {
+            apply_tags(path, lang, row, line, kind.clone(), resource_info);
+        }
+    }
+}
+
 /// Apply comment tags to a [`ResourceInfo`] object.
 ///
 /// Parses tags from a comment and updates the supplied [`ResourceInfo`]. This pattern is
@@ -48,7 +64,7 @@ pub fn apply_tags(
     let mut onlies: Vec<String> = Vec::new();
     for (index, line) in comment.lines().enumerate() {
         let range = (row + index, 0, row + index, line.len() - 1);
-        if let Some(tag) = parse_comment_line(line) {
+        if let Some(tag) = parse_tag(line) {
             // Record tags for potential use later when executed
             resource_info.tags.insert(tag.clone());
 
@@ -135,7 +151,7 @@ pub fn apply_tags(
 }
 
 /// Parse a tag from a comment line
-fn parse_comment_line(line: &str) -> Option<Tag> {
+fn parse_tag(line: &str) -> Option<Tag> {
     static REGEX: Lazy<Regex> = Lazy::new(|| {
         Regex::new(r"(@global\s+)?@([a-zA-Z]+)\s+(.*?)?\s*(:?\*/)?$")
             .expect("Unable to create regex")
@@ -230,9 +246,9 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_parse_comment_line() {
+    fn test_parse_tag() {
         assert_eq!(
-            parse_comment_line("-- @db sqlite://some/file.db3"),
+            parse_tag("-- @db sqlite://some/file.db3"),
             Some(Tag {
                 name: "db".to_string(),
                 value: "sqlite://some/file.db3".to_string(),
@@ -240,7 +256,7 @@ mod test {
             })
         );
         assert_eq!(
-            parse_comment_line("-- @global @db postgres://user:pwd@host:5432/db"),
+            parse_tag("-- @global @db postgres://user:pwd@host:5432/db"),
             Some(Tag {
                 name: "db".to_string(),
                 value: "postgres://user:pwd@host:5432/db".to_string(),

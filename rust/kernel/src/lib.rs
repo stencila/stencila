@@ -474,8 +474,8 @@ impl Task {
         Self::begin(Some(sender), None)
     }
 
-    /// Create, begin, and immediately end a task with no result
-    pub fn begin_and_end() -> Self {
+    /// Create, begin, and immediately end a task
+    pub fn begin_and_end(result: Option<TaskResult>) -> Self {
         let now = Utc::now();
         Self {
             id: TaskId::new(),
@@ -483,7 +483,7 @@ impl Task {
             started: Some(now),
             finished: Some(now),
             interrupted: None,
-            result: None,
+            result,
             sender: None,
             interrupter: None,
         }

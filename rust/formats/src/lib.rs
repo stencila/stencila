@@ -40,6 +40,7 @@ pub enum Format {
     Gdoc,
     Gif,
     Html,
+    Http,
     Ipynb,
     JavaScript,
     Jpeg,
@@ -139,6 +140,7 @@ impl Format {
             Format::WebM => FormatSpec::new("WebM", "webm", &[], true, true, FormatNodeType::VideoObject),
 
             // Other
+            Format::Http => FormatSpec::new("HTTP", "http", &[], false, false, FormatNodeType::Unknown),
             Format::PlainText => FormatSpec::new("Plain text", "txt", &[], false, false, FormatNodeType::Unknown),
             Format::Person => FormatSpec::new("Person", "person", &[], false, false, FormatNodeType::Person),
             Format::Date => FormatSpec::new("Date", "date", &[], false, false, FormatNodeType::Date),

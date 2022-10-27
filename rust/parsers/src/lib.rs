@@ -58,13 +58,15 @@ macro_rules! dispatch_builtins {
             Format::Bash | Format::Shell | Format::Zsh => Some(parser_bash::BashParser::$method($($arg),*)),
             #[cfg(feature = "parser-calc")]
             Format::Calc => Some(parser_calc::CalcParser::$method($($arg),*)),
+            #[cfg(feature = "parser-http")]
+            Format::Http => Some(parser_http::HttpParser::$method($($arg),*)),
             #[cfg(feature = "parser-js")]
             Format::JavaScript => Some(parser_js::JsParser::$method($($arg),*)),
             #[cfg(feature = "parser-json")]
             Format::Json => Some(parser_json::JsonParser::$method($($arg),*)),
             #[cfg(feature = "parser-json5")]
             Format::Json5 => Some(parser_json5::Json5Parser::$method($($arg),*)),
-           #[cfg(feature = "parser-prql")]
+            #[cfg(feature = "parser-prql")]
             Format::PrQL => Some(parser_prql::PrqlParser::$method($($arg),*)),
             #[cfg(feature = "parser-py")]
             Format::Python => Some(parser_py::PyParser::$method($($arg),*)),
@@ -97,6 +99,8 @@ impl Parsers {
             ("bash", parser_bash::BashParser::spec()),
             #[cfg(feature = "parser-calc")]
             ("calc", parser_calc::CalcParser::spec()),
+            #[cfg(feature = "parser-http")]
+            ("http", parser_http::HttpParser::spec()),
             #[cfg(feature = "parser-js")]
             ("js", parser_js::JsParser::spec()),
             #[cfg(feature = "parser-json")]
