@@ -474,6 +474,21 @@ impl Task {
         Self::begin(Some(sender), None)
     }
 
+    /// Create, begin, and immediately end a task with no result
+    pub fn begin_and_end() -> Self {
+        let now = Utc::now();
+        Self {
+            id: TaskId::new(),
+            created: now,
+            started: Some(now),
+            finished: Some(now),
+            interrupted: None,
+            result: None,
+            sender: None,
+            interrupter: None,
+        }
+    }
+
     /// Is the task an async task?
     pub fn is_async(&self) -> bool {
         self.sender.is_some()
@@ -556,8 +571,9 @@ impl Task {
     /// Wait for a result from the task
     ///
     /// For synchronous tasks, returns the result immediately. Errors if the
-    /// result sender has already dropped, or if for some reason the task has neither
-    /// a `result`, nor a `receiver`.
+    /// result sender has already dropped. If the task has neither
+    /// a `result`, nor a `receiver`, then returns an empty `TaskResult` (this
+    /// may happen for example if code is empty and the kernel had nothing to do).
     pub async fn result(&mut self) -> Result<TaskResult> {
         if let Some(result) = &self.result {
             Ok(result.clone())
@@ -569,10 +585,10 @@ impl Task {
             self.end(result.clone());
             Ok(result)
         } else {
-            bail!(
-                "Task `{}` has neither a `result`, nor a `receiver`!",
-                self.id
-            )
+            Ok(TaskResult {
+                outputs: vec![],
+                messages: vec![],
+            })
         }
     }
 }
@@ -683,7 +699,14 @@ pub trait KernelTrait {
     /// part of their implementation.
     ///
     /// Must be implemented by [`KernelTrait`] implementations.
-    async fn exec_sync(&mut self, code: &str, lang: Format, tags: Option<&TagMap>) -> Result<Task>;
+    async fn exec_sync(
+        &mut self,
+        _code: &str,
+        _lang: Format,
+        _tags: Option<&TagMap>,
+    ) -> Result<Task> {
+        bail!("Kernel does not implement exec_sync")
+    }
 
     /// Execute code in the kernel asynchronously
     ///
