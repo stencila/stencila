@@ -4,11 +4,10 @@ use kernel::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
-        regex::Captures,
         serde::Serialize,
     },
     formats::Format,
-    stencila_schema::{CodeError, Node},
+    stencila_schema::Node,
     Kernel, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
 use parser::utils::perform_var_interps;
