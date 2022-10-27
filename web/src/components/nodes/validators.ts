@@ -202,8 +202,7 @@ export class StencilaEnumValidator extends StencilaValidator {
         this.changeValue(input.value as string)
       }}
       >${this.values.map(
-        (value, index) =>
-          html`<sl-menu-item value=${index}>${value}</sl-menu-item>`
+        (value) => html`<sl-menu-item value=${value}>${value}</sl-menu-item>`
       )}</sl-select
     >`
   }
