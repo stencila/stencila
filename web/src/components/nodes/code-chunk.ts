@@ -74,9 +74,12 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
         class=${tw`flex justify-between items-center bg-${StencilaCodeChunk.color}-50
                  border(b ${StencilaCodeChunk.color}-200) p-1 font(mono bold) text(sm ${StencilaCodeChunk.color}-700)`}
       >
-        <span class=${tw`flex items-center text-base ml-1 mr-2`}>
-          <stencila-icon name="lightning"></stencila-icon>
-          <span class=${tw`ml-2 mr-2`}
+        <span class=${tw`flex items-center ml-1 mr-2`}>
+          <stencila-icon
+            class=${tw`text-base`}
+            name="lightning"
+          ></stencila-icon>
+          <span class=${tw`ml-2`}
             >${this.programmingLanguage.toLowerCase()}</span
           >
         </span>
