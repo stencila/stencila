@@ -593,7 +593,7 @@ impl JupyterKernel {
         sleep(Duration::from_millis(100)).await;
 
         // Update status
-        *(self.status.write().await) = KernelStatus::Idle;
+        *(self.status.write().await) = KernelStatus::Ready;
 
         // Store details
         self.connection = Some(connection);
@@ -679,7 +679,7 @@ impl JupyterKernel {
                                     *guard = KernelStatus::Busy;
                                 }
                                 "idle" => {
-                                    *guard = KernelStatus::Idle;
+                                    *guard = KernelStatus::Ready;
                                     tracing::debug!("Received idle status");
                                     break;
                                 }

@@ -49,7 +49,7 @@ impl KernelTrait for HttpKernel {
     }
 
     async fn status(&self) -> Result<KernelStatus> {
-        Ok(KernelStatus::Idle)
+        Ok(KernelStatus::Ready)
     }
 
     async fn get(&mut self, name: &str) -> Result<Node> {
@@ -254,11 +254,8 @@ impl KernelTrait for HttpKernel {
                 Ok(response) => match response.error_for_status() {
                     Ok(response) => {
                         if let Some(content_type) = response.headers().get(CONTENT_TYPE) {
-                            if content_type
-                                .to_str()
-                                .unwrap_or_default()
-                                .ends_with("json")
-                            {
+                            let content_type = content_type.to_str().unwrap_or_default();
+                            if content_type.contains("json") {
                                 match response.json::<Primitive>().await {
                                     Ok(primitive) => outputs.push(primitive.to_node()),
                                     Err(error) => messages.push(CodeError {

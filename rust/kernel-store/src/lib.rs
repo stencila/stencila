@@ -45,7 +45,7 @@ impl KernelTrait for StoreKernel {
     }
 
     async fn status(&self) -> Result<KernelStatus> {
-        Ok(KernelStatus::Idle)
+        Ok(KernelStatus::Ready)
     }
 
     async fn get(&mut self, name: &str) -> Result<Node> {
@@ -107,7 +107,7 @@ mod tests {
     async fn status() -> Result<()> {
         let kernel = StoreKernel::new();
 
-        assert_eq!(kernel.status().await?, KernelStatus::Idle);
+        assert_eq!(kernel.status().await?, KernelStatus::Ready);
 
         Ok(())
     }

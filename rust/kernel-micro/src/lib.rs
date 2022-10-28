@@ -357,14 +357,15 @@ impl KernelTrait for MicroKernel {
     /// and runs it using specified commands, including the kernel script file if specified
     /// in the arguments.
     async fn start(&mut self, directory: &Path) -> Result<()> {
-        // Resolve the directory where kernels are run
-        let user_data_dir = dirs::data_dir().unwrap_or_else(|| {
-            env::current_dir().expect("Should always be able to get current dir")
-        });
-        let dir = match env::consts::OS {
-            "macos" | "windows" => user_data_dir.join("Stencila").join("Microkernels"),
-            _ => user_data_dir.join("stencila").join("microkernels"),
-        };
+        // Resolve, and create if necessary, the directory where files needed for the
+        // kernel will be written to
+        let dir = dirs::data_dir()
+            .unwrap_or_else(|| {
+                env::current_dir().expect("Should always be able to get current dir")
+            })
+            .join("stencila")
+            .join("kernels")
+            .join(&self.name);
         fs::create_dir_all(&dir)?;
 
         // Copy over script file
@@ -423,7 +424,7 @@ impl KernelTrait for MicroKernel {
             stderr: Stderr::Child(stderr),
         })));
 
-        *self.status.write().await = KernelStatus::Idle;
+        *self.status.write().await = KernelStatus::Ready;
         Ok(())
     }
 
@@ -595,7 +596,7 @@ impl KernelTrait for MicroKernel {
                 );
             }
 
-            *status.write().await = KernelStatus::Idle;
+            *status.write().await = KernelStatus::Ready;
         });
 
         if let Some(mut interrupt_receiver) = interrupt_receiver {

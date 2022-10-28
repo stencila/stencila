@@ -45,7 +45,7 @@ impl KernelTrait for TailwindKernel {
     }
 
     async fn status(&self) -> Result<KernelStatus> {
-        Ok(KernelStatus::Idle)
+        Ok(KernelStatus::Ready)
     }
 
     async fn get(&mut self, _name: &str) -> Result<Node> {

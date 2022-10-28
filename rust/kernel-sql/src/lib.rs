@@ -304,7 +304,7 @@ impl KernelTrait for SqlKernel {
     }
 
     async fn status(&self) -> Result<KernelStatus> {
-        Ok(KernelStatus::Idle)
+        Ok(KernelStatus::Ready)
     }
 
     async fn start(&mut self, directory: &Path) -> Result<()> {

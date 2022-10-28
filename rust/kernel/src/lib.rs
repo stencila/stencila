@@ -23,6 +23,7 @@ pub use common;
 pub use formats;
 pub use graph_triples;
 pub use stencila_schema;
+pub use uuids;
 
 /// The type of kernel
 ///
@@ -113,7 +114,7 @@ pub type KernelId = String;
 pub enum KernelStatus {
     Pending,
     Starting,
-    Idle,
+    Ready,
     Busy,
     Unresponsive,
     Stopping,
