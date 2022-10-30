@@ -1063,8 +1063,10 @@ impl BinaryInstallation {
         command
     }
 
-    /// Run the binary, log any outputs on stdout and stderr, and fail if
-    /// exit code is not 0.
+    /// Run the binary, log any outputs on stdout and stderr, and fail if exit code is not 0
+    /// 
+    /// Relays stdout and stderr lines to `INFO` level logs (unless they are parsed as being
+    /// of a different level).
     pub async fn run<I, S>(&self, args: I) -> Result<()>
     where
         I: IntoIterator<Item = S>,
@@ -1074,8 +1076,12 @@ impl BinaryInstallation {
             .await
     }
 
-    /// Run the binary, log any outputs on stdout and stderr, and fail if
-    /// exit code is not 0.
+    /// Run the binary, log any outputs on stdout and stderr, and fail if exit code is not 0
+    /// 
+    /// Relays stderr lines to tracing logs with level `stdout_log_level`. Use `None` to skip this.
+    /// 
+    /// Does basic parsing of stderr lines to attempt to infer the log level, falling back to
+    /// `stderr_log_level` and relays the log to tracing. Use `None` to skip this.
     pub async fn run_with<I, S>(
         &self,
         args: I,
