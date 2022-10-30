@@ -1,6 +1,15 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
-use http_utils::reqwest::header::CONTENT_TYPE;
+use http_utils::{
+    http::{HeaderMap, HeaderValue},
+    reqwest::{
+        header::{HeaderName, CONTENT_TYPE, HOST},
+    },
+};
 use kernel::{
     common::{
         async_trait::async_trait,
@@ -20,18 +29,48 @@ use kernel::{
     Kernel, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
 use node_transform::Transform;
-use parser::utils::VAR_INTERP_REGEX;
+use parser::utils::{perform_file_interps, VAR_INTERP_REGEX};
 
-#[derive(Debug, Clone, Default, Serialize)]
+type HttpErrorHandler = fn(error_type: &str, error_body: &str) -> CodeError;
+
+#[derive(Clone, Default, Serialize)]
 #[serde(crate = "kernel::common::serde")]
 pub struct HttpKernel {
+    /// The symbols that have been set in this kernel
     #[serde(skip)]
     symbols: Arc<RwLock<HashMap<String, Node>>>,
+
+    /// The directory where this kernel was started
+    ///
+    /// Needed for relative paths when doing file interpolation
+    directory: PathBuf,
+
+    /// An error handler
+    ///
+    /// Used for kernels that extend `HttpKernel` so that they can implement
+    /// custom handling of errors
+    #[serde(skip)]
+    error_handler: Option<Box<HttpErrorHandler>>,
+}
+
+impl std::fmt::Debug for HttpKernel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("HttpKernel")
+         .field("directory", &self.directory)
+         .finish()
+    }
 }
 
 impl HttpKernel {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn with_error_handler(error_handler: Box<HttpErrorHandler>) -> Self {
+        Self {
+            error_handler: Some(error_handler),
+            ..Default::default()
+        }
     }
 }
 
@@ -50,6 +89,15 @@ impl KernelTrait for HttpKernel {
 
     async fn status(&self) -> Result<KernelStatus> {
         Ok(KernelStatus::Ready)
+    }
+
+    /// Start the kernel
+    ///
+    /// Records the directory so it can be used to resolve interpolated files
+    async fn start(&mut self, directory: &Path) -> Result<()> {
+        self.directory = directory.into();
+
+        Ok(())
     }
 
     async fn get(&mut self, name: &str) -> Result<Node> {
@@ -178,7 +226,7 @@ impl KernelTrait for HttpKernel {
         };
 
         // Remaining lines before blank line are headers
-        let mut headers: HashMap<String, String> = HashMap::new();
+        let mut headers = HeaderMap::new();
         for line in lines.by_ref() {
             if line.starts_with('#') {
                 continue;
@@ -190,7 +238,7 @@ impl KernelTrait for HttpKernel {
             if let Some((key, value)) = line.splitn(2, ':').collect_tuple() {
                 let key = key.trim().to_lowercase();
                 let value = value.trim().to_string();
-                headers.insert(key, value);
+                headers.insert(key.parse::<HeaderName>()?, value.parse::<HeaderValue>()?);
             }
         }
 
@@ -198,8 +246,12 @@ impl KernelTrait for HttpKernel {
         let body = lines.join("\n");
         let body = var_interp(&body, true);
 
-        // Drop symbols guard now that interp has been done
+        // Drop symbols guard now that variable interp has been done
         drop(symbols);
+
+        // Do file interpolation of body
+        let (body, mut errors) = perform_file_interps(&body, &self.directory);
+        messages.append(&mut errors);
 
         // Return now if any errors related to interpolation
         if !messages.is_empty() {
@@ -215,8 +267,9 @@ impl KernelTrait for HttpKernel {
         let url = if url.starts_with("http://") || url.starts_with("https://") {
             url.to_string()
         } else if let Some(host) = headers
-            .get("host")
-            .or_else(|| tags.get("host").map(|tag| &tag.value))
+            .get(HOST)
+            .map(|value| value.to_str().unwrap_or_default())
+            .or_else(|| tags.get("host").map(|tag| tag.value.as_str()))
         {
             let sep = (!(host.ends_with('/') || url.starts_with('/')))
                 .then_some("/")
@@ -237,6 +290,7 @@ impl KernelTrait for HttpKernel {
 
         // Spawn the task to run in the background
         let symbols = self.symbols.clone();
+        let error_handler = self.error_handler.clone();
         let join_handle = tokio::spawn(async move {
             let mut outputs = Vec::new();
             let mut messages = Vec::new();
@@ -248,11 +302,12 @@ impl KernelTrait for HttpKernel {
                 Put => http_utils::CLIENT.put(url).body(body),
                 Patch => http_utils::CLIENT.patch(url).body(body),
                 Delete => http_utils::CLIENT.delete(url),
-            };
+            }
+            .headers(headers);
 
             match request.send().await {
-                Ok(response) => match response.error_for_status() {
-                    Ok(response) => {
+                Ok(response) => {
+                    if response.status().is_success() {
                         if let Some(content_type) = response.headers().get(CONTENT_TYPE) {
                             let content_type = content_type.to_str().unwrap_or_default();
                             if content_type.contains("json") {
@@ -273,12 +328,30 @@ impl KernelTrait for HttpKernel {
                                 }
                             }
                         }
+                    } else {
+                        let error_type = response.status().to_string();
+                        let error_body = response
+                            .text()
+                            .await
+                            .unwrap_or_else(|_| "Unknown error".to_string());
+
+                        let error = if let Some(error_handler) = error_handler {
+                            (*error_handler)(&error_type, &error_body)
+                        } else {
+                            // Attempt to pretty print possible JSON error, returning the text if that fails
+                            let error_message =
+                                serde_json::from_str::<serde_json::Value>(&error_body)
+                                    .and_then(|value| serde_json::to_string_pretty(&value))
+                                    .unwrap_or(error_body);
+                            CodeError {
+                                error_type: Some(Box::new(error_type)),
+                                error_message,
+                                ..Default::default()
+                            }
+                        };
+                        messages.push(error);
                     }
-                    Err(error) => messages.push(CodeError {
-                        error_message: error.to_string(),
-                        ..Default::default()
-                    }),
-                },
+                }
                 Err(error) => messages.push(CodeError {
                     error_message: error.to_string(),
                     ..Default::default()
