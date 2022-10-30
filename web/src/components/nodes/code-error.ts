@@ -121,8 +121,7 @@ export default class CodeError extends StencilaEntity {
           part="base"
           class=${tw`${!first ? `border(t ${CodeError.color}-200)` : ''} bg-${
             CodeError.color
-          }-50 overflow-x-auto font(mono)
-                     text(sm ${CodeError.color}-700)`}
+          }-50 overflow-x-auto font(mono) text(sm ${CodeError.color}-700)`}
         >
           <div part="header" class=${tw`flex justify-between p-2 pr-1`}>
             <span class=${tw`flex items-center`}>
@@ -137,7 +136,7 @@ export default class CodeError extends StencilaEntity {
 
           <pre
             part="message"
-            class=${tw`flex justify-between p-2 pr-1`}
+            class=${tw`flex justify-between p-2 pr-1 whitespace-pre-wrap`}
           ><slot name="message"></slot></pre>
 
           <pre
