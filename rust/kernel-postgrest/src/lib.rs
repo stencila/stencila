@@ -4,19 +4,23 @@ use std::{env, path::Path, process::Stdio, sync::Arc};
 
 use binary_postgrest::BinaryTrait;
 use binary_postgrest::PostgrestBinary;
+use kernel::common::serde::Deserialize;
+use kernel::stencila_schema::CodeError;
+use kernel::TaskResult;
 use kernel::{
     common::{
         async_trait::async_trait,
         dirs,
         eyre::{bail, Result, WrapErr},
         serde::Serialize,
+        serde_json,
         tokio::{
             self,
             fs::{create_dir_all, write},
             io::{AsyncBufReadExt, BufReader},
             sync::RwLock,
         },
-        tracing::{self},
+        tracing,
     },
     formats::Format,
     stencila_schema::Node,
@@ -55,6 +59,82 @@ impl PostgrestKernel {
     pub fn new() -> Self {
         Self::default()
     }
+
+    /// Custom error handler to improve usability of errors displayed to users
+    ///
+    /// See https://postgrest.org/en/stable/errors.html
+    pub fn error_handler(error_type: &str, error_body: &str) -> CodeError {
+        #[derive(Deserialize)]
+        #[serde(crate = "kernel::common::serde")]
+        struct Error {
+            code: String,
+            details: Option<String>,
+            hint: Option<String>,
+            message: Option<String>,
+        }
+
+        // Attempt to parse body as JSON (may not be JSON if this was for example a HTTP connection error)
+        let error = match serde_json::from_str::<Error>(error_body) {
+            Ok(error) => error,
+            Err(..) => {
+                return CodeError {
+                    error_type: Some(Box::new(error_type.to_string())),
+                    error_message: error_body.to_string(),
+                    ..Default::default()
+                }
+            }
+        };
+
+        // Map the error code to the error type (the `error_type` that this function receives
+        // is the HTTP status code number and string, which we can ignore if we got JSON).
+        let (error_type, message) = match error.code.as_str() {
+            "PGRST000" => ("Connection error", "Could not connect with the database due to an incorrect db-uri or the PostgreSQL service not running."),
+            "PGRST001" => ("Connection error", "Could not connect with the database due to an internal error."),
+            "PGRST002" => ("Connection error", "Could not connect with the database when building the Schema Cache due to the PostgreSQL service not running."),
+            "PGRST100" => ("Request error", "Parsing error in the query string."),
+            "PGRST101" => ("Request error", "Only GET and POST verbs are allowed"),
+            "PGRST102" => ("Request error", "An invalid request body was sent(e.g. an empty body or malformed JSON)."),
+            "PGRST103" => ("Request error", "An invalid range was specified for Limits and Pagination."),
+            "PGRST104" => ("Request error", "Either the filter operator is missing or it doesn’t exist."),
+            "PGRST105" => ("Request error", "An invalid PUT request was done"),
+            "PGRST106" => ("Request error", "The schema specified when switching schemas is not present in the db-schemas configuration variable."),
+            "PGRST107" => ("Request error", "The Content-Type sent in the request is invalid."),
+            "PGRST108" => ("Request error", "The filter is applied to a embedded resource that is not specified in the select part of the query string. See Embedded Filters."),
+            "PGRST109" => ("Request error", "Restricting a Deletion or an Update using limits must include the ordering of a unique column. See Limited Updates/Deletions."),
+            "PGRST110" => ("Request error", "When restricting a Deletion or an Update using limits modifies more rows than the maximum specified in the limit. See Limited Updates/Deletions."),
+            "PGRST111" => ("Request error", "An invalid response.headers was set. See Setting Response Headers."),
+            "PGRST112" => ("Request error", "The status code must be a positive integer. See Setting Response Status Code."),
+            "PGRST113" => ("Request error", "More than one column was returned for a scalar result. See Response Formats For Scalar Responses."),
+            "PGRST114" => ("Request error", "For an UPSERT using PUT, when limits and offsets are used."),
+            "PGRST115" => ("Request error", "For an UPSERT using PUT, when the primary key in the query string and the body are different."),
+            "PGRST116" => ("Request error", "More than 1 or no items where returned when requesting a singular response. See Singular or Plural."),
+            "PGRST117" => ("Request error", "The HTTP verb used in the request in not supported."),
+            "PGRST200" => ("Schema cache error", "Caused by Stale Foreign Key Relationships, otherwise any of the embedding resources or the relationship itself may not exist in the database."),
+            "PGRST201" => ("Schema cache error", "An ambiguous embedding request was made. See Embedding Disambiguation."),
+            "PGRST202" => ("Schema cache error", "Caused by a Stale Function Signature, otherwise the function may not exist in the database."),
+            "PGRST203" => ("Schema cache error", "Caused by requesting overloaded functions with the same argument names but different types, or by using a POST verb to request overloaded functions with a JSON or JSONB type unnamed parameter. The solution is to rename the function or add/modify the names of the arguments."),
+            "PGRST300" => ("Authentication error", "A JWT secret is missing from the configuration."),
+            "PGRST301" => ("Authentication error", "Any error related to the verification of the JWT, which means that the JWT provided is invalid in some way."),
+            "PGRST302" => ("Authentication error", "Attempted to do a request without authentication when the anonymous role is disabled by not setting it in db-anon-role."),
+            _ => ("Error", "Unknown error")
+        };
+
+        let mut error_message = error.message.unwrap_or_else(|| message.to_string());
+        if let Some(hint) = error.hint {
+            error_message.push_str("\n\n");
+            error_message.push_str(&hint);
+        }
+        if let Some(details) = error.details {
+            error_message.push_str("\n\n");
+            error_message.push_str(&details);
+        }
+
+        CodeError {
+            error_type: Some(Box::new(error_type.to_string())),
+            error_message: error_message.to_string(),
+            ..Default::default()
+        }
+    }
 }
 
 impl Default for PostgrestKernel {
@@ -63,7 +143,7 @@ impl Default for PostgrestKernel {
             id: uuids::generate("pr").to_string(),
             config_file: None,
             status: Arc::new(RwLock::new(KernelStatus::Pending)),
-            http_kernel: HttpKernel::default(),
+            http_kernel: HttpKernel::with_error_handler(Box::new(PostgrestKernel::error_handler)),
         }
     }
 }
@@ -102,7 +182,7 @@ impl KernelTrait for PostgrestKernel {
     /// We capture these logs, detect which are errors, add them to Stencila's own tracing logs as
     /// set the kernel status to `Failed`. We also detect the 'Listening on port...' message and
     /// set kernel status to `Started` in that case.
-    async fn start(&mut self, _directory: &Path) -> Result<()> {
+    async fn start(&mut self, directory: &Path) -> Result<()> {
         *self.status.write().await = KernelStatus::Starting;
 
         // Ensure PostgREST is installed
@@ -127,9 +207,9 @@ impl KernelTrait for PostgrestKernel {
         // Write the config file for this kernel
         // TODO: Work out how best to setup/specify/pass-through etc these settings
         let config = r#"
-            db-uri = "postgres://authenticator:authenticator@localhost:5432/postgres"
-            db-schemas = "public"
-            db-anon-role = "anon"
+            db-uri = "postgres://authenticator:mysecretpassword@localhost:5433/postgres"
+            db-schemas = "api"
+            db-anon-role = "web_anon"
         "#;
         let config_file = dir.join([&self.id, ".config"].concat());
         write(&config_file, config).await?;
@@ -173,7 +253,7 @@ impl KernelTrait for PostgrestKernel {
             }
         });
 
-        Ok(())
+        self.http_kernel.start(directory).await
     }
 
     /// Get a symbol from the kernel
@@ -199,7 +279,7 @@ impl KernelTrait for PostgrestKernel {
     }
 
     /// Execute code in the kernel asynchronously
-    /// 
+    ///
     /// Transpiles the PostqREST to a HTTP request. No variable interpolation is done here since
     /// that is delegated to `http_kernel`.
     async fn exec_async(
@@ -215,8 +295,9 @@ impl KernelTrait for PostgrestKernel {
         let http = match parser_postgrest::transpile(code) {
             Ok(code) => code,
             Err(error) => {
-                tracing::error!("{}", error.to_string()); // TODO: turn this into an error for the task
-                "".to_string()
+                return Ok(Task::begin_and_end(Some(TaskResult::syntax_error(
+                    &error.to_string(),
+                ))))
             }
         };
 
@@ -224,7 +305,7 @@ impl KernelTrait for PostgrestKernel {
         let host = "\nHost: http://127.0.0.1:3000\n";
         let http = match http.contains('\n') {
             true => http.replacen('\n', host, 1),
-            false => [&http, host].concat()
+            false => [&http, host].concat(),
         };
 
         return self.http_kernel.exec_async(&http, Format::Http, tags).await;
