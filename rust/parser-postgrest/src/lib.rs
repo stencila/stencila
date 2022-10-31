@@ -8,7 +8,7 @@ use nom::{
         is_alphanumeric,
     },
     combinator::{all_consuming, map, opt, peek, recognize},
-    multi::{separated_list0, separated_list1},
+    multi::separated_list1,
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     IResult,
 };
@@ -62,7 +62,7 @@ impl ParserTrait for PostgrestParser {
 }
 
 pub fn transpile(code: &str) -> Result<String> {
-    match all_consuming(alt((select, insert_upsert, update, delete, call)))(span(code)) {
+    match all_consuming(alt((select, insert_upsert, update, delete, call)))(span(code.trim())) {
         Ok((.., http)) => Ok(http),
         Err(error) => bail!("Error parsing PostgREST statement: {}", error),
     }
@@ -83,7 +83,10 @@ fn select(s: Span) -> IResult<Span, String> {
                     table,
                     opt(preceded(
                         multispace1,
-                        separated_list0(multispace1, alt((select_clause, filter_clause))),
+                        separated_list1(
+                            multispace1,
+                            alt((select_clause, filter_clause, order_clause)),
+                        ),
                     )),
                 ),
             ),
@@ -106,18 +109,21 @@ fn select(s: Span) -> IResult<Span, String> {
                     delimited(multispace1, tag_no_case("from"), multispace1),
                     table,
                 ),
-                opt(preceded(multispace1, filter_clause)),
+                opt(preceded(
+                    multispace1,
+                    separated_list1(multispace1, alt((filter_clause, order_clause))),
+                )),
             )),
-            |(select, table, filter)| {
+            |(select, table, options)| {
                 let mut params = String::new();
                 if !select.is_empty() {
                     params.push_str(&select);
                 }
-                if let Some(filter) = filter {
+                if let Some(options) = options {
                     if !params.is_empty() {
                         params.push('&');
                     }
-                    params.push_str(&filter);
+                    params.push_str(&options.join("&"));
                 }
 
                 ["GET /", &table, "?", &params, " HTTP/1.1"].concat()
@@ -254,6 +260,55 @@ fn columns_clause(s: Span) -> IResult<Span, String> {
             } else {
                 ["columns=", &columns].concat()
             }
+        },
+    )(s)
+}
+
+fn order_clause(s: Span) -> IResult<Span, String> {
+    map(
+        preceded(
+            terminated(
+                alt((tag_no_case("order"), tag_no_case("sort"))),
+                multispace1,
+            ),
+            separated_list1(
+                delimited(multispace0, char(','), multispace0),
+                tuple((
+                    is_not(" ,"),
+                    opt(preceded(
+                        multispace1,
+                        alt((tag_no_case("asc"), tag_no_case("desc"))),
+                    )),
+                    opt(preceded(
+                        multispace1,
+                        alt((tag_no_case("nullsfirst"), tag_no_case("nullslast"))),
+                    )),
+                )),
+            ),
+        ),
+        |columns: Vec<(Span, Option<Span>, Option<Span>)>| {
+            let columns = columns
+                .iter()
+                .map(|(column, direction, nulls)| {
+                    [
+                        &column.to_string(),
+                        direction
+                            .map(|dir| {
+                                if dir.to_string() == "desc" {
+                                    ".desc"
+                                } else {
+                                    ""
+                                }
+                            })
+                            .unwrap_or_default(),
+                        &nulls
+                            .map(|nulls| [".", &nulls.to_string()].concat())
+                            .unwrap_or_default(),
+                    ]
+                    .concat()
+                })
+                .join(",");
+            ["order=", &columns].concat()
         },
     )(s)
 }
@@ -636,6 +691,24 @@ mod tests {
             "GET /actors?select=roles(character,films(title,year)) HTTP/1.1"
         );
 
+        // Ordering https://postgrest.org/en/stable/api.html#ordering
+        assert_eq!(
+            transpile("from table order col1")?,
+            "GET /table?order=col1 HTTP/1.1"
+        );
+        assert_eq!(
+            transpile("from table select col1 order col1 asc, col2 desc")?,
+            "GET /table?select=col1&order=col1,col2.desc HTTP/1.1"
+        );
+        assert_eq!(
+            transpile("from table filter col2 < 10 sort col1 desc nullsfirst")?,
+            "GET /table?col2=lt.10&order=col1.desc.nullsfirst HTTP/1.1"
+        );
+        assert_eq!(
+            transpile("from table order col1 desc nullsfirst, col3 nullslast filter col2 < 10")?,
+            "GET /table?order=col1.desc.nullsfirst,col3.nullslast&col2=lt.10 HTTP/1.1"
+        );
+
         // Alternative, SQL like syntax
         assert_eq!(
             transpile("select col1, col2 from table")?,
@@ -652,6 +725,10 @@ mod tests {
         assert_eq!(
             transpile("from table where col3<10")?,
             "GET /table?col3=lt.10 HTTP/1.1"
+        );
+        assert_eq!(
+            transpile("from table where col3<10 sort col1 desc nullsfirst")?,
+            "GET /table?col3=lt.10&order=col1.desc.nullsfirst HTTP/1.1"
         );
 
         Ok(())
