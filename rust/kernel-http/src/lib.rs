@@ -6,15 +6,14 @@ use std::{
 
 use http_utils::{
     http::{HeaderMap, HeaderValue},
-    reqwest::{
-        header::{HeaderName, CONTENT_TYPE, HOST},
-    },
+    reqwest::header::{HeaderName, CONTENT_TYPE},
 };
 use kernel::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
         itertools::Itertools,
+        json5,
         regex::Captures,
         serde::Serialize,
         serde_json,
@@ -56,8 +55,8 @@ pub struct HttpKernel {
 impl std::fmt::Debug for HttpKernel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("HttpKernel")
-         .field("directory", &self.directory)
-         .finish()
+            .field("directory", &self.directory)
+            .finish()
     }
 }
 
@@ -226,7 +225,7 @@ impl KernelTrait for HttpKernel {
         };
 
         // Remaining lines before blank line are headers
-        let mut headers = HeaderMap::new();
+        let mut headers = HashMap::<String, String>::new();
         for line in lines.by_ref() {
             if line.starts_with('#') {
                 continue;
@@ -238,20 +237,48 @@ impl KernelTrait for HttpKernel {
             if let Some((key, value)) = line.splitn(2, ':').collect_tuple() {
                 let key = key.trim().to_lowercase();
                 let value = value.trim().to_string();
-                headers.insert(key.parse::<HeaderName>()?, value.parse::<HeaderValue>()?);
+                headers.insert(key, value);
             }
         }
 
         // Remaining lines after first blank line is body of request
         let body = lines.join("\n");
-        let body = var_interp(&body, true);
+        let body = if body.is_empty() {
+            body
+        } else {
+            var_interp(&body, true)
+        };
 
         // Drop symbols guard now that variable interp has been done
         drop(symbols);
 
         // Do file interpolation of body
-        let (body, mut errors) = perform_file_interps(&body, &self.directory);
-        messages.append(&mut errors);
+        let body = if body.is_empty() {
+            body
+        } else {
+            let (body, mut errors) = perform_file_interps(&body, &self.directory);
+            messages.append(&mut errors);
+            body
+        };
+
+        // Having done interpolation, if the format of the content is JSON5, then attempt
+        // to convert to JSON
+        let body = if !body.is_empty()
+            && headers.get("content-type").cloned().unwrap_or_default() == "application/json5"
+        {
+            match json5::from_str::<serde_json::Value>(&body)
+                .ok()
+                .and_then(|value| serde_json::to_string(&value).ok())
+            {
+                Some(json) => {
+                    headers.insert("content-type".to_string(), "application/json".to_string());
+                    json
+                }
+                None => body,
+            }
+        } else {
+            body
+        };
 
         // Return now if any errors related to interpolation
         if !messages.is_empty() {
@@ -267,14 +294,14 @@ impl KernelTrait for HttpKernel {
         let url = if url.starts_with("http://") || url.starts_with("https://") {
             url.to_string()
         } else if let Some(host) = headers
-            .get(HOST)
-            .map(|value| value.to_str().unwrap_or_default())
-            .or_else(|| tags.get("host").map(|tag| tag.value.as_str()))
+            .get("host")
+            .cloned()
+            .or_else(|| tags.get("host").map(|tag| tag.value.clone()))
         {
             let sep = (!(host.ends_with('/') || url.starts_with('/')))
                 .then_some("/")
                 .unwrap_or_default();
-            [host, sep, url].concat()
+            [&host, sep, url].concat()
         } else {
             task.end(TaskResult::syntax_error(
                 "Unable to resolve a host for the request, add one to URL, or use a Host header or @host tag",  
@@ -295,6 +322,15 @@ impl KernelTrait for HttpKernel {
             let mut outputs = Vec::new();
             let mut messages = Vec::new();
 
+            let headers = headers
+                .into_iter()
+                .map(|(key, value)| {
+                    (
+                        key.parse::<HeaderName>().expect("Should be parseable"),
+                        value.parse::<HeaderValue>().expect("Should be parseable"),
+                    )
+                })
+                .collect::<HeaderMap>();
             let request = match method {
                 Get => http_utils::CLIENT.get(url),
                 Head => http_utils::CLIENT.head(url),

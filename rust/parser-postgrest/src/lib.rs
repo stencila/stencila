@@ -1,7 +1,12 @@
+use std::path::Path;
+
 use nom::{
     branch::alt,
-    bytes::complete::{is_a, is_not, tag, tag_no_case},
-    character::complete::{char, multispace0, multispace1},
+    bytes::complete::{is_a, is_not, tag, tag_no_case, take_while1},
+    character::{
+        complete::{char, multispace0, multispace1},
+        is_alphanumeric,
+    },
     combinator::{all_consuming, map, opt, peek, recognize},
     multi::{separated_list0, separated_list1},
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
@@ -10,11 +15,51 @@ use nom::{
 use nom_locate::LocatedSpan;
 use nom_recursive::{recursive_parser, RecursiveInfo};
 
-use parser::common::{
-    eyre::{bail, Result},
-    itertools::Itertools,
-    json5, serde_json,
+use parser::{
+    common::{
+        eyre::{bail, Result},
+        itertools::Itertools,
+    },
+    formats::Format,
+    graph_triples::{resources::ResourceDigest, Resource, ResourceInfo},
+    utils::{parse_file_interps, parse_var_interps},
+    Parser, ParserTrait,
 };
+
+/// A parser for PostgREST expressions
+pub struct PostgrestParser;
+
+impl ParserTrait for PostgrestParser {
+    fn spec() -> Parser {
+        Parser {
+            language: Format::Postgrest,
+        }
+    }
+
+    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
+        let (http, syntax_errors) = match transpile(code) {
+            Ok(http) => (http, Some(false)),
+            Err(..) => (String::new(), Some(true)),
+        };
+
+        let relations = [parse_var_interps(code, path), parse_file_interps(&http)].concat();
+
+        let compile_digest = ResourceDigest::from_strings(code, None);
+
+        let resource_info = ResourceInfo::new(
+            resource,
+            Some(relations),
+            None,
+            None,
+            syntax_errors,
+            Some(compile_digest),
+            None,
+            None,
+        );
+
+        Ok(resource_info)
+    }
+}
 
 pub fn transpile(code: &str) -> Result<String> {
     match all_consuming(alt((select, insert_upsert, update, delete, call)))(span(code)) {
@@ -86,21 +131,35 @@ fn insert_upsert(s: Span) -> IResult<Span, String> {
         tuple((
             alt((tag_no_case("insert"), tag_no_case("upsert"))),
             preceded(multispace1, table),
-            opt(preceded(multispace1, columns_clause)),
+            opt(preceded(
+                multispace1,
+                separated_list1(multispace1, alt((columns_clause, format_clause))),
+            )),
             preceded(multispace1, alt((file_clause, data_clause))),
         )),
-        |(action, table, columns, data): (Span, String, Option<String>, String)| {
-            let columns = columns
-                .map(|columns| ["?", &columns].concat())
-                .unwrap_or_default();
-
-            let headers = if action.to_lowercase() == "upsert" {
+        |(action, table, options, data): (Span, String, Option<Vec<String>>, String)| {
+            let mut headers = if action.to_lowercase() == "upsert" {
                 "Prefer: resolution=merge-duplicates\n"
             } else {
                 ""
-            };
+            }
+            .to_string();
 
-            ["POST /", &table, &columns, " HTTP/1.1\n", headers, &data].concat()
+            let mut query = String::new();
+            for option in options.unwrap_or_default() {
+                if option.starts_with("Content-Type:") {
+                    headers += &option;
+                } else {
+                    query = ["?", &option].concat();
+                }
+            }
+
+            // If content type not specified by format or file extension then default to JSON5
+            if !headers.contains("Content-Type:") && !data.contains("Content-Type:") {
+                headers += "Content-Type: application/json5\n";
+            }
+
+            ["POST /", &table, &query, " HTTP/1.1\n", &headers, &data].concat()
         },
     )(s)
 }
@@ -108,14 +167,35 @@ fn insert_upsert(s: Span) -> IResult<Span, String> {
 fn update(s: Span) -> IResult<Span, String> {
     map(
         preceded(
-            terminated(tag_no_case("update"), multispace1),
-            separated_pair(
-                table,
-                multispace1,
-                alt((filter_clause, filter_expression_url)),
-            ),
+            tag_no_case("update"),
+            tuple((
+                preceded(multispace1, table),
+                preceded(multispace1, alt((filter_clause, filter_expression_url))),
+                opt(preceded(
+                    multispace1,
+                    separated_list1(multispace1, alt((columns_clause, format_clause))),
+                )),
+                preceded(multispace1, alt((file_clause, data_clause))),
+            )),
         ),
-        |(table, filters)| ["PATCH /", &table, "?", &filters, " HTTP/1.1"].concat(),
+        |(table, filters, options, data): (String, String, Option<Vec<String>>, String)| {
+            let mut query = ["?", &filters].concat();
+            let mut headers = String::new();
+            for option in options.unwrap_or_default() {
+                if option.starts_with("Content-Type:") {
+                    headers += &option;
+                } else {
+                    query += &["&", &option].concat();
+                }
+            }
+
+            // If content type not specified by format or file extension then default to JSON5
+            if !headers.contains("Content-Type:") && !data.contains("Content-Type:") {
+                headers += "Content-Type: application/json5";
+            }
+
+            ["PATCH /", &table, &query, " HTTP/1.1\n", &headers, &data].concat()
+        },
     )(s)
 }
 
@@ -178,11 +258,31 @@ fn columns_clause(s: Span) -> IResult<Span, String> {
     )(s)
 }
 
+fn format_clause(s: Span) -> IResult<Span, String> {
+    map(
+        preceded(
+            terminated(tag_no_case("format"), multispace1),
+            take_while1(|c| is_alphanumeric(c as u8)),
+        ),
+        |format: Span| {
+            let format = format.to_string();
+            let content_type = match format.as_str() {
+                "csv" => "text/csv".to_string(),
+                "json" => "application/json".to_string(),
+                "json5" => "application/json5".to_string(),
+                _ => format,
+            };
+            ["Content-Type: ", &content_type, "\n"].concat()
+        },
+    )(s)
+}
+
 fn file_clause(s: Span) -> IResult<Span, String> {
     map(
         preceded(terminated(tag_no_case("file"), multispace1), is_not_space),
         |file| {
             [
+                // Add a content type here to avoid the default to json5
                 "Content-Type: ",
                 if file.ends_with(".csv") {
                     "text/csv"
@@ -201,20 +301,8 @@ fn file_clause(s: Span) -> IResult<Span, String> {
 
 fn data_clause(s: Span) -> IResult<Span, String> {
     map(is_not(""), |data: Span| {
-        let content = data.to_string();
-        let (content_type, content) = if !content.is_empty() {
-            match json5::from_str::<serde_json::Value>(&content)
-                .ok()
-                .and_then(|value| serde_json::to_string(&value).ok())
-            {
-                Some(json) => ("application/json", json),
-                None => ("text/csv", content),
-            }
-        } else {
-            ("application/json", content)
-        };
-
-        ["Content-Type: ", content_type, "\n\n", &content].concat()
+        // Do not add a content type header here: `format` clause should be used, or defaults to json5
+        ["\n\n", &data.to_string()].concat()
     })(s)
 }
 
@@ -645,17 +733,22 @@ mod tests {
     fn test_insert() -> Result<()> {
         assert_eq!(
             transpile("insert people {\"name\":\"Jaba\"}")?,
-            "POST /people HTTP/1.1\nContent-Type: application/json\n\n{\"name\":\"Jaba\"}"
+            "POST /people HTTP/1.1\nContent-Type: application/json5\n\n\n{\"name\":\"Jaba\"}"
         );
 
         assert_eq!(
-            transpile("insert people\n\nname\nJaba")?,
-            "POST /people HTTP/1.1\nContent-Type: text/csv\n\nname\nJaba"
+            transpile("insert people format csv\n\nname\nJaba")?,
+            "POST /people HTTP/1.1\nContent-Type: text/csv\n\n\nname\nJaba"
         );
 
         assert_eq!(
             transpile("insert people {name:'Jaba'}")?,
-            "POST /people HTTP/1.1\nContent-Type: application/json\n\n{\"name\":\"Jaba\"}"
+            "POST /people HTTP/1.1\nContent-Type: application/json5\n\n\n{name:'Jaba'}"
+        );
+
+        assert_eq!(
+            transpile("insert people {name:$name}")?,
+            "POST /people HTTP/1.1\nContent-Type: application/json5\n\n\n{name:$name}"
         );
 
         assert_eq!(
@@ -685,7 +778,7 @@ mod tests {
     fn test_upsert() -> Result<()> {
         assert_eq!(
             transpile("upsert people {name:'Jaba'}")?,
-            "POST /people HTTP/1.1\nPrefer: resolution=merge-duplicates\nContent-Type: application/json\n\n{\"name\":\"Jaba\"}"
+            "POST /people HTTP/1.1\nPrefer: resolution=merge-duplicates\nContent-Type: application/json5\n\n\n{name:'Jaba'}"
         );
 
         assert_eq!(
@@ -699,8 +792,13 @@ mod tests {
     #[test]
     fn test_update() -> Result<()> {
         assert_eq!(
-            transpile("update people filter age >= 18")?,
-            "PATCH /people?age=gte.18 HTTP/1.1"
+            transpile("update people filter age >= 18 {age: 19}")?,
+            "PATCH /people?age=gte.18 HTTP/1.1\nContent-Type: application/json5\n\n{age: 19}"
+        );
+
+        assert_eq!(
+            transpile("update people filter age >= 18 columns age format csv\n\nage\n19")?,
+            "PATCH /people?age=gte.18&columns=age HTTP/1.1\nContent-Type: text/csv\n\n\nage\n19"
         );
 
         Ok(())

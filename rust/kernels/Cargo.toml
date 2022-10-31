@@ -27,6 +27,7 @@ kernel-http = { path = "../kernel-http", optional = true }
 kernel-jupyter = { path = "../kernel-jupyter", optional = true }
 kernel-micro = { path = "../kernel-micro", optional = true }
 kernel-node = { path = "../kernel-node", optional = true }
+kernel-postgrest = { path = "../kernel-postgrest", optional = true }
 kernel-python = { path = "../kernel-python", optional = true }
 kernel-r = { path = "../kernel-r", optional = true }
 kernel-sql = { path = "../kernel-sql", optional = true }

@@ -50,6 +50,9 @@ enum MetaKernel {
     #[cfg(feature = "kernel-http")]
     Http(kernel_http::HttpKernel),
 
+    #[cfg(feature = "kernel-postgrest")]
+    Postgrest(kernel_postgrest::PostgrestKernel),
+
     #[cfg(feature = "kernel-tailwind")]
     Tailwind(kernel_tailwind::TailwindKernel),
 
@@ -95,11 +98,16 @@ impl MetaKernel {
             kernel_calc::CalcKernel::new()
         );
 
-        #[cfg(feature = "kernel-http")]
         matches_kernel!(
-            "kernel-calc",
+            "kernel-http",
             MetaKernel::Http,
             kernel_http::HttpKernel::new()
+        );
+
+        matches_kernel!(
+            "kernel-postgrest",
+            MetaKernel::Postgrest,
+            kernel_postgrest::PostgrestKernel::new()
         );
 
         matches_kernel!(
@@ -150,6 +158,9 @@ impl MetaKernel {
 
             #[cfg(feature = "kernel-http")]
             MetaKernel::Http(kernel) => Ok((MetaKernel::Http(kernel.clone()), true)),
+            
+            #[cfg(feature = "kernel-postgrest")]
+            MetaKernel::Postgrest(kernel) => Ok((MetaKernel::Postgrest(kernel.clone()), true)),
 
             #[cfg(feature = "kernel-tailwind")]
             MetaKernel::Tailwind(kernel) => Ok((MetaKernel::Tailwind(kernel.clone()), true)),
@@ -180,16 +191,25 @@ macro_rules! dispatch_variants {
         match $var {
             #[cfg(feature = "kernel-store")]
             MetaKernel::Store(kernel) => kernel.$method($($arg),*),
+
             #[cfg(feature = "kernel-calc")]
             MetaKernel::Calc(kernel) => kernel.$method($($arg),*),
+
             #[cfg(feature = "kernel-http")]
             MetaKernel::Http(kernel) => kernel.$method($($arg),*),
+
+            #[cfg(feature = "kernel-postgrest")]
+            MetaKernel::Postgrest(kernel) => kernel.$method($($arg),*),
+
             #[cfg(feature = "kernel-tailwind")]
             MetaKernel::Tailwind(kernel) => kernel.$method($($arg),*),
+
             #[cfg(feature = "kernel-sql")]
             MetaKernel::Sql(kernel) => kernel.$method($($arg),*),
+
             #[cfg(feature = "kernel-micro")]
             MetaKernel::Micro(kernel) => kernel.$method($($arg),*),
+
             #[cfg(feature = "kernel-jupyter")]
             MetaKernel::Jupyter(kernel) => kernel.$method($($arg),*),
         }
@@ -331,7 +351,7 @@ impl KernelMap {
                 // For these, use the existing kernel
                 KernelStatus::Pending
                 | KernelStatus::Starting
-                | KernelStatus::Idle
+                | KernelStatus::Ready
                 | KernelStatus::Busy => return Ok(kernel_id.clone()),
                 // For these, keep on looking
                 KernelStatus::Unresponsive
