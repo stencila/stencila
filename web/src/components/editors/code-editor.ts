@@ -520,8 +520,8 @@ export default class StencilaCodeEditor extends StencilaElement {
     // Get the `code` element and its content
     this.codeElem = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
-    })[0] as HTMLPreElement
-    const content = this.codeElem.textContent ?? ''
+    })[0] as HTMLPreElement | undefined
+    const content = this.codeElem?.textContent ?? ''
 
     // If the editor view does not yet exist then create it, otherwise create a transaction
     // to update its content
@@ -547,13 +547,15 @@ export default class StencilaCodeEditor extends StencilaElement {
     }
 
     // Create an observer
-    this.codeObserver = new MutationObserver((mutations) =>
-      this.onCodeMutation(mutations)
-    )
-    this.codeObserver.observe(this.codeElem, {
-      subtree: true,
-      characterData: true,
-    })
+    if (this.codeElem) {
+      this.codeObserver = new MutationObserver((mutations) =>
+        this.onCodeMutation(mutations)
+      )
+      this.codeObserver.observe(this.codeElem, {
+        subtree: true,
+        characterData: true,
+      })
+    }
   }
 
   /**
