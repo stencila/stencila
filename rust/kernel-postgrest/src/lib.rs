@@ -5,6 +5,7 @@ use std::{env, path::Path, process::Stdio, sync::Arc};
 use binary_postgrest::BinaryTrait;
 use binary_postgrest::PostgrestBinary;
 use kernel::common::serde::Deserialize;
+use kernel::common::tokio::sync::mpsc;
 use kernel::stencila_schema::CodeError;
 use kernel::TaskResult;
 use kernel::{
@@ -173,7 +174,7 @@ impl KernelTrait for PostgrestKernel {
 
     /// Get the status of the kernel
     async fn status(&self) -> Result<KernelStatus> {
-        return Ok(self.status.read().await.clone());
+        return Ok(*self.status.read().await);
     }
 
     /// Start the kernel
@@ -218,6 +219,7 @@ impl KernelTrait for PostgrestKernel {
         let mut child = match install
             .command()
             .args([config_file.to_string_lossy().to_string()])
+            .stdout(Stdio::null())
             .stderr(Stdio::piped())
             .spawn()
         {
@@ -233,6 +235,7 @@ impl KernelTrait for PostgrestKernel {
 
         // Monitor stderr for errors / success
         let status = self.status.clone();
+        let (startup_sender, mut startup_receiver) = mpsc::channel(1);
         tokio::spawn(async move {
             let stderr = child.stderr.take().expect("stderr should be piped");
             let mut stderr_reader = BufReader::new(stderr).lines();
@@ -240,7 +243,10 @@ impl KernelTrait for PostgrestKernel {
             while let Ok(Some(line)) = stderr_reader.next_line().await {
                 if line.contains("Listening on port") {
                     *status.write().await = KernelStatus::Ready;
-                    tracing::debug!("PostgREST has successfully started")
+                    if let Err(err) = startup_sender.send(KernelStatus::Ready).await {
+                        tracing::debug!("While sending `PostgrestKernel` startup signal: {}", err);
+                    }
+                    tracing::debug!("PostgREST has successfully started");
                 } else if line.contains("Error")
                     || line.contains("error")
                     || line.contains("{\"code\":")
@@ -253,7 +259,12 @@ impl KernelTrait for PostgrestKernel {
             }
         });
 
-        self.http_kernel.start(directory).await
+        // Wait for ready status
+        if let Some(KernelStatus::Ready) = startup_receiver.recv().await {
+            self.http_kernel.start(directory).await
+        } else {
+            bail!("Startup failed")
+        }
     }
 
     /// Get a symbol from the kernel
