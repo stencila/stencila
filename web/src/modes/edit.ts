@@ -1,4 +1,4 @@
-import '../components/editors/prose-editor'
+import '../components/editors/prose-editor/prose-editor'
 import { waitForElems } from '../utils/curtain'
 
 import('./inspect.ts')

@@ -1,6 +1,6 @@
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
-import StencilaElement from '../utils/element'
+import StencilaElement from '../../utils/element'
 
 import { EditorState } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
