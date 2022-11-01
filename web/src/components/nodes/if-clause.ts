@@ -188,6 +188,34 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     }
   }
 
+  protected renderContentContainer() {
+    const inner = this.isReadOnly()
+      ? html`${!this.hasContent
+            ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
+            : ''}
+          <slot
+            name="content"
+            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+          ></slot>`
+      : html`<stencila-prose-editor
+          ><slot
+            name="content"
+            slot="content"
+            class=${tw`hidden`}
+            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+          ></slot
+        ></stencila-prose-editor>`
+
+    return html`<div
+      part="content"
+      class=${tw`border(t ${StencilaIf.color}-200) p-2 ${
+        this.isExpanded || 'hidden'
+      }`}
+    >
+      ${inner}
+    </div>`
+  }
+
   protected render() {
     const label = this.index == 0 ? 'if' : this.isElse ? 'else' : 'elif'
     const iconName =
@@ -394,21 +422,6 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       ></slot>
     </div>`
 
-    const contentContainer = html`<div
-      part="content"
-      class=${tw`border(t ${StencilaIf.color}-200) p-2 ${
-        this.isExpanded || 'hidden'
-      }`}
-    >
-      ${!this.hasContent
-        ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
-        : ''}
-      <slot
-        name="content"
-        @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-      ></slot>
-    </div>`
-
     return html`<div part="base" class=${tw`border(b ${StencilaIf.color}-200)`}>
       <div
         part="header"
@@ -418,7 +431,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
         ${iconElem} ${labelElem} ${textEditor} ${programmingLanguageMenu}
         ${moveButton} ${removeButton} ${expandButton}
       </div>
-      ${errorsContainer} ${contentContainer}
+      ${errorsContainer} ${this.renderContentContainer()}
     </div>`
   }
 }

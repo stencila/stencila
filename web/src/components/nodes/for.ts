@@ -1,7 +1,6 @@
 import { SlInput } from '@shoelace-style/shoelace'
 import { css, html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
-import { currentMode, Mode } from '../../mode'
 
 import { twSheet } from '../utils/css'
 import StencilaCodeExecutable, {
@@ -222,6 +221,62 @@ export default class StencilaFor extends StencilaCodeExecutable {
     </stencila-code-editor>`
   }
 
+  protected renderContentContainer() {
+    const inner = this.isReadOnly()
+      ? html` ${!this.hasContent
+            ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
+            : ''}
+          <slot
+            name="content"
+            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+          ></slot>`
+      : html`<stencila-prose-editor
+          ><slot
+            name="content"
+            slot="content"
+            class=${tw`hidden`}
+            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+          ></slot
+        ></stencila-prose-editor>`
+
+    return html`<div
+      part="content"
+      class=${tw`border(t ${StencilaFor.color}-200) p-2 ${
+        this.isContentExpanded || 'hidden'
+      }`}
+    >
+      ${inner}
+    </div>`
+  }
+
+  protected renderOtherwiseContainer() {
+    const inner = this.isReadOnly()
+      ? html`${!this.hasOtherwise
+            ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
+            : ''}
+          <slot
+            name="otherwise"
+            @slotchange=${(event: Event) => this.onOtherwiseSlotChange(event)}
+          ></slot>`
+      : html`<stencila-prose-editor
+          ><slot
+            name="otherwise"
+            slot="content"
+            class=${tw`hidden`}
+            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+          ></slot
+        ></stencila-prose-editor>`
+
+    return html`<div
+      part="otherwise"
+      class=${tw`border(t ${StencilaFor.color}-200) p-2 ${
+        this.isOtherwiseExpanded || 'hidden'
+      }`}
+    >
+      ${inner}
+    </div>`
+  }
+
   protected render() {
     const readOnly = this.isReadOnly()
 
@@ -282,21 +337,6 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     const contentExpandButton = expandButton('isContentExpanded')
 
-    const contentContainer = html`<div
-      part="content"
-      class=${tw`border(t ${StencilaFor.color}-200) p-2 ${
-        this.isContentExpanded || 'hidden'
-      }`}
-    >
-      ${!this.hasContent
-        ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
-        : ''}
-      <slot
-        name="content"
-        @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-      ></slot>
-    </div>`
-
     const otherwiseExpandButton = expandButton('isOtherwiseExpanded')
 
     const otherwiseHeader = html`<div
@@ -317,21 +357,6 @@ export default class StencilaFor extends StencilaCodeExecutable {
         <span>else</span>
       </span>
       ${otherwiseExpandButton}
-    </div>`
-
-    const otherwiseContainer = html`<div
-      part="otherwise"
-      class=${tw`border(t ${StencilaFor.color}-200) p-2 ${
-        this.isOtherwiseExpanded || 'hidden'
-      }`}
-    >
-      ${!this.hasOtherwise
-        ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
-        : ''}
-      <slot
-        name="otherwise"
-        @slotchange=${(event: Event) => this.onOtherwiseSlotChange(event)}
-      ></slot>
     </div>`
 
     const iterationsExpandButton = expandButton('isIterationsExpanded')
@@ -393,8 +418,9 @@ export default class StencilaFor extends StencilaCodeExecutable {
         ${contentExpandButton}
       </div>
 
-      ${errorsContainer} ${contentContainer} ${otherwiseHeader}
-      ${otherwiseContainer} ${iterationsHeader} ${iterationsContainer}
+      ${errorsContainer} ${this.renderContentContainer()} ${otherwiseHeader}
+      ${this.renderOtherwiseContainer()} ${iterationsHeader}
+      ${iterationsContainer}
 
       <div
         part="footer"

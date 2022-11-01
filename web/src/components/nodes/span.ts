@@ -40,6 +40,25 @@ export default class StencilaSpan extends StencilaStyled {
     </span>`
   }
 
+  protected renderContentSlot(tw: TW) {
+    return this.isReadOnly()
+      ? html`<slot
+          name="content"
+          @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+        ></slot>`
+      : html`<stencila-prose-editor
+          inline-only
+          css-class=${this.cssClass}
+          css-rules=${this.cssRules}
+          ><slot
+            name="content"
+            slot="content"
+            class=${tw`hidden`}
+            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+          ></slot
+        ></stencila-prose-editor>`
+  }
+
   render() {
     const mode = currentMode()
     return mode < Mode.Inspect

@@ -40,6 +40,24 @@ export default class StencilaDivision extends StencilaStyled {
     </div>`
   }
 
+  protected renderContentSlot(tw: TW) {
+    return this.isReadOnly()
+      ? html`<slot
+          name="content"
+          @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+        ></slot>`
+      : html`<stencila-prose-editor
+          css-class=${this.cssClass}
+          css-rules=${this.cssRules}
+          ><slot
+            name="content"
+            slot="content"
+            class=${tw`hidden`}
+            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+          ></slot
+        ></stencila-prose-editor>`
+  }
+
   render() {
     const mode = currentMode()
     return mode < Mode.Inspect

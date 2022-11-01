@@ -28,32 +28,24 @@ export default class StencilaStyled extends StencilaCodeExecutable {
    * Always added to the content element but only needed if there is a change to
    * the `css` slot at which time a stylesheet will be constructed that uses this class.
    */
-  private cssClass = `st-${Math.floor(Math.random() * 1e9)}`
+  protected cssClass = `st-${Math.floor(Math.random() * 1e9)}`
 
   /**
-   * Handle a change to the `content` slot to add `cssClass` to it
+   * The CSS rules as a raw CSS string
+   *
+   * This is captured from the document's global stylesheet on load so that
+   * if needs be it can be passed on to the <stencila-prose-editor>. It is
+   * also updated when the CSS slot changes so that it can be passed
+   * through to the editor again. To trigger a rerender it is a @state.
    */
-  private onContentSlotChange(event: Event) {
-    const contentElem = (event.target as HTMLSlotElement).assignedElements({
-      flatten: true,
-    })[0] as HTMLDivElement
-
-    // Replaces any existing Stencila class (i.e the one generated when HTML was generated)
-    const oldClass = [...contentElem.classList].filter((className) =>
-      className.startsWith('st-')
-    )[0]
-    if (oldClass !== undefined) {
-      contentElem.classList.replace(oldClass, this.cssClass)
-    } else {
-      contentElem.classList.add(this.cssClass)
-    }
-  }
+  @state()
+  protected cssRules: string
 
   /**
    * The CSS stylesheet that is constructed for the `content` if the
-   * CSS changes
+   * CSS changes.
    */
-  private cssStyleSheet?: CSSStyleSheet
+  protected cssStyleSheet?: CSSStyleSheet
 
   /**
    * An observer to update `cssStyleSheet` when the content of the `css`
@@ -104,13 +96,34 @@ export default class StencilaStyled extends StencilaCodeExecutable {
     // Add transitions for all properties if this is not the initial render and the
     // CSS does not have any transitions defined.
     if (!initial && !stylesheet.includes('transition-property:')) {
-      stylesheet += `.${this.cssClass} {
+      stylesheet += `\n\n.${this.cssClass} {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 500ms;
 }`
     }
+
+    this.cssRules = stylesheet
     this.cssStyleSheet.replaceSync(stylesheet)
+  }
+
+  /**
+   * Handle a change to the `content` slot to add `cssClass` to it
+   */
+  protected onContentSlotChange(event: Event) {
+    const contentElem = (event.target as HTMLSlotElement).assignedElements({
+      flatten: true,
+    })[0] as HTMLDivElement
+
+    // Replaces any existing Stencila class (i.e the one generated when HTML was generated)
+    const oldClass = [...contentElem.classList].filter((className) =>
+      className.startsWith('st-')
+    )[0]
+    if (oldClass !== undefined) {
+      contentElem.classList.replace(oldClass, this.cssClass)
+    } else {
+      contentElem.classList.add(this.cssClass)
+    }
   }
 
   protected renderTextEditor(tw: TW) {
@@ -216,12 +229,5 @@ export default class StencilaStyled extends StencilaCodeExecutable {
       }}
     >
     </stencila-icon-button>`
-  }
-
-  protected renderContentSlot(tw: TW) {
-    return html` <slot
-      name="content"
-      @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-    ></slot>`
   }
 }
