@@ -357,6 +357,14 @@ export default class StencilaCodeEditor extends StencilaElement {
         return import('@codemirror/lang-python').then((m) => m.python())
       },
     }),
+    // Use custom grammar for Postgrest
+    LanguageDescription.of({
+      name: 'postgrest',
+      extensions: ['pgrst', 'pgrest'],
+      async load() {
+        return import('codemirror-lang-postgrest').then((m) => m.postgrest())
+      },
+    }),
     // TODO: Develop custom grammar for PrQL
     LanguageDescription.of({
       name: 'PrQL',
@@ -653,8 +661,10 @@ export default class StencilaCodeEditor extends StencilaElement {
           }
 
           /* Improve appearance of autocomplete prompt */
+          .cm-tooltip {
+            font-family: monospace;
+          }
           .cm-tooltip.cm-tooltip-autocomplete > ul > li {
-            font-size: 90%;
             padding-bottom: 2px;
             padding-top: 2px;
           }

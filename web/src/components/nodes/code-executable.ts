@@ -187,6 +187,7 @@ export class StencilaExecutableLanguage extends StencilaElement {
     ['json5', '', 'JSON5'],
     ['http', '', 'HTTP'],
     ['prql', '', 'PRQL'],
+    ['pgrest', '', 'PostgREST', 'pgrst', 'postgrest'],
     ['python', '', 'Python', 'py', 'python3'],
     ['r', '', 'R'],
     ['sql', tw`text-blue-600`, 'SQL'],
