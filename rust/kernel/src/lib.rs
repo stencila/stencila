@@ -108,7 +108,7 @@ impl Kernel {
 pub type KernelId = String;
 
 /// The status of a running kernel
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Display)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Display)]
 #[serde(crate = "common::serde")]
 #[allow(dead_code)]
 pub enum KernelStatus {
