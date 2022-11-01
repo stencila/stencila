@@ -4,6 +4,7 @@ import { capitalCase } from 'change-case'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 import { TW } from 'twind'
+import { isCodeWriteable } from '../../mode'
 import '../base/icon-button'
 import { twSheet } from '../utils/css'
 import StencilaElement from '../utils/element'
@@ -145,12 +146,14 @@ export default class StencilaCodeExecutable extends Executable {
   }
 
   protected renderLanguageMenu(tw: TW) {
+    const readOnly = !isCodeWriteable()
+
     return html`<stencila-executable-language
       class=${tw`ml-2 text(base blue-500)`}
       programming-language=${this.programmingLanguage}
       guess-language=${this.guessLanguage == 'true'}
       color="blue"
-      ?disabled=${this.isReadOnly()}
+      ?disabled=${readOnly}
     ></stencila-executable-language>`
   }
 }

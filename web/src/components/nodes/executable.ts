@@ -2,7 +2,7 @@ import { html } from 'lit'
 import { property, state } from 'lit/decorators'
 import { TW } from 'twind'
 import 'twind/colors'
-import { currentMode, Mode } from '../../mode'
+import { currentMode, isCodeExecutable, Mode } from '../../mode'
 
 import StencilaEntity from './entity'
 import '../base/icon-button'
@@ -73,22 +73,6 @@ export default class StencilaExecutable extends StencilaEntity {
   }
 
   /**
-   * Is the node read only in the current mode
-   */
-  protected isReadOnly(): boolean {
-    const mode = currentMode()
-    return mode < Mode.Alter || mode == Mode.Edit
-  }
-
-  /**
-   * Is the node executable in the current mode
-   */
-  protected isExecutable(): boolean {
-    const mode = currentMode()
-    return mode >= Mode.Alter && mode != Mode.Edit
-  }
-
-  /**
    * Compile the node
    */
   protected compile() {
@@ -114,7 +98,7 @@ export default class StencilaExecutable extends StencilaEntity {
       this.executeStatus,
       this.executeRequired
     )
-    const isExecutable = this.isExecutable()
+    const isExecutable = isCodeExecutable()
     return html`<sl-tooltip content="${title}">
       <stencila-icon-button
         name=${icon}

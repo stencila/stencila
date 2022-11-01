@@ -1,6 +1,7 @@
 import HtmlFragment from 'html-fragment'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
+import { isCodeWriteable } from '../../mode'
 
 import { twSheet } from '../utils/css'
 import StencilaExecutable from './executable'
@@ -20,7 +21,7 @@ export default class StencilaIf extends StencilaExecutable {
   static formats = ['markdown', 'yaml', 'json']
 
   protected render() {
-    const readOnly = this.isReadOnly()
+    const readOnly = !isCodeWriteable()
 
     const add = () => {
       const clauses = (

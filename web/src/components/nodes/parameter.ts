@@ -7,7 +7,7 @@ import StencilaInput from '../base/input'
 // Imports to avoid things being tree-shaken away
 import './validators'
 import '../base/input'
-import { currentMode, Mode } from '../../mode'
+import { currentMode, isCodeWriteable, Mode } from '../../mode'
 
 const { tw, sheet } = twSheet()
 
@@ -91,6 +91,8 @@ export default class StencilaParameter extends StencilaExecutable {
   }
 
   protected renderNameInput() {
+    const readOnly = !isCodeWriteable()
+
     const update = (event: Event) => {
       const input = event.target as StencilaInput
 
@@ -115,13 +117,15 @@ export default class StencilaParameter extends StencilaExecutable {
       errors="tooltip"
       class=${tw`min-w-0 w-24`}
       value=${this.name}
-      ?disabled=${this.isReadOnly()}
+      ?disabled=${readOnly}
       @sl-input=${update}
       @sl-change=${update}
     ></stencila-input>`
   }
 
   protected renderLabelInput() {
+    const readOnly = !isCodeWriteable()
+
     const update = (event: Event) => {
       const input = event.target as StencilaInput
 
@@ -140,7 +144,7 @@ export default class StencilaParameter extends StencilaExecutable {
       label="Label"
       size="small"
       value=${this.label}
-      ?disabled=${this.isReadOnly()}
+      ?disabled=${readOnly}
       @sl-input=${update}
       @sl-change=${update}
     ></stencila-input>`
@@ -164,7 +168,7 @@ export default class StencilaParameter extends StencilaExecutable {
   }
 
   protected renderValidatorDropdown() {
-    const readOnly = this.isReadOnly()
+    const readOnly = !isCodeWriteable()
 
     // @ts-expect-error because TS doesn't know all validator classes have an icon
     const icon = this.validator?.constructor.icon ?? 'dash-circle'
@@ -211,7 +215,7 @@ export default class StencilaParameter extends StencilaExecutable {
   }
 
   protected renderSettingsDropdown() {
-    const readOnly = this.isReadOnly()
+    const readOnly = !isCodeWriteable()
 
     return html`<sl-dropdown
       class=${tw`ml-1`}
@@ -228,7 +232,7 @@ export default class StencilaParameter extends StencilaExecutable {
             bg-${StencilaParameter.color}-50 p-2 text(sm ${StencilaParameter.color}-700)`}
       >
         ${this.renderLabelInput()}
-        ${this.validator?.renderSettings(tw, this.isReadOnly())}
+        ${this.validator?.renderSettings(tw, readOnly)}
       </div>
     </sl-dropdown>`
   }

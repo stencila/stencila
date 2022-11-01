@@ -1,5 +1,6 @@
 import { html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
+import { isCodeExecutable, isContentWriteable } from '../../mode'
 
 import { Patch } from '../../types'
 import '../base/icon-button'
@@ -189,7 +190,9 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
   }
 
   protected renderContentContainer() {
-    const inner = this.isReadOnly()
+    const readOnly = !isContentWriteable()
+
+    const inner = readOnly
       ? html`${!this.hasContent
             ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
             : ''}
@@ -221,7 +224,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     const iconName =
       label == 'if' || label == 'elif' ? 'arrow-right' : 'arrow-return-right'
     const isActive = this.isActive == 'true'
-    const readOnly = this.isReadOnly()
+    const readOnly = isCodeExecutable()
 
     const iconElem = html`<span
       class=${tw`flex items-center text-base mx-2 p-1 ${

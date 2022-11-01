@@ -7,6 +7,7 @@ import '../base/tag'
 import { twSheet } from '../utils/css'
 import StencilaExecutable from './executable'
 import { TW } from 'twind'
+import { isCodeWriteable } from '../../mode'
 
 const { tw, sheet } = twSheet()
 
@@ -104,6 +105,8 @@ export default class StencilaInclude extends StencilaExecutable {
   }
 
   protected renderSourceInput(tw: TW, action: 'compile' | 'execute') {
+    const readOnly = !isCodeWriteable()
+
     const replace = (event: Event): boolean => {
       const input = event.target as SlInput
       if (input.reportValidity()) {
@@ -120,7 +123,7 @@ export default class StencilaInclude extends StencilaExecutable {
       placeholder="path/to/file.ext"
       required="true"
       value=${this.source}
-      ?disabled=${this.isReadOnly()}
+      ?disabled=${readOnly}
       @sl-change=${replace}
       @sl-blur=${replace}
       @keypress=${(event: KeyboardEvent) => {
@@ -135,6 +138,8 @@ export default class StencilaInclude extends StencilaExecutable {
   }
 
   protected renderSelectInput(tw: TW, action: 'compile' | 'execute') {
+    const readOnly = !isCodeWriteable()
+
     const replace = (event: Event): boolean => {
       const input = event.target as SlInput
       if (input.reportValidity()) {
@@ -149,7 +154,7 @@ export default class StencilaInclude extends StencilaExecutable {
       class=${tw`min-w-0 w-full`}
       size="small"
       value=${this.select}
-      ?disabled=${this.isReadOnly()}
+      ?disabled=${readOnly}
       @sl-change=${replace}
       @sl-blur=${replace}
       @keypress=${(event: KeyboardEvent) => {

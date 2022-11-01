@@ -3,6 +3,7 @@ import '@shoelace-style/shoelace/dist/components/menu/menu'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 import { TW } from 'twind'
+import { isCodeWriteable } from '../../mode'
 import '../base/icon'
 import '../base/icon-button'
 import { twSheet } from '../utils/css'
@@ -65,7 +66,7 @@ export default class StencilaMath extends StencilaExecutable {
   }
 
   protected renderTextEditor(tw: TW, color: string) {
-    const readOnly = this.isReadOnly()
+    const readOnly = !isCodeWriteable()
 
     return html`<stencila-code-editor
       class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${color}-200) bg-${color}-50
@@ -83,10 +84,12 @@ export default class StencilaMath extends StencilaExecutable {
   }
 
   protected renderLanguageMenu(tw: TW, color: string) {
+    const readOnly = !isCodeWriteable()
+
     return html`<stencila-math-language
       class=${tw`ml-2 text(base ${color}-500)`}
       math-language=${this.mathLanguage}
-      ?disabled=${this.isReadOnly()}
+      ?disabled=${readOnly}
     ></stencila-math-language>`
   }
 

@@ -10,11 +10,12 @@ export const enum Mode {
   Interact = 2,
   Inspect = 3,
   Alter = 4,
-  Develop = 5,
+  Design = 5,
   Edit = 6,
-  Write = 7,
-  Code = 8,
-  Shell = 9,
+  Develop = 7,
+  Write = 8,
+  Code = 9,
+  Shell = 10,
 }
 
 /**
@@ -32,10 +33,12 @@ export function modeDesc(mode: Mode): string {
       return 'Inspect and interact with dynamic elements'
     case Mode.Alter:
       return 'Alter and re-run dynamic elements'
-    case Mode.Develop:
-      return 'Create, update and delete dynamic elements'
+    case Mode.Design:
+      return 'Create, update and delete style elements'
     case Mode.Edit:
       return 'Create, update and delete content elements'
+    case Mode.Develop:
+      return 'Create, update and delete style and dynamic elements'
     case Mode.Write:
       return 'Create, update and delete all elements'
     case Mode.Code:
@@ -60,10 +63,12 @@ export function modeLabel(mode: Mode): string {
       return 'Inspect'
     case Mode.Alter:
       return 'Alter'
-    case Mode.Develop:
-      return 'Develop'
+    case Mode.Design:
+      return 'Design'
     case Mode.Edit:
       return 'Edit'
+    case Mode.Develop:
+      return 'Develop'
     case Mode.Write:
       return 'Write'
     case Mode.Code:
@@ -88,10 +93,12 @@ export function modeIcon(mode: Mode): IconName {
       return 'sliders'
     case Mode.Alter:
       return 'wrench-adjustable'
-    case Mode.Develop:
-      return 'code'
+    case Mode.Design:
+      return 'palette'
     case Mode.Edit:
       return 'pencil'
+    case Mode.Develop:
+      return 'code'
     case Mode.Write:
       return 'braces-asterisk'
     case Mode.Code:
@@ -107,21 +114,18 @@ export function modeIcon(mode: Mode): IconName {
 export function modeDevStatus(mode: Mode): DevStatus {
   switch (mode) {
     case Mode.Static:
-      return DevStatus.Stable
+      return DevStatus.Beta
     case Mode.Dynamic:
     case Mode.Inspect:
-      return DevStatus.Beta
     case Mode.Interact:
     case Mode.Alter:
-      return DevStatus.Alpha
-    case Mode.Develop:
-      return DevStatus.ComingSoon
+    case Mode.Design:
     case Mode.Edit:
+    case Mode.Develop:
     case Mode.Write:
-      return DevStatus.Planned
     case Mode.Code:
     case Mode.Shell:
-      return DevStatus.Beta
+      return DevStatus.Alpha
   }
 }
 
@@ -140,10 +144,12 @@ export function modeFromString(mode: string): Mode {
       return Mode.Inspect
     case 'alter':
       return Mode.Alter
-    case 'develop':
-      return Mode.Develop
+    case 'design':
+      return Mode.Design
     case 'edit':
       return Mode.Edit
+    case 'develop':
+      return Mode.Develop
     case 'write':
       return Mode.Write
     case 'code':
@@ -160,4 +166,62 @@ export function modeFromString(mode: string): Mode {
  */
 export function currentMode(): Mode {
   return modeFromString(window.stencilaConfig.mode ?? 'static')
+}
+
+/**
+ * Does the current mode allow for reading code elements?
+ */
+export function isCodeReadable(): boolean {
+  const mode = currentMode()
+  return mode >= Mode.Inspect
+}
+
+/**
+ * Does the current mode allow for create/update/delete of code elements?
+ */
+export function isCodeWriteable(): boolean {
+  const mode = currentMode()
+  return mode == Mode.Alter || mode == Mode.Develop || mode == Mode.Write
+}
+
+/**
+ * Does the current mode allow for executing code elements?
+ */
+export function isCodeExecutable(): boolean {
+  const mode = currentMode()
+  return mode >= Mode.Interact && mode !== Mode.Design && mode !== Mode.Edit
+}
+
+/**
+ * Does the current mode allow for reading style elements?
+ */
+export function isStyleReadable(): boolean {
+  const mode = currentMode()
+  return mode >= Mode.Inspect
+}
+
+/**
+ * Does the current mode allow for create/update/delete of style elements?
+ */
+export function isStyleWriteable(): boolean {
+  const mode = currentMode()
+  return mode === Mode.Design || mode === Mode.Develop || mode === Mode.Write
+}
+
+/**
+ * Does the current mode allow for reading content elements?
+ *
+ * All modes allow this and this function is provided mainly for completeness
+ * and in case at some point it needs to depend on mode.
+ */
+export function isContentReadable(): boolean {
+  return true
+}
+
+/**
+ * Does the current mode allow for create/update/delete of content elements?
+ */
+export function isContentWriteable(): boolean {
+  const mode = currentMode()
+  return mode === Mode.Edit || mode === Mode.Write
 }

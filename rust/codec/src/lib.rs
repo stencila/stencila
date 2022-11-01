@@ -220,9 +220,12 @@ pub enum EncodeMode {
     Interact = 2,
     Inspect = 3,
     Alter = 4,
-    Develop = 5,
+    Design = 5,
     Edit = 6,
-    Write = 7,
+    Develop = 7,
+    Write = 8,
+    Code = 9,
+    Shell = 10
 }
 
 /// Encoding options

@@ -1,6 +1,7 @@
 import { SlInput } from '@shoelace-style/shoelace'
 import { css, html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
+import { isCodeWriteable, isContentWriteable } from '../../mode'
 
 import { twSheet } from '../utils/css'
 import StencilaCodeExecutable, {
@@ -171,6 +172,8 @@ export default class StencilaFor extends StencilaCodeExecutable {
   }
 
   protected renderSymbolInput() {
+    const readOnly = !isCodeWriteable()
+
     const replace = (event: Event): boolean => {
       const input = event.target as SlInput
       if (input.reportValidity()) {
@@ -188,7 +191,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
       pattern="[a-zA-Z][a-zA-Z0-0_]*"
       required="true"
       value=${this.symbol}
-      ?disabled=${this.isReadOnly()}
+      ?disabled=${readOnly}
       @sl-change=${replace}
       @sl-blur=${replace}
       @keypress=${(event: KeyboardEvent) => {
@@ -203,7 +206,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
   }
 
   protected renderTextEditor() {
-    const readOnly = this.isReadOnly()
+    const readOnly = !isCodeWriteable()
 
     return html`<stencila-code-editor
       class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${StencilaFor.color}-200)
@@ -222,7 +225,9 @@ export default class StencilaFor extends StencilaCodeExecutable {
   }
 
   protected renderContentContainer() {
-    const inner = this.isReadOnly()
+    const readOnly = !isContentWriteable()
+
+    const inner = readOnly
       ? html` ${!this.hasContent
             ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
             : ''}
@@ -250,7 +255,9 @@ export default class StencilaFor extends StencilaCodeExecutable {
   }
 
   protected renderOtherwiseContainer() {
-    const inner = this.isReadOnly()
+    const readOnly = !isContentWriteable()
+
+    const inner = readOnly
       ? html`${!this.hasOtherwise
             ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
             : ''}
@@ -278,7 +285,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
   }
 
   protected render() {
-    const readOnly = this.isReadOnly()
+    const readOnly = !isCodeWriteable()
 
     const programmingLanguageMenu = html`<stencila-executable-language
       class=${tw`ml-2 text(base gray-500)`}

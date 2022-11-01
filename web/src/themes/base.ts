@@ -322,7 +322,7 @@ const shoelaceSemanticColors = [
 
 // A variable for the code editor theme intended to be overridden by
 // theme authors
-const stencilaCodeEditorTheme = '--stencila-code-editor-theme: fooayuLight;'
+const stencilaCodeEditorTheme = '--stencila-code-editor-theme: ayuLight;'
 
 // Add a stylesheet for all variables
 addStylesheet(`
@@ -336,7 +336,7 @@ addStylesheet(`
   }
 `)
 
-// Add a stylesheet to theme
+// Add a stylesheet to theme Shoelace components
 addStylesheet(`
   :root,
   :host {
@@ -447,8 +447,8 @@ addStylesheet(`
     --sl-input-icon-color: ${varGlobal('color-neutral-500')};
     --sl-input-icon-color-hover: ${varGlobal('color-neutral-600')};
     --sl-input-icon-color-focus: ${varGlobal('color-neutral-600')};
-    --sl-input-placeholder-color: ${varGlobal('color-neutral-500')};
-    --sl-input-placeholder-color-disabled: ${varGlobal('color-neutral-600')};
+    --sl-input-placeholder-color: ${varGlobal('color-neutral-400')};
+    --sl-input-placeholder-color-disabled: ${varGlobal('color-neutral-500')};
     --sl-input-spacing-small: var(--sl-spacing-small);
     --sl-input-spacing-medium: var(--sl-spacing-medium);
     --sl-input-spacing-large: var(--sl-spacing-large);
@@ -464,7 +464,7 @@ addStylesheet(`
     --sl-input-filled-color-focus: ${varGlobal('color-neutral-700')};
     --sl-input-filled-color-disabled: ${varGlobal('color-neutral-800')};
 
-    --sl-input-focus-ring-color: hsl(198.6 88.7% 48.4% / 40%);
+    --sl-input-focus-ring-color: hsl(198.6 88.7% 48.4% / 10%);
     --sl-input-focus-ring-offset: 0;
 
     --sl-input-label-font-size-small: var(--sl-font-size-small);
@@ -473,7 +473,7 @@ addStylesheet(`
 
     --sl-input-label-color: inherit;
 
-    --sl-input-help-text-font-size-small: var(--sl-font-size-x-small);
+    --sl-input-help-text-font-size-small: 0.725rem;
     --sl-input-help-text-font-size-medium: var(--sl-font-size-small);
     --sl-input-help-text-font-size-large: var(--sl-font-size-medium);
 
@@ -557,26 +557,5 @@ addStylesheet(`
 
       'main-text-color'
     )}
-  }
-
-  main h1,
-  main h2,
-  main h3,
-  main h4,
-  main h5,
-  main h6 {
-    ${varUse(
-      'main-heading-color',
-      'main-heading-margin-top',
-      'main-heading-margin-bottom'
-    )}
-  }
-
-  main p {
-    ${varUse('main-paragraph-color')}
-  }
-
-  main strong {
-    ${varUse('main-strong-color')}
   }
 `)

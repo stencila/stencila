@@ -3,6 +3,7 @@ import '@shoelace-style/shoelace/dist/components/select/select'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
+import { isCodeWriteable } from '../../mode'
 import '../base/icon'
 import '../base/tag'
 import '../editors/code-editor'
@@ -28,7 +29,7 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
   static formats = ['markdown', 'python', 'javascript', 'r', 'yaml', 'json']
 
   renderTextEditor() {
-    const readOnly = this.isReadOnly()
+    const readOnly = !isCodeWriteable()
 
     return html` <stencila-code-editor
       part="code"

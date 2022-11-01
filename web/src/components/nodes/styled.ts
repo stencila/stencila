@@ -1,7 +1,7 @@
 import { html } from 'lit'
 import { state } from 'lit/decorators'
 import { TW } from 'twind'
-import { currentMode, Mode } from '../../mode'
+import { currentMode, isStyleWriteable, Mode } from '../../mode'
 import StencilaCodeExecutable from './code-executable'
 
 /**
@@ -127,7 +127,8 @@ export default class StencilaStyled extends StencilaCodeExecutable {
   }
 
   protected renderTextEditor(tw: TW) {
-    const readOnly = this.isReadOnly()
+    const readOnly = !isStyleWriteable()
+
     return html`<stencila-code-editor
       class=${tw`min-w-0 w-full rounded overflow-hidden 
                  border(& ${StencilaStyled.color}-200) focus:border(& ${StencilaStyled.color}-400)

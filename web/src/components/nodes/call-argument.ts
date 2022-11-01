@@ -1,6 +1,7 @@
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 import { TW } from 'twind'
+import { isCodeWriteable } from '../../mode'
 import { Patch } from '../../types'
 import { twSheet } from '../utils/css'
 import StencilaCall from './call'
@@ -123,6 +124,8 @@ export default class StencilaCallArgument extends StencilaParameter {
   }
 
   protected renderTextEditor(tw: TW) {
+    const readOnly = !isCodeWriteable()
+
     return html`<stencila-code-editor
       class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${StencilaCall.color}-200) 
                  focus:border(& ${StencilaCall.color}-400) focus:ring(2 ${StencilaCall.color}-100)
@@ -131,7 +134,7 @@ export default class StencilaCallArgument extends StencilaParameter {
       single-line
       line-wrapping
       no-controls
-      ?read-only=${this.isReadOnly()}
+      ?read-only=${readOnly}
       @stencila-document-patch=${(event: CustomEvent) => {
         // Emit patch using override above
         event.stopPropagation()

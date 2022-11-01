@@ -1,7 +1,7 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 import { TW } from 'twind'
-import { currentMode, Mode } from '../../mode'
+import { currentMode, isContentWriteable, Mode } from '../../mode'
 import { twSheet } from '../utils/css'
 import StencilaStyled from './styled'
 
@@ -41,7 +41,9 @@ export default class StencilaDivision extends StencilaStyled {
   }
 
   protected renderContentSlot(tw: TW) {
-    return this.isReadOnly()
+    const readOnly = !isContentWriteable()
+
+    return readOnly
       ? html`<slot
           name="content"
           @slotchange=${(event: Event) => this.onContentSlotChange(event)}
