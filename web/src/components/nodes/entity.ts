@@ -23,6 +23,15 @@ export default class StencilaEntity extends StencilaElement {
   @property()
   id: string
 
+  /**
+   * Whether this entity is selected
+   *
+   * Used in a content editor to style to component differently
+   * (usually putting a ring around it)
+   */
+  @property({ type: Boolean, reflect: true })
+  selected: boolean = false
+
   renderEntityDownload(formats: string[], color: string, shade = 50) {
     return html`<stencila-entity-download
       color=${color}
@@ -56,7 +65,7 @@ export class StencilaEntityDownload extends StencilaElement {
    * The color palette to use for this component
    */
   @property()
-  color = 'gray'
+  color = 'blue'
 
   /**
    * The base color shade to use for this component
@@ -137,7 +146,7 @@ export class StencilaEntityDownload extends StencilaElement {
       >
         <stencila-icon-button
           name="clipboard"
-          adjust="absolute top-1 right-1 z-50"
+          adjust="absolute top-10 right-1 z-50"
           @click=${(event: Event) => {
             const editor = this.renderRoot.querySelector(
               'sl-tab-panel[active] stencila-code-editor'
@@ -168,7 +177,7 @@ export class StencilaEntityDownload extends StencilaElement {
                   name="${format}-color"
                   class=${tw`text-[1.25em] mr-1`}
                 ></stencila-icon>
-                <span class=${tw`text-xs`}>${label}</span>
+                <span class=${tw`text-xs hidden sm:inline`}>${label}</span>
               </sl-tab>
               <sl-tab-panel name=${format} class=${tw`sm:w-[35em]`}>
                 <stencila-code-editor
