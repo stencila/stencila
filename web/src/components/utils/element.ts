@@ -6,6 +6,30 @@ import { Operation, Patch } from '../../types'
  */
 export default class StencilaElement extends LitElement {
   /**
+   * Get an element by id from within the shadow DOM of this element
+   *
+   * This is mainly provided for so that patches that target a node
+   * with a specific id can find those id's within the shadow DOM
+   * of nested custom elements (these are not accessible by
+   * `document.getElementById()`)
+   */
+  getElementById(elementId: string): HTMLElement | null {
+    let elem = this.shadowRoot?.getElementById(elementId) ?? null
+    if (elem === null) {
+      for (const child of [...(this.shadowRoot?.querySelectorAll('*') ?? [])]) {
+        elem =
+          child.getElementById?.(elementId) ??
+          child.querySelector('#' + elementId) ??
+          null
+        if (elem !== null) {
+          return elem
+        }
+      }
+    }
+    return elem
+  }
+
+  /**
    * Get the closest ancestor element matching the selector
    *
    * Compared to the native `closest()` method, this will traverse out of

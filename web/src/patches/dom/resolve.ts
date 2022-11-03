@@ -10,6 +10,7 @@ import {
 } from '../checks'
 import { STRUCT_ATTRIBUTES } from './consts'
 import { resolveProxy } from './proxies'
+import StencilaEntity from '../../components/nodes/entity'
 
 /**
  * Resolve the target of a patch.
@@ -23,11 +24,21 @@ import { resolveProxy } from './proxies'
  */
 export function resolveTarget(target?: ElementId): Element {
   if (target !== undefined) {
-    const elem = document.getElementById(target)
-    if (elem === null)
+    let elem = document.getElementById(target)
+
+    // If target was not found at the top level of the document, it may
+    // be withing the shadow root, so traverse into the root entity to look for it
+    if (!elem) {
+      const root = document.body.querySelector('[data-root]') as StencilaEntity
+      elem = root.getElementById?.(target)
+    }
+
+    if (!elem) {
       throw panic(
         `Unable to resolve target node; no element with id '${target}'`
       )
+    }
+
     return elem
   } else {
     const root = document.body.querySelector('[data-root]')
