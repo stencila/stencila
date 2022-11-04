@@ -914,8 +914,7 @@ pub fn span(input: &str) -> IResult<&str, InlineContent> {
         )),
         |(content, text, lang): (&str, &str, Option<&str>)| -> Result<InlineContent> {
             Ok(InlineContent::Span(Span {
-                programming_language: lang.map_or_else(String::new, String::from),
-                guess_language: lang.is_none().then_some(true),
+                programming_language: lang.map_or_else(|| "tailwind".to_string(), String::from),
                 text: text.to_string(),
                 content: vec![InlineContent::String(content.to_string())],
                 ..Default::default()
