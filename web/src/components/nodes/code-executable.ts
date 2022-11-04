@@ -44,8 +44,8 @@ export default class StencilaCodeExecutable extends Executable {
    * However, we also maintain this state so that derived components can use it
    * to update other state e.g. the `IfClause.isElse` property.
    */
-  @state()
-  protected text = ''
+  @property({ reflect: true })
+  public text?: string
 
   /**
    * An observer to update `text` from the slot
@@ -92,6 +92,11 @@ export default class StencilaCodeExecutable extends Executable {
   }
 
   /**
+   * The element assigned to the `outputs` slot
+   */
+  public outputs?: HTMLElement
+
+  /**
    * Does the node have any outputs?
    */
   @state()
@@ -103,18 +108,21 @@ export default class StencilaCodeExecutable extends Executable {
   private outputsObserver: MutationObserver
 
   protected onOutputsSlotChange(event: Event) {
-    const outputsElem = (event.target as HTMLSlotElement).assignedElements({
+    const outputs = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
-    })[0]
+    })[0] as HTMLElement | undefined
 
-    this.hasOutputs = outputsElem.childElementCount > 0
+    this.outputs = outputs
+    this.hasOutputs = outputs !== undefined && outputs.childElementCount > 0
 
-    this.outputsObserver = new MutationObserver(() => {
-      this.hasOutputs = outputsElem.childElementCount > 0
-    })
-    this.outputsObserver.observe(outputsElem, {
-      childList: true,
-    })
+    if (outputs) {
+      this.outputsObserver = new MutationObserver(() => {
+        this.hasOutputs = outputs.childElementCount > 0
+      })
+      this.outputsObserver.observe(outputs, {
+        childList: true,
+      })
+    }
   }
 
   connectedCallback() {
@@ -151,8 +159,8 @@ export default class StencilaCodeExecutable extends Executable {
     return html`<stencila-executable-language
       class=${tw`ml-2 text(base blue-500)`}
       programming-language=${this.programmingLanguage}
-      guess-language=${this.guessLanguage == 'true'}
       color="blue"
+      ?guess-language=${this.guessLanguage == 'true'}
       ?disabled=${readOnly}
     ></stencila-executable-language>`
   }
