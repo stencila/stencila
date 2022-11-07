@@ -65,7 +65,7 @@ export default class StencilaCall extends StencilaInclude {
         class=${tw`grid justify-items-end items-center bg-${StencilaCall.color}-50
                        border(t ${StencilaCall.color}-200) p-1 text(sm ${StencilaCall.color}-600)`}
       >
-        ${this.renderEntityDownload(StencilaCall.formats, StencilaCall.color)}
+        ${this.renderDownloadButton(StencilaCall.formats, StencilaCall.color)}
       </div>
     </div>`
   }

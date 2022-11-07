@@ -19,16 +19,23 @@ export default class StencilaMathBlock extends StencilaMath {
 
   render() {
     const mode = currentMode()
+
+    const toggleSelected = () => this.toggleSelected()
+
     return mode < Mode.Inspect
       ? html`${this.renderMathMLSlot(tw, false)}`
       : html`<div
           part="base"
-          class=${tw`my-4 rounded border(& ${StencilaMathBlock.color}-200) overflow-hidden`}
+          class=${tw`my-4 rounded overflow-hidden border(& ${
+            StencilaMathBlock.color
+          }-200)
+                ${this.selected ? `ring-1` : ''}`}
         >
           <div
             part="header"
             class=${tw`flex justify-between items-center bg-${StencilaMathBlock.color}-50
                         p-1 font(mono bold) text(sm ${StencilaMathBlock.color}-700)`}
+            @mousedown=${toggleSelected}
           >
             <span class=${tw`flex items-center text-base ml-1 p-1`}>
               <stencila-icon name="math"></stencila-icon>
@@ -51,8 +58,9 @@ export default class StencilaMathBlock extends StencilaMath {
             part="footer"
             class=${tw`grid justify-items-end items-center bg-${StencilaMathBlock.color}-50
                        border(t ${StencilaMathBlock.color}-200) p-1 text(sm ${StencilaMathBlock.color}-700)`}
+            @mousedown=${toggleSelected}
           >
-            ${this.renderEntityDownload(
+            ${this.renderDownloadButton(
               StencilaMathBlock.formats,
               StencilaMathBlock.color
             )}

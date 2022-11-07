@@ -23,6 +23,12 @@ export default class StencilaIconButton extends StencilaElement {
   name: IconName
 
   /**
+   * The name of the icon to render if an icon with `name` is not available
+   */
+  @property()
+  fallback: IconName
+
+  /**
    * The color of the button
    */
   @property()
@@ -60,7 +66,12 @@ export default class StencilaIconButton extends StencilaElement {
       ?disabled=${this.disabled}
       role="button"
     >
-      <stencila-icon name=${this.name} label=${this.label}> </stencila-icon>
+      <stencila-icon
+        name=${this.name}
+        fallback=${this.fallback}
+        label=${this.label}
+      >
+      </stencila-icon>
     </span>`
   }
 }

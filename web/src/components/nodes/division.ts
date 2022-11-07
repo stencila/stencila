@@ -40,38 +40,24 @@ export default class StencilaDivision extends StencilaStyled {
     </div>`
   }
 
-  protected renderContentSlot(tw: TW) {
-    const readOnly = !isContentWriteable()
-
-    return readOnly
-      ? html`<slot
-          name="content"
-          @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-        ></slot>`
-      : html`<stencila-prose-editor
-          css-class=${this.cssClass}
-          css-rules=${this.cssRules}
-          ><slot
-            name="content"
-            slot="content"
-            class=${tw`hidden`}
-            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-          ></slot
-        ></stencila-prose-editor>`
-  }
-
   render() {
     const mode = currentMode()
+
+    const toggleSelected = () => this.toggleSelected()
+
     return mode < Mode.Inspect
       ? html`${this.renderCssSlot(tw)} ${this.renderContentSlot(tw)}`
       : html`<div
           part="base"
-          class=${tw`my-4 rounded border(& ${StencilaDivision.color}-200) overflow-hidden`}
+          class=${tw`my-4 rounded border(& ${
+            StencilaDivision.color
+          }-200) overflow-hidden ${this.selected ? `ring-1` : ''}`}
         >
           <div
             part="header"
             class=${tw`flex justify-between items-center bg-${StencilaDivision.color}-50
                        p-1 font(mono bold) text(sm ${StencilaDivision.color}-700)`}
+            @mousedown=${toggleSelected}
           >
             <span class=${tw`flex items-center text-base ml-1 mr-2`}>
               <stencila-icon name="brush"></stencila-icon>
@@ -88,8 +74,9 @@ export default class StencilaDivision extends StencilaStyled {
             part="footer"
             class=${tw`grid justify-items-end items-center bg-${StencilaDivision.color}-50
                        border(t ${StencilaDivision.color}-200) p-1 text(sm ${StencilaDivision.color}-700)`}
+            @mousedown=${toggleSelected}
           >
-            ${this.renderEntityDownload(
+            ${this.renderDownloadButton(
               StencilaDivision.formats,
               StencilaDivision.color
             )}

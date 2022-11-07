@@ -54,9 +54,12 @@ export default class StencilaIf extends StencilaExecutable {
         </stencila-icon-button>`
       : html`<span></span>`
 
+    const toggleSelected = () => this.toggleSelected()
+
     return html`<div
       part="base"
-      class=${tw`my-4 rounded border(& ${StencilaIf.color}-200) overflow-hidden`}
+      class=${tw`my-4 rounded border(& ${StencilaIf.color}-200)
+                 ${this.selected ? `ring-1` : ''}`}
     >
       <div part="clauses">
         <slot name="clauses"></slot>
@@ -66,9 +69,10 @@ export default class StencilaIf extends StencilaExecutable {
         part="footer"
         class=${tw`flex justify-between items-center bg-${StencilaIf.color}-50 p-1
                   font(mono bold) text(sm ${StencilaIf.color}-700)`}
+        @mousedown=${toggleSelected}
       >
         ${addButton}
-        ${this.renderEntityDownload(StencilaIf.formats, StencilaIf.color)}
+        ${this.renderDownloadButton(StencilaIf.formats, StencilaIf.color)}
       </div>
     </div>`
   }

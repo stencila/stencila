@@ -1,53 +1,26 @@
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
-import StencilaElement from '../../utils/element'
-
-import { EditorState } from 'prosemirror-state'
-import { EditorView } from 'prosemirror-view'
-import { Schema, DOMParser } from 'prosemirror-model'
-import { schema as basicSchema } from 'prosemirror-schema-basic'
-import { addListNodes } from 'prosemirror-schema-list'
 import {
-  joinDown,
-  joinUp,
+  baseKeymap,
   lift,
   selectParentNode,
-  setBlockType,
   toggleMark,
-  wrapIn,
 } from 'prosemirror-commands'
-import { history, redo, undo } from 'prosemirror-history'
-import { undoInputRule } from 'prosemirror-inputrules'
-import {
-  liftListItem,
-  sinkListItem,
-  splitListItem,
-  wrapInList,
-} from 'prosemirror-schema-list'
-import { keymap } from 'prosemirror-keymap'
-import { baseKeymap } from 'prosemirror-commands'
 import { dropCursor } from 'prosemirror-dropcursor'
 import { gapCursor } from 'prosemirror-gapcursor'
+import { history, redo, undo } from 'prosemirror-history'
+import { undoInputRule } from 'prosemirror-inputrules'
+import { keymap } from 'prosemirror-keymap'
+import { DOMParser } from 'prosemirror-model'
+import { schema as basicSchema } from 'prosemirror-schema-basic'
+import { EditorState } from 'prosemirror-state'
+import { EditorView } from 'prosemirror-view'
 
-import { DecorationSet, Decoration } from 'prosemirror-view'
-import { Plugin } from 'prosemirror-state'
+import StencilaElement from '../../utils/element'
+import { articleSchema, nodeViews } from './nodes'
+import { placeholder, nodePlaceholder } from './plugins'
 
-// TODO Use custom stencila schemas
-
-const inlineSchema = new Schema({
-  nodes: {
-    doc: { content: 'text*' },
-    text: { inline: true },
-  },
-  marks: basicSchema.spec.marks,
-})
-
-const blocksSchema = new Schema({
-  nodes: addListNodes(basicSchema.spec.nodes, 'paragraph block*', 'block'),
-  marks: basicSchema.spec.marks,
-})
-
-const inlineKeymap = {
+const inlinesKeymap = {
   // History
   'Mod-z': undo,
   Backspace: undoInputRule,
@@ -75,6 +48,7 @@ const blocksKeymap = {
 export default class StencilaProseEditor extends StencilaElement {
   static styles = [
     // From https://github.com/ProseMirror/prosemirror-view/blob/master/style/prosemirror.css
+    // with EDITs noted below.
     css`
       .ProseMirror {
         position: relative;
@@ -82,8 +56,13 @@ export default class StencilaProseEditor extends StencilaElement {
 
       .ProseMirror {
         word-wrap: break-word;
-        white-space: pre-wrap;
+        /*
+        EDIT: These are excluded aas they affect the styling of custom components
+        within the editor.
+
+        white-space: pre-wrap; 
         white-space: break-spaces;
+        */
         -webkit-font-variant-ligatures: none;
         font-variant-ligatures: none;
         font-feature-settings: 'liga' 0; /* the above doesn't seem to work in Edge */
@@ -158,10 +137,10 @@ export default class StencilaProseEditor extends StencilaElement {
   ]
 
   /**
-   * Whether this editor should only allow inline content
+   * The schema that this editor should use
    */
-  @property({ attribute: 'inline-only', type: Boolean })
-  inlineOnly: boolean = false
+  @property({ attribute: 'schema' })
+  schema: string = 'article'
 
   /**
    * A CSS class name to apply to to the editor
@@ -176,11 +155,6 @@ export default class StencilaProseEditor extends StencilaElement {
   cssRules: string = ''
 
   /**
-   * The element containing the content the editor will allow editing of
-   */
-  private contentElem: HTMLDivElement | HTMLSpanElement
-
-  /**
    * The ProseMirror editor view
    */
   private editorView?: EditorView
@@ -189,19 +163,39 @@ export default class StencilaProseEditor extends StencilaElement {
    * Handle a change to the `content` slot (including initial render) to get the
    * DOM of the content and initialize the editor with it
    */
-  protected onContentSlotChange(event: Event) {
-    this.contentElem = (event.target as HTMLSlotElement).assignedElements({
+  protected onSlotChange(event: Event) {
+    let contentElem = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
-    })[0] as HTMLDivElement | HTMLSpanElement
+    })[0] as HTMLDivElement | HTMLSpanElement | undefined
 
-    const viewElem = this.renderRoot.querySelector('#prosemirror')
+    // Return early if no nodes yet assigned to the slot
+    if (contentElem === undefined) {
+      return
+    }
 
-    const schema = this.inlineOnly ? inlineSchema : blocksSchema
-    const extendedKeyMap = this.inlineOnly ? inlineKeymap : blocksKeymap
+    const viewElem = this.renderRoot.querySelector('.pm')
+
+    let schema
+    let extendedKeyMap
+    if (this.schema === 'article') {
+      schema = articleSchema
+      extendedKeyMap = blocksKeymap
+    } else {
+      throw new Error(`Unknown schema: ${this.schema}`)
+    }
+
+    // Parse the content and then remove it so that there are not
+    // duplicate ids.
+    const doc = DOMParser.fromSchema(schema).parse(contentElem)
+    // Removal is done after a very short timeout to avoid exceptions with
+    // removal of event handlers (which perhaps did not get a chance to get added
+    // without the delay?)
+    setTimeout(() => contentElem?.remove(), 1)
 
     const plugins = [
       keymap(extendedKeyMap),
       keymap(baseKeymap),
+      // TODO; See if only enabling drop cursor on inner works
       dropCursor(),
       gapCursor(),
       history(),
@@ -210,52 +204,25 @@ export default class StencilaProseEditor extends StencilaElement {
 
     this.editorView = new EditorView(viewElem, {
       state: EditorState.create({
-        doc: DOMParser.fromSchema(schema).parse(this.contentElem),
+        doc,
         plugins,
       }),
+      nodeViews,
     })
   }
 
   render() {
     return html`
       <slot
-        name="content"
-        @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+        style="display:none"
+        @slotchange=${(event: Event) => this.onSlotChange(event)}
       ></slot>
 
       <style>
         ${this.cssRules}
       </style>
-      <style></style>
-      <div part="content" id="prosemirror" class=${this.cssClass}></div>
+
+      <div part="content" class="pm ${this.cssClass}"></div>
     `
   }
-}
-
-/**
- * Plugin to add placeholder text if no content in document
- *
- * From https://discuss.prosemirror.net/t/how-to-input-like-placeholder-behavior/705/13
- */
-function placeholder(text: string = 'Add content') {
-  return new Plugin({
-    props: {
-      decorations(state) {
-        const doc = state.doc
-
-        if (
-          doc.childCount > 1 ||
-          !doc.firstChild?.isTextblock ||
-          doc.firstChild?.content.size > 0
-        )
-          return
-
-        const placeHolder = document.createElement('div')
-        placeHolder.classList.add('placeholder')
-        placeHolder.textContent = text
-
-        return DecorationSet.create(doc, [Decoration.widget(1, placeHolder)])
-      },
-    },
-  })
 }

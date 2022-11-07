@@ -44,7 +44,12 @@ export default class StencilaExecutable extends StencilaEntity {
   executeCount?: number
 
   /**
-   * Whether the expression has any errors
+   * The element assigned to the `errors` slot
+   */
+  public errors?: HTMLElement
+
+  /**
+   * Whether the executable node has any errors
    */
   @state()
   protected hasErrors = false
@@ -58,18 +63,21 @@ export default class StencilaExecutable extends StencilaEntity {
    * Handle a change, including on initial load, of the errors slot
    */
   protected onErrorsSlotChange(event: Event) {
-    const errorsElem = (event.target as HTMLSlotElement).assignedElements({
+    const errors = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
-    })[0]
+    })[0] as HTMLElement | undefined
 
-    this.hasErrors = errorsElem.childElementCount > 0
+    this.errors = errors
+    this.hasErrors = errors !== undefined && errors.childElementCount > 0
 
-    this.errorsObserver = new MutationObserver(() => {
-      this.hasErrors = errorsElem.childElementCount > 0
-    })
-    this.errorsObserver.observe(errorsElem, {
-      childList: true,
-    })
+    if (errors) {
+      this.errorsObserver = new MutationObserver(() => {
+        this.hasErrors = errors.childElementCount > 0
+      })
+      this.errorsObserver.observe(errors, {
+        childList: true,
+      })
+    }
   }
 
   /**

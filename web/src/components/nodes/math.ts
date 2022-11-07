@@ -28,12 +28,6 @@ export default class StencilaMath extends StencilaExecutable {
   mathLanguage = ''
 
   /**
-   * Whether the `mathml` is visible
-   */
-  @state()
-  protected isExpanded = true
-
-  /**
    * An observer to update the display MathML when the raw `mathml` slot changes
    */
   private mathmlObserver: MutationObserver
@@ -77,6 +71,11 @@ export default class StencilaMath extends StencilaExecutable {
       no-controls
       ?read-only=${readOnly}
       ?disabled=${readOnly}
+      @focus=${() => this.deselect()}
+      @mousedown=${(event) => {
+        this.deselect()
+        event.stopPropagation()
+      }}
       @stencila-ctrl-enter=${() => this.compile()}
     >
       <slot name="text" slot="code"></slot>
@@ -91,34 +90,6 @@ export default class StencilaMath extends StencilaExecutable {
       math-language=${this.mathLanguage}
       ?disabled=${readOnly}
     ></stencila-math-language>`
-  }
-
-  protected renderExpandButton(
-    tw: TW,
-    color: string,
-    direction: 'vertical' | 'horizontal' = 'vertical'
-  ) {
-    return html`<stencila-icon-button
-      name=${direction === 'vertical' ? 'chevron-right' : 'chevron-left'}
-      color=${color}
-      adjust=${`ml-1 rotate-${
-        this.isExpanded ? (direction === 'vertical' ? '90' : 180) : '0'
-      } transition-transform`}
-      @click=${() => {
-        this.isExpanded = !this.isExpanded
-      }}
-      @keydown=${(event: KeyboardEvent) => {
-        if (
-          event.key == 'Enter' ||
-          (event.key == 'ArrowUp' && this.isExpanded) ||
-          (event.key == 'ArrowDown' && !this.isExpanded)
-        ) {
-          event.preventDefault()
-          this.isExpanded = !this.isExpanded
-        }
-      }}
-    >
-    </stencila-icon-button>`
   }
 
   protected renderErrorsSlot(tw: TW) {
@@ -174,12 +145,32 @@ export class StencilaMathLanguage extends StencilaElement {
   @property({ type: Boolean })
   disabled = false
 
+  /**
+   * Override to ensure that the property is changed on this element
+   * AND on the parent `Entity` that contains this menu
+   */
+  protected changeProperties(properties: [string, unknown][]) {
+    const parent = StencilaElement.closestElement(this.parentElement!, '[id]')!
+    for (const [property, value] of properties) {
+      parent[property] = value
+    }
+
+    return super.changeProperties(properties)
+  }
+
   render() {
+    const language = this.mathLanguage.trim().toLowerCase()
     const languages = StencilaMathLanguage.languages
-    const language = this.mathLanguage.toLowerCase()
+
+    const select = (event: CustomEvent) => {
+      const value = event.detail.item.value
+      if (this.mathLanguage !== value) {
+        this.changeProperty('mathLanguage', value)
+      }
+    }
 
     let icon = 'code'
-    for (const [value, title, ...aliases] of languages) {
+    for (const [value, _title, ...aliases] of languages) {
       if (language === value || aliases.includes(language)) {
         icon = value
         break
@@ -196,14 +187,7 @@ export class StencilaMathLanguage extends StencilaElement {
         >
         </stencila-icon-button>
 
-        <sl-menu
-          @sl-select="${(event: CustomEvent) => {
-            const value = event.detail.item.value
-            if (this.mathLanguage !== value) {
-              this.changeProperty('mathLanguage', value)
-            }
-          }}}"
-        >
+        <sl-menu @sl-select=${select}>
           ${languages.map(
             ([value, title, ...aliases]) =>
               html`<sl-menu-item

@@ -61,16 +61,18 @@ export default class StencilaFor extends StencilaCodeExecutable {
   private onContentSlotChange(event: Event) {
     const contentElem = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
-    })[0]
+    })[0] as HTMLElement | undefined
 
-    this.hasContent = contentElem.childElementCount > 0
-
-    this.contentObserver = new MutationObserver(() => {
+    if (contentElem) {
       this.hasContent = contentElem.childElementCount > 0
-    })
-    this.contentObserver.observe(contentElem, {
-      childList: true,
-    })
+
+      this.contentObserver = new MutationObserver(() => {
+        this.hasContent = contentElem.childElementCount > 0
+      })
+      this.contentObserver.observe(contentElem, {
+        childList: true,
+      })
+    }
   }
 
   /**
@@ -99,16 +101,18 @@ export default class StencilaFor extends StencilaCodeExecutable {
   private onOtherwiseSlotChange(event: Event) {
     const otherwiseElem = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
-    })[0]
+    })[0] as HTMLElement | undefined
 
-    this.hasOtherwise = otherwiseElem.childElementCount > 0
-
-    this.otherwiseObserver = new MutationObserver(() => {
+    if (otherwiseElem) {
       this.hasOtherwise = otherwiseElem.childElementCount > 0
-    })
-    this.otherwiseObserver.observe(otherwiseElem, {
-      childList: true,
-    })
+
+      this.otherwiseObserver = new MutationObserver(() => {
+        this.hasOtherwise = otherwiseElem.childElementCount > 0
+      })
+      this.otherwiseObserver.observe(otherwiseElem, {
+        childList: true,
+      })
+    }
   }
 
   /**
@@ -184,17 +188,25 @@ export default class StencilaFor extends StencilaCodeExecutable {
       return false
     }
 
+    // TODO: Use <stencila-input> here for consistent validation popups
+    // Do not use `required` on <sl-input> to avoid browser validation popups
+    // and instead use <stencila-input>
     return html`<sl-input
       class=${tw`min-w-0 w-1/4`}
       size="small"
       placeholder="item"
       pattern="[a-zA-Z][a-zA-Z0-0_]*"
-      required="true"
       value=${this.symbol}
       ?disabled=${readOnly}
+      @focus=${() => this.deselect()}
+      @mousedown=${(event) => {
+        this.deselect()
+        event.stopPropagation()
+      }}
       @sl-change=${replace}
       @sl-blur=${replace}
       @keypress=${(event: KeyboardEvent) => {
+        // Execute the `For` on `Ctrl+Enter`
         if (event.key == 'Enter' && event.ctrlKey) {
           event.preventDefault()
           if (replace(event)) {
@@ -218,6 +230,11 @@ export default class StencilaFor extends StencilaCodeExecutable {
       placeholder="items"
       ?read-only=${readOnly}
       ?disabled=${readOnly}
+      @focus=${() => this.deselect()}
+      @mousedown=${(event) => {
+        this.deselect()
+        event.stopPropagation()
+      }}
       @stencila-ctrl-enter=${() => this.execute()}
     >
       <slot name="text" slot="code"></slot>
@@ -225,67 +242,43 @@ export default class StencilaFor extends StencilaCodeExecutable {
   }
 
   protected renderContentContainer() {
-    const readOnly = !isContentWriteable()
-
-    const inner = readOnly
-      ? html` ${!this.hasContent
-            ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
-            : ''}
-          <slot
-            name="content"
-            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-          ></slot>`
-      : html`<stencila-prose-editor
-          ><slot
-            name="content"
-            slot="content"
-            class=${tw`hidden`}
-            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-          ></slot
-        ></stencila-prose-editor>`
-
     return html`<div
       part="content"
       class=${tw`border(t ${StencilaFor.color}-200) p-2 ${
         this.isContentExpanded || 'hidden'
       }`}
     >
-      ${inner}
+      ${!this.hasContent
+        ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
+        : ''}
+      <slot
+        name="content"
+        @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+      ></slot>
     </div>`
   }
 
   protected renderOtherwiseContainer() {
-    const readOnly = !isContentWriteable()
-
-    const inner = readOnly
-      ? html`${!this.hasOtherwise
-            ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
-            : ''}
-          <slot
-            name="otherwise"
-            @slotchange=${(event: Event) => this.onOtherwiseSlotChange(event)}
-          ></slot>`
-      : html`<stencila-prose-editor
-          ><slot
-            name="otherwise"
-            slot="content"
-            class=${tw`hidden`}
-            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-          ></slot
-        ></stencila-prose-editor>`
-
     return html`<div
       part="otherwise"
       class=${tw`border(t ${StencilaFor.color}-200) p-2 ${
         this.isOtherwiseExpanded || 'hidden'
       }`}
     >
-      ${inner}
+      ${!this.hasOtherwise
+        ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
+        : ''}
+      <slot
+        name="otherwise"
+        @slotchange=${(event: Event) => this.onOtherwiseSlotChange(event)}
+      ></slot>
     </div>`
   }
 
   protected render() {
     const readOnly = !isCodeWriteable()
+
+    const toggleSelected = () => this.toggleSelected()
 
     const programmingLanguageMenu = html`<stencila-executable-language
       class=${tw`ml-2 text(base gray-500)`}
@@ -350,6 +343,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
       part="otherwise-header"
       class=${tw`flex justify-between items-center bg-${StencilaFor.color}-50 border(t ${StencilaFor.color}-200)
                  p-1 font(mono bold) text(sm ${StencilaFor.color}-700)`}
+      @mousedown=${toggleSelected}
     >
       <span class=${tw`flex items-center`}>
         <span
@@ -376,6 +370,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
                  p-1 font(mono bold) text(sm ${StencilaFor.color}-700) ${
         this.hasIterations || 'hidden'
       }`}
+      @mousedown=${toggleSelected}
     >
       <span class=${tw`flex items-center`}>
         <span
@@ -409,11 +404,14 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     return html`<div
       part="base"
-      class=${tw`my-4 rounded border(& ${StencilaFor.color}-200) overflow-hidden`}
+      class=${tw`my-4 rounded overflow-hidden border(& ${
+        StencilaFor.color
+      }-200) ${this.selected ? `ring-1` : ''}`}
     >
       <div
         part="header"
         class=${tw`flex items-center bg-${StencilaFor.color}-50 p-1 font(mono bold) text(sm ${StencilaFor.color}-700)`}
+        @mousedown=${toggleSelected}
       >
         <span class=${tw`flex items-center text-base ml-1 mr-2 p-1`}>
           <stencila-icon name="repeat"></stencila-icon>
@@ -433,8 +431,9 @@ export default class StencilaFor extends StencilaCodeExecutable {
         part="footer"
         class=${tw`grid justify-items-end items-center bg-${StencilaFor.color}-50
                        border(t ${StencilaFor.color}-200) p-1 text(sm ${StencilaFor.color}-700)`}
+        @mousedown=${toggleSelected}
       >
-        ${this.renderEntityDownload(StencilaFor.formats, StencilaFor.color)}
+        ${this.renderDownloadButton(StencilaFor.formats, StencilaFor.color)}
       </div>
     </div>`
   }

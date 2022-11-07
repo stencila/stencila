@@ -243,11 +243,14 @@ export default class StencilaParameter extends StencilaExecutable {
       ? html`<span class=${tw`inline-flex`}
           >${this.renderValidatorSlot()} ${this.renderLabelAndInput()}</span
         >`
-      : html`<span part="base" class=${tw`inline-flex my-1`}>
+      : html`<span
+          part="base"
+          class=${tw`inline-flex my-1 rounded ${this.selected ? `ring-1` : ''}`}
+        >
           <span
             part="start"
             class=${tw`inline-flex items-center rounded-l overflow-hidden border(& ${StencilaParameter.color}-200)
-      bg-${StencilaParameter.color}-50 p-1 font(mono bold) text(sm ${StencilaParameter.color}-700)`}
+                      bg-${StencilaParameter.color}-50 p-1 font(mono bold) text(sm ${StencilaParameter.color}-700)`}
           >
             <span class=${tw`inline-flex items-center text-base ml-1`}>
               <stencila-icon name="sliders"></stencila-icon>
@@ -269,7 +272,7 @@ export default class StencilaParameter extends StencilaExecutable {
             class=${tw`inline-flex items-center rounded-r overflow-hidden border(& ${StencilaParameter.color}-200) 
       bg-${StencilaParameter.color}-50 px-1 text(sm ${StencilaParameter.color}-700)`}
           >
-            ${this.renderEntityDownload(
+            ${this.renderDownloadButton(
               StencilaParameter.formats,
               StencilaParameter.color
             )}

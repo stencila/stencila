@@ -47,15 +47,11 @@ export default class StencilaInclude extends StencilaExecutable {
 
   /**
    * The `Include.select` property
+   *
+   * Uses a different name to avoid clash with `Entity.select()` method.
    */
-  @property({ reflect: true })
-  select: string
-
-  /**
-   * Whether the `Include.content` property is visible
-   */
-  @state()
-  protected isExpanded = true
+  @property({ attribute: 'select', reflect: true })
+  selectQuery: string
 
   /**
    * Whether the `Include.content` property has content
@@ -124,6 +120,11 @@ export default class StencilaInclude extends StencilaExecutable {
       required="true"
       value=${this.source}
       ?disabled=${readOnly}
+      @focus=${() => this.deselect()}
+      @mousedown=${(event: MouseEvent) => {
+        this.deselect()
+        event.stopPropagation()
+      }}
       @sl-change=${replace}
       @sl-blur=${replace}
       @keypress=${(event: KeyboardEvent) => {
@@ -153,8 +154,13 @@ export default class StencilaInclude extends StencilaExecutable {
     return html`<sl-input
       class=${tw`min-w-0 w-full`}
       size="small"
-      value=${this.select}
+      value=${this.selectQuery}
       ?disabled=${readOnly}
+      @focus=${() => this.deselect()}
+      @mousedown=${(event: MouseEvent) => {
+        this.deselect()
+        event.stopPropagation()
+      }}
       @sl-change=${replace}
       @sl-blur=${replace}
       @keypress=${(event: KeyboardEvent) => {
@@ -166,28 +172,6 @@ export default class StencilaInclude extends StencilaExecutable {
         }
       }}
     ></sl-input>`
-  }
-
-  protected renderExpandButton(tw: TW, color: string) {
-    return html`<stencila-icon-button
-      name="chevron-right"
-      color=${color}
-      adjust=${`ml-2 rotate-${this.isExpanded ? 90 : 0} transition-transform`}
-      @click=${() => {
-        this.isExpanded = !this.isExpanded
-      }}
-      @keydown=${(event: KeyboardEvent) => {
-        if (
-          event.key == 'Enter' ||
-          (event.key == 'ArrowUp' && this.isExpanded) ||
-          (event.key == 'ArrowDown' && !this.isExpanded)
-        ) {
-          event.preventDefault()
-          this.isExpanded = !this.isExpanded
-        }
-      }}
-    >
-    </stencila-icon-button>`
   }
 
   protected renderErrorsContainer(tw: TW, color: string) {
@@ -218,9 +202,14 @@ export default class StencilaInclude extends StencilaExecutable {
   }
 
   protected render() {
+    const toggleSelected = () => this.toggleSelected()
+
     return html`<div
       part="base"
-      class=${tw`my-4 rounded border(& ${StencilaInclude.color}-200) overflow-hidden`}
+      class=${tw`my-4 rounded overflow-hidden border(& ${
+        StencilaInclude.color
+      }-200) ${this.selected ? `ring-1` : ''}`}
+      @mousedown=${toggleSelected}
     >
       <div
         part="header"
@@ -245,7 +234,7 @@ export default class StencilaInclude extends StencilaExecutable {
         class=${tw`grid justify-items-end items-center bg-${StencilaInclude.color}-50
                        border(t ${StencilaInclude.color}-200) p-1 text(sm ${StencilaInclude.color}-700)`}
       >
-        ${this.renderEntityDownload(
+        ${this.renderDownloadButton(
           StencilaInclude.formats,
           StencilaInclude.color
         )}

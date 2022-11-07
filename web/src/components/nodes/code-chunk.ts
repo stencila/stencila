@@ -1,16 +1,12 @@
-import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
-import '@shoelace-style/shoelace/dist/components/select/select'
-import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
-import { isCodeWriteable } from '../../mode'
+
+import '../editors/code-editor/code-editor'
 import '../base/icon'
-import '../base/tag'
-import '../editors/code-editor'
+
+import { isCodeWriteable } from '../../mode'
 import { twSheet } from '../utils/css'
 import StencilaCodeExecutable from './code-executable'
-import './duration'
-import './timestamp'
 
 const { tw, sheet } = twSheet()
 
@@ -28,25 +24,35 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
 
   static formats = ['markdown', 'python', 'javascript', 'r', 'yaml', 'json']
 
-  renderTextEditor() {
+  protected renderTextEditor() {
     const readOnly = !isCodeWriteable()
 
-    return html` <stencila-code-editor
-      part="code"
-      language=${this.programmingLanguage}
-      no-controls
-      ?read-only=${readOnly}
-      ?disabled=${readOnly}
-      @stencila-ctrl-enter=${() => this.execute('Topological')}
+    return html`<div
+      class=${this.isCodeVisible && this.isExpanded
+        ? tw`border(t ${StencilaCodeChunk.color}-200)`
+        : tw`hidden`}
     >
-      <slot name="text" slot="code"></slot>
-    </stencila-code-editor>`
+      <stencila-code-editor
+        language=${this.programmingLanguage}
+        no-controls
+        ?read-only=${readOnly}
+        ?disabled=${readOnly}
+        @stencila-ctrl-enter=${() => this.execute()}
+        @focus=${() => this.deselect()}
+        @mousedown=${(event: Event) => {
+          this.deselect()
+          event.stopPropagation()
+        }}
+      >
+        <slot name="text" slot="code"></slot>
+      </stencila-code-editor>
+    </div>`
   }
 
-  renderErrorsContainer() {
+  protected renderErrorsContainer() {
     return html`<div
       part="errors"
-      class=${this.hasErrors
+      class=${this.hasErrors && this.isExpanded
         ? tw`border(t ${StencilaCodeChunk.color}-200)`
         : tw`hidden`}
     >
@@ -54,10 +60,10 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
     </div>`
   }
 
-  renderOutputsContainer() {
+  protected renderOutputsContainer() {
     return html`<div
       part="outputs"
-      class=${this.hasOutputs
+      class=${this.hasOutputs && this.isExpanded
         ? tw`border(t ${StencilaCodeChunk.color}-200) p-1`
         : tw`hidden`}
     >
@@ -66,14 +72,19 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
   }
 
   render() {
+    const toggleSelected = () => this.toggleSelected()
+
     return html`<div
       part="base"
-      class=${tw`my-4 rounded border(& ${StencilaCodeChunk.color}-200) overflow-hidden`}
+      class=${tw`my-4 rounded border(& ${
+        StencilaCodeChunk.color
+      }-200) overflow-hidden ${this.selected ? `ring-1` : ''}`}
     >
       <div
         part="header"
         class=${tw`flex justify-between items-center bg-${StencilaCodeChunk.color}-50
-                 border(b ${StencilaCodeChunk.color}-200) p-1 font(mono bold) text(sm ${StencilaCodeChunk.color}-700)`}
+                 p-1 font(mono bold) text(sm ${StencilaCodeChunk.color}-700)`}
+        @mousedown=${toggleSelected}
       >
         <span class=${tw`flex items-center ml-1 mr-2`}>
           <stencila-icon
@@ -84,8 +95,12 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
             >${this.programmingLanguage.toLowerCase()}</span
           >
         </span>
-        ${this.renderLanguageMenu(tw)}
+        <span class=${tw`flex items-center`}>
+          ${this.renderLanguageMenu(tw)} ${this.renderViewCodeButton(tw)}
+          ${this.renderExpandButton(tw)}
+        </span>
       </div>
+
       ${this.renderTextEditor()} ${this.renderErrorsContainer()}
       ${this.renderOutputsContainer()}
 
@@ -93,8 +108,9 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
         part="footer"
         class=${tw`grid justify-items-end items-center bg-${StencilaCodeChunk.color}-50
                  border(t ${StencilaCodeChunk.color}-200) p-1 text(sm ${StencilaCodeChunk.color}-700)`}
+        @mousedown=${toggleSelected}
       >
-        ${this.renderEntityDownload(
+        ${this.renderDownloadButton(
           StencilaCodeChunk.formats,
           StencilaCodeChunk.color
         )}

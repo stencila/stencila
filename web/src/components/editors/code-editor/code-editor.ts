@@ -1,8 +1,3 @@
-import { camelCase, capitalCase } from 'change-case'
-import { html } from 'lit'
-import { customElement, property } from 'lit/decorators'
-import { css } from 'twind/css'
-
 import {
   autocompletion,
   closeBrackets,
@@ -49,17 +44,19 @@ import {
   placeholder,
   rectangularSelection,
 } from '@codemirror/view'
-
-import * as themes from 'thememirror/dist'
-
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item'
 import '@shoelace-style/shoelace/dist/components/select/select'
 import SlSwitch from '@shoelace-style/shoelace/dist/components/switch/switch'
+import { camelCase, capitalCase } from 'change-case'
+import { html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import * as themes from 'thememirror/dist'
+import { css } from 'twind/css'
 
-import { updateToOps } from '../../patches/codemirror'
-import { twSheet, varApply, varLocal } from '../utils/css'
-import StencilaElement from '../utils/element'
+import { updateToOps } from '../../../patches/codemirror'
+import { twSheet, varApply, varLocal } from '../../utils/css'
+import StencilaElement from '../../utils/element'
 
 const { tw, sheet } = twSheet()
 
@@ -348,7 +345,7 @@ export default class StencilaCodeEditor extends StencilaElement {
    *
    * - languages that are not listed in `@codemirror/language-data`
    */
-  private languageDescriptions = [
+  static languageDescriptions = [
     // TODO: Develop custom grammar for Calc
     LanguageDescription.of({
       name: 'Calc',
@@ -357,9 +354,17 @@ export default class StencilaCodeEditor extends StencilaElement {
         return import('@codemirror/lang-python').then((m) => m.python())
       },
     }),
-    // Use custom grammar for Postgrest
+    // Use JavaScript for JSON5
     LanguageDescription.of({
-      name: 'postgrest',
+      name: 'JSON5',
+      extensions: ['json5'],
+      async load() {
+        return import('@codemirror/lang-javascript').then((m) => m.javascript())
+      },
+    }),
+    // Use custom grammar for PostgREST
+    LanguageDescription.of({
+      name: 'PostgREST',
       extensions: ['pgrst', 'pgrest'],
       async load() {
         return import('codemirror-lang-postgrest').then((m) => m.postgrest())
@@ -389,7 +394,7 @@ export default class StencilaCodeEditor extends StencilaElement {
         return import('codemirror-lang-tailwind').then((m) => m.tailwind())
       },
     }),
-    ...languages,
+    ...languages.filter((desc) => desc.name !== 'R'),
   ]
 
   /**
@@ -417,11 +422,17 @@ export default class StencilaCodeEditor extends StencilaElement {
     }
 
     return (
-      this.languageDescriptions.find((desc) =>
+      StencilaCodeEditor.languageDescriptions.find((desc) =>
         desc.extensions.includes(name)
       ) ??
-      LanguageDescription.matchLanguageName(this.languageDescriptions, name) ??
-      LanguageDescription.matchFilename(this.languageDescriptions, name)
+      LanguageDescription.matchLanguageName(
+        StencilaCodeEditor.languageDescriptions,
+        name
+      ) ??
+      LanguageDescription.matchFilename(
+        StencilaCodeEditor.languageDescriptions,
+        name
+      )
     )
   }
 
@@ -715,7 +726,9 @@ export default class StencilaCodeEditor extends StencilaElement {
   }
 
   private renderLanguageDropdown() {
-    if (this.languages.length === 0) {
+    const languages = Object.keys(StencilaCodeEditor.languageDescriptions)
+
+    if (languages.length === 0) {
       return html``
     }
 
@@ -730,7 +743,7 @@ export default class StencilaCodeEditor extends StencilaElement {
         name="code"
         label="Programming language"
       ></stencila-icon>
-      ${this.languages.map(
+      ${languages.map(
         (language) =>
           html`<sl-menu-item value="${language.toLowerCase()}">
             ${language}

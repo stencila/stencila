@@ -1,10 +1,14 @@
 import { html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
-import { isCodeExecutable, isContentWriteable } from '../../mode'
+import {
+  isCodeExecutable,
+  isCodeWriteable,
+  isContentWriteable,
+} from '../../mode'
 
 import { Patch } from '../../types'
 import '../base/icon-button'
-import StencilaCodeEditor from '../editors/code-editor'
+import StencilaCodeEditor from '../editors/code-editor/code-editor'
 import { twSheet } from '../utils/css'
 import './code-error'
 import StencilaCodeExecutable, {
@@ -100,22 +104,16 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
   }
 
   /**
-   * Whether the content of the clause is visible to the user
-   */
-  @state()
-  private isExpanded = false
-
-  /**
    * Get the parent `If` element
    */
-  private getIf() {
-    return this.parentElement!.parentElement!
+  private getIf(): StencilaIf {
+    return this.parentElement!.parentElement! as StencilaIf
   }
 
   /**
    * Get all the clauses in the parent `If` element
    */
-  private getIfClauses() {
+  private getIfClauses(): StencilaIfClause[] {
     return [...this.parentElement!.children] as StencilaIfClause[]
   }
 
@@ -182,7 +180,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     this.index = index
     this.isFirst = index == 0
     this.isLast = index == clauses.length - 1
-    this.isElse = this.isLast && this.text.trim().length == 0
+    this.isElse = this.isLast && this.text?.trim().length == 0
 
     if (changedProperties.has('isActive')) {
       this.isExpanded = this.isActive == 'true'
@@ -191,31 +189,19 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
 
   protected renderContentContainer() {
     const readOnly = !isContentWriteable()
-
-    const inner = readOnly
-      ? html`${!this.hasContent
-            ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
-            : ''}
-          <slot
-            name="content"
-            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-          ></slot>`
-      : html`<stencila-prose-editor
-          ><slot
-            name="content"
-            slot="content"
-            class=${tw`hidden`}
-            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-          ></slot
-        ></stencila-prose-editor>`
-
     return html`<div
       part="content"
       class=${tw`border(t ${StencilaIf.color}-200) p-2 ${
         this.isExpanded || 'hidden'
       }`}
     >
-      ${inner}
+      ${!this.hasContent
+        ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
+        : ''}
+      <slot
+        name="content"
+        @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+      ></slot>
     </div>`
   }
 
@@ -224,12 +210,26 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     const iconName =
       label == 'if' || label == 'elif' ? 'arrow-right' : 'arrow-return-right'
     const isActive = this.isActive == 'true'
-    const readOnly = isCodeExecutable()
+
+    const readOnly = !isCodeWriteable()
+
+    // Toggle selection of the parent `If` node
+    const toggleSelected = () => {
+      const parent = this.getIf()
+      parent.toggleSelected()
+    }
+
+    // Deselect the parent `If` node
+    const deselect = (event: Event) => {
+      const parent = this.getIf()
+      parent.deselect()
+      event.stopPropagation()
+    }
 
     const iconElem = html`<span
       class=${tw`flex items-center text-base mx-2 p-1 ${
         isActive
-          ? `rounded-full border(& ${StencilaIf.color}-300) bg-violet-100`
+          ? `rounded-full border(& ${StencilaIf.color}-300) bg-${StencilaIf.color}-100`
           : ''
       }`}
     >
@@ -240,14 +240,16 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
 
     const textEditor = html`<stencila-code-editor
       class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${StencilaIf.color}-200)
-                 focus:border(& ${StencilaIf.color}-400) focus:ring(2 ${StencilaIf.color}-100) bg-violet-50 font-normal`}
+                 bg-${StencilaIf.color}-50 font-normal
+                 focus:border(& ${StencilaIf.color}-400) focus:ring(2 ${StencilaIf.color}-100)`}
       language=${this.programmingLanguage}
       single-line
       line-wrapping
       no-controls
-      placeholder="condition"
       ?read-only=${readOnly}
       ?disabled=${readOnly}
+      @focus=${deselect}
+      @mousedown=${deselect}
       @stencila-document-patch=${(event: CustomEvent) => {
         const patch = event.detail as Patch
 
@@ -430,6 +432,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
         part="header"
         class=${tw`flex justify-between items-center bg-${StencilaIf.color}-50 p-1
                    font(mono bold) text(sm ${StencilaIf.color}-700)`}
+        @mousedown=${toggleSelected}
       >
         ${iconElem} ${labelElem} ${textEditor} ${programmingLanguageMenu}
         ${moveButton} ${removeButton} ${expandButton}

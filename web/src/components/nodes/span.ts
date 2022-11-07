@@ -21,9 +21,9 @@ export default class StencilaSpan extends StencilaStyled {
   protected renderErrorsContainer(tw: TW) {
     return html`<span
       part="errors"
-      class=${tw`bg-red-50 border(l ${StencilaSpan.color}-200) pt-1 ${
-        this.hasErrors || 'hidden'
-      }`}
+      class=${this.hasErrors
+        ? tw`bg-red-50 border(l ${StencilaSpan.color}-200) pt-1`
+        : tw`hidden`}
     >
       ${this.renderErrorsSlot(tw)}
     </span>`
@@ -32,52 +32,38 @@ export default class StencilaSpan extends StencilaStyled {
   protected renderContentContainer(tw: TW) {
     return html`<span
       part="content"
-      class=${tw`inline-flex border(l ${StencilaSpan.color}-200) py-1 px-2 ${
-        this.isExpanded || 'hidden'
-      }`}
+      class=${this.isExpanded
+        ? tw`inline-flex border(l ${StencilaSpan.color}-200) py-1 px-2`
+        : tw`hidden`}
     >
       ${this.renderContentSlot(tw)}
     </span>`
   }
 
-  protected renderContentSlot(tw: TW) {
-    const readOnly = !isContentWriteable()
-
-    return readOnly
-      ? html`<slot
-          name="content"
-          @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-        ></slot>`
-      : html`<stencila-prose-editor
-          inline-only
-          css-class=${this.cssClass}
-          css-rules=${this.cssRules}
-          ><slot
-            name="content"
-            slot="content"
-            class=${tw`hidden`}
-            @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-          ></slot
-        ></stencila-prose-editor>`
-  }
-
   render() {
     const mode = currentMode()
+
+    const toggleSelected = () => this.toggleSelected()
+
     return mode < Mode.Inspect
       ? html`${this.renderCssSlot(tw)} ${this.renderContentSlot(tw)}`
       : html`<span
           part="base"
-          class=${tw`inline-flex my-1 rounded overflow-hidden border(& ${StencilaSpan.color}-200)`}
+          class=${tw`inline-flex my-1 rounded overflow-hidden border(& ${
+            StencilaSpan.color
+          }-200) ${this.selected ? `ring-1` : ''}`}
         >
           <span
             part="start"
-            class=${tw`inline-flex items-center bg-${StencilaSpan.color}-50 py-0.5 px-1
+            class=${tw`inline-flex items-center bg-${StencilaSpan.color}-50
+                       py-0.5 px-1
                        font(mono bold) text(sm ${StencilaSpan.color}-700)`}
+            @mousedown=${toggleSelected}
           >
-            <span class=${tw`text-base ml-1`}>
+            <span class=${tw`inline-flex items-center text-base ml-1`}>
               <stencila-icon name="brush"></stencila-icon>
             </span>
-            <span class=${tw`ml-1 mr-2 `}>span</span>
+            <span class=${tw`ml-1 mr-2`}>span</span>
             ${this.renderTextEditor(tw)} ${this.renderLanguageMenu(tw)}
           </span>
 
@@ -88,8 +74,9 @@ export default class StencilaSpan extends StencilaStyled {
             part="end"
             class=${tw`inline-flex items-center bg-${StencilaSpan.color}-50
                       border(l ${StencilaSpan.color}-200) px-1 text(sm ${StencilaSpan.color}-700)`}
+            @mousedown=${toggleSelected}
           >
-            ${this.renderEntityDownload(
+            ${this.renderDownloadButton(
               StencilaSpan.formats,
               StencilaSpan.color
             )}

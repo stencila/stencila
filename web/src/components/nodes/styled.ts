@@ -1,7 +1,7 @@
 import { html } from 'lit'
 import { state } from 'lit/decorators'
 import { TW } from 'twind'
-import { currentMode, isStyleWriteable, Mode } from '../../mode'
+import { isStyleWriteable } from '../../mode'
 import StencilaCodeExecutable from './code-executable'
 
 /**
@@ -11,16 +11,21 @@ export default class StencilaStyled extends StencilaCodeExecutable {
   static color = 'blue'
 
   /**
-   * Whether the `content` is visible
-   */
-  @state()
-  protected isExpanded = true
-
-  /**
    * Whether the generated CSS is visible
    */
   @state()
   private isCssVisible = false
+
+  /**
+   * The CSS rules as a raw CSS string
+   *
+   * This is captured from the document's global stylesheet on load so that
+   * if needs be it can be passed on to the `<stencila-prose-editor>`. It is
+   * also updated when the CSS slot changes so that it can be passed
+   * through to the editor again. To trigger a rerender it is a @state.
+   */
+  @state()
+  public css: string
 
   /**
    * The CSS class name of the `content`
@@ -29,17 +34,6 @@ export default class StencilaStyled extends StencilaCodeExecutable {
    * the `css` slot at which time a stylesheet will be constructed that uses this class.
    */
   protected cssClass = `st-${Math.floor(Math.random() * 1e9)}`
-
-  /**
-   * The CSS rules as a raw CSS string
-   *
-   * This is captured from the document's global stylesheet on load so that
-   * if needs be it can be passed on to the <stencila-prose-editor>. It is
-   * also updated when the CSS slot changes so that it can be passed
-   * through to the editor again. To trigger a rerender it is a @state.
-   */
-  @state()
-  protected cssRules: string
 
   /**
    * The CSS stylesheet that is constructed for the `content` if the
@@ -93,6 +87,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
     // Replace the content of the stylesheet with the new CSS
     // Use the unique class name for the element
     let stylesheet = css.replace(':root', `.${this.cssClass}`)
+
     // Add transitions for all properties if this is not the initial render and the
     // CSS does not have any transitions defined.
     if (!initial && !stylesheet.includes('transition-property:')) {
@@ -103,9 +98,14 @@ export default class StencilaStyled extends StencilaCodeExecutable {
 }`
     }
 
-    this.cssRules = stylesheet
+    this.css = stylesheet
     this.cssStyleSheet.replaceSync(stylesheet)
   }
+
+  /**
+   * The element assigned to the `content` slot
+   */
+  public content?: HTMLElement
 
   /**
    * Handle a change to the `content` slot to add `cssClass` to it
@@ -113,16 +113,20 @@ export default class StencilaStyled extends StencilaCodeExecutable {
   protected onContentSlotChange(event: Event) {
     const contentElem = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
-    })[0] as HTMLDivElement
+    })[0] as HTMLDivElement | undefined
 
-    // Replaces any existing Stencila class (i.e the one generated when HTML was generated)
-    const oldClass = [...contentElem.classList].filter((className) =>
-      className.startsWith('st-')
-    )[0]
-    if (oldClass !== undefined) {
-      contentElem.classList.replace(oldClass, this.cssClass)
-    } else {
-      contentElem.classList.add(this.cssClass)
+    if (contentElem) {
+      // Replaces any existing Stencila class (i.e the one generated when HTML was generated)
+      const oldClass = [...contentElem.classList].filter((className) =>
+        className.startsWith('st-')
+      )[0]
+      if (oldClass !== undefined) {
+        contentElem.classList.replace(oldClass, this.cssClass)
+      } else {
+        contentElem.classList.add(this.cssClass)
+      }
+
+      this.content = contentElem
     }
   }
 
@@ -131,15 +135,21 @@ export default class StencilaStyled extends StencilaCodeExecutable {
 
     return html`<stencila-code-editor
       class=${tw`min-w-0 w-full rounded overflow-hidden 
-                 border(& ${StencilaStyled.color}-200) focus:border(& ${StencilaStyled.color}-400)
-                 focus:ring(2 ${StencilaStyled.color}-100) bg-${StencilaStyled.color}-50 font-normal`}
+                 border(& ${StencilaStyled.color}-200) bg-${StencilaStyled.color}-50
+                 font-normal
+                 focus:border(& ${StencilaStyled.color}-400) focus:ring(2 ${StencilaStyled.color}-100)`}
       language=${this.programmingLanguage}
       single-line
       line-wrapping
       no-controls
-      placeholder="Not yet compiled or no rules"
+      placeholder="style"
       ?read-only=${readOnly}
       ?disabled=${readOnly}
+      @focus=${() => this.deselect()}
+      @mousedown=${(event: Event) => {
+        this.deselect()
+        event.stopPropagation()
+      }}
       @stencila-ctrl-enter=${() => this.execute()}
     >
       <slot name="text" slot="code"></slot>
@@ -157,7 +167,7 @@ export default class StencilaStyled extends StencilaCodeExecutable {
     return html` <stencila-icon-button
       name=${this.isCssVisible ? 'eye-slash' : 'eye'}
       color=${StencilaStyled.color}
-      adjust="ml-2"
+      adjust="ml-0.5"
       @click=${() => {
         this.isCssVisible = !this.isCssVisible
       }}
@@ -195,7 +205,13 @@ export default class StencilaStyled extends StencilaCodeExecutable {
         </span>
       </div>
 
-      <stencila-code-editor part="css" language="css" read-only no-controls>
+      <stencila-code-editor
+        part="css"
+        language="css"
+        read-only
+        no-controls
+        placeholder="Not yet compiled or no rules"
+      >
         <slot
           name="css"
           slot="code"
@@ -205,30 +221,10 @@ export default class StencilaStyled extends StencilaCodeExecutable {
     </div>`
   }
 
-  protected renderExpandButton(
-    tw: TW,
-    direction: 'vertical' | 'horizontal' = 'vertical'
-  ) {
-    return html`<stencila-icon-button
-      name=${direction === 'vertical' ? 'chevron-right' : 'chevron-left'}
-      color=${StencilaStyled.color}
-      adjust=${`ml-2 rotate-${
-        this.isExpanded ? (direction === 'vertical' ? 90 : 180) : 0
-      } transition-transform`}
-      @click=${() => {
-        this.isExpanded = !this.isExpanded
-      }}
-      @keydown=${(event: KeyboardEvent) => {
-        if (
-          event.key == 'Enter' ||
-          (event.key == 'ArrowUp' && this.isExpanded) ||
-          (event.key == 'ArrowDown' && !this.isExpanded)
-        ) {
-          event.preventDefault()
-          this.isExpanded = !this.isExpanded
-        }
-      }}
-    >
-    </stencila-icon-button>`
+  protected renderContentSlot(tw: TW) {
+    return html`<slot
+      name="content"
+      @slotchange=${(event: Event) => this.onContentSlotChange(event)}
+    ></slot>`
   }
 }

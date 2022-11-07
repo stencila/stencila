@@ -4,10 +4,10 @@ import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel'
 import '@shoelace-style/shoelace/dist/components/tab/tab'
 import { sentenceCase } from 'change-case'
 import { css, html } from 'lit'
-import { customElement, property } from 'lit/decorators'
+import { customElement, property, state } from 'lit/decorators'
 import { TW } from 'twind'
 import StencilaIconButton from '../base/icon-button'
-import StencilaCodeEditor from '../editors/code-editor'
+import StencilaCodeEditor from '../editors/code-editor/code-editor'
 import { twSheet } from '../utils/css'
 import copy from 'clipboard-copy'
 
@@ -32,7 +32,84 @@ export default class StencilaEntity extends StencilaElement {
   @property({ type: Boolean, reflect: true })
   selected: boolean = false
 
-  renderEntityDownload(formats: string[], color: string, shade = 50) {
+  /**
+   * Select this node (if not already selected)
+   *
+   * Sets `selected` to true and emits a custom event that a ProseMirror `NodeView`
+   * can listen for to update its selection to this node.
+   */
+  select() {
+    if (!this.selected) {
+      this.selected = true
+      this.emit('stencila-select')
+    }
+  }
+
+  /**
+   * Deselect this node (if not already deselected)
+   *
+   * Sets `selected` to false and emits a custom event that a ProseMirror `NodeView`
+   * can listen for to set its selection to an empty selection.
+   */
+  deselect() {
+    if (this.selected) {
+      this.selected = false
+      this.emit('stencila-deselect')
+    }
+  }
+
+  /**
+   * Toggle selection of this node
+   */
+  toggleSelected() {
+    this.selected ? this.deselect() : this.select()
+  }
+
+  /**
+   * Whether the entity is expanded (e.g outputs or content is visible)
+   *
+   * Components for several node types (e.g. `Include`, `CodeChunk`, `Styled`)
+   * have the concept of being expanded or not. Rather than reimplementing that
+   * several times, we put it here in a base class
+   */
+  @state()
+  protected isExpanded = true
+
+  /**
+   * Render a button to toggle `isExpanded`
+   */
+  protected renderExpandButton(
+    tw: TW,
+    color: string = 'blue',
+    direction: 'vertical' | 'horizontal' = 'vertical'
+  ) {
+    return html`<stencila-icon-button
+      name=${direction === 'vertical' ? 'chevron-right' : 'chevron-left'}
+      color=${color}
+      adjust=${`ml-0.5 rotate-${
+        this.isExpanded ? (direction === 'vertical' ? 90 : 180) : 0
+      } transition-transform`}
+      @click=${() => {
+        this.isExpanded = !this.isExpanded
+      }}
+      @keydown=${(event: KeyboardEvent) => {
+        if (
+          event.key == 'Enter' ||
+          (event.key == 'ArrowUp' && this.isExpanded) ||
+          (event.key == 'ArrowDown' && !this.isExpanded)
+        ) {
+          event.preventDefault()
+          this.isExpanded = !this.isExpanded
+        }
+      }}
+    >
+    </stencila-icon-button>`
+  }
+
+  /**
+   * Render a download button for an node
+   */
+  protected renderDownloadButton(formats: string[], color: string, shade = 50) {
     return html`<stencila-entity-download
       color=${color}
       shade=${shade}

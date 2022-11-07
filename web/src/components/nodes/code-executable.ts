@@ -1,14 +1,12 @@
-import '@shoelace-style/shoelace/dist/components/dropdown/dropdown'
-import '@shoelace-style/shoelace/dist/components/menu/menu'
-import { capitalCase } from 'change-case'
-import { css, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators'
+import { html } from 'lit'
+import { property, state } from 'lit/decorators'
 import { TW } from 'twind'
+
 import { isCodeWriteable } from '../../mode'
-import '../base/icon-button'
-import { twSheet } from '../utils/css'
-import StencilaElement from '../utils/element'
 import Executable from './executable'
+
+import '../base/icon-button'
+import '../editors/code-editor/code-language'
 
 /**
  * A base component to represent the `CodeExecutable` node type
@@ -75,7 +73,7 @@ export default class StencilaCodeExecutable extends Executable {
    * Is the code of the node (the `text` property) visible?
    */
   @state()
-  protected isCodeVisible: boolean
+  protected isCodeVisible: boolean = true
 
   private onCodeVisibilityChanged(event: CustomEvent) {
     this.isCodeVisible = event.detail.isVisible
@@ -89,6 +87,31 @@ export default class StencilaCodeExecutable extends Executable {
     } else {
       this.isCodeVisible = !this.isCodeVisible
     }
+  }
+
+  /**
+   * Render a button to toggle code visibility
+   */
+  protected renderViewCodeButton(tw: TW) {
+    return html` <stencila-icon-button
+      name=${this.isCodeVisible ? 'eye-slash' : 'eye'}
+      color="blue"
+      adjust="ml-0.5"
+      @click=${() => {
+        this.isCodeVisible = !this.isCodeVisible
+      }}
+      @keydown=${(event: KeyboardEvent) => {
+        if (
+          event.key == 'Enter' ||
+          (event.key == 'ArrowUp' && this.isCodeVisible) ||
+          (event.key == 'ArrowDown' && !this.isCodeVisible)
+        ) {
+          event.preventDefault()
+          this.isCodeVisible = !this.isCodeVisible
+        }
+      }}
+    >
+    </stencila-icon-button>`
   }
 
   /**
@@ -156,192 +179,13 @@ export default class StencilaCodeExecutable extends Executable {
   protected renderLanguageMenu(tw: TW) {
     const readOnly = !isCodeWriteable()
 
-    return html`<stencila-executable-language
-      class=${tw`ml-2 text(base blue-500)`}
+    return html`<stencila-code-language
+      class=${tw`ml-0.5 text(base blue-500)`}
       programming-language=${this.programmingLanguage}
-      color="blue"
       ?guess-language=${this.guessLanguage == 'true'}
+      include='["bash", "calc", "javascript", "http", "postgrest", "prql", "python", "r", "sql", "tailwind"]'
+      ?is-guessable=${true}
       ?disabled=${readOnly}
-    ></stencila-executable-language>`
-  }
-}
-
-const { tw, sheet } = twSheet()
-
-/**
- * A component for changing the `programmingLanguage` and `guessLanguage` properties of a `CodeExecutable` node
- *
- * Uses a static list of languages currently supported by Stencila but indicates which
- * are not supported in the current execution environment. If the `programmingLanguage`
- * is not in the list it will be added.
- *
- * If `guessLanguage == true` then the `programmingLanguage` may be patched when the parent node
- * (e.g. a `CodeChunk` is compiled). If the user explicitly selects a language then `guessLanguage`
- * should be set to `false`.
- */
-@customElement('stencila-executable-language')
-export class StencilaExecutableLanguage extends StencilaElement {
-  static styles = [
-    sheet.target,
-    css`
-      sl-menu-item::part(label) {
-        line-height: 1;
-      }
-    `,
-  ]
-
-  static languages = [
-    ['bash', '', 'Bash'],
-    ['calc', tw`text-green-800`, 'Calc'],
-    ['javascript', '', 'JavaScript', 'js'],
-    ['json', '', 'JSON'],
-    ['json5', '', 'JSON5'],
-    ['http', '', 'HTTP'],
-    ['prql', '', 'PRQL'],
-    ['pgrest', '', 'PostgREST', 'pgrst', 'postgrest'],
-    ['python', '', 'Python', 'py', 'python3'],
-    ['r', '', 'R'],
-    ['sql', tw`text-blue-600`, 'SQL'],
-    ['tailwind', tw`text-blue-600`, 'Tailwind'],
-    ['unknown', tw`text-gray-300`, 'Unknown'],
-  ]
-
-  /**
-   * The `CodeExecutable.programmingLanguage` property
-   */
-  @property({ attribute: 'programming-language', reflect: true })
-  programmingLanguage: string
-
-  /**
-   * The `CodeExecutable.guessLanguage` property
-   */
-  @property({ type: Boolean, attribute: 'guess-language', reflect: true })
-  guessLanguage: boolean
-
-  /**
-   * Languages to include in the the list of selectable languages
-   */
-  @property({ type: Array, attribute: 'exclude' })
-  include: string[] = StencilaExecutableLanguage.languages.map(
-    ([value]) => value
-  )
-
-  /**
-   * Languages to exclude from the list of selectable languages
-   */
-  @property({ type: Array, attribute: 'exclude' })
-  exclude: string[] = []
-
-  /**
-   * The color palette for the trigger icon
-   */
-  @property()
-  color = 'gray'
-
-  /**
-   * Whether the menu is disabled
-   */
-  @property({ type: Boolean })
-  disabled = false
-
-  /**
-   * Override to ensure that the property is changed on this element
-   * AND on the parent `EntityElement` that contains this menu
-   */
-  protected changeProperties(properties: [string, unknown][]) {
-    const parent = StencilaElement.closestElement(this.parentElement!, '[id]')!
-    for (const [property, value] of properties) {
-      parent[property] = value
-    }
-
-    return super.changeProperties(properties)
-  }
-
-  render() {
-    const languages = StencilaExecutableLanguage.languages.filter(
-      ([lang]) => this.include.includes(lang) && !this.exclude.includes(lang)
-    )
-    const language = this.programmingLanguage.toLowerCase()
-
-    let icon = 'code'
-    for (const [value, _cls, _title, ...aliases] of languages) {
-      if (language === value || aliases.includes(language)) {
-        icon = value
-        break
-      }
-    }
-
-    return html`
-      <sl-dropdown class=${tw`flex items-center`} ?disabled=${this.disabled}>
-        <stencila-icon-button
-          slot="trigger"
-          name=${icon}
-          color=${this.color}
-          ?disabled=${this.disabled}
-        >
-        </stencila-icon-button>
-
-        <sl-menu
-          @sl-select=${(event: CustomEvent) => {
-            const value = event.detail.item.value
-            if (value == 'guess') {
-              // Toggle `guessLanguage`
-              const guessLanguage = !this.guessLanguage
-              this.changeProperty('guessLanguage', guessLanguage)
-            } else {
-              // Change the `programmingLanguage` and set `guessLanguage` to false if necessary
-              const changedProperties: [string, unknown][] = []
-              if (this.programmingLanguage !== value) {
-                changedProperties.push(['programmingLanguage', value])
-                if (this.guessLanguage) {
-                  changedProperties.push(['guessLanguage', false])
-                }
-                this.changeProperties(changedProperties)
-              }
-            }
-          }}
-        >
-          ${languages.map(
-            ([value, cls, title, ...aliases]) =>
-              html` <sl-menu-item
-                value=${value}
-                ?checked=${language == value || aliases.includes(language)}
-              >
-                <stencila-icon
-                  slot="prefix"
-                  name="${value}-color"
-                  class=${cls}
-                ></stencila-icon>
-                <span class=${tw`text-sm`}>${title}</span>
-              </sl-menu-item>`
-          )}
-          ${language?.trim().length > 0 &&
-          languages.filter(
-            ([value, _cls, _title, ...aliases]) =>
-              language === value || aliases.includes(language)
-          ).length === 0
-            ? html` <sl-menu-item value=${language} checked>
-                <stencila-icon
-                  slot="prefix"
-                  name="code"
-                  class=${tw`text-gray-400`}
-                ></stencila-icon>
-                ${capitalCase(this.programmingLanguage)}
-              </sl-menu-item>`
-            : ''}
-
-          <sl-divider class=${tw`border(t gray-100)`}></sl-divider>
-
-          <sl-menu-item value="guess" ?checked=${this.guessLanguage}>
-            <stencila-icon
-              class=${tw`text-gray-500`}
-              slot="prefix"
-              name="magic"
-            ></stencila-icon>
-            <span class=${tw`text-sm`}>Guess</span>
-          </sl-menu-item>
-        </sl-menu>
-      </sl-dropdown>
-    `
+    ></stencila-code-language>`
   }
 }
