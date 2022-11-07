@@ -60,11 +60,13 @@ export default class StencilaTimestamp extends StencilaElement {
       }
     })()
 
-    let date
-    try {
-      date = new Date(millis)
-    } catch (error) {
-      console.warn(error, millis)
+    let date: Date | undefined
+    if (millis) {
+      try {
+        date = new Date(millis)
+      } catch (error) {
+        console.warn(error, millis)
+      }
     }
 
     if (date) {
