@@ -459,6 +459,7 @@ class StencilaNumericValidator extends StencilaValidator {
           <input
             type="checkbox"
             style="accent-color: #bfdbfe;"
+            ?checked=${this.exclusiveMinimum !== undefined}
             ?disabled=${readOnly}
             @change=${(event: Event) => {
               const input = event.target as HTMLInputElement
@@ -524,6 +525,7 @@ class StencilaNumericValidator extends StencilaValidator {
           <input
             type="checkbox"
             style="accent-color: #bfdbfe;"
+            ?checked=${this.exclusiveMaximum !== undefined}
             ?disabled=${readOnly}
             @change=${(event: Event) => {
               const input = event.target as HTMLInputElement
