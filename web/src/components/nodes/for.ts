@@ -199,7 +199,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
       value=${this.symbol}
       ?disabled=${readOnly}
       @focus=${() => this.deselect()}
-      @mousedown=${(event) => {
+      @mousedown=${(event: Event) => {
         this.deselect()
         event.stopPropagation()
       }}

@@ -1,7 +1,7 @@
 import { Attrs, Node } from 'prosemirror-model'
 import { NodeSelection, TextSelection } from 'prosemirror-state'
 import { EditorView, NodeView } from 'prosemirror-view'
-import { Patch } from '../../../../types'
+import { Patch, Then } from '../../../../types'
 import StencilaEntity from '../../../nodes/entity'
 
 export const entityAttrs = {
@@ -70,7 +70,8 @@ export class StencilaEntityView<Type extends StencilaEntity>
     this.dom.addEventListener(
       'stencila-document-patch',
       (event: CustomEvent) => {
-        this.dispatchPatch(event.detail)
+        const { patch, then } = event.detail
+        this.dispatchPatch(patch, then)
       }
     )
   }
@@ -107,8 +108,10 @@ export class StencilaEntityView<Type extends StencilaEntity>
 
   /**
    * Dispatch a Stencila document `Patch` as a ProseMirror `Transaction`
+   *
+   * This is done so that undo/redo works at the document level.
    */
-  dispatchPatch(patch: Patch) {
+  dispatchPatch(patch: Patch, then?: Then) {
     // TODO check that the patch.target is the same as the node.id
     const transaction = this.view.state.tr
     for (const op of patch.ops) {
@@ -118,7 +121,7 @@ export class StencilaEntityView<Type extends StencilaEntity>
           transaction.setNodeAttribute(this.getPos(), op.address[0], op.value)
           break
         default:
-          // TODO: implement handling of other types of operatuibs
+          // TODO: implement handling of other types of operations
           console.warn(`Operation ${op.type} is not handled`, op)
       }
     }

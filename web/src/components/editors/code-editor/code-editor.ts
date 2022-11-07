@@ -311,7 +311,7 @@ export default class StencilaCodeEditor extends StencilaElement {
       // Extension to emit an event when code changes (if not in read-only mode)
       EditorView.updateListener.of((update) => {
         if (!this.readOnly && update.docChanged && !this.codeUpdating) {
-          this.emitOps(...updateToOps(update, [this.propertyName]))
+          this.emitOps(updateToOps(update, [this.propertyName]))
         }
       }),
 

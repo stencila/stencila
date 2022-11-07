@@ -30,7 +30,7 @@ export default class StencilaIf extends StencilaExecutable {
         flatten: true,
       })[0]
 
-      this.emitOps({
+      this.emitOp({
         type: 'Add',
         address: ['clauses', clauses.childElementCount],
         length: 1,

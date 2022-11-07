@@ -299,7 +299,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       }
       this.requestUpdateAll()
 
-      this.emitOps({
+      this.emitOp({
         type: 'Move',
         from: [this.index],
         to: [this.index - 1],
@@ -313,7 +313,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       }
       this.requestUpdateAll()
 
-      this.emitOps({
+      this.emitOp({
         type: 'Move',
         from: [this.index],
         to: [this.index + 1],
@@ -359,7 +359,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       : ''
 
     const remove = () => {
-      this.emitOps({
+      this.emitOp({
         type: 'Remove',
         address: [],
         items: 1,

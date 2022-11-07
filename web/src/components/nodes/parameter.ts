@@ -90,6 +90,22 @@ export default class StencilaParameter extends StencilaExecutable {
     this.requestUpdate('validator')
   }
 
+  /**
+   * Change the value of the parameter and then execute it
+   */
+  public changeValue(value: boolean | number | string) {
+    this.emitOp(
+      {
+        type: 'Replace',
+        address: ['value'],
+        items: 1,
+        length: 1,
+        value,
+      },
+      { execute: 'Now' }
+    )
+  }
+
   protected renderNameInput() {
     const readOnly = !isCodeWriteable()
 
@@ -189,7 +205,7 @@ export default class StencilaParameter extends StencilaExecutable {
             const name = event.detail.item.value
 
             const validator = this.validator.replaceType(name)
-            this.emitOps({
+            this.emitOp({
               type: 'Replace',
               address: ['validator'],
               items: 1,
@@ -259,7 +275,7 @@ export default class StencilaParameter extends StencilaExecutable {
             <span class=${tw`inline-flex items-center text-base ml-1`}>
               <stencila-icon name="sliders"></stencila-icon>
             </span>
-            <span class=${tw`ml-2 mr-2`}>par</span>
+            <span class=${tw`ml-2 mr-2`}>param</span>
             ${this.renderNameInput()} ${this.renderValidatorSlot()}
             ${this.renderValidatorDropdown()} ${this.renderSettingsDropdown()}
           </span>

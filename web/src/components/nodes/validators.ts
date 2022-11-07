@@ -9,6 +9,7 @@ import { TW } from 'twind'
 import { Operation } from '../../types'
 import StencilaInput from '../base/input'
 import StencilaEntity from './entity'
+import StencilaParameter from './parameter'
 
 /**
  * An abstract base class representing a Stencila `Validator` node
@@ -51,15 +52,18 @@ export class StencilaValidator extends StencilaEntity {
 
   /**
    * Handle a change to an input for the validator
+   *
+   * Calls the parent `Parameter`'s `changeValue` method.
    */
   public changeValue(value: boolean | number | string) {
-    this.emitOps({
-      type: 'Replace',
-      address: ['value'],
-      items: 1,
-      length: 1,
-      value,
-    })
+    const param = this.parentElement
+    if (param instanceof StencilaParameter) {
+      param.changeValue(value)
+    } else {
+      console.error(
+        `Expected validator parent to be a parameter but is a ${param?.tagName}`
+      )
+    }
   }
 
   /**
@@ -90,7 +94,7 @@ export class StencilaValidator extends StencilaEntity {
             value,
           }
 
-    return this.emitOps(op)
+    return this.emitOp(op)
   }
 
   /**
@@ -268,7 +272,7 @@ export class StencilaBooleanValidator extends StencilaValidator {
         const input = event.target as HTMLInputElement
         const value = input.checked
 
-        this.emitOps({
+        this.emitOp({
           type: 'Replace',
           address: ['value'],
           items: 1,

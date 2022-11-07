@@ -36,7 +36,10 @@ export type DocumentTopic = 'patched' | 'kernel-monitoring'
  * WYSIWYG article editor)
  */
 export interface DocumentPatchEvent extends CustomEvent {
-  detail: Patch
+  detail: {
+    patch: Patch
+    then: Then
+  }
 }
 
 /**
@@ -103,6 +106,13 @@ export interface ParameterChangeEvent extends CustomEvent {
     property: 'name' | 'value'
     value: string
   }
+}
+
+export type Then = {
+  assemble?: When
+  compile?: When
+  execute?: When
+  write?: When
 }
 
 /**

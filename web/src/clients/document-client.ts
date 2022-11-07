@@ -12,7 +12,7 @@ import {
   DocumentPatchEvent,
   DocumentTopic,
   Patch,
-  When,
+  Then,
 } from '../types'
 
 type ClientConnectOptions = ConstructorParameters<typeof WsClient>[1]
@@ -134,8 +134,10 @@ export class DocumentClient {
     // Listen for within browser events and forward on to the methods below
 
     window.addEventListener('stencila-document-patch', (event) => {
-      const { detail: patch } = event as DocumentPatchEvent
-      this.sendPatch(patch)
+      const {
+        detail: { patch, then },
+      } = event as DocumentPatchEvent
+      this.sendPatch(patch, then)
     })
 
     window.addEventListener(
@@ -365,27 +367,23 @@ export class DocumentClient {
    * patch's target if any, otherwise the entire document. Combining patch and execute operations
    * in a single request ensures that they occur in the correct order.
    */
-  async sendPatch(
-    patch: Patch,
-    compile: When = 'Soon',
-    execute: When = 'Never',
-    write: When = 'Soon'
-  ): Promise<void> {
+  async sendPatch(patch: Patch, then?: Then): Promise<void> {
     // During development it's very useful to see the patch operations being sent
     if (process.env.NODE_ENV !== 'production') {
       const { actor, target, address, ops } = patch
       console.log(
         '📢 Sending patch:',
-        JSON.stringify({ actor, target, address })
+        JSON.stringify({ actor, target, address, then })
       )
       for (const op of ops) console.log('  ', JSON.stringify(op))
     }
 
     return this.call('documents.patch', {
       patch: { actor: this.clientId, ...patch },
-      compile,
-      execute,
-      write,
+      assemble: then?.assemble,
+      compile: then?.compile,
+      execute: then?.execute,
+      write: then?.write,
     }) as Promise<void>
   }
 

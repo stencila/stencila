@@ -1,5 +1,5 @@
 import { LitElement } from 'lit'
-import { Operation, Patch } from '../../types'
+import { Operation, Patch, Then } from '../../types'
 
 /**
  * A base custom element which provides convenience methods
@@ -49,14 +49,14 @@ export default class StencilaElement extends LitElement {
   /**
    * Change a property and emit an operation representing the change
    */
-  protected changeProperty(property: string, value: unknown) {
-    return this.changeProperties([[property, value]])
+  protected changeProperty(property: string, value: unknown, then?: Then) {
+    return this.changeProperties([[property, value]], then)
   }
 
   /**
    * Change several properties and emit an operation representing the changes
    */
-  protected changeProperties(properties: [string, unknown][]) {
+  protected changeProperties(properties: [string, unknown][], then?: Then) {
     const ops = properties.map(([property, value]) => {
       if (value === null || Number.isNaN(value)) {
         value = undefined
@@ -82,26 +82,36 @@ export default class StencilaElement extends LitElement {
       return op
     })
 
-    return this.emitOps(...ops)
+    return this.emitOps(ops, then)
+  }
+
+  /**
+   * Emit an operation for the closest element having an `id`
+   */
+  protected emitOp(op: Operation, then?: Then) {
+    return this.emitOps([op], then)
   }
 
   /**
    * Emit a patch event for the closest element having an `id` with
    * one or more operations
    */
-  protected emitOps(...ops: Operation[]) {
+  protected emitOps(ops: Operation[], then?: Then) {
     const target = StencilaElement.closestElement(this, '[id]')?.id
-    return this.emitPatch({
-      target,
-      ops,
-    })
+    return this.emitPatch(
+      {
+        target,
+        ops,
+      },
+      then
+    )
   }
 
   /**
    * Emit a patch
    */
-  protected async emitPatch(patch: Patch) {
-    return this.emit('stencila-document-patch', patch)
+  protected async emitPatch(patch: Patch, then?: Then) {
+    return this.emit('stencila-document-patch', { patch, then })
   }
 
   /**
