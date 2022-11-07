@@ -126,7 +126,7 @@ export function applyReplaceStruct(
     return
   }
 
-  // Otherwise, delegate to `applyAddStruct` which has the same logic as needed here
+  // Otherwise, delegate to `applyAddStruct` which has the same logic as needed here for attributes
   applyAddStruct(struct, name, value, html)
 }
 

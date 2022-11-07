@@ -10,6 +10,7 @@ export const STRUCT_ATTRIBUTES: Record<string, string> = {
   id: 'id',
   // CodeChunk and CodeExpression
   programmingLanguage: 'programming-language',
+  guessLanguage: 'guess-language',
   compileDigest: 'compile-digest',
   executeDigest: 'execute-digest',
   executeRequired: 'execute-required',
@@ -22,23 +23,23 @@ export const STRUCT_ATTRIBUTES: Record<string, string> = {
   // MediaObject
   contentUrl: 'src',
   // Parameter
-  default: 'placeholder',
+  default: 'default',
   value: 'value',
-  // NumberValidator
-  type: 'type',
-  minimum: 'min',
-  maximum: 'max',
-  multipleOf: 'step',
+  // EnumValidator,
+  values: 'values',
+  // IntegerValidator and NumberValidator
+  minimum: 'minimum',
+  maximum: 'maximum',
+  multipleOf: 'multiple-of',
   // StringValidator
-  minLength: 'minlength',
-  maxLength: 'maxlength',
+  minLength: 'min-length',
+  maxLength: 'max-length',
   pattern: 'pattern',
   // For
   symbol: 'symbol',
   text: 'text',
   // If
   isActive: 'is-active',
-  guessLanguage: 'guess-language',
   // CodeError
   errorType: 'error-type',
 }

@@ -102,10 +102,14 @@ export function applyAddStruct(
   if (alias !== undefined) {
     let attr = ''
     if (value == null) attr = 'null'
-    else if (typeof value === 'object' && !Array.isArray(value)) {
-      if (value.type === 'Date') {
+    else if (typeof value === 'object') {
+      if (Array.isArray(value)) {
+        attr = JSON.stringify(value)
+      } else if (value.type === 'Date') {
         // Use the ISO date string as the attribute
         attr = value.value as string
+      } else {
+        attr = JSON.stringify(value)
       }
     } else attr = value.toString()
 
