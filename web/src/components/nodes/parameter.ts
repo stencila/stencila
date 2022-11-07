@@ -196,6 +196,10 @@ export default class StencilaParameter extends StencilaExecutable {
               length: 1,
               value: validator.toJSON(),
             })
+
+            // Set the slot so that any patches get applied to the new
+            // validator as well
+            validator.setAttribute('slot', 'validator')
             this.validator.replaceWith(validator)
             this.validator = validator
           }}

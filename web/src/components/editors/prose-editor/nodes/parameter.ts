@@ -1,3 +1,4 @@
+import HtmlFragment from 'html-fragment'
 import { Attrs, Node, NodeSpec, ParseRule } from 'prosemirror-model'
 import { EditorView } from 'prosemirror-view'
 import StencilaParameter from '../../../nodes/parameter'
@@ -12,6 +13,9 @@ export function parameter(): NodeSpec {
       ...executableAttrs,
       name: { default: '' },
       label: { default: '' },
+      validator: {
+        default: null,
+      },
     },
     parseDOM,
     toDOM,
@@ -35,16 +39,26 @@ function getAttrs(node: StencilaParameter): Attrs {
   return {
     id: node.id,
     name: node.getAttribute('name'),
-    label: node.getAttribute('label'),
+    label: node.getAttribute('label') ?? undefined,
+    validator: node.querySelector('[slot=validator]')?.outerHTML,
   }
 }
 
 function toDOM(node: Node) {
   const dom = document.createElement('stencila-parameter')
+  dom.contentEditable = 'false'
   dom.draggable = true
   dom.id = node.attrs.id
   dom.setAttribute('name', node.attrs.name)
   dom.setAttribute('label', node.attrs.label)
+
+  if (node.attrs.validator) {
+    const validator = HtmlFragment(node.attrs.validator).firstElementChild
+    if (validator) {
+      validator.setAttribute('slot', 'validator')
+      dom.appendChild(validator)
+    }
+  }
 
   return { dom }
 }
