@@ -129,23 +129,21 @@ impl ToMd for CodeExpression {
     }
 }
 
-macro_rules! delimited_inline_text_to_md {
-    ($type:ty, $delimiter:expr) => {
-        impl ToMd for $type {
-            fn to_md(&self, _options: &EncodeOptions) -> String {
-                [$delimiter, &self.text, $delimiter].concat()
+impl ToMd for CodeFragment {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
+        if let Some(lang) = &self.programming_language {
+            if !lang.is_empty() {
+                return ["`", &self.text, "`{", lang, "}"].concat();
             }
         }
-    };
+        ["`", &self.text, "`"].concat()
+    }
 }
-
-delimited_inline_text_to_md!(CodeFragment, "`");
 
 impl ToMd for MathFragment {
     fn to_md(&self, _options: &EncodeOptions) -> String {
         match self.math_language.as_str() {
-            "asciimath" => ["`", &self.text, "`{asciimath}"].concat(),
-            "mathml" => ["`", &self.text, "`{mathml}"].concat(),
+            "asciimath" | "mathml" => ["`", &self.text, "`{", &self.math_language, "}"].concat(),
             _ => ["$", &self.text, "$"].concat(),
         }
     }
