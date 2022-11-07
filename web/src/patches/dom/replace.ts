@@ -15,7 +15,6 @@ import {
 import { applyReplace as applyReplaceString } from '../string'
 import { applyAddObject, applyAddStruct } from './add'
 import { escapeAttr, unescapeAttr } from './escape'
-import { hasProxy } from './proxies'
 import {
   createFragment,
   createFragmentWrapEach,
@@ -102,13 +101,6 @@ export function applyReplaceStruct(
     items === 1,
     `Unexpected replace items ${items} for option slot '${name}'`
   )
-
-  // Is there a proxy element for the property? If so, apply the operation to its target.
-  const target = hasProxy(struct, name)
-  if (target) {
-    target.applyReplaceStruct(name, items, value, html)
-    return
-  }
 
   // Is there an element for the property? If so, replace it with the new HTML
   // but retain any `slot` or `data-prop` attributes.

@@ -11,7 +11,6 @@ import {
 import { applyRemove as applyRemoveString } from '../string'
 import { STRUCT_ATTRIBUTES } from './consts'
 import { escapeAttr, unescapeAttr } from './escape'
-import { hasProxy } from './proxies'
 import {
   isArrayElement,
   isObjectElement,
@@ -79,13 +78,6 @@ export function applyRemoveStruct(
     items === 1,
     `Unexpected remove items ${items} for option slot '${name}'`
   )
-
-  // Is there a proxy element for the property? If so, apply the operation to its target.
-  const target = hasProxy(struct, name)
-  if (target) {
-    target.applyRemoveStruct(name, items)
-    return
-  }
 
   // If the property is represented as a child element then clear it's content
   // and its attributes, other than `data-prop` etc (so that it remains

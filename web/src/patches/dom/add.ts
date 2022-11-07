@@ -13,7 +13,6 @@ import {
 import { applyAdd as applyAddString } from '../string'
 import { STRUCT_ATTRIBUTES } from './consts'
 import { escapeAttr, unescapeAttr } from './escape'
-import { hasProxy } from './proxies'
 import {
   createFragment,
   createFragmentWrapEach,
@@ -81,13 +80,6 @@ export function applyAddStruct(
   html: string
 ): void {
   assertName(name)
-
-  // Is there a proxy element for the property? If so, apply the operation to its target.
-  const target = hasProxy(struct, name)
-  if (target) {
-    target.applyAddStruct(name, value, html)
-    return
-  }
 
   // Is there a placeholder element for the property? If so update it's content.
   // Takes precedence over adding as an attribute.

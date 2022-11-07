@@ -9,7 +9,6 @@ import {
   panic,
 } from '../checks'
 import { STRUCT_ATTRIBUTES } from './consts'
-import { resolveProxy } from './proxies'
 import StencilaEntity from '../../components/nodes/entity'
 
 /**
@@ -125,17 +124,6 @@ export function resolveSlot(
     // for the operation to be applied to
     if (child?.childNodes.length === 1 && isText(child?.childNodes[0])) {
       return child.childNodes[0]
-    }
-
-    // `<meta>` elements are used to represent properties that should not be visible
-    // but which are needed, if for nothing other than to provide Microdata for the property.
-    // Return the `content` attribute, rather than the element itself.
-    if (isElement(child) && child.tagName === 'META') {
-      const target = resolveProxy(child)
-      if (target) return target
-
-      const content = child.attributes.getNamedItem('content')
-      if (content !== null) return content
     }
 
     if (child !== null) return child
