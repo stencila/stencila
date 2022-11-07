@@ -1,3 +1,4 @@
+import HtmlFragment from 'html-fragment'
 import { OperationReplace, Slot, ElementId } from '../../types'
 import {
   assert,
@@ -22,6 +23,7 @@ import {
   isObjectElement,
   resolveObjectKey,
   resolveParent,
+  slotSelector,
 } from './resolve'
 
 /**
@@ -108,7 +110,23 @@ export function applyReplaceStruct(
     return
   }
 
-  // Simply delegate to `applyAddStruct` which has the same logic as needed here
+  // Is there an element for the property? If so, replace it with the new HTML
+  // but retain any `slot` or `data-prop` attributes.
+  const existing = struct.querySelector(slotSelector(name))
+  if (existing) {
+    const replacement = HtmlFragment(html).firstElementChild
+    if (replacement) {
+      const slot = existing.getAttribute('slot')
+      if (slot) replacement.setAttribute('slot', slot)
+      const prop = existing.getAttribute('data-prop')
+      if (prop) replacement.setAttribute('data-prop', prop)
+
+      existing.replaceWith(replacement)
+    }
+    return
+  }
+
+  // Otherwise, delegate to `applyAddStruct` which has the same logic as needed here
   applyAddStruct(struct, name, value, html)
 }
 
