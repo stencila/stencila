@@ -274,12 +274,14 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       ></slot>
     </stencila-code-editor>`
 
-    const programmingLanguageMenu = html`<stencila-executable-language
+    const programmingLanguageMenu = html`<stencila-code-language
       class=${tw`ml-2 text(base gray-500)`}
-      programming-language=${this.programmingLanguage}
-      guess-language=${this.guessLanguage == 'true'}
-      exclude='["tailwind"]'
       color=${StencilaIf.color}
+      programming-language=${this.programmingLanguage}
+      ?guess-language=${this.guessLanguage == 'true'}
+      ?is-guessable=${true}
+      ?executable-only=${true}
+      exclude='["tailwind"]'
       ?disabled=${readOnly}
       @stencila-document-patch=${(event: CustomEvent) => {
         // Update `this.programmingLanguage` (and `guessLanguage` for completeness)
@@ -291,7 +293,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
         event.stopPropagation()
         this.emitPatch(event.detail)
       }}
-    ></stencila-executable-language>`
+    ></stencila-code-language>`
 
     const moveUp = (event: KeyboardEvent) => {
       if (this.previousElementSibling) {

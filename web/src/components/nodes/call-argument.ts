@@ -14,7 +14,7 @@ const { tw, sheet } = twSheet()
  *
  * Note that call arguments extend `Parameter` but have `text`, programmingLanguage`,
  * and `guessLanguage` properties like `CodeExecutable` nodes. As such, this
- * component makes use of `<stencila-code-editor>` and `<stencila-executable-language>`.
+ * component makes use of `<stencila-code-editor>` and `<stencila-code-language>`.
  *
  * @slot text The `CallArgument.text` property
  */
@@ -147,12 +147,14 @@ export default class StencilaCallArgument extends StencilaParameter {
   }
 
   protected renderLanguageMenu(tw: TW) {
-    return html`<stencila-executable-language
+    return html`<stencila-code-language
       class=${tw`ml-2`}
       color=${StencilaCall.color}
       programming-language=${this.programmingLanguage}
-      guess-language=${this.guessLanguage == 'true'}
-    ></stencila-executable-language>`
+      ?guess-language=${this.guessLanguage == 'true'}
+      ?is-guessable=${true}
+      ?executable-only=${true}
+    ></stencila-code-language>`
   }
 
   protected renderExpressionToggle(tw: TW) {

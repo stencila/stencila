@@ -280,12 +280,14 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     const toggleSelected = () => this.toggleSelected()
 
-    const programmingLanguageMenu = html`<stencila-executable-language
+    const programmingLanguageMenu = html`<stencila-code-language
       class=${tw`ml-2 text(base gray-500)`}
-      programming-language=${this.programmingLanguage}
-      guess-language=${this.guessLanguage == 'true'}
-      exclude='["tailwind"]'
       color=${StencilaFor.color}
+      programming-language=${this.programmingLanguage}
+      ?guess-language=${this.guessLanguage == 'true'}
+      ?is-guessable=${true}
+      ?executable-only=${true}
+      exclude='["tailwind"]'
       ?disabled=${readOnly}
       @stencila-document-patch=${(event: CustomEvent) => {
         // Update `this.programmingLanguage` (and `guessLanguage` for completeness)
@@ -294,7 +296,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
         this.programmingLanguage = elem.programmingLanguage
         this.guessLanguage = elem.guessLanguage.toString()
       }}
-    ></stencila-executable-language>`
+    ></stencila-code-language>`
 
     const expandButton = (
       property:

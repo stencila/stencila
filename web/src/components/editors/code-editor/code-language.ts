@@ -58,6 +58,28 @@ export class StencilaCodeLanguage extends StencilaElement {
   isGuessable: boolean = false
 
   /**
+   * Whether only executable languages should be included
+   */
+  @property({ type: Boolean, attribute: 'executable-only', reflect: true })
+  executableOnly: boolean = false
+
+  /**
+   * Languages that are executable
+   */
+  static executables: string[] = [
+    'bash',
+    'calc',
+    'javascript',
+    'http',
+    'postgrest',
+    'prql',
+    'python',
+    'r',
+    'sql',
+    'tailwind',
+  ]
+
+  /**
    * Languages to include in the the list of selectable languages
    *
    * Rather than show all available CodeMirror languages, the default
@@ -154,7 +176,10 @@ export class StencilaCodeLanguage extends StencilaElement {
     const languages = StencilaCodeEditor.languageDescriptions
       .filter((desc) => {
         const name = desc.name.toLowerCase()
-        return this.include.includes(name) && !this.exclude.includes(name)
+        const included = this.executableOnly
+          ? StencilaCodeLanguage.executables
+          : this.include
+        return included.includes(name) && !this.exclude.includes(name)
       })
       .sort((a, b) => a.name.localeCompare(b.name))
 
@@ -226,7 +251,9 @@ export class StencilaCodeLanguage extends StencilaElement {
             language.length > 0 && !inLanguages
               ? html` <sl-menu-item value=${language} checked>
                   <stencila-icon slot="prefix" name="code"></stencila-icon>
-                  ${capitalCase(this.programmingLanguage)}
+                  <span class=${tw`text-sm`}
+                    >${capitalCase(this.programmingLanguage)}</span
+                  >
                 </sl-menu-item>`
               : ''
           }
