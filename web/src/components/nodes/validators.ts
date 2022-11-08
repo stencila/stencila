@@ -447,7 +447,7 @@ class StencilaNumericValidator extends StencilaValidator {
       }
 
       if (event.type === 'sl-change' && input.isValid()) {
-        if (this.exclusiveMinimum !== undefined) {
+        if (typeof this.exclusiveMinimum === 'number') {
           this.changeProperty('exclusiveMinimum', min)
         } else {
           this.changeProperty('minimum', min)
@@ -463,7 +463,7 @@ class StencilaNumericValidator extends StencilaValidator {
           <input
             type="checkbox"
             style="accent-color: #bfdbfe;"
-            ?checked=${this.exclusiveMinimum !== undefined}
+            ?checked=${typeof this.exclusiveMinimum === 'number'}
             ?disabled=${readOnly}
             @change=${(event: Event) => {
               const input = event.target as HTMLInputElement
@@ -513,7 +513,7 @@ class StencilaNumericValidator extends StencilaValidator {
       }
 
       if (event.type === 'sl-change' && input.isValid()) {
-        if (this.exclusiveMaximum !== undefined) {
+        if (typeof this.exclusiveMaximum === 'number') {
           this.changeProperty('exclusiveMaximum', max)
         } else {
           this.changeProperty('maximum', max)
@@ -529,7 +529,7 @@ class StencilaNumericValidator extends StencilaValidator {
           <input
             type="checkbox"
             style="accent-color: #bfdbfe;"
-            ?checked=${this.exclusiveMaximum !== undefined}
+            ?checked=${typeof this.exclusiveMaximum === 'number'}
             ?disabled=${readOnly}
             @change=${(event: Event) => {
               const input = event.target as HTMLInputElement
