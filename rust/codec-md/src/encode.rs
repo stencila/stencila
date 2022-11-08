@@ -303,26 +303,31 @@ impl ToMd for Parameter {
 
 impl ToMd for Button {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        let (label, options) = match &self.label {
-            Some(label) => {
-                let label_as_name = label.to_snake_case();
-                let options = if label_as_name == self.name {
-                    String::new()
-                } else {
-                    ["{name=", &self.name, "}"].concat()
-                };
-                (label.to_string(), options)
-            }
-            None => {
-                let label = self
-                    .label
-                    .as_deref()
-                    .map_or_else(|| self.name.to_sentence_case(), String::from);
-                (label, String::new())
-            }
+        let text = self.text.trim();
+        let code = if text.is_empty() {
+            "".to_string()
+        } else {
+            ["`", text, "`"].concat()
         };
 
-        ["#[", &label, "]", &options].concat()
+        let mut options = Vec::new();
+
+        let lang = self.programming_language.trim();
+        if !text.is_empty() && !lang.is_empty() && !self.guess_language.unwrap_or_default() {
+            options.push(lang.to_string());
+        }
+
+        if let Some(label) = &self.label {
+            options.push(["label=\"", label, "\""].concat());
+        }
+
+        let attrs = if options.is_empty() {
+            "".to_string()
+        } else {
+            ["{", &options.join(" "), "}"].concat()
+        };
+
+        ["#[", &self.name, "]", &code, &attrs].concat()
     }
 }
 

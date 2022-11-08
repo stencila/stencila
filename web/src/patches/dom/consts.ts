@@ -23,13 +23,19 @@ export const STRUCT_ATTRIBUTES: Record<string, string> = {
   // MediaObject
   contentUrl: 'src',
   // Parameter
+  name: 'name',
+  label: 'label',
   default: 'default',
   value: 'value',
+  // Button
+  isDisabled: 'is-disabled',
   // EnumValidator,
   values: 'values',
   // IntegerValidator and NumberValidator
   minimum: 'minimum',
   maximum: 'maximum',
+  exclusiveMinimum: 'exclusive-minimum',
+  exclusiveMaximum: 'exclusive-maximum',
   multipleOf: 'multiple-of',
   // StringValidator
   minLength: 'min-length',

@@ -2,6 +2,7 @@ import { Node, Schema } from 'prosemirror-model'
 import { EditorView } from 'prosemirror-view'
 
 import { article } from './article'
+import { button, StencilaButtonView } from './button'
 import { call, StencilaCallView } from './call'
 import { codeBlock, StencilaCodeBlockView } from './code-block'
 import { codeChunk, StencilaCodeChunkView } from './code-chunk'
@@ -21,7 +22,7 @@ import {
   superscript,
   underline,
 } from './marks'
-import { mathBlock } from './math-block'
+import { mathBlock, StencilaMathBlockView } from './math-block'
 import { mathFragment, StencilaMathFragmentView } from './math-fragment'
 import { paragraph } from './paragraph'
 import { parameter, StencilaParameterView } from './parameter'
@@ -45,6 +46,7 @@ const blocks = {
 }
 
 const inlines = {
+  Button: button(),
   CodeExpression: codeExpression(),
   CodeFragment: codeFragment(),
   MathFragment: mathFragment(),
@@ -73,6 +75,7 @@ export const articleSchema = new Schema({
 })
 
 export const nodeViews = {
+  Button: nodeView(StencilaButtonView),
   Call: nodeView(StencilaCallView),
   CodeBlock: nodeView(StencilaCodeBlockView),
   CodeChunk: nodeView(StencilaCodeChunkView),
@@ -83,6 +86,7 @@ export const nodeViews = {
   If: nodeView(StencilaIfView),
   IfClause: nodeView(StencilaIfClauseView),
   Include: nodeView(StencilaIncludeView),
+  MathBlock: nodeView(StencilaMathBlockView),
   MathFragment: nodeView(StencilaMathFragmentView),
   Parameter: nodeView(StencilaParameterView),
   Span: nodeView(StencilaSpanView),

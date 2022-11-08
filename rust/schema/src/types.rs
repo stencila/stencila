@@ -271,68 +271,6 @@ pub enum Executable_ {
   Executable
 }
 
-/// A button.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
-#[derivative(Default, PartialEq, Eq, Hash)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Button {
-    /// The name of this type
-    #[derivative(Default(value = "Button_::Button"))]
-    pub type_: Button_,
-
-    /// The name of the variable associated with the button.
-    pub name: String,
-
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
-    /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
-
-    /// Errors when compiling (e.g. syntax errors) or executing the node.
-    pub errors: Option<Vec<CodeError>>,
-
-    /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
-
-    /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
-
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
-
-    /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
-
-    /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
-
-    /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
-
-    /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
-
-    /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
-
-    /// The identifier for this item.
-    #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
-
-    /// A label for the button
-    pub label: Option<Box<String>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Button_ {
-  Button
-}
-
 /// Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
@@ -399,6 +337,83 @@ pub struct CodeExecutable {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CodeExecutable_ {
   CodeExecutable
+}
+
+/// A button.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Derivative, Serialize, Deserialize)]
+#[derivative(Default, PartialEq, Eq, Hash)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Button {
+    /// The name of this type
+    #[derivative(Default(value = "Button_::Button"))]
+    pub type_: Button_,
+
+    /// The name of the variable associated with the button.
+    pub name: String,
+
+    /// The programming language of the code.
+    pub programming_language: String,
+
+    /// The text of the code.
+    pub text: String,
+
+    /// The upstream dependencies.
+    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
+
+    /// The downstream dependents.
+    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
+
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// Under which circumstances the code should be automatically executed.
+    pub execute_auto: Option<ExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration of the last execution.
+    pub execute_duration: Option<Box<Duration>>,
+
+    /// The timestamp when the last execution ended.
+    pub execute_ended: Option<Box<Timestamp>>,
+
+    /// The id of the kernel that the node was last executed in.
+    pub execute_kernel: Option<Box<String>>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execute_required: Option<ExecuteRequired>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execute_status: Option<ExecuteStatus>,
+
+    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    pub guess_language: Option<Boolean>,
+
+    /// The identifier for this item.
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub id: Option<Box<String>>,
+
+    /// Whether the button is currently disabled
+    pub is_disabled: Option<Boolean>,
+
+    /// A label for the button
+    pub label: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Button_ {
+  Button
 }
 
 /// A executable chunk of code.
@@ -6686,6 +6701,7 @@ pub enum BlockContent {
 #[serde(untagged)]
 pub enum CodeExecutableTypes {
     CodeExecutable(CodeExecutable),
+    Button(Button),
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
     Division(Division),

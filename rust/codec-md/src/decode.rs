@@ -23,6 +23,7 @@ use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use codec::{
     common::{
         eyre::{bail, Result},
+        indexmap::IndexMap,
         inflector::Inflector,
         json5,
         once_cell::sync::Lazy,
@@ -1196,23 +1197,34 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
 /// Parse a `Button`
 pub fn button(input: &str) -> IResult<&str, InlineContent> {
     map_res(
-        pair(
+        tuple((
             delimited(tag("#["), is_not("]"), char(']')),
+            opt(delimited(char('`'), is_not("`"), char('`'))),
             opt(curly_attrs),
-        ),
-        |(label, options)| -> Result<InlineContent> {
-            let mut options: HashMap<String, Option<Node>> =
+        )),
+        |(name, condition, options)| -> Result<InlineContent> {
+            let mut options: IndexMap<String, Option<Node>> =
                 options.unwrap_or_default().into_iter().collect();
 
-            let name = options
-                .remove("name")
+            let programming_language = if let Some((lang, None)) = options.first() {
+                lang.clone()
+            } else {
+                String::new()
+            };
+
+            let text = condition.map_or_else(String::new, String::from);
+
+            let label = options
+                .remove("label")
                 .and_then(|value| value)
                 .and_then(node_to_option_string)
-                .unwrap_or_else(|| label.to_snake_case());
+                .map(Box::new);
 
             Ok(InlineContent::Button(Button {
-                name,
-                label: Some(Box::new(label.to_string())),
+                name: name.to_string(),
+                programming_language,
+                text,
+                label,
                 ..Default::default()
             }))
         },

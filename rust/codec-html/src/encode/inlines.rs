@@ -218,15 +218,50 @@ impl ToHtml for VideoObjectSimple {
 
 impl ToHtml for Button {
     fn to_html(&self, _context: &mut EncodeContext) -> String {
-        let label = self
-            .label
-            .as_deref()
-            .map_or_else(|| self.name.to_title_case(), |label| label.to_string());
+        let id = attr_id(&self.id);
+
+        let name = attr("name", &self.name);
+
+        let label = attr(
+            "label",
+            &self
+                .label
+                .as_deref()
+                .map_or_else(|| self.name.to_title_case(), |label| label.to_string()),
+        );
+
+        let text = match self.text.trim().is_empty() {
+            false => attr("text", self.text.trim()),
+            true => nothing(),
+        };
+
+        let programming_language = match self.programming_language.trim().is_empty() {
+            false => attr("programming-language", self.programming_language.trim()),
+            true => nothing(),
+        };
+
+        let guess_language = match self.guess_language {
+            Some(value) => attr("guess-language", &value.to_string()),
+            _ => nothing(),
+        };
+
+        let is_disabled = match self.is_disabled {
+            Some(true) => attr("is-disabled", "true"),
+            _ => nothing(),
+        };
 
         elem(
             "stencila-button",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &label,
+            &[
+                id,
+                name,
+                label,
+                text,
+                programming_language,
+                guess_language,
+                is_disabled,
+            ],
+            "",
         )
     }
 }
