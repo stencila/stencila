@@ -380,10 +380,10 @@ export class DocumentClient {
 
     return this.call('documents.patch', {
       patch: { actor: this.clientId, ...patch },
-      assemble: then?.assemble,
-      compile: then?.compile,
-      execute: then?.execute,
-      write: then?.write,
+      assemble: then?.assemble ?? 'Never',
+      compile: then?.compile ?? 'Soon',
+      execute: then?.execute ?? 'Never',
+      write: then?.write ?? 'Soon',
     }) as Promise<void>
   }
 
