@@ -64,7 +64,13 @@ impl ParserTrait for PostgrestParser {
 pub fn transpile(code: &str) -> Result<String> {
     match all_consuming(alt((select, insert_upsert, update, delete, call)))(span(code.trim())) {
         Ok((.., http)) => Ok(http),
-        Err(error) => bail!("Error parsing PostgREST statement: {}", error),
+        Err(error) => {
+            if let nom::Err::Error(fragment) = error.map_input(|span| span.fragment().to_string()) {
+                bail!("Unrecognized fragment: {}", fragment.input)
+            } else {
+                bail!("Syntax error");
+            }
+        },
     }
 }
 
