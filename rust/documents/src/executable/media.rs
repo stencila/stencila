@@ -94,7 +94,7 @@ macro_rules! executable_media_object {
                 };
                 self.content_url = url;
 
-                let relations = vec![(Relation::Embed, object)];
+                let relations = vec![(Relation::Embeds, object)];
                 let resource_info = ResourceInfo::new(
                     resource,
                     Some(relations),
