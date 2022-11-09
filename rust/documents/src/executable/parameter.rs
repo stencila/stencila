@@ -94,10 +94,10 @@ impl Executable for Parameter {
         let symbol = resources::symbol(&context.path, &self.name, kind);
         let mut relations = vec![(relations::assigns(NULL_RANGE), symbol)];
 
-        // If the parameter is derived then add relation for what it is derived from
+        // If the parameter is derived then add relation with the symbol it is derived from
         if let Some(from) = &self.derived_from {
             let from = resources::symbol(&context.path, from, "");
-            relations.push((relations::uses(NULL_RANGE), from));
+            relations.push((relations::derives(), from));
         }
 
         let value = parameter_value(self);
@@ -122,7 +122,7 @@ impl Executable for Parameter {
 
     async fn execute_begin(
         &mut self,
-        _resource_info: &ResourceInfo,
+        resource_info: &ResourceInfo,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         _is_fork: bool,
@@ -146,7 +146,6 @@ impl Executable for Parameter {
                     }
                 }
                 Err(error) => {
-                    // TODO: Ensure this error is assigned to parameters. Does not seem to be at present.
                     errors.push(CodeError {
                         error_type: Some(Box::new("DeriveError".to_string())),
                         error_message: error.to_string(),
@@ -156,17 +155,21 @@ impl Executable for Parameter {
             }
         }
 
+        // Set the parameter value in the kernel and on the parameter itself
         let value = parameter_value(self);
-
         let kernel_id = kernel_space
             .set(&self.name, value.clone(), kernel_selector)
             .await?;
-
-        let digest = Box::new(Cord(parameter_digest(self, &value).to_string()));
-
         self.value = Some(Box::new(value));
-        self.compile_digest = Some(digest.clone());
-        self.execute_digest = Some(digest);
+
+        // Update both `compile_digest` and `execute_digest` to the compile digest
+        let digest = resource_info
+            .compile_digest
+            .clone()
+            .map(|digest| Box::new(Cord(digest.to_string())));
+        self.compile_digest = digest.clone();
+        self.execute_digest = digest;
+
         self.execute_required = Some(ExecuteRequired::No);
         self.execute_kernel = Some(Box::new(kernel_id));
         self.execute_count = Some(self.execute_count.unwrap_or_default() + 1);

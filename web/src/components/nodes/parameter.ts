@@ -44,6 +44,18 @@ export default class StencilaParameter extends StencilaExecutable {
   label: string
 
   /**
+   * The `Parameter.derived_from` property
+   */
+  @property({ attribute: 'derived-from', reflect: true })
+  derivedFrom: string
+
+  /**
+   * The `Parameter.default` property
+   */
+  @property({ attribute: 'default', reflect: true })
+  default: unknown
+
+  /**
    * The `Parameter.validator` property
    *
    * Note: there should be a slot from which this property gets
@@ -166,13 +178,63 @@ export default class StencilaParameter extends StencilaExecutable {
     ></stencila-input>`
   }
 
-  protected renderLabelAndInput() {
-    const inputId = `in-${Math.floor(Math.random() * 1e9)}`
-    return html`<label
-        for=${inputId}
-        class=${tw`${this.label ? '' : 'sr-only'}`}
-        >${this.label ?? this.name}</label
-      >&nbsp;${this.validator?.renderInput(tw, inputId)}`
+  protected renderDerivedFromInput() {
+    const readOnly = !isCodeWriteable()
+
+    const update = (event: Event) => {
+      const input = event.target as StencilaInput
+
+      let derivedFrom: string | undefined = input.getValue().trim()
+      if (derivedFrom.length == 0) {
+        derivedFrom = undefined
+      }
+
+      if (
+        (event.type === 'sl-change' || event.type === 'stencila-ctrl-enter') &&
+        input.isValid()
+      ) {
+        this.changeProperty('derivedFrom', derivedFrom)
+      }
+    }
+
+    return html`<stencila-input
+      type="text"
+      label="Derived from"
+      size="small"
+      value=${this.derivedFrom}
+      ?disabled=${readOnly}
+      @sl-input=${update}
+      @sl-change=${update}
+      @stencila-ctrl-enter=${(event: Event) => {
+        update(event)
+        this.execute()
+      }}
+    ></stencila-input>`
+  }
+
+  protected renderDefaultInput(readOnly: boolean) {
+    const update = (event: Event) => {
+      const input = event.target as StencilaInput
+
+      let default_: string | undefined = input.getValue().trim()
+      if (default_.length == 0) {
+        default_ = undefined
+      }
+
+      if (event.type == 'sl-change' && input.isValid()) {
+        this.changeProperty('default', default_)
+      }
+    }
+
+    return html`<stencila-input
+      type="text"
+      label="Default"
+      size="small"
+      value=${this.default}
+      ?disabled=${readOnly}
+      @sl-input=${update}
+      @sl-change=${update}
+    ></stencila-input>`
   }
 
   protected renderValidatorSlot() {
@@ -235,7 +297,9 @@ export default class StencilaParameter extends StencilaExecutable {
   }
 
   protected renderSettingsDropdown() {
-    const readOnly = !isCodeWriteable()
+    // Note that if `derivedFrom` is set then `default` and `validator`
+    // should be read only.
+    const readOnly = !isCodeWriteable() || this.derivedFrom?.length > 0
 
     return html`<sl-dropdown
       class=${tw`ml-1`}
@@ -251,10 +315,47 @@ export default class StencilaParameter extends StencilaExecutable {
         class=${tw`flex flex-col gap-2 rounded border(& ${StencilaParameter.color}-200)
             bg-${StencilaParameter.color}-50 p-2 text(sm ${StencilaParameter.color}-700)`}
       >
-        ${this.renderLabelInput()}
+        ${this.renderLabelInput()} ${this.renderDerivedFromInput()}
+        ${this.renderErrorsText()} ${this.renderDefaultInput(readOnly)}
         ${this.validator?.renderSettings(tw, readOnly)}
       </div>
     </sl-dropdown>`
+  }
+
+  protected renderErrorsSlot() {
+    return html`<slot
+      class=${tw`hidden`}
+      name="errors"
+      @slotchange=${(event: Event) => this.onErrorsSlotChange(event)}
+    ></slot>`
+  }
+
+  protected renderErrorsText() {
+    return this.errors
+      ? html`<p class=${tw`max-w-sm text(xs red-700)`}>
+          ${this.errors.textContent ?? ''}
+        </p>`
+      : ''
+  }
+
+  protected renderErrorsIndicator() {
+    return this.hasErrors
+      ? html`<span class=${tw`inline-flex items-center mx-1`}
+          ><stencila-icon
+            class=${tw`text-red-700`}
+            name="exclamation-octagon"
+          ></stencila-icon
+        ></span>`
+      : ''
+  }
+
+  protected renderLabelAndInput() {
+    const inputId = `in-${Math.floor(Math.random() * 1e9)}`
+    return html`<label
+        for=${inputId}
+        class=${tw`${this.label ? '' : 'sr-only'}`}
+        >${this.label ?? this.name}</label
+      >&nbsp;${this.validator?.renderInput(tw, inputId)}`
   }
 
   protected render() {
@@ -275,9 +376,10 @@ export default class StencilaParameter extends StencilaExecutable {
             <span class=${tw`inline-flex items-center text-base ml-1`}>
               <stencila-icon name="sliders"></stencila-icon>
             </span>
-            <span class=${tw`ml-2 mr-2`}>param</span>
-            ${this.renderNameInput()} ${this.renderValidatorSlot()}
-            ${this.renderValidatorDropdown()} ${this.renderSettingsDropdown()}
+            <span class=${tw`ml-2 mr-2`}>par</span>
+            ${this.renderNameInput()} ${this.renderErrorsSlot()}
+            ${this.renderValidatorSlot()} ${this.renderValidatorDropdown()}
+            ${this.renderSettingsDropdown()} ${this.renderErrorsIndicator()}
           </span>
 
           <span

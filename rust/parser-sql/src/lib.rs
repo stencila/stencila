@@ -55,16 +55,19 @@ impl ParserTrait for SqlParser {
             .iter()
             .filter_map(|(pattern, captures)| {
                 let relation = match pattern {
-                    1 => relations::assigns(captures[0].range),
-                    2 => relations::uses(captures[0].range),
-                    3 => relations::alters(captures[0].range),
-                    4 => relations::uses(captures[0].range),
+                    1 => relations::assigns,
+                    2 => relations::declares,
+                    3 => relations::uses,
+                    4 => relations::alters,
+                    5 => relations::uses,
                     _ => return None,
-                };
+                }(captures[0].range);
+
                 let name = match pattern {
-                    4 => match captures[0].text[1..].parse::<usize>() {
+                    2 => [&captures[0].text, ".", &captures[1].text].concat(),
+                    5 => match captures[0].text[1..].parse::<usize>() {
                         Ok(index) => match bindings.get(index - 1) {
-                            Some(name) => name,
+                            Some(name) => name.to_string(),
                             None => return None,
                         },
                         Err(error) => {
@@ -75,13 +78,16 @@ impl ParserTrait for SqlParser {
                             return None;
                         }
                     },
-                    _ => &captures[0].text,
+                    _ => captures[0].text.to_string(),
                 };
+
                 let kind = match pattern {
-                    4 => "",
+                    2 => "DatatableColumn",
+                    5 => "",
                     _ => "Datatable",
                 };
-                Some((relation, resources::symbol(path, name, kind)))
+
+                Some((relation, resources::symbol(path, &name, kind)))
             })
             .collect();
 
@@ -101,7 +107,7 @@ impl ParserTrait for SqlParser {
 }
 
 impl SqlParser {
-    /// Derive a set of [`Parameter`]s from a SQL `CREATE TABLE` statment
+    /// Derive a set of [`Parameter`]s from a SQL `CREATE TABLE` statement
     pub fn derive_parameters(sql: &str) -> Vec<Parameter> {
         const DERIVE: &str = include_str!("derive.scm");
         static PARSER: Lazy<TreesitterParser> =

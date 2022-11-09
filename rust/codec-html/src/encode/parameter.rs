@@ -6,8 +6,8 @@ use codec_txt::ToTxt;
 use stencila_schema::*;
 
 use super::{
-    attr, attr_id, attr_prop, attr_slot, concat, elem, elem_empty, elem_slot, nothing,
-    validators::validator_tag_name, EncodeContext, ToHtml,
+    attr, attr_id, attr_prop, attr_slot, concat, elem, elem_empty, elem_placeholder, elem_slot,
+    nothing, validators::validator_tag_name, EncodeContext, ToHtml,
 };
 
 /// Encode a `Parameter`
@@ -19,6 +19,8 @@ impl ToHtml for Parameter {
         let value = self.value.to_attr("value");
         let derived_from = self.derived_from.to_attr("derived-from");
         let hidden = self.hidden.to_attr("hidden");
+
+        let errors = elem_placeholder("span", &[attr_slot("errors")], &self.errors, context);
 
         let validator = elem_slot(
             &validator_tag_name(self.validator.as_deref()),
@@ -38,7 +40,7 @@ impl ToHtml for Parameter {
                 derived_from,
                 hidden,
             ],
-            &[String::new(), validator].concat(),
+            &[String::new(), errors, validator].concat(),
         )
     }
 }

@@ -277,7 +277,7 @@ pub async fn column_to_parameter(
     match parameter {
         Some(parameter) => Ok(parameter),
         None => bail!(
-            "Column `{}` does not appear to exist in table `{}` of schema `{}` of SQLite database `{}`",
+            "Column `{}` could not be found in table `{}` of schema `{}` of SQLite database `{}`",
             column, table, schema, url
         ),
     }

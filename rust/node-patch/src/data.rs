@@ -17,7 +17,12 @@ patchable_struct!(
     Button,
     name,
     label,
+    text,
+    programming_language,
+    guess_language,
+    is_disabled,
     code_dependencies,
+    code_dependents,
     compile_digest,
     execute_digest,
     execute_required,
@@ -35,14 +40,19 @@ patchable_struct!(
     Parameter,
     name,
     label,
+    derived_from,
     validator,
     default,
     value,
+    errors,
+    code_dependents,
     compile_digest,
     execute_digest,
     execute_required,
     execute_kernel,
-    execute_count
+    execute_status,
+    execute_count,
+    execute_ended
 );
 
 patchable_variants!(
