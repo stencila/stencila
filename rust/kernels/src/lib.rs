@@ -158,7 +158,7 @@ impl MetaKernel {
 
             #[cfg(feature = "kernel-http")]
             MetaKernel::Http(kernel) => Ok((MetaKernel::Http(kernel.clone()), true)),
-            
+
             #[cfg(feature = "kernel-postgrest")]
             MetaKernel::Postgrest(kernel) => Ok((MetaKernel::Postgrest(kernel.clone()), true)),
 
@@ -1130,7 +1130,7 @@ impl KernelSpace {
         let symbols = &mut *self.symbols.lock().await;
         let symbol_info = symbols
             .get(symbol)
-            .ok_or_else(|| eyre!("Unknown symbol to derive from `{}`", symbol))?;
+            .ok_or_else(|| eyre!("Unknown symbol `{}`. Perhaps it needs to be declared, or the code that assigns it needs to be executed?", symbol))?;
         let kernel_id = symbol_info.home.clone();
 
         let kernels = &mut *self.kernels.lock().await;
