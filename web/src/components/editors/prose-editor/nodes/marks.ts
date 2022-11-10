@@ -7,6 +7,13 @@ export function emphasis(): MarkSpec {
   }
 }
 
+export function quote(): MarkSpec {
+  return {
+    parseDOM: [{ tag: 'q' }],
+    toDOM: () => ['q', 0],
+  }
+}
+
 export function strikeout(): MarkSpec {
   return {
     parseDOM: [{ tag: 'del' }, { tag: 'i' }, { style: 'font-style=italic' }],

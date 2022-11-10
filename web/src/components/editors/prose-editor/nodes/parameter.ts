@@ -13,6 +13,7 @@ export function parameter(): NodeSpec {
       ...executableAttrs,
       name: { default: '' },
       label: { default: '' },
+      derivedFrom: { default: null },
       validator: {
         default: null,
       },
@@ -40,6 +41,8 @@ function getAttrs(node: StencilaParameter): Attrs {
     id: node.id,
     name: node.getAttribute('name'),
     label: node.getAttribute('label') ?? undefined,
+    derivedFrom: node.getAttribute('derived-from') ?? undefined,
+    errors: node.querySelector('[slot=errors]')?.innerHTML ?? '',
     validator: node.querySelector('[slot=validator]')?.outerHTML,
   }
 }
@@ -51,6 +54,13 @@ function toDOM(node: Node) {
   dom.id = node.attrs.id
   dom.setAttribute('name', node.attrs.name)
   dom.setAttribute('label', node.attrs.label)
+  dom.setAttribute('derived-from', node.attrs.derivedFrom)
+
+  const errors = document.createElement('div')
+  errors.slot = 'errors'
+  errors.innerHTML = node.attrs.errors
+  errors.contentEditable = 'false'
+  dom.appendChild(errors)
 
   if (node.attrs.validator) {
     const validator = HtmlFragment(node.attrs.validator).firstElementChild
