@@ -453,16 +453,16 @@ impl KernelTrait for SqlKernel {
             if let Some(action) = action {
                 let sql = match *action {
                     "create" => {
-                        format!("INSERT INTO \"{table}\"\nVALUES ({});", params.join(", "))
+                        format!("insert into \"{table}\"\nvalues ({});", params.join(", "))
                     }
                     "update" => {
                         let sets = columns
                             .iter()
                             .map(|column| [column, " = $", column].concat())
                             .join("\n");
-                        format!("UPDATE \"{table}\" SET {} WHERE ...;", sets)
+                        format!("update \"{table}\" set {} where ...;", sets)
                     }
-                    "delete" => format!("DELETE FROM \"{table}\"\nWHERE ...;"),
+                    "delete" => format!("delete from \"{table}\"\nwhere ...;"),
                     _ => format!("-- Unknown form action '{action}'"),
                 };
                 content.push(BlockContent::CodeChunk(CodeChunk {
