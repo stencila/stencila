@@ -255,7 +255,7 @@ pub async fn table_to_parameters(
     let sql: String = row.get_unchecked("sql");
 
     // Parse the SQL to get the parameters
-    Ok(parser_sql::SqlParser::derive_parameters(&sql))
+    Ok(parser_sql::SqlParser::derive_parameters(table, &sql))
 }
 
 /**
@@ -271,15 +271,18 @@ pub async fn column_to_parameter(
     let parameter = table_to_parameters(url, pool, table, schema)
         .await?
         .into_iter()
-        .find(|parameter| parameter.name == column);
+        .find(|parameter| parameter.name == [table, "_", column].concat());
 
-    let schema = schema.unwrap_or("main");
     match parameter {
         Some(parameter) => Ok(parameter),
-        None => bail!(
-            "Column `{}` could not be found in table `{}` of schema `{}` of SQLite database `{}`",
-            column, table, schema, url
-        ),
+        None => {
+            bail!(
+                "Column `{}` could not be found in table `{}` of SQLite database `{}`",
+                column,
+                table,
+                url
+            )
+        }
     }
 }
 

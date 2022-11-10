@@ -12,7 +12,9 @@ use parser_treesitter::{
     },
     formats::Format,
     graph_triples::{relations, resources, Resource, ResourceInfo},
-    resource_info, Parser, ParserTrait, TreesitterParser,
+    resource_info,
+    utils::remove_quotes,
+    Parser, ParserTrait, TreesitterParser,
 };
 use stencila_schema::{
     BooleanValidator, Date, DateTime, DateTimeValidator, DateValidator, DurationValidator,
@@ -78,7 +80,7 @@ impl ParserTrait for SqlParser {
                             return None;
                         }
                     },
-                    _ => captures[0].text.to_string(),
+                    _ => remove_quotes(&captures[0].text),
                 };
 
                 let kind = match pattern {
@@ -108,7 +110,7 @@ impl ParserTrait for SqlParser {
 
 impl SqlParser {
     /// Derive a set of [`Parameter`]s from a SQL `CREATE TABLE` statement
-    pub fn derive_parameters(sql: &str) -> Vec<Parameter> {
+    pub fn derive_parameters(table_name: &str, sql: &str) -> Vec<Parameter> {
         const DERIVE: &str = include_str!("derive.scm");
         static PARSER: Lazy<TreesitterParser> =
             Lazy::new(|| TreesitterParser::new(tree_sitter_sql::language(), DERIVE));
@@ -217,7 +219,7 @@ impl SqlParser {
         // Convert each column definition into a parameter
         columns
             .into_values()
-            .map(|column| column.derive_parameter())
+            .map(|column| column.derive_parameter(table_name))
             .collect_vec()
     }
 }
@@ -256,7 +258,7 @@ struct SqlCheck {
 
 impl SqlColumn {
     /// Derive a [`Parameter`] from the properties of a SQL table column
-    pub fn derive_parameter(self) -> Parameter {
+    pub fn derive_parameter(self, table_name: &str) -> Parameter {
         let data_type = self.data_type.to_uppercase();
         let mut validator = match data_type.as_ref() {
             "BOOLEAN" | "BOOL" | "LOGICAL" => {
@@ -434,7 +436,8 @@ impl SqlColumn {
         };
 
         Parameter {
-            name: self.column_name.to_owned(),
+            name: [table_name, "_", &self.column_name].concat(),
+            derived_from: Some(Box::new([table_name, ".", &self.column_name].concat())),
             validator: validator.map(Box::new),
             default: default.map(Box::new),
             ..Default::default()
@@ -476,7 +479,7 @@ mod tests {
     fn derive_parameters() -> Result<()> {
         let sql = std::fs::read_to_string(fixtures().join("fragments/sql/create-table.sql"))
             .expect("Unable to read");
-        let parameters = SqlParser::derive_parameters(&sql);
+        let parameters = SqlParser::derive_parameters("table", &sql);
         assert_json_snapshot!(parameters);
         Ok(())
     }
