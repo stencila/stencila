@@ -11,7 +11,8 @@ use common::{
 };
 use formats::Format;
 use graph_triples::{
-    relations, resources,
+    relations::{self, NULL_RANGE},
+    resources,
     stencila_schema::{CodeError, ExecuteAuto},
     Relation, Resource, Tag,
 };
@@ -228,6 +229,70 @@ pub fn perform_var_interps(
     (interpolated.to_string(), messages)
 }
 
+/// Regex for detecting file interpolations within code
+///
+/// Only allows for @{file} pattern
+pub static FILE_INTERP_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?:@\{([^}]+)\})").expect("Unable to create regex"));
+
+/// Parse file interpolations in code into a vector of relations
+///
+/// Used by parsers to define the relations between some code and other resources.
+pub fn parse_file_interps(code: &str) -> Vec<(Relation, Resource)> {
+    FILE_INTERP_REGEX
+        .captures_iter(code)
+        .map(|captures| {
+            let file = captures.get(1).expect("Should always have one group");
+            let path = PathBuf::from(file.as_str().trim());
+            (relations::uses(NULL_RANGE), resources::file(&path))
+        })
+        .collect()
+}
+
+/// Perform file interpolations in code
+pub fn perform_file_interps(code: &str, directory: &Path) -> (String, Vec<CodeError>) {
+    let mut messages = Vec::new();
+    let interpolated = FILE_INTERP_REGEX.replace_all(code, |captures: &Captures| {
+        let file = captures
+            .get(1)
+            .expect("Should always have one group")
+            .as_str();
+
+        let file = PathBuf::from(file);
+        let path = if file.is_relative() {
+            directory.join(file)
+        } else {
+            file
+        };
+
+        if !path.exists() {
+            messages.push(CodeError {
+                error_type: Some(Box::new("PathError".to_string())),
+                error_message: format!("File `{}` does not exist", path.display()),
+                ..Default::default()
+            });
+            captures[0].to_string()
+        } else {
+            match std::fs::read_to_string(&path) {
+                Ok(value) => value,
+                Err(error) => {
+                    messages.push(CodeError {
+                        error_type: Some(Box::new("ReadError".to_string())),
+                        error_message: format!(
+                            "While interpolating file `{}`: {}",
+                            path.display(),
+                            error
+                        ),
+                        ..Default::default()
+                    });
+                    captures[0].to_string()
+                }
+            }
+        }
+    });
+    (interpolated.to_string(), messages)
+}
+
 /// Is some text quoted?
 pub fn is_quoted(text: &str) -> bool {
     (text.starts_with('"') && text.ends_with('"'))
@@ -238,7 +303,14 @@ pub fn is_quoted(text: &str) -> bool {
 ///
 /// Useful for "unquoting" captured string literals.
 pub fn remove_quotes(text: &str) -> String {
-    text.replace(&['\"', '\''][..], "")
+    if is_quoted(text) {
+        let mut text = text.to_string();
+        text.pop();
+        text.remove(0);
+        text
+    } else {
+        text.to_string()
+    }
 }
 
 #[cfg(test)]
