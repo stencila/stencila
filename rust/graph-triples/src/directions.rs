@@ -19,6 +19,7 @@ pub fn direction(relation: &Relation) -> Direction {
         Relation::Imports(..) => Direction::From,
         Relation::Includes => Direction::From,
         Relation::Links => Direction::To,
+        Relation::On(..) => Direction::From,
         Relation::Reads(..) => Direction::From,
         Relation::Requires(..) => Direction::From,
         Relation::Uses(..) => Direction::From,

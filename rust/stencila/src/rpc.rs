@@ -57,9 +57,11 @@ impl Request {
             "documents.create" => documents_create(&self.params).await,
             "documents.open" => documents_open(&self.params).await,
             "documents.close" => documents_close(&self.params).await,
+            "documents.write" => documents_write(&self.params).await,
             "documents.load" => documents_load(&self.params).await,
             "documents.dump" => documents_dump(&self.params).await,
             "documents.patch" => documents_patch(&self.params).await,
+            "documents.assemble" => documents_assemble(&self.params).await,
             "documents.compile" => documents_compile(&self.params).await,
             "documents.execute" => documents_execute(&self.params).await,
             "documents.cancel" => documents_cancel(&self.params).await,
@@ -266,6 +268,19 @@ async fn documents_close(params: &Params) -> Result<(serde_json::Value, Subscrip
     Ok((json!({ "id": id }), Subscription::None))
 }
 
+async fn documents_write(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let document_id = required_string(params, "documentId")?;
+
+    DOCUMENTS
+        .get(&document_id)
+        .await?
+        .lock()
+        .await
+        .write(None, None)
+        .await?;
+    Ok((json!(true), Subscription::None))
+}
+
 async fn documents_load(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let document_id = required_string(params, "documentId")?;
     let content = required_string(params, "content")?;
@@ -348,6 +363,28 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
         .lock()
         .await
         .patch_request(patch, assemble, compile, execute, write)
+        .await?;
+    Ok((json!(true), Subscription::None))
+}
+
+async fn documents_assemble(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let id = required_string(params, "documentId")?;
+    let compile = optional_string(params, "compile")?
+        .and_then(|value| When::from_str(&value).ok())
+        .unwrap_or(When::Never);
+    let execute = optional_string(params, "execute")?
+        .and_then(|value| When::from_str(&value).ok())
+        .unwrap_or(When::Never);
+    let write = optional_string(params, "write")?
+        .and_then(|value| When::from_str(&value).ok())
+        .unwrap_or(When::Soon);
+
+    DOCUMENTS
+        .get(&id)
+        .await?
+        .lock()
+        .await
+        .assemble_request(compile, execute, write)
         .await?;
     Ok((json!(true), Subscription::None))
 }

@@ -23,6 +23,7 @@ properties:
       - Create
       - Update
       - Delete
+      - UpdateOrDelete
     default: Create
   deriveItem:
     '@id': stencila:deriveItem

@@ -103,6 +103,7 @@ impl Document {
         let project_clone = project.to_path_buf();
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
+        let kernels_clone = kernels.clone();
         let patch_sender_clone = patch_request_sender.clone();
         let compile_sender_clone = compile_request_sender.clone();
         let execute_sender_clone = execute_request_sender.clone();
@@ -115,6 +116,7 @@ impl Document {
                 &project_clone,
                 &root_clone,
                 &addresses_clone,
+                &kernels_clone,
                 &patch_sender_clone,
                 &compile_sender_clone,
                 &execute_sender_clone,

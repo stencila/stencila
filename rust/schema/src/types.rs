@@ -6166,6 +6166,7 @@ pub enum FormDeriveAction {
     Create,
     Update,
     Delete,
+    UpdateOrDelete,
 }
 
 /// Types permitted for the `deriveItem` property of a `Form` node.

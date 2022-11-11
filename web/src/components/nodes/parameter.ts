@@ -8,6 +8,7 @@ import StencilaInput from '../base/input'
 import './validators'
 import '../base/input'
 import { currentMode, isCodeWriteable, Mode } from '../../mode'
+import StencilaEntity from './entity'
 
 const { tw, sheet } = twSheet()
 
@@ -45,6 +46,8 @@ export default class StencilaParameter extends StencilaExecutable {
 
   /**
    * The `Parameter.derived_from` property
+   *
+   * TODO: for consistency with form make this deriveFrom in schema
    */
   @property({ attribute: 'derived-from', reflect: true })
   derivedFrom: string
@@ -103,6 +106,17 @@ export default class StencilaParameter extends StencilaExecutable {
   }
 
   /**
+   * Is this parameter contained within a form
+   *
+   * Affects the whether the parameter is executed when its value changes
+   * (true for free parameters) or not (true for parameters in forms which
+   * are executed by the form)
+   */
+  public isInForm(): boolean {
+    return StencilaEntity.closestElement(this, 'stencila-form') !== null
+  }
+
+  /**
    * Change the value of the parameter and then execute it
    */
   public changeValue(value: boolean | number | string) {
@@ -114,7 +128,7 @@ export default class StencilaParameter extends StencilaExecutable {
         length: 1,
         value,
       },
-      { execute: 'Now' }
+      { execute: this.isInForm() ? 'Never' : 'Now' }
     )
   }
 

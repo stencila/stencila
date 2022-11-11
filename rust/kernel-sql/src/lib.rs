@@ -24,7 +24,7 @@ use kernel::{
     formats::Format,
     graph_triples::ResourceChange,
     stencila_schema::{
-        BlockContent, CodeChunk, CodeError, Datatable, Form, InlineContent, Node, Paragraph,
+        BlockContent, Button, CodeChunk, CodeError, Datatable, Form, InlineContent, Node, Paragraph,
     },
     Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
@@ -433,6 +433,7 @@ impl KernelTrait for SqlKernel {
                 }
             };
 
+            // TODO: only include parameters if not Delete
             let columns = parameters
                 .iter()
                 .map(|param| param.name.to_string())
@@ -441,6 +442,7 @@ impl KernelTrait for SqlKernel {
                 .iter()
                 .map(|param| ["$", &param.name].concat())
                 .collect_vec();
+
             let mut content: Vec<BlockContent> = parameters
                 .into_iter()
                 .map(|param| {
@@ -450,26 +452,52 @@ impl KernelTrait for SqlKernel {
                     })
                 })
                 .collect();
+
             if let Some(action) = action {
-                let sql = match *action {
-                    "create" => {
-                        format!("insert into \"{table}\"\nvalues ({});", params.join(", "))
-                    }
-                    "update" => {
-                        let sets = columns
-                            .iter()
-                            .map(|column| [column, " = $", column].concat())
-                            .join("\n");
-                        format!("update \"{table}\" set {} where ...;", sets)
-                    }
-                    "delete" => format!("delete from \"{table}\"\nwhere ...;"),
-                    _ => format!("-- Unknown form action '{action}'"),
+                if let Some((name, label)) = match *action {
+                    "create" => Some(("create", "Create")),
+                    "update" => Some(("update", "Update")),
+                    "delete" => Some(("delete", "Delete")),
+                    // TODO: Allow for update_or_delete which adds two buttons and two code chunks
+                    _ => None,
+                } {
+                    let name = [table, "_", name].concat();
+                    content.push(BlockContent::Paragraph(Paragraph {
+                        content: vec![InlineContent::Button(Button {
+                            name: name.clone(),
+                            label: Some(Box::new(label.to_string())),
+                            ..Default::default()
+                        })],
+                        ..Default::default()
+                    }));
+
+                    let sql = match *action {
+                        "create" => {
+                            format!(
+                                "-- @on {name}\ninsert into \"{table}\"\nvalues ({});",
+                                params.join(", ")
+                            )
+                        }
+                        // TODO: fill in where ...
+                        "update" => {
+                            let sets = columns
+                                .iter()
+                                .map(|column| ["  ", column, " = $", column].concat())
+                                .join(",\n");
+                            format!(
+                                "-- @on {name}\nupdate \"{table}\" set\n{} where ...;",
+                                sets
+                            )
+                        }
+                        "delete" => format!("-- @on {name}\ndelete from \"{table}\"\nwhere ...;"),
+                        _ => format!("-- Unknown form action '{action}'"),
+                    };
+                    content.push(BlockContent::CodeChunk(CodeChunk {
+                        programming_language: "sql".to_string(),
+                        text: sql,
+                        ..Default::default()
+                    }))
                 };
-                content.push(BlockContent::CodeChunk(CodeChunk {
-                    programming_language: "sql".to_string(),
-                    text: sql,
-                    ..Default::default()
-                }))
             }
 
             let form = Form {

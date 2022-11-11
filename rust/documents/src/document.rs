@@ -1142,6 +1142,7 @@ impl Document {
         project: &Path,
         root: &Arc<RwLock<Node>>,
         address_map: &Arc<RwLock<AddressMap>>,
+        kernel_space: &Arc<RwLock<KernelSpace>>,
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         compile_sender: &mpsc::Sender<CompileRequest>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
@@ -1187,7 +1188,7 @@ impl Document {
             );
 
             // Assemble the root node and update the address_map
-            match assemble(path, root, patch_sender).await {
+            match assemble(path, root, kernel_space, patch_sender).await {
                 Ok(new_address_map) => {
                     *address_map.write().await = new_address_map;
                 }

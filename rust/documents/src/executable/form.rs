@@ -12,6 +12,7 @@ use graph_triples::{
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
 use node_address::Address;
 
+use node_patch::{diff, diff_id};
 use stencila_schema::{CodeError, Cord, ExecuteRequired, Form, FormDeriveAction, Node, Timestamp};
 
 use crate::{
@@ -31,17 +32,62 @@ impl Executable for Form {
         address: &mut Address,
         context: &mut AssembleContext,
     ) -> Result<()> {
-        let _id = register_id!("fm", self, address, context);
+        let id = register_id!("fm", self, address, context);
 
-        /*
-        context.enter_container(&id);
+        // If the form is derived, then do the derivation and add any nodes that
+        // are missing from the content.
+        if let Some(from) = &self.derive_from {
+            // Create a draft to make changes to and generate a patch from
+            let mut draft = self.clone();
 
+            let action = self
+                .derive_action
+                .as_ref()
+                .unwrap_or(&FormDeriveAction::Create)
+                .as_ref()
+                .to_lowercase();
+
+            match context
+                .kernel_space
+                .derive(&["form:", &action].concat(), from)
+                .await
+            {
+                Ok((.., nodes)) => {
+                    if let Some(Node::Form(form)) = nodes.first() {
+                        draft.content = form.content.clone();
+
+                        // Assemble the new content to ensure executable nodes in the patch have an id
+                        draft
+                            .content
+                            .assemble(&mut address.add_name("content"), context)
+                            .await?;
+
+                        draft.errors = None;
+                    } else {
+                        // This is not a user error, but a kernel implementation error so bail
+                        bail!("Expected to get a form from derive call")
+                    }
+                }
+                Err(error) => {
+                    draft.errors = Some(vec![CodeError {
+                        error_type: Some(Box::new("DeriveError".to_string())),
+                        error_message: error.to_string(),
+                        ..Default::default()
+                    }]);
+                }
+            }
+
+            // Register a patch for any changes to the form (usually just `content` and `errors`)
+            // This must be done after `draft.content.assemble` because any patches to the browser must
+            // include the `id` of newly added `Parameter` and `CodeChunk` nodes.
+            let patch = diff_id(&id, self, &draft);
+            context.patches.push(patch);
+        }
+
+        // Assemble the content of the form
         self.content
             .assemble(&mut address.add_name("content"), context)
             .await?;
-
-        context.exit_container();
-        */
 
         Ok(())
     }
@@ -55,7 +101,7 @@ impl Executable for Form {
         let resource = resources::code(&context.path, id, "Form", Format::Unknown);
         let relations = if let Some(derive_from) = &self.derive_from {
             Some(vec![(
-                relations::uses(NULL_RANGE),
+                relations::derives(),
                 resources::symbol(&context.path, derive_from, ""),
             )])
         } else {
@@ -82,6 +128,8 @@ impl Executable for Form {
         );
         context.resource_infos.push(resource_info);
 
+        self.content.compile(context).await?;
+
         Ok(())
     }
 
@@ -100,39 +148,6 @@ impl Executable for Form {
 
         // Do any necessary derivation of content
         let mut kernel_id = None;
-        let mut errors = Vec::new();
-        if let Some(from) = &self.derive_from {
-            let action = self
-                .derive_action
-                .as_ref()
-                .unwrap_or(&FormDeriveAction::Create)
-                .as_ref()
-                .to_lowercase();
-
-            match kernel_space
-                .derive(&["form:", &action].concat(), from)
-                .await
-            {
-                Ok((id, nodes)) => {
-                    if let Some(Node::Form(form)) = nodes.first() {
-                        self.content = form.content.clone();
-                        kernel_id = Some(id);
-                    } else {
-                        // This is not a user error, but a kernel implementation error so bail
-                        bail!("Expected to get a form from derive call")
-                    }
-                }
-                Err(error) => errors.push(CodeError {
-                    error_type: Some(Box::new("DeriveError".to_string())),
-                    error_message: error.to_string(),
-                    ..Default::default()
-                }),
-            }
-        }
-        self.errors = match errors.is_empty() {
-            true => None,
-            false => Some(errors),
-        };
 
         // Update both `compile_digest` and `execute_digest` to the compile digest determined
         // during the compile phase

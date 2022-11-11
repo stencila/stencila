@@ -19,6 +19,7 @@ pub enum Relation {
     Imports(Imports),
     Includes,
     Links,
+    On(On),
     Reads(Reads),
     Requires(Requires),
     Uses(Uses),
@@ -133,6 +134,20 @@ pub struct Uses {
 /// Create a new `Use` relation
 pub fn uses(range: Range) -> Relation {
     Relation::Uses(Uses { range })
+}
+
+/// Should be executed on change to a symbol
+#[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
+#[schemars(deny_unknown_fields)]
+pub struct On {
+    /// The range within code that the '@on` tags is declared
+    pub range: Range,
+}
+
+/// Create a new `On` relation
+pub fn on(range: Range) -> Relation {
+    Relation::On(On { range })
 }
 
 /// Writes to a file

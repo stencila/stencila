@@ -50,8 +50,8 @@ pub trait Executable {
 }
 
 /// The context passed down through calls to the `Executable::assemble` method
-#[derive(Debug, Default)]
-pub struct AssembleContext {
+#[derive(Debug)]
+pub struct AssembleContext<'lt> {
     /// The path of the document being compiled
     ///
     /// Used to resolve relative paths e.g. in `Include` nodes
@@ -66,11 +66,14 @@ pub struct AssembleContext {
     /// A map of node ids to addresses
     pub address_map: AddressMap,
 
+    /// The documents `KernelSpace`
+    pub kernel_space: &'lt KernelSpace,
+
     /// A list of patch operations representing changes to nodes.
     pub patches: Vec<Patch>,
 }
 
-impl AssembleContext {
+impl<'lt> AssembleContext<'lt> {
     /// Generate a unique id for a node
     ///
     /// These generated ids use a prefix reflecting the node type (i.g. "cc-" for `CodeChunk` nodes)

@@ -134,6 +134,7 @@ const icons: Record<string, string> = {
   'palette': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/palette.svg'),
   'pen': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/pen.svg'),
   'pencil': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/pencil.svg'),
+  'pencil-square': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/pencil-square.svg'),
   'play': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/play.svg'),
   'plus-lg': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/plus-lg.svg'),
   'question-circle': require('bundle-text:@shoelace-style/shoelace/dist/assets/icons/question-circle.svg'),

@@ -141,12 +141,22 @@ export class DocumentClient {
     })
 
     window.addEventListener(
+      'stencila-document-assemble',
+      (event: CustomEvent) => {
+        const {
+          detail: { nodeId },
+        } = event
+        this.assemble(nodeId)
+      }
+    )
+
+    window.addEventListener(
       'stencila-document-compile',
       (event: CustomEvent) => {
         const {
-          detail: { nodeId, ordering },
+          detail: { nodeId },
         } = event
-        this.compile(nodeId, ordering)
+        this.compile(nodeId)
       }
     )
 
@@ -159,6 +169,13 @@ export class DocumentClient {
         this.execute(nodeId, ordering)
       }
     )
+
+    window.addEventListener('stencila-document-write', (event: CustomEvent) => {
+      const {
+        detail: { nodeId },
+      } = event
+      this.write(nodeId)
+    })
   }
 
   /**
@@ -380,10 +397,11 @@ export class DocumentClient {
 
     return this.call('documents.patch', {
       patch: { actor: this.clientId, ...patch },
-      assemble: then?.assemble ?? 'Never',
-      compile: then?.compile ?? 'Soon',
-      execute: then?.execute ?? 'Never',
-      write: then?.write ?? 'Soon',
+      // If these are defined, the defaults defined on the server will apply
+      assemble: then?.assemble,
+      compile: then?.compile,
+      execute: then?.execute,
+      write: then?.write,
     }) as Promise<void>
   }
 
@@ -437,6 +455,19 @@ export class DocumentClient {
   }
 
   /**
+   * Assemble the document
+   */
+  async assemble(nodeId: null | string): Promise<void> {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🏗️ Assembling document')
+    }
+
+    return this.call('documents.assemble', {
+      nodeId,
+    }) as Promise<void>
+  }
+
+  /**
    * Compile a node or multiple nodes
    */
   async compile(nodeId: null | string): Promise<void> {
@@ -480,6 +511,19 @@ export class DocumentClient {
     return this.call('documents.cancel', {
       nodeId,
       scope,
+    }) as Promise<void>
+  }
+
+  /**
+   * Write the document
+   */
+  async write(nodeId: null | string): Promise<void> {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('💾 Writing document')
+    }
+
+    return this.call('documents.write', {
+      nodeId,
     }) as Promise<void>
   }
 
