@@ -70,7 +70,7 @@ pub fn transpile(code: &str) -> Result<String> {
             } else {
                 bail!("Syntax error");
             }
-        },
+        }
     }
 }
 

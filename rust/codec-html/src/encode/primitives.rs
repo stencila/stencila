@@ -1,6 +1,6 @@
 //! Encode `Primitive` nodes to HTML
 
-use html_escape::{encode_safe};
+use html_escape::encode_safe;
 use node_dispatch::dispatch_primitive;
 use stencila_schema::*;
 

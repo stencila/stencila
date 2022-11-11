@@ -103,7 +103,9 @@ where
                                         ops[prev] = Operation::Move {
                                             from: address.clone(),
                                             items: *items,
-                                            to: Address::from((index as i32 + shift - *items as i32) as usize),
+                                            to: Address::from(
+                                                (index as i32 + shift - *items as i32) as usize,
+                                            ),
                                         };
                                         matched = true;
                                         break;

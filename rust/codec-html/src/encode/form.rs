@@ -2,7 +2,7 @@ use stencila_schema::{Form, FormDeriveAction, FormDeriveItem};
 
 use crate::{EncodeContext, ToHtml};
 
-use super::{attr_slot, elem, elem_placeholder, attr};
+use super::{attr, attr_slot, elem, elem_placeholder};
 
 impl ToHtml for Form {
     fn to_html(&self, context: &mut EncodeContext) -> String {
@@ -35,9 +35,12 @@ impl ToHtml for FormDeriveAction {
 
 impl ToHtml for FormDeriveItem {
     fn to_attr(&self, name: &str) -> String {
-        attr(name, &match self {
-            FormDeriveItem::Integer(int) => int.to_string(),
-            FormDeriveItem::String(str) => str.to_string()
-        })
+        attr(
+            name,
+            &match self {
+                FormDeriveItem::Integer(int) => int.to_string(),
+                FormDeriveItem::String(str) => str.to_string(),
+            },
+        )
     }
 }

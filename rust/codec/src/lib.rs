@@ -225,7 +225,7 @@ pub enum EncodeMode {
     Develop = 7,
     Write = 8,
     Code = 9,
-    Shell = 10
+    Shell = 10,
 }
 
 /// Encoding options

@@ -145,13 +145,11 @@ impl Executable for Parameter {
                         bail!("Expected to get a parameter from derive call")
                     }
                 }
-                Err(error) => {
-                    errors.push(CodeError {
-                        error_type: Some(Box::new("DeriveError".to_string())),
-                        error_message: error.to_string(),
-                        ..Default::default()
-                    })
-                }
+                Err(error) => errors.push(CodeError {
+                    error_type: Some(Box::new("DeriveError".to_string())),
+                    error_message: error.to_string(),
+                    ..Default::default()
+                }),
             }
         }
 

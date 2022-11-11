@@ -4,7 +4,7 @@ use parser::{
     common::eyre::Result,
     formats::Format,
     graph_triples::{resources::ResourceDigest, Resource, ResourceInfo},
-    utils::{parse_var_interps, apply_tags_all},
+    utils::{apply_tags_all, parse_var_interps},
     Parser, ParserTrait,
 };
 

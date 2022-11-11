@@ -484,10 +484,7 @@ impl KernelTrait for SqlKernel {
                                 .iter()
                                 .map(|column| ["  ", column, " = $", column].concat())
                                 .join(",\n");
-                            format!(
-                                "-- @on {name}\nupdate \"{table}\" set\n{} where ...;",
-                                sets
-                            )
+                            format!("-- @on {name}\nupdate \"{table}\" set\n{} where ...;", sets)
                         }
                         "delete" => format!("-- @on {name}\ndelete from \"{table}\"\nwhere ...;"),
                         _ => format!("-- Unknown form action '{action}'"),

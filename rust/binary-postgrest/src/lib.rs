@@ -25,7 +25,8 @@ impl BinaryTrait for PostgrestBinary {
     async fn versions(&self, _os: &str) -> Result<Vec<String>> {
         let versions = self.versions_update_maybe(
             versions::VERSIONS,
-            self.versions_github_releases("PostgREST", "postgrest").await,
+            self.versions_github_releases("PostgREST", "postgrest")
+                .await,
         );
         Ok(self.semver_versions_matching(&versions, ">=10"))
     }

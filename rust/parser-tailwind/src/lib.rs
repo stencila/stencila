@@ -13,11 +13,9 @@ use common::{
 };
 use parser::{
     formats::Format,
-    graph_triples::{
-        resources::ResourceDigest,
-        Resource, ResourceInfo,
-    },
-    Parser, ParserTrait, utils::parse_var_interps,
+    graph_triples::{resources::ResourceDigest, Resource, ResourceInfo},
+    utils::parse_var_interps,
+    Parser, ParserTrait,
 };
 
 /// A parser for Tailwind expressions

@@ -4,11 +4,7 @@ use tree_sitter::Tree;
 
 use parser::{
     formats::Format,
-    graph_triples::{
-        relations::Range,
-        resources::ResourceDigest,
-        Pairs, Resource, ResourceInfo,
-    },
+    graph_triples::{relations::Range, resources::ResourceDigest, Pairs, Resource, ResourceInfo},
     utils::apply_tags,
 };
 

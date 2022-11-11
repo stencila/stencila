@@ -1,15 +1,11 @@
 use std::string::ToString;
 
-use codec::{
-    common::{tracing},
-};
+use codec::common::tracing;
 
 use node_dispatch::dispatch_validator;
 use stencila_schema::*;
 
-use super::{
-    attr_id, elem, elem_slot, EncodeContext, ToHtml,
-};
+use super::{attr_id, elem, elem_slot, EncodeContext, ToHtml};
 
 impl ToHtml for ValidatorTypes {
     /// Encode a `ValidatorTypes` variant to HTML

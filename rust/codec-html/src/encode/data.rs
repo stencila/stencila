@@ -3,8 +3,7 @@
 use stencila_schema::*;
 
 use super::{
-    attr_itemtype, attr_prop, concat, concat_html, elem, elem_meta,
-    nothing, EncodeContext, ToHtml,
+    attr_itemtype, attr_prop, concat, concat_html, elem, elem_meta, nothing, EncodeContext, ToHtml,
 };
 
 /// Encode a `Datatable`

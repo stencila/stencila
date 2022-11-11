@@ -3,9 +3,7 @@ use stencila_schema::{MathBlock, MathFragment};
 
 use crate::{EncodeContext, ToHtml};
 
-use super::{
-    attr_and_meta, attr_id, attr_itemprop, attr_itemtype, attr_slot, elem, nothing,
-};
+use super::{attr_and_meta, attr_id, attr_itemprop, attr_itemtype, attr_slot, elem, nothing};
 
 impl ToHtml for MathBlock {
     /// Encode a `MathBlock` to HTML
