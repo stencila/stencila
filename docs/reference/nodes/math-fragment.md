@@ -1,5 +1,1 @@
----
-title: Math Fragment
----
-
-This is a math fragment $\pi r^2$.
+This is a math fragment `\`{asciimath}.

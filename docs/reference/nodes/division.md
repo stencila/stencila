@@ -1,6 +1,6 @@
 A division is used to style block content
 
-::: rounded-xl bg-rose-100 p-8 text-2xl text-rose-600 text-center text-justify italic mb-4
+::: rounded-xl bg-rose-100 p-8 text-2xl text-rose-600 text-center text-justify
 
 This paragraph will have a light rose background with rounded corners, extra padding around it, and large, italicized rose colored text.
 

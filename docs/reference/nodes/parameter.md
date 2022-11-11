@@ -10,7 +10,7 @@ Parameters always have a `name`. When a parameter is executed, the value of the 
 
 Parameters can also have a label that will appear before the input and provide accessible access to it:
 
-&[con]{num min=0.0 max=100.0 label="Concentration (mg/l)"}
+&[con]{num min=0.0 max=10.0 mult=0.25 label="Concentration (mg/l)"}
 
 Labels are designed to be inline so they can be part of the flow, while still providing for accessibility.
 
@@ -193,6 +193,6 @@ If you need to layout your parameters in some other way you can use the styling 
 
 `A1 + A2`{calc exec}
 
-`B2 + B2`{calc exec}
+`B1 + B2`{calc exec}
 
 :::

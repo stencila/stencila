@@ -1,20 +1,61 @@
-Index of nodes
+Welcome to the Stencila's reference documentation for node types. This document serves as an overview and index to the reference documentation for each node type.
+
+# Code blocks
+
+Use a [`CodeBlock`](code-block.md) for static non-executable blocks of code e.g.
+
+```javascript
+// Some JavaScript code
+2 * Math.PI
+```
+
+# Code fragments
+
+Use a [`CodeFragment`](code-fragment.md) for static non-executable fragments of inline code e.g.
+
+Some R code `2 * pi`{r} in a paragraph.
+
+# Code chunks
+
+Use a [`CodeChunk`](code-chunk.md) for executable blocks of code e.g.
+
+```python exec
+import sys
+
+f"Hello from Python {sys.version_info.major}.{sys.version_info.minor}"
+```
+
+# Code expressions
+
+Use a [`CodeExpression`](code-expression.md) for executable fragments of inline code producing an output e.g.
+
+An R expression `6 * 7`{r exec} in a paragraph.
 
 # Parameter
 
-Use a [`Parameter`](parameter.md) node to specify a parameter of the document e.g.
+Use a [`Parameter`](parameter.md) to specify a value in the document which can be changed by users and used in `Call`s of the document e.g.
 
-&[my_par]
+&[my_par]{num min=1.0 max=10.0 mult=0.1 label="Label"}
+
+# Button
+
+Use a [`Button`](button.md) to trigger
+
+#[Hello world!]
 
 # For
 
-::: for item in [1,2,3]
+::: for item in [1,2,3,4]
+
+Content to repeat for each item
 
 :::
 
 # If
 
 ::: if true
+
+Content to display if true
 
 :::
 
@@ -26,12 +67,6 @@ Use a [`Parameter`](parameter.md) node to specify a parameter of the document e.
 
 /callee.md()
 
-# Math Fragment
-
-Use a [`MathFragment`](math-fragment.md) for inline math in TeX or AsciiMath.
-
-$\pi r^2$
-
 # Math Block
 
 Use a [`MathBlock`](math-block.md) for block, a.k.a "display", math in TeX or AsciiMath.
@@ -39,6 +74,12 @@ Use a [`MathBlock`](math-block.md) for block, a.k.a "display", math in TeX or As
 $$
 \pi r^2
 $$
+
+# Math Fragment
+
+Use a [`MathFragment`](math-fragment.md) for inline math in TeX or AsciiMath.
+
+$\pi r^2$
 
 # Span
 
