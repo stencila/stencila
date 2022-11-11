@@ -37,7 +37,8 @@ export default class StencilaElement extends LitElement {
    *
    * Based on https://stackoverflow.com/q/54520554
    */
-  static closestElement(el: Element, selector: string) {
+  static closestElement(el: Element, selector: string): Element | null {
+    if (!el) return null
     return (
       // @ts-ignore
       (el && el != document && el != window && el.closest(selector)) ||
