@@ -1,13 +1,14 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 474
+assertion_line: 483
 expression: parameters
 ---
 [
   {
     "type": "Parameter",
-    "name": "col_a",
+    "name": "table_col_a",
     "default": 5,
+    "derivedFrom": "table.col_a",
     "validator": {
       "type": "IntegerValidator",
       "maximum": 10.0,
@@ -16,16 +17,18 @@ expression: parameters
   },
   {
     "type": "Parameter",
-    "name": "col_b",
+    "name": "table_col_b",
     "default": "Hello",
+    "derivedFrom": "table.col_b",
     "validator": {
       "type": "StringValidator"
     }
   },
   {
     "type": "Parameter",
-    "name": "col_c",
+    "name": "table_col_c",
     "default": 15.6,
+    "derivedFrom": "table.col_c",
     "validator": {
       "type": "NumberValidator",
       "exclusiveMaximum": 20.0,
@@ -34,7 +37,8 @@ expression: parameters
   },
   {
     "type": "Parameter",
-    "name": "col_d",
+    "name": "table_col_d",
+    "derivedFrom": "table.col_d",
     "validator": {
       "type": "DateValidator",
       "maximum": {
@@ -49,11 +53,12 @@ expression: parameters
   },
   {
     "type": "Parameter",
-    "name": "col_e",
+    "name": "table_col_e",
     "default": {
       "type": "Date",
       "value": "2999-01-09"
     },
+    "derivedFrom": "table.col_e",
     "validator": {
       "type": "DateValidator",
       "maximum": {
@@ -64,7 +69,8 @@ expression: parameters
   },
   {
     "type": "Parameter",
-    "name": "col_f",
+    "name": "table_col_f",
+    "derivedFrom": "table.col_f",
     "validator": {
       "type": "StringValidator",
       "maxLength": 9
@@ -72,7 +78,8 @@ expression: parameters
   },
   {
     "type": "Parameter",
-    "name": "col_g",
+    "name": "table_col_g",
+    "derivedFrom": "table.col_g",
     "validator": {
       "type": "EnumValidator",
       "values": [

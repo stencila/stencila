@@ -1,6 +1,6 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 114
+assertion_line: 455
 expression: resource_info
 input_file: fixtures/fragments/sql/tags.sql
 ---
@@ -78,6 +78,7 @@ input_file: fixtures/fragments/sql/tags.sql
       }
     ]
   ],
+  "syntax_errors": true,
   "compile_digest": "10476229152737608905.9256843643871438446.0.0.0",
   "tags": [
     {

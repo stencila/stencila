@@ -1,6 +1,6 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 455
+assertion_line: 461
 expression: resource_info
 input_file: fixtures/fragments/sql/create-table.sql
 ---
@@ -28,6 +28,125 @@ input_file: fixtures/fragments/sql/create-table.sql
         "path": "fragments/sql/create-table.sql",
         "name": "table_a",
         "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Declares",
+        "range": [
+          3,
+          13,
+          3,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/create-table.sql",
+        "name": "table_a.col_a",
+        "kind": "DatatableColumn"
+      }
+    ],
+    [
+      {
+        "type": "Declares",
+        "range": [
+          3,
+          13,
+          3,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/create-table.sql",
+        "name": "table_a.col_b",
+        "kind": "DatatableColumn"
+      }
+    ],
+    [
+      {
+        "type": "Declares",
+        "range": [
+          3,
+          13,
+          3,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/create-table.sql",
+        "name": "table_a.col_c",
+        "kind": "DatatableColumn"
+      }
+    ],
+    [
+      {
+        "type": "Declares",
+        "range": [
+          3,
+          13,
+          3,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/create-table.sql",
+        "name": "table_a.col_d",
+        "kind": "DatatableColumn"
+      }
+    ],
+    [
+      {
+        "type": "Declares",
+        "range": [
+          3,
+          13,
+          3,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/create-table.sql",
+        "name": "table_a.col_e",
+        "kind": "DatatableColumn"
+      }
+    ],
+    [
+      {
+        "type": "Declares",
+        "range": [
+          3,
+          13,
+          3,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/create-table.sql",
+        "name": "table_a.col_f",
+        "kind": "DatatableColumn"
+      }
+    ],
+    [
+      {
+        "type": "Declares",
+        "range": [
+          3,
+          13,
+          3,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/create-table.sql",
+        "name": "table_a.col_g",
+        "kind": "DatatableColumn"
       }
     ]
   ],

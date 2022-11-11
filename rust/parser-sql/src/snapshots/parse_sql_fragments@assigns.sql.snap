@@ -1,6 +1,6 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 114
+assertion_line: 461
 expression: resource_info
 input_file: fixtures/fragments/sql/assigns.sql
 ---
@@ -80,8 +80,76 @@ input_file: fixtures/fragments/sql/assigns.sql
         "name": "table_1",
         "kind": "Datatable"
       }
+    ],
+    [
+      {
+        "type": "Assigns",
+        "range": [
+          4,
+          13,
+          4,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/assigns.sql",
+        "name": "table_3",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Declares",
+        "range": [
+          4,
+          13,
+          4,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/assigns.sql",
+        "name": "table_3.col_a",
+        "kind": "DatatableColumn"
+      }
+    ],
+    [
+      {
+        "type": "Declares",
+        "range": [
+          4,
+          13,
+          4,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/assigns.sql",
+        "name": "table_3.col_b",
+        "kind": "DatatableColumn"
+      }
+    ],
+    [
+      {
+        "type": "Declares",
+        "range": [
+          4,
+          13,
+          4,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/sql/assigns.sql",
+        "name": "table_3.col_c",
+        "kind": "DatatableColumn"
+      }
     ]
   ],
-  "compile_digest": "7617862248484999253.6194133162311748503.0.0.0",
+  "compile_digest": "10649275680432610299.4437840866770626212.0.0.0",
   "tags": []
 }
