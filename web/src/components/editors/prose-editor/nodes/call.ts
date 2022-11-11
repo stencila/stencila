@@ -41,7 +41,7 @@ function getAttrs(node: StencilaCall): Attrs {
 }
 
 function toDOM(node: Node) {
-  const dom = document.createElement('stencila-include')
+  const dom = document.createElement('stencila-call')
   dom.contentEditable = 'false'
   dom.draggable = true
   dom.id = node.attrs.id

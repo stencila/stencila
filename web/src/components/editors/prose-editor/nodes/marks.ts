@@ -16,7 +16,7 @@ export function quote(): MarkSpec {
 
 export function strikeout(): MarkSpec {
   return {
-    parseDOM: [{ tag: 'del' }, { tag: 'i' }, { style: 'font-style=italic' }],
+    parseDOM: [{ tag: 'del' }],
     toDOM: () => ['del', 0],
   }
 }

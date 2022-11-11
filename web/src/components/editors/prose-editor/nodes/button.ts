@@ -1,3 +1,4 @@
+import { sentenceCase } from 'change-case'
 import { Attrs, Node, NodeSpec, ParseRule } from 'prosemirror-model'
 import { EditorView } from 'prosemirror-view'
 import StencilaButton from '../../../nodes/button'
@@ -14,7 +15,7 @@ export function button(): NodeSpec {
     attrs: {
       ...codeExecutableAttrs,
       name: { default: '' },
-      label: { default: '' },
+      label: { default: null },
     },
     parseDOM,
     toDOM,
@@ -51,7 +52,7 @@ function toDOM(node: Node) {
   dom.draggable = true
   dom.id = node.attrs.id
   dom.setAttribute('name', node.attrs.name)
-  dom.setAttribute('label', node.attrs.label)
+  dom.setAttribute('label', node.attrs.label ?? sentenceCase(node.attrs.name))
   dom.setAttribute('text', node.attrs.text)
   dom.setAttribute('programming-language', node.attrs.programmingLanguage)
   dom.setAttribute('guess-language', node.attrs.guessLanguage)

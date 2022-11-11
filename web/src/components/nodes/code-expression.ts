@@ -59,9 +59,7 @@ export default class StencilaCodeExpression extends StencilaCodeExecutable {
   protected renderOutputContainer() {
     return html`<span
       part="output"
-      class=${this.hasOutputs && this.isExpanded
-        ? tw`inline-flex border(l ${StencilaCodeExpression.color}-200) py-1 px-2`
-        : tw`hidden`}
+      class=${tw`inline-flex border(l ${StencilaCodeExpression.color}-200) py-1 px-2`}
     >
       <slot name="output" @slotchange=${this.onOutputsSlotChange}></slot>
     </span>`
