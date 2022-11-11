@@ -30,7 +30,7 @@ lint:
 	cargo clippy --workspace --all-features --tests
 
 test:
-	cargo test --workspace --all-features --profile $(PROFILE) -- --nocapture
+	cargo test --workspace --all-features --profile $(PROFILE) --no-fail-fast -- --nocapture
 
 cover:
 	cargo tarpaulin --ignore-tests --exclude-files tests/* \
