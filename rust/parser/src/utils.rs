@@ -91,6 +91,7 @@ pub fn apply_tags(
                 "assigns" => relations::assigns(range),
                 "alters" => relations::alters(range),
                 "uses" => relations::uses(range),
+                "on" => relations::on(range),
                 "reads" => relations::reads(range),
                 "writes" => relations::writes(range),
                 "requires" => relations::requires(range),
@@ -114,7 +115,7 @@ pub fn apply_tags(
 
                 let resource = match name {
                     "imports" => resources::module(lang, &arg),
-                    "declares" | "assigns" | "alters" | "uses" => {
+                    "declares" | "assigns" | "alters" | "uses" | "on" => {
                         resources::symbol(path, &arg, &kind.clone().unwrap_or_default())
                     }
                     "reads" | "writes" => resources::file(&PathBuf::from(arg)),
@@ -135,6 +136,7 @@ pub fn apply_tags(
                     || matches!(relation, Relation::Assigns(..)) && only == "assigns"
                     || matches!(relation, Relation::Alters(..)) && only == "alters"
                     || matches!(relation, Relation::Uses(..)) && only == "uses"
+                    || matches!(relation, Relation::On(..)) && only == "on"
                     || matches!(relation, Relation::Reads(..)) && only == "reads"
                     || matches!(relation, Relation::Writes(..)) && only == "writes")
             })
