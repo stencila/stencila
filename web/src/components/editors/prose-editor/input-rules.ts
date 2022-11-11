@@ -14,7 +14,7 @@ import { articleSchema } from './nodes'
 const { marks, nodes } = articleSchema
 
 /**
- * The ProseMirror `InputRules` (i.e. input macros) for a Stencila `Article`
+ * The ProseMirror `InputRules` (i.e. input macros) for Stencila's `<prose-editor>' component
  *
  * Order is important: the first matching rule is used. So generally, rules
  * for blocks should go first, then inlines, then marks, and finally text transforms.
@@ -25,7 +25,7 @@ const { marks, nodes } = articleSchema
  *  - https://prosemirror.net/docs/ref/#inputrules
  *  - https://github.com/ProseMirror/prosemirror-example-setup/blob/master/src/inputrules.js
  */
-export const articleInputRules = inputRules({
+export const stencilaInputRules = inputRules({
   rules: [
     ////////////////////////////////////////////////////////////////
     // Block nodes
@@ -35,10 +35,23 @@ export const articleInputRules = inputRules({
     ////////////////////////////////////////////////////////////////
 
     // Call
-    blockInputRule(/^\/([^\(]+)\(([^\)]*)\)\n$/, nodes.Call, (match) => ({
-      source: match[1],
-      // TODO: parse args
-    })),
+    new InputRule(/^\/([^\(]+)\(([^\)]*)\)\n$/, (state, match, start, end) => {
+      const args = match[2]
+        .split(/[,\s]/)
+        .filter((arg) => arg.trim().length > 0)
+        .map((arg) => {
+          const [name, text] = arg.split(/\s*=\s*/)
+          return nodes.CallArgument.create({
+            name,
+            text,
+          })
+        })
+      return state.tr.replaceWith(
+        start - 1,
+        end + 1,
+        nodes.Call.create({ source: match[1] }, args)
+      )
+    }),
 
     // CodeBlock
     blockInputRule(/^```(\w+)?\n$/, nodes.CodeBlock, (match) => ({

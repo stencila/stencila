@@ -8,9 +8,7 @@ import { includeAttrs } from './include'
 export function call(): NodeSpec {
   return {
     group: 'BlockContent',
-    defining: true,
-    isolating: true,
-    draggable: true,
+    content: 'CallArgument*',
     attrs: includeAttrs,
     parseDOM,
     toDOM,
@@ -27,6 +25,8 @@ const parseDOM: ParseRule[] = [
   {
     tag: 'stencila-call',
     getAttrs,
+    contentElement: '[slot=arguments]',
+    consuming: true,
   },
 ]
 
@@ -53,7 +53,13 @@ function toDOM(node: Node) {
   errors.innerHTML = node.attrs.errors
   dom.appendChild(errors)
 
-  // Note the `content` property is not editable so we just store it
+  // Note: the `arguments` property is assigne to the `contentDOM` for this node type
+  // (the same as how `clauses` are the content of `If` blocks)
+  const contentDOM = document.createElement('div')
+  contentDOM.slot = 'arguments'
+  dom.appendChild(contentDOM)
+
+  // Note: the `content` property is not editable so we just store it
   // on the node as HTML, not as a `contentDOM`, and reduce it's opacity
   const content = document.createElement('div')
   content.slot = 'content'
@@ -61,5 +67,5 @@ function toDOM(node: Node) {
   content.setAttribute('style', 'opacity: 0.75;')
   dom.appendChild(content)
 
-  return { dom }
+  return { dom, contentDOM }
 }

@@ -105,6 +105,7 @@ export default class StencilaCallArgument extends StencilaParameter {
     // TODO
   }
 
+  /*
   protected renderTypeIcon(tw: TW) {
     return html`<stencila-icon name=${this.getTypeIcon()}></stencila-icon>`
   }
@@ -114,6 +115,7 @@ export default class StencilaCallArgument extends StencilaParameter {
       <input type="text" />
     </div>`
   }
+  */
 
   protected renderExpression(tw: TW) {
     return html`<div
@@ -184,9 +186,9 @@ export default class StencilaCallArgument extends StencilaParameter {
                  p-1 pl-2 pr-2 font(mono) text(sm ${StencilaCall.color}-700)`}
     >
       <span part="start" class=${tw`flex items-center`}>
-        ${this.renderTypeIcon(tw)}
+        ${'' /*this.renderTypeIcon(tw)*/}
         <span class=${tw`ml-2 mr-2`}>${this.name}</span>
-        ${this.renderLabelAndInput(tw)} ${this.renderExpression(tw)}
+        ${'' /*this.renderLabelAndInput(tw)*/} ${this.renderExpression(tw)}
       </span>
       ${this.renderExpressionToggle(tw)}
     </div>`

@@ -31,6 +31,7 @@ import { EditorView } from 'prosemirror-view'
 import { article } from './article'
 import { button, StencilaButtonView } from './button'
 import { call, StencilaCallView } from './call'
+import { callArgument } from './call-argument'
 import { codeBlock, StencilaCodeBlockView } from './code-block'
 import { codeChunk, StencilaCodeChunkView } from './code-chunk'
 import { codeExpression, StencilaCodeExpressionView } from './code-expression'
@@ -67,6 +68,7 @@ const blocks = {
   Paragraph: paragraph(),
 
   Call: call(),
+  CallArgument: callArgument(),
   CodeBlock: codeBlock(),
   CodeChunk: codeChunk(),
   Division: division(),

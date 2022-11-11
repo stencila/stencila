@@ -17,7 +17,7 @@ import { EditorState } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 
 import StencilaElement from '../../utils/element'
-import { articleInputRules } from './input-rules'
+import { stencilaInputRules } from './input-rules'
 import { articleSchema, nodeViews } from './nodes'
 import { placeholder } from './plugins'
 
@@ -195,7 +195,7 @@ export default class StencilaProseEditor extends StencilaElement {
 
     const plugins = [
       // Locally defined input rules
-      articleInputRules, // Should go before keymap
+      stencilaInputRules, // Should go before keymap
       keymap(extendedKeyMap),
       keymap(baseKeymap),
       // TODO; See if only enabling drop cursor on inner works

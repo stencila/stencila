@@ -1,28 +1,27 @@
 import { Attrs, Node, NodeSpec, ParseRule } from 'prosemirror-model'
 import { EditorView } from 'prosemirror-view'
 
-import StencilaIfClause from '../../../nodes/if-clause'
-import {
-  StencilaCodeExecutableView,
-  codeExecutableAttrs,
-} from './code-executable'
+import StencilaCallArgument from '../../../nodes/call-argument'
+import { StencilaExecutableView, executableAttrs } from './executable'
 
-export function ifClause(): NodeSpec {
+export function callArgument(): NodeSpec {
   return {
-    // Use +, rather than *, here so that if the `If` has no content
-    // that at least a empty placeholder paragraph will be available for user to edit
-    content: 'BlockContent+',
-    defining: true,
-    isolating: true,
-    // Not draggable, users can use up/down buttons instead
+    // Not draggable
     draggable: false,
-    attrs: codeExecutableAttrs,
+    attrs: {
+      ...executableAttrs,
+      name: { default: '' },
+      programmingLanguage: { default: '' },
+      guessLanguage: { default: null },
+      text: { default: null },
+      errors: { default: null },
+    },
     parseDOM,
     toDOM,
   }
 }
 
-export class StencilaIfClauseView extends StencilaCodeExecutableView<StencilaIfClause> {
+export class StencilaCallArgumentView extends StencilaExecutableView<StencilaCallArgument> {
   constructor(node: Node, view: EditorView, getPos: () => number) {
     super(node, view, getPos, getAttrs, toDOM)
   }
@@ -30,17 +29,16 @@ export class StencilaIfClauseView extends StencilaCodeExecutableView<StencilaIfC
 
 const parseDOM: ParseRule[] = [
   {
-    tag: 'stencila-if-clause',
+    tag: 'stencila-call-argument',
     getAttrs,
-    contentElement: '[slot=content]',
-    consuming: true,
   },
 ]
 
-function getAttrs(node: StencilaIfClause): Attrs {
+function getAttrs(node: StencilaCallArgument): Attrs {
   return {
     id: node.id,
-    programmingLanguage: node.getAttribute('programming-language'),
+    name: node.getAttribute('name'),
+    programmingLanguage: node.getAttribute('programming-language') ?? '',
     guessLanguage: node.getAttribute('guess-language'),
     text: node.querySelector('[slot=text]')?.innerHTML ?? '',
     errors: node.querySelector('[slot=errors]')?.innerHTML ?? '',
@@ -48,8 +46,9 @@ function getAttrs(node: StencilaIfClause): Attrs {
 }
 
 function toDOM(node: Node) {
-  const dom = document.createElement('stencila-if-clause')
+  const dom = document.createElement('stencila-call-argument')
   dom.id = node.attrs.id
+  dom.setAttribute('name', node.attrs.name)
   dom.setAttribute('programming-language', node.attrs.programmingLanguage)
   dom.setAttribute('guess-language', node.attrs.guessLanguage)
 
