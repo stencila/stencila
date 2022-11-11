@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 2206
+assertion_line: 2400
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/span.md
 ---
@@ -42,6 +42,23 @@ input_file: fixtures/fragments/md/span.md
         "css": "",
         "programmingLanguage": "python",
         "text": "\"-\".join([\"text\",\"orange\",\"700\"])"
+      },
+      "."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "For consistency, a Tailwind expression can also be in backticks ",
+      {
+        "type": "Span",
+        "classes": [],
+        "content": [
+          "like this"
+        ],
+        "css": "",
+        "programmingLanguage": "tailwind",
+        "text": "text-orange-800"
       },
       "."
     ]

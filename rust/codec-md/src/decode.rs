@@ -24,7 +24,6 @@ use codec::{
     common::{
         eyre::{bail, Result},
         indexmap::IndexMap,
-        inflector::Inflector,
         json5,
         once_cell::sync::Lazy,
         regex::Regex,
@@ -910,10 +909,17 @@ pub fn span(input: &str) -> IResult<&str, InlineContent> {
     map_res(
         tuple((
             delimited(char('['), is_not("]"), char(']')),
-            delimited(char('`'), is_not("`"), char('`')),
-            opt(delimited(char('{'), is_not("}"), char('}'))),
+            alt((
+                pair(
+                    delimited(char('`'), is_not("`"), char('`')),
+                    opt(delimited(char('{'), is_not("}"), char('}'))),
+                ),
+                map(delimited(char('{'), is_not("}"), char('}')), |text| {
+                    (text, Some("tailwind"))
+                }),
+            )),
         )),
-        |(content, text, lang): (&str, &str, Option<&str>)| -> Result<InlineContent> {
+        |(content, (text, lang)): (&str, (&str, Option<&str>))| -> Result<InlineContent> {
             Ok(InlineContent::Span(Span {
                 programming_language: lang.map_or_else(|| "tailwind".to_string(), String::from),
                 text: text.to_string(),
@@ -1635,7 +1641,14 @@ fn call(input: &str) -> IResult<&str, Call> {
             char('/'),
             tuple((
                 is_not("("),
-                delimited(char('('), separated_list0(multispace1, call_arg), char(')')),
+                delimited(
+                    char('('),
+                    separated_list0(
+                        alt((delimited(multispace0, tag(","), multispace0), multispace1)),
+                        call_arg,
+                    ),
+                    char(')'),
+                ),
                 opt(curly_attrs),
             )),
         )),
@@ -2220,7 +2233,7 @@ mod tests {
                     },
                     CallArgument {
                         name: "b".to_string(),
-                        symbol: Some(Box::new("symbol".to_string())),
+                        text: Some(Box::new("symbol".to_string())),
                         ..Default::default()
                     },
                     CallArgument {
@@ -2231,6 +2244,35 @@ mod tests {
                 ]),
                 ..Default::default()
             }
+        );
+        assert_eq!(
+            call("/file.md(a=1,b = 2  , c=3, d =4)").unwrap().1,
+            Call {
+                source: "file.md".to_string(),
+                arguments: Some(vec![
+                    CallArgument {
+                        name: "a".to_string(),
+                        value: Some(Box::new(Node::Integer(1))),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "b".to_string(),
+                        value: Some(Box::new(Node::Integer(2))),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "c".to_string(),
+                        value: Some(Box::new(Node::Integer(3))),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "d".to_string(),
+                        value: Some(Box::new(Node::Integer(4))),
+                        ..Default::default()
+                    },
+                ]),
+                ..Default::default()
+            },
         );
     }
 
@@ -2298,26 +2340,28 @@ mod tests {
     fn test_if() {
         // Simple
         assert_eq!(
-            if_elif_else("::: if expr").unwrap().1 .1,
-            If {
+            if_elif("::: if expr").unwrap().1 .1,
+            IfClause {
                 text: "expr".to_string(),
+                guess_language: Some(true),
                 ..Default::default()
             }
         );
 
         // With less/extra spacing
         assert_eq!(
-            if_elif_else(":::if    expr").unwrap().1 .1,
-            If {
+            if_elif(":::if    expr").unwrap().1 .1,
+            IfClause {
                 text: "expr".to_string(),
+                guess_language: Some(true),
                 ..Default::default()
             }
         );
 
         // With language specified
         assert_eq!(
-            if_elif_else("::: if expr {python}").unwrap().1 .1,
-            If {
+            if_elif("::: if expr {python}").unwrap().1 .1,
+            IfClause {
                 text: "expr".to_string(),
                 programming_language: "python".to_string(),
                 ..Default::default()
@@ -2326,9 +2370,10 @@ mod tests {
 
         // With more complex expression
         assert_eq!(
-            if_elif_else("::: if a > 1 and b[8] < 1.23").unwrap().1 .1,
-            If {
+            if_elif("::: if a > 1 and b[8] < 1.23").unwrap().1 .1,
+            IfClause {
                 text: "a > 1 and b[8] < 1.23".to_string(),
+                guess_language: Some(true),
                 ..Default::default()
             }
         );

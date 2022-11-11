@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 2108
+assertion_line: 2393
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/for.md
 ---
@@ -28,12 +28,9 @@ input_file: fixtures/fragments/md/for.md
         ]
       }
     ],
-    "expression": {
-      "type": "CodeExpression",
-      "programmingLanguage": "",
-      "text": "[1,2,3]"
-    },
-    "symbol": "item"
+    "programmingLanguage": "",
+    "symbol": "item",
+    "text": "[1,2,3]"
   },
   {
     "type": "Heading",
@@ -66,20 +63,14 @@ input_file: fixtures/fragments/md/for.md
             ]
           }
         ],
-        "expression": {
-          "type": "CodeExpression",
-          "programmingLanguage": "",
-          "text": "row"
-        },
-        "symbol": "col"
+        "programmingLanguage": "",
+        "symbol": "col",
+        "text": "row"
       }
     ],
-    "expression": {
-      "type": "CodeExpression",
-      "programmingLanguage": "",
-      "text": "[['a', 'b'], ['c', 'd']]"
-    },
-    "symbol": "row"
+    "programmingLanguage": "",
+    "symbol": "row",
+    "text": "[['a', 'b'], ['c', 'd']]"
   },
   {
     "type": "Heading",
@@ -109,12 +100,9 @@ input_file: fixtures/fragments/md/for.md
         ]
       }
     ],
-    "expression": {
-      "type": "CodeExpression",
-      "programmingLanguage": "",
-      "text": "[]"
-    },
+    "programmingLanguage": "",
     "symbol": "row",
+    "text": "[]",
     "otherwise": [
       {
         "type": "Paragraph",
@@ -145,12 +133,9 @@ input_file: fixtures/fragments/md/for.md
   {
     "type": "For",
     "content": [],
-    "expression": {
-      "type": "CodeExpression",
-      "programmingLanguage": "",
-      "text": "[1,2,3]"
-    },
+    "programmingLanguage": "",
     "symbol": "item",
+    "text": "[1,2,3]",
     "otherwise": []
   },
   {
@@ -205,12 +190,9 @@ input_file: fixtures/fragments/md/for.md
         ]
       }
     ],
-    "expression": {
-      "type": "CodeExpression",
-      "programmingLanguage": "py",
-      "text": "[]"
-    },
+    "programmingLanguage": "py",
     "symbol": "item",
+    "text": "[]",
     "otherwise": [
       {
         "type": "Paragraph",

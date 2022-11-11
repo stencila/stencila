@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 1641
+assertion_line: 2393
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/call.md
 ---
@@ -55,12 +55,12 @@ input_file: fixtures/fragments/md/call.md
       {
         "type": "CallArgument",
         "name": "arg1",
-        "symbol": "sym1"
+        "text": "sym1"
       },
       {
         "type": "CallArgument",
         "name": "arg2",
-        "symbol": "some_Symbol_9"
+        "text": "some_Symbol_9"
       }
     ]
   },

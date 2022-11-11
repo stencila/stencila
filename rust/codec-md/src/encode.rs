@@ -1,7 +1,7 @@
 use std::cmp::max;
 
 use codec::{
-    common::{eyre::Result, inflector::Inflector, itertools::Itertools, serde_json},
+    common::{eyre::Result, itertools::Itertools, serde_json},
     stencila_schema::*,
     EncodeOptions,
 };
