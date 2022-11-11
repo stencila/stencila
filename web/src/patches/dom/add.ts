@@ -1,3 +1,4 @@
+import HtmlFragment from 'html-fragment'
 import { OperationAdd, Slot, ElementId } from '../../types'
 import {
   assertElement,
@@ -81,11 +82,25 @@ export function applyAddStruct(
 ): void {
   assertName(name)
 
-  // Is there a placeholder element for the property? If so update it's content.
+  // Is there a placeholder element for the property?
   // Takes precedence over adding as an attribute.
-  const placeholder = struct.querySelector(slotSelector(name))
-  if (placeholder) {
-    placeholder.innerHTML = html
+  const existing = struct.querySelector(slotSelector(name))
+  if (existing) {
+    if (Array.isArray(value)) {
+      // Replace innerHTML with new item
+      existing.innerHTML = html
+    } else {
+      // Replace with the new HTML but retain any `slot` or `data-prop` attributes.
+      const replacement = HtmlFragment(html).firstElementChild
+      if (replacement) {
+        const slot = existing.getAttribute('slot')
+        if (slot) replacement.setAttribute('slot', slot)
+        const prop = existing.getAttribute('data-prop')
+        if (prop) replacement.setAttribute('data-prop', prop)
+
+        existing.replaceWith(replacement)
+      }
+    }
     return
   }
 
