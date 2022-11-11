@@ -449,7 +449,7 @@ impl KernelTrait for MicroKernel {
 
     /// Get the status of the kernel
     async fn status(&self) -> Result<KernelStatus> {
-        Ok(self.status.read().await.clone())
+        Ok(*self.status.read().await)
     }
 
     /// Get a symbol from the kernel

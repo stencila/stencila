@@ -35,7 +35,7 @@ pub trait TreesitterDecoder {
                 .child_by_field_name("name")
                 .and_then(|name| name.utf8_text(source).ok())
             {
-                if let Some(func) = node
+                if let Some(_func) = node
                     .child_by_field_name("value")
                     .and_then(|value| Self::is_node_call(value, source))
                 {
@@ -382,11 +382,7 @@ pub trait TreesitterDecoder {
         source: &[u8],
         assigned_inlines: &mut HashMap<String, InlineContent>,
     ) -> InlineContent {
-        match func {
-            //"expr"
-            //"span" => Self::decode_span(node, source),
-            _ => Self::decode_mark(func, node, source, assigned_inlines),
-        }
+        Self::decode_mark(func, node, source, assigned_inlines)
     }
 
     fn decode_division(

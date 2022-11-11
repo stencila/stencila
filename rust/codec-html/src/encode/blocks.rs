@@ -72,50 +72,50 @@ impl ToHtml for CodeChunk {
     fn to_html(&self, context: &mut EncodeContext) -> String {
         let lang = self.programming_language.to_attr("programming-language");
 
-        let compile_digest = elem_meta_opt(
+        let _compile_digest = elem_meta_opt(
             "compile_digest",
             self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
         );
 
-        let execute_digest = elem_meta_opt(
+        let _execute_digest = elem_meta_opt(
             "execute_digest",
             self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
         );
 
-        let execute_auto = attr_and_meta_opt(
+        let _execute_auto = attr_and_meta_opt(
             "execute_auto",
             self.execute_auto
                 .as_ref()
                 .map(|auto| (*auto).as_ref().to_string()),
         );
 
-        let execute_pure = attr_and_meta_opt(
+        let _execute_pure = attr_and_meta_opt(
             "execute_pure",
             self.execute_pure.as_ref().map(|value| value.to_string()),
         );
 
-        let execute_required = attr_and_meta_opt(
+        let _execute_required = attr_and_meta_opt(
             "execute_required",
             self.execute_required
                 .as_ref()
                 .map(|required| (*required).as_ref().to_string()),
         );
 
-        let execute_kernel = attr_and_meta_opt(
+        let _execute_kernel = attr_and_meta_opt(
             "execute_kernel",
             self.execute_kernel
                 .as_ref()
                 .map(|kernel| (*kernel).as_ref().to_string()),
         );
 
-        let execute_status = attr_and_meta_opt(
+        let _execute_status = attr_and_meta_opt(
             "execute_status",
             self.execute_status
                 .as_ref()
                 .map(|status| (*status).as_ref().to_string()),
         );
 
-        let execute_count = attr_and_meta_opt(
+        let _execute_count = attr_and_meta_opt(
             "execute_count",
             self.execute_count.map(|count| count.to_string()),
         );
@@ -130,7 +130,7 @@ impl ToHtml for CodeChunk {
         // place the items in a <div> under the custom element to avoid
         // elements added by the Web Component interfering with patch indexes.
 
-        let dependencies = elem(
+        let _dependencies = elem(
             "stencila-code-dependencies",
             &[attr_slot("code-dependencies")],
             &elem_placeholder(
@@ -141,7 +141,7 @@ impl ToHtml for CodeChunk {
             ),
         );
 
-        let dependents = elem(
+        let _dependents = elem(
             "stencila-code-dependencies",
             &[attr_slot("code-dependents")],
             &elem_placeholder(
@@ -152,14 +152,14 @@ impl ToHtml for CodeChunk {
             ),
         );
 
-        let execute_ended = elem_property(
+        let _execute_ended = elem_property(
             "stencila-timestamp",
             &[attr_prop("execute_ended"), attr_slot("execute-ended")],
             &self.execute_ended,
             context,
         );
 
-        let execute_duration = elem_property(
+        let _execute_duration = elem_property(
             "stencila-duration",
             &[attr_prop("execute_duration"), attr_slot("execute-duration")],
             &self.execute_duration,
@@ -180,14 +180,14 @@ impl ToHtml for CodeChunk {
             context,
         );
 
-        let label = elem_placeholder(
+        let _label = elem_placeholder(
             "span",
             &[attr_prop("label"), attr_slot("label")],
             &self.label,
             context,
         );
 
-        let caption = elem_placeholder(
+        let _caption = elem_placeholder(
             "figcaption",
             &[attr_prop("caption"), attr_slot("caption")],
             &self.caption,

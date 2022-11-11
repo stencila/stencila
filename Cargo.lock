@@ -144,7 +144,7 @@ dependencies = [
  "hex 0.4.3",
  "indexmap",
  "lazy_static",
- "lexical-core",
+ "lexical-core 0.8.5",
  "multiversion",
  "num",
  "regex",
@@ -480,6 +480,7 @@ dependencies = [
  "binary-pandoc",
  "binary-podman",
  "binary-poetry",
+ "binary-postgrest",
  "binary-python",
  "binary-r",
  "binary-stencila",
@@ -555,6 +556,13 @@ version = "0.0.0"
 dependencies = [
  "binary",
  "binary-python",
+]
+
+[[package]]
+name = "binary-postgrest"
+version = "0.0.0"
+dependencies = [
+ "binary",
 ]
 
 [[package]]
@@ -751,6 +759,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "bytecount"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f861d9ce359f56dbcb6e0c2a1cb84e52ad732cadb57b806adeb3c7668caccbd8"
+
+[[package]]
+name = "bytecount"
+version = "0.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c676a478f63e9fa2dd5368a42f28bba0d6c560b775f38583c8bbaa7fcd67c9c"
+
+[[package]]
 name = "bytemuck"
 version = "1.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -833,7 +853,7 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fac387a98bb7c37292057cffc56d62ecb629900026402633ae9160df93a8766"
 dependencies = [
- "nom",
+ "nom 7.1.1",
 ]
 
 [[package]]
@@ -1178,13 +1198,11 @@ dependencies = [
 name = "codec-html"
 version = "0.0.0"
 dependencies = [
- "asciimath-rs",
  "codec",
  "codec-txt",
  "hash-utils",
  "html-escape",
  "kuchiki",
- "latex2mathml",
  "markup5ever",
  "mime_guess",
  "node-dispatch",
@@ -1231,7 +1249,6 @@ name = "codec-json5"
 version = "0.0.0"
 dependencies = [
  "codec",
- "json5",
  "node-coerce",
  "test-props",
  "test-utils",
@@ -1255,10 +1272,9 @@ dependencies = [
  "codec-html",
  "codec-txt",
  "formats",
- "json5",
  "node-coerce",
  "node-transform",
- "nom",
+ "nom 7.1.1",
  "pulldown-cmark",
  "test-props",
  "test-snaps",
@@ -1373,7 +1389,6 @@ name = "codec-txt"
 version = "0.0.0"
 dependencies = [
  "codec",
- "json5",
  "node-coerce",
  "test-utils",
 ]
@@ -1490,6 +1505,7 @@ dependencies = [
  "glob",
  "indexmap",
  "itertools",
+ "json5",
  "maplit",
  "once_cell",
  "regex",
@@ -1660,7 +1676,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d76219e9243e100d5a37676005f08379297f8addfebc247613299600625c734d"
 dependencies = [
  "chrono",
- "nom",
+ "nom 7.1.1",
  "once_cell",
 ]
 
@@ -1671,7 +1687,7 @@ dependencies = [
  "chrono-tz",
  "common",
  "cron",
- "nom",
+ "nom 7.1.1",
 ]
 
 [[package]]
@@ -2208,6 +2224,7 @@ dependencies = [
  "graph-triples",
  "ignore",
  "kernels",
+ "math-utils",
  "node-address",
  "node-dispatch",
  "node-patch",
@@ -3761,6 +3778,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-http"
+version = "0.0.0"
+dependencies = [
+ "http-utils",
+ "kernel",
+ "node-transform",
+ "parser",
+]
+
+[[package]]
 name = "kernel-jupyter"
 version = "0.0.0"
 dependencies = [
@@ -3796,6 +3823,16 @@ dependencies = [
  "kernel",
  "kernel-micro",
  "test-utils",
+]
+
+[[package]]
+name = "kernel-postgrest"
+version = "0.0.0"
+dependencies = [
+ "binary-postgrest",
+ "kernel",
+ "kernel-http",
+ "parser-postgrest",
 ]
 
 [[package]]
@@ -3836,6 +3873,7 @@ name = "kernel-store"
 version = "0.0.0"
 dependencies = [
  "kernel",
+ "node-transform",
 ]
 
 [[package]]
@@ -3843,7 +3881,7 @@ name = "kernel-tailwind"
 version = "0.0.0"
 dependencies = [
  "kernel",
- "parser-tailwind",
+ "parser",
 ]
 
 [[package]]
@@ -3879,9 +3917,11 @@ dependencies = [
  "kernel-bash",
  "kernel-calc",
  "kernel-deno",
+ "kernel-http",
  "kernel-jupyter",
  "kernel-micro",
  "kernel-node",
+ "kernel-postgrest",
  "kernel-python",
  "kernel-r",
  "kernel-sql",
@@ -3948,6 +3988,19 @@ name = "lebe"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "03087c2bad5e1034e8cace5926dec053fb3790248370865f5117a7d0213354c8"
+
+[[package]]
+name = "lexical-core"
+version = "0.7.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6607c62aa161d23d17a9072cc5da0be67cdfc89d3afb1e8d9c842bebc2525ffe"
+dependencies = [
+ "arrayvec 0.5.2",
+ "bitflags",
+ "cfg-if 1.0.0",
+ "ryu",
+ "static_assertions",
+]
 
 [[package]]
 name = "lexical-core"
@@ -4206,6 +4259,15 @@ name = "matchit"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73cbba799671b762df5a175adf59ce145165747bb891505c43d09aefbbf38beb"
+
+[[package]]
+name = "math-utils"
+version = "0.0.0"
+dependencies = [
+ "asciimath-rs",
+ "common",
+ "latex2mathml",
+]
 
 [[package]]
 name = "md-5"
@@ -4695,12 +4757,66 @@ checksum = "72ef4a56884ca558e5ddb05a1d1e7e1bfd9a68d9ed024c21704cc98872dae1bb"
 
 [[package]]
 name = "nom"
+version = "5.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffb4262d26ed83a1c0a33a38fe2bb15797329c85770da05e6b828ddb782627af"
+dependencies = [
+ "lexical-core 0.7.6",
+ "memchr",
+ "version_check",
+]
+
+[[package]]
+name = "nom"
 version = "7.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8903e5a29a317527874d0402f867152a3d21c908bb0b933e416c65e301d4c36"
 dependencies = [
  "memchr",
  "minimal-lexical",
+]
+
+[[package]]
+name = "nom-recursive"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95198eff0ec9dd5776c48a1f1880ca0fa3d107620efc442e8e773a332410e807"
+dependencies = [
+ "nom-recursive-macros",
+ "nom_locate 1.0.0",
+ "nom_locate 4.0.0",
+]
+
+[[package]]
+name = "nom-recursive-macros"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93b9a3cc76b89a6d09bf2df84e1174c83124365b9c51bc9795d8b6be42910069"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "nom_locate"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f932834fd8e391fc7710e2ba17e8f9f8645d846b55aa63207e17e110a1e1ce35"
+dependencies = [
+ "bytecount 0.3.2",
+ "memchr",
+ "nom 5.1.2",
+]
+
+[[package]]
+name = "nom_locate"
+version = "4.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37794436ca3029a3089e0b95d42da1f0b565ad271e4d3bb4bad0c7bb70b10605"
+dependencies = [
+ "bytecount 0.6.3",
+ "memchr",
+ "nom 7.1.1",
 ]
 
 [[package]]
@@ -5175,9 +5291,17 @@ dependencies = [
 name = "parser-calc"
 version = "0.0.0"
 dependencies = [
+ "fasteval",
  "parser",
  "test-snaps",
  "test-utils",
+]
+
+[[package]]
+name = "parser-http"
+version = "0.0.0"
+dependencies = [
+ "parser",
 ]
 
 [[package]]
@@ -5188,6 +5312,31 @@ dependencies = [
  "test-snaps",
  "test-utils",
  "tree-sitter-javascript",
+]
+
+[[package]]
+name = "parser-json"
+version = "0.0.0"
+dependencies = [
+ "parser",
+]
+
+[[package]]
+name = "parser-json5"
+version = "0.0.0"
+dependencies = [
+ "parser",
+]
+
+[[package]]
+name = "parser-postgrest"
+version = "0.0.0"
+dependencies = [
+ "nom 7.1.1",
+ "nom-recursive",
+ "nom_locate 4.0.0",
+ "parser",
+ "test-utils",
 ]
 
 [[package]]
@@ -5248,7 +5397,6 @@ version = "0.0.0"
 dependencies = [
  "common",
  "lightningcss",
- "nom",
  "parser",
  "tailwind-css",
  "test-snaps",
@@ -5285,7 +5433,11 @@ dependencies = [
  "parser",
  "parser-bash",
  "parser-calc",
+ "parser-http",
  "parser-js",
+ "parser-json",
+ "parser-json5",
+ "parser-postgrest",
  "parser-prql",
  "parser-py",
  "parser-r",
@@ -7117,7 +7269,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4b7922be017ee70900be125523f38bdd644f4f06a1b16e8fa5a8ee8c34bffd4"
 dependencies = [
  "itertools",
- "nom",
+ "nom 7.1.1",
  "unicode_categories",
 ]
 
@@ -7128,7 +7280,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f87e292b4291f154971a43c3774364e2cbcaec599d3f5bf6fa9d122885dbc38a"
 dependencies = [
  "itertools",
- "nom",
+ "nom 7.1.1",
  "unicode_categories",
 ]
 
@@ -7487,7 +7639,7 @@ name = "tailwind-ast"
 version = "0.4.1"
 source = "git+https://github.com/nokome/tailwind-rs?rev=99c37acd301fbf65357d6ec621a4d4d6a505adcc#99c37acd301fbf65357d6ec621a4d4d6a505adcc"
 dependencies = [
- "nom",
+ "nom 7.1.1",
 ]
 
 [[package]]
@@ -7498,7 +7650,7 @@ dependencies = [
  "css-color",
  "itertools",
  "log",
- "nom",
+ "nom 7.1.1",
  "tailwind-ast",
  "tailwind-error",
  "xxhash-rust",
@@ -7511,7 +7663,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f3b01f0cee219fbb1feeded913cf3bcd221c32739d01757c1917b94be5df2b9"
 dependencies = [
  "css-color",
- "nom",
+ "nom 7.1.1",
 ]
 
 [[package]]
