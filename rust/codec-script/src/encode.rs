@@ -3,7 +3,7 @@ use codec::{
         eyre::{bail, Result},
         serde_json,
     },
-    stencila_schema::{Article, BlockContent, CodeChunk, For, If, InlineContent, Node, Parameter},
+    stencila_schema::{Article, BlockContent, CodeChunk, For, InlineContent, Node, Parameter},
     EncodeOptions,
 };
 use codec_md::ToMd;
@@ -85,26 +85,26 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
         _ => "", // Not necessary or not supported
     };
 
-    let if_start = match lang {
+    let _if_start = match lang {
         JavaScript => "if ($expr) {\n\n",
         Python => "if $expr:\n\n",
         R => "if ($expr) {\n\n",
         Bash | Shell | Zsh => "if [ $expr ]; then\n\n",
         _ => "", // Not supported
     };
-    let if_alternative = match lang {
+    let _if_alternative = match lang {
         JavaScript | R => "\n\n} else if ($expr) {\n\n",
         Python => "\nelif $expr:\n\n",
         Bash | Shell | Zsh => "\nelif [ $expr ]; then\n\n",
         _ => "", // Not supported
     };
-    let if_otherwise = match lang {
+    let _if_otherwise = match lang {
         JavaScript | R => "\n} else {\n\n",
         Python => "\nelse:\n\n",
         Bash | Shell | Zsh => "\nelse\n\n",
         _ => "", // Not supported
     };
-    let if_end = match lang {
+    let _if_end = match lang {
         JavaScript | R => "\n}\n\n",
         Python => "\n\n",
         Bash | Shell | Zsh => "\nfi\n\n",
@@ -205,7 +205,7 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
 
             if let BlockContent::For(For {
                 symbol,
-                expression,
+                text,
                 content,
                 otherwise,
                 ..
@@ -218,11 +218,11 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
                     let assign = for_var
                         .1
                         .replace("$index", &index)
-                        .replace("$expr", &expression.text);
+                        .replace("$expr", text);
                     code.push_str(&assign);
                     for_var.0.replace("$index", &index)
                 } else {
-                    expression.text.clone()
+                    text.clone()
                 };
 
                 code.push_str(&for_start.replace("$symbol", symbol).replace("$expr", &expr));
@@ -236,7 +236,10 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
                     code.push('\n');
                     code.push_str(for_otherwise_end);
                 }
-            } else if let BlockContent::If(If {
+            } 
+            /*
+            TODO: Reinstate this with new If/IfClause data model
+            elif let BlockContent::If(If {
                 condition,
                 content,
                 alternatives,
@@ -264,7 +267,9 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
                 }
 
                 code.push_str(if_end);
-            } else if let BlockContent::CodeChunk(CodeChunk { text, .. }) = block {
+            }
+            */
+            else if let BlockContent::CodeChunk(CodeChunk { text, .. }) = block {
                 script.push_str(text);
 
                 if text.ends_with('\n') {

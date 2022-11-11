@@ -82,7 +82,7 @@ pub async fn compile(
         let mut after = pointer.to_node()?;
         after.compile(&mut context).await?;
 
-        let patch = diff_id(&id, &before, &after);
+        let patch = diff_id(id, &before, &after);
         send_patch(patch_sender, patch, When::Never)
     }
 

@@ -2,24 +2,21 @@ use std::path::PathBuf;
 
 use common::{
     async_trait::async_trait,
-    eyre::{bail, Result},
-    json5, serde_json, tracing,
+    eyre::{Result}, tracing,
 };
 use formats::Format;
 use graph_triples::{
-    relations::{self, NULL_RANGE},
-    resources::{self, ResourceDigest},
-    Relation, ResourceInfo,
+    resources::{self}, ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
 use node_address::{Address, Slot};
-use node_patch::produce;
-use node_transform::Transform;
-use stencila_schema::{CodeError, If, Node, Primitive};
+
+
+use stencila_schema::{CodeError, If, Node};
 
 use crate::executable::Executable;
 
-use super::{AssembleContext, CompileContext, ExecuteContext};
+use super::{AssembleContext, CompileContext};
 
 #[async_trait]
 impl Executable for If {
@@ -86,9 +83,9 @@ impl Executable for If {
 
     async fn execute_begin(
         &mut self,
-        resource_info: &ResourceInfo,
+        _resource_info: &ResourceInfo,
         kernel_space: &KernelSpace,
-        kernel_selector: &KernelSelector,
+        _kernel_selector: &KernelSelector,
         _is_fork: bool,
     ) -> Result<Option<TaskInfo>> {
         let id = assert_id!(self)?;

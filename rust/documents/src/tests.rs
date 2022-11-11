@@ -56,10 +56,11 @@ async fn md_articles() -> Result<()> {
             }
         });
 
+        let kernel_space = Arc::new(RwLock::new(KernelSpace::new(None, None)));
         let tag_map = Arc::new(RwLock::new(TagMap::default()));
 
         // Assemble the article and snapshot the result
-        let address_map = assemble(path, &root, &patch_request_sender).await?;
+        let address_map = assemble(path, &root, &kernel_space, &patch_request_sender).await?;
         snapshot_set_suffix(&[name, "-assemble"].concat(), || {
             assert_json_snapshot!(&address_map)
         });
@@ -72,6 +73,7 @@ async fn md_articles() -> Result<()> {
             &root,
             &address_map,
             &tag_map,
+            &kernel_space,
             &patch_request_sender,
         )
         .await?;
@@ -225,6 +227,7 @@ async fn regression_creative_work() -> Result<()> {
 async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
     let root = Arc::new(RwLock::new(node));
     let tags = Arc::new(RwLock::new(TagMap::default()));
+    let kernels = Arc::new(RwLock::new(KernelSpace::new(None, None)));
 
     let (patch_request_sender, mut patch_request_receiver) =
         mpsc::unbounded_channel::<PatchRequest>();
@@ -238,7 +241,7 @@ async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)>
 
     let (_cancel_request_sender, mut cancel_request_receiver) = mpsc::channel::<CancelRequest>(1);
 
-    let address_map = assemble(&PathBuf::new(), &root, &patch_request_sender).await?;
+    let address_map = assemble(&PathBuf::new(), &root, &kernels, &patch_request_sender).await?;
     let address_map = &Arc::new(RwLock::new(address_map));
 
     let graph = compile(
@@ -247,6 +250,7 @@ async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)>
         &root,
         address_map,
         &tags,
+        &kernels,
         &patch_request_sender,
     )
     .await?;
@@ -258,7 +262,7 @@ async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)>
         &root,
         address_map,
         &tags,
-        &Arc::new(RwLock::new(KernelSpace::new(None, None))),
+        &kernels,
         &patch_request_sender,
         &mut cancel_request_receiver,
     )

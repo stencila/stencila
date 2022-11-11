@@ -6,7 +6,7 @@ use graph_triples::{
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::Address;
-use node_patch::produce;
+
 use stencila_schema::{CodeExpression, Cord, Duration, ExecuteRequired, ExecuteStatus, Timestamp};
 
 use crate::{assert_id, register_id};

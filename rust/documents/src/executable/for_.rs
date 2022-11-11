@@ -5,9 +5,7 @@ use common::{
 };
 use formats::Format;
 use graph_triples::{
-    relations::{self, NULL_RANGE},
-    resources::{self, ResourceDigest},
-    Relation, ResourceInfo,
+    resources::{self}, ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
 use node_address::Address;
@@ -159,7 +157,7 @@ impl Executable for For {
             let mut context = ExecuteContext { kernel_space };
 
             let mut iterations = Vec::new();
-            for item in items {
+            for _item in items {
                 // Clone the content for the item
                 let mut content = self.content.clone();
                 // TODO: Create a fork of kernels to execute content in with item

@@ -824,7 +824,7 @@ impl KernelTrait for JupyterKernel {
     }
 
     async fn status(&self) -> Result<KernelStatus> {
-        let status = self.status.read().await.clone();
+        let status = *self.status.read().await;
         Ok(status)
     }
 

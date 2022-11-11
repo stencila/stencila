@@ -5,14 +5,14 @@ use common::{
 };
 use formats::Format;
 use graph_triples::{
-    relations::{self, NULL_RANGE},
+    relations::{self},
     resources::{self, ResourceDigest},
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
 use node_address::Address;
 
-use node_patch::{diff, diff_id};
+use node_patch::{diff_id};
 use stencila_schema::{CodeError, Cord, ExecuteRequired, Form, FormDeriveAction, Node, Timestamp};
 
 use crate::{
@@ -139,7 +139,7 @@ impl Executable for Form {
     async fn execute_begin(
         &mut self,
         resource_info: &ResourceInfo,
-        kernel_space: &KernelSpace,
+        _kernel_space: &KernelSpace,
         _kernel_selector: &KernelSelector,
         _is_fork: bool,
     ) -> Result<Option<TaskInfo>> {
@@ -147,7 +147,7 @@ impl Executable for Form {
         tracing::trace!("Executing Form `{id}`");
 
         // Do any necessary derivation of content
-        let mut kernel_id = None;
+        let kernel_id = None;
 
         // Update both `compile_digest` and `execute_digest` to the compile digest determined
         // during the compile phase

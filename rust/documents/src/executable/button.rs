@@ -11,7 +11,7 @@ use stencila_schema::{Button, Cord, ExecuteRequired, Node, Timestamp};
 
 use crate::{assert_id, register_id};
 
-use super::{AssembleContext, CompileContext, Executable, ExecuteContext};
+use super::{AssembleContext, CompileContext, Executable};
 
 #[async_trait]
 impl Executable for Button {

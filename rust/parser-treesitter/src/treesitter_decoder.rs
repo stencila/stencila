@@ -137,11 +137,7 @@ pub trait TreesitterDecoder {
             return Vec::new();
         }
 
-        let ignore_first_and_last = match node.kind() {
-            "brace_list" => true,      // r
-            "statement_block" => true, // js
-            _ => false,
-        };
+        let ignore_first_and_last = matches!(node.kind(), "brace_list" | "statement_block");
 
         let mut blocks = vec![];
         let mut code = String::new();
