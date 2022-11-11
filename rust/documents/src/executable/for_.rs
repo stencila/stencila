@@ -109,11 +109,14 @@ impl Executable for For {
 
         // Transform the value to a set of items
         let items = match value {
-            Ok(items) => Some(match items {
-                Node::Array(array) => array,
-                // TODO: handle objects and datatables
-                _ => bail!("Expected an array, got {:?}", items),
-            }),
+            Ok(items) => {
+                self.errors = None;
+                Some(match items {
+                    Node::Array(array) => array,
+                    // TODO: handle objects and datatables
+                    _ => bail!("Expected an array, got {:?}", items),
+                })
+            }
             Err(errors) => {
                 self.errors = Some(errors);
                 None
