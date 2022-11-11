@@ -57,7 +57,11 @@ impl ToHtml for Article {
                     CreativeWorkTitle::String(title) => title.to_html(context),
                     CreativeWorkTitle::VecInlineContent(title) => title.to_html(context),
                 };
-                elem("h1", &[attr_itemprop("headline")], &title)
+                elem(
+                    "h1",
+                    &[attr_prop("title"), attr_itemprop("headline")],
+                    &title,
+                )
             }
             None => "".to_string(),
         };
@@ -106,7 +110,7 @@ impl ToHtml for Article {
             "".to_string()
         };
 
-        let abstract_ = match &self.description {
+        let description = match &self.description {
             Some(desc) => {
                 let meta = (**desc).to_txt();
                 let content = match &**desc {
@@ -124,7 +128,7 @@ impl ToHtml for Article {
                 };
                 elem(
                     "section",
-                    &[attr_prop("description")],
+                    &[attr_prop("description"), attr_slot("description")],
                     &[
                         elem_empty(
                             "meta",
@@ -140,14 +144,18 @@ impl ToHtml for Article {
 
         let content = elem(
             "div",
-            &[attr_prop("content")],
+            &[attr_prop("content"), attr_slot("content")],
             &self.content.to_html(context),
         );
 
         let article = elem(
-            "article",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[title, authors, affiliations, abstract_, content].concat(),
+            "stencila-article",
+            &[attr("data-root", "true")],
+            &elem(
+                "article",
+                &[attr_itemtype::<Self>(), attr_id(&self.id)],
+                &[title, authors, affiliations, description, content].concat(),
+            ),
         );
 
         if !context.options.standalone {

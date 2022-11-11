@@ -492,6 +492,7 @@ pub fn join_html<T: ToHtml>(slice: &[T], context: &mut EncodeContext, sep: &str)
 
 mod blocks;
 mod data;
+mod form;
 mod generics;
 mod inlines;
 mod math;

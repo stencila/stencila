@@ -70,7 +70,7 @@ impl ToHtml for CodeBlock {
 
 impl ToHtml for CodeChunk {
     fn to_html(&self, context: &mut EncodeContext) -> String {
-        let lang = attr_and_meta("programming_language", &self.programming_language);
+        let lang = self.programming_language.to_attr("programming-language");
 
         let compile_digest = elem_meta_opt(
             "compile_digest",
@@ -197,35 +197,33 @@ impl ToHtml for CodeChunk {
         elem(
             "stencila-code-chunk",
             &[
-                attr_itemtype::<Self>(),
                 attr_id(&self.id),
-                lang.0,
-                execute_auto.0,
-                execute_pure.0,
-                execute_required.0,
-                execute_status.0,
-                execute_kernel.0,
-                execute_count.0,
+                lang,
+                //execute_auto.0,
+                //execute_pure.0,
+                //execute_required.0,
+                //execute_status.0,
+                //execute_kernel.0,
+                //execute_count.0,
             ],
             &[
-                lang.1,
-                compile_digest,
-                execute_digest,
-                execute_auto.1,
-                execute_pure.1,
-                execute_required.1,
-                execute_status.1,
-                execute_kernel.1,
-                execute_count.1,
+                //lang.1,
+                //compile_digest,
+                //execute_digest,
+                //execute_auto.1,
+                //execute_pure.1,
+                //execute_required.1,
+                //execute_status.1,
+                //execute_kernel.1,
+                //execute_count.1,
                 text,
-                dependencies,
-                dependents,
-                execute_ended,
-                execute_duration,
-                outputs,
-                errors,
-                label,
-                caption,
+                //dependencies,
+                //dependents,
+                //execute_ended,
+                //execute_duration,
+                outputs, errors,
+                //label,
+                //caption,
             ]
             .concat(),
         )
@@ -671,29 +669,6 @@ impl ToHtml for For {
                 programming_language,
             ],
             &[text, errors, content, iterations, otherwise].concat(),
-        )
-    }
-}
-
-impl ToHtml for Form {
-    fn to_html(&self, context: &mut EncodeContext) -> String {
-        let errors = elem_placeholder(
-            "div",
-            &[attr_prop("errors"), attr_slot("errors")],
-            &self.errors,
-            context,
-        );
-
-        let content = elem(
-            "div",
-            &[attr_prop("content"), attr_slot("content")],
-            &self.content.to_html(context),
-        );
-
-        elem(
-            "stencila-form",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[errors, content].concat(),
         )
     }
 }

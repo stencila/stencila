@@ -1,10 +1,5 @@
 //! HTML encoding for node types in the "data" category
 
-
-
-
-
-
 use stencila_schema::*;
 
 use super::{
