@@ -210,6 +210,12 @@ export default class StencilaInput extends StencilaElement {
         step=${ifDefined(this.step)}
         ?required=${this.required}
         ?disabled=${this.disabled}
+        @keypress=${(event: KeyboardEvent) => {
+          if (event.key == 'Enter' && event.ctrlKey) {
+            event.preventDefault()
+            this.emit('stencila-ctrl-enter')
+          }
+        }}
       >
         <small slot="help-text"
           >${this.errors === 'below' ? this.error : ''}</small
