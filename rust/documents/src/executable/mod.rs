@@ -30,6 +30,7 @@ pub trait Executable {
         Ok(())
     }
 
+    // Review if should have an `ExecuteContext` similar to `CompileContext` to reduce number of args
     async fn execute_begin(
         &mut self,
         _resource_info: &ResourceInfo,
@@ -44,6 +45,7 @@ pub trait Executable {
         Ok(())
     }
 
+    // TODO: Review whether `execute` method is necessary in addition to `exec_begin` and `exec_sync`.
     async fn execute(&mut self, _context: &mut ExecuteContext) -> Result<()> {
         Ok(())
     }
@@ -152,6 +154,7 @@ pub struct CompileContext<'lt> {
 
 #[derive(Debug)]
 pub struct ExecuteContext<'lt> {
+    #[allow(dead_code)]
     kernel_space: &'lt KernelSpace,
 }
 
