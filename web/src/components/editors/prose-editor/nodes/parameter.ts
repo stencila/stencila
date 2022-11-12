@@ -8,6 +8,9 @@ export function parameter(): NodeSpec {
   return {
     group: 'InlineContent',
     inline: true,
+    // Despite `draggable = true` in `toDOM` this seems to be necessary
+    // Maybe because the parameter can contain a draggable slider.
+    draggable: true,
     attrs: {
       ...executableAttrs,
       name: { default: '' },
