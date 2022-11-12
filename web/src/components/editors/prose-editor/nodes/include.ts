@@ -14,9 +14,6 @@ export const includeAttrs = {
 export function include(): NodeSpec {
   return {
     group: 'BlockContent',
-    defining: true,
-    isolating: true,
-    draggable: true,
     attrs: includeAttrs,
     parseDOM,
     toDOM,

@@ -9,6 +9,7 @@ export function call(): NodeSpec {
   return {
     group: 'BlockContent',
     content: 'CallArgument*',
+    atom: true, // Necessary to make this selectable event though it has content
     attrs: includeAttrs,
     parseDOM,
     toDOM,
