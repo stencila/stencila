@@ -19,6 +19,7 @@ import { EditorView } from 'prosemirror-view'
 import StencilaElement from '../../utils/element'
 import { stencilaInputRules } from './input-rules'
 import { articleSchema, nodeViews } from './nodes'
+import { ensureIds } from './plugins/ensureIds'
 import { placeholder } from './plugins/placeholder'
 
 const inlinesKeymap = {
@@ -202,7 +203,9 @@ export default class StencilaProseEditor extends StencilaElement {
       dropCursor(),
       gapCursor(),
       history(),
+      // Locally defined plugins
       placeholder(),
+      ensureIds(),
     ]
 
     this.editorView = new EditorView(viewElem, {

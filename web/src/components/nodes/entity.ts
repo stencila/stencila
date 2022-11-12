@@ -20,7 +20,7 @@ export default class StencilaEntity extends StencilaElement {
   /**
    * The id of the entity
    */
-  @property()
+  @property({ reflect: true })
   id: string
 
   /**
