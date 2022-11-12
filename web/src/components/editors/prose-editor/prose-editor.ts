@@ -19,7 +19,7 @@ import { EditorView } from 'prosemirror-view'
 import StencilaElement from '../../utils/element'
 import { stencilaInputRules } from './input-rules'
 import { articleSchema, nodeViews } from './nodes'
-import { placeholder } from './plugins'
+import { placeholder } from './plugins/placeholder'
 
 const inlinesKeymap = {
   // History
