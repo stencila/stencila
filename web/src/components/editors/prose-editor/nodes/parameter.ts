@@ -8,7 +8,6 @@ export function parameter(): NodeSpec {
   return {
     group: 'InlineContent',
     inline: true,
-    draggable: true,
     attrs: {
       ...executableAttrs,
       name: { default: '' },

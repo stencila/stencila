@@ -7,7 +7,6 @@ export function mathFragment(): NodeSpec {
   return {
     group: 'InlineContent',
     inline: true,
-    draggable: true,
     attrs: mathAttrs,
     parseDOM,
     toDOM,

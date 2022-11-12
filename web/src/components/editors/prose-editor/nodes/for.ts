@@ -15,7 +15,6 @@ export function for_(): NodeSpec {
     content: 'BlockContent+',
     defining: true,
     isolating: true,
-    draggable: true,
     attrs: {
       ...codeExecutableAttrs,
       symbol: { default: null },

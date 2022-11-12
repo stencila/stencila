@@ -11,7 +11,6 @@ export function button(): NodeSpec {
   return {
     group: 'InlineContent',
     inline: true,
-    draggable: true,
     attrs: {
       ...codeExecutableAttrs,
       name: { default: '' },

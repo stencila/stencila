@@ -8,7 +8,6 @@ export function span(): NodeSpec {
     group: 'InlineContent',
     content: 'InlineContent*',
     inline: true,
-    draggable: true,
     attrs: styledAttrs,
     parseDOM,
     toDOM,

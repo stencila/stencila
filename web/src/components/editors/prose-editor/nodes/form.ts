@@ -10,7 +10,6 @@ export function form(): NodeSpec {
     content: 'BlockContent*',
     defining: true,
     isolating: true,
-    draggable: true,
     attrs: {
       ...executableAttrs,
       deriveFrom: { default: null },

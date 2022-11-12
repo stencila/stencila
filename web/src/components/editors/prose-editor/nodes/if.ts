@@ -8,7 +8,6 @@ export function if_(): NodeSpec {
   return {
     group: 'BlockContent',
     content: 'IfClause+',
-    draggable: true,
     attrs: executableAttrs,
     parseDOM,
     toDOM,

@@ -7,7 +7,6 @@ export function mathBlock(): NodeSpec {
   return {
     group: 'BlockContent',
     atom: false,
-    draggable: true,
     attrs: mathAttrs,
     parseDOM,
     toDOM,
