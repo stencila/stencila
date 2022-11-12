@@ -38,13 +38,18 @@ export default class StencilaCall extends StencilaInclude {
   }
 
   protected render() {
+    const toggleSelected = () => this.toggleSelected()
+
     return html`<div
       part="base"
-      class=${tw`my-4 rounded border(& ${StencilaCall.color}-200) overflow-hidden`}
+      class=${tw`my-4 rounded overflow-hidden border(& ${
+        StencilaCall.color
+      }-200) ${this.selected ? `ring-1` : ''}`}
     >
       <div
         part="header"
         class=${tw`flex items-center bg-${StencilaCall.color}-50 p-1 font(mono bold) text(sm ${StencilaCall.color}-600)`}
+        @mousedown=${toggleSelected}
       >
         <span class=${tw`flex items-center text-base ml-1 mr-2`}>
           <stencila-icon name="call-outgoing"></stencila-icon>
@@ -63,7 +68,8 @@ export default class StencilaCall extends StencilaInclude {
       <div
         part="footer"
         class=${tw`grid justify-items-end items-center bg-${StencilaCall.color}-50
-                       border(t ${StencilaCall.color}-200) p-1 text(sm ${StencilaCall.color}-600)`}
+                  border(t ${StencilaCall.color}-200) p-1 text(sm ${StencilaCall.color}-600)`}
+        @mousedown=${toggleSelected}
       >
         ${this.renderDownloadButton(StencilaCall.formats, StencilaCall.color)}
       </div>

@@ -144,8 +144,18 @@ export default class StencilaInclude extends StencilaExecutable {
     const replace = (event: Event): boolean => {
       const input = event.target as SlInput
       if (input.reportValidity()) {
-        const select = (event.target as HTMLInputElement).value
-        this.changeProperty('select', select)
+        // Note: can not use `changeProperty` here because
+        // using 'selectQuery' as name of 'select' property to
+        // avoid a clash with the `select()` method
+        const value = (event.target as HTMLInputElement).value
+        this.selectQuery = value
+        this.emitOp({
+          type: 'Replace',
+          address: ['select'],
+          items: 1,
+          length: 1,
+          value,
+        })
         return true
       }
       return false

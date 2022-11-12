@@ -26,7 +26,6 @@ const parseDOM: ParseRule[] = [
     tag: 'stencila-call',
     getAttrs,
     contentElement: '[slot=arguments]',
-    consuming: true,
   },
 ]
 
@@ -53,7 +52,7 @@ function toDOM(node: Node) {
   errors.innerHTML = node.attrs.errors
   dom.appendChild(errors)
 
-  // Note: the `arguments` property is assigne to the `contentDOM` for this node type
+  // Note: the `arguments` property is assigned to the `contentDOM` for this node type
   // (the same as how `clauses` are the content of `If` blocks)
   const contentDOM = document.createElement('div')
   contentDOM.slot = 'arguments'
