@@ -1,6 +1,6 @@
 ---
 source: rust/parser-tailwind/src/lib.rs
-assertion_line: 175
+assertion_line: 154
 expression: resource_info
 input_file: fixtures/fragments/tw/uses.tw
 ---
@@ -65,6 +65,7 @@ input_file: fixtures/fragments/tw/uses.tw
       }
     ]
   ],
+  "syntax_errors": true,
   "compile_digest": "2559229706754875908.2559229706754875908.0.0.0",
   "tags": []
 }
