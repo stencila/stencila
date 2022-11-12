@@ -251,7 +251,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       @focus=${deselect}
       @mousedown=${deselect}
       @stencila-document-patch=${(event: CustomEvent) => {
-        const patch = event.detail as Patch
+        const patch = event.detail.patch as Patch
 
         // If the `text` is currently empty and this is the last clause (i.e. and "else")
         // then request a rerender to make it an elif
