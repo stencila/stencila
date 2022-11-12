@@ -6,7 +6,6 @@ import { StencilaMathView, mathAttrs } from './math'
 export function mathBlock(): NodeSpec {
   return {
     group: 'BlockContent',
-    atom: false,
     attrs: mathAttrs,
     parseDOM,
     toDOM,

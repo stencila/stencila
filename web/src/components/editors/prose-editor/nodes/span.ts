@@ -25,7 +25,6 @@ const parseDOM: ParseRule[] = [
     tag: 'stencila-span',
     getAttrs,
     contentElement: '[slot=content]',
-    consuming: true,
   },
 ]
 

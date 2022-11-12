@@ -24,7 +24,6 @@ const parseDOM: ParseRule[] = [
     tag: 'stencila-division',
     getAttrs,
     contentElement: '[slot=content]',
-    consuming: true,
   },
 ]
 

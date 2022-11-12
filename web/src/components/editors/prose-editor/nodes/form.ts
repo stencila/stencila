@@ -32,7 +32,6 @@ const parseDOM: ParseRule[] = [
     tag: 'stencila-form',
     getAttrs,
     contentElement: '[slot=content]',
-    consuming: true,
   },
 ]
 

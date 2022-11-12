@@ -33,7 +33,6 @@ const parseDOM: ParseRule[] = [
     tag: 'stencila-if-clause',
     getAttrs,
     contentElement: '[slot=content]',
-    consuming: true,
   },
 ]
 
@@ -53,11 +52,11 @@ function toDOM(node: Node) {
   dom.setAttribute('programming-language', node.attrs.programmingLanguage)
   dom.setAttribute('guess-language', node.attrs.guessLanguage)
 
-  const text = document.createElement('pre')
-  text.slot = 'text'
-  text.innerHTML = node.attrs.text
-  text.contentEditable = 'false'
-  dom.appendChild(text)
+  //const text = document.createElement('pre')
+  //text.slot = 'text'
+  //text.innerHTML = node.attrs.text
+  //text.contentEditable = 'false'
+  //dom.appendChild(text)
 
   const errors = document.createElement('div')
   errors.slot = 'errors'
