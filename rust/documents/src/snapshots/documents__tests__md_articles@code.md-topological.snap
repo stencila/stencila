@@ -1,6 +1,6 @@
 ---
 source: rust/documents/src/tests.rs
-assertion_line: 122
+assertion_line: 121
 expression: "&plan"
 ---
 {
@@ -66,16 +66,16 @@ expression: "&plan"
               "path": "articles/code.md",
               "id": "ce-3",
               "kind": "CodeExpression",
-              "language": "python"
+              "language": "calc"
             },
             "relations": [],
             "dependencies": [],
             "depth": 0,
-            "compile_digest": "6453152692411696678.6096491578995229440.0.0.0",
+            "compile_digest": "6453152692411696678.12037687343765992774.0.0.0",
             "tags": []
           },
           "kernel_selector": {
-            "lang": "python"
+            "lang": "calc"
           },
           "is_fork": false
         }
@@ -114,16 +114,16 @@ expression: "&plan"
               "path": "articles/code.md",
               "id": "ce-5",
               "kind": "CodeExpression",
-              "language": "python"
+              "language": "calc"
             },
             "relations": [],
             "dependencies": [],
             "depth": 0,
-            "compile_digest": "17072206937161055418.3130444595839626671.0.0.0",
+            "compile_digest": "17072206937161055418.17805995079931396640.0.0.0",
             "tags": []
           },
           "kernel_selector": {
-            "lang": "python"
+            "lang": "calc"
           },
           "is_fork": false
         }
