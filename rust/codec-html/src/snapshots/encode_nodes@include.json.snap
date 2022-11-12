@@ -1,21 +1,23 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 512
+assertion_line: 534
 expression: html
 input_file: fixtures/nodes/include.json
 ---
-<article data-root itemtype="https://schema.org/Article" itemscope>
-  <div data-prop="content">
-    <stencila-include itemtype="https://schema.stenci.la/Include" itemscope source="heading.json">
-      <meta itemprop="source" content="heading.json"/>
-      <stencila-code-dependencies slot="code-dependencies">
-        <div data-prop="codeDependencies">
+<stencila-article data-root data-root="true">
+  <article itemtype="https://schema.org/Article" itemscope>
+    <div data-prop="content" slot="content">
+      <stencila-include itemtype="https://schema.stenci.la/Include" itemscope source="heading.json">
+        <meta itemprop="source" content="heading.json"/>
+        <stencila-code-dependencies slot="code-dependencies">
+          <div data-prop="codeDependencies">
+          </div>
+        </stencila-code-dependencies>
+        <div data-prop="errors" slot="errors">
         </div>
-      </stencila-code-dependencies>
-      <div data-prop="errors" slot="errors">
-      </div>
-      <div data-prop="content" slot="content">
-      </div>
-    </stencila-include>
-  </div>
-</article>
+        <div data-prop="content" slot="content">
+        </div>
+      </stencila-include>
+    </div>
+  </article>
+</stencila-article>

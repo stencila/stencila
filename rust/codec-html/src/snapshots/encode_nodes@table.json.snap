@@ -1,9 +1,8 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 438
+assertion_line: 534
 expression: html
 input_file: fixtures/nodes/table.json
-
 ---
 <table data-root itemtype="https://schema.org/Table" itemscope>
   <caption>
@@ -24,18 +23,18 @@ input_file: fixtures/nodes/table.json
     </tr>
     <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
       <td itemtype="https://schema.stenci.la/TableCell" itemscope rowspan="2">
-        <span itemtype="https://schema.org/Integer" itemscope>1</span>
+        <span>1</span>
       </td>
       <td itemtype="https://schema.stenci.la/TableCell" itemscope>
-        <span itemtype="https://schema.org/Integer" itemscope>2</span>
+        <span>2</span>
       </td>
       <td itemtype="https://schema.stenci.la/TableCell" itemscope>
-        <span itemtype="https://schema.org/Integer" itemscope>3</span>
+        <span>3</span>
       </td>
     </tr>
     <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
       <td itemtype="https://schema.stenci.la/TableCell" itemscope colspan="2">
-        <span itemtype="https://schema.org/Integer" itemscope>5</span>
+        <span>5</span>
       </td>
     </tr>
   </tbody>

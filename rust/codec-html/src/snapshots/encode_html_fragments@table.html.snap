@@ -1,78 +1,80 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 530
+assertion_line: 552
 expression: encoded
 input_file: fixtures/fragments/html/table.html
 ---
-<article data-root itemtype="https://schema.org/Article" itemscope>
-  <div data-prop="content">
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>Example based on how a Pandas dat a frame is encoded to HTML in a Jupyter notebook:</span>
-    </p>
-    <table itemtype="https://schema.org/Table" itemscope>
-      <caption>
-        <span data-prop="label">
-        </span>
-        <div data-prop="caption">
-        </div>
-      </caption>
-      <tbody data-prop="rows">
-        <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
-          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
-          </th>
-          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>a</span>
-          </th>
-          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>b</span>
-          </th>
-          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>c</span>
-          </th>
-        </tr>
-        <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
-          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>0</span>
-          </th>
-          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>1</span>
-          </td>
-          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>2</span>
-          </td>
-          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>3</span>
-          </td>
-        </tr>
-        <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
-          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>1</span>
-          </th>
-          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>4</span>
-          </td>
-          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>5</span>
-          </td>
-          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>6</span>
-          </td>
-        </tr>
-        <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
-          <th itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>2</span>
-          </th>
-          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>7</span>
-          </td>
-          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>8</span>
-          </td>
-          <td itemtype="https://schema.stenci.la/TableCell" itemscope>
-            <span>9</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</article>
+<stencila-article data-root data-root="true">
+  <article itemtype="https://schema.org/Article" itemscope>
+    <div data-prop="content" slot="content">
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>Example based on how a Pandas dat a frame is encoded to HTML in a Jupyter notebook:</span>
+      </p>
+      <table itemtype="https://schema.org/Table" itemscope>
+        <caption>
+          <span data-prop="label">
+          </span>
+          <div data-prop="caption">
+          </div>
+        </caption>
+        <tbody data-prop="rows">
+          <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
+            <th itemtype="https://schema.stenci.la/TableCell" itemscope>
+            </th>
+            <th itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>a</span>
+            </th>
+            <th itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>b</span>
+            </th>
+            <th itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>c</span>
+            </th>
+          </tr>
+          <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
+            <th itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>0</span>
+            </th>
+            <td itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>1</span>
+            </td>
+            <td itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>2</span>
+            </td>
+            <td itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>3</span>
+            </td>
+          </tr>
+          <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
+            <th itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>1</span>
+            </th>
+            <td itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>4</span>
+            </td>
+            <td itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>5</span>
+            </td>
+            <td itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>6</span>
+            </td>
+          </tr>
+          <tr itemtype="https://schema.stenci.la/TableRow" itemscope>
+            <th itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>2</span>
+            </th>
+            <td itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>7</span>
+            </td>
+            <td itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>8</span>
+            </td>
+            <td itemtype="https://schema.stenci.la/TableCell" itemscope>
+              <span>9</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </article>
+</stencila-article>

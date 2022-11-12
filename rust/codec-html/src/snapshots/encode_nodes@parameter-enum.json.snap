@@ -1,17 +1,12 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 481
+assertion_line: 534
 expression: html
 input_file: fixtures/nodes/parameter-enum.json
 ---
-<stencila-parameter data-root itemtype="https://schema.stenci.la/Parameter" itemscope>
-  <label data-prop="name" slot="name" for="input-id">par</label>
-  <meta itemprop="validator" itemtype="https://schema.stenci.la/EnumValidator" itemscope/>
-  <meta itemprop="defaultValue" itemtype="https://schema.org/Text" itemscope content="A"/>
-  <meta itemprop="value" itemtype="https://schema.org/Text" itemscope content="B"/>
-  <select id="input-id" slot="value">
-    <option value="A">A</option>
-    <option value="B" selected>B</option>
-    <option value="C">C</option>
-  </select>
+<stencila-parameter data-root name="par" default="&quot;A&quot;" value="&quot;B&quot;">
+  <span slot="errors">
+  </span>
+  <stencila-enum-validator values="[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;]" slot="validator">
+  </stencila-enum-validator>
 </stencila-parameter>

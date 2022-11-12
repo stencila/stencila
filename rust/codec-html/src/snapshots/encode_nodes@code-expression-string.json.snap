@@ -1,9 +1,8 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 438
+assertion_line: 534
 expression: html
 input_file: fixtures/nodes/code-expression-string.json
-
 ---
 <stencila-code-expression data-root itemtype="https://schema.stenci.la/CodeExpression" itemscope programming-language="r">
   <meta itemprop="programmingLanguage" content="r"/>
@@ -12,6 +11,10 @@ input_file: fixtures/nodes/code-expression-string.json
     <span data-prop="codeDependencies">
     </span>
   </stencila-code-dependencies>
+  <stencila-timestamp data-prop="executeEnded" slot="execute-ended">
+  </stencila-timestamp>
+  <stencila-duration data-prop="executeDuration" slot="execute-duration">
+  </stencila-duration>
   <output data-prop="output" slot="output">
     <span itemtype="https://schema.org/Text" itemscope>foo</span>
   </output>

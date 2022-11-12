@@ -1,28 +1,30 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 530
+assertion_line: 552
 expression: encoded
 input_file: fixtures/fragments/html/video.html
 ---
-<article data-root itemtype="https://schema.org/Article" itemscope>
-  <div data-prop="content">
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>Prefers to use `source` element:</span>
-      <video itemtype="https://schema.org/VideoObject" itemscope controls>
-        <source src="video.mp4" type="video/mp4">
-        </source>
-      </video>
-      <span>
-      </span>
-    </p>
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>Falls back to using `src` on `video` element:</span>
-      <video itemtype="https://schema.org/VideoObject" itemscope controls>
-        <source src="video.mp4">
-        </source>
-      </video>
-      <span>
-      </span>
-    </p>
-  </div>
-</article>
+<stencila-article data-root data-root="true">
+  <article itemtype="https://schema.org/Article" itemscope>
+    <div data-prop="content" slot="content">
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>Prefers to use `source` element:</span>
+        <video itemtype="https://schema.org/VideoObject" itemscope controls>
+          <source src="video.mp4" type="video/mp4">
+          </source>
+        </video>
+        <span>
+        </span>
+      </p>
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>Falls back to using `src` on `video` element:</span>
+        <video itemtype="https://schema.org/VideoObject" itemscope controls>
+          <source src="video.mp4">
+          </source>
+        </video>
+        <span>
+        </span>
+      </p>
+    </div>
+  </article>
+</stencila-article>

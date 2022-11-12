@@ -1,21 +1,23 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 530
+assertion_line: 552
 expression: encoded
 input_file: fixtures/fragments/html/thematic-break.html
 ---
-<article data-root itemtype="https://schema.org/Article" itemscope>
-  <div data-prop="content">
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>First theme.</span>
-    </p>
-    <hr itemtype="https://schema.stenci.la/ThematicBreak" itemscope/>
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>Second theme.</span>
-    </p>
-    <hr itemtype="https://schema.stenci.la/ThematicBreak" itemscope/>
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>Third theme.</span>
-    </p>
-  </div>
-</article>
+<stencila-article data-root data-root="true">
+  <article itemtype="https://schema.org/Article" itemscope>
+    <div data-prop="content" slot="content">
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>First theme.</span>
+      </p>
+      <hr itemtype="https://schema.stenci.la/ThematicBreak" itemscope/>
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>Second theme.</span>
+      </p>
+      <hr itemtype="https://schema.stenci.la/ThematicBreak" itemscope/>
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>Third theme.</span>
+      </p>
+    </div>
+  </article>
+</stencila-article>

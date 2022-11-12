@@ -1,21 +1,23 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 530
+assertion_line: 552
 expression: encoded
 input_file: fixtures/fragments/html/paragraph.html
 ---
-<article data-root itemtype="https://schema.org/Article" itemscope>
-  <div data-prop="content">
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>First paragraph.</span>
-    </p>
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>Second paragraph.</span>
-    </p>
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>Third paragraph,
+<stencila-article data-root data-root="true">
+  <article itemtype="https://schema.org/Article" itemscope>
+    <div data-prop="content" slot="content">
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>First paragraph.</span>
+      </p>
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>Second paragraph.</span>
+      </p>
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>Third paragraph,
 split over multiple
 lines.</span>
-    </p>
-  </div>
-</article>
+      </p>
+    </div>
+  </article>
+</stencila-article>

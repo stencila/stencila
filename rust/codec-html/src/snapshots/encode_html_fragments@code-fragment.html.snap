@@ -1,25 +1,27 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 530
+assertion_line: 552
 expression: encoded
 input_file: fixtures/fragments/html/code-fragment.html
 ---
-<article data-root itemtype="https://schema.org/Article" itemscope>
-  <div data-prop="content">
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>Some</span>
-      <stencila-code-fragment itemtype="https://schema.stenci.la/CodeFragment" itemscope>
-        <code itemprop="text" slot="text">code</code>
-      </stencila-code-fragment>
-      <span>in a paragraph.</span>
-    </p>
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>With a language</span>
-      <stencila-code-fragment itemtype="https://schema.stenci.la/CodeFragment" itemscope programming-language="python">
-        <meta itemprop="programmingLanguage" content="python"/>
-        <code itemprop="text" slot="text" class="language-python">1 + 1</code>
-      </stencila-code-fragment>
-      <span>specified.</span>
-    </p>
-  </div>
-</article>
+<stencila-article data-root data-root="true">
+  <article itemtype="https://schema.org/Article" itemscope>
+    <div data-prop="content" slot="content">
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>Some</span>
+        <stencila-code-fragment itemtype="https://schema.stenci.la/CodeFragment" itemscope>
+          <code itemprop="text" slot="text">code</code>
+        </stencila-code-fragment>
+        <span>in a paragraph.</span>
+      </p>
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>With a language</span>
+        <stencila-code-fragment itemtype="https://schema.stenci.la/CodeFragment" itemscope programming-language="python">
+          <meta itemprop="programmingLanguage" content="python"/>
+          <code itemprop="text" slot="text" class="language-python">1 + 1</code>
+        </stencila-code-fragment>
+        <span>specified.</span>
+      </p>
+    </div>
+  </article>
+</stencila-article>
