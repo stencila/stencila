@@ -49,7 +49,7 @@ function toDOM(node: Node) {
 
   const text = document.createElement('code')
   text.slot = 'text'
-  text.innerText = node.attrs.text
+  text.innerHTML = node.attrs.text
   text.contentEditable = 'false'
   dom.appendChild(text)
 

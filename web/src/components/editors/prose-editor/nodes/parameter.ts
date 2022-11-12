@@ -48,7 +48,6 @@ function getAttrs(node: StencilaParameter): Attrs {
 
 function toDOM(node: Node) {
   const dom = document.createElement('stencila-parameter')
-  dom.contentEditable = 'false'
   dom.draggable = true
   dom.id = node.attrs.id
   dom.setAttribute('name', node.attrs.name)

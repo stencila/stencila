@@ -42,7 +42,6 @@ function getAttrs(node: StencilaCall): Attrs {
 
 function toDOM(node: Node) {
   const dom = document.createElement('stencila-call')
-  dom.contentEditable = 'false'
   dom.draggable = true
   dom.id = node.attrs.id
   dom.setAttribute('source', node.attrs.source)
@@ -51,6 +50,7 @@ function toDOM(node: Node) {
   const errors = document.createElement('div')
   errors.slot = 'errors'
   errors.innerHTML = node.attrs.errors
+  errors.contentEditable = 'false'
   dom.appendChild(errors)
 
   // Note: the `arguments` property is assigned to the `contentDOM` for this node type
@@ -64,6 +64,7 @@ function toDOM(node: Node) {
   const content = document.createElement('div')
   content.slot = 'content'
   content.innerHTML = node.attrs.content
+  content.contentEditable = 'false'
   content.setAttribute('style', 'opacity: 0.75;')
   dom.appendChild(content)
 

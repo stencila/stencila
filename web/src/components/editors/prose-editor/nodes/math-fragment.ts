@@ -38,24 +38,26 @@ function getAttrs(node: StencilaMathFragment): Attrs {
 
 function toDOM(node: Node) {
   const dom = document.createElement('stencila-math-fragment')
-  dom.contentEditable = 'false'
   dom.draggable = true
   dom.id = node.attrs.id
   dom.setAttribute('math-language', node.attrs.mathLanguage)
 
   const text = document.createElement('code')
   text.slot = 'text'
-  text.innerText = node.attrs.text
+  text.innerHTML = node.attrs.text
+  text.contentEditable = 'false'
   dom.appendChild(text)
 
   const errors = document.createElement('span')
   errors.slot = 'errors'
   errors.innerHTML = node.attrs.errors
+  errors.contentEditable = 'false'
   dom.appendChild(errors)
 
   const mathml = document.createElement('span')
   mathml.slot = 'mathml'
   mathml.innerHTML = node.attrs.mathml
+  mathml.contentEditable = 'false'
   dom.appendChild(mathml)
 
   return { dom }
