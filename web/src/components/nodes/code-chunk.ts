@@ -76,9 +76,9 @@ export default class StencilaCodeChunk extends StencilaCodeExecutable {
 
     return html`<div
       part="base"
-      class=${tw`my-4 rounded border(& ${
+      class=${tw`my-4 rounded overflow-hidden border(& ${
         StencilaCodeChunk.color
-      }-200) overflow-hidden ${this.selected ? `ring-1` : ''}`}
+      }-200) ${this.selected ? `ring-1` : ''}`}
     >
       <div
         part="header"
