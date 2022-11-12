@@ -50,7 +50,7 @@ export default class StencilaMathBlock extends StencilaMath {
             tw,
             false,
             `border(t ${StencilaMathBlock.color}-200) p-2 ${
-              this.isExpanded || 'hidden'
+              this.isExpanded ? '' : 'hidden'
             }`
           )}
 
