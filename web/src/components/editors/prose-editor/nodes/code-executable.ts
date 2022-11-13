@@ -3,8 +3,8 @@ import { executableAttrs, StencilaExecutableView } from './executable'
 
 export const codeExecutableAttrs = {
   ...executableAttrs,
-  programmingLanguage: { default: 'unknown' },
-  guessLanguage: { default: true },
+  programmingLanguage: { default: '' },
+  guessLanguage: { default: null },
   text: { default: '' },
 }
 

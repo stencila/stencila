@@ -50,7 +50,8 @@ function toDOM(node: Node) {
   dom.id = node.attrs.id
   dom.setAttribute('name', node.attrs.name)
   dom.setAttribute('programming-language', node.attrs.programmingLanguage)
-  dom.setAttribute('guess-language', node.attrs.guessLanguage)
+  if (node.attrs.guessLanguage)
+    dom.setAttribute('guess-language', node.attrs.guessLanguage)
 
   const text = document.createElement('pre')
   text.slot = 'text'

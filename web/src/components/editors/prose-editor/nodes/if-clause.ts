@@ -50,13 +50,14 @@ function toDOM(node: Node) {
   const dom = document.createElement('stencila-if-clause')
   dom.id = node.attrs.id
   dom.setAttribute('programming-language', node.attrs.programmingLanguage)
-  dom.setAttribute('guess-language', node.attrs.guessLanguage)
+  if (node.attrs.guessLanguage)
+    dom.setAttribute('guess-language', node.attrs.guessLanguage)
 
-  //const text = document.createElement('pre')
-  //text.slot = 'text'
-  //text.innerHTML = node.attrs.text
-  //text.contentEditable = 'false'
-  //dom.appendChild(text)
+  const text = document.createElement('pre')
+  text.slot = 'text'
+  text.innerHTML = node.attrs.text
+  text.contentEditable = 'false'
+  dom.appendChild(text)
 
   const errors = document.createElement('div')
   errors.slot = 'errors'

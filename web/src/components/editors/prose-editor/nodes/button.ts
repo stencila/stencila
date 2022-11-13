@@ -53,7 +53,8 @@ function toDOM(node: Node) {
   dom.setAttribute('label', node.attrs.label ?? sentenceCase(node.attrs.name))
   dom.setAttribute('text', node.attrs.text)
   dom.setAttribute('programming-language', node.attrs.programmingLanguage)
-  dom.setAttribute('guess-language', node.attrs.guessLanguage)
+  if (node.attrs.guessLanguage)
+    dom.setAttribute('guess-language', node.attrs.guessLanguage)
 
   return { dom }
 }
