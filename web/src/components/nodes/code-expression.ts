@@ -24,7 +24,7 @@ export default class StencilaCodeExpression extends StencilaCodeExecutable {
     const readOnly = !isCodeWriteable()
 
     return html`<stencila-code-editor
-      class=${tw`min-w-0 w-full rounded overflow-hidden 
+      class=${tw`min-w-0 w-full rounded overflow-hidden
                  border(& ${StencilaCodeExpression.color}-200) bg-${StencilaCodeExpression.color}-50
                  font-normal text-base
                  focus:border(& ${StencilaCodeExpression.color}-400) focus:ring(2 ${StencilaCodeExpression.color}-100)`}
@@ -70,7 +70,7 @@ export default class StencilaCodeExpression extends StencilaCodeExecutable {
 
     return html`<span
       part="base"
-      class=${tw`inline-flex rounded overflow-hidden border(& ${
+      class=${tw`inline-flex rounded overflow-hidden whitespace-normal border(& ${
         StencilaCodeExpression.color
       }-200) ${this.selected ? `ring-1` : ''}`}
     >

@@ -244,14 +244,15 @@ export default class StencilaFor extends StencilaCodeExecutable {
   protected renderContentContainer() {
     return html`<div
       part="content"
-      class=${tw`border(t ${StencilaFor.color}-200) p-2 ${
-        this.isContentExpanded || 'hidden'
-      }`}
+      class=${this.isContentExpanded
+        ? tw`border(t ${StencilaFor.color}-200) p-2 ${
+            isContentWriteable() ? 'whitespace-pre' : ''
+          }`
+        : tw`hidden`}
     >
       ${!this.hasContent
         ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
-        : ''}
-      <slot
+        : ''}<slot
         name="content"
         @slotchange=${(event: Event) => this.onContentSlotChange(event)}
       ></slot>
@@ -406,7 +407,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     return html`<div
       part="base"
-      class=${tw`my-4 rounded overflow-hidden border(& ${
+      class=${tw`my-4 rounded overflow-hidden whitespace-normal border(& ${
         StencilaFor.color
       }-200) ${this.selected ? `ring-1` : ''}`}
     >

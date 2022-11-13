@@ -380,7 +380,9 @@ export default class StencilaParameter extends StencilaExecutable {
         >`
       : html`<span
           part="base"
-          class=${tw`inline-flex my-1 rounded ${this.selected ? `ring-1` : ''}`}
+          class=${tw`inline-flex my-1 rounded whitespace-normal ${
+            this.selected ? `ring-1` : ''
+          }`}
         >
           <span
             part="start"

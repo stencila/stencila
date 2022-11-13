@@ -1,7 +1,7 @@
 import { SlRadioGroup } from '@shoelace-style/shoelace'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
-import { isCodeWriteable } from '../../mode'
+import { isCodeWriteable, isContentWriteable } from '../../mode'
 import StencilaInput from '../base/input'
 import { twSheet } from '../utils/css'
 
@@ -186,13 +186,14 @@ export default class StencilaForm extends StencilaExecutable {
     return html`<div
       part="content"
       class=${this.hasContent
-        ? tw`border(t ${StencilaForm.color}-200) p-2 `
+        ? tw`border(t ${StencilaForm.color}-200) p-2 ${
+            isContentWriteable() ? 'whitespace-pre' : ''
+          }`
         : tw`hidden`}
     >
       ${!this.hasContent
         ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
-        : ''}
-      <slot
+        : ''}<slot
         name="content"
         @slotchange=${(event: Event) => this.onContentSlotChange(event)}
       ></slot>
@@ -204,7 +205,7 @@ export default class StencilaForm extends StencilaExecutable {
 
     return html`<div
       part="base"
-      class=${tw`my-4 rounded overflow-hidden border(& ${
+      class=${tw`my-4 rounded overflow-hidden whitespace-normal border(& ${
         StencilaForm.color
       }-200) ${this.selected ? `ring-1` : ''}`}
       @mousedown=${toggleSelected}

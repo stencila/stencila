@@ -21,7 +21,7 @@ export default class StencilaForIteration extends StencilaExecutable {
     return html`<div part="base">
       <div
         part="header"
-        class=${tw`flex items-center border(t b ${StencilaFor.color}-200)
+        class=${tw`flex items-center whitespace-normal border(t b ${StencilaFor.color}-200)
                    bg-${StencilaFor.color}-50 p-1 font(mono) text(sm ${StencilaFor.color}-700)`}
       >
         <span class=${tw`ml-3`}>${this.index + 1}</span>

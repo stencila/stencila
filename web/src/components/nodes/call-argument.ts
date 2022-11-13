@@ -182,7 +182,8 @@ export default class StencilaCallArgument extends StencilaParameter {
   protected render() {
     return html`<div
       part="base"
-      class=${tw`flex items-center justify-between border(t ${StencilaCall.color}-200) bg-${StencilaCall.color}-50
+      class=${tw`flex items-center justify-between  whitespace-normal 
+                 border(t ${StencilaCall.color}-200) bg-${StencilaCall.color}-50
                  p-1 pl-2 pr-2 font(mono) text(sm ${StencilaCall.color}-700)`}
     >
       <span part="start" class=${tw`flex items-center`}>

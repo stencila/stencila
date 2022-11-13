@@ -58,13 +58,9 @@ export default class StencilaProseEditor extends StencilaElement {
 
       .ProseMirror {
         word-wrap: break-word;
-        /*
-        EDIT: These are excluded aas they affect the styling of custom components
-        within the editor.
-
-        white-space: pre-wrap; 
+        white-space: pre-wrap;
         white-space: break-spaces;
-        */
+
         -webkit-font-variant-ligatures: none;
         font-variant-ligatures: none;
         font-feature-settings: 'liga' 0; /* the above doesn't seem to work in Edge */

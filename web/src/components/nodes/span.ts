@@ -33,7 +33,9 @@ export default class StencilaSpan extends StencilaStyled {
     return html`<span
       part="content"
       class=${this.isExpanded
-        ? tw`inline-flex border(l ${StencilaSpan.color}-200) py-1 px-2`
+        ? tw`inline-flex border(l ${StencilaSpan.color}-200) py-1 px-2 ${
+            isContentWriteable() ? 'whitespace-pre' : ''
+          }`
         : tw`hidden`}
     >
       ${this.renderContentSlot(tw)}
@@ -49,7 +51,7 @@ export default class StencilaSpan extends StencilaStyled {
       ? html`${this.renderCssSlot(tw)} ${this.renderContentSlot(tw)}`
       : html`<span
           part="base"
-          class=${tw`inline-flex my-1 rounded overflow-hidden border(& ${
+          class=${tw`inline-flex my-1 rounded overflow-hidden whitespace-normal border(& ${
             StencilaSpan.color
           }-200) ${this.selected ? `ring-1` : ''}`}
         >

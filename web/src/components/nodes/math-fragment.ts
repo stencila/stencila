@@ -26,7 +26,7 @@ export default class StencilaMathFragment extends StencilaMath {
       ? html`${this.renderMathMLSlot(tw, true)}`
       : html`<span
           part="base"
-          class=${tw`inline-flex rounded overflow-hidden border(& ${
+          class=${tw`inline-flex rounded overflow-hidden whitespace-normal border(& ${
             StencilaMathFragment.color
           }-200)
                 ${this.selected ? `ring-1` : ''}`}

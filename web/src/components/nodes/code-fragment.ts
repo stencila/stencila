@@ -27,7 +27,7 @@ export default class StencilaCodeFragment extends StencilaCodeStatic {
 
     return html`<span
       part="base"
-      class=${tw`inline-flex rounded overflow-hidden border(& ${
+      class=${tw`inline-flex rounded overflow-hidden whitespace-normal border(& ${
         StencilaCodeFragment.color
       }-200) ${this.selected ? `ring-1` : ''}`}
     >

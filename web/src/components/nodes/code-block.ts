@@ -32,7 +32,7 @@ export default class StencilaCodeBlock extends StencilaCodeStatic {
 
     return html`<div
       part="base"
-      class=${tw`my-4 rounded overflow-hidden border(& ${
+      class=${tw`my-4 rounded overflow-hidden whitespace-normal border(& ${
         StencilaCodeBlock.color
       }-200) ${this.selected ? `ring-1` : ''}`}
     >

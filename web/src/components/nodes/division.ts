@@ -21,9 +21,9 @@ export default class StencilaDivision extends StencilaStyled {
   protected renderErrorsContainer(tw: TW) {
     return html`<div
       part="errors"
-      class=${tw`border(t ${StencilaDivision.color}-200) ${
-        this.hasErrors || 'hidden'
-      }`}
+      class=${this.hasErrors
+        ? tw`border(t ${StencilaDivision.color}-200)`
+        : tw`hidden`}
     >
       ${this.renderErrorsSlot(tw)}
     </div>`
@@ -32,9 +32,11 @@ export default class StencilaDivision extends StencilaStyled {
   protected renderContentContainer(tw: TW) {
     return html`<div
       part="content"
-      class=${tw`border(t ${StencilaDivision.color}-200) p-2 ${
-        this.isExpanded || 'hidden'
-      }`}
+      class=${this.isExpanded
+        ? tw`border(t ${StencilaDivision.color}-200) p-2 ${
+            isContentWriteable() ? 'whitespace-pre' : ''
+          }`
+        : tw`hidden`}
     >
       ${this.renderContentSlot(tw)}
     </div>`
@@ -49,9 +51,9 @@ export default class StencilaDivision extends StencilaStyled {
       ? html`${this.renderCssSlot(tw)} ${this.renderContentSlot(tw)}`
       : html`<div
           part="base"
-          class=${tw`my-4 rounded border(& ${
+          class=${tw`my-4 rounded overflow-hidden whitespace-normal border(& ${
             StencilaDivision.color
-          }-200) overflow-hidden ${this.selected ? `ring-1` : ''}`}
+          }-200) ${this.selected ? `ring-1` : ''}`}
         >
           <div
             part="header"

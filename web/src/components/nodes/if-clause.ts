@@ -191,14 +191,15 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     const readOnly = !isContentWriteable()
     return html`<div
       part="content"
-      class=${tw`border(t ${StencilaIf.color}-200) p-2 ${
-        this.isExpanded || 'hidden'
-      }`}
+      class=${this.isExpanded
+        ? tw`border(t ${StencilaIf.color}-200) p-2 ${
+            isContentWriteable() ? 'whitespace-pre' : ''
+          }`
+        : tw`hidden`}
     >
       ${!this.hasContent
         ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
-        : ''}
-      <slot
+        : ''}<slot
         name="content"
         @slotchange=${(event: Event) => this.onContentSlotChange(event)}
       ></slot>
@@ -429,7 +430,10 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       ></slot>
     </div>`
 
-    return html`<div part="base" class=${tw`border(b ${StencilaIf.color}-200)`}>
+    return html`<div
+      part="base"
+      class=${tw`border(b ${StencilaIf.color}-200) whitespace-normal`}
+    >
       <div
         part="header"
         class=${tw`flex justify-between items-center bg-${StencilaIf.color}-50 p-1

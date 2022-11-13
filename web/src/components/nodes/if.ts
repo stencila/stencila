@@ -58,7 +58,9 @@ export default class StencilaIf extends StencilaExecutable {
 
     return html`<div
       part="base"
-      class=${tw`my-4 rounded border(& ${StencilaIf.color}-200)
+      class=${tw`my-4 rounded whitespace-normal border(& ${
+        StencilaIf.color
+      }-200)
                  ${this.selected ? `ring-1` : ''}`}
     >
       <div part="clauses">

@@ -216,7 +216,7 @@ export default class StencilaInclude extends StencilaExecutable {
 
     return html`<div
       part="base"
-      class=${tw`my-4 rounded overflow-hidden border(& ${
+      class=${tw`my-4 rounded overflow-hidden whitespace-normal border(& ${
         StencilaInclude.color
       }-200) ${this.selected ? `ring-1` : ''}`}
       @mousedown=${toggleSelected}
