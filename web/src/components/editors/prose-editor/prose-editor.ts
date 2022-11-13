@@ -145,18 +145,6 @@ export default class StencilaProseEditor extends StencilaElement {
   schema: string = 'article'
 
   /**
-   * A CSS class name to apply to to the editor
-   */
-  @property({ attribute: 'css-class' })
-  cssClass: string = ''
-
-  /**
-   * CSS rules for `cssClass`
-   */
-  @property({ attribute: 'css-rules' })
-  cssRules: string = ''
-
-  /**
    * The ProseMirror editor view
    */
   private editorView?: EditorView
@@ -217,18 +205,14 @@ export default class StencilaProseEditor extends StencilaElement {
     })
   }
 
-  render() {
+  protected render() {
     return html`
       <slot
         style="display:none"
         @slotchange=${(event: Event) => this.onSlotChange(event)}
       ></slot>
 
-      <style>
-        ${this.cssRules}
-      </style>
-
-      <div part="content" class="pm ${this.cssClass}"></div>
+      <div part="content" class="pm"></div>
     `
   }
 }
