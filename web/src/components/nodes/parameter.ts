@@ -374,6 +374,8 @@ export default class StencilaParameter extends StencilaExecutable {
 
   protected render() {
     const mode = currentMode()
+    const toggleSelected = () => this.toggleSelected()
+
     return mode <= Mode.Interact
       ? html`<span class=${tw`inline-flex`}
           >${this.renderValidatorSlot()} ${this.renderLabelAndInput()}</span
@@ -383,6 +385,7 @@ export default class StencilaParameter extends StencilaExecutable {
           class=${tw`inline-flex my-1 rounded whitespace-normal ${
             this.selected ? `ring-1` : ''
           }`}
+          @mousedown=${toggleSelected}
         >
           <span
             part="start"
@@ -408,7 +411,8 @@ export default class StencilaParameter extends StencilaExecutable {
           <span
             part="end"
             class=${tw`inline-flex items-center rounded-r overflow-hidden border(& ${StencilaParameter.color}-200) 
-      bg-${StencilaParameter.color}-50 px-1 text(sm ${StencilaParameter.color}-700)`}
+                       bg-${StencilaParameter.color}-50 px-1 text(sm ${StencilaParameter.color}-700)`}
+            @mousedown=${toggleSelected}
           >
             ${this.renderDownloadButton(
               StencilaParameter.formats,
