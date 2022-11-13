@@ -7,6 +7,7 @@ export function division(): NodeSpec {
   return {
     group: 'BlockContent',
     content: 'BlockContent*',
+    defining: true, // Necessary for copy/paste-ability of whole node, not just its content
     attrs: styledAttrs,
     parseDOM,
     toDOM,
