@@ -183,6 +183,7 @@ export default class StencilaForm extends StencilaExecutable {
   }
 
   protected renderContentContainer() {
+    // prettier-ignore
     return html`<div
       part="content"
       class=${this.hasContent
@@ -190,14 +191,12 @@ export default class StencilaForm extends StencilaExecutable {
             isContentWriteable() ? 'whitespace-pre' : ''
           }`
         : tw`hidden`}
-    >
-      ${!this.hasContent
+    >${!this.hasContent
         ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
         : ''}<slot
         name="content"
         @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-      ></slot>
-    </div>`
+      ></slot></div>`
   }
 
   protected render() {

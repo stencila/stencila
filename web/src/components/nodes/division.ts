@@ -30,6 +30,7 @@ export default class StencilaDivision extends StencilaStyled {
   }
 
   protected renderContentContainer(tw: TW) {
+    // prettier-ignore
     return html`<div
       part="content"
       class=${this.isExpanded
@@ -37,9 +38,7 @@ export default class StencilaDivision extends StencilaStyled {
             isContentWriteable() ? 'whitespace-pre' : ''
           }`
         : tw`hidden`}
-    >
-      ${this.renderContentSlot(tw)}
-    </div>`
+    >${this.renderContentSlot(tw)}</div>`
   }
 
   render() {

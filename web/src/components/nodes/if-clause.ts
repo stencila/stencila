@@ -188,7 +188,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
   }
 
   protected renderContentContainer() {
-    const readOnly = !isContentWriteable()
+    // prettier-ignore
     return html`<div
       part="content"
       class=${this.isExpanded
@@ -196,14 +196,12 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
             isContentWriteable() ? 'whitespace-pre' : ''
           }`
         : tw`hidden`}
-    >
-      ${!this.hasContent
+    >${!this.hasContent
         ? html`<p class=${tw`text(center gray-300)`}>No content</p>`
         : ''}<slot
         name="content"
         @slotchange=${(event: Event) => this.onContentSlotChange(event)}
-      ></slot>
-    </div>`
+      ></slot></div>`
   }
 
   protected render() {

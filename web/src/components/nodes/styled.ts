@@ -73,6 +73,14 @@ export default class StencilaStyled extends StencilaCodeExecutable {
    *
    * Updates the custom stylesheet for this `Styled` creating a new
    * `CSSStyleSheet` if necessary.
+   *
+   * The approach taken is to get the `document` to adopt the stylesheet
+   * and add the `cssClass` to the slotted content (in the Light DOM).
+   * An alternative is to get the `shadowRoot` of this custom element
+   * to adopt the stylesheet but the former approach is more consistent with
+   * the styling approach used for static pages in the absence of Web Components
+   * and also allows document wide CSS classes to be applied to `Styled` nodes
+   * (i.e. not relying on just applying utility classes).
    */
   private onCssChanged(css: string, initial = false) {
     // If necessary create a new stylesheet for the new CSS
