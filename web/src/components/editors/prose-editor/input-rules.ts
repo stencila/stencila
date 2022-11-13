@@ -275,26 +275,28 @@ export const stencilaInputRules = inputRules({
     ),
 
     // Span
+    //
+    // Allows for style to be in either backticks or braces
     new InputRule(
-      //  content    style
-      /\[([^\]]+)\]`([^`]+)`$/,
+      //  content          style          style
+      /\[([^\]]+)\](?:(?:`([^`]+)`)|(?:\{([^}]+)\}))$/,
       (state, match, start, end) => {
         const tr = state.tr
 
-        // Delete the square brackets and backticked style
-        tr.delete(end - match[2].length - 2, end)
+        const text = match[2] || match[3]
+
+        // Delete the square brackets and backticked/curly bracketed style
+        tr.delete(end - text.length - 2, end)
         tr.delete(start, start + 1)
 
         // Wrap the remaining content in a span
         const startPos = tr.doc.resolve(start)
-        const endPos = tr.doc.resolve(end - 1 - match[2].length - 2)
+        const endPos = tr.doc.resolve(end - 1 - text.length - 2)
         const range = new NodeRange(startPos, endPos, 2)
         tr.wrap(range, [
           {
             type: nodes.Span,
-            attrs: {
-              text: match[2],
-            },
+            attrs: { text },
           },
         ])
         return tr
