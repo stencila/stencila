@@ -168,7 +168,8 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
 
   /**
    * Override to set `isExpanded` based on the changes in `isActive`. This allows expansion/contraction
-   * based on changes to which clause is active as well as based on user interaction
+   * based on changes to which clause is active as well as based on user interaction. Also update
+   * properties relation to position in parent `If`.
    */
   protected update(
     changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
@@ -182,8 +183,8 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     this.isLast = index == clauses.length - 1
     this.isElse = this.isLast && this.text?.trim().length == 0
 
-    if (changedProperties.has('isActive')) {
-      this.isExpanded = this.isActive == 'true'
+    if (changedProperties.has('isActive') && this.isActive == 'true') {
+      this.isExpanded = true
     }
   }
 
@@ -290,7 +291,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
         this.guessLanguage = elem.guessLanguage.toString()
         // Emit patch using override above
         event.stopPropagation()
-        this.emitPatch(event.detail)
+        this.emitPatch(event.detail.patch)
       }}
     ></stencila-code-language>`
 
@@ -434,6 +435,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     >
       <div
         part="header"
+        contenteditable="false"
         class=${tw`flex justify-between items-center bg-${StencilaIf.color}-50 p-1
                    font(mono bold) text(sm ${StencilaIf.color}-700)`}
         @mousedown=${toggleSelected}
