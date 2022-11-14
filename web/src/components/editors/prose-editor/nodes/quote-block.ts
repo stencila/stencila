@@ -6,7 +6,9 @@ import { NodeSpec } from 'prosemirror-model'
 export function quoteBlock(): NodeSpec {
   return {
     group: 'BlockContent',
-    content: 'BlockContent*',
+    content: 'BlockContent+',
+    // Necessary for copy/paste-ability of whole node, not just its content
+    defining: true,
     parseDOM: [{ tag: 'blockquote' }],
     toDOM(node) {
       return ['blockquote', 0]

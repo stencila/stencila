@@ -7,9 +7,11 @@ import { StencilaExecutableView, executableAttrs } from './executable'
 export function form(): NodeSpec {
   return {
     group: 'BlockContent',
-    content: 'BlockContent*',
+    // Use +, rather than *, here so that if the `For` has no content
+    // that at least a empty placeholder paragraph will be available for user to edit
+    content: 'BlockContent+',
+    // Necessary for copy/paste-ability of whole node, not just its content
     defining: true,
-    isolating: true,
     attrs: {
       ...executableAttrs,
       deriveFrom: { default: null },

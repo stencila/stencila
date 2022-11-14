@@ -6,7 +6,7 @@ import {
   ellipsis,
   InputRule,
 } from 'prosemirror-inputrules'
-import { MarkType, NodeRange, NodeType } from 'prosemirror-model'
+import { MarkType, Node, NodeRange, NodeType } from 'prosemirror-model'
 import { Plugin, TextSelection, Transaction } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 
@@ -75,7 +75,8 @@ export const stencilaInputRules = inputRules({
         symbol: match[1],
         text: match[2],
         programmingLanguage: match[3],
-      })
+      }),
+      () => nodes.Paragraph.create()
     ),
 
     // Form
@@ -83,20 +84,25 @@ export const stencilaInputRules = inputRules({
       /^(?::{3,})?\s*form(?:\s+(?:to\s+)?(create|update|delete|(?:update or delete))\s+(\w+))?\n$/,
       nodes.Form,
       (match) => {
-        const deriveAction = ((action) => {
-          switch (action) {
-            case 'update or delete':
-              return 'UpdateOrDelete'
-            default:
-              return sentenceCase(action)
-          }
-        })(match[1])
+        if (match[1]) {
+          const deriveAction = ((action) => {
+            switch (action) {
+              case 'update or delete':
+                return 'UpdateOrDelete'
+              default:
+                return sentenceCase(action)
+            }
+          })(match[1])
 
-        return {
-          deriveAction,
-          deriveFrom: match[2],
+          return {
+            deriveAction,
+            deriveFrom: match[2],
+          }
+        } else {
+          return {}
         }
-      }
+      },
+      () => nodes.Paragraph.create()
     ),
 
     // Heading
@@ -112,10 +118,13 @@ export const stencilaInputRules = inputRules({
           start - 1,
           end + 1,
           nodes.If.create({}, [
-            nodes.IfClause.create({
-              text: match[1],
-              programmingLanguage: match[2],
-            }),
+            nodes.IfClause.create(
+              {
+                text: match[1],
+                programmingLanguage: match[2],
+              },
+              nodes.Paragraph.create()
+            ),
           ])
         )
       }
@@ -133,7 +142,8 @@ export const stencilaInputRules = inputRules({
       nodes.Division,
       (match) => ({
         text: match[1],
-      })
+      }),
+      () => nodes.Paragraph.create()
     ),
 
     // Include
@@ -458,13 +468,14 @@ export function inputRules({ rules }: { rules: readonly InputRule[] }) {
 function blockInputRule(
   regexp: RegExp,
   nodeType: NodeType,
-  getAttrs?: (matches: RegExpMatchArray) => Record<string, string>
+  getAttrs?: (matches: RegExpMatchArray) => Record<string, string | undefined>,
+  createContent?: (matches: RegExpMatchArray) => Node | readonly Node[]
 ): InputRule {
   return new InputRule(regexp, (state, match, start, end) => {
     return state.tr.replaceWith(
       start - 1,
       end + 1,
-      nodeType.create(getAttrs?.(match))
+      nodeType.create(getAttrs?.(match), createContent?.(match))
     )
   })
 }

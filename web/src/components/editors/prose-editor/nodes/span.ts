@@ -8,7 +8,8 @@ export function span(): NodeSpec {
     group: 'InlineContent',
     content: 'InlineContent*',
     inline: true,
-    defining: true, // Necessary for copy/paste-ability of whole node, not just its content
+    // Necessary for copy/paste-ability of whole node, not just its content
+    defining: true,
     attrs: styledAttrs,
     parseDOM,
     toDOM,

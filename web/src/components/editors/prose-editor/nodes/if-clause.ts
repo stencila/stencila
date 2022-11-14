@@ -12,8 +12,8 @@ export function ifClause(): NodeSpec {
     // Use +, rather than *, here so that if the `If` has no content
     // that at least a empty placeholder paragraph will be available for user to edit
     content: 'BlockContent+',
+    // Necessary for copy/paste-ability of whole node, not just its content
     defining: true,
-    isolating: true,
     // Not draggable, users can use up/down buttons instead
     draggable: false,
     attrs: codeExecutableAttrs,
