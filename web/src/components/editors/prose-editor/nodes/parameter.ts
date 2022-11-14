@@ -14,11 +14,9 @@ export function parameter(): NodeSpec {
     attrs: {
       ...executableAttrs,
       name: { default: '' },
-      label: { default: '' },
+      label: { default: null },
       derivedFrom: { default: null },
-      validator: {
-        default: null,
-      },
+      validator: { default: null },
     },
     parseDOM,
     toDOM,
@@ -54,8 +52,12 @@ function toDOM(node: Node) {
   dom.draggable = true
   dom.id = node.attrs.id
   dom.setAttribute('name', node.attrs.name)
-  dom.setAttribute('label', node.attrs.label)
-  dom.setAttribute('derived-from', node.attrs.derivedFrom)
+  if (node.attrs.label) {
+    dom.setAttribute('label', node.attrs.label)
+  }
+  if (node.attrs.derivedFrom) {
+    dom.setAttribute('derived-from', node.attrs.derivedFrom)
+  }
 
   const errors = document.createElement('div')
   errors.slot = 'errors'

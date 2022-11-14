@@ -239,10 +239,15 @@ export const stencilaInputRules = inputRules({
 
     // Parameter
     inlineInputRule(
-      /&\[([^\]]+)\](?:(?:{([a-z]+)})|(?:([a-z]+)\s)|\s)$/,
+      /&\[([^\]]+)\](?:(?:{([^}]+)})|\s)$/,
       nodes.Parameter,
       (match) => {
-        const type = ((type: string) => {
+        const options = (match[2] ?? '')
+          .split(/\s/) // Do not split by commas to allow for commas in JSON arrays for enum options
+          .filter((arg) => arg.trim().length > 0)
+          .map((arg) => arg.split(/\s*=\s*/))
+
+        const type = ((type: string | undefined) => {
           switch (type) {
             case 'enum':
               return 'enum'
@@ -271,10 +276,32 @@ export const stencilaInputRules = inputRules({
             default:
               return undefined
           }
-        })(match[2] ?? match[3])
+        })(options.shift()?.[0])
+
+        const attrs = options
+          .map(([name, value]) => {
+            // Rename shorthands for options as in Markdown decoder
+            if (name === 'min') name = 'minimum'
+            else if (name === 'max') name = 'maximum'
+            else if (name === 'exmin') name = 'exclusive-minimum'
+            else if (name === 'exmax') name = 'exclusive-maximum'
+            else if (name === 'mult') name = 'multiple-of'
+            else if (name === 'vals') name = 'values'
+
+            // Remove any quotes around values
+            if (
+              (value.startsWith('"') && value.endsWith('"')) ||
+              (value.startsWith("'") && value.endsWith("'"))
+            ) {
+              value = value.slice(1, -1)
+            }
+
+            return `${name}="${value.replace(/"/g, '&quot;')}"`
+          })
+          .join(' ')
 
         const validator = type
-          ? `<stencila-${type}-validator></stencila-${type}-validator>`
+          ? `<stencila-${type}-validator ${attrs}></stencila-${type}-validator>`
           : '<stencila-validator></stencila-validator>'
 
         return {
