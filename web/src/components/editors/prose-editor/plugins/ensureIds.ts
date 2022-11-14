@@ -17,6 +17,12 @@ export function ensureIds() {
       let modified = false
       if (transactions.some((transaction) => transaction.docChanged)) {
         nextState.doc.descendants((node, pos) => {
+          const type = node.type.name
+          if (type === 'CallArgument' || type === 'IfClause') {
+            // These node types should not be assigned an id
+            return
+          }
+
           const id = (node as any).attrs?.id
           if (id === null || id === '') {
             const id = generateId(node)
