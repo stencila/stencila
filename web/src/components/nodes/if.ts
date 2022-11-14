@@ -69,6 +69,7 @@ export default class StencilaIf extends StencilaExecutable {
 
       <div
         part="footer"
+        contenteditable="false"
         class=${tw`flex justify-between items-center bg-${StencilaIf.color}-50 p-1
                   font(mono bold) text(sm ${StencilaIf.color}-700)`}
         @mousedown=${toggleSelected}

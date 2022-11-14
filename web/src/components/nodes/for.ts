@@ -39,7 +39,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
    * Whether the `content` is visible
    */
   @state()
-  private isContentExpanded = false
+  private isContentExpanded = true
 
   /**
    * Whether or not the `content` slot has content
@@ -231,7 +231,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
       ?read-only=${readOnly}
       ?disabled=${readOnly}
       @focus=${() => this.deselect()}
-      @mousedown=${(event) => {
+      @mousedown=${(event: MouseEvent) => {
         this.deselect()
         event.stopPropagation()
       }}
@@ -343,6 +343,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     const otherwiseHeader = html`<div
       part="otherwise-header"
+      contenteditable="false"
       class=${tw`flex justify-between items-center bg-${StencilaFor.color}-50 border(t ${StencilaFor.color}-200)
                  p-1 font(mono bold) text(sm ${StencilaFor.color}-700)`}
       @mousedown=${toggleSelected}
@@ -366,6 +367,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
     const iterationsHeader = html`<div
       part="iterations-header"
+      contenteditable="false"
       class=${tw`flex justify-between items-center bg-${
         StencilaFor.color
       }-50 border(t ${StencilaFor.color}-200)
@@ -412,6 +414,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
     >
       <div
         part="header"
+        contenteditable="false"
         class=${tw`flex items-center bg-${StencilaFor.color}-50 p-1 font(mono bold) text(sm ${StencilaFor.color}-700)`}
         @mousedown=${toggleSelected}
       >
@@ -431,6 +434,7 @@ export default class StencilaFor extends StencilaCodeExecutable {
 
       <div
         part="footer"
+        contenteditable="false"
         class=${tw`grid justify-items-end items-center bg-${StencilaFor.color}-50
                        border(t ${StencilaFor.color}-200) p-1 text(sm ${StencilaFor.color}-700)`}
         @mousedown=${toggleSelected}

@@ -56,6 +56,7 @@ export default class StencilaDivision extends StencilaStyled {
         >
           <div
             part="header"
+            contenteditable="false"
             class=${tw`flex justify-between items-center bg-${StencilaDivision.color}-50
                        p-1 font(mono bold) text(sm ${StencilaDivision.color}-700)`}
             @mousedown=${toggleSelected}
@@ -73,6 +74,7 @@ export default class StencilaDivision extends StencilaStyled {
 
           <div
             part="footer"
+            contenteditable="false"
             class=${tw`grid justify-items-end items-center bg-${StencilaDivision.color}-50
                        border(t ${StencilaDivision.color}-200) p-1 text(sm ${StencilaDivision.color}-700)`}
             @mousedown=${toggleSelected}

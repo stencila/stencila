@@ -50,6 +50,7 @@ export default class StencilaSpan extends StencilaStyled {
       ? html`${this.renderCssSlot(tw)} ${this.renderContentSlot(tw)}`
       : html`<span
           part="base"
+          contenteditable="false"
           class=${tw`inline-flex my-1 rounded overflow-hidden whitespace-normal border(& ${
             StencilaSpan.color
           }-200) ${this.selected ? `ring-1` : ''}`}
@@ -73,6 +74,7 @@ export default class StencilaSpan extends StencilaStyled {
 
           <span
             part="end"
+            contenteditable="false"
             class=${tw`inline-flex items-center bg-${StencilaSpan.color}-50
                       border(l ${StencilaSpan.color}-200) px-1 text(sm ${StencilaSpan.color}-700)`}
             @mousedown=${toggleSelected}
