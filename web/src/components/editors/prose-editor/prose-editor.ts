@@ -106,84 +106,82 @@ const css = `
 /* From https://github.com/ProseMirror/prosemirror-view/blob/master/style/prosemirror.css */
 
 .ProseMirror {
-    position: relative;
+  position: relative;
 }
 
 .ProseMirror {
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    white-space: break-spaces;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  white-space: break-spaces;
 
-    -webkit-font-variant-ligatures: none;
-    font-variant-ligatures: none;
-    font-feature-settings: 'liga' 0; /* the above doesn't seem to work in Edge */
+  -webkit-font-variant-ligatures: none;
+  font-variant-ligatures: none;
+  font-feature-settings: 'liga' 0; /* the above doesn't seem to work in Edge */
 }
 
 .ProseMirror pre {
-    white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 
 .ProseMirror li {
-    position: relative;
+  position: relative;
 }
 
 .ProseMirror-hideselection *::selection {
-    background: transparent;
+  background: transparent;
 }
 .ProseMirror-hideselection *::-moz-selection {
-    background: transparent;
+  background: transparent;
 }
 .ProseMirror-hideselection {
-    caret-color: transparent;
+  caret-color: transparent;
 }
 
 .ProseMirror-selectednode {
-    outline: 2px solid #8cf;
+  outline: 2px solid #8cf;
 }
 
 /* Make sure li selections wrap around markers */
 
 li.ProseMirror-selectednode {
-    outline: none;
+  outline: none;
 }
 
 li.ProseMirror-selectednode:after {
-    content: '';
-    position: absolute;
-    left: -32px;
-    right: -2px;
-    top: -2px;
-    bottom: -2px;
-    border: 2px solid #8cf;
-    pointer-events: none;
+  content: '';
+  position: absolute;
+  left: -32px;
+  right: -2px;
+  top: -2px;
+  bottom: -2px;
+  border: 2px solid #8cf;
+  pointer-events: none;
 }
 
 /* Protect against generic img rules */
 
 img.ProseMirror-separator {
-    display: inline !important;
-    border: none !important;
-    margin: 0 !important;
+  display: inline !important;
+  border: none !important;
+  margin: 0 !important;
 }
 
 
 /* Placeholder plugin */
 
 .ProseMirror .placeholder {
-    text-align: center;
-    color: rgba(209, 213, 219);
-    pointer-events: none;
-    height: 0;
+  color: rgba(209, 213, 219);
+  pointer-events: none;
 }
 
 .ProseMirror:focus .placeholder {
-    display: none;
+  display: none;
 }
 
 
 /* Customizations */
 
 .ProseMirror {
-outline: none;
+  outline: none;
 }
 `
