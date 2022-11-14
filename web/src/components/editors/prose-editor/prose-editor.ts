@@ -1,8 +1,12 @@
 import {
   baseKeymap,
+  joinDown,
+  joinUp,
   lift,
   selectParentNode,
+  setBlockType,
   toggleMark,
+  wrapIn,
 } from 'prosemirror-commands'
 import { dropCursor } from 'prosemirror-dropcursor'
 import { gapCursor } from 'prosemirror-gapcursor'
@@ -10,7 +14,12 @@ import { history, redo, undo } from 'prosemirror-history'
 import { undoInputRule } from 'prosemirror-inputrules'
 import { keymap } from 'prosemirror-keymap'
 import { DOMParser } from 'prosemirror-model'
-import { schema as basicSchema } from 'prosemirror-schema-basic'
+import {
+  liftListItem,
+  sinkListItem,
+  splitListItem,
+  wrapInList,
+} from 'prosemirror-schema-list'
 import { EditorState } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 
@@ -28,12 +37,36 @@ const extendedKeymap = {
   // Node navigation
   'Mod-BracketLeft': lift,
   Escape: selectParentNode,
+  'Alt-ArrowUp': joinUp,
+  'Alt-ArrowDown': joinDown,
 
   // Toggling marks
-  'Mod-i': toggleMark(basicSchema.marks.em),
-  'Mod-b': toggleMark(basicSchema.marks.strong),
+  // These are consistent with Google Docs (and others?)
+  'Mod-i': toggleMark(articleSchema.marks.Emphasis),
+  'Mod-b': toggleMark(articleSchema.marks.Strong),
+  'Mod-u': toggleMark(articleSchema.marks.Underline),
+  'Alt-Shift-5': toggleMark(articleSchema.marks.Strikeout),
+  'Mod-.': toggleMark(articleSchema.marks.Superscript),
+  'Mod-,': toggleMark(articleSchema.marks.Subscript),
 
-  // TODO: more
+  // Changing the type of blocks
+  'Shift-Mod-0': setBlockType(articleSchema.nodes.Paragraph),
+  'Shift-Mod-1': setBlockType(articleSchema.nodes.Heading, { depth: 1 }),
+  'Shift-Mod-2': setBlockType(articleSchema.nodes.Heading, { depth: 2 }),
+  'Shift-Mod-3': setBlockType(articleSchema.nodes.Heading, { depth: 3 }),
+  'Shift-Mod-4': setBlockType(articleSchema.nodes.Heading, { depth: 4 }),
+  'Shift-Mod-5': setBlockType(articleSchema.nodes.Heading, { depth: 5 }),
+  'Shift-Mod-6': setBlockType(articleSchema.nodes.Heading, { depth: 6 }),
+
+  // Wrapping blocks in another type
+  'Mod->': wrapIn(articleSchema.nodes.QuoteBlock),
+
+  // List creation / manipulation
+  'Shift-Mod-8': wrapInList(articleSchema.nodes.List, { order: 'Unordered' }),
+  'Shift-Mod-9': wrapInList(articleSchema.nodes.List, { order: 'Ascending' }),
+  Enter: splitListItem(articleSchema.nodes.ListItem),
+  'Mod-[': liftListItem(articleSchema.nodes.ListItem),
+  'Mod-]': sinkListItem(articleSchema.nodes.ListItem),
 }
 
 /**
