@@ -20,7 +20,7 @@ export default class StencilaIf extends StencilaExecutable {
 
   static formats = ['markdown', 'yaml', 'json']
 
-  protected render() {
+  protected renderAddButton() {
     const readOnly = !isCodeWriteable()
 
     const add = () => {
@@ -43,7 +43,7 @@ export default class StencilaIf extends StencilaExecutable {
       )
     }
 
-    const addButton = !readOnly
+    return !readOnly
       ? html`<stencila-icon-button
           name="plus-lg"
           color=${StencilaIf.color}
@@ -53,7 +53,9 @@ export default class StencilaIf extends StencilaExecutable {
         >
         </stencila-icon-button>`
       : html`<span></span>`
+  }
 
+  protected render() {
     const toggleSelected = () => this.toggleSelected()
 
     return html`<div
@@ -74,7 +76,7 @@ export default class StencilaIf extends StencilaExecutable {
                   font(mono bold) text(sm ${StencilaIf.color}-700)`}
         @mousedown=${toggleSelected}
       >
-        ${addButton}
+        ${this.renderAddButton()}
         ${this.renderDownloadButton(StencilaIf.formats, StencilaIf.color)}
       </div>
     </div>`
