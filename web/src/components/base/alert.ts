@@ -14,14 +14,27 @@ import { IconName } from './icon'
 export default class StencilaAlert extends SlAlert {}
 
 /**
+ * Alerts that are currently active
+ */
+const activeAlerts: Record<string, number> = {}
+
+/**
  * Dynamically generate and pop up an alert
+ *
+ * Will not show the same notification if there is already one
+ * with the same message. This avoids having a whole screen's
+ * worth of notifications.
  */
 export function notify(
-  message,
+  message: string,
   variant = 'primary',
   icon: IconName = 'info-circle',
   duration = 3000
 ) {
+  if (activeAlerts[message] && activeAlerts[message] - Date.now() < duration) {
+    return
+  }
+
   const alert = Object.assign(document.createElement('stencila-alert'), {
     variant,
     closable: true,
@@ -31,6 +44,9 @@ export function notify(
         ${escapeHtml(message)}
       `,
   })
+
+  activeAlerts[message] = Date.now()
+  alert.addEventListener('sl-hide', () => delete activeAlerts[message])
 
   document.body.append(alert)
 
