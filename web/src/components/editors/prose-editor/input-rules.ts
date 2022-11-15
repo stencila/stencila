@@ -165,9 +165,13 @@ export const stencilaInputRules = inputRules({
     }),
 
     // MathBlock
-    blockInputRule(/^\$\$\n/, nodes.MathBlock, (match) => ({
-      text: match[1],
+    blockInputRule(/^\$\$(.*?)\$\$\n/, nodes.MathBlock, (match) => ({
+      text: match[1].trim(),
       mathLanguage: 'tex',
+    })),
+    blockInputRule(/^%%(.*?)%%\n/, nodes.MathBlock, (match) => ({
+      text: match[1].trim(),
+      mathLanguage: 'asciimath',
     })),
 
     // QuoteBlock

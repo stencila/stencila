@@ -3,6 +3,7 @@ import { executableAttrs, StencilaExecutableView } from './executable'
 
 export const mathAttrs = {
   ...executableAttrs,
+  mathLanguage: { default: 'tex' },
   text: { default: '' },
   mathml: { default: '' },
 }

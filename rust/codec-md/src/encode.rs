@@ -402,7 +402,8 @@ impl ToMd for MathBlock {
         match self.math_language.as_str() {
             "asciimath" => ["```asciimath\n", &self.text, "\n```\n\n"].concat(),
             "mathml" => ["```mathml\n", &self.text, "\n```\n\n"].concat(),
-            _ => ["$$\n", &self.text, "\n$$\n\n"].concat(),
+            // If using double dollars ensure that everything is on the same line (paragraph)
+            _ => ["$$ ", &self.text.replace('\n', " "), " $$\n\n"].concat(),
         }
     }
 }
