@@ -88,6 +88,7 @@
     "prosemirror-schema-basic": "^1.2.0",
     "prosemirror-schema-list": "^1.2.2",
     "prosemirror-state": "^1.4.2",
+    "prosemirror-tables": "^1.2.5",
     "prosemirror-view": "^1.29.0",
     "rpc-websockets": "^7.5.0",
     "thememirror": "^2.0.1",

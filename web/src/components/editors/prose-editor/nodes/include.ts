@@ -7,8 +7,8 @@ import { StencilaExecutableView, executableAttrs } from './executable'
 export const includeAttrs = {
   ...executableAttrs,
   source: { default: '' },
-  select: { default: '' },
-  content: { default: '' },
+  select: { default: null },
+  content: { default: null },
 }
 
 export function include(): NodeSpec {
@@ -37,7 +37,7 @@ function getAttrs(node: StencilaInclude): Attrs {
   return {
     id: node.id,
     source: node.getAttribute('source'),
-    select: node.getAttribute('select') ?? undefined,
+    select: node.getAttribute('select'),
     errors: node.querySelector('[slot=errors]')?.innerHTML,
     content: node.querySelector('[slot=content]')?.innerHTML,
   }

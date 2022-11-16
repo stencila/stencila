@@ -33,7 +33,7 @@ function getAttrs(node: StencilaCodeChunk): Attrs {
     id: node.id,
     programmingLanguage: node.getAttribute('programming-language'),
     guessLanguage: node.getAttribute('guess-language'),
-    text: node.querySelector('[slot=text]')?.innerHTML,
+    text: node.querySelector('[slot=text]')?.innerHTML ?? '',
     errors: node.querySelector('[slot=errors]')?.innerHTML,
     outputs: node.querySelector('[slot=outputs]')?.innerHTML,
   }
@@ -44,8 +44,9 @@ function toDOM(node: Node) {
   dom.draggable = true
   dom.id = node.attrs.id
   dom.setAttribute('programming-language', node.attrs.programmingLanguage)
-  if (node.attrs.guessLanguage)
+  if (node.attrs.guessLanguage) {
     dom.setAttribute('guess-language', node.attrs.guessLanguage)
+  }
 
   const text = document.createElement('pre')
   text.slot = 'text'
@@ -53,17 +54,21 @@ function toDOM(node: Node) {
   text.contentEditable = 'false'
   dom.appendChild(text)
 
-  const errors = document.createElement('div')
-  errors.slot = 'errors'
-  errors.innerHTML = node.attrs.errors
-  errors.contentEditable = 'false'
-  dom.appendChild(errors)
+  if (node.attrs.errors) {
+    const errors = document.createElement('div')
+    errors.slot = 'errors'
+    errors.innerHTML = node.attrs.errors
+    errors.contentEditable = 'false'
+    dom.appendChild(errors)
+  }
 
-  const outputs = document.createElement('div')
-  outputs.slot = 'outputs'
-  outputs.innerHTML = node.attrs.outputs
-  outputs.contentEditable = 'false'
-  dom.appendChild(outputs)
+  if (node.attrs.outputs) {
+    const outputs = document.createElement('div')
+    outputs.slot = 'outputs'
+    outputs.innerHTML = node.attrs.outputs
+    outputs.contentEditable = 'false'
+    dom.appendChild(outputs)
+  }
 
   return { dom }
 }

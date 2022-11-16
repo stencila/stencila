@@ -29,7 +29,7 @@ function getAttrs(node: StencilaCodeBlock): Attrs {
   return {
     id: node.id,
     programmingLanguage: node.getAttribute('programming-language') ?? '',
-    text: node.querySelector('[slot=text]')?.innerHTML,
+    text: node.querySelector('[slot=text]')?.innerHTML ?? '',
   }
 }
 

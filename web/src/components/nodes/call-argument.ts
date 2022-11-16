@@ -20,7 +20,7 @@ const { tw, sheet } = twSheet()
  */
 @customElement('stencila-call-argument')
 export default class StencilaCallArgument extends StencilaParameter {
-  static styles = sheet.target
+  static styles = [sheet.target]
 
   /**
    * The `CallArgument.programmingLanguage` property
@@ -140,7 +140,7 @@ export default class StencilaCallArgument extends StencilaParameter {
       @stencila-document-patch=${(event: CustomEvent) => {
         // Emit patch using override above
         event.stopPropagation()
-        this.emitPatch(event.detail as Patch)
+        this.emitPatch(event.detail.patch as Patch)
       }}
       @stencila-ctrl-enter=${() => this.execute()}
     >

@@ -189,8 +189,11 @@ export const stencilaInputRules = inputRules({
         end + 1,
         nodes.Table.create(
           {},
-          cols.map((col: string) =>
-            nodes.TableHeader.create(null, articleSchema.text(col.trim()))
+          nodes.TableRow.create(
+            {},
+            cols.map((col: string) =>
+              nodes.TableHeader.create(null, articleSchema.text(col.trim()))
+            )
           )
         )
       )

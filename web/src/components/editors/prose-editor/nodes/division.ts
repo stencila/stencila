@@ -36,7 +36,7 @@ function getAttrs(node: StencilaDivision): Attrs {
     id: node.id,
     programmingLanguage: node.getAttribute('programming-language'),
     guessLanguage: node.getAttribute('guess-language'),
-    text: node.querySelector('[slot=text]')?.innerHTML,
+    text: node.querySelector('[slot=text]')?.innerHTML ?? '',
     css: node.querySelector('[slot=css]')?.innerHTML,
     errors: node.querySelector('[slot=errors]')?.innerHTML,
   }

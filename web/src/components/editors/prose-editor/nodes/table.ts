@@ -1,4 +1,4 @@
-import { AttributeSpec, DOMOutputSpec, Node, NodeSpec } from 'prosemirror-model'
+import { AttributeSpec, Node, NodeSpec } from 'prosemirror-model'
 
 /**
  * Generate a `NodeSpec` to represent a Stencila `Table`
@@ -69,16 +69,11 @@ function tableCellAttrsGet(dom: HTMLElement): Record<string, unknown> {
  * Set `TableCell` attributes as part of `toDOM`
  */
 function tableCellAttrsSet(node: Node): Record<string, string | number> {
-  const attrs: Record<string, string | number> = {
-    itemtype: 'https://schema.stenci.la/TableCell',
-    itemscope: '',
-  }
-
+  const attrs: Record<string, string | number> = {}
   if (node.attrs.colspan !== 1) attrs.colspan = node.attrs.colspan as number
   if (node.attrs.rowspan !== 1) attrs.rowspan = node.attrs.rowspan as number
   if (node.attrs.colwidth != null)
     attrs['data-colwidth'] = (node.attrs.colwidth as string[]).join(',')
-
   return attrs
 }
 

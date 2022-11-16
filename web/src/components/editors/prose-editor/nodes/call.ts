@@ -34,9 +34,9 @@ function getAttrs(node: StencilaCall): Attrs {
   return {
     id: node.id,
     source: node.getAttribute('source'),
-    select: node.getAttribute('select') ?? undefined,
-    errors: node.querySelector('[slot=errors]')?.innerHTML,
-    content: node.querySelector('[slot=content]')?.innerHTML,
+    select: node.getAttribute('select') ?? null,
+    errors: node.querySelector('[slot=errors]')?.innerHTML ?? null,
+    content: node.querySelector('[slot=content]')?.innerHTML ?? null,
   }
 }
 
@@ -45,13 +45,17 @@ function toDOM(node: Node) {
   dom.draggable = true
   dom.id = node.attrs.id
   dom.setAttribute('source', node.attrs.source)
-  dom.setAttribute('select', node.attrs.select)
+  if (node.attrs.select) {
+    dom.setAttribute('select', node.attrs.select)
+  }
 
-  const errors = document.createElement('div')
-  errors.slot = 'errors'
-  errors.innerHTML = node.attrs.errors
-  errors.contentEditable = 'false'
-  dom.appendChild(errors)
+  if (node.attrs.errors) {
+    const errors = document.createElement('div')
+    errors.slot = 'errors'
+    errors.innerHTML = node.attrs.errors
+    errors.contentEditable = 'false'
+    dom.appendChild(errors)
+  }
 
   // Note: the `arguments` property is assigned to the `contentDOM` for this node type
   // (the same as how `clauses` are the content of `If` blocks)
@@ -61,12 +65,14 @@ function toDOM(node: Node) {
 
   // Note: the `content` property is not editable so we just store it
   // on the node as HTML, not as a `contentDOM`, and reduce it's opacity
-  const content = document.createElement('div')
-  content.slot = 'content'
-  content.innerHTML = node.attrs.content
-  content.contentEditable = 'false'
-  content.setAttribute('style', 'opacity: 0.75;')
-  dom.appendChild(content)
+  if (node.attrs.content) {
+    const content = document.createElement('div')
+    content.slot = 'content'
+    content.innerHTML = node.attrs.content
+    content.contentEditable = 'false'
+    content.setAttribute('style', 'opacity: 0.75;')
+    dom.appendChild(content)
+  }
 
   return { dom, contentDOM }
 }

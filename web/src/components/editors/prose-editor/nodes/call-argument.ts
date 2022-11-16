@@ -41,7 +41,7 @@ function getAttrs(node: StencilaCallArgument): Attrs {
     programmingLanguage: node.getAttribute('programming-language') ?? '',
     guessLanguage: node.getAttribute('guess-language'),
     text: node.querySelector('[slot=text]')?.innerHTML ?? '',
-    errors: node.querySelector('[slot=errors]')?.innerHTML ?? '',
+    errors: node.querySelector('[slot=errors]')?.innerHTML ?? null,
   }
 }
 
@@ -50,8 +50,9 @@ function toDOM(node: Node) {
   dom.id = node.attrs.id
   dom.setAttribute('name', node.attrs.name)
   dom.setAttribute('programming-language', node.attrs.programmingLanguage)
-  if (node.attrs.guessLanguage)
+  if (node.attrs.guessLanguage) {
     dom.setAttribute('guess-language', node.attrs.guessLanguage)
+  }
 
   const text = document.createElement('pre')
   text.slot = 'text'
@@ -59,15 +60,13 @@ function toDOM(node: Node) {
   text.contentEditable = 'false'
   dom.appendChild(text)
 
-  const errors = document.createElement('div')
-  errors.slot = 'errors'
-  errors.innerHTML = node.attrs.errors
-  errors.contentEditable = 'false'
-  dom.appendChild(errors)
+  if (node.attrs.errors) {
+    const errors = document.createElement('div')
+    errors.slot = 'errors'
+    errors.innerHTML = node.attrs.errors
+    errors.contentEditable = 'false'
+    dom.appendChild(errors)
+  }
 
-  const contentDOM = document.createElement('div')
-  contentDOM.slot = 'content'
-  dom.appendChild(contentDOM)
-
-  return { dom, contentDOM }
+  return { dom }
 }
