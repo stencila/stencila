@@ -29,16 +29,16 @@ impl Pointable for Node {
     /// it into a `Pointer::Node`. Usually the id will be pointing to some `BlockContent`
     /// or `InlineContent` and the corresponding pointer variant will be returned.
     fn find(&self, id: &str) -> Pointer {
-        let pointer = dispatch_node!(self, Pointer::None, find, id);
-        match pointer {
-            Pointer::Some => Pointer::Node(self),
-            _ => pointer,
+        match dispatch_node!(self, false, is, id) {
+            true => Pointer::Node(self),
+            false => dispatch_node!(self, Pointer::None, find, id),
         }
     }
     fn find_mut(&mut self, id: &str) -> PointerMut {
-        // Unable to do mutable borrow twice so this does not do cast
-        // to `PointerMut::Node` as above. Should rarely (never?) be needed.
-        dispatch_node!(self, PointerMut::None, find_mut, id)
+        match dispatch_node!(self, false, is, id) {
+            true => PointerMut::Node(self),
+            false => dispatch_node!(self, PointerMut::None, find_mut, id),
+        }
     }
 
     /// Walk over a node with a [`Visitor`]

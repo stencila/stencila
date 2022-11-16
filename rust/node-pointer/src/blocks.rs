@@ -24,18 +24,16 @@ impl Pointable for BlockContent {
     }
 
     /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Block`
     fn find(&self, id: &str) -> Pointer {
-        match dispatch_block!(self, find, id) {
-            Pointer::Some => Pointer::Block(self),
-            _ => Pointer::None,
+        match dispatch_block!(self, is, id) {
+            true => Pointer::Block(self),
+            false => dispatch_block!(self, find, id),
         }
     }
     fn find_mut(&mut self, id: &str) -> PointerMut {
-        match dispatch_block!(self, find_mut, id) {
-            PointerMut::Some => PointerMut::Block(self),
-            _ => PointerMut::None,
+        match dispatch_block!(self, is, id) {
+            true => PointerMut::Block(self),
+            false => dispatch_block!(self, find_mut, id),
         }
     }
 
@@ -74,6 +72,7 @@ pointable_struct!(Division, content);
 
 pointable_struct!(FigureSimple, caption);
 pointable_variants!(FigureCaption, FigureCaption::VecBlockContent);
+
 pointable_struct!(For, content, iterations, otherwise);
 pointable_struct!(Form, content);
 pointable_struct!(Heading, content);
@@ -94,10 +93,10 @@ pointable_struct!(MathBlock);
 pointable_struct!(Paragraph, content);
 pointable_struct!(QuoteBlock, content);
 
-pointable_struct!(TableCell, content);
-pointable_struct!(TableRow, cells);
 pointable_struct!(TableSimple, caption, rows);
 pointable_variants!(TableCaption, TableCaption::VecBlockContent);
+pointable_struct!(TableRow, cells);
+pointable_struct!(TableCell, content);
 pointable_variants!(
     TableCellContent,
     TableCellContent::VecBlockContent,

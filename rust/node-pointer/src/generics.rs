@@ -40,17 +40,21 @@ macro_rules! pointable_struct {
                 }
             }
 
-            /// Find a node based on its `id` and return a [`Pointer`] to it.
-            ///
-            /// If the `id` matches `self.id` then return `Pointer::Some`. Otherwise, delegate to
-            /// child fields, returning `Pointer::None` if not found there.
-            fn find(&self, id: &str) -> Pointer {
-                if let Some(my_id) = self.id.as_ref() {
-                    if id == **my_id {
-                        return Pointer::Some
+            /// Is this the node having the `id`
+            fn is(&self, id: &str) -> bool {
+                if let Some(my_id) = self.id.as_deref() {
+                    if id == my_id {
+                        return true
                     }
                 }
+                return false
+            }
 
+            /// Find a node based on its `id` and return a [`Pointer`] to it.
+            ///
+            /// Delegate to child fields, returning `Pointer::None` if not found there.
+            #[allow(unused_variables)]
+            fn find(&self, id: &str) -> Pointer {
                 $(
                     let pointer = self.$field.find(id);
                     match pointer {
@@ -61,13 +65,8 @@ macro_rules! pointable_struct {
 
                 Pointer::None
             }
+            #[allow(unused_variables)]
             fn find_mut(&mut self, id: &str) -> PointerMut {
-                if let Some(my_id) = self.id.as_ref() {
-                    if id == **my_id {
-                        return PointerMut::Some
-                    }
-                }
-
                 $(
                     let pointer = self.$field.find_mut(id);
                     match pointer {

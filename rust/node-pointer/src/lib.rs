@@ -77,7 +77,6 @@ pub fn walk_mut<P: Pointable, V: VisitorMut>(node: &mut P, visitor: &mut V) {
 #[derive(Debug)]
 pub enum Pointer<'lt> {
     None,
-    Some,
     Inline(&'lt InlineContent),
     Block(&'lt BlockContent),
     Work(&'lt CreativeWorkTypes),
@@ -127,7 +126,6 @@ impl<'lt> Pointer<'lt> {
 #[derive(Debug)]
 pub enum PointerMut<'lt> {
     None,
-    Some,
     Inline(&'lt mut InlineContent),
     Block(&'lt mut BlockContent),
     Work(&'lt mut CreativeWorkTypes),
@@ -245,6 +243,13 @@ pub trait Pointable {
             true => bail!("Address resolves to a node that can not be pointed to"),
             false => bail!("Address is not empty; does resolve_mut() needs to be overridden?"),
         }
+    }
+
+    /// Is this the node having the `id`
+    /// 
+    /// Will only be overridden by `struct`s that have the `id` property
+    fn is(&self, _id: &str) -> bool {
+        false
     }
 
     /// Find a node based on its `id` and return a [`Pointer`] to it.

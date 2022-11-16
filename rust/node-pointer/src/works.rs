@@ -24,18 +24,16 @@ impl Pointable for CreativeWorkTypes {
     }
 
     /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Work`
     fn find(&self, id: &str) -> Pointer {
-        match dispatch_work!(self, find, id) {
-            Pointer::Some => Pointer::Work(self),
-            _ => Pointer::None,
+        match dispatch_work!(self, is, id) {
+            true => Pointer::Work(self),
+            false => dispatch_work!(self, find, id),
         }
     }
     fn find_mut(&mut self, id: &str) -> PointerMut {
-        match dispatch_work!(self, find_mut, id) {
-            PointerMut::Some => PointerMut::Work(self),
-            _ => PointerMut::None,
+        match dispatch_work!(self, is, id) {
+            true => PointerMut::Work(self),
+            false => dispatch_work!(self, find_mut, id),
         }
     }
 
