@@ -250,7 +250,7 @@ export class DocumentClient {
       if (this.wsClientError === undefined) {
         this.wsClientError = error.message ?? 'Connection error'
         this.emit('stencila-client-disconnected')
-        this.error('Lost connection to server; will keep trying to reconnect')
+        this.error('Lost connection to server. Trying to reconnect...')
       }
     })
 
@@ -387,10 +387,10 @@ export class DocumentClient {
   async sendPatch(patch: Patch, then?: Then): Promise<void> {
     // During development it's very useful to see the patch operations being sent
     if (process.env.NODE_ENV !== 'production') {
-      const { actor, target, address, ops } = patch
+      const { target, address, ops } = patch
       console.log(
         '📢 Sending patch:',
-        JSON.stringify({ actor, target, address, then })
+        JSON.stringify({ actor: this.clientId, target, address, then })
       )
       for (const op of ops) console.log('  ', JSON.stringify(op))
     }
