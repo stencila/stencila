@@ -225,12 +225,13 @@ patchable_struct!(
     execute_count
 );
 
-patchable_struct!(CodeFragment, programming_language, text);
+patchable_struct!(CodeFragment, id, programming_language, text);
 patchable_struct!(Delete, content);
 patchable_struct!(Emphasis, content);
 patchable_struct!(Link, content, target);
 patchable_struct!(
     MathFragment,
+    id,
     math_language,
     text,
     compile_digest,

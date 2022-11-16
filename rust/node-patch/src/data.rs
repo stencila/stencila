@@ -15,6 +15,7 @@ patchable_struct!(DatatableColumn, name, validator, values);
 
 patchable_struct!(
     Button,
+    id,
     name,
     label,
     text,
@@ -38,6 +39,7 @@ patchable_struct!(
 // reason we revert to using standard struct macro here.
 patchable_struct!(
     Parameter,
+    id,
     name,
     label,
     derived_from,

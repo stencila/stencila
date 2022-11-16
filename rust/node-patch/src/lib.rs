@@ -510,6 +510,14 @@ impl Operation {
                 nodes.to_html(&mut context)
             } else if let Ok(nodes) = serde_json::from_value::<Vec<ListItem>>(value.clone()) {
                 nodes.to_html(&mut context)
+            } else if let Ok(nodes) = serde_json::from_value::<TableRow>(value.clone()) {
+                nodes.to_html(&mut context)
+            } else if let Ok(nodes) = serde_json::from_value::<Vec<TableRow>>(value.clone()) {
+                nodes.to_html(&mut context)
+            } else if let Ok(nodes) = serde_json::from_value::<TableCell>(value.clone()) {
+                nodes.to_html(&mut context)
+            } else if let Ok(nodes) = serde_json::from_value::<Vec<TableCell>>(value.clone()) {
+                nodes.to_html(&mut context)
             } else if let Ok(nodes) = serde_json::from_value::<IfClause>(value.clone()) {
                 nodes.to_html(&mut context)
             } else if let Ok(nodes) = serde_json::from_value::<ValidatorTypes>(value.clone()) {

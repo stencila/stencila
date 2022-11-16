@@ -69,6 +69,7 @@ patchable_struct!(Paragraph, content);
 
 patchable_struct!(
     MathBlock,
+    id,
     math_language,
     text,
     compile_digest,
