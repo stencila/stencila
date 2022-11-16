@@ -28,13 +28,13 @@ properties:
     '@id': stencila:cellType
     description: Indicates whether the cell is a header or data.
     $comment: |
-      When `header`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).
-      When `data`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
+      When `Header`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).
+      When `Data`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
     type: string
     enum:
       - Data
       - Header
-    default: data
+    default: Data
   rowspan:
     '@id': stencila:rowspan
     description: How many columns the cell extends.
