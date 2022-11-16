@@ -546,7 +546,10 @@ impl ToMd for TableSimple {
                 .join(" | ")
         };
 
-        let (first, rest) = if rows.len() == 1 {
+        let (first, rest) = if rows.is_empty() {
+            // If there are no rows then just return an empty string
+            return String::new();
+        } else if rows.len() == 1 {
             (
                 row_to_md(&vec!["".to_string(); column_widths.len()]),
                 row_to_md(&rows[0]),
