@@ -47,19 +47,21 @@ interface Context {
   anonEnums: Record<string, string>
 }
 
+const defaultDerives =
+  'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize, Deserialize'
+
 // Custom derives for particular structs
 const structDerives: Record<string, string> = {
   // These need a custom Deserialize method to avoid confusion with Object
-  Date: 'Clone, Debug, Derivative, Serialize',
-  Time: 'Clone, Debug, Derivative, Serialize',
-  DateTime: 'Clone, Debug, Derivative, Serialize',
-  Timestamp: 'Clone, Debug, Derivative, Serialize',
-  Duration: 'Clone, Debug, Derivative, Serialize',
+  Date: 'Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize',
+  Time: 'Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize',
+  DateTime: 'Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize',
+  Timestamp: 'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize',
+  Duration: 'Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize',
 }
 
 // Custom attributes to add to particular properties
 const propertyAttributes: Record<string, string[]> = {
-  '*.id': ['#[derivative(PartialEq = "ignore", Hash = "ignore")]'],
   'Date.value': [
     '#[derivative(Default(value = "chrono::Utc::now().format(\\"%Y-%m-%d\\").to_string()"))]',
   ],
@@ -289,8 +291,7 @@ export function interfaceSchemaToStruct(
   const { title = 'Untitled', description = title } = schema
   const { all } = getSchemaProperties(schema)
 
-  const derives =
-    structDerives[title] || 'Clone, Debug, Derivative, Serialize, Deserialize'
+  const derives = structDerives[title] || defaultDerives
 
   const fields = all
     .filter(({ name }) => name !== 'meta')
@@ -341,7 +342,7 @@ ${attrs.map((attr) => `    ${attr}\n`).join('')}    pub ${snakeCase(
 ${docComment(description)}
 #[skip_serializing_none]
 #[derive(${derives})]
-#[derivative(Default, PartialEq, Eq, Hash)]
+#[derivative(Default)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ${title} {
     /// The name of this type
