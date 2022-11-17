@@ -15,6 +15,7 @@ use codec::{
 };
 use server_next::statics::get_static_bytes;
 use stencila_schema::*;
+use suids::Suid;
 
 /// Encode a `Node` to a HTML document
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
@@ -401,7 +402,7 @@ fn attr_itemprop(itemprop: &str) -> String {
 
 /// Encode a node `id` as the "id" attribute of an HTML element
 #[allow(clippy::box_collection)]
-fn attr_id(id: &Option<Box<String>>) -> String {
+fn attr_id(id: &Option<Suid>) -> String {
     match id.as_deref() {
         Some(id) => attr("id", id),
         None => "".to_string(),

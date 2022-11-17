@@ -92,6 +92,8 @@ const propertyAttributes: Record<string, string[]> = {
 // as much memory is allocated as necessary, instead of using the
 // defaults e.g. `i32` for integers
 const propertyTypes: Record<string, string> = {
+  // For performance use a Suid (smart string)
+  '*.id': 'Suid',
   // Avoid the multiple strings definition that gets automatically generated
   'Date.value': 'String',
   // Expect depths to be 1 to 6, this allows for 0 to 255

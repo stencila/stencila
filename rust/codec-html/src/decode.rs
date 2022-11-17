@@ -7,6 +7,7 @@ use codec::{common::eyre::Result, CodecTrait};
 use codec_txt::TxtCodec;
 use node_transform::Transform;
 use stencila_schema::*;
+use suids::Suid;
 
 /// Decode a HTML document to a `Node`
 ///
@@ -633,12 +634,12 @@ fn decode_table_cells(node: &NodeRef, context: &DecodeContext) -> Vec<TableCell>
 
 /// Get the `id` attribute of an element (if any)
 #[allow(clippy::box_collection)]
-fn get_id(element: &ElementData) -> Option<Box<String>> {
+fn get_id(element: &ElementData) -> Option<Suid> {
     element
         .attributes
         .borrow()
         .get(local_name!("id"))
-        .map(|id| Box::new(id.to_string()))
+        .map(|id| id.into())
 }
 
 /// Accumulate all the text within a node, including text within descendant elements.

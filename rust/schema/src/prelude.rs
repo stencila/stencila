@@ -4,6 +4,7 @@ use serde::ser::Error;
 pub use serde::{Deserialize, Serialize};
 pub use serde_json::Value;
 pub use serde_with::skip_serializing_none;
+pub use smartstring::{LazyCompact, SmartString};
 pub use std::{
     collections::BTreeMap,
     convert::AsRef,
@@ -13,6 +14,8 @@ pub use std::{
 pub use strum::{AsRefStr, EnumString};
 
 use crate::{Date, DateTime, Duration, Primitive, Time, TimeUnit, Timestamp};
+
+pub type Suid = SmartString<LazyCompact>;
 
 /// A null value
 ///

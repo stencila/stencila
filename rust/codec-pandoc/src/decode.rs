@@ -18,6 +18,7 @@ use codec_rpng::RpngCodec;
 use codec_txt::ToTxt;
 use formats::FormatNodeType;
 use node_coerce::coerce;
+use suids::Suid;
 
 use crate::from_pandoc;
 
@@ -143,7 +144,7 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
             // For some formats e.g. DOCX, LaTeX. Pandoc automatically adds an `id` to headings based
             // on its content. That is useful, but redundant when it is decoded back. So, if the id
             // is a slug of the content then ignore it.
-            let id = if let Some(id) = get_id(attrs).map(Box::new) {
+            let id = if let Some(id) = get_id(attrs) {
                 let slug = slugify(content.to_txt());
                 if *id == slug {
                     None
@@ -190,7 +191,7 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
         }
 
         pandoc::Block::CodeBlock(attrs, text) => {
-            let id = get_id(attrs).map(Box::new);
+            let id = get_id(attrs);
             let programming_language = get_attr(attrs, "classes").map(Box::new);
             vec![BlockContent::CodeBlock(CodeBlock {
                 id,
@@ -264,7 +265,7 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
             foot,
             ..
         }) => {
-            let id = get_id(attr).map(Box::new);
+            let id = get_id(attr);
 
             let caption = translate_blocks(&caption.long, context);
             let caption = match caption.is_empty() {
@@ -472,7 +473,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
         })],
 
         pandoc::Inline::Code(attrs, text) => {
-            let id = get_id(attrs).map(Box::new);
+            let id = get_id(attrs);
             vec![InlineContent::CodeFragment(CodeFragment {
                 id,
                 text: text.clone(),
@@ -488,7 +489,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
         pandoc::Inline::Link(attrs, inlines, target) => {
             let pandoc::Target { url, title } = target;
             vec![InlineContent::Link(Link {
-                id: get_id(attrs).map(Box::new),
+                id: get_id(attrs),
                 target: url.clone(),
                 title: get_string_prop(title).map(Box::new),
                 content: translate_inlines(inlines, context),
@@ -496,7 +497,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
             })]
         }
         pandoc::Inline::Image(attrs, inlines, target) => {
-            let id = get_id(attrs).map(Box::new);
+            let id = get_id(attrs);
 
             let caption = translate_inlines(inlines, context).to_txt();
             let caption = match caption.is_empty() {
@@ -623,8 +624,10 @@ fn get_string_prop(value: &str) -> Option<String> {
 }
 
 // Get the `id` property of a `Entity` from a  Pandoc `Attr` tuple struct
-fn get_id(attrs: &pandoc::Attr) -> Option<String> {
-    get_attr(attrs, "id").and_then(|value| get_string_prop(&value))
+fn get_id(attrs: &pandoc::Attr) -> Option<Suid> {
+    get_attr(attrs, "id")
+        .and_then(|value| get_string_prop(&value))
+        .map(|id| id.into())
 }
 
 /// Try to transform inline content (potentially containing an RPNG) to another type of inline content

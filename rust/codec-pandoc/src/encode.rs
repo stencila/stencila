@@ -388,7 +388,10 @@ unimplemented_to_pandoc!(ClaimSimple);
 
 impl ToPandoc for CodeBlock {
     fn to_pandoc_block(&self, _context: &mut EncodeContext) -> pandoc::Block {
-        let id = self.id.as_ref().map_or("".to_string(), |id| *id.clone());
+        let id = self
+            .id
+            .as_ref()
+            .map_or("".to_string(), |id| id.to_string());
         let classes = self
             .programming_language
             .as_ref()

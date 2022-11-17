@@ -21,7 +21,7 @@
 ///! The default size of 23 bytes allows ids to fit inside a [`SmartString`](https://lib.rs/crates/smartstring)
 ///! for better performance (particularly for `HashMap` lookups) than a plain old `String`.
 use nanoid::nanoid;
-use smartstring::{Compact, SmartString};
+use smartstring::{LazyCompact, SmartString};
 
 use common::{
     eyre::{bail, Result},
@@ -30,7 +30,7 @@ use common::{
 
 pub use common;
 
-pub type Suid = SmartString<Compact>;
+pub type Suid = SmartString<LazyCompact>;
 
 /// The separator between the family and random parts of the identifier
 ///

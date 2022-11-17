@@ -78,7 +78,7 @@ macro_rules! ensure_id {
         let id = if let Some(id) = $node.id.as_deref() {
             id
         } else {
-            $node.id = Some(Box::new(suids::generate($prefix).to_string()));
+            $node.id = Some(suids::generate($prefix));
             $node
                 .id
                 .as_deref()

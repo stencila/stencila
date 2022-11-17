@@ -94,7 +94,7 @@ fn translate_code_cell(cell: &serde_json::Value, notebook_lang: &str) -> Vec<Blo
         let id = metadata
             .get("id")
             .and_then(|value| value.as_str())
-            .map(|value| Box::new(value.to_string()));
+            .map(|value| value.into());
 
         let label = metadata
             .get("label")

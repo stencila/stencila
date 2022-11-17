@@ -118,6 +118,8 @@ patchable_atomic!(Number);
 // rather than diffed. So treat it as an atomic.
 patchable_atomic!(Cord);
 
+patchable_atomic!(suids::Suid);
+
 // Implementations for time related types
 
 patchable_struct!(Date, value);

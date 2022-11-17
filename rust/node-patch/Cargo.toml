@@ -5,9 +5,9 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codecs = { path = "../codecs" }
 codec-html = { path = "../codec-html" }
 codec-txt = { path = "../codec-txt" }
+codecs = { path = "../codecs" }
 common = { path = "../common" }
 node-address = { path = "../node-address" }
 node-coerce = { path = "../node-coerce" }
@@ -16,8 +16,9 @@ node-pointer = { path = "../node-pointer" }
 schemars = { version = "0.8.8", features = ["preserve_order", "chrono"] }
 similar = { version = "2.1.0", features = ["unicode"] }
 stencila-schema = { path = "../schema" }
-unicode-segmentation = "1.9.0"
+suids = { path = "../suids" }
 thiserror = "1.0.31"
+unicode-segmentation = "1.9.0"
 
 [dev-dependencies]
 test-props = { path = "../test-props" }

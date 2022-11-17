@@ -257,7 +257,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 // Block nodes with inline content
                 Tag::Heading(depth, id, _classes) => {
                     blocks.push_node(BlockContent::Heading(Heading {
-                        id: id.map(|id| Box::new(id.to_string())),
+                        id: id.map(|id| id.into()),
                         depth: Some(depth as u8),
                         content: inlines.pop_all(),
                         ..Default::default()

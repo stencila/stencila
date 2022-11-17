@@ -4,6 +4,7 @@ use codec::common::tracing;
 
 use node_dispatch::dispatch_validator;
 use stencila_schema::*;
+use suids::Suid;
 
 use super::{attr_id, elem, elem_slot, EncodeContext, ToHtml};
 
@@ -102,7 +103,7 @@ impl ToHtml for BooleanValidator {
  */
 #[allow(clippy::box_collection)]
 fn numeric_validator_attrs(
-    id: &Option<Box<String>>,
+    id: &Option<Suid>,
     minimum: &Option<Number>,
     exclusive_minimum: &Option<Number>,
     maximum: &Option<Number>,
@@ -110,7 +111,7 @@ fn numeric_validator_attrs(
     multiple_of: &Option<Number>,
 ) -> Vec<String> {
     vec![
-        attr_id(id),
+        id.to_attr("id"),
         minimum.to_attr("minimum"),
         exclusive_minimum.to_attr("exclusive-minimum"),
         maximum.to_attr("maximum"),

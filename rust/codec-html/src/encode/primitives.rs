@@ -3,6 +3,7 @@
 use html_escape::encode_safe;
 use node_dispatch::dispatch_primitive;
 use stencila_schema::*;
+use suids::Suid;
 
 use crate::encode::attr;
 
@@ -49,6 +50,22 @@ atomic_to_html!(Number);
 atomic_to_html!(u32);
 
 impl ToHtml for String {
+    /// Encode a string as HTML
+    ///
+    /// The string is escaped so that the generated HTML can be safely interpolated within HTML.
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
+        encode_safe(self).to_string()
+    }
+
+    /// Encode a string as an HTML element attribute
+    ///
+    /// Note that the `attr` function does escaping so there is no need to do it here.
+    fn to_attr(&self, name: &str) -> String {
+        attr(name, self)
+    }
+}
+
+impl ToHtml for Suid {
     /// Encode a string as HTML
     ///
     /// The string is escaped so that the generated HTML can be safely interpolated within HTML.

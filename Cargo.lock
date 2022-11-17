@@ -4689,6 +4689,7 @@ dependencies = [
  "schemars",
  "similar",
  "stencila-schema",
+ "suids",
  "test-props",
  "test-snaps",
  "test-utils",
@@ -7490,6 +7491,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+ "smartstring",
  "strum",
 ]
 

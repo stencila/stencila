@@ -21,7 +21,7 @@ pub struct Entity {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -59,7 +59,7 @@ pub struct Cite {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The page on which the work ends; for example "138" or "xvi".
     pub page_end: Option<Box<CitePageEnd>>,
@@ -91,7 +91,7 @@ pub struct CiteGroup {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -117,7 +117,7 @@ pub struct CodeError {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Stack trace leading up to the error.
     pub stack_trace: Option<Box<String>>,
@@ -143,7 +143,7 @@ pub struct CodeStatic {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
@@ -172,7 +172,7 @@ pub struct CodeBlock {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
@@ -201,7 +201,7 @@ pub struct CodeFragment {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
@@ -263,7 +263,7 @@ pub struct Executable {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -328,7 +328,7 @@ pub struct CodeExecutable {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
@@ -399,7 +399,7 @@ pub struct Button {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Whether the button is currently disabled
     pub is_disabled: Option<Boolean>,
@@ -479,7 +479,7 @@ pub struct CodeChunk {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// A short label for the CodeChunk.
     pub label: Option<Box<String>>,
@@ -553,7 +553,7 @@ pub struct CodeExpression {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
@@ -621,7 +621,7 @@ pub struct Include {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Media type of the source content.
     pub media_type: Option<Box<String>>,
@@ -692,7 +692,7 @@ pub struct Call {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Media type of the source content.
     pub media_type: Option<Box<String>>,
@@ -766,7 +766,7 @@ pub struct Parameter {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// A short label for the parameter.
     pub label: Option<Box<String>>,
@@ -846,7 +846,7 @@ pub struct CallArgument {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// A short label for the parameter.
     pub label: Option<Box<String>>,
@@ -887,7 +887,7 @@ pub struct Thing {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -928,7 +928,7 @@ pub struct Brand {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -975,7 +975,7 @@ pub struct ContactPoint {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1055,7 +1055,7 @@ pub struct CreativeWork {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1162,7 +1162,7 @@ pub struct Article {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1281,7 +1281,7 @@ pub struct Claim {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1351,7 +1351,7 @@ pub struct ClaimSimple {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// A short label for the claim.
     pub label: Option<Box<String>>,
@@ -1428,7 +1428,7 @@ pub struct Collection {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1535,7 +1535,7 @@ pub struct Comment {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1648,7 +1648,7 @@ pub struct Datatable {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1767,7 +1767,7 @@ pub struct MediaObject {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1892,7 +1892,7 @@ pub struct AudioObject {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1974,7 +1974,7 @@ pub struct AudioObjectSimple {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// IANA media type (MIME type).
     pub media_type: Option<Box<String>>,
@@ -2015,7 +2015,7 @@ pub struct DatatableColumn {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -2047,7 +2047,7 @@ pub struct Validator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -2073,7 +2073,7 @@ pub struct ArrayValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Another validator node specifying the constraints on all items in the array.
     pub items_validator: Option<Box<ValidatorTypes>>,
@@ -2105,7 +2105,7 @@ pub struct BooleanValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -2129,7 +2129,7 @@ pub struct ConstantValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -2189,7 +2189,7 @@ pub struct DateTimeValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The inclusive upper limit for a date-time.
     pub maximum: Option<DateTime>,
@@ -2215,7 +2215,7 @@ pub struct DateValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The inclusive upper limit for a date.
     pub maximum: Option<Date>,
@@ -2250,7 +2250,7 @@ pub struct DefinedTerm {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -2285,7 +2285,7 @@ pub struct Mark {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -2308,7 +2308,7 @@ pub struct Delete {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -2382,7 +2382,7 @@ pub struct Directory {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -2489,7 +2489,7 @@ pub struct Styled {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
@@ -2566,7 +2566,7 @@ pub struct Division {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
@@ -2612,7 +2612,7 @@ pub struct DurationValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The inclusive upper limit for a duration.
     pub maximum: Option<Box<Duration>>,
@@ -2644,7 +2644,7 @@ pub struct Emphasis {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -2667,7 +2667,7 @@ pub struct EnumValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -2693,7 +2693,7 @@ pub struct Enumeration {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -2773,7 +2773,7 @@ pub struct Figure {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -2843,7 +2843,7 @@ pub struct FigureSimple {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// A short label for the figure.
     pub label: Option<Box<String>>,
@@ -2917,7 +2917,7 @@ pub struct File {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3027,7 +3027,7 @@ pub struct For {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The content repeated for each iteration
     pub iterations: Option<Vec<Vec<BlockContent>>>,
@@ -3104,7 +3104,7 @@ pub struct Form {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -3124,7 +3124,7 @@ pub struct Function {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The name of the function.
     pub name: Option<Box<String>>,
@@ -3162,7 +3162,7 @@ pub struct Grant {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3203,7 +3203,7 @@ pub struct Heading {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -3262,7 +3262,7 @@ pub struct If {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -3330,7 +3330,7 @@ pub struct IfClause {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Whether this clause is the active clause in the parent `If` node
     pub is_active: Option<Boolean>,
@@ -3416,7 +3416,7 @@ pub struct ImageObject {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3498,7 +3498,7 @@ pub struct ImageObjectSimple {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// IANA media type (MIME type).
     pub media_type: Option<Box<String>>,
@@ -3533,7 +3533,7 @@ pub struct NumberValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The inclusive upper limit for a numeric node.
     pub maximum: Option<Number>,
@@ -3568,7 +3568,7 @@ pub struct IntegerValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The inclusive upper limit for a numeric node.
     pub maximum: Option<Number>,
@@ -3606,7 +3606,7 @@ pub struct Link {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// A compilation directive giving the name of the variable to import the link target as.
     pub import_to: Option<Box<String>>,
@@ -3638,7 +3638,7 @@ pub struct List {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Type of ordering.
     pub order: Option<ListOrder>,
@@ -3670,7 +3670,7 @@ pub struct ListItem {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3723,7 +3723,7 @@ pub struct Math {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The MathML transpiled from the `text`
     pub mathml: Option<Box<String>>,
@@ -3758,7 +3758,7 @@ pub struct MathBlock {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// A short label for the math block.
     pub label: Option<Box<String>>,
@@ -3796,7 +3796,7 @@ pub struct MathFragment {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The MathML transpiled from the `text`
     pub mathml: Option<Box<String>>,
@@ -3834,7 +3834,7 @@ pub struct MonetaryGrant {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3872,7 +3872,7 @@ pub struct NontextualAnnotation {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -3895,7 +3895,7 @@ pub struct Note {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Determines where the note content is displayed within the document.
     pub note_type: Option<NoteNoteType>,
@@ -3939,7 +3939,7 @@ pub struct Organization {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3986,7 +3986,7 @@ pub struct Paragraph {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -4057,7 +4057,7 @@ pub struct Periodical {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4152,7 +4152,7 @@ pub struct Person {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4214,7 +4214,7 @@ pub struct PostalAddress {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4267,7 +4267,7 @@ pub struct Product {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4315,7 +4315,7 @@ pub struct PropertyValue {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4395,7 +4395,7 @@ pub struct PublicationIssue {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4514,7 +4514,7 @@ pub struct PublicationVolume {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4594,7 +4594,7 @@ pub struct Quote {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -4620,7 +4620,7 @@ pub struct QuoteBlock {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -4685,7 +4685,7 @@ pub struct Review {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4798,7 +4798,7 @@ pub struct SoftwareApplication {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4881,7 +4881,7 @@ pub struct SoftwareEnvironment {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4946,7 +4946,7 @@ pub struct SoftwareSession {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -5053,7 +5053,7 @@ pub struct SoftwareSourceCode {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -5181,7 +5181,7 @@ pub struct Span {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
@@ -5207,7 +5207,7 @@ pub struct Strikeout {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -5227,7 +5227,7 @@ pub struct StringValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The maximum length for a string node.
     pub max_length: Option<u32>,
@@ -5259,7 +5259,7 @@ pub struct Strong {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -5282,7 +5282,7 @@ pub struct Subscript {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -5305,7 +5305,7 @@ pub struct Superscript {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -5376,7 +5376,7 @@ pub struct Table {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -5446,7 +5446,7 @@ pub struct TableSimple {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// A short label for the table.
     pub label: Option<Box<String>>,
@@ -5478,7 +5478,7 @@ pub struct TableCell {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The name of the cell.
     pub name: Option<Box<String>>,
@@ -5507,7 +5507,7 @@ pub struct TableRow {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// If present, indicates that all cells in this row should be treated as header cells.
     pub row_type: Option<TableRowRowType>,
@@ -5530,7 +5530,7 @@ pub struct ThematicBreak {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -5570,7 +5570,7 @@ pub struct TimeValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The inclusive upper limit for a time.
     pub maximum: Option<Time>,
@@ -5620,7 +5620,7 @@ pub struct TimestampValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// The inclusive upper limit for a timestamp.
     pub maximum: Option<Box<Timestamp>>,
@@ -5649,7 +5649,7 @@ pub struct TupleValidator {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// An array of validators specifying the constraints on each successive item in the array.
     pub items: Option<Vec<ValidatorTypes>>,
@@ -5675,7 +5675,7 @@ pub struct Underline {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -5698,7 +5698,7 @@ pub struct Variable {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Whether or not a property is mutable. Default is false.
     pub is_readonly: Option<Boolean>,
@@ -5787,7 +5787,7 @@ pub struct VideoObject {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -5872,7 +5872,7 @@ pub struct VideoObjectSimple {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// IANA media type (MIME type).
     pub media_type: Option<Box<String>>,
@@ -5913,7 +5913,7 @@ pub struct VolumeMount {
 
     /// The identifier for this item.
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
-    pub id: Option<Box<String>>,
+    pub id: Option<Suid>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
