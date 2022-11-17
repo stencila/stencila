@@ -176,7 +176,7 @@ export class DocumentClient {
   generateId(prefix: string): string {
     return (
       prefix +
-      '-' +
+      '_' +
       customAlphabet(
         '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
         30
