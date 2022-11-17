@@ -11,7 +11,7 @@ archive-utils = { path = "../archive-utils", features = [
 codecs = { path = "../codecs" }
 octorust = "0.1.37"
 provider = { path = "../provider" }
-uuids = { path = "../uuids" }
+suids = { path = "../suids" }
 
 [dev-dependencies]
 test-utils = { path = "../test-utils" }

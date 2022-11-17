@@ -25,7 +25,7 @@ use kernel::{
     },
     formats::Format,
     stencila_schema::Node,
-    uuids, Kernel, KernelStatus, KernelTrait, KernelType, TagMap, Task,
+    suids, Kernel, KernelStatus, KernelTrait, KernelType, TagMap, Task,
 };
 use kernel_http::HttpKernel;
 
@@ -141,7 +141,7 @@ impl PostgrestKernel {
 impl Default for PostgrestKernel {
     fn default() -> Self {
         Self {
-            id: uuids::generate("pr").to_string(),
+            id: suids::generate("pr").to_string(),
             config_file: None,
             status: Arc::new(RwLock::new(KernelStatus::Pending)),
             http_kernel: HttpKernel::with_error_handler(Box::new(PostgrestKernel::error_handler)),

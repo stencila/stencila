@@ -14,7 +14,7 @@ encode = [
     "node-dispatch",
     "quick-xml",
     "server-next",
-    "uuids",
+    "suids",
 ]
 
 [dependencies]
@@ -35,7 +35,7 @@ mime_guess = { version = "2.0.3", optional = true }
 node-dispatch = { path = "../node-dispatch", optional = true }
 quick-xml = { version = "0.23.0", optional = true }
 server-next = { path = "../server-next", default-features = false, optional = true }
-uuids = { path = "../uuids", optional = true }
+suids = { path = "../suids", optional = true }
 
 [dev-dependencies]
 reqwest = { version = "0.11.9", features = ["json"] }

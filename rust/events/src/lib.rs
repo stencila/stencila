@@ -14,7 +14,7 @@ use common::{
     },
     tracing,
 };
-use uuids::uuid_family;
+use suids::suid_family;
 
 /// An event updating progress of some task
 #[derive(Default, Debug, Deserialize, Serialize)]
@@ -41,7 +41,7 @@ pub struct ProgressEvent {
 
 pub type Message = (String, serde_json::Value);
 
-uuid_family!(SubscriptionId, "su");
+suid_family!(SubscriptionId, "su");
 
 pub enum Subscriber {
     Function(fn(topic: String, event: serde_json::Value) -> ()),

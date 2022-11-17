@@ -1,7 +1,7 @@
 use common::strum::EnumString;
 use graph::{PlanOrdering, PlanScope};
 use node_patch::Patch;
-use uuids::uuid_family;
+use suids::suid_family;
 
 /// When requests should be fulfilled
 #[derive(Debug, Clone, Copy, EnumString)]
@@ -23,7 +23,7 @@ impl When {
     }
 }
 
-uuid_family!(RequestId, "re");
+suid_family!(RequestId, "re");
 
 /// An internal request to patch a document
 #[derive(Debug)]

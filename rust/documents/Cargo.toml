@@ -32,7 +32,7 @@ path-utils = { path = "../path-utils" }
 providers = { path = "../providers" }
 statics = { path = "../statics" }
 stencila-schema = { path = "../schema" }
-uuids = { path = "../uuids" }
+suids = { path = "../suids" }
 
 cli-utils = { path = "../cli-utils", optional = true }
 

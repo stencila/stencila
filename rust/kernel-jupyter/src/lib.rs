@@ -52,10 +52,10 @@ use crate::{
 pub use server::JupyterServer;
 
 // A UUID for kernels
-uuids::uuid_family!(JupyterKernelId, "ke");
+suids::suid_family!(JupyterKernelId, "ke");
 
 // A UUID for sessions
-uuids::uuid_family!(JupyterSessionId, "se");
+suids::suid_family!(JupyterSessionId, "se");
 
 /// A kernel that delegates to a Jupyter kernel
 ///

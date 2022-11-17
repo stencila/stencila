@@ -171,7 +171,7 @@ path-utils = { path = "../path-utils" }
 providers = { path = "../providers" }
 tasks = { path = "../tasks" }
 utils = { path = "../utils" }
-uuids = { path = "../uuids" }
+suids = { path = "../suids" }
 
 # Optional crates related to `cli` feature
 

@@ -43,7 +43,7 @@ use events::{subscribe, unsubscribe, Subscriber, SubscriptionId};
 use http_utils::{http, urlencoding};
 use server_next::statics::{get_static_parts, STATICS_VERSION};
 use stencila_schema::Node;
-use uuids::generate;
+use suids::generate;
 
 use crate::{
     config::CONFIG,

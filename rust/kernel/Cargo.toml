@@ -10,7 +10,7 @@ formats = { path = "../formats" }
 graph-triples = { path = "../graph-triples" }
 stencila-schema = { path = "../schema" }
 utils = { path = "../utils" }
-uuids = { path = "../uuids" }
+suids = { path = "../suids" }
 
 [dev-dependencies]
 test-utils = { path = "../test-utils" }

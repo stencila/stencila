@@ -1211,10 +1211,10 @@ dependencies = [
  "reqwest",
  "server-next",
  "stencila-schema",
+ "suids",
  "test-props",
  "test-snaps",
  "test-utils",
- "uuids",
 ]
 
 [[package]]
@@ -1299,10 +1299,10 @@ dependencies = [
  "node-transform",
  "pandoc_types",
  "path-utils",
+ "suids",
  "test-props",
  "test-snaps",
  "test-utils",
- "uuids",
 ]
 
 [[package]]
@@ -2240,9 +2240,9 @@ dependencies = [
  "providers",
  "statics",
  "stencila-schema",
+ "suids",
  "test-snaps",
  "test-utils",
- "uuids",
 ]
 
 [[package]]
@@ -2404,7 +2404,7 @@ name = "events"
 version = "0.0.0"
 dependencies = [
  "common",
- "uuids",
+ "suids",
 ]
 
 [[package]]
@@ -3745,9 +3745,9 @@ dependencies = [
  "formats",
  "graph-triples",
  "stencila-schema",
+ "suids",
  "test-utils",
  "utils",
- "uuids",
 ]
 
 [[package]]
@@ -3801,8 +3801,8 @@ dependencies = [
  "portpicker",
  "reqwest",
  "sha2 0.10.5",
+ "suids",
  "test-utils",
- "uuids",
  "zmq",
 ]
 
@@ -5928,8 +5928,8 @@ dependencies = [
  "cloud",
  "google-drive",
  "provider",
+ "suids",
  "test-utils",
- "uuids",
 ]
 
 [[package]]
@@ -5940,8 +5940,8 @@ dependencies = [
  "codecs",
  "octorust",
  "provider",
+ "suids",
  "test-utils",
- "uuids",
 ]
 
 [[package]]
@@ -5951,8 +5951,8 @@ dependencies = [
  "archive-utils",
  "codecs",
  "provider",
+ "suids",
  "test-utils",
- "uuids",
 ]
 
 [[package]]
@@ -7464,6 +7464,7 @@ dependencies = [
  "server-next",
  "stencila-schema",
  "sudo",
+ "suids",
  "tasks",
  "test-utils",
  "thiserror",
@@ -7473,7 +7474,6 @@ dependencies = [
  "tracing-serde",
  "tracing-subscriber",
  "utils",
- "uuids",
  "validator",
  "warp",
  "webbrowser",
@@ -7592,6 +7592,15 @@ checksum = "88bd84d4c082e18e37fef52c0088e4407dabcef19d23a607fb4b5ee03b7d5b83"
 dependencies = [
  "libc",
  "log",
+]
+
+[[package]]
+name = "suids"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "nanoid",
+ "smartstring",
 ]
 
 [[package]]
@@ -8555,15 +8564,6 @@ checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
 dependencies = [
  "getrandom 0.2.7",
  "serde",
-]
-
-[[package]]
-name = "uuids"
-version = "0.0.0"
-dependencies = [
- "common",
- "nanoid",
- "smartstring",
 ]
 
 [[package]]

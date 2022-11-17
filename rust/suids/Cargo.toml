@@ -1,6 +1,6 @@
 [package]
-name = "uuids"
-description = "Utility types and functions for universally unique identifiers"
+name = "suids"
+description = "Stencila unique identifiers"
 version = "0.0.0"
 edition = "2021"
 

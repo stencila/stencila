@@ -16,14 +16,14 @@ use formats::Format;
 pub use graph_triples::TagMap;
 use stencila_schema::{CodeError, Node};
 use utils::some_box_string;
-use uuids::uuid_family;
+use suids::suid_family;
 
 // Re-export for the convenience of crates that implement `KernelTrait`
 pub use common;
 pub use formats;
 pub use graph_triples;
 pub use stencila_schema;
-pub use uuids;
+pub use suids;
 
 /// The type of kernel
 ///
@@ -337,7 +337,7 @@ impl KernelSelector {
 }
 
 // An id for tasks
-uuid_family!(TaskId, "ta");
+suid_family!(TaskId, "ta");
 
 /// Output nodes from a task
 pub type TaskOutputs = Vec<Node>;

@@ -38,6 +38,10 @@ export function ensureIds() {
 
 /**
  * Generate an id for a node
+ *
+ * This should generate the SUIDs ("Stencila Unique Identifiers") in
+ * the same format as the Rust `suids` crate (two letter prefix, underscore,
+ * twenty characters in [a-zA-Z0-9])
  */
 export function generateId(node: Node) {
   const prefix = (() => {
@@ -76,10 +80,10 @@ export function generateId(node: Node) {
         return 'no'
     }
   })()
-  return `${prefix}-${idGenerator()}`
+  return `${prefix}_${idGenerator()}`
 }
 
 const idGenerator = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-  8
+  20
 )

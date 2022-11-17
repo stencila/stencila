@@ -270,7 +270,7 @@ impl Document {
     /// will be `temporary: true` and have a temporary file path.
     #[tracing::instrument]
     fn new(path: Option<PathBuf>, format: Option<String>) -> Result<Document> {
-        let id = uuids::generate("do").to_string();
+        let id = suids::generate("do").to_string();
 
         let format = if let Some(format) = format {
             formats::match_path(&format)
@@ -297,7 +297,7 @@ impl Document {
             None => {
                 let path = env::temp_dir().join(
                     [
-                        uuids::generate("fi").to_string(),
+                        suids::generate("fi").to_string(),
                         ".".to_string(),
                         format.extension.clone(),
                     ]
@@ -384,7 +384,7 @@ impl Document {
 
     #[async_recursion]
     pub async fn fork(&self) -> Result<Document> {
-        let id = uuids::generate("do").to_string();
+        let id = suids::generate("do").to_string();
         let path = self.path.clone();
         let project = self.project.clone();
         let format = self.format.clone();

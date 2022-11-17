@@ -93,7 +93,7 @@ pub fn encode(
         .timestamp();
 
     let jti = if single_use {
-        Some(uuids::generate("to").to_string())
+        Some(suids::generate("to").to_string())
     } else {
         None
     };

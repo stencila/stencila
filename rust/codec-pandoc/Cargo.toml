@@ -20,7 +20,7 @@ key-utils = { path = "../key-utils" }
 node-dispatch = { path = "../node-dispatch" }
 pandoc_types = "0.5.0"
 path-utils = { path = "../path-utils" }
-uuids = { path = "../uuids" }
+suids = { path = "../suids" }
 
 codec-txt = { path = "../codec-txt", optional = true }
 node-coerce = { path = "../node-coerce", optional = true }

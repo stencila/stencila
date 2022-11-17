@@ -8,7 +8,7 @@ edition = "2021"
 cloud = { path = "../cloud" }
 google-drive = "0.4.0"
 provider = { path = "../provider" }
-uuids = { path = "../uuids" }
+suids = { path = "../suids" }
 
 [dev-dependencies]
 test-utils = { path = "../test-utils" }
