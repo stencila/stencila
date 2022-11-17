@@ -8,9 +8,9 @@ use common::{
 use graph::Graph;
 use graph_triples::{resources, Resource, TagMap};
 use kernels::KernelSpace;
-use node_address::AddressMap;
+
 use node_patch::diff_id;
-use node_pointer::resolve;
+use node_pointer::find;
 use path_utils::path_slash::PathBufExt;
 use stencila_schema::{
     Button, Call, CodeChunk, CodeExpression, Division, ExecutableCodeDependencies,
@@ -47,9 +47,6 @@ use crate::{
 ///
 /// - `root`: The root node to be compiled
 ///
-/// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
-///                  included in the plan within the `root` node; takes a read lock)
-///
 /// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
 ///
 /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
@@ -58,33 +55,24 @@ pub async fn compile(
     path: &Path,
     project: &Path,
     root: &Arc<RwLock<Node>>,
-    address_map: &Arc<RwLock<AddressMap>>,
     tag_map: &Arc<RwLock<TagMap>>,
     kernel_space: &Arc<RwLock<KernelSpace>>,
     patch_sender: &UnboundedSender<PatchRequest>,
 ) -> Result<Graph> {
-    let root = root.read().await;
-    let address_map = address_map.read().await;
+    let mut root = root.write().await;
     let kernel_space = kernel_space.read().await;
 
-    // Call compile on each node in the address map
+    // Call compile on the root
     let mut context = CompileContext {
         path: path.into(),
         project: project.into(),
         kernel_space: &*kernel_space,
         resource_infos: Vec::default(),
         global_tags: TagMap::default(),
+        patches: Vec::default(),
     };
-    for (id, address) in address_map.iter() {
-        let pointer = resolve(&*root, Some(address.clone()), Some(id.clone()))?;
-
-        let before = pointer.to_node()?;
-        let mut after = pointer.to_node()?;
-        after.compile(&mut context).await?;
-
-        let patch = diff_id(id, &before, &after);
-        send_patch(patch_sender, patch, When::Never)
-    }
+    // TODO: send patches
+    root.compile(&mut context).await?;
 
     // Update the document's global tag map with those from those collected by the compile context
     *tag_map.write().await = context.global_tags;
@@ -113,20 +101,10 @@ pub async fn compile(
             };
 
             // Get the node from the document
-            let address = address_map.get(node_id).cloned();
-            let node = match resolve(&*root, address.clone(), Some(node_id.clone()))
-                .and_then(|pointer| pointer.to_node())
-            {
+            let node = match find(&*root, &node_id.clone()).and_then(|pointer| pointer.to_node()) {
                 Ok(node) => node,
                 Err(error) => {
-                    tracing::warn!(
-                        "Unable to resolve node with id `{}` and address `{}`: {}",
-                        node_id,
-                        address
-                            .map(|address| address.to_string())
-                            .unwrap_or_default(),
-                        error
-                    );
+                    tracing::warn!("Unable to resolve node with id `{}`: {}", node_id, error);
                     return None;
                 }
             };
@@ -171,7 +149,6 @@ pub async fn compile(
         .collect();
 
     drop(root);
-    drop(address_map);
 
     // In this second pass, iterate over the nodes collected above, derive some more properties,
     // and calculate and send patches

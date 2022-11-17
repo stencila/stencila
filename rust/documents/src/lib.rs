@@ -1,4 +1,3 @@
-mod assemble;
 mod call;
 mod compile;
 mod document;

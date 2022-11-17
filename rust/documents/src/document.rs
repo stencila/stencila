@@ -33,21 +33,19 @@ use formats::{Format, FormatSpec};
 use graph::{Graph, PlanOptions, PlanOrdering, PlanScope};
 use graph_triples::{resources, Relations, Resource, ResourceChange, TagMap};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
-use node_address::AddressMap;
 use node_patch::{apply, diff, merge, Patch};
-use node_pointer::resolve;
+use node_pointer::find;
 use node_reshape::reshape;
 
 use providers::DetectItem;
 use stencila_schema::{Article, Node};
 
 use crate::{
-    assemble::assemble,
     compile::compile,
     execute::execute,
     messages::{
-        AssembleRequest, CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, RequestId,
-        Response, When, WriteRequest,
+        CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, RequestId, Response, When,
+        WriteRequest,
     },
 };
 
@@ -178,16 +176,6 @@ pub struct Document {
     #[serde(skip)]
     pub(crate) root: Arc<RwLock<Node>>,
 
-    /// Addresses of nodes in `root` that have an `id`
-    ///
-    /// Used to fetch a particular node (and do something with it like `patch`
-    /// or `execute` it) rather than walking the node tree looking for it.
-    /// It is necessary to use [`Address`] here (rather than say raw pointers) because
-    /// pointers or references will change as the document is patched.
-    /// These addresses are shifted when the document is patched to account for this.
-    #[serde(skip)]
-    pub(crate) addresses: Arc<RwLock<AddressMap>>,
-
     /// Global tags defined in any of the document's code chunks
     #[allow(dead_code)]
     #[serde(skip)]
@@ -244,9 +232,6 @@ pub struct Document {
     patch_request_sender: mpsc::UnboundedSender<PatchRequest>,
 
     #[serde(skip)]
-    assemble_request_sender: mpsc::Sender<AssembleRequest>,
-
-    #[serde(skip)]
     compile_request_sender: mpsc::Sender<CompileRequest>,
 
     #[serde(skip)]
@@ -261,9 +246,6 @@ pub struct Document {
 
 #[allow(unused)]
 impl Document {
-    /// Milliseconds debounce delay for [`When::Soon`] assemble requests
-    const ASSEMBLE_DEBOUNCE_MILLIS: u64 = 500;
-
     /// Milliseconds debounce delay for [`When::Soon`] compile requests
     const COMPILE_DEBOUNCE_MILLIS: u64 = 250;
 
@@ -341,7 +323,6 @@ impl Document {
             mpsc::channel::<ResourceChange>(100);
 
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
-        let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let tags = Arc::new(RwLock::new(TagMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
         let kernels = Arc::new(RwLock::new(KernelSpace::new(
@@ -353,7 +334,6 @@ impl Document {
 
         let (
             patch_request_sender,
-            assemble_request_sender,
             compile_request_sender,
             execute_request_sender,
             cancel_request_sender,
@@ -364,7 +344,6 @@ impl Document {
             &project,
             &format,
             &root,
-            &addresses,
             &tags,
             &graph,
             &kernels,
@@ -387,7 +366,6 @@ impl Document {
             content: Default::default(),
 
             root,
-            addresses,
             tags,
             graph,
             kernels,
@@ -397,7 +375,6 @@ impl Document {
             subscriptions_count,
 
             patch_request_sender,
-            assemble_request_sender,
             compile_request_sender,
             execute_request_sender,
             cancel_request_sender,
@@ -425,7 +402,6 @@ impl Document {
         // Fields that can be cloned
 
         let root = Arc::new(RwLock::new(self.root.read().await.clone()));
-        let addresses = Arc::new(RwLock::new(self.addresses.read().await.clone()));
         let tags = Arc::new(RwLock::new(self.tags.read().await.clone()));
         let graph = Arc::new(RwLock::new(self.graph.read().await.clone()));
 
@@ -444,7 +420,6 @@ impl Document {
 
         let (
             patch_request_sender,
-            assemble_request_sender,
             compile_request_sender,
             execute_request_sender,
             cancel_request_sender,
@@ -455,7 +430,6 @@ impl Document {
             &project,
             &format,
             &root,
-            &addresses,
             &tags,
             &graph,
             &kernels,
@@ -478,7 +452,6 @@ impl Document {
             content: Default::default(),
 
             root,
-            addresses,
             tags,
             graph,
             kernels,
@@ -488,7 +461,6 @@ impl Document {
             subscriptions_count,
 
             patch_request_sender,
-            assemble_request_sender,
             compile_request_sender,
             execute_request_sender,
             cancel_request_sender,
@@ -766,8 +738,7 @@ impl Document {
 
         let root = &*self.root.read().await;
         if let Some(node_id) = node_id {
-            let address = self.addresses.read().await.get(&node_id).cloned();
-            let pointer = resolve(root, address, Some(node_id))?;
+            let pointer = find(root, &node_id)?;
             let node = pointer.to_node()?;
             codecs::to_string(&node, &format, options).await
         } else {
@@ -863,9 +834,6 @@ impl Document {
     ///
     /// - `root`: The root [`Node`] to apply the patch to (will be write locked)
     ///
-    /// - `addresses`: The [`AddressMap`] to use to locate nodes within the root
-    ///                node (will be read locked)
-    ///
     /// - `subscriptions_count`: The number of subscriptions to the document
     ///
     /// - `compile_sender`: The channel to send any [`CompileRequest`]s after a patch is applied
@@ -879,7 +847,6 @@ impl Document {
     pub(crate) async fn patch_task(
         id: &str,
         root: &Arc<RwLock<Node>>,
-        addresses: &Arc<RwLock<AddressMap>>,
         subscriptions_count: &Arc<AtomicUsize>,
         compile_sender: &mpsc::Sender<CompileRequest>,
         write_sender: &mpsc::UnboundedSender<WriteRequest>,
@@ -905,15 +872,6 @@ impl Document {
             // Block to ensure locks are retained for only as long as needed
             {
                 let root = &mut *root.write().await;
-                let addresses = &*addresses.read().await;
-
-                // If the patch has a `target` but no `address` then use `address_map` to populate the address
-                // for faster patch application.
-                if let (None, Some(node_id)) = (&patch.address, &patch.target) {
-                    if let Some(address) = addresses.get(node_id) {
-                        patch.address = Some(address.clone());
-                    }
-                }
 
                 // Apply the patch to the root node
                 if let Err(error) = apply(root, &patch) {
@@ -1003,7 +961,6 @@ impl Document {
     pub async fn patch_request(
         &self,
         patch: Patch,
-        assemble: When,
         compile: When,
         execute: When,
         write: When,
@@ -1015,7 +972,6 @@ impl Document {
             vec![request_id.clone()],
             patch,
             When::Now,
-            assemble,
             compile,
             execute,
             write,
@@ -1036,14 +992,11 @@ impl Document {
     pub async fn patch(
         &mut self,
         patch: Patch,
-        assemble: When,
         compile: When,
         execute: When,
         write: When,
     ) -> Result<()> {
-        let request_id = self
-            .patch_request(patch, assemble, compile, execute, write)
-            .await?;
+        let request_id = self.patch_request(patch, compile, execute, write).await?;
 
         tracing::trace!(
             "Waiting for patch response for document `{}` for request `{}`",
@@ -1107,221 +1060,6 @@ impl Document {
         }
     }
 
-    /// A background task to assemble the root node of the document on request
-    ///
-    /// # Arguments
-    ///
-    /// - `id`: The id of the document
-    ///
-    /// - `path`: The path of the document to be assembled
-    ///
-    /// - `project`: The project of the document to be assembled
-    ///
-    /// - `root`: The root [`Node`] to apply the compilation patch to
-    ///
-    /// - `addresses`: The [`AddressMap`] to be updated
-    ///
-    /// - `patch_sender`: A [`PatchRequest`] channel to send patches describing the changes to
-    ///                   assembled nodes
-    ///
-    /// - `compile_sender`: A [`CompileRequest`] channel to send any requests to compile the
-    ///                     document after it has been assembled
-    ///
-    /// - `execute_sender`: An [`ExecuteRequest`] channel to send any requests to execute the
-    ///                     document after it has been assembled
-    ///
-    /// - `write_sender`: The channel to send any [`WriteRequest`]s after a patch is applied
-    ///
-    /// - `request_receiver`: The channel to receive [`AssembleRequest`]s on
-    ///
-    /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
-    #[allow(clippy::too_many_arguments)]
-    pub(crate) async fn assemble_task(
-        id: &str,
-        path: &Path,
-        project: &Path,
-        root: &Arc<RwLock<Node>>,
-        address_map: &Arc<RwLock<AddressMap>>,
-        kernel_space: &Arc<RwLock<KernelSpace>>,
-        patch_sender: &mpsc::UnboundedSender<PatchRequest>,
-        compile_sender: &mpsc::Sender<CompileRequest>,
-        execute_sender: &mpsc::Sender<ExecuteRequest>,
-        write_sender: &mpsc::UnboundedSender<WriteRequest>,
-        request_receiver: &mut mpsc::Receiver<AssembleRequest>,
-        response_sender: &broadcast::Sender<Response>,
-    ) {
-        let duration = Duration::from_millis(Document::ASSEMBLE_DEBOUNCE_MILLIS);
-        let mut request_ids = Vec::new();
-        let mut compile = When::Never;
-        let mut execute = When::Never;
-        let mut write = When::Never;
-        loop {
-            match tokio::time::timeout(duration, request_receiver.recv()).await {
-                // Request received: record and continue to wait for timeout unless `when` is now
-                Ok(Some(mut request)) => {
-                    if !matches!(request.when, When::Never) {
-                        request_ids.append(&mut request.ids);
-
-                        compile.no_later_than(request.compile);
-                        execute.no_later_than(request.execute);
-                        write.no_later_than(request.write);
-
-                        if !matches!(request.when, When::Now) {
-                            continue;
-                        }
-                    }
-                }
-                // Sender dropped: end of task
-                Ok(None) => break,
-                // Timeout so do the following with the last unhandled request, if any
-                Err(..) => {}
-            };
-
-            if request_ids.is_empty() {
-                continue;
-            }
-
-            tracing::trace!(
-                "Assembling document `{}` for requests `{}`",
-                id,
-                request_ids.iter().join(",")
-            );
-
-            // Assemble the root node and update the address_map
-            match assemble(path, root, kernel_space, patch_sender).await {
-                Ok(new_address_map) => {
-                    *address_map.write().await = new_address_map;
-                }
-                Err(error) => tracing::error!("While assembling document `{}`: {}", id, error),
-            };
-
-            // Possibly compile, execute, and/or write; or respond
-            if !matches!(compile, When::Never) {
-                tracing::trace!(
-                    "Sending compile request for document `{}` for assemble requests `{}`",
-                    &id,
-                    request_ids.iter().join(",")
-                );
-                if let Err(error) = compile_sender
-                    .send(CompileRequest::new(
-                        request_ids.clone(),
-                        compile,
-                        execute,
-                        write,
-                        None,
-                    ))
-                    .await
-                {
-                    tracing::error!(
-                        "While sending execute request for document `{}`: {}",
-                        id,
-                        error
-                    );
-                }
-            } else if !matches!(execute, When::Never) {
-                tracing::trace!(
-                    "Sending compile request for document `{}` for assemble requests `{}`",
-                    &id,
-                    request_ids.iter().join(",")
-                );
-                if let Err(error) = execute_sender
-                    .send(ExecuteRequest::new(
-                        request_ids.clone(),
-                        execute,
-                        write,
-                        None,
-                        None,
-                        None,
-                    ))
-                    .await
-                {
-                    tracing::error!(
-                        "While sending execute request for document `{}`: {}",
-                        id,
-                        error
-                    );
-                }
-            } else if !matches!(write, When::Never) {
-                tracing::trace!(
-                    "Sending write request for document `{}` for assemble requests `{}`",
-                    &id,
-                    request_ids.iter().join(",")
-                );
-                if let Err(error) = write_sender.send(WriteRequest::new(request_ids.clone(), write))
-                {
-                    tracing::error!(
-                        "While sending write request for document `{}`: {}",
-                        id,
-                        error
-                    );
-                }
-            } else {
-                for request_id in &request_ids {
-                    if let Err(error) = response_sender.send(Response::new(request_id.clone())) {
-                        tracing::debug!(
-                            "While sending response for document `{}` from assemble task: {}",
-                            id,
-                            error
-                        );
-                    }
-                }
-            }
-
-            request_ids.clear();
-            compile = When::Never;
-            execute = When::Never;
-            write = When::Never;
-        }
-    }
-
-    /// Request that the the document be assembled
-    #[tracing::instrument(skip(self))]
-    pub async fn assemble_request(
-        &self,
-        compile: When,
-        execute: When,
-        write: When,
-    ) -> Result<RequestId> {
-        tracing::debug!("Sending assemble request for document `{}`", self.id);
-
-        let request_id = RequestId::new();
-        let request =
-            AssembleRequest::new(vec![request_id.clone()], When::Now, compile, execute, write);
-        if let Err(error) = self.assemble_request_sender.send(request).await {
-            bail!(
-                "When sending assemble request for document `{}`: {}",
-                self.id,
-                error
-            )
-        };
-
-        Ok(request_id)
-    }
-
-    /// Assemble the document
-    #[tracing::instrument(skip(self))]
-    pub async fn assemble(&mut self, compile: When, execute: When, write: When) -> Result<()> {
-        let request_id = self.assemble_request(compile, execute, write).await?;
-
-        tracing::trace!(
-            "Waiting for assemble response for document `{}` for request `{}`",
-            self.id,
-            request_id
-        );
-        while let Ok(response) = self.response_receiver.recv().await {
-            if response.request_id == request_id {
-                tracing::trace!(
-                    "Received assemble response for document `{}` for request `{}`",
-                    self.id,
-                    request_id
-                );
-                break;
-            }
-        }
-
-        Ok(())
-    }
-
     /// A background task to compile the root node of the document on request
     ///
     /// # Arguments
@@ -1333,8 +1071,6 @@ impl Document {
     /// - `project`: The project of the document to be compiled
     ///
     /// - `root`: The root [`Node`] to apply the compilation patch to
-    ///
-    /// - `addresses`: The [`AddressMap`] to be updated
     ///
     /// - `tags`: The document's global [`TagMap`] to be updated
     ///
@@ -1359,7 +1095,6 @@ impl Document {
         path: &Path,
         project: &Path,
         root: &Arc<RwLock<Node>>,
-        addresses: &Arc<RwLock<AddressMap>>,
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<RwLock<KernelSpace>>,
@@ -1405,17 +1140,7 @@ impl Document {
             );
 
             // Compile the root node
-            match compile(
-                path,
-                project,
-                root,
-                addresses,
-                tags,
-                kernel_space,
-                patch_sender,
-            )
-            .await
-            {
+            match compile(path, project, root, tags, kernel_space, patch_sender).await {
                 Ok(new_graph) => {
                     *graph.write().await = new_graph;
                 }
@@ -1548,8 +1273,6 @@ impl Document {
     ///
     /// - `root`: The root [`Node`] to apply the compilation patch to
     ///
-    /// - `addresses`: The [`AddressMap`] to be updated
-    ///
     /// - `tags`: The document's global [`TagMap`] for passing tags on to executed nodes
     ///
     /// - `graph`:  The [`Graph`] to be updated
@@ -1572,7 +1295,6 @@ impl Document {
         path: &Path,
         project: &Path,
         root: &Arc<RwLock<Node>>,
-        addresses: &Arc<RwLock<AddressMap>>,
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<RwLock<KernelSpace>>,
@@ -1678,7 +1400,6 @@ impl Document {
             execute(
                 &plan,
                 root,
-                addresses,
                 tags,
                 kernel_space,
                 patch_sender,
@@ -1800,14 +1521,12 @@ impl Document {
         if let Ok(resource_info) = graph.find_resource_info(&resources::file(path)) {
             // Only execute and write if a code related resource e.g. `CodeChunk` and
             // just compile for others e.g. `Include`
-            let mut assemble = When::Never;
             let mut compile = When::Never;
             let mut execute = When::Never;
             let mut write = When::Never;
             for dependent in resource_info.dependents.iter().flatten() {
                 if let Resource::Node(resources::Node { kind, .. }) = dependent {
                     if kind == "Include" {
-                        assemble.no_later_than(When::Now);
                         compile.no_later_than(When::Now);
                     }
                 } else if matches!(dependent, Resource::Code(..)) {
@@ -1822,9 +1541,7 @@ impl Document {
                 self.id,
                 path.display()
             );
-            let result = if !matches!(assemble, When::Never) {
-                self.assemble_request(compile, execute, write).await
-            } else if !matches!(compile, When::Never) {
+            let result = if !matches!(compile, When::Never) {
                 self.compile_request(execute, write, None).await
             } else if !matches!(execute, When::Never) {
                 self.execute_request(write, None, None, None).await
@@ -1949,10 +1666,10 @@ impl Document {
                 | Node::VideoObject(..)
         );
 
-        // Set the root, assemble and compile
+        // Set the root, and compile
         // TODO: Reconsider this in refactoring of alternative format representations of docs
         *self.root.write().await = root;
-        self.assemble(When::Now, When::Never, When::Never).await?;
+        self.compile(When::Never, When::Never, None).await?;
 
         // Publish any events for which there are subscriptions (this will probably go elsewhere)
         for subscription in self.subscriptions.keys() {

@@ -1,52 +1,25 @@
 use std::path::PathBuf;
 
-use common::{
-    async_trait::async_trait,
-    eyre::{Result}, tracing,
-};
+use common::{async_trait::async_trait, eyre::Result, tracing};
 use formats::Format;
 use graph_triples::{
-    resources::{self}, ResourceInfo,
+    resources::{self},
+    ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
-use node_address::{Address, Slot};
 
 
 use stencila_schema::{CodeError, If, Node};
 
 use crate::executable::Executable;
 
-use super::{AssembleContext, CompileContext};
+use super::CompileContext;
 
 #[async_trait]
 impl Executable for If {
-    /// Assemble an `If` node
-    ///
-    /// Registers the id of the `If` node itself and the `content` of each clause.
-    /// Note that the `clauses` themselves can not be registered since they are not a content type.
-    /// Patching of other `clauses` properties such as `text` and `programmingLanguage` is
-    /// done via the `If`.
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        register_id!("if", self, address, context);
-
-        let mut address = address.add_name("clauses");
-        for (index, clause) in self.clauses.iter_mut().enumerate() {
-            address.push_back(Slot::Index(index));
-            address.push_back(Slot::Name("content".to_string()));
-            clause.content.assemble(&mut address, context).await?;
-            address.pop_back();
-        }
-
-        Ok(())
-    }
-
     /// Compile an `If` node
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = assert_id!(self)?;
+        let id = ensure_id!(self, "if", context);
 
         // Guess clause language if specified or necessary
         let mut format = Format::Unknown;

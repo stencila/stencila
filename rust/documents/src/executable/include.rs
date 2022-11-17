@@ -4,17 +4,12 @@ use graph_triples::{
     Relation, ResourceInfo,
 };
 
-use node_address::Address;
-use node_patch::diff_id;
+
 use node_transform::Transform;
 use path_utils::merge;
 use stencila_schema::{CodeError, Include};
 
-use crate::{
-    assert_id,
-    executable::{AssembleContext, CompileContext, Executable},
-    register_id,
-};
+use crate::executable::{CompileContext, Executable};
 
 #[async_trait]
 impl Executable for Include {
@@ -28,12 +23,17 @@ impl Executable for Include {
     ///
     /// Because reading the `source` from disk and calculating a hash is relatively
     /// resource intensive, this is only done during `assemble`, not during `compile`.
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        let id = register_id!("in", self, address, context);
+
+    /// Compile an `Include` node
+    ///
+    /// Declares this node as a resource with a relation to the source file.
+    /// Note that there is no need to compile the `content` since any executable
+    /// nodes within it should have been registered in `assemble`.
+    ///
+    /// TODO: If there is a change in the compile digest (ie. `source`, `media_type`
+    /// or `select` have changed) then trigger an `assemble` of the document.
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+        let id = ensure_id!(self, "in", context);
 
         // Calculate a resource digest using the `source`, `media_type` and `select` properties
         let mut resource_digest = digest_from_properties(self);
@@ -52,7 +52,7 @@ impl Executable for Include {
             };
         if should_decode {
             // Clone self for patch
-            let before = self.clone();
+            let _before = self.clone();
 
             // Decode block content from the source
             let result = codecs::from_path(
@@ -65,11 +65,9 @@ impl Executable for Include {
             .await;
             match result {
                 Ok(content) => {
-                    // Decoding was OK so assemble to content and clear errors
+                    // Decoding was OK so compile content and clear errors
                     let mut content = content.to_blocks();
-                    content
-                        .assemble(&mut address.add_name("content"), context)
-                        .await?;
+                    content.compile(context).await?;
                     self.content = Some(content);
                     self.errors = None;
                 }
@@ -82,26 +80,7 @@ impl Executable for Include {
                     }]);
                 }
             };
-
-            // Generate a patch for changes to self
-            let mut patch = diff_id(&id, &before, self);
-            patch.remove_overwrite_derived();
-            context.patches.push(patch)
         }
-
-        Ok(())
-    }
-
-    /// Compile an `Include` node
-    ///
-    /// Declares this node as a resource with a relation to the source file.
-    /// Note that there is no need to compile the `content` since any executable
-    /// nodes within it should have been registered in `assemble`.
-    ///
-    /// TODO: If there is a change in the compile digest (ie. `source`, `media_type`
-    /// or `select` have changed) then trigger an `assemble` of the document.
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = assert_id!(self)?;
 
         let path = merge(&context.path, &self.source);
         let resource = resources::node(&context.path, id, "Include");

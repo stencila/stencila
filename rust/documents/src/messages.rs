@@ -31,7 +31,6 @@ pub struct PatchRequest {
     pub ids: Vec<RequestId>,
     pub patch: Patch,
     pub when: When,
-    pub assemble: When,
     pub compile: When,
     pub execute: When,
     pub write: When,
@@ -42,7 +41,6 @@ impl PatchRequest {
         ids: Vec<RequestId>,
         patch: Patch,
         when: When,
-        assemble: When,
         compile: When,
         execute: When,
         write: When,
@@ -50,29 +48,6 @@ impl PatchRequest {
         Self {
             ids,
             patch,
-            when,
-            assemble,
-            compile,
-            execute,
-            write,
-        }
-    }
-}
-
-/// An internal request to assemble a document
-#[derive(Debug)]
-pub struct AssembleRequest {
-    pub ids: Vec<RequestId>,
-    pub when: When,
-    pub compile: When,
-    pub execute: When,
-    pub write: When,
-}
-
-impl AssembleRequest {
-    pub fn new(ids: Vec<RequestId>, when: When, compile: When, execute: When, write: When) -> Self {
-        Self {
-            ids,
             when,
             compile,
             execute,

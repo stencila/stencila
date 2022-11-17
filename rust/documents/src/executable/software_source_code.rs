@@ -1,15 +1,9 @@
 use common::{async_trait::async_trait, eyre::Result};
 use graph_triples::resources;
 
-use node_address::Address;
-
 use stencila_schema::SoftwareSourceCode;
 
-use crate::{
-    assert_id,
-    executable::{AssembleContext, CompileContext, Executable},
-    register_id,
-};
+use crate::executable::{CompileContext, Executable};
 
 /// Compile a `SoftwareSourceCode` node
 ///
@@ -17,17 +11,8 @@ use crate::{
 /// relations.
 #[async_trait]
 impl Executable for SoftwareSourceCode {
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        register_id!("sc", self, address, context);
-        Ok(())
-    }
-
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = assert_id!(self)?;
+        let id = ensure_id!(self, "sc", context);
 
         if let (Some(code), Some(language)) =
             (self.text.as_deref(), self.programming_language.as_deref())

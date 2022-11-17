@@ -19,7 +19,6 @@ use common::{
 use formats::Format;
 use graph::{PlanOptions, PlanOrdering};
 use graph_triples::resources;
-use node_address::Address;
 use node_patch::{diff, diff_display};
 use stencila_schema::{
     EnumValidator, IntegerValidator, Node, NumberValidator, StringValidator, ValidatorTypes,
@@ -373,9 +372,6 @@ struct Param {
     #[table(title = "Id")]
     id: String,
 
-    #[table(skip)]
-    address: Address,
-
     #[table(title = "Validation", display_fn = "option_validator")]
     validator: Option<ValidatorTypes>,
 
@@ -479,10 +475,9 @@ impl Run for Params {
         let params = document.params().await?;
         let params = params
             .into_iter()
-            .map(|(name, (id, address, param))| Param {
+            .map(|(name, (id, param))| Param {
                 name,
                 id,
-                address,
                 validator: param.validator.map(|boxed| *boxed),
                 default: param.default.map(|boxed| *boxed),
             })

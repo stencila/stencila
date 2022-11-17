@@ -10,15 +10,13 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
-use node_address::Address;
 use node_validate::Validator;
 
 use stencila_schema::{CodeError, Cord, ExecuteRequired, Node, Parameter, ValidatorTypes};
 
 use crate::{
     assert_id,
-    executable::{AssembleContext, CompileContext, Executable},
-    register_id,
+    executable::{CompileContext, Executable},
 };
 
 /// Get the value for a parameter
@@ -52,15 +50,6 @@ fn parameter_digest(param: &Parameter, value: &Node) -> ResourceDigest {
 
 #[async_trait]
 impl Executable for Parameter {
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        register_id!("pa", self, address, context);
-        Ok(())
-    }
-
     /// Compile a `Parameter` node
     ///
     /// Adds an `Assign` relation to the compilation context with the name and kind of value
@@ -72,7 +61,7 @@ impl Executable for Parameter {
     ///
     /// By definition, a `Parameter` is always "impure" (has a side effect).
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = assert_id!(self)?;
+        let id = ensure_id!(self, "pa", context);
 
         // Add a resource for the parameter itself
         let resource = resources::code(&context.path, id, "Parameter", Format::Json);

@@ -6,28 +6,12 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
-use node_address::Address;
 use stencila_schema::{Button, Cord, ExecuteRequired, Node, Timestamp};
 
-use crate::{assert_id, register_id};
-
-use super::{AssembleContext, CompileContext, Executable};
+use super::{CompileContext, Executable};
 
 #[async_trait]
 impl Executable for Button {
-    /// Assemble a `Button` node
-    ///
-    /// Simply ensures the button has an `id` and registers it in the context.
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        register_id!("bu", self, address, context);
-
-        Ok(())
-    }
-
     /// Compile a `Button` node
     ///
     /// Adds an `Assign` relation to the compilation context with the name of the button.
@@ -37,7 +21,7 @@ impl Executable for Button {
     /// By definition, a `Button` is always "impure" (has a side effect of setting a variable)
     /// and is assumed to always succeed.
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = assert_id!(self)?;
+        let id = ensure_id!(self, "bu", context);
 
         // TODO: guess language and parse `text` to determine dependencies
 

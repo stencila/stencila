@@ -16,7 +16,7 @@ use common::{
     tracing,
 };
 use node_address::{Address, Slot};
-use node_pointer::{resolve_mut, Pointable};
+use node_pointer::{find_mut, resolve_mut, Pointable};
 use stencila_schema::*;
 
 /// Generate a [`Patch`] describing the difference between two nodes of the same type.
@@ -121,8 +121,19 @@ pub fn apply<Type>(node: &mut Type, patch: &Patch) -> Result<()>
 where
     Type: Patchable + Pointable,
 {
-    if patch.address.is_some() || patch.target.is_some() {
-        let mut pointer = resolve_mut(node, patch.address.clone(), patch.target.clone())?;
+    if let Some(address) = &patch.address {
+        let mut pointer = resolve_mut(node, address.clone())?;
+        if let Some(inline) = pointer.as_inline_mut() {
+            inline.apply_patch(patch)
+        } else if let Some(block) = pointer.as_block_mut() {
+            block.apply_patch(patch)
+        } else if let Some(node) = pointer.as_node_mut() {
+            node.apply_patch(patch)
+        } else {
+            bail!("Pointer points to unhandled node type")
+        }
+    } else if let Some(id) = &patch.target {
+        let mut pointer = find_mut(node, id)?;
         if let Some(inline) = pointer.as_inline_mut() {
             inline.apply_patch(patch)
         } else if let Some(block) = pointer.as_block_mut() {

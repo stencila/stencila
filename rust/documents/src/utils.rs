@@ -4,9 +4,8 @@ use common::{
     tracing,
 };
 use graph_triples::Resource;
-use node_address::{Address, AddressMap};
 use node_patch::Patch;
-use node_pointer::resolve;
+use node_pointer::find;
 use stencila_schema::Node;
 
 use crate::messages::{PatchRequest, RequestId, When};
@@ -18,13 +17,7 @@ use crate::messages::{PatchRequest, RequestId, When};
 /// - `resource`: The [`Resource::Node`] or [`Resource::Code`] that refers to a node in `root`
 ///
 /// - `root`: The root [`Node`] that contains the referred to node
-///
-/// - `address_map`: The [`AddressMap`] for `root` used to [`resolve`] the node
-pub(crate) fn resource_to_node(
-    resource: &Resource,
-    root: &Node,
-    address_map: &AddressMap,
-) -> Result<(Node, String, Address)> {
+pub(crate) fn resource_to_node(resource: &Resource, root: &Node) -> Result<(Node, String)> {
     let node_id = resource.node_id().ok_or_else(|| {
         eyre!(
             "Expected to have node id for resource `{}`",
@@ -32,15 +25,10 @@ pub(crate) fn resource_to_node(
         )
     })?;
 
-    let node_address = address_map
-        .get(node_id)
-        .ok_or_else(|| eyre!("Expected to have address for node `{}`", node_id))?
-        .clone();
-
-    let pointer = resolve(root, Some(node_address.clone()), Some(node_id.to_string()))?;
+    let pointer = find(root, node_id)?;
     let node = pointer.to_node()?;
 
-    Ok((node, node_id.to_string(), node_address))
+    Ok((node, node_id.to_string()))
 }
 
 /// Sends a [`Patch`] using a channel sender (if the patch is not empty)
@@ -62,7 +50,6 @@ pub(crate) fn send_patch(
             vec![RequestId::new()],
             patch,
             When::Now,
-            When::Never,
             compile,
             When::Never,
             When::Never,

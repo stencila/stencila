@@ -141,16 +141,6 @@ export class DocumentClient {
     })
 
     window.addEventListener(
-      'stencila-document-assemble',
-      (event: CustomEvent) => {
-        const {
-          detail: { nodeId },
-        } = event
-        this.assemble(nodeId)
-      }
-    )
-
-    window.addEventListener(
       'stencila-document-compile',
       (event: CustomEvent) => {
         const {
@@ -398,7 +388,6 @@ export class DocumentClient {
     return this.call('documents.patch', {
       patch: { actor: this.clientId, ...patch },
       // If these are defined, the defaults defined on the server will apply
-      assemble: then?.assemble,
       compile: then?.compile,
       execute: then?.execute,
       write: then?.write,
@@ -452,19 +441,6 @@ export class DocumentClient {
     }
 
     callback(patch)
-  }
-
-  /**
-   * Assemble the document
-   */
-  async assemble(nodeId: null | string): Promise<void> {
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('🏗️ Assembling document')
-    }
-
-    return this.call('documents.assemble', {
-      nodeId,
-    }) as Promise<void>
   }
 
   /**

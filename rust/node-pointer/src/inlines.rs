@@ -27,13 +27,13 @@ impl Pointable for InlineContent {
     fn find(&self, id: &str) -> Pointer {
         match dispatch_inline!(self, is, id) {
             true => Pointer::Inline(self),
-            false => dispatch_inline!(self, find, id)
+            false => dispatch_inline!(self, find, id),
         }
     }
     fn find_mut(&mut self, id: &str) -> PointerMut {
         match dispatch_inline!(self, is, id) {
             true => PointerMut::Inline(self),
-            false => dispatch_inline!(self, find_mut, id)
+            false => dispatch_inline!(self, find_mut, id),
         }
     }
 

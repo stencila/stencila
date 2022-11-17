@@ -10,29 +10,18 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
-use node_address::Address;
 
-use node_patch::{diff_id};
 use stencila_schema::{CodeError, Cord, ExecuteRequired, Form, FormDeriveAction, Node, Timestamp};
 
-use crate::{
-    assert_id,
-    executable::{AssembleContext, CompileContext, Executable},
-    register_id,
-};
+use crate::executable::{CompileContext, Executable};
 
 #[async_trait]
 impl Executable for Form {
-    /// Assemble a `Form` node
+    /// Compile a `Form` node
     ///
-    /// Ensures the form has an `id` (and is registered) and does
-    /// the same for any executable nodes (e.g. `Parameter`s) in the form's `content`.
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        let id = register_id!("fm", self, address, context);
+    /// Adds a resource to the context so that the form can be executed.
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+        let id = ensure_id!(self, "fm", context);
 
         // If the form is derived, then do the derivation and add any nodes that
         // are missing from the content.
@@ -56,11 +45,8 @@ impl Executable for Form {
                     if let Some(Node::Form(form)) = nodes.first() {
                         draft.content = form.content.clone();
 
-                        // Assemble the new content to ensure executable nodes in the patch have an id
-                        draft
-                            .content
-                            .assemble(&mut address.add_name("content"), context)
-                            .await?;
+                        // Compile the new content to ensure executable nodes in the patch have an id
+                        draft.content.compile(context).await?;
 
                         draft.errors = None;
                     } else {
@@ -76,27 +62,10 @@ impl Executable for Form {
                     }]);
                 }
             }
-
-            // Register a patch for any changes to the form (usually just `content` and `errors`)
-            // This must be done after `draft.content.assemble` because any patches to the browser must
-            // include the `id` of newly added `Parameter` and `CodeChunk` nodes.
-            let patch = diff_id(&id, self, &draft);
-            context.patches.push(patch);
         }
 
-        // Assemble the content of the form
-        self.content
-            .assemble(&mut address.add_name("content"), context)
-            .await?;
-
-        Ok(())
-    }
-
-    /// Compile a `Form` node
-    ///
-    /// Adds a resource to the context so that the form can be executed.
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = assert_id!(self)?;
+        // Compile the content of the form
+        self.content.compile(context).await?;
 
         let resource = resources::code(&context.path, id, "Form", Format::Unknown);
         let relations = if let Some(derive_from) = &self.derive_from {

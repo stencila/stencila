@@ -18,7 +18,7 @@ use common::{
 use graph::{Plan, PlanScope};
 use graph_triples::{Resource, TagMap};
 use kernels::KernelSpace;
-use node_address::{Address, AddressMap};
+
 use node_patch::{diff, mutate, Patch};
 use stencila_schema::{CodeChunk, CodeExpression, Division, ExecuteStatus, Node, Span};
 
@@ -30,19 +30,12 @@ use crate::{
 
 /// Execute a [`Plan`] on a [`Node`]
 ///
-/// Uses a `RwLock` for `root` and `address_map` so that read locks can be held for as short as
-/// time as possible (i.e. not while waiting for execution of tasks, which is what would
-/// happen if held by the caller).
-///
 /// # Arguments
 ///
 /// - `plan`: The plan to be executed
 ///
 /// - `root`: The root node to execute the plan on (takes a read lock)
-///
-/// - `address_map`: The [`AddressMap`] for the `root` node (used to locate code nodes
-///                  included in the plan within the `root` node; takes a read lock)
-///
+
 /// - `tag_map`: The document's [`TagMap`] of global tags
 ///
 /// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
@@ -56,7 +49,6 @@ use crate::{
 pub async fn execute(
     plan: &Plan,
     root: &Arc<RwLock<Node>>,
-    address_map: &Arc<RwLock<AddressMap>>,
     tag_map: &Arc<RwLock<TagMap>>,
     kernel_space: &Arc<RwLock<KernelSpace>>,
     patch_request_sender: &UnboundedSender<PatchRequest>,
@@ -68,7 +60,6 @@ pub async fn execute(
 
     // Obtain locks
     let root_guard = root.read().await;
-    let address_map_guard = address_map.read().await;
 
     // Get a snapshot of all nodes involved in the plan at the start
     let mut node_infos: BTreeMap<Resource, NodeInfo> = plan
@@ -77,7 +68,6 @@ pub async fn execute(
         .enumerate()
         .flat_map(|(stage_index, stage)| {
             let root_guard = &root_guard;
-            let address_map_guard = &address_map_guard;
             stage
                 .tasks
                 .iter()
@@ -85,11 +75,10 @@ pub async fn execute(
                 .filter_map(move |(.., task)| {
                     let resource_info = task.resource_info.clone();
                     let resource = &resource_info.resource;
-                    match resource_to_node(resource, root_guard, address_map_guard) {
-                        Ok((node, node_id, node_address)) => Some((
-                            resource.clone(),
-                            NodeInfo::new(stage_index, node_id, node_address, node),
-                        )),
+                    match resource_to_node(resource, root_guard) {
+                        Ok((node, node_id)) => {
+                            Some((resource.clone(), NodeInfo::new(stage_index, node_id, node)))
+                        }
                         Err(error) => {
                             tracing::warn!("While executing plan: {}", error);
                             None
@@ -101,7 +90,6 @@ pub async fn execute(
 
     // Release locks
     drop(root_guard);
-    drop(address_map_guard);
 
     // Set the `execute_status` of all nodes in stages other than the first
     // to `Scheduled` or `ScheduledPreviouslyFailed` and send the resulting patch.
@@ -309,7 +297,6 @@ pub async fn execute(
 
                 // Generate a patch for the differences resulting from execution
                 let mut patch = diff(&node_info.node, &executed);
-                patch.address = Some(node_info.node_address.clone());
                 patch.target = Some(node_info.node_id.clone());
 
                 // Having generated the patch, update the node_info.node (which may be used
@@ -438,9 +425,6 @@ struct NodeInfo {
     /// The id of the node
     node_id: String,
 
-    /// The address of the node
-    node_address: Address,
-
     /// A copy of the node
     ///
     /// We take a copy of the node initially at the start of [`execute`] and
@@ -452,11 +436,10 @@ struct NodeInfo {
 }
 
 impl NodeInfo {
-    fn new(stage_index: usize, node_id: String, node_address: Address, node: Node) -> Self {
+    fn new(stage_index: usize, node_id: String, node: Node) -> Self {
         let mut node_info = Self {
             stage_index,
             node_id,
-            node_address,
             node,
             previous_execute_status: None,
         };
@@ -480,7 +463,7 @@ impl NodeInfo {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
-            Some(self.node_address.clone()),
+            None,
             &|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
                 | Node::CodeExpression(CodeExpression { execute_status, .. })
@@ -500,7 +483,7 @@ impl NodeInfo {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
-            Some(self.node_address.clone()),
+            None,
             &|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
                 | Node::CodeExpression(CodeExpression { execute_status, .. })
@@ -523,7 +506,7 @@ impl NodeInfo {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
-            Some(self.node_address.clone()),
+            None,
             &|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
                 | Node::CodeExpression(CodeExpression { execute_status, .. })
@@ -540,7 +523,7 @@ impl NodeInfo {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
-            Some(self.node_address.clone()),
+            None,
             &|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
                 | Node::CodeExpression(CodeExpression { execute_status, .. })

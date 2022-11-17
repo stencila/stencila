@@ -4,29 +4,16 @@ use graph_triples::{
     Relation, ResourceInfo,
 };
 
-use node_address::Address;
 use path_utils::merge;
 use stencila_schema::Link;
 
-use crate::{
-    assert_id,
-    executable::{AssembleContext, CompileContext, Executable},
-    register_id,
-};
+use crate::executable::{CompileContext, Executable};
 
 #[async_trait]
 impl Executable for Link {
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        register_id!("li", self, address, context);
-        Ok(())
-    }
-
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = assert_id!(self)?;
+        let id = ensure_id!(self, "li", context);
+
         let resource = resources::node(&context.path, id, "Link");
 
         let target = &self.target;

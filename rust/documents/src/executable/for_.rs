@@ -5,45 +5,29 @@ use common::{
 };
 use formats::Format;
 use graph_triples::{
-    resources::{self}, ResourceInfo,
+    resources::{self},
+    ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
-use node_address::Address;
 use node_transform::Transform;
 use stencila_schema::{CodeError, For, Node};
 
 use crate::executable::Executable;
 
-use super::{AssembleContext, CompileContext, ExecuteContext};
+use super::{CompileContext, ExecuteContext};
 
 #[async_trait]
 impl Executable for For {
-    /// Assemble a `For` node
-    ///
-    /// Register the `id` of the node itself as well as `otherwise` content.
-    /// Do not assemble `content` or `iteration` since these are not part of the
-    /// document's dependency graph.
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        register_id!("fo", self, address, context);
-
-        self.otherwise
-            .assemble(&mut address.add_name("otherwise"), context)
-            .await?;
-
-        Ok(())
-    }
-
     /// Compile a `For` node
     ///
     /// Defines a resource for the node itself with relations to its variables etc
     /// used in `text`. No relation is necessary between the `For` and its `otherwise` content.
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = assert_id!(self)?;
-        tracing::trace!("Compiling `{id}`");
+        let id = ensure_id!(self, "fo", context);
+
+        // Compile `otherwise` but do not compile `content` or `iterations` since these are
+        // not part of the document's dependency graph.
+        self.otherwise.compile(context).await?;
 
         // Guess clause language if specified or necessary
         let format = if (matches!(self.guess_language, Some(true))

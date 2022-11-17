@@ -61,7 +61,6 @@ impl Request {
             "documents.load" => documents_load(&self.params).await,
             "documents.dump" => documents_dump(&self.params).await,
             "documents.patch" => documents_patch(&self.params).await,
-            "documents.assemble" => documents_assemble(&self.params).await,
             "documents.compile" => documents_compile(&self.params).await,
             "documents.execute" => documents_execute(&self.params).await,
             "documents.cancel" => documents_cancel(&self.params).await,
@@ -344,9 +343,6 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
     let id = required_string(params, "documentId")?;
     let patch = required_value(params, "patch")?;
     let patch: Patch = serde_json::from_value(patch)?;
-    let assemble = optional_string(params, "assemble")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Never);
     let compile = optional_string(params, "compile")?
         .and_then(|value| When::from_str(&value).ok())
         .unwrap_or(When::Soon);
@@ -362,29 +358,7 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
         .await?
         .lock()
         .await
-        .patch_request(patch, assemble, compile, execute, write)
-        .await?;
-    Ok((json!(true), Subscription::None))
-}
-
-async fn documents_assemble(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "documentId")?;
-    let compile = optional_string(params, "compile")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Never);
-    let execute = optional_string(params, "execute")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Never);
-    let write = optional_string(params, "write")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Soon);
-
-    DOCUMENTS
-        .get(&id)
-        .await?
-        .lock()
-        .await
-        .assemble_request(compile, execute, write)
+        .patch_request(patch, compile, execute, write)
         .await?;
     Ok((json!(true), Subscription::None))
 }

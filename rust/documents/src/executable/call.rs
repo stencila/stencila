@@ -1,22 +1,15 @@
 use common::{async_trait::async_trait, eyre::Result, tracing};
 use graph_triples::ResourceInfo;
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
-use node_address::Address;
 use path_utils::merge;
 use stencila_schema::Call;
 
-use crate::{assert_id, register_id};
-
-use super::{AssembleContext, CompileContext, Executable};
+use super::{CompileContext, Executable};
 
 #[async_trait]
 impl Executable for Call {
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        let id = register_id!("ca", self, address, context);
+    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+        let id = ensure_id!(self, "ca", context);
 
         // Open the called document and register in `call_docs`
         let path = merge(&context.path, &self.source);
@@ -24,12 +17,6 @@ impl Executable for Call {
         tracing::trace!("Opening doc `{}` for call `{}`", path.display(), id);
         //let doc = Document::open(path, format).await?;
         //context.call_docs.write().await.insert(id, Mutex::new(doc));
-
-        Ok(())
-    }
-
-    async fn compile(&mut self, _context: &mut CompileContext) -> Result<()> {
-        let _id = assert_id!(self)?;
 
         /*
         // Get the parameters of the called document

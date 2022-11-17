@@ -109,7 +109,6 @@ export interface ParameterChangeEvent extends CustomEvent {
 }
 
 export type Then = {
-  assemble?: When
   compile?: When
   execute?: When
   write?: When

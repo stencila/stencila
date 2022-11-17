@@ -5,38 +5,22 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
-use node_address::Address;
+
 
 use stencila_schema::{
     CodeError, Cord, Duration, ExecuteAuto, ExecuteRequired, ExecuteStatus, Node, Span, Timestamp,
 };
 
-use crate::{assert_id, register_id};
-
-use super::{shared::code_execute_status, AssembleContext, CompileContext, Executable};
+use super::{shared::code_execute_status, CompileContext, Executable};
 
 #[async_trait]
 impl Executable for Span {
-    /// Assemble a `Span` node
-    ///
-    /// Registers the `id` of the span and assembles its `content`.
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        register_id!("sp", self, address, context);
-
-        self.content
-            .assemble(&mut address.add_name("content"), context)
-            .await?;
-
-        Ok(())
-    }
-
     /// Compile a `Span` node
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = assert_id!(self)?;
+        let id = ensure_id!(self, "sp", context);
+
+        // Compile the content of the span
+        self.content.compile(context).await?;
 
         // Infer the language of the expression, falling back to Tailwind
         let lang = match self.programming_language.is_empty() {

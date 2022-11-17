@@ -5,31 +5,19 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
-use node_address::Address;
 use stencila_schema::{CodeChunk, Cord, Duration, ExecuteRequired, ExecuteStatus, Timestamp};
 
-use crate::{assert_id, register_id};
-
-use super::{shared::code_execute_status, AssembleContext, CompileContext, Executable};
+use super::{shared::code_execute_status, CompileContext, Executable};
 
 #[async_trait]
 impl Executable for CodeChunk {
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        register_id!("cc", self, address, context);
-        Ok(())
-    }
-
     /// Compile a `CodeChunk` node
     ///
     /// Performs semantic analysis of the code (if language is supported) and adds the resulting
     /// relations to the compilation context. If the `programming_language` is an empty string
     /// then use the current language of the context.
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = assert_id!(self)?;
+        let id = ensure_id!(self, "cc", context);
 
         // Guess language if specified or necessary
         if matches!(self.guess_language, Some(true)) || self.programming_language.is_empty() {

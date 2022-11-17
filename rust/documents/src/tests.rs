@@ -19,7 +19,6 @@ use stencila_schema::Node;
 use test_snaps::{fixtures, insta::assert_json_snapshot, snapshot_set_suffix};
 
 use crate::{
-    assemble::assemble,
     compile::compile,
     execute::execute,
     messages::{CancelRequest, PatchRequest},
@@ -59,19 +58,11 @@ async fn md_articles() -> Result<()> {
         let kernel_space = Arc::new(RwLock::new(KernelSpace::new(None, None)));
         let tag_map = Arc::new(RwLock::new(TagMap::default()));
 
-        // Assemble the article and snapshot the result
-        let address_map = assemble(path, &root, &kernel_space, &patch_request_sender).await?;
-        snapshot_set_suffix(&[name, "-assemble"].concat(), || {
-            assert_json_snapshot!(&address_map)
-        });
-        let address_map = Arc::new(RwLock::new(address_map));
-
         // Compile the article and snapshot the result
         let graph = compile(
             path,
             project,
             &root,
-            &address_map,
             &tag_map,
             &kernel_space,
             &patch_request_sender,
@@ -162,7 +153,6 @@ async fn md_articles() -> Result<()> {
         execute(
             &plan,
             &root,
-            &address_map,
             &tag_map,
             &Arc::new(RwLock::new(KernelSpace::new(None, None))),
             &patch_request_sender,
@@ -205,7 +195,7 @@ async fn regression_creative_work() -> Result<()> {
         ]
     }))?;
 
-    let (_plan, patches) = assemble_compile_plan_execute(node).await?;
+    let (_plan, patches) = compile_plan_execute(node).await?;
     let was_executed = patches
         .iter()
         .flat_map(|patch| &patch.ops)
@@ -224,7 +214,7 @@ async fn regression_creative_work() -> Result<()> {
 /// Convenience function to compile, plan and execute a node
 ///
 /// Returns the plan and generated patches.
-async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
+async fn compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
     let root = Arc::new(RwLock::new(node));
     let tags = Arc::new(RwLock::new(TagMap::default()));
     let kernels = Arc::new(RwLock::new(KernelSpace::new(None, None)));
@@ -241,14 +231,10 @@ async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)>
 
     let (_cancel_request_sender, mut cancel_request_receiver) = mpsc::channel::<CancelRequest>(1);
 
-    let address_map = assemble(&PathBuf::new(), &root, &kernels, &patch_request_sender).await?;
-    let address_map = &Arc::new(RwLock::new(address_map));
-
     let graph = compile(
         &PathBuf::new(),
         &PathBuf::new(),
         &root,
-        address_map,
         &tags,
         &kernels,
         &patch_request_sender,
@@ -260,7 +246,6 @@ async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)>
     execute(
         &plan,
         &root,
-        address_map,
         &tags,
         &kernels,
         &patch_request_sender,

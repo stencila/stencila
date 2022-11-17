@@ -6,18 +6,12 @@ use graph_triples::{
     Relation, ResourceInfo,
 };
 
-use node_address::Address;
-
 use stencila_schema::{
     AudioObject, AudioObjectSimple, ImageObject, ImageObjectSimple, MediaObject, VideoObject,
     VideoObjectSimple,
 };
 
-use crate::{
-    assert_id,
-    executable::{AssembleContext, CompileContext, Executable},
-    register_id,
-};
+use crate::executable::{CompileContext, Executable};
 
 /// Compile the `content_url` property of `MediaObject` node types
 ///
@@ -72,17 +66,8 @@ macro_rules! executable_media_object {
     ($type:ty, $prefix:expr) => {
         #[async_trait]
         impl Executable for $type {
-            async fn assemble(
-                &mut self,
-                address: &mut Address,
-                context: &mut AssembleContext,
-            ) -> Result<()> {
-                register_id!($prefix, self, address, context);
-                Ok(())
-            }
-
             async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-                let id = assert_id!(self)?;
+                let id = ensure_id!(self, $prefix, context);
                 let resource = resources::node(&context.path, &id, stringify!($type));
 
                 let url = compile_content_url(&self.content_url, context);

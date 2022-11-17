@@ -5,61 +5,48 @@ use stencila_schema::{BlockContent, CreativeWorkTypes, InlineContent, Node};
 // Re-exports for convenience of dependant crates
 pub use node_address::Address;
 
-/// Resolve a node [`Address`] or id into a node [`Pointer`]
-///
-/// The intent is to use the `id` as a fallback if the `address` can not be resolved.
-/// However the borrow checker isn't allowing that implementation
-pub fn resolve<Type: Pointable>(
-    node: &Type,
-    address: Option<Address>,
-    id: Option<String>,
-) -> Result<Pointer> {
-    if let Some(mut address) = address {
-        let pointer = if cfg!(debug_assertions) {
-            // During development provide better error reporting
-            // It is necessary to capture display of address before it gets mutated in resolve
-            let address_display = address.to_string();
-            node.resolve(&mut address).map_err(|error| {
-                eyre!("While attempting to resolve address `{address_display}`: {error}")
-            })?
-        } else {
-            node.resolve(&mut address)?
-        };
-        match pointer {
-            Pointer::None => bail!("Unable to find node with address `{}`", address),
-            _ => Ok(pointer),
-        }
-    } else if let Some(id) = id {
-        let pointer = node.find(&id);
-        match pointer {
-            Pointer::None => bail!("Unable to find node with id `{}`", id),
-            _ => Ok(pointer),
-        }
+/// Resolve a node [`Address`] into a node [`Pointer`]
+pub fn resolve<P: Pointable>(node: &P, mut address: Address) -> Result<Pointer> {
+    let pointer = if cfg!(debug_assertions) {
+        // During development provide better error reporting
+        // It is necessary to capture display of address before it gets mutated in resolve
+        let address_display = address.to_string();
+        node.resolve(&mut address).map_err(|error| {
+            eyre!("While attempting to resolve address `{address_display}`: {error}")
+        })?
     } else {
-        bail!("One of address or node id must be supplied to resolve a node")
+        node.resolve(&mut address)?
+    };
+    match pointer {
+        Pointer::None => bail!("Unable to find node with address `{}`", address),
+        _ => Ok(pointer),
     }
 }
 
-/// Resolve a node [`Address`] or id into a mutable node [`PointerMut`]
-pub fn resolve_mut<Type: Pointable>(
-    node: &mut Type,
-    address: Option<Address>,
-    id: Option<String>,
-) -> Result<PointerMut> {
-    if let Some(mut address) = address {
-        let pointer = node.resolve_mut(&mut address)?;
-        match pointer {
-            PointerMut::None => bail!("Unable to find node with address `{}`", address),
-            _ => Ok(pointer),
-        }
-    } else if let Some(id) = id {
-        let pointer = node.find_mut(&id);
-        match pointer {
-            PointerMut::None => bail!("Unable to find node with id `{}`", id),
-            _ => Ok(pointer),
-        }
-    } else {
-        bail!("One of address or node id must be supplied to resolve a node")
+/// Resolve a node [`Address`] into a mutable node [`PointerMut`]
+pub fn resolve_mut<P: Pointable>(node: &mut P, mut address: Address) -> Result<PointerMut> {
+    let pointer = node.resolve_mut(&mut address)?;
+    match pointer {
+        PointerMut::None => bail!("Unable to find node with address `{}`", address),
+        _ => Ok(pointer),
+    }
+}
+
+/// Find a node with an `id` and return a [`Pointer`] to it
+pub fn find<'lt, P: Pointable>(node: &'lt P, id: &str) -> Result<Pointer<'lt>> {
+    let pointer = node.find(id);
+    match pointer {
+        Pointer::None => bail!("Unable to find node with id `{}`", id),
+        _ => Ok(pointer),
+    }
+}
+
+/// Find a node with an `id` and return a [`PointerMut`] to it
+pub fn find_mut<'lt, P: Pointable>(node: &'lt mut P, id: &str) -> Result<PointerMut<'lt>> {
+    let pointer = node.find_mut(id);
+    match pointer {
+        PointerMut::None => bail!("Unable to find node with id `{}`", id),
+        _ => Ok(pointer),
     }
 }
 
@@ -246,7 +233,7 @@ pub trait Pointable {
     }
 
     /// Is this the node having the `id`
-    /// 
+    ///
     /// Will only be overridden by `struct`s that have the `id` property
     fn is(&self, _id: &str) -> bool {
         false

@@ -108,7 +108,7 @@ export default class StencilaForm extends StencilaExecutable {
       @sl-change=${update}
       @stencila-ctrl-enter=${(event: Event) => {
         update(event)
-        this.assemble()
+        this.execute()
       }}
     ></stencila-input>`
   }

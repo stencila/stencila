@@ -5,25 +5,13 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
-use node_address::Address;
 
 use stencila_schema::{CodeExpression, Cord, Duration, ExecuteRequired, ExecuteStatus, Timestamp};
 
-use crate::{assert_id, register_id};
-
-use super::{shared::code_execute_status, AssembleContext, CompileContext, Executable};
+use super::{shared::code_execute_status, CompileContext, Executable};
 
 #[async_trait]
 impl Executable for CodeExpression {
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        register_id!("ce", self, address, context);
-        Ok(())
-    }
-
     /// Compile a `CodeExpression` node
     ///
     /// Performs semantic analysis of the code (if necessary) and adds the resulting
@@ -33,7 +21,7 @@ impl Executable for CodeExpression {
     /// A `CodeExpression` is assumed to be pure (i.e. have no side effects and can be executed
     /// in a fork).
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = assert_id!(self)?;
+        let id = ensure_id!(self, "ce", context);
 
         // Guess language if specified or necessary
         if matches!(self.guess_language, Some(true)) || self.programming_language.is_empty() {

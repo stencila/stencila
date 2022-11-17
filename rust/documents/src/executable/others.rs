@@ -1,36 +1,29 @@
 use common::{async_trait::async_trait, eyre::Result};
 use graph_triples::ResourceInfo;
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
-use node_address::{Address, Slot};
+
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
 
 use stencila_schema::*;
 
-use crate::{
-    executable::{AssembleContext, CompileContext, Executable, ExecuteContext},
-    register_id,
-};
+use crate::executable::{CompileContext, Executable, ExecuteContext};
 
 // Nodes types that simply need an `id` assigned so that custom web component patch events have a target
 
-macro_rules! executable_assemble_id_only {
+macro_rules! executable_compile_id_only {
     ($type:ty, $prefix:expr) => {
         #[async_trait]
         impl Executable for $type {
-            async fn assemble(
-                &mut self,
-                address: &mut Address,
-                context: &mut AssembleContext,
-            ) -> Result<()> {
-                register_id!($prefix, self, address, context);
+            async fn compile(&mut self, _context: &mut CompileContext) -> Result<()> {
+                ensure_id!(self, $prefix, context);
                 Ok(())
             }
         }
     };
 }
 
-executable_assemble_id_only!(CodeBlock, "cb");
-executable_assemble_id_only!(CodeFragment, "cf");
+executable_compile_id_only!(CodeBlock, "cb");
+executable_compile_id_only!(CodeFragment, "cf");
 
 // Node types that do not need anything done
 
@@ -88,14 +81,6 @@ executable_nothing!(
 
 #[async_trait]
 impl Executable for Node {
-    async fn assemble(
-        &mut self,
-        address: &mut Address,
-        context: &mut AssembleContext,
-    ) -> Result<()> {
-        dispatch_node!(self, Box::pin(async { Ok(()) }), assemble, address, context).await
-    }
-
     async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
         dispatch_node!(self, Box::pin(async { Ok(()) }), compile, context).await
     }
@@ -139,14 +124,6 @@ macro_rules! executable_enum {
     ($type: ty, $dispatch_macro: ident) => {
         #[async_trait]
         impl Executable for $type {
-            async fn assemble(
-                &mut self,
-                address: &mut Address,
-                context: &mut AssembleContext,
-            ) -> Result<()> {
-                $dispatch_macro!(self, assemble, address, context).await
-            }
-
             async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
                 $dispatch_macro!(self, compile, context).await
             }
@@ -193,18 +170,9 @@ macro_rules! executable_fields {
     ($type:ty $(, $field:ident)* ) => {
         #[async_trait]
         impl Executable for $type {
-            async fn assemble(&mut self, address: &mut Address, context: &mut AssembleContext) -> Result<()> {
+            async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
                 $(
-                    address.push_back(Slot::Name(stringify!($field).to_string()));
-                    self.$field.assemble(address, context).await?;
-                    address.pop_back();
-                )*
-                Ok(())
-            }
-
-            async fn execute(&mut self, context: &mut ExecuteContext) -> Result<()> {
-                $(
-                    self.$field.execute(context).await?;
+                    self.$field.compile(context).await?;
                 )*
                 Ok(())
             }
@@ -266,10 +234,10 @@ macro_rules! executable_variants {
     ( $type:ty $(, $variant:path )* ) => {
         #[async_trait]
         impl Executable for $type {
-            async fn assemble(&mut self, address: &mut Address, context: &mut AssembleContext) -> Result<()> {
+            async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
                 match self {
                     $(
-                        $variant(node) => node.assemble(address, context).await,
+                        $variant(node) => node.compile(context).await,
                     )*
                 }
             }

@@ -11,7 +11,6 @@ use thiserror::Error;
 use common::{
     derive_more::{Constructor, Deref, DerefMut},
     eyre::Result,
-    indexmap::IndexMap,
     inflector::cases::{camelcase::to_camel_case, snakecase::to_snake_case},
     serde::{self, Deserialize, Deserializer, Serialize},
     strum::AsRefStr,
@@ -188,13 +187,6 @@ impl Address {
         added
     }
 }
-
-/// A map of node ids to their address
-///
-/// Used to enable faster access to a node based on it's id.
-/// An `IndexMap` is used instead of a `HashMap` so that entries are
-/// in the order that they appear in the document
-pub type AddressMap = IndexMap<String, Address>;
 
 /// An enumeration of custom errors returned by this library
 ///

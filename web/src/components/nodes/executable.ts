@@ -81,13 +81,6 @@ export default class StencilaExecutable extends StencilaEntity {
   }
 
   /**
-   * Assemble the document that this node belongs to
-   */
-  protected assemble() {
-    this.emit('stencila-document-assemble')
-  }
-
-  /**
    * Compile the node
    */
   protected compile() {
