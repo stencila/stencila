@@ -4,9 +4,8 @@
 use maplit::btreemap;
 use serde_json::{json, Result, Value};
 use stencila_schema::{
-    Article, BlockContent, Boolean, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle, Date,
-    DateTime, Duration, InlineContent, Integer, Null, Number, Paragraph, Person, Primitive, Time,
-    TimeUnit, Timestamp,
+    Article, BlockContent, Boolean, CodeExpression, CreativeWorkAuthors, Date, DateTime, Duration,
+    InlineContent, Integer, Null, Number, Paragraph, Person, Primitive, Time, TimeUnit, Timestamp,
 };
 
 #[test]
@@ -163,9 +162,7 @@ fn primitives_serialize() -> Result<()> {
 
 fn article_fixture() -> Article {
     Article {
-        title: Some(Box::new(CreativeWorkTitle::String(
-            "The article title".into(),
-        ))),
+        title: Some(vec![InlineContent::String("The article title".into())]),
         authors: Some(vec![CreativeWorkAuthors::Person({
             Person {
                 given_names: Some(vec!["Jane".into()]),

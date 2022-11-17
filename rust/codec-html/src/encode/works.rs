@@ -53,10 +53,7 @@ impl ToHtml for Article {
     fn to_html(&self, context: &mut EncodeContext) -> String {
         let title = match &self.title {
             Some(title) => {
-                let title = match &**title {
-                    CreativeWorkTitle::String(title) => title.to_html(context),
-                    CreativeWorkTitle::VecInlineContent(title) => title.to_html(context),
-                };
+                let title = title.to_html(context);
                 elem(
                     "h1",
                     &[attr_prop("title"), attr_itemprop("headline")],
@@ -113,19 +110,7 @@ impl ToHtml for Article {
         let description = match &self.description {
             Some(desc) => {
                 let meta = (**desc).to_txt();
-                let content = match &**desc {
-                    ThingDescription::String(string) => Paragraph {
-                        content: vec![InlineContent::String(string.clone())],
-                        ..Default::default()
-                    }
-                    .to_html(context),
-                    ThingDescription::VecInlineContent(inlines) => Paragraph {
-                        content: inlines.clone(),
-                        ..Default::default()
-                    }
-                    .to_html(context),
-                    ThingDescription::VecBlockContent(blocks) => blocks.to_html(context),
-                };
+                let content = desc.to_html(context);
                 elem(
                     "section",
                     &[attr_prop("description"), attr_slot("description")],

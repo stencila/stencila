@@ -84,15 +84,15 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
             return Ok((end, None));
         }
 
-        let node = match serde_yaml::from_str(&yaml) {
-            Ok(serde_json::Value::Object(mut node)) => {
-                if node.get("type").is_none() {
-                    node.insert(
+        let mut value = match serde_yaml::from_str(&yaml) {
+            Ok(serde_json::Value::Object(mut value)) => {
+                if value.get("type").is_none() {
+                    value.insert(
                         "type".to_string(),
                         serde_json::Value::String("Article".to_string()),
                     );
                 }
-                serde_json::Value::Object(node)
+                serde_json::Value::Object(value)
             }
             Ok(_) => {
                 tracing::warn!("YAML frontmatter is not an object, will be ignored");
@@ -107,7 +107,27 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
             }
         };
 
-        let node = coerce(node, None)?;
+        let title = value
+            .get_mut("title")
+            .and_then(|title| title.as_str())
+            .map(String::from);
+        let description = value
+            .get_mut("description")
+            .and_then(|description| description.as_str())
+            .map(String::from);
+
+        let mut node = coerce(value, None)?;
+
+        // Treat Article title and description as Markdown
+        if let Node::Article(article) = &mut node {
+            if let Some(title) = title {
+                article.title = Some(decode_fragment(&title, None).to_inlines());
+            }
+            if let Some(description) = description {
+                article.description = Some(decode_fragment(&description, None));
+            }
+        }
+
         Ok((end, Some(node)))
     } else {
         Ok((None, None))
@@ -492,7 +512,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                     let title = {
                         let title = title.to_string();
                         if !title.is_empty() {
-                            Some(Box::new(CreativeWorkTitle::String(title)))
+                            Some(vec![InlineContent::String(title)])
                         } else {
                             None
                         }

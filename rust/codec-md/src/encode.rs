@@ -1,7 +1,7 @@
 use std::cmp::max;
 
 use codec::{
-    common::{eyre::Result, itertools::Itertools, serde_json},
+    common::{eyre::Result, itertools::Itertools, serde_json, serde_yaml},
     stencila_schema::*,
     EncodeOptions,
 };
@@ -820,24 +820,29 @@ impl ToMd for If {
     }
 }
 
-macro_rules! content_to_md {
-    ($type:ty) => {
-        impl ToMd for $type {
-            fn to_md(&self, options: &EncodeOptions) -> String {
-                self.content.to_md(options)
-            }
-        }
-    };
-}
-
-content_to_md!(Article);
-content_to_md!(CreativeWork);
-
-impl ToMd for CreativeWorkContent {
+impl ToMd for Article {
     fn to_md(&self, options: &EncodeOptions) -> String {
-        match self {
-            CreativeWorkContent::String(node) => node.to_md(options),
-            CreativeWorkContent::VecNode(nodes) => nodes.to_md(options),
+        let mut frontmatter = serde_yaml::to_value(&Article {
+            content: None,
+            ..self.clone()
+        })
+        .unwrap_or_default();
+
+        if let Some(title) = &self.title {
+            frontmatter["title"] = serde_yaml::Value::String(title.to_md(options));
+        }
+        if let Some(description) = &self.description {
+            frontmatter["description"] =
+                serde_yaml::Value::String(description.to_md(options).trim().to_string());
+        }
+
+        let md = self.content.to_md(options);
+
+        let yaml = serde_yaml::to_string(&frontmatter).unwrap_or_default();
+        if !yaml.is_empty() {
+            ["---\n", &yaml, "---\n\n", &md, "\n"].concat()
+        } else {
+            [&md, "\n"].concat()
         }
     }
 }
@@ -854,7 +859,6 @@ impl ToMd for Node {
             Node::CodeChunk(node) => node.to_md(options),
             Node::CodeExpression(node) => node.to_md(options),
             Node::CodeFragment(node) => node.to_md(options),
-            Node::CreativeWork(node) => node.to_md(options),
             Node::Division(node) => node.to_md(options),
             Node::Emphasis(node) => node.to_md(options),
             Node::For(node) => node.to_md(options),
@@ -947,16 +951,6 @@ impl ToMd for BlockContent {
                 "<!-- Markdown encoding for BlockContent::{} is not yet supported -->\n\n",
                 self.as_ref()
             ),
-        }
-    }
-}
-
-impl ToMd for ThingDescription {
-    fn to_md(&self, options: &EncodeOptions) -> String {
-        match self {
-            ThingDescription::String(string) => string.to_string(),
-            ThingDescription::VecInlineContent(inlines) => inlines.to_md(options),
-            ThingDescription::VecBlockContent(blocks) => blocks.to_md(options),
         }
     }
 }

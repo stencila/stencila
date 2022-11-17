@@ -306,12 +306,6 @@ patchable_variants!(
 );
 
 patchable_variants!(
-    CreativeWorkTitle,
-    CreativeWorkTitle::VecInlineContent,
-    CreativeWorkTitle::String
-);
-
-patchable_variants!(
     CreativeWorkVersion,
     CreativeWorkVersion::String,
     CreativeWorkVersion::Number
@@ -369,13 +363,6 @@ patchable_variants!(
     PublicationVolumeVolumeNumber,
     PublicationVolumeVolumeNumber::String,
     PublicationVolumeVolumeNumber::Integer
-);
-
-patchable_variants!(
-    ThingDescription,
-    ThingDescription::VecInlineContent,
-    ThingDescription::VecBlockContent,
-    ThingDescription::String
 );
 
 #[cfg(test)]

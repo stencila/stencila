@@ -28,8 +28,9 @@ use provider::{
     },
     resolve_token,
     stencila_schema::{
-        CreativeWorkAuthors, CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date,
-        Node, Organization, Person, SoftwareSourceCode, ThingDescription,
+        BlockContent, CreativeWorkAuthors, CreativeWorkContent, CreativeWorkPublisher,
+        CreativeWorkVersion, Date, InlineContent, Node, Organization, Paragraph, Person,
+        SoftwareSourceCode,
     },
     EnrichOptions, ParseItem, Provider, ProviderTrait, PullOptions, SyncOptions,
 };
@@ -221,7 +222,10 @@ impl ProviderTrait for GithubProvider {
             .map_err(enhance_error)?;
 
         let description = match !repo_details.description.is_empty() {
-            true => Some(Box::new(ThingDescription::String(repo_details.description))),
+            true => Some(vec![BlockContent::Paragraph(Paragraph {
+                content: vec![InlineContent::String(repo_details.description)],
+                ..Default::default()
+            })]),
             false => None,
         };
 

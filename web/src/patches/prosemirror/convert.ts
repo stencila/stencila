@@ -30,13 +30,35 @@ export function prosemirrorToStencila(value: JsonValue): JsonValue {
 
   // Reshape or rename properties as necessary
   switch (node.type) {
-    case 'Article':
+    case 'Article': {
+      const attrs = node.content
+        ? node.content.reduce(
+            (attrs: Record<string, JsonValue>, value) => ({
+              ...attrs,
+              ...(prosemirrorToStencila(value) as Record<string, JsonValue>),
+            }),
+            {}
+          )
+        : {}
       return {
         type: 'Article',
-        // TODO: Handle title and description
-        // @ts-expect-error Temporarily assuming that only content is `content`
-        // (and not `title` or `description`)
-        content: node.content[0].content.map(prosemirrorToStencila),
+        ...(attrs as Record<string, JsonValue>),
+      }
+    }
+
+    case 'ArticleTitle':
+      return {
+        title: node.content?.map(prosemirrorToStencila) ?? [],
+      }
+
+    case 'ArticleContent':
+      return {
+        content: node.content?.map(prosemirrorToStencila) ?? [],
+      }
+
+    case 'ArticleDescription':
+      return {
+        description: node.content?.map(prosemirrorToStencila) ?? [],
       }
 
     case 'Button':

@@ -509,7 +509,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
             let content_url = url.clone();
             let title = match title.is_empty() {
                 true => None,
-                false => Some(Box::new(CreativeWorkTitle::String(title.to_string()))),
+                false => Some(vec![InlineContent::String(title.to_string())]),
             };
 
             match formats::match_path(&content_url).spec().node_type {

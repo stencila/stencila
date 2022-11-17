@@ -192,13 +192,3 @@ impl ToTxt for BlockContent {
         }
     }
 }
-
-impl ToTxt for ThingDescription {
-    fn to_txt(&self) -> String {
-        match self {
-            ThingDescription::String(string) => string.to_string(),
-            ThingDescription::VecInlineContent(inlines) => inlines.to_txt(),
-            ThingDescription::VecBlockContent(blocks) => blocks.to_txt(),
-        }
-    }
-}

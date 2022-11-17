@@ -867,7 +867,7 @@ pub struct Thing {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -907,7 +907,7 @@ pub struct Brand {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -950,7 +950,7 @@ pub struct ContactPoint {
     pub available_languages: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// Email address for correspondence.
     pub emails: Option<Vec<String>>,
@@ -1020,7 +1020,7 @@ pub struct CreativeWork {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1071,7 +1071,7 @@ pub struct CreativeWork {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -1126,7 +1126,7 @@ pub struct Article {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1186,7 +1186,7 @@ pub struct Article {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -1244,7 +1244,7 @@ pub struct Claim {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1298,7 +1298,7 @@ pub struct Claim {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -1337,7 +1337,7 @@ pub struct ClaimSimple {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -1389,7 +1389,7 @@ pub struct Collection {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1437,7 +1437,7 @@ pub struct Collection {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -1495,7 +1495,7 @@ pub struct Comment {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1549,7 +1549,7 @@ pub struct Comment {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -1607,7 +1607,7 @@ pub struct Datatable {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1658,7 +1658,7 @@ pub struct Datatable {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -1722,7 +1722,7 @@ pub struct MediaObject {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1779,7 +1779,7 @@ pub struct MediaObject {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -1846,7 +1846,7 @@ pub struct AudioObject {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1903,7 +1903,7 @@ pub struct AudioObject {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The transcript of this audio recording.
     pub transcript: Option<Box<String>>,
@@ -1951,7 +1951,7 @@ pub struct AudioObjectSimple {
     pub media_type: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The transcript of this audio recording.
     pub transcript: Option<Box<String>>,
@@ -1982,7 +1982,7 @@ pub struct DatatableColumn {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -2210,7 +2210,7 @@ pub struct DefinedTerm {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -2327,7 +2327,7 @@ pub struct Directory {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -2372,7 +2372,7 @@ pub struct Directory {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -2644,7 +2644,7 @@ pub struct Enumeration {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -2742,7 +2742,7 @@ pub struct Figure {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -2796,7 +2796,7 @@ pub struct Figure {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -2884,7 +2884,7 @@ pub struct File {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -2932,7 +2932,7 @@ pub struct File {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -3134,7 +3134,7 @@ pub struct Grant {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// Indicates an item funded or sponsored through a Grant.
     pub funded_items: Option<Vec<Thing>>,
@@ -3372,7 +3372,7 @@ pub struct ImageObject {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -3432,7 +3432,7 @@ pub struct ImageObject {
     pub thumbnail: Option<Box<ImageObject>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -3480,7 +3480,7 @@ pub struct ImageObjectSimple {
     pub thumbnail: Option<Box<ImageObject>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -3635,7 +3635,7 @@ pub struct ListItem {
     pub content: Option<ListItemContent>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -3789,7 +3789,7 @@ pub struct MonetaryGrant {
     pub amounts: Option<Number>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// Indicates an item funded or sponsored through a Grant.
     pub funded_items: Option<Vec<Thing>>,
@@ -3894,7 +3894,7 @@ pub struct Organization {
     pub departments: Option<Vec<Organization>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// Organization(s) or person(s) funding the organization.
     pub funders: Option<Vec<OrganizationFunders>>,
@@ -4001,7 +4001,7 @@ pub struct Periodical {
     pub date_start: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -4055,7 +4055,7 @@ pub struct Periodical {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -4089,7 +4089,7 @@ pub struct Person {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// Email addresses for the person.
     pub emails: Option<Vec<String>>,
@@ -4165,7 +4165,7 @@ pub struct PostalAddress {
     pub available_languages: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// Email address for correspondence.
     pub emails: Option<Vec<String>>,
@@ -4220,7 +4220,7 @@ pub struct Product {
     pub brands: Option<Vec<Brand>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -4267,7 +4267,7 @@ pub struct PropertyValue {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -4334,7 +4334,7 @@ pub struct PublicationIssue {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -4397,7 +4397,7 @@ pub struct PublicationIssue {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -4452,7 +4452,7 @@ pub struct PublicationVolume {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -4512,7 +4512,7 @@ pub struct PublicationVolume {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -4620,7 +4620,7 @@ pub struct Review {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -4677,7 +4677,7 @@ pub struct Review {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -4732,7 +4732,7 @@ pub struct SoftwareApplication {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -4789,7 +4789,7 @@ pub struct SoftwareApplication {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -4823,7 +4823,7 @@ pub struct SoftwareEnvironment {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// Other environments that this environment extends by adding or removing packages.,
     pub extends: Option<Vec<SoftwareEnvironment>>,
@@ -4881,7 +4881,7 @@ pub struct SoftwareSession {
     pub date_start: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// The maximum duration (seconds) the session is limited to.
     pub duration_limit: Option<Number>,
@@ -4984,7 +4984,7 @@ pub struct SoftwareSourceCode {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -5047,7 +5047,7 @@ pub struct SoftwareSourceCode {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -5300,7 +5300,7 @@ pub struct Table {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -5354,7 +5354,7 @@ pub struct Table {
     pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -5698,7 +5698,7 @@ pub struct VideoObject {
     pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -5758,7 +5758,7 @@ pub struct VideoObject {
     pub thumbnail: Option<Box<ImageObject>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The transcript of this video recording.
     pub transcript: Option<Box<String>>,
@@ -5809,7 +5809,7 @@ pub struct VideoObjectSimple {
     pub thumbnail: Option<Box<ImageObject>>,
 
     /// The title of the creative work.
-    pub title: Option<Box<CreativeWorkTitle>>,
+    pub title: Option<Vec<InlineContent>>,
 
     /// The transcript of this video recording.
     pub transcript: Option<Box<String>>,
@@ -5837,7 +5837,7 @@ pub struct VolumeMount {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<Box<ThingDescription>>,
+    pub description: Option<Vec<BlockContent>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -5904,15 +5904,6 @@ pub enum CitePageStart {
 #[serde(untagged)]
 pub enum CodeChunkCaption {
     VecBlockContent(Vec<BlockContent>),
-    String(String),
-}
-
-/// Types permitted for the `description` property of a `Thing` node.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ThingDescription {
-    VecBlockContent(Vec<BlockContent>),
-    VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
@@ -6001,14 +5992,6 @@ pub enum CreativeWorkPublisher {
 #[serde(untagged)]
 pub enum CreativeWorkReferences {
     CreativeWorkTypes(CreativeWorkTypes),
-    String(String),
-}
-
-/// Types permitted for the `title` property of a `CreativeWork` node.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CreativeWorkTitle {
-    VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 

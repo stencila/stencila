@@ -168,7 +168,7 @@ fn remove_first_mark(paragraph: &Paragraph) -> Vec<InlineContent> {
 
 /// Detect the title of a `CreativeWork` from a paragraph starting with "title"
 fn detect_title(
-    title: &mut Option<Box<CreativeWorkTitle>>,
+    title: &mut Option<Vec<InlineContent>>,
     blocks: &mut Vec<BlockContent>,
     index: usize,
 ) -> i32 {
@@ -179,9 +179,7 @@ fn detect_title(
     if let BlockContent::Paragraph(paragraph) = &blocks[index] {
         let txt = paragraph.to_txt();
         if let Some(captures) = BEGINS_REGEX.captures(&txt) {
-            *title = Some(Box::new(CreativeWorkTitle::VecInlineContent(vec![
-                InlineContent::String(captures[1].to_string()),
-            ])));
+            *title = Some(vec![InlineContent::String(captures[1].to_string())]);
             blocks.remove(index);
             return -1;
         }
@@ -192,25 +190,21 @@ fn detect_title(
 
 /// Infer the title of a `CreativeWork` from a `BlockContent` node
 fn infer_title(
-    title: &mut Option<Box<CreativeWorkTitle>>,
+    title: &mut Option<Vec<InlineContent>>,
     blocks: &mut Vec<BlockContent>,
     index: usize,
 ) -> i32 {
     let inferred = match &blocks[index] {
         BlockContent::Heading(heading) => {
             if heading.depth == Some(1) {
-                Some(Box::new(CreativeWorkTitle::VecInlineContent(
-                    heading.content.clone(),
-                )))
+                Some(heading.content.clone())
             } else {
                 None
             }
         }
         BlockContent::Paragraph(paragraph) => {
             if first_is_strong(paragraph) || first_is_emphasis(paragraph) {
-                Some(Box::new(CreativeWorkTitle::VecInlineContent(
-                    remove_first_mark(paragraph),
-                )))
+                Some(remove_first_mark(paragraph))
             } else {
                 None
             }
@@ -363,7 +357,7 @@ fn detect_keywords(
 /// If the current block looks like an abstract heading, consumes all
 /// the following paragraphs.
 fn detect_abstract(
-    abstract_: &mut Option<Box<ThingDescription>>,
+    abstract_: &mut Option<Vec<BlockContent>>,
     blocks: &mut Vec<BlockContent>,
     index: usize,
 ) -> i32 {
@@ -398,7 +392,7 @@ fn detect_abstract(
         }
     }
 
-    *abstract_ = Some(Box::new(ThingDescription::VecBlockContent(content)));
+    *abstract_ = Some(content);
     -removed
 }
 

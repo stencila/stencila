@@ -53,10 +53,7 @@ fn encode_metadata(article: &Article) -> serde_json::Value {
     object.remove("content");
 
     if let Some(title) = article.title.as_deref() {
-        let title = match title {
-            CreativeWorkTitle::String(string) => string.clone(),
-            CreativeWorkTitle::VecInlineContent(inlines) => inlines.to_txt(),
-        };
+        let title = title.to_txt();
         object.insert("title".to_string(), json!(title));
     }
 
