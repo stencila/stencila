@@ -1505,7 +1505,7 @@ impl Document {
             }
         }
 
-        // Recompile the document to ensure properties such as `code_dependencies` reflect the
+        // Recompile the document to ensure properties such as `execution_dependencies` reflect the
         // new state of the document, and write if necessary
         self.compile(When::Never, write, None).await?;
 

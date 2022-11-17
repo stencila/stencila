@@ -21,7 +21,7 @@ use parser::{
         itertools::Itertools,
     },
     formats::Format,
-    graph_triples::{resources::ResourceDigest, Resource, ResourceInfo},
+    graph_triples::{execution_digest_from_content, Resource, ResourceInfo},
     utils::{parse_file_interps, parse_var_interps},
     Parser, ParserTrait,
 };
@@ -43,8 +43,7 @@ impl ParserTrait for PostgrestParser {
         };
 
         let relations = [parse_var_interps(code, path), parse_file_interps(&http)].concat();
-
-        let compile_digest = ResourceDigest::from_strings(code, None);
+        let compile_digest = execution_digest_from_content(code);
 
         let resource_info = ResourceInfo::new(
             resource,

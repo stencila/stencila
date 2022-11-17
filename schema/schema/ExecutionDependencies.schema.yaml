@@ -1,0 +1,8 @@
+title: ExecutionDependencies
+description: The node types whose execution other nodes may be dependent upon
+status: unstable
+anyOf:
+  - $ref: Button
+  - $ref: CodeChunk
+  - $ref: File
+  - $ref: Parameter

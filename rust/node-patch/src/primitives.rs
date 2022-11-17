@@ -107,16 +107,13 @@ macro_rules! patchable_atomic {
 patchable_atomic!(u8);
 patchable_atomic!(i32);
 patchable_atomic!(u32);
+patchable_atomic!(u64);
 
 // Implementations for Stencila primitive types
 
 patchable_atomic!(Boolean);
 patchable_atomic!(Integer);
 patchable_atomic!(Number);
-
-// A `Cord` is a `String` that is intended to be replaced wholly
-// rather than diffed. So treat it as an atomic.
-patchable_atomic!(Cord);
 
 patchable_atomic!(suids::Suid);
 

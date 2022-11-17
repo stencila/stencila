@@ -6,8 +6,8 @@ use stencila_schema::*;
 
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype, attr_prop,
-    attr_slot, concat, elem, elem_empty, elem_meta, elem_meta_opt, elem_placeholder, elem_property,
-    json, nothing, EncodeContext, ToHtml,
+    attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder, elem_property, json, nothing,
+    EncodeContext, ToHtml,
 };
 
 impl ToHtml for BlockContent {
@@ -72,52 +72,42 @@ impl ToHtml for CodeChunk {
     fn to_html(&self, context: &mut EncodeContext) -> String {
         let lang = self.programming_language.to_attr("programming-language");
 
-        let _compile_digest = elem_meta_opt(
-            "compile_digest",
-            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let _execute_digest = elem_meta_opt(
-            "execute_digest",
-            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let _execute_auto = attr_and_meta_opt(
-            "execute_auto",
-            self.execute_auto
+        let _execution_auto = attr_and_meta_opt(
+            "execution_auto",
+            self.execution_auto
                 .as_ref()
                 .map(|auto| (*auto).as_ref().to_string()),
         );
 
-        let _execute_pure = attr_and_meta_opt(
-            "execute_pure",
-            self.execute_pure.as_ref().map(|value| value.to_string()),
+        let _execution_pure = attr_and_meta_opt(
+            "execution_pure",
+            self.execution_pure.as_ref().map(|value| value.to_string()),
         );
 
-        let _execute_required = attr_and_meta_opt(
-            "execute_required",
-            self.execute_required
+        let _execution_required = attr_and_meta_opt(
+            "execution_required",
+            self.execution_required
                 .as_ref()
                 .map(|required| (*required).as_ref().to_string()),
         );
 
-        let _execute_kernel = attr_and_meta_opt(
-            "execute_kernel",
-            self.execute_kernel
+        let _execution_kernel = attr_and_meta_opt(
+            "execution_kernel",
+            self.execution_kernel
                 .as_ref()
                 .map(|kernel| (*kernel).as_ref().to_string()),
         );
 
-        let _execute_status = attr_and_meta_opt(
-            "execute_status",
-            self.execute_status
+        let _execution_status = attr_and_meta_opt(
+            "execution_status",
+            self.execution_status
                 .as_ref()
                 .map(|status| (*status).as_ref().to_string()),
         );
 
-        let _execute_count = attr_and_meta_opt(
-            "execute_count",
-            self.execute_count.map(|count| count.to_string()),
+        let _execution_count = attr_and_meta_opt(
+            "execution_count",
+            self.execution_count.map(|count| count.to_string()),
         );
 
         let text = elem(
@@ -126,43 +116,46 @@ impl ToHtml for CodeChunk {
             &self.text.to_html(context),
         );
 
-        // For code_dependencies and code_dependents it is necessary to
+        // For execution_dependencies and execution_dependents it is necessary to
         // place the items in a <div> under the custom element to avoid
         // elements added by the Web Component interfering with patch indexes.
 
         let _dependencies = elem(
-            "stencila-code-dependencies",
-            &[attr_slot("code-dependencies")],
+            "stencila-execution-dependencies",
+            &[attr_slot("execution-dependencies")],
             &elem_placeholder(
                 "div",
-                &[attr_prop("code-dependencies")],
-                &self.code_dependencies,
+                &[attr_prop("execution-dependencies")],
+                &self.execution_dependencies,
                 context,
             ),
         );
 
         let _dependents = elem(
-            "stencila-code-dependencies",
-            &[attr_slot("code-dependents")],
+            "stencila-execution-dependencies",
+            &[attr_slot("execution-dependents")],
             &elem_placeholder(
                 "div",
-                &[attr_prop("code-dependents")],
-                &self.code_dependents,
+                &[attr_prop("execution-dependents")],
+                &self.execution_dependents,
                 context,
             ),
         );
 
-        let _execute_ended = elem_property(
+        let _execution_ended = elem_property(
             "stencila-timestamp",
-            &[attr_prop("execute_ended"), attr_slot("execute-ended")],
-            &self.execute_ended,
+            &[attr_prop("execution_ended"), attr_slot("execute-ended")],
+            &self.execution_ended,
             context,
         );
 
-        let _execute_duration = elem_property(
+        let _execution_duration = elem_property(
             "stencila-duration",
-            &[attr_prop("execute_duration"), attr_slot("execute-duration")],
-            &self.execute_duration,
+            &[
+                attr_prop("execution_duration"),
+                attr_slot("execute-duration"),
+            ],
+            &self.execution_duration,
             context,
         );
 
@@ -199,28 +192,28 @@ impl ToHtml for CodeChunk {
             &[
                 attr_id(&self.id),
                 lang,
-                //execute_auto.0,
-                //execute_pure.0,
-                //execute_required.0,
-                //execute_status.0,
-                //execute_kernel.0,
-                //execute_count.0,
+                //execution_auto.0,
+                //execution_pure.0,
+                //execution_required.0,
+                //execution_status.0,
+                //execution_kernel.0,
+                //execution_count.0,
             ],
             &[
                 //lang.1,
                 //compile_digest,
                 //execute_digest,
-                //execute_auto.1,
-                //execute_pure.1,
-                //execute_required.1,
-                //execute_status.1,
-                //execute_kernel.1,
-                //execute_count.1,
+                //execution_auto.1,
+                //execution_pure.1,
+                //execution_required.1,
+                //execution_status.1,
+                //execution_kernel.1,
+                //execution_count.1,
                 text,
                 //dependencies,
                 //dependents,
-                //execute_ended,
-                //execute_duration,
+                //execution_ended,
+                //execution_duration,
                 outputs, errors,
                 //label,
                 //caption,
@@ -351,44 +344,34 @@ impl ToHtml for Include {
             self.select.as_ref().map(|boxed| boxed.to_string()),
         );
 
-        let compile_digest = attr_and_meta_opt(
-            "compile_digest",
-            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_digest = attr_and_meta_opt(
-            "execute_digest",
-            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_auto = attr_and_meta_opt(
-            "execute_auto",
-            self.execute_auto
+        let execution_auto = attr_and_meta_opt(
+            "execution_auto",
+            self.execution_auto
                 .as_ref()
                 .map(|auto| (*auto).as_ref().to_string()),
         );
 
-        let execute_required = attr_and_meta_opt(
-            "execute_required",
-            self.execute_required
+        let execution_required = attr_and_meta_opt(
+            "execution_required",
+            self.execution_required
                 .as_ref()
                 .map(|required| (*required).as_ref().to_string()),
         );
 
-        let execute_status = attr_and_meta_opt(
-            "execute_status",
-            self.execute_status
+        let execution_status = attr_and_meta_opt(
+            "execution_status",
+            self.execution_status
                 .as_ref()
                 .map(|status| (*status).as_ref().to_string()),
         );
 
         let dependencies = elem(
-            "stencila-code-dependencies",
-            &[attr_slot("code-dependencies")],
+            "stencila-execution-dependencies",
+            &[attr_slot("execution-dependencies")],
             &elem_placeholder(
                 "div",
-                &[attr_prop("code-dependencies")],
-                &self.code_dependencies,
+                &[attr_prop("execution-dependencies")],
+                &self.execution_dependencies,
                 context,
             ),
         );
@@ -417,21 +400,17 @@ impl ToHtml for Include {
                 source.0,
                 media_type.0,
                 select.0,
-                compile_digest.0,
-                execute_auto.0,
-                execute_digest.0,
-                execute_required.0,
-                execute_status.0,
+                execution_auto.0,
+                execution_required.0,
+                execution_status.0,
             ],
             &[
                 source.1,
                 media_type.1,
                 select.1,
-                compile_digest.1,
-                execute_auto.1,
-                execute_digest.1,
-                execute_required.1,
-                execute_status.1,
+                execution_auto.1,
+                execution_required.1,
+                execution_status.1,
                 dependencies,
                 errors,
                 content,
@@ -455,47 +434,37 @@ impl ToHtml for Call {
             self.select.as_ref().map(|boxed| boxed.to_string()),
         );
 
-        let compile_digest = attr_and_meta_opt(
-            "compile_digest",
-            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_digest = attr_and_meta_opt(
-            "execute_digest",
-            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_auto = attr_and_meta_opt(
-            "execute_auto",
-            self.execute_auto
+        let execution_auto = attr_and_meta_opt(
+            "execution_auto",
+            self.execution_auto
                 .as_ref()
                 .map(|auto| (*auto).as_ref().to_string()),
         );
 
-        let execute_required = attr_and_meta_opt(
-            "execute_required",
-            self.execute_required
+        let execution_required = attr_and_meta_opt(
+            "execution_required",
+            self.execution_required
                 .as_ref()
                 .map(|required| (*required).as_ref().to_string()),
         );
 
-        let execute_status = attr_and_meta_opt(
-            "execute_status",
-            self.execute_status
+        let execution_status = attr_and_meta_opt(
+            "execution_status",
+            self.execution_status
                 .as_ref()
                 .map(|status| (*status).as_ref().to_string()),
         );
 
-        let execute_ended = attr_and_meta_opt(
-            "execute_ended",
-            self.execute_ended
+        let execution_ended = attr_and_meta_opt(
+            "execution_ended",
+            self.execution_ended
                 .as_ref()
                 .map(|date| (**date).value.to_string()),
         );
 
-        let execute_duration = attr_and_meta_opt(
-            "execute_duration",
-            self.execute_duration
+        let execution_duration = attr_and_meta_opt(
+            "execution_duration",
+            self.execution_duration
                 .as_ref()
                 .map(|seconds| seconds.to_string()),
         );
@@ -510,12 +479,12 @@ impl ToHtml for Call {
         );
 
         let dependencies = elem(
-            "stencila-code-dependencies",
-            &[attr_slot("code-dependencies")],
+            "stencila-execution-dependencies",
+            &[attr_slot("execution-dependencies")],
             &elem_placeholder(
                 "div",
-                &[attr_prop("code-dependencies")],
-                &self.code_dependencies,
+                &[attr_prop("execution-dependencies")],
+                &self.execution_dependencies,
                 context,
             ),
         );
@@ -544,25 +513,21 @@ impl ToHtml for Call {
                 source.0,
                 media_type.0,
                 select.0,
-                compile_digest.0,
-                execute_auto.0,
-                execute_digest.0,
-                execute_required.0,
-                execute_status.0,
-                execute_ended.0,
-                execute_duration.0,
+                execution_auto.0,
+                execution_required.0,
+                execution_status.0,
+                execution_ended.0,
+                execution_duration.0,
             ],
             &[
                 source.1,
                 media_type.1,
                 select.1,
-                compile_digest.1,
-                execute_auto.1,
-                execute_digest.1,
-                execute_required.1,
-                execute_status.1,
-                execute_ended.1,
-                execute_duration.1,
+                execution_auto.1,
+                execution_required.1,
+                execution_status.1,
+                execution_ended.1,
+                execution_duration.1,
                 arguments,
                 dependencies,
                 errors,

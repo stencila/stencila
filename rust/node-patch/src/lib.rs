@@ -353,11 +353,12 @@ impl Operation {
             BlockContent
 
             // Types related to compilation and execution
-            ExecuteStatus
-            ExecuteRequired
-            ExecuteAuto
-            ExecutableCodeDependencies
-            ExecutableCodeDependents
+            ExecutionStatus
+            ExecutionRequired
+            ExecutionAuto
+            ExecutionDigest
+            ExecutionDependencies
+            ExecutionDependents
 
             // Child types of the above
             ListItem
@@ -381,7 +382,6 @@ impl Operation {
             // Primitives
             Primitive
             String
-            Cord
             Number
             Integer
             Date
@@ -449,8 +449,8 @@ impl Operation {
             BlockContent
 
             // Types related to compilation of code
-            ExecutableCodeDependencies
-            ExecutableCodeDependents
+            ExecutionDependencies
+            ExecutionDependents
 
             // Child types of the above
             ListItem
@@ -555,7 +555,7 @@ impl Operation {
                 // (but not if it is a `InlineContent::String` or `Node::String`), then there
                 // is no need to generate HTML since it is the same as the value and the `web`
                 // module will fallback to `value` if necessary.
-                if value.is::<String>() || value.is::<Cord>() {
+                if value.is::<String>() {
                     return;
                 }
                 if let Some(value) = value.downcast_mut::<serde_json::Value>() {
@@ -673,8 +673,8 @@ impl Patch {
                                 | "execute_digest"
                                 | "execute_duration"
                                 | "execute_ended"
-                                | "execute_required"
-                                | "execute_status"
+                                | "execution_required"
+                                | "execution_status"
                         ) {
                             return false;
                         }
@@ -1144,21 +1144,21 @@ mod tests {
     fn test_serialize_execute_enums() -> Result<()> {
         let patch = diff(
             &CodeChunk {
-                execute_status: None,
-                execute_required: Some(ExecuteRequired::NeverExecuted),
+                execution_status: None,
+                execution_required: Some(ExecutionRequired::NeverExecuted),
                 ..Default::default()
             },
             &CodeChunk {
-                execute_status: Some(ExecuteStatus::Scheduled),
-                execute_required: Some(ExecuteRequired::SemanticsChanged),
+                execution_status: Some(ExecutionStatus::Scheduled),
+                execution_required: Some(ExecutionRequired::SemanticsChanged),
                 ..Default::default()
             },
         );
 
         match &patch.ops[0] {
             Operation::Replace { value, .. } => {
-                if let Some(value) = value.downcast_ref::<ExecuteRequired>() {
-                    assert_eq!(*value, ExecuteRequired::SemanticsChanged);
+                if let Some(value) = value.downcast_ref::<ExecutionRequired>() {
+                    assert_eq!(*value, ExecutionRequired::SemanticsChanged);
                 } else {
                     bail!("Unexpected value type type");
                 }

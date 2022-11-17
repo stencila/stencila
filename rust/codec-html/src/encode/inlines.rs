@@ -7,8 +7,8 @@ use stencila_schema::*;
 
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype,
-    attr_itemtype_str, attr_prop, attr_slot, concat, elem, elem_empty, elem_meta, elem_meta_opt,
-    elem_placeholder, elem_property, json, nothing, EncodeContext, ToHtml,
+    attr_itemtype_str, attr_prop, attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder,
+    elem_property, json, nothing, EncodeContext, ToHtml,
 };
 
 impl ToHtml for InlineContent {
@@ -402,40 +402,30 @@ impl ToHtml for CodeExpression {
     fn to_html(&self, context: &mut EncodeContext) -> String {
         let lang = attr_and_meta("programming_language", &self.programming_language);
 
-        let compile_digest = elem_meta_opt(
-            "compile_digest",
-            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_digest = elem_meta_opt(
-            "execute_digest",
-            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_required = attr_and_meta_opt(
-            "execute_required",
-            self.execute_required
+        let execution_required = attr_and_meta_opt(
+            "execution_required",
+            self.execution_required
                 .as_ref()
                 .map(|required| (*required).as_ref().to_string()),
         );
 
-        let execute_kernel = attr_and_meta_opt(
-            "execute_kernel",
-            self.execute_kernel
+        let execution_kernel = attr_and_meta_opt(
+            "execution_kernel",
+            self.execution_kernel
                 .as_deref()
                 .map(|kernel| kernel.to_string()),
         );
 
-        let execute_status = attr_and_meta_opt(
-            "execute_status",
-            self.execute_status
+        let execution_status = attr_and_meta_opt(
+            "execution_status",
+            self.execution_status
                 .as_ref()
                 .map(|status| (*status).as_ref().to_string()),
         );
 
-        let execute_count = attr_and_meta_opt(
-            "execute_count",
-            self.execute_count.map(|count| count.to_string()),
+        let execution_count = attr_and_meta_opt(
+            "execution_count",
+            self.execution_count.map(|count| count.to_string()),
         );
 
         let text = elem(
@@ -444,31 +434,34 @@ impl ToHtml for CodeExpression {
             &self.text.to_html(context),
         );
 
-        // For code_dependencies it is necessary to place the items in a <span> under
+        // For execution_dependencies it is necessary to place the items in a <span> under
         // the custom element to avoid elements added by the Web Component interfering
         // with patch indexes.
         let dependencies = elem(
-            "stencila-code-dependencies",
-            &[attr_slot("code-dependencies")],
+            "stencila-execution-dependencies",
+            &[attr_slot("execution-dependencies")],
             &elem_placeholder(
                 "span",
-                &[attr_prop("code-dependencies")],
-                &self.code_dependencies,
+                &[attr_prop("execution-dependencies")],
+                &self.execution_dependencies,
                 context,
             ),
         );
 
-        let execute_ended = elem_property(
+        let execution_ended = elem_property(
             "stencila-timestamp",
-            &[attr_prop("execute_ended"), attr_slot("execute-ended")],
-            &self.execute_ended,
+            &[attr_prop("execution_ended"), attr_slot("execution-ended")],
+            &self.execution_ended,
             context,
         );
 
-        let execute_duration = elem_property(
+        let execution_duration = elem_property(
             "stencila-duration",
-            &[attr_prop("execute_duration"), attr_slot("execute-duration")],
-            &self.execute_duration,
+            &[
+                attr_prop("execution_duration"),
+                attr_slot("execution-duration"),
+            ],
+            &self.execution_duration,
             context,
         );
 
@@ -495,23 +488,21 @@ impl ToHtml for CodeExpression {
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 lang.0,
-                execute_required.0,
-                execute_status.0,
-                execute_kernel.0,
-                execute_count.0,
+                execution_required.0,
+                execution_status.0,
+                execution_kernel.0,
+                execution_count.0,
             ],
             &[
                 lang.1,
-                compile_digest,
-                execute_digest,
-                execute_required.1,
-                execute_status.1,
-                execute_kernel.1,
-                execute_count.1,
+                execution_required.1,
+                execution_status.1,
+                execution_kernel.1,
+                execution_count.1,
                 text,
                 dependencies,
-                execute_ended,
-                execute_duration,
+                execution_ended,
+                execution_duration,
                 output,
                 errors,
             ]

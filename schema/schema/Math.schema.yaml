@@ -22,7 +22,7 @@ properties:
   compileDigest:
     '@id': stencila:compileDigest
     description: A digest of the `text` and `mathLanguage` used to avoid unnecessary transpilation to MathML
-    type: string
+    $ref: ExecutionDigest
   errors:
     '@id': stencila:errors
     description: Errors that occurred when parsing the math equation.

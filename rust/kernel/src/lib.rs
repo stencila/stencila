@@ -15,8 +15,8 @@ use common::{
 use formats::Format;
 pub use graph_triples::TagMap;
 use stencila_schema::{CodeError, Node};
-use utils::some_box_string;
 use suids::suid_family;
+use utils::some_box_string;
 
 // Re-export for the convenience of crates that implement `KernelTrait`
 pub use common;

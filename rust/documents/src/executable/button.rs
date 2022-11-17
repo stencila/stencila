@@ -1,12 +1,12 @@
 use common::{async_trait::async_trait, eyre::Result, tracing};
 use formats::Format;
 use graph_triples::{
+    execution_digest_from_content,
     relations::{self, NULL_RANGE},
-    resources::{self, ResourceDigest},
-    ResourceInfo,
+    resources, ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
-use stencila_schema::{Button, Cord, ExecuteRequired, Node, Timestamp};
+use stencila_schema::{Button, ExecutionRequired, Node, Timestamp};
 
 use super::{CompileContext, Executable};
 
@@ -30,12 +30,9 @@ impl Executable for Button {
         let relations = Some(vec![(relations::assigns(NULL_RANGE), symbol)]);
 
         let execute_pure = Some(false);
-        let compile_digest = Some(ResourceDigest::from_strings(&self.name, None));
-        let execute_digest = self
-            .execute_digest
-            .as_deref()
-            .map(ResourceDigest::from_cord);
-        let execute_failed = self.execute_ended.as_ref().map(|_| false);
+        let compile_digest = Some(execution_digest_from_content(&self.name));
+        let execute_digest = self.execute_digest.clone();
+        let execute_failed = self.execution_ended.as_ref().map(|_| false);
 
         let resource_info = ResourceInfo::new(
             resource,
@@ -80,18 +77,15 @@ impl Executable for Button {
 
         // Update both `compile_digest` and `execute_digest` to the compile digest determined
         // during the compile phase
-        let digest = resource_info
-            .compile_digest
-            .clone()
-            .map(|digest| Box::new(Cord(digest.to_string())));
+        let digest = resource_info.compile_digest.clone();
         self.compile_digest = digest.clone();
         self.execute_digest = digest;
 
         // Updated other execution properties
-        self.execute_required = Some(ExecuteRequired::No);
-        self.execute_ended = Some(Box::new(Timestamp::now()));
-        self.execute_kernel = Some(Box::new(kernel_id));
-        self.execute_count = Some(self.execute_count.unwrap_or_default() + 1);
+        self.execution_required = Some(ExecutionRequired::No);
+        self.execution_ended = Some(Box::new(Timestamp::now()));
+        self.execution_kernel = Some(Box::new(kernel_id));
+        self.execution_count = Some(self.execution_count.unwrap_or_default() + 1);
 
         Ok(None)
     }

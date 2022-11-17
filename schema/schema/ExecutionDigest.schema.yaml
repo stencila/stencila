@@ -1,0 +1,32 @@
+title: ExecutionDigest
+'@id': stencila:ExecutionDigest
+status: stable
+category: code
+description: A digest of the execution state of a node.
+properties:
+  contentDigest:
+    '@id': stencila:contentDigest
+    description: A digest of the content of the resource (e.g the `text` of a `CodeChunk`, or the bytes of a file).
+    type: number
+  semanticDigest:
+    '@id': stencila:semanticDigest
+    description: A digest of the "semantic intent" of the resource with respect to the dependency graph
+    type: number
+  dependenciesDigest:
+    '@id': stencila:dependenciesDigest
+    description: A digest of the semantic digests the dependencies of a resource.
+    type: number
+  dependenciesStale:
+    '@id': stencila:dependenciesStale
+    description: A count of the number of execution dependencies that are stale
+    type: number
+  dependenciesFailed:
+    '@id': stencila:dependenciesFailed
+    description: A count of the number of execution dependencies that failed
+    type: number
+required:
+  - contentDigest
+  - semanticDigest
+  - dependenciesDigest
+  - dependenciesStale
+  - dependenciesFailed

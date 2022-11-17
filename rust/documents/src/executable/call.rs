@@ -102,7 +102,7 @@ impl Executable for Call {
         let resource_info = ResourceInfo::new(
             resource,
             Some(relations),
-            self.execute_auto.clone(),
+            self.execution_auto.clone(),
             Some(true), // Never has side effects
             Some(compile_digest),
             execute_digest,
@@ -222,13 +222,13 @@ impl Executable for Call {
         self.execute_digest = digest;
 
         // Update execution status, etc
-        let (execute_required, execute_status) = if succeeded {
-            (ExecuteRequired::No, ExecuteStatus::Succeeded)
+        let (execution_required, execution_status) = if succeeded {
+            (ExecutionRequired::No, ExecutionStatus::Succeeded)
         } else {
-            (ExecuteRequired::No, ExecuteStatus::Failed)
+            (ExecutionRequired::No, ExecutionStatus::Failed)
         };
-        self.execute_required = Some(execute_required);
-        self.execute_status = Some(execute_status);
+        self.execution_required = Some(execution_required);
+        self.execution_status = Some(execution_status);
         */
 
         Ok(None)

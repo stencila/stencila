@@ -136,7 +136,7 @@ async fn md_articles() -> Result<()> {
                 for op in patch.ops.iter_mut() {
                     if let Operation::Add { address, value, .. } = op {
                         if let Some(Slot::Name(name)) = address.back() {
-                            if name == "execute_ended" || name == "execute_duration" {
+                            if name == "execution_ended" || name == "execution_duration" {
                                 *value = Box::new("<redacted>".to_string());
                             }
                         }
@@ -181,7 +181,7 @@ async fn md_articles() -> Result<()> {
 /// Normally we execute a type of creative work such as an `Article`.
 /// But sometimes, when you have a flat array of `Node`s, it is necessary
 /// to use a `CreativeWork`. The first time we tried to do that it failed.
-/// This just tests that there is a patch with an "execute_ended" op
+/// This just tests that there is a patch with an "execution_ended" op
 #[tokio::test]
 async fn regression_creative_work() -> Result<()> {
     let node = serde_json::from_value(serde_json::json!({
@@ -201,7 +201,7 @@ async fn regression_creative_work() -> Result<()> {
         .flat_map(|patch| &patch.ops)
         .any(|op| match op {
             Operation::Add { address, .. } => match &address[0] {
-                Slot::Name(name) => name == "execute_ended",
+                Slot::Name(name) => name == "execution_ended",
                 _ => false,
             },
             _ => false,

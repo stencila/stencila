@@ -1628,7 +1628,7 @@ fn include(input: &str) -> IResult<&str, Include> {
                     .remove("select")
                     .and_then(|option| option)
                     .map(|node| Box::new(node.to_txt())),
-                execute_auto: options
+                execution_auto: options
                     .remove("autorun")
                     .and_then(|option| option)
                     .and_then(|node| node.to_txt().parse().ok()),
@@ -1669,7 +1669,7 @@ fn call(input: &str) -> IResult<&str, Call> {
                     .remove("select")
                     .and_then(|option| option)
                     .map(|node| Box::new(node.to_txt())),
-                execute_auto: options
+                execution_auto: options
                     .remove("autorun")
                     .and_then(|option| option)
                     .and_then(|node| node.to_txt().parse().ok()),

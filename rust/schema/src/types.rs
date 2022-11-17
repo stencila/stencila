@@ -218,41 +218,41 @@ pub struct Executable {
     #[derivative(Default(value = "Executable_::Executable"))]
     pub type_: Executable_,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -279,41 +279,41 @@ pub struct CodeExecutable {
     /// The text of the code.
     pub text: String,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -349,41 +349,41 @@ pub struct Button {
     /// The text of the code.
     pub text: String,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -425,44 +425,44 @@ pub struct CodeChunk {
     /// A caption for the CodeChunk.
     pub caption: Option<Box<CodeChunkCaption>>,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<u32>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether the code should be treated as side-effect free when executed.
-    pub execute_pure: Option<Boolean>,
+    pub execution_pure: Option<Boolean>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -501,41 +501,41 @@ pub struct CodeExpression {
     /// The text of the code.
     pub text: String,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<u32>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -568,14 +568,8 @@ pub struct Include {
     /// The external source of the content, a file path or URL.
     pub source: String,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// The structured content decoded from the source.
     pub content: Option<Vec<BlockContent>>,
@@ -583,29 +577,35 @@ pub struct Include {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -638,14 +638,8 @@ pub struct Call {
     /// The value of the source document's parameters to call it with
     pub arguments: Option<Vec<CallArgument>>,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// The structured content decoded from the source.
     pub content: Option<Vec<BlockContent>>,
@@ -653,29 +647,35 @@ pub struct Call {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -705,14 +705,8 @@ pub struct Parameter {
     /// The name of the parameter.
     pub name: String,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// The default value of the parameter.
     pub default: Option<Box<Node>>,
@@ -723,29 +717,35 @@ pub struct Parameter {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// Whether the parameter should be hidden.
     pub hidden: Option<Boolean>,
@@ -781,14 +781,8 @@ pub struct CallArgument {
     /// The name of the parameter.
     pub name: String,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// The default value of the parameter.
     pub default: Option<Box<Node>>,
@@ -799,29 +793,35 @@ pub struct CallArgument {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -2408,41 +2408,41 @@ pub struct Styled {
     /// The text of the code.
     pub text: String,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -2484,41 +2484,41 @@ pub struct Division {
     /// The text of the code.
     pub text: String,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -2665,6 +2665,37 @@ pub struct Enumeration {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Enumeration_ {
   Enumeration
+}
+
+/// A digest of the execution state of a node.
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize, Deserialize)]
+#[derivative(Default)]
+#[serde(default, rename_all = "camelCase")]
+pub struct ExecutionDigest {
+    /// The name of this type
+    #[derivative(Default(value = "ExecutionDigest_::ExecutionDigest"))]
+    pub type_: ExecutionDigest_,
+
+    /// A digest of the content of the resource (e.g the `text` of a `CodeChunk`, or the bytes of a file).
+    pub content_digest: u64,
+
+    /// A digest of the semantic digests the dependencies of a resource.
+    pub dependencies_digest: u64,
+
+    /// A count of the number of execution dependencies that failed
+    pub dependencies_failed: u32,
+
+    /// A count of the number of execution dependencies that are stale
+    pub dependencies_stale: u32,
+
+    /// A digest of the "semantic intent" of the resource with respect to the dependency graph
+    pub semantic_digest: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ExecutionDigest_ {
+  ExecutionDigest
 }
 
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
@@ -2937,41 +2968,41 @@ pub struct For {
     /// The text of the code.
     pub text: String,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -3007,14 +3038,8 @@ pub struct Form {
     /// The content within the form, usually containing at least one `Parameter`.
     pub content: Vec<BlockContent>,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// The action (create, update or delete) to derive for the form
     pub derive_action: Option<FormDeriveAction>,
@@ -3028,29 +3053,35 @@ pub struct Form {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -3170,41 +3201,41 @@ pub struct If {
     /// The clauses making up the `If` node
     pub clauses: Vec<IfClause>,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -3234,41 +3265,41 @@ pub struct IfClause {
     /// The text of the code.
     pub text: String,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -3653,7 +3684,7 @@ pub struct Math {
     pub text: String,
 
     /// A digest of the `text` and `mathLanguage` used to avoid unnecessary transpilation to MathML
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors that occurred when parsing the math equation.
     pub errors: Option<Vec<String>>,
@@ -3687,7 +3718,7 @@ pub struct MathBlock {
     pub text: String,
 
     /// A digest of the `text` and `mathLanguage` used to avoid unnecessary transpilation to MathML
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors that occurred when parsing the math equation.
     pub errors: Option<Vec<String>>,
@@ -3724,7 +3755,7 @@ pub struct MathFragment {
     pub text: String,
 
     /// A digest of the `text` and `mathLanguage` used to avoid unnecessary transpilation to MathML
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors that occurred when parsing the math equation.
     pub errors: Option<Vec<String>>,
@@ -5055,41 +5086,41 @@ pub struct Span {
     /// The text of the code.
     pub text: String,
 
-    /// The upstream dependencies.
-    pub code_dependencies: Option<Vec<ExecutableCodeDependencies>>,
-
-    /// The downstream dependents.
-    pub code_dependents: Option<Vec<ExecutableCodeDependents>>,
-
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<Box<Cord>>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<ExecutionDigest>,
+
     /// Under which circumstances the code should be automatically executed.
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execution_auto: Option<ExecutionAuto>,
 
     /// A count of the number of times that the node has been executed.
-    pub execute_count: Option<Integer>,
+    pub execution_count: Option<u32>,
 
-    /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<Box<Cord>>,
+    /// The upstream dependencies.
+    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+
+    /// The downstream dependents.
+    pub execution_dependents: Option<Vec<ExecutionDependents>>,
 
     /// Duration of the last execution.
-    pub execute_duration: Option<Box<Duration>>,
+    pub execution_duration: Option<Box<Duration>>,
 
     /// The timestamp when the last execution ended.
-    pub execute_ended: Option<Box<Timestamp>>,
+    pub execution_ended: Option<Box<Timestamp>>,
 
     /// The id of the kernel that the node was last executed in.
-    pub execute_kernel: Option<Box<String>>,
+    pub execution_kernel: Option<Box<String>>,
 
     /// Whether, and why, the code requires execution or re-execution.
-    pub execute_required: Option<ExecuteRequired>,
+    pub execution_required: Option<ExecutionRequired>,
 
     /// Status of the most recent, including any current, execution.
-    pub execute_status: Option<ExecuteStatus>,
+    pub execution_status: Option<ExecutionStatus>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -5868,30 +5899,6 @@ pub enum CitePageStart {
     String(String),
 }
 
-/// Types permitted for the `codeDependencies` property of a `Executable` node.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ExecutableCodeDependencies {
-    Button(Button),
-    CodeChunk(CodeChunk),
-    File(File),
-    Parameter(Parameter),
-}
-
-/// Types permitted for the `codeDependents` property of a `Executable` node.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ExecutableCodeDependents {
-    Call(Call),
-    CodeChunk(CodeChunk),
-    CodeExpression(CodeExpression),
-    Division(Division),
-    If(If),
-    File(File),
-    For(For),
-    Span(Span),
-}
-
 /// Types permitted for the `caption` property of a `CodeChunk` node.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -6484,7 +6491,7 @@ pub enum CitationIntent {
 /// Under which circumstances the document node should be automatically executed.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 #[strum(ascii_case_insensitive)]
-pub enum ExecuteAuto {
+pub enum ExecutionAuto {
     /// Never automatically execute the document node. Only execute the when the user explicitly executes the specific node or all nodes in the containing document.
     Never,
     /// Automatically execute the document node when it needs to be: if it is stale and is  upstream dependency of a node that has been executed, or is a downstream dependent of a node that has been executed.
@@ -6496,7 +6503,7 @@ pub enum ExecuteAuto {
 /// Under which circumstances the document node should be automatically executed.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 #[strum(ascii_case_insensitive)]
-pub enum ExecuteRequired {
+pub enum ExecutionRequired {
     /// No re-execution is required, the semantics of the node and its dependencies has not changed since it was last executed
     No,
     /// Execution is required because the node has never been executed (or any previous execution was not persisted in its state).
@@ -6516,7 +6523,7 @@ pub enum ExecuteRequired {
 /// Status of the most recent, including any current, execution of a document node.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 #[strum(ascii_case_insensitive)]
-pub enum ExecuteStatus {
+pub enum ExecutionStatus {
     /// 
     Scheduled,
     /// 
@@ -6783,6 +6790,30 @@ pub enum ExecutableTypes {
     Parameter(Parameter),
     Span(Span),
     Styled(Styled),
+}
+
+/// The node types whose execution other nodes may be dependent upon
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ExecutionDependencies {
+    Button(Button),
+    CodeChunk(CodeChunk),
+    File(File),
+    Parameter(Parameter),
+}
+
+/// The node types whose execution may be dependent upon other nodes
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ExecutionDependents {
+    Call(Call),
+    CodeChunk(CodeChunk),
+    CodeExpression(CodeExpression),
+    Division(Division),
+    If(If),
+    File(File),
+    For(For),
+    Span(Span),
 }
 
 /// All type schemas that are derived from Grant

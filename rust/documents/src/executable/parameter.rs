@@ -5,14 +5,17 @@ use common::{
 };
 use formats::Format;
 use graph_triples::{
+    execution_digest_from_content_semantics,
     relations::{self, NULL_RANGE},
-    resources::{self, ResourceDigest},
+    resources::{self},
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
 use node_validate::Validator;
 
-use stencila_schema::{CodeError, Cord, ExecuteRequired, Node, Parameter, ValidatorTypes};
+use stencila_schema::{
+    CodeError, ExecutionDigest, ExecutionRequired, Node, Parameter, ValidatorTypes,
+};
 
 use crate::{
     assert_id,
@@ -42,10 +45,10 @@ fn parameter_value(param: &Parameter) -> Node {
 ///
 /// The content string is the JSON representation of the parameter value
 /// and semantic string adds the parameter name
-fn parameter_digest(param: &Parameter, value: &Node) -> ResourceDigest {
+fn parameter_digest(param: &Parameter, value: &Node) -> ExecutionDigest {
     let content_str = serde_json::to_string(&value).unwrap_or_default();
     let semantic_str = [param.name.as_str(), content_str.as_str()].concat();
-    ResourceDigest::from_strings(&content_str, Some(&semantic_str))
+    execution_digest_from_content_semantics(&content_str, &semantic_str)
 }
 
 #[async_trait]
@@ -99,9 +102,7 @@ impl Executable for Parameter {
             Some(false), // Always impure because affects the kernel space,
             None,
             Some(compile_digest),
-            self.execute_digest
-                .as_ref()
-                .map(|cord| ResourceDigest::from_string(&cord.0)),
+            self.execute_digest.clone(),
             None,
         );
         context.resource_infos.push(resource_info);
@@ -150,16 +151,13 @@ impl Executable for Parameter {
         self.value = Some(Box::new(value));
 
         // Update both `compile_digest` and `execute_digest` to the compile digest
-        let digest = resource_info
-            .compile_digest
-            .clone()
-            .map(|digest| Box::new(Cord(digest.to_string())));
+        let digest = resource_info.compile_digest.clone();
         self.compile_digest = digest.clone();
         self.execute_digest = digest;
 
-        self.execute_required = Some(ExecuteRequired::No);
-        self.execute_kernel = Some(Box::new(kernel_id));
-        self.execute_count = Some(self.execute_count.unwrap_or_default() + 1);
+        self.execution_required = Some(ExecutionRequired::No);
+        self.execution_kernel = Some(Box::new(kernel_id));
+        self.execution_count = Some(self.execution_count.unwrap_or_default() + 1);
         self.errors = if errors.is_empty() {
             None
         } else {

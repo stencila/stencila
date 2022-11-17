@@ -22,15 +22,15 @@ patchable_struct!(
     programming_language,
     guess_language,
     is_disabled,
-    code_dependencies,
-    code_dependents,
+    execution_dependencies,
+    execution_dependents,
     compile_digest,
     execute_digest,
-    execute_required,
-    execute_kernel,
-    execute_status,
-    execute_count,
-    execute_ended
+    execution_required,
+    execution_kernel,
+    execution_status,
+    execution_count,
+    execution_ended
 );
 
 // Previously we implemented a custom `Patchable` for `Parameter` to ensure that values of
@@ -47,14 +47,14 @@ patchable_struct!(
     default,
     value,
     errors,
-    code_dependents,
+    execution_dependents,
     compile_digest,
     execute_digest,
-    execute_required,
-    execute_kernel,
-    execute_status,
-    execute_count,
-    execute_ended
+    execution_required,
+    execution_kernel,
+    execution_status,
+    execution_count,
+    execution_ended
 );
 
 patchable_variants!(

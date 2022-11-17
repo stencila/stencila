@@ -5,13 +5,14 @@ use common::{
 };
 use formats::Format;
 use graph_triples::{
+    execution_digest_from_content,
     relations::{self},
-    resources::{self, ResourceDigest},
+    resources::{self},
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
 
-use stencila_schema::{CodeError, Cord, ExecuteRequired, Form, FormDeriveAction, Node, Timestamp};
+use stencila_schema::{CodeError, ExecutionRequired, Form, FormDeriveAction, Node, Timestamp};
 
 use crate::executable::{CompileContext, Executable};
 
@@ -78,12 +79,9 @@ impl Executable for Form {
         };
 
         let execute_pure = Some(false);
-        let compile_digest = Some(ResourceDigest::from_strings("TODO", None));
-        let execute_digest = self
-            .execute_digest
-            .as_deref()
-            .map(ResourceDigest::from_cord);
-        let execute_failed = self.execute_ended.as_ref().map(|_| false);
+        let compile_digest = Some(execution_digest_from_content("TODO"));
+        let execute_digest = self.execute_digest.clone();
+        let execute_failed = self.execution_ended.as_ref().map(|_| false);
 
         let resource_info = ResourceInfo::new(
             resource,
@@ -120,18 +118,15 @@ impl Executable for Form {
 
         // Update both `compile_digest` and `execute_digest` to the compile digest determined
         // during the compile phase
-        let digest = resource_info
-            .compile_digest
-            .clone()
-            .map(|digest| Box::new(Cord(digest.to_string())));
+        let digest = resource_info.compile_digest.clone();
         self.compile_digest = digest.clone();
         self.execute_digest = digest;
 
         // Updated other execution properties
-        self.execute_required = Some(ExecuteRequired::No);
-        self.execute_ended = Some(Box::new(Timestamp::now()));
-        self.execute_kernel = kernel_id.map(Box::new);
-        self.execute_count = Some(self.execute_count.unwrap_or_default() + 1);
+        self.execution_required = Some(ExecutionRequired::No);
+        self.execution_ended = Some(Box::new(Timestamp::now()));
+        self.execution_kernel = kernel_id.map(Box::new);
+        self.execution_count = Some(self.execution_count.unwrap_or_default() + 1);
 
         Ok(None)
     }

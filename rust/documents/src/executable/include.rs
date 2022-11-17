@@ -1,13 +1,13 @@
 use common::{async_trait::async_trait, eyre::Result};
 use graph_triples::{
-    resources::{self, ResourceDigest},
+    execution_digest_from_content, execution_digest_from_path,
+    resources::{self},
     Relation, ResourceInfo,
 };
 
-
 use node_transform::Transform;
 use path_utils::merge;
-use stencila_schema::{CodeError, Include};
+use stencila_schema::{CodeError, ExecutionDigest, Include};
 
 use crate::executable::{CompileContext, Executable};
 
@@ -36,18 +36,18 @@ impl Executable for Include {
         let id = ensure_id!(self, "in", context);
 
         // Calculate a resource digest using the `source`, `media_type` and `select` properties
-        let mut resource_digest = digest_from_properties(self);
+        let mut execution_digest = digest_from_properties(self);
 
         // Add the digest of the content of the source file as the dependencies digest
         let path = merge(&context.path, &self.source);
         let dependency_digest =
-            ResourceDigest::from_path(&path, self.media_type.as_ref().map(|str| str.as_str()));
-        resource_digest.dependencies_digest = dependency_digest.content_digest;
+            execution_digest_from_path(&path, self.media_type.as_ref().map(|str| str.as_str()));
+        execution_digest.dependencies_digest = dependency_digest.content_digest;
 
         // Determine if it is necessary to update content (i.e. has the `compile_digest` changed since last time)
         let should_decode = self.content.is_none()
-            || match self.compile_digest.as_deref() {
-                Some(compile_digest) => resource_digest.to_cord() != *compile_digest,
+            || match &self.compile_digest {
+                Some(compile_digest) => execution_digest != *compile_digest,
                 None => true,
             };
         if should_decode {
@@ -87,14 +87,11 @@ impl Executable for Include {
         let object = resources::file(&path);
         let relations = vec![(Relation::Includes, object)];
         let execute_pure = Some(true); // Never has side effects
-        let compile_digest = self
-            .compile_digest
-            .as_ref()
-            .map(|cord| ResourceDigest::from_cord(cord));
+        let compile_digest = self.compile_digest.clone();
         let resource_info = ResourceInfo::new(
             resource,
             Some(relations),
-            self.execute_auto.clone(),
+            self.execution_auto.clone(),
             execute_pure,
             None,
             compile_digest,
@@ -109,7 +106,7 @@ impl Executable for Include {
 
 /// Calculate a resource digest based on the `source`, `media_type` and `select` properties
 /// of an `Include` node
-fn digest_from_properties(include: &Include) -> ResourceDigest {
+fn digest_from_properties(include: &Include) -> ExecutionDigest {
     let mut content_str = include.source.clone();
     if let Some(media_type) = include.media_type.as_deref() {
         content_str.push_str(media_type);
@@ -117,5 +114,5 @@ fn digest_from_properties(include: &Include) -> ResourceDigest {
     if let Some(select) = include.select.as_deref() {
         content_str.push_str(select);
     }
-    ResourceDigest::from_strings(&content_str, None)
+    execution_digest_from_content(&content_str)
 }

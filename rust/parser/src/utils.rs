@@ -13,7 +13,7 @@ use formats::Format;
 use graph_triples::{
     relations::{self, NULL_RANGE},
     resources,
-    stencila_schema::{CodeError, ExecuteAuto},
+    stencila_schema::{CodeError, ExecutionAuto},
     Relation, Resource, Tag,
 };
 
@@ -78,9 +78,9 @@ pub fn apply_tags(
 
                 "autorun" => {
                     let variant = match tag.value.as_str() {
-                        "always" => Some(ExecuteAuto::Always),
-                        "never" => Some(ExecuteAuto::Never),
-                        _ => Some(ExecuteAuto::Needed),
+                        "always" => Some(ExecutionAuto::Always),
+                        "never" => Some(ExecutionAuto::Never),
+                        _ => Some(ExecutionAuto::Needed),
                     };
                     resource_info.execute_auto = variant;
                     continue;

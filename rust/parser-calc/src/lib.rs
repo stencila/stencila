@@ -4,9 +4,7 @@ use parser::{
     common::{eyre::Result, once_cell::sync::Lazy, regex::Regex},
     formats::Format,
     graph_triples::{
-        relations,
-        resources::{self, ResourceDigest},
-        Resource, ResourceInfo,
+        execution_digest_from_content_semantics, relations, resources, Resource, ResourceInfo,
     },
     utils::apply_tags,
     Parser, ParserTrait,
@@ -104,7 +102,7 @@ impl ParserTrait for CalcParser {
             None,
             None,
             syntax_errors,
-            Some(ResourceDigest::from_strings(code, Some(&semantics))),
+            Some(execution_digest_from_content_semantics(code, &semantics)),
             None,
             None,
         );

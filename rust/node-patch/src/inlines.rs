@@ -190,16 +190,16 @@ patchable_struct!(
     text,
     output,
     errors,
-    code_dependencies,
-    code_dependents,
+    execution_dependencies,
+    execution_dependents,
     compile_digest,
     execute_digest,
-    execute_required,
-    execute_kernel,
-    execute_status,
-    execute_ended,
-    execute_duration,
-    execute_count
+    execution_required,
+    execution_kernel,
+    execution_status,
+    execution_ended,
+    execution_duration,
+    execution_count
 );
 
 patchable_struct!(
@@ -212,17 +212,17 @@ patchable_struct!(
     classes,
     errors,
     content,
-    code_dependencies,
-    code_dependents,
+    execution_dependencies,
+    execution_dependents,
     compile_digest,
-    execute_auto,
     execute_digest,
-    execute_required,
-    execute_kernel,
-    execute_status,
-    execute_ended,
-    execute_duration,
-    execute_count
+    execution_auto,
+    execution_required,
+    execution_kernel,
+    execution_status,
+    execution_ended,
+    execution_duration,
+    execution_count
 );
 
 patchable_struct!(CodeFragment, id, programming_language, text);

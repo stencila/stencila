@@ -1,13 +1,13 @@
 use common::{async_trait::async_trait, eyre::Result, tracing};
 use formats::Format;
 use graph_triples::{
-    resources::{self, ResourceDigest},
+    resources::{self},
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
-use stencila_schema::{CodeChunk, Cord, Duration, ExecuteRequired, ExecuteStatus, Timestamp};
+use stencila_schema::{CodeChunk, Duration, ExecutionRequired, ExecutionStatus, Timestamp};
 
-use super::{shared::code_execute_status, CompileContext, Executable};
+use super::{shared::code_execution_status, CompileContext, Executable};
 
 #[async_trait]
 impl Executable for CodeChunk {
@@ -42,18 +42,15 @@ impl Executable for CodeChunk {
         };
 
         // Update the resource info with properties from the node
-        resource_info.execute_digest = self
-            .execute_digest
-            .as_deref()
-            .map(ResourceDigest::from_cord);
-        resource_info.execute_failed = self.execute_status.as_ref().map(|status| {
+        resource_info.execute_digest = self.execute_digest.clone();
+        resource_info.execute_failed = self.execution_status.as_ref().map(|status| {
             // This function can be called while the node is `Scheduled` so this needs to account for that
             // by considering last execution status as well
             matches!(
                 status,
-                ExecuteStatus::Failed
-                    | ExecuteStatus::ScheduledPreviouslyFailed
-                    | ExecuteStatus::RunningPreviouslyFailed
+                ExecutionStatus::Failed
+                    | ExecutionStatus::ScheduledPreviouslyFailed
+                    | ExecutionStatus::RunningPreviouslyFailed
             )
         });
 
@@ -91,30 +88,26 @@ impl Executable for CodeChunk {
         } = task_result;
 
         // Update both `compile_digest` and `execute_digest` to the compile digest
-        let digest = task_info
-            .resource_info
-            .compile_digest
-            .clone()
-            .map(|digest| Box::new(Cord(digest.to_string())));
+        let digest = task_info.resource_info.compile_digest.clone();
         self.compile_digest = digest.clone();
         self.execute_digest = digest;
 
         // Update execution status, etc
-        let execute_status = code_execute_status(&task_info, &errors);
-        self.execute_required = Some(if matches!(execute_status, ExecuteStatus::Succeeded) {
-            ExecuteRequired::No
+        let execution_status = code_execution_status(&task_info, &errors);
+        self.execution_required = Some(if matches!(execution_status, ExecutionStatus::Succeeded) {
+            ExecutionRequired::No
         } else {
-            ExecuteRequired::Failed
+            ExecutionRequired::Failed
         });
-        self.execute_status = Some(execute_status);
-        self.execute_ended = task_info
+        self.execution_status = Some(execution_status);
+        self.execution_ended = task_info
             .ended()
             .map(|ended| Box::new(Timestamp::from(ended)));
-        self.execute_duration = task_info
+        self.execution_duration = task_info
             .duration()
             .map(|duration| Box::new(Duration::from_micros(duration as i64)));
-        self.execute_kernel = task_info.kernel_id.map(Box::new);
-        self.execute_count = Some(self.execute_count.unwrap_or_default() + 1);
+        self.execution_kernel = task_info.kernel_id.map(Box::new);
+        self.execution_count = Some(self.execution_count.unwrap_or_default() + 1);
 
         // Update outputs and errors
         self.outputs = if outputs.is_empty() {

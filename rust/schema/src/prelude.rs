@@ -544,11 +544,3 @@ pub type Array = Vec<Primitive>;
 ///
 /// Uses `BTreeMap` to preserve order.
 pub type Object = BTreeMap<String, Primitive>;
-
-/// A newtype derived from `String`
-///
-/// Defined primarily so that a customized `Patchable` implementation
-/// can be defined for strings where it is more appropriate to replace,
-/// rather than diff the string.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Cord(pub String);

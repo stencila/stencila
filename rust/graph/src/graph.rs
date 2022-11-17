@@ -26,7 +26,7 @@ use common::{
     strum::Display,
 };
 use graph_triples::{
-    direction, relations, stencila_schema::ExecuteAuto, Direction, Pairs, Relation, Resource,
+    direction, relations, stencila_schema::ExecutionAuto, Direction, Pairs, Relation, Resource,
     ResourceInfo, TagMap, Triple,
 };
 use hash_utils::seahash;
@@ -431,7 +431,7 @@ impl Graph {
                     compile_digest.dependencies_failed = dependencies_failed;
                 }
                 None => {
-                    let mut compile_digest = resource.digest();
+                    let mut compile_digest = resource.execution_digest();
                     compile_digest.dependencies_digest = dependencies_digest;
                     compile_digest.dependencies_stale = dependencies_stale;
                     compile_digest.dependencies_failed = dependencies_failed;
@@ -695,7 +695,7 @@ impl Graph {
             // and `autorun == Never` then exclude it and any following resources
             if start.is_some()
                 && Some(resource) != start.as_ref()
-                && matches!(resource_info.execute_auto, Some(ExecuteAuto::Never))
+                && matches!(resource_info.execute_auto, Some(ExecutionAuto::Never))
             {
                 break;
             }
@@ -806,7 +806,7 @@ impl Graph {
                 }
 
                 if !matches!(resource_info.resource, Resource::Code(..))
-                    || matches!(resource_info.execute_auto, Some(ExecuteAuto::Never))
+                    || matches!(resource_info.execute_auto, Some(ExecutionAuto::Never))
                 {
                     excluded.insert(resource_info.resource.clone());
                     return Ok(false);
@@ -816,7 +816,7 @@ impl Graph {
                     if dependency != start && matches!(dependency, Resource::Code(..)) {
                         let dependency_info = self.get_resource_info(dependency)?;
                         if dependency_info.is_stale()
-                            && matches!(dependency_info.execute_auto, Some(ExecuteAuto::Never))
+                            && matches!(dependency_info.execute_auto, Some(ExecutionAuto::Never))
                         {
                             excluded.insert(resource_info.resource.clone());
                             return Ok(false);
@@ -849,7 +849,7 @@ impl Graph {
             // `autorun == Always` are also included, as well as dependents of those dependencies
             for dependency in dependencies {
                 let dependency_info = self.get_resource_info(dependency)?;
-                if (matches!(dependency_info.execute_auto, Some(ExecuteAuto::Always))
+                if (matches!(dependency_info.execute_auto, Some(ExecutionAuto::Always))
                     || dependency_info.is_stale())
                     && should_include(dependency_info)?
                 {

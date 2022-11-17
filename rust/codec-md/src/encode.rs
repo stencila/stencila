@@ -595,8 +595,8 @@ impl ToMd for Include {
             }
         }
 
-        if let Some(execute_auto) = &self.execute_auto {
-            options.push(["autorun=", execute_auto.as_ref()].concat())
+        if let Some(execution_auto) = &self.execution_auto {
+            options.push(["autorun=", execution_auto.as_ref()].concat())
         }
 
         let attrs = if options.is_empty() {
@@ -637,8 +637,8 @@ impl ToMd for Call {
             options.push(["select=", select].concat())
         }
 
-        if let Some(execute_auto) = &self.execute_auto {
-            options.push(["autorun=", execute_auto.as_ref()].concat())
+        if let Some(execution_auto) = &self.execution_auto {
+            options.push(["autorun=", execution_auto.as_ref()].concat())
         }
 
         let attrs = if options.is_empty() {

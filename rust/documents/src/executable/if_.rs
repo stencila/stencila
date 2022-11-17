@@ -8,7 +8,6 @@ use graph_triples::{
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
 
-
 use stencila_schema::{CodeError, If, Node};
 
 use crate::executable::Executable;

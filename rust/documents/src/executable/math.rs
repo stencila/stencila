@@ -1,5 +1,5 @@
 use common::{async_trait::async_trait, eyre::Result};
-use graph_triples::resources::ResourceDigest;
+use graph_triples::execution_digest_from_content;
 use math_utils::to_mathml;
 use stencila_schema::{MathBlock, MathFragment};
 
@@ -16,12 +16,8 @@ impl Executable for MathBlock {
     async fn compile(&mut self, _context: &mut CompileContext) -> Result<()> {
         let _id = ensure_id!(self, "mb", context);
 
-        let compile_digest = Some(Box::new(
-            ResourceDigest::from_strings(
-                &[self.text.as_str(), self.math_language.as_str()].concat(),
-                None,
-            )
-            .to_cord(),
+        let compile_digest = Some(execution_digest_from_content(
+            &[self.text.as_str(), self.math_language.as_str()].concat(),
         ));
         if compile_digest != self.compile_digest {
             match to_mathml(&self.math_language, &self.text, true) {
@@ -46,12 +42,8 @@ impl Executable for MathFragment {
     async fn compile(&mut self, _context: &mut CompileContext) -> Result<()> {
         let _id = ensure_id!(self, "mf", context);
 
-        let compile_digest = Some(Box::new(
-            ResourceDigest::from_strings(
-                &[self.text.as_str(), self.math_language.as_str()].concat(),
-                None,
-            )
-            .to_cord(),
+        let compile_digest = Some(execution_digest_from_content(
+            &[self.text.as_str(), self.math_language.as_str()].concat(),
         ));
         if compile_digest != self.compile_digest {
             match to_mathml(&self.math_language, &self.text, false) {

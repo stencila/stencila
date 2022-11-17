@@ -13,7 +13,7 @@ use common::{
 };
 use parser::{
     formats::Format,
-    graph_triples::{resources::ResourceDigest, Resource, ResourceInfo},
+    graph_triples::{execution_digest_from_content, Resource, ResourceInfo},
     utils::parse_var_interps,
     Parser, ParserTrait,
 };
@@ -33,11 +33,9 @@ impl ParserTrait for TailwindParser {
     }
 
     fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
-        let syntax_errors = transpile_string(code).is_err().then_some(true);
-
         let relations = parse_var_interps(code, path);
-
-        let compile_digest = ResourceDigest::from_strings(code, None);
+        let syntax_errors = transpile_string(code).is_err().then_some(true);
+        let compile_digest = execution_digest_from_content(code);
 
         let resource_info = ResourceInfo::new(
             resource,

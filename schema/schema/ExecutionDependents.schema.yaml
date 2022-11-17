@@ -1,0 +1,12 @@
+title: ExecutionDependents
+description: The node types whose execution may be dependent upon other nodes
+status: unstable
+anyOf:
+  - $ref: Call
+  - $ref: CodeChunk
+  - $ref: CodeExpression
+  - $ref: Division
+  - $ref: If
+  - $ref: File
+  - $ref: For
+  - $ref: Span

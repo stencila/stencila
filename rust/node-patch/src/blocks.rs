@@ -90,18 +90,18 @@ patchable_struct!(
     errors,
     label,
     caption,
-    code_dependencies,
-    code_dependents,
+    execution_dependencies,
+    execution_dependents,
     compile_digest,
-    execute_auto,
-    execute_pure,
+    execution_auto,
+    execution_pure,
     execute_digest,
-    execute_required,
-    execute_kernel,
-    execute_status,
-    execute_ended,
-    execute_duration,
-    execute_count
+    execution_required,
+    execution_kernel,
+    execution_status,
+    execution_ended,
+    execution_duration,
+    execution_count
 );
 patchable_variants!(
     CodeChunkCaption,
@@ -109,30 +109,32 @@ patchable_variants!(
     CodeChunkCaption::String
 );
 
+patchable_struct!(ExecutionDigest, content_digest);
+
 // Make `CodeError`s replaceable to avoid large patches associated with
 // changes in stack trace and to simplify Web Component development (no
 // need to observe for change in error level or presence/absence of stacktrace)
 replaceable_struct!(CodeError, error_message, error_type, stack_trace);
 
 patchable_variants!(
-    ExecutableCodeDependencies,
-    ExecutableCodeDependencies::CodeChunk,
-    ExecutableCodeDependencies::Parameter,
-    ExecutableCodeDependencies::Button,
-    ExecutableCodeDependencies::File
+    ExecutionDependencies,
+    ExecutionDependencies::CodeChunk,
+    ExecutionDependencies::Parameter,
+    ExecutionDependencies::Button,
+    ExecutionDependencies::File
 );
 patchable_variants!(
-    ExecutableCodeDependents,
-    ExecutableCodeDependents::Call,
-    ExecutableCodeDependents::CodeChunk,
-    ExecutableCodeDependents::CodeExpression,
-    ExecutableCodeDependents::Division,
-    ExecutableCodeDependents::Span,
-    ExecutableCodeDependents::File
+    ExecutionDependents,
+    ExecutionDependents::Call,
+    ExecutionDependents::CodeChunk,
+    ExecutionDependents::CodeExpression,
+    ExecutionDependents::Division,
+    ExecutionDependents::Span,
+    ExecutionDependents::File
 );
-patchable_enum!(ExecuteAuto);
-patchable_enum!(ExecuteRequired);
-patchable_enum!(ExecuteStatus);
+patchable_enum!(ExecutionAuto);
+patchable_enum!(ExecutionRequired);
+patchable_enum!(ExecutionStatus);
 
 patchable_struct!(List, items, order);
 patchable_enum!(ListOrder);
@@ -181,17 +183,17 @@ patchable_struct!(
     classes,
     errors,
     content,
-    code_dependencies,
-    code_dependents,
+    execution_dependencies,
+    execution_dependents,
     compile_digest,
-    execute_auto,
+    execution_auto,
     execute_digest,
-    execute_required,
-    execute_kernel,
-    execute_status,
-    execute_ended,
-    execute_duration,
-    execute_count
+    execution_required,
+    execution_kernel,
+    execution_status,
+    execution_ended,
+    execution_duration,
+    execution_count
 );
 
 patchable_struct!(
@@ -200,14 +202,14 @@ patchable_struct!(
     source,
     media_type,
     select,
-    code_dependents,
+    execution_dependents,
     compile_digest,
     execute_digest,
-    execute_required,
-    execute_kernel,
-    execute_status,
-    execute_ended,
-    execute_duration,
+    execution_required,
+    execution_kernel,
+    execution_status,
+    execution_ended,
+    execution_duration,
     errors,
     content,
 );
@@ -219,14 +221,14 @@ patchable_struct!(
     media_type,
     select,
     arguments,
-    code_dependencies,
+    execution_dependencies,
     compile_digest,
     execute_digest,
-    execute_required,
-    execute_kernel,
-    execute_status,
-    execute_ended,
-    execute_duration,
+    execution_required,
+    execution_kernel,
+    execution_status,
+    execution_ended,
+    execution_duration,
     errors,
     content,
 );
@@ -251,14 +253,14 @@ patchable_struct!(
     content,
     otherwise,
     iterations,
-    code_dependents,
+    execution_dependents,
     compile_digest,
     execute_digest,
-    execute_required,
-    execute_kernel,
-    execute_status,
-    execute_ended,
-    execute_duration,
+    execution_required,
+    execution_kernel,
+    execution_status,
+    execution_ended,
+    execution_duration,
     errors,
 );
 
@@ -269,14 +271,14 @@ patchable_struct!(
     derive_action,
     derive_item,
     content,
-    code_dependents,
+    execution_dependents,
     compile_digest,
     execute_digest,
-    execute_required,
-    execute_kernel,
-    execute_status,
-    execute_ended,
-    execute_duration,
+    execution_required,
+    execution_kernel,
+    execution_status,
+    execution_ended,
+    execution_duration,
     errors,
 );
 
@@ -291,14 +293,14 @@ patchable_struct!(
     If,
     id,
     clauses,
-    code_dependents,
+    execution_dependents,
     compile_digest,
     execute_digest,
-    execute_required,
-    execute_kernel,
-    execute_status,
-    execute_ended,
-    execute_duration,
+    execution_required,
+    execution_kernel,
+    execution_status,
+    execution_ended,
+    execution_duration,
 );
 patchable_struct!(
     IfClause,

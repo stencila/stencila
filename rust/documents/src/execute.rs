@@ -20,7 +20,7 @@ use graph_triples::{Resource, TagMap};
 use kernels::KernelSpace;
 
 use node_patch::{diff, mutate, Patch};
-use stencila_schema::{CodeChunk, CodeExpression, Division, ExecuteStatus, Node, Span};
+use stencila_schema::{CodeChunk, CodeExpression, Division, ExecutionStatus, Node, Span};
 
 use crate::{
     executable::Executable,
@@ -91,7 +91,7 @@ pub async fn execute(
     // Release locks
     drop(root_guard);
 
-    // Set the `execute_status` of all nodes in stages other than the first
+    // Set the `execution_status` of all nodes in stages other than the first
     // to `Scheduled` or `ScheduledPreviouslyFailed` and send the resulting patch.
     // Do not do this for first stage as an optimization to avoid unnecessary patches
     // (they will go directly to `Running` or `RunningPreviouslyFailed`)
@@ -101,7 +101,7 @@ pub async fn execute(
             .values_mut()
             .filter_map(|node_info| {
                 if node_info.stage_index != 0 {
-                    Some(node_info.set_execute_status_scheduled())
+                    Some(node_info.set_execution_status_scheduled())
                 } else {
                     None
                 }
@@ -130,11 +130,11 @@ pub async fn execute(
                     stage_index + 1,
                     stage_count,
                     node_info.node_id,
-                    node_info.get_execute_status()
+                    node_info.get_execution_status()
                 );
                 matches!(
-                    node_info.get_execute_status(),
-                    None | Some(ExecuteStatus::Failed) | Some(ExecuteStatus::Cancelled)
+                    node_info.get_execution_status(),
+                    None | Some(ExecutionStatus::Failed) | Some(ExecutionStatus::Cancelled)
                 )
             });
         if dependencies_failed {
@@ -192,15 +192,15 @@ pub async fn execute(
                     "Execution of node `{}` was cancelled before it was started",
                     node_id
                 );
-                // Send a patch to revert `execute_status` to previous status
+                // Send a patch to revert `execution_status` to previous status
                 // (the `Cancelled` state is reserved for nodes that have started and are cancelled)
-                patches.push(node_info.reset_execute_status());
+                patches.push(node_info.reset_execution_status());
                 continue;
             }
 
-            // Set the `execute_status` of the node to `Running` or `RunningPreviouslyFailed`
+            // Set the `execution_status` of the node to `Running` or `RunningPreviouslyFailed`
             // and send the resulting patch
-            patches.push(node_info.set_execute_status_running());
+            patches.push(node_info.set_execution_status_running());
 
             // Create a channel to send cancel requests to task
             let (cancel_sender, cancel_receiver) = oneshot::channel::<()>();
@@ -285,11 +285,19 @@ pub async fn execute(
 
                 // Update the resource to indicate that the resource was executed
                 let execute_failed = match &executed {
-                    Node::CodeChunk(CodeChunk { execute_status, .. })
-                    | Node::CodeExpression(CodeExpression { execute_status, .. })
-                    | Node::Division(Division { execute_status, .. })
-                    | Node::Span(Span { execute_status, .. }) => {
-                        matches!(execute_status, Some(ExecuteStatus::Failed))
+                    Node::CodeChunk(CodeChunk {
+                        execution_status, ..
+                    })
+                    | Node::CodeExpression(CodeExpression {
+                        execution_status, ..
+                    })
+                    | Node::Division(Division {
+                        execution_status, ..
+                    })
+                    | Node::Span(Span {
+                        execution_status, ..
+                    }) => {
+                        matches!(execution_status, Some(ExecutionStatus::Failed))
                     }
                     _ => false,
                 };
@@ -372,7 +380,7 @@ pub async fn execute(
                             // may have occurred but node will not be patched
                             send_patch(
                                 patch_request_sender,
-                                node_info.set_execute_status_cancelled(),
+                                node_info.set_execution_status_cancelled(),
                                 When::Soon
                             );
                         } else {
@@ -407,7 +415,7 @@ pub async fn execute(
         patch_request_sender,
         node_infos
             .values_mut()
-            .map(|node_info| node_info.reset_execute_status())
+            .map(|node_info| node_info.reset_execution_status())
             .collect(),
         When::Soon,
     );
@@ -432,7 +440,7 @@ struct NodeInfo {
     node: Node,
 
     /// The execution state of the node prior to [`execute`]
-    previous_execute_status: Option<ExecuteStatus>,
+    previous_execution_status: Option<ExecutionStatus>,
 }
 
 impl NodeInfo {
@@ -441,37 +449,53 @@ impl NodeInfo {
             stage_index,
             node_id,
             node,
-            previous_execute_status: None,
+            previous_execution_status: None,
         };
-        node_info.previous_execute_status = node_info.get_execute_status();
+        node_info.previous_execution_status = node_info.get_execution_status();
         node_info
     }
 
-    fn get_execute_status(&self) -> Option<ExecuteStatus> {
+    fn get_execution_status(&self) -> Option<ExecutionStatus> {
         match &self.node {
-            Node::CodeChunk(CodeChunk { execute_status, .. })
-            | Node::CodeExpression(CodeExpression { execute_status, .. })
-            | Node::Division(Division { execute_status, .. })
-            | Node::Span(Span { execute_status, .. }) => execute_status.clone(),
+            Node::CodeChunk(CodeChunk {
+                execution_status, ..
+            })
+            | Node::CodeExpression(CodeExpression {
+                execution_status, ..
+            })
+            | Node::Division(Division {
+                execution_status, ..
+            })
+            | Node::Span(Span {
+                execution_status, ..
+            }) => execution_status.clone(),
             // At present, assumes the execution of parameters and buttons always succeeds
-            Node::Parameter(..) | Node::Button(..) => Some(ExecuteStatus::Succeeded),
+            Node::Parameter(..) | Node::Button(..) => Some(ExecutionStatus::Succeeded),
             _ => None,
         }
     }
 
-    fn set_execute_status_scheduled(&mut self) -> Patch {
+    fn set_execution_status_scheduled(&mut self) -> Patch {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
             &|node: &mut Node| match node {
-                Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. })
-                | Node::Division(Division { execute_status, .. })
-                | Node::Span(Span { execute_status, .. }) => {
-                    *execute_status = Some(match execute_status {
-                        Some(ExecuteStatus::Failed) => ExecuteStatus::ScheduledPreviouslyFailed,
-                        _ => ExecuteStatus::Scheduled,
+                Node::CodeChunk(CodeChunk {
+                    execution_status, ..
+                })
+                | Node::CodeExpression(CodeExpression {
+                    execution_status, ..
+                })
+                | Node::Division(Division {
+                    execution_status, ..
+                })
+                | Node::Span(Span {
+                    execution_status, ..
+                }) => {
+                    *execution_status = Some(match execution_status {
+                        Some(ExecutionStatus::Failed) => ExecutionStatus::ScheduledPreviouslyFailed,
+                        _ => ExecutionStatus::Scheduled,
                     });
                 }
                 _ => {}
@@ -479,22 +503,30 @@ impl NodeInfo {
         )
     }
 
-    fn set_execute_status_running(&mut self) -> Patch {
+    fn set_execution_status_running(&mut self) -> Patch {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
             &|node: &mut Node| match node {
-                Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. })
-                | Node::Division(Division { execute_status, .. })
-                | Node::Span(Span { execute_status, .. }) => {
-                    *execute_status = Some(match execute_status {
-                        Some(ExecuteStatus::Failed)
-                        | Some(ExecuteStatus::ScheduledPreviouslyFailed) => {
-                            ExecuteStatus::RunningPreviouslyFailed
+                Node::CodeChunk(CodeChunk {
+                    execution_status, ..
+                })
+                | Node::CodeExpression(CodeExpression {
+                    execution_status, ..
+                })
+                | Node::Division(Division {
+                    execution_status, ..
+                })
+                | Node::Span(Span {
+                    execution_status, ..
+                }) => {
+                    *execution_status = Some(match execution_status {
+                        Some(ExecutionStatus::Failed)
+                        | Some(ExecutionStatus::ScheduledPreviouslyFailed) => {
+                            ExecutionStatus::RunningPreviouslyFailed
                         }
-                        _ => ExecuteStatus::Running,
+                        _ => ExecutionStatus::Running,
                     });
                 }
                 _ => {}
@@ -502,40 +534,57 @@ impl NodeInfo {
         )
     }
 
-    fn set_execute_status_cancelled(&mut self) -> Patch {
+    fn set_execution_status_cancelled(&mut self) -> Patch {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
             &|node: &mut Node| match node {
-                Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. })
-                | Node::Division(Division { execute_status, .. })
-                | Node::Span(Span { execute_status, .. }) => {
-                    *execute_status = Some(ExecuteStatus::Cancelled);
+                Node::CodeChunk(CodeChunk {
+                    execution_status, ..
+                })
+                | Node::CodeExpression(CodeExpression {
+                    execution_status, ..
+                })
+                | Node::Division(Division {
+                    execution_status, ..
+                })
+                | Node::Span(Span {
+                    execution_status, ..
+                }) => {
+                    *execution_status = Some(ExecutionStatus::Cancelled);
                 }
                 _ => {}
             },
         )
     }
 
-    fn reset_execute_status(&mut self) -> Patch {
+    fn reset_execution_status(&mut self) -> Patch {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
             &|node: &mut Node| match node {
-                Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. })
-                | Node::Division(Division { execute_status, .. })
-                | Node::Span(Span { execute_status, .. }) => match execute_status {
-                    Some(ExecuteStatus::Scheduled)
-                    | Some(ExecuteStatus::ScheduledPreviouslyFailed) => {
-                        *execute_status = self.previous_execute_status.clone()
+                Node::CodeChunk(CodeChunk {
+                    execution_status, ..
+                })
+                | Node::CodeExpression(CodeExpression {
+                    execution_status, ..
+                })
+                | Node::Division(Division {
+                    execution_status, ..
+                })
+                | Node::Span(Span {
+                    execution_status, ..
+                }) => match execution_status {
+                    Some(ExecutionStatus::Scheduled)
+                    | Some(ExecutionStatus::ScheduledPreviouslyFailed) => {
+                        *execution_status = self.previous_execution_status.clone()
                     }
 
-                    Some(ExecuteStatus::Running) | Some(ExecuteStatus::RunningPreviouslyFailed) => {
-                        *execute_status = Some(ExecuteStatus::Cancelled)
+                    Some(ExecutionStatus::Running)
+                    | Some(ExecutionStatus::RunningPreviouslyFailed) => {
+                        *execution_status = Some(ExecutionStatus::Cancelled)
                     }
 
                     _ => {}
@@ -593,7 +642,7 @@ fn handle_cancel_request(
                 } else if let Some(mut node_info) = get_node_info(node_infos, &node_id) {
                     send_patch(
                         patch_request_sender,
-                        node_info.set_execute_status_cancelled(),
+                        node_info.set_execution_status_cancelled(),
                         When::Soon,
                     );
                 }
@@ -621,7 +670,7 @@ fn handle_cancel_request(
                             node_id
                         );
                     } else if let Some(mut node_info) = get_node_info(node_infos, node_id) {
-                        patches.push(node_info.set_execute_status_cancelled());
+                        patches.push(node_info.set_execution_status_cancelled());
                     }
                 }
             }

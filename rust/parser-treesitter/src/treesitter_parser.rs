@@ -4,7 +4,9 @@ use tree_sitter::Tree;
 
 use parser::{
     formats::Format,
-    graph_triples::{relations::Range, resources::ResourceDigest, Pairs, Resource, ResourceInfo},
+    graph_triples::{
+        execution_digest_from_content_semantics, relations::Range, Pairs, Resource, ResourceInfo,
+    },
     utils::apply_tags,
 };
 
@@ -227,9 +229,9 @@ pub fn resource_info(
         None,
         None,
         syntax_errors,
-        Some(ResourceDigest::from_strings(
+        Some(execution_digest_from_content_semantics(
             &String::from_utf8_lossy(code),
-            Some(&semantic_content(tree, code, semantics_exclude)),
+            &semantic_content(tree, code, semantics_exclude),
         )),
         None,
         None,

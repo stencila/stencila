@@ -250,7 +250,7 @@ fn encode_execute_result(node: &Node) -> serde_json::Value {
         "output_type": "execute_result",
         "data": data,
         // The `execution_count` is required in Jupyter Notebook v4.5 but can be `null`;
-        // it is not the same as Stencila `execute_count`which increments across sessions.
+        // it is not the same as Stencila `execution_count`which increments across sessions.
         "execution_count": null,
         "metadata": {},
     })

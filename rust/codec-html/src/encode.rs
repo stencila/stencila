@@ -245,16 +245,6 @@ fn elem_meta(name: &str, content: &str) -> String {
     elem_empty("meta", &[attr_itemprop(name), attr("content", content)])
 }
 
-/// Encode an optional property as a `<meta>` element
-///
-/// If the property value is `None` returns an empty string.
-fn elem_meta_opt(name: &str, value: Option<String>) -> String {
-    match value {
-        Some(value) => elem_meta(name, &value),
-        None => nothing(),
-    }
-}
-
 /// Encode an optional property as an element
 ///
 /// If the property is `None` then the element will be empty but will act

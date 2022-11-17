@@ -110,12 +110,13 @@ const propertyTypes: Record<string, string> = {
   'ArrayValidator.maxItems': 'u32',
   'StringValidator.minLength': 'u32',
   'StringValidator.maxLength': 'u32',
-  'CodeChunk.executeCount': 'u32',
-  'CodeExpression.executeCount': 'u32',
-  // Use `Cord` instead of string for more efficient patching of digests
-  '*.compileDigest': 'Box<Cord>',
-  '*.buildDigest': 'Box<Cord>',
-  '*.executeDigest': 'Box<Cord>',
+  // Execution related properties
+  '*.executionCount': 'u32',
+  'ExecutionDigest.contentDigest': 'u64',
+  'ExecutionDigest.semanticDigest': 'u64',
+  'ExecutionDigest.dependenciesDigest': 'u64',
+  'ExecutionDigest.dependenciesStale': 'u32',
+  'ExecutionDigest.dependenciesFailed': 'u32',
   // No need to box these
   'DateValidator.minimum': 'Date',
   'DateValidator.maximum': 'Date',
@@ -136,9 +137,10 @@ const noBoxTypes = [
   // Enums with no data
   'CiteCitationMode',
   'ClaimClaimType',
-  'ExecuteAuto',
-  'ExecuteRequired',
-  'ExecuteStatus',
+  'ExecutionAuto',
+  'ExecutionRequired',
+  'ExecutionStatus',
+  'ExecutionDigest',
   'FormDeriveAction',
   'ListOrder',
   'NoteNoteType',
