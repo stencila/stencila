@@ -215,10 +215,7 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
 
                 let expr = if otherwise.is_some() && !for_var.0.is_empty() {
                     let index = for_index.to_string();
-                    let assign = for_var
-                        .1
-                        .replace("$index", &index)
-                        .replace("$expr", text);
+                    let assign = for_var.1.replace("$index", &index).replace("$expr", text);
                     code.push_str(&assign);
                     for_var.0.replace("$index", &index)
                 } else {
@@ -236,7 +233,7 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
                     code.push('\n');
                     code.push_str(for_otherwise_end);
                 }
-            } 
+            }
             /*
             TODO: Reinstate this with new If/IfClause data model
             elif let BlockContent::If(If {

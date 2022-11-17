@@ -267,7 +267,8 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                     let trimmed = inlines.text.trim();
                     let block = if trimmed.starts_with("$$")
                         && trimmed.ends_with("$$")
-                        && trimmed.len() >= 4 // Ensure that there are 4 dollars in total
+                        // Ensure that there are 4 dollars in total
+                        && trimmed.len() >= 4
                     {
                         Some(BlockContent::MathBlock(MathBlock {
                             text: trimmed[2..trimmed.len() - 2].trim().to_string(),
