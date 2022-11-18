@@ -1,42 +1,36 @@
 ---
 source: rust/parser-calc/src/lib.rs
-assertion_line: 132
-expression: resource_info
+assertion_line: 151
+expression: parse_info
 input_file: fixtures/fragments/calc/assigns-only.calc
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/calc/assigns-only.calc",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "calc"
-  },
-  "relations": [
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          0,
-          0,
-          0,
-          16
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/assigns-only.calc",
-        "name": "a",
-        "kind": "Number"
-      }
-    ]
-  ],
-  "compile_digest": "1611136096599336719.1901124495055126139.0.0.0",
-  "tags": [
+  "syntaxErrors": false,
+  "semanticDigest": 1901124495055126139,
+  "executionDependencies": [],
+  "executionDependents": [
     {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "a",
+        "namespace": "fragments/calc/assigns-only.calc"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        16
+      ]
+    }
+  ],
+  "executionTags": [
+    {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "assigns",
-      "value": "a only",
-      "global": false
+      "value": "a only"
     }
   ]
 }

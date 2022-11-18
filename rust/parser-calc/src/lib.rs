@@ -1,13 +1,16 @@
 use std::path::Path;
 
 use parser::{
+    apply_comment_tags,
     common::{eyre::Result, once_cell::sync::Lazy, regex::Regex},
     formats::Format,
-    graph_triples::{
-        execution_digest_from_content_semantics, relations, resources, Resource, ResourceInfo,
+    hash_utils::str_seahash,
+    stencila_schema::{
+        ExecutionDependency, ExecutionDependencyRelation, ExecutionDependent,
+        ExecutionDependentRelation, Variable,
     },
-    utils::apply_tags,
-    Parser, ParserTrait,
+    utils::remove_uses_of_assigned,
+    ParseInfo, Parser, ParserTrait,
 };
 
 /// A parser for the "Calc" language
@@ -20,7 +23,7 @@ impl ParserTrait for CalcParser {
         }
     }
 
-    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
+    fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
         static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*=(.*)").expect("Unable to create regex")
         });
@@ -35,92 +38,102 @@ impl ParserTrait for CalcParser {
 
         // The semantic content of the code (includes the language name and ignores comments)
         let mut semantics = Self::spec().language.to_string();
+        let mut execution_dependencies = Vec::new();
+        let mut execution_dependents = Vec::new();
         let mut comments = Vec::new();
-        let mut syntax_errors = None;
+        let mut syntax_errors = false;
         let parser = fasteval::Parser::new();
         let mut slab = fasteval::Slab::new();
-        let relations = code
-            .split('\n')
-            .enumerate()
-            .fold(Vec::new(), |mut pairs, (row, line)| {
-                // Skip the line if it is blank
-                if line.trim().is_empty() {
-                    return pairs;
+        let namespace = path.map(|path| Box::new(path.to_string_lossy().to_string()));
+        for (row, line) in code.lines().enumerate() {
+            // Skip the line if it is blank
+            if line.trim().is_empty() {
+                continue;
+            }
+
+            // Parse comment line
+            if line.trim_start().starts_with('#') {
+                comments.push((row, line));
+                continue;
+            }
+
+            // Parse line for assignments
+            let (col_offset, expr) = if let Some(captures) = ASSIGN_REGEX.captures(line) {
+                let name = captures.get(1).expect("Should always have group 1");
+                let expr = captures.get(2).expect("Should always have group 2");
+                execution_dependents.push(ExecutionDependent {
+                    dependent_relation: ExecutionDependentRelation::Assigns,
+                    dependent_node: parser::stencila_schema::ExecutionDependentNode::Variable(
+                        Variable {
+                            namespace: namespace.clone(),
+                            name: name.as_str().to_string(),
+                            kind: Some(Box::new("Number".to_string())),
+                            ..Default::default()
+                        },
+                    ),
+                    code_location: Some([row, name.start(), row, name.end()]),
+                    ..Default::default()
+                });
+                (expr.start(), expr.as_str())
+            } else {
+                (0, line)
+            };
+
+            // Parse the expression using fasteval to check there is no syntax errors in expression
+            if let Err(..) = parser.parse(expr, &mut slab.ps) {
+                syntax_errors = true;
+                continue;
+            }
+
+            // Parse line for uses of variables
+            for captures in VAR_REGEX.captures_iter(expr) {
+                // Ignore function calls
+                if captures.get(2).is_none() {
+                    let name = captures.get(1).expect("Should always have group 1");
+                    execution_dependencies.push(ExecutionDependency {
+                        dependency_relation: ExecutionDependencyRelation::Uses,
+                        dependency_node: parser::stencila_schema::ExecutionDependencyNode::Variable(
+                            Variable {
+                                namespace: namespace.clone(),
+                                name: name.as_str().to_string(),
+                                kind: Some(Box::new("Number".to_string())),
+                                ..Default::default()
+                            },
+                        ),
+                        code_location: Some([
+                            row,
+                            col_offset + name.start(),
+                            row,
+                            col_offset + name.end(),
+                        ]),
+                        ..Default::default()
+                    });
                 }
+            }
 
-                // Parse comment line
-                if line.trim_start().starts_with('#') {
-                    comments.push((row, line));
-                    return pairs;
-                }
+            // Add line to semantics
+            semantics.push_str(line);
+            semantics.push('\n');
+        }
 
-                // Parse line for assignments
-                let (start, expr) = if let Some(captures) = ASSIGN_REGEX.captures(line) {
-                    let symbol = captures.get(1).expect("Should always have group 1");
-                    let expr = captures.get(2).expect("Should always have group 2");
-                    pairs.push((
-                        relations::assigns((row, symbol.start(), row, symbol.end())),
-                        resources::symbol(path, symbol.as_str(), "Number"),
-                    ));
-                    (expr.start(), expr.as_str())
-                } else {
-                    (0, line)
-                };
+        // Remove dependencies which are also assigned within the code
+        remove_uses_of_assigned(&mut execution_dependencies, &execution_dependents);
 
-                // Parse the expression using fasteval to check there is no syntax errors in expression
-                if let Err(..) = parser.parse(expr, &mut slab.ps) {
-                    syntax_errors = Some(true);
-                    return pairs;
-                }
-
-                // Parse line for uses of variables
-                for captures in VAR_REGEX.captures_iter(expr) {
-                    if captures.get(2).is_none() {
-                        let symbol = captures.get(1).expect("Should always have group 1");
-                        pairs.push((
-                            relations::uses((
-                                row,
-                                start + symbol.start(),
-                                row,
-                                start + symbol.end(),
-                            )),
-                            resources::symbol(path, symbol.as_str(), "Number"),
-                        ))
-                    }
-                }
-
-                // Add line to semantics
-                semantics.push_str(line);
-                semantics.push('\n');
-
-                pairs
-            });
-
-        let mut resource_info = ResourceInfo::new(
-            resource,
-            Some(relations),
-            None,
-            None,
+        let mut parse_info = ParseInfo {
+            semantic_digest: str_seahash(&semantics)?,
             syntax_errors,
-            Some(execution_digest_from_content_semantics(code, &semantics)),
-            None,
-            None,
-        );
+            execution_dependencies,
+            execution_dependents,
+            ..Default::default()
+        };
 
         // Apply tags from comments (this needs to be done at the end because tags
         // may remove pairs if `only` is specified)
-        for (row, line) in comments {
-            apply_tags(
-                path,
-                Self::spec().language,
-                row,
-                line,
-                Some("Number".to_string()),
-                &mut resource_info,
-            );
+        for (row, comment) in comments {
+            apply_comment_tags(&mut parse_info, comment, path, row);
         }
 
-        Ok(resource_info)
+        Ok(parse_info)
     }
 }
 
@@ -135,9 +148,8 @@ mod tests {
         snapshot_fixtures("fragments/calc/*.calc", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Format::Calc);
-            let resource_info = CalcParser::parse(resource, path, &code).expect("Unable to parse");
-            assert_json_snapshot!(resource_info);
+            let parse_info = CalcParser::parse(&code, Some(path)).expect("Unable to parse");
+            assert_json_snapshot!(parse_info);
         })
     }
 }

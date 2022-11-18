@@ -1,144 +1,100 @@
 ---
 source: rust/parser-calc/src/lib.rs
-assertion_line: 132
-expression: resource_info
+assertion_line: 151
+expression: parse_info
 input_file: fixtures/fragments/calc/assigns.calc
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/calc/assigns.calc",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "calc"
-  },
-  "relations": [
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          0,
-          0,
-          0,
-          1
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/assigns.calc",
-        "name": "a",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          1,
-          0,
-          1,
-          1
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/assigns.calc",
-        "name": "b",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          2,
-          0,
-          2,
-          1
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/assigns.calc",
-        "name": "c",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          4,
-          2,
-          5
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/assigns.calc",
-        "name": "a",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          8,
-          2,
-          9
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/assigns.calc",
-        "name": "b",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          3,
-          3,
-          3,
-          40
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/assigns.calc",
-        "name": "with_preceding_spaces_and_underscores",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          4,
-          0,
-          4,
-          11
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/assigns.calc",
-        "name": "d",
-        "kind": "Number"
-      }
-    ]
-  ],
-  "compile_digest": "10286327178512735048.268834440053868469.0.0.0",
-  "tags": [
+  "syntaxErrors": false,
+  "semanticDigest": 268834440053868469,
+  "executionDependencies": [],
+  "executionDependents": [
     {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "a",
+        "kind": "Number",
+        "namespace": "fragments/calc/assigns.calc"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "b",
+        "kind": "Number",
+        "namespace": "fragments/calc/assigns.calc"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "c",
+        "kind": "Number",
+        "namespace": "fragments/calc/assigns.calc"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        2,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "with_preceding_spaces_and_underscores",
+        "kind": "Number",
+        "namespace": "fragments/calc/assigns.calc"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        3,
+        3,
+        3,
+        40
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "d",
+        "namespace": "fragments/calc/assigns.calc"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        4,
+        0,
+        4,
+        11
+      ]
+    }
+  ],
+  "executionTags": [
+    {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "assigns",
-      "value": "d",
-      "global": false
+      "value": "d"
     }
   ]
 }
