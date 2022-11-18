@@ -1,140 +1,120 @@
 ---
 source: rust/parser-py/src/lib.rs
-assertion_line: 222
-expression: resource_info
+assertion_line: 227
+expression: parse_info
 input_file: fixtures/fragments/py/tags.py
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/py/tags.py",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "python"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          0,
-          1,
-          17
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "python",
+  "syntaxErrors": false,
+  "semanticDigest": 1603302089616509584,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "mod1"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          2,
-          0,
-          2,
-          17
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/tags.py",
-        "name": "var1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          0,
-          4,
-          11
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/tags.py",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        17
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var3",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          5,
-          0,
-          5,
-          19
-        ]
+        "namespace": "fragments/py/tags.py"
       },
-      {
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        4,
+        0,
+        4,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
-        "path": "file1"
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          5,
-          0,
-          5,
-          19
-        ]
+        "name": "",
+        "path": "fragments/py/tags.py/file1"
       },
-      {
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        5,
+        0,
+        5,
+        19
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
-        "path": "file2"
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          6,
-          0,
-          6,
-          14
-        ]
+        "name": "",
+        "path": "fragments/py/tags.py/file2"
       },
-      {
-        "type": "File",
-        "path": "file3"
-      }
-    ]
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        5,
+        0,
+        5,
+        19
+      ]
+    }
   ],
-  "compile_digest": "1689290116767603003.547168903537036275.0.0.0",
-  "tags": [
+  "executionDependents": [
     {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "var1",
+        "namespace": "fragments/py/tags.py"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        2,
+        0,
+        2,
+        17
+      ]
+    }
+  ],
+  "executionTags": [
+    {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "imports",
-      "value": "mod1 only",
-      "global": false
+      "value": "mod1 only"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "assigns",
-      "value": "var1 only",
-      "global": false
+      "value": "var1 only"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "uses",
-      "value": "var3",
-      "global": false
+      "value": "var3"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "reads",
-      "value": "file1 file2",
-      "global": false
+      "value": "file1 file2"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "writes",
-      "value": "file3",
-      "global": false
+      "value": "file3"
     }
   ]
 }

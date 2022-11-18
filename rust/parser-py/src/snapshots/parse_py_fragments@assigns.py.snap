@@ -1,206 +1,189 @@
 ---
 source: rust/parser-py/src/lib.rs
-assertion_line: 222
-expression: resource_info
+assertion_line: 227
+expression: parse_info
 input_file: fixtures/fragments/py/assigns.py
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/py/assigns.py",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "python"
-  },
-  "relations": [
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          0,
-          0,
-          0,
-          4
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/assigns.py",
+  "syntaxErrors": false,
+  "semanticDigest": 11964046020285599342,
+  "executionDependencies": [],
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var1",
-        "kind": "Integer"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          1,
-          0,
-          1,
-          4
-        ]
+        "kind": "Integer",
+        "namespace": "fragments/py/assigns.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/assigns.py",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          3,
-          4,
-          3,
-          8
-        ]
+        "namespace": "fragments/py/assigns.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/assigns.py",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "fun1",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          4,
-          0,
-          4,
-          4
-        ]
+        "kind": "Function",
+        "namespace": "fragments/py/assigns.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/assigns.py",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        3,
+        4,
+        3,
+        8
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "fun2",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          6,
-          0,
-          6,
-          4
-        ]
+        "kind": "Function",
+        "namespace": "fragments/py/assigns.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/assigns.py",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        4,
+        0,
+        4,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var3",
-        "kind": "Boolean"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          7,
-          0,
-          7,
-          4
-        ]
+        "kind": "Boolean",
+        "namespace": "fragments/py/assigns.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/assigns.py",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        6,
+        0,
+        6,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var4",
-        "kind": "Boolean"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          8,
-          0,
-          8,
-          4
-        ]
+        "kind": "Boolean",
+        "namespace": "fragments/py/assigns.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/assigns.py",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        7,
+        0,
+        7,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var5",
-        "kind": "Integer"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          9,
-          0,
-          9,
-          4
-        ]
+        "kind": "Integer",
+        "namespace": "fragments/py/assigns.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/assigns.py",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        8,
+        0,
+        8,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var6",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          10,
-          0,
-          10,
-          4
-        ]
+        "kind": "Number",
+        "namespace": "fragments/py/assigns.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/assigns.py",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        9,
+        0,
+        9,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var7",
-        "kind": "String"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          11,
-          0,
-          11,
-          4
-        ]
+        "kind": "String",
+        "namespace": "fragments/py/assigns.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/assigns.py",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        10,
+        0,
+        10,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var8",
-        "kind": "Array"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          12,
-          0,
-          12,
-          4
-        ]
+        "kind": "Array",
+        "namespace": "fragments/py/assigns.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/assigns.py",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        11,
+        0,
+        11,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var9",
-        "kind": "Object"
-      }
-    ]
+        "kind": "Object",
+        "namespace": "fragments/py/assigns.py"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        12,
+        0,
+        12,
+        4
+      ]
+    }
   ],
-  "compile_digest": "12060311432052402604.1233639623729888515.0.0.0",
-  "tags": []
+  "executionTags": []
 }

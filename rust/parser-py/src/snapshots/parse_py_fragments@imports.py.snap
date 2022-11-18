@@ -1,83 +1,70 @@
 ---
 source: rust/parser-py/src/lib.rs
-assertion_line: 222
-expression: resource_info
+assertion_line: 227
+expression: parse_info
 input_file: fixtures/fragments/py/imports.py
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/py/imports.py",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "python"
-  },
-  "relations": [
-    [
-      {
-        "type": "Imports",
-        "range": [
-          0,
-          7,
-          0,
-          15
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "python",
+  "syntaxErrors": false,
+  "semanticDigest": 14686235381245225927,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module_1"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          1,
-          5,
-          1,
-          13
-        ]
       },
-      {
-        "type": "Module",
-        "language": "python",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        0,
+        7,
+        0,
+        15
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module_2"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          2,
-          5,
-          2,
-          13
-        ]
       },
-      {
-        "type": "Module",
-        "language": "python",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        1,
+        5,
+        1,
+        13
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module_3"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          3,
-          5,
-          3,
-          13
-        ]
       },
-      {
-        "type": "Module",
-        "language": "python",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        2,
+        5,
+        2,
+        13
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module_4"
-      }
-    ]
+      },
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        3,
+        5,
+        3,
+        13
+      ]
+    }
   ],
-  "compile_digest": "18282637135265011160.4403680722197191481.0.0.0",
-  "tags": []
+  "executionDependents": [],
+  "executionTags": []
 }
