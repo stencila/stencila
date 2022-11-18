@@ -21,9 +21,7 @@ use parser::{
         itertools::Itertools,
     },
     formats::Format,
-    graph_triples::{execution_digest_from_content, Resource, ResourceInfo},
-    utils::{parse_file_interps, parse_var_interps},
-    Parser, ParserTrait,
+    parse_file_interps, parse_var_interps, ParseInfo, Parser, ParserTrait,
 };
 
 /// A parser for PostgREST expressions
@@ -36,27 +34,23 @@ impl ParserTrait for PostgrestParser {
         }
     }
 
-    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
+    fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
         let (http, syntax_errors) = match transpile(code) {
-            Ok(http) => (http, Some(false)),
-            Err(..) => (String::new(), Some(true)),
+            Ok(http) => (http, false),
+            Err(..) => (String::new(), true),
         };
 
-        let relations = [parse_var_interps(code, path), parse_file_interps(&http)].concat();
-        let compile_digest = execution_digest_from_content(code);
+        let execution_dependencies = [
+            parse_var_interps(&http, path),
+            parse_file_interps(&http, path),
+        ]
+        .concat();
 
-        let resource_info = ResourceInfo::new(
-            resource,
-            Some(relations),
-            None,
-            None,
+        Ok(ParseInfo {
             syntax_errors,
-            Some(compile_digest),
-            None,
-            None,
-        );
-
-        Ok(resource_info)
+            execution_dependencies,
+            ..Default::default()
+        })
     }
 }
 
