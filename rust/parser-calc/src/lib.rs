@@ -6,8 +6,8 @@ use parser::{
     formats::Format,
     hash_utils::str_seahash,
     stencila_schema::{
-        ExecutionDependency, ExecutionDependencyRelation, ExecutionDependent,
-        ExecutionDependentRelation, Variable,
+        ExecutionDependency, ExecutionDependencyNode, ExecutionDependencyRelation,
+        ExecutionDependent, ExecutionDependentNode, ExecutionDependentRelation, Variable,
     },
     utils::remove_uses_of_assigned,
     ParseInfo, Parser, ParserTrait,
@@ -63,14 +63,12 @@ impl ParserTrait for CalcParser {
                 let expr = captures.get(2).expect("Should always have group 2");
                 execution_dependents.push(ExecutionDependent {
                     dependent_relation: ExecutionDependentRelation::Assigns,
-                    dependent_node: parser::stencila_schema::ExecutionDependentNode::Variable(
-                        Variable {
-                            namespace: namespace.clone(),
-                            name: name.as_str().to_string(),
-                            kind: Some(Box::new("Number".to_string())),
-                            ..Default::default()
-                        },
-                    ),
+                    dependent_node: ExecutionDependentNode::Variable(Variable {
+                        namespace: namespace.clone(),
+                        name: name.as_str().to_string(),
+                        kind: Some(Box::new("Number".to_string())),
+                        ..Default::default()
+                    }),
                     code_location: Some([row, name.start(), row, name.end()]),
                     ..Default::default()
                 });
@@ -92,14 +90,12 @@ impl ParserTrait for CalcParser {
                     let name = captures.get(1).expect("Should always have group 1");
                     execution_dependencies.push(ExecutionDependency {
                         dependency_relation: ExecutionDependencyRelation::Uses,
-                        dependency_node: parser::stencila_schema::ExecutionDependencyNode::Variable(
-                            Variable {
-                                namespace: namespace.clone(),
-                                name: name.as_str().to_string(),
-                                kind: Some(Box::new("Number".to_string())),
-                                ..Default::default()
-                            },
-                        ),
+                        dependency_node: ExecutionDependencyNode::Variable(Variable {
+                            namespace: namespace.clone(),
+                            name: name.as_str().to_string(),
+                            kind: Some(Box::new("Number".to_string())),
+                            ..Default::default()
+                        }),
                         code_location: Some([
                             row,
                             col_offset + name.start(),
