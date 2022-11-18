@@ -205,7 +205,7 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
 
             if let BlockContent::For(For {
                 symbol,
-                text,
+                code: for_code,
                 content,
                 otherwise,
                 ..
@@ -215,11 +215,11 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
 
                 let expr = if otherwise.is_some() && !for_var.0.is_empty() {
                     let index = for_index.to_string();
-                    let assign = for_var.1.replace("$index", &index).replace("$expr", text);
+                    let assign = for_var.1.replace("$index", &index).replace("$expr", for_code);
                     code.push_str(&assign);
                     for_var.0.replace("$index", &index)
                 } else {
-                    text.clone()
+                    code.clone()
                 };
 
                 code.push_str(&for_start.replace("$symbol", symbol).replace("$expr", &expr));
@@ -266,10 +266,10 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
                 code.push_str(if_end);
             }
             */
-            else if let BlockContent::CodeChunk(CodeChunk { text, .. }) = block {
-                script.push_str(text);
+            else if let BlockContent::CodeChunk(CodeChunk { code, .. }) = block {
+                script.push_str(code);
 
-                if text.ends_with('\n') {
+                if code.ends_with('\n') {
                     script.push('\n');
                 } else {
                     script.push_str("\n\n");

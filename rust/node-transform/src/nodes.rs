@@ -147,7 +147,7 @@ impl Transform for Node {
             }
             // Fallback to transforming to JSON code fragment
             _ => InlineContent::CodeFragment(CodeFragment {
-                text: serde_json::to_string(self).unwrap_or_default(),
+                code: serde_json::to_string(self).unwrap_or_default(),
                 ..Default::default()
             }),
         }

@@ -491,7 +491,7 @@ impl KernelTrait for SqlKernel {
                     };
                     content.push(BlockContent::CodeChunk(CodeChunk {
                         programming_language: "sql".to_string(),
-                        text: sql,
+                        code: sql,
                         ..Default::default()
                     }))
                 };

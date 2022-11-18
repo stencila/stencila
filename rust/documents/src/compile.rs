@@ -20,24 +20,10 @@ use stencila_schema::{
 use crate::{
     executable::{CompileContext, Executable},
     messages::{PatchRequest, When},
-    utils::send_patch,
+    utils::{send_patch, send_patches},
 };
 
-/// Compile a node, usually the `root` node of a document
-///
-/// Compiling a node involves walking over its node tree and compiling each
-/// child node so that it is ready to be executed. This includes
-/// (but is not limited to):
-///
-/// - for those node types needing to be accesses directly (e.g. executable nodes) ensuring
-///   they have an `id` and recording their address
-///
-/// - for executable nodes (e.g. `CodeChunk`) performing semantic analysis of the code
-///
-/// - determining dependencies within and between documents and other resources
-///
-/// Uses a `RwLock` for `root` so that write lock can be held for as short as
-/// time as possible and for consistency with the `execute` function.
+/// Compile the `root` node of a document
 ///
 /// # Arguments
 ///
@@ -46,11 +32,12 @@ use crate::{
 /// - `project`: The project of the document to be compiled
 ///
 /// - `root`: The root node to be compiled
+/// 
+/// - `tag_map`: The document's [`TagMap`]
 ///
-/// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
+/// - `kernel_space`: The document's [`KernelSpace`]
 ///
-/// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
-///                   executed nodes
+/// - `patch_sender`: A [`Patch`] channel sender to send patches for changes to the compiled nodes
 pub async fn compile(
     path: &Path,
     project: &Path,
@@ -59,10 +46,10 @@ pub async fn compile(
     kernel_space: &Arc<RwLock<KernelSpace>>,
     patch_sender: &UnboundedSender<PatchRequest>,
 ) -> Result<Graph> {
-    let mut root = root.write().await;
+    let root = root.read().await;
     let kernel_space = kernel_space.read().await;
 
-    // Call compile on the root
+    // Compile the root node
     let mut context = CompileContext {
         path: path.into(),
         project: project.into(),
@@ -71,10 +58,12 @@ pub async fn compile(
         global_tags: TagMap::default(),
         patches: Vec::default(),
     };
-    // TODO: send patches
     root.compile(&mut context).await?;
 
-    // Update the document's global tag map with those from those collected by the compile context
+    // Send patches collected during compilation reflecting changes to nodes
+    send_patches(patch_sender, context.patches, When::Never);
+
+    // Update the document's tag map with any global tags collected during compilation
     *tag_map.write().await = context.global_tags;
 
     // Construct a new `Graph` from the collected `ResourceInfo`s and get an updated

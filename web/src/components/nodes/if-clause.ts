@@ -181,7 +181,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     this.index = index
     this.isFirst = index == 0
     this.isLast = index == clauses.length - 1
-    this.isElse = this.isLast && this.text?.trim().length == 0
+    this.isElse = this.isLast && this.code?.trim().length == 0
 
     if (changedProperties.has('isActive') && this.isActive == 'true') {
       this.isExpanded = true
@@ -258,7 +258,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
         if (this.isLast) {
           // Set `text` to trigger update and recalculation of `isElse`
           const editor = event.target as StencilaCodeEditor
-          this.text = editor.getCode()
+          this.code = editor.getCode()
         }
 
         // Emit patch using override above
@@ -270,7 +270,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       <slot
         name="text"
         slot="code"
-        @slotchange=${(event: Event) => this.onTextSlotChange(event)}
+        @slotchange=${(event: Event) => this.onCodeSlotChange(event)}
       ></slot>
     </stencila-code-editor>`
 

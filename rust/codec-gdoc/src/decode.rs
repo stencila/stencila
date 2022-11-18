@@ -541,7 +541,7 @@ fn text_run_to_inline(
                     || font == "Consolas"
                 {
                     inline = InlineContent::CodeFragment(CodeFragment {
-                        text: string,
+                        code: string,
                         ..Default::default()
                     })
                 }

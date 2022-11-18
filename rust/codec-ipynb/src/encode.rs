@@ -166,7 +166,7 @@ fn encode_chunk(chunk: &CodeChunk) -> serde_json::Value {
         );
     }
 
-    let source = encode_multiline_string(&chunk.text);
+    let source = encode_multiline_string(&chunk.code);
 
     let outputs = if let Some(outputs) = &chunk.outputs {
         encode_outputs(outputs)

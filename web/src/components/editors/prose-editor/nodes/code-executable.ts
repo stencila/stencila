@@ -5,7 +5,7 @@ export const codeExecutableAttrs = {
   ...executableAttrs,
   programmingLanguage: { default: '' },
   guessLanguage: { default: null },
-  text: { default: '' },
+  code: { default: '' },
 }
 
 export class StencilaCodeExecutableView<

@@ -33,7 +33,7 @@ function getAttrs(node: StencilaCodeChunk): Attrs {
     id: node.id,
     programmingLanguage: node.getAttribute('programming-language'),
     guessLanguage: node.getAttribute('guess-language'),
-    text: node.querySelector('[slot=text]')?.innerHTML ?? '',
+    code: node.querySelector('[slot=code]')?.innerHTML ?? '',
     errors: node.querySelector('[slot=errors]')?.innerHTML,
     outputs: node.querySelector('[slot=outputs]')?.innerHTML,
   }
@@ -48,11 +48,11 @@ function toDOM(node: Node) {
     dom.setAttribute('guess-language', node.attrs.guessLanguage)
   }
 
-  const text = document.createElement('pre')
-  text.slot = 'text'
-  text.innerHTML = node.attrs.text
-  text.contentEditable = 'false'
-  dom.appendChild(text)
+  const code = document.createElement('pre')
+  code.slot = 'code'
+  code.innerHTML = node.attrs.code
+  code.contentEditable = 'false'
+  dom.appendChild(code)
 
   if (node.attrs.errors) {
     const errors = document.createElement('div')

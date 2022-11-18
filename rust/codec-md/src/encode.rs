@@ -119,7 +119,7 @@ impl ToMd for CodeExpression {
         let lang = &self.programming_language;
         [
             "`",
-            &self.text,
+            &self.code,
             "`{",
             lang,
             if lang.trim().is_empty() { "" } else { " " },
@@ -133,18 +133,18 @@ impl ToMd for CodeFragment {
     fn to_md(&self, _options: &EncodeOptions) -> String {
         if let Some(lang) = &self.programming_language {
             if !lang.is_empty() {
-                return ["`", &self.text, "`{", lang, "}"].concat();
+                return ["`", &self.code, "`{", lang, "}"].concat();
             }
         }
-        ["`", &self.text, "`"].concat()
+        ["`", &self.code, "`"].concat()
     }
 }
 
 impl ToMd for MathFragment {
     fn to_md(&self, _options: &EncodeOptions) -> String {
         match self.math_language.as_str() {
-            "asciimath" | "mathml" => ["`", &self.text, "`{", &self.math_language, "}"].concat(),
-            _ => ["$", &self.text, "$"].concat(),
+            "asciimath" | "mathml" => ["`", &self.code, "`{", &self.math_language, "}"].concat(),
+            _ => ["$", &self.code, "$"].concat(),
         }
     }
 }
@@ -303,17 +303,17 @@ impl ToMd for Parameter {
 
 impl ToMd for Button {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        let text = self.text.trim();
-        let code = if text.is_empty() {
+        let code = self.code.trim();
+        let code = if code.is_empty() {
             "".to_string()
         } else {
-            ["`", text, "`"].concat()
+            ["`", code, "`"].concat()
         };
 
         let mut options = Vec::new();
 
         let lang = self.programming_language.trim();
-        if !text.is_empty() && !lang.is_empty() && !self.guess_language.unwrap_or_default() {
+        if !code.is_empty() && !lang.is_empty() && !self.guess_language.unwrap_or_default() {
             options.push(lang.to_string());
         }
 
@@ -380,7 +380,7 @@ impl ToMd for CodeBlock {
             None => "",
         };
 
-        ["```", lang, "\n", &self.text, "\n```\n\n"].concat()
+        ["```", lang, "\n", &self.code, "\n```\n\n"].concat()
     }
 }
 
@@ -390,7 +390,7 @@ impl ToMd for CodeChunk {
             "```",
             &self.programming_language,
             " exec\n",
-            &self.text,
+            &self.code,
             "\n```\n\n",
         ]
         .concat()
@@ -400,10 +400,10 @@ impl ToMd for CodeChunk {
 impl ToMd for MathBlock {
     fn to_md(&self, _options: &EncodeOptions) -> String {
         match self.math_language.as_str() {
-            "asciimath" => ["```asciimath\n", &self.text, "\n```\n\n"].concat(),
-            "mathml" => ["```mathml\n", &self.text, "\n```\n\n"].concat(),
+            "asciimath" => ["```asciimath\n", &self.code, "\n```\n\n"].concat(),
+            "mathml" => ["```mathml\n", &self.code, "\n```\n\n"].concat(),
             // If using double dollars ensure that everything is on the same line (paragraph)
-            _ => ["$$ ", &self.text.replace('\n', " "), " $$\n\n"].concat(),
+            _ => ["$$ ", &self.code.replace('\n', " "), " $$\n\n"].concat(),
         }
     }
 }
@@ -653,9 +653,9 @@ impl ToMd for Call {
 
 impl ToMd for CallArgument {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        if let Some(text) = &self.text {
-            if !text.trim().is_empty() {
-                return [&self.name, "=", text].concat();
+        if let Some(code) = &self.code {
+            if !code.trim().is_empty() {
+                return [&self.name, "=", code].concat();
             }
         }
 
@@ -676,16 +676,16 @@ impl ToMd for Division {
     fn to_md(&self, options: &EncodeOptions) -> String {
         let Self {
             programming_language,
-            text,
+            code,
             content,
             ..
         } = self;
 
         let lang = formats::match_name(programming_language);
         let spec = if lang == Format::Tailwind {
-            text.to_owned()
+            code.to_owned()
         } else {
-            ["`", text, "`{", programming_language, "}"].concat()
+            ["`", code, "`{", programming_language, "}"].concat()
         };
 
         let content = content.to_md(options);
@@ -698,7 +698,7 @@ impl ToMd for Span {
     fn to_md(&self, options: &EncodeOptions) -> String {
         let content = self.content.to_md(options);
 
-        let text = ["`", &self.text, "`"].concat();
+        let code = ["`", &self.code, "`"].concat();
 
         let lang = formats::match_name(&self.programming_language);
         let lang = if !matches!(lang, Format::Tailwind | Format::Unknown) {
@@ -707,7 +707,7 @@ impl ToMd for Span {
             String::new()
         };
 
-        ["[", &content, "]", &text, &lang].concat()
+        ["[", &content, "]", &code, &lang].concat()
     }
 }
 
@@ -747,14 +747,14 @@ impl ToMd for For {
     fn to_md(&self, options: &EncodeOptions) -> String {
         let Self {
             symbol,
-            text,
+            code,
             programming_language,
             content,
             otherwise,
             ..
         } = self;
 
-        let mut begin = ["::: for ", symbol, " in ", text].concat();
+        let mut begin = ["::: for ", symbol, " in ", code].concat();
         if !programming_language.is_empty() {
             begin.push_str(&[" {", programming_language, "}"].concat());
         }
@@ -779,10 +779,10 @@ impl ToMd for If {
             .iter()
             .enumerate()
             .map(|(index, clause)| {
-                let text = if clause.text.contains('{') {
-                    ["`", &clause.text.replace('`', "\\`"), "`"].concat()
+                let code = if clause.code.contains('{') {
+                    ["`", &clause.code.replace('`', "\\`"), "`"].concat()
                 } else {
-                    clause.text.clone()
+                    clause.code.clone()
                 };
 
                 let curly_attrs = if !clause.programming_language.is_empty()
@@ -798,13 +798,13 @@ impl ToMd for If {
                     "::: ",
                     if index == 0 {
                         "if"
-                    } else if index == clauses_count - 1 && clause.text.is_empty() {
+                    } else if index == clauses_count - 1 && clause.code.is_empty() {
                         "else"
                     } else {
                         "elif"
                     },
                     " ",
-                    &text,
+                    &code,
                     &curly_attrs,
                     "\n\n",
                     clause.content.to_md(options).as_str(),

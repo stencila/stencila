@@ -18,7 +18,7 @@ patchable_struct!(
     id,
     name,
     label,
-    text,
+    code,
     programming_language,
     guess_language,
     is_disabled,

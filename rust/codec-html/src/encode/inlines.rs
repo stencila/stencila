@@ -230,8 +230,8 @@ impl ToHtml for Button {
                 .map_or_else(|| self.name.to_title_case(), |label| label.to_string()),
         );
 
-        let text = match self.text.trim().is_empty() {
-            false => attr("text", self.text.trim()),
+        let code = match self.code.trim().is_empty() {
+            false => attr("code", self.code.trim()),
             true => nothing(),
         };
 
@@ -256,7 +256,7 @@ impl ToHtml for Button {
                 id,
                 name,
                 label,
-                text,
+                code,
                 programming_language,
                 guess_language,
                 is_disabled,
@@ -428,10 +428,10 @@ impl ToHtml for CodeExpression {
             self.execution_count.map(|count| count.to_string()),
         );
 
-        let text = elem(
+        let code = elem(
             "code",
-            &[attr_prop("text"), attr_slot("text")],
-            &self.text.to_html(context),
+            &[attr_prop("code"), attr_slot("code")],
+            &self.code.to_html(context),
         );
 
         // For execution_dependencies it is necessary to place the items in a <span> under
@@ -499,7 +499,7 @@ impl ToHtml for CodeExpression {
                 execution_status.1,
                 execution_kernel.1,
                 execution_count.1,
-                text,
+                code,
                 dependencies,
                 execution_ended,
                 execution_duration,
@@ -526,16 +526,16 @@ impl ToHtml for CodeFragment {
             None => (nothing(), nothing(), nothing()),
         };
 
-        let text = elem(
+        let code = elem(
             "code",
-            &[attr_itemprop("text"), attr_slot("text"), lang_class],
-            &self.text.to_html(context),
+            &[attr_itemprop("code"), attr_slot("code"), lang_class],
+            &self.code.to_html(context),
         );
 
         elem(
             "stencila-code-fragment",
             &[attr_itemtype::<Self>(), attr_id(&self.id), lang_attr],
-            &[lang_meta, text].concat(),
+            &[lang_meta, code].concat(),
         )
     }
 }

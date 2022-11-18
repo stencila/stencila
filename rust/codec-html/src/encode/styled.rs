@@ -55,9 +55,9 @@ impl ToHtml for Division {
             vec![]
         };
 
-        let (text, errors) = if context.options.mode >= EncodeMode::Inspect {
+        let (code, errors) = if context.options.mode >= EncodeMode::Inspect {
             (
-                elem("pre", &[attr_slot("text")], &self.text),
+                elem("pre", &[attr_slot("code")], &self.code),
                 elem_placeholder(
                     "div",
                     &[attr_prop("errors"), attr_slot("errors")],
@@ -91,7 +91,7 @@ impl ToHtml for Division {
         elem(
             "stencila-division",
             &attrs,
-            &[text, errors, css, content].concat(),
+            &[code, errors, css, content].concat(),
         )
     }
 }
@@ -113,9 +113,9 @@ impl ToHtml for Span {
             vec![]
         };
 
-        let (text, errors) = if context.options.mode >= EncodeMode::Inspect {
+        let (code, errors) = if context.options.mode >= EncodeMode::Inspect {
             (
-                elem("code", &[attr_slot("text")], &self.text),
+                elem("code", &[attr_slot("code")], &self.code),
                 elem_placeholder(
                     "span",
                     &[attr_prop("errors"), attr_slot("errors")],
@@ -149,7 +149,7 @@ impl ToHtml for Span {
         elem(
             "stencila-span",
             &attrs,
-            &[text, errors, css, content].concat(),
+            &[code, errors, css, content].concat(),
         )
     }
 }

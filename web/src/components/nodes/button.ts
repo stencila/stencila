@@ -118,7 +118,7 @@ export default class StencilaButton extends StencilaCodeExecutable {
           ?read-only=${readOnly}
           ?disabled=${readOnly}
         >
-          <code slot="code">${this.text}</code>
+          <code slot="code">${this.code}</code>
         </stencila-code-editor>
 
         <stencila-code-language

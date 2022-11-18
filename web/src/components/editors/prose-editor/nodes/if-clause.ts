@@ -41,7 +41,7 @@ function getAttrs(node: StencilaIfClause): Attrs {
     id: node.id,
     programmingLanguage: node.getAttribute('programming-language'),
     guessLanguage: node.getAttribute('guess-language'),
-    text: node.querySelector('[slot=text]')?.innerHTML ?? '',
+    code: node.querySelector('[slot=code]')?.innerHTML ?? '',
     errors: node.querySelector('[slot=errors]')?.innerHTML ?? '',
   }
 }
@@ -53,11 +53,11 @@ function toDOM(node: Node) {
   if (node.attrs.guessLanguage)
     dom.setAttribute('guess-language', node.attrs.guessLanguage)
 
-  const text = document.createElement('pre')
-  text.slot = 'text'
-  text.innerHTML = node.attrs.text
-  text.contentEditable = 'false'
-  dom.appendChild(text)
+  const code = document.createElement('pre')
+  code.slot = 'code'
+  code.innerHTML = node.attrs.code
+  code.contentEditable = 'false'
+  dom.appendChild(code)
 
   const errors = document.createElement('div')
   errors.slot = 'errors'

@@ -11,7 +11,7 @@ import '../editors/code-editor/code-language'
 /**
  * A base component to represent the `CodeExecutable` node type
  *
- * @slot text The `CodeExecutable.text` property
+ * @slot code The `CodeExecutable.code` property
  */
 export default class StencilaCodeExecutable extends Executable {
   /**
@@ -29,48 +29,48 @@ export default class StencilaCodeExecutable extends Executable {
   guessLanguage?: string
 
   /**
-   * The `CodeExecutable.text` property
+   * The `CodeExecutable.code` property
    *
-   * Note that we use a convention of representing the `CodeExecutable.text` property
-   * as `<slot name="text">`, rather than as an attribute `text="..."` for better
+   * Note that we use a convention of representing the `CodeExecutable.code` property
+   * as `<slot name="code">`, rather than as an attribute `code="..."` for better
    * discover-ability.
    *
    * Also, using a slot is a more natural fit with using a code editor
-   * on that content. We "relay" the `text` slot to the <stencila-code-editor>
-   * using `<slot name="text" slot="code"></slot>` in components derived from this class.
+   * on that content. We "relay" the `code` slot to the <stencila-code-editor>
+   * using `<slot name="code" slot="code"></slot>` in components derived from this class.
    *
    * However, we also maintain this state so that derived components can use it
    * to update other state e.g. the `IfClause.isElse` property.
    */
   @property({ reflect: true })
-  public text?: string
+  public code?: string
 
   /**
-   * An observer to update `text` from the slot
+   * An observer to update `code` from the slot
    */
-  private textObserver: MutationObserver
+  private codeObserver: MutationObserver
 
   /**
-   * Handle a change, including on initial load, of the `text` slot
+   * Handle a change, including on initial load, of the `code` slot
    */
-  protected onTextSlotChange(event: Event) {
+  protected onCodeSlotChange(event: Event) {
     const textElem = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
     })[0]
 
-    this.text = textElem.textContent ?? ''
+    this.code = textElem.textContent ?? ''
 
-    this.textObserver = new MutationObserver(() => {
-      this.text = textElem.textContent ?? ''
+    this.codeObserver = new MutationObserver(() => {
+      this.code = textElem.textContent ?? ''
     })
-    this.textObserver.observe(textElem, {
+    this.codeObserver.observe(textElem, {
       subtree: true,
       characterData: true,
     })
   }
 
   /**
-   * Is the code of the node (the `text` property) visible?
+   * Is the code of the node (the `code` property) visible?
    */
   @state()
   protected isCodeVisible: boolean = true

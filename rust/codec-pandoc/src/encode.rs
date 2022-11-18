@@ -292,7 +292,7 @@ impl ToPandoc for CodeExpression {
     /// Encode a `CodeExpression` to a Pandoc inline element
     ///
     /// Lossless encoding represents the entire expression as an RPNG.
-    /// Lossy encoding represents the expression `output`, falling back to `text` if no output.
+    /// Lossy encoding represents the expression `output`, falling back to `code` if no output.
     fn to_pandoc_inline(&self, context: &mut EncodeContext) -> pandoc::Inline {
         if context.should_rpng("CodeExpression") {
             context.push_rpng("CodeExpression", Node::CodeExpression(self.clone()))
@@ -301,14 +301,14 @@ impl ToPandoc for CodeExpression {
                 .as_ref()
                 .map(|node| node.to_inline())
                 .map(|inline| inline.to_pandoc_inline(context))
-                .unwrap_or_else(|| pandoc::Inline::Code(attrs_empty(), self.text.clone()))
+                .unwrap_or_else(|| pandoc::Inline::Code(attrs_empty(), self.code.clone()))
         }
     }
 }
 
 impl ToPandoc for CodeFragment {
     fn to_pandoc_inline(&self, _context: &mut EncodeContext) -> pandoc::Inline {
-        pandoc::Inline::Code(attrs_empty(), self.text.clone())
+        pandoc::Inline::Code(attrs_empty(), self.code.clone())
     }
 }
 
@@ -333,7 +333,7 @@ impl ToPandoc for MathFragment {
         if context.should_rpng("MathFragment") {
             context.push_rpng("MathFragment", Node::MathFragment(self.clone()))
         } else {
-            pandoc::Inline::Math(pandoc::MathType::InlineMath, self.text.clone())
+            pandoc::Inline::Math(pandoc::MathType::InlineMath, self.code.clone())
         }
     }
 }
@@ -398,7 +398,7 @@ impl ToPandoc for CodeBlock {
             classes,
             attributes: vec![],
         };
-        pandoc::Block::CodeBlock(attrs, self.text.clone())
+        pandoc::Block::CodeBlock(attrs, self.code.clone())
     }
 }
 
@@ -556,7 +556,7 @@ impl ToPandoc for MathBlock {
         let inline = if context.should_rpng("MathBlock") {
             context.push_rpng("MathBlock", Node::MathBlock(self.clone()))
         } else {
-            pandoc::Inline::Math(pandoc::MathType::DisplayMath, self.text.clone())
+            pandoc::Inline::Math(pandoc::MathType::DisplayMath, self.code.clone())
         };
         pandoc::Block::Para(vec![inline])
     }

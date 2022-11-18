@@ -49,7 +49,7 @@ pub fn decode(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
     let code_chunk = |code: &str| -> BlockContent {
         BlockContent::CodeChunk(CodeChunk {
             programming_language: lang.to_string().to_lowercase(),
-            text: code.trim().to_string(),
+            code: code.trim().to_string(),
             ..Default::default()
         })
     };

@@ -15,7 +15,7 @@ import '../editors/code-editor/code-language'
  * component. It is currently simpler in that is does not allow for
  * guessing of language or changing code visibility across all instances.
  *
- * @slot text The `CodeStatic.text` property
+ * @slot code The `CodeStatic.code` property
  */
 export default class StencilaCodeStatic extends Entity {
   /**
@@ -25,31 +25,31 @@ export default class StencilaCodeStatic extends Entity {
   programmingLanguage = ''
 
   /**
-   * The `CodeStatic.text` property
+   * The `CodeStatic.code` property
    */
   @property({ reflect: true })
-  public text?: string
+  public code?: string
 
   /**
-   * An observer to update `text` from the slot
+   * An observer to update `code` from the slot
    */
-  private textObserver: MutationObserver
+  private codeObserver: MutationObserver
 
   /**
-   * Handle a change, including on initial load, of the `text` slot
+   * Handle a change, including on initial load, of the `code` slot
    */
-  protected onTextSlotChange(event: Event) {
+  protected onCodeSlotChange(event: Event) {
     const textElem = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
     })[0]
 
     if (textElem) {
-      this.text = textElem.textContent ?? ''
+      this.code = textElem.textContent ?? ''
 
-      this.textObserver = new MutationObserver(() => {
-        this.text = textElem.textContent ?? ''
+      this.codeObserver = new MutationObserver(() => {
+        this.code = textElem.textContent ?? ''
       })
-      this.textObserver.observe(textElem, {
+      this.codeObserver.observe(textElem, {
         subtree: true,
         characterData: true,
       })

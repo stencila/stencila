@@ -30,7 +30,7 @@ function getAttrs(node: StencilaCodeFragment): Attrs {
   return {
     id: node.id,
     programmingLanguage: node.getAttribute('programming-language') ?? '',
-    text: node.querySelector('[slot=text]')?.innerHTML,
+    code: node.querySelector('[slot=code]')?.innerHTML,
   }
 }
 
@@ -40,11 +40,11 @@ function toDOM(node: Node) {
   dom.id = node.attrs.id
   dom.setAttribute('programming-language', node.attrs.programmingLanguage)
 
-  const text = document.createElement('code')
-  text.slot = 'text'
-  text.innerHTML = node.attrs.text
-  text.contentEditable = 'false'
-  dom.appendChild(text)
+  const code = document.createElement('code')
+  code.slot = 'code'
+  code.innerHTML = node.attrs.code
+  code.contentEditable = 'false'
+  dom.appendChild(code)
 
   return { dom }
 }

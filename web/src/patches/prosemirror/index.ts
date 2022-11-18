@@ -18,10 +18,10 @@ export function transactionToOps(
 export function diffToOps(pre: EditorState, post: EditorState): Operation[] {
   const preNode = prosemirrorToStencila(pre.doc.toJSON())
   const postNode = prosemirrorToStencila(post.doc.toJSON())
-  //console.log(JSON.stringify(pre.doc.toJSON()))
-  //console.log(JSON.stringify(post.doc.toJSON()))
-  //console.log(JSON.stringify(preNode))
-  //console.log(JSON.stringify(postNode))
+  console.log(JSON.stringify(pre.doc.toJSON()))
+  console.log(JSON.stringify(post.doc.toJSON()))
+  console.log(JSON.stringify(preNode))
+  console.log(JSON.stringify(postNode))
   const patch = diff(preNode, postNode)
   return patch.ops
 }

@@ -187,7 +187,7 @@ patchable_struct!(
     id,
     programming_language,
     guess_language,
-    text,
+    code,
     output,
     errors,
     execution_dependencies,
@@ -207,7 +207,7 @@ patchable_struct!(
     id,
     programming_language,
     guess_language,
-    text,
+    code,
     css,
     classes,
     errors,
@@ -225,7 +225,7 @@ patchable_struct!(
     execution_count
 );
 
-patchable_struct!(CodeFragment, id, programming_language, text);
+patchable_struct!(CodeFragment, id, programming_language, code);
 patchable_struct!(Delete, content);
 patchable_struct!(Emphasis, content);
 patchable_struct!(Link, content, target);
@@ -233,7 +233,7 @@ patchable_struct!(
     MathFragment,
     id,
     math_language,
-    text,
+    code,
     compile_digest,
     errors,
     mathml

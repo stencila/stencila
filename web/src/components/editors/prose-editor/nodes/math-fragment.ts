@@ -30,7 +30,7 @@ function getAttrs(node: StencilaMathFragment): Attrs {
   return {
     id: node.id,
     mathLanguage: node.getAttribute('math-language'),
-    text: node.querySelector('[slot=text]')?.innerHTML,
+    code: node.querySelector('[slot=code]')?.innerHTML,
     errors: node.querySelector('[slot=errors]')?.innerHTML,
     mathml: node.querySelector('[slot=mathml]')?.innerHTML,
   }
@@ -42,11 +42,11 @@ function toDOM(node: Node) {
   dom.id = node.attrs.id
   dom.setAttribute('math-language', node.attrs.mathLanguage)
 
-  const text = document.createElement('code')
-  text.slot = 'text'
-  text.innerHTML = node.attrs.text
-  text.contentEditable = 'false'
-  dom.appendChild(text)
+  const code = document.createElement('code')
+  code.slot = 'code'
+  code.innerHTML = node.attrs.code
+  code.contentEditable = 'false'
+  dom.appendChild(code)
 
   const errors = document.createElement('span')
   errors.slot = 'errors'

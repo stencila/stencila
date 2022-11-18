@@ -169,9 +169,9 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
                 if let Some(block) = transform_to_block(&content[0]) {
                     return vec![block];
                 }
-                if let InlineContent::MathFragment(MathFragment { text, .. }) = &content[0] {
+                if let InlineContent::MathFragment(MathFragment { code, .. }) = &content[0] {
                     return vec![BlockContent::MathBlock(MathBlock {
-                        text: text.to_owned(),
+                        code: code.to_owned(),
                         math_language: "tex".to_string(),
                         ..Default::default()
                     })];
@@ -190,13 +190,13 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
             })]
         }
 
-        pandoc::Block::CodeBlock(attrs, text) => {
+        pandoc::Block::CodeBlock(attrs, code) => {
             let id = get_id(attrs);
             let programming_language = get_attr(attrs, "classes").map(Box::new);
             vec![BlockContent::CodeBlock(CodeBlock {
                 id,
                 programming_language,
-                text: text.clone(),
+                code: code.clone(),
                 ..Default::default()
             })]
         }
@@ -472,16 +472,16 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
             ..Default::default()
         })],
 
-        pandoc::Inline::Code(attrs, text) => {
+        pandoc::Inline::Code(attrs, code) => {
             let id = get_id(attrs);
             vec![InlineContent::CodeFragment(CodeFragment {
                 id,
-                text: text.clone(),
+                code: code.clone(),
                 ..Default::default()
             })]
         }
-        pandoc::Inline::Math(_math_type, text) => vec![InlineContent::MathFragment(MathFragment {
-            text: text.clone(),
+        pandoc::Inline::Math(_math_type, code) => vec![InlineContent::MathFragment(MathFragment {
+            code: code.clone(),
             math_language: "tex".to_string(),
             ..Default::default()
         })],

@@ -295,7 +295,7 @@ pub trait TreesitterDecoder {
     fn decode_code_chunk(code: &str) -> BlockContent {
         BlockContent::CodeChunk(CodeChunk {
             programming_language: Self::programming_language(),
-            text: code.to_string(),
+            code: code.to_string(),
             ..Default::default()
         })
     }
@@ -321,7 +321,7 @@ pub trait TreesitterDecoder {
             .unwrap_or_default()
             .to_string();
 
-        let text = node
+        let code = node
             .child_by_field_name("right")
             .or_else(|| node.child_by_field_name("vector"))
             .or_else(|| node.child_by_field_name("value"))
@@ -336,7 +336,7 @@ pub trait TreesitterDecoder {
 
         BlockContent::For(For {
             symbol,
-            text,
+            code,
             content,
             ..Default::default()
         })
@@ -388,7 +388,7 @@ pub trait TreesitterDecoder {
     ) -> BlockContent {
         let args = node.child_by_field_name("arguments");
 
-        let (programming_language, text) = args
+        let (programming_language, code) = args
             .and_then(|args| args.named_child(0))
             .map(|first| {
                 // If a string with no named children (could have an "interpolation" node in Python)
@@ -425,7 +425,7 @@ pub trait TreesitterDecoder {
 
         BlockContent::Division(Division {
             programming_language,
-            text,
+            code,
             content,
             ..Division::default()
         })
@@ -514,7 +514,7 @@ pub trait TreesitterDecoder {
                 } else {
                     InlineContent::CodeExpression(CodeExpression {
                         programming_language: Self::programming_language(),
-                        text: child.utf8_text(source).unwrap_or_default().to_string(),
+                        code: child.utf8_text(source).unwrap_or_default().to_string(),
                         ..Default::default()
                     })
                 }

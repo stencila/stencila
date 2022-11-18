@@ -12,5 +12,5 @@ properties:
     allOf:
       - $ref: Node
 $comment:
-  Note that `CodeExpression` nodes lack the `executePure` properties that
+  Note that `CodeExpression` nodes lack the `executionPure` property that
   `CodeChunk` nodes have because they should be side-effect free.

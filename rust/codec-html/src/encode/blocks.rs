@@ -47,23 +47,23 @@ impl ToHtml for CodeBlock {
             None => (nothing(), nothing(), nothing()),
         };
 
-        let text = elem(
+        let code = elem(
             "pre",
-            // The `slot="text"` attribute needs to be on the direct descendant of the
+            // The `slot="code"` attribute needs to be on the direct descendant of the
             // <stencila-code-block> element for WebComponent compatibility.
             // See https://github.com/stencila/designa/pull/268#discussion_r764363050
-            &[attr_slot("text")],
+            &[attr_slot("code")],
             &elem(
                 "code",
-                &[attr_itemprop("text"), lang_class],
-                &self.text.to_html(context),
+                &[attr_itemprop("code"), lang_class],
+                &self.code.to_html(context),
             ),
         );
 
         elem(
             "stencila-code-block",
             &[attr_itemtype::<Self>(), attr_id(&self.id), lang_attr],
-            &[lang_meta, text].concat(),
+            &[lang_meta, code].concat(),
         )
     }
 }
@@ -110,10 +110,10 @@ impl ToHtml for CodeChunk {
             self.execution_count.map(|count| count.to_string()),
         );
 
-        let text = elem(
+        let code = elem(
             "pre",
-            &[attr_prop("text"), attr_slot("text")],
-            &self.text.to_html(context),
+            &[attr_prop("code"), attr_slot("code")],
+            &self.code.to_html(context),
         );
 
         // For execution_dependencies and execution_dependents it is necessary to
@@ -209,7 +209,7 @@ impl ToHtml for CodeChunk {
                 //execution_status.1,
                 //execution_kernel.1,
                 //execution_count.1,
-                text,
+                code,
                 //dependencies,
                 //dependents,
                 //execution_ended,
@@ -552,7 +552,7 @@ impl ToHtml for CallArgument {
             .as_ref()
             .map_or_else(nothing, |guess| attr("guess_language", &guess.to_string()));
 
-        let text = elem_placeholder("pre", &[attr_slot("text")], &self.text, context);
+        let code = elem_placeholder("pre", &[attr_slot("code")], &self.code, context);
 
         let validator = elem_property(
             "stencila-validator",
@@ -569,7 +569,7 @@ impl ToHtml for CallArgument {
                 programming_language,
                 guess_language,
             ],
-            &[validator, text].concat(),
+            &[validator, code].concat(),
         )
     }
 }
@@ -580,7 +580,7 @@ impl ToHtml for For {
 
         let programming_language = attr("programming-language", &self.programming_language);
 
-        let text = elem("code", &[attr_slot("text")], &self.text);
+        let code = elem("code", &[attr_slot("code")], &self.code);
 
         let errors = elem_placeholder(
             "div",
@@ -633,7 +633,7 @@ impl ToHtml for For {
                 symbol,
                 programming_language,
             ],
-            &[text, errors, content, iterations, otherwise].concat(),
+            &[code, errors, content, iterations, otherwise].concat(),
         )
     }
 }
@@ -666,7 +666,7 @@ impl ToHtml for IfClause {
             _ => nothing(),
         };
 
-        let text = elem("pre", &[attr_slot("text")], &self.text);
+        let code = elem("pre", &[attr_slot("code")], &self.code);
 
         let errors = elem("div", &[attr_slot("errors")], &self.errors.to_html(context));
 
@@ -685,7 +685,7 @@ impl ToHtml for IfClause {
                 guess_language,
                 is_active,
             ],
-            &[text, errors, content].concat(),
+            &[code, errors, content].concat(),
         )
     }
 }

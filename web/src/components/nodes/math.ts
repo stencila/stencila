@@ -16,7 +16,7 @@ import StencilaExecutable from './executable'
  * Although in the Stencila Schema `Math` does not extend `Executable`, we use it
  * as a base path here is inherit `isReadOnly`, `compile` and other methods.
  *
- * @slot text The `Math.text` property
+ * @slot code The `Math.code` property
  * @slot errors The `Math.errors` property
  * @slot mathml The `Math.mathml` property
  */
@@ -78,7 +78,7 @@ export default class StencilaMath extends StencilaExecutable {
       }}
       @stencila-ctrl-enter=${() => this.compile()}
     >
-      <slot name="text" slot="code"></slot>
+      <slot name="code" slot="code"></slot>
     </stencila-code-editor>`
   }
 

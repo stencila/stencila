@@ -39,7 +39,7 @@ function getAttrs(node: StencilaButton): Attrs {
     id: node.id,
     name: node.getAttribute('name') ?? undefined,
     label: node.getAttribute('label') ?? undefined,
-    text: node.getAttribute('text') ?? undefined,
+    code: node.getAttribute('code') ?? undefined,
     programmingLanguage: node.getAttribute('programming-language') ?? undefined,
     guessLanguage: node.getAttribute('guess-language') ?? undefined,
   }
@@ -51,7 +51,7 @@ function toDOM(node: Node) {
   dom.id = node.attrs.id
   dom.setAttribute('name', node.attrs.name)
   dom.setAttribute('label', node.attrs.label ?? sentenceCase(node.attrs.name))
-  dom.setAttribute('text', node.attrs.text)
+  dom.setAttribute('code', node.attrs.code)
   dom.setAttribute('programming-language', node.attrs.programmingLanguage)
   if (node.attrs.guessLanguage)
     dom.setAttribute('guess-language', node.attrs.guessLanguage)

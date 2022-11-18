@@ -71,7 +71,7 @@ patchable_struct!(
     MathBlock,
     id,
     math_language,
-    text,
+    code,
     compile_digest,
     errors,
     mathml
@@ -79,13 +79,13 @@ patchable_struct!(
 
 patchable_struct!(QuoteBlock, content);
 
-patchable_struct!(CodeBlock, programming_language, text);
+patchable_struct!(CodeBlock, programming_language, code);
 patchable_struct!(
     CodeChunk,
     id,
     programming_language,
     guess_language,
-    text,
+    code,
     outputs,
     errors,
     label,
@@ -178,7 +178,7 @@ patchable_struct!(
     id,
     programming_language,
     guess_language,
-    text,
+    code,
     css,
     classes,
     errors,
@@ -238,7 +238,7 @@ patchable_struct!(
     name,
     validator,
     value,
-    text,
+    code,
     programming_language,
     guess_language
 );
@@ -247,7 +247,7 @@ patchable_struct!(
     For,
     id,
     symbol,
-    text,
+    code,
     programming_language,
     guess_language,
     content,
@@ -304,7 +304,7 @@ patchable_struct!(
 );
 patchable_struct!(
     IfClause,
-    text,
+    code,
     programming_language,
     guess_language,
     is_active,

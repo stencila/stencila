@@ -13,17 +13,17 @@ impl ToHtml for MathBlock {
     fn to_html(&self, context: &mut EncodeContext) -> String {
         let lang = attr_and_meta("math_language", &self.math_language);
 
-        let text = if context.options.mode >= EncodeMode::Inspect {
+        let code = if context.options.mode >= EncodeMode::Inspect {
             elem(
                 "pre",
-                &[attr_itemprop("text"), attr_slot("text")],
-                &self.text.to_html(context),
+                &[attr_itemprop("code"), attr_slot("code")],
+                &self.code.to_html(context),
             )
         } else {
             nothing()
         };
 
-        let mathml = self.mathml.as_deref().unwrap_or(&self.text);
+        let mathml = self.mathml.as_deref().unwrap_or(&self.code);
 
         let math = elem(
             "pre",
@@ -38,7 +38,7 @@ impl ToHtml for MathBlock {
         elem(
             "stencila-math-block",
             &[attr_itemtype::<Self>(), attr_id(&self.id), lang.0],
-            &[lang.1, text, math].concat(),
+            &[lang.1, code, math].concat(),
         )
     }
 }
@@ -50,17 +50,17 @@ impl ToHtml for MathFragment {
     fn to_html(&self, context: &mut EncodeContext) -> String {
         let lang = attr_and_meta("math_language", &self.math_language);
 
-        let text = if context.options.mode >= EncodeMode::Inspect {
+        let code = if context.options.mode >= EncodeMode::Inspect {
             elem(
                 "code",
-                &[attr_itemprop("text"), attr_slot("text")],
-                &self.text.to_html(context),
+                &[attr_itemprop("code"), attr_slot("code")],
+                &self.code.to_html(context),
             )
         } else {
             nothing()
         };
 
-        let mathml = self.mathml.as_deref().unwrap_or(&self.text);
+        let mathml = self.mathml.as_deref().unwrap_or(&self.code);
 
         let math = elem(
             "span",
@@ -75,7 +75,7 @@ impl ToHtml for MathFragment {
         elem(
             "stencila-math-fragment",
             &[attr_itemtype::<Self>(), attr_id(&self.id), lang.0],
-            &[lang.1, text, math].concat(),
+            &[lang.1, code, math].concat(),
         )
     }
 }

@@ -20,7 +20,7 @@ fn transform_blocks(blocks: &mut Vec<BlockContent>) {
             // Code blocks with curly braced language are transformed to code chunks
             BlockContent::CodeBlock(CodeBlock {
                 programming_language,
-                text,
+                code,
                 ..
             }) => {
                 let lang = programming_language
@@ -31,7 +31,7 @@ fn transform_blocks(blocks: &mut Vec<BlockContent>) {
                     let lang = lang[1..(lang.len() - 1)].to_string();
                     *block = BlockContent::CodeChunk(CodeChunk {
                         programming_language: lang,
-                        text: text.to_string(),
+                        code: code.to_string(),
                         ..Default::default()
                     })
                 }
@@ -47,12 +47,12 @@ fn transform_inlines(inlines: &mut Vec<InlineContent>) {
     for inline in inlines {
         match inline {
             // Code fragments prefixed with a language code get transformed to a code expression
-            InlineContent::CodeFragment(CodeFragment { text, .. }) => {
+            InlineContent::CodeFragment(CodeFragment { code, .. }) => {
                 for lang in LANGUAGES {
-                    if let Some(text) = text.strip_prefix(&[lang, " "].concat()) {
+                    if let Some(code) = code.strip_prefix(&[lang, " "].concat()) {
                         *inline = InlineContent::CodeExpression(CodeExpression {
                             programming_language: lang.to_string(),
-                            text: text.to_string(),
+                            code: code.to_string(),
                             ..Default::default()
                         });
                         break;

@@ -124,7 +124,7 @@ pub enum CodeError_ {
   CodeError
 }
 
-/// Base type for non-executable code nodes(e.g. `CodeBlock`).
+/// Base type for non-executable code nodes (e.g. `CodeBlock`).
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize, Deserialize)]
 #[derivative(Default)]
@@ -134,8 +134,8 @@ pub struct CodeStatic {
     #[derivative(Default(value = "CodeStatic_::CodeStatic"))]
     pub type_: CodeStatic_,
 
-    /// The text of the code.
-    pub text: String,
+    /// The code.
+    pub code: String,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -162,8 +162,8 @@ pub struct CodeBlock {
     #[derivative(Default(value = "CodeBlock_::CodeBlock"))]
     pub type_: CodeBlock_,
 
-    /// The text of the code.
-    pub text: String,
+    /// The code.
+    pub code: String,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -190,8 +190,8 @@ pub struct CodeFragment {
     #[derivative(Default(value = "CodeFragment_::CodeFragment"))]
     pub type_: CodeFragment_,
 
-    /// The text of the code.
-    pub text: String,
+    /// The code.
+    pub code: String,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -263,7 +263,7 @@ pub enum Executable_ {
   Executable
 }
 
-/// Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+/// Base type for executable code nodes (e.g. `CodeChunk`).
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize, Deserialize)]
 #[derivative(Default)]
@@ -273,11 +273,11 @@ pub struct CodeExecutable {
     #[derivative(Default(value = "CodeExecutable_::CodeExecutable"))]
     pub type_: CodeExecutable_,
 
+    /// The code.
+    pub code: String,
+
     /// The programming language of the code.
     pub programming_language: String,
-
-    /// The text of the code.
-    pub text: String,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
@@ -340,14 +340,14 @@ pub struct Button {
     #[derivative(Default(value = "Button_::Button"))]
     pub type_: Button_,
 
+    /// The code.
+    pub code: String,
+
     /// The name of the variable associated with the button.
     pub name: String,
 
     /// The programming language of the code.
     pub programming_language: String,
-
-    /// The text of the code.
-    pub text: String,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
@@ -416,11 +416,11 @@ pub struct CodeChunk {
     #[derivative(Default(value = "CodeChunk_::CodeChunk"))]
     pub type_: CodeChunk_,
 
+    /// The code.
+    pub code: String,
+
     /// The programming language of the code.
     pub programming_language: String,
-
-    /// The text of the code.
-    pub text: String,
 
     /// A caption for the CodeChunk.
     pub caption: Option<Box<CodeChunkCaption>>,
@@ -495,11 +495,11 @@ pub struct CodeExpression {
     #[derivative(Default(value = "CodeExpression_::CodeExpression"))]
     pub type_: CodeExpression_,
 
+    /// The code.
+    pub code: String,
+
     /// The programming language of the code.
     pub programming_language: String,
-
-    /// The text of the code.
-    pub text: String,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
@@ -781,6 +781,9 @@ pub struct CallArgument {
     /// The name of the parameter.
     pub name: String,
 
+    /// The code to be evaluated for the parameter.
+    pub code: Option<Box<String>>,
+
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
 
@@ -837,9 +840,6 @@ pub struct CallArgument {
 
     /// The programming language of the code.
     pub programming_language: Option<Box<String>>,
-
-    /// The text of the code.
-    pub text: Option<Box<String>>,
 
     /// The validator that the value is validated against.
     pub validator: Option<Box<ValidatorTypes>>,
@@ -2399,14 +2399,14 @@ pub struct Styled {
     /// A list of class names associated with the document node
     pub classes: Vec<String>,
 
+    /// The code.
+    pub code: String,
+
     /// A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
     pub css: String,
 
     /// The programming language of the code.
     pub programming_language: String,
-
-    /// The text of the code.
-    pub text: String,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
@@ -2472,6 +2472,9 @@ pub struct Division {
     /// A list of class names associated with the document node
     pub classes: Vec<String>,
 
+    /// The code.
+    pub code: String,
+
     /// The content within the division
     pub content: Vec<BlockContent>,
 
@@ -2480,9 +2483,6 @@ pub struct Division {
 
     /// The programming language of the code.
     pub programming_language: String,
-
-    /// The text of the code.
-    pub text: String,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
@@ -2956,6 +2956,9 @@ pub struct For {
     #[derivative(Default(value = "For_::For"))]
     pub type_: For_,
 
+    /// The code.
+    pub code: String,
+
     /// The content to repeat for each item
     pub content: Vec<BlockContent>,
 
@@ -2964,9 +2967,6 @@ pub struct For {
 
     /// The name to give to the variable representing each item in the iterated array
     pub symbol: String,
-
-    /// The text of the code.
-    pub text: String,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
@@ -3256,14 +3256,14 @@ pub struct IfClause {
     #[derivative(Default(value = "IfClause_::IfClause"))]
     pub type_: IfClause_,
 
+    /// The code.
+    pub code: String,
+
     /// The content to render if the result is true-thy
     pub content: Vec<BlockContent>,
 
     /// The programming language of the code.
     pub programming_language: String,
-
-    /// The text of the code.
-    pub text: String,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
@@ -3677,13 +3677,13 @@ pub struct Math {
     #[derivative(Default(value = "Math_::Math"))]
     pub type_: Math_,
 
+    /// The code of the equation in the `mathLanguage`.
+    pub code: String,
+
     /// The language used for the equation e.g tex, mathml, asciimath.
     pub math_language: String,
 
-    /// The text of the equation in the language.
-    pub text: String,
-
-    /// A digest of the `text` and `mathLanguage` used to avoid unnecessary transpilation to MathML
+    /// A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML
     pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors that occurred when parsing the math equation.
@@ -3692,7 +3692,7 @@ pub struct Math {
     /// The identifier for this item.
     pub id: Option<Suid>,
 
-    /// The MathML transpiled from the `text`
+    /// The MathML transpiled from the `code`
     pub mathml: Option<Box<String>>,
 }
 
@@ -3711,13 +3711,13 @@ pub struct MathBlock {
     #[derivative(Default(value = "MathBlock_::MathBlock"))]
     pub type_: MathBlock_,
 
+    /// The code of the equation in the `mathLanguage`.
+    pub code: String,
+
     /// The language used for the equation e.g tex, mathml, asciimath.
     pub math_language: String,
 
-    /// The text of the equation in the language.
-    pub text: String,
-
-    /// A digest of the `text` and `mathLanguage` used to avoid unnecessary transpilation to MathML
+    /// A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML
     pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors that occurred when parsing the math equation.
@@ -3729,7 +3729,7 @@ pub struct MathBlock {
     /// A short label for the math block.
     pub label: Option<Box<String>>,
 
-    /// The MathML transpiled from the `text`
+    /// The MathML transpiled from the `code`
     pub mathml: Option<Box<String>>,
 }
 
@@ -3748,13 +3748,13 @@ pub struct MathFragment {
     #[derivative(Default(value = "MathFragment_::MathFragment"))]
     pub type_: MathFragment_,
 
+    /// The code of the equation in the `mathLanguage`.
+    pub code: String,
+
     /// The language used for the equation e.g tex, mathml, asciimath.
     pub math_language: String,
 
-    /// The text of the equation in the language.
-    pub text: String,
-
-    /// A digest of the `text` and `mathLanguage` used to avoid unnecessary transpilation to MathML
+    /// A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML
     pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors that occurred when parsing the math equation.
@@ -3763,7 +3763,7 @@ pub struct MathFragment {
     /// The identifier for this item.
     pub id: Option<Suid>,
 
-    /// The MathML transpiled from the `text`
+    /// The MathML transpiled from the `code`
     pub mathml: Option<Box<String>>,
 }
 
@@ -5074,6 +5074,9 @@ pub struct Span {
     /// A list of class names associated with the document node
     pub classes: Vec<String>,
 
+    /// The code.
+    pub code: String,
+
     /// The content within the span
     pub content: Vec<InlineContent>,
 
@@ -5082,9 +5085,6 @@ pub struct Span {
 
     /// The programming language of the code.
     pub programming_language: String,
-
-    /// The text of the code.
-    pub text: String,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,

@@ -69,7 +69,7 @@ export default class StencilaCodeBlock extends StencilaCodeStatic {
             event.stopPropagation()
           }}
         >
-          <slot name="text" slot="code"></slot>
+          <slot name="code" slot="code"></slot>
         </stencila-code-editor>
       </div>
 

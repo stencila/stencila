@@ -12,11 +12,11 @@ const { tw, sheet } = twSheet()
 /**
  * A component representing a Stencila `CallArgument` node
  *
- * Note that call arguments extend `Parameter` but have `text`, programmingLanguage`,
+ * Note that call arguments extend `Parameter` but have `code`, `programmingLanguage`,
  * and `guessLanguage` properties like `CodeExecutable` nodes. As such, this
  * component makes use of `<stencila-code-editor>` and `<stencila-code-language>`.
  *
- * @slot text The `CallArgument.text` property
+ * @slot code The `CallArgument.code` property
  */
 @customElement('stencila-call-argument')
 export default class StencilaCallArgument extends StencilaParameter {
@@ -97,7 +97,7 @@ export default class StencilaCallArgument extends StencilaParameter {
   }
 
   /**
-   * Override to initialize `isExpression` to true if the `text` property is set
+   * Override to initialize `isExpression` to true if the `code` property is set
    */
   public connectedCallback(): void {
     super.connectedCallback()

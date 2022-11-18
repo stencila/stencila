@@ -291,7 +291,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         && trimmed.len() >= 4
                     {
                         Some(BlockContent::MathBlock(MathBlock {
-                            text: trimmed[2..trimmed.len() - 2].trim().to_string(),
+                            code: trimmed[2..trimmed.len() - 2].trim().to_string(),
                             math_language: "tex".to_string(),
                             ..Default::default()
                         }))
@@ -432,24 +432,24 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         lang = default_lang.clone()
                     }
 
-                    let text = inlines.pop_text().trim_end_matches('\n').to_string();
+                    let code = inlines.pop_text().trim_end_matches('\n').to_string();
 
                     let node = match exec {
                         true => BlockContent::CodeChunk(CodeChunk {
-                            text,
+                            code,
                             programming_language: lang.unwrap_or_default(),
                             ..Default::default()
                         }),
                         false => match lang.as_deref() {
                             Some("asciimath") | Some("mathml") | Some("latex") | Some("tex") => {
                                 BlockContent::MathBlock(MathBlock {
-                                    text,
+                                    code,
                                     math_language: lang.unwrap_or_default(),
                                     ..Default::default()
                                 })
                             }
                             _ => BlockContent::CodeBlock(CodeBlock {
-                                text,
+                                code,
                                 programming_language: lang.map(Box::new),
                                 ..Default::default()
                             }),
@@ -886,7 +886,7 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
             opt(delimited(char('{'), take_until("}"), char('}'))),
         ),
         |res: (&str, Option<&str>)| -> Result<InlineContent> {
-            let text = res.0.to_string();
+            let code = res.0.to_string();
             let (lang, exec) = match res.1 {
                 Some(attrs) => {
                     let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
@@ -904,20 +904,20 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
             };
             let node = match exec {
                 true => InlineContent::CodeExpression(CodeExpression {
-                    text,
+                    code,
                     programming_language: lang.unwrap_or_default(),
                     ..Default::default()
                 }),
                 _ => match lang.as_deref() {
                     Some("asciimath") | Some("mathml") | Some("latex") | Some("tex") => {
                         InlineContent::MathFragment(MathFragment {
-                            text,
+                            code,
                             math_language: lang.unwrap_or_default(),
                             ..Default::default()
                         })
                     }
                     _ => InlineContent::CodeFragment(CodeFragment {
-                        text,
+                        code,
                         programming_language: lang.map(Box::new),
                         ..Default::default()
                     }),
@@ -943,10 +943,10 @@ pub fn span(input: &str) -> IResult<&str, InlineContent> {
                 }),
             )),
         )),
-        |(content, (text, lang)): (&str, (&str, Option<&str>))| -> Result<InlineContent> {
+        |(content, (code, lang)): (&str, (&str, Option<&str>))| -> Result<InlineContent> {
             Ok(InlineContent::Span(Span {
                 programming_language: lang.map_or_else(|| "tailwind".to_string(), String::from),
-                text: text.to_string(),
+                code: code.to_string(),
                 content: vec![InlineContent::String(content.to_string())],
                 ..Default::default()
             }))
@@ -1242,7 +1242,7 @@ pub fn button(input: &str) -> IResult<&str, InlineContent> {
                 String::new()
             };
 
-            let text = condition.map_or_else(String::new, String::from);
+            let code = condition.map_or_else(String::new, String::from);
 
             let label = options
                 .remove("label")
@@ -1253,7 +1253,7 @@ pub fn button(input: &str) -> IResult<&str, InlineContent> {
             Ok(InlineContent::Button(Button {
                 name: name.to_string(),
                 programming_language,
-                text,
+                code,
                 label,
                 ..Default::default()
             }))
@@ -1283,7 +1283,7 @@ pub fn code_expr(input: &str) -> IResult<&str, InlineContent> {
             opt(delimited(char('{'), take_until("}"), char('}'))),
         ),
         |res: (&str, Option<&str>)| -> Result<InlineContent> {
-            let text = res.0.to_string();
+            let code = res.0.to_string();
             let lang = match res.1 {
                 Some(attrs) => {
                     let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
@@ -1292,7 +1292,7 @@ pub fn code_expr(input: &str) -> IResult<&str, InlineContent> {
                 None => None,
             };
             Ok(InlineContent::CodeExpression(CodeExpression {
-                text,
+                code,
                 programming_language: lang.unwrap_or_else(|| "".to_string()),
                 ..Default::default()
             }))
@@ -1386,7 +1386,7 @@ pub fn math(input: &str) -> IResult<&str, InlineContent> {
         ),
         |res: &str| -> Result<InlineContent> {
             Ok(InlineContent::MathFragment(MathFragment {
-                text: res.into(),
+                code: res.into(),
                 math_language: "tex".to_string(),
                 ..Default::default()
             }))
@@ -1725,7 +1725,7 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
             Ok(CallArgument {
                 name,
                 value,
-                text: symbol,
+                code: symbol,
                 ..Default::default()
             })
         },
@@ -1765,10 +1765,10 @@ fn division(input: &str) -> IResult<&str, Division> {
                 map(is_not("\r\n"), |text| (text, "tailwind")),
             )),
         )),
-        |(text, programming_language)| -> Result<Division> {
+        |(code, programming_language)| -> Result<Division> {
             Ok(Division {
                 programming_language: programming_language.to_string(),
-                text: text.to_string(),
+                code: code.to_string(),
                 ..Default::default()
             })
         },
@@ -1795,7 +1795,7 @@ fn for_(input: &str) -> IResult<&str, For> {
         |((symbol, expr), lang)| -> Result<For> {
             Ok(For {
                 symbol,
-                text: expr.trim().to_string(),
+                code: expr.trim().to_string(),
                 programming_language: lang.map_or_else(String::new, |lang| lang.trim().to_string()),
                 ..Default::default()
             })
@@ -1869,7 +1869,7 @@ fn if_elif(input: &str) -> IResult<&str, (bool, IfClause)> {
             )),
         )),
         |(tag, expr, options)| -> Result<(bool, IfClause)> {
-            let text = expr.trim().to_string();
+            let code = expr.trim().to_string();
             let lang = options
                 .iter()
                 .flatten()
@@ -1881,7 +1881,7 @@ fn if_elif(input: &str) -> IResult<&str, (bool, IfClause)> {
                 IfClause {
                     guess_language: lang.is_empty().then_some(true),
                     programming_language: lang,
-                    text,
+                    code,
                     ..Default::default()
                 },
             ))
@@ -2163,7 +2163,7 @@ mod tests {
             span(r#"[some string content]{text-red-300}"#).unwrap().1,
             InlineContent::Span(Span {
                 programming_language: "tailwind".to_string(),
-                text: "text-red-300".to_string(),
+                code: "text-red-300".to_string(),
                 content: vec![InlineContent::String("some string content".to_string())],
                 ..Default::default()
             })
@@ -2173,7 +2173,7 @@ mod tests {
             span(r#"[content]`f"text-{color}-300"`{python}"#).unwrap().1,
             InlineContent::Span(Span {
                 programming_language: "python".to_string(),
-                text: "f\"text-{color}-300\"".to_string(),
+                code: "f\"text-{color}-300\"".to_string(),
                 content: vec![InlineContent::String("content".to_string())],
                 ..Default::default()
             })
@@ -2257,7 +2257,7 @@ mod tests {
                     },
                     CallArgument {
                         name: "b".to_string(),
-                        text: Some(Box::new("symbol".to_string())),
+                        code: Some(Box::new("symbol".to_string())),
                         ..Default::default()
                     },
                     CallArgument {
@@ -2307,7 +2307,7 @@ mod tests {
             for_("::: for item in expr").unwrap().1,
             For {
                 symbol: "item".to_string(),
-                text: "expr".to_string(),
+                code: "expr".to_string(),
                 ..Default::default()
             }
         );
@@ -2317,7 +2317,7 @@ mod tests {
             for_(":::for item  in    expr").unwrap().1,
             For {
                 symbol: "item".to_string(),
-                text: "expr".to_string(),
+                code: "expr".to_string(),
                 ..Default::default()
             }
         );
@@ -2327,7 +2327,7 @@ mod tests {
             for_("::: for item in expr {python}").unwrap().1,
             For {
                 symbol: "item".to_string(),
-                text: "expr".to_string(),
+                code: "expr".to_string(),
                 programming_language: "python".to_string(),
                 ..Default::default()
             }
@@ -2338,7 +2338,7 @@ mod tests {
             for_("::: for i in 1:10").unwrap().1,
             For {
                 symbol: "i".to_string(),
-                text: "1:10".to_string(),
+                code: "1:10".to_string(),
                 ..Default::default()
             }
         );
@@ -2348,7 +2348,7 @@ mod tests {
                 .1,
             For {
                 symbol: "row".to_string(),
-                text: "select * from table".to_string(),
+                code: "select * from table".to_string(),
                 programming_language: "sql".to_string(),
                 ..Default::default()
             }
@@ -2366,7 +2366,7 @@ mod tests {
         assert_eq!(
             if_elif("::: if expr").unwrap().1 .1,
             IfClause {
-                text: "expr".to_string(),
+                code: "expr".to_string(),
                 guess_language: Some(true),
                 ..Default::default()
             }
@@ -2376,7 +2376,7 @@ mod tests {
         assert_eq!(
             if_elif(":::if    expr").unwrap().1 .1,
             IfClause {
-                text: "expr".to_string(),
+                code: "expr".to_string(),
                 guess_language: Some(true),
                 ..Default::default()
             }
@@ -2386,7 +2386,7 @@ mod tests {
         assert_eq!(
             if_elif("::: if expr {python}").unwrap().1 .1,
             IfClause {
-                text: "expr".to_string(),
+                code: "expr".to_string(),
                 programming_language: "python".to_string(),
                 ..Default::default()
             }
@@ -2396,7 +2396,7 @@ mod tests {
         assert_eq!(
             if_elif("::: if a > 1 and b[8] < 1.23").unwrap().1 .1,
             IfClause {
-                text: "a > 1 and b[8] < 1.23".to_string(),
+                code: "a > 1 and b[8] < 1.23".to_string(),
                 guess_language: Some(true),
                 ..Default::default()
             }

@@ -6,9 +6,9 @@ role: secondary
 status: unstable
 extends: Parameter
 properties:
-  text:
-    '@id': schema:text
-    description: The text of the code.
+  code:
+    '@id': stencila:code
+    description: The code to be evaluated for the parameter.
     type: string
   programmingLanguage:
     '@id': schema:programmingLanguage

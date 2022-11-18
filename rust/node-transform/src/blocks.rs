@@ -8,12 +8,12 @@ impl Transform for BlockContent {
         match self.to_owned() {
             // Variants with inline analogues
             BlockContent::CodeBlock(code_block) => InlineContent::CodeFragment(CodeFragment {
-                text: code_block.text,
+                code: code_block.code,
                 programming_language: code_block.programming_language,
                 ..Default::default()
             }),
             BlockContent::MathBlock(math_block) => InlineContent::MathFragment(MathFragment {
-                text: math_block.text,
+                code: math_block.code,
                 math_language: math_block.math_language,
                 ..Default::default()
             }),
