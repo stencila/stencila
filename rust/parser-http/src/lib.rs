@@ -1,11 +1,8 @@
 use std::path::Path;
 
 use parser::{
-    common::eyre::Result,
-    formats::Format,
-    graph_triples::{execution_digest_from_content, Resource, ResourceInfo},
-    utils::{apply_tags_all, parse_var_interps},
-    Parser, ParserTrait,
+    apply_all_comment_tags, common::eyre::Result, formats::Format, parse_file_interps,
+    parse_var_interps, ParseInfo, Parser, ParserTrait,
 };
 
 /// A parser for HTTP requests
@@ -18,12 +15,17 @@ impl ParserTrait for HttpParser {
         }
     }
 
-    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
-        let mut resource_info = ResourceInfo::default(resource);
-        resource_info.relations = Some(parse_var_interps(code, path));
-        resource_info.compile_digest = Some(execution_digest_from_content(code));
-        apply_tags_all(path, Format::Http, code, "#", None, &mut resource_info);
+    fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
+        let mut parse_info = ParseInfo {
+            execution_dependencies: [
+                parse_var_interps(code, path),
+                parse_file_interps(code, path),
+            ]
+            .concat(),
+            ..Default::default()
+        };
+        apply_all_comment_tags(&mut parse_info, code, path, "#");
 
-        Ok(resource_info)
+        Ok(parse_info)
     }
 }
