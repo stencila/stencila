@@ -1,87 +1,62 @@
 ---
 source: rust/parser-bash/src/lib.rs
-assertion_line: 95
-expression: resource_info
+assertion_line: 92
+expression: parse_info
 input_file: fixtures/fragments/bash/assigns.bash
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/bash/assigns.bash",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "bash"
-  },
-  "relations": [
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          0,
-          0,
-          0,
-          4
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/bash/assigns.bash",
+  "syntaxErrors": false,
+  "semanticDigest": 1540992435622323265,
+  "executionDependencies": [],
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var1",
-        "kind": "String"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          1,
-          0,
-          1,
-          4
-        ]
+        "kind": "String",
+        "namespace": "fragments/bash/assigns.bash"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/bash/assigns.bash",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var2",
-        "kind": "String"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          6,
-          1,
-          10
-        ]
+        "kind": "String",
+        "namespace": "fragments/bash/assigns.bash"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/bash/assigns.bash",
-        "name": "var1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          2,
-          0,
-          2,
-          4
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/bash/assigns.bash",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var3",
-        "kind": "String"
-      }
-    ]
+        "kind": "String",
+        "namespace": "fragments/bash/assigns.bash"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        2,
+        0,
+        2,
+        4
+      ]
+    }
   ],
-  "compile_digest": "11742793986792055970.2571943724030498439.0.0.0",
-  "tags": []
+  "executionTags": []
 }

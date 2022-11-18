@@ -1,65 +1,59 @@
 ---
 source: rust/parser-bash/src/lib.rs
-assertion_line: 95
-expression: resource_info
+assertion_line: 97
+expression: parse_info
 input_file: fixtures/fragments/bash/tags.bash
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/bash/tags.bash",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "bash"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          6,
-          2,
-          12
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/bash/tags.bash",
-        "name": "RANDOM",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          1,
-          0,
-          1,
-          19
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/bash/tags.bash",
-        "name": "var1",
-        "kind": ""
-      }
-    ]
-  ],
-  "execute_auto": "Always",
-  "compile_digest": "2997008809746637461.13507373219638001603.0.0.0",
-  "tags": [
+  "syntaxErrors": false,
+  "semanticDigest": 1011317184126009197,
+  "executionDependencies": [
     {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
+        "name": "RANDOM",
+        "namespace": "fragments/bash/tags.bash"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        6,
+        2,
+        12
+      ]
+    }
+  ],
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "var1",
+        "namespace": "fragments/bash/tags.bash"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        19
+      ]
+    }
+  ],
+  "executionTags": [
+    {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "autorun",
-      "value": "always",
-      "global": false
+      "value": "always"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "assigns",
-      "value": "var1 only",
-      "global": false
+      "value": "var1 only"
     }
-  ]
+  ],
+  "executionAuto": "Always"
 }
