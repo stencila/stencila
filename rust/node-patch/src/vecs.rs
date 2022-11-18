@@ -307,6 +307,14 @@ where
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
         if address.len() == 1 {
             if let Some(Slot::Index(index)) = address.pop_front() {
+                if index > self.len() {
+                    bail!(invalid_address::<Self>(&format!(
+                        "vector: attempting to add items at index {} but only {} items present",
+                        index,
+                        self.len(),
+                    )))
+                }
+
                 let value = Self::from_value(value)?;
                 *self = [&self[..index], &value, &self[index..]].concat().to_vec();
             } else {
@@ -329,6 +337,14 @@ where
     fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
         if address.len() == 1 {
             if let Some(Slot::Index(index)) = address.pop_front() {
+                if index + items > self.len() {
+                    bail!(invalid_address::<Self>(&format!(
+                        "vector: attempting to remove {} items at index {} but only {} items present",
+                        items, index,
+                        self.len(),
+                    )))
+                }
+
                 *self = [&self[..index], &self[(index + items)..]].concat().to_vec();
             } else {
                 bail!(invalid_address::<Self>("first slot should be an index"))
@@ -356,6 +372,14 @@ where
             // Replace part of the vector stating from slot
             let value = Self::from_value(value)?;
             if let Some(Slot::Index(index)) = address.pop_front() {
+                if index + items > self.len() {
+                    bail!(invalid_address::<Self>(&format!(
+                        "vector: attempting to replace {} items at index {} but only {} items present",
+                        items, index,
+                        self.len(),
+                    )))
+                }
+
                 *self = [&self[..index], &value, &self[(index + items)..]]
                     .concat()
                     .to_vec();
@@ -382,6 +406,22 @@ where
             if let (Some(Slot::Index(from)), Some(Slot::Index(to))) =
                 (from.pop_front(), to.pop_front())
             {
+                if from + items > self.len() {
+                    bail!(invalid_address::<Self>(&format!(
+                        "vector: attempting to move {} items from index {} but only {} items present",
+                        items, from,
+                        self.len(),
+                    )))
+                }
+                if to + items > self.len() {
+                    bail!(invalid_address::<Self>(&format!(
+                        "vector: attempting to move {} items to index {} but only {} items present",
+                        items,
+                        to,
+                        self.len(),
+                    )))
+                }
+
                 *self = if from < (to + items) {
                     [
                         &self[..from],

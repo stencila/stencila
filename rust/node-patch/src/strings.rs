@@ -117,6 +117,15 @@ impl Patchable for String {
         let value = Self::from_value(value)?;
         if let Some(Slot::Index(index)) = address.pop_front() {
             let graphemes = self.graphemes(true).collect_vec();
+
+            if index > graphemes.len() {
+                bail!(invalid_address::<Self>(&format!(
+                    "string: attempting to add at index {} but only {} graphemes present",
+                    index,
+                    graphemes.len(),
+                )))
+            }
+
             let graphemes = [
                 &graphemes[..index],
                 &value.graphemes(true).collect_vec(),
@@ -133,6 +142,16 @@ impl Patchable for String {
     fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
         if let Some(Slot::Index(index)) = address.pop_front() {
             let graphemes = self.graphemes(true).collect_vec();
+
+            if index + items > graphemes.len() {
+                bail!(invalid_address::<Self>(&format!(
+                    "string: attempting to remove {} graphemes at index {} but only {} graphemes present",
+                    items,
+                    index,
+                    graphemes.len(),
+                )))
+            }
+
             let graphemes = [&graphemes[..index], &graphemes[(index + items)..]].concat();
             *self = graphemes.into_iter().collect();
             Ok(())
@@ -147,6 +166,16 @@ impl Patchable for String {
             *self = value
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             let graphemes = self.graphemes(true).collect_vec();
+
+            if index + items > graphemes.len() {
+                bail!(invalid_address::<Self>(&format!(
+                    "string: attempting to replace {} graphemes at index {} but only {} graphemes present",
+                    items,
+                    index,
+                    graphemes.len(),
+                )))
+            }
+
             let graphemes = [
                 &graphemes[..index],
                 &value.graphemes(true).collect_vec(),
