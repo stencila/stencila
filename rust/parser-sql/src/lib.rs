@@ -11,10 +11,9 @@ use parser_treesitter::{
         tracing,
     },
     formats::Format,
-    graph_triples::{relations, resources, Resource, ResourceInfo},
-    resource_info,
-    utils::remove_quotes,
-    Parser, ParserTrait, TreesitterParser,
+    parse_info,
+    utils::{alters_variable, assigns_variable, declares_variable, remove_quotes, uses_variable},
+    ParseInfo, Parser, ParserTrait, TreesitterParser,
 };
 use stencila_schema::{
     BooleanValidator, Date, DateTime, DateTimeValidator, DateValidator, DurationValidator,
@@ -32,7 +31,7 @@ impl ParserTrait for SqlParser {
         }
     }
 
-    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
+    fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
         const QUERY: &str = include_str!("query.scm");
         static PARSER: Lazy<TreesitterParser> =
             Lazy::new(|| TreesitterParser::new(tree_sitter_sql::language(), QUERY));
@@ -53,48 +52,46 @@ impl ParserTrait for SqlParser {
         let tree = PARSER.parse(code);
         let matches = PARSER.query(code, &tree);
 
-        let relations = matches
-            .iter()
-            .filter_map(|(pattern, captures)| {
-                let relation = match pattern {
-                    1 => relations::assigns,
-                    2 => relations::declares,
-                    3 => relations::uses,
-                    4 => relations::alters,
-                    5 => relations::uses,
-                    _ => return None,
-                }(captures[0].range);
-
-                let name = match pattern {
-                    2 => [&captures[0].text, ".", &captures[1].text].concat(),
-                    5 => match captures[0].text[1..].parse::<usize>() {
-                        Ok(index) => match bindings.get(index - 1) {
-                            Some(name) => name.to_string(),
-                            None => return None,
-                        },
-                        Err(error) => {
-                            tracing::error!(
-                                "Unexpectedly unable to parse binding as integer index: {}",
-                                error
-                            );
-                            return None;
-                        }
+        let mut dependencies = Vec::new();
+        let mut dependents = Vec::new();
+        for (pattern, captures) in matches.iter() {
+            let name = match pattern {
+                2 => [&captures[0].text, ".", &captures[1].text].concat(),
+                5 => match captures[0].text[1..].parse::<usize>() {
+                    Ok(index) => match bindings.get(index - 1) {
+                        Some(name) => name.to_string(),
+                        None => continue,
                     },
-                    _ => remove_quotes(&captures[0].text),
-                };
+                    Err(error) => {
+                        tracing::error!(
+                            "Unexpectedly unable to parse binding as integer index: {}",
+                            error
+                        );
+                        continue;
+                    }
+                },
+                _ => remove_quotes(&captures[0].text),
+            };
 
-                let kind = match pattern {
-                    2 => "DatatableColumn",
-                    5 => "",
-                    _ => "Datatable",
-                };
+            let kind = match pattern {
+                2 => Some("DatatableColumn".to_string()),
+                5 => None,
+                _ => Some("Datatable".to_string()),
+            };
 
-                Some((relation, resources::symbol(path, &name, kind)))
-            })
-            .collect();
+            let code_location = Some(captures[0].range);
 
-        let resource_info = resource_info(
-            resource,
+            match pattern {
+                1 => dependents.push(assigns_variable(&name, path, kind, code_location)),
+                2 => dependents.push(declares_variable(&name, path, kind, code_location)),
+                3 => dependencies.push(uses_variable(&name, path, kind, code_location)),
+                4 => dependents.push(alters_variable(&name, path, kind, code_location)),
+                5 => dependencies.push(uses_variable(&name, path, kind, code_location)),
+                _ => (),
+            }
+        }
+
+        let parse_info = parse_info(
             path,
             Self::spec().language,
             code,
@@ -102,9 +99,10 @@ impl ParserTrait for SqlParser {
             &["comment"],
             matches,
             0,
-            relations,
+            dependencies,
+            dependents,
         );
-        Ok(resource_info)
+        Ok(parse_info)
     }
 }
 
@@ -447,8 +445,6 @@ impl SqlColumn {
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
-
     use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
     use test_utils::fixtures;
 
@@ -459,19 +455,15 @@ mod tests {
         snapshot_fixtures("fragments/sql/*.sql", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Format::SQL);
-            let resource_info = SqlParser::parse(resource, path, &code).expect("Unable to parse");
-            assert_json_snapshot!(resource_info);
+            let parse_info = SqlParser::parse(&code, Some(path)).expect("Unable to parse");
+            assert_json_snapshot!(parse_info);
         })
     }
 
     /// Regression test for when a numeric binding is in the SQL code
     #[test]
     fn do_not_panic_on_numeric_bindings() -> Result<()> {
-        let code = "SELECT * FROM table_1 WHERE col_1 = $1 OR col_1 = ?1";
-        let path = PathBuf::new();
-        let resource = resources::code(&path, "", "SoftwareSourceCode", Format::SQL);
-        SqlParser::parse(resource, &path, code)?;
+        SqlParser::parse("SELECT * FROM table_1 WHERE col_1 = $1 OR col_1 = ?1", None)?;
         Ok(())
     }
 

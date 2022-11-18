@@ -7,8 +7,7 @@ use parser::{
         regex::{Captures, Regex},
     },
     formats::Format,
-    graph_triples::{Resource, ResourceInfo},
-    Parser, ParserTrait,
+    ParseInfo, Parser, ParserTrait,
 };
 
 /// A parser for PrQL (pronounce "prequel")
@@ -27,7 +26,7 @@ impl ParserTrait for PrqlParser {
         }
     }
 
-    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
+    fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
         let sql = prql_compiler::compile(code).map_err(|err| eyre!(err.to_string()))?;
 
         // For some reason prql_compiler puts a space between $ and the name of a binding e.g. "$ par".
@@ -37,13 +36,12 @@ impl ParserTrait for PrqlParser {
         });
         let sql = REGEX.replace_all(&sql, |captures: &Captures| ["$", &captures[1]].concat());
 
-        parser_sql::SqlParser::parse(resource, path, &sql)
+        parser_sql::SqlParser::parse(&sql, path)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use parser::{formats::Format, graph_triples::resources};
     use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
     use test_utils::fixtures;
 
@@ -54,9 +52,8 @@ mod tests {
         snapshot_fixtures("fragments/prql/*.prql", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Format::PrQL);
-            let resource_info = PrqlParser::parse(resource, path, &code).expect("Unable to parse");
-            assert_json_snapshot!(resource_info);
+            let parse_info = PrqlParser::parse(&code, Some(path)).expect("Unable to parse");
+            assert_json_snapshot!(parse_info);
         })
     }
 }

@@ -1,206 +1,184 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 114
-expression: resource_info
+assertion_line: 459
+expression: parse_info
 input_file: fixtures/fragments/sql/bindings.sql
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/sql/bindings.sql",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "sql"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          14,
-          0,
-          21
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/bindings.sql",
+  "syntaxErrors": false,
+  "semanticDigest": 8146188150056920972,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "table_1",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          36,
-          0,
-          38
-        ]
+        "kind": "Datatable",
+        "namespace": "fragments/sql/bindings.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/bindings.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        14,
+        0,
+        21
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "par1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          51,
-          0,
-          53
-        ]
+        "namespace": "fragments/sql/bindings.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/bindings.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        36,
+        0,
+        38
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "par_2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          14,
-          2,
-          21
-        ]
+        "namespace": "fragments/sql/bindings.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/bindings.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        51,
+        0,
+        53
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "table_2",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          20,
-          3,
-          22
-        ]
+        "kind": "Datatable",
+        "namespace": "fragments/sql/bindings.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/bindings.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        14,
+        2,
+        21
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "par_integer",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          17,
-          4,
-          19
-        ]
+        "namespace": "fragments/sql/bindings.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/bindings.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        20,
+        3,
+        22
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "par_text",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Alters",
-        "range": [
-          7,
-          12,
-          7,
-          19
-        ]
+        "namespace": "fragments/sql/bindings.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/bindings.sql",
-        "name": "table_2",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          7,
-          42,
-          7,
-          44
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/bindings.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        4,
+        17,
+        4,
+        19
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "Par3",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          7,
-          46,
-          7,
-          48
-        ]
+        "namespace": "fragments/sql/bindings.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/bindings.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        7,
+        42,
+        7,
+        44
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "par4",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Alters",
-        "range": [
-          9,
-          12,
-          9,
-          19
-        ]
+        "namespace": "fragments/sql/bindings.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/bindings.sql",
-        "name": "table_3",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          9,
-          34,
-          9,
-          36
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/bindings.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        7,
+        46,
+        7,
+        48
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "par_5",
-        "kind": ""
-      }
-    ]
+        "namespace": "fragments/sql/bindings.sql"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        9,
+        34,
+        9,
+        36
+      ]
+    }
   ],
-  "compile_digest": "9183586031446600102.11059944532023402949.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_2",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/bindings.sql"
+      },
+      "dependentRelation": "Alters",
+      "codeLocation": [
+        7,
+        12,
+        7,
+        19
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_3",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/bindings.sql"
+      },
+      "dependentRelation": "Alters",
+      "codeLocation": [
+        9,
+        12,
+        9,
+        19
+      ]
+    }
+  ],
+  "executionTags": []
 }

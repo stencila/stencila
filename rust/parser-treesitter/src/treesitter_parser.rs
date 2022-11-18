@@ -3,11 +3,12 @@ use std::{collections::HashMap, path::Path, sync::Mutex};
 use tree_sitter::Tree;
 
 use parser::{
+    apply_comment_tags,
     formats::Format,
-    graph_triples::{
-        execution_digest_from_content_semantics, relations::Range, Pairs, Resource, ResourceInfo,
-    },
-    utils::apply_tags,
+    hash_utils::str_seahash,
+    stencila_schema::{ExecutionDependency, ExecutionDependent},
+    utils::remove_uses_of_assigned,
+    ParseInfo,
 };
 
 /// A parser based on `tree-sitter`
@@ -94,7 +95,7 @@ impl TreesitterParser {
                             capture.index,
                             capture_names[capture.index as usize].clone(),
                             capture.node,
-                            (start.row, start.column, end.row, end.column),
+                            [start.row, start.column, end.row, end.column],
                             capture
                                 .node
                                 .utf8_text(code)
@@ -122,7 +123,7 @@ pub struct Capture<'tree> {
     pub node: tree_sitter::Node<'tree>,
 
     /// The captured range
-    pub range: Range,
+    pub range: [usize; 4],
 
     /// The captured text
     pub text: String,
@@ -133,7 +134,7 @@ impl<'tree> Capture<'tree> {
         index: u32,
         name: String,
         node: tree_sitter::Node<'tree>,
-        range: Range,
+        range: [usize; 4],
         text: String,
     ) -> Capture {
         Capture {
@@ -190,7 +191,7 @@ pub fn child_text<'tree>(
         .unwrap_or("")
 }
 
-/// Create a [`ResourceInfo`] instance from a Treesitter parse tree and pattern matches
+/// Create a [`ParseInfo`] instance from a Treesitter parse tree and pattern matches
 ///
 /// Applies manual tags (e.g. `@uses`) in a comments to the relations derived from
 /// semantic code analysis.
@@ -202,40 +203,34 @@ pub fn child_text<'tree>(
 /// - `code`: The code that was parsed
 /// - `matches`: The matches from querying the code
 /// - `comment_pattern`: The index of the pattern from which to extract tags
-/// - `relations`: The relation pairs
 ///
 /// Assumes that the first capture has the text content of the comment.
-/// If the tag ends in `only` then all existing relations of that type
-/// will be removed from `relations`.
 #[allow(clippy::too_many_arguments)]
-pub fn resource_info(
-    resource: Resource,
-    path: &Path,
+pub fn parse_info(
+    path: Option<&Path>,
     lang: Format,
     code: &[u8],
     tree: &Tree,
     semantics_exclude: &[&str],
     matches: Vec<(usize, Vec<Capture>)>,
     comment_pattern: usize,
-    relations: Pairs,
-) -> ResourceInfo {
-    // Count the number of syntax errors
-    let syntax_errors = tree.root_node().has_error().then_some(true);
+    mut execution_dependencies: Vec<ExecutionDependency>,
+    execution_dependents: Vec<ExecutionDependent>,
+) -> ParseInfo {
+    let syntax_errors = tree.root_node().has_error();
+    let semantic_digest = semantic_digest(lang, tree, code, semantics_exclude);
+
+    // Remove `Uses` where also assigned in the same code
+    remove_uses_of_assigned(&mut execution_dependencies, &execution_dependents);
 
     // Make the resource
-    let mut resource_info = ResourceInfo::new(
-        resource,
-        Some(relations),
-        None,
-        None,
+    let mut parse_info = ParseInfo {
         syntax_errors,
-        Some(execution_digest_from_content_semantics(
-            &String::from_utf8_lossy(code),
-            &semantic_content(tree, code, semantics_exclude),
-        )),
-        None,
-        None,
-    );
+        semantic_digest,
+        execution_dependencies,
+        execution_dependents,
+        ..Default::default()
+    };
 
     // Apply tags from comments (this needs to be done at the end because tags
     // may remove pairs if `only` is specified)
@@ -243,19 +238,11 @@ pub fn resource_info(
         if pattern_ != comment_pattern {
             continue;
         }
-
         let comment = &captures[0];
-        apply_tags(
-            path,
-            lang,
-            comment.range.0,
-            &comment.text,
-            None,
-            &mut resource_info,
-        )
+        apply_comment_tags(&mut parse_info, &comment.text, path, comment.range[0])
     }
 
-    resource_info
+    parse_info
 }
 
 /// Generate a digest of the "semantic content" of a Tree-sitter tree
@@ -263,8 +250,8 @@ pub fn resource_info(
 /// The digest excludes "anonymous" nodes and some "named" nodes.
 /// See https://tree-sitter.github.io/tree-sitter/using-parsers#named-vs-anonymous-nodes
 /// for a discussion of the distinction between the two.
-fn semantic_content(tree: &Tree, code: &[u8], exclude: &[&str]) -> String {
-    let mut digest = String::new();
+fn semantic_digest(lang: Format, tree: &Tree, code: &[u8], exclude: &[&str]) -> u64 {
+    let mut digest = lang.to_string();
 
     // Traverse tree adding the text of named leaf nodes.
     //
@@ -303,5 +290,5 @@ fn semantic_content(tree: &Tree, code: &[u8], exclude: &[&str]) -> String {
         }
     }
 
-    digest
+    str_seahash(&digest).unwrap_or_default()
 }

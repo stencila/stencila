@@ -1,155 +1,143 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 461
-expression: resource_info
+assertion_line: 459
+expression: parse_info
 input_file: fixtures/fragments/sql/assigns.sql
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/sql/assigns.sql",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "sql"
-  },
-  "relations": [
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          0,
-          12,
-          0,
-          18
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
-        "name": "view_1",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          36,
-          0,
-          43
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
+  "syntaxErrors": false,
+  "semanticDigest": 17300026075160338027,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "table_1",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          2,
-          13,
-          2,
-          20
-        ]
+        "kind": "Datatable",
+        "namespace": "fragments/sql/assigns.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
-        "name": "table_2",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          38,
-          2,
-          45
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        36,
+        0,
+        43
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "table_1",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          4,
-          13,
-          4,
-          20
-        ]
+        "kind": "Datatable",
+        "namespace": "fragments/sql/assigns.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
-        "name": "table_3",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          4,
-          13,
-          4,
-          20
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
-        "name": "table_3.col_a",
-        "kind": "DatatableColumn"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          4,
-          13,
-          4,
-          20
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
-        "name": "table_3.col_b",
-        "kind": "DatatableColumn"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          4,
-          13,
-          4,
-          20
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/assigns.sql",
-        "name": "table_3.col_c",
-        "kind": "DatatableColumn"
-      }
-    ]
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        38,
+        2,
+        45
+      ]
+    }
   ],
-  "compile_digest": "10649275680432610299.4437840866770626212.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "view_1",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/assigns.sql"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        0,
+        12,
+        0,
+        18
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_2",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/assigns.sql"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        2,
+        13,
+        2,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_3",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/assigns.sql"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        4,
+        13,
+        4,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_3.col_a",
+        "kind": "DatatableColumn",
+        "namespace": "fragments/sql/assigns.sql"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        4,
+        13,
+        4,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_3.col_b",
+        "kind": "DatatableColumn",
+        "namespace": "fragments/sql/assigns.sql"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        4,
+        13,
+        4,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_3.col_c",
+        "kind": "DatatableColumn",
+        "namespace": "fragments/sql/assigns.sql"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        4,
+        13,
+        4,
+        20
+      ]
+    }
+  ],
+  "executionTags": []
 }

@@ -5,7 +5,7 @@ use parser::{
         eyre::{bail, Result},
         itertools::Itertools,
     },
-    graph_triples::stencila_schema::*,
+    stencila_schema::*,
 };
 
 use crate::TreesitterParser;
