@@ -1,71 +1,59 @@
 ---
 source: rust/parser-tailwind/src/lib.rs
-assertion_line: 154
-expression: resource_info
+assertion_line: 133
+expression: parser_info
 input_file: fixtures/fragments/tw/uses.tw
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/tw/uses.tw",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "sql"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          8,
-          0,
-          12
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/tw/uses.tw",
+  "syntaxErrors": true,
+  "semanticDigest": 0,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          25,
-          0,
-          29
-        ]
+        "namespace": "fragments/tw/uses.tw"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/tw/uses.tw",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        8,
+        0,
+        12
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          39,
-          0,
-          43
-        ]
+        "namespace": "fragments/tw/uses.tw"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/tw/uses.tw",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        25,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var3",
-        "kind": ""
-      }
-    ]
+        "namespace": "fragments/tw/uses.tw"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        39,
+        0,
+        43
+      ]
+    }
   ],
-  "syntax_errors": true,
-  "compile_digest": "2559229706754875908.2559229706754875908.0.0.0",
-  "tags": []
+  "executionDependents": [],
+  "executionTags": []
 }

@@ -11,12 +11,7 @@ use common::{
     eyre::{bail, eyre, Result},
     itertools::Itertools,
 };
-use parser::{
-    formats::Format,
-    graph_triples::{execution_digest_from_content, Resource, ResourceInfo},
-    utils::parse_var_interps,
-    Parser, ParserTrait,
-};
+use parser::{formats::Format, parse_var_interps, ParseInfo, Parser, ParserTrait};
 
 /// A parser for Tailwind expressions
 ///
@@ -32,23 +27,12 @@ impl ParserTrait for TailwindParser {
         }
     }
 
-    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
-        let relations = parse_var_interps(code, path);
-        let syntax_errors = transpile_string(code).is_err().then_some(true);
-        let compile_digest = execution_digest_from_content(code);
-
-        let resource_info = ResourceInfo::new(
-            resource,
-            Some(relations),
-            None,
-            None,
-            syntax_errors,
-            Some(compile_digest),
-            None,
-            None,
-        );
-
-        Ok(resource_info)
+    fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
+        Ok(ParseInfo {
+            syntax_errors: transpile_string(code).is_err(),
+            execution_dependencies: parse_var_interps(code, path),
+            ..Default::default()
+        })
     }
 }
 
@@ -131,7 +115,6 @@ fn transpile_css(css: &str) -> Result<String> {
 
 #[cfg(test)]
 mod tests {
-    use parser::graph_triples::resources;
     use test_snaps::{
         insta::{assert_json_snapshot, assert_snapshot},
         snapshot_fixtures,
@@ -146,10 +129,8 @@ mod tests {
         snapshot_fixtures("fragments/tw/*.tw", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Format::SQL);
-            let resource_info =
-                TailwindParser::parse(resource, path, &code).expect("Unable to parse");
-            assert_json_snapshot!(resource_info);
+            let parser_info = TailwindParser::parse(&code, Some(path)).expect("Unable to parse");
+            assert_json_snapshot!(parser_info);
         })
     }
 
