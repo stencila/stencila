@@ -162,20 +162,20 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a code expression node with arbitrary text and programming language
+    /// Generate a code expression node with arbitrary code and programming language
     ///
     /// With `Freedom::Low` only allow language codes that are recognized when decoding
     /// formats such as R Markdown.
     pub fn code_expression(freedom: Freedom)(
         programming_language in prog_lang(freedom),
-        text in match freedom {
-            Freedom::Min => "text",
+        code in match freedom {
+            Freedom::Min => "code",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         },
     ) -> InlineContent {
         InlineContent::CodeExpression(CodeExpression{
-            text,
+            code,
             programming_language,
             ..Default::default()
         })
@@ -183,10 +183,10 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a code fragment node with arbitrary text and programming language
+    /// Generate a code fragment node with arbitrary code and programming language
     pub fn code_fragment(freedom: Freedom)(
-        text in match freedom {
-            Freedom::Min => r"text",
+        code in match freedom {
+            Freedom::Min => r"code",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         },
@@ -202,7 +202,7 @@ prop_compose! {
             Some(Box::new(programming_language))
         };
         InlineContent::CodeFragment(CodeFragment{
-            text,
+            code,
             programming_language,
             ..Default::default()
         })
@@ -212,14 +212,14 @@ prop_compose! {
 prop_compose! {
     /// Generate a math fragment node with arbitrary TeX
     pub fn math_fragment(freedom: Freedom)(
-        text in match freedom {
+        code in match freedom {
             Freedom::Min => r"E = mc\^\{2\}",
             Freedom::Low => r"[A-Za-z0-9-_]*",
             _ => any::<String>()
         },
     ) -> InlineContent {
         InlineContent::MathFragment(MathFragment{
-            text,
+            code,
             math_language: "tex".to_string(),
             ..Default::default()
         })
@@ -400,8 +400,8 @@ prop_compose! {
     /// Generate a Span node
     pub fn span(freedom: Freedom)(
         programming_language in prog_lang(freedom),
-        text in match freedom {
-            Freedom::Min => "text",
+        code in match freedom {
+            Freedom::Min => "code",
             Freedom::Low => r"[A-Za-z0-9- ]+",
             _ => any::<String>()
         },
@@ -410,7 +410,7 @@ prop_compose! {
     ) -> InlineContent {
         InlineContent::Span(Span{
             programming_language,
-            text,
+            code,
             content: vec![content],
             ..Default::default()
         })
@@ -549,10 +549,10 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a code block node with arbitrary text and programming language
+    /// Generate a code block node with arbitrary code and programming language
     pub fn code_block(freedom: Freedom)(
-        text in match freedom {
-            Freedom::Min => r"text",
+        code in match freedom {
+            Freedom::Min => r"code",
             Freedom::Low => r"[A-Za-z0-9-_ \t\n]*",
             _ => any::<String>()
         },
@@ -568,7 +568,7 @@ prop_compose! {
             Some(Box::new(programming_language))
         };
         BlockContent::CodeBlock(CodeBlock{
-            text,
+            code,
             programming_language,
             ..Default::default()
         })
@@ -646,14 +646,14 @@ prop_compose! {
 prop_compose! {
     /// Generate a math block node with arbitrary TeX
     pub fn math_block(freedom: Freedom)(
-        text in match freedom {
+        code in match freedom {
             Freedom::Min => r"E = mc\^\{2\}",
             Freedom::Low => r"[A-Za-z0-9-_]*",
             _ => any::<String>()
         },
     ) -> BlockContent {
         BlockContent::MathBlock(MathBlock{
-            text,
+            code,
             math_language: "tex".to_string(),
             ..Default::default()
         })
@@ -748,15 +748,15 @@ prop_compose! {
     /// formats such as R Markdown.
     pub fn code_chunk(freedom: Freedom)(
         programming_language in prog_lang(freedom),
-        text in match freedom {
-            Freedom::Min => "text",
+        code in match freedom {
+            Freedom::Min => "code",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         }
     ) -> BlockContent {
         BlockContent::CodeChunk(CodeChunk{
             programming_language,
-            text,
+            code,
             ..Default::default()
         })
     }
@@ -766,8 +766,8 @@ prop_compose! {
     /// Generate a Division node
     pub fn division(freedom: Freedom, exclude_types: &[String])(
         programming_language in prog_lang(freedom),
-        text in match freedom {
-            Freedom::Min => "text",
+        code in match freedom {
+            Freedom::Min => "code",
             Freedom::Low => r"[A-Za-z0-9- ]+",
             _ => any::<String>()
         },
@@ -775,7 +775,7 @@ prop_compose! {
     ) -> BlockContent {
         BlockContent::Division(Division{
             programming_language,
-            text,
+            code,
             content,
             ..Default::default()
         })
@@ -791,8 +791,8 @@ prop_compose! {
             _ => any::<String>()
         },
         programming_language in prog_lang(freedom),
-        text in match freedom {
-            Freedom::Min => "text",
+        code in match freedom {
+            Freedom::Min => "code",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         },
@@ -802,7 +802,7 @@ prop_compose! {
         BlockContent::For(For{
             symbol,
             programming_language,
-            text,
+            code,
             content,
             otherwise,
             ..Default::default()
@@ -838,8 +838,8 @@ prop_compose! {
     /// Generate an IfClause
     pub fn elif(freedom: Freedom, exclude_types: Vec<String>)(
         programming_language in prog_lang(freedom),
-        text in match freedom {
-            Freedom::Min => "text",
+        code in match freedom {
+            Freedom::Min => "code",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         },
@@ -848,7 +848,7 @@ prop_compose! {
     ) -> IfClause {
         IfClause {
             programming_language,
-            text,
+            code,
             content,
             ..Default::default()
         }

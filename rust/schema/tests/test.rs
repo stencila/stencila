@@ -175,7 +175,7 @@ fn article_fixture() -> Article {
                 InlineContent::String("A paragraph with a ".into()),
                 InlineContent::CodeExpression(CodeExpression {
                     programming_language: "r".into(),
-                    text: "2^2".into(),
+                    code: "2^2".into(),
                     ..Default::default()
                 }),
             ],
