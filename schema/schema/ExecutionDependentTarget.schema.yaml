@@ -1,6 +1,7 @@
-title: ExecutionDependents
-description: The node types whose execution may be dependent upon other nodes
+title: ExecutionDependentTarget
+category: code
 status: unstable
+description: Node types that can be execution dependents
 anyOf:
   - $ref: Call
   - $ref: CodeChunk
@@ -10,3 +11,4 @@ anyOf:
   - $ref: File
   - $ref: For
   - $ref: Span
+  - $ref: Variable

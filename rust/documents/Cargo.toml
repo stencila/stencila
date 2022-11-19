@@ -14,6 +14,7 @@ events = { path = "../events" }
 formats = { path = "../formats" }
 graph = { path = "../graph" }
 graph-triples = { path = "../graph-triples" }
+hash-utils = { path = "../hash-utils" }
 ignore = "0.4.18"
 kernels = { path = "../kernels" }
 math-utils = { path = "../math-utils" }

@@ -3,7 +3,7 @@ use graph_triples::{
     resources::{self},
     Relation, ResourceInfo,
 };
-
+use node_address::Address;
 use path_utils::merge;
 use stencila_schema::Link;
 
@@ -11,7 +11,8 @@ use crate::executable::{CompileContext, Executable};
 
 #[async_trait]
 impl Executable for Link {
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = ensure_id!(self, "li", context);
 
         let resource = resources::node(&context.path, id, "Link");

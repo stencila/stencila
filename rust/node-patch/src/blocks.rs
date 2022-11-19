@@ -109,29 +109,47 @@ patchable_variants!(
     CodeChunkCaption::String
 );
 
-patchable_struct!(ExecutionDigest, content_digest);
+patchable_struct!(
+    ExecutionDigest,
+    content_digest,
+    semantic_digest,
+    dependencies_digest,
+    dependencies_failed,
+    dependencies_stale
+);
 
 // Make `CodeError`s replaceable to avoid large patches associated with
 // changes in stack trace and to simplify Web Component development (no
 // need to observe for change in error level or presence/absence of stacktrace)
 replaceable_struct!(CodeError, error_message, error_type, stack_trace);
 
+patchable_struct!(ExecutionDependency, dependency_relation, dependency_node);
+patchable_enum!(ExecutionDependencyRelation);
 patchable_variants!(
-    ExecutionDependencies,
-    ExecutionDependencies::CodeChunk,
-    ExecutionDependencies::Parameter,
-    ExecutionDependencies::Button,
-    ExecutionDependencies::File
+    ExecutionDependencyNode,
+    ExecutionDependencyNode::Button,
+    ExecutionDependencyNode::CodeChunk,
+    ExecutionDependencyNode::File,
+    ExecutionDependencyNode::Parameter,
+    ExecutionDependencyNode::SoftwareSourceCode,
+    ExecutionDependencyNode::Variable
 );
+
+patchable_struct!(ExecutionDependent, dependent_relation, dependent_node);
+patchable_enum!(ExecutionDependentRelation);
 patchable_variants!(
-    ExecutionDependents,
-    ExecutionDependents::Call,
-    ExecutionDependents::CodeChunk,
-    ExecutionDependents::CodeExpression,
-    ExecutionDependents::Division,
-    ExecutionDependents::Span,
-    ExecutionDependents::File
+    ExecutionDependentNode,
+    ExecutionDependentNode::Button,
+    ExecutionDependentNode::Call,
+    ExecutionDependentNode::CodeChunk,
+    ExecutionDependentNode::CodeExpression,
+    ExecutionDependentNode::Division,
+    ExecutionDependentNode::File,
+    ExecutionDependentNode::Parameter,
+    ExecutionDependentNode::Span,
+    ExecutionDependentNode::Variable
 );
+
 patchable_enum!(ExecutionAuto);
 patchable_enum!(ExecutionRequired);
 patchable_enum!(ExecutionStatus);

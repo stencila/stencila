@@ -1,36 +1,42 @@
-use common::{async_trait::async_trait, eyre::Result, tracing};
-use graph_triples::ResourceInfo;
-use kernels::{KernelSelector, KernelSpace, TaskInfo};
-use path_utils::merge;
-use stencila_schema::Call;
+use crate::DOCUMENTS;
 
-use super::{CompileContext, Executable};
+use super::prelude::*;
 
 #[async_trait]
 impl Executable for Call {
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = ensure_id!(self, "ca", context);
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+        let mut draft = self.clone();
 
-        // Open the called document and register in `call_docs`
-        let path = merge(&context.path, &self.source);
-        let _format = self.media_type.as_deref().cloned();
-        tracing::trace!("Opening doc `{}` for call `{}`", path.display(), id);
-        //let doc = Document::open(path, format).await?;
-        //context.call_docs.write().await.insert(id, Mutex::new(doc));
+        if draft.id.is_none() {
+            draft.id = generate_id("ca");
+        }
 
-        /*
-        // Get the parameters of the called document
-        let doc = context.call_docs.read().await;
-        let mut doc = doc
-            .get(id)
-            .ok_or_else(|| eyre!("No document open for call `{}`", id))?
-            .lock()
-            .await;
-        let params = doc.params().await?;
+        let content_digest = generate_digest(
+            &[
+                "",
+                &draft.source,
+                draft.media_type.as_ref().map_or("", |mt| mt.as_str()),
+                draft.select.as_ref().map_or("", |mt| mt.as_str()),
+            ]
+            .concat(),
+        );
+        if content_digest == get_content_digest(&draft.compile_digest) {
+            return Ok(());
+        }
 
-        // Update the call arguments to include all parameters and with `name`,
-        // `validator` and `default` inherited from the parameter
-        let arguments = if !params.is_empty() {
+        let params = {
+            let document_id = DOCUMENTS
+                .open(
+                    &draft.source,
+                    draft.media_type.as_ref().map(|mt| mt.to_string()),
+                )
+                .await?;
+            let document = DOCUMENTS.get(&document_id).await?;
+            let document = document.lock().await;
+            document.params().await?
+        };
+
+        draft.arguments = if !params.is_empty() {
             Some(
                 params
                     .values()
@@ -49,12 +55,21 @@ impl Executable for Call {
                             ..arg
                         }
                     })
-                    .collect::<Vec<CallArgument>>(),
+                    .collect(),
             )
         } else {
             None
         };
 
+        for argument in draft.arguments.iter_mut().flatten() {
+            
+        }
+
+        let patch = diff_address(address, self, &draft);
+        context.push_patch(patch);
+
+        Ok(())
+        /*
         // Calculate content for `compile_digest` based on concatenating properties affecting execution of the
         // call, including properties of the call args (in following loop)
         let mut content_string = self.source.clone();
@@ -88,43 +103,10 @@ impl Executable for Call {
                 }
             }
         }
-
-        // Calculate compile digest
-        let compile_digest = ResourceDigest::from_strings(&content_string, None);
-
-        // Make execute digest the correct type for `ResourceInfo`
-        let execute_digest = self
-            .execute_digest
-            .as_deref()
-            .map(ResourceDigest::from_cord);
-
-        // Add resource info to the compile context
-        let resource_info = ResourceInfo::new(
-            resource,
-            Some(relations),
-            self.execution_auto.clone(),
-            Some(true), // Never has side effects
-            Some(compile_digest),
-            execute_digest,
-            None,
-        );
-        context.resource_infos.push(resource_info);
-
-        // Generate a patch for updates to `arguments`
-        let patch = diff_id(
-            id,
-            self,
-            &Call {
-                arguments,
-                ..self.clone()
-            },
-        );
-        context.patches.push(patch);
         */
-
-        Ok(())
     }
 
+    #[cfg(ignore)]
     async fn execute_begin(
         &mut self,
         _resource_info: &ResourceInfo,
@@ -135,7 +117,6 @@ impl Executable for Call {
         let id = assert_id!(self)?;
         tracing::trace!("Executing `Call` `{}`", id);
 
-        /*
         // Get the doc that was opened in assemble
         let doc = call_docs
             .get(id)
@@ -229,7 +210,6 @@ impl Executable for Call {
         };
         self.execution_required = Some(execution_required);
         self.execution_status = Some(execution_status);
-        */
 
         Ok(None)
     }

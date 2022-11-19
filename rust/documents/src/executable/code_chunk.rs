@@ -5,6 +5,7 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
+use node_address::Address;
 use stencila_schema::{CodeChunk, Duration, ExecutionRequired, ExecutionStatus, Timestamp};
 
 use super::{shared::code_execution_status, CompileContext, Executable};
@@ -16,7 +17,8 @@ impl Executable for CodeChunk {
     /// Performs semantic analysis of the code (if language is supported) and adds the resulting
     /// relations to the compilation context. If the `programming_language` is an empty string
     /// then use the current language of the context.
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = ensure_id!(self, "cc", context);
 
         // Guess language if specified or necessary
@@ -60,6 +62,7 @@ impl Executable for CodeChunk {
         Ok(())
     }
 
+    #[cfg(ignore)]
     async fn execute_begin(
         &mut self,
         resource_info: &ResourceInfo,
@@ -75,12 +78,13 @@ impl Executable for CodeChunk {
         );
 
         let task_info = kernel_space
-            .exec(&self.text, resource_info, is_fork, kernel_selector)
+            .exec(&self.code, resource_info, is_fork, kernel_selector)
             .await?;
 
         Ok(Some(task_info))
     }
 
+    #[cfg(ignore)]
     async fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
         let TaskResult {
             outputs,

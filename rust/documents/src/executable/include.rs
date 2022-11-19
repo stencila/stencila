@@ -8,6 +8,7 @@ use graph_triples::{
 use node_transform::Transform;
 use path_utils::merge;
 use stencila_schema::{CodeError, ExecutionDigest, Include};
+use node_address::Address;
 
 use crate::executable::{CompileContext, Executable};
 
@@ -32,7 +33,8 @@ impl Executable for Include {
     ///
     /// TODO: If there is a change in the compile digest (ie. `source`, `media_type`
     /// or `select` have changed) then trigger an `assemble` of the document.
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = ensure_id!(self, "in", context);
 
         // Calculate a resource digest using the `source`, `media_type` and `select` properties

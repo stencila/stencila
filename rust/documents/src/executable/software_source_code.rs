@@ -1,6 +1,6 @@
 use common::{async_trait::async_trait, eyre::Result};
 use graph_triples::resources;
-
+use node_address::Address;
 use stencila_schema::SoftwareSourceCode;
 
 use crate::executable::{CompileContext, Executable};
@@ -11,7 +11,8 @@ use crate::executable::{CompileContext, Executable};
 /// relations.
 #[async_trait]
 impl Executable for SoftwareSourceCode {
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = ensure_id!(self, "sc", context);
 
         if let (Some(code), Some(language)) =

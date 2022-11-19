@@ -12,7 +12,7 @@ use graph_triples::{
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
 use node_validate::Validator;
-
+use node_address::Address;
 use stencila_schema::{
     CodeError, ExecutionDigest, ExecutionRequired, Node, Parameter, ValidatorTypes,
 };
@@ -63,7 +63,8 @@ impl Executable for Parameter {
     /// `Timestamp`s and `DateTime`s.
     ///
     /// By definition, a `Parameter` is always "impure" (has a side effect).
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = ensure_id!(self, "pa", context);
 
         // Add a resource for the parameter itself
@@ -110,6 +111,7 @@ impl Executable for Parameter {
         Ok(())
     }
 
+    #[cfg(ignore)]
     async fn execute_begin(
         &mut self,
         resource_info: &ResourceInfo,

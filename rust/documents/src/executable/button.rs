@@ -1,58 +1,56 @@
-use common::{async_trait::async_trait, eyre::Result, tracing};
-use formats::Format;
-use graph_triples::{
-    execution_digest_from_content,
-    relations::{self, NULL_RANGE},
-    resources, ResourceInfo,
-};
-use kernels::{KernelSelector, KernelSpace, TaskInfo};
-use stencila_schema::{Button, ExecutionRequired, Node, Timestamp};
-
-use super::{CompileContext, Executable};
+use super::prelude::*;
 
 #[async_trait]
 impl Executable for Button {
-    /// Compile a `Button` node
-    ///
-    /// Adds an `Assign` relation to the compilation context with the name of the button.
-    /// As for `Parameter`s, uses `Format::Json` to indicate that the button's `value` will
-    /// be set in the "store kernel".
-    ///
-    /// By definition, a `Button` is always "impure" (has a side effect of setting a variable)
-    /// and is assumed to always succeed.
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        let id = ensure_id!(self, "bu", context);
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+        let mut draft = self.clone();
 
-        // TODO: guess language and parse `text` to determine dependencies
+        if draft.id.is_none() {
+            draft.id = generate_id("bu");
+        }
 
-        let resource = resources::code(&context.path, id, "Button", Format::Json);
-        let symbol = resources::symbol(&context.path, &self.name, "Timestamp");
-        let relations = Some(vec![(relations::assigns(NULL_RANGE), symbol)]);
+        if draft.name.is_empty() {
+            draft.name = draft.id.as_ref().expect("Ensured above").to_string();
+        }
 
-        let execute_pure = Some(false);
-        let compile_digest = Some(execution_digest_from_content(&self.name));
-        let execute_digest = self.execute_digest.clone();
-        let execute_failed = self.execution_ended.as_ref().map(|_| false);
+        if !draft.code.is_empty()
+            && (draft.programming_language.is_empty() || matches!(draft.guess_language, Some(true)))
+        {
+            draft.programming_language = context.guess_language(&draft.code).to_string();
+        }
 
-        let resource_info = ResourceInfo::new(
-            resource,
-            relations,
-            None,
-            execute_pure,
-            None,
-            compile_digest,
-            execute_digest,
-            execute_failed,
-        );
-        context.resource_infos.push(resource_info);
+        let content_digest =
+            generate_digest(&["", &draft.name, &draft.code, &draft.programming_language].concat());
+        if content_digest == get_content_digest(&draft.compile_digest) {
+            return Ok(());
+        }
+
+        let semantic_digest;
+        if draft.code.is_empty() {
+            draft.execution_dependencies = None;
+            semantic_digest = 0;
+        } else {
+            let parse_info = context.parse_code(&draft.programming_language, &draft.code)?;
+            draft.execution_dependencies = Some(parse_info.execution_dependencies);
+            semantic_digest = parse_info.semantic_digest;
+        }
+
+        draft.execution_dependents =
+            Some(vec![context.dependent_variable(&draft.name, "Timestamp")]);
+
+        draft.compile_digest = Some(ExecutionDigest {
+            content_digest,
+            semantic_digest,
+            ..Default::default()
+        });
+
+        let patch = diff_address(address, self, &draft);
+        context.push_patch(patch);
 
         Ok(())
     }
 
-    /// Execute a `Button` node
-    ///
-    /// Sets a timestamp variable in the kernel space and updates execution related
-    /// properties of the node itself.
+    #[cfg(ignore)]
     async fn execute_begin(
         &mut self,
         resource_info: &ResourceInfo,
@@ -65,7 +63,7 @@ impl Executable for Button {
 
         // Determine if the button is enabled
         // TODO: Calculate properly, this is just a placeholder for testing
-        if self.text.len() >= 5 {
+        if self.code.len() >= 5 {
             self.is_disabled = Some(true);
         }
 

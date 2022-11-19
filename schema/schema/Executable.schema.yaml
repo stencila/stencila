@@ -20,16 +20,22 @@ properties:
     $ref: ExecutionDigest
   executionDependencies:
     '@id': stencila:executionDependencies
-    description: The upstream dependencies.
+    description: The upstream dependencies of this node.
     type: array
     items:
-      $ref: ExecutionDependencies
+      $ref: ExecutionDependency
   executionDependents:
     '@id': stencila:executionDependents
-    description: The downstream dependents.
+    description: The downstream dependents of this node.
     type: array
     items:
-      $ref: ExecutionDependents
+      $ref: ExecutionDependent
+  executionTags:
+    '@id': stencila:executionTags
+    description: Tags in the code which affect its execution
+    type: array
+    items:
+      $ref: ExecutionTag
   executionCount:
     '@id': stencila:executionCount
     description: A count of the number of times that the node has been executed.

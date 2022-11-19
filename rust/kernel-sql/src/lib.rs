@@ -18,11 +18,10 @@ use kernel::{
         regex::Regex,
         serde::Serialize,
         serde_with::skip_serializing_none,
-        tokio::sync::{mpsc, RwLock},
+        tokio::sync::RwLock,
         tracing::{self, log::LevelFilter},
     },
     formats::Format,
-    graph_triples::ResourceChange,
     stencila_schema::{
         BlockContent, Button, CodeChunk, CodeError, Datatable, Form, InlineContent, Node, Paragraph,
     },
@@ -91,21 +90,13 @@ pub struct SqlKernel {
     #[def = "Arc::new(RwLock::new(HashSet::new()))"]
     #[serde(skip)]
     watches: WatchedTables,
-
-    /// A sender to send [`ResourceChange`]s back to the owning document (if any)
-    #[serde(skip)]
-    resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
 }
 
 impl SqlKernel {
     /// Create a new `SqlKernel`
-    pub fn new(
-        selector: &KernelSelector,
-        resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
-    ) -> Self {
+    pub fn new(selector: &KernelSelector) -> Self {
         Self {
             config: selector.config.clone(),
-            resource_changes_sender,
             ..Default::default()
         }
     }
@@ -186,22 +177,17 @@ impl SqlKernel {
             url
         );
 
-        let sender = match &self.resource_changes_sender {
-            Some(sender) => sender.to_owned(),
-            None => bail!("No resource sender provided to this SQL kernel"),
-        };
-
         if !self.watching {
             let watches = self.watches.clone();
             match pool {
                 MetaPool::Duck(pool) => {
-                    duck::watch(url, pool, watches, sender).await?;
+                    duck::watch(url, pool, watches).await?;
                 }
                 MetaPool::Postgres(pool) => {
-                    postgres::watch(url, pool, watches, sender).await?;
+                    postgres::watch(url, pool, watches).await?;
                 }
                 MetaPool::Sqlite(pool) => {
-                    sqlite::watch(url, pool, watches, sender).await?;
+                    sqlite::watch(url, pool, watches).await?;
                 }
             }
             self.watching = true;

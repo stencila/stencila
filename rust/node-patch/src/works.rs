@@ -260,6 +260,40 @@ patchable_struct!(
     volume_number
 );
 
+patchable_struct!(
+    SoftwareSourceCode,
+    //about,
+    alternate_names,
+    authors,
+    //comments,
+    content,
+    date_accepted,
+    date_created,
+    date_modified,
+    date_published,
+    date_received,
+    description,
+    editors,
+    //funded_by,
+    funders,
+    genre,
+    //identifiers,
+    //images,
+    is_part_of,
+    keywords,
+    licenses,
+    maintainers,
+    name,
+    parts,
+    programming_language,
+    publisher,
+    references,
+    text,
+    title,
+    url,
+    version
+);
+
 // To avoid bloat it is likely that a lot of these enums
 // will be generalized e.g. `OrganizationOrPerson`. `CreativeWorkTypesOrString`
 

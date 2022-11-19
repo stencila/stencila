@@ -10,7 +10,7 @@ use common::tokio::{
 };
 use formats::FormatSpec;
 use graph::Graph;
-use graph_triples::{ResourceChange, TagMap};
+use graph_triples::TagMap;
 use kernels::KernelSpace;
 use stencila_schema::Node;
 
@@ -34,7 +34,6 @@ impl Document {
         kernels: &Arc<RwLock<KernelSpace>>,
         subscriptions_count: &Arc<AtomicUsize>,
         last_write: &Arc<RwLock<Instant>>,
-        mut resource_changes_receiver: mpsc::Receiver<ResourceChange>,
     ) -> (
         mpsc::UnboundedSender<PatchRequest>,
         mpsc::Sender<CompileRequest>,
@@ -74,17 +73,6 @@ impl Document {
                 &write_sender_clone,
                 &mut patch_request_receiver,
                 &response_sender_clone,
-            )
-            .await
-        });
-
-        let id_clone = id.to_string();
-        let execute_sender_clone = execute_request_sender.clone();
-        tokio::spawn(async move {
-            Self::resource_change_task(
-                &id_clone,
-                &mut resource_changes_receiver,
-                &execute_sender_clone,
             )
             .await
         });

@@ -7,10 +7,10 @@ use kernel::{
         serde::Serialize,
     },
     formats::Format,
+    parser::perform_var_interps,
     stencila_schema::Node,
     Kernel, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
-use parser::utils::perform_var_interps;
 
 /**
  * A kernel that performs variable interpolation for Tailwind expressions

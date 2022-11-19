@@ -55,7 +55,7 @@ async fn md_articles() -> Result<()> {
             }
         });
 
-        let kernel_space = Arc::new(RwLock::new(KernelSpace::new(None, None)));
+        let kernel_space = Arc::new(RwLock::new(KernelSpace::new(None)));
         let tag_map = Arc::new(RwLock::new(TagMap::default()));
 
         // Compile the article and snapshot the result
@@ -154,7 +154,7 @@ async fn md_articles() -> Result<()> {
             &plan,
             &root,
             &tag_map,
-            &Arc::new(RwLock::new(KernelSpace::new(None, None))),
+            &Arc::new(RwLock::new(KernelSpace::new(None))),
             &patch_request_sender,
             &mut cancel_request_receiver,
         )
@@ -217,7 +217,7 @@ async fn regression_creative_work() -> Result<()> {
 async fn compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
     let root = Arc::new(RwLock::new(node));
     let tags = Arc::new(RwLock::new(TagMap::default()));
-    let kernels = Arc::new(RwLock::new(KernelSpace::new(None, None)));
+    let kernels = Arc::new(RwLock::new(KernelSpace::new(None)));
 
     let (patch_request_sender, mut patch_request_receiver) =
         mpsc::unbounded_channel::<PatchRequest>();

@@ -1,13 +1,11 @@
 use std::path::{Path, PathBuf};
 
+use parser::TagMap;
 use schemars::JsonSchema;
 
 use common::{
     derivative::Derivative,
     eyre::Result,
-    itertools::Itertools,
-    once_cell::sync::Lazy,
-    regex::Regex,
     serde::{self, Serialize},
     serde_with::skip_serializing_none,
 };
@@ -105,100 +103,6 @@ impl Resource {
             Resource::Code(Code { id, .. }) | Resource::Node(Node { id, .. }) => Some(id.as_str()),
             _ => None,
         }
-    }
-}
-
-/// A tag declared in a `CodeChunk`
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize)]
-#[serde(crate = "common::serde")]
-pub struct Tag {
-    /// The name of the tag e.g. `uses`, `db`
-    pub name: String,
-
-    /// The value of the tag
-    pub value: String,
-
-    /// Whether the tag is global to the containing document
-    pub global: bool,
-}
-
-/// A collection of tags
-///
-/// Implements a `HashMap` like interface but is implemented as a `Vec` as this
-/// is expected to be more performant (in memory and CPU) given that the number
-/// of tags in a `TagMap` will usually be small (<10).
-#[derive(Debug, Default, Clone, Serialize)]
-#[serde(transparent, crate = "common::serde")]
-pub struct TagMap {
-    inner: Vec<Tag>,
-}
-
-impl TagMap {
-    /// Create a new tag map from a list of name/value pairs
-    pub fn from_name_values(pairs: &[(&str, &str)]) -> Self {
-        let mut map = Self::default();
-        for (name, value) in pairs {
-            map.insert(Tag {
-                name: name.to_string(),
-                value: value.to_string(),
-                ..Default::default()
-            });
-        }
-        map
-    }
-
-    /// Get a tag by name
-    pub fn get(&self, name: &str) -> Option<&Tag> {
-        self.inner.iter().find(|tag| tag.name == name)
-    }
-
-    /// Get a tag value by name
-    pub fn get_value(&self, name: &str) -> Option<String> {
-        self.get(name).map(|tag| tag.value.clone())
-    }
-
-    /// Get a tag split into individual space or comma separated items
-    pub fn get_items(&self, name: &str) -> Vec<String> {
-        static REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"\s+|(\s*,\s*)").expect("Unable to create regex"));
-
-        match self.get_value(name) {
-            Some(value) => REGEX.split(&value).map(String::from).collect_vec(),
-            None => Vec::new(),
-        }
-    }
-
-    /// Insert a tag
-    ///
-    /// Overrides any existing tag with the same `name`.
-    pub fn insert(&mut self, new: Tag) {
-        if let Some((position, ..)) = self.inner.iter().find_position(|tag| tag.name == new.name) {
-            self.inner[position] = new;
-        } else {
-            self.inner.push(new)
-        }
-    }
-
-    /// Insert `global` tags from another tag map
-    ///
-    /// Used to merge a resource's global tags into a document's global tags.
-    pub fn insert_globals(&mut self, other: &TagMap) {
-        for tag in other.inner.iter() {
-            if tag.global {
-                self.insert(tag.clone());
-            }
-        }
-    }
-
-    /// Merge tags from one tag map into another, overriding any duplicates
-    ///
-    /// Used to merge document's global tags into a resource's tags.
-    pub fn merge(&self, other: &TagMap) -> TagMap {
-        let mut clone = self.clone();
-        for tag in &other.inner {
-            clone.insert(tag.clone());
-        }
-        clone
     }
 }
 
@@ -446,24 +350,6 @@ impl ResourceInfo {
         self.execute_digest = self.compile_digest.clone();
         self.execute_failed = Some(execute_failed);
     }
-}
-
-/// A change to a resource
-#[derive(Debug, Serialize)]
-#[serde(crate = "common::serde")]
-pub struct ResourceChange {
-    pub resource: Resource,
-    pub action: ResourceChangeAction,
-    pub time: String,
-}
-
-/// The type of change to a resource
-#[derive(Debug, Serialize)]
-#[serde(crate = "common::serde")]
-pub enum ResourceChangeAction {
-    Created,
-    Updated,
-    Deleted,
 }
 
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]

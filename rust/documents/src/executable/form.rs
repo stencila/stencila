@@ -11,7 +11,7 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
-
+use node_address::Address;
 use stencila_schema::{CodeError, ExecutionRequired, Form, FormDeriveAction, Node, Timestamp};
 
 use crate::executable::{CompileContext, Executable};
@@ -21,7 +21,8 @@ impl Executable for Form {
     /// Compile a `Form` node
     ///
     /// Adds a resource to the context so that the form can be executed.
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = ensure_id!(self, "fm", context);
 
         // If the form is derived, then do the derivation and add any nodes that
@@ -103,6 +104,7 @@ impl Executable for Form {
     /// Execute a `Form` node
     ///
     /// If the form is derived then derive its content from the kernel space.
+    #[cfg(ignore)]
     async fn execute_begin(
         &mut self,
         resource_info: &ResourceInfo,

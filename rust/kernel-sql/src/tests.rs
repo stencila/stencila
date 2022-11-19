@@ -39,13 +39,10 @@ async fn test_postgres() -> Result<()> {
 
 /// General integration test
 async fn test(config: &str) -> Result<()> {
-    let mut kernel = SqlKernel::new(
-        &KernelSelector {
-            config: Some(config.to_string()),
-            ..Default::default()
-        },
-        None,
-    );
+    let mut kernel = SqlKernel::new(&KernelSelector {
+        config: Some(config.to_string()),
+        ..Default::default()
+    });
 
     // Clean up after any previous test
     kernel

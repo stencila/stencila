@@ -1,9 +1,9 @@
 use std::{
     collections::HashMap,
-    path::PathBuf,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
+use events::publish;
 use sqlx::{sqlite::SqliteArguments, Arguments, Column, Row, SqlitePool, TypeInfo};
 
 use kernel::{
@@ -11,12 +11,8 @@ use kernel::{
         eyre::{bail, eyre, Result},
         regex::Captures,
         serde_json,
-        tokio::{self, sync::mpsc, time},
+        tokio::{self, time},
         tracing,
-    },
-    graph_triples::{
-        resources::{self, ResourceChangeAction},
-        ResourceChange,
     },
     stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, Date, DateTime,
@@ -298,25 +294,20 @@ pub async fn column_to_parameter(
  * notifications table. At present it is somewhat rudimentary but allows for testing
  * of other logic around table watches.
  */
-pub async fn watch(
-    url: &str,
-    pool: &SqlitePool,
-    watches: WatchedTables,
-    sender: mpsc::Sender<ResourceChange>,
-) -> Result<()> {
+pub async fn watch(url: &str, pool: &SqlitePool, watches: WatchedTables) -> Result<()> {
     // Create table for recording changes and a trigger to purge events older than 60s
     sqlx::query(
         r#"
-        CREATE TABLE IF NOT EXISTS stencila_resource_changes(
+        CREATE TABLE IF NOT EXISTS stencila_node_changes(
             "time" INTEGER,
             "action" TEXT,
             "table" TEXT
         );
 
-        CREATE TRIGGER IF NOT EXISTS stencila_resource_changes_purge
-        AFTER INSERT ON stencila_resource_changes
+        CREATE TRIGGER IF NOT EXISTS stencila_node_changes_purge
+        AFTER INSERT ON stencila_node_changes
         BEGIN
-            DELETE FROM stencila_resource_changes
+            DELETE FROM stencila_node_changes
             WHERE time < (julianday('now') - 2440587.5) * 86400000 - (60 * 1000);
         END;
         "#,
@@ -343,7 +334,7 @@ pub async fn watch(
             let rows = match sqlx::query(
                 r#"
                 SELECT "time", "action", "table"
-                FROM stencila_resource_changes
+                FROM stencila_node_changes
                 WHERE "time" > ?
                 GROUP BY time, action, "table"
                 ORDER BY time;
@@ -360,8 +351,6 @@ pub async fn watch(
                 }
             };
 
-            let path = PathBuf::from(url.clone()).join("public");
-
             for row in rows {
                 let name = row.get_unchecked::<String, _>("table");
                 let time = row.get_unchecked::<i64, _>("time");
@@ -370,17 +359,7 @@ pub async fn watch(
                     continue;
                 }
 
-                let change = ResourceChange {
-                    resource: resources::symbol(&path, &name, "Datatable"),
-                    action: ResourceChangeAction::Updated,
-                    time: time.to_string(),
-                };
-                if let Err(error) = sender.send(change).await {
-                    tracing::error!(
-                        "While sending resource change from SQLite listener: {}",
-                        error
-                    );
-                }
+                publish(&["databases:", &url, ":main:", &name].concat(), "Updated");
 
                 last_time = time as u128;
             }
@@ -395,10 +374,10 @@ pub async fn watch_table(table: &str, pool: &SqlitePool) -> Result<()> {
     for action in ["insert", "update", "delete"] {
         sqlx::query(&format!(
             r#"
-            CREATE TRIGGER IF NOT EXISTS stencila_resource_{action}_{table}
+            CREATE TRIGGER IF NOT EXISTS stencila_node_{action}_{table}
             AFTER {action} ON "{table}"
             BEGIN
-                INSERT INTO stencila_resource_changes("time", "action", "table")
+                INSERT INTO stencila_node_changes("time", "action", "table")
                 VALUES(
                     CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER),
                     '{action}',
@@ -421,7 +400,7 @@ pub async fn watch_all(schema: Option<&String>, pool: &SqlitePool) -> Result<Vec
     let tables = sqlx::query(&format!(
         r#"
         SELECT "name" FROM "{schema}"."sqlite_master"
-        WHERE "type" = 'table' AND "name" != 'stencila_resource_changes'
+        WHERE "type" = 'table' AND "name" != 'stencila_node_changes'
         "#
     ))
     .fetch_all(pool)

@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 arrow = "21.0.0"
 duckdb = { version = "0.5.0", features = ["bundled"] }
+events = { path = "../events" }
 kernel = { path = "../kernel" }
 prql-compiler = "0.2.6"
 parser-sql = { path = "../parser-sql" }

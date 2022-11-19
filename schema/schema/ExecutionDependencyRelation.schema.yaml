@@ -1,0 +1,26 @@
+title: ExecutionDependencyRelation
+'@id': stencila:ExecutionDependencyRelation
+extends: Enumeration
+category: code
+status: stable
+role: secondary
+description: The relation between a node and its execution dependency.
+anyOf:
+  - const: Calls
+    '@id': stencila:executionDependencyRelationCalls
+    description: The node calls its dependency (usually another document or function)
+  - const: Derives
+    '@id': stencila:executionDependencyRelationDerives
+    description: The node is derived from its dependency (e.g. a database table)
+  - const: Imports
+    '@id': stencila:executionDependencyRelationImports
+    description: The node imports its dependency (usually a software module)
+  - const: Includes
+    '@id': stencila:executionDependencyRelationIncludes
+    description: The node includes its dependency (usually another document)
+  - const: Reads
+    '@id': stencila:executionDependencyRelationReads
+    description: The node reads its dependency (usually a file)
+  - const: Uses
+    '@id': stencila:executionDependencyRelationUses
+    description: The node uses its dependency (usually a variable)

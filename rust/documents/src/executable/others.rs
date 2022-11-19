@@ -1,29 +1,11 @@
 use common::{async_trait::async_trait, eyre::Result};
 use graph_triples::ResourceInfo;
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
-
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
-
+use node_address::Address;
 use stencila_schema::*;
 
 use crate::executable::{CompileContext, Executable, ExecuteContext};
-
-// Nodes types that simply need an `id` assigned so that custom web component patch events have a target
-
-macro_rules! executable_compile_id_only {
-    ($type:ty, $prefix:expr) => {
-        #[async_trait]
-        impl Executable for $type {
-            async fn compile(&mut self, _context: &mut CompileContext) -> Result<()> {
-                ensure_id!(self, $prefix, context);
-                Ok(())
-            }
-        }
-    };
-}
-
-executable_compile_id_only!(CodeBlock, "cb");
-executable_compile_id_only!(CodeFragment, "cf");
 
 // Node types that do not need anything done
 
@@ -81,8 +63,8 @@ executable_nothing!(
 
 #[async_trait]
 impl Executable for Node {
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-        dispatch_node!(self, Box::pin(async { Ok(()) }), compile, context).await
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+        dispatch_node!(self, Box::pin(async { Ok(()) }), compile, address, context).await
     }
 
     async fn execute(&mut self, context: &mut ExecuteContext) -> Result<()> {
@@ -124,8 +106,8 @@ macro_rules! executable_enum {
     ($type: ty, $dispatch_macro: ident) => {
         #[async_trait]
         impl Executable for $type {
-            async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-                $dispatch_macro!(self, compile, context).await
+            async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+                $dispatch_macro!(self, compile, address, context).await
             }
 
             async fn execute(&mut self, context: &mut ExecuteContext) -> Result<()> {
@@ -165,79 +147,16 @@ executable_enum!(CreativeWorkTypes, dispatch_work);
 executable_enum!(BlockContent, dispatch_block);
 executable_enum!(InlineContent, dispatch_inline);
 
-/// Implementation of `Executable` for various fields of a struct
-macro_rules! executable_fields {
-    ($type:ty $(, $field:ident)* ) => {
-        #[async_trait]
-        impl Executable for $type {
-            async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
-                $(
-                    self.$field.compile(context).await?;
-                )*
-                Ok(())
-            }
-        }
-    };
-}
-
-executable_fields!(CiteGroup, items);
-
-executable_fields!(Collection, parts);
-executable_fields!(Directory, parts);
-
-executable_fields!(List, items);
-executable_fields!(ListItem, item, content);
-
-executable_fields!(Table, rows, caption);
-executable_fields!(TableSimple, rows, caption);
-executable_fields!(TableRow, cells);
-executable_fields!(TableCell, content);
-
-/// Implementation of `Executable` for only the `content` field of a struct
-macro_rules! executable_content {
-    ($type:ty) => {
-        executable_fields!($type, content);
-    };
-    ( $( $type:ty ),* ) => {
-        $(
-            executable_content!($type);
-        )*
-    };
-}
-
-executable_content!(
-    Article,
-    Cite,
-    Claim,
-    ClaimSimple,
-    Comment,
-    CreativeWork,
-    Delete,
-    Emphasis,
-    Figure,
-    FigureSimple,
-    Heading,
-    NontextualAnnotation,
-    Note,
-    Paragraph,
-    Quote,
-    QuoteBlock,
-    Strikeout,
-    Strong,
-    Subscript,
-    Superscript,
-    Underline
-);
 
 /// Implementation of `Executable` for enum variants
 macro_rules! executable_variants {
     ( $type:ty $(, $variant:path )* ) => {
         #[async_trait]
         impl Executable for $type {
-            async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+            async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
                 match self {
                     $(
-                        $variant(node) => node.compile(context).await,
+                        $variant(node) => node.compile(address, context).await,
                     )*
                 }
             }

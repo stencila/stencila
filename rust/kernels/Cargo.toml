@@ -10,7 +10,6 @@ cli = ["cli-utils", "events", "parsers"]
 [dependencies]
 common = { path = "../common" }
 formats = { path = "../formats" }
-graph-triples = { path = "../graph-triples" }
 humantime = { version = "2.1.0" }
 kernel = { path = "../kernel" }
 

@@ -1,0 +1,11 @@
+title: ExecutionDependencyNode
+category: code
+status: unstable
+description: Node types that can be execution dependencies
+anyOf:
+  - $ref: Button
+  - $ref: CodeChunk
+  - $ref: File
+  - $ref: Parameter
+  - $ref: SoftwareSourceCode
+  - $ref: Variable

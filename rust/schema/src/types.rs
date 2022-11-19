@@ -233,11 +233,11 @@ pub struct Executable {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -253,6 +253,9 @@ pub struct Executable {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -294,11 +297,11 @@ pub struct CodeExecutable {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -314,6 +317,9 @@ pub struct CodeExecutable {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -364,11 +370,11 @@ pub struct Button {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -384,6 +390,9 @@ pub struct Button {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -440,11 +449,11 @@ pub struct CodeChunk {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -463,6 +472,9 @@ pub struct CodeChunk {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -516,11 +528,11 @@ pub struct CodeExpression {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -536,6 +548,9 @@ pub struct CodeExpression {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -586,11 +601,11 @@ pub struct Include {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -606,6 +621,9 @@ pub struct Include {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -656,11 +674,11 @@ pub struct Call {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -676,6 +694,9 @@ pub struct Call {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -726,11 +747,11 @@ pub struct Parameter {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -746,6 +767,9 @@ pub struct Parameter {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// Whether the parameter should be hidden.
     pub hidden: Option<Boolean>,
@@ -805,11 +829,11 @@ pub struct CallArgument {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -825,6 +849,9 @@ pub struct CallArgument {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -2105,7 +2132,7 @@ pub enum ConstantValidator_ {
 
 /// A calendar date encoded as a ISO 8601 string.
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize)]
 #[derivative(Default)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Date {
@@ -2125,7 +2152,7 @@ pub enum Date_ {
 
 /// A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize)]
 #[derivative(Default)]
 #[serde(default, rename_all = "camelCase")]
 pub struct DateTime {
@@ -2423,11 +2450,11 @@ pub struct Styled {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -2443,6 +2470,9 @@ pub struct Styled {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -2499,11 +2529,11 @@ pub struct Division {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -2519,6 +2549,9 @@ pub struct Division {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -2537,7 +2570,7 @@ pub enum Division_ {
 
 /// A value that represents the difference between two timestamps
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize)]
 #[derivative(Default)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Duration {
@@ -2667,6 +2700,60 @@ pub enum Enumeration_ {
   Enumeration
 }
 
+/// An upstream execution dependency of a node
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize, Deserialize)]
+#[derivative(Default)]
+#[serde(default, rename_all = "camelCase")]
+pub struct ExecutionDependency {
+    /// The name of this type
+    #[derivative(Default(value = "ExecutionDependency_::ExecutionDependency"))]
+    pub type_: ExecutionDependency_,
+
+    /// The node that is the dependency
+    #[derivative(Default(value = "ExecutionDependencyNode::Variable(Variable::default())"))]
+    pub dependency_node: ExecutionDependencyNode,
+
+    /// The relation to the dependency
+    #[derivative(Default(value = "ExecutionDependencyRelation::Uses"))]
+    pub dependency_relation: ExecutionDependencyRelation,
+
+    /// The location that the dependency is defined within code
+    pub code_location: Option<[usize;4]>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ExecutionDependency_ {
+  ExecutionDependency
+}
+
+/// A downstream execution dependent of a node
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize, Deserialize)]
+#[derivative(Default)]
+#[serde(default, rename_all = "camelCase")]
+pub struct ExecutionDependent {
+    /// The name of this type
+    #[derivative(Default(value = "ExecutionDependent_::ExecutionDependent"))]
+    pub type_: ExecutionDependent_,
+
+    /// The node that is the dependent
+    #[derivative(Default(value = "ExecutionDependentNode::Variable(Variable::default())"))]
+    pub dependent_node: ExecutionDependentNode,
+
+    /// The relation to the dependent
+    #[derivative(Default(value = "ExecutionDependentRelation::Assigns"))]
+    pub dependent_relation: ExecutionDependentRelation,
+
+    /// The location that the dependent is defined within code
+    pub code_location: Option<[usize;4]>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ExecutionDependent_ {
+  ExecutionDependent
+}
+
 /// A digest of the execution state of a node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize, Deserialize)]
@@ -2696,6 +2783,31 @@ pub struct ExecutionDigest {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ExecutionDigest_ {
   ExecutionDigest
+}
+
+/// A tag on code that affects its execution
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize, Deserialize)]
+#[derivative(Default)]
+#[serde(default, rename_all = "camelCase")]
+pub struct ExecutionTag {
+    /// The name of this type
+    #[derivative(Default(value = "ExecutionTag_::ExecutionTag"))]
+    pub type_: ExecutionTag_,
+
+    /// Whether the tag is global to the document
+    pub is_global: Boolean,
+
+    /// The name of the tag
+    pub name: String,
+
+    /// The value of the tag
+    pub value: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ExecutionTag_ {
+  ExecutionTag
 }
 
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
@@ -2983,11 +3095,11 @@ pub struct For {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -3003,6 +3115,9 @@ pub struct For {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -3062,11 +3177,11 @@ pub struct Form {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -3082,6 +3197,9 @@ pub struct Form {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -3216,11 +3334,11 @@ pub struct If {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -3236,6 +3354,9 @@ pub struct If {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// The identifier for this item.
     pub id: Option<Suid>,
@@ -3280,11 +3401,11 @@ pub struct IfClause {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -3300,6 +3421,9 @@ pub struct IfClause {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -3582,7 +3706,7 @@ pub struct Link {
     pub import_to: Option<Box<String>>,
 
     /// The relation between the target and the current thing.
-    pub relation: Option<Box<String>>,
+    pub rel: Option<Box<String>>,
 
     /// A title for the link.
     pub title: Option<Box<String>>,
@@ -5101,11 +5225,11 @@ pub struct Span {
     /// A count of the number of times that the node has been executed.
     pub execution_count: Option<u32>,
 
-    /// The upstream dependencies.
-    pub execution_dependencies: Option<Vec<ExecutionDependencies>>,
+    /// The upstream dependencies of this node.
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
-    /// The downstream dependents.
-    pub execution_dependents: Option<Vec<ExecutionDependents>>,
+    /// The downstream dependents of this node.
+    pub execution_dependents: Option<Vec<ExecutionDependent>>,
 
     /// Duration of the last execution.
     pub execution_duration: Option<Box<Duration>>,
@@ -5121,6 +5245,9 @@ pub struct Span {
 
     /// Status of the most recent, including any current, execution.
     pub execution_status: Option<ExecutionStatus>,
+
+    /// Tags in the code which affect its execution
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
     pub guess_language: Option<Boolean>,
@@ -5475,7 +5602,7 @@ pub enum ThematicBreak_ {
 
 /// A point in time recurring on multiple days
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize)]
 #[derivative(Default)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Time {
@@ -5627,14 +5754,14 @@ pub struct Variable {
     /// The name of the variable.
     pub name: String,
 
+    /// The namespace, usually a document path, within which the variable resides
+    pub namespace: String,
+
     /// The identifier for this item.
     pub id: Option<Suid>,
 
-    /// Whether or not a property is mutable. Default is false.
-    pub is_readonly: Option<Boolean>,
-
-    /// The validator that the value is validated against.
-    pub validator: Option<Box<ValidatorTypes>>,
+    /// The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`
+    pub kind: Option<Box<String>>,
 
     /// The value of the variable.
     pub value: Option<Box<Node>>,
@@ -6483,6 +6610,38 @@ pub enum ExecutionAuto {
     Always,
 }
 
+/// The relation between a node and its execution dependency.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
+#[strum(ascii_case_insensitive)]
+pub enum ExecutionDependencyRelation {
+    /// The node calls its dependency (usually another document or function)
+    Calls,
+    /// The node is derived from its dependency (e.g. a database table)
+    Derives,
+    /// The node imports its dependency (usually a software module)
+    Imports,
+    /// The node includes its dependency (usually another document)
+    Includes,
+    /// The node reads its dependency (usually a file)
+    Reads,
+    /// The node uses its dependency (usually a variable)
+    Uses,
+}
+
+/// The relation between a node and its execution dependent.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
+#[strum(ascii_case_insensitive)]
+pub enum ExecutionDependentRelation {
+    /// The node assigns its dependant (usually a variable)
+    Assigns,
+    /// The node alters its dependant (usually a variable)
+    Alters,
+    /// The node declares its dependant (e.g. a database table)
+    Declares,
+    /// The node writes its dependant (usually a file)
+    Writes,
+}
+
 /// Under which circumstances the document node should be automatically executed.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 #[strum(ascii_case_insensitive)]
@@ -6775,20 +6934,37 @@ pub enum ExecutableTypes {
     Styled(Styled),
 }
 
-/// The node types whose execution other nodes may be dependent upon
+/// Node types that can be execution dependencies
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ExecutionDependencies {
+pub enum ExecutionDependencyNode {
     Button(Button),
     CodeChunk(CodeChunk),
     File(File),
     Parameter(Parameter),
+    SoftwareSourceCode(SoftwareSourceCode),
+    Variable(Variable),
 }
 
-/// The node types whose execution may be dependent upon other nodes
+/// Node types that can be execution dependencies
 #[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ExecutionDependents {
+pub enum ExecutionDependentNode {
+    Button(Button),
+    Call(Call),
+    CodeChunk(CodeChunk),
+    CodeExpression(CodeExpression),
+    Division(Division),
+    File(File),
+    Parameter(Parameter),
+    Span(Span),
+    Variable(Variable),
+}
+
+/// Node types that can be execution dependents
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ExecutionDependentTarget {
     Call(Call),
     CodeChunk(CodeChunk),
     CodeExpression(CodeExpression),
@@ -6797,6 +6973,7 @@ pub enum ExecutionDependents {
     File(File),
     For(For),
     Span(Span),
+    Variable(Variable),
 }
 
 /// All type schemas that are derived from Grant

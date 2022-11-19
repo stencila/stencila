@@ -27,7 +27,7 @@ use common::{
 };
 use graph_triples::{
     direction, relations, stencila_schema::ExecutionAuto, Direction, Pairs, Relation, Resource,
-    ResourceInfo, TagMap, Triple,
+    ResourceInfo, Triple, TagMap,
 };
 use hash_utils::seahash;
 use kernels::{Kernel, KernelSelector};

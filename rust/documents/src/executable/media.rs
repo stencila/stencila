@@ -5,7 +5,7 @@ use graph_triples::{
     resources::{self},
     Relation, ResourceInfo,
 };
-
+use node_address::Address;
 use stencila_schema::{
     AudioObject, AudioObjectSimple, ImageObject, ImageObjectSimple, MediaObject, VideoObject,
     VideoObjectSimple,
@@ -66,7 +66,8 @@ macro_rules! executable_media_object {
     ($type:ty, $prefix:expr) => {
         #[async_trait]
         impl Executable for $type {
-            async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+            #[cfg(ignore)]
+            async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
                 let id = ensure_id!(self, $prefix, context);
                 let resource = resources::node(&context.path, &id, stringify!($type));
 

@@ -31,12 +31,11 @@ use common::{
 use events::publish;
 use formats::{Format, FormatSpec};
 use graph::{Graph, PlanOptions, PlanOrdering, PlanScope};
-use graph_triples::{resources, Relations, Resource, ResourceChange, TagMap};
+use graph_triples::{resources, Relations, Resource, TagMap};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
 use node_patch::{apply, diff, merge, Patch};
 use node_pointer::find;
 use node_reshape::reshape;
-
 use providers::DetectItem;
 use stencila_schema::{Article, Node};
 
@@ -208,8 +207,8 @@ pub struct Document {
 
     /// The clients that are subscribed to each topic for this document
     ///
-    /// Keeping track of client ids per topics allows for a some
-    /// optimizations. For example, events will only be published on topics that have at least one
+    /// Keeping track of client ids per topics allows for a some optimizations.
+    /// For example, events will only be published on topics that have at least one
     /// subscriber.
     ///
     /// Valid subscription topics are the names of the `DocumentEvent` types:
@@ -225,7 +224,7 @@ pub struct Document {
     /// A running count of the number of subscriptions to the document
     ///
     /// Used, as a performance optimization, to avoiding publishing events
-    /// or doing pre-publishing preparation, when there are no subscribers.
+    /// or doing pre-publishing preparation, when there are no subscribers at all.
     subscriptions_count: Arc<AtomicUsize>,
 
     #[serde(skip)]
@@ -319,16 +318,10 @@ impl Document {
             .expect("Unable to get path parent")
             .to_path_buf();
 
-        let (resource_changes_sender, mut resource_changes_receiver) =
-            mpsc::channel::<ResourceChange>(100);
-
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
         let tags = Arc::new(RwLock::new(TagMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
-        let kernels = Arc::new(RwLock::new(KernelSpace::new(
-            Some(&project),
-            Some(resource_changes_sender),
-        )));
+        let kernels = Arc::new(RwLock::new(KernelSpace::new(Some(&project))));
         let subscriptions_count = Arc::new(AtomicUsize::new(0));
         let last_write = Arc::new(RwLock::new(Instant::now()));
 
@@ -349,7 +342,6 @@ impl Document {
             &kernels,
             &subscriptions_count,
             &last_write,
-            resource_changes_receiver,
         );
 
         Ok(Document {
@@ -396,9 +388,6 @@ impl Document {
             id
         );
 
-        let (resource_changes_sender, mut resource_changes_receiver) =
-            mpsc::channel::<ResourceChange>(100);
-
         // Fields that can be cloned
 
         let root = Arc::new(RwLock::new(self.root.read().await.clone()));
@@ -407,12 +396,7 @@ impl Document {
 
         // Fields that need to be forked
 
-        let (kernels, kernels_restarted) = self
-            .kernels
-            .read()
-            .await
-            .fork(Some(resource_changes_sender))
-            .await?;
+        let (kernels, kernels_restarted) = self.kernels.read().await.fork().await?;
         let kernels = Arc::new(RwLock::new(kernels));
 
         let subscriptions_count = Arc::new(AtomicUsize::new(0));
@@ -435,7 +419,6 @@ impl Document {
             &kernels,
             &subscriptions_count,
             &last_write,
-            resource_changes_receiver,
         );
 
         Ok(Document {
@@ -1015,49 +998,6 @@ impl Document {
         }
 
         Ok(())
-    }
-
-    /// A background task to react to changes in a resource in the document's graph
-    ///
-    /// # Arguments
-    ///
-    /// - `id`: The id of the document
-    ///
-    /// - `change_receiver`: The channel to receive [`ResourceChange`]s on
-    #[allow(clippy::too_many_arguments)]
-    pub(crate) async fn resource_change_task(
-        id: &str,
-        change_receiver: &mut mpsc::Receiver<ResourceChange>,
-        execute_sender: &mpsc::Sender<ExecuteRequest>,
-    ) {
-        // TODO: move the functionality in react() to here and have a separate file watching
-        // task in Document, and factor away DocumentHandler.
-        while let Some(resource_change) = change_receiver.recv().await {
-            let resource_id = resource_change.resource.resource_id();
-            tracing::trace!(
-                "Sending execute request for document `{}` for change in resource `{}`",
-                &id,
-                resource_id
-            );
-            if let Err(error) = execute_sender
-                .send(ExecuteRequest::new(
-                    vec![RequestId::new()],
-                    When::Soon,
-                    When::Never,
-                    // TODO: Send Some(resource_id) [Start is currently looking for node_id rather than resource_id]
-                    None,
-                    None,
-                    None,
-                ))
-                .await
-            {
-                tracing::error!(
-                    "While sending execute request for document `{}`: {}",
-                    id,
-                    error
-                );
-            }
-        }
     }
 
     /// A background task to compile the root node of the document on request

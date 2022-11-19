@@ -7,11 +7,11 @@ use parser::{
         eyre::{bail, Result},
         once_cell::sync::Lazy,
     },
-    ParseInfo, ParserTrait,
+    ParserTrait,
 };
 
 // Re-exports
-pub use parser::Parser;
+pub use parser::{ParseInfo, Parser, TagMap};
 
 // The following high level functions hide the implementation
 // detail of having a static list of parsers. They are intended as the

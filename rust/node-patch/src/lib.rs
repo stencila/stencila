@@ -45,12 +45,12 @@ where
 /// Generate a [`Patch`] describing the difference between two nodes of the same type
 /// at a specific address.
 #[tracing::instrument(skip(node1, node2))]
-pub fn diff_address<Type>(address: Address, node1: &Type, node2: &Type) -> Patch
+pub fn diff_address<Type>(address: &Address, node1: &Type, node2: &Type) -> Patch
 where
     Type: Patchable,
 {
     let mut patch = diff(node1, node2);
-    patch.address = Some(address);
+    patch.address = Some(address.clone());
     patch
 }
 
@@ -70,6 +70,14 @@ pub fn produce<T: Clone + Patchable, F: Fn(&mut T)>(
     patch.target = node_id;
     patch.address = node_address;
     patch
+}
+
+pub fn produce_address<T: Clone + Patchable, F: Fn(&mut T)>(
+    node: &T,
+    address: &Address,
+    recipe: F,
+) -> Patch {
+    produce(node, None, Some(address.clone()), recipe)
 }
 
 /// Generate a [`Patch`] using a mutating function
@@ -357,8 +365,12 @@ impl Operation {
             ExecutionRequired
             ExecutionAuto
             ExecutionDigest
-            ExecutionDependencies
-            ExecutionDependents
+            ExecutionDependency
+            ExecutionDependencyRelation
+            ExecutionDependencyNode
+            ExecutionDependent
+            ExecutionDependentRelation
+            ExecutionDependentNode
 
             // Child types of the above
             ListItem
@@ -397,6 +409,7 @@ impl Operation {
             // Types used on some properties e.g. `Heading.depth`, `TableCell.rowspan`
             u8
             u32
+            u64
             i32
             f32
 
@@ -449,8 +462,8 @@ impl Operation {
             BlockContent
 
             // Types related to compilation of code
-            ExecutionDependencies
-            ExecutionDependents
+            ExecutionDependency
+            ExecutionDependent
 
             // Child types of the above
             ListItem

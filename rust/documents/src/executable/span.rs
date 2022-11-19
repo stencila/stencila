@@ -5,7 +5,7 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
-
+use node_address::Address;
 use stencila_schema::{
     CodeError, Duration, ExecutionAuto, ExecutionRequired, ExecutionStatus, Node, Span, Timestamp,
 };
@@ -15,7 +15,8 @@ use super::{shared::code_execution_status, CompileContext, Executable};
 #[async_trait]
 impl Executable for Span {
     /// Compile a `Span` node
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = ensure_id!(self, "sp", context);
 
         // Compile the content of the span
@@ -86,6 +87,7 @@ impl Executable for Span {
     /// Begin executing a `Span` node
     ///
     /// Starts an async tak in the kernel space
+    #[cfg(ignore)]
     async fn execute_begin(
         &mut self,
         resource_info: &ResourceInfo,
@@ -97,7 +99,7 @@ impl Executable for Span {
         tracing::trace!("Executing `Span` `{}`", id);
 
         let task_info = kernel_space
-            .exec(&self.text, resource_info, is_fork, kernel_selector)
+            .exec(&self.code, resource_info, is_fork, kernel_selector)
             .await?;
 
         Ok(Some(task_info))
@@ -108,6 +110,7 @@ impl Executable for Span {
     /// Updates various various properties of the node based on the task info and result.
     /// Most importantly, updates the `css` property by transpiling the result of the
     /// evaluation.
+    #[cfg(ignore)]
     async fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
         let TaskResult {
             outputs,

@@ -2,6 +2,7 @@ use common::{async_trait::async_trait, eyre::Result};
 use graph_triples::execution_digest_from_content;
 use math_utils::to_mathml;
 use stencila_schema::{MathBlock, MathFragment};
+use node_address::Address;
 
 use crate::executable::{CompileContext, Executable};
 
@@ -13,7 +14,8 @@ impl Executable for MathBlock {
     /// `compileDigest` to avoid unnecessary re-transpilation. There is no
     /// need to add a resource to the context since there are never any dependencies
     /// between this and any other node.
-    async fn compile(&mut self, _context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, _context: &mut CompileContext) -> Result<()> {
         let _id = ensure_id!(self, "mb", context);
 
         let compile_digest = Some(execution_digest_from_content(
@@ -39,7 +41,8 @@ impl Executable for MathFragment {
     /// Compile a `MathFragment` node
     ///
     /// As for `MatchBlock`.
-    async fn compile(&mut self, _context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, _context: &mut CompileContext) -> Result<()> {
         let _id = ensure_id!(self, "mf", context);
 
         let compile_digest = Some(execution_digest_from_content(

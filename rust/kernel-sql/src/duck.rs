@@ -12,10 +12,9 @@ use kernel::{
         eyre::{bail, Result},
         itertools::Itertools,
         regex::Captures,
-        tokio::sync::{mpsc, Mutex},
+        tokio::sync::Mutex,
         tracing,
     },
-    graph_triples::ResourceChange,
     stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, Date, DateTime,
         DateTimeValidator, DateValidator, Duration, DurationValidator, EnumValidator,
@@ -693,12 +692,7 @@ pub async fn column_to_parameter(
 //
 /// At present DuckDB does not support triggers or notifications so table
 /// watching can not be supported.
-pub async fn watch(
-    _url: &str,
-    _pond: &DuckPond,
-    _watches: WatchedTables,
-    _sender: mpsc::Sender<ResourceChange>,
-) -> Result<()> {
+pub async fn watch(_url: &str, _pond: &DuckPond, _watches: WatchedTables) -> Result<()> {
     bail!("Table watches are not supported for DuckDB databases")
 }
 

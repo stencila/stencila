@@ -109,3 +109,5 @@ patchable_struct!(TupleValidator, items);
 // Instead the `parameterValidator` proxy knows how to deal with replacement of
 // this type of validator.
 replaceable_struct!(EnumValidator, values);
+
+patchable_struct!(Variable, name, namespace, kind, value);

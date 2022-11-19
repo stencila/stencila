@@ -1,9 +1,15 @@
 use std::path::PathBuf;
 
-use common::{async_trait::async_trait, eyre::Result};
+use common::{async_trait::async_trait, eyre::Result, tracing};
+use formats::Format;
 use graph_triples::{ResourceInfo, TagMap};
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
+use node_address::Address;
 use node_patch::Patch;
+use parsers::ParseInfo;
+use stencila_schema::{
+    ExecutionDependent, ExecutionDependentNode, ExecutionDependentRelation, Variable,
+};
 
 /// Trait for executable document nodes
 ///
@@ -11,7 +17,7 @@ use node_patch::Patch;
 #[async_trait]
 pub trait Executable {
     /// Compile a node
-    async fn compile(&mut self, _context: &mut CompileContext) -> Result<()> {
+    async fn compile(&self, address: &mut Address, _context: &mut CompileContext) -> Result<()> {
         Ok(())
     }
 
@@ -63,7 +69,42 @@ pub struct CompileContext<'lt> {
     pub patches: Vec<Patch>,
 }
 
-impl<'lt> CompileContext<'lt> {}
+impl<'lt> CompileContext<'lt> {
+    /// Push a patch to the context
+    pub fn push_patch(&mut self, patch: Patch) {
+        self.patches.push(patch)
+    }
+
+    /// Guess the language of the code using the context's kernel space
+    pub fn guess_language(&self, code: &str) -> Format {
+        self.kernel_space
+            .guess_language(code, Format::Calc, None, None)
+    }
+
+    /// Parse code using the context's path as the namespace
+    pub fn parse_code(&self, language: &str, code: &str) -> Result<ParseInfo> {
+        let format = formats::match_name(language);
+        parsers::parse(format, code, Some(&self.path))
+    }
+
+    /// Create an dependent `Variable` using the context's path as the namespace
+    pub fn dependent_variable(&self, name: &str, kind: &str) -> ExecutionDependent {
+        ExecutionDependent {
+            dependent_relation: ExecutionDependentRelation::Assigns,
+            dependent_node: ExecutionDependentNode::Variable(Variable {
+                namespace: self.path.to_string_lossy().to_string(),
+                name: name.to_string(),
+                kind: if kind.is_empty() {
+                    None
+                } else {
+                    Some(Box::new(kind.to_string()))
+                },
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct ExecuteContext<'lt> {
@@ -101,14 +142,19 @@ macro_rules! assert_id {
     };
 }
 
+mod prelude;
+
+mod generics;
+mod structs;
+
 mod button;
 mod call;
 mod code_chunk;
 mod code_expression;
+mod code_static;
 mod division;
 mod for_;
 mod form;
-mod generics;
 mod if_;
 mod include;
 mod link;

@@ -2222,6 +2222,7 @@ dependencies = [
  "formats",
  "graph",
  "graph-triples",
+ "hash-utils",
  "ignore",
  "kernels",
  "math-utils",
@@ -2965,6 +2966,7 @@ dependencies = [
  "common",
  "formats",
  "hash-utils",
+ "parser",
  "path-utils",
  "schemars",
  "stencila-schema",
@@ -3743,7 +3745,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "formats",
- "graph-triples",
+ "parser",
  "stencila-schema",
  "suids",
  "test-utils",
@@ -3861,6 +3863,7 @@ version = "0.0.0"
 dependencies = [
  "arrow",
  "duckdb",
+ "events",
  "kernel",
  "parser-sql",
  "prql-compiler",
@@ -3911,7 +3914,6 @@ dependencies = [
  "common",
  "events",
  "formats",
- "graph-triples",
  "humantime",
  "kernel",
  "kernel-bash",
@@ -5274,7 +5276,8 @@ version = "0.0.0"
 dependencies = [
  "common",
  "formats",
- "graph-triples",
+ "hash-utils",
+ "stencila-schema",
  "test-utils",
 ]
 

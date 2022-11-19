@@ -10,6 +10,7 @@ use graph_triples::{
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
 use node_transform::Transform;
+use node_address::Address;
 use stencila_schema::{CodeError, For, Node};
 
 use crate::executable::Executable;
@@ -22,7 +23,8 @@ impl Executable for For {
     ///
     /// Defines a resource for the node itself with relations to its variables etc
     /// used in `text`. No relation is necessary between the `For` and its `otherwise` content.
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = ensure_id!(self, "fo", context);
 
         // Compile `otherwise` but do not compile `content` or `iterations` since these are
@@ -53,10 +55,11 @@ impl Executable for For {
             Err(..) => ResourceInfo::default(resource),
         };
         context.resource_infos.push(resource_info);
-
+        
         Ok(())
     }
 
+    #[cfg(ignore)]
     async fn execute_begin(
         &mut self,
         resource_info: &ResourceInfo,
@@ -70,7 +73,7 @@ impl Executable for For {
         // Evaluate the expression to a value
         let value = {
             let mut task_info = kernel_space
-                .exec(&self.text, resource_info, false, kernel_selector)
+                .exec(&self.code, resource_info, false, kernel_selector)
                 .await?;
             let mut task_result = task_info.result().await?;
 

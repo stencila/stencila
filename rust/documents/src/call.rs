@@ -11,7 +11,8 @@ use common::{
     itertools::Itertools,
     serde_json, tracing,
 };
-use node_pointer::find_mut;
+use node_address::Address;
+use node_pointer::{find_mut, walk, Visitor};
 use node_validate::Validator;
 use path_utils::lexiclean::Lexiclean;
 use stencila_schema::{EnumValidator, InlineContent, Node, Parameter, ValidatorTypes};
@@ -26,9 +27,26 @@ impl Document {
     ///
     /// Used in `Document::call` and when compiling a `Call` node so that the `Call` inherits the parameters of
     /// the document as it's own `arguments`.
-    pub async fn params(&mut self) -> Result<IndexMap<String, (String, Parameter)>> {
-        // TODO Rewrite this using walk() to find parameters
-        todo!()
+    pub async fn params(&self) -> Result<IndexMap<String, (String, Parameter)>> {
+        #[derive(Default)]
+        struct ParameterCollector {
+            params: IndexMap<String, (String, Parameter)>,
+        }
+        impl Visitor for ParameterCollector {
+            fn visit_inline(&mut self, _address: &Address, node: &InlineContent) -> bool {
+                if let InlineContent::Parameter(param) = node {
+                    self.params
+                        .insert(param.name.clone(), (param.name.clone(), param.clone()));
+                }
+                true
+            }
+        }
+
+        let root = &*self.root.read().await;
+        let mut visitor = ParameterCollector::default();
+        walk(root, &mut visitor);
+
+        Ok(visitor.params)
     }
 
     /// Call the document with arguments

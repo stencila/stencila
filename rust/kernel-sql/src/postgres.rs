@@ -1,5 +1,6 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::collections::HashMap;
 
+use events::publish;
 use sqlx::{
     postgres::{PgArguments, PgListener},
     Arguments, Column, PgPool, Row, TypeInfo,
@@ -11,13 +12,7 @@ use kernel::{
         eyre::{bail, Result},
         itertools::Itertools,
         regex::Captures,
-        serde_json,
-        tokio::{self, sync::mpsc},
-        tracing,
-    },
-    graph_triples::{
-        resources::{self, ResourceChangeAction},
-        ResourceChange,
+        serde_json, tokio, tracing,
     },
     stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, Date, DateTime,
@@ -473,12 +468,7 @@ pub async fn column_to_parameter(
 }
 
 /// Start a background task to listen for notifications of changes to tables
-pub async fn watch(
-    url: &str,
-    pool: &PgPool,
-    watches: WatchedTables,
-    sender: mpsc::Sender<ResourceChange>,
-) -> Result<()> {
+pub async fn watch(url: &str, pool: &PgPool, watches: WatchedTables) -> Result<()> {
     sqlx::query(
         "
         CREATE OR REPLACE FUNCTION stencila_resource_change_trigger()
@@ -527,8 +517,6 @@ pub async fn watch(
                 .remove("schema")
                 .unwrap_or_else(|| "public".to_string());
 
-            let path = PathBuf::from(url.clone()).join(schema);
-
             let name = match event.remove("table") {
                 Some(table) => table,
                 None => {
@@ -541,17 +529,10 @@ pub async fn watch(
                 continue;
             }
 
-            let change = ResourceChange {
-                resource: resources::symbol(&path, &name, "Datatable"),
-                action: ResourceChangeAction::Updated,
-                time: event.remove("time").unwrap_or_default(),
-            };
-            if let Err(error) = sender.send(change).await {
-                tracing::error!(
-                    "While sending resource change from Postgres listener: {}",
-                    error
-                );
-            }
+            publish(
+                &["databases:", &url, ":", &schema, ":", &name].concat(),
+                "Updated",
+            );
         }
     });
 

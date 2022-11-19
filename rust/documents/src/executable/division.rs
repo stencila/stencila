@@ -5,7 +5,7 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
-
+use node_address::Address;
 use stencila_schema::{
     CodeError, Division, Duration, ExecutionAuto, ExecutionRequired, ExecutionStatus, Node,
     Timestamp,
@@ -16,7 +16,8 @@ use super::{shared::code_execution_status, CompileContext, Executable};
 #[async_trait]
 impl Executable for Division {
     /// Compile a `Division` node
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = ensure_id!(self, "di", context);
 
         // Compile the content of the division
@@ -87,6 +88,7 @@ impl Executable for Division {
     /// Begin executing a `Division` node
     ///
     /// Starts an async tak in the kernel space
+    #[cfg(ignore)]
     async fn execute_begin(
         &mut self,
         resource_info: &ResourceInfo,
@@ -98,7 +100,7 @@ impl Executable for Division {
         tracing::trace!("Executing `Division` `{}`", id);
 
         let task_info = kernel_space
-            .exec(&self.text, resource_info, is_fork, kernel_selector)
+            .exec(&self.code, resource_info, is_fork, kernel_selector)
             .await?;
 
         Ok(Some(task_info))
@@ -109,6 +111,7 @@ impl Executable for Division {
     /// Updates various various properties of the node based on the task info and result.
     /// Most importantly, updates the `css` property by transpiling the result of the
     /// evaluation.
+    #[cfg(ignore)]
     async fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
         let TaskResult {
             outputs,

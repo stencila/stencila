@@ -24,11 +24,12 @@ use kernel::{
         tracing,
     },
     formats::Format,
+    parser::VAR_INTERP_REGEX,
     stencila_schema::{CodeError, Node, Null, Primitive},
     Kernel, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
 use node_transform::Transform;
-use parser::utils::{perform_file_interps, VAR_INTERP_REGEX};
+use parser::perform_file_interps;
 
 type HttpErrorHandler = fn(error_type: &str, error_body: &str) -> CodeError;
 

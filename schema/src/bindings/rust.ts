@@ -53,11 +53,11 @@ const defaultDerives =
 // Custom derives for particular structs
 const structDerives: Record<string, string> = {
   // These need a custom Deserialize method to avoid confusion with Object
-  Date: 'Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize',
-  Time: 'Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize',
-  DateTime: 'Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize',
+  Date: 'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize',
+  Time: 'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize',
+  DateTime: 'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize',
   Timestamp: 'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize',
-  Duration: 'Clone, Debug, PartialEq, Eq,  Hash, Derivative, Serialize',
+  Duration: 'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize',
 }
 
 // Custom attributes to add to particular properties
@@ -85,6 +85,18 @@ const propertyAttributes: Record<string, string[]> = {
   ],
   'ConstantValidator.value': [
     '#[derivative(Default(value = "Box::new(Node::Null(Null{}))"))]',
+  ],
+  'ExecutionDependency.dependencyNode': [
+    '#[derivative(Default(value = "ExecutionDependencyNode::Variable(Variable::default())"))]',
+  ],
+  'ExecutionDependency.dependencyRelation': [
+    '#[derivative(Default(value = "ExecutionDependencyRelation::Uses"))]',
+  ],
+  'ExecutionDependent.dependentNode': [
+    '#[derivative(Default(value = "ExecutionDependentNode::Variable(Variable::default())"))]',
+  ],
+  'ExecutionDependent.dependentRelation': [
+    '#[derivative(Default(value = "ExecutionDependentRelation::Assigns"))]',
   ],
 }
 
@@ -117,6 +129,8 @@ const propertyTypes: Record<string, string> = {
   'ExecutionDigest.dependenciesDigest': 'u64',
   'ExecutionDigest.dependenciesStale': 'u32',
   'ExecutionDigest.dependenciesFailed': 'u32',
+  'ExecutionDependency.codeLocation': '[usize;4]',
+  'ExecutionDependent.codeLocation': '[usize;4]',
   // No need to box these
   'DateValidator.minimum': 'Date',
   'DateValidator.maximum': 'Date',

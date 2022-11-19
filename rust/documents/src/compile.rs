@@ -9,11 +9,12 @@ use graph::Graph;
 use graph_triples::{resources, Resource, TagMap};
 use kernels::KernelSpace;
 
+use node_address::Address;
 use node_patch::diff_id;
 use node_pointer::find;
 use path_utils::path_slash::PathBufExt;
 use stencila_schema::{
-    Button, Call, CodeChunk, CodeExpression, Division, ExecutionDependencies, ExecutionDependents,
+    Button, Call, CodeChunk, CodeExpression, Division, ExecutionDependency, ExecutionDependent,
     ExecutionRequired, File, Include, Node, Parameter, Span,
 };
 
@@ -32,7 +33,7 @@ use crate::{
 /// - `project`: The project of the document to be compiled
 ///
 /// - `root`: The root node to be compiled
-/// 
+///
 /// - `tag_map`: The document's [`TagMap`]
 ///
 /// - `kernel_space`: The document's [`KernelSpace`]
@@ -50,6 +51,7 @@ pub async fn compile(
     let kernel_space = kernel_space.read().await;
 
     // Compile the root node
+    let mut address = Address::default();
     let mut context = CompileContext {
         path: path.into(),
         project: project.into(),
@@ -58,7 +60,7 @@ pub async fn compile(
         global_tags: TagMap::default(),
         patches: Vec::default(),
     };
-    root.compile(&mut context).await?;
+    root.compile(&mut address, &mut context).await?;
 
     // Send patches collected during compilation reflecting changes to nodes
     send_patches(patch_sender, context.patches, When::Never);
@@ -70,6 +72,8 @@ pub async fn compile(
     // set of resource infos from it (with data on inter-dependencies etc)
     let resource_infos = context.resource_infos;
     let graph = Graph::from_resource_infos(path, resource_infos)?;
+
+    /*
 
     // Generate patches for properties that can only be derived from the graph (i.e. those based on inter-dependencies)
 
@@ -268,7 +272,7 @@ pub async fn compile(
                 _ => None,
             })
             .collect();
-
+            
         let new_compile_digest = resource_info.compile_digest.clone();
 
         let mut after = node.clone();
@@ -325,6 +329,7 @@ pub async fn compile(
         let patch = diff_id(id, node, &after);
         send_patch(patch_sender, patch, When::Never);
     }
-
+    */
+    
     Ok(graph)
 }

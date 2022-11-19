@@ -8,7 +8,7 @@ use std::{
 
 use common::{itertools::Itertools, once_cell::sync::Lazy, strum::AsRefStr, tokio::sync::RwLock};
 use formats::Format;
-use graph_triples::{resources::Code, Resource, ResourceChange, ResourceInfo};
+use kernel::parser::ParseInfo;
 #[allow(unused_imports)]
 use kernel::{
     common::{
@@ -69,10 +69,7 @@ enum MetaKernel {
 impl MetaKernel {
     /// Create a new `MetaKernel` instance based on a selector which matches against the
     /// name or language of the kernel
-    async fn new(
-        selector: &KernelSelector,
-        resource_changes_sender: &Option<mpsc::Sender<ResourceChange>>,
-    ) -> Result<Self> {
+    async fn new(selector: &KernelSelector) -> Result<Self> {
         #[cfg(feature = "kernel-store")]
         {
             let kernel = kernel_store::StoreKernel::new();
@@ -119,7 +116,7 @@ impl MetaKernel {
         matches_kernel!(
             "kernel-sql",
             MetaKernel::Sql,
-            kernel_sql::SqlKernel::new(selector, resource_changes_sender.clone())
+            kernel_sql::SqlKernel::new(selector)
         );
 
         matches_kernel!("kernel-bash", MetaKernel::Micro, kernel_bash::new());
@@ -314,7 +311,6 @@ impl KernelMap {
         &mut self,
         desired_selector: &KernelSelector,
         directory: &Path,
-        resource_changes_sender: &Option<mpsc::Sender<ResourceChange>>,
     ) -> Result<KernelId> {
         tracing::trace!("Ensuring kernel matching selector `{}`", desired_selector);
 
@@ -364,20 +360,14 @@ impl KernelMap {
 
         // If unable to set in an existing kernel then start a new kernel
         // for the selector.
-        self.start(desired_selector, directory, resource_changes_sender)
-            .await
+        self.start(desired_selector, directory).await
     }
 
     /// Start a kernel for a selector
-    async fn start(
-        &mut self,
-        selector: &KernelSelector,
-        directory: &Path,
-        resource_changes_sender: &Option<mpsc::Sender<ResourceChange>>,
-    ) -> Result<KernelId> {
+    async fn start(&mut self, selector: &KernelSelector, directory: &Path) -> Result<KernelId> {
         tracing::trace!("Starting kernel matching selector `{}`", selector);
 
-        let mut kernel = MetaKernel::new(selector, resource_changes_sender).await?;
+        let mut kernel = MetaKernel::new(selector).await?;
         kernel.start(directory).await?;
 
         // Generate the kernel id from the selector, adding a numeric suffix if necessary
@@ -506,7 +496,7 @@ pub struct SymbolInfo {
     /// The type of the object that the symbol refers to (e.g `Number`, `Function`)
     ///
     /// Should be used as a hint only, to the underlying, native type of the symbol.
-    kind: String,
+    kind: Option<String>,
 
     /// The home kernel of the symbol
     ///
@@ -529,9 +519,9 @@ pub struct SymbolInfo {
 }
 
 impl SymbolInfo {
-    pub fn new(kind: &str, kernel_id: &str) -> Self {
+    pub fn new(kind: Option<String>, kernel_id: &str) -> Self {
         SymbolInfo {
-            kind: kind.into(),
+            kind,
             home: kernel_id.into(),
             modified: Utc::now(),
             mirrored: HashMap::new(),
@@ -573,7 +563,7 @@ fn display_symbols(symbols: &KernelSymbols) -> cli_utils::Result {
             format!(
                 "|{}|{}|{}|{}|{}|",
                 symbol,
-                symbol_info.kind,
+                symbol_info.kind.clone().unwrap_or_default(),
                 symbol_info.home,
                 format_time(symbol_info.modified),
                 symbol_info
@@ -611,7 +601,7 @@ pub struct TaskInfo {
     pub code: String,
 
     /// The result of parsing the code
-    pub resource_info: ResourceInfo,
+    pub parse_info: ParseInfo,
 
     /// The id of the kernel that the task was dispatched to
     pub kernel_id: Option<String>,
@@ -729,7 +719,7 @@ impl KernelTasks {
         &mut self,
         task: &Task,
         code: &str,
-        resource_info: &ResourceInfo,
+        parse_info: &ParseInfo,
         kernel_id: &str,
         is_fork: bool,
     ) -> TaskInfo {
@@ -738,7 +728,7 @@ impl KernelTasks {
         let task_info = TaskInfo {
             num: self.counter,
             code: code.to_string(),
-            resource_info: resource_info.clone(),
+            parse_info: parse_info.clone(),
             kernel_id: Some(kernel_id.to_string()),
             is_fork,
             is_async: task.is_async(),
@@ -858,9 +848,6 @@ pub struct KernelSpace {
     /// The working directory of the kernel space
     directory: PathBuf,
 
-    /// A channel sender for sending changes to resources within the kernel
-    resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
-
     /// The kernels in the kernel space
     kernels: Arc<Mutex<KernelMap>>,
 
@@ -887,15 +874,11 @@ pub type KernelInfos = HashMap<KernelId, KernelInfo>;
 
 impl KernelSpace {
     /// Create a new kernel space and start its monitoring task
-    pub fn new(
-        directory: Option<&Path>,
-        resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
-    ) -> Self {
+    pub fn new(directory: Option<&Path>) -> Self {
         let mut new = Self::default();
         new.directory = directory
             .map(PathBuf::from)
             .unwrap_or_else(|| current_dir().expect("Should be able to get current dir"));
-        new.resource_changes_sender = resource_changes_sender;
 
         new.monitor();
         new
@@ -912,13 +895,9 @@ impl KernelSpace {
     ///
     /// Returns a new `KernelSpace` and a list of the names of the kernels in that kernel space
     /// that were restarted.
-    pub async fn fork(
-        &self,
-        resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
-    ) -> Result<(Self, Vec<String>)> {
+    pub async fn fork(&self) -> Result<(Self, Vec<String>)> {
         let mut new = Self::default();
         new.directory = self.directory.clone();
-        new.resource_changes_sender = resource_changes_sender;
 
         // Fork each of the kernels and remove any `mirrored` entry for the kernel if unable to do
         // a proper fork.
@@ -1015,8 +994,8 @@ impl KernelSpace {
 
         // TODO check against existing kernels and variables in them
         for language in alternatives {
-            if let Ok(resource_info) = parsers::parse_language(*language, code) {
-                if resource_info.syntax_errors.is_none() {
+            if let Ok(parse_info) = parsers::parse(*language, code, None) {
+                if !parse_info.syntax_errors {
                     return *language;
                 }
             }
@@ -1028,9 +1007,7 @@ impl KernelSpace {
     /// Start a kernel
     pub async fn start(&self, selector: &KernelSelector) -> Result<KernelId> {
         let kernels = &mut *self.kernels.lock().await;
-        kernels
-            .start(selector, &self.directory, &self.resource_changes_sender)
-            .await
+        kernels.start(selector, &self.directory).await
     }
 
     /// Stop a kernel
@@ -1064,9 +1041,7 @@ impl KernelSpace {
 
             kernels.stop(id).await?;
             purge_kernel_from_symbols(symbols, id);
-            kernels
-                .start(&selector, &self.directory, &self.resource_changes_sender)
-                .await?;
+            kernels.start(&selector, &self.directory).await?;
         }
 
         Ok(())
@@ -1093,9 +1068,7 @@ impl KernelSpace {
     ) -> Result<KernelId> {
         let kernels = &mut *self.kernels.lock().await;
 
-        let kernel_id = kernels
-            .ensure(selector, &self.directory, &self.resource_changes_sender)
-            .await?;
+        let kernel_id = kernels.ensure(selector, &self.directory).await?;
         tracing::debug!("Setting symbol `{}` in kernel `{}`", name, kernel_id);
 
         let kernel = kernels.get_mut(&kernel_id)?;
@@ -1109,7 +1082,7 @@ impl KernelSpace {
                 info.modified = Utc::now();
             }
             Entry::Vacant(vacant) => {
-                vacant.insert(SymbolInfo::new("", &kernel_id));
+                vacant.insert(SymbolInfo::new(None, &kernel_id));
             }
         }
 
@@ -1144,23 +1117,20 @@ impl KernelSpace {
     pub async fn exec(
         &self,
         code: &str,
-        resource_info: &ResourceInfo,
+        parse_info: &ParseInfo,
         force_fork: bool,
         selector: &KernelSelector,
     ) -> Result<TaskInfo> {
         let kernels = &mut *self.kernels.lock().await;
 
         // Determine the kernel to execute in
-        let kernel_id = kernels
-            .ensure(selector, &self.directory, &self.resource_changes_sender)
-            .await?;
+        let kernel_id = kernels.ensure(selector, &self.directory).await?;
         tracing::trace!("Dispatching task to kernel `{}`", kernel_id);
 
         // Mirror symbols that are used in the code into the kernel
         let symbols = &mut *self.symbols.lock().await;
-        for symbol in resource_info.symbols_used() {
-            let name = &symbol.name;
-            let symbol = match symbols.get_mut(name) {
+        for (name, ..) in parse_info.variables_used() {
+            let symbol = match symbols.get_mut(&name) {
                 Some(symbol) => symbol,
                 // Skip if unknown symbol (e.g a package, or variable assigned elsewhere)
                 None => continue,
@@ -1186,10 +1156,10 @@ impl KernelSpace {
             );
 
             let home_kernel = kernels.get_mut(&symbol.home)?;
-            let value = home_kernel.get(name).await?;
+            let value = home_kernel.get(&name).await?;
 
             let mirror_kernel = kernels.get_mut(&kernel_id)?;
-            mirror_kernel.set(name, value).await?;
+            mirror_kernel.set(&name, value).await?;
 
             symbol
                 .mirrored
@@ -1200,42 +1170,38 @@ impl KernelSpace {
 
         // Execute the code in the kernel, or a fork
         let kernel = kernels.get_mut(&kernel_id)?;
-        let lang = match resource_info.resource {
-            Resource::Code(Code { language, .. }) => language,
-            _ => Format::Unknown,
-        };
-        let pure = resource_info.is_pure();
+        let lang = parse_info.language();
+        let pure = parse_info.is_pure();
         let fork = force_fork || (pure && kernel.is_forkable().await);
 
         tracing::trace!(
-            "Executing code for `{}` in kernel `{}`{}",
-            resource_info.resource.node_id().unwrap_or("?"),
+            "Executing code for in kernel `{}`{}",
             kernel_id,
             if fork { " fork" } else { "" }
         );
-        let tags = Some(&resource_info.tags);
+        let tags = parse_info.tag_map();
         let task = if fork {
-            kernel.exec_fork(code, lang, tags).await?
+            kernel.exec_fork(code, lang, Some(&tags)).await?
         } else {
-            kernel.exec_async(code, lang, tags).await?
+            kernel.exec_async(code, lang, Some(&tags)).await?
         };
 
         // Record symbols assigned in kernel (unless it was a fork)
         if !pure {
-            for symbol in resource_info.symbols_modified() {
+            for (name, kind) in parse_info.variables_modified() {
                 symbols
-                    .entry(symbol.name.clone())
+                    .entry(name)
                     .and_modify(|info| {
                         info.home = kernel_id.to_string();
                         info.modified = Utc::now();
                     })
-                    .or_insert_with(|| SymbolInfo::new(&symbol.kind, &kernel_id));
+                    .or_insert_with(|| SymbolInfo::new(kind, &kernel_id));
             }
         }
 
         // Either way, store the task
         let task_info = self
-            .store(&task, code, resource_info, &kernel_id, force_fork)
+            .store(&task, code, parse_info, &kernel_id, force_fork)
             .await;
         Ok(task_info)
     }
@@ -1249,7 +1215,7 @@ impl KernelSpace {
         &self,
         task: &Task,
         code: &str,
-        resource_info: &ResourceInfo,
+        parse_info: &ParseInfo,
         kernel_id: &str,
         is_fork: bool,
     ) -> TaskInfo {
@@ -1278,9 +1244,7 @@ impl KernelSpace {
         }
 
         let mut tasks = self.tasks.lock().await;
-        tasks
-            .put(task, code, resource_info, kernel_id, is_fork)
-            .await
+        tasks.put(task, code, parse_info, kernel_id, is_fork).await
     }
 
     /// Cancel a task
@@ -1379,7 +1343,6 @@ impl KernelSpace {
         use cli_utils::result;
         use common::regex::Regex;
         use events::{subscribe, unsubscribe, Subscriber};
-        use graph_triples::resources;
 
         static SYMBOL: Lazy<Regex> =
             Lazy::new(|| Regex::new(r"^[a-zA-Z]\w*$").expect("Unable to create regex"));
@@ -1399,18 +1362,12 @@ impl KernelSpace {
 
             // If possible, parse the code so that we can use the relations to determine variables that
             // are assigned or used (needed for variable mirroring).
-            let path = PathBuf::from("<cli>");
-            let resource = resources::code(
-                &path,
-                "<id>",
-                "<file>",
-                language
-                    .as_ref()
-                    .map_or_else(|| Format::Unknown, |lang| formats::match_name(lang)),
-            );
-            let resource_info = match parsers::parse(resource.clone(), &code) {
-                Ok(resource_info) => resource_info,
-                Err(..) => ResourceInfo::default(resource),
+            let format = language
+                .as_ref()
+                .map_or_else(|| Format::Unknown, |lang| formats::match_name(lang));
+            let parse_info = match parsers::parse(format, &code, None) {
+                Ok(parse_info) => parse_info,
+                Err(..) => ParseInfo::default(),
             };
 
             // Determine the kernel selector
@@ -1440,7 +1397,7 @@ impl KernelSpace {
             };
 
             // Execute the code
-            let mut task_info = self.exec(&code, &resource_info, is_fork, &selector).await?;
+            let mut task_info = self.exec(&code, &parse_info, is_fork, &selector).await?;
 
             if background {
                 // Indicate task is running in background
@@ -1538,7 +1495,7 @@ pub async fn available() -> Vec<Kernel> {
 
     #[cfg(feature = "kernel-sql")]
     available.push(
-        kernel_sql::SqlKernel::new(&KernelSelector::default(), None)
+        kernel_sql::SqlKernel::new(&KernelSelector::default())
             .spec()
             .await,
     );
@@ -1780,7 +1737,7 @@ pub mod commands {
     /// kernel state is maintained in successive calls to `Execute::run` when in
     /// interactive mode
     static KERNEL_SPACE: Lazy<Mutex<KernelSpace>> =
-        Lazy::new(|| Mutex::new(KernelSpace::new(None, None)));
+        Lazy::new(|| Mutex::new(KernelSpace::new(None)));
 
     /// Execute code within a document kernel space
     ///

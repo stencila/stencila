@@ -7,7 +7,7 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
-
+use node_address::Address;
 use stencila_schema::{CodeError, If, Node};
 
 use crate::executable::Executable;
@@ -17,7 +17,8 @@ use super::CompileContext;
 #[async_trait]
 impl Executable for If {
     /// Compile an `If` node
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = ensure_id!(self, "if", context);
 
         // Guess clause language if specified or necessary
@@ -53,6 +54,7 @@ impl Executable for If {
         Ok(())
     }
 
+    #[cfg(ignore)]
     async fn execute_begin(
         &mut self,
         _resource_info: &ResourceInfo,
@@ -68,7 +70,7 @@ impl Executable for If {
         for (index, clause) in self.clauses.iter_mut().enumerate() {
             // If this is the last clause, the expression is empty (i.e. an "else" clause)
             // and no other clauses have been made active then make active
-            if !activated && index == clauses_count - 1 && clause.text.trim().is_empty() {
+            if !activated && index == clauses_count - 1 && clause.code.trim().is_empty() {
                 clause.is_active = Some(true);
                 break;
             }
@@ -87,7 +89,7 @@ impl Executable for If {
                     ResourceInfo::default(resources::code(&PathBuf::new(), "", "", format));
                 let kernel_selector = KernelSelector::from_format_and_tags(format, None);
                 let mut task_info = kernel_space
-                    .exec(&clause.text, &resource_info, false, &kernel_selector)
+                    .exec(&clause.code, &resource_info, false, &kernel_selector)
                     .await?;
                 let mut task_result = task_info.result().await?;
 

@@ -5,7 +5,7 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
-
+use node_address::Address;
 use stencila_schema::{CodeExpression, Duration, ExecutionRequired, ExecutionStatus, Timestamp};
 
 use super::{shared::code_execution_status, CompileContext, Executable};
@@ -20,7 +20,8 @@ impl Executable for CodeExpression {
     ///
     /// A `CodeExpression` is assumed to be pure (i.e. have no side effects and can be executed
     /// in a fork).
-    async fn compile(&mut self, context: &mut CompileContext) -> Result<()> {
+    #[cfg(ignore)]
+    async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = ensure_id!(self, "ce", context);
 
         // Guess language if specified or necessary
@@ -65,10 +66,11 @@ impl Executable for CodeExpression {
         resource_info.execute_pure = None;
 
         context.resource_infos.push(resource_info);
-
+        
         Ok(())
     }
 
+    #[cfg(ignore)]
     async fn execute_begin(
         &mut self,
         resource_info: &ResourceInfo,
@@ -79,12 +81,13 @@ impl Executable for CodeExpression {
         tracing::trace!("Executing `CodeExpression` `{:?}`", self.id);
 
         let task_info = kernel_space
-            .exec(&self.text, resource_info, is_fork, kernel_selector)
+            .exec(&self.code, resource_info, is_fork, kernel_selector)
             .await?;
 
         Ok(Some(task_info))
     }
 
+    #[cfg(ignore)]
     async fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
         let TaskResult {
             outputs,
