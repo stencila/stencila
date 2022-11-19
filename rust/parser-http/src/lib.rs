@@ -17,6 +17,7 @@ impl ParserTrait for HttpParser {
 
     fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
         let mut parse_info = ParseInfo {
+            language: Self::spec().language,
             execution_dependencies: [
                 parse_var_interps(code, path),
                 parse_file_interps(code, path),

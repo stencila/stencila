@@ -36,7 +36,9 @@ impl ParserTrait for PrqlParser {
         });
         let sql = REGEX.replace_all(&sql, |captures: &Captures| ["$", &captures[1]].concat());
 
-        parser_sql::SqlParser::parse(&sql, path)
+        let mut parser_info = parser_sql::SqlParser::parse(&sql, path)?;
+        parser_info.language = Self::spec().language;
+        Ok(parser_info)
     }
 }
 

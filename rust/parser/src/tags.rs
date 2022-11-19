@@ -4,10 +4,13 @@ use common::{itertools::Itertools, once_cell::sync::Lazy, regex::Regex, serde::S
 use stencila_schema::{
     ExecutionAuto, ExecutionDependency, ExecutionDependencyNode, ExecutionDependencyRelation,
     ExecutionDependent, ExecutionDependentNode, ExecutionDependentRelation, ExecutionTag, File,
-    SoftwareSourceCode, Variable,
+    SoftwareSourceCode,
 };
 
-use crate::ParseInfo;
+use crate::{
+    utils::{dependency_variable, dependent_variable},
+    ParseInfo,
+};
 
 /// A collection of tags
 ///
@@ -21,6 +24,11 @@ pub struct TagMap {
 }
 
 impl TagMap {
+    /// Create a new tag map
+    pub fn new(inner: Vec<ExecutionTag>) -> Self {
+        Self { inner }
+    }
+
     /// Create a new tag map from a list of name/value pairs
     pub fn from_name_values(pairs: &[(&str, &str)]) -> Self {
         let mut map = Self::default();
@@ -195,12 +203,7 @@ pub fn apply_comment_tags(
                                 .to_string(),
                             ..Default::default()
                         }),
-                        "uses" => ExecutionDependencyNode::Variable(Variable {
-                            namespace: path
-                                .map(|path| Box::new(path.to_string_lossy().to_string())),
-                            name: arg,
-                            ..Default::default()
-                        }),
+                        "uses" => dependency_variable(&arg, path, None),
                         _ => continue,
                     };
                     dependencies.push(ExecutionDependency {
@@ -211,14 +214,7 @@ pub fn apply_comment_tags(
                     })
                 } else if let Some(dependent_relation) = dependent_relation.clone() {
                     let dependent_node = match name {
-                        "assigns" | "alters" | "declares" => {
-                            ExecutionDependentNode::Variable(Variable {
-                                namespace: path
-                                    .map(|path| Box::new(path.to_string_lossy().to_string())),
-                                name: arg,
-                                ..Default::default()
-                            })
-                        }
+                        "assigns" | "alters" | "declares" => dependent_variable(&arg, path, None),
                         "write" => ExecutionDependentNode::File(File {
                             path: path
                                 .map_or_else(

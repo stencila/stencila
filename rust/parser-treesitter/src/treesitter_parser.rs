@@ -203,12 +203,10 @@ pub fn child_text<'tree>(
 /// - `code`: The code that was parsed
 /// - `matches`: The matches from querying the code
 /// - `comment_pattern`: The index of the pattern from which to extract tags
-///
-/// Assumes that the first capture has the text content of the comment.
 #[allow(clippy::too_many_arguments)]
 pub fn parse_info(
     path: Option<&Path>,
-    lang: Format,
+    language: Format,
     code: &[u8],
     tree: &Tree,
     semantics_exclude: &[&str],
@@ -218,13 +216,14 @@ pub fn parse_info(
     execution_dependents: Vec<ExecutionDependent>,
 ) -> ParseInfo {
     let syntax_errors = tree.root_node().has_error();
-    let semantic_digest = semantic_digest(lang, tree, code, semantics_exclude);
+    let semantic_digest = semantic_digest(language, tree, code, semantics_exclude);
 
     // Remove `Uses` where also assigned in the same code
     remove_uses_of_assigned(&mut execution_dependencies, &execution_dependents);
 
     // Make the resource
     let mut parse_info = ParseInfo {
+        language,
         syntax_errors,
         semantic_digest,
         execution_dependencies,

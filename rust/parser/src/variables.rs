@@ -4,9 +4,9 @@ use common::{
     once_cell::sync::Lazy,
     regex::{Captures, Regex},
 };
-use stencila_schema::{
-    CodeError, ExecutionDependency, ExecutionDependencyNode, ExecutionDependencyRelation, Variable,
-};
+use stencila_schema::{CodeError, ExecutionDependency};
+
+use crate::utils::uses_variable;
 
 /// Regex for detecting variable interpolations within code
 ///
@@ -27,16 +27,12 @@ pub fn parse_var_interps(code: &str, path: Option<&Path>) -> Vec<ExecutionDepend
                 .get(1)
                 .or_else(|| captures.get(2))
                 .expect("Should always have one group");
-            ExecutionDependency {
-                dependency_relation: ExecutionDependencyRelation::Uses,
-                dependency_node: ExecutionDependencyNode::Variable(Variable {
-                    namespace: path.map(|path| Box::new(path.to_string_lossy().to_string())),
-                    name: name.as_str().to_string(),
-                    ..Default::default()
-                }),
-                code_location: Some([0, name.start(), 0, name.end()]),
-                ..Default::default()
-            }
+            uses_variable(
+                name.as_str(),
+                path,
+                None,
+                Some([0, name.start(), 0, name.end()]),
+            )
         })
         .collect()
 }

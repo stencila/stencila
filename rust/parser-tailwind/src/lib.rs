@@ -29,6 +29,7 @@ impl ParserTrait for TailwindParser {
 
     fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
         Ok(ParseInfo {
+            language: Self::spec().language,
             syntax_errors: transpile_string(code).is_err(),
             execution_dependencies: parse_var_interps(code, path),
             ..Default::default()

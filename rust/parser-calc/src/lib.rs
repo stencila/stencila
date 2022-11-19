@@ -44,7 +44,9 @@ impl ParserTrait for CalcParser {
         let mut syntax_errors = false;
         let parser = fasteval::Parser::new();
         let mut slab = fasteval::Slab::new();
-        let namespace = path.map(|path| Box::new(path.to_string_lossy().to_string()));
+        let namespace = path
+            .map(|path| path.to_string_lossy().to_string())
+            .unwrap_or_default();
         for (row, line) in code.lines().enumerate() {
             // Skip the line if it is blank
             if line.trim().is_empty() {
@@ -116,8 +118,9 @@ impl ParserTrait for CalcParser {
         remove_uses_of_assigned(&mut execution_dependencies, &execution_dependents);
 
         let mut parse_info = ParseInfo {
-            semantic_digest: str_seahash(&semantics)?,
+            language: Self::spec().language,
             syntax_errors,
+            semantic_digest: str_seahash(&semantics)?,
             execution_dependencies,
             execution_dependents,
             ..Default::default()

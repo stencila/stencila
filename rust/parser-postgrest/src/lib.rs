@@ -47,6 +47,7 @@ impl ParserTrait for PostgrestParser {
         .concat();
 
         Ok(ParseInfo {
+            language: Self::spec().language,
             syntax_errors,
             execution_dependencies,
             ..Default::default()

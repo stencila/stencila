@@ -22,7 +22,10 @@ impl ParserTrait for JsonParser {
     }
 
     fn parse(code: &str, _path: Option<&Path>) -> Result<ParseInfo> {
-        let mut parse_info = ParseInfo::default();
+        let mut parse_info = ParseInfo {
+            language: Self::spec().language,
+            ..Default::default()
+        };
         match serde_json::from_str::<serde_json::Value>(code) {
             Ok(value) => {
                 let json = serde_json::to_string(&value)?;

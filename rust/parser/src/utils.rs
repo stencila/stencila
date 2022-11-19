@@ -85,20 +85,6 @@ pub fn writes_file(path: &Path, code_location: Option<[usize; 4]>) -> ExecutionD
     }
 }
 
-/// Crate a [`ExecutionDependentNode`] for a variable
-pub fn dependent_variable(
-    name: &str,
-    path: Option<&Path>,
-    kind: Option<String>,
-) -> ExecutionDependentNode {
-    ExecutionDependentNode::Variable(Variable {
-        namespace: path.map(|path| Box::new(path.to_string_lossy().to_string())),
-        name: name.to_string(),
-        kind: kind.map(Box::new),
-        ..Default::default()
-    })
-}
-
 /// Create an [`ExecutionDependency`] reflecting use of a variable
 pub fn uses_variable(
     name: &str,
@@ -109,7 +95,9 @@ pub fn uses_variable(
     ExecutionDependency {
         dependency_relation: ExecutionDependencyRelation::Uses,
         dependency_node: ExecutionDependencyNode::Variable(Variable {
-            namespace: path.map(|path| Box::new(path.to_string_lossy().to_string())),
+            namespace: path
+                .map(|path| path.to_string_lossy().to_string())
+                .unwrap_or_default(),
             name: name.to_string(),
             kind: kind.map(Box::new),
             ..Default::default()
@@ -154,6 +142,36 @@ pub fn imports_module(name: &str, code_location: Option<[usize; 4]>) -> Executio
             ..Default::default()
         }),
         code_location,
+        ..Default::default()
+    }
+}
+
+/// Create a [`ExecutionDependentNode`] for a variable
+pub fn dependent_variable(
+    name: &str,
+    path: Option<&Path>,
+    kind: Option<String>,
+) -> ExecutionDependentNode {
+    ExecutionDependentNode::Variable(variable(name, path, kind))
+}
+
+/// Create a [`ExecutionDependencyNode`] for a variable
+pub fn dependency_variable(
+    name: &str,
+    path: Option<&Path>,
+    kind: Option<String>,
+) -> ExecutionDependencyNode {
+    ExecutionDependencyNode::Variable(variable(name, path, kind))
+}
+
+/// Create a variable
+pub fn variable(name: &str, path: Option<&Path>, kind: Option<String>) -> Variable {
+    Variable {
+        namespace: path
+            .map(|path| path.to_string_lossy().to_string())
+            .unwrap_or_default(),
+        name: name.to_string(),
+        kind: kind.map(Box::new),
         ..Default::default()
     }
 }

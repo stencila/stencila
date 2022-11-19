@@ -13,7 +13,7 @@ use common::{
     tracing,
 };
 use formats::Format;
-pub use graph_triples::TagMap;
+pub use parser::TagMap;
 use stencila_schema::{CodeError, Node};
 use suids::suid_family;
 use utils::some_box_string;
@@ -21,7 +21,7 @@ use utils::some_box_string;
 // Re-export for the convenience of crates that implement `KernelTrait`
 pub use common;
 pub use formats;
-pub use graph_triples;
+pub use parser;
 pub use stencila_schema;
 pub use suids;
 

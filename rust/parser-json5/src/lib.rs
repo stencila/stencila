@@ -22,7 +22,10 @@ impl ParserTrait for Json5Parser {
     }
 
     fn parse(code: &str, _path: Option<&Path>) -> Result<ParseInfo> {
-        let mut parse_info = ParseInfo::default();
+        let mut parse_info = ParseInfo {
+            language: Self::spec().language,
+            ..Default::default()
+        };
         match json5::from_str::<serde_json::Value>(code) {
             Ok(value) => {
                 let json = serde_json::to_string(&value)?;
