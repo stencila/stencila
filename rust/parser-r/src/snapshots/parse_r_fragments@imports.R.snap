@@ -1,133 +1,117 @@
 ---
 source: rust/parser-r/src/lib.rs
-assertion_line: 210
-expression: resource_info
+assertion_line: 216
+expression: parse_info
 input_file: fixtures/fragments/r/imports.R
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/r/imports.R",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "r"
-  },
-  "relations": [
-    [
-      {
-        "type": "Imports",
-        "range": [
-          1,
-          8,
-          1,
-          12
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "r",
+  "syntaxErrors": false,
+  "semanticDigest": 9376134540908712671,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "pkg1"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          2,
-          8,
-          2,
-          12
-        ]
       },
-      {
-        "type": "Module",
-        "language": "r",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        1,
+        8,
+        1,
+        12
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "pkg2"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          5,
-          8,
-          5,
-          14
-        ]
       },
-      {
-        "type": "Module",
-        "language": "r",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        2,
+        8,
+        2,
+        12
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "pkg3"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          5,
-          8,
-          5,
-          14
-        ]
       },
-      {
-        "type": "Module",
-        "language": "r",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        5,
+        8,
+        5,
+        14
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "pkg3"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          8,
-          0,
-          8,
-          3
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/imports.R",
-        "name": "foo",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          9,
-          12,
-          9,
-          16
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "r",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        5,
+        8,
+        5,
+        14
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "pkg4"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          16,
-          0,
-          16,
-          7
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/imports.R",
-        "name": "pkg_var",
-        "kind": "String"
-      }
-    ]
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        9,
+        12,
+        9,
+        16
+      ]
+    }
   ],
-  "compile_digest": "899762864881371535.11930109659523068235.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "foo",
+        "kind": "Function",
+        "namespace": "fragments/r/imports.R"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        8,
+        0,
+        8,
+        3
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "pkg_var",
+        "kind": "String",
+        "namespace": "fragments/r/imports.R"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        16,
+        0,
+        16,
+        7
+      ]
+    }
+  ],
+  "executionTags": []
 }

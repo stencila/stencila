@@ -1,98 +1,92 @@
 ---
 source: rust/parser-r/src/lib.rs
-assertion_line: 210
-expression: resource_info
+assertion_line: 216
+expression: parse_info
 input_file: fixtures/fragments/r/reads.R
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/r/reads.R",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "r"
-  },
-  "relations": [
-    [
-      {
-        "type": "Reads",
-        "range": [
-          1,
-          9,
-          1,
-          16
-        ]
-      },
-      {
+  "syntaxErrors": false,
+  "semanticDigest": 3279213035845027574,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
+        "name": "",
         "path": "fragments/r/path1"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          4,
-          0,
-          4,
-          4
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/reads.R",
-        "name": "data",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          4,
-          19,
-          4,
-          26
-        ]
-      },
-      {
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        1,
+        9,
+        1,
+        16
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
+        "name": "",
         "path": "fragments/r/path2"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          7,
-          0,
-          7,
-          3
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/reads.R",
-        "name": "foo",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          8,
-          22,
-          8,
-          29
-        ]
-      },
-      {
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        4,
+        19,
+        4,
+        26
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
+        "name": "",
         "path": "fragments/r/path3"
-      }
-    ]
+      },
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        8,
+        22,
+        8,
+        29
+      ]
+    }
   ],
-  "compile_digest": "4070031409373294044.14306524640697689833.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "data",
+        "kind": "Datatable",
+        "namespace": "fragments/r/reads.R"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        4,
+        0,
+        4,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "foo",
+        "kind": "Function",
+        "namespace": "fragments/r/reads.R"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        7,
+        0,
+        7,
+        3
+      ]
+    }
+  ],
+  "executionTags": []
 }
