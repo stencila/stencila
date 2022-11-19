@@ -123,7 +123,7 @@ impl Documents {
     pub async fn subscribe(&self, id: &str, topic: &str, client: &str) -> Result<String> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        let topic = document_guard.subscribe(topic, client);
+        let topic = document_guard.subscribe(topic, client).await;
         Ok(topic)
     }
 
@@ -131,7 +131,7 @@ impl Documents {
     pub async fn unsubscribe(&self, id: &str, topic: &str, client: &str) -> Result<String> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        let topic = document_guard.unsubscribe(topic, client);
+        let topic = document_guard.unsubscribe(topic, client).await;
         Ok(topic)
     }
 

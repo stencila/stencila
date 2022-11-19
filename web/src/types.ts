@@ -27,11 +27,6 @@ export type ElementId = string
 export type NodeId = string
 
 /**
- * Possible document subscription topics
- */
-export type DocumentTopic = 'patched' | 'kernel-monitoring'
-
-/**
  * The browser event emitted when a document is patched (e.g. by the
  * WYSIWYG article editor)
  */

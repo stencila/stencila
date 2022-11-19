@@ -3,10 +3,7 @@ use std::{
     env, fs,
     ops::Deref,
     path::{Path, PathBuf},
-    sync::{
-        atomic::{AtomicUsize, Ordering},
-        Arc,
-    },
+    sync::Arc,
     time::{Duration, Instant},
 };
 
@@ -19,7 +16,7 @@ use common::{
     itertools::Itertools,
     maplit::hashset,
     serde::Serialize,
-    serde_with::skip_serializing_none,
+    serde_json::json,
     strum::Display,
     tokio::{
         self,
@@ -48,29 +45,6 @@ use crate::{
     },
 };
 
-#[derive(Debug, Serialize, Display)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
-#[strum(serialize_all = "lowercase")]
-enum DocumentEventType {
-    Deleted,
-    Renamed,
-    Modified,
-    Patched,
-    Encoded,
-}
-
-#[skip_serializing_none]
-#[derive(Debug, Serialize)]
-#[serde(crate = "common::serde")]
-struct DocumentEvent {
-    /// The type of event
-    #[serde(rename = "type")]
-    type_: DocumentEventType,
-
-    /// The `Patch` associated with a `Patched` event
-    patch: Option<Patch>,
-}
-
 /// The status of a document with respect to on-disk synchronization
 #[derive(Debug, Clone, Serialize, Display)]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
@@ -89,6 +63,8 @@ enum DocumentStatus {
     /// want to save it.
     Deleted,
 }
+
+pub type DocumentSubscribers = HashMap<String, HashSet<String>>;
 
 /// An in-memory representation of a document
 #[derive(Debug, Serialize)]
@@ -219,13 +195,8 @@ pub struct Document {
     /// - `encoded:<format>` published when a document's content
     ///    is changed internally or externally and  conversions have been
     ///    completed e.g. `encoded:html`
-    subscriptions: HashMap<String, HashSet<String>>,
-
-    /// A running count of the number of subscriptions to the document
-    ///
-    /// Used, as a performance optimization, to avoiding publishing events
-    /// or doing pre-publishing preparation, when there are no subscribers at all.
-    subscriptions_count: Arc<AtomicUsize>,
+    #[serde(skip)]
+    subscribers: Arc<RwLock<DocumentSubscribers>>,
 
     #[serde(skip)]
     patch_request_sender: mpsc::UnboundedSender<PatchRequest>,
@@ -239,7 +210,7 @@ pub struct Document {
     #[serde(skip)]
     cancel_request_sender: mpsc::Sender<CancelRequest>,
 
-    // TODO: Add `write_request` method and refactor `write` method similar to 
+    // TODO: Add `write_request` method and refactor `write` method similar to
     // `patch_request`, `patch` etc.
     #[allow(dead_code)]
     #[serde(skip)]
@@ -328,7 +299,7 @@ impl Document {
         let tags = Arc::new(RwLock::new(TagMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
         let kernels = Arc::new(RwLock::new(KernelSpace::new(Some(&project))));
-        let subscriptions_count = Arc::new(AtomicUsize::new(0));
+        let subscribers = Arc::new(RwLock::new(DocumentSubscribers::default()));
         let last_write = Arc::new(RwLock::new(Instant::now()));
 
         let (
@@ -347,7 +318,7 @@ impl Document {
             &tags,
             &graph,
             &kernels,
-            &subscriptions_count,
+            &subscribers,
             &last_write,
         );
 
@@ -370,8 +341,7 @@ impl Document {
             kernels,
 
             relations: Default::default(),
-            subscriptions: Default::default(),
-            subscriptions_count,
+            subscribers: Default::default(),
 
             patch_request_sender,
             compile_request_sender,
@@ -407,7 +377,7 @@ impl Document {
         let (kernels, kernels_restarted) = self.kernels.read().await.fork().await?;
         let kernels = Arc::new(RwLock::new(kernels));
 
-        let subscriptions_count = Arc::new(AtomicUsize::new(0));
+        let subscribers = Arc::new(RwLock::new(DocumentSubscribers::default()));
         let last_write = Arc::new(RwLock::new(Instant::now()));
 
         let (
@@ -426,7 +396,7 @@ impl Document {
             &tags,
             &graph,
             &kernels,
-            &subscriptions_count,
+            &subscribers,
             &last_write,
         );
 
@@ -449,8 +419,7 @@ impl Document {
             kernels,
 
             relations: Default::default(),
-            subscriptions: Default::default(),
-            subscriptions_count,
+            subscribers: Default::default(),
 
             patch_request_sender,
             compile_request_sender,
@@ -827,7 +796,7 @@ impl Document {
     ///
     /// - `root`: The root [`Node`] to apply the patch to (will be write locked)
     ///
-    /// - `subscriptions_count`: The number of subscriptions to the document
+    /// - `subscribers`: The number of subscriptions to the document
     ///
     /// - `compile_sender`: The channel to send any [`CompileRequest`]s after a patch is applied
     ///
@@ -840,7 +809,7 @@ impl Document {
     pub(crate) async fn patch_task(
         id: &str,
         root: &Arc<RwLock<Node>>,
-        subscriptions_count: &Arc<AtomicUsize>,
+        subscribers: &Arc<RwLock<DocumentSubscribers>>,
         compile_sender: &mpsc::Sender<CompileRequest>,
         write_sender: &mpsc::UnboundedSender<WriteRequest>,
         request_receiver: &mut mpsc::UnboundedReceiver<PatchRequest>,
@@ -874,16 +843,17 @@ impl Document {
                 // Increment version counter
                 counter += 1;
 
-                // Publish the patch if there are any subscriptions
-                if subscriptions_count.load(Ordering::Acquire) > 0 {
+                // Publish the patch if there are any subscriptions to the `patched` event
+                // of this document
+                if subscribers
+                    .read()
+                    .await
+                    .get("patched")
+                    .map(|subscribers| !subscribers.is_empty())
+                    .unwrap_or_default()
+                {
                     patch.prepublish(counter, root);
-                    publish(
-                        &["documents:", id, ":patched"].concat(),
-                        &DocumentEvent {
-                            type_: DocumentEventType::Patched,
-                            patch: Some(patch),
-                        },
-                    );
+                    publish(&["documents:", id, ":patched"].concat(), &patch);
                 }
             }
 
@@ -1533,9 +1503,6 @@ impl Document {
         Ok(request_id)
     }
 
-
-    
-
     /// Restart a kernel (or all kernels) in the document's kernel space
     ///
     /// Cancels any execution plan that is running, destroy the document's
@@ -1625,18 +1592,13 @@ impl Document {
         self.compile(When::Never, When::Never, None).await?;
 
         // Publish any events for which there are subscriptions (this will probably go elsewhere)
-        for subscription in self.subscriptions.keys() {
+        let subscribers = &*self.subscribers.read().await;
+        for subscription in subscribers.keys() {
             // Encode the `root` into each of the formats for which there are subscriptions
             if let Some(format) = subscription.strip_prefix("encoded:") {
                 tracing::debug!("Encoding document `{}` to format `{}`", self.id, format);
                 match codecs::to_string(&*self.root.read().await, format, None).await {
-                    Ok(content) => {
-                        self.publish(
-                            DocumentEventType::Encoded,
-                            Some(content),
-                            Some(format.into()),
-                        );
-                    }
+                    Ok(content) => self.publish("encoded", content),
                     Err(error) => {
                         tracing::warn!("Unable to encode to format `{}`: {}", format, error)
                     }
@@ -1659,8 +1621,9 @@ impl Document {
     }
 
     /// Subscribe a client to one of the document's topics
-    pub fn subscribe(&mut self, topic: &str, client: &str) -> String {
-        match self.subscriptions.entry(topic.into()) {
+    pub async fn subscribe(&mut self, topic: &str, client: &str) -> String {
+        let subscribers = &mut *self.subscribers.write().await;
+        match subscribers.entry(topic.into()) {
             Entry::Occupied(mut occupied) => {
                 occupied.get_mut().insert(client.into());
             }
@@ -1668,26 +1631,26 @@ impl Document {
                 vacant.insert(hashset! {client.into()});
             }
         }
-        self.subscriptions_count.fetch_add(1, Ordering::SeqCst);
         self.topic(topic)
     }
 
     /// Unsubscribe a client from one of the document's topics
-    pub fn unsubscribe(&mut self, topic: &str, client: &str) -> String {
-        if let Entry::Occupied(mut occupied) = self.subscriptions.entry(topic.to_string()) {
+    pub async fn unsubscribe(&mut self, topic: &str, client: &str) -> String {
+        let subscribers = &mut *self.subscribers.write().await;
+        if let Entry::Occupied(mut occupied) = subscribers.entry(topic.to_string()) {
             let subscribers = occupied.get_mut();
             subscribers.remove(client);
             if subscribers.is_empty() {
                 occupied.remove();
             }
         }
-        self.subscriptions_count.fetch_sub(1, Ordering::SeqCst);
         self.topic(topic)
     }
 
     /// Get the number of subscribers to one of the document's topics
-    fn subscribers(&self, topic: &str) -> usize {
-        if let Some(subscriptions) = self.subscriptions.get(topic) {
+    async fn subscribers(&self, topic: &str) -> usize {
+        let subscribers = &*self.subscribers.read().await;
+        if let Some(subscriptions) = subscribers.get(topic) {
             subscriptions.len()
         } else {
             0
@@ -1695,21 +1658,8 @@ impl Document {
     }
 
     /// Publish an event for this document
-    fn publish(&self, type_: DocumentEventType, content: Option<String>, format: Option<String>) {
-        let format = format.map(|name| formats::match_name(&name).spec());
-
-        let subtopic = match type_ {
-            DocumentEventType::Encoded => format!(
-                "encoded:{}",
-                format.map_or_else(|| "undef".to_string(), |format| format.extension)
-            ),
-            _ => type_.to_string(),
-        };
-
-        publish(
-            &self.topic(&subtopic),
-            &DocumentEvent { type_, patch: None },
-        )
+    fn publish<Detail: Serialize>(&self, subtopic: &str, detail: Detail) {
+        publish(&self.topic(&subtopic), detail)
     }
 
     /// Called when the file is removed from the file system
@@ -1725,7 +1675,7 @@ impl Document {
 
         self.status = DocumentStatus::Deleted;
 
-        self.publish(DocumentEventType::Deleted, None, None)
+        self.publish("deleted", path)
     }
 
     /// Called when the file is renamed
@@ -1750,9 +1700,9 @@ impl Document {
             }
         }
 
-        self.path = to;
+        self.path = to.clone();
 
-        self.publish(DocumentEventType::Renamed, None, None)
+        self.publish("renamed", json!({"from": from, "to": to}))
     }
 
     /// Called when the file is modified
@@ -1777,11 +1727,7 @@ impl Document {
         self.status = DocumentStatus::Unread;
 
         match self.read(false).await {
-            Ok(content) => self.publish(
-                DocumentEventType::Modified,
-                Some(content),
-                Some(self.format.extension.clone()),
-            ),
+            Ok(content) => self.publish("modified", content),
             Err(error) => tracing::error!("While attempting to read modified file: {}", error),
         }
     }
@@ -1939,47 +1885,5 @@ impl DocumentHandler {
             // printed (only if the `async_sender` is dropped before this is aborted)
             tracing::trace!("Ending document handler");
         })
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use test_utils::fixtures;
-
-    use super::*;
-
-    #[tokio::test]
-    async fn new() -> Result<()> {
-        let doc = Document::new(None, None)?;
-        assert!(doc.path.starts_with(env::temp_dir()));
-        assert!(doc.temporary);
-        assert!(matches!(doc.status, DocumentStatus::Synced));
-        assert_eq!(doc.format.extension, "txt");
-        assert_eq!(doc.content, "");
-        assert_eq!(doc.subscriptions, HashMap::new());
-
-        let doc = Document::new(None, Some("md".to_string()))?;
-        assert!(doc.path.starts_with(env::temp_dir()));
-        assert!(doc.temporary);
-        assert!(matches!(doc.status, DocumentStatus::Synced));
-        assert_eq!(doc.format.extension, "md");
-        assert_eq!(doc.content, "");
-        assert_eq!(doc.subscriptions, HashMap::new());
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn open() -> Result<()> {
-        for file in &["elife-small.json", "era-plotly.json"] {
-            let doc = Document::open(fixtures().join("articles").join(file), None).await?;
-            assert!(!doc.temporary);
-            assert!(matches!(doc.status, DocumentStatus::Synced));
-            assert_eq!(doc.format.extension, "json");
-            assert!(!doc.content.is_empty());
-            assert_eq!(doc.subscriptions, HashMap::new());
-        }
-
-        Ok(())
     }
 }

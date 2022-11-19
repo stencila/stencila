@@ -119,9 +119,9 @@ pub fn unsubscribe(subscription_id: &SubscriptionId) -> Result<()> {
 /// Publishing an event should be treated as 'fire-and-forget'.
 /// This function does not return an `Err` if it fails but will
 /// log an error (if not already attempting to publish to logging channel).
-pub fn publish<Event>(topic: &str, event: Event)
+pub fn publish<Detail>(topic: &str, detail: Detail)
 where
-    Event: Serialize,
+    Detail: Serialize,
 {
     if topic != "logging" {
         tracing::trace!("Publishing event for topic `{}`", topic);
@@ -134,7 +134,7 @@ where
                     || subscription.topic == topic
                     || topic.starts_with(&subscription.topic)
                 {
-                    let value = serde_json::to_value(&event).unwrap_or(serde_json::Value::Null);
+                    let value = serde_json::to_value(&detail).unwrap_or(serde_json::Value::Null);
                     match &subscription.subscriber {
                         Subscriber::Function(function) => {
                             function(topic.into(), value);

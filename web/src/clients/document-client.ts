@@ -8,12 +8,12 @@ import { applyPatch } from '../patches/dom'
 import {
   Document,
   DocumentConfig,
-  DocumentEvent,
   DocumentPatchEvent,
-  DocumentTopic,
   Patch,
   Then,
 } from '../types'
+
+export type DocumentTopic = 'patched'
 
 type ClientConnectOptions = ConstructorParameters<typeof WsClient>[1]
 
@@ -257,7 +257,7 @@ export class DocumentClient {
 
     // Subscribe to patches depending upon mode
     if (currentMode() >= Mode.Dynamic) {
-      this.subscribe('patched', (event) => this.receivePatch(event))
+      this.subscribe('patched', (patch) => this.receivePatch(patch as Patch))
     }
   }
 
@@ -346,7 +346,7 @@ export class DocumentClient {
    */
   async subscribe(
     topic: DocumentTopic,
-    handler: (event: DocumentEvent) => void
+    handler: (detail: unknown) => void
   ): Promise<Document> {
     this.wsClient?.on(`documents:${this.documentId}:${topic}`, handler)
     return this.call('documents.subscribe', {
@@ -395,24 +395,10 @@ export class DocumentClient {
   }
 
   // Receive a document patch from the server
-  //
-  // Handles a 'patched' event by either sending it to the relevant WebComponent
-  // so that it can make the necessary changes to the DOM, or by calling `applyPatch` which
-  // makes changes to the DOM directly.
   receivePatch(
-    event: DocumentEvent,
+    patch: Patch,
     callback: (patch: Patch) => void = applyPatch
   ): void {
-    let patch: Patch
-    if (event.type === 'patched') {
-      patch = event.patch as Patch
-    } else {
-      console.error(
-        `Expected document event to be of type 'patched', got type '${event.type}'`
-      )
-      return
-    }
-
     const { version, actor, target, ops } = patch
 
     // Check the patch version number and panic if out of order

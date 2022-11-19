@@ -1,8 +1,4 @@
-use std::{
-    path::Path,
-    sync::{atomic::AtomicUsize, Arc},
-    time::Instant,
-};
+use std::{path::Path, sync::Arc, time::Instant};
 
 use common::tokio::{
     self,
@@ -15,7 +11,7 @@ use kernels::KernelSpace;
 use stencila_schema::Node;
 
 use crate::{
-    document::Document,
+    document::{Document, DocumentSubscribers},
     messages::{
         CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, Response, WriteRequest,
     },
@@ -32,7 +28,7 @@ impl Document {
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernels: &Arc<RwLock<KernelSpace>>,
-        subscriptions_count: &Arc<AtomicUsize>,
+        subscribers: &Arc<RwLock<DocumentSubscribers>>,
         last_write: &Arc<RwLock<Instant>>,
     ) -> (
         mpsc::UnboundedSender<PatchRequest>,
@@ -61,7 +57,7 @@ impl Document {
 
         let id_clone = id.to_string();
         let root_clone = root.clone();
-        let subscriptions_count_clone = subscriptions_count.clone();
+        let subscribers_clone = subscribers.clone();
         let compile_sender_clone = compile_request_sender.clone();
         let write_sender_clone = write_request_sender.clone();
         let response_sender_clone = response_sender.clone();
@@ -69,7 +65,7 @@ impl Document {
             Self::patch_task(
                 &id_clone,
                 &root_clone,
-                &subscriptions_count_clone,
+                &subscribers_clone,
                 &compile_sender_clone,
                 &write_sender_clone,
                 &mut patch_request_receiver,
