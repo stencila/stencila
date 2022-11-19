@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, path::PathBuf, sync::Arc};
+use std::{collections::BTreeMap, path::Path, sync::Arc};
 
 use common::itertools::Itertools;
 use formats::Format;
@@ -7,8 +7,7 @@ use parser::{
         eyre::{bail, Result},
         once_cell::sync::Lazy,
     },
-    graph_triples::{resources, Resource, ResourceInfo},
-    ParserTrait,
+    ParseInfo, ParserTrait,
 };
 
 // Re-exports
@@ -18,17 +17,9 @@ pub use parser::Parser;
 // detail of having a static list of parsers. They are intended as the
 // only public interface for this crate.
 
-/// Parse a code resource
-pub fn parse(resource: Resource, code: &str) -> Result<ResourceInfo> {
-    PARSERS.parse(resource, code)
-}
-
 /// Parse some code in a given language
-pub fn parse_language(language: Format, code: &str) -> Result<ResourceInfo> {
-    PARSERS.parse(
-        resources::code(&PathBuf::from("<string>"), "", "", language),
-        code,
-    )
+pub fn parse(language: Format, code: &str, path: Option<&Path>) -> Result<ParseInfo> {
+    PARSERS.parse(language, code, path)
 }
 
 /// List the languages supported by registered parsers
@@ -83,7 +74,7 @@ macro_rules! dispatch_builtins {
             #[cfg(feature = "parser-ts")]
             Format::TypeScript => Some(parser_ts::TsParser::$method($($arg),*)),
             // Fallback to empty result
-            _ => Option::<Result<ResourceInfo>>::None
+            _ => Option::<Result<ParseInfo>>::None
         }
     };
 }
@@ -150,25 +141,17 @@ impl Parsers {
         }
     }
 
-    /// Parse a code resource
-    fn parse(&self, resource: Resource, code: &str) -> Result<ResourceInfo> {
-        let (path, language) = if let Resource::Code(code) = &resource {
-            (code.path.clone(), code.language)
+    /// Parse some code in a language
+    fn parse(&self, language: Format, code: &str, path: Option<&Path>) -> Result<ParseInfo> {
+        let parse_info = if let Some(result) = dispatch_builtins!(language, parse, code, path) {
+            result?
         } else {
-            bail!("Attempting to parse a resource that is not a `Code` resource")
+            bail!(
+                "Unable to parse code in language `{}`: no matching parser found",
+                language
+            )
         };
-
-        let resource_info =
-            if let Some(result) = dispatch_builtins!(language, parse, resource, &path, code) {
-                result?
-            } else {
-                bail!(
-                    "Unable to parse code in language `{}`: no matching parser found",
-                    language
-                )
-            };
-
-        Ok(resource_info)
+        Ok(parse_info)
     }
 }
 
@@ -187,7 +170,6 @@ pub mod commands {
         common::async_trait::async_trait,
         result, Result, Run,
     };
-    use parser::graph_triples::resources;
 
     use super::*;
 
@@ -286,52 +268,11 @@ pub mod commands {
                 let lang = self.lang.clone().or(Some(ext)).unwrap_or_default();
                 (file, code, lang)
             };
-            let lang = formats::match_name(&lang);
 
+            let language = formats::match_name(&lang);
             let path = PathBuf::from(path);
-            let resource = resources::code(&path, "<id>", "<cli>", lang);
-            let resource_info = PARSERS.parse(resource, &code)?;
-            result::value(resource_info)
+            let parse_info = PARSERS.parse(language, &code, Some(&path))?;
+            result::value(parse_info)
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use parser::graph_triples::{relations, resources};
-    use std::path::PathBuf;
-    use test_utils::assert_json_eq;
-
-    #[test]
-    #[cfg(feature = "parser-calc")]
-    fn test_parse() -> Result<()> {
-        let path = PathBuf::from("<test>");
-        let resource = resources::code(&path, "<id>", "<cli>", Format::Calc);
-        let resource_info = parse(resource, "a = 1\nb = a * a")?;
-        assert!(matches!(resource_info.execute_pure, None));
-        assert!(!resource_info.is_pure());
-        assert_json_eq!(
-            resource_info.relations,
-            vec![
-                (
-                    relations::assigns((0, 0, 0, 1)),
-                    resources::symbol(&path, "a", "Number")
-                ),
-                (
-                    relations::assigns((1, 0, 1, 1)),
-                    resources::symbol(&path, "b", "Number")
-                ),
-                (
-                    relations::uses((1, 4, 1, 5)),
-                    resources::symbol(&path, "a", "Number")
-                ),
-                (
-                    relations::uses((1, 8, 1, 9)),
-                    resources::symbol(&path, "a", "Number")
-                )
-            ]
-        );
-        Ok(())
     }
 }
