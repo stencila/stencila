@@ -2,7 +2,6 @@ import '@shoelace-style/shoelace/dist/components/dropdown/dropdown'
 import '@shoelace-style/shoelace/dist/components/tab-group/tab-group'
 import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel'
 import '@shoelace-style/shoelace/dist/components/tab/tab'
-import { sentenceCase } from 'change-case'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 import { TW } from 'twind'
@@ -258,7 +257,7 @@ export class StencilaEntityDownload extends StencilaElement {
               </sl-tab>
               <sl-tab-panel name=${format} class=${tw`sm:w-[35em]`}>
                 <stencila-code-editor
-                  class=${tw`w-full text-sm`}
+                  class=${tw`w-full text-xs`}
                   language=${format}
                   placeholder="Loading..."
                   read-only
