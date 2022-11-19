@@ -3,7 +3,7 @@ import { entityAttrs, StencilaEntityView } from './entity'
 
 export const codeStaticAttrs = {
   ...entityAttrs,
-  programmingLanguage: { default: 'unknown' },
+  programmingLanguage: { default: '' },
   code: { default: '' },
 }
 
