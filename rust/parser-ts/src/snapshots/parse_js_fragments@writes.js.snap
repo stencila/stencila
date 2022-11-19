@@ -1,198 +1,179 @@
 ---
 source: rust/parser-ts/src/lib.rs
-assertion_line: 126
-expression: resource_info
+assertion_line: 133
+expression: parse_info
 input_file: fixtures/fragments/js/writes.js
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/js/writes.js",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "javascript"
-  },
-  "relations": [
-    [
-      {
-        "type": "Imports",
-        "range": [
-          0,
-          15,
-          0,
-          19
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "javascript",
+  "syntaxErrors": false,
+  "semanticDigest": 11265573177747016175,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "fs"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          1,
-          28,
-          1,
-          32
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        0,
+        15,
+        0,
+        19
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "fs"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          3,
-          4,
-          3,
-          8
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/writes.js",
-        "name": "data",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          11,
-          3,
-          13
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/writes.js",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        1,
+        28,
+        1,
+        32
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "fs",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          3,
-          24,
-          3,
-          31
-        ]
+        "namespace": "fragments/js/writes.js"
       },
-      {
-        "type": "File",
-        "path": "fragments/js/path1"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          33,
-          3,
-          37
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/writes.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        11,
+        3,
+        13
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "data",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          0,
-          4,
-          13
-        ]
+        "namespace": "fragments/js/writes.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/writes.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        33,
+        3,
+        37
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "writeFileSync",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          4,
-          14,
-          4,
-          21
-        ]
+        "namespace": "fragments/js/writes.js"
       },
-      {
-        "type": "File",
-        "path": "fragments/js/path2"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          23,
-          4,
-          27
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/writes.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        4,
+        0,
+        4,
+        13
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "data",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          6,
-          9,
-          6,
-          18
-        ]
+        "namespace": "fragments/js/writes.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/writes.js",
-        "name": "writeData",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          7,
-          15,
-          7,
-          22
-        ]
-      },
-      {
-        "type": "File",
-        "path": "fragments/js/path3"
-      }
-    ]
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        4,
+        23,
+        4,
+        27
+      ]
+    }
   ],
-  "compile_digest": "12927841084470903993.3761178951351669820.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "data",
+        "namespace": "fragments/js/writes.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        3,
+        4,
+        3,
+        8
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/js/path1"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        3,
+        24,
+        3,
+        31
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/js/path2"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        4,
+        14,
+        4,
+        21
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "writeData",
+        "kind": "Function",
+        "namespace": "fragments/js/writes.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        6,
+        9,
+        6,
+        18
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/js/path3"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        7,
+        15,
+        7,
+        22
+      ]
+    }
+  ],
+  "executionTags": []
 }

@@ -1,257 +1,238 @@
 ---
 source: rust/parser-js/src/lib.rs
-assertion_line: 210
-expression: resource_info
+assertion_line: 224
+expression: parse_info
 input_file: fixtures/fragments/js/declares.js
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/js/declares.js",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "javascript"
-  },
-  "relations": [
-    [
-      {
-        "type": "Declares",
-        "range": [
-          0,
-          4,
-          0,
-          8
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+  "syntaxErrors": false,
+  "semanticDigest": 1238069349345190809,
+  "executionDependencies": [],
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var2",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          1,
-          4,
-          1,
-          8
-        ]
+        "kind": "Number",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        0,
+        4,
+        0,
+        8
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var3",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          2,
-          6,
-          2,
-          10
-        ]
+        "kind": "Number",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        1,
+        4,
+        1,
+        8
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var4",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          3,
-          13,
-          3,
-          17
-        ]
+        "kind": "Number",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        2,
+        6,
+        2,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var5",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          5,
-          6,
-          5,
-          10
-        ]
+        "kind": "Number",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        3,
+        13,
+        3,
+        17
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var6",
-        "kind": "Boolean"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          6,
-          6,
-          6,
-          10
-        ]
+        "kind": "Boolean",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        5,
+        6,
+        5,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var7",
-        "kind": "Boolean"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          7,
-          6,
-          7,
-          10
-        ]
+        "kind": "Boolean",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        6,
+        6,
+        6,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var8",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          8,
-          6,
-          8,
-          10
-        ]
+        "kind": "Number",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        7,
+        6,
+        7,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var9",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          9,
-          6,
-          9,
-          11
-        ]
+        "kind": "Number",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        8,
+        6,
+        8,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var10",
-        "kind": "String"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          10,
-          6,
-          10,
-          11
-        ]
+        "kind": "String",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        9,
+        6,
+        9,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var11",
-        "kind": "Array"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          11,
-          6,
-          11,
-          11
-        ]
+        "kind": "Array",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        10,
+        6,
+        10,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var12",
-        "kind": "Object"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          13,
-          9,
-          13,
-          13
-        ]
+        "kind": "Object",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        11,
+        6,
+        11,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "fun1",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          14,
-          6,
-          14,
-          10
-        ]
+        "kind": "Function",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        13,
+        9,
+        13,
+        13
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "fun2",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          15,
-          16,
-          15,
-          20
-        ]
+        "kind": "Function",
+        "namespace": "fragments/js/declares.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/declares.js",
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        14,
+        6,
+        14,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "fun3",
-        "kind": "Function"
-      }
-    ]
+        "kind": "Function",
+        "namespace": "fragments/js/declares.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        15,
+        16,
+        15,
+        20
+      ]
+    }
   ],
-  "compile_digest": "16977789522958635456.16469438490216665540.0.0.0",
-  "tags": []
+  "executionTags": []
 }

@@ -1,36 +1,30 @@
 ---
 source: rust/parser-ts/src/lib.rs
-assertion_line: 126
-expression: resource_info
+assertion_line: 133
+expression: parse_info
 input_file: fixtures/fragments/js/assigns.js
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/js/assigns.js",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "javascript"
-  },
-  "relations": [
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          0,
-          0,
-          0,
-          4
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/assigns.js",
+  "syntaxErrors": false,
+  "semanticDigest": 2835468141008740361,
+  "executionDependencies": [],
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var1",
-        "kind": "Number"
-      }
-    ]
+        "kind": "Number",
+        "namespace": "fragments/js/assigns.js"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        4
+      ]
+    }
   ],
-  "compile_digest": "7660058006532944103.10142085193624583599.0.0.0",
-  "tags": []
+  "executionTags": []
 }
