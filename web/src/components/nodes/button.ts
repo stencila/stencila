@@ -99,7 +99,7 @@ export default class StencilaButton extends StencilaCodeExecutable {
     ></stencila-input>`
   }
 
-  protected renderConditionInput() {
+  protected renderCodeInput() {
     const readOnly = !isCodeWriteable()
 
     return html`
@@ -150,7 +150,7 @@ export default class StencilaButton extends StencilaCodeExecutable {
         class=${tw`flex flex-col gap-2 rounded border(& ${StencilaButton.color}-200)
             bg-${StencilaButton.color}-50 p-2 text(sm ${StencilaButton.color}-700)`}
       >
-        ${this.renderLabelInput()} ${this.renderConditionInput()}
+        ${this.renderLabelInput()} ${this.renderCodeInput()}
       </div>
     </sl-dropdown>`
   }
