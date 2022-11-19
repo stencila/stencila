@@ -189,7 +189,7 @@ mod tests {
     async fn encode() -> super::Result<()> {
         let node = Node::CodeChunk(CodeChunk {
             programming_language: "python".to_string(),
-            text: "print(\"Hello world!\")".to_string(),
+            code: "print(\"Hello world!\")".to_string(),
             outputs: Some(vec![Node::String("Hello world!".to_string())]),
             ..Default::default()
         });
