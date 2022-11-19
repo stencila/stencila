@@ -183,12 +183,12 @@ export default class StencilaCodeEditor extends StencilaElement {
   /**
    * The name of the node property to send patch operations for when code changes
    *
-   * Defaults to `text` (the name of the property of `CodeChunk` and `CodeExpression`).
+   * Defaults to `code` (the name of the property of `CodeChunk` and `CodeExpression`).
    * Needed for higher-level components that have more than one editor to ensure changes
    * are emitted as patch operations for the correct property.
    */
   @property({ attribute: 'property-name' })
-  propertyName = 'text'
+  propertyName = 'code'
 
   /**
    * The element containing the code content
