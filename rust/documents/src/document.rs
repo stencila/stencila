@@ -239,6 +239,12 @@ pub struct Document {
     #[serde(skip)]
     cancel_request_sender: mpsc::Sender<CancelRequest>,
 
+    // TODO: Add `write_request` method and refactor `write` method similar to 
+    // `patch_request`, `patch` etc.
+    #[allow(dead_code)]
+    #[serde(skip)]
+    write_request_sender: mpsc::UnboundedSender<WriteRequest>,
+
     #[serde(skip)]
     response_receiver: broadcast::Receiver<Response>,
 }
@@ -330,6 +336,7 @@ impl Document {
             compile_request_sender,
             execute_request_sender,
             cancel_request_sender,
+            write_request_sender,
             response_receiver,
         ) = Self::initialize(
             &id,
@@ -370,6 +377,7 @@ impl Document {
             compile_request_sender,
             execute_request_sender,
             cancel_request_sender,
+            write_request_sender,
             response_receiver,
         })
     }
@@ -407,6 +415,7 @@ impl Document {
             compile_request_sender,
             execute_request_sender,
             cancel_request_sender,
+            write_request_sender,
             response_receiver,
         ) = Self::initialize(
             &id,
@@ -447,6 +456,7 @@ impl Document {
             compile_request_sender,
             execute_request_sender,
             cancel_request_sender,
+            write_request_sender,
             response_receiver,
         })
     }
@@ -1522,6 +1532,9 @@ impl Document {
 
         Ok(request_id)
     }
+
+
+    
 
     /// Restart a kernel (or all kernels) in the document's kernel space
     ///

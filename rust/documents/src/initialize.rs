@@ -39,6 +39,7 @@ impl Document {
         mpsc::Sender<CompileRequest>,
         mpsc::Sender<ExecuteRequest>,
         mpsc::Sender<CancelRequest>,
+        mpsc::UnboundedSender<WriteRequest>,
         broadcast::Receiver<Response>,
     ) {
         let (patch_request_sender, mut patch_request_receiver) =
@@ -114,6 +115,7 @@ impl Document {
         let graph_clone = graph.clone();
         let kernels_clone = kernels.clone();
         let patch_sender_clone = patch_request_sender.clone();
+        let write_sender_clone = write_request_sender.clone();
         let response_sender_clone = response_sender.clone();
         tokio::spawn(async move {
             Self::execute_task(
@@ -125,7 +127,7 @@ impl Document {
                 &graph_clone,
                 &kernels_clone,
                 &patch_sender_clone,
-                &write_request_sender,
+                &write_sender_clone,
                 &mut cancel_request_receiver,
                 &mut execute_request_receiver,
                 &response_sender_clone,
@@ -154,6 +156,7 @@ impl Document {
             compile_request_sender,
             execute_request_sender,
             cancel_request_sender,
+            write_request_sender,
             response_receiver,
         )
     }
