@@ -15,42 +15,32 @@ impl Executable for Call {
             draft.id = generate_id("ca");
         }
 
-        let state_digest = generate_digest(
-            &[
-                "",
-                &draft.source,
-                draft.media_type.as_ref().map_or("", |mt| mt.as_str()),
-                draft.select.as_ref().map_or("", |mt| mt.as_str()),
-            ]
-            .concat(),
-        );
-        // TODO: Work out how to bypass this check if the called document has changed
-        // Keep track of the called document's version?
-        //if state_digest == get_state_digest(&draft.compile_digest) {
-        //    return Ok(());
-        //}
+        let document = DOCUMENTS
+            .open(
+                draft.source.trim(),
+                draft.media_type.as_ref().map(|mt| mt.to_string()),
+            )
+            .await?;
+        let document_version = document.version().to_string();
 
-        let params = {
-            let document = DOCUMENTS
-                .open(
-                    draft.source.trim(),
-                    draft.media_type.as_ref().map(|mt| mt.to_string()),
-                )
-                .await?;
+        let state_string = &[
+            draft.source.as_str(),
+            draft.media_type.as_ref().map_or("", |mt| mt.as_str()),
+            draft.select.as_ref().map_or("", |select| select.as_str()),
+            //draft.arguments.map(|arg| arg.name).join(""),
+            document_version.as_str(),
+        ]
+        .concat();
 
-            context.push_event_listener(
-                draft
-                    .id
-                    .as_ref()
-                    .expect("Should have id ensured above")
-                    .to_string(),
-                ["documents:", &document.id, ":patched"].concat(),
-                |_topic, _detail| Request::Compile(CompileRequest::now()),
-            );
+        let state_digest = generate_digest(state_string);
 
-            document.params().await?
-        };
+        if state_digest == get_state_digest(&draft.compile_digest) {
+            return Ok(());
+        }
 
+        let semantic_digest = 0;
+
+        let params = document.params().await?;
         draft.arguments = if !params.is_empty() {
             Some(
                 params
@@ -76,10 +66,7 @@ impl Executable for Call {
             None
         };
 
-        let semantic_digest = 0;
-        for argument in draft.arguments.iter_mut().flatten() {
-
-        }
+        for argument in draft.arguments.iter_mut().flatten() {}
 
         draft.compile_digest = Some(ExecutionDigest {
             state_digest,
@@ -89,6 +76,17 @@ impl Executable for Call {
 
         let patch = diff_address(address, self, &draft);
         context.push_patch(patch);
+
+        let call_id = draft
+            .id
+            .as_ref()
+            .expect("Should have id ensured above")
+            .to_string();
+        context.push_event_listener(
+            call_id,
+            ["documents:", &document.id, ":patched"].concat(),
+            |_topic, _detail| Request::Compile(CompileRequest::now()),
+        );
 
         Ok(())
         /*

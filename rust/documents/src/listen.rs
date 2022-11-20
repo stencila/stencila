@@ -148,7 +148,7 @@ impl Document {
                 if event_topic.starts_with(listener_topic) {
                     use Request::*;
                     let request = listener(&event_topic, event_detail.clone());
-                    tracing::info!(
+                    tracing::debug!(
                         "Forwarding request to `{}` document `{}` for listener `{}`",
                         request.as_ref(),
                         document_id,

@@ -19,10 +19,10 @@ use stencila_schema::{
 };
 
 use crate::{
-    document::{Document, DocumentEventListener, DocumentEventListeners, DocumentEventSender},
+    document::{Document, DocumentEventListeners, DocumentEventSender, DocumentRoot},
     executable::{CompileContext, Executable},
     messages::{PatchRequest, When},
-    utils::{send_patch, send_patches},
+    utils::send_patches,
 };
 
 /// Compile the `root` node of a document
@@ -44,7 +44,7 @@ use crate::{
 pub async fn compile(
     path: &Path,
     project: &Path,
-    root: &Arc<RwLock<Node>>,
+    root: &DocumentRoot,
     tag_map: &Arc<RwLock<TagMap>>,
     kernel_space: &Arc<RwLock<KernelSpace>>,
     event_sender: &DocumentEventSender,

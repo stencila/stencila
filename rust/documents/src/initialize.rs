@@ -9,10 +9,13 @@ use formats::FormatSpec;
 use graph::Graph;
 use graph_triples::TagMap;
 use kernels::KernelSpace;
-use stencila_schema::Node;
 
 use crate::{
-    document::{Document, DocumentEventListeners, DocumentPatchRequestSender, DocumentCompileRequestSender, DocumentExecuteRequestSender, DocumentCancelRequestSender, DocumentWriteRequestSender, DocumentResponseReceiver},
+    document::{
+        Document, DocumentCancelRequestSender, DocumentCompileRequestSender,
+        DocumentEventListeners, DocumentExecuteRequestSender, DocumentPatchRequestSender,
+        DocumentResponseReceiver, DocumentRoot, DocumentVersion, DocumentWriteRequestSender,
+    },
     messages::{
         CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, Response, WriteRequest,
     },
@@ -25,7 +28,8 @@ impl Document {
         path: &Path,
         project: &Path,
         format: &FormatSpec,
-        root: &Arc<RwLock<Node>>,
+        version: &DocumentVersion,
+        root: &DocumentRoot,
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernels: &Arc<RwLock<KernelSpace>>,
@@ -59,6 +63,7 @@ impl Document {
         let (event_sender, mut event_receiver) = mpsc::unbounded_channel::<Event>();
 
         let id_clone = id.to_string();
+        let version_clone = version.clone();
         let root_clone = root.clone();
         let compile_sender_clone = compile_request_sender.clone();
         let write_sender_clone = write_request_sender.clone();
@@ -66,6 +71,7 @@ impl Document {
         tokio::spawn(async move {
             Self::patch_task(
                 &id_clone,
+                &version_clone,
                 &root_clone,
                 &compile_sender_clone,
                 &write_sender_clone,

@@ -613,7 +613,7 @@ pub struct Patch {
     /// Should be present on published patches.
     /// Used by clients to check that they have received all patches
     /// published for a document in the correct order (and to panic if they haven't).
-    pub version: Option<u32>,
+    pub version: Option<u64>,
 
     /// The id of the actor that generated this patch
     /// e.g. a web browser client, or file watcher
@@ -707,7 +707,7 @@ impl Patch {
     /// The main purpose of this function is to generate HTML for each `Add` and `Replace`
     /// operation in the patch before it is sent to clients.
     #[tracing::instrument(skip(self, root))]
-    pub fn prepublish(&mut self, version: u32, root: &Node) -> &mut Self {
+    pub fn prepublish(&mut self, version: u64, root: &Node) -> &mut Self {
         self.version = Some(version);
         for op in self.ops.iter_mut() {
             op.html_set(root);

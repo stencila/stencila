@@ -4,7 +4,10 @@ use std::{
     fs,
     ops::Deref,
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc,
+    },
     time::{Duration, Instant},
 };
 
@@ -25,12 +28,12 @@ use common::{
     },
     tracing,
 };
-use events::{has_subscribers, publish, Event, SubscriptionId, SubscriptionTopic};
+use events::{publish, Event, SubscriptionId, SubscriptionTopic};
 use formats::{Format, FormatSpec};
 use graph::{Graph, PlanOptions, PlanOrdering, PlanScope};
 use graph_triples::{resources, Relations, TagMap};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
-use node_patch::{apply, diff, merge, Patch};
+use node_patch::{diff, merge, Patch};
 use node_pointer::find;
 use node_reshape::reshape;
 use providers::DetectItem;
@@ -63,6 +66,12 @@ enum DocumentStatus {
     /// want to save it.
     Deleted,
 }
+
+/// The version of a document
+pub type DocumentVersion = Arc<AtomicU64>;
+
+/// The root node of a document
+pub type DocumentRoot = Arc<RwLock<Node>>;
 
 /// A channel sender/receiver for events to a document's listen task
 pub type DocumentEventSender = mpsc::UnboundedSender<Event>;
@@ -173,6 +182,11 @@ pub struct Document {
     #[serde(skip)]
     pub(crate) content: String,
 
+    /// The version of the document
+    ///
+    /// Is incremented in the `patch_task` and can be read using the `version()` method
+    version: DocumentVersion,
+
     /// The root Stencila Schema node of the document
     ///
     /// Can be any type of `Node` but defaults to an empty `Article`.
@@ -182,7 +196,7 @@ pub struct Document {
     ///
     /// Skipped during serialization because will often be large.
     #[serde(skip)]
-    pub(crate) root: Arc<RwLock<Node>>,
+    pub(crate) root: DocumentRoot,
 
     /// Global tags defined in any of the document's code chunks
     #[allow(dead_code)]
@@ -215,28 +229,28 @@ pub struct Document {
     pub(crate) graph: Arc<RwLock<Graph>>,
 
     #[serde(skip)]
-    event_listeners: DocumentEventListeners,
+    pub(crate) event_listeners: DocumentEventListeners,
 
     #[serde(skip)]
-    patch_request_sender: DocumentPatchRequestSender,
+    pub(crate) patch_request_sender: DocumentPatchRequestSender,
 
     #[serde(skip)]
-    compile_request_sender: DocumentCompileRequestSender,
+    pub(crate) compile_request_sender: DocumentCompileRequestSender,
 
     #[serde(skip)]
-    execute_request_sender: DocumentExecuteRequestSender,
+    pub(crate) execute_request_sender: DocumentExecuteRequestSender,
 
     #[serde(skip)]
-    cancel_request_sender: DocumentCancelRequestSender,
+    pub(crate) cancel_request_sender: DocumentCancelRequestSender,
 
     // TODO: Add `write_request` method and refactor `write` method similar to
     // `patch_request`, `patch` etc.
     #[allow(dead_code)]
     #[serde(skip)]
-    write_request_sender: DocumentWriteRequestSender,
+    pub(crate) write_request_sender: DocumentWriteRequestSender,
 
     #[serde(skip)]
-    response_receiver: DocumentResponseReceiver,
+    pub(crate) response_receiver: DocumentResponseReceiver,
 }
 
 impl Debug for Document {
@@ -320,6 +334,7 @@ impl Document {
             .expect("Unable to get path parent")
             .to_path_buf();
 
+        let version = DocumentVersion::default();
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
         let tags = Arc::new(RwLock::new(TagMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
@@ -339,6 +354,7 @@ impl Document {
             &path,
             &project,
             &format,
+            &version,
             &root,
             &tags,
             &graph,
@@ -360,6 +376,7 @@ impl Document {
             last_write,
             content: Default::default(),
 
+            version,
             root,
             tags,
             graph,
@@ -393,6 +410,7 @@ impl Document {
 
         // Fields that can be cloned
 
+        let version = DocumentVersion::new(AtomicU64::new(self.version.load(Ordering::Acquire)));
         let root = Arc::new(RwLock::new(self.root.read().await.clone()));
         let tags = Arc::new(RwLock::new(self.tags.read().await.clone()));
         let graph = Arc::new(RwLock::new(self.graph.read().await.clone()));
@@ -417,6 +435,7 @@ impl Document {
             &path,
             &project,
             &format,
+            &version,
             &root,
             &tags,
             &graph,
@@ -438,6 +457,7 @@ impl Document {
             last_write,
             content: Default::default(),
 
+            version,
             root,
             tags,
             graph,
@@ -662,7 +682,7 @@ impl Document {
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
     pub(crate) async fn write_task(
-        root: &Arc<RwLock<Node>>,
+        root: &DocumentRoot,
         last_write: &Arc<RwLock<Instant>>,
         path: &Path,
         format: Option<&str>,
@@ -809,202 +829,9 @@ impl Document {
         Ok(())
     }
 
-    /// A background task to patch the root node of the document on request
-    ///
-    /// Use an unbounded channel for sending patches, so that sending threads never
-    /// block (if there are lots of patches) and thereby hold on to locks causing a
-    /// deadlock.
-    ///
-    /// # Arguments
-    ///
-    /// - `id`: The id of the document (used in the published event topic)
-    ///
-    /// - `root`: The root [`Node`] to apply the patch to (will be write locked)
-    ///
-    /// - `subscribers`: The number of subscriptions to the document
-    ///
-    /// - `compile_sender`: The channel to send any [`CompileRequest`]s after a patch is applied
-    ///
-    /// - `write_sender`: The channel to send any [`WriteRequest`]s after a patch is applied
-    ///
-    /// - `request_receiver`: The channel to receive [`PatchRequest`]s on
-    ///
-    /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
-    #[allow(clippy::too_many_arguments)]
-    pub(crate) async fn patch_task(
-        id: &str,
-        root: &Arc<RwLock<Node>>,
-        compile_sender: &DocumentCompileRequestSender,
-        write_sender: &DocumentWriteRequestSender,
-        request_receiver: &mut DocumentPatchRequestReceiver,
-        response_sender: &DocumentResponseSender,
-    ) {
-        let mut version = 0u32;
-        let topic = ["documents:", id, ":patched"].concat();
-        while let Some(request) = request_receiver.recv().await {
-            tracing::trace!(
-                "Patching document `{}` for requests `{}`",
-                &id,
-                request.ids.iter().join(",")
-            );
-
-            let mut patch = request.patch;
-            let start = patch.target.clone();
-
-            // If the patch is empty then continue early rather than obtain locks etc
-            if patch.is_empty() {
-                continue;
-            }
-
-            // Block to ensure locks are retained for only as long as needed
-            {
-                let root = &mut *root.write().await;
-
-                // Apply the patch to the root node
-                if let Err(error) = apply(root, &patch) {
-                    tracing::error!("While patching document `{}`: {}", id, error);
-                }
-
-                // Increment version counter
-                version += 1;
-
-                // Publish the patch if there are any subscriptions to the `patched` event of this document
-                let should_publish = has_subscribers(&topic).unwrap_or_else(|error| {
-                    tracing::error!("While checking for any subscribers: {}", error);
-                    true
-                });
-                if should_publish {
-                    patch.prepublish(version, root);
-                    publish(&topic, &patch);
-                } else {
-                    tracing::trace!(
-                        "Document `{}` skipping publishing patch because there are no subscribers",
-                        id
-                    );
-                }
-            }
-
-            // Possibly compile, execute, and/or write; or respond
-            if !matches!(request.compile, When::Never) {
-                tracing::trace!(
-                    "Sending compile request for document `{}` for patch requests `{}`",
-                    &id,
-                    request.ids.iter().join(",")
-                );
-                if let Err(error) = compile_sender
-                    .send(CompileRequest::new(
-                        request.ids,
-                        request.compile,
-                        request.execute,
-                        request.write,
-                        start,
-                    ))
-                    .await
-                {
-                    tracing::error!(
-                        "While sending compile request for document `{}`: {}",
-                        id,
-                        error
-                    );
-                }
-            } else if !matches!(request.write, When::Never) {
-                tracing::trace!(
-                    "Sending write request for document `{}` for patch requests `{}`",
-                    &id,
-                    request.ids.iter().join(",")
-                );
-                if let Err(error) = write_sender.send(WriteRequest::new(request.ids, request.write))
-                {
-                    tracing::error!(
-                        "While sending write request for document `{}`: {}",
-                        id,
-                        error
-                    );
-                }
-            } else {
-                for request_id in request.ids {
-                    if let Err(error) = response_sender.send(Response::new(request_id)) {
-                        tracing::debug!(
-                            "While sending response for document `{}` from patch task: {}",
-                            id,
-                            error
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    /// Request that a [`Patch`] be applied to the root node of the document
-    ///
-    /// # Arguments
-    ///
-    /// - `patch`: The patch to apply
-    ///
-    /// - `compile`: Should the document be compiled after the patch is applied?
-    ///
-    /// - `execute`: Should the document be executed after the patch is applied?
-    ///              If the patch as a `target` then the document will be executed from that
-    ///              node, otherwise the entire document will be executed.
-    /// - `write`: Should the document be written after the patch is applied?
-    #[tracing::instrument(skip(self, patch))]
-    pub async fn patch_request(
-        &self,
-        patch: Patch,
-        compile: When,
-        execute: When,
-        write: When,
-    ) -> Result<RequestId> {
-        tracing::debug!("Sending patch request for document `{}`", self.id);
-
-        let request_id = RequestId::new();
-        let request = PatchRequest::new(
-            vec![request_id.clone()],
-            patch,
-            When::Now,
-            compile,
-            execute,
-            write,
-        );
-        if let Err(error) = self.patch_request_sender.send(request) {
-            bail!(
-                "When sending patch request for document `{}`: {}",
-                self.id,
-                error
-            )
-        };
-
-        Ok(request_id)
-    }
-
-    /// Patch the document
-    #[tracing::instrument(skip(self))]
-    pub async fn patch(
-        &mut self,
-        patch: Patch,
-        compile: When,
-        execute: When,
-        write: When,
-    ) -> Result<()> {
-        let request_id = self.patch_request(patch, compile, execute, write).await?;
-
-        tracing::trace!(
-            "Waiting for patch response for document `{}` for request `{}`",
-            self.id,
-            request_id
-        );
-        while let Ok(response) = self.response_receiver.recv().await {
-            if response.request_id == request_id {
-                tracing::trace!(
-                    "Received patch response for document `{}` for request `{}`",
-                    self.id,
-                    request_id
-                );
-                break;
-            }
-        }
-
-        Ok(())
+    /// Get the version of the document
+    pub fn version(&self) -> u64 {
+        self.version.load(Ordering::Acquire)
     }
 
     /// A background task to compile the root node of the document on request
@@ -1041,7 +868,7 @@ impl Document {
         id: &str,
         path: &Path,
         project: &Path,
-        root: &Arc<RwLock<Node>>,
+        root: &DocumentRoot,
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<RwLock<KernelSpace>>,
@@ -1254,7 +1081,7 @@ impl Document {
         id: &str,
         path: &Path,
         project: &Path,
-        root: &Arc<RwLock<Node>>,
+        root: &DocumentRoot,
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<RwLock<KernelSpace>>,

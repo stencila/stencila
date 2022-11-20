@@ -23,6 +23,7 @@ use node_patch::{diff, mutate, Patch};
 use stencila_schema::{CodeChunk, CodeExpression, Division, ExecutionStatus, Node, Span};
 
 use crate::{
+    document::DocumentRoot,
     executable::Executable,
     messages::{CancelRequest, PatchRequest, When},
     utils::{resource_to_node, send_patch, send_patches},
@@ -48,7 +49,7 @@ use crate::{
 #[allow(clippy::too_many_arguments)]
 pub async fn execute(
     plan: &Plan,
-    root: &Arc<RwLock<Node>>,
+    root: &DocumentRoot,
     tag_map: &Arc<RwLock<TagMap>>,
     kernel_space: &Arc<RwLock<KernelSpace>>,
     patch_request_sender: &UnboundedSender<PatchRequest>,
