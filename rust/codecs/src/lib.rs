@@ -84,7 +84,7 @@ pub async fn str_to_path(content: &str, from: &str, path: &Path, to: Option<&str
 }
 
 /// The set of registered codecs in the current process
-static CODECS: Lazy<Arc<Codecs>> = Lazy::new(|| Arc::new(Codecs::new()));
+static CODECS: Lazy<Codecs> = Lazy::new(Codecs::new);
 
 /// A set of registered codecs, either built-in, or provided by plugins
 struct Codecs {

@@ -32,7 +32,7 @@ pub fn languages() -> Vec<Format> {
 }
 
 /// The set of registered parsers in the current process
-static PARSERS: Lazy<Arc<Parsers>> = Lazy::new(|| Arc::new(Parsers::new()));
+static PARSERS: Lazy<Parsers> = Lazy::new(Parsers::new);
 
 /// A set of registered parsers, either built-in, or provided by plugins
 struct Parsers {

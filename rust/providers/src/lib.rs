@@ -68,7 +68,7 @@ pub async fn cron(
 }
 
 /// The set of registered providers in the current process
-static PROVIDERS: Lazy<Arc<Providers>> = Lazy::new(|| Arc::new(Providers::new()));
+static PROVIDERS: Lazy<Providers> = Lazy::new(Providers::new);
 
 /// A set of registered providers, either built-in, or provided by plugins
 struct Providers {

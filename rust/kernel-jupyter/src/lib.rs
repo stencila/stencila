@@ -930,8 +930,8 @@ impl KernelTrait for JupyterKernel {
 /// Note that `super::KernelSpace` holds instances of kernels for each document whereas this
 /// holds instances of the kernels specs read from `kernel.json` as an optimization to avoid
 /// re-reading them from disk.
-static KERNEL_SPECS: Lazy<Arc<RwLock<HashMap<String, JupyterKernel>>>> =
-    Lazy::new(|| Arc::new(RwLock::new(HashMap::new())));
+static KERNEL_SPECS: Lazy<RwLock<HashMap<String, JupyterKernel>>> =
+    Lazy::new(|| RwLock::new(HashMap::new()));
 
 /// Language specific code to be run at kernel startup
 fn startup(language: &str) -> Result<Option<String>> {
