@@ -1,4 +1,4 @@
-use common::strum::EnumString;
+use common::strum::{EnumString, AsRefStr};
 use graph::{PlanOrdering, PlanScope};
 use node_patch::Patch;
 use suids::suid_family;
@@ -21,6 +21,16 @@ impl When {
             _ => {}
         }
     }
+}
+
+#[derive(Debug, AsRefStr)]
+#[strum(crate = "common::strum")]
+pub enum Request {
+    Patch(PatchRequest),
+    Compile(CompileRequest),
+    Execute(ExecuteRequest),
+    Cancel(CancelRequest),
+    Write(WriteRequest),
 }
 
 suid_family!(RequestId, "re");
@@ -80,6 +90,16 @@ impl CompileRequest {
             execute,
             write,
             start,
+        }
+    }
+
+    pub fn now() -> Self {
+        Self {
+            ids: vec![RequestId::new()],
+            when: When::Now,
+            execute: When::Never,
+            write: When::Never,
+            start: None,
         }
     }
 }

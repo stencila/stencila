@@ -353,9 +353,7 @@ impl Run for OpenCommand {
                 }
             }
         } else {
-            let document_id = DOCUMENTS.open(&path, None).await?;
-            let document = DOCUMENTS.get(&document_id).await?;
-            let document = document.lock().await;
+            let document = DOCUMENTS.open(&path, None).await?;
             document.path.clone()
         };
 

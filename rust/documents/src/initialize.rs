@@ -4,6 +4,7 @@ use common::tokio::{
     self,
     sync::{broadcast, mpsc, RwLock},
 };
+use events::Event;
 use formats::FormatSpec;
 use graph::Graph;
 use graph_triples::TagMap;
@@ -11,7 +12,7 @@ use kernels::KernelSpace;
 use stencila_schema::Node;
 
 use crate::{
-    document::{Document, DocumentSubscribers},
+    document::{Document, DocumentEventListeners, DocumentPatchRequestSender, DocumentCompileRequestSender, DocumentExecuteRequestSender, DocumentCancelRequestSender, DocumentWriteRequestSender, DocumentResponseReceiver},
     messages::{
         CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, Response, WriteRequest,
     },
@@ -28,15 +29,15 @@ impl Document {
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernels: &Arc<RwLock<KernelSpace>>,
-        subscribers: &Arc<RwLock<DocumentSubscribers>>,
+        event_listeners: &DocumentEventListeners,
         last_write: &Arc<RwLock<Instant>>,
     ) -> (
-        mpsc::UnboundedSender<PatchRequest>,
-        mpsc::Sender<CompileRequest>,
-        mpsc::Sender<ExecuteRequest>,
-        mpsc::Sender<CancelRequest>,
-        mpsc::UnboundedSender<WriteRequest>,
-        broadcast::Receiver<Response>,
+        DocumentPatchRequestSender,
+        DocumentCompileRequestSender,
+        DocumentExecuteRequestSender,
+        DocumentCancelRequestSender,
+        DocumentWriteRequestSender,
+        DocumentResponseReceiver,
     ) {
         let (patch_request_sender, mut patch_request_receiver) =
             mpsc::unbounded_channel::<PatchRequest>();
@@ -55,9 +56,10 @@ impl Document {
 
         let (response_sender, response_receiver) = broadcast::channel::<Response>(1);
 
+        let (event_sender, mut event_receiver) = mpsc::unbounded_channel::<Event>();
+
         let id_clone = id.to_string();
         let root_clone = root.clone();
-        let subscribers_clone = subscribers.clone();
         let compile_sender_clone = compile_request_sender.clone();
         let write_sender_clone = write_request_sender.clone();
         let response_sender_clone = response_sender.clone();
@@ -65,7 +67,6 @@ impl Document {
             Self::patch_task(
                 &id_clone,
                 &root_clone,
-                &subscribers_clone,
                 &compile_sender_clone,
                 &write_sender_clone,
                 &mut patch_request_receiver,
@@ -81,6 +82,7 @@ impl Document {
         let tags_clone = tags.clone();
         let graph_clone = graph.clone();
         let kernels_clone = kernels.clone();
+        let event_listeners_clone = event_listeners.clone();
         let patch_sender_clone = patch_request_sender.clone();
         let execute_sender_clone = execute_request_sender.clone();
         let write_sender_clone = write_request_sender.clone();
@@ -94,6 +96,8 @@ impl Document {
                 &tags_clone,
                 &graph_clone,
                 &kernels_clone,
+                &event_sender,
+                &event_listeners_clone,
                 &patch_sender_clone,
                 &execute_sender_clone,
                 &write_sender_clone,
@@ -143,6 +147,27 @@ impl Document {
                 format_clone.as_deref(),
                 &mut write_request_receiver,
                 &response_sender,
+            )
+            .await
+        });
+
+        let id_clone = id.to_string();
+        let event_listeners_clone = event_listeners.clone();
+        let patch_sender_clone = patch_request_sender.clone();
+        let compile_sender_clone = compile_request_sender.clone();
+        let execute_sender_clone = execute_request_sender.clone();
+        let cancel_sender_clone = cancel_request_sender.clone();
+        let write_sender_clone = write_request_sender.clone();
+        tokio::spawn(async move {
+            Self::listen_task(
+                &id_clone,
+                &mut event_receiver,
+                &event_listeners_clone,
+                patch_sender_clone,
+                compile_sender_clone,
+                execute_sender_clone,
+                cancel_sender_clone,
+                write_sender_clone,
             )
             .await
         });

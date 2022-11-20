@@ -13,7 +13,6 @@ use common::{
     itertools::Itertools,
     serde::Serialize,
     serde_json,
-    tokio::sync::Mutex,
     tracing,
 };
 use formats::Format;
@@ -113,13 +112,8 @@ struct File {
     format: Option<String>,
 }
 impl File {
-    async fn open(&self) -> eyre::Result<String> {
+    async fn open(&self) -> eyre::Result<Arc<Document>> {
         DOCUMENTS.open(&self.path, self.format.clone()).await
-    }
-
-    async fn get(&self) -> eyre::Result<Arc<Mutex<Document>>> {
-        let id = self.open().await?;
-        DOCUMENTS.get(&id).await
     }
 }
 
@@ -346,8 +340,7 @@ pub struct Graph {
 #[async_trait]
 impl Run for Graph {
     async fn run(&self) -> Result {
-        let document = self.file.get().await?;
-        let document = document.lock().await;
+        let document = self.file.open().await?;
         let content = document.graph.read().await.to_format(&self.to)?;
         result::content(&self.to, &content)
     }
@@ -470,8 +463,7 @@ fn option_node(validator: &Option<Node>) -> String {
 #[async_trait]
 impl Run for Params {
     async fn run(&self) -> Result {
-        let document = self.file.get().await?;
-        let mut document = document.lock().await;
+        let document = self.file.open().await?;
         let params = document.params().await?;
         let params = params
             .into_iter()
@@ -657,9 +649,7 @@ impl Run for Query {
             query,
             lang,
         } = self;
-        let document_id = DOCUMENTS.open(file, format.clone()).await?;
-        let document = DOCUMENTS.get(&document_id).await?;
-        let document = document.lock().await;
+        let document = DOCUMENTS.open(file, format.clone()).await?;
         let node = &*document.root.read().await;
         let result = node_query::query(node, query, Some(lang))?;
         result::value(result)

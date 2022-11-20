@@ -19,6 +19,7 @@ use stencila_schema::{
 };
 
 use crate::{
+    document::{Document, DocumentEventListener, DocumentEventListeners, DocumentEventSender},
     executable::{CompileContext, Executable},
     messages::{PatchRequest, When},
     utils::{send_patch, send_patches},
@@ -39,12 +40,15 @@ use crate::{
 /// - `kernel_space`: The document's [`KernelSpace`]
 ///
 /// - `patch_sender`: A [`Patch`] channel sender to send patches for changes to the compiled nodes
+#[allow(clippy::too_many_arguments)]
 pub async fn compile(
     path: &Path,
     project: &Path,
     root: &Arc<RwLock<Node>>,
     tag_map: &Arc<RwLock<TagMap>>,
     kernel_space: &Arc<RwLock<KernelSpace>>,
+    event_sender: &DocumentEventSender,
+    event_listeners: &DocumentEventListeners,
     patch_sender: &UnboundedSender<PatchRequest>,
 ) -> Result<Graph> {
     let root = root.read().await;
@@ -58,12 +62,16 @@ pub async fn compile(
         kernel_space: &*kernel_space,
         resource_infos: Vec::default(),
         global_tags: TagMap::default(),
+        event_listeners: Vec::default(),
         patches: Vec::default(),
     };
     root.compile(&mut address, &mut context).await?;
 
     // Send patches collected during compilation reflecting changes to nodes
     send_patches(patch_sender, context.patches, When::Never);
+
+    // Register all event listeners
+    Document::listen_many(event_sender, event_listeners, context.event_listeners).await?;
 
     // Update the document's tag map with any global tags collected during compilation
     *tag_map.write().await = context.global_tags;
@@ -272,7 +280,7 @@ pub async fn compile(
                 _ => None,
             })
             .collect();
-            
+
         let new_compile_digest = resource_info.compile_digest.clone();
 
         let mut after = node.clone();
@@ -330,6 +338,6 @@ pub async fn compile(
         send_patch(patch_sender, patch, When::Never);
     }
     */
-    
+
     Ok(graph)
 }

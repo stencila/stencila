@@ -736,7 +736,7 @@ struct WebsocketClients {
     subscriptions: Arc<RwLock<HashMap<String, (SubscriptionId, usize)>>>,
 
     /// The sender used to subscribe to events on behalf of clients
-    sender: mpsc::UnboundedSender<events::Message>,
+    sender: mpsc::UnboundedSender<events::Event>,
 }
 
 impl WebsocketClients {
@@ -746,7 +746,7 @@ impl WebsocketClients {
 
         let subscriptions = Arc::new(RwLock::new(HashMap::new()));
 
-        let (sender, receiver) = mpsc::unbounded_channel::<events::Message>();
+        let (sender, receiver) = mpsc::unbounded_channel::<events::Event>();
         tokio::spawn(WebsocketClients::relay(inner.clone(), receiver));
 
         Self::ping(inner.clone());
@@ -936,7 +936,7 @@ impl WebsocketClients {
     /// clients based in their subscriptions.
     async fn relay(
         clients: Arc<RwLock<HashMap<String, WebsocketClient>>>,
-        receiver: mpsc::UnboundedReceiver<events::Message>,
+        receiver: mpsc::UnboundedReceiver<events::Event>,
     ) {
         let mut receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(receiver);
         while let Some((topic, event)) = receiver.next().await {
@@ -1579,9 +1579,7 @@ async fn get_handler(
         let mode = EncodeMode::from_str(&mode).unwrap_or(EncodeMode::Static);
 
         match DOCUMENTS.open(&fs_path, None).await {
-            Ok(document_id) => {
-                let document = DOCUMENTS.get(&document_id).await.unwrap();
-                let document = document.lock().await;
+            Ok(document) => {
                 let content = match document
                     .dump(
                         Some(format.clone()),
@@ -1611,7 +1609,7 @@ async fn get_handler(
                             &theme,
                             &token,
                             &home,
-                            &document_id,
+                            &document.id,
                             &fs_path,
                         )
                         .await

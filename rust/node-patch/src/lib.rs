@@ -372,20 +372,22 @@ impl Operation {
             ExecutionDependentRelation
             ExecutionDependentNode
 
-            // Child types of the above
-            ListItem
-            TableCaption
-            TableRow
-            TableCell
-            TableCellCellType
-            FigureCaption
+            // Child types of the InlineContent and BlockContent
+            CallArgument
             CodeChunkCaption
-            Node
+            CodeError
             Datatable
             DatatableColumn
+            FigureCaption
+            IfClause
+            ListItem
+            Node
+            TableCaption
+            TableCell
+            TableCellCellType
+            TableRow
             ValidatorTypes
             EnumValidator // Because "replaceable"
-            CodeError
 
             // Properties of creative works
             Person
@@ -466,19 +468,21 @@ impl Operation {
             ExecutionDependent
 
             // Child types of the above
-            ListItem
-            TableCaption
-            TableRow
-            TableCell
-            TableCellCellType
-            FigureCaption
+            CallArgument
             CodeChunkCaption
-            Node
+            CodeError
             Datatable
             DatatableColumn
+            FigureCaption
+            IfClause
+            ListItem
+            Node
+            TableCaption
+            TableCell
+            TableCellCellType
+            TableRow
             ValidatorTypes
             EnumValidator // Because "replaceable"
-            CodeError
 
             // Primitives
             Primitive
@@ -604,12 +608,12 @@ pub struct Patch {
     /// the root node of the document.
     pub target: Option<String>,
 
-    /// The sequence number of the patch
+    /// The version number of the patch
     ///
     /// Should be present on published patches.
     /// Used by clients to check that they have received all patches
     /// published for a document in the correct order (and to panic if they haven't).
-    pub sequence: Option<u32>,
+    pub version: Option<u32>,
 
     /// The id of the actor that generated this patch
     /// e.g. a web browser client, or file watcher
@@ -703,8 +707,8 @@ impl Patch {
     /// The main purpose of this function is to generate HTML for each `Add` and `Replace`
     /// operation in the patch before it is sent to clients.
     #[tracing::instrument(skip(self, root))]
-    pub fn prepublish(&mut self, sequence: u32, root: &Node) -> &mut Self {
-        self.sequence = Some(sequence);
+    pub fn prepublish(&mut self, version: u32, root: &Node) -> &mut Self {
+        self.version = Some(version);
         for op in self.ops.iter_mut() {
             op.html_set(root);
         }

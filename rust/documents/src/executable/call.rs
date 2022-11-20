@@ -1,4 +1,8 @@
-use crate::DOCUMENTS;
+use crate::{
+    document::Document,
+    messages::{CompileRequest, Request},
+    DOCUMENTS,
+};
 
 use super::prelude::*;
 
@@ -20,19 +24,30 @@ impl Executable for Call {
             ]
             .concat(),
         );
-        if content_digest == get_content_digest(&draft.compile_digest) {
-            return Ok(());
-        }
+        // TODO: Work out how to bypass this check if the called document has changed
+        // Keep track of the called document's version?
+        //if content_digest == get_content_digest(&draft.compile_digest) {
+        //    return Ok(());
+        //}
 
         let params = {
-            let document_id = DOCUMENTS
+            let document = DOCUMENTS
                 .open(
-                    &draft.source,
+                    draft.source.trim(),
                     draft.media_type.as_ref().map(|mt| mt.to_string()),
                 )
                 .await?;
-            let document = DOCUMENTS.get(&document_id).await?;
-            let document = document.lock().await;
+
+            context.push_event_listener(
+                draft
+                    .id
+                    .as_ref()
+                    .expect("Should have id ensured above")
+                    .to_string(),
+                ["documents:", &document.id, ":patched"].concat(),
+                |_topic, _detail| Request::Compile(CompileRequest::now()),
+            );
+
             document.params().await?
         };
 
@@ -61,9 +76,16 @@ impl Executable for Call {
             None
         };
 
+        let semantic_digest = 0;
         for argument in draft.arguments.iter_mut().flatten() {
-            
+
         }
+
+        draft.compile_digest = Some(ExecutionDigest {
+            content_digest,
+            semantic_digest,
+            ..Default::default()
+        });
 
         let patch = diff_address(address, self, &draft);
         context.push_patch(patch);

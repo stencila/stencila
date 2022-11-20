@@ -270,13 +270,8 @@ async fn documents_close(params: &Params) -> Result<(serde_json::Value, Subscrip
 async fn documents_write(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let document_id = required_string(params, "documentId")?;
 
-    DOCUMENTS
-        .get(&document_id)
-        .await?
-        .lock()
-        .await
-        .write(None, None)
-        .await?;
+    // TODO: make immutable
+    //DOCUMENTS.get(&document_id).await?.write(None, None).await?;
     Ok((json!(true), Subscription::None))
 }
 
@@ -285,13 +280,12 @@ async fn documents_load(params: &Params) -> Result<(serde_json::Value, Subscript
     let content = required_string(params, "content")?;
     let format = optional_string(params, "format")?;
 
-    DOCUMENTS
-        .get(&document_id)
-        .await?
-        .lock()
-        .await
-        .load(content, format)
-        .await?;
+    // TODO: make immutable
+    //DOCUMENTS
+    //    .get(&document_id)
+    //    .await?
+    //    .load(content, format)
+    //    .await?;
     Ok((json!(true), Subscription::None))
 }
 
@@ -303,8 +297,6 @@ async fn documents_dump(params: &Params) -> Result<(serde_json::Value, Subscript
     let content = DOCUMENTS
         .get(&document_id)
         .await?
-        .lock()
-        .await
         .dump(
             format,
             node_id,
@@ -324,7 +316,7 @@ async fn documents_subscribe(
     let id = required_string(params, "documentId")?;
     let topic = required_string(params, "topic")?;
 
-    let topic = DOCUMENTS.subscribe(&id, &topic, client).await?;
+    let topic = ["documents:", &id, ":", &topic].concat();
     Ok((json!({ "id": id }), Subscription::Subscribe(topic)))
 }
 
@@ -335,7 +327,7 @@ async fn documents_unsubscribe(
     let id = required_string(params, "documentId")?;
     let topic = required_string(params, "topic")?;
 
-    let topic = DOCUMENTS.unsubscribe(&id, &topic, client).await?;
+    let topic = ["documents:", &id, ":", &topic].concat();
     Ok((json!({ "id": id }), Subscription::Unsubscribe(topic)))
 }
 
@@ -356,8 +348,6 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
     DOCUMENTS
         .get(&id)
         .await?
-        .lock()
-        .await
         .patch_request(patch, compile, execute, write)
         .await?;
     Ok((json!(true), Subscription::None))
@@ -376,8 +366,6 @@ async fn documents_compile(params: &Params) -> Result<(serde_json::Value, Subscr
     DOCUMENTS
         .get(&id)
         .await?
-        .lock()
-        .await
         .compile_request(execute, write, node_id)
         .await?;
     Ok((json!(true), Subscription::None))
@@ -397,8 +385,6 @@ async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscr
     DOCUMENTS
         .get(&id)
         .await?
-        .lock()
-        .await
         .execute_request(write, node_id, ordering, None)
         .await?;
     Ok((json!(true), Subscription::None))
@@ -412,13 +398,7 @@ async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscri
         None => None,
     };
 
-    DOCUMENTS
-        .get(&id)
-        .await?
-        .lock()
-        .await
-        .cancel(node_id, scope)
-        .await?;
+    DOCUMENTS.get(&id).await?.cancel(node_id, scope).await?;
     Ok((json!(true), Subscription::None))
 }
 
@@ -426,27 +406,21 @@ async fn documents_restart(params: &Params) -> Result<(serde_json::Value, Subscr
     let id = required_string(params, "documentId")?;
     let kernel_id = optional_string(params, "kernelId")?;
 
-    DOCUMENTS
-        .get(&id)
-        .await?
-        .lock()
-        .await
-        .restart(kernel_id)
-        .await?;
+    DOCUMENTS.get(&id).await?.restart(kernel_id).await?;
     Ok((json!(true), Subscription::None))
 }
 
 async fn documents_kernels(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
 
-    let kernels = DOCUMENTS.get(&id).await?.lock().await.kernels().await;
+    let kernels = DOCUMENTS.get(&id).await?.kernels().await;
     Ok((json!(kernels), Subscription::None))
 }
 
 async fn documents_symbols(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
 
-    let symbols = DOCUMENTS.get(&id).await?.lock().await.symbols().await;
+    let symbols = DOCUMENTS.get(&id).await?.symbols().await;
     Ok((json!(symbols), Subscription::None))
 }
 

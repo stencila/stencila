@@ -1,6 +1,7 @@
 use std::{
-    collections::{hash_map::Entry, HashMap, HashSet},
-    env, fs,
+    env,
+    fmt::Debug,
+    fs,
     ops::Deref,
     path::{Path, PathBuf},
     sync::Arc,
@@ -14,9 +15,8 @@ use common::{
     async_recursion::async_recursion,
     eyre::{bail, Result},
     itertools::Itertools,
-    maplit::hashset,
     serde::Serialize,
-    serde_json::json,
+    serde_json::{self, json},
     strum::Display,
     tokio::{
         self,
@@ -25,10 +25,10 @@ use common::{
     },
     tracing,
 };
-use events::publish;
+use events::{has_subscribers, publish, Event, SubscriptionId, SubscriptionTopic};
 use formats::{Format, FormatSpec};
 use graph::{Graph, PlanOptions, PlanOrdering, PlanScope};
-use graph_triples::{resources, Relations, Resource, TagMap};
+use graph_triples::{resources, Relations, TagMap};
 use kernels::{KernelInfos, KernelSpace, KernelSymbols};
 use node_patch::{apply, diff, merge, Patch};
 use node_pointer::find;
@@ -40,8 +40,8 @@ use crate::{
     compile::compile,
     execute::execute,
     messages::{
-        CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, RequestId, Response, When,
-        WriteRequest,
+        CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, Request, RequestId, Response,
+        When, WriteRequest,
     },
 };
 
@@ -64,10 +64,43 @@ enum DocumentStatus {
     Deleted,
 }
 
-pub type DocumentSubscribers = HashMap<String, HashSet<String>>;
+/// A channel sender/receiver for events to a document's listen task
+pub type DocumentEventSender = mpsc::UnboundedSender<Event>;
+pub type DocumentEventReceiver = mpsc::UnboundedReceiver<Event>;
+
+/// A function that listens to pub-sub topics and generates a task request in response
+pub type DocumentEventListener = fn(topic: &str, detail: serde_json::Value) -> Request;
+
+/// The set of document listeners and the pub-sub topics that they are listening to
+pub type DocumentEventListeners = Arc<
+    RwLock<(
+        Vec<(String, SubscriptionTopic, DocumentEventListener)>,
+        Vec<(SubscriptionTopic, SubscriptionId)>,
+    )>,
+>;
+
+// Channel sender/receivers for document tasks
+
+pub type DocumentPatchRequestSender = mpsc::UnboundedSender<PatchRequest>;
+pub type DocumentPatchRequestReceiver = mpsc::UnboundedReceiver<PatchRequest>;
+
+pub type DocumentCompileRequestSender = mpsc::Sender<CompileRequest>;
+pub type DocumentCompileRequestReceiver = mpsc::Receiver<CompileRequest>;
+
+pub type DocumentExecuteRequestSender = mpsc::Sender<ExecuteRequest>;
+pub type DocumentExecuteRequestReceiver = mpsc::Receiver<ExecuteRequest>;
+
+pub type DocumentCancelRequestSender = mpsc::Sender<CancelRequest>;
+pub type DocumentCancelRequestReceiver = mpsc::Receiver<CancelRequest>;
+
+pub type DocumentWriteRequestSender = mpsc::UnboundedSender<WriteRequest>;
+pub type DocumentWriteRequestReceiver = mpsc::UnboundedReceiver<WriteRequest>;
+
+pub type DocumentResponseSender = broadcast::Sender<Response>;
+pub type DocumentResponseReceiver = broadcast::Receiver<Response>;
 
 /// An in-memory representation of a document
-#[derive(Debug, Serialize)]
+#[derive(Serialize)]
 #[serde(crate = "common::serde")]
 pub struct Document {
     /// The document identifier
@@ -181,43 +214,35 @@ pub struct Document {
     #[serde(skip)]
     pub(crate) graph: Arc<RwLock<Graph>>,
 
-    /// The clients that are subscribed to each topic for this document
-    ///
-    /// Keeping track of client ids per topics allows for a some optimizations.
-    /// For example, events will only be published on topics that have at least one
-    /// subscriber.
-    ///
-    /// Valid subscription topics are the names of the `DocumentEvent` types:
-    ///
-    /// - `removed`: published when document file is deleted
-    /// - `renamed`: published when document file is renamed
-    /// - `modified`: published when document file is modified
-    /// - `encoded:<format>` published when a document's content
-    ///    is changed internally or externally and  conversions have been
-    ///    completed e.g. `encoded:html`
     #[serde(skip)]
-    subscribers: Arc<RwLock<DocumentSubscribers>>,
+    event_listeners: DocumentEventListeners,
 
     #[serde(skip)]
-    patch_request_sender: mpsc::UnboundedSender<PatchRequest>,
+    patch_request_sender: DocumentPatchRequestSender,
 
     #[serde(skip)]
-    compile_request_sender: mpsc::Sender<CompileRequest>,
+    compile_request_sender: DocumentCompileRequestSender,
 
     #[serde(skip)]
-    execute_request_sender: mpsc::Sender<ExecuteRequest>,
+    execute_request_sender: DocumentExecuteRequestSender,
 
     #[serde(skip)]
-    cancel_request_sender: mpsc::Sender<CancelRequest>,
+    cancel_request_sender: DocumentCancelRequestSender,
 
     // TODO: Add `write_request` method and refactor `write` method similar to
     // `patch_request`, `patch` etc.
     #[allow(dead_code)]
     #[serde(skip)]
-    write_request_sender: mpsc::UnboundedSender<WriteRequest>,
+    write_request_sender: DocumentWriteRequestSender,
 
     #[serde(skip)]
-    response_receiver: broadcast::Receiver<Response>,
+    response_receiver: DocumentResponseReceiver,
+}
+
+impl Debug for Document {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Document {}", self.id)
+    }
 }
 
 #[allow(unused)]
@@ -299,7 +324,7 @@ impl Document {
         let tags = Arc::new(RwLock::new(TagMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
         let kernels = Arc::new(RwLock::new(KernelSpace::new(Some(&project))));
-        let subscribers = Arc::new(RwLock::new(DocumentSubscribers::default()));
+        let event_listeners = DocumentEventListeners::default();
         let last_write = Arc::new(RwLock::new(Instant::now()));
 
         let (
@@ -318,7 +343,7 @@ impl Document {
             &tags,
             &graph,
             &kernels,
-            &subscribers,
+            &event_listeners,
             &last_write,
         );
 
@@ -341,7 +366,7 @@ impl Document {
             kernels,
 
             relations: Default::default(),
-            subscribers: Default::default(),
+            event_listeners: Default::default(),
 
             patch_request_sender,
             compile_request_sender,
@@ -377,7 +402,7 @@ impl Document {
         let (kernels, kernels_restarted) = self.kernels.read().await.fork().await?;
         let kernels = Arc::new(RwLock::new(kernels));
 
-        let subscribers = Arc::new(RwLock::new(DocumentSubscribers::default()));
+        let event_listeners = DocumentEventListeners::default();
         let last_write = Arc::new(RwLock::new(Instant::now()));
 
         let (
@@ -396,7 +421,7 @@ impl Document {
             &tags,
             &graph,
             &kernels,
-            &subscribers,
+            &event_listeners,
             &last_write,
         );
 
@@ -419,7 +444,7 @@ impl Document {
             kernels,
 
             relations: Default::default(),
-            subscribers: Default::default(),
+            event_listeners: Default::default(),
 
             patch_request_sender,
             compile_request_sender,
@@ -641,8 +666,8 @@ impl Document {
         last_write: &Arc<RwLock<Instant>>,
         path: &Path,
         format: Option<&str>,
-        request_receiver: &mut mpsc::UnboundedReceiver<WriteRequest>,
-        response_sender: &broadcast::Sender<Response>,
+        request_receiver: &mut DocumentWriteRequestReceiver,
+        response_sender: &DocumentResponseSender,
     ) {
         let duration = Duration::from_millis(Document::WRITE_DEBOUNCE_MILLIS);
         let mut write = false;
@@ -809,13 +834,13 @@ impl Document {
     pub(crate) async fn patch_task(
         id: &str,
         root: &Arc<RwLock<Node>>,
-        subscribers: &Arc<RwLock<DocumentSubscribers>>,
-        compile_sender: &mpsc::Sender<CompileRequest>,
-        write_sender: &mpsc::UnboundedSender<WriteRequest>,
-        request_receiver: &mut mpsc::UnboundedReceiver<PatchRequest>,
-        response_sender: &broadcast::Sender<Response>,
+        compile_sender: &DocumentCompileRequestSender,
+        write_sender: &DocumentWriteRequestSender,
+        request_receiver: &mut DocumentPatchRequestReceiver,
+        response_sender: &DocumentResponseSender,
     ) {
-        let mut counter = 0u32;
+        let mut version = 0u32;
+        let topic = ["documents:", id, ":patched"].concat();
         while let Some(request) = request_receiver.recv().await {
             tracing::trace!(
                 "Patching document `{}` for requests `{}`",
@@ -841,19 +866,21 @@ impl Document {
                 }
 
                 // Increment version counter
-                counter += 1;
+                version += 1;
 
-                // Publish the patch if there are any subscriptions to the `patched` event
-                // of this document
-                if subscribers
-                    .read()
-                    .await
-                    .get("patched")
-                    .map(|subscribers| !subscribers.is_empty())
-                    .unwrap_or_default()
-                {
-                    patch.prepublish(counter, root);
-                    publish(&["documents:", id, ":patched"].concat(), &patch);
+                // Publish the patch if there are any subscriptions to the `patched` event of this document
+                let should_publish = has_subscribers(&topic).unwrap_or_else(|error| {
+                    tracing::error!("While checking for any subscribers: {}", error);
+                    true
+                });
+                if should_publish {
+                    patch.prepublish(version, root);
+                    publish(&topic, &patch);
+                } else {
+                    tracing::trace!(
+                        "Document `{}` skipping publishing patch because there are no subscribers",
+                        id
+                    );
                 }
             }
 
@@ -1018,11 +1045,13 @@ impl Document {
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<RwLock<KernelSpace>>,
-        patch_sender: &mpsc::UnboundedSender<PatchRequest>,
-        execute_sender: &mpsc::Sender<ExecuteRequest>,
-        write_sender: &mpsc::UnboundedSender<WriteRequest>,
-        request_receiver: &mut mpsc::Receiver<CompileRequest>,
-        response_sender: &broadcast::Sender<Response>,
+        event_sender: &DocumentEventSender,
+        event_listeners: &DocumentEventListeners,
+        patch_sender: &DocumentPatchRequestSender,
+        execute_sender: &DocumentExecuteRequestSender,
+        write_sender: &DocumentWriteRequestSender,
+        request_receiver: &mut DocumentCompileRequestReceiver,
+        response_sender: &DocumentResponseSender,
     ) {
         let duration = Duration::from_millis(Document::COMPILE_DEBOUNCE_MILLIS);
         let mut request_ids = Vec::new();
@@ -1060,7 +1089,18 @@ impl Document {
             );
 
             // Compile the root node
-            match compile(path, project, root, tags, kernel_space, patch_sender).await {
+            match compile(
+                path,
+                project,
+                root,
+                tags,
+                kernel_space,
+                event_sender,
+                event_listeners,
+                patch_sender,
+            )
+            .await
+            {
                 Ok(new_graph) => {
                     *graph.write().await = new_graph;
                 }
@@ -1218,11 +1258,11 @@ impl Document {
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<RwLock<KernelSpace>>,
-        patch_sender: &mpsc::UnboundedSender<PatchRequest>,
-        write_sender: &mpsc::UnboundedSender<WriteRequest>,
-        cancel_receiver: &mut mpsc::Receiver<CancelRequest>,
-        request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
-        response_sender: &broadcast::Sender<Response>,
+        patch_sender: &DocumentPatchRequestSender,
+        write_sender: &DocumentWriteRequestSender,
+        cancel_receiver: &mut DocumentCancelRequestReceiver,
+        request_receiver: &mut DocumentExecuteRequestReceiver,
+        response_sender: &DocumentResponseSender,
     ) {
         let duration = Duration::from_millis(Document::EXECUTE_DEBOUNCE_MILLIS);
         let mut request_ids = Vec::new();
@@ -1432,49 +1472,6 @@ impl Document {
         Ok(())
     }
 
-    /// React to a change in a file path
-    ///
-    /// If the path corresponds to a `File` resource in the document's graph then re-compile,
-    /// and potentially re-execute, and write the document.
-    async fn react(&mut self, path: &Path) {
-        let graph = self.graph.read().await;
-        if let Ok(resource_info) = graph.find_resource_info(&resources::file(path)) {
-            // Only execute and write if a code related resource e.g. `CodeChunk` and
-            // just compile for others e.g. `Include`
-            let mut compile = When::Never;
-            let mut execute = When::Never;
-            let mut write = When::Never;
-            for dependent in resource_info.dependents.iter().flatten() {
-                if let Resource::Node(resources::Node { kind, .. }) = dependent {
-                    if kind == "Include" {
-                        compile.no_later_than(When::Now);
-                    }
-                } else if matches!(dependent, Resource::Code(..)) {
-                    compile.no_later_than(When::Now);
-                    execute.no_later_than(When::Now);
-                    write.no_later_than(When::Soon);
-                }
-            }
-
-            tracing::trace!(
-                "Document `{}` reacting because file changed: {}",
-                self.id,
-                path.display()
-            );
-            let result = if !matches!(compile, When::Never) {
-                self.compile_request(execute, write, None).await
-            } else if !matches!(execute, When::Never) {
-                self.execute_request(write, None, None, None).await
-            } else {
-                return;
-            };
-
-            if let Err(error) = result {
-                tracing::error!("When sending request for document `{}`: {}", self.id, error);
-            }
-        }
-    }
-
     /// Cancel the execution of the document
     ///
     /// # Arguments
@@ -1591,21 +1588,6 @@ impl Document {
         *self.root.write().await = root;
         self.compile(When::Never, When::Never, None).await?;
 
-        // Publish any events for which there are subscriptions (this will probably go elsewhere)
-        let subscribers = &*self.subscribers.read().await;
-        for subscription in subscribers.keys() {
-            // Encode the `root` into each of the formats for which there are subscriptions
-            if let Some(format) = subscription.strip_prefix("encoded:") {
-                tracing::debug!("Encoding document `{}` to format `{}`", self.id, format);
-                match codecs::to_string(&*self.root.read().await, format, None).await {
-                    Ok(content) => self.publish("encoded", content),
-                    Err(error) => {
-                        tracing::warn!("Unable to encode to format `{}`: {}", format, error)
-                    }
-                }
-            }
-        }
-
         Ok(())
     }
 
@@ -1620,46 +1602,9 @@ impl Document {
         ["documents:", &self.id, ":", subtopic].concat()
     }
 
-    /// Subscribe a client to one of the document's topics
-    pub async fn subscribe(&mut self, topic: &str, client: &str) -> String {
-        let subscribers = &mut *self.subscribers.write().await;
-        match subscribers.entry(topic.into()) {
-            Entry::Occupied(mut occupied) => {
-                occupied.get_mut().insert(client.into());
-            }
-            Entry::Vacant(vacant) => {
-                vacant.insert(hashset! {client.into()});
-            }
-        }
-        self.topic(topic)
-    }
-
-    /// Unsubscribe a client from one of the document's topics
-    pub async fn unsubscribe(&mut self, topic: &str, client: &str) -> String {
-        let subscribers = &mut *self.subscribers.write().await;
-        if let Entry::Occupied(mut occupied) = subscribers.entry(topic.to_string()) {
-            let subscribers = occupied.get_mut();
-            subscribers.remove(client);
-            if subscribers.is_empty() {
-                occupied.remove();
-            }
-        }
-        self.topic(topic)
-    }
-
-    /// Get the number of subscribers to one of the document's topics
-    async fn subscribers(&self, topic: &str) -> usize {
-        let subscribers = &*self.subscribers.read().await;
-        if let Some(subscriptions) = subscribers.get(topic) {
-            subscriptions.len()
-        } else {
-            0
-        }
-    }
-
     /// Publish an event for this document
     fn publish<Detail: Serialize>(&self, subtopic: &str, detail: Detail) {
-        publish(&self.topic(&subtopic), detail)
+        publish(&self.topic(subtopic), detail)
     }
 
     /// Called when the file is removed from the file system
@@ -1857,22 +1802,18 @@ impl DocumentHandler {
                 match event {
                     DebouncedEvent::Create(path) | DebouncedEvent::Write(path) => {
                         let doc = &mut *document.lock().await;
-                        doc.react(&path).await;
                         if path == document_path {
                             doc.modified(path.clone()).await
                         }
                     }
                     DebouncedEvent::Remove(path) => {
                         let doc = &mut *document.lock().await;
-                        doc.react(&path).await;
                         if path == document_path {
                             doc.deleted(path)
                         }
                     }
                     DebouncedEvent::Rename(from, to) => {
                         let doc = &mut *document.lock().await;
-                        doc.react(&from).await;
-                        doc.react(&to).await;
                         if from == document_path {
                             document_path = to.clone();
                             doc.renamed(from, to)

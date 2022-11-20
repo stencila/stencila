@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use common::{async_trait::async_trait, eyre::Result, tracing};
+use common::{async_trait::async_trait, eyre::Result};
 use formats::Format;
 use graph_triples::{ResourceInfo, TagMap};
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
@@ -10,6 +10,8 @@ use parsers::ParseInfo;
 use stencila_schema::{
     ExecutionDependent, ExecutionDependentNode, ExecutionDependentRelation, Variable,
 };
+
+use crate::document::DocumentEventListener;
 
 /// Trait for executable document nodes
 ///
@@ -42,7 +44,6 @@ pub trait Executable {
     }
 }
 
-#[derive(Debug)]
 pub struct CompileContext<'lt> {
     /// The path of the document being compiled
     ///
@@ -59,6 +60,8 @@ pub struct CompileContext<'lt> {
     /// Used to guess programming languages from syntax and variables used
     pub kernel_space: &'lt KernelSpace,
 
+    pub event_listeners: Vec<(String, String, DocumentEventListener)>,
+
     /// A list of resources compiled from the nodes
     pub resource_infos: Vec<ResourceInfo>,
 
@@ -73,6 +76,16 @@ impl<'lt> CompileContext<'lt> {
     /// Push a patch to the context
     pub fn push_patch(&mut self, patch: Patch) {
         self.patches.push(patch)
+    }
+
+    /// Push an event listener to the context
+    pub fn push_event_listener(
+        &mut self,
+        listener_id: String,
+        event_topic: String,
+        event_listener: DocumentEventListener,
+    ) {
+        self.event_listeners.push((listener_id, event_topic, event_listener))
     }
 
     /// Guess the language of the code using the context's kernel space
