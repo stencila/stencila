@@ -389,7 +389,7 @@ impl Graph {
                 // (or content digest if that is empty) and dependencies digest.
                 dependencies_digest.write_u64(match compile_digest.semantic_digest != 0 {
                     true => compile_digest.semantic_digest,
-                    false => compile_digest.content_digest,
+                    false => compile_digest.state_digest,
                 });
                 dependencies_digest.write_u64(compile_digest.dependencies_digest);
 

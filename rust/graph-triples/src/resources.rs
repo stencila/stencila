@@ -319,7 +319,7 @@ impl ResourceInfo {
     /// Is the resource stale?
     ///
     /// Note that, when comparing the `execute_digest` and `compile_digest` for this determination,
-    /// the `content_digest` part is ignored. This avoids re-execution in situations such as when
+    /// the `state_digest` part is ignored. This avoids re-execution in situations such as when
     /// the user removes a `@autorun always` comment (they probably don't want it to be run again
     /// automatically next time). We currently include `dependencies_stale` in the comparison but
     /// that may also be unnecessary/inappropriate as well?

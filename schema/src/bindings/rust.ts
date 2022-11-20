@@ -124,7 +124,7 @@ const propertyTypes: Record<string, string> = {
   'StringValidator.maxLength': 'u32',
   // Execution related properties
   '*.executionCount': 'u32',
-  'ExecutionDigest.contentDigest': 'u64',
+  'ExecutionDigest.stateDigest': 'u64',
   'ExecutionDigest.semanticDigest': 'u64',
   'ExecutionDigest.dependenciesDigest': 'u64',
   'ExecutionDigest.dependenciesStale': 'u32',

@@ -2764,9 +2764,6 @@ pub struct ExecutionDigest {
     #[derivative(Default(value = "ExecutionDigest_::ExecutionDigest"))]
     pub type_: ExecutionDigest_,
 
-    /// A digest of the content of the resource (e.g the `text` of a `CodeChunk`, or the bytes of a file).
-    pub content_digest: u64,
-
     /// A digest of the semantic digests the dependencies of a resource.
     pub dependencies_digest: u64,
 
@@ -2778,6 +2775,9 @@ pub struct ExecutionDigest {
 
     /// A digest of the "semantic intent" of the resource with respect to the dependency graph
     pub semantic_digest: u64,
+
+    /// A digest of the state of a node.
+    pub state_digest: u64,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

@@ -44,7 +44,7 @@ impl Executable for Include {
         let path = merge(&context.path, &self.source);
         let dependency_digest =
             execution_digest_from_path(&path, self.media_type.as_ref().map(|str| str.as_str()));
-        execution_digest.dependencies_digest = dependency_digest.content_digest;
+        execution_digest.dependencies_digest = dependency_digest.state_digest;
 
         // Determine if it is necessary to update content (i.e. has the `compile_digest` changed since last time)
         let should_decode = self.content.is_none()

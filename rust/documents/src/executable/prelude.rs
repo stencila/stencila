@@ -20,10 +20,10 @@ pub fn generate_digest(content: &str) -> u64 {
     str_seahash(&content.replace('\r', "")).unwrap_or_default()
 }
 
-/// Get the content_digest of a node's [`ExecutionDigest`]
-pub fn get_content_digest(execution_digest: &Option<ExecutionDigest>) -> u64 {
+/// Get the state_digest of a node's [`ExecutionDigest`]
+pub fn get_state_digest(execution_digest: &Option<ExecutionDigest>) -> u64 {
     execution_digest
         .as_ref()
-        .map(|compile_digest| compile_digest.content_digest)
+        .map(|compile_digest| compile_digest.state_digest)
         .unwrap_or_default()
 }

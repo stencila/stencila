@@ -15,7 +15,7 @@ impl Executable for Call {
             draft.id = generate_id("ca");
         }
 
-        let content_digest = generate_digest(
+        let state_digest = generate_digest(
             &[
                 "",
                 &draft.source,
@@ -26,7 +26,7 @@ impl Executable for Call {
         );
         // TODO: Work out how to bypass this check if the called document has changed
         // Keep track of the called document's version?
-        //if content_digest == get_content_digest(&draft.compile_digest) {
+        //if state_digest == get_state_digest(&draft.compile_digest) {
         //    return Ok(());
         //}
 
@@ -82,7 +82,7 @@ impl Executable for Call {
         }
 
         draft.compile_digest = Some(ExecutionDigest {
-            content_digest,
+            state_digest,
             semantic_digest,
             ..Default::default()
         });

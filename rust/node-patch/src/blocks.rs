@@ -111,7 +111,7 @@ patchable_variants!(
 
 patchable_struct!(
     ExecutionDigest,
-    content_digest,
+    state_digest,
     semantic_digest,
     dependencies_digest,
     dependencies_failed,

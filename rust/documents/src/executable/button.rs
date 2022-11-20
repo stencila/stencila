@@ -19,9 +19,9 @@ impl Executable for Button {
             draft.programming_language = context.guess_language(&draft.code).to_string();
         }
 
-        let content_digest =
+        let state_digest =
             generate_digest(&["", &draft.name, &draft.code, &draft.programming_language].concat());
-        if content_digest == get_content_digest(&draft.compile_digest) {
+        if state_digest == get_state_digest(&draft.compile_digest) {
             return Ok(());
         }
 
@@ -39,7 +39,7 @@ impl Executable for Button {
             Some(vec![context.dependent_variable(&draft.name, "Timestamp")]);
 
         draft.compile_digest = Some(ExecutionDigest {
-            content_digest,
+            state_digest,
             semantic_digest,
             ..Default::default()
         });

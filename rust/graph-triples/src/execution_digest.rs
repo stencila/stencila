@@ -11,7 +11,7 @@ use stencila_schema::ExecutionDigest;
 pub fn execution_digest_from_content(content: &str) -> ExecutionDigest {
     let digest = str_seahash(&strip_chars(content)).unwrap_or_default();
     ExecutionDigest {
-        content_digest: digest,
+        state_digest: digest,
         semantic_digest: digest,
         ..Default::default()
     }
@@ -23,7 +23,7 @@ pub fn execution_digest_from_content(content: &str) -> ExecutionDigest {
 /// cross platform differences in generated digests.
 pub fn execution_digest_from_content_semantics(content: &str, semantics: &str) -> ExecutionDigest {
     ExecutionDigest {
-        content_digest: str_seahash(&strip_chars(content)).unwrap_or_default(),
+        state_digest: str_seahash(&strip_chars(content)).unwrap_or_default(),
         semantic_digest: str_seahash(&strip_chars(semantics)).unwrap_or_default(),
         ..Default::default()
     }
