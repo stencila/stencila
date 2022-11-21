@@ -1,11 +1,14 @@
 use std::{
     collections::{BTreeMap, BTreeSet, HashMap},
+    path::Path,
     sync::Arc,
+    time::Duration,
 };
 
 use common::{
     eyre::{bail, Report, Result},
     futures::stream::{FuturesUnordered, StreamExt},
+    itertools::Itertools,
     tokio::{
         self,
         sync::{
@@ -15,19 +18,306 @@ use common::{
     },
     tracing,
 };
-use graph::{Plan, PlanScope};
-use graph_triples::{Resource, TagMap};
+use formats::Format;
+use graph::{Graph, Plan, PlanOptions, PlanOrdering, PlanScope};
+use graph_triples::{resources, Resource, TagMap};
 use kernels::KernelSpace;
-
 use node_patch::{diff, mutate, Patch};
 use stencila_schema::{CodeChunk, CodeExpression, Division, ExecutionStatus, Node, Span};
 
 use crate::{
-    document::DocumentRoot,
+    document::{
+        Document, DocumentCancelRequestReceiver, DocumentExecuteRequestReceiver,
+        DocumentPatchRequestSender, DocumentResponseSender, DocumentRoot,
+        DocumentWriteRequestSender,
+    },
     executable::Executable,
-    messages::{CancelRequest, PatchRequest, When},
+    messages::{
+        CancelRequest, ExecuteRequest, PatchRequest, RequestId, Response, When, WriteRequest,
+    },
     utils::{resource_to_node, send_patch, send_patches},
 };
+
+impl Document {
+    /// Execute the document
+    ///
+    /// This method is the same as `execute_request` but will wait for the execution to finish
+    /// before returning. This is useful in some circumstances, such as ensuring the document
+    /// is executed before saving it to file.
+    #[tracing::instrument(skip(self))]
+    pub async fn execute(
+        &mut self,
+        write: When,
+        start: Option<String>,
+        ordering: Option<PlanOrdering>,
+        max_concurrency: Option<usize>,
+    ) -> Result<()> {
+        // Execute the document. Do not write now; maybe at end of this func.
+        let request_id = self
+            .execute_request(When::Never, start, ordering, max_concurrency)
+            .await?;
+
+        // Wait for execution to finish
+        tracing::trace!(
+            "Waiting for execute response for document `{}` for request `{}`",
+            self.id,
+            request_id
+        );
+        while let Ok(response) = self.response_receiver.recv().await {
+            if response.request_id == request_id {
+                tracing::trace!(
+                    "Received execute response for document `{}` for request `{}`",
+                    self.id,
+                    request_id
+                );
+                break;
+            }
+        }
+
+        // Recompile the document to ensure properties such as `execution_dependencies` reflect the
+        // new state of the document, and write if necessary
+        self.compile(When::Never, write, None).await?;
+
+        Ok(())
+    }
+
+    /// Request that the document be executed
+    #[tracing::instrument(skip(self))]
+    pub async fn execute_request(
+        &self,
+        write: When,
+        start: Option<String>,
+        ordering: Option<PlanOrdering>,
+        max_concurrency: Option<usize>,
+    ) -> Result<RequestId> {
+        tracing::debug!("Sending execute request for document `{}`", self.id);
+
+        let request_id = RequestId::new();
+        let request = ExecuteRequest::new(
+            vec![request_id.clone()],
+            When::Now,
+            write,
+            start,
+            ordering,
+            max_concurrency,
+        );
+        if let Err(error) = self.execute_request_sender.send(request).await {
+            bail!(
+                "When sending execute request for document `{}`: {}",
+                self.id,
+                error
+            )
+        };
+
+        Ok(request_id)
+    }
+
+    /// A background task to execute the root node of the document on request
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: The id of the document
+    ///
+    /// - `path`: The path of the document to be compiled
+    ///
+    /// - `project`: The project of the document to be compiled
+    ///
+    /// - `root`: The root [`Node`] to apply the compilation patch to
+    ///
+    /// - `tags`: The document's global [`TagMap`] for passing tags on to executed nodes
+    ///
+    /// - `graph`:  The [`Graph`] to be updated
+    ///
+    /// - `kernel_space`:  The [`KernelSpace`] to use for execution
+    ///
+    /// - `patch_sender`: A [`PatchRequest`] channel sender to send patches describing the changes to
+    ///                   executed nodes
+    ///
+    /// - `write_sender`: The channel to send any [`WriteRequest`]s on
+    ///
+    /// - `cancel_receiver`: The channel to receive [`CancelRequest`]s on
+    ///
+    /// - `request_receiver`: The channel to receive [`ExecuteRequest`]s on
+    ///
+    /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) async fn execute_task(
+        id: &str,
+        path: &Path,
+        project: &Path,
+        root: &DocumentRoot,
+        tags: &Arc<RwLock<TagMap>>,
+        graph: &Arc<RwLock<Graph>>,
+        kernel_space: &Arc<RwLock<KernelSpace>>,
+        patch_sender: &DocumentPatchRequestSender,
+        write_sender: &DocumentWriteRequestSender,
+        cancel_receiver: &mut DocumentCancelRequestReceiver,
+        request_receiver: &mut DocumentExecuteRequestReceiver,
+        response_sender: &DocumentResponseSender,
+    ) {
+        let duration = Duration::from_millis(Document::EXECUTE_DEBOUNCE_MILLIS);
+        let mut request_ids = Vec::new();
+        let mut start = None;
+        let mut ordering = PlanOptions::default_ordering();
+        let mut max_concurrency = PlanOptions::default_max_concurrency();
+        let mut write = When::Never;
+        loop {
+            match tokio::time::timeout(duration, request_receiver.recv()).await {
+                // Request received: record and continue to wait for timeout unless `now` is true
+                Ok(Some(mut request)) => {
+                    if !matches!(request.when, When::Never) {
+                        request_ids.append(&mut request.ids);
+
+                        // In the following, we allow more 'conservative' execution options to
+                        // override the default or those in previous requests.
+
+                        // Precedence for executing whole document, rather than starting at a node
+                        // If there is only one request then use its start, otherwise execute the whole document.
+                        if request_ids.len() == 1 {
+                            start = request.start;
+                        } else {
+                            start = None;
+                        }
+
+                        // Precedence for appearance, over topological, over single ordering
+                        if let Some(request_ordering) = request.ordering {
+                            use PlanOrdering::*;
+                            match (ordering, request_ordering) {
+                                (Single, Topological | Appearance) | (Topological, Appearance) => {
+                                    ordering = request_ordering;
+                                }
+                                _ => {}
+                            }
+                        }
+
+                        // Precedence for lowest concurrency
+                        if let Some(request_concurrency) = request.max_concurrency {
+                            if request_concurrency < max_concurrency {
+                                max_concurrency = request_concurrency;
+                            }
+                        }
+
+                        write.no_later_than(request.write);
+
+                        if !matches!(request.when, When::Now) {
+                            continue;
+                        }
+                    }
+                }
+                // Sender dropped: end of task
+                Ok(None) => break,
+                // Timeout so do the following with the last unhandled request, if any
+                Err(..) => {}
+            };
+
+            if request_ids.is_empty() {
+                continue;
+            }
+
+            tracing::trace!(
+                "Executing document `{}` for requests `{}`",
+                &id,
+                request_ids.iter().join(",")
+            );
+
+            // Generate the execution plan
+            let start = start
+                .clone()
+                .map(|node_id| resources::code(path, &node_id, "", Format::Unknown));
+            let tags_guard = tags.read().await;
+            let plan = match graph
+                .read()
+                .await
+                .plan(
+                    start,
+                    None,
+                    Some(&*tags_guard),
+                    Some(PlanOptions {
+                        ordering,
+                        max_concurrency,
+                    }),
+                )
+                .await
+            {
+                Ok(plan) => plan,
+                Err(error) => {
+                    tracing::error!("While generating execution plan: {}", error);
+                    continue;
+                }
+            };
+            drop(tags_guard);
+
+            // Execute the plan on the root node
+            execute(
+                &plan,
+                root,
+                tags,
+                kernel_space,
+                patch_sender,
+                cancel_receiver,
+            )
+            .await;
+
+            // Possibly write document; or respond
+            if !matches!(write, When::Never) {
+                tracing::trace!(
+                    "Sending write request for document `{}` for requests `{}`",
+                    &id,
+                    request_ids.iter().join(",")
+                );
+                if let Err(error) = write_sender.send(WriteRequest::new(request_ids.clone(), write))
+                {
+                    tracing::error!(
+                        "While sending write request for document `{}`: {}",
+                        id,
+                        error
+                    );
+                }
+            } else {
+                for request_id in &request_ids {
+                    if let Err(error) = response_sender.send(Response::new(request_id.clone())) {
+                        tracing::debug!(
+                            "While sending response for document `{}` from execute task: {}",
+                            id,
+                            error
+                        );
+                    }
+                }
+            }
+
+            request_ids.clear();
+            write = When::Never;
+        }
+    }
+
+    /// Cancel the execution of the document
+    ///
+    /// # Arguments
+    ///
+    /// - `start`: The node whose execution should be cancelled.
+    ///
+    /// - `scope`: The scope of the cancellation (the `Single` node identified
+    ///            by `start` or `All` nodes in the current plan).
+    #[tracing::instrument(skip(self))]
+    pub async fn cancel(
+        &self,
+        start: Option<String>,
+        scope: Option<PlanScope>,
+    ) -> Result<RequestId> {
+        tracing::debug!("Cancelling execution of document `{}`", self.id);
+
+        let request_id = RequestId::new();
+        let request = CancelRequest::new(vec![request_id.clone()], start, scope);
+        self.cancel_request_sender.send(request).await.or_else(|_| {
+            bail!(
+                "When sending cancel request for document `{}`: the receiver has dropped",
+                self.id
+            )
+        });
+
+        Ok(request_id)
+    }
+}
 
 /// Execute a [`Plan`] on a [`Node`]
 ///

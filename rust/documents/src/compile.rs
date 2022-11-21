@@ -1,14 +1,27 @@
-use std::{collections::HashMap, path::Path, sync::Arc};
+use std::{
+    collections::HashMap,
+    path::Path,
+    sync::Arc,
+    time::{Duration, Instant},
+};
 
 use common::{
-    eyre::Result,
-    tokio::sync::{mpsc::UnboundedSender, RwLock},
+    async_recursion::async_recursion,
+    eyre::{bail, Result},
+    itertools::Itertools,
+    serde::Serialize,
+    serde_json::{self, json},
+    strum::Display,
+    tokio::{
+        self,
+        sync::{broadcast, mpsc, mpsc::UnboundedSender, Mutex, RwLock},
+        task::JoinHandle,
+    },
     tracing,
 };
 use graph::Graph;
 use graph_triples::{resources, Resource, TagMap};
 use kernels::KernelSpace;
-
 use node_address::Address;
 use node_patch::diff_id;
 use node_pointer::find;
@@ -19,11 +32,235 @@ use stencila_schema::{
 };
 
 use crate::{
-    document::{Document, DocumentEventListeners, DocumentEventSender, DocumentRoot},
+    document::{
+        Document, DocumentCompileRequestReceiver, DocumentEventListeners, DocumentEventSender,
+        DocumentExecuteRequestSender, DocumentPatchRequestSender, DocumentResponseSender,
+        DocumentRoot, DocumentWriteRequestSender,
+    },
     executable::{CompileContext, Executable},
-    messages::{PatchRequest, When},
+    messages::{
+        CompileRequest, ExecuteRequest, PatchRequest, RequestId, Response, When, WriteRequest,
+    },
     utils::send_patches,
 };
+
+impl Document {
+    /// Compile the document
+    ///
+    /// This method is the same as `compile_request` but will wait for the compilation to finish
+    /// before returning. This is useful in some circumstances, such as ensuring the document
+    /// is compiled before it is encoded as HTML, on initial opening.
+    #[tracing::instrument(skip(self))]
+    pub async fn compile(
+        &mut self,
+        execute: When,
+        write: When,
+        start: Option<String>,
+    ) -> Result<()> {
+        let request_id = self.compile_request(execute, write, start).await?;
+
+        tracing::trace!(
+            "Waiting for compile response for document `{}` for request `{}`",
+            self.id,
+            request_id
+        );
+        while let Ok(response) = self.response_receiver.recv().await {
+            if response.request_id == request_id {
+                tracing::trace!(
+                    "Received compile response for document `{}` for request `{}`",
+                    self.id,
+                    request_id
+                );
+                break;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Request that the the document be compiled
+    /// 
+    /// Sends a [`CompileRequest`] to the document's `compile_task`.
+    #[tracing::instrument(skip(self))]
+    pub async fn compile_request(
+        &self,
+        execute: When,
+        write: When,
+        start: Option<String>,
+    ) -> Result<RequestId> {
+        tracing::debug!("Sending compile request for document `{}`", self.id);
+
+        let request_id = RequestId::new();
+        let request =
+            CompileRequest::new(vec![request_id.clone()], When::Now, execute, write, start);
+        if let Err(error) = self.compile_request_sender.send(request).await {
+            bail!(
+                "When sending compile request for document `{}`: {}",
+                self.id,
+                error
+            )
+        };
+
+        Ok(request_id)
+    }
+
+    /// A background task to compile the root node of the document on request
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: The id of the document
+    ///
+    /// - `path`: The path of the document to be compiled
+    ///
+    /// - `project`: The project of the document to be compiled
+    ///
+    /// - `root`: The root [`Node`] to apply the compilation patch to
+    ///
+    /// - `tags`: The document's global [`TagMap`] to be updated
+    ///
+    /// - `graph`:  The [`Graph`] to be updated
+    ///
+    /// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
+    ///
+    /// - `patch_sender`: A [`PatchRequest`] channel to send patches describing the changes to
+    ///                   compiled nodes
+    ///
+    /// - `execute_sender`: An [`ExecuteRequest`] channel to send any requests to execute the
+    ///                     document after it has been compiled
+    ///
+    /// - `write_sender`: The channel to send any [`WriteRequest`]s after a patch is applied
+    ///
+    /// - `request_receiver`: The channel to receive [`CompileRequest`]s on
+    ///
+    /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) async fn compile_task(
+        id: &str,
+        path: &Path,
+        project: &Path,
+        root: &DocumentRoot,
+        tags: &Arc<RwLock<TagMap>>,
+        graph: &Arc<RwLock<Graph>>,
+        kernel_space: &Arc<RwLock<KernelSpace>>,
+        event_sender: &DocumentEventSender,
+        event_listeners: &DocumentEventListeners,
+        patch_sender: &DocumentPatchRequestSender,
+        execute_sender: &DocumentExecuteRequestSender,
+        write_sender: &DocumentWriteRequestSender,
+        request_receiver: &mut DocumentCompileRequestReceiver,
+        response_sender: &DocumentResponseSender,
+    ) {
+        let duration = Duration::from_millis(Document::COMPILE_DEBOUNCE_MILLIS);
+        let mut request_ids = Vec::new();
+        let mut execute = When::Never;
+        let mut write = When::Never;
+        loop {
+            match tokio::time::timeout(duration, request_receiver.recv()).await {
+                // Request received: record and continue to wait for timeout unless `when` is now
+                Ok(Some(mut request)) => {
+                    if !matches!(request.when, When::Never) {
+                        request_ids.append(&mut request.ids);
+
+                        execute.no_later_than(request.execute);
+                        write.no_later_than(request.write);
+
+                        if !matches!(request.when, When::Now) {
+                            continue;
+                        }
+                    }
+                }
+                // Sender dropped: end of task
+                Ok(None) => break,
+                // Timeout so do the following with the last unhandled request, if any
+                Err(..) => {}
+            };
+
+            if request_ids.is_empty() {
+                continue;
+            }
+
+            tracing::trace!(
+                "Compiling document `{}` for requests `{}`",
+                id,
+                request_ids.iter().join(",")
+            );
+
+            // Compile the root node
+            match compile(
+                path,
+                project,
+                root,
+                tags,
+                kernel_space,
+                event_sender,
+                event_listeners,
+                patch_sender,
+            )
+            .await
+            {
+                Ok(new_graph) => {
+                    *graph.write().await = new_graph;
+                }
+                Err(error) => tracing::error!("While compiling document `{}`: {}", id, error),
+            }
+
+            // Possibly execute and/or write; or respond
+            if !matches!(execute, When::Never) {
+                tracing::trace!(
+                    "Sending execute request for document `{}` for compile requests `{}`",
+                    &id,
+                    request_ids.iter().join(",")
+                );
+                if let Err(error) = execute_sender
+                    .send(ExecuteRequest::new(
+                        request_ids.clone(),
+                        When::Soon,
+                        When::Soon,
+                        None,
+                        None,
+                        None,
+                    ))
+                    .await
+                {
+                    tracing::error!(
+                        "While sending execute request for document `{}`: {}",
+                        id,
+                        error
+                    );
+                }
+            } else if !matches!(write, When::Never) {
+                tracing::trace!(
+                    "Sending write request for document `{}` for compile requests `{}`",
+                    &id,
+                    request_ids.iter().join(",")
+                );
+                if let Err(error) =
+                    write_sender.send(WriteRequest::new(request_ids.clone(), When::Soon))
+                {
+                    tracing::error!(
+                        "While sending write request for document `{}`: {}",
+                        id,
+                        error
+                    );
+                }
+            } else {
+                for request_id in &request_ids {
+                    if let Err(error) = response_sender.send(Response::new(request_id.clone())) {
+                        tracing::debug!(
+                            "While sending response for document `{}` from compile task: {}",
+                            id,
+                            error
+                        );
+                    }
+                }
+            }
+
+            request_ids.clear();
+            execute = When::Never;
+            write = When::Never;
+        }
+    }
+}
 
 /// Compile the `root` node of a document
 ///
