@@ -281,13 +281,21 @@ export default class StencilaParameter extends StencilaExecutable {
             const name = event.detail.item.value
 
             const validator = this.validator.replaceType(name)
-            this.emitOp({
-              type: 'Replace',
-              address: ['validator'],
-              items: 1,
-              length: 1,
-              value: validator.toJSON(),
-            })
+            if (validator.constructor === StencilaValidator) {
+              this.emitOp({
+                type: 'Remove',
+                address: ['validator'],
+                items: 1,
+              })
+            } else {
+              this.emitOp({
+                type: 'Replace',
+                address: ['validator'],
+                items: 1,
+                length: 1,
+                value: validator.toJSON(),
+              })
+            }
 
             // Set the slot so that any patches get applied to the new
             // validator as well
