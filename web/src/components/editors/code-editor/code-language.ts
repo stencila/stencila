@@ -187,7 +187,7 @@ export class StencilaCodeLanguage extends StencilaElement {
     const desc =
       languages.find((desc) => desc.extensions.includes(language)) ??
       LanguageDescription.matchLanguageName(languages, language)
-    const icon = desc?.name.toLowerCase() ?? 'code'
+    const icon = desc?.name.toLowerCase() ?? 'question-square'
 
     const select = (event: CustomEvent) => {
       const value = event.detail.item.value
