@@ -1680,7 +1680,7 @@ fn call(input: &str) -> IResult<&str, Call> {
             let mut options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
             Ok(Call {
                 source: source.to_string(),
-                arguments: if args.is_empty() { None } else { Some(args) },
+                arguments: args,
                 media_type: options
                     .remove("format")
                     .and_then(|option| option)
@@ -1703,29 +1703,16 @@ fn call(input: &str) -> IResult<&str, Call> {
 ///
 /// Arguments must be key-value or key-symbol pairs separated by `=`.
 fn call_arg(input: &str) -> IResult<&str, CallArgument> {
-    #[allow(clippy::large_enum_variant)]
-    enum CallArgumentValue {
-        Node(Node),
-        Symbol(String),
-    }
     map_res(
-        tuple((
-            symbol,
-            delimited(multispace0, tag("="), multispace0),
-            alt((
-                map(primitive_node, CallArgumentValue::Node),
-                map(symbol, CallArgumentValue::Symbol),
-            )),
-        )),
-        |(name, _delim, node)| -> Result<CallArgument> {
-            let (value, symbol) = match node {
-                CallArgumentValue::Node(node) => (Some(Box::new(node)), None),
-                CallArgumentValue::Symbol(symbol) => (None, Some(Box::new(symbol))),
-            };
+        // TODO allow for programming language to be specified
+        pair(
+            terminated(symbol, delimited(multispace0, tag("="), multispace0)),
+            alt((delimited(char('`'), is_not("`"), char('`')), is_not(" )"))),
+        ),
+        |(name, code)| -> Result<CallArgument> {
             Ok(CallArgument {
                 name,
-                value,
-                code: symbol,
+                code: code.to_string(),
                 ..Default::default()
             })
         },

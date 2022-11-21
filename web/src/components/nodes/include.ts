@@ -85,21 +85,6 @@ export default class StencilaInclude extends StencilaExecutable {
     })
   }
 
-  /**
-   * Override to set `isExpanded` based on the changes in `hasContent`.
-   * This allows expansion/contraction based on changes to content as well as based on
-   * user interaction.
-   */
-  protected update(
-    changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
-  ): void {
-    super.update(changedProperties)
-
-    if (changedProperties.has('hasContent')) {
-      this.isExpanded = this.hasContent
-    }
-  }
-
   protected renderSourceInput(tw: TW, action: 'compile' | 'execute') {
     const readOnly = !isCodeWriteable()
 
@@ -162,7 +147,7 @@ export default class StencilaInclude extends StencilaExecutable {
     }
 
     return html`<sl-input
-      class=${tw`min-w-0 w-full`}
+      class=${tw`min-w-0 w-full mr-1`}
       size="small"
       value=${this.selectQuery}
       ?disabled=${readOnly}

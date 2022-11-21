@@ -650,11 +650,11 @@ pub struct Call {
     #[derivative(Default(value = "Call_::Call"))]
     pub type_: Call_,
 
+    /// The value of the source document's parameters to call it with
+    pub arguments: Vec<CallArgument>,
+
     /// The external source of the content, a file path or URL.
     pub source: String,
-
-    /// The value of the source document's parameters to call it with
-    pub arguments: Option<Vec<CallArgument>>,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
@@ -802,11 +802,14 @@ pub struct CallArgument {
     #[derivative(Default(value = "CallArgument_::CallArgument"))]
     pub type_: CallArgument_,
 
+    /// The code to be evaluated for the parameter.
+    pub code: String,
+
     /// The name of the parameter.
     pub name: String,
 
-    /// The code to be evaluated for the parameter.
-    pub code: Option<Box<String>>,
+    /// The programming language of the code.
+    pub programming_language: String,
 
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
@@ -864,9 +867,6 @@ pub struct CallArgument {
 
     /// A short label for the parameter.
     pub label: Option<Box<String>>,
-
-    /// The programming language of the code.
-    pub programming_language: Option<Box<String>>,
 
     /// The validator that the value is validated against.
     pub validator: Option<Box<ValidatorTypes>>,

@@ -614,7 +614,6 @@ impl ToMd for Call {
         let args = self
             .arguments
             .iter()
-            .flatten()
             .map(|arg| arg.to_md(options))
             .filter(|arg| !arg.is_empty())
             .join(" ");
@@ -653,10 +652,8 @@ impl ToMd for Call {
 
 impl ToMd for CallArgument {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        if let Some(code) = &self.code {
-            if !code.trim().is_empty() {
-                return [&self.name, "=", code].concat();
-            }
+        if !self.code.trim().is_empty() {
+            return [&self.name, "=", self.code.trim()].concat();
         }
 
         if let Some(value) = &self.value {

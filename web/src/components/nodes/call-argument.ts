@@ -26,7 +26,7 @@ export default class StencilaCallArgument extends StencilaParameter {
    * The `CallArgument.programmingLanguage` property
    */
   @property({ attribute: 'programming-language', reflect: true })
-  programmingLanguage?: string
+  programmingLanguage: string
 
   /**
    * The `CallArgument.guessLanguage` property
@@ -37,52 +37,16 @@ export default class StencilaCallArgument extends StencilaParameter {
   guessLanguage?: string
 
   /**
-   * Whether this user is specifying the call argument as an expression or value (with inputs)
+   * Whether this user is specifying the code of the argument using an input
    */
   @state()
-  private useExpression = false
+  private useInput = false
 
   /**
    * Get the parent `Call` element
    */
   private getCall() {
     return this.parentElement!.parentElement! as StencilaCall
-  }
-
-  /**
-   * Get all the arguments in the parent `Call` element
-   */
-  private getCallArguments() {
-    return [...this.parentElement!.children] as StencilaCallArgument[]
-  }
-
-  /**
-   * Override of `Element.emitPatch` to make the parent `Call` node the `target` of
-   * the patch (by using the id of the containing <stencila-call>) and prepending the address
-   * with the relative address of this `CallArgument`
-   */
-  protected async emitPatch(patch: Patch) {
-    const index = this.getCallArguments().indexOf(this)
-
-    const ops = patch.ops.map((op) => {
-      if (op.type === 'Move') {
-        return {
-          ...op,
-          from: ['arguments', ...op.from],
-          to: ['arguments', ...op.to],
-        }
-      } else {
-        return {
-          ...op,
-          address: ['arguments', index, ...op.address],
-        }
-      }
-    })
-
-    return super.emitPatch({
-      target: this.getCall().id,
-      ops,
-    })
   }
 
   /**
@@ -96,42 +60,25 @@ export default class StencilaCallArgument extends StencilaParameter {
     })
   }
 
-  /**
-   * Override to initialize `isExpression` to true if the `code` property is set
-   */
-  public connectedCallback(): void {
-    super.connectedCallback()
-
-    // TODO
-  }
-
-  /*
   protected renderTypeIcon(tw: TW) {
-    return html`<stencila-icon name=${this.getTypeIcon()}></stencila-icon>`
+    // @ts-expect-error because TS doesn't know all validator classes have an icon
+    const icon = this.validator?.constructor.icon ?? 'dash-circle'
+    return html`<stencila-icon name=${icon}></stencila-icon>`
   }
 
-  protected renderLabelAndInput(tw: TW) {
-    return html`<div class=${tw`${this.useExpression && 'hidden'}`}>
-      <input type="text" />
-    </div>`
-  }
-  */
-
-  protected renderExpression(tw: TW) {
-    return html`<div
-      class=${tw`flex items-center w-full ${this.useExpression || 'hidden'}`}
-    >
-      ${this.renderTextEditor(tw)} ${this.renderLanguageMenu(tw)}
+  protected renderCode(tw: TW) {
+    return html`<div class=${tw`flex items-center w-full`}>
+      ${this.renderCodeEditor(tw)} ${this.renderLanguageMenu(tw)}
     </div>`
   }
 
-  protected renderTextEditor(tw: TW) {
+  protected renderCodeEditor(tw: TW) {
     const readOnly = !isCodeWriteable()
 
     return html`<stencila-code-editor
       class=${tw`min-w-0 w-full rounded overflow-hidden border(& ${StencilaCall.color}-200) 
                  focus:border(& ${StencilaCall.color}-400) focus:ring(2 ${StencilaCall.color}-100)
-                 bg-${StencilaCall.color}-50 font-normal pr-1`}
+                 bg-${StencilaCall.color}-50 font-normal`}
       language=${this.programmingLanguage}
       single-line
       line-wrapping
@@ -144,7 +91,7 @@ export default class StencilaCallArgument extends StencilaParameter {
       }}
       @stencila-ctrl-enter=${() => this.execute()}
     >
-      <slot name="text" slot="code"></slot>
+      <slot name="code" slot="code"></slot>
     </stencila-code-editor>`
   }
 
@@ -159,20 +106,15 @@ export default class StencilaCallArgument extends StencilaParameter {
     ></stencila-code-language>`
   }
 
-  protected renderExpressionToggle(tw: TW) {
+  protected renderInputToggle(tw: TW) {
     const toggle = () => {
-      this.useExpression = !this.useExpression
+      this.useInput = !this.useInput
     }
 
     return html`
       <stencila-icon-button
         color=${StencilaCall.color}
-        adjust=${`${
-          this.useExpression
-            ? `bg-${StencilaCall.color}-200 border-${StencilaCall.color}-300 text-${StencilaCall.color}-700`
-            : `text-${StencilaCall.color}-500`
-        }`}
-        name="code-greater-than"
+        name=${this.useInput ? 'code' : 'sliders'}
         @click=${toggle}
         @keypress=${toggle}
       ></stencila-icon-button>
@@ -182,16 +124,15 @@ export default class StencilaCallArgument extends StencilaParameter {
   protected render() {
     return html`<div
       part="base"
-      class=${tw`flex items-center justify-between  whitespace-normal 
+      class=${tw`flex items-center justify-between whitespace-normal 
                  border(t ${StencilaCall.color}-200) bg-${StencilaCall.color}-50
                  p-1 pl-2 pr-2 font(mono) text(sm ${StencilaCall.color}-700)`}
     >
       <span part="start" class=${tw`flex items-center`}>
-        ${'' /*this.renderTypeIcon(tw)*/}
+        ${this.renderValidatorSlot()} ${this.renderTypeIcon(tw)}
         <span class=${tw`ml-2 mr-2`}>${this.name}</span>
-        ${'' /*this.renderLabelAndInput(tw)*/} ${this.renderExpression(tw)}
       </span>
-      ${this.renderExpressionToggle(tw)}
+      ${this.renderCode(tw)} ${this.renderInputToggle(tw)}
     </div>`
   }
 }

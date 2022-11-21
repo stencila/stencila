@@ -49,13 +49,12 @@ function toDOM(node: Node) {
     dom.setAttribute('select', node.attrs.select)
   }
 
-  if (node.attrs.errors) {
-    const errors = document.createElement('div')
-    errors.slot = 'errors'
-    errors.innerHTML = node.attrs.errors
-    errors.contentEditable = 'false'
-    dom.appendChild(errors)
-  }
+  // Must have errors slot in case errors are added later
+  const errors = document.createElement('div')
+  errors.slot = 'errors'
+  errors.innerHTML = node.attrs.errors
+  errors.contentEditable = 'false'
+  dom.appendChild(errors)
 
   // Note: the `arguments` property is assigned to the `contentDOM` for this node type
   // (the same as how `clauses` are the content of `If` blocks)
@@ -65,14 +64,12 @@ function toDOM(node: Node) {
 
   // Note: the `content` property is not editable so we just store it
   // on the node as HTML, not as a `contentDOM`, and reduce it's opacity
-  if (node.attrs.content) {
-    const content = document.createElement('div')
-    content.slot = 'content'
-    content.innerHTML = node.attrs.content
-    content.contentEditable = 'false'
-    content.setAttribute('style', 'opacity: 0.75;')
-    dom.appendChild(content)
-  }
+  const content = document.createElement('div')
+  content.slot = 'content'
+  content.innerHTML = node.attrs.content
+  content.contentEditable = 'false'
+  content.setAttribute('style', 'opacity: 0.75;')
+  dom.appendChild(content)
 
   return { dom, contentDOM }
 }

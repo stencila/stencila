@@ -6,8 +6,8 @@ use stencila_schema::*;
 
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype, attr_prop,
-    attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder, elem_property, json, nothing,
-    EncodeContext, ToHtml,
+    attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder, elem_property, elem_slot,
+    json, nothing, validators::validator_tag_name, EncodeContext, ToHtml,
 };
 
 impl ToHtml for BlockContent {
@@ -472,10 +472,7 @@ impl ToHtml for Call {
         let arguments = elem(
             "div",
             &[attr_prop("arguments"), attr_slot("arguments")],
-            &self
-                .arguments
-                .as_ref()
-                .map_or_else(nothing, |args| args.to_html(context)),
+            &self.arguments.to_html(context),
         );
 
         let dependencies = elem(
@@ -540,36 +537,32 @@ impl ToHtml for Call {
 
 impl ToHtml for CallArgument {
     fn to_html(&self, context: &mut EncodeContext) -> String {
+        let id = attr_id(&self.id);
+
         let name = attr("name", &self.name);
 
-        let programming_language = self
-            .programming_language
-            .as_ref()
-            .map_or_else(nothing, |lang| attr("programming_language", lang));
+        let programming_language = attr("programming-language", &self.programming_language);
 
         let guess_language = self
             .guess_language
             .as_ref()
-            .map_or_else(nothing, |guess| attr("guess_language", &guess.to_string()));
+            .map_or_else(nothing, |guess| attr("guess-language", &guess.to_string()));
 
-        let code = elem_placeholder("pre", &[attr_slot("code")], &self.code, context);
+        let code = elem("pre", &[attr_slot("code")], &self.code.to_html(context));
 
-        let validator = elem_property(
-            "stencila-validator",
-            &[attr_slot("validator")],
+        let validator = elem_slot(
+            &validator_tag_name(self.validator.as_deref()),
+            "validator",
             &self.validator,
             context,
         );
 
+        let errors = elem("pre", &[attr_slot("errors")], &self.errors.to_html(context));
+
         elem(
             "stencila-call-argument",
-            &[
-                attr_itemtype::<Self>(),
-                name,
-                programming_language,
-                guess_language,
-            ],
-            &[validator, code].concat(),
+            &[id, name, programming_language, guess_language],
+            &[code, validator, errors].concat(),
         )
     }
 }

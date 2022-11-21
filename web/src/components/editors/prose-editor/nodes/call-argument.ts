@@ -1,3 +1,4 @@
+import HtmlFragment from 'html-fragment'
 import { Attrs, Node, NodeSpec, ParseRule } from 'prosemirror-model'
 import { EditorView } from 'prosemirror-view'
 
@@ -14,6 +15,7 @@ export function callArgument(): NodeSpec {
       programmingLanguage: { default: '' },
       guessLanguage: { default: null },
       code: { default: null },
+      validator: { default: null },
       errors: { default: null },
     },
     parseDOM,
@@ -37,10 +39,11 @@ const parseDOM: ParseRule[] = [
 function getAttrs(node: StencilaCallArgument): Attrs {
   return {
     id: node.id,
-    name: node.getAttribute('name'),
+    name: node.getAttribute('name') ?? '',
     programmingLanguage: node.getAttribute('programming-language') ?? '',
     guessLanguage: node.getAttribute('guess-language'),
     code: node.querySelector('[slot=code]')?.innerHTML ?? '',
+    validator: node.querySelector('[slot=validator]')?.outerHTML,
     errors: node.querySelector('[slot=errors]')?.innerHTML ?? null,
   }
 }
@@ -60,13 +63,19 @@ function toDOM(node: Node) {
   code.contentEditable = 'false'
   dom.appendChild(code)
 
-  if (node.attrs.errors) {
-    const errors = document.createElement('div')
-    errors.slot = 'errors'
-    errors.innerHTML = node.attrs.errors
-    errors.contentEditable = 'false'
-    dom.appendChild(errors)
+  if (node.attrs.validator) {
+    const validator = HtmlFragment(node.attrs.validator).firstElementChild
+    if (validator) {
+      validator.setAttribute('slot', 'validator')
+      dom.appendChild(validator)
+    }
   }
+
+  const errors = document.createElement('div')
+  errors.slot = 'errors'
+  errors.innerHTML = node.attrs.errors
+  errors.contentEditable = 'false'
+  dom.appendChild(errors)
 
   return { dom }
 }

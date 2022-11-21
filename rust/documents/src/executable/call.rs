@@ -1,3 +1,5 @@
+use common::itertools::Itertools;
+
 use crate::{
     document::Document,
     messages::{CompileRequest, Request},
@@ -15,19 +17,52 @@ impl Executable for Call {
             draft.id = generate_id("ca");
         }
 
-        let document = DOCUMENTS
+        let document = match DOCUMENTS
             .open(
                 draft.source.trim(),
                 draft.media_type.as_ref().map(|mt| mt.to_string()),
             )
-            .await?;
+            .await
+        {
+            Ok(document) => {
+                draft.errors = None;
+
+                document
+            }
+            Err(error) => {
+                draft.errors = Some(vec![CodeError {
+                    error_message: format!(
+                        "While attempting to open document `{}`: {}",
+                        draft.source, error
+                    ),
+                    ..Default::default()
+                }]);
+
+                let patch = diff_address(address, self, &draft);
+                context.push_patch(patch);
+
+                return Ok(());
+            }
+        };
         let document_version = document.version().to_string();
 
         let state_string = &[
             draft.source.as_str(),
             draft.media_type.as_ref().map_or("", |mt| mt.as_str()),
             draft.select.as_ref().map_or("", |select| select.as_str()),
-            //draft.arguments.map(|arg| arg.name).join(""),
+            draft
+                .arguments
+                .iter()
+                .map(|arg| {
+                    [
+                        arg.name.as_str(),
+                        arg.code.as_str(),
+                        arg.programming_language.as_str(),
+                    ]
+                    .concat()
+                })
+                .join("")
+                .as_str(),
             document_version.as_str(),
         ]
         .concat();
@@ -41,32 +76,26 @@ impl Executable for Call {
         let semantic_digest = 0;
 
         let params = document.params().await?;
-        draft.arguments = if !params.is_empty() {
-            Some(
-                params
-                    .values()
-                    .map(|(.., param)| {
-                        let arg = self
-                            .arguments
-                            .iter()
-                            .flatten()
-                            .find(|arg| arg.name == param.name)
-                            .cloned()
-                            .unwrap_or_default();
-                        CallArgument {
-                            name: param.name.clone(),
-                            validator: param.validator.clone(),
-                            default: param.default.clone(),
-                            ..arg
-                        }
-                    })
-                    .collect(),
-            )
-        } else {
-            None
-        };
+        draft.arguments = params
+            .into_values()
+            .map(|(.., param)| {
+                let mut arg = draft
+                    .arguments
+                    .iter()
+                    .find(|arg| arg.name == param.name)
+                    .cloned()
+                    .unwrap_or_default();
 
-        for argument in draft.arguments.iter_mut().flatten() {}
+                if arg.id.is_none() {
+                    arg.id = generate_id("ar");
+                }
+                arg.name = param.name;
+                arg.validator = param.validator;
+                arg.default = param.default;
+
+                arg
+            })
+            .collect();
 
         draft.compile_digest = Some(ExecutionDigest {
             state_digest,
@@ -90,16 +119,6 @@ impl Executable for Call {
 
         Ok(())
         /*
-        // Calculate content for `compile_digest` based on concatenating properties affecting execution of the
-        // call, including properties of the call args (in following loop)
-        let mut content_string = self.source.clone();
-        if let Some(media_type) = self.media_type.as_deref() {
-            content_string.push_str(media_type);
-        }
-        if let Some(select) = self.select.as_deref() {
-            content_string.push_str(select);
-        }
-
         // Create relations between this resource and the `source` file and any `symbol`s
         // used by arguments. Add to `compile_digest` in same loop.
         let resource = resources::code(&context.path, id, "Call", Format::Unknown);
