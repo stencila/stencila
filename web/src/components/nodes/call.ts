@@ -61,8 +61,8 @@ export default class StencilaCall extends StencilaInclude {
         ${this.renderExpandButton(tw, StencilaCall.color)}
       </div>
 
-      ${this.renderArgumentsContainer(tw)}
       ${this.renderErrorsContainer(tw, StencilaCall.color)}
+      ${this.renderArgumentsContainer(tw)}
       ${this.renderContentContainer(tw, StencilaCall.color)}
 
       <div
