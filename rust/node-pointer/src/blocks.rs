@@ -59,7 +59,6 @@ impl Pointable for BlockContent {
 // and associated enums (only variants containing content).
 
 pointable_struct!(Call, arguments, content);
-pointable_struct!(CallArgument, default, validator, value);
 
 pointable_struct!(ClaimSimple, content);
 pointable_struct!(CodeBlock);
@@ -79,7 +78,6 @@ pointable_struct!(Heading, content);
 pointable_struct!(Include, content);
 
 pointable_struct!(If, clauses);
-pointable_struct!(IfClause, content);
 
 pointable_struct!(List, items);
 pointable_struct!(ListItem, content);

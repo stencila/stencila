@@ -12,7 +12,7 @@ use common::{
     serde_json, tracing,
 };
 use node_address::Address;
-use node_pointer::{find_mut, walk, Visitor};
+use node_pointer::{find_mut, walk, Visitor, PointerMut};
 use node_validate::Validator;
 use path_utils::lexiclean::Lexiclean;
 use stencila_schema::{EnumValidator, InlineContent, Node, Parameter, ValidatorTypes};
@@ -67,9 +67,9 @@ impl Document {
                     if let Some(validator) = param.validator.as_deref() {
                         match validator.validate(&value) {
                             Ok(..) => {
-                                if let Ok(mut pointer) = find_mut(root, &id) {
-                                    if let Some(InlineContent::Parameter(param)) =
-                                        pointer.as_inline_mut()
+                                if let Ok(pointer) = find_mut(root, &id) {
+                                    if let PointerMut::Inline(InlineContent::Parameter(param)) =
+                                        pointer
                                     {
                                         param.value = Some(Box::new(value));
                                     }

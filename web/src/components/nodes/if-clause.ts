@@ -9,11 +9,10 @@ import {
 import { Patch } from '../../types'
 import '../base/icon-button'
 import StencilaCodeEditor from '../editors/code-editor/code-editor'
+import { StencilaCodeLanguage } from '../editors/code-editor/code-language'
 import { twSheet } from '../utils/css'
 import './code-error'
-import StencilaCodeExecutable, {
-  StencilaExecutableLanguage,
-} from './code-executable'
+import StencilaCodeExecutable from './code-executable'
 import StencilaIf from './if'
 
 const { tw, sheet } = twSheet()
@@ -124,35 +123,6 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
     this.getIfClauses().forEach((clause: StencilaIfClause) =>
       clause.requestUpdate()
     )
-  }
-
-  /**
-   * Override of `Element.emitPatch` to make the parent `If` node the `target` of
-   * the patch (by using the id of the containing <stencila-if>) and prepending the address
-   * with the relative address of this `IfClause`
-   */
-  protected async emitPatch(patch: Patch) {
-    const index = this.getIfClauses().indexOf(this)
-
-    const ops = patch.ops.map((op) => {
-      if (op.type === 'Move') {
-        return {
-          ...op,
-          from: ['clauses', ...op.from],
-          to: ['clauses', ...op.to],
-        }
-      } else {
-        return {
-          ...op,
-          address: ['clauses', index, ...op.address],
-        }
-      }
-    })
-
-    return super.emitPatch({
-      target: this.getIf().id,
-      ops,
-    })
   }
 
   /**
@@ -286,7 +256,7 @@ export default class StencilaIfClause extends StencilaCodeExecutable {
       @stencila-document-patch=${(event: CustomEvent) => {
         // Update `this.programmingLanguage` (and `guessLanguage` for completeness)
         // so that the code editor language updates
-        const elem = event.target as StencilaExecutableLanguage
+        const elem = event.target as StencilaCodeLanguage
         this.programmingLanguage = elem.programmingLanguage
         this.guessLanguage = elem.guessLanguage.toString()
         // Emit patch using override above

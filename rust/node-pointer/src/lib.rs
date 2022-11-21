@@ -1,6 +1,6 @@
 use common::eyre::{bail, eyre, Result};
 use node_transform::Transform;
-use stencila_schema::{BlockContent, CreativeWorkTypes, InlineContent, Node};
+use stencila_schema::{BlockContent, CreativeWorkTypes, InlineContent, Node, CallArgument, IfClause};
 
 // Re-exports for convenience of dependant crates
 pub use node_address::Address;
@@ -66,39 +66,27 @@ pub enum Pointer<'lt> {
     None,
     Inline(&'lt InlineContent),
     Block(&'lt BlockContent),
+    CallArgument(&'lt CallArgument),
+    IfClause(&'lt IfClause),
     Work(&'lt CreativeWorkTypes),
     Node(&'lt Node),
 }
 
+/// A mutable pointer to a node within the tree of another root node
+#[derive(Debug)]
+pub enum PointerMut<'lt> {
+    None,
+    Inline(&'lt mut InlineContent),
+    Block(&'lt mut BlockContent),
+    CallArgument(&'lt mut CallArgument),
+    IfClause(&'lt mut IfClause),
+    Work(&'lt mut CreativeWorkTypes),
+    Node(&'lt mut Node),
+}
+
 impl<'lt> Pointer<'lt> {
-    pub fn as_inline(&self) -> Option<&InlineContent> {
-        match self {
-            Pointer::Inline(inline) => Some(inline),
-            _ => None,
-        }
-    }
-
-    pub fn as_block(&self) -> Option<&BlockContent> {
-        match self {
-            Pointer::Block(block) => Some(block),
-            _ => None,
-        }
-    }
-
-    pub fn as_work(&self) -> Option<&CreativeWorkTypes> {
-        match self {
-            Pointer::Work(work) => Some(work),
-            _ => None,
-        }
-    }
-
-    pub fn as_node(&self) -> Option<&Node> {
-        match self {
-            Pointer::Node(node) => Some(node),
-            _ => None,
-        }
-    }
-
+    // TODO: Remove usages and then this
+    #[deprecated(note="this function clones nodes so could be expensive")]
     pub fn to_node(&self) -> Result<Node> {
         Ok(match self {
             Pointer::Inline(node) => node.to_node(),
@@ -109,45 +97,6 @@ impl<'lt> Pointer<'lt> {
     }
 }
 
-/// A mutable pointer to a node within the tree of another root node
-#[derive(Debug)]
-pub enum PointerMut<'lt> {
-    None,
-    Inline(&'lt mut InlineContent),
-    Block(&'lt mut BlockContent),
-    Work(&'lt mut CreativeWorkTypes),
-    Node(&'lt mut Node),
-}
-
-impl<'lt> PointerMut<'lt> {
-    pub fn as_inline_mut(&mut self) -> Option<&mut InlineContent> {
-        match self {
-            PointerMut::Inline(inline) => Some(inline),
-            _ => None,
-        }
-    }
-
-    pub fn as_block_mut(&mut self) -> Option<&mut BlockContent> {
-        match self {
-            PointerMut::Block(block) => Some(block),
-            _ => None,
-        }
-    }
-
-    pub fn as_work_mut(&mut self) -> Option<&mut CreativeWorkTypes> {
-        match self {
-            PointerMut::Work(work) => Some(work),
-            _ => None,
-        }
-    }
-
-    pub fn as_node_mut(&mut self) -> Option<&mut Node> {
-        match self {
-            PointerMut::Node(node) => Some(node),
-            _ => None,
-        }
-    }
-}
 
 /// A node visitor
 ///
@@ -276,6 +225,8 @@ pub trait Pointable {
 mod generics;
 
 mod blocks;
+mod call_argument;
+mod if_clause;
 mod data;
 mod inlines;
 mod nodes;
