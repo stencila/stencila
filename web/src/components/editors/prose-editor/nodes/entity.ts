@@ -70,8 +70,8 @@ export class StencilaEntityView<Type extends StencilaEntity>
     this.dom.addEventListener(
       'stencila-document-patch',
       (event: CustomEvent) => {
-        const { patch, then } = event.detail
-        this.dispatchPatch(patch, then)
+        const { patch } = event.detail
+        this.dispatchPatch(patch)
       }
     )
   }
@@ -111,14 +111,20 @@ export class StencilaEntityView<Type extends StencilaEntity>
    *
    * This is done so that undo/redo works at the document level.
    */
-  dispatchPatch(patch: Patch, then?: Then) {
+  dispatchPatch(patch: Patch) {
     // TODO check that the patch.target is the same as the node.id
     const transaction = this.view.state.tr
     for (const op of patch.ops) {
       switch (op.type) {
         case 'Replace':
-          // TODO: check that the address has one string slot only
-          transaction.setNodeAttribute(this.getPos(), op.address[0], op.value)
+          const attribute = op.address[0]
+          if (typeof attribute !== 'string' || op.address.length > 1) {
+            console.error(
+              `Expected replace operation address to have single name slot; got ${op.address}`
+            )
+          } else {
+            transaction.setNodeAttribute(this.getPos(), attribute, op.value)
+          }
           break
         default:
           // TODO: implement handling of other types of operations
