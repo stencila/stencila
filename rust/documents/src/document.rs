@@ -229,9 +229,6 @@ pub struct Document {
     pub(crate) graph: Arc<RwLock<Graph>>,
 
     #[serde(skip)]
-    pub(crate) event_listeners: DocumentEventListeners,
-
-    #[serde(skip)]
     pub(crate) patch_request_sender: DocumentPatchRequestSender,
 
     #[serde(skip)]
@@ -383,7 +380,6 @@ impl Document {
             kernels,
 
             relations: Default::default(),
-            event_listeners: Default::default(),
 
             patch_request_sender,
             compile_request_sender,
@@ -464,7 +460,6 @@ impl Document {
             kernels,
 
             relations: Default::default(),
-            event_listeners: Default::default(),
 
             patch_request_sender,
             compile_request_sender,
