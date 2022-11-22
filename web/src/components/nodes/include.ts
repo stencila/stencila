@@ -111,7 +111,6 @@ export default class StencilaInclude extends StencilaExecutable {
         event.stopPropagation()
       }}
       @sl-change=${replace}
-      @sl-blur=${replace}
       @keypress=${(event: KeyboardEvent) => {
         if (event.key == 'Enter' && event.ctrlKey) {
           event.preventDefault()
@@ -157,7 +156,6 @@ export default class StencilaInclude extends StencilaExecutable {
         event.stopPropagation()
       }}
       @sl-change=${replace}
-      @sl-blur=${replace}
       @keypress=${(event: KeyboardEvent) => {
         if (event.key == 'Enter' && event.ctrlKey) {
           event.preventDefault()
