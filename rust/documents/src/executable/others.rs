@@ -1,8 +1,8 @@
 use common::{async_trait::async_trait, eyre::Result};
 use graph_triples::ResourceInfo;
 use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
-use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
 use node_address::Address;
+use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
 use stencila_schema::*;
 
 use crate::executable::{CompileContext, Executable, ExecuteContext};
@@ -106,7 +106,11 @@ macro_rules! executable_enum {
     ($type: ty, $dispatch_macro: ident) => {
         #[async_trait]
         impl Executable for $type {
-            async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+            async fn compile(
+                &self,
+                address: &mut Address,
+                context: &mut CompileContext,
+            ) -> Result<()> {
                 $dispatch_macro!(self, compile, address, context).await
             }
 
@@ -146,7 +150,6 @@ macro_rules! executable_enum {
 executable_enum!(CreativeWorkTypes, dispatch_work);
 executable_enum!(BlockContent, dispatch_block);
 executable_enum!(InlineContent, dispatch_inline);
-
 
 /// Implementation of `Executable` for enum variants
 macro_rules! executable_variants {

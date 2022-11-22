@@ -1,8 +1,8 @@
 use common::{async_trait::async_trait, eyre::Result};
 use graph_triples::execution_digest_from_content;
 use math_utils::to_mathml;
-use stencila_schema::{MathBlock, MathFragment};
 use node_address::Address;
+use stencila_schema::{MathBlock, MathFragment};
 
 use crate::executable::{CompileContext, Executable};
 

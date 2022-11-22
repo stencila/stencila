@@ -2,7 +2,7 @@ use std::path::Path;
 
 pub use common::{async_trait::async_trait, eyre::Result, tracing};
 pub use node_address::{Address, Slot};
-pub use node_patch::{produce_address, diff_address};
+pub use node_patch::{diff_address, produce_address};
 pub use stencila_schema::*;
 
 use hash_utils::str_seahash;

@@ -5,10 +5,10 @@ use graph_triples::{
     Relation, ResourceInfo,
 };
 
+use node_address::Address;
 use node_transform::Transform;
 use path_utils::merge;
 use stencila_schema::{CodeError, ExecutionDigest, Include};
-use node_address::Address;
 
 use crate::executable::{CompileContext, Executable};
 

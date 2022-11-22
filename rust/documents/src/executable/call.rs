@@ -1,7 +1,8 @@
+use std::path::PathBuf;
+
 use common::itertools::Itertools;
 
 use crate::{
-    document::Document,
     messages::{CompileRequest, Request},
     DOCUMENTS,
 };
@@ -11,111 +12,115 @@ use super::prelude::*;
 #[async_trait]
 impl Executable for Call {
     async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        let mut draft = self.clone();
+        let draft = 'draft: {
+            let mut draft = self.clone();
 
-        if draft.id.is_none() {
-            draft.id = generate_id("ca");
-        }
-
-        let document = match DOCUMENTS
-            .open(
-                draft.source.trim(),
-                draft.media_type.as_ref().map(|mt| mt.to_string()),
-            )
-            .await
-        {
-            Ok(document) => {
-                draft.errors = None;
-
-                document
+            if draft.id.is_none() {
+                draft.id = generate_id("ca");
             }
-            Err(error) => {
-                draft.errors = Some(vec![CodeError {
-                    error_message: format!(
-                        "While attempting to open document `{}`: {}",
-                        draft.source, error
-                    ),
-                    ..Default::default()
-                }]);
 
-                let patch = diff_address(address, self, &draft);
-                context.push_patch(patch);
+            let source = PathBuf::from(&draft.source);
+            let document = match DOCUMENTS
+                .open(
+                    source.to_string_lossy().to_string(),
+                    draft.media_type.as_ref().map(|mt| mt.to_string()),
+                )
+                .await
+            {
+                Ok(document) => {
+                    draft.errors = None;
 
-                return Ok(());
-            }
-        };
-        let document_version = document.version().to_string();
+                    document
+                }
+                Err(error) => {
+                    draft.errors = Some(vec![CodeError {
+                        error_message: format!(
+                            "While attempting to open document `{}`: {}",
+                            draft.source, error
+                        ),
+                        ..Default::default()
+                    }]);
 
-        let state_string = &[
-            draft.source.as_str(),
-            draft.media_type.as_ref().map_or("", |mt| mt.as_str()),
-            draft.select.as_ref().map_or("", |select| select.as_str()),
-            draft
-                .arguments
-                .iter()
-                .map(|arg| {
-                    [
-                        arg.name.as_str(),
-                        arg.code.as_str(),
-                        arg.programming_language.as_str(),
-                    ]
-                    .concat()
-                })
-                .join("")
-                .as_str(),
-            document_version.as_str(),
-        ]
-        .concat();
+                    break 'draft draft
+                }
+            };
+            let document_version = document.version().to_string();
 
-        let state_digest = generate_digest(state_string);
-
-        if state_digest == get_state_digest(&draft.compile_digest) {
-            return Ok(());
-        }
-
-        let semantic_digest = 0;
-
-        let params = document.params().await?;
-        draft.arguments = params
-            .into_values()
-            .map(|(.., param)| {
-                let mut arg = draft
+            let state_string = &[
+                draft.source.as_str(),
+                draft.media_type.as_ref().map_or("", |mt| mt.as_str()),
+                draft.select.as_ref().map_or("", |select| select.as_str()),
+                draft
                     .arguments
                     .iter()
-                    .find(|arg| arg.name == param.name)
-                    .cloned()
-                    .unwrap_or_default();
+                    .map(|arg| {
+                        [
+                            arg.name.as_str(),
+                            arg.code.as_str(),
+                            arg.programming_language.as_str(),
+                        ]
+                        .concat()
+                    })
+                    .join("")
+                    .as_str(),
+                document_version.as_str(),
+            ]
+            .concat();
 
-                if arg.id.is_none() {
-                    arg.id = generate_id("ar");
-                }
-                arg.name = param.name;
-                arg.validator = param.validator;
-                arg.default = param.default;
+            let state_digest = generate_digest(state_string);
 
-                arg
-            })
-            .collect();
+            if state_digest == get_state_digest(&draft.compile_digest) {
+                break 'draft draft
+            }
 
-        draft.compile_digest = Some(ExecutionDigest {
-            state_digest,
-            semantic_digest,
-            ..Default::default()
-        });
+            let semantic_digest = 0;
+
+            let params = document.params().await?;
+            draft.arguments = params
+                .into_values()
+                .map(|(.., param)| {
+                    let mut arg = draft
+                        .arguments
+                        .iter()
+                        .find(|arg| arg.name == param.name)
+                        .cloned()
+                        .unwrap_or_default();
+
+                    if arg.id.is_none() {
+                        arg.id = generate_id("ar");
+                    }
+                    arg.name = param.name;
+                    arg.validator = param.validator;
+                    arg.default = param.default;
+
+                    arg
+                })
+                .collect();
+
+            draft.compile_digest = Some(ExecutionDigest {
+                state_digest,
+                semantic_digest,
+                ..Default::default()
+            });
+
+            // Listen to patched events for the source document and trigger a recompile
+            // of this document so that the state digest of this call gets updated to show it is stale.
+            let call_id = draft
+                .id
+                .as_ref()
+                .expect("Should have id ensured above")
+                .to_string();
+            context.push_event_listener(
+                call_id,
+                ["documents:", &document.id, ":patched"].concat(),
+                |_topic, _detail| Request::Compile(CompileRequest::now_defaults()),
+            );
+
+            draft
+        };
 
         let patch = diff_address(address, self, &draft);
         context.push_patch(patch);
-
-        let call_id = draft
-            .id
-            .as_ref()
-            .expect("Should have id ensured above")
-            .to_string();
-        context.push_event_listener(
-            call_id,
-            ["documents:", &document.id, ":patched"].concat(),
-            |_topic, _detail| Request::Compile(CompileRequest::now()),
-        );
 
         Ok(())
         /*

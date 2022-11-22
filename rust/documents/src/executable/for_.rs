@@ -9,8 +9,8 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
-use node_transform::Transform;
 use node_address::Address;
+use node_transform::Transform;
 use stencila_schema::{CodeError, For, Node};
 
 use crate::executable::Executable;
@@ -55,7 +55,7 @@ impl Executable for For {
             Err(..) => ResourceInfo::default(resource),
         };
         context.resource_infos.push(resource_info);
-        
+
         Ok(())
     }
 

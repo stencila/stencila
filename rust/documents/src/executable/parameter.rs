@@ -11,8 +11,8 @@ use graph_triples::{
     ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskInfo};
-use node_validate::Validator;
 use node_address::Address;
+use node_validate::Validator;
 use stencila_schema::{
     CodeError, ExecutionDigest, ExecutionRequired, Node, Parameter, ValidatorTypes,
 };

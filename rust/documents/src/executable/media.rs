@@ -67,7 +67,11 @@ macro_rules! executable_media_object {
         #[async_trait]
         impl Executable for $type {
             #[cfg(ignore)]
-            async fn compile(&self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
+            async fn compile(
+                &self,
+                address: &mut Address,
+                context: &mut CompileContext,
+            ) -> Result<()> {
                 let id = ensure_id!(self, $prefix, context);
                 let resource = resources::node(&context.path, &id, stringify!($type));
 

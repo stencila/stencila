@@ -85,7 +85,8 @@ impl<'lt> CompileContext<'lt> {
         event_topic: String,
         event_listener: DocumentEventListener,
     ) {
-        self.event_listeners.push((listener_id, event_topic, event_listener))
+        self.event_listeners
+            .push((listener_id, event_topic, event_listener))
     }
 
     /// Guess the language of the code using the context's kernel space

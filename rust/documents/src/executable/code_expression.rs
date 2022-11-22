@@ -66,7 +66,7 @@ impl Executable for CodeExpression {
         resource_info.execute_pure = None;
 
         context.resource_infos.push(resource_info);
-        
+
         Ok(())
     }
 
