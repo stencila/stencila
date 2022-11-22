@@ -3,12 +3,10 @@ use std::fmt::Debug;
 use schemars::JsonSchema;
 
 use common::{
-    eyre::Result,
-    serde::{Deserialize, Deserializer, Serialize, Serializer},
+    serde::{Deserialize, Serialize},
     serde_json,
     serde_with::skip_serializing_none,
     strum::Display,
-    tracing,
 };
 use node_address::Address;
 use node_pointer::Pointable;
@@ -68,8 +66,8 @@ pub struct Add {
 
     /// The value to add
     #[serde(
-        serialize_with = "Operation::value_serialize",
-        deserialize_with = "Operation::value_deserialize"
+        serialize_with = "Value::serialize",
+        deserialize_with = "Value::deserialize"
     )]
     #[schemars(skip)]
     pub value: Value,
@@ -106,8 +104,8 @@ pub struct Replace {
 
     /// The replacement value
     #[serde(
-        serialize_with = "Operation::value_serialize",
-        deserialize_with = "Operation::value_deserialize"
+        serialize_with = "Value::serialize",
+        deserialize_with = "Value::deserialize"
     )]
     #[schemars(skip)]
     pub value: Value,
@@ -165,265 +163,6 @@ pub struct Transform {
 }
 
 impl Operation {
-    /// Deserialize the `value` field of an operation
-    ///
-    /// This is needed so that the server can receive a `Patch` from the client and
-    /// deserialize the JSON value into a `Value`.
-    fn value_deserialize<'de, D>(deserializer: D) -> Result<Value, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
-        Ok(Value::any(value))
-    }
-
-    /// Serialize the `value` field of an operation
-    ///
-    /// This is needed so that the server can send a `Patch` to a client with
-    /// the `value` field as JSON. It is also, more generally useful for serializing
-    /// patches e.g. for test snapshots.
-    fn value_serialize<S>(value: &Value, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        use stencila_schema::*;
-
-        macro_rules! serialize {
-            ($type:ty) => {
-                if let Some(value) = value.downcast_ref::<$type>() {
-                    return value.serialize(serializer);
-                }
-                if let Some(value) = value.downcast_ref::<Option<$type>>() {
-                    return value.serialize(serializer);
-                }
-                if let Some(value) = value.downcast_ref::<Box<$type>>() {
-                    return value.serialize(serializer);
-                }
-                if let Some(value) = value.downcast_ref::<Option<Box<$type>>>() {
-                    return value.serialize(serializer);
-                }
-                if let Some(value) = value.downcast_ref::<Vec<$type>>() {
-                    return value.serialize(serializer);
-                }
-            };
-            ($($type:ty)*) => {
-                $(serialize!($type);)*
-            }
-        }
-
-        // For performance, types roughly ordered by expected incidence (more commonly used
-        // types in patches first).
-        serialize!(
-            // Main content types
-            InlineContent
-            BlockContent
-
-            // Types related to compilation and execution
-            ExecutionStatus
-            ExecutionRequired
-            ExecutionAuto
-            ExecutionDigest
-            ExecutionDependency
-            ExecutionDependencyRelation
-            ExecutionDependencyNode
-            ExecutionDependent
-            ExecutionDependentRelation
-            ExecutionDependentNode
-
-            // Child types of the InlineContent and BlockContent
-            CallArgument
-            CodeChunkCaption
-            CodeError
-            Datatable
-            DatatableColumn
-            FigureCaption
-            IfClause
-            ListItem
-            Node
-            TableCaption
-            TableCell
-            TableCellCellType
-            TableRow
-            ValidatorTypes
-            EnumValidator // Because "replaceable"
-
-            // Properties of creative works
-            Person
-            Organization
-
-            // Primitives
-            Primitive
-            String
-            Number
-            Integer
-            Date
-            Time
-            DateTime
-            Timestamp
-            Duration
-            Boolean
-            Array
-            Object
-            Null
-
-            // Types used on some properties e.g. `Heading.depth`, `TableCell.rowspan`
-            u8
-            u32
-            u64
-            i32
-            f32
-
-            // Used for vectors of vectors of blocks in `For` iterations
-            Vec<BlockContent>
-        );
-
-        // The value may be a JSON value (if this patch was sent from a client).
-        // In that case we can just serialize it.
-        if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-            return value.serialize(serializer);
-        }
-
-        tracing::error!("Unhandled value type when serializing patch operation");
-        "<unserialized type>".serialize(serializer)
-    }
-
-    /// Generate HTML for the `value` field of an operation
-    fn value_html(value: &Value, root: &stencila_schema::Node) -> Option<String> {
-        use codec_html::{EncodeContext, ToHtml};
-
-        let mut context = EncodeContext {
-            root,
-            ..Default::default()
-        };
-
-        // Convert a node, boxed node, or vector of nodes to HTML
-        macro_rules! to_html {
-            ($type:ty) => {
-                if let Some(node) = value.downcast_ref::<$type>() {
-                    return Some(node.to_html(&mut context));
-                }
-                if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
-                    return Some(boxed.to_html(&mut context));
-                }
-                if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
-                    return Some(nodes.to_html(&mut context));
-                }
-            };
-            ($($type:ty)*) => {
-                $(to_html!($type);)*
-            }
-        }
-
-        use stencila_schema::*;
-
-        // For performance, types roughly ordered by expected incidence (more commonly used
-        // types in patches first).
-        to_html!(
-            // Main content types
-            InlineContent
-            BlockContent
-
-            // Types related to compilation of code
-            ExecutionDependency
-            ExecutionDependent
-
-            // Child types of the above
-            CallArgument
-            CodeChunkCaption
-            CodeError
-            Datatable
-            DatatableColumn
-            FigureCaption
-            IfClause
-            ListItem
-            Node
-            TableCaption
-            TableCell
-            TableCellCellType
-            TableRow
-            ValidatorTypes
-            EnumValidator // Because "replaceable"
-
-            // Primitives
-            Primitive
-            String
-            Number
-            Integer
-            Date
-            Time
-            DateTime
-            Timestamp
-            Duration
-            Boolean
-            Array
-            Object
-            Null
-        );
-
-        // Convert an atomic (used in some struct properties e.g. `Heading.depth`). These
-        // don't usually need to be a HTML (they are handled differently) but for consistency
-        // we generate it anyway
-        macro_rules! to_html_atomic {
-            ($type:ty) => {
-                if let Some(node) = value.downcast_ref::<$type>() {
-                    return Some(node.to_string())
-                }
-            };
-            ($($type:ty)*) => {
-                $(to_html_atomic!($type);)*
-            }
-        }
-        to_html_atomic!(
-            u8
-            u32
-            i32
-            f32
-        );
-
-        // The value may be a JSON value (if this patch was sent from a client)
-        // In that case we want to deserialize it to one of the above types and
-        // then encode as HTML
-        if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-            let html = if let Some(str) = value.as_str() {
-                str.to_string()
-            } else if let Ok(nodes) = serde_json::from_value::<InlineContent>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else if let Ok(nodes) = serde_json::from_value::<Vec<InlineContent>>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else if let Ok(nodes) = serde_json::from_value::<BlockContent>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else if let Ok(nodes) = serde_json::from_value::<Vec<BlockContent>>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else if let Ok(nodes) = serde_json::from_value::<ListItem>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else if let Ok(nodes) = serde_json::from_value::<Vec<ListItem>>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else if let Ok(nodes) = serde_json::from_value::<TableRow>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else if let Ok(nodes) = serde_json::from_value::<Vec<TableRow>>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else if let Ok(nodes) = serde_json::from_value::<TableCell>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else if let Ok(nodes) = serde_json::from_value::<Vec<TableCell>>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else if let Ok(nodes) = serde_json::from_value::<IfClause>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else if let Ok(nodes) = serde_json::from_value::<ValidatorTypes>(value.clone()) {
-                nodes.to_html(&mut context)
-            } else {
-                tracing::error!(
-                    "Unhandled JSON value type when generating HTML for patch operation: {}",
-                    value.to_string()
-                );
-                return None;
-            };
-            return Some(html);
-        }
-
-        // Return `None` to indicate no HTML representation for this value
-        None
-    }
-
     /// Set the `html` field from the `value` field
     pub fn html_set(&mut self, root: &stencila_schema::Node) {
         match self {
@@ -442,7 +181,7 @@ impl Operation {
                     }
                 }
 
-                *html = Operation::value_html(value, root)
+                *html = value.to_html(root)
             }
             _ => {}
         }
