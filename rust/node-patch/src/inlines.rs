@@ -260,13 +260,13 @@ macro_rules! patchable_media_object {
                        (self.content_url.starts_with("data:") || other.content_url.starts_with("data:")) &&
                        self.content_url != other.content_url {
                         differ.push(
-                            Operation::Replace {
+                            Operation::Replace(Replace {
                                 address: Address::from("content_url"),
                                 items: 1,
                                 value: Box::new(other.content_url.clone()),
                                 length: 1,
                                 html: None,
-                            }
+                            })
                         )
                     } else {
                         differ.field(field, &self.$field, &other.$field);

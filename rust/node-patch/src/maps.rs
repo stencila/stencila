@@ -49,11 +49,11 @@ where
                 }
 
                 if remove_value == add_value {
-                    differ.push(Operation::Move {
+                    differ.push(Operation::Move(Move {
                         from: Address::from(remove_key.as_str()),
                         to: Address::from(add_key.as_str()),
                         items: 1,
-                    });
+                    }));
                     *remove_matched = true;
                     *add_matched = true;
                     continue;
@@ -66,12 +66,12 @@ where
             .into_iter()
             .filter_map(|(matched, key, value)| {
                 if !matched {
-                    Some(Operation::Add {
+                    Some(Operation::Add(Add {
                         address: Address::from(key.as_str()),
                         value: Box::new(value.clone()),
                         length: 1,
                         html: None,
-                    })
+                    }))
                 } else {
                     None
                 }
@@ -84,10 +84,10 @@ where
             .into_iter()
             .filter_map(|(matched, key, ..)| {
                 if !matched {
-                    Some(Operation::Remove {
+                    Some(Operation::Remove(Remove {
                         address: Address::from(key.as_str()),
                         items: 1,
-                    })
+                    }))
                 } else {
                     None
                 }

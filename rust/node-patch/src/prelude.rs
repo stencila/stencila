@@ -7,5 +7,5 @@ pub use node_address::{
 
 pub use crate::{
     errors::{invalid_patch_operation, invalid_patch_value, Error},
-    Differ, Operation, Patch, Patchable, Value,
+    Add, Copy, Differ, Move, Operation, Patch, Patchable, Remove, Replace, Transform, Value,
 };

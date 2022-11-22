@@ -200,108 +200,153 @@ where
 /// of type variants) but that would require substantial refactoring
 pub type Value = Box<dyn Any + Send>;
 
-/// The operations that can be used in a patch to mutate one node into another.
+/// The operations within a patch
 ///
 /// These are the same operations as described in [JSON Patch](http://jsonpatch.com/)
-/// (with the exception of `copy` and `test`). Note that `Replace` and `Move` could be
-/// represented by combinations of `Remove` and `Add`. They are included as a means of
-/// providing more semantically meaningful patches, and more space efficient serializations
-/// (e.g. it is not necessary to represent the value being moved or copied).
+/// (with the exception of and `test`).
 ///
 /// In addition, there is a `Transform` operation which can be used describe the transformation
-/// of a node to another type, having a similar structure. Examples includes:
+/// of a node to another type that has a similar structure. Examples includes:
 ///
 /// - a `String` to an `Emphasis`
 /// - a `Paragraph` to a `QuoteBlock`
 /// - a `CodeChunk` to a `CodeBlock`
+///
+/// Note that `Replace`, `Move` and `Copy` could be represented by combinations of `Remove` and `Add`.
+/// They are included as a means of providing more semantically meaningful patches, and more
+/// space efficient serializations (e.g. it is not necessary to represent the value being moved or copied).
+///
+/// The structure of these operations differs from JSON Patch operations:
+///
+/// - they have an `address` property (an array of sting or integer "slots"), rather than a
+///   forward slash separated string `path`
+/// 
+/// - the `Remove`, `Replace`, `Move` and `Copy` operations have an `items` property which
+///   allows several items in a string or an array to be operated on by a single operation
 ///
 /// The `length` field on `Add` and `Replace` is not necessary for applying operations, but
 /// is useful for generating them and for determining if there are conflicts between two patches
 /// without having to downcast the `value`.
 ///
 /// Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode
-/// characters not bytes.
+/// graphemes, not bytes.
 #[skip_serializing_none]
 #[derive(Debug, Display, JsonSchema, Serialize, Deserialize)]
 #[serde(tag = "type", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub enum Operation {
-    /// Add a value
-    #[schemars(title = "OperationAdd")]
-    Add {
-        /// The address to which to add the value
-        address: Address,
+    Add(Add),
+    Remove(Remove),
+    Replace(Replace),
+    Move(Move),
+    Copy(Copy),
+    Transform(Transform),
+}
 
-        /// The value to add
-        #[serde(
-            serialize_with = "Operation::value_serialize",
-            deserialize_with = "Operation::value_deserialize"
-        )]
-        #[schemars(skip)]
-        value: Value,
+/// Add a value
+#[skip_serializing_none]
+#[derive(Debug, JsonSchema, Serialize, Deserialize)]
+#[serde(tag = "type", crate = "common::serde")]
+pub struct Add {
+    /// The address to which to add the value
+    address: Address,
 
-        /// The number of items added
-        length: usize,
+    /// The value to add
+    #[serde(
+        serialize_with = "Operation::value_serialize",
+        deserialize_with = "Operation::value_deserialize"
+    )]
+    #[schemars(skip)]
+    value: Value,
 
-        /// The HTML encoding of `value`
-        html: Option<String>,
-    },
-    /// Remove one or more values
-    #[schemars(title = "OperationRemove")]
-    Remove {
-        /// The address from which to remove the value(s)
-        address: Address,
+    /// The number of items added
+    length: usize,
 
-        /// The number of items to remove
-        items: usize,
-    },
-    /// Replace one or more values
-    #[schemars(title = "OperationReplace")]
-    Replace {
-        /// The address which should be replaced
-        address: Address,
+    /// The HTML encoding of `value`
+    html: Option<String>,
+}
 
-        /// The number of items to replace
-        items: usize,
+/// Remove one or more values
+#[skip_serializing_none]
+#[derive(Debug, JsonSchema, Serialize, Deserialize)]
+#[serde(tag = "type", crate = "common::serde")]
+pub struct Remove {
+    /// The address from which to remove the value(s)
+    address: Address,
 
-        /// The replacement value
-        #[serde(
-            serialize_with = "Operation::value_serialize",
-            deserialize_with = "Operation::value_deserialize"
-        )]
-        #[schemars(skip)]
-        value: Value,
+    /// The number of items to remove
+    items: usize,
+}
 
-        /// The number of items added
-        length: usize,
+/// Replace one or more values
+#[skip_serializing_none]
+#[derive(Debug, JsonSchema, Serialize, Deserialize)]
+#[serde(tag = "type", crate = "common::serde")]
+pub struct Replace {
+    /// The address which should be replaced
+    address: Address,
 
-        /// The HTML encoding of `value`
-        html: Option<String>,
-    },
-    /// Move a value from one address to another
-    #[schemars(title = "OperationMove")]
-    Move {
-        /// The address from which to remove the value
-        from: Address,
+    /// The number of items to replace
+    items: usize,
 
-        /// The number of items to move
-        items: usize,
+    /// The replacement value
+    #[serde(
+        serialize_with = "Operation::value_serialize",
+        deserialize_with = "Operation::value_deserialize"
+    )]
+    #[schemars(skip)]
+    value: Value,
 
-        /// The address to which to add the items
-        to: Address,
-    },
-    /// Transform a value from one type to another
-    #[schemars(title = "OperationTransform")]
-    Transform {
-        /// The address of the `Node` to transform
-        address: Address,
+    /// The number of items added
+    length: usize,
 
-        /// The type of `Node` to transform from
-        from: String,
+    /// The HTML encoding of `value`
+    html: Option<String>,
+}
 
-        /// The type of `Node` to transform to
-        to: String,
-    },
+/// Move a value from one address to another
+#[skip_serializing_none]
+#[derive(Debug, JsonSchema, Serialize, Deserialize)]
+#[serde(tag = "type", crate = "common::serde")]
+pub struct Move {
+    /// The address from which to remove the value
+    from: Address,
+
+    /// The number of items to move
+    items: usize,
+
+    /// The address to which to add the items
+    to: Address,
+}
+
+/// Copy a value from one address to another
+#[skip_serializing_none]
+#[derive(Debug, JsonSchema, Serialize, Deserialize)]
+#[serde(tag = "type", crate = "common::serde")]
+pub struct Copy {
+    /// The address from which to copy the value
+    from: Address,
+
+    /// The number of items to copy
+    items: usize,
+
+    /// The address to which to copy the items
+    to: Address,
+}
+
+/// Transform a value from one type to another
+#[skip_serializing_none]
+#[derive(Debug, JsonSchema, Serialize, Deserialize)]
+#[serde(tag = "type", crate = "common::serde")]
+pub struct Transform {
+    /// The address of the `Node` to transform
+    address: Address,
+
+    /// The type of `Node` to transform from
+    from: String,
+
+    /// The type of `Node` to transform to
+    to: String,
 }
 
 impl Operation {
@@ -563,7 +608,8 @@ impl Operation {
     /// Set the `html` field from the `value` field
     fn html_set(&mut self, root: &Node) {
         match self {
-            Operation::Add { value, html, .. } | Operation::Replace { value, html, .. } => {
+            Operation::Add(Add { value, html, .. })
+            | Operation::Replace(Replace { value, html, .. }) => {
                 // As an optimization, if the patch value is string-like
                 // (but not if it is a `InlineContent::String` or `Node::String`), then there
                 // is no need to generate HTML since it is the same as the value and the `web`
@@ -643,13 +689,14 @@ impl Patch {
                         .into_iter()
                         .map(|mut op| {
                             match &mut op {
-                                Operation::Add { address, .. }
-                                | Operation::Remove { address, .. }
-                                | Operation::Replace { address, .. }
-                                | Operation::Transform { address, .. } => {
+                                Operation::Add(Add { address, .. })
+                                | Operation::Remove(Remove { address, .. })
+                                | Operation::Replace(Replace { address, .. })
+                                | Operation::Transform(Transform { address, .. }) => {
                                     address.prepend(&patch_address)
                                 }
-                                Operation::Move { from, to, .. } => {
+                                Operation::Move(Move { from, to, .. })
+                                | Operation::Copy(Copy { from, to, .. }) => {
                                     from.prepend(&patch_address);
                                     to.prepend(&patch_address);
                                 }
@@ -677,7 +724,9 @@ impl Patch {
     /// removes `Replace` and `Remove` operations of `compile_digest`, `execute_digest` etc.
     pub fn remove_overwrite_derived(&mut self) {
         self.ops.retain(|op| {
-            if let Operation::Remove { address, .. } | Operation::Replace { address, .. } = op {
+            if let Operation::Remove(Remove { address, .. })
+            | Operation::Replace(Replace { address, .. }) = op
+            {
                 for slot in address.iter() {
                     if let Slot::Name(name) = slot {
                         if matches!(
@@ -745,44 +794,51 @@ impl Differ {
     /// Push an operations nested within the current address
     pub fn push(&mut self, op: Operation) {
         let op = match op {
-            Operation::Add {
+            Operation::Add(Add {
                 address,
                 value,
                 length,
                 html,
-            } => Operation::Add {
+            }) => Operation::Add(Add {
                 address: self.address.concat(&address),
                 value,
                 length,
                 html,
-            },
-            Operation::Remove { address, items } => Operation::Remove {
+            }),
+            Operation::Remove(Remove { address, items }) => Operation::Remove(Remove {
                 address: self.address.concat(&address),
                 items,
-            },
-            Operation::Replace {
+            }),
+            Operation::Replace(Replace {
                 address,
                 items,
                 value,
                 length,
                 html,
-            } => Operation::Replace {
+            }) => Operation::Replace(Replace {
                 address: self.address.concat(&address),
                 items,
                 value,
                 length,
                 html,
-            },
-            Operation::Move { from, items, to } => Operation::Move {
+            }),
+            Operation::Move(Move { from, items, to }) => Operation::Move(Move {
                 from: self.address.concat(&from),
                 items,
                 to: self.address.concat(&to),
-            },
-            Operation::Transform { address, from, to } => Operation::Transform {
-                address: self.address.concat(&address),
-                from,
-                to,
-            },
+            }),
+            Operation::Copy(Copy { from, items, to }) => Operation::Copy(Copy {
+                from: self.address.concat(&from),
+                items,
+                to: self.address.concat(&to),
+            }),
+            Operation::Transform(Transform { address, from, to }) => {
+                Operation::Transform(Transform {
+                    address: self.address.concat(&address),
+                    from,
+                    to,
+                })
+            }
         };
         self.ops.push(op)
     }
@@ -796,40 +852,40 @@ impl Differ {
 
     /// Add an `Add` operation to the patch.
     pub fn add<Value: Clone + Send + 'static>(&mut self, value: &Value) {
-        self.ops.push(Operation::Add {
+        self.ops.push(Operation::Add(Add {
             address: self.address.clone(),
             value: Box::new(value.clone()),
             length: 1,
             html: None,
-        })
+        }))
     }
 
     /// Add a `Remove` operation to the patch.
     pub fn remove(&mut self) {
-        self.ops.push(Operation::Remove {
+        self.ops.push(Operation::Remove(Remove {
             address: self.address.clone(),
             items: 1,
-        })
+        }))
     }
 
     /// Add a `Replace` operation to the patch.
     pub fn replace<Value: Clone + Send + 'static>(&mut self, value: &Value) {
-        self.ops.push(Operation::Replace {
+        self.ops.push(Operation::Replace(Replace {
             address: self.address.clone(),
             items: 1,
             value: Box::new(value.clone()),
             length: 1,
             html: None,
-        })
+        }))
     }
 
     /// Add a `Transform` operation to the patch.
     pub fn transform(&mut self, from: &str, to: &str) {
-        self.ops.push(Operation::Transform {
+        self.ops.push(Operation::Transform(Transform {
             address: self.address.clone(),
             from: from.into(),
             to: to.into(),
-        })
+        }))
     }
 }
 
@@ -850,18 +906,25 @@ pub trait Patchable {
     /// Apply an operation to this node.
     fn apply_op(&mut self, op: &Operation) -> Result<()> {
         match op {
-            Operation::Add { address, value, .. } => self.apply_add(&mut address.clone(), value),
-            Operation::Remove { address, items } => self.apply_remove(&mut address.clone(), *items),
-            Operation::Replace {
+            Operation::Add(Add { address, value, .. }) => {
+                self.apply_add(&mut address.clone(), value)
+            }
+            Operation::Remove(Remove { address, items }) => {
+                self.apply_remove(&mut address.clone(), *items)
+            }
+            Operation::Replace(Replace {
                 address,
                 items,
                 value,
                 ..
-            } => self.apply_replace(&mut address.clone(), *items, value),
-            Operation::Move { from, items, to } => {
+            }) => self.apply_replace(&mut address.clone(), *items, value),
+            Operation::Move(Move { from, items, to }) => {
                 self.apply_move(&mut from.clone(), *items, &mut to.clone())
             }
-            Operation::Transform { address, from, to } => {
+            Operation::Copy(Copy { from, items, to }) => {
+                self.apply_copy(&mut from.clone(), *items, &mut to.clone())
+            }
+            Operation::Transform(Transform { address, from, to }) => {
                 self.apply_transform(&mut address.clone(), from, to)
             }
         }
@@ -890,6 +953,11 @@ pub trait Patchable {
     /// Apply a `Move` patch operation
     fn apply_move(&mut self, _from: &mut Address, _items: usize, _to: &mut Address) -> Result<()> {
         bail!(invalid_patch_operation::<Self>("Move"))
+    }
+
+    /// Apply a `Copy` patch operation
+    fn apply_copy(&mut self, _from: &mut Address, _items: usize, _to: &mut Address) -> Result<()> {
+        bail!(invalid_patch_operation::<Self>("Copy"))
     }
 
     /// Apply a `Transform` patch operation
@@ -1169,7 +1237,7 @@ mod tests {
         );
 
         match &patch.ops[0] {
-            Operation::Replace { value, .. } => {
+            Operation::Replace(Replace { value, .. }) => {
                 if let Some(value) = value.downcast_ref::<ExecutionRequired>() {
                     assert_eq!(*value, ExecutionRequired::SemanticsChanged);
                 } else {
@@ -1183,14 +1251,14 @@ mod tests {
             "ops": [
                 {
                     "type": "Replace",
-                    "address": ["executeRequired"],
+                    "address": ["executionRequired"],
                     "items": 1,
                     "value": "SemanticsChanged",
                     "length": 1
                 },
                 {
                     "type": "Add",
-                    "address": ["executeStatus"],
+                    "address": ["executionStatus"],
                     "value": "Scheduled",
                     "length": 1
                 },

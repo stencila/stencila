@@ -32,17 +32,17 @@ where
         if self.is_empty() && other.is_empty() {
             return;
         } else if self.is_empty() && !other.is_empty() {
-            return differ.append(vec![Operation::Add {
+            return differ.append(vec![Operation::Add(Add {
                 address: Address::from(0),
                 value: Box::new(other.clone()),
                 length: other.len(),
                 html: None,
-            }]);
+            })]);
         } else if !self.is_empty() && other.is_empty() {
-            return differ.append(vec![Operation::Remove {
+            return differ.append(vec![Operation::Remove(Remove {
                 address: Address::from(0),
                 items: self.len(),
-            }]);
+            })]);
         }
 
         let (me_ids, other_ids) = unique_items(self, other);
@@ -78,14 +78,14 @@ where
                     for prev in (0..ops.len()).rev() {
                         let op = &ops[prev];
                         match op {
-                            Operation::Add {
+                            Operation::Add(Add {
                                 address, length, ..
-                            } => {
+                            }) => {
                                 if address.len() == 1 {
                                     shift -= *length as i32;
                                 }
                             }
-                            Operation::Remove { address, items, .. } => {
+                            Operation::Remove(Remove { address, items, .. }) => {
                                 if address.len() == 1 {
                                     shift += *items as i32;
                                     let remove_index = if let Slot::Index(remove_index) = address[0]
@@ -100,24 +100,24 @@ where
                                     let removed_value =
                                         self[removed.0..(removed.0 + removed.1)].to_vec();
                                     if added_value == removed_value {
-                                        ops[prev] = Operation::Move {
+                                        ops[prev] = Operation::Move(Move {
                                             from: address.clone(),
                                             items: *items,
                                             to: Address::from(
                                                 (index as i32 + shift - *items as i32) as usize,
                                             ),
-                                        };
+                                        });
                                         matched = true;
                                         break;
                                     }
                                 }
                             }
-                            Operation::Replace {
+                            Operation::Replace(Replace {
                                 address,
                                 items,
                                 length,
                                 ..
-                            } => {
+                            }) => {
                                 if address.len() == 1 {
                                     shift -= *length as i32 - *items as i32
                                 }
@@ -126,12 +126,12 @@ where
                         }
                     }
                     if !matched {
-                        ops.push(Operation::Add {
+                        ops.push(Operation::Add(Add {
                             address: Address::from(index),
                             value: Box::new(added_value),
                             length: new_len,
                             html: None,
-                        })
+                        }))
                     }
 
                     index += new_len
@@ -147,12 +147,12 @@ where
                     for prev in (0..ops.len()).rev() {
                         let op = &ops[prev];
                         match op {
-                            Operation::Add {
+                            Operation::Add(Add {
                                 address,
                                 value,
                                 length,
                                 ..
-                            } => {
+                            }) => {
                                 if address.len() == 1 {
                                     shift -= *length as i32;
                                     let added_value = value
@@ -160,27 +160,27 @@ where
                                         .downcast_ref::<Self>()
                                         .expect("To be a Vec<Type>");
                                     if *added_value == removed_value {
-                                        ops[prev] = Operation::Move {
+                                        ops[prev] = Operation::Move(Move {
                                             from: Address::from((index as i32 + shift) as usize),
                                             items: old_len,
                                             to: address.clone(),
-                                        };
+                                        });
                                         matched = true;
                                         break;
                                     }
                                 }
                             }
-                            Operation::Remove { address, items, .. } => {
+                            Operation::Remove(Remove { address, items, .. }) => {
                                 if address.len() == 1 {
                                     shift += *items as i32
                                 }
                             }
-                            Operation::Replace {
+                            Operation::Replace(Replace {
                                 address,
                                 items,
                                 length,
                                 ..
-                            } => {
+                            }) => {
                                 if address.len() == 1 {
                                     shift -= *length as i32 - *items as i32
                                 }
@@ -189,10 +189,10 @@ where
                         }
                     }
                     if !matched {
-                        ops.push(Operation::Remove {
+                        ops.push(Operation::Remove(Remove {
                             address: Address::from(index),
                             items: old_len,
-                        });
+                        }));
                         removes.insert(index, (old_index, old_len));
                     }
                 }
@@ -222,17 +222,19 @@ where
                         // If there is only one operation...
                         if item_ops.len() == 1 {
                             // and its a `Replace`...
-                            if let Some(Operation::Replace { address, .. }) = item_ops.get(0) {
+                            if let Some(Operation::Replace(Replace { address, .. })) =
+                                item_ops.get(0)
+                            {
                                 // at the root of the item.
                                 if address.len() == 1 {
                                     // Then, if the previous operation is a `Replace` at the root
-                                    if let Some(Operation::Replace {
+                                    if let Some(Operation::Replace(Replace {
                                         address: last_address,
                                         items: last_items,
                                         value: last_value,
                                         length: last_length,
                                         ..
-                                    }) = replace_ops.last_mut()
+                                    })) = replace_ops.last_mut()
                                     {
                                         if last_address.len() == 1 {
                                             *last_items += 1;
@@ -246,7 +248,7 @@ where
                                     }
 
                                     // Otherwise, add it
-                                    replace_ops.push(Operation::Replace {
+                                    replace_ops.push(Operation::Replace(Replace {
                                         address: address.clone(),
                                         items: 1,
                                         value: Box::new(
@@ -254,7 +256,7 @@ where
                                         ),
                                         length: 1,
                                         html: None,
-                                    });
+                                    }));
                                     continue;
                                 }
                             }
@@ -267,20 +269,20 @@ where
                     if new_len > old_len {
                         // Add remaining items
                         let length = new_len - old_len;
-                        replace_ops.push(Operation::Add {
+                        replace_ops.push(Operation::Add(Add {
                             address: Address::from(index),
                             value: Box::new(
                                 other[(new_index + old_len)..(new_index + new_len)].to_vec(),
                             ),
                             length,
                             html: None,
-                        });
+                        }));
                         index += length;
                     } else if new_len < old_len {
                         // If the last op was a `Replace` at level of the vector, them just add to
                         // the number of items. Otherwise, remove remaining items.
                         let mut remove = true;
-                        if let Some(Operation::Replace { address, items, .. }) =
+                        if let Some(Operation::Replace(Replace { address, items, .. })) =
                             replace_ops.last_mut()
                         {
                             if address.len() == 1 {
@@ -289,10 +291,10 @@ where
                             }
                         }
                         if remove {
-                            replace_ops.push(Operation::Remove {
+                            replace_ops.push(Operation::Remove(Remove {
                                 address: Address::from(index),
                                 items: old_len - new_len,
-                            });
+                            }));
                             removes.insert(index, (old_index, old_len));
                         }
                     }
@@ -601,13 +603,13 @@ mod tests {
         assert_eq!(apply_new(&b, &patch)?, empty);
 
         let patch = Patch {
-            ops: vec![Operation::Replace {
+            ops: vec![Operation::Replace(Replace {
                 address: Address::default(),
                 items: 2,
                 value: Box::new(vec![5, 6, 7]),
                 length: 3,
                 html: None,
-            }],
+            })],
             ..Default::default()
         };
         assert_eq!(apply_new(&vec![1, 2], &patch)?, vec![5, 6, 7]);
@@ -912,31 +914,31 @@ mod tests {
         let a = vec![1, 2, 3, 4];
 
         let patch = Patch {
-            ops: vec![Operation::Move {
+            ops: vec![Operation::Move(Move {
                 from: Address::from(0),
                 to: Address::from(1),
                 items: 1,
-            }],
+            })],
             ..Default::default()
         };
         assert_eq!(apply_new(&a, &patch)?, vec![2, 1, 3, 4]);
 
         let patch = Patch {
-            ops: vec![Operation::Move {
+            ops: vec![Operation::Move(Move {
                 from: Address::from(0),
                 to: Address::from(2),
                 items: 2,
-            }],
+            })],
             ..Default::default()
         };
         assert_eq!(apply_new(&a, &patch)?, vec![3, 4, 1, 2]);
 
         let patch = Patch {
-            ops: vec![Operation::Move {
+            ops: vec![Operation::Move(Move {
                 from: Address::from(2),
                 to: Address::from(3),
                 items: 1,
-            }],
+            })],
             ..Default::default()
         };
         assert_eq!(apply_new(&a, &patch)?, vec![1, 2, 4, 3]);

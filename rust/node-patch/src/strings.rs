@@ -88,23 +88,23 @@ impl Patchable for String {
             if (index > 0 && curr != last) || end {
                 let address = Address::from(start);
                 if (curr == 'e' && last == 'd') || (end && curr == 'd') {
-                    ops.push(Operation::Remove { address, items });
+                    ops.push(Operation::Remove(Remove { address, items }));
                 } else if (curr == 'e' && last == 'i') || (end && curr == 'i') {
                     if replace {
-                        ops.push(Operation::Replace {
+                        ops.push(Operation::Replace(Replace {
                             address,
                             items,
                             value: Box::new(value.clone()),
                             length: value.graphemes(true).count(),
                             html: None,
-                        });
+                        }));
                     } else {
-                        ops.push(Operation::Add {
+                        ops.push(Operation::Add(Add {
                             address,
                             value: Box::new(value.clone()),
                             length: value.graphemes(true).count(),
                             html: None,
-                        });
+                        }));
                     }
                 };
             }
