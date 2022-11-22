@@ -365,9 +365,9 @@ export const stencilaInputRules = inputRules({
       /^[^_]/
     ),
 
-    // Quote (delimited by single or double quotes)
-    markInputRule(/(?:"|“)([^"”]+)(?:"|”)$/, marks.Quote),
-    markInputRule(/(?:'|‘)([^'|’]+)(?:'|’)$/, marks.Quote),
+    // Previously we had input rules for single and double quotes to
+    // create a `Quote` rule. But that interfered with input rules that need quote for string
+    // delimiters so were removed.
 
     // Strikeout (delimited by two tildes)
     markInputRule(/(?:~~)([^~]+)(?:~~)$/, marks.Strikeout),
