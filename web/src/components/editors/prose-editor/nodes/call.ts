@@ -9,7 +9,10 @@ export function call(): NodeSpec {
   return {
     group: 'BlockContent',
     content: 'CallArgument*',
-    atom: true, // Necessary to make this selectable event though it has content
+    // Necessary to make this selectable event though it has content
+    atom: true,
+    // Necessary so that content in `errors` or `content` does not "leak out" on copy+paste
+    defining: true,
     attrs: includeAttrs,
     parseDOM,
     toDOM,
