@@ -1,4 +1,4 @@
-pub use std::any::{type_name, Any};
+pub use std::any::type_name;
 
 pub use common::eyre::{bail, Result};
 pub use node_address::{
@@ -6,6 +6,10 @@ pub use node_address::{
 };
 
 pub use crate::{
+    differ::Differ,
     errors::{invalid_patch_operation, invalid_patch_value, Error},
-    Add, Copy, Differ, Move, Operation, Patch, Patchable, Remove, Replace, Transform, Value,
+    operation::*,
+    patch::Patch,
+    patchable::Patchable,
+    value::Value,
 };
