@@ -10,8 +10,7 @@ export class StencilaExecutableView<
   Type extends StencilaExecutable
 > extends StencilaEntityView<Type> {
   /**
-   * Override to update `Executable.errors` after patches from server
-   * are applied to the view's DOM
+   * Override to update derived properties after patches from server
    */
   handleMutation(mutation: MutationRecord): void {
     super.handleMutation(mutation)
@@ -27,6 +26,7 @@ export class StencilaExecutableView<
         'errors',
         elem.innerHTML
       )
+      transaction.setMeta('stencila-document-patch', false)
       this.view.dispatch(transaction)
     }
   }

@@ -66,12 +66,13 @@ export class StencilaEntityView<Type extends StencilaEntity>
     })
 
     // When the Web Component emits a patch, dispatch it as a ProseMirror transaction
-
+    // and stop the patch bubbling up to the window's patch handler
     this.dom.addEventListener(
       'stencila-document-patch',
       (event: CustomEvent) => {
         const { patch } = event.detail
         this.dispatchPatch(patch)
+        event.stopPropagation()
       }
     )
   }
@@ -110,6 +111,9 @@ export class StencilaEntityView<Type extends StencilaEntity>
    * Dispatch a Stencila document `Patch` as a ProseMirror `Transaction`
    *
    * This is done so that undo/redo works at the document level.
+   * The patch is added as metadata to the transaction so that it can be
+   * sent to the Stencila server rather than attempting to to generate a patch
+   * from it.
    */
   dispatchPatch(patch: Patch) {
     // TODO check that the patch.target is the same as the node.id
@@ -131,16 +135,23 @@ export class StencilaEntityView<Type extends StencilaEntity>
           console.warn(`Operation ${op.type} is not handled`, op)
       }
     }
+    transaction.setMeta('stencila-document-patch', patch)
     this.view.dispatch(transaction)
   }
 
   /**
    * Handle a mutation in the view
    *
-   * Node views that extend this class can define a `handleMutation` method
-   * which can be used to do things with the mutations e.g. dispatch a ProseMirror
-   * transaction to update non-editable parts of the Web Component e.g. `Executable.errors`
-   * which will not get updated via `dispatchPatch`.
+   * Node views that extend this class must define a `handleMutation` method
+   * to dispatch a ProseMirror transaction for non-editable, derived properties
+   * e.g. `Executable.errors` & `CodeExecutable.outputs` that are received from the server
+   * as patches. The transaction should not trigger a patch to be sent to the server.
+   * Do this using:
+   *
+   *    transaction.setMeta('stencila-document-patch', false)
+   *
+   * Without doing this derived properties will not get carried across when
+   * a node is copy+pasted to a new node.
    */
   handleMutation(mutation: MutationRecord): void {}
 

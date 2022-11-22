@@ -23,7 +23,7 @@ import {
 import { EditorState } from 'prosemirror-state'
 import { columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables'
 import { EditorView } from 'prosemirror-view'
-import { transactionToOps } from '../../../patches/prosemirror'
+import { transactionToOps as transactionToPatch } from '../../../patches/prosemirror'
 
 import { stencilaInputRules } from './input-rules'
 import { articleSchema, nodeViews } from './nodes'
@@ -142,12 +142,13 @@ export default class StencilaProseEditor {
         // Apply the transaction to the state to get a new state
         const newState = view.state.apply(transaction)
 
-        // Generate a patch and send to the editor
-        const ops = transactionToOps(transaction, view.state, newState)
-        if (ops.length > 0) {
+        // Generate a patch and send to the server via the window.stencilaClient
+        // via a custom event
+        const patch = transactionToPatch(transaction, view.state, newState)
+        if (patch) {
           window.dispatchEvent(
             new CustomEvent('stencila-document-patch', {
-              detail: { patch: { ops } },
+              detail: { patch },
             })
           )
         }
