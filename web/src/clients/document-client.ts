@@ -5,13 +5,7 @@ import { notify } from '../components/base/alert'
 import { currentMode, Mode } from '../mode'
 import { panic } from '../patches/checks'
 import { applyPatch } from '../patches/dom'
-import {
-  Document,
-  DocumentConfig,
-  DocumentPatchEvent,
-  Patch,
-  Then,
-} from '../types'
+import { Document, DocumentConfig, DocumentPatchEvent, Patch } from '../types'
 
 export type DocumentTopic = 'patched'
 
@@ -135,9 +129,9 @@ export class DocumentClient {
 
     window.addEventListener('stencila-document-patch', (event) => {
       const {
-        detail: { patch, then },
+        detail: { patch },
       } = event as DocumentPatchEvent
-      this.sendPatch(patch, then)
+      this.sendPatch(patch)
     })
 
     window.addEventListener(
@@ -370,27 +364,24 @@ export class DocumentClient {
    * Will generate an error if the patch could not be applied e.g. no node with the id could
    * be found or the patch was inconsistent with the node.
    *
-   * The `execute` option can be used to immediately execute the document, starting at the
-   * patch's target if any, otherwise the entire document. Combining patch and execute operations
-   * in a single request ensures that they occur in the correct order.
+   * Previously we allowed for a `then` parameter to be passed here.
+   * That is now done on server side so that they can be a consistent (but user configurable)
+   * approach to what happens when different node types are patched (rather that having to be
+   * reimplemented for different clients).
    */
-  async sendPatch(patch: Patch, then?: Then): Promise<void> {
+  async sendPatch(patch: Patch): Promise<void> {
     // During development it's very useful to see the patch operations being sent
     if (process.env.NODE_ENV !== 'production') {
       const { target, address, ops } = patch
       console.log(
         '📢 Sending patch:',
-        JSON.stringify({ actor: this.clientId, target, address, then })
+        JSON.stringify({ actor: this.clientId, target, address })
       )
       for (const op of ops) console.log('  ', JSON.stringify(op))
     }
 
     return this.call('documents.patch', {
       patch: { actor: this.clientId, ...patch },
-      // If these are defined, the defaults defined on the server will apply
-      compile: then?.compile,
-      execute: then?.execute,
-      write: then?.write,
     }) as Promise<void>
   }
 

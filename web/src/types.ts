@@ -33,7 +33,6 @@ export type NodeId = string
 export interface DocumentPatchEvent extends CustomEvent {
   detail: {
     patch: Patch
-    then: Then
   }
 }
 
@@ -113,7 +112,7 @@ export type Then = {
  * When compile, execute and write operations should
  * be done after a patch
  */
-export type When = 'Now' | 'Soon' | 'Never'
+export type When = 'Now' | 'Later' | 'Never'
 
 // The following type definitions were generated from Rust types (via the `schemars` crate)
 // This needs updating but was moved here from the `../../node` module to avoid a dependency

@@ -50,14 +50,14 @@ export default class StencilaElement extends LitElement {
   /**
    * Change a property and emit an operation representing the change
    */
-  protected changeProperty(property: string, value: unknown, then?: Then) {
-    return this.changeProperties([[property, value]], then)
+  protected changeProperty(property: string, value: unknown) {
+    return this.changeProperties([[property, value]])
   }
 
   /**
    * Change several properties and emit an operation representing the changes
    */
-  protected changeProperties(properties: [string, unknown][], then?: Then) {
+  protected changeProperties(properties: [string, unknown][]) {
     const ops = properties.map(([property, value]) => {
       if (value === null || Number.isNaN(value)) {
         value = undefined
@@ -83,36 +83,33 @@ export default class StencilaElement extends LitElement {
       return op
     })
 
-    return this.emitOps(ops, then)
+    return this.emitOps(ops)
   }
 
   /**
    * Emit an operation for the closest element having an `id`
    */
-  protected emitOp(op: Operation, then?: Then) {
-    return this.emitOps([op], then)
+  protected emitOp(op: Operation) {
+    return this.emitOps([op])
   }
 
   /**
    * Emit a patch event for the closest element having an `id` with
    * one or more operations
    */
-  protected emitOps(ops: Operation[], then?: Then) {
+  protected emitOps(ops: Operation[]) {
     const target = StencilaElement.closestElement(this, '[id]')?.id
-    return this.emitPatch(
-      {
-        target,
-        ops,
-      },
-      then
-    )
+    return this.emitPatch({
+      target,
+      ops,
+    })
   }
 
   /**
    * Emit a patch
    */
-  protected async emitPatch(patch: Patch, then?: Then) {
-    return this.emit('stencila-document-patch', { patch, then })
+  protected async emitPatch(patch: Patch) {
+    return this.emit('stencila-document-patch', { patch })
   }
 
   /**

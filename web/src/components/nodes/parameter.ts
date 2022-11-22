@@ -106,30 +106,16 @@ export default class StencilaParameter extends StencilaExecutable {
   }
 
   /**
-   * Is this parameter contained within a form
-   *
-   * Affects the whether the parameter is executed when its value changes
-   * (true for free parameters) or not (true for parameters in forms which
-   * are executed by the form)
-   */
-  public isInForm(): boolean {
-    return StencilaEntity.closestElement(this, 'stencila-form') !== null
-  }
-
-  /**
-   * Change the value of the parameter and then execute it
+   * Change the value of the parameter
    */
   public changeValue(value: boolean | number | string) {
-    this.emitOp(
-      {
-        type: 'Replace',
-        address: ['value'],
-        items: 1,
-        length: 1,
-        value,
-      },
-      { execute: this.isInForm() ? 'Never' : 'Now' }
-    )
+    this.emitOp({
+      type: 'Replace',
+      address: ['value'],
+      items: 1,
+      length: 1,
+      value,
+    })
   }
 
   protected renderNameInput() {
