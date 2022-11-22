@@ -34,7 +34,7 @@ where
         } else if self.is_empty() && !other.is_empty() {
             return differ.append(vec![Operation::Add(Add {
                 address: Address::from(0),
-                value: Box::new(other.clone()),
+                value: Value::any(other.clone()),
                 length: other.len(),
                 html: None,
             })]);
@@ -128,7 +128,7 @@ where
                     if !matched {
                         ops.push(Operation::Add(Add {
                             address: Address::from(index),
-                            value: Box::new(added_value),
+                            value: Value::any(added_value),
                             length: new_len,
                             html: None,
                         }))
@@ -251,9 +251,9 @@ where
                                     replace_ops.push(Operation::Replace(Replace {
                                         address: address.clone(),
                                         items: 1,
-                                        value: Box::new(
-                                            vec![other[new_index + item_index].clone()],
-                                        ),
+                                        value: Value::any(vec![
+                                            other[new_index + item_index].clone()
+                                        ]),
                                         length: 1,
                                         html: None,
                                     }));
@@ -271,7 +271,7 @@ where
                         let length = new_len - old_len;
                         replace_ops.push(Operation::Add(Add {
                             address: Address::from(index),
-                            value: Box::new(
+                            value: Value::any(
                                 other[(new_index + old_len)..(new_index + new_len)].to_vec(),
                             ),
                             length,
@@ -606,7 +606,7 @@ mod tests {
             ops: vec![Operation::Replace(Replace {
                 address: Address::default(),
                 items: 2,
-                value: Box::new(vec![5, 6, 7]),
+                value: Value::any(vec![5, 6, 7]),
                 length: 3,
                 html: None,
             })],

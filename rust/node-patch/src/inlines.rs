@@ -263,7 +263,7 @@ macro_rules! patchable_media_object {
                             Operation::Replace(Replace {
                                 address: Address::from("content_url"),
                                 items: 1,
-                                value: Box::new(other.content_url.clone()),
+                                value: Value::any(other.content_url.clone()),
                                 length: 1,
                                 html: None,
                             })

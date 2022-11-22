@@ -94,14 +94,14 @@ impl Patchable for String {
                         ops.push(Operation::Replace(Replace {
                             address,
                             items,
-                            value: Box::new(value.clone()),
+                            value: Value::any(value.clone()),
                             length: value.graphemes(true).count(),
                             html: None,
                         }));
                     } else {
                         ops.push(Operation::Add(Add {
                             address,
-                            value: Box::new(value.clone()),
+                            value: Value::any(value.clone()),
                             length: value.graphemes(true).count(),
                             html: None,
                         }));

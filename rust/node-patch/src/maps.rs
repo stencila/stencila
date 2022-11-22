@@ -68,7 +68,7 @@ where
                 if !matched {
                     Some(Operation::Add(Add {
                         address: Address::from(key.as_str()),
-                        value: Box::new(value.clone()),
+                        value: Value::any(value.clone()),
                         length: 1,
                         html: None,
                     }))

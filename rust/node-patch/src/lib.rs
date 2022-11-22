@@ -196,9 +196,58 @@ where
 
 /// Type for the `value` property of `Add` and `Replace` operations
 ///
-/// This open, dynamic type could be replaced with a enum (with a fixed number
-/// of type variants) but that would require substantial refactoring
-pub type Value = Box<dyn Any + Send>;
+/// Has variants for the most common types of values in patches with
+/// a fallback `Any` variant.
+#[derive(Debug, Display)]
+pub enum Value {
+    Any(Box<dyn Any + Send>),
+}
+
+impl Value {
+    // Construct an any variant
+    pub fn any<Type>(value: Type) -> Value
+    where
+        Type: Send + 'static,
+    {
+        Self::Any(Box::new(value))
+    }
+
+    // Check if the value is of a specific type
+    pub fn is<Type>(&self) -> bool
+    where
+        Type: 'static,
+    {
+        use Value::*;
+        match self {
+            Any(any) => any.is::<Type>(),
+            _ => false,
+        }
+    }
+
+    // Downcast the value to a reference of a specific type
+    pub fn downcast_ref<Type>(&self) -> Option<&Type>
+    where
+        Type: 'static,
+    {
+        use Value::*;
+        match self {
+            Any(any) => any.downcast_ref(),
+            _ => None,
+        }
+    }
+
+    // Downcast the value to a mutable reference of a specific type
+    pub fn downcast_mut<Type>(&mut self) -> Option<&mut Type>
+    where
+        Type: 'static,
+    {
+        use Value::*;
+        match self {
+            Any(any) => any.downcast_mut(),
+            _ => None,
+        }
+    }
+}
 
 /// The operations within a patch
 ///
@@ -220,7 +269,7 @@ pub type Value = Box<dyn Any + Send>;
 ///
 /// - they have an `address` property (an array of sting or integer "slots"), rather than a
 ///   forward slash separated string `path`
-/// 
+///
 /// - the `Remove`, `Replace`, `Move` and `Copy` operations have an `items` property which
 ///   allows several items in a string or an array to be operated on by a single operation
 ///
@@ -359,7 +408,7 @@ impl Operation {
         D: Deserializer<'de>,
     {
         let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
-        Ok(Box::new(value))
+        Ok(Value::any(value))
     }
 
     /// Serialize the `value` field of an operation
@@ -851,10 +900,10 @@ impl Differ {
     }
 
     /// Add an `Add` operation to the patch.
-    pub fn add<Value: Clone + Send + 'static>(&mut self, value: &Value) {
+    pub fn add<Type: Clone + Send + 'static>(&mut self, value: &Type) {
         self.ops.push(Operation::Add(Add {
             address: self.address.clone(),
-            value: Box::new(value.clone()),
+            value: Value::any(value.clone()),
             length: 1,
             html: None,
         }))
@@ -869,11 +918,11 @@ impl Differ {
     }
 
     /// Add a `Replace` operation to the patch.
-    pub fn replace<Value: Clone + Send + 'static>(&mut self, value: &Value) {
+    pub fn replace<Type: Clone + Send + 'static>(&mut self, value: &Type) {
         self.ops.push(Operation::Replace(Replace {
             address: self.address.clone(),
             items: 1,
-            value: Box::new(value.clone()),
+            value: Value::any(value.clone()),
             length: 1,
             html: None,
         }))
@@ -896,7 +945,7 @@ pub trait Patchable {
 
     /// Apply a patch to this node.
     fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
-        tracing::trace!("Applying patch to type '{}'", type_name::<Self>());
+        tracing::trace!("Applying patch to type `{}`", type_name::<Self>());
         for op in &patch.ops {
             self.apply_op(op)?
         }
