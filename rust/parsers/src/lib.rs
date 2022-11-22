@@ -102,7 +102,7 @@ impl Parsers {
             ("json5", parser_json5::Json5Parser::spec()),
             #[cfg(feature = "parser-postgrest")]
             ("postgrest", parser_postgrest::PostgrestParser::spec()),
-            #[cfg(feature = "parser-py")]
+            #[cfg(feature = "parser-prql")]
             ("prql", parser_prql::PrqlParser::spec()),
             #[cfg(feature = "parser-py")]
             ("py", parser_py::PyParser::spec()),
