@@ -19,6 +19,7 @@ use common::{
     },
     tracing,
 };
+use events::{has_subscribers, publish};
 use graph::Graph;
 use graph_triples::{resources, Resource, TagMap};
 use kernels::KernelSpace;
@@ -39,9 +40,10 @@ use crate::{
     },
     executable::{CompileContext, Executable},
     messages::{
-        CompileRequest, ExecuteRequest, PatchRequest, RequestId, Response, When, WriteRequest,
+        await_response, forward_execute_requests, forward_write_requests, send_patches,
+        send_responses, CompileRequest, RequestId, Then, When,
     },
-    utils::send_patches,
+    send_request,
 };
 
 impl Document {
@@ -51,57 +53,26 @@ impl Document {
     /// before returning. This is useful in some circumstances, such as ensuring the document
     /// is compiled before it is encoded as HTML, on initial opening.
     #[tracing::instrument(skip(self))]
-    pub async fn compile(
-        &mut self,
-        execute: When,
-        write: When,
-        start: Option<String>,
-    ) -> Result<()> {
-        let request_id = self.compile_request(execute, write, start).await?;
-
-        tracing::trace!(
-            "Waiting for compile response for document `{}` for request `{}`",
-            self.id,
-            request_id
-        );
-        while let Ok(response) = self.response_receiver.recv().await {
-            if response.request_id == request_id {
-                tracing::trace!(
-                    "Received compile response for document `{}` for request `{}`",
-                    self.id,
-                    request_id
-                );
-                break;
-            }
-        }
-
-        Ok(())
+    pub async fn compile(&mut self, then: Option<Then>) -> Result<()> {
+        let request_id = self.compile_request(then).await?;
+        await_response(
+            &mut self.response_receiver,
+            &self.id,
+            "compile",
+            request_id,
+            5,
+        )
+        .await
     }
 
     /// Request that the the document be compiled
-    /// 
+    ///
     /// Sends a [`CompileRequest`] to the document's `compile_task`.
     #[tracing::instrument(skip(self))]
-    pub async fn compile_request(
-        &self,
-        execute: When,
-        write: When,
-        start: Option<String>,
-    ) -> Result<RequestId> {
-        tracing::debug!("Sending compile request for document `{}`", self.id);
-
-        let request_id = RequestId::new();
-        let request =
-            CompileRequest::new(vec![request_id.clone()], When::Now, execute, write, start);
-        if let Err(error) = self.compile_request_sender.send(request).await {
-            bail!(
-                "When sending compile request for document `{}`: {}",
-                self.id,
-                error
-            )
-        };
-
-        Ok(request_id)
+    pub async fn compile_request(&self, then: Option<Then>) -> Result<RequestId> {
+        let then = then.unwrap_or_else(|| Then::write(When::Later));
+        let request = CompileRequest::now(then);
+        send_request!(self.compile_request_sender, &self.id, "compile", request)
     }
 
     /// A background task to compile the root node of the document on request
@@ -152,18 +123,14 @@ impl Document {
     ) {
         let duration = Duration::from_millis(Document::COMPILE_DEBOUNCE_MILLIS);
         let mut request_ids = Vec::new();
-        let mut execute = When::Never;
-        let mut write = When::Never;
+        let mut then = Then::nothing();
         loop {
             match tokio::time::timeout(duration, request_receiver.recv()).await {
                 // Request received: record and continue to wait for timeout unless `when` is now
                 Ok(Some(mut request)) => {
                     if !matches!(request.when, When::Never) {
                         request_ids.append(&mut request.ids);
-
-                        execute.no_later_than(request.execute);
-                        write.no_later_than(request.write);
-
+                        then.no_later_than(request.then);
                         if !matches!(request.when, When::Now) {
                             continue;
                         }
@@ -184,8 +151,6 @@ impl Document {
                 id,
                 request_ids.iter().join(",")
             );
-
-            // Compile the root node
             match compile(
                 path,
                 project,
@@ -204,60 +169,17 @@ impl Document {
                 Err(error) => tracing::error!("While compiling document `{}`: {}", id, error),
             }
 
-            // Possibly execute and/or write; or respond
-            if !matches!(execute, When::Never) {
-                tracing::trace!(
-                    "Sending execute request for document `{}` for compile requests `{}`",
-                    &id,
-                    request_ids.iter().join(",")
-                );
-                if let Err(error) = execute_sender
-                    .send(ExecuteRequest::new(
-                        request_ids.clone(),
-                        When::Soon,
-                        When::Soon,
-                        None,
-                        None,
-                        None,
-                    ))
-                    .await
-                {
-                    tracing::error!(
-                        "While sending execute request for document `{}`: {}",
-                        id,
-                        error
-                    );
-                }
-            } else if !matches!(write, When::Never) {
-                tracing::trace!(
-                    "Sending write request for document `{}` for compile requests `{}`",
-                    &id,
-                    request_ids.iter().join(",")
-                );
-                if let Err(error) =
-                    write_sender.send(WriteRequest::new(request_ids.clone(), When::Soon))
-                {
-                    tracing::error!(
-                        "While sending write request for document `{}`: {}",
-                        id,
-                        error
-                    );
-                }
+            // Forward requests or respond
+            if !matches!(then.execute, When::Never) {
+                forward_execute_requests(execute_sender, request_ids, then.execute, then).await;
+            } else if !matches!(then.write, When::Never) {
+                forward_write_requests(write_sender, request_ids, then.write).await
             } else {
-                for request_id in &request_ids {
-                    if let Err(error) = response_sender.send(Response::new(request_id.clone())) {
-                        tracing::debug!(
-                            "While sending response for document `{}` from compile task: {}",
-                            id,
-                            error
-                        );
-                    }
-                }
+                send_responses(response_sender, request_ids)
             }
 
-            request_ids.clear();
-            execute = When::Never;
-            write = When::Never;
+            request_ids = Vec::new();
+            then = Then::nothing();
         }
     }
 }
@@ -286,7 +208,7 @@ pub async fn compile(
     kernel_space: &Arc<RwLock<KernelSpace>>,
     event_sender: &DocumentEventSender,
     event_listeners: &DocumentEventListeners,
-    patch_sender: &UnboundedSender<PatchRequest>,
+    patch_sender: &DocumentPatchRequestSender,
 ) -> Result<Graph> {
     let root = root.read().await;
     let kernel_space = kernel_space.read().await;
@@ -296,7 +218,7 @@ pub async fn compile(
     let mut context = CompileContext {
         path: path.into(),
         project: project.into(),
-        kernel_space: &*kernel_space,
+        kernel_space: &kernel_space,
         resource_infos: Vec::default(),
         global_tags: TagMap::default(),
         event_listeners: Vec::default(),
@@ -305,7 +227,7 @@ pub async fn compile(
     root.compile(&mut address, &mut context).await?;
 
     // Send patches collected during compilation reflecting changes to nodes
-    send_patches(patch_sender, context.patches, When::Never);
+    send_patches(patch_sender, context.patches, Then::nothing()).await;
 
     // Register all event listeners
     Document::listen_many(event_sender, event_listeners, context.event_listeners).await?;

@@ -4,12 +4,12 @@ use codecs::EncodeOptions;
 use common::{
     defaults::Defaults,
     eyre::{bail, Result},
-    serde::{Deserialize, Serialize},
+    serde::{de::DeserializeOwned, Deserialize, Serialize},
     serde_json::{self, json},
     serde_with::skip_serializing_none,
     tracing,
 };
-use documents::{When, DOCUMENTS};
+use documents::{Then, DOCUMENTS};
 use graph::{PlanOrdering, PlanScope};
 use node_patch::Patch;
 
@@ -67,8 +67,8 @@ impl Request {
             "documents.restart" => documents_restart(&self.params).await,
             "documents.kernels" => documents_kernels(&self.params).await,
             "documents.symbols" => documents_symbols(&self.params).await,
-            "documents.subscribe" => documents_subscribe(&self.params, client).await,
-            "documents.unsubscribe" => documents_unsubscribe(&self.params, client).await,
+            "documents.subscribe" => documents_subscribe(&self.params).await,
+            "documents.unsubscribe" => documents_unsubscribe(&self.params).await,
             _ => {
                 let error = Error::method_not_found_error(&self.method);
                 return (
@@ -277,7 +277,7 @@ async fn documents_write(params: &Params) -> Result<(serde_json::Value, Subscrip
 
 async fn documents_load(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let document_id = required_string(params, "documentId")?;
-    let content = required_string(params, "content")?;
+    let content = required_param(params, "content")?;
     let format = optional_string(params, "format")?;
 
     // TODO: make immutable
@@ -309,10 +309,7 @@ async fn documents_dump(params: &Params) -> Result<(serde_json::Value, Subscript
     Ok((json!(content), Subscription::None))
 }
 
-async fn documents_subscribe(
-    params: &Params,
-    client: &str,
-) -> Result<(serde_json::Value, Subscription)> {
+async fn documents_subscribe(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
     let topic = required_string(params, "topic")?;
 
@@ -320,10 +317,7 @@ async fn documents_subscribe(
     Ok((json!({ "id": id }), Subscription::Subscribe(topic)))
 }
 
-async fn documents_unsubscribe(
-    params: &Params,
-    client: &str,
-) -> Result<(serde_json::Value, Subscription)> {
+async fn documents_unsubscribe(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
     let topic = required_string(params, "topic")?;
 
@@ -333,49 +327,23 @@ async fn documents_unsubscribe(
 
 async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
-    let patch = required_value(params, "patch")?;
-    let patch: Patch = serde_json::from_value(patch)?;
-    let compile = optional_string(params, "compile")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Soon);
-    let execute = optional_string(params, "execute")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Never);
-    let write = optional_string(params, "write")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Soon);
+    let patch = required_param::<Patch>(params, "patch")?;
 
-    DOCUMENTS
-        .get(&id)
-        .await?
-        .patch_request(patch, compile, execute, write)
-        .await?;
+    DOCUMENTS.get(&id).await?.patch_request(patch, None).await?;
     Ok((json!(true), Subscription::None))
 }
 
 async fn documents_compile(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
-    let execute = optional_string(params, "execute")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Never);
-    let write = optional_string(params, "write")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Soon);
-    let node_id = optional_string(params, "nodeId")?;
+    let then = optional_param::<Then>(params, "then")?;
 
-    DOCUMENTS
-        .get(&id)
-        .await?
-        .compile_request(execute, write, node_id)
-        .await?;
+    DOCUMENTS.get(&id).await?.compile_request(then).await?;
     Ok((json!(true), Subscription::None))
 }
 
 async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
-    let write = optional_string(params, "write")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Soon);
+    let then = optional_param(params, "then")?;
     let node_id = optional_string(params, "nodeId")?;
     let ordering = match optional_string(params, "ordering")? {
         Some(ordering) => Some(PlanOrdering::from_str(&ordering)?),
@@ -385,7 +353,7 @@ async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscr
     DOCUMENTS
         .get(&id)
         .await?
-        .execute_request(write, node_id, ordering, None)
+        .execute_request(then, node_id, ordering, None)
         .await?;
     Ok((json!(true), Subscription::None))
 }
@@ -427,9 +395,15 @@ async fn documents_symbols(params: &Params) -> Result<(serde_json::Value, Subscr
 // Helper functions for getting JSON-RPC parameters and raising appropriate errors
 // if they are not present or of wrong type
 
-fn required_value(params: &Params, name: &str) -> Result<serde_json::Value> {
-    if let Some(param) = params.get(name) {
-        Ok(param.clone())
+fn required_param<T: DeserializeOwned>(params: &Params, name: &str) -> Result<T> {
+    if let Some(value) = params.get(name).cloned() {
+        match serde_json::from_value::<T>(value) {
+            Ok(value) => Ok(value),
+            Err(error) => bail!(Error::parse_error(&format!(
+                "Error parsing required parameter {}: {}",
+                name, error
+            ))),
+        }
     } else {
         bail!(Error::invalid_param_error(&format!(
             "Parameter `{}` is required",
@@ -438,20 +412,21 @@ fn required_value(params: &Params, name: &str) -> Result<serde_json::Value> {
     }
 }
 
-#[allow(dead_code)]
-fn optional_value(params: &Params, name: &str) -> Option<serde_json::Value> {
-    params.get(name).cloned()
+fn optional_param<T: DeserializeOwned>(params: &Params, name: &str) -> Result<Option<T>> {
+    match params.get(name).cloned() {
+        Some(value) => match serde_json::from_value::<T>(value) {
+            Ok(value) => Ok(Some(value)),
+            Err(error) => bail!(Error::parse_error(&format!(
+                "Error parsing optional parameter {}: {}",
+                name, error
+            ))),
+        },
+        None => Ok(None),
+    }
 }
 
 fn required_string(params: &Params, name: &str) -> Result<String> {
-    if let Some(param) = required_value(params, name)?.as_str() {
-        Ok(param.to_string())
-    } else {
-        bail!(Error::invalid_param_error(&format!(
-            "Parameter `{}` is expected to be a string",
-            name
-        )))
-    }
+    required_param::<String>(params, name)
 }
 
 fn optional_string(params: &Params, name: &str) -> Result<Option<String>> {

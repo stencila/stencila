@@ -5,7 +5,7 @@ use common::{
     itertools::Itertools,
     tracing,
 };
-use events::{has_subscribers, publish};
+use events::publish;
 use node_patch::{apply, Patch};
 
 use crate::{
@@ -13,39 +13,26 @@ use crate::{
         Document, DocumentCompileRequestSender, DocumentPatchRequestReceiver,
         DocumentResponseSender, DocumentRoot, DocumentVersion, DocumentWriteRequestSender,
     },
-    messages::{CompileRequest, PatchRequest, RequestId, Response, WriteRequest},
-    When,
+    messages::{
+        await_response, forward_compile_requests, forward_write_requests, send_responses,
+        PatchRequest, RequestId, Then,
+    },
+    send_request, When,
 };
 
 impl Document {
     /// Patch the document
     #[tracing::instrument(skip(self))]
-    pub async fn patch(
-        &mut self,
-        patch: Patch,
-        compile: When,
-        execute: When,
-        write: When,
-    ) -> Result<()> {
-        let request_id = self.patch_request(patch, compile, execute, write).await?;
-
-        tracing::trace!(
-            "Waiting for patch response for document `{}` for request `{}`",
-            self.id,
-            request_id
-        );
-        while let Ok(response) = self.response_receiver.recv().await {
-            if response.request_id == request_id {
-                tracing::trace!(
-                    "Received patch response for document `{}` for request `{}`",
-                    self.id,
-                    request_id
-                );
-                break;
-            }
-        }
-
-        Ok(())
+    pub async fn patch(&mut self, patch: Patch, then: Option<Then>) -> Result<()> {
+        let request_id = self.patch_request(patch, then).await?;
+        await_response(
+            &mut self.response_receiver,
+            &self.id,
+            "patch",
+            request_id,
+            1,
+        )
+        .await
     }
 
     /// Request that a [`Patch`] be applied to the root node of the document
@@ -53,41 +40,18 @@ impl Document {
     /// # Arguments
     ///
     /// - `patch`: The patch to apply
-    ///
-    /// - `compile`: Should the document be compiled after the patch is applied?
-    ///
-    /// - `execute`: Should the document be executed after the patch is applied?
-    ///              If the patch as a `target` then the document will be executed from that
-    ///              node, otherwise the entire document will be executed.
-    /// - `write`: Should the document be written after the patch is applied?
     #[tracing::instrument(skip(self, patch))]
-    pub async fn patch_request(
-        &self,
-        patch: Patch,
-        compile: When,
-        execute: When,
-        write: When,
-    ) -> Result<RequestId> {
-        tracing::debug!("Sending patch request for document `{}`", self.id);
-
-        let request_id = RequestId::new();
-        let request = PatchRequest::new(
-            vec![request_id.clone()],
-            patch,
-            When::Now,
-            compile,
-            execute,
-            write,
-        );
-        if let Err(error) = self.patch_request_sender.send(request) {
-            bail!(
-                "When sending patch request for document `{}`: {}",
-                self.id,
-                error
-            )
-        };
-
-        Ok(request_id)
+    pub async fn patch_request(&self, patch: Patch, then: Option<Then>) -> Result<RequestId> {
+        // TODO: rather defaulting to compiling, compile only if the node is ops include
+        // executable nodes; allow user to specify execute as well after patching executable nodes
+        // (i.e. fully reactive).
+        let then = then.unwrap_or_else(|| Then {
+            compile: When::Later,
+            write: When::Later,
+            ..Default::default()
+        });
+        let request = PatchRequest::now(patch, then);
+        send_request!(self.patch_request_sender, &self.id, "patch", request)
     }
 
     /// A background task to patch the root node of the document on request
@@ -111,7 +75,6 @@ impl Document {
     /// - `request_receiver`: The channel to receive [`PatchRequest`]s on
     ///
     /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
-    #[allow(clippy::too_many_arguments)]
     pub(crate) async fn patch_task(
         id: &str,
         version: &DocumentVersion,
@@ -129,10 +92,8 @@ impl Document {
                 request.ids.iter().join(",")
             );
 
-            let mut patch = request.patch;
-            let start = patch.target.clone();
-
             // If the patch is empty then continue early rather than obtain locks etc
+            let mut patch = request.patch;
             if patch.is_empty() {
                 continue;
             }
@@ -152,69 +113,21 @@ impl Document {
                 // Increment version (fetch_add returns the previous value, so add one to it)
                 let version = version.fetch_add(1, Ordering::Release) + 1;
 
-                // Publish the patch if there are any subscriptions to the `patched` event of this document
-                let should_publish = has_subscribers(&topic).unwrap_or_else(|error| {
-                    tracing::error!("While checking for any subscribers: {}", error);
-                    true
-                });
-                if should_publish {
-                    patch.prepublish(version, root);
-                    publish(&topic, &patch);
-                } else {
-                    tracing::trace!(
-                        "Document `{}` skipping publishing patch because there are no subscribers",
-                        id
-                    );
-                }
+                // Publish the patch
+                // Previously we skipped prepublish if there were no subscribers but that seemed to
+                // be a premature optimization (and required an extra call to `events::has_subscribers`) so was removed
+                patch.prepublish(version, root);
+                publish(&topic, &patch);
             }
 
-            // Possibly compile, execute, and/or write; or respond
-            if !matches!(request.compile, When::Never) {
-                tracing::trace!(
-                    "Sending compile request for document `{}` for patch requests `{}`",
-                    &id,
-                    request.ids.iter().join(",")
-                );
-                if let Err(error) = compile_sender
-                    .send(CompileRequest::new(
-                        request.ids,
-                        request.compile,
-                        request.execute,
-                        request.write,
-                        start,
-                    ))
-                    .await
-                {
-                    tracing::error!(
-                        "While sending compile request for document `{}`: {}",
-                        id,
-                        error
-                    );
-                }
-            } else if !matches!(request.write, When::Never) {
-                tracing::trace!(
-                    "Sending write request for document `{}` for patch requests `{}`",
-                    &id,
-                    request.ids.iter().join(",")
-                );
-                if let Err(error) = write_sender.send(WriteRequest::new(request.ids, request.write))
-                {
-                    tracing::error!(
-                        "While sending write request for document `{}`: {}",
-                        id,
-                        error
-                    );
-                }
+            // Forward requests or respond
+            let PatchRequest { ids, then, .. } = request;
+            if !matches!(then.compile, When::Never) {
+                forward_compile_requests(compile_sender, ids, then.compile, then).await;
+            } else if !matches!(then.write, When::Never) {
+                forward_write_requests(write_sender, ids, then.write).await
             } else {
-                for request_id in request.ids {
-                    if let Err(error) = response_sender.send(Response::new(request_id)) {
-                        tracing::debug!(
-                            "While sending response for document `{}` from patch task: {}",
-                            id,
-                            error
-                        );
-                    }
-                }
+                send_responses(response_sender, ids)
             }
         }
     }

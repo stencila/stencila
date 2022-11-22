@@ -12,8 +12,7 @@ use common::{
     eyre::{self},
     itertools::Itertools,
     serde::Serialize,
-    serde_json,
-    tracing,
+    serde_json, tracing,
 };
 use formats::Format;
 use graph::{PlanOptions, PlanOrdering};
@@ -23,7 +22,7 @@ use stencila_schema::{
     EnumValidator, IntegerValidator, Node, NumberValidator, StringValidator, ValidatorTypes,
 };
 
-use crate::{document::Document, messages::When};
+use crate::document::Document;
 
 use super::*;
 
@@ -534,12 +533,7 @@ impl Run for Run_ {
             document.call_with_path(&self.input, None).await?;
         } else {
             document
-                .execute(
-                    When::Never,
-                    self.start.clone(),
-                    self.ordering,
-                    self.concurrency,
-                )
+                .execute(None, self.start.clone(), self.ordering, self.concurrency)
                 .await?;
         }
 

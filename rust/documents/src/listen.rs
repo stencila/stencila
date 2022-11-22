@@ -5,11 +5,10 @@ use events::{subscribe, unsubscribe, SubscriptionId, SubscriptionTopic};
 
 use crate::{
     document::{
-        Document, DocumentCancelRequestSender, DocumentCompileRequestSender, DocumentEventListener,
-        DocumentEventListeners, DocumentEventReceiver, DocumentEventSender,
-        DocumentExecuteRequestSender, DocumentPatchRequestSender, DocumentWriteRequestSender,
+        Document, DocumentEventListener, DocumentEventListeners, DocumentEventReceiver,
+        DocumentEventSender,
     },
-    messages::Request,
+    messages::{send_any_request, DocumentRequestSenders},
 };
 
 impl Document {
@@ -125,16 +124,11 @@ impl Document {
     }
 
     /// A task to listen for events
-    #[allow(clippy::too_many_arguments)]
     pub async fn listen_task(
         document_id: &str,
         event_receiver: &mut DocumentEventReceiver,
         event_listeners: &DocumentEventListeners,
-        patch_request_sender: DocumentPatchRequestSender,
-        compile_request_sender: DocumentCompileRequestSender,
-        execute_request_sender: DocumentExecuteRequestSender,
-        cancel_request_sender: DocumentCancelRequestSender,
-        write_request_sender: DocumentWriteRequestSender,
+        request_senders: &DocumentRequestSenders,
     ) {
         while let Some((event_topic, event_detail)) = event_receiver.recv().await {
             tracing::debug!(
@@ -146,45 +140,14 @@ impl Document {
             let (event_listeners, ..) = &*event_listeners.read().await;
             for (listener_id, listener_topic, listener) in event_listeners.iter() {
                 if event_topic.starts_with(listener_topic) {
-                    use Request::*;
                     let request = listener(&event_topic, event_detail.clone());
                     tracing::debug!(
-                        "Forwarding request to `{}` document `{}` for listener `{}`",
+                        "Sending request to `{}` document `{}` for listener `{}`",
                         request.as_ref(),
                         document_id,
                         listener_id
                     );
-
-                    match request {
-                        Patch(request) => {
-                            patch_request_sender.send(request).unwrap_or_else(|error| {
-                                tracing::error!("While sending patch request: {}", error);
-                            });
-                        }
-                        Compile(request) => compile_request_sender
-                            .send(request)
-                            .await
-                            .unwrap_or_else(|error| {
-                                tracing::error!("While sending compile request: {}", error);
-                            }),
-                        Execute(request) => execute_request_sender
-                            .send(request)
-                            .await
-                            .unwrap_or_else(|error| {
-                                tracing::error!("While sending execute request: {}", error);
-                            }),
-                        Cancel(request) => cancel_request_sender
-                            .send(request)
-                            .await
-                            .unwrap_or_else(|error| {
-                                tracing::error!("While sending cancel request: {}", error);
-                            }),
-                        Write(request) => {
-                            write_request_sender.send(request).unwrap_or_else(|error| {
-                                tracing::error!("While sending write request: {}", error);
-                            });
-                        }
-                    }
+                    send_any_request(request_senders, request).await;
                 }
             }
         }

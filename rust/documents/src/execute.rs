@@ -11,10 +11,7 @@ use common::{
     itertools::Itertools,
     tokio::{
         self,
-        sync::{
-            mpsc::{Receiver, UnboundedSender},
-            oneshot, RwLock,
-        },
+        sync::{oneshot, RwLock},
     },
     tracing,
 };
@@ -33,9 +30,11 @@ use crate::{
     },
     executable::Executable,
     messages::{
-        CancelRequest, ExecuteRequest, PatchRequest, RequestId, Response, When, WriteRequest,
+        await_response, forward_write_requests, send_patch, send_patches, send_responses,
+        CancelRequest, ExecuteRequest, RequestId, Then, When,
     },
-    utils::{resource_to_node, send_patch, send_patches},
+    send_request,
+    utils::resource_to_node,
 };
 
 impl Document {
@@ -47,69 +46,36 @@ impl Document {
     #[tracing::instrument(skip(self))]
     pub async fn execute(
         &mut self,
-        write: When,
+        then: Option<Then>,
         start: Option<String>,
         ordering: Option<PlanOrdering>,
         max_concurrency: Option<usize>,
     ) -> Result<()> {
-        // Execute the document. Do not write now; maybe at end of this func.
         let request_id = self
-            .execute_request(When::Never, start, ordering, max_concurrency)
+            .execute_request(then, start, ordering, max_concurrency)
             .await?;
-
-        // Wait for execution to finish
-        tracing::trace!(
-            "Waiting for execute response for document `{}` for request `{}`",
-            self.id,
-            request_id
-        );
-        while let Ok(response) = self.response_receiver.recv().await {
-            if response.request_id == request_id {
-                tracing::trace!(
-                    "Received execute response for document `{}` for request `{}`",
-                    self.id,
-                    request_id
-                );
-                break;
-            }
-        }
-
-        // Recompile the document to ensure properties such as `execution_dependencies` reflect the
-        // new state of the document, and write if necessary
-        self.compile(When::Never, write, None).await?;
-
-        Ok(())
+        await_response(
+            &mut self.response_receiver,
+            &self.id,
+            "execute",
+            request_id,
+            60,
+        )
+        .await
     }
 
     /// Request that the document be executed
     #[tracing::instrument(skip(self))]
     pub async fn execute_request(
         &self,
-        write: When,
+        then: Option<Then>,
         start: Option<String>,
         ordering: Option<PlanOrdering>,
         max_concurrency: Option<usize>,
     ) -> Result<RequestId> {
-        tracing::debug!("Sending execute request for document `{}`", self.id);
-
-        let request_id = RequestId::new();
-        let request = ExecuteRequest::new(
-            vec![request_id.clone()],
-            When::Now,
-            write,
-            start,
-            ordering,
-            max_concurrency,
-        );
-        if let Err(error) = self.execute_request_sender.send(request).await {
-            bail!(
-                "When sending execute request for document `{}`: {}",
-                self.id,
-                error
-            )
-        };
-
-        Ok(request_id)
+        let then = then.unwrap_or_else(|| Then::write(When::Later));
+        let request = ExecuteRequest::now(then, start, ordering, max_concurrency);
+        send_request!(self.execute_request_sender, &self.id, "execute", request)
     }
 
     /// A background task to execute the root node of the document on request
@@ -160,7 +126,7 @@ impl Document {
         let mut start = None;
         let mut ordering = PlanOptions::default_ordering();
         let mut max_concurrency = PlanOptions::default_max_concurrency();
-        let mut write = When::Never;
+        let mut then = Then::nothing();
         loop {
             match tokio::time::timeout(duration, request_receiver.recv()).await {
                 // Request received: record and continue to wait for timeout unless `now` is true
@@ -197,7 +163,7 @@ impl Document {
                             }
                         }
 
-                        write.no_later_than(request.write);
+                        then.no_later_than(request.then);
 
                         if !matches!(request.when, When::Now) {
                             continue;
@@ -248,7 +214,7 @@ impl Document {
             drop(tags_guard);
 
             // Execute the plan on the root node
-            execute(
+            if let Err(error) = execute(
                 &plan,
                 root,
                 tags,
@@ -256,37 +222,20 @@ impl Document {
                 patch_sender,
                 cancel_receiver,
             )
-            .await;
-
-            // Possibly write document; or respond
-            if !matches!(write, When::Never) {
-                tracing::trace!(
-                    "Sending write request for document `{}` for requests `{}`",
-                    &id,
-                    request_ids.iter().join(",")
-                );
-                if let Err(error) = write_sender.send(WriteRequest::new(request_ids.clone(), write))
-                {
-                    tracing::error!(
-                        "While sending write request for document `{}`: {}",
-                        id,
-                        error
-                    );
-                }
-            } else {
-                for request_id in &request_ids {
-                    if let Err(error) = response_sender.send(Response::new(request_id.clone())) {
-                        tracing::debug!(
-                            "While sending response for document `{}` from execute task: {}",
-                            id,
-                            error
-                        );
-                    }
-                }
+            .await
+            {
+                tracing::error!("While execution plan: {}", error);
             }
 
-            request_ids.clear();
-            write = When::Never;
+            // Forward requests or respond
+            if !matches!(then.write, When::Never) {
+                forward_write_requests(write_sender, request_ids, then.write).await
+            } else {
+                send_responses(response_sender, request_ids)
+            }
+
+            request_ids = Vec::new();
+            then = Then::nothing();
         }
     }
 
@@ -307,13 +256,16 @@ impl Document {
         tracing::debug!("Cancelling execution of document `{}`", self.id);
 
         let request_id = RequestId::new();
-        let request = CancelRequest::new(vec![request_id.clone()], start, scope);
-        self.cancel_request_sender.send(request).await.or_else(|_| {
-            bail!(
-                "When sending cancel request for document `{}`: the receiver has dropped",
-                self.id
-            )
-        });
+        let request = CancelRequest::forward(vec![request_id.clone()], start, scope);
+        self.cancel_request_sender
+            .send(request)
+            .await
+            .or_else(|_| {
+                bail!(
+                    "When sending cancel request for document `{}`: the receiver has dropped",
+                    self.id
+                )
+            })?;
 
         Ok(request_id)
     }
@@ -342,8 +294,8 @@ pub async fn execute(
     root: &DocumentRoot,
     tag_map: &Arc<RwLock<TagMap>>,
     kernel_space: &Arc<RwLock<KernelSpace>>,
-    patch_request_sender: &UnboundedSender<PatchRequest>,
-    cancel_request_receiver: &mut Receiver<CancelRequest>,
+    patch_request_sender: &DocumentPatchRequestSender,
+    cancel_request_receiver: &mut DocumentCancelRequestReceiver,
 ) -> Result<()> {
     // Drain the cancellation channel in case there are any requests inadvertantly
     // sent by a client for a previous execute request.
@@ -398,8 +350,9 @@ pub async fn execute(
                 }
             })
             .collect(),
-        When::Soon,
-    );
+        Then::compile(When::Later),
+    )
+    .await;
 
     // For each stage in plan...
     let stage_count = plan.stages.len();
@@ -453,7 +406,8 @@ pub async fn execute(
                 &mut cancellers,
                 &mut cancelled,
                 patch_request_sender,
-            );
+            )
+            .await;
             if cancel_all {
                 break;
             }
@@ -610,7 +564,7 @@ pub async fn execute(
         drop(tags);
 
         // Send patches for updated execution status
-        send_patches(patch_request_sender, patches, When::Soon);
+        send_patches(patch_request_sender, patches, Then::compile(When::Later)).await;
 
         if futures.is_empty() {
             tracing::debug!(
@@ -672,11 +626,11 @@ pub async fn execute(
                             send_patch(
                                 patch_request_sender,
                                 node_info.set_execution_status_cancelled(),
-                                When::Soon
-                            );
+                                Then::compile(When::Later)
+                            ).await;
                         } else {
                             // Send the patch reflecting the changed state of the executed node
-                            send_patch(patch_request_sender, patch, When::Soon);
+                            send_patch(patch_request_sender, patch, Then::compile(When::Later)).await;
                         }
 
                         // Update the node_info record used elsewhere in this function (mainly for the new execution status of nodes)
@@ -689,7 +643,7 @@ pub async fn execute(
                 // Handle cancellation requests, exiting the loop if the cancellation scope is
                 // `All` (i.e the whole plan)
                 Some(request) = cancel_request_receiver.recv() => {
-                    let all = handle_cancel_request(request, &node_infos, &mut cancellers, &mut cancelled, patch_request_sender);
+                    let all = handle_cancel_request(request, &node_infos, &mut cancellers, &mut cancelled, patch_request_sender).await;
                     if all {
                         break;
                     }
@@ -708,8 +662,9 @@ pub async fn execute(
             .values_mut()
             .map(|node_info| node_info.reset_execution_status())
             .collect(),
-        When::Soon,
-    );
+        Then::compile(When::Later),
+    )
+    .await;
 
     Ok(())
 }
@@ -895,12 +850,12 @@ fn get_node_info(node_infos: &BTreeMap<Resource, NodeInfo>, node_id: &str) -> Op
     None
 }
 
-fn handle_cancel_request(
+async fn handle_cancel_request(
     request: CancelRequest,
     node_infos: &BTreeMap<Resource, NodeInfo>,
     cancellers: &mut HashMap<String, oneshot::Sender<()>>,
     cancelled: &mut Vec<String>,
-    patch_request_sender: &UnboundedSender<PatchRequest>,
+    patch_request_sender: &DocumentPatchRequestSender,
 ) -> bool {
     let node_id = request.start;
     let scope = request.scope.unwrap_or(PlanScope::Single);
@@ -934,8 +889,9 @@ fn handle_cancel_request(
                     send_patch(
                         patch_request_sender,
                         node_info.set_execution_status_cancelled(),
-                        When::Soon,
-                    );
+                        Then::compile(When::Later),
+                    )
+                    .await;
                 }
             }
 
@@ -965,7 +921,7 @@ fn handle_cancel_request(
                     }
                 }
             }
-            send_patches(patch_request_sender, patches, When::Soon);
+            send_patches(patch_request_sender, patches, Then::compile(When::Later)).await;
 
             // Add all nodes in the plan to list of cancelled nodes
             cancelled.append(&mut node_ids);

@@ -17,7 +17,8 @@ use crate::{
         DocumentResponseReceiver, DocumentRoot, DocumentVersion, DocumentWriteRequestSender,
     },
     messages::{
-        CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, Response, WriteRequest,
+        CancelRequest, CompileRequest, DocumentRequestSenders, ExecuteRequest, PatchRequest,
+        Response, WriteRequest,
     },
 };
 
@@ -43,8 +44,7 @@ impl Document {
         DocumentWriteRequestSender,
         DocumentResponseReceiver,
     ) {
-        let (patch_request_sender, mut patch_request_receiver) =
-            mpsc::unbounded_channel::<PatchRequest>();
+        let (patch_request_sender, mut patch_request_receiver) = mpsc::channel::<PatchRequest>(100);
 
         let (compile_request_sender, mut compile_request_receiver) =
             mpsc::channel::<CompileRequest>(100);
@@ -55,8 +55,7 @@ impl Document {
         let (cancel_request_sender, mut cancel_request_receiver) =
             mpsc::channel::<CancelRequest>(100);
 
-        let (write_request_sender, mut write_request_receiver) =
-            mpsc::unbounded_channel::<WriteRequest>();
+        let (write_request_sender, mut write_request_receiver) = mpsc::channel::<WriteRequest>(100);
 
         let (response_sender, response_receiver) = broadcast::channel::<Response>(1);
 
@@ -141,16 +140,18 @@ impl Document {
             .await
         });
 
+        let id_clone = id.to_string();
         let root_clone = root.clone();
         let last_write_clone = last_write.clone();
         let path_clone = path.to_path_buf();
         let format_clone = Some(format.extension.clone());
         tokio::spawn(async move {
             Self::write_task(
-                &root_clone,
-                &last_write_clone,
+                &id_clone,
                 &path_clone,
                 format_clone.as_deref(),
+                &root_clone,
+                &last_write_clone,
                 &mut write_request_receiver,
                 &response_sender,
             )
@@ -159,21 +160,19 @@ impl Document {
 
         let id_clone = id.to_string();
         let event_listeners_clone = event_listeners.clone();
-        let patch_sender_clone = patch_request_sender.clone();
-        let compile_sender_clone = compile_request_sender.clone();
-        let execute_sender_clone = execute_request_sender.clone();
-        let cancel_sender_clone = cancel_request_sender.clone();
-        let write_sender_clone = write_request_sender.clone();
+        let request_senders = DocumentRequestSenders {
+            patch: patch_request_sender.clone(),
+            compile: compile_request_sender.clone(),
+            execute: execute_request_sender.clone(),
+            cancel: cancel_request_sender.clone(),
+            write: write_request_sender.clone(),
+        };
         tokio::spawn(async move {
             Self::listen_task(
                 &id_clone,
                 &mut event_receiver,
                 &event_listeners_clone,
-                patch_sender_clone,
-                compile_sender_clone,
-                execute_sender_clone,
-                cancel_sender_clone,
-                write_sender_clone,
+                &request_senders,
             )
             .await
         });

@@ -12,12 +12,12 @@ use common::{
     serde_json, tracing,
 };
 use node_address::Address;
-use node_pointer::{find_mut, walk, Visitor, PointerMut};
+use node_pointer::{find_mut, walk, PointerMut, Visitor};
 use node_validate::Validator;
 use path_utils::lexiclean::Lexiclean;
 use stencila_schema::{EnumValidator, InlineContent, Node, Parameter, ValidatorTypes};
 
-use crate::{document::Document, When};
+use crate::document::Document;
 
 impl Document {
     /// Get the parameters of the document
@@ -67,12 +67,10 @@ impl Document {
                     if let Some(validator) = param.validator.as_deref() {
                         match validator.validate(&value) {
                             Ok(..) => {
-                                if let Ok(pointer) = find_mut(root, &id) {
-                                    if let PointerMut::Inline(InlineContent::Parameter(param)) =
-                                        pointer
-                                    {
-                                        param.value = Some(Box::new(value));
-                                    }
+                                if let Ok(PointerMut::Inline(InlineContent::Parameter(param))) =
+                                    find_mut(root, &id)
+                                {
+                                    param.value = Some(Box::new(value));
                                 }
                             }
                             Err(error) => bail!(
@@ -88,7 +86,7 @@ impl Document {
             }
         }
 
-        self.execute(When::Never, None, None, None).await?;
+        self.execute(None, None, None, None).await?;
 
         Ok(())
     }
