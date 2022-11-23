@@ -9,7 +9,6 @@ use common::{
     strum::Display,
 };
 use node_address::Address;
-use node_pointer::Pointable;
 
 use crate::value::Value;
 
@@ -65,10 +64,6 @@ pub struct Add {
     pub address: Address,
 
     /// The value to add
-    #[serde(
-        serialize_with = "Value::serialize",
-        deserialize_with = "Value::deserialize"
-    )]
     #[schemars(skip)]
     pub value: Value,
 
@@ -103,10 +98,6 @@ pub struct Replace {
     pub items: usize,
 
     /// The replacement value
-    #[serde(
-        serialize_with = "Value::serialize",
-        deserialize_with = "Value::deserialize"
-    )]
     #[schemars(skip)]
     pub value: Value,
 
