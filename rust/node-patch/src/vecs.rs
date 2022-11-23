@@ -306,7 +306,7 @@ where
         differ.append(ops);
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: Value) -> Result<()> {
         if address.len() == 1 {
             if let Some(Slot::Index(index)) = address.pop_front() {
                 if index > self.len() {
@@ -365,7 +365,7 @@ where
         Ok(())
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: Value) -> Result<()> {
         if address.len() == 0 {
             // Replace the entire vector
             let value = Self::from_value(value)?;
@@ -478,7 +478,7 @@ where
     /// Cast a [`Value`] to a `Vec<Type>`
     ///
     /// Why? To be able to handle single items of `Type` in addition to a `Vec<Type>`
-    fn from_value(value: &Value) -> Result<Self>
+    fn from_value(value: Value) -> Result<Self>
     where
         Self: Clone + DeserializeOwned + Sized + 'static,
     {
@@ -593,14 +593,14 @@ mod tests {
             patch.ops,
             [{ "type": "Add", "address": [0], "value": [1, 2], "length": 2 }]
         );
-        assert_eq!(apply_new(&empty, &patch)?, b);
+        assert_eq!(apply_new(&empty, patch)?, b);
 
         let patch = diff(&b, &empty);
         assert_json_is!(
             patch.ops,
             [{ "type": "Remove", "address": [0], "items": 2 }]
         );
-        assert_eq!(apply_new(&b, &patch)?, empty);
+        assert_eq!(apply_new(&b, patch)?, empty);
 
         let patch = Patch {
             ops: vec![Operation::Replace(Replace {
@@ -612,7 +612,7 @@ mod tests {
             })],
             ..Default::default()
         };
-        assert_eq!(apply_new(&vec![1, 2], &patch)?, vec![5, 6, 7]);
+        assert_eq!(apply_new(&vec![1, 2], patch)?, vec![5, 6, 7]);
 
         // Add
 
@@ -623,7 +623,7 @@ mod tests {
             patch.ops,
             [{ "type": "Add", "address": [1], "value": [2], "length": 1 }]
         );
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         // Remove
 
@@ -634,7 +634,7 @@ mod tests {
             patch.ops,
             [{ "type": "Remove", "address": [1], "items": 1 }]
         );
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         // Replace
 
@@ -645,7 +645,7 @@ mod tests {
             patch.ops,
             [{ "type": "Replace", "address": [0], "items": 2, "value": [3, 4], "length": 2 }]
         );
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         // Move
 
@@ -657,7 +657,7 @@ mod tests {
                 { "type": "Move", "from": [1], "items": 1, "to": [0] }
             ]
         );
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         let a: Vec<Integer> = vec![1, 2, 3, 4];
         let b: Vec<Integer> = vec![2, 3, 1, 4];
@@ -667,7 +667,7 @@ mod tests {
                 { "type": "Move", "from": [0], "items": 1, "to": [2] }
             ]
         );
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         let a: Vec<Integer> = vec![1, 2, 3, 4];
         let b: Vec<Integer> = vec![3, 4, 1, 2];
@@ -677,7 +677,7 @@ mod tests {
                 { "type": "Move", "from": [2], "items": 2, "to": [0] }
             ]
         );
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -694,7 +694,7 @@ mod tests {
         assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0, 1], "value": "b", "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         // Remove
 
@@ -704,7 +704,7 @@ mod tests {
         assert_json_is!(patch.ops, [
             { "type": "Remove", "address": [0, 1], "items": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         // Replace
 
@@ -714,7 +714,7 @@ mod tests {
         assert_json_is!(patch.ops, [
             { "type": "Replace", "address": [0, 0], "items": 1, "value": "b", "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         // Transform
 
@@ -730,7 +730,7 @@ mod tests {
         assert_json_is!(patch.ops, [
             { "type": "Transform", "address": [0], "from": "Emphasis", "to": "Strong" },
         ]);
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -746,14 +746,14 @@ mod tests {
             { "type": "Add", "address": [0, 1], "value": "b", "length": 1 },
             { "type": "Add", "address": [1], "value": ["c"], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         let patch = diff(&b, &a);
         assert_json_is!(patch.ops, [
             { "type": "Remove", "address": [0, 1], "items": 1 },
             { "type": "Remove", "address": [1], "items": 1 },
         ]);
-        assert_eq!(apply_new(&b, &patch)?, a);
+        assert_eq!(apply_new(&b, patch)?, a);
 
         Ok(())
     }
@@ -770,7 +770,7 @@ mod tests {
             { "type": "Move", "from": [2], "items": 1, "to": [0] },
             { "type": "Add", "address": [2], "value": [1], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -784,7 +784,7 @@ mod tests {
             { "type": "Remove", "address": [0], "items": 2 },
             { "type": "Move", "from": [2], "items": 1, "to": [1] },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -806,7 +806,7 @@ mod tests {
             { "type": "Add", "address": [4, 0], "value": "a", "length": 1 },
             { "type": "Add", "address": [5], "value": ["a"], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -819,7 +819,7 @@ mod tests {
         assert_json_is!(patch.ops, [
             { "type": "Replace", "address": [0], "items": 4, "value": [2, 2, 0], "length": 3 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -834,7 +834,7 @@ mod tests {
             { "type": "Add", "address": [1], "value": ["a"], "length": 1 },
             { "type": "Remove", "address": [3], "items": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -854,7 +854,7 @@ mod tests {
             { "type": "Remove", "address": [2], "items": 1 },
             { "type": "Add", "address": [3], "value": ["b"], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -867,7 +867,7 @@ mod tests {
         assert_json_is!(patch.ops, [
             { "type": "Move", "from": [0], "items": 1, "to": [2] },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -881,7 +881,7 @@ mod tests {
             { "type": "Move", "from": [0], "items": 1, "to": [2] },
             { "type": "Add", "address": [1], "value": [1], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -901,7 +901,7 @@ mod tests {
             { "type": "Remove", "address": [1], "items": 2 },
             { "type": "Add", "address": [2], "value": [""], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -921,7 +921,7 @@ mod tests {
             })],
             ..Default::default()
         };
-        assert_eq!(apply_new(&a, &patch)?, vec![2, 1, 3, 4]);
+        assert_eq!(apply_new(&a, patch)?, vec![2, 1, 3, 4]);
 
         let patch = Patch {
             ops: vec![Operation::Move(Move {
@@ -931,7 +931,7 @@ mod tests {
             })],
             ..Default::default()
         };
-        assert_eq!(apply_new(&a, &patch)?, vec![3, 4, 1, 2]);
+        assert_eq!(apply_new(&a, patch)?, vec![3, 4, 1, 2]);
 
         let patch = Patch {
             ops: vec![Operation::Move(Move {
@@ -941,7 +941,7 @@ mod tests {
             })],
             ..Default::default()
         };
-        assert_eq!(apply_new(&a, &patch)?, vec![1, 2, 4, 3]);
+        assert_eq!(apply_new(&a, patch)?, vec![1, 2, 4, 3]);
 
         Ok(())
     }

@@ -8,7 +8,7 @@ use node_address::Address;
 use node_pointer::{find_mut, resolve_mut, Pointable, PointerMut};
 use stencila_schema::Node;
 
-use crate::{differ::Differ, patch::Patch, patchable::Patchable};
+use crate::{differ::Differ, patchable::Patchable};
 
 /// Generate a [`Patch`] describing the difference between two nodes of the same type.
 #[tracing::instrument(skip(node1, node2))]
@@ -99,7 +99,7 @@ pub fn mutate<T: Clone + Patchable, F: Fn(&mut T)>(
 /// in this module will not appear in the difference.
 pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<String> {
     let patch = diff(node1, node2);
-    let patched = apply_new(node1, &patch)?;
+    let patched = apply_new(node1, patch)?;
 
     let old = codecs::to_string(node1, format, None).await?;
     let new = codecs::to_string(&patched, format, None).await?;
@@ -116,7 +116,7 @@ pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<St
 
 /// Apply a [`Patch`] to a node.
 #[tracing::instrument(skip(node, patch))]
-pub fn apply<Type>(node: &mut Type, patch: &Patch) -> Result<()>
+pub fn apply<Type>(node: &mut Type, patch: Patch) -> Result<()>
 where
     Type: Patchable + Pointable,
 {
@@ -146,7 +146,7 @@ where
 /// Apply a [`Patch`] to a clone of a node.
 ///
 /// In contrast to `apply`, this does not alter the original node.
-pub fn apply_new<Type>(node: &Type, patch: &Patch) -> Result<Type>
+pub fn apply_new<Type>(node: &Type, patch: Patch) -> Result<Type>
 where
     Type: Patchable + Clone,
 {
@@ -180,7 +180,7 @@ where
     tracing::warn!("Merging is work in progress");
 
     for patch in patches {
-        apply(ancestor, &patch)?;
+        apply(ancestor, patch)?;
     }
     Ok(())
 }
@@ -188,9 +188,12 @@ where
 mod differ;
 mod errors;
 mod operation;
+pub use operation::Operation;
 mod patch;
+pub use patch::Patch;
 mod patchable;
-mod value;
+pub mod value;
+pub use value::Value;
 
 mod prelude;
 
@@ -249,7 +252,7 @@ mod tests {
         assert_json_is!(patch.ops, []);
 
         let mut patched = empty.clone();
-        apply(&mut patched, &patch)?;
+        apply(&mut patched, patch)?;
         assert_json_eq!(patched, empty);
 
         // Patching `empty` to `a` should:
@@ -267,7 +270,7 @@ mod tests {
         );
 
         let mut patched = empty;
-        apply(&mut patched, &patch)?;
+        apply(&mut patched, patch)?;
         assert_json_eq!(patched, a);
 
         // Patching `a` to `b` should:
@@ -292,7 +295,7 @@ mod tests {
         );
 
         let mut patched = a;
-        apply(&mut patched, &patch)?;
+        apply(&mut patched, patch)?;
         assert_json_eq!(patched, b);
 
         Ok(())

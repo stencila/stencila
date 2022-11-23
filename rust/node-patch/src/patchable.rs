@@ -20,43 +20,49 @@ pub trait Patchable {
     fn diff(&self, other: &Self, differ: &mut Differ);
 
     /// Apply a patch to this node.
-    fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
+    fn apply_patch(&mut self, patch: Patch) -> Result<()> {
         tracing::trace!("Applying patch to type `{}`", type_name::<Self>());
-        for op in &patch.ops {
+        for op in patch.ops {
             self.apply_op(op)?
         }
         Ok(())
     }
 
     /// Apply an operation to this node.
-    fn apply_op(&mut self, op: &Operation) -> Result<()> {
+    fn apply_op(&mut self, op: Operation) -> Result<()> {
         match op {
-            Operation::Add(Add { address, value, .. }) => {
-                self.apply_add(&mut address.clone(), value)
-            }
-            Operation::Remove(Remove { address, items }) => {
-                self.apply_remove(&mut address.clone(), *items)
+            Operation::Add(Add {
+                mut address, value, ..
+            }) => self.apply_add(&mut address, value),
+            Operation::Remove(Remove { mut address, items }) => {
+                self.apply_remove(&mut address, items)
             }
             Operation::Replace(Replace {
-                address,
+                mut address,
                 items,
                 value,
                 ..
-            }) => self.apply_replace(&mut address.clone(), *items, value),
-            Operation::Move(Move { from, items, to }) => {
-                self.apply_move(&mut from.clone(), *items, &mut to.clone())
-            }
-            Operation::Copy(Copy { from, items, to }) => {
-                self.apply_copy(&mut from.clone(), *items, &mut to.clone())
-            }
-            Operation::Transform(Transform { address, from, to }) => {
-                self.apply_transform(&mut address.clone(), from, to)
-            }
+            }) => self.apply_replace(&mut address, items, value),
+            Operation::Move(Move {
+                mut from,
+                items,
+                mut to,
+            }) => self.apply_move(&mut from, items, &mut to),
+            Operation::Copy(Copy {
+                mut from,
+                items,
+                mut to,
+            }) => self.apply_copy(&mut from, items, &mut to),
+            Operation::Transform(Transform {
+                mut address,
+                from,
+                to,
+            }) => self.apply_transform(&mut address, &from, &to),
         }
     }
 
     /// Apply an `Add` patch operation
-    fn apply_add(&mut self, _address: &mut Address, _value: &Value) -> Result<()> {
+    fn apply_add(&mut self, _address: &mut Address, _value: Value) -> Result<()> {
         bail!(invalid_patch_operation::<Self>("Add"))
     }
 
@@ -70,7 +76,7 @@ pub trait Patchable {
         &mut self,
         _address: &mut Address,
         _items: usize,
-        _value: &Value,
+        _value: Value,
     ) -> Result<()> {
         bail!(invalid_patch_operation::<Self>("Replace"))
     }
@@ -91,7 +97,7 @@ pub trait Patchable {
     }
 
     /// Cast a [`Value`] to an instance of the type
-    fn from_value(value: &Value) -> Result<Self>
+    fn from_value(value: Value) -> Result<Self>
     where
         Self: Clone + DeserializeOwned + Sized + 'static,
     {

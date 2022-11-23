@@ -96,7 +96,7 @@ where
         differ.append(removes);
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: Value) -> Result<()> {
         if address.is_empty() {
             self.clear();
             self.append(&mut Self::from_value(value)?);
@@ -145,7 +145,7 @@ where
         Ok(())
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: Value) -> Result<()> {
         if address.is_empty() {
             if items != 1 {
                 bail!("When applying `Remove` operation to map, `items` should be 1")
@@ -227,7 +227,7 @@ mod tests {
 
         let patch = diff(&a, &a);
         assert_json_is!(patch.ops, []);
-        assert_eq!(apply_new(&a, &patch)?, a);
+        assert_eq!(apply_new(&a, patch)?, a);
 
         let patch = diff(&a, &b);
         assert_json_is!(patch.ops, [{
@@ -237,7 +237,7 @@ mod tests {
             "items": 1,
             "length": 1
         }]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         let patch = diff(&b, &a);
         assert_json_is!(patch.ops, [{
@@ -245,7 +245,7 @@ mod tests {
             "address": [],
             "items": 1
         }]);
-        assert_eq!(apply_new(&b, &patch)?, a);
+        assert_eq!(apply_new(&b, patch)?, a);
 
         let patch = diff(&b, &c);
         assert_json_is!(patch.ops, [{
@@ -254,7 +254,7 @@ mod tests {
             "value": 2,
             "length": 1
         }]);
-        assert_eq!(apply_new(&b, &patch)?, c);
+        assert_eq!(apply_new(&b, patch)?, c);
 
         let patch = diff(&c, &d);
         assert_json_is!(patch.ops, [{
@@ -264,7 +264,7 @@ mod tests {
             "value": 3,
             "length": 1
         }]);
-        assert_eq!(apply_new(&c, &patch)?, d);
+        assert_eq!(apply_new(&c, patch)?, d);
 
         let patch = diff(&d, &e);
         assert_json_is!(patch.ops, [{
@@ -273,7 +273,7 @@ mod tests {
             "to": ["c"],
             "items": 1
         }]);
-        assert_eq!(apply_new(&d, &patch)?, e);
+        assert_eq!(apply_new(&d, patch)?, e);
 
         let patch = diff(&e, &d);
         assert_json_is!(patch.ops, [{
@@ -282,7 +282,7 @@ mod tests {
             "to": ["b"],
             "items": 1
         }]);
-        assert_eq!(apply_new(&e, &patch)?, d);
+        assert_eq!(apply_new(&e, patch)?, d);
 
         Ok(())
     }

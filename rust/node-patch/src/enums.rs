@@ -16,7 +16,7 @@ macro_rules! patchable_variants_diff {
 /// Generate the `apply_add` method for an `enum` having variants of different types
 macro_rules! patchable_variants_apply_add {
     ($( $variant:path )*) => {
-        fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+        fn apply_add(&mut self, address: &mut Address, value: Value) -> Result<()> {
             match self {
                 $(
                     $variant(me) => me.apply_add(address, value),
@@ -46,7 +46,7 @@ macro_rules! patchable_variants_apply_remove {
 /// Generate the `apply_replace` method for an `enum` having variants of different types
 macro_rules! patchable_variants_apply_replace {
     ($( $variant:path )*) => {
-        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+        fn apply_replace(&mut self, address: &mut Address, items: usize, value: Value) -> Result<()> {
             match self {
                 $(
                     $variant(me) => me.apply_replace(address, items, value),
@@ -102,7 +102,7 @@ macro_rules! patchable_enum {
                 &mut self,
                 _address: &mut Address,
                 _items: usize,
-                value: &Value,
+                value: Value,
             ) -> Result<()> {
                 *self = Self::from_value(value)?;
                 Ok(())

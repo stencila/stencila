@@ -18,7 +18,7 @@ impl Patchable for InlineContent {
         )
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: Value) -> Result<()> {
         dispatch_inline!(self, apply_add, address, value)
     }
 
@@ -26,7 +26,7 @@ impl Patchable for InlineContent {
         dispatch_inline!(self, apply_remove, address, items)
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: Value) -> Result<()> {
         if address.is_empty() {
             *self = Self::from_value(value)?;
             Ok(())
@@ -318,7 +318,7 @@ mod tests {
             {"type": "Remove", "address": [2], "items": 1},
             {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
         ]);
-        assert_json_eq!(apply_new(&a, &patch)?, b);
+        assert_json_eq!(apply_new(&a, patch)?, b);
 
         // Nested
         let a = InlineContent::Strikeout(Strikeout {
@@ -337,7 +337,7 @@ mod tests {
         assert_json_is!(patch.ops, [
             {"type": "Remove", "address": ["content", 0, 2], "items": 2},
         ]);
-        assert_json_eq!(apply_new(&a, &patch)?, b);
+        assert_json_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -359,25 +359,25 @@ mod tests {
         assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "String", "to": "Emphasis"}
         ]);
-        assert_json_eq!(apply_new(&a, &patch)?, b);
+        assert_json_eq!(apply_new(&a, patch)?, b);
 
         let patch = diff(&b, &a);
         assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Emphasis", "to": "String"}
         ]);
-        assert_json_eq!(apply_new(&b, &patch)?, a);
+        assert_json_eq!(apply_new(&b, patch)?, a);
 
         let patch = diff(&b, &c);
         assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Emphasis", "to": "Strong"}
         ]);
-        assert_json_eq!(apply_new(&b, &patch)?, c);
+        assert_json_eq!(apply_new(&b, patch)?, c);
 
         let patch = diff(&c, &b);
         assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Strong", "to": "Emphasis"}
         ]);
-        assert_json_eq!(apply_new(&c, &patch)?, b);
+        assert_json_eq!(apply_new(&c, patch)?, b);
 
         Ok(())
     }
@@ -399,7 +399,7 @@ mod tests {
                 "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&a, &patch)?, b);
+        assert_json_eq!(apply_new(&a, patch)?, b);
 
         let patch = diff(&b, &a);
         assert_json_is!(patch.ops, [
@@ -409,7 +409,7 @@ mod tests {
                 "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&b, &patch)?, a);
+        assert_json_eq!(apply_new(&b, patch)?, a);
 
         Ok(())
     }
@@ -435,7 +435,7 @@ mod tests {
                 "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&a, &patch)?, b);
+        assert_json_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -476,7 +476,7 @@ mod tests {
                 "value": [{ "type": "AudioObject", "contentUrl": "a.flac"}], "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&a, &patch)?, b);
+        assert_json_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -500,7 +500,7 @@ mod tests {
                 "length": 1
             },
         ]);
-        assert_json_eq!(apply_new(&a, &patch)?, b);
+        assert_json_eq!(apply_new(&a, patch)?, b);
 
         let patch: Patch = serde_json::from_value(json!({
             "ops": [
@@ -513,7 +513,7 @@ mod tests {
                 },
             ]
         }))?;
-        assert_json_eq!(apply_new(&a, &patch)?, b);
+        assert_json_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }

@@ -111,7 +111,7 @@ impl Patchable for String {
         differ.append(ops)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: Value) -> Result<()> {
         let value = Self::from_value(value)?;
         if let Some(Slot::Index(index)) = address.pop_front() {
             let graphemes = self.graphemes(true).collect_vec();
@@ -158,7 +158,7 @@ impl Patchable for String {
         }
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: Value) -> Result<()> {
         let value = Self::from_value(value)?;
         if address.is_empty() {
             *self = value
@@ -216,21 +216,21 @@ mod tests {
             patch.ops,
             [{ "type": "Add", "address": [0], "value": "1", "length": 1 }]
         );
-        assert_eq!(apply_new(&empty, &patch)?, a);
+        assert_eq!(apply_new(&empty, patch)?, a);
 
         let patch = diff(&empty, &d);
         assert_json_is!(
             patch.ops,
             [{ "type": "Add", "address": [0], "value": "abcdef", "length": 6 }]
         );
-        assert_eq!(apply_new(&empty, &patch)?, d);
+        assert_eq!(apply_new(&empty, patch)?, d);
 
         let patch = diff(&a, &b);
         assert_json_is!(
             patch.ops,
             [{ "type": "Add", "address": [1], "value": "23", "length": 2 }]
         );
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         // Remove
 
@@ -259,14 +259,14 @@ mod tests {
             patch.ops,
             [{ "type": "Replace", "address": [0], "items": 1, "value": "a2b3", "length": 4 }]
         );
-        assert_eq!(apply_new(&a, &patch)?, c);
+        assert_eq!(apply_new(&a, patch)?, c);
 
         let patch = diff(&b, &d);
         assert_json_is!(
             patch.ops,
             [{ "type": "Replace", "address": [0], "items": 3, "value": "abcdef", "length": 6 }]
         );
-        assert_eq!(apply_new(&b, &patch)?, d);
+        assert_eq!(apply_new(&b, patch)?, d);
 
         // Mixed
 
@@ -278,7 +278,7 @@ mod tests {
                 { "type": "Replace", "address": [2], "items": 1, "value": "cdef", "length": 4 }
             ]
         );
-        assert_eq!(apply_new(&c, &patch)?, d);
+        assert_eq!(apply_new(&c, patch)?, d);
 
         let patch = diff(&d, &c);
         assert_json_is!(
@@ -288,7 +288,7 @@ mod tests {
                 { "type": "Replace", "address": [3], "items": 4, "value": "3", "length": 1 }
             ]
         );
-        assert_eq!(apply_new(&d, &patch)?, c);
+        assert_eq!(apply_new(&d, patch)?, c);
 
         let patch = diff(&d, &e);
         assert_json_is!(
@@ -299,7 +299,7 @@ mod tests {
                 { "type": "Remove", "address": [6], "items": 1 }
             ]
         );
-        assert_eq!(apply_new(&d, &patch)?, e);
+        assert_eq!(apply_new(&d, patch)?, e);
 
         Ok(())
     }
@@ -318,21 +318,21 @@ mod tests {
         assert_json_is!(patch.ops, [
             { "type": "Add", "address": [1], "value": "1👍🏻2", "length": 3 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         let patch = diff(&b, &c);
         assert_json_is!(patch.ops, [
             { "type": "Remove", "address": [0], "items": 1 },
             { "type": "Replace", "address": [1], "items": 1, "value": "👍🏿", "length": 1 },
         ]);
-        assert_eq!(apply_new(&b, &patch)?, c);
+        assert_eq!(apply_new(&b, patch)?, c);
 
         let patch = diff(&c, &b);
         assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0], "value": "ä", "length": 1 },
             { "type": "Replace", "address": [2], "items": 1, "value": "👍🏻", "length": 1 },
         ]);
-        assert_eq!(apply_new(&c, &patch)?, b);
+        assert_eq!(apply_new(&c, patch)?, b);
 
         // 🌷 and 🎁 = 2 Unicode chars each
         // 🏳️‍🌈 = 6 Unicode chars
@@ -344,14 +344,14 @@ mod tests {
             { "type": "Add", "address": [0], "value": "🎁🏳️‍🌈", "length": 2 },
             { "type": "Remove", "address": [3], "items": 2 },
         ]);
-        assert_eq!(apply_new(&d, &patch)?, e);
+        assert_eq!(apply_new(&d, patch)?, e);
 
         let patch = diff(&e, &d);
         assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0], "value": "🌷🏳️‍🌈", "length": 2 },
             { "type": "Remove", "address": [3], "items": 2 },
         ]);
-        assert_eq!(apply_new(&e, &patch)?, d);
+        assert_eq!(apply_new(&e, patch)?, d);
 
         Ok(())
     }
@@ -368,7 +368,7 @@ mod tests {
             { "type": "Remove", "address": [0], "items": 1 },
             { "type": "Add", "address": [1], "value": "c", "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -385,7 +385,7 @@ mod tests {
                 { "type": "Add", "address": [2], "value": "d", "length": 1 },
             ]
         );
-        assert_eq!(apply_new(&a, &patch)?, b);
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }

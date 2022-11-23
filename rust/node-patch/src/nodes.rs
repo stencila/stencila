@@ -35,7 +35,7 @@ macro_rules! patchable_node_variants {
                 }
             }
 
-            fn from_value(value: &Value) -> Result<Self>
+            fn from_value(value: Value) -> Result<Self>
             where
                 Self: Clone + Sized + 'static,
             {

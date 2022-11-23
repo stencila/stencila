@@ -15,7 +15,7 @@ where
         self.deref().diff(other, differ)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: Value) -> Result<()> {
         self.deref_mut().apply_add(address, value)
     }
 
@@ -23,7 +23,7 @@ where
         self.deref_mut().apply_remove(address, items)
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: Value) -> Result<()> {
         self.deref_mut().apply_replace(address, items, value)
     }
 
@@ -39,7 +39,7 @@ where
     ///
     /// If the value is a `Box<Type>`: then just use it. Otherwise, attempt to convert
     /// to and instance of `Type` and then box it.
-    fn from_value(value: &Value) -> Result<Self> {
+    fn from_value(value: Value) -> Result<Self> {
         let instance = if let Some(value) = value.downcast_ref::<Self>() {
             value.clone()
         } else {
@@ -70,7 +70,7 @@ mod tests {
                 {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
             ]
         );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -87,7 +87,7 @@ mod tests {
         assert_json_is!(patch.ops, [
             { "type": "Add", "address": ["programmingLanguage"], "value": "a", "length": 1 },
         ]);
-        assert_json_eq!(apply_new(&a, &patch)?, b);
+        assert_json_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }

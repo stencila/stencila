@@ -23,7 +23,7 @@ where
         }
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: Value) -> Result<()> {
         if address.is_empty() {
             *self = Self::from_value(value)?;
             Ok(())
@@ -49,7 +49,7 @@ where
         }
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: Value) -> Result<()> {
         if address.is_empty() {
             *self = Self::from_value(value)?;
             Ok(())
@@ -78,7 +78,7 @@ where
         }
     }
 
-    fn from_value(value: &Value) -> Result<Self> {
+    fn from_value(value: Value) -> Result<Self> {
         // If value is `Null`, or JSON `null` then set `Option` to `None`
         Ok(if let Some(..) = value.downcast_ref::<Null>() {
             None
@@ -116,7 +116,7 @@ mod tests {
             patch.ops,
             [{"type": "Add", "address": [], "value": "abc".to_string(), "length": 1}]
         );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         // Some to Some: Add with a key
         let a = Some("a".to_string());
@@ -126,7 +126,7 @@ mod tests {
             patch.ops,
             [{"type": "Add", "address": [1], "value": "bc".to_string(), "length": 2}]
         );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         // Some to None: Remove with no key
         let a = Some("abc".to_string());
@@ -136,7 +136,7 @@ mod tests {
             patch.ops,
             [{"type": "Remove", "address": [], "items": 1}]
         );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         // Some to Some: Remove with key
         let a = Some("abc".to_string());
@@ -146,7 +146,7 @@ mod tests {
             patch.ops,
             [{"type": "Remove", "address": [1], "items": 1}]
         );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         // Replace
         let a = Some("abc".to_string());
@@ -156,7 +156,7 @@ mod tests {
             patch.ops,
             [{"type": "Replace", "address": [1], "items": 1, "value": "@", "length": 1}]
         );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
