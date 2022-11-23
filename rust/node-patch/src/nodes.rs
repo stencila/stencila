@@ -1,5 +1,4 @@
-use common::serde_json;
-use stencila_schema::{Node, Number};
+use stencila_schema::Node;
 
 use super::prelude::*;
 
@@ -35,6 +34,7 @@ macro_rules! patchable_node_variants {
                 }
             }
 
+            /*
             fn from_value(value: Value) -> Result<Self>
             where
                 Self: Clone + Sized + 'static,
@@ -57,6 +57,7 @@ macro_rules! patchable_node_variants {
                 }
                 bail!(invalid_patch_value::<Self>())
             }
+            */
         }
     };
 }

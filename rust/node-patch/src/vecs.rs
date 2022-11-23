@@ -1,15 +1,11 @@
 use std::{
-    any::type_name,
     cmp::min,
     collections::{hash_map::Entry, HashMap},
     hash::{Hash, Hasher},
-    ops::Deref,
     time::{Duration, Instant},
 };
 
 use similar::DiffOp;
-
-use common::{serde::de::DeserializeOwned, serde_json};
 
 use super::prelude::*;
 
@@ -17,9 +13,9 @@ use super::prelude::*;
 const DIFF_TIMEOUT_SECS: u64 = 1;
 
 /// Implements patching for vectors
-impl<Type: Patchable> Patchable for Vec<Type>
+impl<Type> Patchable for Vec<Type>
 where
-    Type: Clone + PartialEq + Hash + DeserializeOwned + Send + 'static,
+    Type: Patchable + Clone + PartialEq + Hash,
 {
     /// Generate the difference between two vectors.
     ///
@@ -32,17 +28,13 @@ where
         if self.is_empty() && other.is_empty() {
             return;
         } else if self.is_empty() && !other.is_empty() {
-            return differ.append(vec![Operation::Add(Add {
-                address: Address::from(0),
-                value: Value::any(other.clone()),
-                length: other.len(),
-                html: None,
-            })]);
+            return differ.append(vec![Operation::add(
+                Address::from(0),
+                other.to_value(),
+                other.len(),
+            )]);
         } else if !self.is_empty() && other.is_empty() {
-            return differ.append(vec![Operation::Remove(Remove {
-                address: Address::from(0),
-                items: self.len(),
-            })]);
+            return differ.append(vec![Operation::remove(Address::from(0), self.len())]);
         }
 
         let (me_ids, other_ids) = unique_items(self, other);
@@ -126,12 +118,11 @@ where
                         }
                     }
                     if !matched {
-                        ops.push(Operation::Add(Add {
-                            address: Address::from(index),
-                            value: Value::any(added_value),
-                            length: new_len,
-                            html: None,
-                        }))
+                        ops.push(Operation::add(
+                            Address::from(index),
+                            added_value.to_value(),
+                            new_len,
+                        ))
                     }
 
                     index += new_len
@@ -155,11 +146,9 @@ where
                             }) => {
                                 if address.len() == 1 {
                                     shift -= *length as i32;
-                                    let added_value = value
-                                        .deref()
-                                        .downcast_ref::<Self>()
+                                    let added_value = Vec::<Type>::from_value(value.clone())
                                         .expect("To be a Vec<Type>");
-                                    if *added_value == removed_value {
+                                    if added_value == removed_value {
                                         ops[prev] = Operation::Move(Move {
                                             from: Address::from((index as i32 + shift) as usize),
                                             items: old_len,
@@ -227,36 +216,11 @@ where
                             {
                                 // at the root of the item.
                                 if address.len() == 1 {
-                                    // Then, if the previous operation is a `Replace` at the root
-                                    if let Some(Operation::Replace(Replace {
-                                        address: last_address,
-                                        items: last_items,
-                                        value: last_value,
-                                        length: last_length,
-                                        ..
-                                    })) = replace_ops.last_mut()
-                                    {
-                                        if last_address.len() == 1 {
-                                            *last_items += 1;
-                                            last_value
-                                                .downcast_mut::<Vec<Type>>()
-                                                .expect("To be a Vec<Type>")
-                                                .push(other[new_index + item_index].clone());
-                                            *last_length += 1;
-                                            continue;
-                                        }
-                                    }
-
                                     // Otherwise, add it
-                                    replace_ops.push(Operation::Replace(Replace {
-                                        address: address.clone(),
-                                        items: 1,
-                                        value: Value::any(vec![
-                                            other[new_index + item_index].clone()
-                                        ]),
-                                        length: 1,
-                                        html: None,
-                                    }));
+                                    replace_ops.push(Operation::replace_one(
+                                        address.clone(),
+                                        vec![other[new_index + item_index].clone()].to_value(),
+                                    ));
                                     continue;
                                 }
                             }
@@ -269,14 +233,13 @@ where
                     if new_len > old_len {
                         // Add remaining items
                         let length = new_len - old_len;
-                        replace_ops.push(Operation::Add(Add {
-                            address: Address::from(index),
-                            value: Value::any(
-                                other[(new_index + old_len)..(new_index + new_len)].to_vec(),
-                            ),
+                        replace_ops.push(Operation::add(
+                            Address::from(index),
+                            other[(new_index + old_len)..(new_index + new_len)]
+                                .to_vec()
+                                .to_value(),
                             length,
-                            html: None,
-                        }));
+                        ));
                         index += length;
                     } else if new_len < old_len {
                         // If the last op was a `Replace` at level of the vector, them just add to
@@ -291,10 +254,8 @@ where
                             }
                         }
                         if remove {
-                            replace_ops.push(Operation::Remove(Remove {
-                                address: Address::from(index),
-                                items: old_len - new_len,
-                            }));
+                            replace_ops
+                                .push(Operation::remove(Address::from(index), old_len - new_len));
                             removes.insert(index, (old_index, old_len));
                         }
                     }
@@ -475,6 +436,7 @@ where
         Ok(())
     }
 
+    /*
     /// Cast a [`Value`] to a `Vec<Type>`
     ///
     /// Why? To be able to handle single items of `Type` in addition to a `Vec<Type>`
@@ -503,6 +465,7 @@ where
         };
         Ok(instance)
     }
+    */
 }
 
 /// An item used in the hash map for the `unique_items` function below
@@ -603,13 +566,12 @@ mod tests {
         assert_eq!(apply_new(&b, patch)?, empty);
 
         let patch = Patch {
-            ops: vec![Operation::Replace(Replace {
-                address: Address::default(),
-                items: 2,
-                value: Value::any(vec![5, 6, 7]),
-                length: 3,
-                html: None,
-            })],
+            ops: vec![Operation::replace(
+                Address::default(),
+                2,
+                vec![5, 6, 7].to_value(),
+                3,
+            )],
             ..Default::default()
         };
         assert_eq!(apply_new(&vec![1, 2], patch)?, vec![5, 6, 7]);
@@ -643,7 +605,10 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json_is!(
             patch.ops,
-            [{ "type": "Replace", "address": [0], "items": 2, "value": [3, 4], "length": 2 }]
+            [
+                { "type": "Replace", "address": [0], "items": 1, "value": [3], "length": 1 },
+                { "type": "Replace", "address": [1], "items": 1, "value": [4], "length": 1 }
+            ]
         );
         assert_eq!(apply_new(&a, patch)?, b);
 
@@ -817,7 +782,9 @@ mod tests {
         let b = vec![2, 2, 0];
         let patch = diff(&a, &b);
         assert_json_is!(patch.ops, [
-            { "type": "Replace", "address": [0], "items": 4, "value": [2, 2, 0], "length": 3 },
+            { "type": "Replace", "address": [0], "items": 1, "value": [2], "length": 1 },
+            { "type": "Replace", "address": [1], "items": 1, "value": [2], "length": 1 },
+            { "type": "Replace", "address": [2], "items": 2, "value": [0], "length": 1 },
         ]);
         assert_eq!(apply_new(&a, patch)?, b);
 

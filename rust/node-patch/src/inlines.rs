@@ -1,7 +1,9 @@
-use super::prelude::*;
 use codec_txt::ToTxt;
+use common::serde_json;
 use node_dispatch::{dispatch_inline, dispatch_inline_pair};
 use stencila_schema::*;
+
+use super::prelude::*;
 
 /// Implements patching for `InlineContent`
 ///
@@ -46,6 +48,18 @@ impl Patchable for InlineContent {
             Ok(())
         } else {
             dispatch_inline!(self, apply_transform, address, from, to)
+        }
+    }
+
+    fn to_value(&self) -> Value {
+        Value::Inline(self.clone())
+    }
+
+    fn from_value(value: Value) -> Result<Self> {
+        match value {
+            Value::Inline(node) => Ok(node),
+            Value::Json(json) => Ok(serde_json::from_value::<Self>(json)?),
+            _ => bail!(invalid_patch_value::<Self>(value)),
         }
     }
 }
@@ -260,13 +274,7 @@ macro_rules! patchable_media_object {
                        (self.content_url.starts_with("data:") || other.content_url.starts_with("data:")) &&
                        self.content_url != other.content_url {
                         differ.push(
-                            Operation::Replace(Replace {
-                                address: Address::from("content_url"),
-                                items: 1,
-                                value: Value::any(other.content_url.clone()),
-                                length: 1,
-                                html: None,
-                            })
+                            Operation::replace_one(Address::from("content_url"), other.to_value())
                         )
                     } else {
                         differ.field(field, &self.$field, &other.$field);

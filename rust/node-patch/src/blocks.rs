@@ -1,6 +1,8 @@
-use super::prelude::*;
+use common::serde_json;
 use node_dispatch::{dispatch_block, dispatch_block_pair};
 use stencila_schema::*;
+
+use super::prelude::*;
 
 /// Implements patching for `BlockContent`
 ///
@@ -45,6 +47,18 @@ impl Patchable for BlockContent {
             Ok(())
         } else {
             dispatch_block!(self, apply_transform, address, from, to)
+        }
+    }
+
+    fn to_value(&self) -> Value {
+        Value::Block(self.clone())
+    }
+
+    fn from_value(value: Value) -> Result<Self> {
+        match value {
+            Value::Block(node) => Ok(node),
+            Value::Json(json) => Ok(serde_json::from_value::<Self>(json)?),
+            _ => bail!(invalid_patch_value::<Self>(value)),
         }
     }
 }

@@ -1,15 +1,13 @@
-use common::defaults::Defaults;
 use node_address::{Address, Slot};
 
 use crate::{
     operation::{Add, Copy, Move, Operation, Remove, Replace, Transform},
     patchable::Patchable,
-    value::Value,
 };
 
 /// A differencing `struct` used as an optimization to track the address describing the
 /// current location in a node tree while walking over it.
-#[derive(Defaults)]
+#[derive(Default)]
 pub struct Differ {
     /// The list of address describing the current location in a node tree.
     pub(crate) address: Address,
@@ -97,40 +95,27 @@ impl Differ {
     }
 
     /// Add an `Add` operation to the patch.
-    pub fn add<Type: Clone + Send + 'static>(&mut self, value: &Type) {
-        self.ops.push(Operation::Add(Add {
-            address: self.address.clone(),
-            value: Value::any(value.clone()),
-            length: 1,
-            html: None,
-        }))
+    pub fn add<P: Patchable>(&mut self, value: &P) {
+        self.ops
+            .push(Operation::add_one(self.address.clone(), value.to_value()))
     }
 
     /// Add a `Remove` operation to the patch.
     pub fn remove(&mut self) {
-        self.ops.push(Operation::Remove(Remove {
-            address: self.address.clone(),
-            items: 1,
-        }))
+        self.ops.push(Operation::remove_one(self.address.clone()))
     }
 
     /// Add a `Replace` operation to the patch.
-    pub fn replace<Type: Clone + Send + 'static>(&mut self, value: &Type) {
-        self.ops.push(Operation::Replace(Replace {
-            address: self.address.clone(),
-            items: 1,
-            value: Value::any(value.clone()),
-            length: 1,
-            html: None,
-        }))
+    pub fn replace<P: Patchable>(&mut self, value: &P) {
+        self.ops.push(Operation::replace_one(
+            self.address.clone(),
+            value.to_value(),
+        ))
     }
 
     /// Add a `Transform` operation to the patch.
     pub fn transform(&mut self, from: &str, to: &str) {
-        self.ops.push(Operation::Transform(Transform {
-            address: self.address.clone(),
-            from: from.into(),
-            to: to.into(),
-        }))
+        self.ops
+            .push(Operation::transform(self.address.clone(), from, to))
     }
 }

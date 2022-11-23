@@ -1,6 +1,3 @@
-use common::{serde::de::DeserializeOwned, serde_json};
-use stencila_schema::Null;
-
 use super::prelude::*;
 
 /// Implements patching for `Option`
@@ -10,10 +7,7 @@ use super::prelude::*;
 /// When applying `Add` and `Remove` operations, if there are no address
 /// then apply here, otherwise pass operation through to any value.
 /// All other operations passed through.
-impl<Type: Patchable> Patchable for Option<Type>
-where
-    Type: Clone + DeserializeOwned + Send + 'static,
-{
+impl<Type: Patchable> Patchable for Option<Type> {
     fn diff(&self, other: &Self, differ: &mut Differ) {
         match (self, other) {
             (None, None) => (),
@@ -78,19 +72,22 @@ where
         }
     }
 
+    fn to_value(&self) -> Value {
+        match self {
+            Some(value) => value.to_value(),
+            None => Value::Null,
+        }
+    }
+
     fn from_value(value: Value) -> Result<Self> {
-        // If value is `Null`, or JSON `null` then set `Option` to `None`
-        Ok(if let Some(..) = value.downcast_ref::<Null>() {
-            None
-        } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-            if matches!(value, serde_json::Value::Null) {
-                None
-            } else {
-                Some(Type::from_json_value(value)?)
-            }
-        } else {
-            Some(Type::from_value(value)?)
-        })
+        match &value {
+            Value::Null => Ok(None),
+            Value::Json(json) => match json.is_null() {
+                true => Ok(None),
+                false => Ok(Some(Type::from_value(value)?)),
+            },
+            _ => Ok(Some(Type::from_value(value)?)),
+        }
     }
 }
 

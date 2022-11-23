@@ -1,15 +1,13 @@
 use std::collections::BTreeMap;
 
-use common::serde::de::DeserializeOwned;
-
 use super::prelude::*;
 
 /// Implements `Patchable` for `BTreeMap<String, Type>`
 ///
 /// This is mainly provided for `impl Patchable for Object`.
-impl<Type: Patchable> Patchable for BTreeMap<String, Type>
+impl<Type> Patchable for BTreeMap<String, Type>
 where
-    Type: Clone + PartialEq + DeserializeOwned + Send + 'static,
+    Type: Patchable + PartialEq,
 {
     fn diff(&self, other: &Self, differ: &mut Differ) {
         // Shortcuts
@@ -66,12 +64,10 @@ where
             .into_iter()
             .filter_map(|(matched, key, value)| {
                 if !matched {
-                    Some(Operation::Add(Add {
-                        address: Address::from(key.as_str()),
-                        value: Value::any(value.clone()),
-                        length: 1,
-                        html: None,
-                    }))
+                    Some(Operation::add_one(
+                        Address::from(key.as_str()),
+                        value.to_value(),
+                    ))
                 } else {
                     None
                 }
@@ -84,10 +80,7 @@ where
             .into_iter()
             .filter_map(|(matched, key, ..)| {
                 if !matched {
-                    Some(Operation::Remove(Remove {
-                        address: Address::from(key.as_str()),
-                        items: 1,
-                    }))
+                    Some(Operation::remove_one(Address::from(key.as_str())))
                 } else {
                     None
                 }
@@ -233,7 +226,7 @@ mod tests {
         assert_json_is!(patch.ops, [{
             "type": "Replace",
             "address": [],
-            "value": "<unserialized type>",
+            "value": {"a": 1},
             "items": 1,
             "length": 1
         }]);

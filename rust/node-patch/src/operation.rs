@@ -3,8 +3,8 @@ use std::fmt::Debug;
 use schemars::JsonSchema;
 
 use common::{
+    defaults::Defaults,
     serde::{Deserialize, Serialize},
-    serde_json,
     serde_with::skip_serializing_none,
     strum::Display,
 };
@@ -43,7 +43,7 @@ use crate::value::Value;
 /// Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode
 /// graphemes, not bytes.
 #[skip_serializing_none]
-#[derive(Debug, Display, JsonSchema, Serialize, Deserialize)]
+#[derive(Clone, Debug, Display, JsonSchema, Serialize, Deserialize)]
 #[serde(tag = "type", crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub enum Operation {
@@ -66,9 +66,24 @@ impl Operation {
         })
     }
 
+    /// Create an add operation to add one item
+    pub fn add_one(address: Address, value: Value) -> Self {
+        Operation::Add(Add {
+            address,
+            value,
+            length: 1,
+            html: None,
+        })
+    }
+
     /// Create a remove operation
     pub fn remove(address: Address, items: usize) -> Self {
         Operation::Remove(Remove { address, items })
+    }
+
+    /// Create remove operation to remove one item
+    pub fn remove_one(address: Address) -> Self {
+        Operation::Remove(Remove { address, items: 1 })
     }
 
     /// Create a replace operation
@@ -78,6 +93,17 @@ impl Operation {
             items,
             value,
             length,
+            html: None,
+        })
+    }
+
+    /// Create a replace operation to replace one item
+    pub fn replace_one(address: Address, value: Value) -> Self {
+        Operation::Replace(Replace {
+            address,
+            value,
+            items: 1,
+            length: 1,
             html: None,
         })
     }
@@ -104,8 +130,8 @@ impl Operation {
 
 /// Add a value
 #[skip_serializing_none]
-#[derive(Debug, JsonSchema, Serialize, Deserialize)]
-#[serde(tag = "type", crate = "common::serde")]
+#[derive(Clone, Debug, Defaults, JsonSchema, Serialize, Deserialize)]
+#[serde(tag = "type", default, crate = "common::serde")]
 pub struct Add {
     /// The address to which to add the value
     pub address: Address,
@@ -115,6 +141,7 @@ pub struct Add {
     pub value: Value,
 
     /// The number of items added
+    #[def = "1"]
     pub length: usize,
 
     /// The HTML encoding of `value`
@@ -123,7 +150,7 @@ pub struct Add {
 
 /// Remove one or more values
 #[skip_serializing_none]
-#[derive(Debug, JsonSchema, Serialize, Deserialize)]
+#[derive(Clone, Debug, JsonSchema, Serialize, Deserialize)]
 #[serde(tag = "type", crate = "common::serde")]
 pub struct Remove {
     /// The address from which to remove the value(s)
@@ -135,8 +162,8 @@ pub struct Remove {
 
 /// Replace one or more values
 #[skip_serializing_none]
-#[derive(Debug, JsonSchema, Serialize, Deserialize)]
-#[serde(tag = "type", crate = "common::serde")]
+#[derive(Clone, Debug, Defaults, JsonSchema, Serialize, Deserialize)]
+#[serde(tag = "type", default, crate = "common::serde")]
 pub struct Replace {
     /// The address which should be replaced
     pub address: Address,
@@ -149,6 +176,7 @@ pub struct Replace {
     pub value: Value,
 
     /// The number of items added
+    #[def = "1"]
     pub length: usize,
 
     /// The HTML encoding of `value`
@@ -157,7 +185,7 @@ pub struct Replace {
 
 /// Move a value from one address to another
 #[skip_serializing_none]
-#[derive(Debug, JsonSchema, Serialize, Deserialize)]
+#[derive(Clone, Debug, JsonSchema, Serialize, Deserialize)]
 #[serde(tag = "type", crate = "common::serde")]
 pub struct Move {
     /// The address from which to remove the value
@@ -172,7 +200,7 @@ pub struct Move {
 
 /// Copy a value from one address to another
 #[skip_serializing_none]
-#[derive(Debug, JsonSchema, Serialize, Deserialize)]
+#[derive(Clone, Debug, JsonSchema, Serialize, Deserialize)]
 #[serde(tag = "type", crate = "common::serde")]
 pub struct Copy {
     /// The address from which to copy the value
@@ -187,7 +215,7 @@ pub struct Copy {
 
 /// Transform a value from one type to another
 #[skip_serializing_none]
-#[derive(Debug, JsonSchema, Serialize, Deserialize)]
+#[derive(Clone, Debug, JsonSchema, Serialize, Deserialize)]
 #[serde(tag = "type", crate = "common::serde")]
 pub struct Transform {
     /// The address of the `Node` to transform
@@ -198,30 +226,4 @@ pub struct Transform {
 
     /// The type of `Node` to transform to
     pub to: String,
-}
-
-impl Operation {
-    /// Set the `html` field from the `value` field
-    pub fn html_set(&mut self, root: &stencila_schema::Node) {
-        match self {
-            Operation::Add(Add { value, html, .. })
-            | Operation::Replace(Replace { value, html, .. }) => {
-                // As an optimization, if the patch value is string-like
-                // (but not if it is a `InlineContent::String` or `Node::String`), then there
-                // is no need to generate HTML since it is the same as the value and the `web`
-                // module will fallback to `value` if necessary.
-                if value.is::<String>() {
-                    return;
-                }
-                if let Some(value) = value.downcast_mut::<serde_json::Value>() {
-                    if value.is_string() {
-                        return;
-                    }
-                }
-
-                *html = value.to_html(root)
-            }
-            _ => {}
-        }
-    }
 }

@@ -1,16 +1,11 @@
 use std::ops::{Deref, DerefMut};
 
-use common::serde::de::DeserializeOwned;
-
 use super::prelude::*;
 
 /// Implements patching for `Box`
 ///
-/// All methods simply pass throught to the boxed value.
-impl<Type: Patchable> Patchable for Box<Type>
-where
-    Type: Clone + DeserializeOwned + Send + 'static,
-{
+/// All methods simply pass through to the boxed value.
+impl<Type: Patchable> Patchable for Box<Type> {
     fn diff(&self, other: &Self, differ: &mut Differ) {
         self.deref().diff(other, differ)
     }
@@ -35,17 +30,12 @@ where
         self.deref_mut().apply_transform(address, from, to)
     }
 
-    /// Cast a [`Value`] to a `Box<Type>` instance
-    ///
-    /// If the value is a `Box<Type>`: then just use it. Otherwise, attempt to convert
-    /// to and instance of `Type` and then box it.
+    fn to_value(&self) -> Value {
+        self.deref().to_value()
+    }
+
     fn from_value(value: Value) -> Result<Self> {
-        let instance = if let Some(value) = value.downcast_ref::<Self>() {
-            value.clone()
-        } else {
-            Box::new(Type::from_value(value)?)
-        };
-        Ok(instance)
+        Ok(Box::new(Type::from_value(value)?))
     }
 }
 

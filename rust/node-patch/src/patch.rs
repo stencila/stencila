@@ -15,7 +15,7 @@ use crate::operation::{Add, Copy, Move, Operation, Remove, Replace, Transform};
 
 /// A set of [`Operation`]s
 #[skip_serializing_none]
-#[derive(Debug, Default, JsonSchema, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, JsonSchema, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 #[schemars(deny_unknown_fields)]
 pub struct Patch {
@@ -132,14 +132,20 @@ impl Patch {
 
     /// Prepare the patch for publishing
     ///
-    /// The main purpose of this function is to generate HTML for each `Add` and `Replace`
-    /// operation in the patch before it is sent to clients.
+    /// The main purpose of this function is to attach a version number and
+    /// generate HTML for each `Add` and `Replace` operation in the patch before it is sent to clients.
     #[tracing::instrument(skip(self, root))]
     pub fn prepublish(&mut self, version: u64, root: &Node) -> &mut Self {
         self.version = Some(version);
+
         for op in self.ops.iter_mut() {
-            op.html_set(root);
+            match op {
+                Operation::Add(Add { value, html, .. })
+                | Operation::Replace(Replace { value, html, .. }) => *html = value.to_html(root),
+                _ => {}
+            }
         }
+
         self
     }
 }

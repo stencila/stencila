@@ -4,6 +4,7 @@ use similar::{ChangeTag, TextDiff};
 use unicode_segmentation::UnicodeSegmentation;
 
 use common::itertools::Itertools;
+use common::serde_json;
 
 use super::prelude::*;
 
@@ -94,13 +95,13 @@ impl Patchable for String {
                         ops.push(Operation::replace(
                             address,
                             items,
-                            Value::any(value.clone()),
+                            value.to_value(),
                             value.graphemes(true).count(),
                         ));
                     } else {
                         ops.push(Operation::add(
                             address,
-                            Value::any(value.clone()),
+                            value.to_value(),
                             value.graphemes(true).count(),
                         ));
                     }
@@ -183,6 +184,18 @@ impl Patchable for String {
             *self = graphemes.into_iter().collect();
         }
         Ok(())
+    }
+
+    fn to_value(&self) -> Value {
+        Value::String(self.clone())
+    }
+
+    fn from_value(value: Value) -> Result<Self> {
+        match value {
+            Value::String(string) => Ok(string),
+            Value::Json(json) => Ok(serde_json::from_value::<Self>(json)?),
+            _ => bail!(invalid_patch_value::<Self>(value)),
+        }
     }
 }
 

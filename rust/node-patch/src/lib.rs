@@ -8,7 +8,7 @@ use node_address::Address;
 use node_pointer::{find_mut, resolve_mut, Pointable, PointerMut};
 use stencila_schema::Node;
 
-use crate::{differ::Differ, patchable::Patchable};
+use crate::differ::Differ;
 
 /// Generate a [`Patch`] describing the difference between two nodes of the same type.
 #[tracing::instrument(skip(node1, node2))]
@@ -187,11 +187,16 @@ where
 
 mod differ;
 mod errors;
+
 mod operation;
 pub use operation::Operation;
+
 mod patch;
 pub use patch::Patch;
+
 mod patchable;
+pub use patchable::Patchable;
+
 pub mod value;
 pub use value::Value;
 
@@ -218,12 +223,11 @@ mod works;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::operation::*;
     use stencila_schema::{
         Article, BlockContent, CodeChunk, Emphasis, ExecutionRequired, ExecutionStatus,
         InlineContent, Paragraph,
     };
-    use test_utils::{assert_json_eq, assert_json_is, pretty_assertions::assert_eq};
+    use test_utils::{assert_json_eq, assert_json_is};
 
     #[test]
     fn test_diff_apply() -> Result<()> {
@@ -365,7 +369,6 @@ mod tests {
                 "address": ["content", 0],
                 "value": [{"type": "Paragraph", "content": []}],
                 "length": 1,
-                "html": "<p itemtype=\"https://schema.stenci.la/Paragraph\" itemscope></p>",
             }]
         );
 
@@ -379,7 +382,6 @@ mod tests {
                 "address": ["content", 0, "content", 0],
                 "value": ["first", " second"],
                 "length": 2,
-                "html": "<span>first</span><span> second</span>",
             }]
         );
 
@@ -427,17 +429,6 @@ mod tests {
                 ..Default::default()
             },
         );
-
-        match &patch.ops[0] {
-            Operation::Replace(Replace { value, .. }) => {
-                if let Some(value) = value.downcast_ref::<ExecutionRequired>() {
-                    assert_eq!(*value, ExecutionRequired::SemanticsChanged);
-                } else {
-                    bail!("Unexpected value type type");
-                }
-            }
-            _ => bail!("Unexpected operation type"),
-        }
 
         assert_json_is!(patch, {
             "ops": [

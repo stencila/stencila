@@ -5,7 +5,6 @@
 //! - `Array`: is covered by `impl Patchable for Vec<Primitive>` in `vecs.rs`
 //! - `Object`: is covered by `impl Patchable for BTreeMap<String, Primitive>` in `maps.rs`
 
-use common::{serde::de::DeserializeOwned, serde_json};
 use node_dispatch::{dispatch_primitive, dispatch_primitive_pair};
 use stencila_schema::*;
 
@@ -44,6 +43,7 @@ impl Patchable for Primitive {
         dispatch_primitive!(self, apply_move, from, items, to)
     }
 
+    /*
     fn from_value(value: Value) -> Result<Self>
     where
         Self: Clone + DeserializeOwned + Sized + 'static,
@@ -69,6 +69,7 @@ impl Patchable for Primitive {
         };
         Ok(instance)
     }
+    */
 }
 
 impl Patchable for Null {
@@ -134,7 +135,7 @@ mod tests {
 
     macro_rules! obj {
         ($json:tt) => {
-            serde_json::from_value::<Object>(serde_json::json!($json)).unwrap()
+            common::serde_json::from_value::<Object>(common::serde_json::json!($json)).unwrap()
         };
     }
 

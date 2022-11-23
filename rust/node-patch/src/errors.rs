@@ -5,6 +5,8 @@ use thiserror::Error;
 
 use common::serde::Serialize;
 
+use crate::Value;
+
 /// An enumeration of custom errors returned by this library
 ///
 /// Where possible functions should return one of these errors to provide greater
@@ -21,8 +23,11 @@ pub enum Error {
 
     /// The user attempted to apply a patch operation with an invalid
     /// value for the type.
-    #[error("Invalid patch value for type `{type_name}`")]
-    InvalidPatchValue { type_name: String },
+    #[error("Invalid patch value `{value_variant}` for type `{type_name}`")]
+    InvalidPatchValue {
+        value_variant: String,
+        type_name: String,
+    },
 }
 
 /// Create an `InvalidPatchOperation` error
@@ -34,8 +39,9 @@ pub fn invalid_patch_operation<Type: ?Sized>(op: &str) -> Error {
 }
 
 /// Create an `InvalidPatchValue` error
-pub fn invalid_patch_value<Type: ?Sized>() -> Error {
+pub fn invalid_patch_value<Type: ?Sized>(value: Value) -> Error {
     Error::InvalidPatchValue {
+        value_variant: value.as_ref().to_string(),
         type_name: type_name::<Type>().into(),
     }
 }
