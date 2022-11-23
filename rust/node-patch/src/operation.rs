@@ -55,6 +55,53 @@ pub enum Operation {
     Transform(Transform),
 }
 
+impl Operation {
+    /// Create an add operation
+    pub fn add(address: Address, value: Value, length: usize) -> Self {
+        Operation::Add(Add {
+            address,
+            value,
+            length,
+            html: None,
+        })
+    }
+
+    /// Create a remove operation
+    pub fn remove(address: Address, items: usize) -> Self {
+        Operation::Remove(Remove { address, items })
+    }
+
+    /// Create a replace operation
+    pub fn replace(address: Address, items: usize, value: Value, length: usize) -> Self {
+        Operation::Replace(Replace {
+            address,
+            items,
+            value,
+            length,
+            html: None,
+        })
+    }
+
+    /// Create a move operation
+    pub fn mov(from: Address, items: usize, to: Address) -> Self {
+        Operation::Move(Move { from, items, to })
+    }
+
+    /// Create a copy operation
+    pub fn copy(from: Address, items: usize, to: Address) -> Self {
+        Operation::Copy(Copy { from, items, to })
+    }
+
+    /// Create a transform operation
+    pub fn transform(address: Address, from: &str, to: &str) -> Self {
+        Operation::Transform(Transform {
+            address,
+            from: from.to_string(),
+            to: to.to_string(),
+        })
+    }
+}
+
 /// Add a value
 #[skip_serializing_none]
 #[derive(Debug, JsonSchema, Serialize, Deserialize)]

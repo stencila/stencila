@@ -16,7 +16,7 @@ const DIFF_TIMEOUT_SECS: u64 = 1;
 /// These more closely match the human unit of writing than Unicode characters or bytes
 /// (which are alternative sub-units that string diffing and patching could be based upon).
 /// Note then that patch string indices i.e. slot indices, `length`, `items` represent
-/// graphemes and that this has to be taken into account when applying `DomOperation`s
+/// graphemes and that this has to be taken into account when applying `Operation`s
 /// in JavaScript.
 ///
 /// `Add`, `Remove` and `Replace` operations are implemented.
@@ -88,23 +88,21 @@ impl Patchable for String {
             if (index > 0 && curr != last) || end {
                 let address = Address::from(start);
                 if (curr == 'e' && last == 'd') || (end && curr == 'd') {
-                    ops.push(Operation::Remove(Remove { address, items }));
+                    ops.push(Operation::remove(address, items));
                 } else if (curr == 'e' && last == 'i') || (end && curr == 'i') {
                     if replace {
-                        ops.push(Operation::Replace(Replace {
+                        ops.push(Operation::replace(
                             address,
                             items,
-                            value: Value::any(value.clone()),
-                            length: value.graphemes(true).count(),
-                            html: None,
-                        }));
+                            Value::any(value.clone()),
+                            value.graphemes(true).count(),
+                        ));
                     } else {
-                        ops.push(Operation::Add(Add {
+                        ops.push(Operation::add(
                             address,
-                            value: Value::any(value.clone()),
-                            length: value.graphemes(true).count(),
-                            html: None,
-                        }));
+                            Value::any(value.clone()),
+                            value.graphemes(true).count(),
+                        ));
                     }
                 };
             }
