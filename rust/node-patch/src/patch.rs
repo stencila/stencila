@@ -84,12 +84,12 @@ impl Patch {
                                 | Operation::Replace(Replace { address, .. })
                                 | Operation::ReplaceMany(ReplaceMany { address, .. })
                                 | Operation::Transform(Transform { address, .. }) => {
-                                    address.prepend(&patch_address)
+                                    address.prepend(patch_address.clone())
                                 }
                                 Operation::Move(Move { from, to, .. })
                                 | Operation::Copy(Copy { from, to, .. }) => {
-                                    from.prepend(&patch_address);
-                                    to.prepend(&patch_address);
+                                    from.prepend(patch_address.clone());
+                                    to.prepend(patch_address.clone());
                                 }
                             };
                             op

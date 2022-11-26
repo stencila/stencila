@@ -162,14 +162,16 @@ impl Address {
     }
 
     /// Prepend an address with another
-    pub fn prepend(&mut self, other: &Self) {
-        *self = other.concat(self)
+    pub fn prepend(&mut self, other: Self) {
+        for slot in other.iter().rev() {
+            self.0.push_front(slot.clone())
+        }
     }
 
     /// Concatenate an address with another
-    pub fn concat(&self, other: &Self) -> Self {
+    pub fn concat(&self, mut other: Self) -> Self {
         let mut concat = self.clone();
-        concat.append(&mut other.clone());
+        concat.append(&mut other);
         concat
     }
 

@@ -31,18 +31,28 @@ impl Differ {
     ///
     /// Adds a `Name` key to `address` and then differences the two values.
     pub fn field<Type: Patchable>(&mut self, name: &str, value1: &Type, value2: &Type) {
-        self.address.push_back(Slot::Name(name.to_string()));
+        self.enter(Slot::Name(name.to_string()));
         value1.diff(value2, self);
-        self.address.pop_back();
+        self.exit();
     }
 
     /// Difference an item in a `Vec`.
     ///
     /// Adds an `Index` key to `address` and then differences the two values.
     pub fn item<Type: Patchable>(&mut self, index: usize, value1: &Type, value2: &Type) {
-        self.address.push_back(Slot::Index(index));
+        self.enter(Slot::Index(index));
         value1.diff(value2, self);
-        self.address.pop_back();
+        self.exit();
+    }
+
+    /// Enter a node by pushing a slot onto the differ's address
+    pub fn enter(&mut self, slot: Slot) {
+        self.address.push_back(slot)
+    }
+
+    /// Exit a node by popping a slot off the differ's address
+    pub fn exit(&mut self) -> Option<Slot> {
+        self.address.pop_back()
     }
 
     /// Push an operation nested within the current address
@@ -53,7 +63,7 @@ impl Differ {
                 value,
                 html,
             }) => Operation::Add(Add {
-                address: self.address.concat(&address),
+                address: self.address.concat(address),
                 value,
                 html,
             }),
@@ -63,18 +73,18 @@ impl Differ {
                 values,
                 html,
             }) => Operation::AddMany(AddMany {
-                address: self.address.concat(&address),
+                address: self.address.concat(address),
                 values,
                 html,
             }),
 
             Operation::Remove(Remove { address }) => Operation::Remove(Remove {
-                address: self.address.concat(&address),
+                address: self.address.concat(address),
             }),
 
             Operation::RemoveMany(RemoveMany { address, items }) => {
                 Operation::RemoveMany(RemoveMany {
-                    address: self.address.concat(&address),
+                    address: self.address.concat(address),
                     items,
                 })
             }
@@ -84,7 +94,7 @@ impl Differ {
                 value,
                 html,
             }) => Operation::Replace(Replace {
-                address: self.address.concat(&address),
+                address: self.address.concat(address),
                 value,
                 html,
             }),
@@ -95,25 +105,25 @@ impl Differ {
                 values,
                 html,
             }) => Operation::ReplaceMany(ReplaceMany {
-                address: self.address.concat(&address),
+                address: self.address.concat(address),
                 items,
                 values,
                 html,
             }),
 
             Operation::Move(Move { from, to }) => Operation::Move(Move {
-                from: self.address.concat(&from),
-                to: self.address.concat(&to),
+                from: self.address.concat(from),
+                to: self.address.concat(to),
             }),
 
             Operation::Copy(Copy { from, to }) => Operation::Copy(Copy {
-                from: self.address.concat(&from),
-                to: self.address.concat(&to),
+                from: self.address.concat(from),
+                to: self.address.concat(to),
             }),
 
             Operation::Transform(Transform { address, from, to }) => {
                 Operation::Transform(Transform {
-                    address: self.address.concat(&address),
+                    address: self.address.concat(address),
                     from,
                     to,
                 })
