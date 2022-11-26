@@ -73,7 +73,6 @@ impl Patchable for String {
         let changes = diff.iter_all_changes();
 
         // Convert `DiffOp`s into `Add` and `Remove` operation
-        let mut ops = Vec::new();
         let mut position = 0;
         let mut last_delete_position = usize::MAX;
         for change in changes {
@@ -87,22 +86,20 @@ impl Patchable for String {
                     let op = if differ.ops_allowed.contains(OperationFlag::Replace)
                         && last_delete_position == position
                     {
-                        ops.pop();
+                        differ.pop();
                         Operation::replace(address, value)
                     } else {
                         Operation::add(address, value)
                     };
-                    ops.push(op);
+                    differ.push(op);
                     position += 1;
                 }
                 ChangeTag::Delete => {
-                    ops.push(Operation::remove(Address::from(position)));
+                    differ.push(Operation::remove(Address::from(position)));
                     last_delete_position = position;
                 }
             }
         }
-
-        differ.append(ops)
     }
 
     fn apply_add(&mut self, address: &mut Address, value: Value) -> Result<()> {
