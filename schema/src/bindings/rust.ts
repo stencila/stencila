@@ -538,7 +538,7 @@ export function enumToEnum(enu: (string | number)[], context: Context): string {
     .join('')
 
   const name = context.propertyTypeName ?? ''
-  const definition = `#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+  const definition = `#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 pub enum ${name} {\n${lines}}\n`
   context.anonEnums[name] = definition
 

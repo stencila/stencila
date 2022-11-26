@@ -211,8 +211,8 @@ replaceable_struct!(
 );
 patchable_enum!(CitationIntent);
 patchable_enum!(CiteCitationMode);
-patchable_enum!(CitePageEnd);
-patchable_enum!(CitePageStart);
+patchable_variants!(CitePageEnd, CitePageEnd::Integer, CitePageEnd::String);
+patchable_variants!(CitePageStart, CitePageStart::Integer, CitePageStart::String);
 patchable_struct!(CiteGroup);
 
 patchable_struct!(CodeFragment, id, programming_language, code);

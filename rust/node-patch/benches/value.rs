@@ -16,6 +16,10 @@ pub fn bench_to_from_value(citerion: &mut Criterion) {
         bencher.iter(|| Null::from_value(Primitive::Null(Null {}).to_value()))
     });
 
+    group.bench_function("enum", |bencher| {
+        bencher.iter(|| ExecutionStatus::from_value(ExecutionStatus::Running.to_value()))
+    });
+
     group.bench_function("string", |bencher| {
         bencher.iter(|| String::from_value("Hello".to_string().to_value()))
     });

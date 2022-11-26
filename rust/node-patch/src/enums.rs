@@ -136,11 +136,15 @@ macro_rules! patchable_variants_apply_transform {
 }
 
 /// Generate a `impl Patchable` for a simple `enum`.
+/// 
+/// Implements `to_value` and `from_value` based on the string representation
+/// of the enum variant. This however, does not improve performance over using
+/// falling back to JSON serialization.
 macro_rules! patchable_enum {
     ($type:ty) => {
         impl Patchable for $type {
             fn diff(&self, other: &Self, differ: &mut Differ) {
-                if std::mem::discriminant(self) != std::mem::discriminant(other) {
+                if self != other {
                     differ.replace(other)
                 }
             }
@@ -148,6 +152,19 @@ macro_rules! patchable_enum {
             fn apply_replace(&mut self, _address: &mut Address, value: Value) -> Result<()> {
                 *self = Self::from_value(value)?;
                 Ok(())
+            }
+
+            fn to_value(&self) -> Value {
+                Value::String(self.as_ref().to_string())
+            }
+        
+            fn from_value(value: Value) -> Result<Self> {
+                use std::str::FromStr;
+                match value {
+                    Value::String(string) => Ok(Self::from_str(&string)?),
+                    Value::Json(json) => Ok(serde_json::from_value::<Self>(json)?),
+                    _ => bail!(invalid_patch_value::<Self>(value)),
+                }
             }
         }
     };

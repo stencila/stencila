@@ -6000,7 +6000,7 @@ pub enum VolumeMount_ {
  * Enums for struct properties which use JSON Schema 'enum' or 'anyOf'
  ********************************************************************/
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 pub enum CiteCitationMode {
     Parenthetical,
     Narrative,
@@ -6146,7 +6146,7 @@ pub enum ArticlePageStart {
     String(String),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 pub enum ClaimClaimType {
     Statement,
     Theorem,
@@ -6174,7 +6174,7 @@ pub enum FigureCaption {
     String(String),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 pub enum FormDeriveAction {
     Create,
     Update,
@@ -6198,7 +6198,7 @@ pub enum GrantSponsors {
     Organization(Organization),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 pub enum ListOrder {
     Ascending,
     Descending,
@@ -6221,7 +6221,7 @@ pub enum MonetaryGrantFunders {
     Organization(Organization),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 pub enum NoteNoteType {
     Footnote,
     Endnote,
@@ -6358,7 +6358,7 @@ pub enum QuoteBlockCite {
     String(String),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 pub enum SoftwareSessionStatus {
     Unknown,
     Starting,
@@ -6385,7 +6385,7 @@ pub enum TableCaption {
     String(String),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 pub enum TableCellCellType {
     Data,
     Header,
@@ -6399,7 +6399,7 @@ pub enum TableCellContent {
     VecInlineContent(Vec<InlineContent>),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 pub enum TableRowRowType {
     Header,
     Footer,
