@@ -4,7 +4,7 @@ use common::{
     serde_json,
     strum::AsRefStr,
 };
-use stencila_schema::{BlockContent, InlineContent, Primitive};
+use stencila_schema::{BlockContent, InlineContent, Node, Primitive};
 use unicode_segmentation::UnicodeSegmentation;
 
 /// Type for the `value` property of `Add` and `Replace` operations
@@ -14,7 +14,7 @@ use unicode_segmentation::UnicodeSegmentation;
 /// (rather than HTML attributes of elements). This includes things like content
 /// types as well as their child node types not included in `InlineContent`
 /// or `BlockContent` (e.g. `IfClause`, `CallArgument`, `CodeError`).
-/// 
+///
 /// In addition, adding variants for other types can be beneficial for
 /// performance of in-memory diffing and patching because instead of them being serialized
 /// to/from JSON values they are held in memory. When patches are coming in from a
@@ -25,6 +25,14 @@ use unicode_segmentation::UnicodeSegmentation;
 ///
 /// For all the variants (apart from `Json`), the corresponding `Patchable` implementations
 /// should implement `to_value` and `from_value` and `from_value` should handle `Json` values.
+///
+/// Example usage of variants in `Add` or `Replace` operations of...
+///
+/// - `Null`: replace operations on `Option` properties of nodes
+/// - `String`: operations on `String` properties of nodes
+/// - `Primitive`: operations on `DatatableColumn.values` and children of `Array` and `Object` nodes
+/// - `Inline` and `Block`: operations on the `content` properties of many node types
+/// - `Node`: operations on `CodeChunk.outputs`, `CodeExpression.output`, `Parameter.default` and others
 #[derive(Debug, Clone, AsRefStr)]
 pub enum Value {
     Null,
@@ -32,6 +40,7 @@ pub enum Value {
     Primitive(Primitive),
     Inline(InlineContent),
     Block(BlockContent),
+    Node(Node),
     Json(serde_json::Value),
 }
 
@@ -60,6 +69,7 @@ impl Value {
         match self {
             Self::Inline(value) => Some(value.to_html(&mut context)),
             Self::Block(value) => Some(value.to_html(&mut context)),
+            Self::Node(value) => Some(value.to_html(&mut context)),
             _ => None,
         }
     }
@@ -108,6 +118,7 @@ impl Serialize for Value {
             Self::Primitive(value) => value.serialize(serializer),
             Self::Inline(value) => value.serialize(serializer),
             Self::Block(value) => value.serialize(serializer),
+            Self::Node(value) => value.serialize(serializer),
             Self::Json(value) => value.serialize(serializer),
         }
     }

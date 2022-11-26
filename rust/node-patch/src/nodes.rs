@@ -1,5 +1,6 @@
 //! Patching for [`Node`]s
 
+use common::serde_json;
 use stencila_schema::Node;
 
 use super::prelude::*;
@@ -8,19 +9,6 @@ use super::prelude::*;
 macro_rules! patchable_node_variants {
     ($( $variant:path )*) => {
         impl Patchable for Node {
-            patchable_variants_apply_add!($( $variant )*);
-            patchable_variants_apply_add_many!($( $variant )*);
-
-            patchable_variants_apply_remove!($( $variant )*);
-            patchable_variants_apply_remove_many!($( $variant )*);
-
-            patchable_variants_apply_replace!($( $variant )*);
-            patchable_variants_apply_replace_many!($( $variant )*);
-
-            patchable_variants_apply_move!($( $variant )*);
-
-            patchable_variants_apply_transform!($( $variant )*);
-
             fn diff(&self, other: &Self, differ: &mut Differ) {
                 #[allow(unreachable_patterns)]
                 match (self, other) {
@@ -40,6 +28,31 @@ macro_rules! patchable_node_variants {
                     )*
                     // Usual fallback to replacement for unmatched variants
                     _ => differ.replace(other)
+                }
+            }
+
+            patchable_variants_apply_add!($( $variant )*);
+            patchable_variants_apply_add_many!($( $variant )*);
+
+            patchable_variants_apply_remove!($( $variant )*);
+            patchable_variants_apply_remove_many!($( $variant )*);
+
+            patchable_variants_apply_replace!($( $variant )*);
+            patchable_variants_apply_replace_many!($( $variant )*);
+
+            patchable_variants_apply_move!($( $variant )*);
+
+            patchable_variants_apply_transform!($( $variant )*);
+
+            fn to_value(&self) -> Value {
+                Value::Node(self.clone())
+            }
+
+            fn from_value(value: Value) -> Result<Self> {
+                match value {
+                    Value::Node(node) => Ok(node),
+                    Value::Json(json) => Ok(serde_json::from_value::<Self>(json)?),
+                    _ => bail!(invalid_patch_value::<Self>(value)),
                 }
             }
         }

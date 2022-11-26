@@ -84,6 +84,26 @@ pub fn bench_to_from_value(citerion: &mut Criterion) {
         })
     });
 
+    group.bench_function("node", |bencher| {
+        bencher.iter(|| {
+            Node::from_value(
+                Node::Array(vec![
+                    Primitive::Boolean(true),
+                    Primitive::Integer(123),
+                    Primitive::Number(Number(1.23)),
+                    Primitive::String("string".to_string()),
+                    Primitive::Object(btreemap! {
+                        "a".to_string() => Primitive::Boolean(true),
+                        "b".to_string() => Primitive::Integer(123),
+                        "c".to_string() => Primitive::Number(Number(1.23)),
+                        "d".to_string() => Primitive::String("string".to_string()),
+                    }),
+                ])
+                .to_value(),
+            )
+        })
+    });
+
     group.finish();
 }
 
