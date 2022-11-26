@@ -5,6 +5,7 @@
 //! - `Array`: is covered by `impl Patchable for Vec<Primitive>` in `vecs.rs`
 //! - `Object`: is covered by `impl Patchable for BTreeMap<String, Primitive>` in `maps.rs`
 
+use common::serde_json;
 use node_dispatch::{dispatch_primitive, dispatch_primitive_pair};
 use stencila_schema::*;
 
@@ -39,11 +40,38 @@ impl Patchable for Primitive {
         // Only expected for compound primitives ie. `String`, `Array`, `Object`
         dispatch_primitive!(self, apply_move, from, to)
     }
+
+    fn to_value(&self) -> Value {
+        Value::Primitive(self.clone())
+    }
+
+    fn from_value(value: Value) -> Result<Self> {
+        match value {
+            Value::Primitive(node) => Ok(node),
+            Value::Json(json) => Ok(serde_json::from_value::<Self>(json)?),
+            _ => bail!(invalid_patch_value::<Self>(value)),
+        }
+    }
 }
 
 impl Patchable for Null {
     fn diff(&self, _other: &Self, _differ: &mut Differ) {
         // By definition, no difference
+    }
+
+    fn to_value(&self) -> Value {
+        Value::Null
+    }
+
+    fn from_value(value: Value) -> Result<Self> {
+        match value {
+            Value::Null => Ok(Self {}),
+            Value::Json(json) => serde_json::from_value::<serde_json::Value>(json)?
+                .is_null()
+                .then_some(Null {})
+                .ok_or_else(|| eyre!("Expected a JSON null")),
+            _ => bail!(invalid_patch_value::<Self>(value)),
+        }
     }
 }
 

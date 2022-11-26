@@ -4,7 +4,7 @@ use common::{
     serde_json,
     strum::AsRefStr,
 };
-use stencila_schema::{BlockContent, InlineContent};
+use stencila_schema::{BlockContent, InlineContent, Primitive};
 use unicode_segmentation::UnicodeSegmentation;
 
 /// Type for the `value` property of `Add` and `Replace` operations
@@ -14,6 +14,11 @@ use unicode_segmentation::UnicodeSegmentation;
 /// (rather than HTML attributes of elements). This includes things like content
 /// types as well as their child node types not included in `InlineContent`
 /// or `BlockContent` (e.g. `IfClause`, `CallArgument`, `CodeError`).
+/// 
+/// In addition, adding variants for other types can be beneficial for
+/// performance of in-memory diffing and patching because instead of them being serialized
+/// to/from JSON values they are held in memory. When patches are coming in from a
+/// client this will not help because the deserialization needs to be done anyway.
 ///
 /// The `Json` variant acts as a catch all for node types that do not have a
 /// corresponding variant.
@@ -24,6 +29,7 @@ use unicode_segmentation::UnicodeSegmentation;
 pub enum Value {
     Null,
     String(String),
+    Primitive(Primitive),
     Inline(InlineContent),
     Block(BlockContent),
     Json(serde_json::Value),
@@ -99,6 +105,7 @@ impl Serialize for Value {
         match self {
             Self::Null => None::<bool>.serialize(serializer),
             Self::String(value) => value.serialize(serializer),
+            Self::Primitive(value) => value.serialize(serializer),
             Self::Inline(value) => value.serialize(serializer),
             Self::Block(value) => value.serialize(serializer),
             Self::Json(value) => value.serialize(serializer),
