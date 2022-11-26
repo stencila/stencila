@@ -34,3 +34,7 @@ harness = false
 [[bench]]
 name = "strings"
 harness = false
+
+[[bench]]
+name = "vecs_atomic"
+harness = false
