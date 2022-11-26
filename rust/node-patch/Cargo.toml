@@ -30,3 +30,7 @@ test-utils = { path = "../test-utils" }
 [[bench]]
 name = "value"
 harness = false
+
+[[bench]]
+name = "strings"
+harness = false
