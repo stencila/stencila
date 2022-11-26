@@ -9,6 +9,7 @@ codec-html = { path = "../codec-html" }
 codec-txt = { path = "../codec-txt" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
+flagset = "0.4.3"
 node-address = { path = "../node-address" }
 node-coerce = { path = "../node-coerce" }
 node-dispatch = { path = "../node-dispatch" }

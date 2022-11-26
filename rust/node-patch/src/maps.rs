@@ -1,3 +1,5 @@
+//! Patching for [`BTreeMap`]s
+
 use std::collections::BTreeMap;
 
 use super::prelude::*;
@@ -47,11 +49,10 @@ where
                 }
 
                 if remove_value == add_value {
-                    differ.push(Operation::Move(Move {
-                        from: Address::from(remove_key.as_str()),
-                        to: Address::from(add_key.as_str()),
-                        items: 1,
-                    }));
+                    differ.push(Operation::mov(
+                        Address::from(remove_key.as_str()),
+                        Address::from(add_key.as_str()),
+                    ));
                     *remove_matched = true;
                     *add_matched = true;
                     continue;
@@ -64,7 +65,7 @@ where
             .into_iter()
             .filter_map(|(matched, key, value)| {
                 if !matched {
-                    Some(Operation::add_one(
+                    Some(Operation::add(
                         Address::from(key.as_str()),
                         value.to_value(),
                     ))
@@ -80,7 +81,7 @@ where
             .into_iter()
             .filter_map(|(matched, key, ..)| {
                 if !matched {
-                    Some(Operation::remove_one(Address::from(key.as_str())))
+                    Some(Operation::remove(Address::from(key.as_str())))
                 } else {
                     None
                 }
@@ -111,22 +112,16 @@ where
         Ok(())
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
+    fn apply_remove(&mut self, address: &mut Address) -> Result<()> {
         if address.is_empty() {
-            if items != 1 {
-                bail!("When applying `Remove` operation to map, `items` should be 1")
-            }
             self.clear();
         } else {
             let slot = address.pop_front().expect("Should have at least one slot");
             if let Slot::Name(key) = slot {
                 if address.len() == 0 {
-                    if items != 1 {
-                        bail!("When applying `Remove` operation to map, `items` should be 1")
-                    }
                     self.remove(&key);
                 } else if let Some(item) = self.get_mut(&key) {
-                    item.apply_remove(address, items)?;
+                    item.apply_remove(address)?;
                 } else {
                     bail!(invalid_slot_name::<Self>(&key))
                 }
@@ -138,23 +133,17 @@ where
         Ok(())
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: Value) -> Result<()> {
+    fn apply_replace(&mut self, address: &mut Address, value: Value) -> Result<()> {
         if address.is_empty() {
-            if items != 1 {
-                bail!("When applying `Remove` operation to map, `items` should be 1")
-            }
             self.clear();
             self.append(&mut Self::from_value(value)?);
         } else {
             let slot = address.pop_front().expect("Should have at least one slot");
             if let Slot::Name(key) = slot {
                 if address.len() == 0 {
-                    if items != 1 {
-                        bail!("When applying `Remove` operation to map, `items` should be 1")
-                    }
                     self.insert(key, Type::from_value(value)?);
                 } else if let Some(item) = self.get_mut(&key) {
-                    item.apply_replace(address, items, value)?;
+                    item.apply_replace(address, value)?;
                 } else {
                     bail!(invalid_slot_name::<Self>(&key))
                 }
@@ -166,7 +155,7 @@ where
         Ok(())
     }
 
-    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
+    fn apply_move(&mut self, from: &mut Address, to: &mut Address) -> Result<()> {
         if from.len() == 1 {
             if let (Some(Slot::Name(from)), Some(Slot::Name(to))) =
                 (from.pop_front(), to.pop_front())
@@ -183,7 +172,7 @@ where
             }
         } else if let Some(Slot::Name(key)) = from.pop_front() {
             if let Some(item) = self.get_mut(&key) {
-                item.apply_move(from, items, to)?;
+                item.apply_move(from, to)?;
             } else {
                 bail!(invalid_slot_name::<Self>(&key))
             }
@@ -227,8 +216,6 @@ mod tests {
             "type": "Replace",
             "address": [],
             "value": {"a": 1},
-            "items": 1,
-            "length": 1
         }]);
         assert_eq!(apply_new(&a, patch)?, b);
 
@@ -236,7 +223,6 @@ mod tests {
         assert_json_is!(patch.ops, [{
             "type": "Remove",
             "address": [],
-            "items": 1
         }]);
         assert_eq!(apply_new(&b, patch)?, a);
 
@@ -245,7 +231,6 @@ mod tests {
             "type": "Add",
             "address": ["b"],
             "value": 2,
-            "length": 1
         }]);
         assert_eq!(apply_new(&b, patch)?, c);
 
@@ -253,9 +238,7 @@ mod tests {
         assert_json_is!(patch.ops, [{
             "type": "Replace",
             "address": ["b"],
-            "items": 1,
             "value": 3,
-            "length": 1
         }]);
         assert_eq!(apply_new(&c, patch)?, d);
 
@@ -264,7 +247,6 @@ mod tests {
             "type": "Move",
             "from": ["b"],
             "to": ["c"],
-            "items": 1
         }]);
         assert_eq!(apply_new(&d, patch)?, e);
 
@@ -273,7 +255,6 @@ mod tests {
             "type": "Move",
             "from": ["c"],
             "to": ["b"],
-            "items": 1
         }]);
         assert_eq!(apply_new(&e, patch)?, d);
 

@@ -1,9 +1,11 @@
 use common::{
+    itertools::Itertools,
     serde::{Deserialize, Deserializer, Serialize, Serializer},
     serde_json,
     strum::AsRefStr,
 };
 use stencila_schema::{BlockContent, InlineContent};
+use unicode_segmentation::UnicodeSegmentation;
 
 /// Type for the `value` property of `Add` and `Replace` operations
 ///
@@ -50,8 +52,8 @@ impl Value {
         };
 
         match self {
-            Value::Inline(value) => Some(value.to_html(&mut context)),
-            Value::Block(value) => Some(value.to_html(&mut context)),
+            Self::Inline(value) => Some(value.to_html(&mut context)),
+            Self::Block(value) => Some(value.to_html(&mut context)),
             _ => None,
         }
     }
@@ -74,11 +76,11 @@ impl<'de> Deserialize<'de> for Value {
         let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
 
         let value = if value.is_null() {
-            Value::Null
+            Self::Null
         } else if let Some(string) = value.as_str() {
-            Value::String(string.to_owned())
+            Self::String(string.to_owned())
         } else {
-            Value::Json(value)
+            Self::Json(value)
         };
 
         Ok(value)
@@ -86,7 +88,7 @@ impl<'de> Deserialize<'de> for Value {
 }
 
 impl Serialize for Value {
-    /// Implement `Deserialize` for [`Value`]
+    /// Implement `Serialize` for [`Value`]
     ///
     /// Necessary for sending patches to clients. All variants should
     /// be handled.
@@ -95,11 +97,93 @@ impl Serialize for Value {
         S: Serializer,
     {
         match self {
-            Value::Null => None::<bool>.serialize(serializer),
-            Value::String(value) => value.serialize(serializer),
-            Value::Inline(value) => value.serialize(serializer),
-            Value::Block(value) => value.serialize(serializer),
-            Value::Json(value) => value.serialize(serializer),
+            Self::Null => None::<bool>.serialize(serializer),
+            Self::String(value) => value.serialize(serializer),
+            Self::Inline(value) => value.serialize(serializer),
+            Self::Block(value) => value.serialize(serializer),
+            Self::Json(value) => value.serialize(serializer),
+        }
+    }
+}
+
+/// A sequence of values
+#[derive(Clone, Debug)]
+pub struct Values(pub Vec<Value>);
+
+impl Values {
+    pub fn from_single(value: Value) -> Self {
+        Self(vec![value])
+    }
+
+    pub fn from_pair(first: Value, second: Value) -> Self {
+        Self(vec![first, second])
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    pub fn push(&mut self, value: Value) {
+        self.0.push(value)
+    }
+}
+
+impl<'de> Deserialize<'de> for Values {
+    /// Implement `Deserialize` for [`Values`]
+    ///
+    /// Necessary for receiving operations with `Many` operations from clients.
+    /// If all the value is a string then it is split into a vector of
+    /// graphemes.
+    fn deserialize<D>(deserializer: D) -> Result<Values, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        use common::serde::de::Error;
+        let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
+
+        let vec = if let Some(string) = value.as_str() {
+            string
+                .graphemes(true)
+                .map(|grapheme| Value::String(grapheme.to_string()))
+                .collect_vec()
+        } else {
+            serde_json::from_value::<Vec<Value>>(value)
+                .map_err(|_| D::Error::custom("Expected a string or an array of values"))?
+        };
+
+        Ok(Self(vec))
+    }
+}
+
+impl Serialize for Values {
+    /// Implement `Serialize` for [`Values`]
+    ///
+    /// Necessary for sending operations with `Many` operations to clients.
+    /// If all the values are strings then serialized as a joined string,
+    /// otherwise serialized as an array of values.
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut all_strings = true;
+        let mut joined_strings = String::new();
+        for value in &self.0 {
+            if let Value::String(grapheme) = value {
+                joined_strings.push_str(grapheme);
+            } else {
+                all_strings = false;
+                break;
+            }
+        }
+
+        if all_strings {
+            joined_strings.serialize(serializer)
+        } else {
+            self.0.serialize(serializer)
         }
     }
 }

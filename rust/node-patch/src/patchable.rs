@@ -9,9 +9,11 @@ use node_address::Address;
 
 use crate::{
     differ::Differ,
-    operation::{Add, Copy, Move, Operation, Remove, Replace, Transform},
+    operation::{
+        Add, AddMany, Copy, Move, Operation, Remove, RemoveMany, Replace, ReplaceMany, Transform,
+    },
     prelude::{invalid_patch_operation, Patch},
-    value::Value,
+    value::{Value, Values},
 };
 
 pub trait Patchable: Serialize + DeserializeOwned {
@@ -34,25 +36,34 @@ pub trait Patchable: Serialize + DeserializeOwned {
             Operation::Add(Add {
                 mut address, value, ..
             }) => self.apply_add(&mut address, value),
-            Operation::Remove(Remove { mut address, items }) => {
-                self.apply_remove(&mut address, items)
+
+            Operation::AddMany(AddMany {
+                mut address,
+                values,
+                ..
+            }) => self.apply_add_many(&mut address, values),
+
+            Operation::Remove(Remove { mut address }) => self.apply_remove(&mut address),
+
+            Operation::RemoveMany(RemoveMany { mut address, items }) => {
+                self.apply_remove_many(&mut address, items)
             }
+
             Operation::Replace(Replace {
+                mut address, value, ..
+            }) => self.apply_replace(&mut address, value),
+
+            Operation::ReplaceMany(ReplaceMany {
                 mut address,
                 items,
-                value,
+                values,
                 ..
-            }) => self.apply_replace(&mut address, items, value),
-            Operation::Move(Move {
-                mut from,
-                items,
-                mut to,
-            }) => self.apply_move(&mut from, items, &mut to),
-            Operation::Copy(Copy {
-                mut from,
-                items,
-                mut to,
-            }) => self.apply_copy(&mut from, items, &mut to),
+            }) => self.apply_replace_many(&mut address, items, values),
+
+            Operation::Move(Move { mut from, mut to }) => self.apply_move(&mut from, &mut to),
+
+            Operation::Copy(Copy { mut from, mut to }) => self.apply_copy(&mut from, &mut to),
+
             Operation::Transform(Transform {
                 mut address,
                 from,
@@ -66,28 +77,43 @@ pub trait Patchable: Serialize + DeserializeOwned {
         bail!(invalid_patch_operation::<Self>("Add"))
     }
 
+    /// Apply an `AddMany` patch operation
+    fn apply_add_many(&mut self, _address: &mut Address, _values: Values) -> Result<()> {
+        bail!(invalid_patch_operation::<Self>("AddMany"))
+    }
+
     /// Apply a `Remove` patch operation
-    fn apply_remove(&mut self, _address: &mut Address, _items: usize) -> Result<()> {
+    fn apply_remove(&mut self, _address: &mut Address) -> Result<()> {
         bail!(invalid_patch_operation::<Self>("Remove"))
     }
 
+    /// Apply a `RemoveMany` patch operation
+    fn apply_remove_many(&mut self, _address: &mut Address, _items: usize) -> Result<()> {
+        bail!(invalid_patch_operation::<Self>("RemoveMany"))
+    }
+
     /// Apply a `Replace` patch operation
-    fn apply_replace(
-        &mut self,
-        _address: &mut Address,
-        _items: usize,
-        _value: Value,
-    ) -> Result<()> {
+    fn apply_replace(&mut self, _address: &mut Address, _value: Value) -> Result<()> {
         bail!(invalid_patch_operation::<Self>("Replace"))
     }
 
+    /// Apply a `ReplaceMany` patch operation
+    fn apply_replace_many(
+        &mut self,
+        _address: &mut Address,
+        _items: usize,
+        _values: Values,
+    ) -> Result<()> {
+        bail!(invalid_patch_operation::<Self>("ReplaceMany"))
+    }
+
     /// Apply a `Move` patch operation
-    fn apply_move(&mut self, _from: &mut Address, _items: usize, _to: &mut Address) -> Result<()> {
+    fn apply_move(&mut self, _from: &mut Address, _to: &mut Address) -> Result<()> {
         bail!(invalid_patch_operation::<Self>("Move"))
     }
 
     /// Apply a `Copy` patch operation
-    fn apply_copy(&mut self, _from: &mut Address, _items: usize, _to: &mut Address) -> Result<()> {
+    fn apply_copy(&mut self, _from: &mut Address, _to: &mut Address) -> Result<()> {
         bail!(invalid_patch_operation::<Self>("Copy"))
     }
 
@@ -115,5 +141,14 @@ pub trait Patchable: Serialize + DeserializeOwned {
         } else {
             bail!("Expected a JSON value, got a `{}` value", value.as_ref())
         }
+    }
+
+    /// Create a vector of the type from [`Values`]
+    fn from_values(values: Values) -> Result<Vec<Self>> {
+        let mut vec = Vec::with_capacity(values.len());
+        for value in values.0.iter() {
+            vec.push(Self::from_value(value.clone())?)
+        }
+        Ok(vec)
     }
 }

@@ -105,7 +105,7 @@ impl Document {
                 // Apply the patch to the root node.
                 // Log any errors and skip the rest (don't want to publish an invalid patch
                 // or run follow on tasks)
-                if let Err(error) = apply(root, &patch) {
+                if let Err(error) = apply(root, patch.clone()) {
                     tracing::error!("While patching document `{}`: {}", id, error);
                     continue;
                 }

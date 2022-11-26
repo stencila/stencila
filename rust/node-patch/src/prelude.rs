@@ -11,5 +11,5 @@ pub use crate::{
     operation::*,
     patch::Patch,
     patchable::Patchable,
-    value::Value,
+    value::{Value, Values},
 };

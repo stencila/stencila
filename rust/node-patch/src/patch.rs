@@ -8,10 +8,15 @@ use common::{
     tracing,
 };
 use node_address::{Address, Slot};
-
 use stencila_schema::Node;
 
-use crate::operation::{Add, Copy, Move, Operation, Remove, Replace, Transform};
+use crate::{
+    operation::{
+        Add, AddMany, Copy, Move, Operation, OperationFlag, OperationFlagSet, Remove, RemoveMany,
+        Replace, ReplaceMany, Transform,
+    },
+    value::Values,
+};
 
 /// A set of [`Operation`]s
 #[skip_serializing_none]
@@ -73,8 +78,11 @@ impl Patch {
                         .map(|mut op| {
                             match &mut op {
                                 Operation::Add(Add { address, .. })
+                                | Operation::AddMany(AddMany { address, .. })
                                 | Operation::Remove(Remove { address, .. })
+                                | Operation::RemoveMany(RemoveMany { address, .. })
                                 | Operation::Replace(Replace { address, .. })
+                                | Operation::ReplaceMany(ReplaceMany { address, .. })
                                 | Operation::Transform(Transform { address, .. }) => {
                                     address.prepend(&patch_address)
                                 }
@@ -98,6 +106,213 @@ impl Patch {
     /// Does the patch have any operations?
     pub fn is_empty(&self) -> bool {
         self.ops.is_empty()
+    }
+
+    /// Compact the patch allowing for all operations
+    pub fn compact_all(&mut self) -> Patch {
+        self.compact(OperationFlag::all())
+    }
+
+    /// Compact the patch by replacing `Add` and `Remove` operations with `Replace`, `AddMany`
+    /// `RemoveMany`, `ReplaceMany` where possible and depending upon `op_flags`.
+    pub fn compact(&self, op_flags: OperationFlagSet) -> Patch {
+        let mut ops = Vec::with_capacity(self.ops.len());
+
+        for op in &self.ops {
+            match op {
+                Operation::Add(Add { address, value, .. }) => {
+                    if let Some(last) = ops.last_mut() {
+                        match last {
+                            Operation::Add(Add {
+                                address: last_address,
+                                value: last_value,
+                                ..
+                            }) => {
+                                if op_flags.contains(OperationFlag::AddMany)
+                                    && address.follows(last_address, 1)
+                                {
+                                    *last = Operation::add_many(
+                                        last_address.clone(),
+                                        Values::from_pair(last_value.clone(), value.clone()),
+                                    );
+                                    continue;
+                                }
+                            }
+
+                            Operation::AddMany(AddMany {
+                                address: last_address,
+                                values: last_values,
+                                ..
+                            }) => {
+                                if address.follows(last_address, last_values.len()) {
+                                    last_values.push(value.clone());
+                                    continue;
+                                }
+                            }
+
+                            Operation::Remove(Remove {
+                                address: last_address,
+                            }) => {
+                                if op_flags.contains(OperationFlag::Replace)
+                                    && address.follows(last_address, 0)
+                                {
+                                    *last = Operation::replace(last_address.clone(), value.clone());
+                                    continue;
+                                }
+                            }
+
+                            Operation::RemoveMany(RemoveMany {
+                                address: last_address,
+                                items,
+                            }) => {
+                                if op_flags.contains(OperationFlag::ReplaceMany)
+                                    && address.follows(last_address, 0)
+                                {
+                                    *last = Operation::replace_many(
+                                        last_address.clone(),
+                                        *items,
+                                        Values::from_single(value.clone()),
+                                    );
+                                    continue;
+                                }
+                            }
+
+                            Operation::Replace(Replace {
+                                address: last_address,
+                                value: last_value,
+                                ..
+                            }) => {
+                                if op_flags.contains(OperationFlag::ReplaceMany)
+                                    && address.follows(last_address, 1)
+                                {
+                                    *last = Operation::replace_many(
+                                        last_address.clone(),
+                                        1,
+                                        Values::from_pair(last_value.clone(), value.clone()),
+                                    );
+                                    continue;
+                                }
+                            }
+
+                            Operation::ReplaceMany(ReplaceMany {
+                                address: last_address,
+                                values: last_values,
+                                ..
+                            }) => {
+                                if address.follows(last_address, last_values.len()) {
+                                    last_values.push(value.clone());
+                                    continue;
+                                }
+                            }
+
+                            _ => (),
+                        }
+                    }
+                }
+                Operation::Remove(Remove { address }) => {
+                    if let Some(last) = ops.last_mut() {
+                        match last {
+                            Operation::Remove(Remove {
+                                address: last_address,
+                            }) => {
+                                if op_flags.contains(OperationFlag::RemoveMany)
+                                    && address == last_address
+                                {
+                                    *last = Operation::remove_many(last_address.clone(), 2);
+                                    continue;
+                                }
+                            }
+
+                            Operation::RemoveMany(RemoveMany {
+                                address: last_address,
+                                items,
+                            }) => {
+                                if address == last_address {
+                                    *items += 1;
+                                    continue;
+                                }
+                            }
+                            _ => (),
+                        }
+                    }
+                }
+                Operation::Replace(Replace { address, value, .. }) => {
+                    if let Some(last) = ops.last_mut() {
+                        match last {
+                            Operation::Replace(Replace {
+                                address: last_address,
+                                value: last_value,
+                                ..
+                            }) => {
+                                if op_flags.contains(OperationFlag::ReplaceMany)
+                                    && address.follows(last_address, 1)
+                                {
+                                    *last = Operation::replace_many(
+                                        last_address.clone(),
+                                        2,
+                                        Values::from_pair(last_value.clone(), value.clone()),
+                                    );
+                                    continue;
+                                }
+                            }
+
+                            Operation::ReplaceMany(ReplaceMany {
+                                address: last_address,
+                                values: last_values,
+                                ..
+                            }) => {
+                                if address.follows(last_address, last_values.len()) {
+                                    last_values.push(value.clone());
+                                    continue;
+                                }
+                            }
+
+                            Operation::Remove(Remove {
+                                address: last_address,
+                            }) => {
+                                if op_flags.contains(OperationFlag::ReplaceMany)
+                                    && address == last_address
+                                {
+                                    *last = Operation::replace_many(
+                                        last_address.clone(),
+                                        2,
+                                        Values::from_single(value.clone()),
+                                    );
+                                    continue;
+                                }
+                            }
+
+                            Operation::RemoveMany(RemoveMany {
+                                address: last_address,
+                                items,
+                            }) => {
+                                if op_flags.contains(OperationFlag::ReplaceMany)
+                                    && address == last_address
+                                {
+                                    *last = Operation::replace_many(
+                                        last_address.clone(),
+                                        *items + 1,
+                                        Values::from_single(value.clone()),
+                                    );
+                                    continue;
+                                }
+                            }
+                            _ => (),
+                        }
+                    }
+                }
+                _ => {}
+            }
+            ops.push(op.clone())
+        }
+
+        Patch {
+            ops,
+            address: self.address.clone(),
+            target: self.target.clone(),
+            version: self.version,
+            actor: self.actor.clone(),
+        }
     }
 
     /// Ignore patch operations that would overwrite derived fields

@@ -186,6 +186,27 @@ impl Address {
         added.push_back(Slot::Index(index));
         added
     }
+
+    /// Does an address follow another address (is the next position in a vector or string)
+    pub fn follows(&self, other: &Self, offset: usize) -> bool {
+        if self.is_empty() || self.len() != other.len() {
+            return false;
+        }
+
+        for index in 0..(self.len() - 1) {
+            if self[index] != other[index] {
+                return false;
+            }
+        }
+
+        if let (Slot::Index(self_index), Slot::Index(other_index)) =
+            (&self[self.len() - 1], &other[other.len() - 1])
+        {
+            *self_index == *other_index + offset
+        } else {
+            false
+        }
+    }
 }
 
 /// An enumeration of custom errors returned by this library
