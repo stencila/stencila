@@ -158,10 +158,18 @@ macro_rules! patchable_variants {
     ($type:ty $(, $variant:path )*) => {
         impl Patchable for $type {
             patchable_variants_diff!($( $variant )*);
+
             patchable_variants_apply_add!($( $variant )*);
+            patchable_variants_apply_add_many!($( $variant )*);
+
             patchable_variants_apply_remove!($( $variant )*);
+            patchable_variants_apply_remove_many!($( $variant )*);
+
             patchable_variants_apply_replace!($( $variant )*);
+            patchable_variants_apply_replace_many!($( $variant )*);
+
             patchable_variants_apply_move!($( $variant )*);
+
             patchable_variants_apply_transform!($( $variant )*);
         }
     };
