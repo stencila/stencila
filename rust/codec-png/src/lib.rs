@@ -185,6 +185,7 @@ mod tests {
 
     use super::*;
 
+    #[ignore]
     #[tokio::test]
     async fn encode() -> super::Result<()> {
         let node = Node::CodeChunk(CodeChunk {
