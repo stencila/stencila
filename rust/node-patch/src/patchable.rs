@@ -17,6 +17,13 @@ use crate::{
 };
 
 pub trait Patchable: Serialize + DeserializeOwned {
+    /// Is the type atomic (i.e. does not have children that may also be patchable)
+    ///
+    /// Used in some algorithms as an optimization to avoid recursively diffing.
+    fn is_atomic() -> bool {
+        false
+    }
+
     /// Generate the operations needed to mutate this node so that it is equal
     /// to a node of the same type.
     fn diff(&self, other: &Self, differ: &mut Differ);

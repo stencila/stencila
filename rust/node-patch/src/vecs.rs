@@ -6,14 +6,11 @@ use std::{
 };
 
 use common::itertools::Itertools;
-use similar::{algorithms::IdentifyDistinct, capture_diff_deadline, ChangeTag};
+use similar::{algorithms::IdentifyDistinct, capture_diff_deadline, Change, ChangeTag};
 
 use crate::value::Values;
 
 use super::prelude::*;
-
-/// The number of seconds before a diff times out
-const DIFF_TIMEOUT_SECS: u64 = 10;
 
 /// Implements patching for [`Vec`]s
 impl<Type> Patchable for Vec<Type>
@@ -49,62 +46,10 @@ where
             return;
         }
 
-        // Do not allow diffs to take too long (but not when testing, for determinism)
-        let deadline = if cfg!(test) {
-            None
+        if Type::is_atomic() {
+            diff_vecs_atomic(self, other, differ)
         } else {
-            Some(Instant::now() + Duration::from_secs(DIFF_TIMEOUT_SECS))
-        };
-
-        // Generate integer ids, that are unique across both self and other, for each item
-        // The `similar` crate generally recommends only doing that for large sequences
-        // (the text diffing does it for those greater than 100). But we do it here to avoid having
-        // to make Type be `Ord` (which is what `capture_diff_deadline` requires).
-        let identities =
-            IdentifyDistinct::<u32>::new(&self[..], 0..self.len(), &other[..], 0..other.len());
-
-        // Generate `similar::DiffOps`s and flatten them into `Similar::Change`s
-        let diffops = capture_diff_deadline(
-            similar::Algorithm::Patience,
-            identities.old_lookup(),
-            identities.old_range(),
-            identities.new_lookup(),
-            identities.new_range(),
-            deadline,
-        );
-        let changes = diffops
-            .iter()
-            .flat_map(|diffop| diffop.iter_changes(self, other))
-            .collect_vec();
-
-        // Convert `DiffOp`s into `Add` and `Remove` operation
-        let mut position = 0;
-        let mut last_delete_position = usize::MAX;
-        for change in changes {
-            match change.tag() {
-                ChangeTag::Equal => {
-                    position += 1;
-                }
-
-                ChangeTag::Insert => {
-                    let address = Address::from(position);
-                    let value = change.value().to_value();
-                    if differ.ops_allowed.contains(OperationFlag::Replace)
-                        && last_delete_position == position
-                    {
-                        differ.pop();
-                        differ.push(Operation::replace(address, value));
-                    } else {
-                        differ.push(Operation::add(address, value));
-                    };
-                    position += 1;
-                }
-
-                ChangeTag::Delete => {
-                    differ.push(Operation::remove(Address::from(position)));
-                    last_delete_position = position;
-                }
-            }
+            diff_vecs_non_atomic(self, other, differ)
         }
     }
 
@@ -315,17 +260,257 @@ where
     }
 }
 
+/// Generate `similar::Change`s for two sequences
+fn diff_changes<Type: Patchable + Clone + Eq + Hash>(
+    old: &[Type],
+    new: &[Type],
+    timeout_secs: u64,
+) -> Vec<Change<Type>> {
+    // Do not allow diffs to take too long (but not when testing, for determinism)
+    let deadline = if cfg!(test) {
+        None
+    } else {
+        Some(Instant::now() + Duration::from_secs(timeout_secs))
+    };
+
+    // Generate integer ids, that are unique across both self and other, for each item
+    // The `similar` crate generally recommends only doing that for large sequences
+    // (the text diffing does it for those greater than 100). But we do it here to avoid having
+    // to make Type be `Ord` (which is what `capture_diff_deadline` requires).
+    let identities = IdentifyDistinct::<u32>::new(old, 0..old.len(), new, 0..new.len());
+
+    // Generate `similar::DiffOps`s and flatten them into `Similar::Change`s
+    let diffops = capture_diff_deadline(
+        similar::Algorithm::Patience,
+        identities.old_lookup(),
+        identities.old_range(),
+        identities.new_lookup(),
+        identities.new_range(),
+        deadline,
+    );
+    diffops
+        .iter()
+        .flat_map(|diffop| diffop.iter_changes(old, new))
+        .collect_vec()
+}
+
+/// Diff two vectors of atomics
+///
+/// Uses a Patience diff with a `Remove` followed by an `Add`
+/// in the same position transformed into a `Replace`.
+fn diff_vecs_atomic<Type: Patchable + Clone + Eq + Hash>(
+    old: &[Type],
+    new: &[Type],
+    differ: &mut Differ,
+) {
+    // Get the changes using Patience diff
+    let changes = diff_changes(old, new, differ.timeout);
+
+    // The position of the operation in the new vector (because ops are applied sequentially
+    // this is not the same as the change's new_index)
+    let mut position = 0;
+
+    // The position of the last delete
+    let mut last_delete_position = usize::MAX;
+
+    // Transform each change into an `Add`, `Remove`, or `Replace` (if a delete is
+    // followed by an insert in the same position)
+    for change in changes {
+        match change.tag() {
+            ChangeTag::Equal => {
+                position += 1;
+            }
+
+            ChangeTag::Insert => {
+                let address = Address::from(position);
+                let value = change.value().to_value();
+                if differ.ops_allowed.contains(OperationFlag::Replace)
+                    && last_delete_position == position
+                {
+                    differ.pop();
+                    differ.push(Operation::replace(address, value));
+                } else {
+                    differ.push(Operation::add(address, value));
+                };
+                position += 1;
+            }
+
+            ChangeTag::Delete => {
+                differ.push(Operation::remove(Address::from(position)));
+                last_delete_position = position;
+            }
+        }
+    }
+}
+
+/// Diff two vectors of non-atomics
+///
+/// Does an initial Patience diff and then finds the least cost pairs
+/// (in terms of number of operations) to transform pairs of `Remove`/`Add`
+/// operations into a `Move`, possibly followed by operations within the item,
+/// or a `Copy`.
+fn diff_vecs_non_atomic<Type: Patchable + Clone + Eq + Hash>(
+    old: &[Type],
+    new: &[Type],
+    differ: &mut Differ,
+) {
+    diff_vecs_atomic(old, new, differ)
+
+    /*
+    TODO: Complete this WIP improved diffing for non-atomic types and reinstate the related
+          tests that are currently ignored
+
+    // Get the changes using Patience diff
+    let changes = diff_changes(old, new, differ.timeout);
+
+    // Collect the indices of the `Add`s (inserts) and `Remove`s (deletes) for potential pairing
+    let mut adds = Vec::new();
+    let mut removes = Vec::new();
+    for (index, change) in changes.iter().enumerate() {
+        match change.tag() {
+            ChangeTag::Equal => {}
+            ChangeTag::Insert => {
+                adds.push(index);
+            }
+            ChangeTag::Delete => {
+                removes.push(index);
+            }
+        }
+    }
+
+    // Determine the number of post-`Move` operations required to transform each pair of `Remove`/`Add` ops.
+    // Record delta of positions of adds and removes for tie breaking in the following sort step.
+    let mut post_move_ops = Vec::with_capacity(adds.len() * removes.len());
+    for add_index in adds {
+        let add = &changes[add_index];
+        let add_value = add.value();
+        let add_position = add.new_index().expect("Add to have new index");
+
+        for remove_index in &removes {
+            let remove = &changes[*remove_index];
+            let remove_value = remove.value();
+            let remove_position = remove.old_index().expect("Remove to have old index");
+
+            let delta = remove_position as i64 - add_position as i64;
+
+            let ops = if add_value != remove_value {
+                diff(&remove_value, &add_value).ops
+            } else {
+                vec![]
+            };
+
+            post_move_ops.push((add_index, *remove_index, add_position, remove_position, ops));
+        }
+    }
+
+    // Sort by the number of ops with tie breaks based on delta
+    post_move_ops.sort_by(
+        |(.., a_add_position, a_remove_position, a_ops),
+         (.., b_add_position, b_remove_position, b_ops)| {
+            if a_ops.len() == b_ops.len() {
+                let a_dist = (*a_add_position as i64 - *a_remove_position as i64).abs();
+                let b_dist = (*b_add_position as i64 - *b_remove_position as i64).abs();
+                a_dist.cmp(&b_dist)
+            } else {
+                a_ops.len().cmp(&b_ops.len())
+            }
+        },
+    );
+
+    // Iterate over the pairs in post_move_ops and pick the pairs that have
+    // the lowest cost (in terms of number of operations / distance).
+    let mut moves = vec![None; changes.len()];
+    for (add_index, remove_index, .., remove_position, ops) in post_move_ops {
+        if moves[add_index].is_none() && moves[remove_index].is_none() {
+            moves[add_index] = Some((remove_index, remove_position, ops));
+            moves[remove_index] = Some((add_index, 0, vec![]));
+        }
+    }
+
+    // The position of the operation in the new vector (because ops are applied sequentially
+    // this is not the same as the change's new_index)
+    let mut position = 0usize;
+
+    let mut shift = 0;
+
+    // Transform each change into a `Move` (plus post move ops) `Add`, `Remove`,
+    // or `Replace` (if a delete is followed by an insert in the same position)
+    for (index, change) in changes.iter().enumerate() {
+        println!("{index} {} {position} {:?}", change.tag(), moves[index]);
+
+        match change.tag() {
+            ChangeTag::Equal => {
+                position += 1;
+            }
+
+            ChangeTag::Insert => {
+                if let Some((remove_index, remove_position, post_move_ops)) = &moves[index] {
+                    let mut from_position = (*remove_position as i64) + shift;
+                    if from_position < 0 {
+                        from_position = 0;
+                    }
+                    let from_position = from_position as usize;
+                    let to_position = position;
+
+                    if from_position != to_position {
+                        differ.push(Operation::mov(
+                            Address::from(from_position),
+                            Address::from(to_position),
+                        ));
+                    }
+
+                    differ.enter(Slot::Index(to_position));
+                    differ.append(post_move_ops.clone());
+                    differ.exit();
+
+                    if *remove_position > position {
+                        shift += 1;
+                        position += 1;
+                    } else {
+                        shift -= 1;
+                        position -= 1;
+                    }
+                } else {
+                    differ.push(Operation::add(
+                        Address::from(position),
+                        change.value().to_value(),
+                    ));
+
+                    shift += 1;
+                    position += 1;
+                }
+            }
+
+            ChangeTag::Delete => {
+                if let Some((add_index, ..)) = &moves[index] {
+                    // Delete is part of a move, so don't do anything
+                    if *add_index > index {
+                        position += 1;
+                    }
+                } else {
+                    // Not part of a move, so push a `Remove` at this position to the differ
+                    differ.push(Operation::remove(Address::from(position)));
+                    shift -= 1;
+                }
+            }
+        }
+    }
+
+    */
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{apply_new, diff};
     use stencila_schema::{Emphasis, InlineContent, Integer, Strong};
     use test_utils::assert_json_is;
+    use utils::vec_string;
 
-    // Test patches that operate on atomic items (integers) with no
-    // pass though.
+    // Test patches that operate on atomic items (in this case, integers) with no
+    // operations at the within item level
     #[test]
-    fn basic() -> Result<()> {
+    fn atomic() -> Result<()> {
         // Add/remove all
 
         let empty: Vec<Integer> = vec![];
@@ -409,11 +594,11 @@ mod tests {
         Ok(())
     }
 
-    // Test patches that operate on compound items (strings) to check that
-    // fine grained operations are generated for each item and passed through on apply.
+    // Test patches that operate on compound items (in this case, strings) to check that
+    // within-items operations are generated for each item and passed through on apply.
     #[ignore]
     #[test]
-    fn item_ops() -> Result<()> {
+    fn compound_equal_lengths() -> Result<()> {
         // Add
 
         let a = vec!["a".to_string()];
@@ -423,6 +608,50 @@ mod tests {
             { "type": "Add", "address": [0, 1], "value": "b" },
         ]);
         assert_eq!(apply_new(&a, patch)?, b);
+
+        // Move right, then add or replace
+
+        let a = vec!["ab".to_string(), "cd".to_string()];
+        let b = vec!["cde".to_string(), "abc".to_string()];
+
+        let patch = diff(&a, &b);
+        assert_json_is!(patch.ops, [
+            { "type": "Move", "from": [1], "to": [0] },
+            { "type": "Add", "address": [0, 2], "value": "e" },
+            { "type": "Add", "address": [1, 2], "value": "c" },
+        ]);
+        assert_eq!(apply_new(&a, patch)?, b);
+
+        let patch = diff(&b, &a);
+        assert_json_is!(patch.ops, [
+            { "type": "Move", "from": [1], "to": [0] },
+            { "type": "Remove", "address": [0, 2] },
+            { "type": "Remove", "address": [1, 2] },
+        ]);
+        assert_eq!(apply_new(&b, patch)?, a);
+
+        // Move left, then add or replace
+
+        let a = vec!["ab".to_string(), "cd".to_string(), "ef".to_string()];
+        let b = vec!["ab1".to_string(), "ef2".to_string(), "cd3".to_string()];
+
+        let patch = diff(&a, &b);
+        assert_json_is!(patch.ops, [
+            { "type": "Add", "address": [0, 2], "value": "1" },
+            { "type": "Move", "from": [2], "to": [1] },
+            { "type": "Add", "address": [1, 2], "value": "2" },
+            { "type": "Add", "address": [2, 2], "value": "3" },
+        ]);
+        assert_eq!(apply_new(&a, patch)?, b);
+
+        let patch = diff(&b, &a);
+        assert_json_is!(patch.ops, [
+            { "type": "Remove", "address": [0, 2] },
+            { "type": "Move", "from": [2], "to": [1] },
+            { "type": "Remove", "address": [1, 2] },
+            { "type": "Remove", "address": [2, 2] },
+        ]);
+        assert_eq!(apply_new(&b, patch)?, a);
 
         // Remove
 
@@ -463,10 +692,10 @@ mod tests {
         Ok(())
     }
 
-    // As above, but with an extra `Add` or `Remove` as needed.
+    // Compound items in vectors of different lengths
     #[ignore]
     #[test]
-    fn item_ops_plus() -> Result<()> {
+    fn compound_unequal_lengths() -> Result<()> {
         let a = vec!["a".to_string()];
         let b = vec!["ab".to_string(), "c".to_string()];
 
@@ -479,7 +708,22 @@ mod tests {
 
         let patch = diff(&b, &a);
         assert_json_is!(patch.ops, [
+            { "type": "Remove", "address": [1] },
             { "type": "Remove", "address": [0, 1] },
+        ]);
+        assert_eq!(apply_new(&b, patch)?, a);
+
+        let a = vec!["a".to_string(), "c".to_string()];
+        let b = vec!["a".to_string(), "b".to_string(), "c".to_string()];
+
+        let patch = diff(&a, &b);
+        assert_json_is!(patch.ops, [
+            { "type": "Add", "address": [1], "value": "b" },
+        ]);
+        assert_eq!(apply_new(&a, patch)?, b);
+
+        let patch = diff(&b, &a);
+        assert_json_is!(patch.ops, [
             { "type": "Remove", "address": [1] },
         ]);
         assert_eq!(apply_new(&b, patch)?, a);
@@ -592,6 +836,71 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(apply_new(&a, patch)?, vec![1, 2, 4, 3]);
+
+        Ok(())
+    }
+
+    #[ignore]
+    #[test]
+    fn regression_7() -> Result<()> {
+        let a = vec_string!["aa", ""];
+        let b = vec_string!["aaa", "aa", "a"];
+        let patch = diff(&a, &b);
+        assert_json_is!(patch.ops, [
+            { "type": "Add", "address": [0], "value": "aaa" },
+            { "type": "Add", "address": [2, 0], "value": "a" },
+        ]);
+        assert_eq!(apply_new(&a, patch)?, b);
+
+        Ok(())
+    }
+
+    #[ignore]
+    #[test]
+    fn regression_8() -> Result<()> {
+        let a = vec_string!["", "ab", "c"];
+        let b = vec_string![""];
+        let patch = diff(&a, &b);
+        assert_json_is!(patch.ops, [
+            { "type": "Remove", "address": [1] },
+            { "type": "Remove", "address": [1] },
+        ]);
+        assert_eq!(apply_new(&a, patch)?, b);
+
+        Ok(())
+    }
+
+    #[ignore]
+    #[test]
+    fn regression_9() -> Result<()> {
+        let a = vec_string!["", "ab", "c"];
+        let b = vec_string!["a", ""];
+        let patch = diff(&a, &b);
+        assert_json_is!(patch.ops, [
+            { "type": "Move", "from": [1], "to": [0] },
+            { "type": "Remove", "address": [0, 1] },
+            { "type": "Remove", "address": [2] },
+        ]);
+        assert_eq!(apply_new(&a, patch)?, b);
+
+        Ok(())
+    }
+
+    #[ignore]
+    #[test]
+    fn regression_10() -> Result<()> {
+        let a = vec_string!["c", "ab"];
+        let b = vec_string!["ad", ""];
+        let patch = diff(&a, &b);
+        assert_json_is!(
+            patch.ops,
+            [
+            //{ "type": "Move", "from": [1], "to": [0] },
+            //{ "type": "Remove", "address": [0, 1] },
+            //{ "type": "Remove", "address": [2] },
+        ]
+        );
+        assert_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }

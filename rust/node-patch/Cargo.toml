@@ -26,6 +26,7 @@ criterion = "0.4.0"
 test-props = { path = "../test-props" }
 test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }
+utils = { path = "../utils" }
 
 [[bench]]
 name = "value"

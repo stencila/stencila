@@ -19,6 +19,10 @@ pub struct Differ {
     #[def = "OperationFlag::all()"]
     pub(crate) ops_allowed: OperationFlagSet,
 
+    /// The number of seconds before diffing operations will timeout
+    #[def = "10"]
+    pub(crate) timeout: u64,
+
     /// The current address of the differ in a node tree.
     pub(crate) address: Address,
 

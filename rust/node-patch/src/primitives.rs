@@ -79,6 +79,10 @@ impl Patchable for Null {
 macro_rules! patchable_atomic {
     ($type:ty) => {
         impl Patchable for $type {
+            fn is_atomic() -> bool {
+                true
+            }
+
             fn diff(&self, other: &Self, differ: &mut Differ) {
                 #[allow(clippy::float_cmp)]
                 if self != other {

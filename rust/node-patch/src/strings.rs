@@ -12,9 +12,6 @@ use crate::value::Values;
 
 use super::prelude::*;
 
-/// The number of seconds before a diff times out
-const DIFF_TIMEOUT_SECS: u64 = 10;
-
 /// Implements patching for [`String`]s
 ///
 /// Diffing and patching of strings is done on the basis of Unicode graphemes.
@@ -65,7 +62,7 @@ impl Patchable for String {
 
         // Do not allow diffs to take too long (but not when testing, for determinism)
         if !cfg!(test) {
-            text_differ.timeout(Duration::from_secs(DIFF_TIMEOUT_SECS));
+            text_differ.timeout(Duration::from_secs(differ.timeout));
         }
 
         // Generate `similar::Change`s

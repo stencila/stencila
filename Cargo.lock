@@ -4774,6 +4774,7 @@ dependencies = [
  "test-utils",
  "thiserror",
  "unicode-segmentation",
+ "utils",
 ]
 
 [[package]]
