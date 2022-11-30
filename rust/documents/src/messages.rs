@@ -51,6 +51,8 @@ impl When {
 /// be performed:
 ///
 /// ```
+/// use documents::Then;
+/// 
 /// Then::nothing();
 ///
 /// // Equivalent to
@@ -62,16 +64,11 @@ impl When {
 /// task needs to be performed:
 ///
 /// ```
-/// Then::compile(When::Soon)
-///
-/// // Equivalent to
-///
-/// Then {
-///     compile: When::Soon,
-///     ...Default::default()
-/// }
+/// use documents::{Then, When};
+/// 
+/// Then::compile(When::Later);
 /// ```
-///
+/// 
 /// Uses `#[serde(default)]` so that clients can send partial JSON objects
 /// specifying only one or two tasks (the others defaulting to `Never`).
 #[derive(Debug, Clone, Deserialize)]
