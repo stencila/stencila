@@ -5,18 +5,18 @@ version = "0.0.0"
 
 [features]
 default = ["kernel-store", "kernel-micro"]
-cli = ["cli-utils", "events", "parsers"]
+cli = ["cli-utils", "events"]
 
 [dependencies]
 common = { path = "../common" }
 formats = { path = "../formats" }
 humantime = { version = "2.1.0" }
+parsers = { path = "../parsers" }
 kernel = { path = "../kernel" }
 
 # For `cli` feature
 cli-utils = { path = "../cli-utils", optional = true }
 events = { path = "../events", optional = true }
-parsers = { path = "../parsers", optional = true }
 
 # For `kernel-*` features
 kernel-bash = { path = "../kernel-bash", optional = true }
