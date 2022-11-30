@@ -4,8 +4,8 @@
 use maplit::btreemap;
 use serde_json::{json, Result, Value};
 use stencila_schema::{
-    Article, BlockContent, Boolean, CodeExpression, CreativeWorkAuthors, Date, DateTime, Duration,
-    InlineContent, Integer, Null, Number, Paragraph, Person, Primitive, Time, TimeUnit, Timestamp,
+    Article, BlockContent, Boolean, CodeExpression, CreativeWorkAuthors, Duration,
+    InlineContent, Integer, Null, Number, Paragraph, Person, Primitive, TimeUnit, Timestamp,
 };
 
 #[test]

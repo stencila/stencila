@@ -3,8 +3,6 @@
 //! Run with `cargo test sizes -- --nocapture`
 //! to get the printed output.
 
-
-
 use stencila_schema::*;
 
 macro_rules! sizeof {
