@@ -697,8 +697,9 @@ prop_compose! {
         } + 1)),
         body in vec(table_row(freedom, None, None), 1..(match freedom {
             Freedom::Min => 1,
-            Freedom::Low => 5,
-            _ => 10,
+            Freedom::Low => 3,
+            Freedom::High => 5,
+            Freedom::Max => 7,
         } + 1))
     ) -> BlockContent {
         BlockContent::Table(TableSimple{
@@ -713,8 +714,9 @@ prop_compose! {
     pub fn table_row(freedom: Freedom, row_type: Option<TableRowRowType>, cell_type: Option<TableCellCellType>)(
         cells in vec(table_cell(freedom, cell_type), 1..(match freedom {
             Freedom::Min => 1,
-            Freedom::Low => 5,
-            _ => 10,
+            Freedom::Low => 3,
+            Freedom::High => 5,
+            Freedom::Max => 7,
         } + 1))
     ) -> TableRow {
         TableRow{
@@ -768,7 +770,8 @@ prop_compose! {
             Freedom::Low => r"[a-zA-Z0-9- ]+",
             _ => any::<String>()
         },
-        content in vec_block_content(freedom, exclude_types.to_vec()),
+        // Use Freedom::Min for nested block content to avoid stack overflow (using too much memory)
+        content in vec_block_content(Freedom::Min, exclude_types.to_vec()),
     ) -> BlockContent {
         BlockContent::Division(Division{
             programming_language,
@@ -793,8 +796,9 @@ prop_compose! {
             Freedom::Low => r"[a-zA-Z0-9-_ ]+",
             _ => any::<String>()
         },
-        content in vec_block_content(freedom, exclude_types.clone()),
-        otherwise in of(vec_block_content(freedom, exclude_types))
+        // Use Freedom::Min for nested block content to avoid stack overflow (using too much memory)
+        content in vec_block_content(Freedom::Min, exclude_types.clone()),
+        otherwise in of(vec_block_content(Freedom::Min, exclude_types))
     ) -> BlockContent {
         BlockContent::For(For{
             symbol,
@@ -809,8 +813,9 @@ prop_compose! {
 
 prop_compose! {
     /// Generate a Form node
-    pub fn form(freedom: Freedom, exclude_types: Vec<String>)(
-        content in vec_block_content(freedom, exclude_types),
+    pub fn form(_freedom: Freedom, exclude_types: Vec<String>)(
+        // Use Freedom::Min for nested block content to avoid stack overflow (using too much memory)
+        content in vec_block_content(Freedom::Min, exclude_types),
     ) -> BlockContent {
         BlockContent::Form(Form {
             content,
