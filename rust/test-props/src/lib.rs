@@ -130,7 +130,7 @@ prop_compose! {
     pub fn button(freedom: Freedom)(
         name in match freedom {
             Freedom::Min => "name",
-            _ => r"[A-Za-z0-9_]+",
+            _ => r"[a-zA-Z][a-zA-Z0-9_]*",
         },
         label in match freedom {
             Freedom::Min => "Label",
@@ -231,7 +231,7 @@ prop_compose! {
     pub fn parameter(freedom: Freedom, exclude_types: &[String])(
         name in match freedom {
             Freedom::Min => r"name",
-            _ => r"[a-z_][A-z0-9_]*", // Note that this is the regex allowed by the schema
+            _ => r"[a-zA-Z][a-zA-Z0-9_]*", // Note that this is the regex allowed by the schema
         },
         validator in parameter_validator(exclude_types),
         default in select(vec![true, false])
@@ -499,8 +499,9 @@ prop_compose! {
     pub fn vec_inline_content(freedom: Freedom, exclude_types: Vec<String>)(
         length in 1usize..(match freedom {
             Freedom::Min => 1,
-            Freedom::Low => 5,
-            _ => 10,
+            Freedom::Low => 3,
+            Freedom::High => 5,
+            Freedom::Max => 7,
         } + 1)
     )(
         strings in vec(string(freedom), size_range(length + 1)),
@@ -973,8 +974,9 @@ prop_compose! {
     pub fn vec_block_content(freedom: Freedom, exclude_types: Vec<String>)(
         length in 1usize..(match freedom {
             Freedom::Min => 1,
-            Freedom::Low => 5,
-            _ => 10,
+            Freedom::Low => 3,
+            Freedom::High => 5,
+            Freedom::Max => 7,
         } + 1)
     )(
         blocks in vec(block_content(freedom, exclude_types.clone()), size_range(length))
