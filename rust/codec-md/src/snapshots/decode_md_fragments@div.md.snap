@@ -7,7 +7,6 @@ input_file: fixtures/fragments/md/div.md
 [
   {
     "type": "Division",
-    "classes": [],
     "code": "rounded border(& solid blue-200) bg-blue-100 p-2 text-center",
     "content": [
       {
@@ -17,12 +16,10 @@ input_file: fixtures/fragments/md/div.md
         ]
       }
     ],
-    "css": "",
     "programmingLanguage": "tailwind"
   },
   {
     "type": "Division",
-    "classes": [],
     "code": "bg-$color-100 p-2",
     "content": [
       {
@@ -45,7 +42,6 @@ input_file: fixtures/fragments/md/div.md
         ]
       }
     ],
-    "css": "",
     "programmingLanguage": "tailwind"
   },
   {
@@ -55,7 +51,6 @@ input_file: fixtures/fragments/md/div.md
   },
   {
     "type": "Division",
-    "classes": [],
     "code": "f\"bg-{color}-{shade} p-2\"",
     "content": [
       {
@@ -65,7 +60,6 @@ input_file: fixtures/fragments/md/div.md
         ]
       }
     ],
-    "css": "",
     "programmingLanguage": "python"
   }
 ]

@@ -56,7 +56,6 @@ input_file: fixtures/fragments/md/form.md
     "content": [
       {
         "type": "Division",
-        "classes": [],
         "code": "bg-red-100",
         "content": [
           {
@@ -66,7 +65,6 @@ input_file: fixtures/fragments/md/form.md
             ]
           }
         ],
-        "css": "",
         "programmingLanguage": "tailwind"
       }
     ]
