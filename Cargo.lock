@@ -482,7 +482,6 @@ dependencies = [
  "binary-chrome",
  "binary-chromium",
  "binary-node",
- "binary-pack",
  "binary-pandoc",
  "binary-podman",
  "binary-poetry",
@@ -530,13 +529,6 @@ dependencies = [
 
 [[package]]
 name = "binary-node"
-version = "0.0.0"
-dependencies = [
- "binary",
-]
-
-[[package]]
-name = "binary-pack"
 version = "0.0.0"
 dependencies = [
  "binary",

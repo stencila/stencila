@@ -470,7 +470,6 @@ jobs:
 
       - script: |
           docker load -i $(Pipeline.Workspace)/docker/stencila-stencila.tar
-          docker load -i $(Pipeline.Workspace)/docker/stencila-builder.tar
         displayName: Load from cache
         condition: and(not(canceled()), eq(variables.CACHE_RESTORED, 'true'))
 
@@ -495,21 +494,6 @@ jobs:
             focal
             latest
 
-      # Build `stencila/builder` image
-
-      - script: |
-          set -e
-
-          sudo apt-get update
-          sudo apt-get install musl-tools
-          rustup target add x86_64-unknown-linux-musl
-          cargo install libcnb-cargo
-
-          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.24.0/pack-v0.24.0-linux.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack
-
-          make -C docker/builder/bionic
-        displayName: Build stencila/builder
-
       # Push images if on a tag
       # Note that if a image was built successfully it will be pushed, regardless of whether
       # any of the other images failed to build or not.
@@ -526,21 +510,9 @@ jobs:
             focal
             latest
 
-      - task: Docker@2
-        displayName: Push stencila/builder
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        inputs:
-          command: push
-          containerRegistry: DockerHub
-          repository: stencila/builder
-          # Note: because of how we build stencila/builder (using pack) there is only a `bionic` tag
-          tags: |
-            bionic
-
       - script: |
           mkdir -p $(Pipeline.Workspace)/docker
           docker save -o $(Pipeline.Workspace)/docker/stencila-stencila.tar stencila/stencila
-          docker save -o $(Pipeline.Workspace)/docker/stencila-builder.tar stencila/builder
         displayName: Save to cache
         condition: and(not(canceled()), or(failed(), ne(variables.CACHE_RESTORED, 'true')))
 

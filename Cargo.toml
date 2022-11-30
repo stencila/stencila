@@ -5,17 +5,7 @@ members = ["rust/*"]
 
 # Exclude crates that are alpha (needing work before they will compile and/or pass tests)
 # or are in process of being deprecated
-exclude = [
-    "rust/plugins",
-    "rust/buildpack",
-    "rust/buildpack-apt",
-    "rust/buildpack-dockerfile",
-    "rust/buildpack-node",
-    "rust/buildpack-python",
-    "rust/buildpack-r",
-    "rust/buildpack-stencila",
-    "rust/buildpacks"
-]
+exclude = ["rust/plugins"]
 
 [profile.ci]
 # Settings aimed at reducing disk usage and improving build times on CI

@@ -19,7 +19,6 @@ binary-asdf = { path = "../binary-asdf", optional = true }
 binary-chrome = { path = "../binary-chrome", optional = true }
 binary-chromium = { path = "../binary-chromium", optional = true }
 binary-node = { path = "../binary-node", optional = true }
-binary-pack = { path = "../binary-pack", optional = true }
 binary-pandoc = { path = "../binary-pandoc", optional = true }
 binary-podman = { path = "../binary-podman", optional = true }
 binary-postgrest = { path = "../binary-postgrest", optional = true }

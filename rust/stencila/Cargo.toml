@@ -109,7 +109,6 @@ default = [
   "binaries/binary-chrome",
   "binaries/binary-chromium",
   "binaries/binary-node",
-  "binaries/binary-pack",
   "binaries/binary-pandoc",
   "binaries/binary-podman",
   "binaries/binary-poetry",
