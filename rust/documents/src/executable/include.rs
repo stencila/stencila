@@ -1,14 +1,9 @@
-use common::{async_trait::async_trait};
-use graph_triples::{
-    execution_digest_from_content,
-};
-
-
-
+use common::async_trait::async_trait;
+use graph_triples::execution_digest_from_content;
 
 use stencila_schema::{ExecutionDigest, Include};
 
-use crate::executable::{Executable};
+use crate::executable::Executable;
 
 #[async_trait]
 impl Executable for Include {

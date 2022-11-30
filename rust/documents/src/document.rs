@@ -39,8 +39,7 @@ use providers::DetectItem;
 use stencila_schema::{Article, Node};
 
 use crate::messages::{
-    CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, Request, Response,
-    WriteRequest,
+    CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, Request, Response, WriteRequest,
 };
 
 /// The status of a document with respect to on-disk synchronization

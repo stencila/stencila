@@ -2212,11 +2212,11 @@ mod tests {
             call("/file.md(a=1)").unwrap().1,
             Call {
                 source: "file.md".to_string(),
-                arguments: Some(vec![CallArgument {
+                arguments: vec![CallArgument {
                     name: "a".to_string(),
                     value: Some(Box::new(Node::Integer(1))),
                     ..Default::default()
-                }]),
+                }],
                 ..Default::default()
             }
         );
@@ -2224,11 +2224,11 @@ mod tests {
             call(r#"/file.md(parAm_eter_1="string")"#).unwrap().1,
             Call {
                 source: "file.md".to_string(),
-                arguments: Some(vec![CallArgument {
+                arguments: vec![CallArgument {
                     name: "parAm_eter_1".to_string(),
                     value: Some(Box::new(Node::String("string".to_string()))),
                     ..Default::default()
-                }]),
+                }],
                 ..Default::default()
             }
         );
@@ -2236,7 +2236,7 @@ mod tests {
             call("/file.md(a=1.23 b=symbol c='string')").unwrap().1,
             Call {
                 source: "file.md".to_string(),
-                arguments: Some(vec![
+                arguments: vec![
                     CallArgument {
                         name: "a".to_string(),
                         value: Some(Box::new(Node::Number(Number(1.23)))),
@@ -2244,7 +2244,7 @@ mod tests {
                     },
                     CallArgument {
                         name: "b".to_string(),
-                        code: Some(Box::new("symbol".to_string())),
+                        code: "symbol".to_string(),
                         ..Default::default()
                     },
                     CallArgument {
@@ -2252,7 +2252,7 @@ mod tests {
                         value: Some(Box::new(Node::String("string".to_string()))),
                         ..Default::default()
                     }
-                ]),
+                ],
                 ..Default::default()
             }
         );
@@ -2260,7 +2260,7 @@ mod tests {
             call("/file.md(a=1,b = 2  , c=3, d =4)").unwrap().1,
             Call {
                 source: "file.md".to_string(),
-                arguments: Some(vec![
+                arguments: vec![
                     CallArgument {
                         name: "a".to_string(),
                         value: Some(Box::new(Node::Integer(1))),
@@ -2281,7 +2281,7 @@ mod tests {
                         value: Some(Box::new(Node::Integer(4))),
                         ..Default::default()
                     },
-                ]),
+                ],
                 ..Default::default()
             },
         );

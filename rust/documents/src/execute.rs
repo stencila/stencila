@@ -726,7 +726,7 @@ impl NodeInfo {
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
-            (|node: &mut Node| match node {
+            |node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk {
                     execution_status, ..
                 })
@@ -745,7 +745,7 @@ impl NodeInfo {
                     });
                 }
                 _ => {}
-            }),
+            },
         )
     }
 
@@ -754,7 +754,7 @@ impl NodeInfo {
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
-            (|node: &mut Node| match node {
+            |node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk {
                     execution_status, ..
                 })
@@ -776,7 +776,7 @@ impl NodeInfo {
                     });
                 }
                 _ => {}
-            }),
+            },
         )
     }
 
@@ -785,7 +785,7 @@ impl NodeInfo {
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
-            (|node: &mut Node| match node {
+            |node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk {
                     execution_status, ..
                 })
@@ -801,7 +801,7 @@ impl NodeInfo {
                     *execution_status = Some(ExecutionStatus::Cancelled);
                 }
                 _ => {}
-            }),
+            },
         )
     }
 
@@ -810,7 +810,7 @@ impl NodeInfo {
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
-            (|node: &mut Node| match node {
+            |node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk {
                     execution_status, ..
                 })
@@ -836,7 +836,7 @@ impl NodeInfo {
                     _ => {}
                 },
                 _ => {}
-            }),
+            },
         )
     }
 }

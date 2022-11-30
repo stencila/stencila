@@ -17,5 +17,5 @@ pub use crate::messages::{Then, When};
 #[cfg(feature = "cli")]
 pub mod cli;
 
-#[cfg(test)]
-mod tests;
+//#[cfg(test)]
+//mod tests;

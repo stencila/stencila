@@ -1,21 +1,11 @@
-use common::{
-    async_trait::async_trait,
-    serde_json,
-};
+use common::{async_trait::async_trait, serde_json};
 
-use graph_triples::{
-    execution_digest_from_content_semantics,
-};
-
+use graph_triples::execution_digest_from_content_semantics;
 
 use node_validate::Validator;
-use stencila_schema::{
-    ExecutionDigest, Node, Parameter,
-};
+use stencila_schema::{ExecutionDigest, Node, Parameter};
 
-use crate::{
-    executable::{Executable},
-};
+use crate::executable::Executable;
 
 /// Get the value for a parameter
 ///

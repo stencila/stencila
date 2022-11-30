@@ -370,7 +370,7 @@ pub fn init(
     let (file_writer, file_guard) = if file_level != LoggingLevel::Never {
         let path = Path::new(&config.file.path);
         let file_appender =
-            tracing_appender::rolling::daily(&path.parent().unwrap(), &path.file_name().unwrap());
+            tracing_appender::rolling::daily(path.parent().unwrap(), path.file_name().unwrap());
         tracing_appender::non_blocking(file_appender)
     } else {
         tracing_appender::non_blocking(std::io::sink())

@@ -130,7 +130,7 @@ impl JupyterConnection {
 
     /// Get the base URI for the connection
     pub fn base_url(&self) -> String {
-        format!("{}://{}:", transport = self.transport, ip = self.ip)
+        format!("{}://{}:", self.transport, self.ip)
     }
 
     /// Get the URL of the control channel

@@ -1,16 +1,8 @@
-use common::{
-    async_trait::async_trait,
-};
+use common::async_trait::async_trait;
 
-
-
-
-
-use stencila_schema::{For};
+use stencila_schema::For;
 
 use crate::executable::Executable;
-
-
 
 #[async_trait]
 impl Executable for For {

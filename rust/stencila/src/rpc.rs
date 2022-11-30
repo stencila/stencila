@@ -268,7 +268,7 @@ async fn documents_close(params: &Params) -> Result<(serde_json::Value, Subscrip
 }
 
 async fn documents_write(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let document_id = required_string(params, "documentId")?;
+    let _document_id = required_string(params, "documentId")?;
 
     // TODO: make immutable
     //DOCUMENTS.get(&document_id).await?.write(None, None).await?;
@@ -276,9 +276,9 @@ async fn documents_write(params: &Params) -> Result<(serde_json::Value, Subscrip
 }
 
 async fn documents_load(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let document_id = required_string(params, "documentId")?;
-    let content = required_param(params, "content")?;
-    let format = optional_string(params, "format")?;
+    let _document_id = required_string(params, "documentId")?;
+    required_param(params, "content")?;
+    let _format = optional_string(params, "format")?;
 
     // TODO: make immutable
     //DOCUMENTS

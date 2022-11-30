@@ -2,7 +2,6 @@ use std::path::Path;
 
 use common::{async_trait::async_trait, tracing};
 
-
 use stencila_schema::{
     AudioObject, AudioObjectSimple, ImageObject, ImageObjectSimple, MediaObject, VideoObject,
     VideoObjectSimple,

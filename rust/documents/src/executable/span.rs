@@ -1,13 +1,8 @@
-use common::{async_trait::async_trait};
+use common::async_trait::async_trait;
 
+use stencila_schema::Span;
 
-
-
-use stencila_schema::{
-    Span,
-};
-
-use super::{Executable};
+use super::Executable;
 
 #[async_trait]
 impl Executable for Span {

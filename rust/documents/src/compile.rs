@@ -1,27 +1,16 @@
-use std::{
-    path::Path,
-    sync::Arc,
-    time::{Duration},
-};
+use std::{path::Path, sync::Arc, time::Duration};
 
 use common::{
     eyre::{bail, Result},
     itertools::Itertools,
-    tokio::{
-        self,
-        sync::{RwLock},
-    },
+    tokio::{self, sync::RwLock},
     tracing,
 };
 
 use graph::Graph;
-use graph_triples::{TagMap};
+use graph_triples::TagMap;
 use kernels::KernelSpace;
 use node_address::Address;
-
-
-
-
 
 use crate::{
     document::{

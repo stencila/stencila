@@ -1,15 +1,8 @@
+use common::async_trait::async_trait;
 
-
-use common::{async_trait::async_trait};
-
-
-
-
-use stencila_schema::{If};
+use stencila_schema::If;
 
 use crate::executable::Executable;
-
-
 
 #[async_trait]
 impl Executable for If {

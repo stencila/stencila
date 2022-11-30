@@ -706,12 +706,9 @@ impl KernelTasks {
 
     /// Get a task using its [`TaskId`]
     fn get_mut<'lt>(&'lt mut self, task_id: &TaskId) -> Option<&'lt mut TaskInfo> {
-        for task_info in self.inner.iter_mut() {
-            if task_info.task.id == *task_id {
-                return Some(task_info);
-            }
-        }
-        None
+        self.inner
+            .iter_mut()
+            .find(|task_info| task_info.task.id == *task_id)
     }
 
     /// Put a task onto the list

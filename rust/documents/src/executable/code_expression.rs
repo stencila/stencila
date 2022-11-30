@@ -1,11 +1,8 @@
-use common::{async_trait::async_trait};
+use common::async_trait::async_trait;
 
+use stencila_schema::CodeExpression;
 
-
-
-use stencila_schema::{CodeExpression};
-
-use super::{Executable};
+use super::Executable;
 
 #[async_trait]
 impl Executable for CodeExpression {

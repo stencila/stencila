@@ -1285,7 +1285,7 @@ async fn attach_connected(web_socket: warp::ws::WebSocket, dir: String, claims: 
 
         // Options necessary to ensure the custom PS1, and other settings are not overridden
         // by profile and init scripts. See https://unix.stackexchange.com/a/291913
-        command.args(&["--noprofile", "--norc"]);
+        command.args(["--noprofile", "--norc"]);
 
         let user = claims.usn.as_deref().unwrap_or("\\u");
         let host = "\\h";

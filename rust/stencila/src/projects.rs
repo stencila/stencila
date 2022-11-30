@@ -214,10 +214,10 @@ impl Project {
         let path = path.as_ref();
 
         // Load the project manifest (if any).
-        let mut project = Project::load(&path)?;
+        let mut project = Project::load(path)?;
 
         // Get all the files and folders in the project
-        project.files = Files::new(&path);
+        project.files = Files::new(path);
 
         // Update the project's properties, some one which may depend on the files
         // list that we just updated

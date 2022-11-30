@@ -1,9 +1,8 @@
-use common::{async_trait::async_trait};
-
+use common::async_trait::async_trait;
 
 use stencila_schema::SoftwareSourceCode;
 
-use crate::executable::{Executable};
+use crate::executable::Executable;
 
 /// Compile a `SoftwareSourceCode` node
 ///

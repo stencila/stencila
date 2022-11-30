@@ -508,16 +508,12 @@ prop_compose! {
     ) -> Vec<InlineContent> {
         let mut content: Vec<InlineContent> = interleave(strings, others).collect();
         for index in 0..content.len() {
-            let spaces = match content[index] {
+            let spaces = matches!(content[index],
                 InlineContent::Emphasis(..) |
                     InlineContent::Span(..) |
                     InlineContent::Strong(..) |
                     InlineContent::Strikeout(..) |
-                    InlineContent::Delete(..) => {
-                   true
-                },
-                _ => false
-            };
+                    InlineContent::Delete(..));
 
             if spaces {
                 if let InlineContent::String(string) = &mut content[index - 1] {

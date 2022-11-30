@@ -1,10 +1,8 @@
-use common::{async_trait::async_trait};
-
-
+use common::async_trait::async_trait;
 
 use stencila_schema::{MathBlock, MathFragment};
 
-use crate::executable::{Executable};
+use crate::executable::Executable;
 
 #[async_trait]
 impl Executable for MathBlock {
