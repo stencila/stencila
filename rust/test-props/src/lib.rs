@@ -32,7 +32,7 @@ prop_compose! {
     pub fn string(freedom: Freedom)(
         string in (match freedom {
             Freedom::Min => r"string",
-            Freedom::Low => r"[A-Za-z0-9 ]+",
+            Freedom::Low => r"[a-zA-Z0-9 ]+",
             _ => any::<String>(),
         }).prop_filter(
             "Inline strings should not be empty",
@@ -48,7 +48,7 @@ prop_compose! {
     pub fn string_no_whitespace(freedom: Freedom)(
         string in match freedom {
             Freedom::Min => r"string",
-            _ => r"[A-Za-z0-9]+",
+            _ => r"[a-zA-Z0-9]+",
         }
     ) -> InlineContent {
         InlineContent::String(string)
@@ -60,7 +60,7 @@ prop_compose! {
     pub fn inline_inner_content(freedom: Freedom)(
         string in (match freedom {
             Freedom::Min => r"string",
-            Freedom::Low => r"[A-Za-z0-9]+", // Note: no whitespace or "special" characters
+            Freedom::Low => r"[a-zA-Z0-9]+", // Note: no whitespace or "special" characters
             _ => any::<String>(),
         }).prop_filter(
             "Inline strings should not be empty",
@@ -78,7 +78,7 @@ prop_compose! {
     pub fn audio_object_simple(freedom: Freedom)(
         content_url in match freedom {
             Freedom::Min => r"url\.mp3",
-            Freedom::Low => r"[A-Za-z0-9-_]+\.(flac|mp3|ogg)",
+            Freedom::Low => r"[a-zA-Z0-9-_]+\.(flac|mp3|ogg)",
             _ => r"\PC*\.(flac|mp3|ogg)",
         }
     ) -> InlineContent {
@@ -96,7 +96,7 @@ prop_compose! {
     pub fn image_object_simple(freedom: Freedom)(
         content_url in match freedom {
             Freedom::Min => r"url\.png",
-            Freedom::Low => r"[A-Za-z0-9-_]\.(gif|jpg|jpeg|png)",
+            Freedom::Low => r"[a-zA-Z0-9-_]\.(gif|jpg|jpeg|png)",
             _ => r"\PC*\.(gif|jpg|jpeg|png)",
         }
     ) -> InlineContent {
@@ -114,7 +114,7 @@ prop_compose! {
     pub fn video_object_simple(freedom: Freedom)(
         content_url in match freedom {
             Freedom::Min => r"url\.mp4",
-            Freedom::Low => r"[A-Za-z0-9-_]\.(3gp|mp4|ogv|webm)",
+            Freedom::Low => r"[a-zA-Z0-9-_]\.(3gp|mp4|ogv|webm)",
             _ => r"\PC*\.(3gp|mp4|ogv|webm)",
         }
     ) -> InlineContent {
@@ -134,8 +134,8 @@ prop_compose! {
         },
         label in match freedom {
             Freedom::Min => "Label",
-            Freedom::Low => r"[A-Za-z0-9]+",
-            Freedom::High => r"[A-Za-z0-9 -_!]+",
+            Freedom::Low => r"[a-zA-Z0-9]+",
+            Freedom::High => r"[a-zA-Z0-9 -_!]+",
             _ => any::<String>()
         }
     ) -> InlineContent {
@@ -153,7 +153,7 @@ prop_compose! {
         lang in match freedom {
             Freedom::Min => "python",
             Freedom::Low => r"bash|javascript|python|r|sql|shell|tailwind|zsh",
-            Freedom::High => r"[A-Za-z0-9-]+",
+            Freedom::High => r"[a-zA-Z0-9-]+",
             _ => any::<String>()
         }
     ) -> String {
@@ -170,7 +170,7 @@ prop_compose! {
         programming_language in prog_lang(freedom),
         code in match freedom {
             Freedom::Min => "code",
-            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            Freedom::Low => r"[a-zA-Z0-9-_ ]+",
             _ => any::<String>()
         },
     ) -> InlineContent {
@@ -187,12 +187,12 @@ prop_compose! {
     pub fn code_fragment(freedom: Freedom)(
         code in match freedom {
             Freedom::Min => r"code",
-            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            Freedom::Low => r"[a-zA-Z0-9-_ ]+",
             _ => any::<String>()
         },
         programming_language in match freedom {
             Freedom::Min => "",
-            Freedom::Low => r"[A-Za-z0-9-]+",
+            Freedom::Low => r"[a-zA-Z0-9-]+",
             _ => any::<String>()
         }
     ) -> InlineContent {
@@ -214,7 +214,7 @@ prop_compose! {
     pub fn math_fragment(freedom: Freedom)(
         code in match freedom {
             Freedom::Min => r"E = mc\^\{2\}",
-            Freedom::Low => r"[A-Za-z0-9-_]*",
+            Freedom::Low => r"[a-zA-Z0-9-_]*",
             _ => any::<String>()
         },
     ) -> InlineContent {
@@ -307,7 +307,7 @@ prop_compose! {
     pub fn string_validator()(
         min in of(0..10u32),
         max in of(0..100u32),
-        pattern in of(r"[A-Za-z0-9_]+"),
+        pattern in of(r"[a-zA-Z0-9_]+"),
     )-> ValidatorTypes {
         ValidatorTypes::StringValidator(StringValidator{
             min_length: min,
@@ -321,7 +321,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a enum validator
     pub fn enum_validator()(
-        values in vec(r"[A-Za-z0-9_\- ]+", 1..10),
+        values in vec(r"[a-zA-Z0-9_\- ]+", 1..10),
     )-> ValidatorTypes {
         ValidatorTypes::EnumValidator(EnumValidator{
             values: values.into_iter().map(Node::String).collect_vec(),
@@ -359,7 +359,7 @@ prop_compose! {
     pub fn link(freedom: Freedom)(
         target in match freedom {
             Freedom::Min => r"target",
-            Freedom::Low => r"[A-Za-z0-9-]*",
+            Freedom::Low => r"[a-zA-Z0-9-]*",
             _ => any::<String>()
         },
         content in inline_inner_content(freedom)
@@ -402,7 +402,7 @@ prop_compose! {
         programming_language in prog_lang(freedom),
         code in match freedom {
             Freedom::Min => "code",
-            Freedom::Low => r"[A-Za-z0-9- ]+",
+            Freedom::Low => r"[a-zA-Z0-9- ]+",
             _ => any::<String>()
         },
         // For Markdown compatibility only allow in string inline content
@@ -550,12 +550,12 @@ prop_compose! {
     pub fn code_block(freedom: Freedom)(
         code in match freedom {
             Freedom::Min => r"code",
-            Freedom::Low => r"[A-Za-z0-9-_ \t\n]*",
+            Freedom::Low => r"[a-zA-Z0-9-_ \t\n]*",
             _ => any::<String>()
         },
         programming_language in match freedom {
             Freedom::Min => "",
-            Freedom::Low => r"[A-Za-z0-9-]*",
+            Freedom::Low => r"[a-zA-Z0-9-]*",
             _ => any::<String>()
         }
     ) -> BlockContent {
@@ -645,7 +645,7 @@ prop_compose! {
     pub fn math_block(freedom: Freedom)(
         code in match freedom {
             Freedom::Min => r"E = mc\^\{2\}",
-            Freedom::Low => r"[A-Za-z0-9-_]*",
+            Freedom::Low => r"[a-zA-Z0-9-_]*",
             _ => any::<String>()
         },
     ) -> BlockContent {
@@ -747,7 +747,7 @@ prop_compose! {
         programming_language in prog_lang(freedom),
         code in match freedom {
             Freedom::Min => "code",
-            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            Freedom::Low => r"[a-zA-Z0-9-_ ]+",
             _ => any::<String>()
         }
     ) -> BlockContent {
@@ -765,7 +765,7 @@ prop_compose! {
         programming_language in prog_lang(freedom),
         code in match freedom {
             Freedom::Min => "code",
-            Freedom::Low => r"[A-Za-z0-9- ]+",
+            Freedom::Low => r"[a-zA-Z0-9- ]+",
             _ => any::<String>()
         },
         content in vec_block_content(freedom, exclude_types.to_vec()),
@@ -784,13 +784,13 @@ prop_compose! {
     pub fn for_(freedom: Freedom, exclude_types: Vec<String>)(
         symbol in match freedom {
             Freedom::Min => "item",
-            Freedom::Low => r"[A-Za-z][A-Za-z0-9]*",
+            Freedom::Low => r"[a-zA-Z][a-zA-Z0-9]*",
             _ => any::<String>()
         },
         programming_language in prog_lang(freedom),
         code in match freedom {
             Freedom::Min => "code",
-            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            Freedom::Low => r"[a-zA-Z0-9-_ ]+",
             _ => any::<String>()
         },
         content in vec_block_content(freedom, exclude_types.clone()),
@@ -837,7 +837,7 @@ prop_compose! {
         programming_language in prog_lang(freedom),
         code in match freedom {
             Freedom::Min => "code",
-            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            Freedom::Low => r"[a-zA-Z0-9-_ ]+",
             _ => any::<String>()
         },
         // Use Freedom::Min for nested block content to avoid stack overflow (using too much memory)
@@ -862,16 +862,16 @@ prop_compose! {
     pub fn include(freedom: Freedom)(
         source in match freedom {
             Freedom::Min => r"somefile\.fmt",
-            Freedom::Low => r"[A-Za-z0-9/.]+",
-            _ => r"[A-Za-z0-9/.-_]+",
+            Freedom::Low => r"[a-zA-Z0-9/.]+",
+            _ => r"[a-zA-Z0-9/.-_]+",
         },
         media_type in match freedom {
             Freedom::Min => of("fmt"),
-            _ => of(r"[A-Za-z0-9]+"),
+            _ => of(r"[a-zA-Z0-9]+"),
         },
         select in match freedom {
             Freedom::Min => of("query"),
-            _ => of(r"[A-Za-z0-9]+"),
+            _ => of(r"[a-zA-Z0-9]+"),
         }
     ) -> BlockContent {
         BlockContent::Include(Include{
@@ -888,16 +888,16 @@ prop_compose! {
     pub fn call(freedom: Freedom)(
         source in match freedom {
             Freedom::Min => r"somefile\.fmt",
-            Freedom::Low => r"[A-Za-z0-9/.]+",
-            _ => r"[A-Za-z0-9/.-_]+",
+            Freedom::Low => r"[a-zA-Z0-9/.]+",
+            _ => r"[a-zA-Z0-9/.-_]+",
         },
         media_type in match freedom {
             Freedom::Min => of("fmt"),
-            _ => of(r"[A-Za-z0-9]+"),
+            _ => of(r"[a-zA-Z0-9]+"),
         },
         select in match freedom {
             Freedom::Min => of("query"),
-            _ => of(r"[A-Za-z0-9]+"),
+            _ => of(r"[a-zA-Z0-9]+"),
         }
     ) -> BlockContent {
         BlockContent::Call(Call{
