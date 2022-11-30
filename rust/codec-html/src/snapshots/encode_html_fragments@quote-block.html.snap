@@ -1,0 +1,17 @@
+---
+source: rust/codec-html/src/encode.rs
+assertion_line: 543
+expression: encoded
+input_file: fixtures/fragments/html/quote-block.html
+---
+<stencila-article data-root data-root="true">
+  <article itemtype="https://schema.org/Article" itemscope>
+    <div data-prop="content" slot="content">
+      <blockquote itemtype="https://schema.stenci.la/QuoteBlock" itemscope>
+        <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+          <span>Para one.</span>
+        </p>
+      </blockquote>
+    </div>
+  </article>
+</stencila-article>

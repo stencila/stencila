@@ -1,0 +1,14 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": ["Para one."]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+---
+source: rust/codec-html/src/decode.rs
+assertion_line: 671
+expression: "decode_fragment(content, None)"
+input_file: fixtures/fragments/html/quote-block.html
+---
+[
+  {
+    "type": "QuoteBlock",
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "Para one."
+        ]
+      }
+    ]
+  }
+]
