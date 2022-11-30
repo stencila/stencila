@@ -1,6 +1,6 @@
 use stencila_schema::*;
 
-use super::{attr, elem, EncodeContext, ToHtml};
+use super::{EncodeContext, ToHtml};
 
 /// Encode a dependency of an executable code node
 ///

@@ -43,7 +43,7 @@ impl Statics {
             // it checks for path traversal using the canonicalized path). This is problematic for our development workflow which
             // includes live reloading of assets developed in the `web` and `components` modules. Therefore, this
             // re-implements loading of assets from the filesystem.
-            let path = Statics::dir().join(&path);
+            let path = Statics::dir().join(path);
 
             // Resist the temptation to make this read async as it is only used during development
             // and doing so would "infect" callers with awaits.

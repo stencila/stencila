@@ -148,7 +148,7 @@ pub fn resolve_token(token: &str) -> Option<String> {
         Lazy::new(|| Regex::new("[A-Z_]+").expect("Unable to create regex"));
 
     if ENV_VAR_REGEX.is_match(token) {
-        match env::var(&token) {
+        match env::var(token) {
             Ok(value) => Some(value),
             Err(..) => {
                 tracing::debug!("Token string `{}` appears to be an environment variable name but no such variable found", token);

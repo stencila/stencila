@@ -215,7 +215,10 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
 
                 let expr = if otherwise.is_some() && !for_var.0.is_empty() {
                     let index = for_index.to_string();
-                    let assign = for_var.1.replace("$index", &index).replace("$expr", for_code);
+                    let assign = for_var
+                        .1
+                        .replace("$index", &index)
+                        .replace("$expr", for_code);
                     code.push_str(&assign);
                     for_var.0.replace("$index", &index)
                 } else {

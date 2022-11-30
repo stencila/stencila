@@ -38,7 +38,7 @@ fn bind(sql: &str, parameters: &HashMap<String, Node>) -> (String, PgArguments) 
             Node::Integer(value) => arguments.add(value),
             Node::Number(value) => arguments.add(value.0),
             Node::String(value) => arguments.add(value),
-            _ => arguments.add(serde_json::to_value(&value).unwrap_or(serde_json::Value::Null)),
+            _ => arguments.add(serde_json::to_value(value).unwrap_or(serde_json::Value::Null)),
         };
         count += 1;
         ["$", &count.to_string()].concat()

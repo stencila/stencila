@@ -329,7 +329,7 @@ pub mod commands {
 
             match &self.write {
                 Some(path) => {
-                    let mut file = File::create(&path)?;
+                    let mut file = File::create(path)?;
                     write!(
                         &mut file,
                         "// Generated using `stencila binaries versions {} --write <file>`

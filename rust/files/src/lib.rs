@@ -478,7 +478,7 @@ impl Files {
                 file.path = new_path.into();
                 file.name = File::name(new_path);
                 file.parent = File::parent(new_path);
-                file.format = formats::match_path(&new_path);
+                file.format = formats::match_path(new_path);
                 rename_children(&mut self.files, &mut file, old_path, new_path);
                 self.files.insert(new_path.into(), file.clone());
                 file

@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, path::Path, sync::Arc};
+use std::{collections::BTreeMap, path::Path};
 
 use codec::{
     common::{
@@ -501,7 +501,7 @@ pub mod commands {
         async fn run(&self) -> Result {
             let list = CODECS.list();
             let table = CODECS.table();
-            result::new("md", &table, &list)
+            result::new("md", &table, list)
         }
     }
 

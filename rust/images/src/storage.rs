@@ -269,7 +269,7 @@ pub fn blob_symlink(blob_path: &Path, layout_dir: &Path) -> Result<()> {
 
     let layout_blob_path = layout_blobs_dir.join(hex);
 
-    let relative_path = match diff_paths(&blob_path, &layout_blob_path) {
+    let relative_path = match diff_paths(blob_path, &layout_blob_path) {
         Some(link) => link,
         None => bail!("Unable to create relative link"),
     };

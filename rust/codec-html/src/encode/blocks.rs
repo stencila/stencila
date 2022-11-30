@@ -459,7 +459,7 @@ impl ToHtml for Call {
             "execution_ended",
             self.execution_ended
                 .as_ref()
-                .map(|date| (**date).value.to_string()),
+                .map(|date| date.value.to_string()),
         );
 
         let execution_duration = attr_and_meta_opt(

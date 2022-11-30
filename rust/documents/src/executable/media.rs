@@ -1,11 +1,8 @@
 use std::path::Path;
 
-use common::{async_trait::async_trait, eyre::Result, tracing};
-use graph_triples::{
-    resources::{self},
-    Relation, ResourceInfo,
-};
-use node_address::Address;
+use common::{async_trait::async_trait, tracing};
+
+
 use stencila_schema::{
     AudioObject, AudioObjectSimple, ImageObject, ImageObjectSimple, MediaObject, VideoObject,
     VideoObjectSimple,

@@ -19,7 +19,7 @@ use crate::document::DocumentEventListener;
 #[async_trait]
 pub trait Executable {
     /// Compile a node
-    async fn compile(&self, address: &mut Address, _context: &mut CompileContext) -> Result<()> {
+    async fn compile(&self, _address: &mut Address, _context: &mut CompileContext) -> Result<()> {
         Ok(())
     }
 

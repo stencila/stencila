@@ -1293,7 +1293,7 @@ pub fn code_expr(input: &str) -> IResult<&str, InlineContent> {
             };
             Ok(InlineContent::CodeExpression(CodeExpression {
                 code,
-                programming_language: lang.unwrap_or_else(|| "".to_string()),
+                programming_language: lang.unwrap_or_default(),
                 ..Default::default()
             }))
         },

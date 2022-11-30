@@ -1,4 +1,4 @@
-use std::{path::Path, sync::Arc};
+use std::{path::Path};
 
 use provider::{
     common::{

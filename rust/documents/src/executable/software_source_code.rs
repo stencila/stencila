@@ -1,9 +1,9 @@
-use common::{async_trait::async_trait, eyre::Result};
-use graph_triples::resources;
-use node_address::Address;
+use common::{async_trait::async_trait};
+
+
 use stencila_schema::SoftwareSourceCode;
 
-use crate::executable::{CompileContext, Executable};
+use crate::executable::{Executable};
 
 /// Compile a `SoftwareSourceCode` node
 ///

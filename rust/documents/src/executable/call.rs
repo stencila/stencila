@@ -41,7 +41,7 @@ impl Executable for Call {
                         ..Default::default()
                     }]);
 
-                    break 'draft draft
+                    break 'draft draft;
                 }
             };
             let document_version = document.version().to_string();
@@ -70,7 +70,7 @@ impl Executable for Call {
             let state_digest = generate_digest(state_string);
 
             if state_digest == get_state_digest(&draft.compile_digest) {
-                break 'draft draft
+                break 'draft draft;
             }
 
             let semantic_digest = 0;

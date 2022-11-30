@@ -1,13 +1,10 @@
-use common::{async_trait::async_trait, eyre::Result};
-use graph_triples::{
-    resources::{self},
-    Relation, ResourceInfo,
-};
-use node_address::Address;
-use path_utils::merge;
+use common::{async_trait::async_trait};
+
+
+
 use stencila_schema::Link;
 
-use crate::executable::{CompileContext, Executable};
+use crate::executable::{Executable};
 
 #[async_trait]
 impl Executable for Link {

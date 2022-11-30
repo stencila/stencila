@@ -1,16 +1,14 @@
-use common::{async_trait::async_trait, eyre::Result};
+use common::{async_trait::async_trait};
 use graph_triples::{
-    execution_digest_from_content, execution_digest_from_path,
-    resources::{self},
-    Relation, ResourceInfo,
+    execution_digest_from_content,
 };
 
-use node_address::Address;
-use node_transform::Transform;
-use path_utils::merge;
-use stencila_schema::{CodeError, ExecutionDigest, Include};
 
-use crate::executable::{CompileContext, Executable};
+
+
+use stencila_schema::{ExecutionDigest, Include};
+
+use crate::executable::{Executable};
 
 #[async_trait]
 impl Executable for Include {

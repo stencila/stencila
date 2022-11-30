@@ -39,7 +39,7 @@ use providers::DetectItem;
 use stencila_schema::{Article, Node};
 
 use crate::messages::{
-    CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, Request, RequestId, Response,
+    CancelRequest, CompileRequest, ExecuteRequest, PatchRequest, Request, Response,
     WriteRequest,
 };
 
@@ -759,7 +759,7 @@ impl Document {
 
         // TODO updating of *content from root* and publishing of events etc needs to be sorted out
         if !self.format.binary {
-            self.content = codecs::to_string(&*guard, &self.format.extension, None).await?;
+            self.content = codecs::to_string(&guard, &self.format.extension, None).await?;
         }
 
         // Drop root guard to allow update
@@ -1033,7 +1033,7 @@ impl DocumentHandler {
                 Duration::from_millis(DocumentHandler::WATCHER_DELAY_MILLIS),
             )?;
             let parent = path.parent().unwrap_or(&path);
-            watcher.watch(&parent, RecursiveMode::NonRecursive)?;
+            watcher.watch(parent, RecursiveMode::NonRecursive)?;
 
             // Event checking timeout. Can be quite long since only want to check
             // whether we can end this thread.

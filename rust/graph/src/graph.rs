@@ -27,7 +27,7 @@ use common::{
 };
 use graph_triples::{
     direction, relations, stencila_schema::ExecutionAuto, Direction, Pairs, Relation, Resource,
-    ResourceInfo, Triple, TagMap,
+    ResourceInfo, TagMap, Triple,
 };
 use hash_utils::seahash;
 use kernels::{Kernel, KernelSelector};
@@ -178,7 +178,7 @@ impl Graph {
             true => self.path.parent().unwrap_or(&self.path),
             false => &self.path,
         };
-        pathdiff::diff_paths(path, &base).unwrap_or_else(|| path.to_path_buf())
+        pathdiff::diff_paths(path, base).unwrap_or_else(|| path.to_path_buf())
     }
 
     /// Create a graph from a set of [`ResourceInfo`] objects
@@ -346,8 +346,8 @@ impl Graph {
 
         // Iterate over graph in topological order
         let graph = &self.graph;
-        let mut topo = visit::Topo::new(&graph);
-        while let Some(node_index) = topo.next(&graph) {
+        let mut topo = visit::Topo::new(graph);
+        while let Some(node_index) = topo.next(graph) {
             let resource = &graph[node_index];
             self.topological_order.push(resource.clone());
 

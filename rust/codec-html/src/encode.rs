@@ -79,7 +79,7 @@ fn indent(html: &str) -> String {
         buf.clear();
     }
 
-    std::str::from_utf8(&*writer.into_inner())
+    std::str::from_utf8(&writer.into_inner())
         .expect("Failed to convert a slice of bytes to a string slice")
         .to_string()
 }

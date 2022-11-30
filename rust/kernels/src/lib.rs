@@ -1842,7 +1842,7 @@ pub mod commands {
     impl Symbols {
         pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
             let symbols = kernel_space.symbols.lock().await;
-            display_symbols(&*symbols)
+            display_symbols(&symbols)
         }
     }
 

@@ -153,7 +153,7 @@ pub async fn download_with(url: &str, path: &Path, headers: &[(HeaderName, Strin
     }
 
     let bytes = response.bytes().await?;
-    let mut file = File::create(&path)?;
+    let mut file = File::create(path)?;
     io::copy(&mut bytes.as_ref(), &mut file)?;
     file.flush()?;
 

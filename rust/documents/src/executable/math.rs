@@ -1,10 +1,10 @@
-use common::{async_trait::async_trait, eyre::Result};
-use graph_triples::execution_digest_from_content;
-use math_utils::to_mathml;
-use node_address::Address;
+use common::{async_trait::async_trait};
+
+
+
 use stencila_schema::{MathBlock, MathFragment};
 
-use crate::executable::{CompileContext, Executable};
+use crate::executable::{Executable};
 
 #[async_trait]
 impl Executable for MathBlock {

@@ -8,8 +8,8 @@ use common::{
 };
 use formats::Format;
 use stencila_schema::{
-    ExecutionAuto, ExecutionDependency, ExecutionDependencyNode, ExecutionDependent, ExecutionTag,
-    Variable, ExecutionDependentNode,
+    ExecutionAuto, ExecutionDependency, ExecutionDependencyNode, ExecutionDependent,
+    ExecutionDependentNode, ExecutionTag, Variable,
 };
 
 mod files;

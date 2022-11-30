@@ -1,6 +1,8 @@
 use common::eyre::{bail, eyre, Result};
 use node_transform::Transform;
-use stencila_schema::{BlockContent, CreativeWorkTypes, InlineContent, Node, CallArgument, IfClause};
+use stencila_schema::{
+    BlockContent, CallArgument, CreativeWorkTypes, IfClause, InlineContent, Node,
+};
 
 // Re-exports for convenience of dependant crates
 pub use node_address::Address;
@@ -86,7 +88,7 @@ pub enum PointerMut<'lt> {
 
 impl<'lt> Pointer<'lt> {
     // TODO: Remove usages and then this
-    #[deprecated(note="this function clones nodes so could be expensive")]
+    #[deprecated(note = "this function clones nodes so could be expensive")]
     pub fn to_node(&self) -> Result<Node> {
         Ok(match self {
             Pointer::Inline(node) => node.to_node(),
@@ -96,7 +98,6 @@ impl<'lt> Pointer<'lt> {
         })
     }
 }
-
 
 /// A node visitor
 ///
@@ -226,8 +227,8 @@ mod generics;
 
 mod blocks;
 mod call_argument;
-mod if_clause;
 mod data;
+mod if_clause;
 mod inlines;
 mod nodes;
 mod primitives;

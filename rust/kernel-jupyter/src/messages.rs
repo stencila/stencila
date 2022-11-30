@@ -411,7 +411,7 @@ impl JupyterMessage {
         hmac.update(parent_header);
         hmac.update(metadata);
         hmac.update(content);
-        if let Err(error) = hmac.verify_slice(&hex::decode(&msg_hmac)?) {
+        if let Err(error) = hmac.verify_slice(&hex::decode(msg_hmac)?) {
             bail!("Unable to verify message HMAC: {}", error);
         }
 

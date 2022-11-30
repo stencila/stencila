@@ -58,7 +58,7 @@ pub fn extract_tar(
 ) -> Result<()> {
     use std::fs::create_dir_all;
 
-    let file = fs::File::open(&archive)?;
+    let file = fs::File::open(archive)?;
     let mut archive = tar::Archive::new(match ext {
         "tar" => Box::new(file) as Box<dyn io::Read>,
         #[cfg(feature = "tar-gz")]
@@ -107,7 +107,7 @@ pub fn extract_tar(
 
         // Ensure the parent directories of the output path exist
         if let Some(parent) = out_path.parent() {
-            create_dir_all(&parent)?;
+            create_dir_all(parent)?;
         }
 
         // Unpack to destination
@@ -122,7 +122,7 @@ pub fn extract_tar(
 /// Extract a zip archive
 #[cfg(feature = "zip")]
 pub fn extract_zip(archive: &Path, dest: &Path, strip: usize, subdir: Option<&str>) -> Result<()> {
-    let file = fs::File::open(&archive)?;
+    let file = fs::File::open(archive)?;
     let mut archive = zip::ZipArchive::new(file)?;
 
     let subdir: Vec<String> = match subdir {

@@ -84,7 +84,7 @@ pub fn clear_dir_all(dir: impl AsRef<Path>) -> Result<()> {
 /// Recursively copy a directory to another
 pub fn copy_dir_all(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> Result<()> {
     let dest = dest.as_ref();
-    fs::create_dir_all(&dest).context("While attempting to create destination directory")?;
+    fs::create_dir_all(dest).context("While attempting to create destination directory")?;
     for entry in fs::read_dir(src)
         .context("While attempting to read source directory")?
         .flatten()

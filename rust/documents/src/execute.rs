@@ -110,7 +110,7 @@ impl Document {
     pub(crate) async fn execute_task(
         id: &str,
         path: &Path,
-        project: &Path,
+        _project: &Path,
         root: &DocumentRoot,
         tags: &Arc<RwLock<TagMap>>,
         graph: &Arc<RwLock<Graph>>,
@@ -457,7 +457,7 @@ pub async fn execute(
             let is_fork = task.is_fork;
 
             // Insert the document's global tags into the resource's
-            resource_info.tags.insert_globals(&*tags);
+            resource_info.tags.insert_globals(&tags);
 
             // Create a future for the task that will be spawned later
             let future = async move {
@@ -726,7 +726,7 @@ impl NodeInfo {
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
-            &|node: &mut Node| match node {
+            (|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk {
                     execution_status, ..
                 })
@@ -745,7 +745,7 @@ impl NodeInfo {
                     });
                 }
                 _ => {}
-            },
+            }),
         )
     }
 
@@ -754,7 +754,7 @@ impl NodeInfo {
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
-            &|node: &mut Node| match node {
+            (|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk {
                     execution_status, ..
                 })
@@ -776,7 +776,7 @@ impl NodeInfo {
                     });
                 }
                 _ => {}
-            },
+            }),
         )
     }
 
@@ -785,7 +785,7 @@ impl NodeInfo {
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
-            &|node: &mut Node| match node {
+            (|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk {
                     execution_status, ..
                 })
@@ -801,7 +801,7 @@ impl NodeInfo {
                     *execution_status = Some(ExecutionStatus::Cancelled);
                 }
                 _ => {}
-            },
+            }),
         )
     }
 
@@ -810,7 +810,7 @@ impl NodeInfo {
             &mut self.node,
             Some(self.node_id.to_string()),
             None,
-            &|node: &mut Node| match node {
+            (|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk {
                     execution_status, ..
                 })
@@ -836,7 +836,7 @@ impl NodeInfo {
                     _ => {}
                 },
                 _ => {}
-            },
+            }),
         )
     }
 }

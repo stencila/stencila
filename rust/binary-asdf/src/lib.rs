@@ -111,7 +111,7 @@ impl AsdfBinary {
 
         let output = asdf
             .command()
-            .args(&["list", "all", package])
+            .args(["list", "all", package])
             .output()
             .await?;
         let versions: Vec<String> = std::str::from_utf8(&output.stdout)?
