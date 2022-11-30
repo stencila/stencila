@@ -15,11 +15,12 @@ fn primitives_defaults() -> Result<()> {
     assert_eq!(Number::default(), Number(0f64));
     assert_eq!(String::default(), String::new());
 
-    println!("{:?}", Date::default());
-    println!("{:?}", Time::default());
-    println!("{:?}", DateTime::default());
+    // These should all print out current date/time
+    //println!("{:?}", Date::default());
+    //println!("{:?}", Time::default());
+    //println!("{:?}", DateTime::default());
+    //println!("{:?}", Timestamp::default());
 
-    println!("{:?}", Timestamp::default());
     assert_eq!(
         Duration::default(),
         Duration {
