@@ -12,6 +12,7 @@ static RUNTIME: Lazy<tokio::runtime::Runtime> =
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(30))]
 
+    #[ignore]
     #[test]
     fn test(input in article(
         Freedom::Min,
