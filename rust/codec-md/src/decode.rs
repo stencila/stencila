@@ -1707,7 +1707,7 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
         // TODO allow for programming language to be specified
         pair(
             terminated(symbol, delimited(multispace0, tag("="), multispace0)),
-            alt((delimited(char('`'), is_not("`"), char('`')), is_not(" )"))),
+            alt((delimited(char('`'), is_not("`"), char('`')), is_not(", )"))),
         ),
         |(name, code)| -> Result<CallArgument> {
             Ok(CallArgument {
@@ -2214,7 +2214,7 @@ mod tests {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
                     name: "a".to_string(),
-                    value: Some(Box::new(Node::Integer(1))),
+                    code: "1".to_string(),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -2226,7 +2226,7 @@ mod tests {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
                     name: "parAm_eter_1".to_string(),
-                    value: Some(Box::new(Node::String("string".to_string()))),
+                    code: "\"string\"".to_string(),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -2239,7 +2239,7 @@ mod tests {
                 arguments: vec![
                     CallArgument {
                         name: "a".to_string(),
-                        value: Some(Box::new(Node::Number(Number(1.23)))),
+                        code: "1.23".to_string(),
                         ..Default::default()
                     },
                     CallArgument {
@@ -2249,7 +2249,7 @@ mod tests {
                     },
                     CallArgument {
                         name: "c".to_string(),
-                        value: Some(Box::new(Node::String("string".to_string()))),
+                        code: "'string'".to_string(),
                         ..Default::default()
                     }
                 ],
@@ -2263,22 +2263,22 @@ mod tests {
                 arguments: vec![
                     CallArgument {
                         name: "a".to_string(),
-                        value: Some(Box::new(Node::Integer(1))),
+                        code: "1".to_string(),
                         ..Default::default()
                     },
                     CallArgument {
                         name: "b".to_string(),
-                        value: Some(Box::new(Node::Integer(2))),
+                        code: "2".to_string(),
                         ..Default::default()
                     },
                     CallArgument {
                         name: "c".to_string(),
-                        value: Some(Box::new(Node::Integer(3))),
+                        code: "3".to_string(),
                         ..Default::default()
                     },
                     CallArgument {
                         name: "d".to_string(),
-                        value: Some(Box::new(Node::Integer(4))),
+                        code: "4".to_string(),
                         ..Default::default()
                     },
                 ],
