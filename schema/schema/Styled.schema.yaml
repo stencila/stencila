@@ -19,6 +19,3 @@ properties:
     $comment: |
       Analogous to the [`classList` property of an `Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)
       in the Web API.
-required:
-  - css
-  - classes

@@ -7,22 +7,40 @@ use crate::{EncodeContext, ToHtml};
 use super::{attr, attr_id, attr_prop, attr_slot, elem, elem_placeholder, nothing};
 
 /// Generate a `class` HTML attribute based on a class list and generated CSS
-fn attr_class(classes: &[String], css: &str, context: &mut EncodeContext) -> String {
-    // Calculate a class name based on the digest of the CSS
-    let digest = str_seahash(css).unwrap_or_default();
-    let class_name = format!("st-{:x}", digest);
+#[allow(clippy::box_collection)]
+fn attr_class(
+    classes: &Option<Vec<String>>,
+    css: &Option<Box<String>>,
+    context: &mut EncodeContext,
+) -> String {
+    let mut class = if let Some(css) = css {
+        // Calculate a class name based on the digest of the CSS
+        let digest = str_seahash(css).unwrap_or_default();
+        let class = format!("st-{:x}", digest);
 
-    // Add the CSS to the context for rendering to a <style> tag
-    let css = css.replace(":root", &[".", &class_name].concat());
-    context.styles.entry(class_name.clone()).or_insert(css);
+        // Add the CSS to the context for rendering to a <style> tag
+        let css = css.replace(":root", &[".", &class].concat());
+        context.styles.entry(class.clone()).or_insert(css);
 
-    // Return the attribute
-    let mut class = class_name;
-    if !classes.is_empty() {
-        class.push(' ');
-        class.push_str(&classes.join(" "))
+        class
+    } else {
+        String::new()
+    };
+
+    if let Some(classes) = classes {
+        if !classes.is_empty() {
+            if !class.is_empty() {
+                class.push(' ');
+            }
+            class.push_str(&classes.join(" "))
+        }
     }
-    attr("class", &class)
+
+    if !class.is_empty() {
+        attr("class", &class)
+    } else {
+        nothing()
+    }
 }
 
 /// Escape CSS
@@ -70,11 +88,15 @@ impl ToHtml for Division {
         };
 
         let css = if context.options.mode >= EncodeMode::Dynamic {
-            elem(
-                "pre",
-                &[attr_prop("css"), attr_slot("css")],
-                &escape_css(&self.css, context),
-            )
+            if let Some(css) = &self.css {
+                elem(
+                    "pre",
+                    &[attr_prop("css"), attr_slot("css")],
+                    &escape_css(css, context),
+                )
+            } else {
+                nothing()
+            }
         } else {
             nothing()
         };
@@ -128,11 +150,15 @@ impl ToHtml for Span {
         };
 
         let css = if context.options.mode >= EncodeMode::Dynamic {
-            elem(
-                "code",
-                &[attr_prop("css"), attr_slot("css")],
-                &escape_css(&self.css, context),
-            )
+            if let Some(css) = &self.css {
+                elem(
+                    "pre",
+                    &[attr_prop("css"), attr_slot("css")],
+                    &escape_css(css, context),
+                )
+            } else {
+                nothing()
+            }
         } else {
             nothing()
         };

@@ -3,7 +3,7 @@
 //! Run with `cargo test sizes -- --nocapture`
 //! to get the printed output.
 
-use std::collections::BTreeMap;
+
 
 use stencila_schema::*;
 
@@ -107,6 +107,7 @@ fn sizes() {
     sizeof!(InlineContent);
     println!("----------------------------------------------");
     sizeof!(AudioObjectSimple);
+    sizeof!(Button);
     sizeof!(Cite);
     sizeof!(CiteGroup);
     sizeof!(CodeExpression);
@@ -120,27 +121,39 @@ fn sizes() {
     sizeof!(Note);
     sizeof!(Parameter);
     sizeof!(Quote);
+    sizeof!(Span);
+    sizeof!(Strikeout);
     sizeof!(Strong);
     sizeof!(Subscript);
     sizeof!(Superscript);
+    sizeof!(Underline);
     sizeof!(VideoObjectSimple);
-    sizeof!(bool);
-    sizeof!(i64);
-    sizeof!(f64);
+    sizeof!(Null);
+    sizeof!(Boolean);
+    sizeof!(Integer);
+    sizeof!(Number);
     sizeof!(String);
-    sizeof!(Vec<Primitive>);
-    sizeof!(BTreeMap<String, Primitive>);
+    sizeof!(Date);
+    sizeof!(Time);
+    sizeof!(DateTime);
+    sizeof!(Timestamp);
+    sizeof!(Duration);
     println!("----------------------------------------------");
 
     println!();
     println!("----------------------------------------------");
     sizeof!(BlockContent);
     println!("----------------------------------------------");
+    sizeof!(Call);
     sizeof!(ClaimSimple);
     sizeof!(CodeBlock);
     sizeof!(CodeChunk);
+    sizeof!(Division);
     sizeof!(FigureSimple);
+    sizeof!(For);
+    sizeof!(Form);
     sizeof!(Heading);
+    sizeof!(If);
     sizeof!(Include);
     sizeof!(List);
     sizeof!(MathBlock);
@@ -178,6 +191,7 @@ fn sizes() {
     println!("----------------------------------------------");
     sizeof!(Primitive);
     println!("----------------------------------------------");
+    sizeof!(Null);
     sizeof!(Boolean);
     sizeof!(Integer);
     sizeof!(Number);

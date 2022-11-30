@@ -2423,20 +2423,20 @@ pub struct Styled {
     #[derivative(Default(value = "Styled_::Styled"))]
     pub type_: Styled_,
 
-    /// A list of class names associated with the document node
-    pub classes: Vec<String>,
-
     /// The code.
     pub code: String,
-
-    /// A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
-    pub css: String,
 
     /// The programming language of the code.
     pub programming_language: String,
 
+    /// A list of class names associated with the document node
+    pub classes: Option<Vec<String>>,
+
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
+
+    /// A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
+    pub css: Option<Box<String>>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
@@ -2499,23 +2499,23 @@ pub struct Division {
     #[derivative(Default(value = "Division_::Division"))]
     pub type_: Division_,
 
-    /// A list of class names associated with the document node
-    pub classes: Vec<String>,
-
     /// The code.
     pub code: String,
 
     /// The content within the division
     pub content: Vec<BlockContent>,
 
-    /// A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
-    pub css: String,
-
     /// The programming language of the code.
     pub programming_language: String,
 
+    /// A list of class names associated with the document node
+    pub classes: Option<Vec<String>>,
+
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
+
+    /// A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
+    pub css: Option<Box<String>>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
@@ -4032,7 +4032,7 @@ pub struct Organization {
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
 
-    /// Legal name for the Organization. Should only include letters and spaces.
+    /// The official name of the organization, e.g. the registered company name.
     pub legal_name: Option<Box<String>>,
 
     /// The logo of the organization.
@@ -5195,23 +5195,23 @@ pub struct Span {
     #[derivative(Default(value = "Span_::Span"))]
     pub type_: Span_,
 
-    /// A list of class names associated with the document node
-    pub classes: Vec<String>,
-
     /// The code.
     pub code: String,
 
     /// The content within the span
     pub content: Vec<InlineContent>,
 
-    /// A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
-    pub css: String,
-
     /// The programming language of the code.
     pub programming_language: String,
 
+    /// A list of class names associated with the document node
+    pub classes: Option<Vec<String>>,
+
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<ExecutionDigest>,
+
+    /// A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
+    pub css: Option<Box<String>>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
