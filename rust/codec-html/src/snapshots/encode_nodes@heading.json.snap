@@ -1,12 +1,14 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 534
+assertion_line: 525
 expression: html
 input_file: fixtures/nodes/heading.json
 ---
 <stencila-article data-root data-root="true">
   <article itemtype="https://schema.org/Article" itemscope>
-    <h1 data-prop="title" itemprop="headline">Some headings</h1>
+    <h1 data-prop="title" itemprop="headline">
+      <span>Some headings</span>
+    </h1>
     <div data-prop="content" slot="content">
       <h2 itemtype="https://schema.stenci.la/Heading" itemscope>
         <span>The heading one content</span>

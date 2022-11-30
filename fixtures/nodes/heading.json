@@ -1,6 +1,6 @@
 {
   "type": "Article",
-  "title": "Some headings",
+  "title": ["Some headings"],
   "content": [
     {
       "type": "Heading",
