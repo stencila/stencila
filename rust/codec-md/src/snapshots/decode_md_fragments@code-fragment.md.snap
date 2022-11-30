@@ -1,8 +1,8 @@
 ---
-source: rust/src/methods/decode/md.rs
-expression: decode_fragment(&content)
+source: rust/codec-md/src/decode.rs
+assertion_line: 2414
+expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/code-fragment.md
-
 ---
 [
   {
@@ -11,7 +11,7 @@ input_file: fixtures/fragments/md/code-fragment.md
       "Some ",
       {
         "type": "CodeFragment",
-        "text": "code"
+        "code": "code"
       },
       " in a paragraph."
     ]

@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/py/imports.py
 ---
 {
+  "language": "python",
   "syntaxErrors": false,
   "semanticDigest": 14686235381245225927,
   "executionDependencies": [

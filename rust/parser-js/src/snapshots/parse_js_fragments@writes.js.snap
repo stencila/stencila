@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/js/writes.js
 ---
 {
+  "language": "javascript",
   "syntaxErrors": false,
   "semanticDigest": 2408687243167791640,
   "executionDependencies": [
@@ -148,8 +149,8 @@ input_file: fixtures/fragments/js/writes.js
       "dependentNode": {
         "type": "Variable",
         "name": "writeData",
-        "kind": "Function",
-        "namespace": "fragments/js/writes.js"
+        "namespace": "fragments/js/writes.js",
+        "kind": "Function"
       },
       "dependentRelation": "Declares",
       "codeLocation": [

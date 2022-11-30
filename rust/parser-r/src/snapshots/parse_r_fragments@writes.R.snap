@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/r/writes.R
 ---
 {
+  "language": "r",
   "syntaxErrors": false,
   "semanticDigest": 5373270997259994715,
   "executionDependencies": [
@@ -150,8 +151,8 @@ input_file: fixtures/fragments/r/writes.R
       "dependentNode": {
         "type": "Variable",
         "name": "foo",
-        "kind": "Function",
-        "namespace": "fragments/r/writes.R"
+        "namespace": "fragments/r/writes.R",
+        "kind": "Function"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [

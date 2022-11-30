@@ -1,10 +1,11 @@
 ---
 source: rust/parser-prql/src/lib.rs
-assertion_line: 56
+assertion_line: 58
 expression: parse_info
 input_file: fixtures/fragments/prql/1.prql
 ---
 {
+  "language": "prql",
   "syntaxErrors": false,
   "semanticDigest": 13915502163255635067,
   "executionDependencies": [
@@ -13,8 +14,8 @@ input_file: fixtures/fragments/prql/1.prql
       "dependencyNode": {
         "type": "Variable",
         "name": "table_a",
-        "kind": "Datatable",
-        "namespace": "fragments/prql/1.prql"
+        "namespace": "fragments/prql/1.prql",
+        "kind": "Datatable"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [

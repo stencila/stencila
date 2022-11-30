@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/sql/alters.sql
 ---
 {
+  "language": "sql",
   "syntaxErrors": true,
   "semanticDigest": 8642896598344001490,
   "executionDependencies": [
@@ -13,8 +14,8 @@ input_file: fixtures/fragments/sql/alters.sql
       "dependencyNode": {
         "type": "Variable",
         "name": "table_a",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/alters.sql"
+        "namespace": "fragments/sql/alters.sql",
+        "kind": "Datatable"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -31,8 +32,8 @@ input_file: fixtures/fragments/sql/alters.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_i1",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/alters.sql"
+        "namespace": "fragments/sql/alters.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Alters",
       "codeLocation": [
@@ -47,8 +48,8 @@ input_file: fixtures/fragments/sql/alters.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_i2",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/alters.sql"
+        "namespace": "fragments/sql/alters.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Alters",
       "codeLocation": [
@@ -63,8 +64,8 @@ input_file: fixtures/fragments/sql/alters.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_i3",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/alters.sql"
+        "namespace": "fragments/sql/alters.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Alters",
       "codeLocation": [
@@ -79,8 +80,8 @@ input_file: fixtures/fragments/sql/alters.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_u1",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/alters.sql"
+        "namespace": "fragments/sql/alters.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Alters",
       "codeLocation": [
@@ -95,8 +96,8 @@ input_file: fixtures/fragments/sql/alters.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_d1",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/alters.sql"
+        "namespace": "fragments/sql/alters.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Alters",
       "codeLocation": [
@@ -111,8 +112,8 @@ input_file: fixtures/fragments/sql/alters.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_d2",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/alters.sql"
+        "namespace": "fragments/sql/alters.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Alters",
       "codeLocation": [
@@ -127,8 +128,8 @@ input_file: fixtures/fragments/sql/alters.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_p1",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/alters.sql"
+        "namespace": "fragments/sql/alters.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Alters",
       "codeLocation": [

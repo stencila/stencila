@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/r/assigns.R
 ---
 {
+  "language": "r",
   "syntaxErrors": false,
   "semanticDigest": 1296525448460664608,
   "executionDependencies": [],
@@ -14,8 +15,8 @@ input_file: fixtures/fragments/r/assigns.R
       "dependentNode": {
         "type": "Variable",
         "name": "var1",
-        "kind": "Number",
-        "namespace": "fragments/r/assigns.R"
+        "namespace": "fragments/r/assigns.R",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -30,8 +31,8 @@ input_file: fixtures/fragments/r/assigns.R
       "dependentNode": {
         "type": "Variable",
         "name": "var2",
-        "kind": "Number",
-        "namespace": "fragments/r/assigns.R"
+        "namespace": "fragments/r/assigns.R",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -46,8 +47,8 @@ input_file: fixtures/fragments/r/assigns.R
       "dependentNode": {
         "type": "Variable",
         "name": "fun1",
-        "kind": "Function",
-        "namespace": "fragments/r/assigns.R"
+        "namespace": "fragments/r/assigns.R",
+        "kind": "Function"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -62,8 +63,8 @@ input_file: fixtures/fragments/r/assigns.R
       "dependentNode": {
         "type": "Variable",
         "name": "var3",
-        "kind": "Number",
-        "namespace": "fragments/r/assigns.R"
+        "namespace": "fragments/r/assigns.R",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -78,8 +79,8 @@ input_file: fixtures/fragments/r/assigns.R
       "dependentNode": {
         "type": "Variable",
         "name": "var4",
-        "kind": "Number",
-        "namespace": "fragments/r/assigns.R"
+        "namespace": "fragments/r/assigns.R",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -109,8 +110,8 @@ input_file: fixtures/fragments/r/assigns.R
       "dependentNode": {
         "type": "Variable",
         "name": "var6",
-        "kind": "Boolean",
-        "namespace": "fragments/r/assigns.R"
+        "namespace": "fragments/r/assigns.R",
+        "kind": "Boolean"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -125,8 +126,8 @@ input_file: fixtures/fragments/r/assigns.R
       "dependentNode": {
         "type": "Variable",
         "name": "var7",
-        "kind": "Boolean",
-        "namespace": "fragments/r/assigns.R"
+        "namespace": "fragments/r/assigns.R",
+        "kind": "Boolean"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -141,8 +142,8 @@ input_file: fixtures/fragments/r/assigns.R
       "dependentNode": {
         "type": "Variable",
         "name": "var8",
-        "kind": "Integer",
-        "namespace": "fragments/r/assigns.R"
+        "namespace": "fragments/r/assigns.R",
+        "kind": "Integer"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -157,8 +158,8 @@ input_file: fixtures/fragments/r/assigns.R
       "dependentNode": {
         "type": "Variable",
         "name": "var9",
-        "kind": "Number",
-        "namespace": "fragments/r/assigns.R"
+        "namespace": "fragments/r/assigns.R",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -173,8 +174,8 @@ input_file: fixtures/fragments/r/assigns.R
       "dependentNode": {
         "type": "Variable",
         "name": "var10",
-        "kind": "String",
-        "namespace": "fragments/r/assigns.R"
+        "namespace": "fragments/r/assigns.R",
+        "kind": "String"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -189,8 +190,8 @@ input_file: fixtures/fragments/r/assigns.R
       "dependentNode": {
         "type": "Variable",
         "name": "var11",
-        "kind": "Datatable",
-        "namespace": "fragments/r/assigns.R"
+        "namespace": "fragments/r/assigns.R",
+        "kind": "Datatable"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [

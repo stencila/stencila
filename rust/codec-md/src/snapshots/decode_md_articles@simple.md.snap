@@ -1,8 +1,8 @@
 ---
 source: rust/codec-md/src/decode.rs
+assertion_line: 2407
 expression: "decode(content).expect(\"Unable to decode Markdown\")"
 input_file: fixtures/articles/simple.md
-
 ---
 {
   "type": "Article",
@@ -124,5 +124,7 @@ input_file: fixtures/articles/simple.md
     "fixture",
     "Markdown"
   ],
-  "title": "A simple Markdown article"
+  "title": [
+    "A simple Markdown article"
+  ]
 }

@@ -1,9 +1,8 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 1273
+assertion_line: 2407
 expression: "decode(content).expect(\"Unable to decode Markdown\")"
 input_file: fixtures/articles/code-serial.md
-
 ---
 {
   "type": "Article",
@@ -16,23 +15,23 @@ input_file: fixtures/articles/code-serial.md
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "bash",
-      "text": "sleep 3\necho \"Succeeded at $(date).\""
+      "code": "sleep 3\necho \"Succeeded at $(date).\"",
+      "programmingLanguage": "bash"
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "bash",
-      "text": "# @requires cc-1\nsleep 3\necho \"Succeeded at $(date).\""
+      "code": "# @requires cc-1\nsleep 3\necho \"Succeeded at $(date).\"",
+      "programmingLanguage": "bash"
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "bash",
-      "text": "# @requires cc-2\nsleep 3\necho \"Failed at $(date).\"\necho \"This chunk should show an error and the next should be scheduled but not run\"\necho \"Error to cancel next stage\" >&2"
+      "code": "# @requires cc-2\nsleep 3\necho \"Failed at $(date).\"\necho \"This chunk should show an error and the next should be scheduled but not run\"\necho \"Error to cancel next stage\" >&2",
+      "programmingLanguage": "bash"
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "bash",
-      "text": "# @requires cc-3\necho \"This output should not show (unless it is explicitly run) and the chunk should show that a dependency failed.\""
+      "code": "# @requires cc-3\necho \"This output should not show (unless it is explicitly run) and the chunk should show that a dependency failed.\"",
+      "programmingLanguage": "bash"
     }
   ]
 }

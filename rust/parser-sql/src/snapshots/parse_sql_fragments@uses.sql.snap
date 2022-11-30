@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/sql/uses.sql
 ---
 {
+  "language": "sql",
   "syntaxErrors": false,
   "semanticDigest": 7162091459807791282,
   "executionDependencies": [
@@ -13,8 +14,8 @@ input_file: fixtures/fragments/sql/uses.sql
       "dependencyNode": {
         "type": "Variable",
         "name": "table_a",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/uses.sql"
+        "namespace": "fragments/sql/uses.sql",
+        "kind": "Datatable"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -29,8 +30,8 @@ input_file: fixtures/fragments/sql/uses.sql
       "dependencyNode": {
         "type": "Variable",
         "name": "table_b",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/uses.sql"
+        "namespace": "fragments/sql/uses.sql",
+        "kind": "Datatable"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -45,8 +46,8 @@ input_file: fixtures/fragments/sql/uses.sql
       "dependencyNode": {
         "type": "Variable",
         "name": "table_d",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/uses.sql"
+        "namespace": "fragments/sql/uses.sql",
+        "kind": "Datatable"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -61,8 +62,8 @@ input_file: fixtures/fragments/sql/uses.sql
       "dependencyNode": {
         "type": "Variable",
         "name": "table_e",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/uses.sql"
+        "namespace": "fragments/sql/uses.sql",
+        "kind": "Datatable"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [

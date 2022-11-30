@@ -1,8 +1,8 @@
 ---
 source: rust/codec-pandoc/src/decode.rs
+assertion_line: 738
 expression: json
 input_file: fixtures/fragments/pandoc/image.json
-
 ---
 [
   {
@@ -23,7 +23,9 @@ input_file: fixtures/fragments/pandoc/image.json
       {
         "type": "ImageObject",
         "contentUrl": "image.png",
-        "title": "the title"
+        "title": [
+          "the title"
+        ]
       },
       "."
     ]

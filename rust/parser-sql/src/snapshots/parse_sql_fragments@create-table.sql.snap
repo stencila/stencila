@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/sql/create-table.sql
 ---
 {
+  "language": "sql",
   "syntaxErrors": false,
   "semanticDigest": 16739005431456814672,
   "executionDependencies": [],
@@ -14,8 +15,8 @@ input_file: fixtures/fragments/sql/create-table.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_a",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/create-table.sql"
+        "namespace": "fragments/sql/create-table.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -30,8 +31,8 @@ input_file: fixtures/fragments/sql/create-table.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_a.col_a",
-        "kind": "DatatableColumn",
-        "namespace": "fragments/sql/create-table.sql"
+        "namespace": "fragments/sql/create-table.sql",
+        "kind": "DatatableColumn"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -46,8 +47,8 @@ input_file: fixtures/fragments/sql/create-table.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_a.col_b",
-        "kind": "DatatableColumn",
-        "namespace": "fragments/sql/create-table.sql"
+        "namespace": "fragments/sql/create-table.sql",
+        "kind": "DatatableColumn"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -62,8 +63,8 @@ input_file: fixtures/fragments/sql/create-table.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_a.col_c",
-        "kind": "DatatableColumn",
-        "namespace": "fragments/sql/create-table.sql"
+        "namespace": "fragments/sql/create-table.sql",
+        "kind": "DatatableColumn"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -78,8 +79,8 @@ input_file: fixtures/fragments/sql/create-table.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_a.col_d",
-        "kind": "DatatableColumn",
-        "namespace": "fragments/sql/create-table.sql"
+        "namespace": "fragments/sql/create-table.sql",
+        "kind": "DatatableColumn"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -94,8 +95,8 @@ input_file: fixtures/fragments/sql/create-table.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_a.col_e",
-        "kind": "DatatableColumn",
-        "namespace": "fragments/sql/create-table.sql"
+        "namespace": "fragments/sql/create-table.sql",
+        "kind": "DatatableColumn"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -110,8 +111,8 @@ input_file: fixtures/fragments/sql/create-table.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_a.col_f",
-        "kind": "DatatableColumn",
-        "namespace": "fragments/sql/create-table.sql"
+        "namespace": "fragments/sql/create-table.sql",
+        "kind": "DatatableColumn"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -126,8 +127,8 @@ input_file: fixtures/fragments/sql/create-table.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_a.col_g",
-        "kind": "DatatableColumn",
-        "namespace": "fragments/sql/create-table.sql"
+        "namespace": "fragments/sql/create-table.sql",
+        "kind": "DatatableColumn"
       },
       "dependentRelation": "Declares",
       "codeLocation": [

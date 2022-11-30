@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 527
+assertion_line: 59
 expression: article
 input_file: fixtures/articles/scripts/script.py
 ---
@@ -15,8 +15,8 @@ input_file: fixtures/articles/scripts/script.py
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "python",
-      "text": "a = 1"
+      "code": "a = 1",
+      "programmingLanguage": "python"
     },
     {
       "type": "Paragraph",
@@ -24,16 +24,16 @@ input_file: fixtures/articles/scripts/script.py
         "Second paragraph, with a code expression that uses the above code ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "py",
-          "text": "a*2"
+          "code": "a*2",
+          "programmingLanguage": "py"
         },
         ", followed by some more code, this time multiline,"
       ]
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "python",
-      "text": "b = 2\n\ndef fn1(x):\n    x * x"
+      "code": "b = 2\n\ndef fn1(x):\n    x * x",
+      "programmingLanguage": "python"
     },
     {
       "type": "Paragraph",
@@ -99,8 +99,8 @@ input_file: fixtures/articles/scripts/script.py
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "python",
-      "text": "c = 3"
+      "code": "c = 3",
+      "programmingLanguage": "python"
     },
     {
       "type": "Paragraph",
@@ -123,8 +123,8 @@ input_file: fixtures/articles/scripts/script.py
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "python",
-      "text": "print('a + b + c + d = %s' % (a + b + c + d))"
+      "code": "print('a + b + c + d = %s' % (a + b + c + d))",
+      "programmingLanguage": "python"
     }
   ]
 }

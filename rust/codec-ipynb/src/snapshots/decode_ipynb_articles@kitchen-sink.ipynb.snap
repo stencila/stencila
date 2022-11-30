@@ -34,7 +34,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "This is a \"kitchen sink\" test fixture for the Jupyter Notebook (",
         {
           "type": "CodeFragment",
-          "text": "ipynb"
+          "code": "ipynb"
         },
         ") format. It's principal use is in testing Stencila's conversion to / from Jupyter Notebooks but also serves to document that conversion. It contains a variety of document node types and Jupyter cell types."
       ]
@@ -52,37 +52,37 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "Stencila parses the ",
         {
           "type": "CodeFragment",
-          "text": "metadata"
+          "code": "metadata"
         },
         " property of a notebook by coercing it to an ",
         {
           "type": "CodeFragment",
-          "text": "Article"
+          "code": "Article"
         },
         ". This allows article properties such as ",
         {
           "type": "CodeFragment",
-          "text": "title"
+          "code": "title"
         },
         ", ",
         {
           "type": "CodeFragment",
-          "text": "authors"
+          "code": "authors"
         },
         ", ",
         {
           "type": "CodeFragment",
-          "text": "funders"
+          "code": "funders"
         },
         " and ",
         {
           "type": "CodeFragment",
-          "text": "references"
+          "code": "references"
         },
         " to be encoded into the ",
         {
           "type": "CodeFragment",
-          "text": "ipynb"
+          "code": "ipynb"
         },
         " format and then extracted, for conversion to other formats e.g. HTML."
       ]
@@ -186,7 +186,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "Markdown cells get decoded into arrays of ",
         {
           "type": "CodeFragment",
-          "text": "BlockContent"
+          "code": "BlockContent"
         },
         " and merged together, so the the fact that this cell is separate from the preceding and following cells will not be apparent."
       ]
@@ -216,19 +216,19 @@ input_file: fixtures/articles/kitchen-sink.ipynb
                 "the ",
                 {
                   "type": "CodeFragment",
-                  "text": "exec"
+                  "code": "exec"
                 },
                 " keyword on backticked inline code e.g. ",
                 {
                   "type": "CodeExpression",
-                  "programmingLanguage": "python",
-                  "text": "1+1"
+                  "code": "1+1",
+                  "programmingLanguage": "python"
                 },
                 ", optionally with a language e.g. ",
                 {
                   "type": "CodeExpression",
-                  "programmingLanguage": "r",
-                  "text": "2*2"
+                  "code": "2*2",
+                  "programmingLanguage": "r"
                 },
                 "."
               ]
@@ -244,14 +244,14 @@ input_file: fixtures/articles/kitchen-sink.ipynb
                 "double curly braces ",
                 {
                   "type": "CodeExpression",
-                  "programmingLanguage": "python",
-                  "text": "3+3"
+                  "code": "3+3",
+                  "programmingLanguage": "python"
                 },
                 ", optionally with a language ",
                 {
                   "type": "CodeExpression",
-                  "programmingLanguage": "r",
-                  "text": "4+4"
+                  "code": "4+4",
+                  "programmingLanguage": "r"
                 },
                 "."
               ]
@@ -267,24 +267,24 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "Using backticks with ",
         {
           "type": "CodeFragment",
-          "text": "exec"
+          "code": "exec"
         },
         " is recommend as most Markdown parsers will properly escape symbols like ",
         {
           "type": "CodeFragment",
-          "text": "*"
+          "code": "*"
         },
         " within backticks. If code expressions do not specify a language, then Stencila falls back to the language of the notebook e.g. ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "python",
-          "text": "4*4"
+          "code": "4*4",
+          "programmingLanguage": "python"
         },
         " and ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "python",
-          "text": "5+5"
+          "code": "5+5",
+          "programmingLanguage": "python"
         },
         "."
       ]
@@ -302,7 +302,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "Jupyter code cells are converted into Stencila ",
         {
           "type": "CodeFragment",
-          "text": "CodeChunk"
+          "code": "CodeChunk"
         },
         "s."
       ]
@@ -320,25 +320,25 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "All cells in a notebook normally all use the same language. However, if a cell has a ",
         {
           "type": "CodeFragment",
-          "text": "language_info.name"
+          "code": "language_info.name"
         },
         " specified in their ",
         {
           "type": "CodeFragment",
-          "text": "metadata"
+          "code": "metadata"
         },
         " property then Stencila will use that, rather than the language from the top-level metadata of the notebook."
       ]
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "python",
-      "text": "# Python"
+      "code": "# Python",
+      "programmingLanguage": "python"
     },
     {
       "type": "CodeChunk",
+      "code": "// JavaScript",
       "programmingLanguage": "javascript",
-      "text": "// JavaScript",
       "errors": [
         {
           "type": "CodeError",
@@ -356,8 +356,8 @@ input_file: fixtures/articles/kitchen-sink.ipynb
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "python",
-      "text": "# No output"
+      "code": "# No output",
+      "programmingLanguage": "python"
     },
     {
       "type": "Heading",
@@ -372,80 +372,80 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "Stencila will attempt to parse the ",
         {
           "type": "CodeFragment",
-          "text": "text/plain"
+          "code": "text/plain"
         },
         " outputs of cells (including stream outputs) into node types such as ",
         {
           "type": "CodeFragment",
-          "text": "Boolean"
+          "code": "Boolean"
         },
         ", ",
         {
           "type": "CodeFragment",
-          "text": "Number"
+          "code": "Number"
         },
         ", ",
         {
           "type": "CodeFragment",
-          "text": "Array"
+          "code": "Array"
         },
         ", ",
         {
           "type": "CodeFragment",
-          "text": "Object"
+          "code": "Object"
         },
         " etc, falling back to ",
         {
           "type": "CodeFragment",
-          "text": "String"
+          "code": "String"
         },
         "."
       ]
     },
     {
       "type": "CodeChunk",
+      "code": "# Plain text output\n\"Hello world\"",
       "programmingLanguage": "python",
-      "text": "# Plain text output\n\"Hello world\"",
       "outputs": [
         "Hello world"
       ]
     },
     {
       "type": "CodeChunk",
+      "code": "True",
       "programmingLanguage": "python",
-      "text": "True",
       "outputs": [
         true
       ]
     },
     {
       "type": "CodeChunk",
+      "code": "False",
       "programmingLanguage": "python",
-      "text": "False",
       "outputs": [
         false
       ]
     },
     {
       "type": "CodeChunk",
+      "code": "42",
       "programmingLanguage": "python",
-      "text": "42",
       "outputs": [
         42
       ]
     },
     {
       "type": "CodeChunk",
+      "code": "import math\nmath.pi",
       "programmingLanguage": "python",
-      "text": "import math\nmath.pi",
       "outputs": [
         3.141592653589793
       ]
     },
     {
       "type": "CodeChunk",
+      "code": "dict(a=1,b=2)",
       "programmingLanguage": "python",
-      "text": "dict(a=1,b=2)",
       "outputs": [
         {
           "a": 1,
@@ -455,8 +455,8 @@ input_file: fixtures/articles/kitchen-sink.ipynb
     },
     {
       "type": "CodeChunk",
+      "code": "list(range(10))",
       "programmingLanguage": "python",
-      "text": "list(range(10))",
       "outputs": [
         [
           0,
@@ -474,8 +474,8 @@ input_file: fixtures/articles/kitchen-sink.ipynb
     },
     {
       "type": "CodeChunk",
+      "code": "dict(a='string', b=1, c=3.14, d=[1, 2, 3], e=dict(f=1))",
       "programmingLanguage": "python",
-      "text": "dict(a='string', b=1, c=3.14, d=[1, 2, 3], e=dict(f=1))",
       "outputs": [
         {
           "a": "string",
@@ -494,8 +494,8 @@ input_file: fixtures/articles/kitchen-sink.ipynb
     },
     {
       "type": "CodeChunk",
+      "code": "# Stream output\nprint(\"Just a string\")",
       "programmingLanguage": "python",
-      "text": "# Stream output\nprint(\"Just a string\")",
       "outputs": [
         "Just a string\n"
       ]
@@ -515,8 +515,8 @@ input_file: fixtures/articles/kitchen-sink.ipynb
     },
     {
       "type": "CodeChunk",
+      "code": "# Matplotlib\nimport matplotlib.pyplot as plt\nimport numpy as np\n\nx = np.linspace(0, 10, 100)\nplt.plot(x, np.sin(x))\nplt.show()",
       "programmingLanguage": "python",
-      "text": "# Matplotlib\nimport matplotlib.pyplot as plt\nimport numpy as np\n\nx = np.linspace(0, 10, 100)\nplt.plot(x, np.sin(x))\nplt.show()",
       "outputs": [
         {
           "type": "ImageObject",
@@ -527,8 +527,8 @@ input_file: fixtures/articles/kitchen-sink.ipynb
     },
     {
       "type": "CodeChunk",
+      "code": "# Plotly\nimport plotly.express as px\nfig = px.scatter(px.data.iris(), x=\"sepal_width\", y=\"sepal_length\")\nfig.show()\n",
       "programmingLanguage": "python",
-      "text": "# Plotly\nimport plotly.express as px\nfig = px.scatter(px.data.iris(), x=\"sepal_width\", y=\"sepal_length\")\nfig.show()\n",
       "outputs": [
         {
           "type": "ImageObject",
@@ -539,8 +539,8 @@ input_file: fixtures/articles/kitchen-sink.ipynb
     },
     {
       "type": "CodeChunk",
+      "code": "# Altair\nimport altair as alt\nimport pandas as pd\n\nalt.renderers.enable('mimetype')\n\nsource = pd.DataFrame({\n    'a': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],\n    'b': [28, 55, 43, 91, 81, 53, 19, 87, 52]\n})\n\nalt.Chart(source).mark_bar().encode(\n    x='a',\n    y='b'\n)",
       "programmingLanguage": "python",
-      "text": "# Altair\nimport altair as alt\nimport pandas as pd\n\nalt.renderers.enable('mimetype')\n\nsource = pd.DataFrame({\n    'a': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],\n    'b': [28, 55, 43, 91, 81, 53, 19, 87, 52]\n})\n\nalt.Chart(source).mark_bar().encode(\n    x='a',\n    y='b'\n)",
       "outputs": [
         {
           "type": "ImageObject",
@@ -562,19 +562,19 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "Stencila will attempt to convert ",
         {
           "type": "CodeFragment",
-          "text": "text/html"
+          "code": "text/html"
         },
         " outputs into rich node types e.g. ",
         {
           "type": "CodeFragment",
-          "text": "Table"
+          "code": "Table"
         }
       ]
     },
     {
       "type": "CodeChunk",
+      "code": "import pandas as pd\nimport numpy as np\n\ndf = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]), columns=['a', 'b', 'c'])\n\n# By default a `text/html` representation of the data frame is generated\ndf",
       "programmingLanguage": "python",
-      "text": "import pandas as pd\nimport numpy as np\n\ndf = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]), columns=['a', 'b', 'c'])\n\n# By default a `text/html` representation of the data frame is generated\ndf",
       "outputs": [
         {
           "type": "Table",
@@ -717,15 +717,15 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "If a string output of the cell includes newlines, tabs or more than two consecutive spaces (other than leading or trailing whitespace) it is treated as preformatted text and converted to a Stencila ",
         {
           "type": "CodeFragment",
-          "text": "CodeBlock"
+          "code": "CodeBlock"
         },
         "."
       ]
     },
     {
       "type": "CodeChunk",
+      "code": "# Print the data.frame so that is output as `text/plain`\nprint(df)",
       "programmingLanguage": "python",
-      "text": "# Print the data.frame so that is output as `text/plain`\nprint(df)",
       "outputs": [
         "   a  b  c\n0  1  2  3\n1  4  5  6\n2  7  8  9\n"
       ]
@@ -743,30 +743,30 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "Stencila converts any cell outputs that are errors into a ",
         {
           "type": "CodeFragment",
-          "text": "CodeError"
+          "code": "CodeError"
         },
         " with message, type and stack trace. In addition, any output to the ",
         {
           "type": "CodeFragment",
-          "text": "stderr"
+          "code": "stderr"
         },
         " stream is converted to a ",
         {
           "type": "CodeFragment",
-          "text": "CodeError"
+          "code": "CodeError"
         },
         " with ",
         {
           "type": "CodeFragment",
-          "text": "errorType: \"stderr\""
+          "code": "errorType: \"stderr\""
         },
         "."
       ]
     },
     {
       "type": "CodeChunk",
+      "code": "A syntax error",
       "programmingLanguage": "python",
-      "text": "A syntax error",
       "errors": [
         {
           "type": "CodeError",
@@ -778,8 +778,8 @@ input_file: fixtures/articles/kitchen-sink.ipynb
     },
     {
       "type": "CodeChunk",
+      "code": "foo()",
       "programmingLanguage": "python",
-      "text": "foo()",
       "errors": [
         {
           "type": "CodeError",
@@ -791,8 +791,8 @@ input_file: fixtures/articles/kitchen-sink.ipynb
     },
     {
       "type": "CodeChunk",
+      "code": "import sys\nprint(\"Whooaah!\", file=sys.stderr)",
       "programmingLanguage": "python",
-      "text": "import sys\nprint(\"Whooaah!\", file=sys.stderr)",
       "errors": [
         {
           "type": "CodeError",
@@ -802,5 +802,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
       ]
     }
   ],
-  "title": "Kitchen sink Jupyter Notebook test fixture"
+  "title": [
+    "Kitchen sink Jupyter Notebook test fixture"
+  ]
 }

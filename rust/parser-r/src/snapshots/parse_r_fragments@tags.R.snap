@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/r/tags.R
 ---
 {
+  "language": "r",
   "syntaxErrors": false,
   "semanticDigest": 14141924614136143127,
   "executionDependencies": [

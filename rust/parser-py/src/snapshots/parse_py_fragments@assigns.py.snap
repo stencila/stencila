@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/py/assigns.py
 ---
 {
+  "language": "python",
   "syntaxErrors": false,
   "semanticDigest": 11964046020285599342,
   "executionDependencies": [],
@@ -14,8 +15,8 @@ input_file: fixtures/fragments/py/assigns.py
       "dependentNode": {
         "type": "Variable",
         "name": "var1",
-        "kind": "Integer",
-        "namespace": "fragments/py/assigns.py"
+        "namespace": "fragments/py/assigns.py",
+        "kind": "Integer"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -45,8 +46,8 @@ input_file: fixtures/fragments/py/assigns.py
       "dependentNode": {
         "type": "Variable",
         "name": "fun1",
-        "kind": "Function",
-        "namespace": "fragments/py/assigns.py"
+        "namespace": "fragments/py/assigns.py",
+        "kind": "Function"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -61,8 +62,8 @@ input_file: fixtures/fragments/py/assigns.py
       "dependentNode": {
         "type": "Variable",
         "name": "fun2",
-        "kind": "Function",
-        "namespace": "fragments/py/assigns.py"
+        "namespace": "fragments/py/assigns.py",
+        "kind": "Function"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -77,8 +78,8 @@ input_file: fixtures/fragments/py/assigns.py
       "dependentNode": {
         "type": "Variable",
         "name": "var3",
-        "kind": "Boolean",
-        "namespace": "fragments/py/assigns.py"
+        "namespace": "fragments/py/assigns.py",
+        "kind": "Boolean"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -93,8 +94,8 @@ input_file: fixtures/fragments/py/assigns.py
       "dependentNode": {
         "type": "Variable",
         "name": "var4",
-        "kind": "Boolean",
-        "namespace": "fragments/py/assigns.py"
+        "namespace": "fragments/py/assigns.py",
+        "kind": "Boolean"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -109,8 +110,8 @@ input_file: fixtures/fragments/py/assigns.py
       "dependentNode": {
         "type": "Variable",
         "name": "var5",
-        "kind": "Integer",
-        "namespace": "fragments/py/assigns.py"
+        "namespace": "fragments/py/assigns.py",
+        "kind": "Integer"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -125,8 +126,8 @@ input_file: fixtures/fragments/py/assigns.py
       "dependentNode": {
         "type": "Variable",
         "name": "var6",
-        "kind": "Number",
-        "namespace": "fragments/py/assigns.py"
+        "namespace": "fragments/py/assigns.py",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -141,8 +142,8 @@ input_file: fixtures/fragments/py/assigns.py
       "dependentNode": {
         "type": "Variable",
         "name": "var7",
-        "kind": "String",
-        "namespace": "fragments/py/assigns.py"
+        "namespace": "fragments/py/assigns.py",
+        "kind": "String"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -157,8 +158,8 @@ input_file: fixtures/fragments/py/assigns.py
       "dependentNode": {
         "type": "Variable",
         "name": "var8",
-        "kind": "Array",
-        "namespace": "fragments/py/assigns.py"
+        "namespace": "fragments/py/assigns.py",
+        "kind": "Array"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -173,8 +174,8 @@ input_file: fixtures/fragments/py/assigns.py
       "dependentNode": {
         "type": "Variable",
         "name": "var9",
-        "kind": "Object",
-        "namespace": "fragments/py/assigns.py"
+        "namespace": "fragments/py/assigns.py",
+        "kind": "Object"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [

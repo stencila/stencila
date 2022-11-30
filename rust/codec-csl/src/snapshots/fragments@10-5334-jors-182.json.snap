@@ -1,9 +1,8 @@
 ---
 source: rust/codec-csl/src/lib.rs
-assertion_line: 237
+assertion_line: 244
 expression: node
 input_file: fixtures/fragments/csl/10-5334-jors-182.json
-
 ---
 {
   "type": "Article",
@@ -53,5 +52,7 @@ input_file: fixtures/fragments/csl/10-5334-jors-182.json
     "type": "Organization",
     "name": "Ubiquity Press, Ltd."
   },
-  "title": "Tensors.jl — Tensor Computations in Julia"
+  "title": [
+    "Tensors.jl — Tensor Computations in Julia"
+  ]
 }

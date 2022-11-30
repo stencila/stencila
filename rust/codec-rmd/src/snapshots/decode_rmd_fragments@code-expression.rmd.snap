@@ -1,8 +1,8 @@
 ---
 source: rust/codec-rmd/src/decode.rs
-expression: decode(content).unwrap()
+assertion_line: 89
+expression: "decode(content, None).unwrap()"
 input_file: fixtures/fragments/rmd/code-expression.rmd
-
 ---
 {
   "type": "Article",
@@ -13,8 +13,8 @@ input_file: fixtures/fragments/rmd/code-expression.rmd
         "A R Markdown code expression (inline code chunk): ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "r",
-          "text": "1+1"
+          "code": "1+1",
+          "programmingLanguage": "r"
         },
         "."
       ]
@@ -25,17 +25,17 @@ input_file: fixtures/fragments/rmd/code-expression.rmd
         "Plain old code fragments: ",
         {
           "type": "CodeFragment",
-          "text": "1+1"
+          "code": "1+1"
         },
         ", ",
         {
           "type": "CodeFragment",
-          "text": "r2d2"
+          "code": "r2d2"
         },
         ", ",
         {
           "type": "CodeFragment",
-          "text": "r"
+          "code": "r"
         },
         "."
       ]

@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/bash/tags.bash
 ---
 {
+  "language": "bash",
   "syntaxErrors": false,
   "semanticDigest": 1011317184126009197,
   "executionDependencies": [

@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/r/imports.R
 ---
 {
+  "language": "r",
   "syntaxErrors": false,
   "semanticDigest": 9376134540908712671,
   "executionDependencies": [
@@ -85,8 +86,8 @@ input_file: fixtures/fragments/r/imports.R
       "dependentNode": {
         "type": "Variable",
         "name": "foo",
-        "kind": "Function",
-        "namespace": "fragments/r/imports.R"
+        "namespace": "fragments/r/imports.R",
+        "kind": "Function"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -101,8 +102,8 @@ input_file: fixtures/fragments/r/imports.R
       "dependentNode": {
         "type": "Variable",
         "name": "pkg_var",
-        "kind": "String",
-        "namespace": "fragments/r/imports.R"
+        "namespace": "fragments/r/imports.R",
+        "kind": "String"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [

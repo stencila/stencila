@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/rust/assigns.rs
 ---
 {
+  "language": "rust",
   "syntaxErrors": false,
   "semanticDigest": 10445770653075021603,
   "executionDependencies": [],

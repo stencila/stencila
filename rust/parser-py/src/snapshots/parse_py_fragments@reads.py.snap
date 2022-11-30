@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/py/reads.py
 ---
 {
+  "language": "python",
   "syntaxErrors": false,
   "semanticDigest": 16408250413790813111,
   "executionDependencies": [
@@ -150,8 +151,8 @@ input_file: fixtures/fragments/py/reads.py
       "dependentNode": {
         "type": "Variable",
         "name": "open_func",
-        "kind": "Function",
-        "namespace": "fragments/py/reads.py"
+        "namespace": "fragments/py/reads.py",
+        "kind": "Function"
       },
       "dependentRelation": "Declares",
       "codeLocation": [

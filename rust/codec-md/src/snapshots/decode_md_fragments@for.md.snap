@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 2393
+assertion_line: 2414
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/for.md
 ---
@@ -14,6 +14,7 @@ input_file: fixtures/fragments/md/for.md
   },
   {
     "type": "For",
+    "code": "[1,2,3]",
     "content": [
       {
         "type": "Paragraph",
@@ -21,16 +22,15 @@ input_file: fixtures/fragments/md/for.md
           "This paragraph will be repeated with a different value for ",
           {
             "type": "CodeExpression",
-            "programmingLanguage": "",
-            "text": "item"
+            "code": "item",
+            "programmingLanguage": ""
           },
           "."
         ]
       }
     ],
     "programmingLanguage": "",
-    "symbol": "item",
-    "text": "[1,2,3]"
+    "symbol": "item"
   },
   {
     "type": "Heading",
@@ -47,9 +47,11 @@ input_file: fixtures/fragments/md/for.md
   },
   {
     "type": "For",
+    "code": "[['a', 'b'], ['c', 'd']]",
     "content": [
       {
         "type": "For",
+        "code": "row",
         "content": [
           {
             "type": "Paragraph",
@@ -57,20 +59,18 @@ input_file: fixtures/fragments/md/for.md
               "This paragraph will be repeated for each column and row: ",
               {
                 "type": "CodeExpression",
-                "programmingLanguage": "",
-                "text": "col"
+                "code": "col",
+                "programmingLanguage": ""
               }
             ]
           }
         ],
         "programmingLanguage": "",
-        "symbol": "col",
-        "text": "row"
+        "symbol": "col"
       }
     ],
     "programmingLanguage": "",
-    "symbol": "row",
-    "text": "[['a', 'b'], ['c', 'd']]"
+    "symbol": "row"
   },
   {
     "type": "Heading",
@@ -85,13 +85,14 @@ input_file: fixtures/fragments/md/for.md
       "For loops can have an ",
       {
         "type": "CodeFragment",
-        "text": "else"
+        "code": "else"
       },
       " clause which specifies the content to be rendered if there are not items,"
     ]
   },
   {
     "type": "For",
+    "code": "[]",
     "content": [
       {
         "type": "Paragraph",
@@ -102,7 +103,6 @@ input_file: fixtures/fragments/md/for.md
     ],
     "programmingLanguage": "",
     "symbol": "row",
-    "text": "[]",
     "otherwise": [
       {
         "type": "Paragraph",
@@ -125,17 +125,17 @@ input_file: fixtures/fragments/md/for.md
       "Here is a test that missing content will still be parsed as a ",
       {
         "type": "CodeFragment",
-        "text": "For"
+        "code": "For"
       },
       ","
     ]
   },
   {
     "type": "For",
+    "code": "[1,2,3]",
     "content": [],
     "programmingLanguage": "",
     "symbol": "item",
-    "text": "[1,2,3]",
     "otherwise": []
   },
   {
@@ -151,7 +151,7 @@ input_file: fixtures/fragments/md/for.md
       " be parsed as a ",
       {
         "type": "CodeFragment",
-        "text": "For"
+        "code": "For"
       },
       ","
     ]
@@ -175,13 +175,14 @@ input_file: fixtures/fragments/md/for.md
       "Table in ",
       {
         "type": "CodeFragment",
-        "text": "otherwise"
+        "code": "otherwise"
       }
     ],
     "depth": 2
   },
   {
     "type": "For",
+    "code": "[]",
     "content": [
       {
         "type": "Paragraph",
@@ -192,7 +193,6 @@ input_file: fixtures/fragments/md/for.md
     ],
     "programmingLanguage": "py",
     "symbol": "item",
-    "text": "[]",
     "otherwise": [
       {
         "type": "Paragraph",

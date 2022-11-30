@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 2393
+assertion_line: 2414
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/if.md
 ---
@@ -17,6 +17,7 @@ input_file: fixtures/fragments/md/if.md
     "clauses": [
       {
         "type": "IfClause",
+        "code": "true",
         "content": [
           {
             "type": "Paragraph",
@@ -26,7 +27,6 @@ input_file: fixtures/fragments/md/if.md
           }
         ],
         "programmingLanguage": "",
-        "text": "true",
         "guessLanguage": true
       }
     ]
@@ -44,7 +44,7 @@ input_file: fixtures/fragments/md/if.md
       "An ",
       {
         "type": "CodeFragment",
-        "text": "else"
+        "code": "else"
       },
       " clause specifies the content to be rendered if the condition is not truthy,"
     ]
@@ -54,6 +54,7 @@ input_file: fixtures/fragments/md/if.md
     "clauses": [
       {
         "type": "IfClause",
+        "code": "false",
         "content": [
           {
             "type": "Paragraph",
@@ -63,11 +64,11 @@ input_file: fixtures/fragments/md/if.md
           }
         ],
         "programmingLanguage": "",
-        "text": "false",
         "guessLanguage": true
       },
       {
         "type": "IfClause",
+        "code": "",
         "content": [
           {
             "type": "Paragraph",
@@ -76,8 +77,7 @@ input_file: fixtures/fragments/md/if.md
             ]
           }
         ],
-        "programmingLanguage": "",
-        "text": ""
+        "programmingLanguage": ""
       }
     ]
   },
@@ -94,7 +94,7 @@ input_file: fixtures/fragments/md/if.md
       "Multiple ",
       {
         "type": "CodeFragment",
-        "text": "elif"
+        "code": "elif"
       },
       " clauses are possible,"
     ]
@@ -104,6 +104,7 @@ input_file: fixtures/fragments/md/if.md
     "clauses": [
       {
         "type": "IfClause",
+        "code": "false",
         "content": [
           {
             "type": "Paragraph",
@@ -113,11 +114,11 @@ input_file: fixtures/fragments/md/if.md
           }
         ],
         "programmingLanguage": "",
-        "text": "false",
         "guessLanguage": true
       },
       {
         "type": "IfClause",
+        "code": "false",
         "content": [
           {
             "type": "Paragraph",
@@ -127,11 +128,11 @@ input_file: fixtures/fragments/md/if.md
           }
         ],
         "programmingLanguage": "",
-        "text": "false",
         "guessLanguage": true
       },
       {
         "type": "IfClause",
+        "code": "true",
         "content": [
           {
             "type": "Paragraph",
@@ -148,11 +149,11 @@ input_file: fixtures/fragments/md/if.md
           }
         ],
         "programmingLanguage": "",
-        "text": "true",
         "guessLanguage": true
       },
       {
         "type": "IfClause",
+        "code": "true",
         "content": [
           {
             "type": "Paragraph",
@@ -160,18 +161,18 @@ input_file: fixtures/fragments/md/if.md
               "This fourth paragraph should NOT be shown because the above ",
               {
                 "type": "CodeFragment",
-                "text": "elif"
+                "code": "elif"
               },
               " was."
             ]
           }
         ],
         "programmingLanguage": "",
-        "text": "true",
         "guessLanguage": true
       },
       {
         "type": "IfClause",
+        "code": "",
         "content": [
           {
             "type": "Paragraph",
@@ -179,14 +180,13 @@ input_file: fixtures/fragments/md/if.md
               "This final paragraph should NOT be shown because the above ",
               {
                 "type": "CodeFragment",
-                "text": "elif"
+                "code": "elif"
               },
               " was."
             ]
           }
         ],
-        "programmingLanguage": "",
-        "text": ""
+        "programmingLanguage": ""
       }
     ]
   },
@@ -208,12 +208,14 @@ input_file: fixtures/fragments/md/if.md
     "clauses": [
       {
         "type": "IfClause",
+        "code": "true",
         "content": [
           {
             "type": "If",
             "clauses": [
               {
                 "type": "IfClause",
+                "code": "true",
                 "content": [
                   {
                     "type": "Paragraph",
@@ -223,18 +225,17 @@ input_file: fixtures/fragments/md/if.md
                   }
                 ],
                 "programmingLanguage": "",
-                "text": "true",
                 "guessLanguage": true
               }
             ]
           }
         ],
         "programmingLanguage": "",
-        "text": "true",
         "guessLanguage": true
       },
       {
         "type": "IfClause",
+        "code": "",
         "content": [
           {
             "type": "Paragraph",
@@ -243,8 +244,7 @@ input_file: fixtures/fragments/md/if.md
             ]
           }
         ],
-        "programmingLanguage": "",
-        "text": ""
+        "programmingLanguage": ""
       }
     ]
   },
@@ -254,7 +254,7 @@ input_file: fixtures/fragments/md/if.md
       "In the following example the nested if has the ",
       {
         "type": "CodeFragment",
-        "text": "else"
+        "code": "else"
       },
       ","
     ]
@@ -264,12 +264,14 @@ input_file: fixtures/fragments/md/if.md
     "clauses": [
       {
         "type": "IfClause",
+        "code": "true",
         "content": [
           {
             "type": "If",
             "clauses": [
               {
                 "type": "IfClause",
+                "code": "true",
                 "content": [
                   {
                     "type": "Paragraph",
@@ -279,11 +281,11 @@ input_file: fixtures/fragments/md/if.md
                   }
                 ],
                 "programmingLanguage": "",
-                "text": "true",
                 "guessLanguage": true
               },
               {
                 "type": "IfClause",
+                "code": "",
                 "content": [
                   {
                     "type": "Paragraph",
@@ -292,14 +294,12 @@ input_file: fixtures/fragments/md/if.md
                     ]
                   }
                 ],
-                "programmingLanguage": "",
-                "text": ""
+                "programmingLanguage": ""
               }
             ]
           }
         ],
         "programmingLanguage": "",
-        "text": "true",
         "guessLanguage": true
       }
     ]

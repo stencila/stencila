@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/calc/tags.calc
 ---
 {
+  "language": "calc",
   "syntaxErrors": false,
   "semanticDigest": 8608873703477614979,
   "executionDependencies": [

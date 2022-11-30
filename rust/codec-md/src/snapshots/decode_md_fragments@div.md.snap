@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 2206
+assertion_line: 2414
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/div.md
 ---
@@ -8,6 +8,7 @@ input_file: fixtures/fragments/md/div.md
   {
     "type": "Division",
     "classes": [],
+    "code": "rounded border(& solid blue-200) bg-blue-100 p-2 text-center",
     "content": [
       {
         "type": "Paragraph",
@@ -17,12 +18,12 @@ input_file: fixtures/fragments/md/div.md
       }
     ],
     "css": "",
-    "programmingLanguage": "tailwind",
-    "text": "rounded border(& solid blue-200) bg-blue-100 p-2 text-center"
+    "programmingLanguage": "tailwind"
   },
   {
     "type": "Division",
     "classes": [],
+    "code": "bg-$color-100 p-2",
     "content": [
       {
         "type": "Paragraph",
@@ -45,17 +46,17 @@ input_file: fixtures/fragments/md/div.md
       }
     ],
     "css": "",
-    "programmingLanguage": "tailwind",
-    "text": "bg-$color-100 p-2"
+    "programmingLanguage": "tailwind"
   },
   {
     "type": "CodeChunk",
-    "programmingLanguage": "python",
-    "text": "# @autorun always\nimport random\nshade = random.choice(range(100, 1000, 100))"
+    "code": "# @autorun always\nimport random\nshade = random.choice(range(100, 1000, 100))",
+    "programmingLanguage": "python"
   },
   {
     "type": "Division",
     "classes": [],
+    "code": "f\"bg-{color}-{shade} p-2\"",
     "content": [
       {
         "type": "Paragraph",
@@ -65,7 +66,6 @@ input_file: fixtures/fragments/md/div.md
       }
     ],
     "css": "",
-    "programmingLanguage": "python",
-    "text": "f\"bg-{color}-{shade} p-2\""
+    "programmingLanguage": "python"
   }
 ]

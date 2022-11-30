@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/bash/uses.bash
 ---
 {
+  "language": "bash",
   "syntaxErrors": false,
   "semanticDigest": 5327472375164753257,
   "executionDependencies": [
@@ -75,8 +76,8 @@ input_file: fixtures/fragments/bash/uses.bash
       "dependentNode": {
         "type": "Variable",
         "name": "var4",
-        "kind": "String",
-        "namespace": "fragments/bash/uses.bash"
+        "namespace": "fragments/bash/uses.bash",
+        "kind": "String"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [

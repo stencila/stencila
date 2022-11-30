@@ -1,8 +1,8 @@
 ---
 source: rust/codec-md/src/decode.rs
+assertion_line: 2407
 expression: "decode(content).expect(\"Unable to decode Markdown\")"
 input_file: fixtures/articles/code.md
-
 ---
 {
   "type": "Article",
@@ -13,22 +13,22 @@ input_file: fixtures/articles/code.md
         "This article fixture is focussed on the Markdown representation of executable code nodes such as ",
         {
           "type": "CodeFragment",
-          "text": "CodeChunk"
+          "code": "CodeChunk"
         },
         ", ",
         {
           "type": "CodeFragment",
-          "text": "CodeExpression"
+          "code": "CodeExpression"
         },
         ", and ",
         {
           "type": "CodeFragment",
-          "text": "Parameter"
+          "code": "Parameter"
         },
         " nodes. See also ",
         {
           "type": "CodeFragment",
-          "text": "../fragments/md/code-*.md"
+          "code": "../fragments/md/code-*.md"
         },
         " fixtures. This fixture intentionally does not have any relations between code nodes (e.g a variable assigned in one, used in another)."
       ]
@@ -46,25 +46,25 @@ input_file: fixtures/articles/code.md
         "Code expressions have a language and the ",
         {
           "type": "CodeFragment",
-          "text": "exec"
+          "code": "exec"
         },
         " keyword in curly braces, like this ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "r",
-          "text": "1+1"
+          "code": "1+1",
+          "programmingLanguage": "r"
         },
         " and this ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "python",
-          "text": "2+2"
+          "code": "2+2",
+          "programmingLanguage": "python"
         },
         ". The language may be omitted e.g. ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "",
-          "text": "3+3"
+          "code": "3+3",
+          "programmingLanguage": ""
         },
         " (in which case it will default to the language of the previous code element)."
       ]
@@ -75,14 +75,14 @@ input_file: fixtures/articles/code.md
         "Double brace syntax is also supported, but generally not recommended e.g. ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "python",
-          "text": "2+3"
+          "code": "2+3",
+          "programmingLanguage": "python"
         },
         " an ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "",
-          "text": "4+5"
+          "code": "4+5",
+          "programmingLanguage": ""
         },
         "."
       ]
@@ -93,12 +93,12 @@ input_file: fixtures/articles/code.md
         "Non-executable code fragments, lack the ",
         {
           "type": "CodeFragment",
-          "text": "exec"
+          "code": "exec"
         },
         " keyword but can have a language e.g. ",
         {
           "type": "CodeFragment",
-          "text": "3+3",
+          "code": "3+3",
           "programmingLanguage": "r"
         },
         "."
@@ -117,15 +117,15 @@ input_file: fixtures/articles/code.md
         "Code chunk use the ",
         {
           "type": "CodeFragment",
-          "text": "exec"
+          "code": "exec"
         },
         " keyword to differentiate them from code blocks,"
       ]
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r",
-      "text": "\"Hello from R\""
+      "code": "\"Hello from R\"",
+      "programmingLanguage": "r"
     },
     {
       "type": "Paragraph",
@@ -133,14 +133,14 @@ input_file: fixtures/articles/code.md
         "Non executable code blocks do not have the ",
         {
           "type": "CodeFragment",
-          "text": "exec"
+          "code": "exec"
         },
         " keyword,"
       ]
     },
     {
       "type": "CodeBlock",
-      "text": "# Not executed",
+      "code": "# Not executed",
       "programmingLanguage": "python"
     }
   ]

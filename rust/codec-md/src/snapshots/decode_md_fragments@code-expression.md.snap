@@ -1,8 +1,8 @@
 ---
-source: rust/src/methods/decode/md.rs
-expression: decode_fragment(&content)
+source: rust/codec-md/src/decode.rs
+assertion_line: 2414
+expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/code-expression.md
-
 ---
 [
   {
@@ -17,13 +17,13 @@ input_file: fixtures/fragments/md/code-expression.md
       "Using the ",
       {
         "type": "CodeFragment",
-        "text": "exec"
+        "code": "exec"
       },
       " keyword on backticked inline code: ",
       {
         "type": "CodeExpression",
-        "programmingLanguage": "r",
-        "text": "1"
+        "code": "1",
+        "programmingLanguage": "r"
       },
       "."
     ]
@@ -34,14 +34,14 @@ input_file: fixtures/fragments/md/code-expression.md
       "Double curly braces ",
       {
         "type": "CodeExpression",
-        "programmingLanguage": "",
-        "text": "2"
+        "code": "2",
+        "programmingLanguage": ""
       },
       ", optionally with a language: ",
       {
         "type": "CodeExpression",
-        "programmingLanguage": "python",
-        "text": "3"
+        "code": "3",
+        "programmingLanguage": "python"
       },
       "."
     ]

@@ -1,21 +1,21 @@
 ---
-source: rust/src/methods/decode/md.rs
-expression: decode_fragment(&content)
+source: rust/codec-md/src/decode.rs
+assertion_line: 2414
+expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/code-block.md
-
 ---
 [
   {
     "type": "CodeBlock",
-    "text": "Some plain text"
+    "code": "Some plain text"
   },
   {
     "type": "CodeBlock",
-    "text": "# Some Python code\n1 + 1",
+    "code": "# Some Python code\n1 + 1",
     "programmingLanguage": "python"
   },
   {
     "type": "CodeBlock",
-    "text": "An indented code block\nin unspecified language."
+    "code": "An indented code block\nin unspecified language."
   }
 ]

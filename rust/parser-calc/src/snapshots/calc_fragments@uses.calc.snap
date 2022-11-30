@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/calc/uses.calc
 ---
 {
+  "language": "calc",
   "syntaxErrors": false,
   "semanticDigest": 12590019388989690396,
   "executionDependencies": [
@@ -13,8 +14,8 @@ input_file: fixtures/fragments/calc/uses.calc
       "dependencyNode": {
         "type": "Variable",
         "name": "a",
-        "kind": "Number",
-        "namespace": "fragments/calc/uses.calc"
+        "namespace": "fragments/calc/uses.calc",
+        "kind": "Number"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -29,8 +30,8 @@ input_file: fixtures/fragments/calc/uses.calc
       "dependencyNode": {
         "type": "Variable",
         "name": "b",
-        "kind": "Number",
-        "namespace": "fragments/calc/uses.calc"
+        "namespace": "fragments/calc/uses.calc",
+        "kind": "Number"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -45,8 +46,8 @@ input_file: fixtures/fragments/calc/uses.calc
       "dependencyNode": {
         "type": "Variable",
         "name": "c",
-        "kind": "Number",
-        "namespace": "fragments/calc/uses.calc"
+        "namespace": "fragments/calc/uses.calc",
+        "kind": "Number"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -61,8 +62,8 @@ input_file: fixtures/fragments/calc/uses.calc
       "dependencyNode": {
         "type": "Variable",
         "name": "d",
-        "kind": "Number",
-        "namespace": "fragments/calc/uses.calc"
+        "namespace": "fragments/calc/uses.calc",
+        "kind": "Number"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -77,8 +78,8 @@ input_file: fixtures/fragments/calc/uses.calc
       "dependencyNode": {
         "type": "Variable",
         "name": "e",
-        "kind": "Number",
-        "namespace": "fragments/calc/uses.calc"
+        "namespace": "fragments/calc/uses.calc",
+        "kind": "Number"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -93,8 +94,8 @@ input_file: fixtures/fragments/calc/uses.calc
       "dependencyNode": {
         "type": "Variable",
         "name": "f",
-        "kind": "Number",
-        "namespace": "fragments/calc/uses.calc"
+        "namespace": "fragments/calc/uses.calc",
+        "kind": "Number"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [

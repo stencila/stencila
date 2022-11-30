@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/js/imports.js
 ---
 {
+  "language": "typescript",
   "syntaxErrors": false,
   "semanticDigest": 3813166366873021385,
   "executionDependencies": [
@@ -303,8 +304,8 @@ input_file: fixtures/fragments/js/imports.js
       "dependentNode": {
         "type": "Variable",
         "name": "pkg_var",
-        "kind": "String",
-        "namespace": "fragments/js/imports.js"
+        "namespace": "fragments/js/imports.js",
+        "kind": "String"
       },
       "dependentRelation": "Declares",
       "codeLocation": [

@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 342
+assertion_line: 59
 expression: article
 input_file: fixtures/articles/scripts/script.sql
 ---
@@ -15,8 +15,8 @@ input_file: fixtures/articles/scripts/script.sql
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "sql",
-      "text": "SELECT 1;"
+      "code": "SELECT 1;",
+      "programmingLanguage": "sql"
     },
     {
       "type": "Paragraph",
@@ -26,8 +26,8 @@ input_file: fixtures/articles/scripts/script.sql
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "sql",
-      "text": "CREATE TABLE table_1(\n    col_1 INT,\n    col_2 TEXT\n);"
+      "code": "CREATE TABLE table_1(\n    col_1 INT,\n    col_2 TEXT\n);",
+      "programmingLanguage": "sql"
     },
     {
       "type": "Paragraph",
@@ -93,8 +93,8 @@ input_file: fixtures/articles/scripts/script.sql
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "sql",
-      "text": "SELECT * FROM table_1"
+      "code": "SELECT * FROM table_1",
+      "programmingLanguage": "sql"
     },
     {
       "type": "Paragraph",

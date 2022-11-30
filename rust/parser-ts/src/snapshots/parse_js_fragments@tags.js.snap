@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/js/tags.js
 ---
 {
+  "language": "typescript",
   "syntaxErrors": false,
   "semanticDigest": 3769480741352245498,
   "executionDependencies": [
@@ -102,8 +103,8 @@ input_file: fixtures/fragments/js/tags.js
       "dependentNode": {
         "type": "Variable",
         "name": "ignore",
-        "kind": "Number",
-        "namespace": "fragments/js/tags.js"
+        "namespace": "fragments/js/tags.js",
+        "kind": "Number"
       },
       "dependentRelation": "Declares",
       "codeLocation": [

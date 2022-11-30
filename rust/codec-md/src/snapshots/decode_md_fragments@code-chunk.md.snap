@@ -1,13 +1,13 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 1384
+assertion_line: 2414
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/code-chunk.md
 ---
 [
   {
     "type": "CodeChunk",
-    "programmingLanguage": "bash",
-    "text": "date"
+    "code": "date",
+    "programmingLanguage": "bash"
   }
 ]

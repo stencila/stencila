@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/sql/tags.sql
 ---
 {
+  "language": "sql",
   "syntaxErrors": true,
   "semanticDigest": 13402803671904770365,
   "executionDependencies": [
@@ -13,8 +14,8 @@ input_file: fixtures/fragments/sql/tags.sql
       "dependencyNode": {
         "type": "Variable",
         "name": "table1",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/tags.sql"
+        "namespace": "fragments/sql/tags.sql",
+        "kind": "Datatable"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [

@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/js/reads.js
 ---
 {
+  "language": "javascript",
   "syntaxErrors": false,
   "semanticDigest": 4755452239169500783,
   "executionDependencies": [
@@ -148,8 +149,8 @@ input_file: fixtures/fragments/js/reads.js
       "dependentNode": {
         "type": "Variable",
         "name": "readData",
-        "kind": "Function",
-        "namespace": "fragments/js/reads.js"
+        "namespace": "fragments/js/reads.js",
+        "kind": "Function"
       },
       "dependentRelation": "Declares",
       "codeLocation": [

@@ -1,6 +1,6 @@
 ---
 source: rust/codec-script/src/lib.rs
-assertion_line: 527
+assertion_line: 59
 expression: article
 input_file: fixtures/articles/scripts/README.sh
 ---
@@ -21,8 +21,8 @@ input_file: fixtures/articles/scripts/README.sh
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "shell",
-      "text": "NOW=$(date)"
+      "code": "NOW=$(date)",
+      "programmingLanguage": "shell"
     },
     {
       "type": "Paragraph",
@@ -30,8 +30,8 @@ input_file: fixtures/articles/scripts/README.sh
         "You can use variables in expressions within Markdown comments e.g. ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "bash",
-          "text": "$NOW"
+          "code": "$NOW",
+          "programmingLanguage": "bash"
         },
         "."
       ]

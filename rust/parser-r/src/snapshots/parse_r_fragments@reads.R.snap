@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/r/reads.R
 ---
 {
+  "language": "r",
   "syntaxErrors": false,
   "semanticDigest": 3279213035845027574,
   "executionDependencies": [
@@ -60,8 +61,8 @@ input_file: fixtures/fragments/r/reads.R
       "dependentNode": {
         "type": "Variable",
         "name": "data",
-        "kind": "Datatable",
-        "namespace": "fragments/r/reads.R"
+        "namespace": "fragments/r/reads.R",
+        "kind": "Datatable"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -76,8 +77,8 @@ input_file: fixtures/fragments/r/reads.R
       "dependentNode": {
         "type": "Variable",
         "name": "foo",
-        "kind": "Function",
-        "namespace": "fragments/r/reads.R"
+        "namespace": "fragments/r/reads.R",
+        "kind": "Function"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [

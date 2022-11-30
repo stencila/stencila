@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 1531
+assertion_line: 2414
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/parameter.md
 ---
@@ -125,7 +125,7 @@ input_file: fixtures/fragments/md/parameter.md
       "For enum parameters set the ",
       {
         "type": "CodeFragment",
-        "text": "values"
+        "code": "values"
       },
       " property using a JSON5 array e.g. ",
       {
@@ -175,7 +175,7 @@ input_file: fixtures/fragments/md/parameter.md
       "When there is no ",
       {
         "type": "CodeFragment",
-        "text": "type"
+        "code": "type"
       },
       " option, parameters will have no validator ",
       {

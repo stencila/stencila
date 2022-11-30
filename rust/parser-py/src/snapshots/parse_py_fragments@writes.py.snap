@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/py/writes.py
 ---
 {
+  "language": "python",
   "syntaxErrors": false,
   "semanticDigest": 7109245594564787725,
   "executionDependencies": [
@@ -90,8 +91,8 @@ input_file: fixtures/fragments/py/writes.py
       "dependentNode": {
         "type": "Variable",
         "name": "var2",
-        "kind": "Array",
-        "namespace": "fragments/py/writes.py"
+        "namespace": "fragments/py/writes.py",
+        "kind": "Array"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -151,8 +152,8 @@ input_file: fixtures/fragments/py/writes.py
       "dependentNode": {
         "type": "Variable",
         "name": "open_func",
-        "kind": "Function",
-        "namespace": "fragments/py/writes.py"
+        "namespace": "fragments/py/writes.py",
+        "kind": "Function"
       },
       "dependentRelation": "Declares",
       "codeLocation": [

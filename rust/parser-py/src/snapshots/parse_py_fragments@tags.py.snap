@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/py/tags.py
 ---
 {
+  "language": "python",
   "syntaxErrors": false,
   "semanticDigest": 1603302089616509584,
   "executionDependencies": [

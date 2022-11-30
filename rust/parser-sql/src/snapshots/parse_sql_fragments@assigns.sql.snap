@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/sql/assigns.sql
 ---
 {
+  "language": "sql",
   "syntaxErrors": false,
   "semanticDigest": 17300026075160338027,
   "executionDependencies": [
@@ -13,8 +14,8 @@ input_file: fixtures/fragments/sql/assigns.sql
       "dependencyNode": {
         "type": "Variable",
         "name": "table_1",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/assigns.sql"
+        "namespace": "fragments/sql/assigns.sql",
+        "kind": "Datatable"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -29,8 +30,8 @@ input_file: fixtures/fragments/sql/assigns.sql
       "dependencyNode": {
         "type": "Variable",
         "name": "table_1",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/assigns.sql"
+        "namespace": "fragments/sql/assigns.sql",
+        "kind": "Datatable"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -47,8 +48,8 @@ input_file: fixtures/fragments/sql/assigns.sql
       "dependentNode": {
         "type": "Variable",
         "name": "view_1",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/assigns.sql"
+        "namespace": "fragments/sql/assigns.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -63,8 +64,8 @@ input_file: fixtures/fragments/sql/assigns.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_2",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/assigns.sql"
+        "namespace": "fragments/sql/assigns.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -79,8 +80,8 @@ input_file: fixtures/fragments/sql/assigns.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_3",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/assigns.sql"
+        "namespace": "fragments/sql/assigns.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -95,8 +96,8 @@ input_file: fixtures/fragments/sql/assigns.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_3.col_a",
-        "kind": "DatatableColumn",
-        "namespace": "fragments/sql/assigns.sql"
+        "namespace": "fragments/sql/assigns.sql",
+        "kind": "DatatableColumn"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -111,8 +112,8 @@ input_file: fixtures/fragments/sql/assigns.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_3.col_b",
-        "kind": "DatatableColumn",
-        "namespace": "fragments/sql/assigns.sql"
+        "namespace": "fragments/sql/assigns.sql",
+        "kind": "DatatableColumn"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -127,8 +128,8 @@ input_file: fixtures/fragments/sql/assigns.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_3.col_c",
-        "kind": "DatatableColumn",
-        "namespace": "fragments/sql/assigns.sql"
+        "namespace": "fragments/sql/assigns.sql",
+        "kind": "DatatableColumn"
       },
       "dependentRelation": "Declares",
       "codeLocation": [

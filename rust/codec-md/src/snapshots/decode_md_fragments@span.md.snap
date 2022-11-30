@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 2400
+assertion_line: 2414
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/span.md
 ---
@@ -12,12 +12,12 @@ input_file: fixtures/fragments/md/span.md
       {
         "type": "Span",
         "classes": [],
+        "code": "text-green-600",
         "content": [
           "styled span"
         ],
         "css": "",
-        "programmingLanguage": "tailwind",
-        "text": "text-green-600"
+        "programmingLanguage": "tailwind"
       },
       " within inline content and [containing ",
       {
@@ -36,12 +36,12 @@ input_file: fixtures/fragments/md/span.md
       {
         "type": "Span",
         "classes": [],
+        "code": "\"-\".join([\"text\",\"orange\",\"700\"])",
         "content": [
           "code expressions"
         ],
         "css": "",
-        "programmingLanguage": "python",
-        "text": "\"-\".join([\"text\",\"orange\",\"700\"])"
+        "programmingLanguage": "python"
       },
       "."
     ]
@@ -53,12 +53,12 @@ input_file: fixtures/fragments/md/span.md
       {
         "type": "Span",
         "classes": [],
+        "code": "text-orange-800",
         "content": [
           "like this"
         ],
         "css": "",
-        "programmingLanguage": "tailwind",
-        "text": "text-orange-800"
+        "programmingLanguage": "tailwind"
       },
       "."
     ]

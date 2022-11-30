@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/r/uses.R
 ---
 {
+  "language": "r",
   "syntaxErrors": false,
   "semanticDigest": 6862288426734064537,
   "executionDependencies": [
@@ -28,8 +29,8 @@ input_file: fixtures/fragments/r/uses.R
       "dependencyNode": {
         "type": "Variable",
         "name": "fun1",
-        "kind": "Function",
-        "namespace": "fragments/r/uses.R"
+        "namespace": "fragments/r/uses.R",
+        "kind": "Function"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -74,8 +75,8 @@ input_file: fixtures/fragments/r/uses.R
       "dependencyNode": {
         "type": "Variable",
         "name": "fun2",
-        "kind": "Function",
-        "namespace": "fragments/r/uses.R"
+        "namespace": "fragments/r/uses.R",
+        "kind": "Function"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -302,8 +303,8 @@ input_file: fixtures/fragments/r/uses.R
       "dependentNode": {
         "type": "Variable",
         "name": "assign",
-        "kind": "Number",
-        "namespace": "fragments/r/uses.R"
+        "namespace": "fragments/r/uses.R",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -318,8 +319,8 @@ input_file: fixtures/fragments/r/uses.R
       "dependentNode": {
         "type": "Variable",
         "name": "assign",
-        "kind": "Number",
-        "namespace": "fragments/r/uses.R"
+        "namespace": "fragments/r/uses.R",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -334,8 +335,8 @@ input_file: fixtures/fragments/r/uses.R
       "dependentNode": {
         "type": "Variable",
         "name": "assign",
-        "kind": "Number",
-        "namespace": "fragments/r/uses.R"
+        "namespace": "fragments/r/uses.R",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -350,8 +351,8 @@ input_file: fixtures/fragments/r/uses.R
       "dependentNode": {
         "type": "Variable",
         "name": "assign",
-        "kind": "Function",
-        "namespace": "fragments/r/uses.R"
+        "namespace": "fragments/r/uses.R",
+        "kind": "Function"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [

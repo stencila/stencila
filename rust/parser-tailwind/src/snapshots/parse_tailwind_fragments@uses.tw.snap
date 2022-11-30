@@ -1,10 +1,11 @@
 ---
 source: rust/parser-tailwind/src/lib.rs
-assertion_line: 133
+assertion_line: 134
 expression: parser_info
 input_file: fixtures/fragments/tw/uses.tw
 ---
 {
+  "language": "tailwind",
   "syntaxErrors": true,
   "semanticDigest": 0,
   "executionDependencies": [

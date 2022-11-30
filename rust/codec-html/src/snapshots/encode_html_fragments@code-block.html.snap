@@ -1,6 +1,6 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 552
+assertion_line: 543
 expression: encoded
 input_file: fixtures/fragments/html/code-block.html
 ---
@@ -8,14 +8,14 @@ input_file: fixtures/fragments/html/code-block.html
   <article itemtype="https://schema.org/Article" itemscope>
     <div data-prop="content" slot="content">
       <stencila-code-block itemtype="https://schema.stenci.la/CodeBlock" itemscope>
-        <pre slot="text">
-          <code itemprop="text">Code with no language</code>
+        <pre slot="code">
+          <code itemprop="code">Code with no language</code>
         </pre>
       </stencila-code-block>
       <stencila-code-block itemtype="https://schema.stenci.la/CodeBlock" itemscope programming-language="python">
         <meta itemprop="programmingLanguage" content="python"/>
-        <pre slot="text">
-          <code itemprop="text" class="language-python"># Some Python code
+        <pre slot="code">
+          <code itemprop="code" class="language-python"># Some Python code
 1 + 1</code>
         </pre>
       </stencila-code-block>

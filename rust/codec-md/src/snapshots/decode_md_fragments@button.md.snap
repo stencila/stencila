@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 2393
+assertion_line: 2414
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/button.md
 ---
@@ -11,16 +11,16 @@ input_file: fixtures/fragments/md/button.md
       "A button ",
       {
         "type": "Button",
+        "code": "",
         "name": "do_it",
-        "programmingLanguage": "",
-        "text": ""
+        "programmingLanguage": ""
       },
       " and another with a label specified ",
       {
         "type": "Button",
+        "code": "",
         "name": "go",
         "programmingLanguage": "",
-        "text": "",
         "label": "Go for it"
       }
     ]
@@ -33,8 +33,8 @@ input_file: fixtures/fragments/md/button.md
   },
   {
     "type": "CodeChunk",
-    "programmingLanguage": "python",
-    "text": "f\"Do it was last clicked at {do_it}. Go for it was last clicked at {go}.\""
+    "code": "f\"Do it was last clicked at {do_it}. Go for it was last clicked at {go}.\"",
+    "programmingLanguage": "python"
   },
   {
     "type": "Paragraph",
@@ -47,9 +47,9 @@ input_file: fixtures/fragments/md/button.md
     "content": [
       {
         "type": "Button",
+        "code": "1<2",
         "name": "maybe",
-        "programmingLanguage": "",
-        "text": "1<2"
+        "programmingLanguage": ""
       }
     ]
   },
@@ -64,9 +64,9 @@ input_file: fixtures/fragments/md/button.md
     "content": [
       {
         "type": "Button",
+        "code": "sum(x)>10",
         "name": "sometimes",
-        "programmingLanguage": "python",
-        "text": "sum(x)>10"
+        "programmingLanguage": "python"
       }
     ]
   }

@@ -1,18 +1,17 @@
 ---
 source: rust/codec-html/src/decode.rs
-assertion_line: 632
+assertion_line: 671
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/html/code-block.html
-
 ---
 [
   {
     "type": "CodeBlock",
-    "text": "Code with no language"
+    "code": "Code with no language"
   },
   {
     "type": "CodeBlock",
-    "text": "# Some Python code\n1 + 1\n",
+    "code": "# Some Python code\n1 + 1\n",
     "programmingLanguage": "python"
   }
 ]

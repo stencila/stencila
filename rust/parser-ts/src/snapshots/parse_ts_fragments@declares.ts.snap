@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/ts/declares.ts
 ---
 {
+  "language": "typescript",
   "syntaxErrors": false,
   "semanticDigest": 6968746176012246637,
   "executionDependencies": [],
@@ -14,8 +15,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var1",
-        "kind": "Object",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Object"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -30,8 +31,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var2",
-        "kind": "Number",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Number"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -46,8 +47,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var3",
-        "kind": "String",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "String"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -62,8 +63,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var4",
-        "kind": "Array",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Array"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -78,8 +79,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var5",
-        "kind": "Object",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Object"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -94,8 +95,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var6",
-        "kind": "Boolean",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Boolean"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -110,8 +111,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var7",
-        "kind": "Boolean",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Boolean"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -126,8 +127,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var8",
-        "kind": "Number",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Number"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -142,8 +143,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var9",
-        "kind": "Number",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Number"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -158,8 +159,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var10",
-        "kind": "String",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "String"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -174,8 +175,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var11",
-        "kind": "Array",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Array"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -190,8 +191,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "var12",
-        "kind": "Object",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Object"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -206,8 +207,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "fun1",
-        "kind": "Function",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Function"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -222,8 +223,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "fun2",
-        "kind": "Function",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Function"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -238,8 +239,8 @@ input_file: fixtures/fragments/ts/declares.ts
       "dependentNode": {
         "type": "Variable",
         "name": "fun3",
-        "kind": "Function",
-        "namespace": "fragments/ts/declares.ts"
+        "namespace": "fragments/ts/declares.ts",
+        "kind": "Function"
       },
       "dependentRelation": "Declares",
       "codeLocation": [

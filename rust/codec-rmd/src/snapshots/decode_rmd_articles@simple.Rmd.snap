@@ -1,8 +1,8 @@
 ---
 source: rust/codec-rmd/src/decode.rs
+assertion_line: 82
 expression: "decode(content, None).unwrap()"
 input_file: fixtures/articles/simple.Rmd
-
 ---
 {
   "type": "Article",
@@ -36,8 +36,8 @@ input_file: fixtures/articles/simple.Rmd
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r",
-      "text": "summary(cars)"
+      "code": "summary(cars)",
+      "programmingLanguage": "r"
     },
     {
       "type": "Paragraph",
@@ -47,8 +47,8 @@ input_file: fixtures/articles/simple.Rmd
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r pressure, echo=FALSE",
-      "text": "plot(pressure)"
+      "code": "plot(pressure)",
+      "programmingLanguage": "r pressure, echo=FALSE"
     },
     {
       "type": "Heading",
@@ -63,20 +63,20 @@ input_file: fixtures/articles/simple.Rmd
         "The ",
         {
           "type": "CodeFragment",
-          "text": "fig.cap"
+          "code": "fig.cap"
         },
         " option can be used to set the code chunk caption,"
       ]
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r fig1, fig.width=8, fig.cap='A plot'",
-      "text": "plot(data)"
+      "code": "plot(data)",
+      "programmingLanguage": "r fig1, fig.width=8, fig.cap='A plot'"
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r table2, fig.cap='A table'",
-      "text": "head(data)"
+      "code": "head(data)",
+      "programmingLanguage": "r table2, fig.cap='A table'"
     },
     {
       "type": "Paragraph",
@@ -84,15 +84,15 @@ input_file: fixtures/articles/simple.Rmd
         "Bookdown-style ",
         {
           "type": "CodeFragment",
-          "text": "fig.cap"
+          "code": "fig.cap"
         },
         " \"text references\" are also supported,"
       ]
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r figure3, fig.cap='(ref:fig3)'",
-      "text": "# R code here"
+      "code": "# R code here",
+      "programmingLanguage": "r figure3, fig.cap='(ref:fig3)'"
     },
     {
       "type": "Paragraph",
@@ -108,8 +108,8 @@ input_file: fixtures/articles/simple.Rmd
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r figure4, fig.cap='(ref:figure-4)'",
-      "text": "# R code here but non-existent figure reference"
+      "code": "# R code here but non-existent figure reference",
+      "programmingLanguage": "r figure4, fig.cap='(ref:figure-4)'"
     },
     {
       "type": "Paragraph",
@@ -119,8 +119,8 @@ input_file: fixtures/articles/simple.Rmd
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r fig5, fig.cap='(ref:fig3)'",
-      "text": "# R code here"
+      "code": "# R code here",
+      "programmingLanguage": "r fig5, fig.cap='(ref:fig3)'"
     },
     {
       "type": "Paragraph",
@@ -155,8 +155,8 @@ input_file: fixtures/articles/simple.Rmd
         "In R Markdown code expressions are represented using back ticks prefixed with the language e.g. ",
         {
           "type": "CodeExpression",
-          "programmingLanguage": "r",
-          "text": "1+2"
+          "code": "1+2",
+          "programmingLanguage": "r"
         },
         "."
       ]
@@ -167,5 +167,7 @@ input_file: fixtures/articles/simple.Rmd
     "fixture",
     "Markdown"
   ],
-  "title": "A simple R Markdown article"
+  "title": [
+    "A simple R Markdown article"
+  ]
 }

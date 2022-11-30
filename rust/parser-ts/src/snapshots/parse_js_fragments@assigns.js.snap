@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/js/assigns.js
 ---
 {
+  "language": "typescript",
   "syntaxErrors": false,
   "semanticDigest": 2835468141008740361,
   "executionDependencies": [],
@@ -14,8 +15,8 @@ input_file: fixtures/fragments/js/assigns.js
       "dependentNode": {
         "type": "Variable",
         "name": "var1",
-        "kind": "Number",
-        "namespace": "fragments/js/assigns.js"
+        "namespace": "fragments/js/assigns.js",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [

@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/calc/assigns.calc
 ---
 {
+  "language": "calc",
   "syntaxErrors": false,
   "semanticDigest": 268834440053868469,
   "executionDependencies": [],
@@ -14,8 +15,8 @@ input_file: fixtures/fragments/calc/assigns.calc
       "dependentNode": {
         "type": "Variable",
         "name": "a",
-        "kind": "Number",
-        "namespace": "fragments/calc/assigns.calc"
+        "namespace": "fragments/calc/assigns.calc",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -30,8 +31,8 @@ input_file: fixtures/fragments/calc/assigns.calc
       "dependentNode": {
         "type": "Variable",
         "name": "b",
-        "kind": "Number",
-        "namespace": "fragments/calc/assigns.calc"
+        "namespace": "fragments/calc/assigns.calc",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -46,8 +47,8 @@ input_file: fixtures/fragments/calc/assigns.calc
       "dependentNode": {
         "type": "Variable",
         "name": "c",
-        "kind": "Number",
-        "namespace": "fragments/calc/assigns.calc"
+        "namespace": "fragments/calc/assigns.calc",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -62,8 +63,8 @@ input_file: fixtures/fragments/calc/assigns.calc
       "dependentNode": {
         "type": "Variable",
         "name": "with_preceding_spaces_and_underscores",
-        "kind": "Number",
-        "namespace": "fragments/calc/assigns.calc"
+        "namespace": "fragments/calc/assigns.calc",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [

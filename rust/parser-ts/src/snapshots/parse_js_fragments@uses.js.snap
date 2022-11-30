@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/js/uses.js
 ---
 {
+  "language": "typescript",
   "syntaxErrors": false,
   "semanticDigest": 2328411389640876659,
   "executionDependencies": [
@@ -403,8 +404,8 @@ input_file: fixtures/fragments/js/uses.js
       "dependentNode": {
         "type": "Variable",
         "name": "func1",
-        "kind": "Function",
-        "namespace": "fragments/js/uses.js"
+        "namespace": "fragments/js/uses.js",
+        "kind": "Function"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -419,8 +420,8 @@ input_file: fixtures/fragments/js/uses.js
       "dependentNode": {
         "type": "Variable",
         "name": "func2",
-        "kind": "Function",
-        "namespace": "fragments/js/uses.js"
+        "namespace": "fragments/js/uses.js",
+        "kind": "Function"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -435,8 +436,8 @@ input_file: fixtures/fragments/js/uses.js
       "dependentNode": {
         "type": "Variable",
         "name": "assign",
-        "kind": "Number",
-        "namespace": "fragments/js/uses.js"
+        "namespace": "fragments/js/uses.js",
+        "kind": "Number"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [
@@ -451,8 +452,8 @@ input_file: fixtures/fragments/js/uses.js
       "dependentNode": {
         "type": "Variable",
         "name": "assign",
-        "kind": "Number",
-        "namespace": "fragments/js/uses.js"
+        "namespace": "fragments/js/uses.js",
+        "kind": "Number"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -467,8 +468,8 @@ input_file: fixtures/fragments/js/uses.js
       "dependentNode": {
         "type": "Variable",
         "name": "assign",
-        "kind": "Number",
-        "namespace": "fragments/js/uses.js"
+        "namespace": "fragments/js/uses.js",
+        "kind": "Number"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -483,8 +484,8 @@ input_file: fixtures/fragments/js/uses.js
       "dependentNode": {
         "type": "Variable",
         "name": "assign",
-        "kind": "Number",
-        "namespace": "fragments/js/uses.js"
+        "namespace": "fragments/js/uses.js",
+        "kind": "Number"
       },
       "dependentRelation": "Declares",
       "codeLocation": [

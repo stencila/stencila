@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 2393
+assertion_line: 2414
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/math-fragment.md
 ---
@@ -11,19 +11,19 @@ input_file: fixtures/fragments/md/math-fragment.md
       "TeX inline math fragments are delimited by ",
       {
         "type": "CodeFragment",
-        "text": "$"
+        "code": "$"
       },
       " signed e.g. some math like ",
       {
         "type": "MathFragment",
-        "mathLanguage": "tex",
-        "text": "\\pi"
+        "code": "\\pi",
+        "mathLanguage": "tex"
       },
       ", and ",
       {
         "type": "MathFragment",
-        "mathLanguage": "tex",
-        "text": "1 + \\sqrt 1"
+        "code": "1 + \\sqrt 1",
+        "mathLanguage": "tex"
       },
       ", but not $1 and $2."
     ]
@@ -34,29 +34,29 @@ input_file: fixtures/fragments/md/math-fragment.md
       "In addition, inline code with one of ",
       {
         "type": "CodeFragment",
-        "text": "asciimath"
+        "code": "asciimath"
       },
       ", ",
       {
         "type": "CodeFragment",
-        "text": "latex"
+        "code": "latex"
       },
       ", or ",
       {
         "type": "CodeFragment",
-        "text": "tex"
+        "code": "tex"
       },
       " are interpreted as math fragments. e.g. AsciiMath ",
       {
         "type": "MathFragment",
-        "mathLanguage": "asciimath",
-        "text": "2 pi r^2"
+        "code": "2 pi r^2",
+        "mathLanguage": "asciimath"
       },
       " and TeX ",
       {
         "type": "MathFragment",
-        "mathLanguage": "tex",
-        "text": "2 \\pi r^2"
+        "code": "2 \\pi r^2",
+        "mathLanguage": "tex"
       },
       "."
     ]

@@ -1,11 +1,12 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 534
+assertion_line: 525
 expression: html
 input_file: fixtures/nodes/code-chunk.json
 ---
 <stencila-code-chunk data-root programming-language="python">
-  <pre data-prop="text" slot="text"># Some code</pre>
+  <pre data-prop="code" slot="code">
+  </pre>
   <div data-prop="outputs" slot="outputs">
     <pre itemtype="https://schema.org/Text" itemscope>a string output</pre>
     <span>true</span>

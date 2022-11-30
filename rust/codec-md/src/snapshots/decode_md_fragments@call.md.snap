@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-assertion_line: 2393
+assertion_line: 2414
 expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/call.md
 ---
@@ -13,6 +13,7 @@ input_file: fixtures/fragments/md/call.md
   },
   {
     "type": "Call",
+    "arguments": [],
     "source": "code-chunk.md"
   },
   {
@@ -23,24 +24,27 @@ input_file: fixtures/fragments/md/call.md
   },
   {
     "type": "Call",
-    "source": "code-chunk.md",
     "arguments": [
       {
         "type": "CallArgument",
+        "code": "1",
         "name": "arg1",
-        "value": 1
+        "programmingLanguage": ""
       },
       {
         "type": "CallArgument",
+        "code": "\"2\"",
         "name": "arg2",
-        "value": "2"
+        "programmingLanguage": ""
       },
       {
         "type": "CallArgument",
+        "code": "3.14",
         "name": "arg3",
-        "value": 3.14
+        "programmingLanguage": ""
       }
-    ]
+    ],
+    "source": "code-chunk.md"
   },
   {
     "type": "Paragraph",
@@ -50,19 +54,21 @@ input_file: fixtures/fragments/md/call.md
   },
   {
     "type": "Call",
-    "source": "code-chunk.md",
     "arguments": [
       {
         "type": "CallArgument",
+        "code": "sym1",
         "name": "arg1",
-        "text": "sym1"
+        "programmingLanguage": ""
       },
       {
         "type": "CallArgument",
+        "code": "some_Symbol_9",
         "name": "arg2",
-        "text": "some_Symbol_9"
+        "programmingLanguage": ""
       }
-    ]
+    ],
+    "source": "code-chunk.md"
   },
   {
     "type": "Paragraph",
@@ -70,18 +76,19 @@ input_file: fixtures/fragments/md/call.md
       "As with ",
       {
         "type": "CodeFragment",
-        "text": "Include"
+        "code": "Include"
       },
       ", paths are relative and the ",
       {
         "type": "CodeFragment",
-        "text": "select"
+        "code": "select"
       },
       " option is available,"
     ]
   },
   {
     "type": "Call",
+    "arguments": [],
     "source": "../md/paragraph.md",
     "select": "content.1"
   }

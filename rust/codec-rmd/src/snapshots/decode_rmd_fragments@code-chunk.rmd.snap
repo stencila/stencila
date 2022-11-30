@@ -1,16 +1,16 @@
 ---
 source: rust/codec-rmd/src/decode.rs
-expression: decode(content).unwrap()
+assertion_line: 89
+expression: "decode(content, None).unwrap()"
 input_file: fixtures/fragments/rmd/code-chunk.rmd
-
 ---
 {
   "type": "Article",
   "content": [
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r",
-      "text": "# No label, no options"
+      "code": "# No label, no options",
+      "programmingLanguage": "r"
     }
   ]
 }

@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/py/uses.py
 ---
 {
+  "language": "python",
   "syntaxErrors": false,
   "semanticDigest": 2614237611287132312,
   "executionDependencies": [
@@ -330,8 +331,8 @@ input_file: fixtures/fragments/py/uses.py
       "dependentNode": {
         "type": "Variable",
         "name": "fun4",
-        "kind": "Function",
-        "namespace": "fragments/py/uses.py"
+        "namespace": "fragments/py/uses.py",
+        "kind": "Function"
       },
       "dependentRelation": "Declares",
       "codeLocation": [
@@ -346,8 +347,8 @@ input_file: fixtures/fragments/py/uses.py
       "dependentNode": {
         "type": "Variable",
         "name": "assign",
-        "kind": "Integer",
-        "namespace": "fragments/py/uses.py"
+        "namespace": "fragments/py/uses.py",
+        "kind": "Integer"
       },
       "dependentRelation": "Assigns",
       "codeLocation": [

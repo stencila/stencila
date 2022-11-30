@@ -1,8 +1,8 @@
 ---
 source: rust/codec-pandoc/src/decode.rs
+assertion_line: 738
 expression: json
 input_file: fixtures/fragments/pandoc/code-fragment.json
-
 ---
 [
   {
@@ -11,7 +11,7 @@ input_file: fixtures/fragments/pandoc/code-fragment.json
       "Some ",
       {
         "type": "CodeFragment",
-        "text": "code"
+        "code": "code"
       },
       " in a paragraph."
     ]

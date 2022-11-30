@@ -5,6 +5,7 @@ expression: parse_info
 input_file: fixtures/fragments/sql/bindings.sql
 ---
 {
+  "language": "sql",
   "syntaxErrors": false,
   "semanticDigest": 8146188150056920972,
   "executionDependencies": [
@@ -13,8 +14,8 @@ input_file: fixtures/fragments/sql/bindings.sql
       "dependencyNode": {
         "type": "Variable",
         "name": "table_1",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/bindings.sql"
+        "namespace": "fragments/sql/bindings.sql",
+        "kind": "Datatable"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -59,8 +60,8 @@ input_file: fixtures/fragments/sql/bindings.sql
       "dependencyNode": {
         "type": "Variable",
         "name": "table_2",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/bindings.sql"
+        "namespace": "fragments/sql/bindings.sql",
+        "kind": "Datatable"
       },
       "dependencyRelation": "Uses",
       "codeLocation": [
@@ -152,8 +153,8 @@ input_file: fixtures/fragments/sql/bindings.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_2",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/bindings.sql"
+        "namespace": "fragments/sql/bindings.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Alters",
       "codeLocation": [
@@ -168,8 +169,8 @@ input_file: fixtures/fragments/sql/bindings.sql
       "dependentNode": {
         "type": "Variable",
         "name": "table_3",
-        "kind": "Datatable",
-        "namespace": "fragments/sql/bindings.sql"
+        "namespace": "fragments/sql/bindings.sql",
+        "kind": "Datatable"
       },
       "dependentRelation": "Alters",
       "codeLocation": [

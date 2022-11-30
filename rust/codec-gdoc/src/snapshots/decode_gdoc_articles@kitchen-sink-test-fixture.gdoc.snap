@@ -1,6 +1,6 @@
 ---
 source: rust/codec-gdoc/src/decode.rs
-assertion_line: 695
+assertion_line: 734
 expression: decode_sync(content).unwrap().0
 input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
 ---
@@ -57,7 +57,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                 "the test snapshots based on that JSON by running ",
                 {
                   "type": "CodeFragment",
-                  "text": "cargo insta test"
+                  "code": "cargo insta test"
                 },
                 " in ",
                 {
@@ -233,7 +233,7 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
                 "Text that uses a ",
                 {
                   "type": "CodeFragment",
-                  "text": "monospace font"
+                  "code": "monospace font"
                 },
                 " (any font with the word “Mono” or “Code”, or “Courier”, “Inconsolata”, or “Consolas”) and which is part of a paragraph, or is a whole paragraph but 25 characters or less, as a CodeFragment node"
               ]
@@ -974,7 +974,9 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
         {
           "type": "ImageObject",
           "contentUrl": "kitchen-sink-test-fixture.gdoc.media/00003.png",
-          "title": "Photo by Joel Filipe on Unsplash"
+          "title": [
+            "Photo by Joel Filipe on Unsplash"
+          ]
         }
       ]
     },
@@ -997,10 +999,14 @@ input_file: fixtures/articles/gdoc/kitchen-sink-test-fixture.gdoc
         {
           "type": "ImageObject",
           "contentUrl": "kitchen-sink-test-fixture.gdoc.media/00005.png",
-          "title": "Points scored"
+          "title": [
+            "Points scored"
+          ]
         }
       ]
     }
   ],
-  "title": "Stencila Google Docs Kitchen Sink Test Fixture"
+  "title": [
+    "Stencila Google Docs Kitchen Sink Test Fixture"
+  ]
 }
