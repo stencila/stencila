@@ -188,7 +188,9 @@ fn article_fixture() -> Article {
 #[test]
 fn entity_is_clonable() {
     let article1 = article_fixture();
-    let _article2 = article1;
+    let article2 = article1.clone();
+
+    assert_eq!(article1, article2)
 }
 
 #[test]
@@ -221,13 +223,13 @@ fn entity_is_serdeable() -> Result<()> {
             "A paragraph with a ",
             {
               "type": "CodeExpression",
-              "text": "2^2",
+              "code": "2^2",
               "programmingLanguage": "r"
             }
           ]
         }
       ],
-      "title": "The article title"
+      "title": ["The article title"]
     });
 
     // Test serialization
