@@ -400,7 +400,7 @@ fn detect_abstract(
 mod tests {
     use super::*;
     use common::serde_yaml;
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
+    use test_utils::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     #[test]
     fn reshape_yaml_articles() {

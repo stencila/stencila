@@ -3,8 +3,8 @@ use codec::{
     CodecTrait,
 };
 use codec_rpng::RpngCodec;
-use test_props::{code_chunk, proptest::prelude::*, Freedom};
 use test_utils::{assert_json_eq, common::tokio};
+use test_utils::{code_chunk, proptest::prelude::*, Freedom};
 
 proptest! {
     // RPNGs can be used for all node types but these tests

@@ -8,5 +8,4 @@ parser-treesitter = { path = "../parser-treesitter" }
 tree-sitter-javascript = { version = "0.20.0" }
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }

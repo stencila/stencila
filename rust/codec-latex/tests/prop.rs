@@ -1,6 +1,6 @@
 use codec::{utils::vec_string, CodecTrait};
 use codec_latex::LatexCodec;
-use test_props::{article, proptest::prelude::*, Freedom};
+use test_utils::{article, proptest::prelude::*, Freedom};
 use test_utils::{
     assert_json_eq,
     common::{once_cell::sync::Lazy, tokio},

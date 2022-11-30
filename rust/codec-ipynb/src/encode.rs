@@ -272,7 +272,7 @@ fn encode_multiline_string(string: &str) -> Vec<&str> {
 mod test {
     use super::*;
     use crate::decode::decode;
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
+    use test_utils::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     #[test]
     fn encode_ipynb_articles() {

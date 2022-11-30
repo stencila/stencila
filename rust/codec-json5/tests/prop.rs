@@ -1,7 +1,7 @@
 use codec::{utils::vec_string, CodecTrait};
 use codec_json5::Json5Codec;
-use test_props::{node, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
+use test_utils::{node, proptest::prelude::*, Freedom};
 
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(30))]

@@ -724,8 +724,8 @@ fn transform_to_block(inline: &InlineContent) -> Option<BlockContent> {
 
 #[cfg(test)]
 mod tests {
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
     use test_utils::common::tokio;
+    use test_utils::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     use super::*;
 

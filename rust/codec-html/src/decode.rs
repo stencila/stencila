@@ -656,7 +656,7 @@ fn collect_text(node: &NodeRef) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
+    use test_utils::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     #[test]
     fn decode_html_articles() {

@@ -44,8 +44,8 @@ impl ParserTrait for PrqlParser {
 
 #[cfg(test)]
 mod tests {
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
     use test_utils::fixtures;
+    use test_utils::{insta::assert_json_snapshot, snapshot_fixtures};
 
     use super::*;
 

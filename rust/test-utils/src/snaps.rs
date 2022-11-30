@@ -1,9 +1,6 @@
-///! Utility functions for snapshot testing
 use std::path::Path;
 
-// Re-exports for use by other internal crates
-pub use insta;
-pub use test_utils::fixtures;
+use crate::fixtures;
 
 /// Use our default settings for snapshots.
 pub fn snapshot_settings<F: FnMut()>(func: F) {

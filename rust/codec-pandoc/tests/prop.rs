@@ -1,7 +1,7 @@
 use codec::{utils::vec_string, CodecTrait, EncodeOptions};
 use codec_pandoc::{decode_pandoc, encode_node, PandocCodec};
-use test_props::{article, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
+use test_utils::{article, proptest::prelude::*, Freedom};
 
 proptest! {
     #[test]

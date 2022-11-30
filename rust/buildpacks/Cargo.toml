@@ -29,4 +29,3 @@ buildpack-stencila = { path = "../buildpack-stencila", optional = true }
 
 [dev-dependencies]
 test-utils = { path = "../test-utils" }
-test-snaps = { path = "../test-snaps" }

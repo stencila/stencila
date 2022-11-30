@@ -12,5 +12,4 @@ image = "0.24.3"
 png = "0.17.2"
 
 [dev-dependencies]
-test-props = { path = "../test-props" }
 test-utils = { path = "../test-utils" }

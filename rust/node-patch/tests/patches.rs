@@ -4,7 +4,8 @@
 ///! the `diff` and `apply` functions are consistent by doing round
 ///! trips, both ways, between two instances.
 use node_patch::{apply_new, diff};
-use test_props::{
+use test_utils::assert_json_eq;
+use test_utils::{
     block_content, inline_content,
     proptest::{
         collection::{btree_map, size_range, vec},
@@ -12,7 +13,6 @@ use test_props::{
     },
     vec_block_content, vec_inline_content, Freedom,
 };
-use test_utils::assert_json_eq;
 
 proptest! {
     // Higher number of cases than the default because some patches can fail

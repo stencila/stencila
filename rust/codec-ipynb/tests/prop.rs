@@ -1,7 +1,7 @@
 use codec::CodecTrait;
 use codec_ipynb::IpynbCodec;
-use test_props::{article, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
+use test_utils::{article, proptest::prelude::*, Freedom};
 
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(100))]

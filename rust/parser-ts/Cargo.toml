@@ -9,5 +9,4 @@ parser-js = { path = "../parser-js" }
 tree-sitter-typescript = "0.20.1"
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }

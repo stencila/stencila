@@ -27,6 +27,4 @@ node-coerce = { path = "../node-coerce", optional = true }
 node-transform = { path = "../node-transform", optional = true }
 
 [dev-dependencies]
-test-props = { path = "../test-props" }
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }

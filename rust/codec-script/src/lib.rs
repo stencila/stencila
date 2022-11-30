@@ -33,7 +33,7 @@ impl CodecTrait for ScriptCodec {
 mod tests {
     use std::path::Path;
 
-    use test_snaps::{
+    use test_utils::{
         insta::{assert_json_snapshot, assert_snapshot},
         snapshot_fixtures_path_content,
     };

@@ -74,7 +74,7 @@ fn transform_inlines(inlines: &mut Vec<InlineContent>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
+    use test_utils::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     #[test]
     fn decode_rmd_articles() {

@@ -785,8 +785,8 @@ fn valid_for_all_of(value: &JsonValue, schemas: &[JsonSchema]) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
     use test_utils::{common::serde_yaml, pretty_assertions::assert_eq};
+    use test_utils::{insta::assert_json_snapshot, snapshot_fixtures};
 
     #[test]
     fn test_coerce_to_null() {

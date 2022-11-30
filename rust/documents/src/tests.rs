@@ -16,7 +16,7 @@ use kernels::{Kernel, KernelSpace, KernelType};
 use node_address::Slot;
 use node_patch::{Operation, Patch};
 use stencila_schema::Node;
-use test_snaps::{fixtures, insta::assert_json_snapshot, snapshot_set_suffix};
+use test_utils::{fixtures, insta::assert_json_snapshot, snapshot_set_suffix};
 
 use crate::{
     compile::compile,

@@ -14,5 +14,4 @@ stencila-schema = { path = "../schema" }
 utils = { path = "../utils" }
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }

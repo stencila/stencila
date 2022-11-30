@@ -25,5 +25,4 @@ rust-embed = { version = "6.4.0", features = [
 cli-utils = { path = "../cli-utils", optional = true }
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }

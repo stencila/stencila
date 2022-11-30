@@ -8,5 +8,4 @@ edition = "2021"
 codec = { path = "../codec" }
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }

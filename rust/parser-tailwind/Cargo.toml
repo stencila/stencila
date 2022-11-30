@@ -10,5 +10,4 @@ parser = { path = "../parser" }
 tailwind-css = { git = "https://github.com/nokome/tailwind-rs", rev = "99c37acd301fbf65357d6ec621a4d4d6a505adcc" }
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }

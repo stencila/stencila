@@ -9,5 +9,4 @@ codec-pandoc = { path = "../codec-pandoc" }
 codec = { path = "../codec" }
 
 [dev-dependencies]
-test-props = { path = "../test-props" }
 test-utils = { path = "../test-utils" }

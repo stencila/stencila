@@ -41,7 +41,6 @@ cli-utils = { path = "../cli-utils", optional = true }
 codec = { path = "../codec" }
 codec-md = { path = "../codec-md" }
 node-patch = { path = "../node-patch" }
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }
 # Enable the parser and kernel for any languages used in tests
 parsers = { path = "../parsers", features = [

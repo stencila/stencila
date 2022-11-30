@@ -1,7 +1,7 @@
 use codec::{CodecTrait, DecodeOptions, EncodeOptions};
 use codec_script::ScriptCodec;
-use test_props::{article, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
+use test_utils::{article, proptest::prelude::*, Freedom};
 
 proptest! {
     #[test]

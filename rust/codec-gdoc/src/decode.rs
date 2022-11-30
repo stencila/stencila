@@ -726,7 +726,7 @@ fn merge_list_stack(list_stack: &mut VecDeque<List>, wanted_size: usize) {
 #[cfg(test)]
 mod test {
     use super::*;
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
+    use test_utils::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     #[test]
     fn decode_gdoc_articles() {

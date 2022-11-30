@@ -501,10 +501,10 @@ mod works;
 mod tests {
     use codec::common::{eyre::bail, tokio};
     use serde_json::json;
-    use test_snaps::{
+    use test_utils::{assert_json_eq, home, skip_ci, skip_ci_os, skip_slow};
+    use test_utils::{
         insta::assert_display_snapshot, snapshot_fixtures_content, snapshot_fixtures_nodes,
     };
-    use test_utils::{assert_json_eq, home, skip_ci, skip_ci_os, skip_slow};
 
     use crate::decode::decode;
 

@@ -8,5 +8,4 @@ fasteval = "0.2.4"
 parser = { path = "../parser" }
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }

@@ -204,8 +204,8 @@ impl ParserTrait for RParser {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
     use test_utils::fixtures;
+    use test_utils::{insta::assert_json_snapshot, snapshot_fixtures};
 
     #[test]
     fn parse_r_fragments() {

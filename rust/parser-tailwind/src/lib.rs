@@ -116,12 +116,12 @@ fn transpile_css(css: &str) -> Result<String> {
 
 #[cfg(test)]
 mod tests {
-    use test_snaps::{
+    use test_utils::fixtures;
+    use test_utils::pretty_assertions::assert_eq;
+    use test_utils::{
         insta::{assert_json_snapshot, assert_snapshot},
         snapshot_fixtures,
     };
-    use test_utils::fixtures;
-    use test_utils::pretty_assertions::assert_eq;
 
     use super::*;
 

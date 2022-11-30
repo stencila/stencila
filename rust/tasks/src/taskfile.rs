@@ -1996,7 +1996,7 @@ struct Taskfiles;
 #[cfg(test)]
 mod test {
     use super::*;
-    use test_snaps::{insta::assert_snapshot, snapshot_fixtures_content};
+    use test_utils::{insta::assert_snapshot, snapshot_fixtures_content};
 
     #[test]
     fn serialization() {

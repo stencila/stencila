@@ -1178,7 +1178,6 @@ name = "codec-csl"
 version = "0.0.0"
 dependencies = [
  "codec",
- "test-snaps",
  "test-utils",
 ]
 
@@ -1197,7 +1196,6 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-pandoc",
- "test-props",
  "test-utils",
 ]
 
@@ -1223,7 +1221,6 @@ dependencies = [
  "schemafy",
  "serde",
  "serde_json",
- "test-snaps",
  "test-utils",
 ]
 
@@ -1245,8 +1242,6 @@ dependencies = [
  "server-next",
  "stencila-schema",
  "suids",
- "test-props",
- "test-snaps",
  "test-utils",
 ]
 
@@ -1262,8 +1257,6 @@ dependencies = [
  "node-transform",
  "stencila-schema",
  "strip-ansi-escapes",
- "test-props",
- "test-snaps",
  "test-utils",
 ]
 
@@ -1273,7 +1266,6 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "node-coerce",
- "test-props",
  "test-utils",
 ]
 
@@ -1283,7 +1275,6 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "node-coerce",
- "test-props",
  "test-utils",
 ]
 
@@ -1293,7 +1284,6 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-pandoc",
- "test-props",
  "test-utils",
 ]
 
@@ -1309,8 +1299,6 @@ dependencies = [
  "node-transform",
  "nom 7.1.1",
  "pulldown-cmark",
- "test-props",
- "test-snaps",
  "test-utils",
  "textwrap",
 ]
@@ -1333,8 +1321,6 @@ dependencies = [
  "pandoc_types",
  "path-utils",
  "suids",
- "test-props",
- "test-snaps",
  "test-utils",
 ]
 
@@ -1375,8 +1361,6 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-md",
- "test-props",
- "test-snaps",
  "test-utils",
 ]
 
@@ -1389,7 +1373,6 @@ dependencies = [
  "codec-png",
  "image",
  "png",
- "test-props",
  "test-utils",
 ]
 
@@ -1402,8 +1385,6 @@ dependencies = [
  "common",
  "formats",
  "node-pointer",
- "test-props",
- "test-snaps",
  "test-utils",
 ]
 
@@ -1413,7 +1394,6 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "node-coerce",
- "test-props",
  "test-utils",
 ]
 
@@ -1432,7 +1412,6 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "node-coerce",
- "test-props",
  "test-utils",
 ]
 
@@ -2311,7 +2290,6 @@ dependencies = [
  "statics",
  "stencila-schema",
  "suids",
- "test-snaps",
  "test-utils",
 ]
 
@@ -3551,7 +3529,6 @@ dependencies = [
  "oci-spec",
  "path-utils",
  "rkyv",
- "test-snaps",
  "test-utils",
 ]
 
@@ -4742,7 +4719,6 @@ dependencies = [
  "codec-person",
  "common",
  "stencila-schema",
- "test-snaps",
  "test-utils",
  "utils",
 ]
@@ -4769,8 +4745,6 @@ dependencies = [
  "similar",
  "stencila-schema",
  "suids",
- "test-props",
- "test-snaps",
  "test-utils",
  "thiserror",
  "unicode-segmentation",
@@ -4807,7 +4781,6 @@ dependencies = [
  "codec-txt",
  "common",
  "stencila-schema",
- "test-snaps",
  "test-utils",
  "utils",
 ]
@@ -5370,7 +5343,6 @@ name = "parser-bash"
 version = "0.0.0"
 dependencies = [
  "parser-treesitter",
- "test-snaps",
  "test-utils",
  "tree-sitter-bash",
 ]
@@ -5381,7 +5353,6 @@ version = "0.0.0"
 dependencies = [
  "fasteval",
  "parser",
- "test-snaps",
  "test-utils",
 ]
 
@@ -5397,7 +5368,6 @@ name = "parser-js"
 version = "0.0.0"
 dependencies = [
  "parser-treesitter",
- "test-snaps",
  "test-utils",
  "tree-sitter-javascript",
 ]
@@ -5434,7 +5404,6 @@ dependencies = [
  "parser",
  "parser-sql",
  "prql-compiler",
- "test-snaps",
  "test-utils",
 ]
 
@@ -5443,7 +5412,6 @@ name = "parser-py"
 version = "0.0.0"
 dependencies = [
  "parser-treesitter",
- "test-snaps",
  "test-utils",
  "tree-sitter-python",
 ]
@@ -5453,7 +5421,6 @@ name = "parser-r"
 version = "0.0.0"
 dependencies = [
  "parser-treesitter",
- "test-snaps",
  "test-utils",
  "tree-sitter-r",
 ]
@@ -5463,7 +5430,6 @@ name = "parser-rust"
 version = "0.0.0"
 dependencies = [
  "parser-treesitter",
- "test-snaps",
  "test-utils",
  "tree-sitter-rust",
 ]
@@ -5474,7 +5440,6 @@ version = "0.0.0"
 dependencies = [
  "parser-treesitter",
  "stencila-schema",
- "test-snaps",
  "test-utils",
  "tree-sitter-sql",
 ]
@@ -5487,7 +5452,6 @@ dependencies = [
  "lightningcss",
  "parser",
  "tailwind-css",
- "test-snaps",
  "test-utils",
 ]
 
@@ -5506,7 +5470,6 @@ version = "0.0.0"
 dependencies = [
  "parser-js",
  "parser-treesitter",
- "test-snaps",
  "test-utils",
  "tree-sitter-typescript",
 ]
@@ -7825,7 +7788,6 @@ dependencies = [
  "notify",
  "path-utils",
  "rust-embed",
- "test-snaps",
  "test-utils",
 ]
 
@@ -7888,31 +7850,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "test-props"
-version = "0.0.0"
-dependencies = [
- "common",
- "node-validate",
- "proptest",
- "stencila-schema",
-]
-
-[[package]]
-name = "test-snaps"
-version = "0.0.0"
-dependencies = [
- "common",
- "insta",
- "stencila-schema",
- "test-utils",
-]
-
-[[package]]
 name = "test-utils"
 version = "0.0.0"
 dependencies = [
  "common",
+ "insta",
+ "node-validate",
  "pretty_assertions",
+ "proptest",
+ "stencila-schema",
  "tracing-subscriber",
 ]
 

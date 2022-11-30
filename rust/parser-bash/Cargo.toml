@@ -8,5 +8,4 @@ parser-treesitter = { path = "../parser-treesitter" }
 tree-sitter-bash = { git = "https://github.com/nokome/tree-sitter-bash", rev = "e31399d15473bd2bbb6007e092fe2309e74c94f9" }
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }

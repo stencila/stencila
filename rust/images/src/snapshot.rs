@@ -358,7 +358,7 @@ mod tests {
     use common::{eyre::eyre, tempfile::tempdir};
     use oci_spec::image::MediaType;
 
-    use test_snaps::fixtures;
+    use test_utils::fixtures;
     use test_utils::skip_ci_os;
 
     use super::*;

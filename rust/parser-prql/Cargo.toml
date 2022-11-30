@@ -9,5 +9,4 @@ parser-sql = { path = "../parser-sql" }
 prql-compiler = "0.2.6"
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }

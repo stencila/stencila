@@ -11,6 +11,4 @@ formats = { path = "../formats" }
 node-pointer = { path = "../node-pointer" }
 
 [dev-dependencies]
-test-props = { path = "../test-props" }
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }

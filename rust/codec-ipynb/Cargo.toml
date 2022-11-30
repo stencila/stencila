@@ -21,6 +21,4 @@ stencila-schema = { path = "../schema" }
 strip-ansi-escapes = { version = "0.1.1", optional = true }
 
 [dev-dependencies]
-test-props = { path = "../test-props" }
-test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }
