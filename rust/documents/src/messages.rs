@@ -52,7 +52,7 @@ impl When {
 ///
 /// ```
 /// use documents::Then;
-/// 
+///
 /// Then::nothing();
 ///
 /// // Equivalent to
@@ -65,10 +65,10 @@ impl When {
 ///
 /// ```
 /// use documents::{Then, When};
-/// 
+///
 /// Then::compile(When::Later);
 /// ```
-/// 
+///
 /// Uses `#[serde(default)]` so that clients can send partial JSON objects
 /// specifying only one or two tasks (the others defaulting to `Never`).
 #[derive(Debug, Clone, Deserialize)]
