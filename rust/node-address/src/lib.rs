@@ -11,7 +11,6 @@ use thiserror::Error;
 use common::{
     derive_more::{Constructor, Deref, DerefMut},
     eyre::Result,
-    indexmap::IndexMap,
     inflector::cases::{camelcase::to_camel_case, snakecase::to_snake_case},
     serde::{self, Deserialize, Deserializer, Serialize},
     strum::AsRefStr,
@@ -163,14 +162,16 @@ impl Address {
     }
 
     /// Prepend an address with another
-    pub fn prepend(&mut self, other: &Self) {
-        *self = other.concat(self)
+    pub fn prepend(&mut self, other: Self) {
+        for slot in other.iter().rev() {
+            self.0.push_front(slot.clone())
+        }
     }
 
     /// Concatenate an address with another
-    pub fn concat(&self, other: &Self) -> Self {
+    pub fn concat(&self, mut other: Self) -> Self {
         let mut concat = self.clone();
-        concat.append(&mut other.clone());
+        concat.append(&mut other);
         concat
     }
 
@@ -187,14 +188,28 @@ impl Address {
         added.push_back(Slot::Index(index));
         added
     }
-}
 
-/// A map of node ids to their address
-///
-/// Used to enable faster access to a node based on it's id.
-/// An `IndexMap` is used instead of a `HashMap` so that entries are
-/// in the order that they appear in the document
-pub type AddressMap = IndexMap<String, Address>;
+    /// Does an address follow another address (is the next position in a vector or string)
+    pub fn follows(&self, other: &Self, offset: usize) -> bool {
+        if self.is_empty() || self.len() != other.len() {
+            return false;
+        }
+
+        for index in 0..(self.len() - 1) {
+            if self[index] != other[index] {
+                return false;
+            }
+        }
+
+        if let (Slot::Index(self_index), Slot::Index(other_index)) =
+            (&self[self.len() - 1], &other[other.len() - 1])
+        {
+            *self_index == *other_index + offset
+        } else {
+            false
+        }
+    }
+}
 
 /// An enumeration of custom errors returned by this library
 ///

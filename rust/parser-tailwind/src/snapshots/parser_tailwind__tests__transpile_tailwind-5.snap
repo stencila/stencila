@@ -1,0 +1,8 @@
+---
+source: rust/parser-tailwind/src/lib.rs
+assertion_line: 224
+expression: "transpile_tailwind(r\"border(dashed)\")?"
+---
+:root {
+  border-style: dashed;
+}

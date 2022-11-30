@@ -20,8 +20,8 @@ properties:
         items:
           $ref: BlockContent
       - type: string
-  executePure:
-    '@id': stencila:executePure
+  executionPure:
+    '@id': stencila:executionPure
     description: Whether the code should be treated as side-effect free when executed.
     type: boolean
   outputs:

@@ -18,12 +18,13 @@ use kernel::{
         regex::Regex,
         serde::Serialize,
         serde_with::skip_serializing_none,
-        tokio::sync::{mpsc, RwLock},
+        tokio::sync::RwLock,
         tracing::{self, log::LevelFilter},
     },
     formats::Format,
-    graph_triples::ResourceChange,
-    stencila_schema::{CodeError, Datatable, Node},
+    stencila_schema::{
+        BlockContent, Button, CodeChunk, CodeError, Datatable, Form, InlineContent, Node, Paragraph,
+    },
     Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, TagMap, Task, TaskResult,
 };
 
@@ -89,21 +90,13 @@ pub struct SqlKernel {
     #[def = "Arc::new(RwLock::new(HashSet::new()))"]
     #[serde(skip)]
     watches: WatchedTables,
-
-    /// A sender to send [`ResourceChange`]s back to the owning document (if any)
-    #[serde(skip)]
-    resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
 }
 
 impl SqlKernel {
     /// Create a new `SqlKernel`
-    pub fn new(
-        selector: &KernelSelector,
-        resource_changes_sender: Option<mpsc::Sender<ResourceChange>>,
-    ) -> Self {
+    pub fn new(selector: &KernelSelector) -> Self {
         Self {
             config: selector.config.clone(),
-            resource_changes_sender,
             ..Default::default()
         }
     }
@@ -184,22 +177,17 @@ impl SqlKernel {
             url
         );
 
-        let sender = match &self.resource_changes_sender {
-            Some(sender) => sender.to_owned(),
-            None => bail!("No resource sender provided to this SQL kernel"),
-        };
-
         if !self.watching {
             let watches = self.watches.clone();
             match pool {
                 MetaPool::Duck(pool) => {
-                    duck::watch(url, pool, watches, sender).await?;
+                    duck::watch(url, pool, watches).await?;
                 }
                 MetaPool::Postgres(pool) => {
-                    postgres::watch(url, pool, watches, sender).await?;
+                    postgres::watch(url, pool, watches).await?;
                 }
                 MetaPool::Sqlite(pool) => {
-                    sqlite::watch(url, pool, watches, sender).await?;
+                    sqlite::watch(url, pool, watches).await?;
                 }
             }
             self.watching = true;
@@ -302,7 +290,7 @@ impl KernelTrait for SqlKernel {
     }
 
     async fn status(&self) -> Result<KernelStatus> {
-        Ok(KernelStatus::Idle)
+        Ok(KernelStatus::Ready)
     }
 
     async fn start(&mut self, directory: &Path) -> Result<()> {
@@ -380,7 +368,8 @@ impl KernelTrait for SqlKernel {
             .expect("connect() should ensure connection");
         let url = self.url.as_ref().expect("connect() should ensure URL");
 
-        if what.to_lowercase() == "parameter" {
+        let what = what.to_lowercase();
+        if what == "parameter" {
             let column =
                 column.ok_or_else(|| eyre!("A column name is required in derive from path"))?;
             let table =
@@ -398,7 +387,7 @@ impl KernelTrait for SqlKernel {
                 }
             };
             Ok(vec![Node::Parameter(parameter)])
-        } else if what.to_lowercase() == "parameters" {
+        } else if what == "parameters" {
             let table =
                 table.ok_or_else(|| eyre!("A table name is required in derive from path"))?;
             let schema = schema.map(|string| string.as_str());
@@ -412,6 +401,94 @@ impl KernelTrait for SqlKernel {
                 }
             };
             Ok(parameters.into_iter().map(Node::Parameter).collect())
+        } else if what.starts_with("form") {
+            let parts: Vec<_> = what.splitn(2, ':').collect();
+            let action = parts.get(1);
+
+            let table =
+                table.ok_or_else(|| eyre!("A table name is required in derive from path"))?;
+            let schema = schema.map(|string| string.as_str());
+
+            let parameters = match pool {
+                MetaPool::Duck(pool) => duck::table_to_parameters(url, pool, table, schema).await?,
+                MetaPool::Postgres(pool) => {
+                    postgres::table_to_parameters(url, pool, table, schema).await?
+                }
+                MetaPool::Sqlite(pool) => {
+                    sqlite::table_to_parameters(url, pool, table, schema).await?
+                }
+            };
+
+            // TODO: only include parameters if not Delete
+            let columns = parameters
+                .iter()
+                .map(|param| param.name.to_string())
+                .collect_vec();
+            let params = parameters
+                .iter()
+                .map(|param| ["$", &param.name].concat())
+                .collect_vec();
+
+            let mut content: Vec<BlockContent> = parameters
+                .into_iter()
+                .map(|param| {
+                    BlockContent::Paragraph(Paragraph {
+                        content: vec![InlineContent::Parameter(param)],
+                        ..Default::default()
+                    })
+                })
+                .collect();
+
+            if let Some(action) = action {
+                if let Some((name, label)) = match *action {
+                    "create" => Some(("create", "Create")),
+                    "update" => Some(("update", "Update")),
+                    "delete" => Some(("delete", "Delete")),
+                    // TODO: Allow for update_or_delete which adds two buttons and two code chunks
+                    _ => None,
+                } {
+                    let name = [table, "_", name].concat();
+                    content.push(BlockContent::Paragraph(Paragraph {
+                        content: vec![InlineContent::Button(Button {
+                            name: name.clone(),
+                            label: Some(Box::new(label.to_string())),
+                            ..Default::default()
+                        })],
+                        ..Default::default()
+                    }));
+
+                    let sql = match *action {
+                        "create" => {
+                            format!(
+                                "-- @on {name}\ninsert into \"{table}\"\nvalues ({});",
+                                params.join(", ")
+                            )
+                        }
+                        // TODO: fill in where ...
+                        "update" => {
+                            let sets = columns
+                                .iter()
+                                .map(|column| ["  ", column, " = $", column].concat())
+                                .join(",\n");
+                            format!("-- @on {name}\nupdate \"{table}\" set\n{} where ...;", sets)
+                        }
+                        "delete" => format!("-- @on {name}\ndelete from \"{table}\"\nwhere ...;"),
+                        _ => format!("-- Unknown form action '{action}'"),
+                    };
+                    content.push(BlockContent::CodeChunk(CodeChunk {
+                        programming_language: "sql".to_string(),
+                        code: sql,
+                        ..Default::default()
+                    }))
+                };
+            }
+
+            let form = Form {
+                content,
+                ..Default::default()
+            };
+
+            Ok(vec![Node::Form(form)])
         } else {
             bail!("Do not know how to derive `{}` from database", what)
         }
@@ -423,8 +500,10 @@ impl KernelTrait for SqlKernel {
             Format::PrQL => match prql_compiler::compile(code) {
                 Ok(sql) => sql,
                 Err(error) => {
+                    let (message, ..) = prql_compiler::format_error(error, "<code>", code, false);
+
                     let mut task = Task::begin_sync();
-                    task.end(TaskResult::syntax_error(&error.to_string()));
+                    task.end(TaskResult::syntax_error(&message));
                     return Ok(task);
                 }
             },

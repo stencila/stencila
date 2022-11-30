@@ -1,10 +1,12 @@
 use std::cmp::max;
 
 use codec::{
-    common::{eyre::Result, itertools::Itertools, serde_json},
+    common::{eyre::Result, itertools::Itertools, serde_json, serde_yaml},
     stencila_schema::*,
     EncodeOptions,
 };
+use formats::Format;
+use node_transform::Transform;
 
 use crate::utils::escape;
 
@@ -114,36 +116,50 @@ impl ToMd for Quote {
 
 impl ToMd for CodeExpression {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        ["`", &self.text, "`{", &self.programming_language, " exec}"].concat()
+        let lang = &self.programming_language;
+        [
+            "`",
+            &self.code,
+            "`{",
+            lang,
+            if lang.trim().is_empty() { "" } else { " " },
+            "exec}",
+        ]
+        .concat()
     }
 }
 
-macro_rules! delimited_inline_text_to_md {
-    ($type:ty, $delimiter:expr) => {
-        impl ToMd for $type {
-            fn to_md(&self, _options: &EncodeOptions) -> String {
-                [$delimiter, &self.text, $delimiter].concat()
+impl ToMd for CodeFragment {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
+        if let Some(lang) = &self.programming_language {
+            if !lang.is_empty() {
+                return ["`", &self.code, "`{", lang, "}"].concat();
             }
         }
-    };
+        ["`", &self.code, "`"].concat()
+    }
 }
-
-delimited_inline_text_to_md!(CodeFragment, "`");
 
 impl ToMd for MathFragment {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        match self.math_language.as_ref().map(|string| string.as_str()) {
-            Some("asciimath") => ["`", &self.text, "`{asciimath}"].concat(),
-            _ => ["$", &self.text, "$"].concat(),
+        match self.math_language.as_str() {
+            "asciimath" | "mathml" => ["`", &self.code, "`{", &self.math_language, "}"].concat(),
+            _ => ["$", &self.code, "$"].concat(),
         }
     }
 }
 
 impl ToMd for Parameter {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        // If the parameter is derived, then only encode its name and what it is derived from
+        // If the parameter is derived, then only encode its name, label and what it
+        // is derived from
         if let Some(from) = self.derived_from.as_deref() {
-            return ["&[", &self.name, "]{from=", from.as_str(), "}"].concat();
+            let label = self
+                .label
+                .as_ref()
+                .map(|label| [" label=\"", label, "\""].concat())
+                .unwrap_or_default();
+            return ["&[", &self.name, "]{from=", from.as_str(), &label, "}"].concat();
         }
 
         let mut options = String::new();
@@ -163,9 +179,17 @@ impl ToMd for Parameter {
                         options += " min=";
                         options += &min.to_string();
                     }
+                    if let Some(exmin) = validator.exclusive_minimum {
+                        options += " exmin=";
+                        options += &exmin.to_string();
+                    }
                     if let Some(max) = validator.maximum {
                         options += " max=";
                         options += &max.to_string();
+                    }
+                    if let Some(exmax) = validator.exclusive_maximum {
+                        options += " exmax=";
+                        options += &exmax.to_string();
                     }
                     if let Some(mult) = validator.multiple_of {
                         options += " mult=";
@@ -178,9 +202,17 @@ impl ToMd for Parameter {
                         options += " min=";
                         options += &min.to_string();
                     }
+                    if let Some(exmin) = validator.exclusive_minimum {
+                        options += " exmin=";
+                        options += &exmin.to_string();
+                    }
                     if let Some(max) = validator.maximum {
                         options += " max=";
                         options += &max.to_string();
+                    }
+                    if let Some(exmax) = validator.exclusive_maximum {
+                        options += " exmax=";
+                        options += &exmax.to_string();
                     }
                     if let Some(mult) = validator.multiple_of {
                         options += " mult=";
@@ -253,6 +285,12 @@ impl ToMd for Parameter {
             options += &[" def=", &escape(&value)].concat();
         }
 
+        if let Some(label) = &self.label {
+            options += " label=\"";
+            options += label;
+            options += "\"";
+        }
+
         let attrs = if options.is_empty() {
             "".to_string()
         } else {
@@ -260,6 +298,36 @@ impl ToMd for Parameter {
         };
 
         ["&[", &self.name, "]", &attrs].concat()
+    }
+}
+
+impl ToMd for Button {
+    fn to_md(&self, _options: &EncodeOptions) -> String {
+        let code = self.code.trim();
+        let code = if code.is_empty() {
+            "".to_string()
+        } else {
+            ["`", code, "`"].concat()
+        };
+
+        let mut options = Vec::new();
+
+        let lang = self.programming_language.trim();
+        if !code.is_empty() && !lang.is_empty() && !self.guess_language.unwrap_or_default() {
+            options.push(lang.to_string());
+        }
+
+        if let Some(label) = &self.label {
+            options.push(["label=\"", label, "\""].concat());
+        }
+
+        let attrs = if options.is_empty() {
+            "".to_string()
+        } else {
+            ["{", &options.join(" "), "}"].concat()
+        };
+
+        ["#[", &self.name, "]", &code, &attrs].concat()
     }
 }
 
@@ -312,7 +380,7 @@ impl ToMd for CodeBlock {
             None => "",
         };
 
-        ["```", lang, "\n", &self.text, "\n```\n\n"].concat()
+        ["```", lang, "\n", &self.code, "\n```\n\n"].concat()
     }
 }
 
@@ -322,7 +390,7 @@ impl ToMd for CodeChunk {
             "```",
             &self.programming_language,
             " exec\n",
-            &self.text,
+            &self.code,
             "\n```\n\n",
         ]
         .concat()
@@ -331,9 +399,11 @@ impl ToMd for CodeChunk {
 
 impl ToMd for MathBlock {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        match self.math_language.as_ref().map(|string| string.as_str()) {
-            Some("asciimath") => ["```asciimath\n", &self.text, "\n```\n\n"].concat(),
-            _ => ["$$\n", &self.text, "\n$$\n\n"].concat(),
+        match self.math_language.as_str() {
+            "asciimath" => ["```asciimath\n", &self.code, "\n```\n\n"].concat(),
+            "mathml" => ["```mathml\n", &self.code, "\n```\n\n"].concat(),
+            // If using double dollars ensure that everything is on the same line (paragraph)
+            _ => ["$$ ", &self.code.replace('\n', " "), " $$\n\n"].concat(),
         }
     }
 }
@@ -476,7 +546,10 @@ impl ToMd for TableSimple {
                 .join(" | ")
         };
 
-        let (first, rest) = if rows.len() == 1 {
+        let (first, rest) = if rows.is_empty() {
+            // If there are no rows then just return an empty string
+            return String::new();
+        } else if rows.len() == 1 {
             (
                 row_to_md(&vec!["".to_string(); column_widths.len()]),
                 row_to_md(&rows[0]),
@@ -511,15 +584,19 @@ impl ToMd for Include {
         let mut options = Vec::new();
 
         if let Some(media_type) = self.media_type.as_deref() {
-            options.push(["format=", media_type].concat())
+            if !media_type.is_empty() {
+                options.push(["format=", media_type].concat())
+            }
         }
 
         if let Some(select) = self.select.as_deref() {
-            options.push(["select=", select].concat())
+            if !select.is_empty() {
+                options.push(["select=", select].concat())
+            }
         }
 
-        if let Some(execute_auto) = &self.execute_auto {
-            options.push(["autorun=", execute_auto.as_ref()].concat())
+        if let Some(execution_auto) = &self.execution_auto {
+            options.push(["autorun=", execution_auto.as_ref()].concat())
         }
 
         let attrs = if options.is_empty() {
@@ -537,23 +614,30 @@ impl ToMd for Call {
         let args = self
             .arguments
             .iter()
-            .flatten()
             .map(|arg| arg.to_md(options))
             .filter(|arg| !arg.is_empty())
             .join(" ");
 
         let mut options = Vec::new();
 
-        if let Some(media_type) = self.media_type.as_deref() {
+        if let Some(media_type) = self
+            .media_type
+            .as_deref()
+            .and_then(|value| (!value.is_empty()).then_some(value))
+        {
             options.push(["format=", media_type].concat())
         }
 
-        if let Some(select) = self.select.as_deref() {
+        if let Some(select) = self
+            .select
+            .as_deref()
+            .and_then(|value| (!value.is_empty()).then_some(value))
+        {
             options.push(["select=", select].concat())
         }
 
-        if let Some(execute_auto) = &self.execute_auto {
-            options.push(["autorun=", execute_auto.as_ref()].concat())
+        if let Some(execution_auto) = &self.execution_auto {
+            options.push(["autorun=", execution_auto.as_ref()].concat())
         }
 
         let attrs = if options.is_empty() {
@@ -568,10 +652,8 @@ impl ToMd for Call {
 
 impl ToMd for CallArgument {
     fn to_md(&self, _options: &EncodeOptions) -> String {
-        if let Some(symbol) = &self.symbol {
-            if !symbol.trim().is_empty() {
-                return [&self.name, "=", symbol].concat();
-            }
+        if !self.code.trim().is_empty() {
+            return [&self.name, "=", self.code.trim()].concat();
         }
 
         if let Some(value) = &self.value {
@@ -587,24 +669,177 @@ impl ToMd for CallArgument {
     }
 }
 
-macro_rules! content_to_md {
-    ($type:ty) => {
-        impl ToMd for $type {
-            fn to_md(&self, options: &EncodeOptions) -> String {
-                self.content.to_md(options)
-            }
-        }
-    };
+impl ToMd for Division {
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        let Self {
+            programming_language,
+            code,
+            content,
+            ..
+        } = self;
+
+        let lang = formats::match_name(programming_language);
+        let spec = if lang == Format::Tailwind {
+            code.to_owned()
+        } else {
+            ["`", code, "`{", programming_language, "}"].concat()
+        };
+
+        let content = content.to_md(options);
+
+        ["::: ", &spec, "\n\n", &content, ":::\n\n"].concat()
+    }
 }
 
-content_to_md!(Article);
-content_to_md!(CreativeWork);
-
-impl ToMd for CreativeWorkContent {
+impl ToMd for Span {
     fn to_md(&self, options: &EncodeOptions) -> String {
-        match self {
-            CreativeWorkContent::String(node) => node.to_md(options),
-            CreativeWorkContent::VecNode(nodes) => nodes.to_md(options),
+        let content = self.content.to_md(options);
+
+        let code = ["`", &self.code, "`"].concat();
+
+        let lang = formats::match_name(&self.programming_language);
+        let lang = if !matches!(lang, Format::Tailwind | Format::Unknown) {
+            ["{", &self.programming_language, "}"].concat()
+        } else {
+            String::new()
+        };
+
+        ["[", &content, "]", &code, &lang].concat()
+    }
+}
+
+impl ToMd for Form {
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        let content = self.content.to_md(options);
+
+        let mut options = Vec::new();
+        if let Some(from) = &self.derive_from {
+            options.push(["from=", from].concat())
+        }
+        if let Some(action) = &self.derive_action {
+            options.push(["action=", &action.as_ref().to_lowercase()].concat())
+        }
+        if let Some(item) = &self.derive_item {
+            options.push(
+                [
+                    "item=",
+                    &match item.as_ref() {
+                        FormDeriveItem::Integer(int) => int.to_string(),
+                        FormDeriveItem::String(string) => string.clone(),
+                    },
+                ]
+                .concat(),
+            );
+        }
+        let options = match options.is_empty() {
+            true => String::new(),
+            false => [" {", &options.join(" "), "}"].concat(),
+        };
+
+        ["::: form", &options, "\n\n", &content, ":::\n\n"].concat()
+    }
+}
+
+impl ToMd for For {
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        let Self {
+            symbol,
+            code,
+            programming_language,
+            content,
+            otherwise,
+            ..
+        } = self;
+
+        let mut begin = ["::: for ", symbol, " in ", code].concat();
+        if !programming_language.is_empty() {
+            begin.push_str(&[" {", programming_language, "}"].concat());
+        }
+        begin.push_str("\n\n");
+
+        let otherwise = match otherwise.as_ref() {
+            Some(content) => match content.is_empty() {
+                true => String::new(),
+                false => ["::: else\n\n", &content.to_md(options)].concat(),
+            },
+            None => String::new(),
+        };
+
+        [&begin, &content.to_md(options), &otherwise, ":::\n\n"].concat()
+    }
+}
+
+impl ToMd for If {
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        let clauses_count = self.clauses.len();
+        self.clauses
+            .iter()
+            .enumerate()
+            .map(|(index, clause)| {
+                let code = if clause.code.contains('{') {
+                    ["`", &clause.code.replace('`', "\\`"), "`"].concat()
+                } else {
+                    clause.code.clone()
+                };
+
+                let curly_attrs = if !clause.programming_language.is_empty()
+                    && (clause.programming_language.to_lowercase() != "unknown")
+                    && !matches!(clause.guess_language, Some(true))
+                {
+                    [" {", &clause.programming_language, "}"].concat()
+                } else {
+                    String::new()
+                };
+
+                [
+                    "::: ",
+                    if index == 0 {
+                        "if"
+                    } else if index == clauses_count - 1 && clause.code.is_empty() {
+                        "else"
+                    } else {
+                        "elif"
+                    },
+                    " ",
+                    &code,
+                    &curly_attrs,
+                    "\n\n",
+                    clause.content.to_md(options).as_str(),
+                    if index == (clauses_count - 1) {
+                        ":::\n\n"
+                    } else {
+                        ""
+                    },
+                ]
+                .concat()
+            })
+            .join("")
+    }
+}
+
+impl ToMd for Article {
+    fn to_md(&self, options: &EncodeOptions) -> String {
+        let mut frontmatter = serde_yaml::to_value(&Article {
+            content: None,
+            ..self.clone()
+        })
+        .unwrap_or_default();
+
+        if let Some(title) = &self.title {
+            frontmatter["title"] = serde_yaml::Value::String(title.to_md(options));
+        }
+        if let Some(description) = &self.description {
+            frontmatter["description"] =
+                serde_yaml::Value::String(description.to_md(options).trim().to_string());
+        }
+
+        let md = self.content.to_md(options);
+
+        let yaml = serde_yaml::to_string(&frontmatter).unwrap_or_default();
+        if !yaml.is_empty() {
+            ["---\n", &yaml, "---\n\n", &md, "\n"].concat()
+        } else {
+            [&md, "\n"].concat()
         }
     }
 }
@@ -613,27 +848,43 @@ impl ToMd for Node {
     fn to_md(&self, options: &EncodeOptions) -> String {
         match self {
             Node::Article(node) => node.to_md(options),
+            Node::AudioObject(..) => self.to_inline().to_md(options),
             Node::Boolean(node) => node.to_md(options),
+            Node::Button(node) => node.to_md(options),
+            Node::Call(node) => node.to_md(options),
             Node::CodeBlock(node) => node.to_md(options),
+            Node::CodeChunk(node) => node.to_md(options),
+            Node::CodeExpression(node) => node.to_md(options),
             Node::CodeFragment(node) => node.to_md(options),
-            Node::CreativeWork(node) => node.to_md(options),
+            Node::Division(node) => node.to_md(options),
             Node::Emphasis(node) => node.to_md(options),
+            Node::For(node) => node.to_md(options),
+            Node::Form(node) => node.to_md(options),
             Node::Heading(node) => node.to_md(options),
+            Node::If(node) => node.to_md(options),
+            Node::ImageObject(..) => self.to_inline().to_md(options),
+            Node::Include(node) => node.to_md(options),
             Node::Integer(node) => node.to_md(options),
             Node::Link(node) => node.to_md(options),
             Node::List(node) => node.to_md(options),
+            Node::MathBlock(node) => node.to_md(options),
+            Node::MathFragment(node) => node.to_md(options),
             Node::Null(node) => node.to_md(options),
             Node::Number(node) => node.to_md(options),
             Node::Paragraph(node) => node.to_md(options),
             Node::Parameter(node) => node.to_md(options),
             Node::Quote(node) => node.to_md(options),
             Node::QuoteBlock(node) => node.to_md(options),
+            Node::Span(node) => node.to_md(options),
             Node::Strikeout(node) => node.to_md(options),
             Node::String(node) => node.to_md(options),
             Node::Strong(node) => node.to_md(options),
             Node::Subscript(node) => node.to_md(options),
             Node::Superscript(node) => node.to_md(options),
+            Node::Table(..) => self.to_block().to_md(options),
+            Node::ThematicBreak(node) => node.to_md(options),
             Node::Underline(node) => node.to_md(options),
+            Node::VideoObject(..) => self.to_inline().to_md(options),
             _ => format!(
                 "<!-- Markdown encoding for Node::{} is not yet supported -->\n\n",
                 self.as_ref()
@@ -647,6 +898,7 @@ impl ToMd for InlineContent {
         match self {
             InlineContent::AudioObject(node) => node.to_md(options),
             InlineContent::Boolean(node) => node.to_md(options),
+            InlineContent::Button(node) => node.to_md(options),
             InlineContent::CodeExpression(node) => node.to_md(options),
             InlineContent::CodeFragment(node) => node.to_md(options),
             InlineContent::Emphasis(node) => node.to_md(options),
@@ -658,6 +910,7 @@ impl ToMd for InlineContent {
             InlineContent::MathFragment(node) => node.to_md(options),
             InlineContent::Parameter(node) => node.to_md(options),
             InlineContent::Quote(node) => node.to_md(options),
+            InlineContent::Span(node) => node.to_md(options),
             InlineContent::Strikeout(node) => node.to_md(options),
             InlineContent::String(node) => node.to_md(options),
             InlineContent::Strong(node) => node.to_md(options),
@@ -679,7 +932,11 @@ impl ToMd for BlockContent {
             BlockContent::Call(node) => node.to_md(options),
             BlockContent::CodeBlock(node) => node.to_md(options),
             BlockContent::CodeChunk(node) => node.to_md(options),
+            BlockContent::Division(node) => node.to_md(options),
+            BlockContent::For(node) => node.to_md(options),
+            BlockContent::Form(node) => node.to_md(options),
             BlockContent::Heading(node) => node.to_md(options),
+            BlockContent::If(node) => node.to_md(options),
             BlockContent::Include(node) => node.to_md(options),
             BlockContent::List(node) => node.to_md(options),
             BlockContent::MathBlock(node) => node.to_md(options),
@@ -691,16 +948,6 @@ impl ToMd for BlockContent {
                 "<!-- Markdown encoding for BlockContent::{} is not yet supported -->\n\n",
                 self.as_ref()
             ),
-        }
-    }
-}
-
-impl ToMd for ThingDescription {
-    fn to_md(&self, options: &EncodeOptions) -> String {
-        match self {
-            ThingDescription::String(string) => string.to_string(),
-            ThingDescription::VecInlineContent(inlines) => inlines.to_md(options),
-            ThingDescription::VecBlockContent(blocks) => blocks.to_md(options),
         }
     }
 }

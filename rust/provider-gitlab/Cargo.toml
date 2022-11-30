@@ -10,7 +10,7 @@ archive-utils = { path = "../archive-utils", features = [
 ] }
 codecs = { path = "../codecs" }
 provider = { path = "../provider" }
-uuids = { path = "../uuids" }
+suids = { path = "../suids" }
 
 [dev-dependencies]
 test-utils = { path = "../test-utils" }

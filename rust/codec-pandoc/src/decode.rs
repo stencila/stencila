@@ -18,6 +18,7 @@ use codec_rpng::RpngCodec;
 use codec_txt::ToTxt;
 use formats::FormatNodeType;
 use node_coerce::coerce;
+use suids::Suid;
 
 use crate::from_pandoc;
 
@@ -143,7 +144,7 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
             // For some formats e.g. DOCX, LaTeX. Pandoc automatically adds an `id` to headings based
             // on its content. That is useful, but redundant when it is decoded back. So, if the id
             // is a slug of the content then ignore it.
-            let id = if let Some(id) = get_id(attrs).map(Box::new) {
+            let id = if let Some(id) = get_id(attrs) {
                 let slug = slugify(content.to_txt());
                 if *id == slug {
                     None
@@ -168,10 +169,10 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
                 if let Some(block) = transform_to_block(&content[0]) {
                     return vec![block];
                 }
-                if let InlineContent::MathFragment(MathFragment { text, .. }) = &content[0] {
+                if let InlineContent::MathFragment(MathFragment { code, .. }) = &content[0] {
                     return vec![BlockContent::MathBlock(MathBlock {
-                        text: text.to_owned(),
-                        math_language: Some(Box::new("tex".to_string())),
+                        code: code.to_owned(),
+                        math_language: "tex".to_string(),
                         ..Default::default()
                     })];
                 }
@@ -189,13 +190,13 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
             })]
         }
 
-        pandoc::Block::CodeBlock(attrs, text) => {
-            let id = get_id(attrs).map(Box::new);
+        pandoc::Block::CodeBlock(attrs, code) => {
+            let id = get_id(attrs);
             let programming_language = get_attr(attrs, "classes").map(Box::new);
             vec![BlockContent::CodeBlock(CodeBlock {
                 id,
                 programming_language,
-                text: text.clone(),
+                code: code.clone(),
                 ..Default::default()
             })]
         }
@@ -264,7 +265,7 @@ fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<Bloc
             foot,
             ..
         }) => {
-            let id = get_id(attr).map(Box::new);
+            let id = get_id(attr);
 
             let caption = translate_blocks(&caption.long, context);
             let caption = match caption.is_empty() {
@@ -471,24 +472,24 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
             ..Default::default()
         })],
 
-        pandoc::Inline::Code(attrs, text) => {
-            let id = get_id(attrs).map(Box::new);
+        pandoc::Inline::Code(attrs, code) => {
+            let id = get_id(attrs);
             vec![InlineContent::CodeFragment(CodeFragment {
                 id,
-                text: text.clone(),
+                code: code.clone(),
                 ..Default::default()
             })]
         }
-        pandoc::Inline::Math(_math_type, text) => vec![InlineContent::MathFragment(MathFragment {
-            text: text.clone(),
-            math_language: Some(Box::new("tex".to_string())),
+        pandoc::Inline::Math(_math_type, code) => vec![InlineContent::MathFragment(MathFragment {
+            code: code.clone(),
+            math_language: "tex".to_string(),
             ..Default::default()
         })],
 
         pandoc::Inline::Link(attrs, inlines, target) => {
             let pandoc::Target { url, title } = target;
             vec![InlineContent::Link(Link {
-                id: get_id(attrs).map(Box::new),
+                id: get_id(attrs),
                 target: url.clone(),
                 title: get_string_prop(title).map(Box::new),
                 content: translate_inlines(inlines, context),
@@ -496,7 +497,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
             })]
         }
         pandoc::Inline::Image(attrs, inlines, target) => {
-            let id = get_id(attrs).map(Box::new);
+            let id = get_id(attrs);
 
             let caption = translate_inlines(inlines, context).to_txt();
             let caption = match caption.is_empty() {
@@ -508,7 +509,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
             let content_url = url.clone();
             let title = match title.is_empty() {
                 true => None,
-                false => Some(Box::new(CreativeWorkTitle::String(title.to_string()))),
+                false => Some(vec![InlineContent::String(title.to_string())]),
             };
 
             match formats::match_path(&content_url).spec().node_type {
@@ -623,8 +624,10 @@ fn get_string_prop(value: &str) -> Option<String> {
 }
 
 // Get the `id` property of a `Entity` from a  Pandoc `Attr` tuple struct
-fn get_id(attrs: &pandoc::Attr) -> Option<String> {
-    get_attr(attrs, "id").and_then(|value| get_string_prop(&value))
+fn get_id(attrs: &pandoc::Attr) -> Option<Suid> {
+    get_attr(attrs, "id")
+        .and_then(|value| get_string_prop(&value))
+        .map(|id| id.into())
 }
 
 /// Try to transform inline content (potentially containing an RPNG) to another type of inline content

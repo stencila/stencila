@@ -40,6 +40,7 @@ pub enum Format {
     Gdoc,
     Gif,
     Html,
+    Http,
     Ipynb,
     JavaScript,
     Jpeg,
@@ -59,6 +60,7 @@ pub enum Format {
     Person,
     PlainText,
     Png,
+    Postgrest,
     PrQL,
     Python,
     R,
@@ -67,6 +69,7 @@ pub enum Format {
     Rust,
     Shell,
     SQL,
+    Tailwind,
     ThreeGpp,
     Toml,
     TypeScript,
@@ -99,11 +102,13 @@ impl Format {
             Format::Julia => FormatSpec::new("Julia", "jl", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::Makefile => FormatSpec::new("Makefile", "makefile", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::PrQL => FormatSpec::new("PrQL", "prql", &[], false, false, FormatNodeType::SoftwareSourceCode),
+            Format::Postgrest => FormatSpec::new("PostgREST", "pgrst", &["pgrest"], false, false, FormatNodeType::SoftwareSourceCode),
             Format::Python => FormatSpec::new("Python", "py", &["python3"], false, false, FormatNodeType::SoftwareSourceCode),
             Format::R => FormatSpec::new("R", "r", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::Rust => FormatSpec::new("Rust", "rust", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::Shell => FormatSpec::new("Shell", "sh", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::SQL => FormatSpec::new("SQL", "sql", &[], false, false, FormatNodeType::SoftwareSourceCode),
+            Format::Tailwind => FormatSpec::new("Tailwind", "tw", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::TypeScript => FormatSpec::new("TypeScript", "ts", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::Zsh => FormatSpec::new("ZSH", "zsh", &[], false, false, FormatNodeType::SoftwareSourceCode),
 
@@ -137,6 +142,7 @@ impl Format {
             Format::WebM => FormatSpec::new("WebM", "webm", &[], true, true, FormatNodeType::VideoObject),
 
             // Other
+            Format::Http => FormatSpec::new("HTTP", "http", &[], false, false, FormatNodeType::Unknown),
             Format::PlainText => FormatSpec::new("Plain text", "txt", &[], false, false, FormatNodeType::Unknown),
             Format::Person => FormatSpec::new("Person", "person", &[], false, false, FormatNodeType::Person),
             Format::Date => FormatSpec::new("Date", "date", &[], false, false, FormatNodeType::Date),
@@ -284,7 +290,8 @@ pub fn match_name(name: &str) -> Format {
     let name = name.to_lowercase();
     for format in Format::iter() {
         let spec = format.spec();
-        if name == spec.title.to_lowercase()
+        if name == format.to_string().to_lowercase()
+            || name == spec.title.to_lowercase()
             || name == spec.extension
             || spec.aliases.contains(&name)
         {

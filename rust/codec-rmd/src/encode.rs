@@ -18,12 +18,12 @@ fn transform_blocks(blocks: &mut Vec<BlockContent>) {
             // Code chunks are transformed to code blocks with curly braced language
             BlockContent::CodeChunk(CodeChunk {
                 programming_language,
-                text,
+                code,
                 ..
             }) => {
                 *block = BlockContent::CodeBlock(CodeBlock {
                     programming_language: Some(Box::new(["{", programming_language, "}"].concat())),
-                    text: text.to_string(),
+                    code: code.to_string(),
                     ..Default::default()
                 })
             }
@@ -40,11 +40,11 @@ fn transform_inlines(inlines: &mut Vec<InlineContent>) {
             // Code expressions are transformed to code fragments prefixed with the language
             InlineContent::CodeExpression(CodeExpression {
                 programming_language,
-                text,
+                code,
                 ..
             }) => {
                 *inline = InlineContent::CodeFragment(CodeFragment {
-                    text: [programming_language, " ", text].concat(),
+                    code: [programming_language, " ", code].concat(),
                     ..Default::default()
                 })
             }

@@ -1,64 +1,58 @@
 ---
 source: rust/parser-calc/src/lib.rs
-assertion_line: 132
-expression: resource_info
+assertion_line: 151
+expression: parse_info
 input_file: fixtures/fragments/calc/tags.calc
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/calc/tags.calc",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "calc"
-  },
-  "relations": [
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          0,
-          0,
-          0,
-          19
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/tags.calc",
-        "name": "var1",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          0,
-          1,
-          11
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/tags.calc",
-        "name": "var2",
-        "kind": "Number"
-      }
-    ]
-  ],
-  "compile_digest": "626009382929379198.8608873703477614979.0.0.0",
-  "tags": [
+  "syntaxErrors": false,
+  "semanticDigest": 8608873703477614979,
+  "executionDependencies": [
     {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
+        "name": "var2",
+        "namespace": "fragments/calc/tags.calc"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        11
+      ]
+    }
+  ],
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "var1",
+        "namespace": "fragments/calc/tags.calc"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        19
+      ]
+    }
+  ],
+  "executionTags": [
+    {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "assigns",
-      "value": "var1 only",
-      "global": false
+      "value": "var1 only"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "uses",
-      "value": "var2",
-      "global": false
+      "value": "var2"
     }
   ]
 }

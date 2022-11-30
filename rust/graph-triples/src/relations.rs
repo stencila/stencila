@@ -9,19 +9,21 @@ use common::{serde::Serialize, strum::Display};
 #[derive(Debug, Display, Clone, JsonSchema, Serialize)]
 #[serde(tag = "type", crate = "common::serde")]
 pub enum Relation {
-    Assigns(Assigns),
     Alters(Alters),
+    Assigns(Assigns),
+    Calls,
     Converts(Converts),
     Declares(Declares),
-    Embed,
+    Derives,
+    Embeds,
     Imports(Imports),
     Includes,
-    Calls,
     Links,
+    On(On),
     Reads(Reads),
+    Requires(Requires),
     Uses(Uses),
     Writes(Writes),
-    Requires(Requires),
 }
 
 /// The two dimensional range that a relation is defined within some
@@ -134,6 +136,20 @@ pub fn uses(range: Range) -> Relation {
     Relation::Uses(Uses { range })
 }
 
+/// Should be executed on change to a symbol
+#[derive(Debug, Clone, JsonSchema, Serialize)]
+#[serde(crate = "common::serde")]
+#[schemars(deny_unknown_fields)]
+pub struct On {
+    /// The range within code that the '@on` tags is declared
+    pub range: Range,
+}
+
+/// Create a new `On` relation
+pub fn on(range: Range) -> Relation {
+    Relation::On(On { range })
+}
+
 /// Writes to a file
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(crate = "common::serde")]
@@ -165,4 +181,9 @@ pub struct Requires {
 /// Create a new `Require` relation
 pub fn requires(range: Range) -> Relation {
     Relation::Requires(Requires { range })
+}
+
+/// Create a new `Derived` relation
+pub fn derives() -> Relation {
+    Relation::Derives
 }

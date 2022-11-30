@@ -26,8 +26,8 @@ use common::{
     strum::Display,
 };
 use graph_triples::{
-    direction, relations, stencila_schema::ExecuteAuto, Direction, Pairs, Relation, Resource,
-    ResourceInfo, TagMap, Triple,
+    direction, relations, stencila_schema::ExecutionAuto, Direction, Pairs, Relation, Resource,
+    ResourceInfo, Triple, TagMap,
 };
 use hash_utils::seahash;
 use kernels::{Kernel, KernelSelector};
@@ -389,7 +389,7 @@ impl Graph {
                 // (or content digest if that is empty) and dependencies digest.
                 dependencies_digest.write_u64(match compile_digest.semantic_digest != 0 {
                     true => compile_digest.semantic_digest,
-                    false => compile_digest.content_digest,
+                    false => compile_digest.state_digest,
                 });
                 dependencies_digest.write_u64(compile_digest.dependencies_digest);
 
@@ -431,7 +431,7 @@ impl Graph {
                     compile_digest.dependencies_failed = dependencies_failed;
                 }
                 None => {
-                    let mut compile_digest = resource.digest();
+                    let mut compile_digest = resource.execution_digest();
                     compile_digest.dependencies_digest = dependencies_digest;
                     compile_digest.dependencies_stale = dependencies_stale;
                     compile_digest.dependencies_failed = dependencies_failed;
@@ -615,7 +615,7 @@ impl Graph {
         let kernel = kernel_selector.select(&kernels);
         let kernel_forkable = match kernel {
             Some(kernel) => kernel.forkable,
-            None => bail!("There is no kernel available capable of executing the code"),
+            None => false,
         };
 
         let is_fork = Self::should_run_in_fork(kernel_forkable, &resource_info, 0, &options);
@@ -679,7 +679,8 @@ impl Graph {
 
             let resource_info = self.get_resource_info(resource)?;
 
-            // Only include code for which there is a kernel capable of executing it
+            // Select a kernel for the language (for some nodes e.g. `Call` the languages is 'unknown'
+            // so kernel will be None)
             let kernel_selector = KernelSelector::from_format_and_tags(
                 code.language,
                 Some(&tags.merge(&resource_info.tags)),
@@ -687,14 +688,14 @@ impl Graph {
             let kernel = kernel_selector.select(&kernels);
             let kernel_forkable = match kernel {
                 Some(kernel) => kernel.forkable,
-                None => continue,
+                None => false,
             };
 
             // If this is not the explicitly executed resource `start`
             // and `autorun == Never` then exclude it and any following resources
             if start.is_some()
                 && Some(resource) != start.as_ref()
-                && matches!(resource_info.execute_auto, Some(ExecuteAuto::Never))
+                && matches!(resource_info.execute_auto, Some(ExecutionAuto::Never))
             {
                 break;
             }
@@ -805,7 +806,7 @@ impl Graph {
                 }
 
                 if !matches!(resource_info.resource, Resource::Code(..))
-                    || matches!(resource_info.execute_auto, Some(ExecuteAuto::Never))
+                    || matches!(resource_info.execute_auto, Some(ExecutionAuto::Never))
                 {
                     excluded.insert(resource_info.resource.clone());
                     return Ok(false);
@@ -815,7 +816,7 @@ impl Graph {
                     if dependency != start && matches!(dependency, Resource::Code(..)) {
                         let dependency_info = self.get_resource_info(dependency)?;
                         if dependency_info.is_stale()
-                            && matches!(dependency_info.execute_auto, Some(ExecuteAuto::Never))
+                            && matches!(dependency_info.execute_auto, Some(ExecutionAuto::Never))
                         {
                             excluded.insert(resource_info.resource.clone());
                             return Ok(false);
@@ -848,7 +849,7 @@ impl Graph {
             // `autorun == Always` are also included, as well as dependents of those dependencies
             for dependency in dependencies {
                 let dependency_info = self.get_resource_info(dependency)?;
-                if (matches!(dependency_info.execute_auto, Some(ExecuteAuto::Always))
+                if (matches!(dependency_info.execute_auto, Some(ExecutionAuto::Always))
                     || dependency_info.is_stale())
                     && should_include(dependency_info)?
                 {
@@ -881,7 +882,8 @@ impl Graph {
 
             let resource_info = self.get_resource_info(resource)?;
 
-            // Only execute resources for which there is a kernel capable of executing code
+            // Select a kernel for the language (for some nodes e.g. `Call` the languages is 'unknown'
+            // so kernel will be None)
             let kernel_selector = KernelSelector::from_format_and_tags(
                 code.language,
                 Some(&tags.merge(&resource_info.tags)),
@@ -889,7 +891,7 @@ impl Graph {
             let kernel = kernel_selector.select(&kernels);
             let kernel_forkable = match kernel {
                 Some(kernel) => kernel.forkable,
-                None => continue,
+                None => false,
             };
 
             // Determine if the taks should run in a fork

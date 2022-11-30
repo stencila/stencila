@@ -12,3 +12,5 @@ properties:
     type: array
     items:
       $ref: CallArgument
+required:
+  - arguments

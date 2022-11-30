@@ -1,215 +1,196 @@
 ---
 source: rust/parser-r/src/lib.rs
-assertion_line: 210
-expression: resource_info
+assertion_line: 216
+expression: parse_info
 input_file: fixtures/fragments/r/writes.R
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/r/writes.R",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "r"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          10,
-          0,
-          14
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/writes.R",
+  "syntaxErrors": false,
+  "semanticDigest": 5373270997259994715,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "data",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          0,
-          16,
-          0,
-          23
-        ]
+        "namespace": "fragments/r/writes.R"
       },
-      {
-        "type": "File",
-        "path": "fragments/r/path1"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          12,
-          2,
-          16
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/writes.R",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        10,
+        0,
+        14
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "data",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          2,
-          25,
-          2,
-          32
-        ]
+        "namespace": "fragments/r/writes.R"
       },
-      {
-        "type": "File",
-        "path": "fragments/r/path2"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          4,
-          0,
-          4,
-          3
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/writes.R",
-        "name": "foo",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          5,
-          29,
-          5,
-          36
-        ]
-      },
-      {
-        "type": "File",
-        "path": "fragments/r/path3"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          8,
-          17,
-          8,
-          21
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/writes.R",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        12,
+        2,
+        16
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "data",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          8,
-          31,
-          8,
-          38
-        ]
+        "namespace": "fragments/r/writes.R"
       },
-      {
-        "type": "File",
-        "path": "fragments/r/path4"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          12,
-          12,
-          12,
-          16
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/writes.R",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        8,
+        17,
+        8,
+        21
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "data",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          12,
-          18,
-          12,
-          24
-        ]
+        "namespace": "fragments/r/writes.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/writes.R",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        12,
+        12,
+        12,
+        16
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "ignore",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          14,
-          10,
-          14,
-          14
-        ]
+        "namespace": "fragments/r/writes.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/writes.R",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        12,
+        18,
+        12,
+        24
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "data",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          14,
-          23,
-          14,
-          29
-        ]
+        "namespace": "fragments/r/writes.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/writes.R",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        14,
+        10,
+        14,
+        14
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "ignore",
-        "kind": ""
-      }
-    ]
+        "namespace": "fragments/r/writes.R"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        14,
+        23,
+        14,
+        29
+      ]
+    }
   ],
-  "compile_digest": "15309581107305257412.1015647684578772621.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/r/path1"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        0,
+        16,
+        0,
+        23
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/r/path2"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        2,
+        25,
+        2,
+        32
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "foo",
+        "kind": "Function",
+        "namespace": "fragments/r/writes.R"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        4,
+        0,
+        4,
+        3
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/r/path3"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        5,
+        29,
+        5,
+        36
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/r/path4"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        8,
+        31,
+        8,
+        38
+      ]
+    }
+  ],
+  "executionTags": []
 }

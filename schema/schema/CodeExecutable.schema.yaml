@@ -4,19 +4,23 @@ extends: Executable
 role: base
 status: stable
 category: code
-description: Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+description: Base type for executable code nodes (e.g. `CodeChunk`).
 $comment: |
-  Adds properties to the base `Executable` node type that are necessary for executable code .
-  The added properties are the same as for static code nodes and both `text` and `programmingLanguage` are required.
+  Adds properties to the base `Executable` node type that are necessary for executable code.
+  The added properties are the same as for static code nodes. Both `code` and `programmingLanguage` are required.
 properties:
-  text:
-    '@id': schema:text
-    description: The text of the code.
+  code:
+    '@id': stencila:code
+    description: The code.
     type: string
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
+  guessLanguage:
+    '@id': stencila:guessLanguage
+    description: Whether the programming language of the code should be guessed based on syntax and variables used
+    type: boolean
   mediaType:
     '@id': schema:encodingFormat
     aliases:
@@ -28,5 +32,5 @@ properties:
       `encodingFormat` "application/ld+json" for JSON-LD code examples.
     type: string
 required:
-  - text
+  - code
   - programmingLanguage

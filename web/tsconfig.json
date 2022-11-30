@@ -2,7 +2,9 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "experimentalDecorators": true,
     "target": "es6",
+    "module": "esnext",
     "skipLibCheck": true,
     "strictNullChecks": true,
     "declaration": true,

@@ -7,7 +7,8 @@ edition = "2021"
 [dependencies]
 common = { path = "../common" }
 formats = { path = "../formats" }
-graph-triples = { path = "../graph-triples" }
+hash-utils = { path = "../hash-utils" }
+stencila-schema = { path = "../schema" }
 
 [dev-dependencies]
 test-utils = { path = "../test-utils" }

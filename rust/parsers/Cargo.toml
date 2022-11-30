@@ -16,12 +16,17 @@ cli-utils = { path = "../cli-utils" , optional = true}
 
 parser-bash = { path = "../parser-bash" , optional = true}
 parser-calc = { path = "../parser-calc" , optional = true}
+parser-http = { path = "../parser-http" , optional = true}
 parser-js = { path = "../parser-js" , optional = true}
+parser-json = { path = "../parser-json" , optional = true}
+parser-json5 = { path = "../parser-json5" , optional = true}
+parser-postgrest = { path = "../parser-postgrest" , optional = true}
 parser-prql = { path = "../parser-prql" , optional = true}
 parser-py = { path = "../parser-py" , optional = true}
 parser-r = { path = "../parser-r" , optional = true}
 parser-rust = { path = "../parser-rust" , optional = true}
 parser-sql = { path = "../parser-sql" , optional = true}
+parser-tailwind = { path = "../parser-tailwind" , optional = true}
 parser-ts = { path = "../parser-ts" , optional = true}
 
 [dev-dependencies]

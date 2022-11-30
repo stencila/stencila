@@ -1,9 +1,0 @@
-/*
- * Exists just so that we can ensure each "mode" has an associated CSS file
- * and thereby avoid 404s.
- */
-
-/* TODO: Remove once these custom components-exist */
-stencila-code-block {
-  display: block;
-}

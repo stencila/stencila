@@ -14,44 +14,23 @@ use common::{
     },
     tracing,
 };
-use uuids::uuid_family;
+use suids::suid_family;
 
-/// An event updating progress of some task
-#[derive(Default, Debug, Deserialize, Serialize)]
-#[serde(crate = "common::serde")]
-pub struct ProgressEvent {
-    /// The id of the task that this progress event relates to
-    pub id: Option<String>,
+pub type SubscriptionTopic = String;
 
-    /// The id of the parent task (if any)
-    pub parent: Option<String>,
+suid_family!(SubscriptionId, "su");
 
-    /// The event message
-    pub message: Option<String>,
-
-    /// The current value
-    pub current: Option<i64>,
-
-    /// The expected value when complete
-    pub expected: Option<i64>,
-
-    // Whether or not the task is complete
-    pub complete: bool,
-}
-
-pub type Message = (String, serde_json::Value);
-
-uuid_family!(SubscriptionId, "su");
+pub type Event = (String, serde_json::Value);
 
 pub enum Subscriber {
-    Function(fn(topic: String, event: serde_json::Value) -> ()),
-    Sender(mpsc::Sender<Message>),
-    UnboundedSender(mpsc::UnboundedSender<Message>),
+    Function(fn(topic: SubscriptionTopic, detail: serde_json::Value) -> ()),
+    Sender(mpsc::Sender<Event>),
+    UnboundedSender(mpsc::UnboundedSender<Event>),
 }
 
 struct Subscription {
     /// The topic that is subscribed to
-    topic: String,
+    topic: SubscriptionTopic,
 
     /// The subscriber that is sent an event
     subscriber: Subscriber,
@@ -114,14 +93,42 @@ pub fn unsubscribe(subscription_id: &SubscriptionId) -> Result<()> {
     }
 }
 
+/// Does the topic have any subscribers
+///
+/// A faster alternative to checking if `!subscriptions(topic).is_empty()`.
+pub fn has_subscribers(topic: &str) -> Result<bool> {
+    let subscriptions = obtain()?;
+    let any = subscriptions.values().any(|subscription| {
+        subscription.topic == "*"
+            || subscription.topic == topic
+            || topic.starts_with(&subscription.topic)
+    });
+    Ok(any)
+}
+
+/// Get a list of subscriptions to a topic
+pub fn subscriptions(topic: &str) -> Result<Vec<String>> {
+    let subscriptions = obtain()?;
+    let filtered = subscriptions
+        .iter()
+        .filter_map(|(subscription_id, subscription)| {
+            (subscription.topic == "*"
+                || subscription.topic == topic
+                || topic.starts_with(&subscription.topic))
+            .then_some(subscription_id.to_string())
+        })
+        .collect();
+    Ok(filtered)
+}
+
 /// Publish an event for a topic
 ///
 /// Publishing an event should be treated as 'fire-and-forget'.
 /// This function does not return an `Err` if it fails but will
 /// log an error (if not already attempting to publish to logging channel).
-pub fn publish<Event>(topic: &str, event: Event)
+pub fn publish<Detail>(topic: &str, detail: Detail)
 where
-    Event: Serialize,
+    Detail: Serialize,
 {
     if topic != "logging" {
         tracing::trace!("Publishing event for topic `{}`", topic);
@@ -134,7 +141,7 @@ where
                     || subscription.topic == topic
                     || topic.starts_with(&subscription.topic)
                 {
-                    let value = serde_json::to_value(&event).unwrap_or(serde_json::Value::Null);
+                    let value = serde_json::to_value(&detail).unwrap_or(serde_json::Value::Null);
                     match &subscription.subscriber {
                         Subscriber::Function(function) => {
                             function(topic.into(), value);
@@ -206,4 +213,27 @@ pub async fn subscribe_to_interrupt(subscriber: mpsc::Sender<()>) {
     // Add the subscriber
     let mut subscribers = INTERRUPT_SUBSCRIBERS.lock().await;
     subscribers.push(subscriber);
+}
+
+/// An event updating progress of some task
+#[derive(Default, Debug, Deserialize, Serialize)]
+#[serde(crate = "common::serde")]
+pub struct ProgressEvent {
+    /// The id of the task that this progress event relates to
+    pub id: Option<String>,
+
+    /// The id of the parent task (if any)
+    pub parent: Option<String>,
+
+    /// The event message
+    pub message: Option<String>,
+
+    /// The current value
+    pub current: Option<i64>,
+
+    /// The expected value when complete
+    pub expected: Option<i64>,
+
+    // Whether or not the task is complete
+    pub complete: bool,
 }

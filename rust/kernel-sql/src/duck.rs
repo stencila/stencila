@@ -12,10 +12,9 @@ use kernel::{
         eyre::{bail, Result},
         itertools::Itertools,
         regex::Captures,
-        tokio::sync::{mpsc, Mutex},
+        tokio::sync::Mutex,
         tracing,
     },
-    graph_triples::ResourceChange,
     stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, Date, DateTime,
         DateTimeValidator, DateValidator, Duration, DurationValidator, EnumValidator,
@@ -629,7 +628,7 @@ pub async fn table_to_parameters(
     }
 
     // Parse the SQL to get the parameters
-    let mut parameters = parser_sql::SqlParser::derive_parameters(&sql);
+    let mut parameters = parser_sql::SqlParser::derive_parameters(table, &sql);
 
     // Add missing validators for enum columns
     for (column_name, data_type) in enum_columns {
@@ -675,15 +674,17 @@ pub async fn column_to_parameter(
     let parameter = table_to_parameters(url, pool, table, schema)
         .await?
         .into_iter()
-        .find(|parameter| parameter.name == column);
+        .find(|parameter| parameter.name == [table, "_", column].concat());
 
     let schema = schema.unwrap_or("public");
     match parameter {
         Some(parameter) => Ok(parameter),
-        None => bail!(
-            "Column `{}` does not appear to exist in table `{}` of schema `{}` of DuckDB database `{}`",
-            column, table, schema, url
-        ),
+        None => {
+            bail!(
+                "Column `{}` could not be found in table `{}` of schema `{}` of DuckDB database `{}`",
+                column, table, schema, url
+            )
+        }
     }
 }
 
@@ -691,12 +692,7 @@ pub async fn column_to_parameter(
 //
 /// At present DuckDB does not support triggers or notifications so table
 /// watching can not be supported.
-pub async fn watch(
-    _url: &str,
-    _pond: &DuckPond,
-    _watches: WatchedTables,
-    _sender: mpsc::Sender<ResourceChange>,
-) -> Result<()> {
+pub async fn watch(_url: &str, _pond: &DuckPond, _watches: WatchedTables) -> Result<()> {
     bail!("Table watches are not supported for DuckDB databases")
 }
 

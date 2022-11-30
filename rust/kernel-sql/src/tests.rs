@@ -25,9 +25,10 @@ async fn test_duckdb() -> Result<()> {
 
 /// Test against Postgres
 ///
-/// Requires some manual setup:
+/// Requires some manual setup (so has to be manually turned on):
 ///   > docker run --rm -it -p5432:5432 -e POSTGRES_PASSWORD=postgres postgres
 ///   > PGPASSWORD=postgres createdb --host=localhost --user postgres testdb
+#[ignore]
 #[tokio::test]
 async fn test_postgres() -> Result<()> {
     if skip_ci("Not yet setup to work on CI") {
@@ -38,13 +39,10 @@ async fn test_postgres() -> Result<()> {
 
 /// General integration test
 async fn test(config: &str) -> Result<()> {
-    let mut kernel = SqlKernel::new(
-        &KernelSelector {
-            config: Some(config.to_string()),
-            ..Default::default()
-        },
-        None,
-    );
+    let mut kernel = SqlKernel::new(&KernelSelector {
+        config: Some(config.to_string()),
+        ..Default::default()
+    });
 
     // Clean up after any previous test
     kernel
@@ -240,7 +238,8 @@ async fn test(config: &str) -> Result<()> {
     let parameter = kernel.derive("parameter", "table_1.col_a").await?;
     assert_json_is!(parameter, [{
         "type": "Parameter",
-        "name": "col_a",
+        "name": "table_1_col_a",
+        "derivedFrom": "table_1.col_a",
         "validator": {
             "type": "BooleanValidator"
         }
@@ -249,7 +248,8 @@ async fn test(config: &str) -> Result<()> {
     let parameter = kernel.derive("parameter", "table_1.col_b").await?;
     assert_json_is!(parameter, [{
         "type": "Parameter",
-        "name": "col_b",
+        "name": "table_1_col_b",
+        "derivedFrom": "table_1.col_b",
         "validator": {
             "type": "IntegerValidator"
         },
@@ -261,7 +261,8 @@ async fn test(config: &str) -> Result<()> {
         // DuckDB does not yet support retrieval of checks
         assert_json_is!(parameter, [{
             "type": "Parameter",
-            "name": "col_c",
+            "name": "table_1_col_c",
+            "derivedFrom": "table_1.col_c",
             "validator": {
                 "type": "DateValidator",
             },
@@ -273,7 +274,8 @@ async fn test(config: &str) -> Result<()> {
     } else {
         assert_json_is!(parameter, [{
             "type": "Parameter",
-            "name": "col_c",
+            "name": "table_1_col_c",
+            "derivedFrom": "table_1.col_c",
             "validator": {
                 "type": "DateValidator",
                 "minimum": {
@@ -295,7 +297,7 @@ async fn test(config: &str) -> Result<()> {
         assert!(
             error
                 .to_string()
-                .starts_with("Column `col_foo` does not appear to exist"),
+                .starts_with("Column `col_foo` could not be found"),
             "Got `{}`",
             error
         )
@@ -341,15 +343,25 @@ async fn test(config: &str) -> Result<()> {
     }
 
     let parameter = kernel.derive("parameter", "table_2.col_enum").await?;
-    assert_json_is!(parameter, [{
-        "type": "Parameter",
-        "name": "col_enum",
-        "default": "two",
-        "validator": {
-            "type": "EnumValidator",
-            "values": ["one", "two", "three"]
-        }
-    }]);
+    if config.starts_with("sqlite://") || config.starts_with("postgres://") {
+        assert_json_is!(parameter, [{
+            "type": "Parameter",
+            "name": "table_2_col_enum",
+            "default": "two",
+            "derivedFrom": "table_2.col_enum",
+            "validator": {
+                "type": "EnumValidator",
+                "values": ["one", "two", "three"]
+            }
+        }]);
+    } else {
+        assert_json_is!(parameter, [{
+            "type": "Parameter",
+            "name": "table_2_col_enum",
+            "default": "two",
+            "derivedFrom": "table_2.col_enum"
+        }]);
+    }
 
     Ok(())
 }

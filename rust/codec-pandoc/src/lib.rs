@@ -52,12 +52,18 @@ impl CodecTrait for PandocCodec {
             unsupported_types: vec_string![
                 // TODO: Implement support for these
                 // This list is all types which use `unimplemented_to_pandoc` in `encode.rs`
+                "Button",
                 "Cite",
                 "CiteGroup",
                 "Claim",
                 "Collection",
+                "Division",
                 "Figure",
-                "Note"
+                "For",
+                "Form",
+                "If",
+                "Note",
+                "Span"
             ],
             ..Default::default()
         }

@@ -7,16 +7,11 @@ proptest! {
     #[test]
     fn test(input in article(
         Freedom::Min,
-        [
-            ScriptCodec::spec().unsupported_types,
-            // Markdown parser does not decode double tilde's without
-            // surrounding spaces, so exclude from these tests.
-            vec!["Strikeout".to_string()]
-        ].concat(),
+        ScriptCodec::spec().unsupported_types,
         ScriptCodec::spec().unsupported_properties,
     )) {
-        let string = ScriptCodec::to_string(&input, Some(EncodeOptions{format:Some("py".to_string()), ..Default::default()})).unwrap();
-        let output = ScriptCodec::from_str(&string, Some(DecodeOptions{format:Some("py".to_string())})).unwrap();
+        let string = ScriptCodec::to_string(&input, Some(EncodeOptions{format:Some("python".to_string()), ..Default::default()})).unwrap();
+        let output = ScriptCodec::from_str(&string, Some(DecodeOptions{format:Some("python".to_string())})).unwrap();
         assert_json_eq!(input, output)
     }
 }

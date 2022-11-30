@@ -1,0 +1,307 @@
+---
+source: rust/codec-md/src/decode.rs
+assertion_line: 2393
+expression: "decode_fragment(content, None)"
+input_file: fixtures/fragments/md/if.md
+---
+[
+  {
+    "type": "Heading",
+    "content": [
+      "Simple"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "If",
+    "clauses": [
+      {
+        "type": "IfClause",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This paragraph should be shown."
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "text": "true",
+        "guessLanguage": true
+      }
+    ]
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Else"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "An ",
+      {
+        "type": "CodeFragment",
+        "text": "else"
+      },
+      " clause specifies the content to be rendered if the condition is not truthy,"
+    ]
+  },
+  {
+    "type": "If",
+    "clauses": [
+      {
+        "type": "IfClause",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This paragraph should NOT be shown."
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "text": "false",
+        "guessLanguage": true
+      },
+      {
+        "type": "IfClause",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This paragraph should be shown."
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Elifs"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Multiple ",
+      {
+        "type": "CodeFragment",
+        "text": "elif"
+      },
+      " clauses are possible,"
+    ]
+  },
+  {
+    "type": "If",
+    "clauses": [
+      {
+        "type": "IfClause",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This first paragraph should NOT be shown."
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "text": "false",
+        "guessLanguage": true
+      },
+      {
+        "type": "IfClause",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This second paragraph should NOT be shown."
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "text": "false",
+        "guessLanguage": true
+      },
+      {
+        "type": "IfClause",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This third paragraph ",
+              {
+                "type": "Strong",
+                "content": [
+                  "should"
+                ]
+              },
+              " be shown."
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "text": "true",
+        "guessLanguage": true
+      },
+      {
+        "type": "IfClause",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This fourth paragraph should NOT be shown because the above ",
+              {
+                "type": "CodeFragment",
+                "text": "elif"
+              },
+              " was."
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "text": "true",
+        "guessLanguage": true
+      },
+      {
+        "type": "IfClause",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This final paragraph should NOT be shown because the above ",
+              {
+                "type": "CodeFragment",
+                "text": "elif"
+              },
+              " was."
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Nested"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Probably best avoided, but possible,"
+    ]
+  },
+  {
+    "type": "If",
+    "clauses": [
+      {
+        "type": "IfClause",
+        "content": [
+          {
+            "type": "If",
+            "clauses": [
+              {
+                "type": "IfClause",
+                "content": [
+                  {
+                    "type": "Paragraph",
+                    "content": [
+                      "This paragraph should be shown."
+                    ]
+                  }
+                ],
+                "programmingLanguage": "",
+                "text": "true",
+                "guessLanguage": true
+              }
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "text": "true",
+        "guessLanguage": true
+      },
+      {
+        "type": "IfClause",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This paragraph should not be shown"
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "In the following example the nested if has the ",
+      {
+        "type": "CodeFragment",
+        "text": "else"
+      },
+      ","
+    ]
+  },
+  {
+    "type": "If",
+    "clauses": [
+      {
+        "type": "IfClause",
+        "content": [
+          {
+            "type": "If",
+            "clauses": [
+              {
+                "type": "IfClause",
+                "content": [
+                  {
+                    "type": "Paragraph",
+                    "content": [
+                      "This paragraph should be shown."
+                    ]
+                  }
+                ],
+                "programmingLanguage": "",
+                "text": "true",
+                "guessLanguage": true
+              },
+              {
+                "type": "IfClause",
+                "content": [
+                  {
+                    "type": "Paragraph",
+                    "content": [
+                      "This paragraph should not be shown"
+                    ]
+                  }
+                ],
+                "programmingLanguage": "",
+                "text": ""
+              }
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "text": "true",
+        "guessLanguage": true
+      }
+    ]
+  }
+]

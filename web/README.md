@@ -23,7 +23,7 @@ npm install
 During development, re-build the `dist` folder on source code changes using,
 
 ```
-npm run build:watch
+npm run dev
 ```
 
 ### Running a document server
@@ -48,7 +48,7 @@ Alternatively, if you don't want to install Rust tooling, you can [install the p
 stencila server start --debug
 ```
 
-Regardless of the method used, all of the above default to listening on `http://127.0.0.1:9000` and `ws://127.0.0.1:9000` with JSON Web Token based authorization. 
+Regardless of the method used, all of the above default to listening on `http://127.0.0.1:9000` and `ws://127.0.0.1:9000` with JSON Web Token based authorization.
 
 > 💁 To turn off authorization (if you don't want to have to worry about logging in, keys, etc) use the `--insecure` flag. See `stencila server --help` for more options, including changing port numbers and alternative log levels.
 
@@ -67,3 +67,7 @@ npm run test:watch
 ```
 
 > 📢 Currently the tests do not have a mechanism authenticating using the token so you'll have to run the server with the `---insecure` option. A PR to fix this (using the Jest `beforeAll` hook?) would be welcomed!
+
+### Production build
+
+Bundles are compressed using Brotli. Given that [>96% of browsers](https://caniuse.com/brotli) can use Brotli, we do not use Gzip compression since that would needlessly increase the size of the files embedded in Stencila binaries.

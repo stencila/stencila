@@ -1,561 +1,499 @@
 ---
 source: rust/parser-js/src/lib.rs
-assertion_line: 210
-expression: resource_info
+assertion_line: 224
+expression: parse_info
 input_file: fixtures/fragments/js/uses.js
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/js/uses.js",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "javascript"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          0,
-          0,
-          4
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+  "syntaxErrors": false,
+  "semanticDigest": 17962427078173823974,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          0,
-          1,
-          4
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          7,
-          1,
-          11
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var3",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          0,
-          2,
-          4
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        1,
+        7,
+        1,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "fun1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          0,
-          3,
-          4
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        0,
+        2,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "fun2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          5,
-          3,
-          9
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        0,
+        3,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var4",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          11,
-          3,
-          15
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        5,
+        3,
+        9
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var5",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          0,
-          4,
-          4
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        11,
+        3,
+        15
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var6",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          5,
-          4,
-          9
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        4,
+        0,
+        4,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var7",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          6,
-          4,
-          6,
-          8
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        4,
+        5,
+        4,
+        9
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var8",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          6,
-          11,
-          6,
-          15
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        6,
+        4,
+        6,
+        8
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var9",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          7,
-          11,
-          7,
-          16
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        6,
+        11,
+        6,
+        15
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var10",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          11,
-          7,
-          11,
-          11
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        7,
+        11,
+        7,
+        16
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "varA",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          11,
-          13,
-          11,
-          17
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        11,
+        7,
+        11,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "varB",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          11,
-          22,
-          11,
-          26
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        11,
+        13,
+        11,
+        17
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "varC",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          15,
-          2,
-          15,
-          6
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        11,
+        22,
+        11,
+        26
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "varD",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          15,
-          8,
-          15,
-          12
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        15,
+        2,
+        15,
+        6
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "varE",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          19,
-          19,
-          19,
-          23
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        15,
+        8,
+        15,
+        12
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "fs"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          20,
-          23,
-          20,
-          27
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        19,
+        19,
+        19,
+        23
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "fs"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          24,
-          15,
-          24,
-          20
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        20,
+        23,
+        20,
+        27
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var11",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          25,
-          2,
-          25,
-          7
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        24,
+        15,
+        24,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var12",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          28,
-          30,
-          28,
-          35
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        25,
+        2,
+        25,
+        7
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var13",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          34,
-          0,
-          34,
-          5
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        28,
+        30,
+        28,
+        35
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var14",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          35,
-          0,
-          35,
-          5
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        34,
+        0,
+        34,
+        5
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var14",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          36,
-          0,
-          36,
-          5
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        35,
+        0,
+        35,
+        5
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var14",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          36,
-          13,
-          36,
-          18
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        36,
+        0,
+        36,
+        5
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var15",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          45,
-          9,
-          45,
-          14
-        ]
+        "namespace": "fragments/js/uses.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
-        "name": "func1",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          49,
-          6,
-          49,
-          11
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
-        "name": "func2",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          55,
-          0,
-          55,
-          6
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
-        "name": "assign",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          56,
-          4,
-          56,
-          10
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
-        "name": "assign",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          57,
-          4,
-          57,
-          10
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
-        "name": "assign",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          58,
-          6,
-          58,
-          12
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/uses.js",
-        "name": "assign",
-        "kind": "Number"
-      }
-    ]
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        36,
+        13,
+        36,
+        18
+      ]
+    }
   ],
-  "compile_digest": "16995413368316853061.7199341886798770785.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "func1",
+        "kind": "Function",
+        "namespace": "fragments/js/uses.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        45,
+        9,
+        45,
+        14
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "func2",
+        "kind": "Function",
+        "namespace": "fragments/js/uses.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        49,
+        6,
+        49,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "assign",
+        "kind": "Number",
+        "namespace": "fragments/js/uses.js"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        55,
+        0,
+        55,
+        6
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "assign",
+        "kind": "Number",
+        "namespace": "fragments/js/uses.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        56,
+        4,
+        56,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "assign",
+        "kind": "Number",
+        "namespace": "fragments/js/uses.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        57,
+        4,
+        57,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "assign",
+        "kind": "Number",
+        "namespace": "fragments/js/uses.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        58,
+        6,
+        58,
+        12
+      ]
+    }
+  ],
+  "executionTags": []
 }

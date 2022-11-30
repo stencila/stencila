@@ -1,70 +1,60 @@
 ---
 source: rust/parser-prql/src/lib.rs
-assertion_line: 58
-expression: resource_info
+assertion_line: 56
+expression: parse_info
 input_file: fixtures/fragments/prql/2.prql
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/prql/2.prql",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "prql"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          2,
-          3,
-          9
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/prql/2.prql",
+  "syntaxErrors": false,
+  "semanticDigest": 4545679369459536837,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "table_a",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          5,
-          10,
-          5,
-          12
-        ]
+        "kind": "Datatable",
+        "namespace": "fragments/prql/2.prql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/prql/2.prql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        2,
+        3,
+        9
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "par1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          6,
-          14,
-          6,
-          16
-        ]
+        "namespace": "fragments/prql/2.prql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/prql/2.prql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        5,
+        10,
+        5,
+        12
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "par2",
-        "kind": ""
-      }
-    ]
+        "namespace": "fragments/prql/2.prql"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        6,
+        14,
+        6,
+        16
+      ]
+    }
   ],
-  "compile_digest": "13857901284411604567.5660661036073598873.0.0.0",
-  "tags": []
+  "executionDependents": [],
+  "executionTags": []
 }

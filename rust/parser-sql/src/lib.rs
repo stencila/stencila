@@ -11,8 +11,9 @@ use parser_treesitter::{
         tracing,
     },
     formats::Format,
-    graph_triples::{relations, resources, Resource, ResourceInfo},
-    resource_info, Parser, ParserTrait, TreesitterParser,
+    parse_info,
+    utils::{alters_variable, assigns_variable, declares_variable, remove_quotes, uses_variable},
+    ParseInfo, Parser, ParserTrait, TreesitterParser,
 };
 use stencila_schema::{
     BooleanValidator, Date, DateTime, DateTimeValidator, DateValidator, DurationValidator,
@@ -30,7 +31,7 @@ impl ParserTrait for SqlParser {
         }
     }
 
-    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
+    fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
         const QUERY: &str = include_str!("query.scm");
         static PARSER: Lazy<TreesitterParser> =
             Lazy::new(|| TreesitterParser::new(tree_sitter_sql::language(), QUERY));
@@ -51,42 +52,46 @@ impl ParserTrait for SqlParser {
         let tree = PARSER.parse(code);
         let matches = PARSER.query(code, &tree);
 
-        let relations = matches
-            .iter()
-            .filter_map(|(pattern, captures)| {
-                let relation = match pattern {
-                    1 => relations::assigns(captures[0].range),
-                    2 => relations::uses(captures[0].range),
-                    3 => relations::alters(captures[0].range),
-                    4 => relations::uses(captures[0].range),
-                    _ => return None,
-                };
-                let name = match pattern {
-                    4 => match captures[0].text[1..].parse::<usize>() {
-                        Ok(index) => match bindings.get(index - 1) {
-                            Some(name) => name,
-                            None => return None,
-                        },
-                        Err(error) => {
-                            tracing::error!(
-                                "Unexpectedly unable to parse binding as integer index: {}",
-                                error
-                            );
-                            return None;
-                        }
+        let mut dependencies = Vec::new();
+        let mut dependents = Vec::new();
+        for (pattern, captures) in matches.iter() {
+            let name = match pattern {
+                2 => [&captures[0].text, ".", &captures[1].text].concat(),
+                5 => match captures[0].text[1..].parse::<usize>() {
+                    Ok(index) => match bindings.get(index - 1) {
+                        Some(name) => name.to_string(),
+                        None => continue,
                     },
-                    _ => &captures[0].text,
-                };
-                let kind = match pattern {
-                    4 => "",
-                    _ => "Datatable",
-                };
-                Some((relation, resources::symbol(path, name, kind)))
-            })
-            .collect();
+                    Err(error) => {
+                        tracing::error!(
+                            "Unexpectedly unable to parse binding as integer index: {}",
+                            error
+                        );
+                        continue;
+                    }
+                },
+                _ => remove_quotes(&captures[0].text),
+            };
 
-        let resource_info = resource_info(
-            resource,
+            let kind = match pattern {
+                2 => Some("DatatableColumn".to_string()),
+                5 => None,
+                _ => Some("Datatable".to_string()),
+            };
+
+            let code_location = Some(captures[0].range);
+
+            match pattern {
+                1 => dependents.push(assigns_variable(&name, path, kind, code_location)),
+                2 => dependents.push(declares_variable(&name, path, kind, code_location)),
+                3 => dependencies.push(uses_variable(&name, path, kind, code_location)),
+                4 => dependents.push(alters_variable(&name, path, kind, code_location)),
+                5 => dependencies.push(uses_variable(&name, path, kind, code_location)),
+                _ => (),
+            }
+        }
+
+        let parse_info = parse_info(
             path,
             Self::spec().language,
             code,
@@ -94,15 +99,16 @@ impl ParserTrait for SqlParser {
             &["comment"],
             matches,
             0,
-            relations,
+            dependencies,
+            dependents,
         );
-        Ok(resource_info)
+        Ok(parse_info)
     }
 }
 
 impl SqlParser {
-    /// Derive a set of [`Parameter`]s from a SQL `CREATE TABLE` statment
-    pub fn derive_parameters(sql: &str) -> Vec<Parameter> {
+    /// Derive a set of [`Parameter`]s from a SQL `CREATE TABLE` statement
+    pub fn derive_parameters(table_name: &str, sql: &str) -> Vec<Parameter> {
         const DERIVE: &str = include_str!("derive.scm");
         static PARSER: Lazy<TreesitterParser> =
             Lazy::new(|| TreesitterParser::new(tree_sitter_sql::language(), DERIVE));
@@ -211,7 +217,7 @@ impl SqlParser {
         // Convert each column definition into a parameter
         columns
             .into_values()
-            .map(|column| column.derive_parameter())
+            .map(|column| column.derive_parameter(table_name))
             .collect_vec()
     }
 }
@@ -250,7 +256,7 @@ struct SqlCheck {
 
 impl SqlColumn {
     /// Derive a [`Parameter`] from the properties of a SQL table column
-    pub fn derive_parameter(self) -> Parameter {
+    pub fn derive_parameter(self, table_name: &str) -> Parameter {
         let data_type = self.data_type.to_uppercase();
         let mut validator = match data_type.as_ref() {
             "BOOLEAN" | "BOOL" | "LOGICAL" => {
@@ -428,7 +434,8 @@ impl SqlColumn {
         };
 
         Parameter {
-            name: self.column_name.to_owned(),
+            name: [table_name, "_", &self.column_name].concat(),
+            derived_from: Some(Box::new([table_name, ".", &self.column_name].concat())),
             validator: validator.map(Box::new),
             default: default.map(Box::new),
             ..Default::default()
@@ -438,8 +445,6 @@ impl SqlColumn {
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
-
     use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
     use test_utils::fixtures;
 
@@ -450,19 +455,15 @@ mod tests {
         snapshot_fixtures("fragments/sql/*.sql", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Format::SQL);
-            let resource_info = SqlParser::parse(resource, path, &code).expect("Unable to parse");
-            assert_json_snapshot!(resource_info);
+            let parse_info = SqlParser::parse(&code, Some(path)).expect("Unable to parse");
+            assert_json_snapshot!(parse_info);
         })
     }
 
     /// Regression test for when a numeric binding is in the SQL code
     #[test]
     fn do_not_panic_on_numeric_bindings() -> Result<()> {
-        let code = "SELECT * FROM table_1 WHERE col_1 = $1 OR col_1 = ?1";
-        let path = PathBuf::new();
-        let resource = resources::code(&path, "", "SoftwareSourceCode", Format::SQL);
-        SqlParser::parse(resource, &path, code)?;
+        SqlParser::parse("SELECT * FROM table_1 WHERE col_1 = $1 OR col_1 = ?1", None)?;
         Ok(())
     }
 
@@ -470,7 +471,7 @@ mod tests {
     fn derive_parameters() -> Result<()> {
         let sql = std::fs::read_to_string(fixtures().join("fragments/sql/create-table.sql"))
             .expect("Unable to read");
-        let parameters = SqlParser::derive_parameters(&sql);
+        let parameters = SqlParser::derive_parameters("table", &sql);
         assert_json_snapshot!(parameters);
         Ok(())
     }

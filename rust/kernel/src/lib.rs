@@ -13,16 +13,17 @@ use common::{
     tracing,
 };
 use formats::Format;
-pub use graph_triples::TagMap;
+pub use parser::TagMap;
 use stencila_schema::{CodeError, Node};
+use suids::suid_family;
 use utils::some_box_string;
-use uuids::uuid_family;
 
 // Re-export for the convenience of crates that implement `KernelTrait`
 pub use common;
 pub use formats;
-pub use graph_triples;
+pub use parser;
 pub use stencila_schema;
+pub use suids;
 
 /// The type of kernel
 ///
@@ -107,13 +108,13 @@ impl Kernel {
 pub type KernelId = String;
 
 /// The status of a running kernel
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Display)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Display)]
 #[serde(crate = "common::serde")]
 #[allow(dead_code)]
 pub enum KernelStatus {
     Pending,
     Starting,
-    Idle,
+    Ready,
     Busy,
     Unresponsive,
     Stopping,
@@ -336,7 +337,7 @@ impl KernelSelector {
 }
 
 // An id for tasks
-uuid_family!(TaskId, "ta");
+suid_family!(TaskId, "ta");
 
 /// Output nodes from a task
 pub type TaskOutputs = Vec<Node>;
@@ -389,6 +390,13 @@ impl TaskResult {
                 ..Default::default()
             }],
         )
+    }
+
+    /// Does the result have any error messages
+    pub fn has_errors(&self) -> bool {
+        !self.messages.is_empty()
+        // When messages includes several types of messages this will be:
+        // self.messages.iter().any(|message| matches!(message, CodeError(..)))
     }
 }
 
@@ -465,6 +473,21 @@ impl Task {
     /// Create and immediately begin an asynchronous task
     pub fn begin_async(sender: TaskSender) -> Self {
         Self::begin(Some(sender), None)
+    }
+
+    /// Create, begin, and immediately end a task
+    pub fn begin_and_end(result: Option<TaskResult>) -> Self {
+        let now = Utc::now();
+        Self {
+            id: TaskId::new(),
+            created: now,
+            started: Some(now),
+            finished: Some(now),
+            interrupted: None,
+            result,
+            sender: None,
+            interrupter: None,
+        }
     }
 
     /// Is the task an async task?
@@ -549,8 +572,9 @@ impl Task {
     /// Wait for a result from the task
     ///
     /// For synchronous tasks, returns the result immediately. Errors if the
-    /// result sender has already dropped, or if for some reason the task has neither
-    /// a `result`, nor a `receiver`.
+    /// result sender has already dropped. If the task has neither
+    /// a `result`, nor a `receiver`, then returns an empty `TaskResult` (this
+    /// may happen for example if code is empty and the kernel had nothing to do).
     pub async fn result(&mut self) -> Result<TaskResult> {
         if let Some(result) = &self.result {
             Ok(result.clone())
@@ -562,10 +586,10 @@ impl Task {
             self.end(result.clone());
             Ok(result)
         } else {
-            bail!(
-                "Task `{}` has neither a `result`, nor a `receiver`!",
-                self.id
-            )
+            Ok(TaskResult {
+                outputs: vec![],
+                messages: vec![],
+            })
         }
     }
 }
@@ -638,16 +662,16 @@ pub trait KernelTrait {
     async fn set(&mut self, name: &str, value: Node) -> Result<()>;
 
     /// Derive one or more `Node`s from an object in the kernel
-    /// 
+    ///
     /// Note that this differs from `get` in that the object is not converted and
     /// returned but rather an object of a different type is returned. At present
     /// the main use case for this method is to derive one or more `Parameter`s from
     /// the columns of a database table or data frame.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// - `what`: What type of nodes to derive e.g. "parameters", "parameter"
-    /// 
+    ///
     /// - `from`: The dotted path to the object that will be derived from e.g. "table.column"
     async fn derive(&mut self, _what: &str, _from: &str) -> Result<Vec<Node>>;
 
@@ -676,7 +700,14 @@ pub trait KernelTrait {
     /// part of their implementation.
     ///
     /// Must be implemented by [`KernelTrait`] implementations.
-    async fn exec_sync(&mut self, code: &str, lang: Format, tags: Option<&TagMap>) -> Result<Task>;
+    async fn exec_sync(
+        &mut self,
+        _code: &str,
+        _lang: Format,
+        _tags: Option<&TagMap>,
+    ) -> Result<Task> {
+        bail!("Kernel does not implement exec_sync")
+    }
 
     /// Execute code in the kernel asynchronously
     ///

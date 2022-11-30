@@ -1,0 +1,16 @@
+title: If
+'@id': stencila:If
+category: code
+description: Show and execute alternative content conditional upon an executed expression
+role: primary
+status: unstable
+extends: Executable
+properties:
+  clauses:
+    '@id': 'stencila:clauses'
+    description: The clauses making up the `If` node
+    type: array
+    items:
+      $ref: IfClause
+required:
+  - clauses

@@ -1,49 +1,29 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 467
+assertion_line: 534
 expression: html
 input_file: fixtures/nodes/code-chunk.json
 ---
-<stencila-code-chunk data-root itemtype="https://schema.stenci.la/CodeChunk" itemscope programming-language="python">
-  <meta itemprop="programmingLanguage" content="python"/>
+<stencila-code-chunk data-root programming-language="python">
   <pre data-prop="text" slot="text"># Some code</pre>
-  <stencila-code-dependencies slot="code-dependencies">
-    <div data-prop="codeDependencies">
-    </div>
-  </stencila-code-dependencies>
-  <stencila-code-dependencies slot="code-dependents">
-    <div data-prop="codeDependents">
-    </div>
-  </stencila-code-dependencies>
   <div data-prop="outputs" slot="outputs">
     <pre itemtype="https://schema.org/Text" itemscope>a string output</pre>
-    <span itemtype="https://schema.org/Boolean" itemscope>true</span>
-    <span itemtype="https://schema.org/Integer" itemscope>42</span>
-    <span itemtype="https://schema.org/Number" itemscope>1.23</span>
+    <span>true</span>
+    <span>42</span>
+    <span>1.23</span>
     <img itemtype="https://schema.org/ImageObject" itemscope  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYvhfz0AEYBxVSF+FAA/eDwup9bzCAAAAAElFTkSuQmCC"/>
   </div>
   <div data-prop="errors" slot="errors">
-    <stencila-code-error itemtype="https://schema.stenci.la/CodeError" itemscope>
-      <span data-prop="errorType" slot="type">SomeErrorType</span>
-      <span data-prop="errorMessage" slot="message">Some error message</span>
-      <span data-prop="stackTrace" slot="stacktrace">Several lines
+    <stencila-code-error itemtype="https://schema.stenci.la/CodeError" itemscope error-type="SomeErrorType">
+      <span itemprop="errorMessage" slot="message">Some error message</span>
+      <span itemprop="stackTrace" slot="stacktrace">Several lines
 whose exact format
 will depend upon the language</span>
     </stencila-code-error>
-    <stencila-code-error itemtype="https://schema.stenci.la/CodeError" itemscope>
-      <span data-prop="errorType" slot="type">AnotherErrorType</span>
-      <span data-prop="errorMessage" slot="message">Another error message</span>
-      <span data-prop="stackTrace" slot="stacktrace">
+    <stencila-code-error itemtype="https://schema.stenci.la/CodeError" itemscope error-type="AnotherErrorType">
+      <span itemprop="errorMessage" slot="message">Another error message</span>
+      <span itemprop="stackTrace" slot="stacktrace">
       </span>
     </stencila-code-error>
   </div>
-  <span data-prop="label" slot="label">A label</span>
-  <figcaption data-prop="caption" slot="caption">
-    <h3 itemtype="https://schema.stenci.la/Heading" itemscope>
-      <span>A caption title</span>
-    </h3>
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>A caption paragraph</span>
-    </p>
-  </figcaption>
 </stencila-code-chunk>

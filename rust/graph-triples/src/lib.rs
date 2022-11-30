@@ -17,17 +17,20 @@ pub type Relations = Vec<(Resource, Pairs)>;
 
 pub mod resources;
 pub use resources::Resource;
-pub use resources::ResourceChange;
 pub use resources::ResourceId;
 pub use resources::ResourceInfo;
-pub use resources::Tag;
-pub use resources::TagMap;
+
+// Temporary
+pub use parser::TagMap;
 
 pub mod relations;
 pub use relations::Relation;
 
 mod directions;
 pub use directions::{direction, Direction};
+
+mod execution_digest;
+pub use execution_digest::*;
 
 // Re-exports
 pub use stencila_schema;

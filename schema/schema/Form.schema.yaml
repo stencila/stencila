@@ -1,0 +1,35 @@
+title: Form
+'@id': stencila:Form
+category: text
+description: A form to batch updates in document parameters
+role: primary
+status: unstable
+extends: Executable
+properties:
+  content:
+    '@id': 'stencila:content'
+    description: The content within the form, usually containing at least one `Parameter`.
+    type: array
+    items:
+      $ref: BlockContent
+  deriveFrom:
+    '@id': stencila:deriveFrom
+    description: The dotted path to the object (e.g a database table) that the form should be derived from
+    type: string
+  deriveAction:
+    '@id': stencila:deriveAction
+    description: The action (create, update or delete) to derive for the form
+    enum:
+      - Create
+      - Update
+      - Delete
+      - UpdateOrDelete
+    default: Create
+  deriveItem:
+    '@id': stencila:deriveItem
+    description: An identifier for the item to be the target of Update or Delete actions
+    anyOf:
+      - type: integer
+      - type: string
+required:
+  - content

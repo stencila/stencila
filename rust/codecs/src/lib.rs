@@ -13,7 +13,7 @@ use codec_format::FormatCodec;
 use formats::{match_name, match_path, Format, FormatNodeType, FormatSpec};
 
 // Re-exports for use in other crates that call the following functions
-pub use codec::{DecodeOptions, EncodeOptions};
+pub use codec::{DecodeOptions, EncodeMode, EncodeOptions};
 
 // The following high level functions hide the implementation
 // detail of having a static list of codecs. They are intended as the
@@ -84,7 +84,7 @@ pub async fn str_to_path(content: &str, from: &str, path: &Path, to: Option<&str
 }
 
 /// The set of registered codecs in the current process
-static CODECS: Lazy<Arc<Codecs>> = Lazy::new(|| Arc::new(Codecs::new()));
+static CODECS: Lazy<Codecs> = Lazy::new(Codecs::new);
 
 /// A set of registered codecs, either built-in, or provided by plugins
 struct Codecs {
@@ -423,6 +423,11 @@ impl Codecs {
     ) -> Result<()> {
         let (format, format_spec) = Self::format_from_path(path, format)?;
 
+        let options = Some(EncodeOptions {
+            format: Some(format_spec.extension.clone()),
+            ..options.unwrap_or_default()
+        });
+
         if let Some(future) = dispatch_builtins!(format, to_remote, node, path, options) {
             return future.await;
         }
@@ -554,6 +559,13 @@ pub mod commands {
         #[clap(long, short)]
         compact: bool,
 
+        /// The maximum column width of the encoded content
+        ///
+        /// Observed when encoding to formats such as Markdown by wrapping lines
+        /// longer this value if possible.
+        #[clap(long, short, default_value_t = 100)]
+        max_width: usize,
+
         /// Whether to ensure that the encoded document is standalone
         ///
         /// Some formats (e.g. Markdown, DOCX) are always standalone.
@@ -632,6 +644,7 @@ pub mod commands {
                 bundle: self.bundle,
                 theme: self.theme.clone(),
                 format: self.to.clone(),
+                max_width: Some(self.max_width),
                 lossy: self.lossy,
                 rpng_types: self.rpng_types.clone(),
                 rpng_link: self.rpng_link,

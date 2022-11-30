@@ -1,155 +1,143 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 114
-expression: resource_info
+assertion_line: 459
+expression: parse_info
 input_file: fixtures/fragments/sql/alters.sql
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/sql/alters.sql",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "sql"
-  },
-  "relations": [
-    [
-      {
-        "type": "Alters",
-        "range": [
-          0,
-          12,
-          0,
-          20
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/alters.sql",
-        "name": "table_i1",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Alters",
-        "range": [
-          1,
-          12,
-          1,
-          20
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/alters.sql",
-        "name": "table_i2",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Alters",
-        "range": [
-          2,
-          12,
-          2,
-          20
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/alters.sql",
-        "name": "table_i3",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          35,
-          2,
-          42
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/alters.sql",
+  "syntaxErrors": true,
+  "semanticDigest": 8642896598344001490,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "table_a",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Alters",
-        "range": [
-          4,
-          7,
-          4,
-          15
-        ]
+        "kind": "Datatable",
+        "namespace": "fragments/sql/alters.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/alters.sql",
-        "name": "table_u1",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Alters",
-        "range": [
-          6,
-          12,
-          6,
-          20
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/alters.sql",
-        "name": "table_d1",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Alters",
-        "range": [
-          7,
-          12,
-          7,
-          20
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/alters.sql",
-        "name": "table_d2",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Alters",
-        "range": [
-          9,
-          11,
-          9,
-          19
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/alters.sql",
-        "name": "table_p1",
-        "kind": "Datatable"
-      }
-    ]
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        35,
+        2,
+        42
+      ]
+    }
   ],
-  "compile_digest": "17352080989351478921.15361264440694782324.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_i1",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/alters.sql"
+      },
+      "dependentRelation": "Alters",
+      "codeLocation": [
+        0,
+        12,
+        0,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_i2",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/alters.sql"
+      },
+      "dependentRelation": "Alters",
+      "codeLocation": [
+        1,
+        12,
+        1,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_i3",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/alters.sql"
+      },
+      "dependentRelation": "Alters",
+      "codeLocation": [
+        2,
+        12,
+        2,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_u1",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/alters.sql"
+      },
+      "dependentRelation": "Alters",
+      "codeLocation": [
+        4,
+        7,
+        4,
+        15
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_d1",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/alters.sql"
+      },
+      "dependentRelation": "Alters",
+      "codeLocation": [
+        6,
+        12,
+        6,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_d2",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/alters.sql"
+      },
+      "dependentRelation": "Alters",
+      "codeLocation": [
+        7,
+        12,
+        7,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_p1",
+        "kind": "Datatable",
+        "namespace": "fragments/sql/alters.sql"
+      },
+      "dependentRelation": "Alters",
+      "codeLocation": [
+        9,
+        11,
+        9,
+        19
+      ]
+    }
+  ],
+  "executionTags": []
 }

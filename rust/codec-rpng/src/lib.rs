@@ -260,7 +260,7 @@ mod tests {
     async fn encode_decode() -> Result<()> {
         let input = Node::CodeChunk(CodeChunk {
             programming_language: "python".to_string(),
-            text: "print(\"Hello world!\")".to_string(),
+            code: "print(\"Hello world!\")".to_string(),
             outputs: Some(vec![Node::String("Hello world!".to_string())]),
             ..Default::default()
         });

@@ -1,0 +1,247 @@
+---
+source: rust/codec-md/src/decode.rs
+assertion_line: 2393
+expression: "decode_fragment(content, None)"
+input_file: fixtures/fragments/md/for.md
+---
+[
+  {
+    "type": "Heading",
+    "content": [
+      "Simple"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "For",
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "This paragraph will be repeated with a different value for ",
+          {
+            "type": "CodeExpression",
+            "programmingLanguage": "",
+            "text": "item"
+          },
+          "."
+        ]
+      }
+    ],
+    "programmingLanguage": "",
+    "symbol": "item",
+    "text": "[1,2,3]"
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Nested"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "For loops can be nested,"
+    ]
+  },
+  {
+    "type": "For",
+    "content": [
+      {
+        "type": "For",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "This paragraph will be repeated for each column and row: ",
+              {
+                "type": "CodeExpression",
+                "programmingLanguage": "",
+                "text": "col"
+              }
+            ]
+          }
+        ],
+        "programmingLanguage": "",
+        "symbol": "col",
+        "text": "row"
+      }
+    ],
+    "programmingLanguage": "",
+    "symbol": "row",
+    "text": "[['a', 'b'], ['c', 'd']]"
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Else"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "For loops can have an ",
+      {
+        "type": "CodeFragment",
+        "text": "else"
+      },
+      " clause which specifies the content to be rendered if there are not items,"
+    ]
+  },
+  {
+    "type": "For",
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "This content is never shown"
+        ]
+      }
+    ],
+    "programmingLanguage": "",
+    "symbol": "row",
+    "text": "[]",
+    "otherwise": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "There are no items"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Deviations"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Here is a test that missing content will still be parsed as a ",
+      {
+        "type": "CodeFragment",
+        "text": "For"
+      },
+      ","
+    ]
+  },
+  {
+    "type": "For",
+    "content": [],
+    "programmingLanguage": "",
+    "symbol": "item",
+    "text": "[1,2,3]",
+    "otherwise": []
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "However note that there must be empty lines between sections. e.g this should ",
+      {
+        "type": "Emphasis",
+        "content": [
+          "not"
+        ]
+      },
+      " be parsed as a ",
+      {
+        "type": "CodeFragment",
+        "text": "For"
+      },
+      ","
+    ]
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Regressions"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Some Markdown that did not parse correctly during prop tests"
+    ]
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Table in ",
+      {
+        "type": "CodeFragment",
+        "text": "otherwise"
+      }
+    ],
+    "depth": 2
+  },
+  {
+    "type": "For",
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "Content paragraph"
+        ]
+      }
+    ],
+    "programmingLanguage": "py",
+    "symbol": "item",
+    "text": "[]",
+    "otherwise": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "Otherwise paragraph"
+        ]
+      },
+      {
+        "type": "Table",
+        "rows": [
+          {
+            "type": "TableRow",
+            "cells": [
+              {
+                "type": "TableCell",
+                "cellType": "Header",
+                "content": [
+                  "A"
+                ]
+              },
+              {
+                "type": "TableCell",
+                "cellType": "Header",
+                "content": [
+                  "B"
+                ]
+              }
+            ],
+            "rowType": "Header"
+          },
+          {
+            "type": "TableRow",
+            "cells": [
+              {
+                "type": "TableCell",
+                "content": [
+                  "1"
+                ]
+              },
+              {
+                "type": "TableCell",
+                "content": [
+                  "2"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

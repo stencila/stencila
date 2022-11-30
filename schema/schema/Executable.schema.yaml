@@ -6,37 +6,38 @@ status: stable
 category: code
 description: Base type for executable document nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
 properties:
-  codeDependencies:
-    '@id': stencila:codeDependencies
-    description: The upstream dependencies.
-    type: array
-    items:
-      anyOf:
-        - $ref: CodeChunk
-        - $ref: File
-        - $ref: Parameter
-    $comment: |
-      Note that this excludes `CodeExpression` nodes since they should not have side effects
-      (e.g. assigning variables) that would cause another node to be dependent upon them.
-  codeDependents:
-    '@id': stencila:codeDependents
-    description: The downstream dependents.
-    type: array
-    items:
-      anyOf:
-        - $ref: Call
-        - $ref: CodeChunk
-        - $ref: CodeExpression
-        - $ref: File
-    $comment: |
-      Note that in comparison to `codeDependencies`, this property does not allow for `Parameter`
-      dependents (because parameters are never dependent upon others).
+  executionAuto:
+    '@id': stencila:executionAuto
+    description: Under which circumstances the code should be automatically executed.
+    $ref: ExecutionAuto
   compileDigest:
     '@id': stencila:compileDigest
     description: A digest of the content, semantics and dependencies of the node.
-    type: string
-  executeCount:
-    '@id': stencila:executeCount
+    $ref: ExecutionDigest
+  executeDigest:
+    '@id': stencila:executeDigest
+    description: The `compileDigest` of the node when it was last executed.
+    $ref: ExecutionDigest
+  executionDependencies:
+    '@id': stencila:executionDependencies
+    description: The upstream dependencies of this node.
+    type: array
+    items:
+      $ref: ExecutionDependency
+  executionDependents:
+    '@id': stencila:executionDependents
+    description: The downstream dependents of this node.
+    type: array
+    items:
+      $ref: ExecutionDependent
+  executionTags:
+    '@id': stencila:executionTags
+    description: Tags in the code which affect its execution
+    type: array
+    items:
+      $ref: ExecutionTag
+  executionCount:
+    '@id': stencila:executionCount
     description: A count of the number of times that the node has been executed.
     type: integer
     minimum: 0
@@ -44,34 +45,26 @@ properties:
       Intended to increment with each successive execution of the node, including across sessions.
       Note that this differs to the `execution_count` in Jupyter Notebook format which is
       the "code cell's prompt number" and which resets at the start of each new session.
-  executeDigest:
-    '@id': stencila:executeDigest
-    description: The `compileDigest` of the node when it was last executed.
-    type: string
-  executeRequired:
-    '@id': stencila:executeRequired
+  executionRequired:
+    '@id': stencila:executionRequired
     description: Whether, and why, the code requires execution or re-execution.
-    $ref: ExecuteRequired
-  executeKernel:
-    '@id': stencila:executeKernel
+    $ref: ExecutionRequired
+  executionKernel:
+    '@id': stencila:executionKernel
     description: The id of the kernel that the node was last executed in.
     type: string
-  executeStatus:
-    '@id': stencila:executeStatus
+  executionStatus:
+    '@id': stencila:executionStatus
     description: Status of the most recent, including any current, execution.
-    $ref: ExecuteStatus
-  executeEnded:
-    '@id': stencila:executeEnded
+    $ref: ExecutionStatus
+  executionEnded:
+    '@id': stencila:executionEnded
     description: The timestamp when the last execution ended.
     $ref: Timestamp
-  executeDuration:
-    '@id': stencila:executeDuration
+  executionDuration:
+    '@id': stencila:executionDuration
     description: Duration of the last execution.
     $ref: Duration
-  executeAuto:
-    '@id': stencila:executeAuto
-    description: Under which circumstances the code should be automatically executed.
-    $ref: ExecuteAuto
   errors:
     '@id': stencila:errors
     description: Errors when compiling (e.g. syntax errors) or executing the node.

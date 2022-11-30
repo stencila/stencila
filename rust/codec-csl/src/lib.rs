@@ -5,8 +5,8 @@ use codec::{
         serde_json,
     },
     stencila_schema::{
-        Article, CreativeWorkAuthors, CreativeWorkPublisher, CreativeWorkTitle, CreativeWorkTypes,
-        Date, Node, Organization, Periodical, Person, PublicationIssue,
+        Article, CreativeWorkAuthors, CreativeWorkPublisher, CreativeWorkTypes, Date,
+        InlineContent, Node, Organization, Periodical, Person, PublicationIssue,
         PublicationIssueIssueNumber, PublicationVolume, PublicationVolumeVolumeNumber,
         ThingIdentifiers,
     },
@@ -34,7 +34,7 @@ impl CslCodec {
         let mut article = Article::default();
 
         if let Some(title) = data.get("title") {
-            article.title = Some(Box::new(CreativeWorkTitle::String(decode_string(title)?)));
+            article.title = Some(vec![InlineContent::String(decode_string(title)?)]);
         }
 
         if let Some(date) = data.get("published") {

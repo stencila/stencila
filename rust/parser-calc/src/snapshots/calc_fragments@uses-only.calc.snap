@@ -1,42 +1,36 @@
 ---
 source: rust/parser-calc/src/lib.rs
-assertion_line: 132
-expression: resource_info
+assertion_line: 151
+expression: parse_info
 input_file: fixtures/fragments/calc/uses-only.calc
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/calc/uses-only.calc",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "calc"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          0,
-          0,
-          13
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/uses-only.calc",
-        "name": "a",
-        "kind": "Number"
-      }
-    ]
-  ],
-  "compile_digest": "15726667909554571450.3064020986591757252.0.0.0",
-  "tags": [
+  "syntaxErrors": false,
+  "semanticDigest": 3064020986591757252,
+  "executionDependencies": [
     {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
+        "name": "a",
+        "namespace": "fragments/calc/uses-only.calc"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        13
+      ]
+    }
+  ],
+  "executionDependents": [],
+  "executionTags": [
+    {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "uses",
-      "value": "a only",
-      "global": false
+      "value": "a only"
     }
   ]
 }

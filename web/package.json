@@ -3,50 +3,14 @@
   "version": "1.0.0",
   "description": "Web client for interacting with Stencila document server",
   "scripts": {
-    "build": "npm run build:js && npm run build:browser && npm run build:ts",
-    "build:browser": "parcel build . --no-autoinstall --target read --target view --target exec --target edit --target terminal",
-    "build:watch": "parcel watch . --no-autoinstall --target read --target view --target exec --target edit --target terminal",
-    "build:js": "microbundle",
-    "build:ts": "tsc --emitDeclarationOnly",
+    "build": "parcel build --no-source-maps src/modes/*.js src/utils/curtain.css",
+    "dev": "parcel watch src/modes/*.js src/utils/curtain.css",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cover": "jest --coverage",
     "format": "prettier 'src/*.{ts,css}' --write",
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix"
-  },
-  "type": "module",
-  "source": "src/index.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.module.js",
-  "types": "dist/index.d.ts",
-  "targets": {
-    "default": {},
-    "read": {
-      "source": "src/index.read.ts",
-      "context": "browser",
-      "distDir": "dist/browser"
-    },
-    "view": {
-      "source": "src/index.view.ts",
-      "context": "browser",
-      "distDir": "dist/browser"
-    },
-    "exec": {
-      "source": "src/index.exec.ts",
-      "context": "browser",
-      "distDir": "dist/browser"
-    },
-    "edit": {
-      "source": "src/index.edit.ts",
-      "context": "browser",
-      "distDir": "dist/browser"
-    },
-    "terminal": {
-      "source": "src/terminal.ts",
-      "context": "browser",
-      "distDir": "dist/browser"
-    }
   },
   "author": "Stencila",
   "license": "Apache-2.0",
@@ -59,59 +23,77 @@
     "url": "https://github.com/stencila/stencila"
   },
   "devDependencies": {
+    "@parcel/compressor-brotli": "^2.7.0",
+    "@parcel/packager-ts": "^2.7.0",
+    "@parcel/transformer-inline-string": "^2.7.0",
     "@parcel/transformer-typescript-tsc": "2.7.0",
     "@parcel/transformer-typescript-types": "2.7.0",
     "@stencila/dev-config": "3.0.4",
     "@stencila/eslint-config": "3.0.4",
     "@stencila/schema": "file:../schema",
     "@types/jest": "28.1.1",
-    "@types/prosemirror-collab": "1.1.2",
-    "@types/prosemirror-commands": "1.0.4",
-    "@types/prosemirror-dropcursor": "1.0.3",
-    "@types/prosemirror-gapcursor": "1.0.4",
-    "@types/prosemirror-history": "1.0.3",
-    "@types/prosemirror-inputrules": "1.0.4",
-    "@types/prosemirror-keymap": "1.0.4",
-    "@types/prosemirror-model": "1.13.2",
-    "@types/prosemirror-schema-list": "1.0.3",
-    "@types/prosemirror-state": "1.2.7",
-    "@types/prosemirror-tables": "0.9.1",
-    "@types/prosemirror-transform": "1.1.4",
-    "@types/prosemirror-view": "1.19.1",
     "buffer": "^6.0.3",
     "jest": "28.1.1",
     "jest-environment-jsdom": "28.1.1",
-    "microbundle": "0.14.2",
     "parcel": "2.7.0",
+    "process": "^0.11.10",
     "ts-jest": "28.0.4",
-    "typescript": "4.7.4"
+    "typescript": "4.7.4",
+    "web-component-analyzer": "^2.0.0-next.4"
   },
   "peerDependencies": {
     "@stencila/schema": "^1.11.1"
   },
   "dependencies": {
-    "@codemirror/state": "^0.19.6",
-    "@codemirror/view": "^0.19.42",
+    "@codemirror/autocomplete": "^6.3.0",
+    "@codemirror/commands": "^6.1.1",
+    "@codemirror/lang-cpp": "^6.0.1",
+    "@codemirror/lang-css": "^6.0.0",
+    "@codemirror/lang-java": "^6.0.0",
+    "@codemirror/lang-javascript": "^6.1.0",
+    "@codemirror/lang-json": "^6.0.0",
+    "@codemirror/lang-markdown": "^6.0.1",
+    "@codemirror/lang-python": "^6.0.1",
+    "@codemirror/lang-rust": "^6.0.0",
+    "@codemirror/lang-sql": "^6.3.0",
+    "@codemirror/lang-xml": "^6.0.0",
+    "@codemirror/language": "^6.2.1",
+    "@codemirror/language-data": "^6.1.0",
+    "@codemirror/lint": "^6.0.0",
+    "@codemirror/search": "^6.2.1",
+    "@codemirror/state": "^6.1.2",
+    "@codemirror/view": "^6.3.0",
+    "@shoelace-style/shoelace": "^2.0.0-beta.82",
     "@stencila/components": "^0.55.0",
+    "change-case": "^4.1.2",
+    "clipboard-copy": "^4.0.1",
+    "codemirror-lang-postgrest": "file:../../codemirror-lang-postgrest/codemirror-lang-postgrest-0.1.0.tgz",
+    "codemirror-lang-r": "^0.1.0-2",
+    "codemirror-lang-tailwind": "file:../../codemirror-lang-tailwind/codemirror-lang-tailwind-0.1.0.tgz",
+    "construct-style-sheets-polyfill": "^3.1.0",
     "fast-array-diff": "^1.0.1",
     "fast-deep-equal": "^3.1.3",
     "grapheme-splitter": "^1.0.4",
     "html-fragment": "^1.1.2",
+    "json5": "^2.2.1",
+    "lit": "^2.3.1",
     "nanoid": "^4.0.0",
-    "prosemirror-collab": "^1.2.2",
-    "prosemirror-commands": "^1.1.12",
-    "prosemirror-dropcursor": "^1.4.0",
-    "prosemirror-gapcursor": "^1.2.0",
-    "prosemirror-history": "^1.2.0",
-    "prosemirror-inputrules": "^1.1.3",
-    "prosemirror-keymap": "^1.1.5",
-    "prosemirror-model": "^1.15.0",
-    "prosemirror-schema-list": "^1.1.6",
-    "prosemirror-state": "^1.3.4",
-    "prosemirror-tables": "^1.1.1",
-    "prosemirror-transform": "^1.3.3",
-    "prosemirror-view": "^1.23.0",
+    "prosemirror-commands": "^1.3.1",
+    "prosemirror-dropcursor": "^1.6.1",
+    "prosemirror-gapcursor": "^1.3.1",
+    "prosemirror-history": "^1.3.0",
+    "prosemirror-inputrules": "^1.2.0",
+    "prosemirror-keymap": "^1.2.0",
+    "prosemirror-model": "^1.18.1",
+    "prosemirror-schema-basic": "^1.2.0",
+    "prosemirror-schema-list": "^1.2.2",
+    "prosemirror-state": "^1.4.2",
+    "prosemirror-tables": "^1.2.5",
+    "prosemirror-view": "^1.29.0",
     "rpc-websockets": "^7.5.0",
+    "thememirror": "^2.0.1",
+    "time-elements": "^3.0.0",
+    "twind": "^0.16.17",
     "xterm": "^4.18.0",
     "xterm-addon-attach": "^0.6.0",
     "xterm-addon-fit": "^0.5.0"
@@ -151,5 +133,10 @@
       ]
     }
   },
-  "prettier": "@stencila/dev-config/prettier-config.json"
+  "prettier": "@stencila/dev-config/prettier-config.json",
+  "alias": {
+    "process": {
+      "global": "{}"
+    }
+  }
 }

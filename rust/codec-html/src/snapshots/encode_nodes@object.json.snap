@@ -1,49 +1,48 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 438
+assertion_line: 534
 expression: html
 input_file: fixtures/nodes/object.json
-
 ---
-<stencila-object data-root itemtype="https://schema.stenci.la/Object" itemscope>
-  <dl slot="pairs">
+<stencila-object>
+  <dl data-root slot="pairs">
     <dt>a</dt>
     <dd>
-      <span itemtype="https://schema.stenci.la/Null" itemscope>null</span>
+      <span>null</span>
     </dd>
     <dt>b</dt>
     <dd>
-      <span itemtype="https://schema.org/Boolean" itemscope>true</span>
+      <span>true</span>
     </dd>
     <dt>c</dt>
     <dd>str</dd>
     <dt>d</dt>
     <dd>
-      <stencila-array itemtype="https://schema.stenci.la/Array" itemscope>
+      <stencila-array>
         <ol slot="items">
           <li>
-            <span itemtype="https://schema.org/Integer" itemscope>1</span>
+            <span>1</span>
           </li>
           <li>
-            <span itemtype="https://schema.org/Integer" itemscope>2</span>
+            <span>2</span>
           </li>
           <li>
-            <span itemtype="https://schema.org/Integer" itemscope>3</span>
+            <span>3</span>
           </li>
         </ol>
       </stencila-array>
     </dd>
     <dt>e</dt>
     <dd>
-      <stencila-object itemtype="https://schema.stenci.la/Object" itemscope>
+      <stencila-object>
         <dl slot="pairs">
           <dt>a</dt>
           <dd>
-            <stencila-object itemtype="https://schema.stenci.la/Object" itemscope>
+            <stencila-object>
               <dl slot="pairs">
                 <dt>a</dt>
                 <dd>
-                  <span itemtype="https://schema.org/Number" itemscope>1.23</span>
+                  <span>1.23</span>
                 </dd>
               </dl>
             </stencila-object>

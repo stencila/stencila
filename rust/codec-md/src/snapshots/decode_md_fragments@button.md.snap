@@ -1,0 +1,73 @@
+---
+source: rust/codec-md/src/decode.rs
+assertion_line: 2393
+expression: "decode_fragment(content, None)"
+input_file: fixtures/fragments/md/button.md
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "A button ",
+      {
+        "type": "Button",
+        "name": "do_it",
+        "programmingLanguage": "",
+        "text": ""
+      },
+      " and another with a label specified ",
+      {
+        "type": "Button",
+        "name": "go",
+        "programmingLanguage": "",
+        "text": "",
+        "label": "Go for it"
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "This code chunk will run when either of the above buttons is clicked,"
+    ]
+  },
+  {
+    "type": "CodeChunk",
+    "programmingLanguage": "python",
+    "text": "f\"Do it was last clicked at {do_it}. Go for it was last clicked at {go}.\""
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Buttons can have a condition which must evaluate to a truthy value for the button to be enabled e.g."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Button",
+        "name": "maybe",
+        "programmingLanguage": "",
+        "text": "1<2"
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "The programming language of the expression can be specified e.g."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Button",
+        "name": "sometimes",
+        "programmingLanguage": "python",
+        "text": "sum(x)>10"
+      }
+    ]
+  }
+]

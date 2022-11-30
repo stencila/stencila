@@ -47,19 +47,21 @@ interface Context {
   anonEnums: Record<string, string>
 }
 
+const defaultDerives =
+  'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize, Deserialize'
+
 // Custom derives for particular structs
 const structDerives: Record<string, string> = {
   // These need a custom Deserialize method to avoid confusion with Object
-  Date: 'Clone, Debug, Derivative, Serialize',
-  Time: 'Clone, Debug, Derivative, Serialize',
-  DateTime: 'Clone, Debug, Derivative, Serialize',
-  Timestamp: 'Clone, Debug, Derivative, Serialize',
-  Duration: 'Clone, Debug, Derivative, Serialize',
+  Date: 'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize',
+  Time: 'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize',
+  DateTime: 'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize',
+  Timestamp: 'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize',
+  Duration: 'Clone, Debug, PartialEq, Eq, Hash, Derivative, Serialize',
 }
 
 // Custom attributes to add to particular properties
 const propertyAttributes: Record<string, string[]> = {
-  '*.id': ['#[derivative(PartialEq = "ignore", Hash = "ignore")]'],
   'Date.value': [
     '#[derivative(Default(value = "chrono::Utc::now().format(\\"%Y-%m-%d\\").to_string()"))]',
   ],
@@ -84,6 +86,18 @@ const propertyAttributes: Record<string, string[]> = {
   'ConstantValidator.value': [
     '#[derivative(Default(value = "Box::new(Node::Null(Null{}))"))]',
   ],
+  'ExecutionDependency.dependencyNode': [
+    '#[derivative(Default(value = "ExecutionDependencyNode::Variable(Variable::default())"))]',
+  ],
+  'ExecutionDependency.dependencyRelation': [
+    '#[derivative(Default(value = "ExecutionDependencyRelation::Uses"))]',
+  ],
+  'ExecutionDependent.dependentNode': [
+    '#[derivative(Default(value = "ExecutionDependentNode::Variable(Variable::default())"))]',
+  ],
+  'ExecutionDependent.dependentRelation': [
+    '#[derivative(Default(value = "ExecutionDependentRelation::Assigns"))]',
+  ],
 }
 
 // Custom types for particular properties
@@ -92,6 +106,8 @@ const propertyAttributes: Record<string, string[]> = {
 // as much memory is allocated as necessary, instead of using the
 // defaults e.g. `i32` for integers
 const propertyTypes: Record<string, string> = {
+  // For performance use a Suid (smart string)
+  '*.id': 'Suid',
   // Avoid the multiple strings definition that gets automatically generated
   'Date.value': 'String',
   // Expect depths to be 1 to 6, this allows for 0 to 255
@@ -106,12 +122,15 @@ const propertyTypes: Record<string, string> = {
   'ArrayValidator.maxItems': 'u32',
   'StringValidator.minLength': 'u32',
   'StringValidator.maxLength': 'u32',
-  'CodeChunk.executeCount': 'u32',
-  'CodeExpression.executeCount': 'u32',
-  // Use `Cord` instead of string for more efficient patching of digests
-  '*.compileDigest': 'Box<Cord>',
-  '*.buildDigest': 'Box<Cord>',
-  '*.executeDigest': 'Box<Cord>',
+  // Execution related properties
+  '*.executionCount': 'u32',
+  'ExecutionDigest.stateDigest': 'u64',
+  'ExecutionDigest.semanticDigest': 'u64',
+  'ExecutionDigest.dependenciesDigest': 'u64',
+  'ExecutionDigest.dependenciesStale': 'u32',
+  'ExecutionDigest.dependenciesFailed': 'u32',
+  'ExecutionDependency.codeLocation': '[usize;4]',
+  'ExecutionDependent.codeLocation': '[usize;4]',
   // No need to box these
   'DateValidator.minimum': 'Date',
   'DateValidator.maximum': 'Date',
@@ -132,9 +151,11 @@ const noBoxTypes = [
   // Enums with no data
   'CiteCitationMode',
   'ClaimClaimType',
-  'ExecuteAuto',
-  'ExecuteRequired',
-  'ExecuteStatus',
+  'ExecutionAuto',
+  'ExecutionRequired',
+  'ExecutionStatus',
+  'ExecutionDigest',
+  'FormDeriveAction',
   'ListOrder',
   'NoteNoteType',
   'SoftwareSessionStatus',
@@ -286,8 +307,7 @@ export function interfaceSchemaToStruct(
   const { title = 'Untitled', description = title } = schema
   const { all } = getSchemaProperties(schema)
 
-  const derives =
-    structDerives[title] || 'Clone, Debug, Derivative, Serialize, Deserialize'
+  const derives = structDerives[title] || defaultDerives
 
   const fields = all
     .filter(({ name }) => name !== 'meta')
@@ -338,7 +358,7 @@ ${attrs.map((attr) => `    ${attr}\n`).join('')}    pub ${snakeCase(
 ${docComment(description)}
 #[skip_serializing_none]
 #[derive(${derives})]
-#[derivative(Default, PartialEq, Eq, Hash)]
+#[derivative(Default)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ${title} {
     /// The name of this type
@@ -518,7 +538,7 @@ export function enumToEnum(enu: (string | number)[], context: Context): string {
     .join('')
 
   const name = context.propertyTypeName ?? ''
-  const definition = `#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, Serialize, Deserialize)]
+  const definition = `#[derive(Clone, Debug, PartialEq, Eq, Hash, AsRefStr, EnumString, Serialize, Deserialize)]
 pub enum ${name} {\n${lines}}\n`
   context.anonEnums[name] = definition
 

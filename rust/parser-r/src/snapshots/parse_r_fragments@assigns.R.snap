@@ -1,223 +1,205 @@
 ---
 source: rust/parser-r/src/lib.rs
-assertion_line: 210
-expression: resource_info
+assertion_line: 216
+expression: parse_info
 input_file: fixtures/fragments/r/assigns.R
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/r/assigns.R",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "r"
-  },
-  "relations": [
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          0,
-          0,
-          0,
-          4
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+  "syntaxErrors": false,
+  "semanticDigest": 1296525448460664608,
+  "executionDependencies": [],
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var1",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          1,
-          0,
-          1,
-          4
-        ]
+        "kind": "Number",
+        "namespace": "fragments/r/assigns.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var2",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          3,
-          0,
-          3,
-          4
-        ]
+        "kind": "Number",
+        "namespace": "fragments/r/assigns.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "fun1",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          5,
-          4,
-          5,
-          8
-        ]
+        "kind": "Function",
+        "namespace": "fragments/r/assigns.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        3,
+        0,
+        3,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var3",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          10,
-          4,
-          10,
-          8
-        ]
+        "kind": "Number",
+        "namespace": "fragments/r/assigns.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        5,
+        4,
+        5,
+        8
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var4",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          13,
-          0,
-          13,
-          4
-        ]
+        "kind": "Number",
+        "namespace": "fragments/r/assigns.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        10,
+        4,
+        10,
+        8
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var5",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          15,
-          0,
-          15,
-          4
-        ]
+        "namespace": "fragments/r/assigns.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        13,
+        0,
+        13,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var6",
-        "kind": "Boolean"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          16,
-          0,
-          16,
-          4
-        ]
+        "kind": "Boolean",
+        "namespace": "fragments/r/assigns.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        15,
+        0,
+        15,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var7",
-        "kind": "Boolean"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          17,
-          0,
-          17,
-          4
-        ]
+        "kind": "Boolean",
+        "namespace": "fragments/r/assigns.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        16,
+        0,
+        16,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var8",
-        "kind": "Integer"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          18,
-          0,
-          18,
-          4
-        ]
+        "kind": "Integer",
+        "namespace": "fragments/r/assigns.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        17,
+        0,
+        17,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var9",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          19,
-          0,
-          19,
-          5
-        ]
+        "kind": "Number",
+        "namespace": "fragments/r/assigns.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        18,
+        0,
+        18,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var10",
-        "kind": "String"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          20,
-          0,
-          20,
-          5
-        ]
+        "kind": "String",
+        "namespace": "fragments/r/assigns.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/assigns.R",
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        19,
+        0,
+        19,
+        5
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "var11",
-        "kind": "Datatable"
-      }
-    ]
+        "kind": "Datatable",
+        "namespace": "fragments/r/assigns.R"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        20,
+        0,
+        20,
+        5
+      ]
+    }
   ],
-  "compile_digest": "11349132781383042672.12063492160969735184.0.0.0",
-  "tags": []
+  "executionTags": []
 }

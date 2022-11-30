@@ -7,6 +7,7 @@ version = "0.1.0"
 codec = { path = "../codec" }
 codec-md = { path = "../codec-md" }
 common = { path = "../common" }
+formats = { path = "../formats" }
 node-pointer = { path = "../node-pointer" }
 
 [dev-dependencies]

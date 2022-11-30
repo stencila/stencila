@@ -22,6 +22,7 @@ binary-node = { path = "../binary-node", optional = true }
 binary-pack = { path = "../binary-pack", optional = true }
 binary-pandoc = { path = "../binary-pandoc", optional = true }
 binary-podman = { path = "../binary-podman", optional = true }
+binary-postgrest = { path = "../binary-postgrest", optional = true }
 binary-poetry = { path = "../binary-poetry", optional = true }
 binary-python = { path = "../binary-python", optional = true }
 binary-r = { path = "../binary-r", optional = true }

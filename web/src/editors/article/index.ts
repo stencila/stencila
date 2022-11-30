@@ -15,8 +15,8 @@ import { isNumber, JsonValue } from '../../patches/checks'
 import { applyPatch, diff } from '../../patches/json'
 import { CodeBlockView } from './components/codeBlock/codeBlockView'
 import { CodeChunkView } from './components/codeChunk/codeChunkView'
-import { prosemirrorToStencila } from './convert'
-import { articleInputRules } from './inputRules'
+import { prosemirrorToStencila } from '../../patches/prosemirror/convert'
+import { stencilaInputRules } from '../../components/editors/prose-editor/input-rules'
 import { articleKeymap } from './keymap'
 import { editorMenuPlugin } from './menu'
 import { articleSchema } from './schema'
@@ -99,7 +99,7 @@ export class ArticleEditor {
       doc: this.doc,
       plugins: [
         // Locally defined input rules and keymap
-        articleInputRules,
+        stencilaInputRules,
         keymap(articleKeymap),
         // Plugin that enables undo and redo
         history(),

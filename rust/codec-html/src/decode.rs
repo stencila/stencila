@@ -7,6 +7,7 @@ use codec::{common::eyre::Result, CodecTrait};
 use codec_txt::TxtCodec;
 use node_transform::Transform;
 use stencila_schema::*;
+use suids::Suid;
 
 /// Decode a HTML document to a `Node`
 ///
@@ -88,8 +89,8 @@ fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
                 .get(LocalName::from("programming-language"))
                 .map(|value| value.to_string());
 
-            let text = if let Ok(text) = node.select_first("[slot=text]") {
-                collect_text(text.as_node())
+            let code = if let Ok(code) = node.select_first("[slot=code]") {
+                collect_text(code.as_node())
             } else {
                 "".to_string()
             };
@@ -97,13 +98,13 @@ fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
             return if tag == *"stencila-code-block" {
                 vec![BlockContent::CodeBlock(CodeBlock {
                     programming_language: programming_language.map(Box::new),
-                    text,
+                    code,
                     ..Default::default()
                 })]
             } else {
                 vec![BlockContent::CodeChunk(CodeChunk {
                     programming_language: programming_language.unwrap_or_default(),
-                    text,
+                    code,
                     ..Default::default()
                 })]
             };
@@ -159,10 +160,10 @@ fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
                 } else {
                     None
                 };
-                let text = collect_text(node);
+                let code = collect_text(node);
 
                 vec![BlockContent::CodeBlock(CodeBlock {
-                    text,
+                    code,
                     programming_language,
                     ..Default::default()
                 })]
@@ -318,8 +319,8 @@ fn decode_inline(node: &NodeRef, context: &DecodeContext) -> Vec<InlineContent> 
                 .get(LocalName::from("programming-language"))
                 .map(|value| value.to_string());
 
-            let text = if let Ok(text) = node.select_first("[slot=text]") {
-                collect_text(text.as_node())
+            let code = if let Ok(code) = node.select_first("[slot=code]") {
+                collect_text(code.as_node())
             } else {
                 "".to_string()
             };
@@ -327,13 +328,13 @@ fn decode_inline(node: &NodeRef, context: &DecodeContext) -> Vec<InlineContent> 
             return if tag == LocalName::from("stencila-code-fragment") {
                 vec![InlineContent::CodeFragment(CodeFragment {
                     programming_language: programming_language.map(Box::new),
-                    text,
+                    code,
                     ..Default::default()
                 })]
             } else {
                 vec![InlineContent::CodeExpression(CodeExpression {
                     programming_language: programming_language.unwrap_or_default(),
-                    text,
+                    code,
                     ..Default::default()
                 })]
             };
@@ -359,9 +360,9 @@ fn decode_inline(node: &NodeRef, context: &DecodeContext) -> Vec<InlineContent> 
                     .borrow()
                     .get(local_name!("class"))
                     .map(|value| Box::new(value.replace("language-", "")));
-                let text = collect_text(node);
+                let code = collect_text(node);
                 vec![InlineContent::CodeFragment(CodeFragment {
-                    text,
+                    code,
                     programming_language,
                     ..Default::default()
                 })]
@@ -633,12 +634,12 @@ fn decode_table_cells(node: &NodeRef, context: &DecodeContext) -> Vec<TableCell>
 
 /// Get the `id` attribute of an element (if any)
 #[allow(clippy::box_collection)]
-fn get_id(element: &ElementData) -> Option<Box<String>> {
+fn get_id(element: &ElementData) -> Option<Suid> {
     element
         .attributes
         .borrow()
         .get(local_name!("id"))
-        .map(|id| Box::new(id.to_string()))
+        .map(|id| id.into())
 }
 
 /// Accumulate all the text within a node, including text within descendant elements.

@@ -126,25 +126,56 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a code expression node with arbitrary text and programming language
+    /// Generate a `Button` node
+    pub fn button(freedom: Freedom)(
+        name in match freedom {
+            Freedom::Min => "name",
+            _ => r"[A-Za-z0-9_]+",
+        },
+        label in match freedom {
+            Freedom::Min => "Label",
+            Freedom::Low => r"[A-Za-z0-9]+",
+            Freedom::High => r"[A-Za-z0-9 -_!]+",
+            _ => any::<String>()
+        }
+    ) -> InlineContent {
+        InlineContent::Button(Button{
+            name,
+            label: Some(Box::new(label)),
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate a programming language string
+    pub fn prog_lang(freedom: Freedom)(
+        lang in match freedom {
+            Freedom::Min => "python",
+            Freedom::Low => r"bash|javascript|python|r|sql|shell|tailwind|zsh",
+            Freedom::High => r"[A-Za-z0-9-]+",
+            _ => any::<String>()
+        }
+    ) -> String {
+        lang
+    }
+}
+
+prop_compose! {
+    /// Generate a code expression node with arbitrary code and programming language
     ///
     /// With `Freedom::Low` only allow language codes that are recognized when decoding
     /// formats such as R Markdown.
     pub fn code_expression(freedom: Freedom)(
-        programming_language in match freedom {
-            Freedom::Min => "py",
-            Freedom::Low => r"js|py|r",
-            Freedom::High => r"[A-Za-z0-9-]+",
-            _ => any::<String>()
-        },
-        text in match freedom {
-            Freedom::Min => "text",
+        programming_language in prog_lang(freedom),
+        code in match freedom {
+            Freedom::Min => "code",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         },
     ) -> InlineContent {
         InlineContent::CodeExpression(CodeExpression{
-            text,
+            code,
             programming_language,
             ..Default::default()
         })
@@ -152,10 +183,10 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a code fragment node with arbitrary text and programming language
+    /// Generate a code fragment node with arbitrary code and programming language
     pub fn code_fragment(freedom: Freedom)(
-        text in match freedom {
-            Freedom::Min => r"text",
+        code in match freedom {
+            Freedom::Min => r"code",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         },
@@ -171,7 +202,7 @@ prop_compose! {
             Some(Box::new(programming_language))
         };
         InlineContent::CodeFragment(CodeFragment{
-            text,
+            code,
             programming_language,
             ..Default::default()
         })
@@ -181,15 +212,15 @@ prop_compose! {
 prop_compose! {
     /// Generate a math fragment node with arbitrary TeX
     pub fn math_fragment(freedom: Freedom)(
-        text in match freedom {
+        code in match freedom {
             Freedom::Min => r"E = mc\^\{2\}",
             Freedom::Low => r"[A-Za-z0-9-_]*",
             _ => any::<String>()
         },
     ) -> InlineContent {
         InlineContent::MathFragment(MathFragment{
-            text,
-            math_language: Some(Box::new("tex".to_string())),
+            code,
+            math_language: "tex".to_string(),
             ..Default::default()
         })
     }
@@ -366,6 +397,27 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a Span node
+    pub fn span(freedom: Freedom)(
+        programming_language in prog_lang(freedom),
+        code in match freedom {
+            Freedom::Min => "code",
+            Freedom::Low => r"[A-Za-z0-9- ]+",
+            _ => any::<String>()
+        },
+        // For Markdown compatibility only allow in string inline content
+        content in string(freedom)
+    ) -> InlineContent {
+        InlineContent::Span(Span{
+            programming_language,
+            code,
+            content: vec![content],
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
     /// Generate a strong node with arbitrary content
     pub fn strong(freedom: Freedom)(
         content in inline_inner_content(freedom)
@@ -412,6 +464,7 @@ pub fn inline_content(
         ("AudioObject", audio_object_simple(freedom).boxed()),
         ("ImageObject", image_object_simple(freedom).boxed()),
         ("VideoObject", video_object_simple(freedom).boxed()),
+        ("Button", button(freedom).boxed()),
         ("CodeExpression", code_expression(freedom).boxed()),
         ("CodeFragment", code_fragment(freedom).boxed()),
         ("Emphasis", emphasis(freedom).boxed()),
@@ -419,6 +472,7 @@ pub fn inline_content(
         ("MathFragment", math_fragment(freedom).boxed()),
         ("Parameter", parameter(freedom, &exclude_types).boxed()),
         ("Quote", quote(freedom).boxed()),
+        ("Span", span(freedom).boxed()),
         ("Strikeout", strikeout(freedom).boxed()),
         ("Strong", strong(freedom).boxed()),
         ("Subscript", subscript(freedom).boxed()),
@@ -439,7 +493,8 @@ prop_compose! {
     ///
     /// Restrictions:
     ///   - Always starts and ends with a string.
-    ///   - Ensures that nodes such as `Strong` and `Emphasis` are surrounded by spaces (for Markdown).
+    ///   - Ensures that nodes such as `Strong`, `Emphasis`, and `Strikeout` (and deprecated `Delete`)
+    ///     are surrounded by spaces (for compatibility with  Markdown decoding).
     ///   - No leading or trailing whitespace (for Markdown).
     pub fn vec_inline_content(freedom: Freedom, exclude_types: Vec<String>)(
         length in 1usize..(match freedom {
@@ -454,7 +509,11 @@ prop_compose! {
         let mut content: Vec<InlineContent> = interleave(strings, others).collect();
         for index in 0..content.len() {
             let spaces = match content[index] {
-                InlineContent::Emphasis(..) | InlineContent::Strong(..) | InlineContent::Delete(..) => {
+                InlineContent::Emphasis(..) |
+                    InlineContent::Span(..) |
+                    InlineContent::Strong(..) |
+                    InlineContent::Strikeout(..) |
+                    InlineContent::Delete(..) => {
                    true
                 },
                 _ => false
@@ -476,6 +535,7 @@ prop_compose! {
                     }
                 }
             }
+
             if index == content.len() - 1 {
                 if let InlineContent::String(string) = &mut content[index] {
                     if string.ends_with(char::is_whitespace) {
@@ -489,10 +549,10 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a code block node with arbitrary text and programming language
+    /// Generate a code block node with arbitrary code and programming language
     pub fn code_block(freedom: Freedom)(
-        text in match freedom {
-            Freedom::Min => r"text",
+        code in match freedom {
+            Freedom::Min => r"code",
             Freedom::Low => r"[A-Za-z0-9-_ \t\n]*",
             _ => any::<String>()
         },
@@ -508,7 +568,7 @@ prop_compose! {
             Some(Box::new(programming_language))
         };
         BlockContent::CodeBlock(CodeBlock{
-            text,
+            code,
             programming_language,
             ..Default::default()
         })
@@ -586,15 +646,15 @@ prop_compose! {
 prop_compose! {
     /// Generate a math block node with arbitrary TeX
     pub fn math_block(freedom: Freedom)(
-        text in match freedom {
+        code in match freedom {
             Freedom::Min => r"E = mc\^\{2\}",
             Freedom::Low => r"[A-Za-z0-9-_]*",
             _ => any::<String>()
         },
     ) -> BlockContent {
         BlockContent::MathBlock(MathBlock{
-            text,
-            math_language: Some(Box::new("tex".to_string())),
+            code,
+            math_language: "tex".to_string(),
             ..Default::default()
         })
     }
@@ -687,23 +747,111 @@ prop_compose! {
     /// With `Freedom::Low` only allow language codes that are recognized when decoding
     /// formats such as R Markdown.
     pub fn code_chunk(freedom: Freedom)(
-        programming_language in match freedom {
-            Freedom::Min => "py",
-            Freedom::Low => r"js|py|r",
-            Freedom::High => r"[A-Za-z0-9-]+",
-            _ => any::<String>()
-        },
-        text in match freedom {
-            Freedom::Min => "text",
+        programming_language in prog_lang(freedom),
+        code in match freedom {
+            Freedom::Min => "code",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         }
     ) -> BlockContent {
         BlockContent::CodeChunk(CodeChunk{
             programming_language,
-            text,
+            code,
             ..Default::default()
         })
+    }
+}
+
+prop_compose! {
+    /// Generate a Division node
+    pub fn division(freedom: Freedom, exclude_types: &[String])(
+        programming_language in prog_lang(freedom),
+        code in match freedom {
+            Freedom::Min => "code",
+            Freedom::Low => r"[A-Za-z0-9- ]+",
+            _ => any::<String>()
+        },
+        content in vec_block_content(freedom, exclude_types.to_vec()),
+    ) -> BlockContent {
+        BlockContent::Division(Division{
+            programming_language,
+            code,
+            content,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate a For node
+    pub fn for_(freedom: Freedom, exclude_types: Vec<String>)(
+        symbol in match freedom {
+            Freedom::Min => "item",
+            Freedom::Low => r"[A-Za-z][A-Za-z0-9]*",
+            _ => any::<String>()
+        },
+        programming_language in prog_lang(freedom),
+        code in match freedom {
+            Freedom::Min => "code",
+            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            _ => any::<String>()
+        },
+        content in vec_block_content(freedom, exclude_types.clone()),
+        otherwise in of(vec_block_content(freedom, exclude_types))
+    ) -> BlockContent {
+        BlockContent::For(For{
+            symbol,
+            programming_language,
+            code,
+            content,
+            otherwise,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate a Form node
+    pub fn form(freedom: Freedom, exclude_types: Vec<String>)(
+        content in vec_block_content(freedom, exclude_types),
+    ) -> BlockContent {
+        BlockContent::Form(Form {
+            content,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate an If node
+    pub fn if_(freedom: Freedom, exclude_types: Vec<String>)(
+        clauses in vec(elif(freedom, exclude_types), size_range(1..5)),
+    ) -> BlockContent {
+        BlockContent::If(If{
+            clauses,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate an IfClause
+    pub fn elif(freedom: Freedom, exclude_types: Vec<String>)(
+        programming_language in prog_lang(freedom),
+        code in match freedom {
+            Freedom::Min => "code",
+            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            _ => any::<String>()
+        },
+        // Use Freedom::Min for nested block content to avoid stack overflow (using too much memory)
+        content in vec_block_content(Freedom::Min, exclude_types)
+    ) -> IfClause {
+        IfClause {
+            programming_language,
+            code,
+            content,
+            ..Default::default()
+        }
     }
 }
 
@@ -779,8 +927,20 @@ pub fn block_content(
     if !exclude_types.contains(&"CodeChunk".to_string()) {
         strategies.push(code_chunk(freedom).boxed())
     }
+    if !exclude_types.contains(&"Division".to_string()) {
+        strategies.push(division(freedom, &exclude_types).boxed())
+    }
+    if !exclude_types.contains(&"For".to_string()) {
+        strategies.push(for_(freedom, exclude_types.clone()).boxed())
+    }
+    if !exclude_types.contains(&"Form".to_string()) {
+        strategies.push(form(freedom, exclude_types.clone()).boxed())
+    }
     if !exclude_types.contains(&"Heading".to_string()) {
         strategies.push(heading(freedom, exclude_types.clone()).boxed())
+    }
+    if !exclude_types.contains(&"If".to_string()) {
+        strategies.push(if_(freedom, exclude_types.clone()).boxed())
     }
     if !exclude_types.contains(&"Include".to_string()) {
         strategies.push(include(freedom).boxed())

@@ -1,0 +1,10 @@
+[package]
+name = "suids"
+description = "Stencila unique identifiers"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+nanoid = "0.4.0"
+smartstring = { version = "1.0.1", features = ["serde"] }

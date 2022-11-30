@@ -52,10 +52,10 @@ use crate::{
 pub use server::JupyterServer;
 
 // A UUID for kernels
-uuids::uuid_family!(JupyterKernelId, "ke");
+suids::suid_family!(JupyterKernelId, "ke");
 
 // A UUID for sessions
-uuids::uuid_family!(JupyterSessionId, "se");
+suids::suid_family!(JupyterSessionId, "se");
 
 /// A kernel that delegates to a Jupyter kernel
 ///
@@ -593,7 +593,7 @@ impl JupyterKernel {
         sleep(Duration::from_millis(100)).await;
 
         // Update status
-        *(self.status.write().await) = KernelStatus::Idle;
+        *(self.status.write().await) = KernelStatus::Ready;
 
         // Store details
         self.connection = Some(connection);
@@ -679,7 +679,7 @@ impl JupyterKernel {
                                     *guard = KernelStatus::Busy;
                                 }
                                 "idle" => {
-                                    *guard = KernelStatus::Idle;
+                                    *guard = KernelStatus::Ready;
                                     tracing::debug!("Received idle status");
                                     break;
                                 }
@@ -824,7 +824,7 @@ impl KernelTrait for JupyterKernel {
     }
 
     async fn status(&self) -> Result<KernelStatus> {
-        let status = self.status.read().await.clone();
+        let status = *self.status.read().await;
         Ok(status)
     }
 
@@ -866,6 +866,10 @@ impl KernelTrait for JupyterKernel {
                 self.language
             )
         }
+    }
+
+    async fn derive(&mut self, _what: &str, _from: &str) -> Result<Vec<Node>> {
+        bail!("Not yet implemented")
     }
 
     async fn exec_sync(
@@ -926,8 +930,8 @@ impl KernelTrait for JupyterKernel {
 /// Note that `super::KernelSpace` holds instances of kernels for each document whereas this
 /// holds instances of the kernels specs read from `kernel.json` as an optimization to avoid
 /// re-reading them from disk.
-static KERNEL_SPECS: Lazy<Arc<RwLock<HashMap<String, JupyterKernel>>>> =
-    Lazy::new(|| Arc::new(RwLock::new(HashMap::new())));
+static KERNEL_SPECS: Lazy<RwLock<HashMap<String, JupyterKernel>>> =
+    Lazy::new(|| RwLock::new(HashMap::new()));
 
 /// Language specific code to be run at kernel startup
 fn startup(language: &str) -> Result<Option<String>> {

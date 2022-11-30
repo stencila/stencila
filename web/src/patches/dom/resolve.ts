@@ -9,7 +9,7 @@ import {
   panic,
 } from '../checks'
 import { STRUCT_ATTRIBUTES } from './consts'
-import { resolveProxy } from './proxies'
+import StencilaEntity from '../../components/nodes/entity'
 
 /**
  * Resolve the target of a patch.
@@ -23,11 +23,21 @@ import { resolveProxy } from './proxies'
  */
 export function resolveTarget(target?: ElementId): Element {
   if (target !== undefined) {
-    const elem = document.getElementById(target)
-    if (elem === null)
+    let elem = document.getElementById(target)
+
+    // If target was not found at the top level of the document, it may
+    // be withing the shadow root, so traverse into the root entity to look for it
+    if (!elem) {
+      const root = document.body.querySelector('[data-root]') as StencilaEntity
+      elem = root.getElementById?.(target)
+    }
+
+    if (!elem) {
       throw panic(
         `Unable to resolve target node; no element with id '${target}'`
       )
+    }
+
     return elem
   } else {
     const root = document.body.querySelector('[data-root]')
@@ -86,6 +96,11 @@ export function resolveSlot(
     assertElement(parent)
     const child: Element | null = parent.querySelector(slotSelector(slot))
 
+    // If the child is a Stencila custom element then just return it
+    if (child?.tagName.startsWith('STENCILA')) {
+      return child
+    }
+
     // The `text` slot (e.g. on `CodeFragment`) should always represented by the text content of the selected element
     // and is usually "implicit" (so, if there is no explicitly marked text slot, use the parent)
     if (slot === 'text') {
@@ -109,17 +124,6 @@ export function resolveSlot(
     // for the operation to be applied to
     if (child?.childNodes.length === 1 && isText(child?.childNodes[0])) {
       return child.childNodes[0]
-    }
-
-    // `<meta>` elements are used to represent properties that should not be visible
-    // but which are needed, if for nothing other than to provide Microdata for the property.
-    // Return the `content` attribute, rather than the element itself.
-    if (isElement(child) && child.tagName === 'META') {
-      const target = resolveProxy(child)
-      if (target) return target
-
-      const content = child.attributes.getNamedItem('content')
-      if (content !== null) return content
     }
 
     if (child !== null) return child

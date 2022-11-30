@@ -1,12 +1,18 @@
-use std::path::Path;
+use std::{
+    env::current_dir,
+    path::{Path, PathBuf},
+};
 
 use parser_treesitter::{
     common::{eyre::Result, once_cell::sync::Lazy},
     formats::Format,
-    graph_triples::{relations, resources, Pair, Resource, ResourceInfo},
-    path_utils, resource_info,
-    utils::remove_quotes,
-    Capture, Parser, ParserTrait, TreesitterParser,
+    parse_info, path_utils,
+    stencila_schema::{ExecutionDependency, ExecutionDependent},
+    utils::{
+        assigns_variable, declares_variable, imports_file, imports_module, reads_file,
+        remove_quotes, uses_variable, writes_file,
+    },
+    Capture, ParseInfo, Parser, ParserTrait, TreesitterParser,
 };
 
 /// Tree-sitter based parser for JavaScript
@@ -28,18 +34,29 @@ impl ParserTrait for JsParser {
         }
     }
 
-    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
+    fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
         let code = code.as_bytes();
         let tree = PARSER.parse(code);
         let matches = PARSER.query(code, &tree);
 
-        let relations = matches
-            .iter()
-            .filter_map(|(pattern, capture)| handle_patterns(path, code, pattern, capture))
-            .collect();
+        let mut dependencies = Vec::new();
+        let mut dependents = Vec::new();
 
-        let resource_info = resource_info(
-            resource,
+        let path_buf = path
+            .map(PathBuf::from)
+            .unwrap_or_else(|| current_dir().expect("Should be able to get pwd"));
+        for (pattern, captures) in matches.iter() {
+            handle_pattern(
+                code,
+                &path_buf,
+                pattern,
+                captures,
+                &mut dependencies,
+                &mut dependents,
+            );
+        }
+
+        let parse_info = parse_info(
             path,
             Self::spec().language,
             code,
@@ -47,21 +64,24 @@ impl ParserTrait for JsParser {
             &["comment"],
             matches,
             0,
-            relations,
+            dependencies,
+            dependents,
         );
-        Ok(resource_info)
+        Ok(parse_info)
     }
 }
 
 /// Handle a pattern match
 ///
 /// Made public for use by `parser-ts`.
-pub fn handle_patterns(
-    path: &Path,
+pub fn handle_pattern(
     code: &[u8],
+    path: &PathBuf,
     pattern: &usize,
     captures: &[Capture],
-) -> Option<Pair> {
+    dependencies: &mut Vec<ExecutionDependency>,
+    dependents: &mut Vec<ExecutionDependent>,
+) {
     match pattern {
         1 | 2 => {
             // Imports a module using `import` or `require`
@@ -72,25 +92,27 @@ pub fn handle_patterns(
             };
             let range = capture.range;
             let module = remove_quotes(&capture.text.clone());
-            let object = if module.starts_with("./") {
-                resources::file(&path_utils::merge(path, &[&module, ".js"].concat()))
+            if module.starts_with("./") {
+                dependencies.push(imports_file(
+                    &path_utils::merge(path, &[&module, ".js"].concat()),
+                    Some(range),
+                ))
             } else {
-                resources::module(Format::JavaScript, &module)
-            };
-            Some((relations::imports(range), object))
+                dependencies.push(imports_module(&module, Some(range)))
+            }
         }
         3 => {
             // Reads a file
-            Some((
-                relations::reads(captures[1].range),
-                resources::file(&path_utils::merge(path, remove_quotes(&captures[1].text))),
+            dependencies.push(reads_file(
+                &path_utils::merge(path, remove_quotes(&captures[1].text)),
+                Some(captures[1].range),
             ))
         }
         4 => {
             // Writes a file
-            Some((
-                relations::writes(captures[1].range),
-                resources::file(&path_utils::merge(path, remove_quotes(&captures[1].text))),
+            dependents.push(writes_file(
+                &path_utils::merge(path, remove_quotes(&captures[1].text)),
+                Some(captures[1].range),
             ))
         }
         5 | 6 => {
@@ -99,23 +121,17 @@ pub fn handle_patterns(
             let name = captures[0].text.clone();
             let kind = match pattern {
                 5 => node_kind(captures[1].node.kind()),
-                6 => "Function",
+                6 => Some("Function".to_string()),
                 _ => unreachable!(),
             };
-            Some((
-                relations::declares(range),
-                resources::symbol(path, &name, kind),
-            ))
+            dependents.push(declares_variable(&name, Some(path), kind, Some(range)))
         }
         7 => {
             // Assigns a symbol at the top level of the module
             let range = captures[0].range;
             let name = captures[0].text.clone();
             let kind = node_kind(captures[1].node.kind());
-            Some((
-                relations::assigns(range),
-                resources::symbol(path, &name, kind),
-            ))
+            dependents.push(assigns_variable(&name, Some(path), kind, Some(range)))
         }
         8 | 9 => {
             // Uses an identifier assigned elsewhere
@@ -130,30 +146,30 @@ pub fn handle_patterns(
                     // Could just skip children of `import_statement`, but specifying others in tree
                     // results in an earlier return while walking up tree.
                     "import_statement" | "import_clause" | "named_imports" | "import_specifier" => {
-                        return None
+                        return
                     }
                     // Skip identifiers that are the `name` of a declaration
                     "variable_declarator" => {
                         if Some(node) == parent_node.child_by_field_name("name") {
-                            return None;
+                            return;
                         }
                     }
                     // Skip identifiers that are the `left` of an assignment
                     "assignment_expression" => {
                         if Some(node) == parent_node.child_by_field_name("left") {
-                            return None;
+                            return;
                         }
                     }
                     // Skip any identifier used in a function
                     "function_declaration" | "arrow_function" | "formal_parameters" => {
-                        return None;
+                        return;
                     }
                     // Skip identifiers that are the `left` of a for in loop, or that refer to it
                     // within the loop
                     "for_in_statement" => {
                         if let Some(left) = parent_node.child_by_field_name("left") {
                             if left == node || left.utf8_text(code).unwrap() == symbol {
-                                return None;
+                                return;
                             }
                         }
                     }
@@ -166,7 +182,7 @@ pub fn handle_patterns(
                             .and_then(|node| node.child_by_field_name("name"))
                         {
                             if name == node || name.utf8_text(code).unwrap() == symbol {
-                                return None;
+                                return;
                             }
                         }
                     }
@@ -174,23 +190,22 @@ pub fn handle_patterns(
                 }
                 parent = parent_node.parent();
             }
-
-            Some((relations::uses(range), resources::symbol(path, &symbol, "")))
+            dependencies.push(uses_variable(&symbol, Some(path), None, Some(range)));
         }
-        _ => None,
+        _ => (),
     }
 }
 
 // Translate a `tree-sitter-javascript` AST node `kind` into a Stencila node `type`
-fn node_kind(kind: &str) -> &str {
+fn node_kind(kind: &str) -> Option<String> {
     match kind {
-        "true" | "false" => "Boolean",
-        "number" => "Number",
-        "string" => "String",
-        "array" => "Array",
-        "object" => "Object",
-        "arrow_function" => "Function",
-        _ => "",
+        "true" | "false" => Some("Boolean".to_string()),
+        "number" => Some("Number".to_string()),
+        "string" => Some("String".to_string()),
+        "array" => Some("Array".to_string()),
+        "object" => Some("Object".to_string()),
+        "arrow_function" => Some("Function".to_string()),
+        _ => None,
     }
 }
 
@@ -205,9 +220,8 @@ mod tests {
         snapshot_fixtures("fragments/js/*.js", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Format::JavaScript);
-            let resource_info = JsParser::parse(resource, path, &code).expect("Unable to parse");
-            assert_json_snapshot!(resource_info);
+            let parse_info = JsParser::parse(&code, Some(path)).expect("Unable to parse");
+            assert_json_snapshot!(parse_info);
         })
     }
 }

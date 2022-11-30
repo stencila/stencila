@@ -1,13 +1,12 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 481
+assertion_line: 534
 expression: html
 input_file: fixtures/nodes/parameter-number.json
 ---
-<stencila-parameter data-root itemtype="https://schema.stenci.la/Parameter" itemscope>
-  <label data-prop="name" slot="name" for="input-id">pars</label>
-  <meta itemprop="validator" itemtype="https://schema.stenci.la/NumberValidator" itemscope/>
-  <meta itemprop="defaultValue" itemtype="https://schema.org/Integer" itemscope content="42"/>
-  <meta itemprop="value" itemtype="https://schema.org/Integer" itemscope content="50"/>
-  <input id="input-id" slot="value" type="number" min="0.0" max="100.0" placeholder="42" value="50" size="3"/>
+<stencila-parameter data-root name="pars" default="42" value="50">
+  <span slot="errors">
+  </span>
+  <stencila-number-validator minimum="0.0" exclusive-minimum="-1.0" maximum="100.0" exclusive-maximum="101.0" slot="validator">
+  </stencila-number-validator>
 </stencila-parameter>

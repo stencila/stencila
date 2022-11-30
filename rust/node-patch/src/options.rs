@@ -1,19 +1,16 @@
-use common::{serde::de::DeserializeOwned, serde_json};
-use stencila_schema::Null;
+//! Patching for [`Option`] properties of nodes
 
 use super::prelude::*;
 
-/// Implements patching for `Option`
+/// Implements patching for [`Option`]s
 ///
 /// Generates `Add` and `Remove` operations (with no address) given differences in
 /// `Some` and `None` between the two options.
+///
 /// When applying `Add` and `Remove` operations, if there are no address
 /// then apply here, otherwise pass operation through to any value.
-/// All other operations passed through.
-impl<Type: Patchable> Patchable for Option<Type>
-where
-    Type: Clone + DeserializeOwned + Send + 'static,
-{
+/// All other operations are passed through.
+impl<Type: Patchable> Patchable for Option<Type> {
     fn diff(&self, other: &Self, differ: &mut Differ) {
         match (self, other) {
             (None, None) => (),
@@ -23,7 +20,7 @@ where
         }
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: Value) -> Result<()> {
         if address.is_empty() {
             *self = Self::from_value(value)?;
             Ok(())
@@ -36,12 +33,22 @@ where
         }
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
+    fn apply_add_many(&mut self, address: &mut Address, values: Values) -> Result<()> {
+        if let Some(me) = self {
+            me.apply_add_many(address, values)
+        } else {
+            bail!(invalid_address::<Self>(
+                "option is empty but address is not"
+            ))
+        }
+    }
+
+    fn apply_remove(&mut self, address: &mut Address) -> Result<()> {
         if address.is_empty() {
             *self = None;
             Ok(())
         } else if let Some(me) = self {
-            me.apply_remove(address, items)
+            me.apply_remove(address)
         } else {
             bail!(invalid_address::<Self>(
                 "option is empty but address is not"
@@ -49,12 +56,22 @@ where
         }
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+    fn apply_remove_many(&mut self, address: &mut Address, items: usize) -> Result<()> {
+        if let Some(me) = self {
+            me.apply_remove_many(address, items)
+        } else {
+            bail!(invalid_address::<Self>(
+                "option is empty but address is not"
+            ))
+        }
+    }
+
+    fn apply_replace(&mut self, address: &mut Address, value: Value) -> Result<()> {
         if address.is_empty() {
             *self = Self::from_value(value)?;
             Ok(())
         } else if let Some(me) = self {
-            me.apply_replace(address, items, value)
+            me.apply_replace(address, value)
         } else {
             bail!(invalid_address::<Self>(
                 "option is empty but address is not"
@@ -62,9 +79,24 @@ where
         }
     }
 
-    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
+    fn apply_replace_many(
+        &mut self,
+        address: &mut Address,
+        items: usize,
+        values: Values,
+    ) -> Result<()> {
         if let Some(me) = self {
-            me.apply_move(from, items, to)
+            me.apply_replace_many(address, items, values)
+        } else {
+            bail!(invalid_address::<Self>(
+                "option is empty but address is not"
+            ))
+        }
+    }
+
+    fn apply_move(&mut self, from: &mut Address, to: &mut Address) -> Result<()> {
+        if let Some(me) = self {
+            me.apply_move(from, to)
         } else {
             bail!(invalid_patch_operation::<Self>("move"))
         }
@@ -78,19 +110,22 @@ where
         }
     }
 
-    fn from_value(value: &Value) -> Result<Self> {
-        // If value is `Null`, or JSON `null` then set `Option` to `None`
-        Ok(if let Some(..) = value.downcast_ref::<Null>() {
-            None
-        } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-            if matches!(value, serde_json::Value::Null) {
-                None
-            } else {
-                Some(Type::from_json_value(value)?)
-            }
-        } else {
-            Some(Type::from_value(value)?)
-        })
+    fn to_value(&self) -> Value {
+        match self {
+            Some(value) => value.to_value(),
+            None => Value::Null,
+        }
+    }
+
+    fn from_value(value: Value) -> Result<Self> {
+        match &value {
+            Value::Null => Ok(None),
+            Value::Json(json) => match json.is_null() {
+                true => Ok(None),
+                false => Ok(Some(Type::from_value(value)?)),
+            },
+            _ => Ok(Some(Type::from_value(value)?)),
+        }
     }
 }
 
@@ -104,7 +139,6 @@ mod tests {
     #[test]
     fn basic() -> Result<()> {
         // No diff
-
         assert_json_is!(diff::<Option<Integer>>(&None, &None).ops, []);
         assert_json_is!(diff(&Some(1), &Some(1)).ops, []);
 
@@ -112,51 +146,47 @@ mod tests {
         let a = None;
         let b = Some("abc".to_string());
         let patch = diff(&a, &b);
-        assert_json_is!(
-            patch.ops,
-            [{"type": "Add", "address": [], "value": "abc".to_string(), "length": 1}]
-        );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(patch.ops, [
+            {"type": "Add", "address": [], "value": "abc"}
+        ]);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         // Some to Some: Add with a key
         let a = Some("a".to_string());
         let b = Some("abc".to_string());
         let patch = diff(&a, &b);
-        assert_json_is!(
-            patch.ops,
-            [{"type": "Add", "address": [1], "value": "bc".to_string(), "length": 2}]
-        );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(patch.ops, [
+            {"type": "Add", "address": [1], "value": "b"},
+            {"type": "Add", "address": [2], "value": "c"}
+        ]);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         // Some to None: Remove with no key
         let a = Some("abc".to_string());
         let b = None;
         let patch = diff(&a, &b);
-        assert_json_is!(
-            patch.ops,
-            [{"type": "Remove", "address": [], "items": 1}]
-        );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(patch.ops, [
+            {"type": "Remove", "address": []}
+        ]);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         // Some to Some: Remove with key
         let a = Some("abc".to_string());
         let b = Some("ac".to_string());
         let patch = diff(&a, &b);
-        assert_json_is!(
-            patch.ops,
-            [{"type": "Remove", "address": [1], "items": 1}]
-        );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(patch.ops, [
+            {"type": "Remove", "address": [1]}
+        ]);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         // Replace
         let a = Some("abc".to_string());
         let b = Some("a@c".to_string());
         let patch = diff(&a, &b);
-        assert_json_is!(
-            patch.ops,
-            [{"type": "Replace", "address": [1], "items": 1, "value": "@", "length": 1}]
-        );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(patch.ops, [
+            {"type": "Replace", "address": [1], "value": "@"}
+        ]);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         Ok(())
     }

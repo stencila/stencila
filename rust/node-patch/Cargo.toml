@@ -5,10 +5,11 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codecs = { path = "../codecs" }
 codec-html = { path = "../codec-html" }
 codec-txt = { path = "../codec-txt" }
+codecs = { path = "../codecs" }
 common = { path = "../common" }
+flagset = "0.4.3"
 node-address = { path = "../node-address" }
 node-coerce = { path = "../node-coerce" }
 node-dispatch = { path = "../node-dispatch" }
@@ -16,10 +17,25 @@ node-pointer = { path = "../node-pointer" }
 schemars = { version = "0.8.8", features = ["preserve_order", "chrono"] }
 similar = { version = "2.1.0", features = ["unicode"] }
 stencila-schema = { path = "../schema" }
-unicode-segmentation = "1.9.0"
+suids = { path = "../suids" }
 thiserror = "1.0.31"
+unicode-segmentation = "1.9.0"
 
 [dev-dependencies]
+criterion = "0.4.0"
 test-props = { path = "../test-props" }
 test-snaps = { path = "../test-snaps" }
 test-utils = { path = "../test-utils" }
+utils = { path = "../utils" }
+
+[[bench]]
+name = "value"
+harness = false
+
+[[bench]]
+name = "strings"
+harness = false
+
+[[bench]]
+name = "vecs_atomic"
+harness = false

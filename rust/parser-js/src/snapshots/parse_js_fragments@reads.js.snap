@@ -1,179 +1,164 @@
 ---
 source: rust/parser-js/src/lib.rs
-assertion_line: 210
-expression: resource_info
+assertion_line: 224
+expression: parse_info
 input_file: fixtures/fragments/js/reads.js
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/js/reads.js",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "javascript"
-  },
-  "relations": [
-    [
-      {
-        "type": "Imports",
-        "range": [
-          0,
-          15,
-          0,
-          19
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "javascript",
+  "syntaxErrors": false,
+  "semanticDigest": 4755452239169500783,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "fs"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          1,
-          27,
-          1,
-          31
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        0,
+        15,
+        0,
+        19
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "fs"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          3,
-          4,
-          3,
-          8
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/reads.js",
-        "name": "data",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          11,
-          3,
-          13
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/reads.js",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        1,
+        27,
+        1,
+        31
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "fs",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          3,
-          23,
-          3,
-          30
-        ]
+        "namespace": "fragments/js/reads.js"
       },
-      {
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        11,
+        3,
+        13
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
+        "name": "",
         "path": "fragments/js/path1"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          0,
-          4,
-          12
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/reads.js",
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        3,
+        23,
+        3,
+        30
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "readFileSync",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          4,
-          13,
-          4,
-          20
-        ]
+        "namespace": "fragments/js/reads.js"
       },
-      {
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        4,
+        0,
+        4,
+        12
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
+        "name": "",
         "path": "fragments/js/path2"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          6,
-          9,
-          6,
-          17
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/reads.js",
-        "name": "readData",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          7,
-          14,
-          7,
-          21
-        ]
-      },
-      {
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        4,
+        13,
+        4,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
+        "name": "",
         "path": "fragments/js/path3"
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          8,
-          17,
-          8,
-          24
-        ]
       },
-      {
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        7,
+        14,
+        7,
+        21
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
+        "name": "",
         "path": "fragments/js/path4"
-      }
-    ]
+      },
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        8,
+        17,
+        8,
+        24
+      ]
+    }
   ],
-  "compile_digest": "3120325187992956838.10127613829709636730.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "data",
+        "namespace": "fragments/js/reads.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        3,
+        4,
+        3,
+        8
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "readData",
+        "kind": "Function",
+        "namespace": "fragments/js/reads.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        6,
+        9,
+        6,
+        17
+      ]
+    }
+  ],
+  "executionTags": []
 }

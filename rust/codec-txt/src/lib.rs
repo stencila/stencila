@@ -1,5 +1,5 @@
 use codec::{
-    common::eyre::Result,
+    common::{eyre::Result, json5},
     stencila_schema::{Node, Null},
     utils::vec_string,
     Codec, CodecTrait, DecodeOptions, EncodeOptions,

@@ -4,15 +4,15 @@ extends: Entity
 role: base
 status: stable
 category: code
-description: Base type for non-executable code nodes(e.g. `CodeBlock`).
+description: Base type for non-executable code nodes (e.g. `CodeBlock`).
 $comment: |
-  The most important, and only required, property of a `Code` node is `text`, a `string` of the source code.
-  There are no restrictions on the length or content of `text` and it is possible for it to be syntactically
+  The most important, and only required, property of a `CodeStatic` node is `code`, a `string` of the source code.
+  There are no restrictions on the length or content of `code` and it is possible for it to be syntactically
   invalid for the specified `programmingLanguage`.
 properties:
-  text:
-    '@id': schema:text
-    description: The text of the code.
+  code:
+    '@id': stencila:code
+    description: The code.
     type: string
   programmingLanguage:
     '@id': schema:programmingLanguage
@@ -29,4 +29,4 @@ properties:
       `encodingFormat` "application/ld+json" for JSON-LD code examples.
     type: string
 required:
-  - text
+  - code

@@ -10,10 +10,10 @@ use codec::{
         serde_json, tracing,
     },
     stencila_schema::{
-        Article, BlockContent, CodeFragment, CreativeWorkTitle, Emphasis, Heading, ImageObject,
-        InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node, Note, NoteNoteType,
-        Paragraph, Strikeout, Strong, Subscript, Superscript, TableCell, TableCellContent,
-        TableRow, TableSimple, ThematicBreak, Underline,
+        Article, BlockContent, CodeFragment, Emphasis, Heading, ImageObject, InlineContent, Link,
+        List, ListItem, ListItemContent, ListOrder, Node, Note, NoteNoteType, Paragraph, Strikeout,
+        Strong, Subscript, Superscript, TableCell, TableCellContent, TableRow, TableSimple,
+        ThematicBreak, Underline,
     },
 };
 use http_utils::CLIENT;
@@ -89,9 +89,7 @@ impl Context {
 
 /// Transform a Google Doc `Document` to a vector of Stencila `Article`
 pub(crate) async fn document_to_article(doc: gdoc::Document) -> (Article, NodeRanges) {
-    let title = doc
-        .title
-        .map(|string| Box::new(CreativeWorkTitle::String(string)));
+    let title = doc.title.map(|string| vec![InlineContent::String(string)]);
 
     let mut context = Context {
         inline_objects: doc.inline_objects.unwrap_or_default(),
@@ -543,7 +541,7 @@ fn text_run_to_inline(
                     || font == "Consolas"
                 {
                     inline = InlineContent::CodeFragment(CodeFragment {
-                        text: string,
+                        code: string,
                         ..Default::default()
                     })
                 }
@@ -586,9 +584,8 @@ async fn inline_object_element_to_node(
         embedded_object
             .description
             .and_then(|desc| match node_type.trim() {
-                "CodeChunk" | "CodeExpression" | "MathFragment" | "MathBlock" | "Parameter" => {
-                    Some(desc)
-                }
+                "CodeChunk" | "CodeExpression" | "MathFragment" | "MathBlock" | "Parameter"
+                | "Button" => Some(desc),
                 _ => None,
             })
     }) {
@@ -601,7 +598,7 @@ async fn inline_object_element_to_node(
         Node::ImageObject(ImageObject {
             title: embedded_object
                 .title
-                .map(|title| Box::new(CreativeWorkTitle::String(title))),
+                .map(|title| vec![InlineContent::String(title)]),
             content_url: image_properties.content_uri.unwrap_or_default(),
             ..Default::default()
         })

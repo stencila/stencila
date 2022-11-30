@@ -3,17 +3,20 @@ use std::{collections::HashMap, path::Path, sync::Arc};
 use common::{
     eyre::{bail, Result},
     once_cell::sync::Lazy,
-    tokio::sync::Mutex,
+    tokio::sync::RwLock,
 };
 use path_utils::pathdiff;
 
-use crate::document::{Document, DocumentHandler};
+use crate::document::Document;
+
+/// The global documents store
+pub static DOCUMENTS: Lazy<Documents> = Lazy::new(Documents::new);
 
 /// An in-memory store of documents
 #[derive(Debug, Default)]
 pub struct Documents {
     /// A mapping of file paths to open documents
-    registry: Mutex<HashMap<String, DocumentHandler>>,
+    registry: RwLock<HashMap<String, Arc<Document>>>,
 }
 
 impl Documents {
@@ -28,8 +31,8 @@ impl Documents {
     pub async fn list(&self) -> Result<Vec<String>> {
         let cwd = std::env::current_dir()?;
         let mut paths = Vec::new();
-        for document in self.registry.lock().await.values() {
-            let path = &document.document.lock().await.path;
+        for doc in self.registry.read().await.values() {
+            let path = &doc.path;
             let path = match pathdiff::diff_paths(path, &cwd) {
                 Some(path) => path,
                 None => path.clone(),
@@ -41,21 +44,28 @@ impl Documents {
     }
 
     /// Create a new document
+    ///
+    /// # Arguments
+    ///
+    /// - `path`: The path of the new document
+    /// - `content`: Content for the new document
+    /// - `format`: The format of the content
     pub async fn create<P: AsRef<Path>>(
         &self,
         path: Option<P>,
         content: Option<String>,
         format: Option<String>,
-    ) -> Result<String> {
-        let document = Document::create(path, content, format).await?;
-        let document_id = document.id.clone();
-        let handler = DocumentHandler::new(document, false);
-        self.registry
-            .lock()
-            .await
-            .insert(document_id.clone(), handler);
+    ) -> Result<Arc<Document>> {
+        let doc = Document::create(path, content, format).await?;
+        let doc_id = doc.id.clone();
+        let doc = Arc::new(doc);
 
-        Ok(document_id)
+        self.registry
+            .write()
+            .await
+            .insert(doc_id.clone(), doc.clone());
+
+        Ok(doc)
     }
 
     /// Open a document
@@ -67,25 +77,29 @@ impl Documents {
     ///
     /// If the document has already been opened, it will not be re-opened, but rather the existing
     /// in-memory instance will be returned.
-    pub async fn open<P: AsRef<Path>>(&self, path: P, format: Option<String>) -> Result<String> {
+    pub async fn open<P: AsRef<Path>>(
+        &self,
+        path: P,
+        format: Option<String>,
+    ) -> Result<Arc<Document>> {
         let path = Path::new(path.as_ref()).canonicalize()?;
 
-        for handler in self.registry.lock().await.values() {
-            let document = handler.document.lock().await;
-            if document.path == path {
-                return Ok(document.id.clone());
+        for doc in self.registry.read().await.values() {
+            if doc.path == path {
+                return Ok(doc.clone());
             }
         }
 
-        let document = Document::open(path, format).await?;
-        let document_id = document.id.clone();
-        let handler = DocumentHandler::new(document, true);
-        self.registry
-            .lock()
-            .await
-            .insert(document_id.clone(), handler);
+        let doc = Document::open(path, format).await?;
+        let doc_id = doc.id.clone();
+        let doc = Arc::new(doc);
 
-        Ok(document_id)
+        self.registry
+            .write()
+            .await
+            .insert(doc_id.clone(), doc.clone());
+
+        Ok(doc)
     }
 
     /// Close a document
@@ -102,48 +116,29 @@ impl Documents {
         let id_or_path_string = id_or_path_path.to_string_lossy().to_string();
         let mut id_to_remove = String::new();
 
-        if self.registry.lock().await.contains_key(&id_or_path_string) {
+        let mut registry = self.registry.write().await;
+        if registry.contains_key(&id_or_path_string) {
             id_to_remove = id_or_path_string
         } else {
             let path = id_or_path_path.canonicalize()?;
-            for handler in self.registry.lock().await.values() {
-                let document = handler.document.lock().await;
-                if document.path == path {
-                    id_to_remove = document.id.clone();
+            for doc in registry.values() {
+                if doc.path == path {
+                    id_to_remove = doc.id.clone();
                     break;
                 }
             }
         };
-        self.registry.lock().await.remove(&id_to_remove);
+        registry.remove(&id_to_remove);
 
         Ok(id_to_remove)
     }
 
-    /// Subscribe a client to a topic for a document
-    pub async fn subscribe(&self, id: &str, topic: &str, client: &str) -> Result<String> {
-        let document_lock = self.get(id).await?;
-        let mut document_guard = document_lock.lock().await;
-        let topic = document_guard.subscribe(topic, client);
-        Ok(topic)
-    }
-
-    /// Unsubscribe a client from a topic for a document
-    pub async fn unsubscribe(&self, id: &str, topic: &str, client: &str) -> Result<String> {
-        let document_lock = self.get(id).await?;
-        let mut document_guard = document_lock.lock().await;
-        let topic = document_guard.unsubscribe(topic, client);
-        Ok(topic)
-    }
-
-    /// Get a document that has previously been opened
-    pub async fn get(&self, id: &str) -> Result<Arc<Mutex<Document>>> {
-        if let Some(handler) = self.registry.lock().await.get(id) {
-            Ok(handler.document.clone())
+    /// Get a document that has previously been opened by its id
+    pub async fn get(&self, id: &str) -> Result<Arc<Document>> {
+        if let Some(doc) = self.registry.read().await.get(id) {
+            Ok(doc.clone())
         } else {
             bail!("No document with id {}", id)
         }
     }
 }
-
-/// The global documents store
-pub static DOCUMENTS: Lazy<Documents> = Lazy::new(Documents::new);

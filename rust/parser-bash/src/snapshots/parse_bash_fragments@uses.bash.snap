@@ -1,104 +1,91 @@
 ---
 source: rust/parser-bash/src/lib.rs
-assertion_line: 95
-expression: resource_info
+assertion_line: 97
+expression: parse_info
 input_file: fixtures/fragments/bash/uses.bash
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/bash/uses.bash",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "bash"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          1,
-          0,
-          5
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/bash/uses.bash",
+  "syntaxErrors": false,
+  "semanticDigest": 5327472375164753257,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          6,
-          1,
-          10
-        ]
+        "namespace": "fragments/bash/uses.bash"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/bash/uses.bash",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        1,
+        0,
+        5
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          2,
-          0,
-          2,
-          4
-        ]
+        "namespace": "fragments/bash/uses.bash"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/bash/uses.bash",
-        "name": "var4",
-        "kind": "String"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          6,
-          2,
-          10
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/bash/uses.bash",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        1,
+        6,
+        1,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var3",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          7,
-          3,
-          11
-        ]
+        "namespace": "fragments/bash/uses.bash"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/bash/uses.bash",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        6,
+        2,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var5",
-        "kind": ""
-      }
-    ]
+        "namespace": "fragments/bash/uses.bash"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        7,
+        3,
+        11
+      ]
+    }
   ],
-  "compile_digest": "13708025511074419382.2957275543647306678.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "var4",
+        "kind": "String",
+        "namespace": "fragments/bash/uses.bash"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        2,
+        0,
+        2,
+        4
+      ]
+    }
+  ],
+  "executionTags": []
 }

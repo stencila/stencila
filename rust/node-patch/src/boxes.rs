@@ -1,51 +1,60 @@
-use std::ops::{Deref, DerefMut};
+//! Patching for [`Box`] properties of nodes
 
-use common::serde::de::DeserializeOwned;
+use std::ops::{Deref, DerefMut};
 
 use super::prelude::*;
 
 /// Implements patching for `Box`
 ///
-/// All methods simply pass throught to the boxed value.
-impl<Type: Patchable> Patchable for Box<Type>
-where
-    Type: Clone + DeserializeOwned + Send + 'static,
-{
+/// All methods simply pass through to the boxed value.
+impl<Type: Patchable> Patchable for Box<Type> {
     fn diff(&self, other: &Self, differ: &mut Differ) {
         self.deref().diff(other, differ)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: Value) -> Result<()> {
         self.deref_mut().apply_add(address, value)
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
-        self.deref_mut().apply_remove(address, items)
+    fn apply_add_many(&mut self, address: &mut Address, values: Values) -> Result<()> {
+        self.deref_mut().apply_add_many(address, values)
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
-        self.deref_mut().apply_replace(address, items, value)
+    fn apply_remove(&mut self, address: &mut Address) -> Result<()> {
+        self.deref_mut().apply_remove(address)
     }
 
-    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
-        self.deref_mut().apply_move(from, items, to)
+    fn apply_remove_many(&mut self, address: &mut Address, items: usize) -> Result<()> {
+        self.deref_mut().apply_remove_many(address, items)
+    }
+
+    fn apply_replace(&mut self, address: &mut Address, value: Value) -> Result<()> {
+        self.deref_mut().apply_replace(address, value)
+    }
+
+    fn apply_replace_many(
+        &mut self,
+        address: &mut Address,
+        items: usize,
+        values: Values,
+    ) -> Result<()> {
+        self.deref_mut().apply_replace_many(address, items, values)
+    }
+
+    fn apply_move(&mut self, from: &mut Address, to: &mut Address) -> Result<()> {
+        self.deref_mut().apply_move(from, to)
     }
 
     fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
         self.deref_mut().apply_transform(address, from, to)
     }
 
-    /// Cast a [`Value`] to a `Box<Type>` instance
-    ///
-    /// If the value is a `Box<Type>`: then just use it. Otherwise, attempt to convert
-    /// to and instance of `Type` and then box it.
-    fn from_value(value: &Value) -> Result<Self> {
-        let instance = if let Some(value) = value.downcast_ref::<Self>() {
-            value.clone()
-        } else {
-            Box::new(Type::from_value(value)?)
-        };
-        Ok(instance)
+    fn to_value(&self) -> Value {
+        self.deref().to_value()
+    }
+
+    fn from_value(value: Value) -> Result<Self> {
+        Ok(Box::new(Type::from_value(value)?))
     }
 }
 
@@ -65,12 +74,12 @@ mod tests {
         assert_json_is!(
             patch.ops,
             [
-                {"type": "Add", "address": [0], "value": "e", "length": 1},
-                {"type": "Remove", "address": [2], "items": 1},
-                {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
+                {"type": "Add", "address": [0], "value": "e"},
+                {"type": "Remove", "address": [2]},
+                {"type": "Replace", "address": [3], "value": "p"}
             ]
         );
-        assert_json_is!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, patch)?, b);
 
         Ok(())
     }
@@ -85,9 +94,9 @@ mod tests {
         };
         let patch = diff(&a, &b);
         assert_json_is!(patch.ops, [
-            { "type": "Add", "address": ["programmingLanguage"], "value": "a", "length": 1 },
+            {"type": "Add", "address": ["programmingLanguage"], "value": "a"},
         ]);
-        assert_json_eq!(apply_new(&a, &patch)?, b);
+        assert_json_eq!(apply_new(&a, patch)?, b);
 
         Ok(())
     }

@@ -1,25 +1,118 @@
-import { FileFormatUtils } from '@stencila/components'
-import { Client } from './client'
-import { DocumentId } from './documents'
-import { main } from './index'
-
-export type ElementId = string
+import { ViewUpdate } from '@codemirror/view'
+import { ValidatorTypes } from '@stencila/schema'
+import { DocumentClient } from './clients/document-client'
 
 declare global {
   interface Window {
-    stencilaWebClient: {
-      main: typeof main
-      websocketClient: Client
-      documentId: DocumentId
-      executableLanguages: FileFormatUtils.FileFormatMap
-      patchSequence?: number
-      resettingRoot?: boolean
-    }
-    stencilaWebTerminal: {
-      main: (elemId: string) => void
-    }
+    stencilaConfig: DocumentConfig
+    stencilaClient: DocumentClient
+    stencilaShellTerminal: (elementId: string, dir: string) => void
   }
 }
+
+export interface DocumentConfig {
+  origin?: string
+  path?: string
+  token?: string
+  documentId?: string
+  mode?: string
+  executableLanguages?: string[]
+}
+
+export type ElementId = string
+
+/**
+ * The id of a node within a document
+ */
+export type NodeId = string
+
+/**
+ * The browser event emitted when a document is patched (e.g. by the
+ * WYSIWYG article editor)
+ */
+export interface DocumentPatchEvent extends CustomEvent {
+  detail: {
+    patch: Patch
+  }
+}
+
+/**
+ * The browser event emitted when the language of a text editor
+ * is changed
+ */
+export interface LanguageChangeEvent extends CustomEvent {
+  detail: {
+    ext: string
+    name: string
+  }
+}
+
+/**
+ * The browser event emitted when the content of a text editor
+ * is changed
+ */
+export interface ContentChangeEvent extends CustomEvent {
+  detail: ViewUpdate | string
+}
+
+/**
+ * The browser event emitted when a property of a `CallArgument` changes.
+ */
+export interface CallArgumentChangeEvent extends CustomEvent {
+  detail: {
+    index: number
+    property: 'symbol' | 'value'
+    value: string
+  }
+}
+
+/**
+ * The browser event emitted when a property of a `Call` changes.
+ */
+export interface CallChangeEvent extends CustomEvent {
+  detail: {
+    property: 'source' | 'select'
+    value: string
+  }
+}
+
+/**
+ * The browser event emitted when either the type or property of a parameter validator changes.
+ */
+export interface ValidatorChangeEvent extends CustomEvent {
+  detail:
+    | {
+        type: 'property'
+        name: string
+        value: string
+      }
+    | {
+        type: 'validator'
+        value: Exclude<ValidatorTypes['type'], 'Validator'>
+      }
+}
+
+/**
+ * The browser event emitted when either the name of value of the parameter changes.
+ */
+export interface ParameterChangeEvent extends CustomEvent {
+  detail: {
+    property: 'name' | 'value'
+    value: string
+  }
+}
+
+export type Then = {
+  compile?: When
+  execute?: When
+  write?: When
+}
+
+/**
+ * When compile, execute and write operations should
+ * be done after a patch
+ */
+export type When = 'Now' | 'Later' | 'Never'
 
 // The following type definitions were generated from Rust types (via the `schemars` crate)
 // This needs updating but was moved here from the `../../node` module to avoid a dependency
@@ -267,7 +360,7 @@ export interface Patch {
    */
   actor?: string
   address?: Slot[]
-  sequence?: number
+  version?: number
 }
 /**
  * Add a value
@@ -884,188 +977,6 @@ export type PluginInstallation =
   | 'python'
   | 'r'
   | 'link'
-
-export interface Config {
-  /**
-   * Configuration settings for project defaults
-   */
-  projects?: {
-    /**
-     * Patterns used to infer the main file of projects
-     *
-     * For projects that do not specify a main file, each file is tested against these case insensitive patterns in order. The first file (alphabetically) that matches is the project's main file.
-     */
-    mainPatterns?: string[]
-    /**
-     * Default project theme
-     *
-     * Will be applied to all projects that do not specify a theme
-     */
-    theme?: string
-    /**
-     * Default glob patterns for paths to be excluded from file watching
-     *
-     * Used for projects that do not specify their own watch exclude patterns. As a performance optimization, paths that match these patterns are excluded from file watching updates. The default list includes common directories that often have many files that are often updated.
-     */
-    watchExcludePatterns?: string[]
-  }
-  /**
-   * Configuration settings for logging
-   */
-  logging?: {
-    /**
-     * Configuration settings for log entries printed to stderr when using the CLI
-     */
-    stderr?: {
-      /**
-       * The maximum log level to emit
-       */
-      level?: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'never'
-      /**
-       * The format for the logs entries
-       */
-      format?: 'simple' | 'detail' | 'json'
-    }
-    /**
-     * Configuration settings for log entries shown to the user in the desktop
-     */
-    desktop?: {
-      /**
-       * The maximum log level to emit
-       */
-      level?: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'never'
-    }
-    /**
-     * Configuration settings for logs entries written to file
-     */
-    file?: {
-      /**
-       * The path of the log file
-       */
-      path?: string
-      /**
-       * The maximum log level to emit
-       */
-      level?: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'never'
-    }
-  }
-  /**
-   * Configuration settings for telemetry
-   */
-  telemetry?: {
-    /**
-     * Telemetry settings for Stencila CLI
-     */
-    cli?: {
-      /**
-       * Whether to send error reports. Default is false.
-       */
-      error_reports?: boolean
-    }
-    /**
-     * Telemetry settings for Stencila Desktop
-     */
-    desktop?: {
-      /**
-       * Whether to send error reports. Default is false.
-       */
-      error_reports?: boolean
-    }
-  }
-  /**
-   * Configuration settings for running as a server
-   */
-  serve?: {
-    /**
-     * The URL to serve on (defaults to `ws://127.0.0.1:9000`)
-     */
-    url?: string
-    /**
-     * Secret key to use for signing and verifying JSON Web Tokens
-     */
-    key?: string
-    /**
-     * Do not require a JSON Web Token to access the server
-     */
-    insecure?: boolean
-  }
-  /**
-   * Configuration settings for plugin installation and management
-   */
-  plugins?: {
-    /**
-     * The order of preference of plugin installation method.
-     */
-    installations?: PluginInstallation[]
-    /**
-     * The local plugin aliases that extends and/or override those in the global aliases at <https://github.com/stencila/stencila/blob/master/plugins.json>
-     */
-    aliases?: {
-      [k: string]: string
-    }
-  }
-  /**
-   * Configuration settings for installation and management of third party binaries
-   */
-  binaries?: {
-    /**
-     * Whether binaries should be automatically installed when they are required
-     */
-    auto?: boolean
-  }
-  /**
-   * Configuration settings for document editors.
-   */
-  editors?: {
-    /**
-     * Default format for new documents
-     */
-    defaultFormat?: string
-    /**
-     * Show line numbers
-     */
-    lineNumbers?: boolean
-    /**
-     * Enable wrapping of lines
-     */
-    lineWrapping?: boolean
-  }
-  /**
-   * Configuration settings used when upgrading the application (and optionally plugins) automatically, in the background. These settings are NOT used as defaults when using the CLI `upgrade` command directly.
-   */
-  upgrade?: {
-    /**
-     * Plugins should also be upgraded to latest version
-     */
-    plugins?: boolean
-    /**
-     * Prompt to confirm an upgrade
-     */
-    confirm?: boolean
-    /**
-     * Show information on the upgrade process
-     */
-    verbose?: boolean
-    /**
-     * The interval between automatic upgrade checks (defaults to "1 day"). Only used when for configuration. Set to "off" for no automatic checks.
-     */
-    auto?: string
-  }
-}
-
-/**
- * An event associated with changes to the configuration
- */
-export interface ConfigEvent {
-  /**
-   * The type of event
-   */
-  type: 'set' | 'reset'
-  /**
-   * The configuration at the time of the event
-   */
-  config: Config
-}
 
 /**
  * An enumeration of custom errors returned by this library

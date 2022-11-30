@@ -1,49 +1,284 @@
 use std::{
     collections::{BTreeMap, BTreeSet, HashMap},
+    path::Path,
     sync::Arc,
+    time::Duration,
 };
 
 use common::{
     eyre::{bail, Report, Result},
     futures::stream::{FuturesUnordered, StreamExt},
+    itertools::Itertools,
     tokio::{
         self,
-        sync::{
-            mpsc::{Receiver, UnboundedSender},
-            oneshot, RwLock,
-        },
+        sync::{oneshot, RwLock},
     },
     tracing,
 };
-use graph::{Plan, PlanScope};
-use graph_triples::{Resource, TagMap};
+use formats::Format;
+use graph::{Graph, Plan, PlanOptions, PlanOrdering, PlanScope};
+use graph_triples::{resources, Resource, TagMap};
 use kernels::KernelSpace;
-use node_address::{Address, AddressMap};
 use node_patch::{diff, mutate, Patch};
-use stencila_schema::{CodeChunk, CodeExpression, ExecuteStatus, Node};
+use stencila_schema::{CodeChunk, CodeExpression, Division, ExecutionStatus, Node, Span};
 
 use crate::{
-    document::CallDocuments,
+    document::{
+        Document, DocumentCancelRequestReceiver, DocumentExecuteRequestReceiver,
+        DocumentPatchRequestSender, DocumentResponseSender, DocumentRoot,
+        DocumentWriteRequestSender,
+    },
     executable::Executable,
-    messages::{CancelRequest, PatchRequest, When},
-    utils::{resource_to_node, send_patch, send_patches},
+    messages::{
+        await_response, forward_write_requests, send_patch, send_patches, send_responses,
+        CancelRequest, ExecuteRequest, RequestId, Then, When,
+    },
+    send_request,
+    utils::resource_to_node,
 };
 
+impl Document {
+    /// Execute the document
+    ///
+    /// This method is the same as `execute_request` but will wait for the execution to finish
+    /// before returning. This is useful in some circumstances, such as ensuring the document
+    /// is executed before saving it to file.
+    #[tracing::instrument(skip(self))]
+    pub async fn execute(
+        &mut self,
+        then: Option<Then>,
+        start: Option<String>,
+        ordering: Option<PlanOrdering>,
+        max_concurrency: Option<usize>,
+    ) -> Result<()> {
+        let request_id = self
+            .execute_request(then, start, ordering, max_concurrency)
+            .await?;
+        await_response(
+            &mut self.response_receiver,
+            &self.id,
+            "execute",
+            request_id,
+            60,
+        )
+        .await
+    }
+
+    /// Request that the document be executed
+    #[tracing::instrument(skip(self))]
+    pub async fn execute_request(
+        &self,
+        then: Option<Then>,
+        start: Option<String>,
+        ordering: Option<PlanOrdering>,
+        max_concurrency: Option<usize>,
+    ) -> Result<RequestId> {
+        let then = then.unwrap_or_else(|| Then::write(When::Later));
+        let request = ExecuteRequest::now(then, start, ordering, max_concurrency);
+        send_request!(self.execute_request_sender, &self.id, "execute", request)
+    }
+
+    /// A background task to execute the root node of the document on request
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: The id of the document
+    ///
+    /// - `path`: The path of the document to be compiled
+    ///
+    /// - `project`: The project of the document to be compiled
+    ///
+    /// - `root`: The root [`Node`] to apply the compilation patch to
+    ///
+    /// - `tags`: The document's global [`TagMap`] for passing tags on to executed nodes
+    ///
+    /// - `graph`:  The [`Graph`] to be updated
+    ///
+    /// - `kernel_space`:  The [`KernelSpace`] to use for execution
+    ///
+    /// - `patch_sender`: A [`PatchRequest`] channel sender to send patches describing the changes to
+    ///                   executed nodes
+    ///
+    /// - `write_sender`: The channel to send any [`WriteRequest`]s on
+    ///
+    /// - `cancel_receiver`: The channel to receive [`CancelRequest`]s on
+    ///
+    /// - `request_receiver`: The channel to receive [`ExecuteRequest`]s on
+    ///
+    /// - `response_sender`: The channel to send a [`Response`] on when each request if fulfilled
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) async fn execute_task(
+        id: &str,
+        path: &Path,
+        project: &Path,
+        root: &DocumentRoot,
+        tags: &Arc<RwLock<TagMap>>,
+        graph: &Arc<RwLock<Graph>>,
+        kernel_space: &Arc<RwLock<KernelSpace>>,
+        patch_sender: &DocumentPatchRequestSender,
+        write_sender: &DocumentWriteRequestSender,
+        cancel_receiver: &mut DocumentCancelRequestReceiver,
+        request_receiver: &mut DocumentExecuteRequestReceiver,
+        response_sender: &DocumentResponseSender,
+    ) {
+        let duration = Duration::from_millis(Document::EXECUTE_DEBOUNCE_MILLIS);
+        let mut request_ids = Vec::new();
+        let mut start = None;
+        let mut ordering = PlanOptions::default_ordering();
+        let mut max_concurrency = PlanOptions::default_max_concurrency();
+        let mut then = Then::nothing();
+        loop {
+            match tokio::time::timeout(duration, request_receiver.recv()).await {
+                // Request received: record and continue to wait for timeout unless `now` is true
+                Ok(Some(mut request)) => {
+                    if !matches!(request.when, When::Never) {
+                        request_ids.append(&mut request.ids);
+
+                        // In the following, we allow more 'conservative' execution options to
+                        // override the default or those in previous requests.
+
+                        // Precedence for executing whole document, rather than starting at a node
+                        // If there is only one request then use its start, otherwise execute the whole document.
+                        if request_ids.len() == 1 {
+                            start = request.start;
+                        } else {
+                            start = None;
+                        }
+
+                        // Precedence for appearance, over topological, over single ordering
+                        if let Some(request_ordering) = request.ordering {
+                            use PlanOrdering::*;
+                            match (ordering, request_ordering) {
+                                (Single, Topological | Appearance) | (Topological, Appearance) => {
+                                    ordering = request_ordering;
+                                }
+                                _ => {}
+                            }
+                        }
+
+                        // Precedence for lowest concurrency
+                        if let Some(request_concurrency) = request.max_concurrency {
+                            if request_concurrency < max_concurrency {
+                                max_concurrency = request_concurrency;
+                            }
+                        }
+
+                        then.no_later_than(request.then);
+
+                        if !matches!(request.when, When::Now) {
+                            continue;
+                        }
+                    }
+                }
+                // Sender dropped: end of task
+                Ok(None) => break,
+                // Timeout so do the following with the last unhandled request, if any
+                Err(..) => {}
+            };
+
+            if request_ids.is_empty() {
+                continue;
+            }
+
+            tracing::trace!(
+                "Executing document `{}` for requests `{}`",
+                &id,
+                request_ids.iter().join(",")
+            );
+
+            // Generate the execution plan
+            let start = start
+                .clone()
+                .map(|node_id| resources::code(path, &node_id, "", Format::Unknown));
+            let tags_guard = tags.read().await;
+            let plan = match graph
+                .read()
+                .await
+                .plan(
+                    start,
+                    None,
+                    Some(&*tags_guard),
+                    Some(PlanOptions {
+                        ordering,
+                        max_concurrency,
+                    }),
+                )
+                .await
+            {
+                Ok(plan) => plan,
+                Err(error) => {
+                    tracing::error!("While generating execution plan: {}", error);
+                    continue;
+                }
+            };
+            drop(tags_guard);
+
+            // Execute the plan on the root node
+            if let Err(error) = execute(
+                &plan,
+                root,
+                tags,
+                kernel_space,
+                patch_sender,
+                cancel_receiver,
+            )
+            .await
+            {
+                tracing::error!("While execution plan: {}", error);
+            }
+
+            // Forward requests or respond
+            if !matches!(then.write, When::Never) {
+                forward_write_requests(write_sender, request_ids, then.write).await
+            } else {
+                send_responses(response_sender, request_ids)
+            }
+
+            request_ids = Vec::new();
+            then = Then::nothing();
+        }
+    }
+
+    /// Cancel the execution of the document
+    ///
+    /// # Arguments
+    ///
+    /// - `start`: The node whose execution should be cancelled.
+    ///
+    /// - `scope`: The scope of the cancellation (the `Single` node identified
+    ///            by `start` or `All` nodes in the current plan).
+    #[tracing::instrument(skip(self))]
+    pub async fn cancel(
+        &self,
+        start: Option<String>,
+        scope: Option<PlanScope>,
+    ) -> Result<RequestId> {
+        tracing::debug!("Cancelling execution of document `{}`", self.id);
+
+        let request_id = RequestId::new();
+        let request = CancelRequest::forward(vec![request_id.clone()], start, scope);
+        self.cancel_request_sender
+            .send(request)
+            .await
+            .or_else(|_| {
+                bail!(
+                    "When sending cancel request for document `{}`: the receiver has dropped",
+                    self.id
+                )
+            })?;
+
+        Ok(request_id)
+    }
+}
+
 /// Execute a [`Plan`] on a [`Node`]
-///
-/// Uses a `RwLock` for `root` and `address_map` so that read locks can be held for as short as
-/// time as possible (i.e. not while waiting for execution of tasks, which is what would
-/// happen if held by the caller).
 ///
 /// # Arguments
 ///
 /// - `plan`: The plan to be executed
 ///
 /// - `root`: The root node to execute the plan on (takes a read lock)
-///
-/// - `address_map`: The [`AddressMap`] for the `root` node (used to locate code nodes
-///                  included in the plan within the `root` node; takes a read lock)
-///
+
 /// - `tag_map`: The document's [`TagMap`] of global tags
 ///
 /// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
@@ -56,13 +291,11 @@ use crate::{
 #[allow(clippy::too_many_arguments)]
 pub async fn execute(
     plan: &Plan,
-    root: &Arc<RwLock<Node>>,
-    address_map: &Arc<RwLock<AddressMap>>,
+    root: &DocumentRoot,
     tag_map: &Arc<RwLock<TagMap>>,
     kernel_space: &Arc<RwLock<KernelSpace>>,
-    call_docs: &Arc<RwLock<CallDocuments>>,
-    patch_request_sender: &UnboundedSender<PatchRequest>,
-    cancel_request_receiver: &mut Receiver<CancelRequest>,
+    patch_request_sender: &DocumentPatchRequestSender,
+    cancel_request_receiver: &mut DocumentCancelRequestReceiver,
 ) -> Result<()> {
     // Drain the cancellation channel in case there are any requests inadvertantly
     // sent by a client for a previous execute request.
@@ -70,7 +303,6 @@ pub async fn execute(
 
     // Obtain locks
     let root_guard = root.read().await;
-    let address_map_guard = address_map.read().await;
 
     // Get a snapshot of all nodes involved in the plan at the start
     let mut node_infos: BTreeMap<Resource, NodeInfo> = plan
@@ -79,7 +311,6 @@ pub async fn execute(
         .enumerate()
         .flat_map(|(stage_index, stage)| {
             let root_guard = &root_guard;
-            let address_map_guard = &address_map_guard;
             stage
                 .tasks
                 .iter()
@@ -87,11 +318,10 @@ pub async fn execute(
                 .filter_map(move |(.., task)| {
                     let resource_info = task.resource_info.clone();
                     let resource = &resource_info.resource;
-                    match resource_to_node(resource, root_guard, address_map_guard) {
-                        Ok((node, node_id, node_address)) => Some((
-                            resource.clone(),
-                            NodeInfo::new(stage_index, node_id, node_address, node),
-                        )),
+                    match resource_to_node(resource, root_guard) {
+                        Ok((node, node_id)) => {
+                            Some((resource.clone(), NodeInfo::new(stage_index, node_id, node)))
+                        }
                         Err(error) => {
                             tracing::warn!("While executing plan: {}", error);
                             None
@@ -103,9 +333,8 @@ pub async fn execute(
 
     // Release locks
     drop(root_guard);
-    drop(address_map_guard);
 
-    // Set the `execute_status` of all nodes in stages other than the first
+    // Set the `execution_status` of all nodes in stages other than the first
     // to `Scheduled` or `ScheduledPreviouslyFailed` and send the resulting patch.
     // Do not do this for first stage as an optimization to avoid unnecessary patches
     // (they will go directly to `Running` or `RunningPreviouslyFailed`)
@@ -115,14 +344,15 @@ pub async fn execute(
             .values_mut()
             .filter_map(|node_info| {
                 if node_info.stage_index != 0 {
-                    Some(node_info.set_execute_status_scheduled())
+                    Some(node_info.set_execution_status_scheduled())
                 } else {
                     None
                 }
             })
             .collect(),
-        When::Soon,
-    );
+        Then::compile(When::Later),
+    )
+    .await;
 
     // For each stage in plan...
     let stage_count = plan.stages.len();
@@ -144,11 +374,11 @@ pub async fn execute(
                     stage_index + 1,
                     stage_count,
                     node_info.node_id,
-                    node_info.get_execute_status()
+                    node_info.get_execution_status()
                 );
                 matches!(
-                    node_info.get_execute_status(),
-                    None | Some(ExecuteStatus::Failed) | Some(ExecuteStatus::Cancelled)
+                    node_info.get_execution_status(),
+                    None | Some(ExecutionStatus::Failed) | Some(ExecutionStatus::Cancelled)
                 )
             });
         if dependencies_failed {
@@ -176,7 +406,8 @@ pub async fn execute(
                 &mut cancellers,
                 &mut cancelled,
                 patch_request_sender,
-            );
+            )
+            .await;
             if cancel_all {
                 break;
             }
@@ -202,32 +433,31 @@ pub async fn execute(
 
             // Has the task been cancelled?
             if cancelled.contains(&node_id) {
-                tracing::trace!(
+                tracing::debug!(
                     "Execution of node `{}` was cancelled before it was started",
                     node_id
                 );
-                // Send a patch to revert `execute_status` to previous status
+                // Send a patch to revert `execution_status` to previous status
                 // (the `Cancelled` state is reserved for nodes that have started and are cancelled)
-                patches.push(node_info.reset_execute_status());
+                patches.push(node_info.reset_execution_status());
                 continue;
             }
 
-            // Set the `execute_status` of the node to `Running` or `RunningPreviouslyFailed`
+            // Set the `execution_status` of the node to `Running` or `RunningPreviouslyFailed`
             // and send the resulting patch
-            patches.push(node_info.set_execute_status_running());
+            patches.push(node_info.set_execution_status_running());
 
             // Create a channel to send cancel requests to task
             let (cancel_sender, cancel_receiver) = oneshot::channel::<()>();
 
             // Create clones of variables needed to execute the task
             let kernel_space = kernel_space.clone();
-            let call_docs = call_docs.clone();
             let mut resource_info = task.resource_info.clone();
             let kernel_selector = task.kernel_selector.clone();
             let is_fork = task.is_fork;
 
-            // Merge the global tag map into the resource's
-            resource_info.tags.merge(&*tags);
+            // Insert the document's global tags into the resource's
+            resource_info.tags.insert_globals(&*tags);
 
             // Create a future for the task that will be spawned later
             let future = async move {
@@ -249,7 +479,6 @@ pub async fn execute(
                         &*kernel_space.read().await,
                         &kernel_selector,
                         is_fork,
-                        &*call_docs.read().await,
                     )
                     .await
                 {
@@ -294,16 +523,26 @@ pub async fn execute(
                         tracing::trace!("Task `{}` is not interruptable", task_info.task.id);
                     };
 
-                    // Wait for the task to finish (or be cancelled and update the executed node when it has
+                    // Wait for the task to finish (or be cancelled and update the executed node when it has)
                     let task_result = task_info.result().await?;
                     executed.execute_end(task_info, task_result).await?;
                 }
 
                 // Update the resource to indicate that the resource was executed
                 let execute_failed = match &executed {
-                    Node::CodeChunk(CodeChunk { execute_status, .. })
-                    | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                        matches!(execute_status, Some(ExecuteStatus::Failed))
+                    Node::CodeChunk(CodeChunk {
+                        execution_status, ..
+                    })
+                    | Node::CodeExpression(CodeExpression {
+                        execution_status, ..
+                    })
+                    | Node::Division(Division {
+                        execution_status, ..
+                    })
+                    | Node::Span(Span {
+                        execution_status, ..
+                    }) => {
+                        matches!(execution_status, Some(ExecutionStatus::Failed))
                     }
                     _ => false,
                 };
@@ -311,7 +550,6 @@ pub async fn execute(
 
                 // Generate a patch for the differences resulting from execution
                 let mut patch = diff(&node_info.node, &executed);
-                patch.address = Some(node_info.node_address.clone());
                 patch.target = Some(node_info.node_id.clone());
 
                 // Having generated the patch, update the node_info.node (which may be used
@@ -326,7 +564,7 @@ pub async fn execute(
         drop(tags);
 
         // Send patches for updated execution status
-        send_patches(patch_request_sender, patches, When::Soon);
+        send_patches(patch_request_sender, patches, Then::compile(When::Later)).await;
 
         if futures.is_empty() {
             tracing::debug!(
@@ -387,12 +625,12 @@ pub async fn execute(
                             // may have occurred but node will not be patched
                             send_patch(
                                 patch_request_sender,
-                                node_info.set_execute_status_cancelled(),
-                                When::Soon
-                            );
+                                node_info.set_execution_status_cancelled(),
+                                Then::compile(When::Later)
+                            ).await;
                         } else {
                             // Send the patch reflecting the changed state of the executed node
-                            send_patch(patch_request_sender, patch, When::Soon);
+                            send_patch(patch_request_sender, patch, Then::compile(When::Later)).await;
                         }
 
                         // Update the node_info record used elsewhere in this function (mainly for the new execution status of nodes)
@@ -405,7 +643,7 @@ pub async fn execute(
                 // Handle cancellation requests, exiting the loop if the cancellation scope is
                 // `All` (i.e the whole plan)
                 Some(request) = cancel_request_receiver.recv() => {
-                    let all = handle_cancel_request(request, &node_infos, &mut cancellers, &mut cancelled, patch_request_sender);
+                    let all = handle_cancel_request(request, &node_infos, &mut cancellers, &mut cancelled, patch_request_sender).await;
                     if all {
                         break;
                     }
@@ -422,10 +660,11 @@ pub async fn execute(
         patch_request_sender,
         node_infos
             .values_mut()
-            .map(|node_info| node_info.reset_execute_status())
+            .map(|node_info| node_info.reset_execution_status())
             .collect(),
-        When::Soon,
-    );
+        Then::compile(When::Later),
+    )
+    .await;
 
     Ok(())
 }
@@ -440,9 +679,6 @@ struct NodeInfo {
     /// The id of the node
     node_id: String,
 
-    /// The address of the node
-    node_address: Address,
-
     /// A copy of the node
     ///
     /// We take a copy of the node initially at the start of [`execute`] and
@@ -450,43 +686,62 @@ struct NodeInfo {
     node: Node,
 
     /// The execution state of the node prior to [`execute`]
-    previous_execute_status: Option<ExecuteStatus>,
+    previous_execution_status: Option<ExecutionStatus>,
 }
 
 impl NodeInfo {
-    fn new(stage_index: usize, node_id: String, node_address: Address, node: Node) -> Self {
+    fn new(stage_index: usize, node_id: String, node: Node) -> Self {
         let mut node_info = Self {
             stage_index,
             node_id,
-            node_address,
             node,
-            previous_execute_status: None,
+            previous_execution_status: None,
         };
-        node_info.previous_execute_status = node_info.get_execute_status();
+        node_info.previous_execution_status = node_info.get_execution_status();
         node_info
     }
 
-    fn get_execute_status(&self) -> Option<ExecuteStatus> {
+    fn get_execution_status(&self) -> Option<ExecutionStatus> {
         match &self.node {
-            Node::CodeChunk(CodeChunk { execute_status, .. })
-            | Node::CodeExpression(CodeExpression { execute_status, .. }) => execute_status.clone(),
-            // At present, assumes the execution of parameters always succeeds
-            Node::Parameter(..) => Some(ExecuteStatus::Succeeded),
+            Node::CodeChunk(CodeChunk {
+                execution_status, ..
+            })
+            | Node::CodeExpression(CodeExpression {
+                execution_status, ..
+            })
+            | Node::Division(Division {
+                execution_status, ..
+            })
+            | Node::Span(Span {
+                execution_status, ..
+            }) => execution_status.clone(),
+            // At present, assumes the execution of parameters and buttons always succeeds
+            Node::Parameter(..) | Node::Button(..) => Some(ExecutionStatus::Succeeded),
             _ => None,
         }
     }
 
-    fn set_execute_status_scheduled(&mut self) -> Patch {
+    fn set_execution_status_scheduled(&mut self) -> Patch {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
-            Some(self.node_address.clone()),
+            None,
             &|node: &mut Node| match node {
-                Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                    *execute_status = Some(match execute_status {
-                        Some(ExecuteStatus::Failed) => ExecuteStatus::ScheduledPreviouslyFailed,
-                        _ => ExecuteStatus::Scheduled,
+                Node::CodeChunk(CodeChunk {
+                    execution_status, ..
+                })
+                | Node::CodeExpression(CodeExpression {
+                    execution_status, ..
+                })
+                | Node::Division(Division {
+                    execution_status, ..
+                })
+                | Node::Span(Span {
+                    execution_status, ..
+                }) => {
+                    *execution_status = Some(match execution_status {
+                        Some(ExecutionStatus::Failed) => ExecutionStatus::ScheduledPreviouslyFailed,
+                        _ => ExecutionStatus::Scheduled,
                     });
                 }
                 _ => {}
@@ -494,20 +749,30 @@ impl NodeInfo {
         )
     }
 
-    fn set_execute_status_running(&mut self) -> Patch {
+    fn set_execution_status_running(&mut self) -> Patch {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
-            Some(self.node_address.clone()),
+            None,
             &|node: &mut Node| match node {
-                Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                    *execute_status = Some(match execute_status {
-                        Some(ExecuteStatus::Failed)
-                        | Some(ExecuteStatus::ScheduledPreviouslyFailed) => {
-                            ExecuteStatus::RunningPreviouslyFailed
+                Node::CodeChunk(CodeChunk {
+                    execution_status, ..
+                })
+                | Node::CodeExpression(CodeExpression {
+                    execution_status, ..
+                })
+                | Node::Division(Division {
+                    execution_status, ..
+                })
+                | Node::Span(Span {
+                    execution_status, ..
+                }) => {
+                    *execution_status = Some(match execution_status {
+                        Some(ExecutionStatus::Failed)
+                        | Some(ExecutionStatus::ScheduledPreviouslyFailed) => {
+                            ExecutionStatus::RunningPreviouslyFailed
                         }
-                        _ => ExecuteStatus::Running,
+                        _ => ExecutionStatus::Running,
                     });
                 }
                 _ => {}
@@ -515,43 +780,61 @@ impl NodeInfo {
         )
     }
 
-    fn set_execute_status_cancelled(&mut self) -> Patch {
+    fn set_execution_status_cancelled(&mut self) -> Patch {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
-            Some(self.node_address.clone()),
+            None,
             &|node: &mut Node| match node {
-                Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                    *execute_status = Some(ExecuteStatus::Cancelled);
+                Node::CodeChunk(CodeChunk {
+                    execution_status, ..
+                })
+                | Node::CodeExpression(CodeExpression {
+                    execution_status, ..
+                })
+                | Node::Division(Division {
+                    execution_status, ..
+                })
+                | Node::Span(Span {
+                    execution_status, ..
+                }) => {
+                    *execution_status = Some(ExecutionStatus::Cancelled);
                 }
                 _ => {}
             },
         )
     }
 
-    fn reset_execute_status(&mut self) -> Patch {
+    fn reset_execution_status(&mut self) -> Patch {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
-            Some(self.node_address.clone()),
+            None,
             &|node: &mut Node| match node {
-                Node::CodeChunk(CodeChunk { execute_status, .. })
-                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                    match execute_status {
-                        Some(ExecuteStatus::Scheduled)
-                        | Some(ExecuteStatus::ScheduledPreviouslyFailed) => {
-                            *execute_status = self.previous_execute_status.clone()
-                        }
-
-                        Some(ExecuteStatus::Running)
-                        | Some(ExecuteStatus::RunningPreviouslyFailed) => {
-                            *execute_status = Some(ExecuteStatus::Cancelled)
-                        }
-
-                        _ => {}
+                Node::CodeChunk(CodeChunk {
+                    execution_status, ..
+                })
+                | Node::CodeExpression(CodeExpression {
+                    execution_status, ..
+                })
+                | Node::Division(Division {
+                    execution_status, ..
+                })
+                | Node::Span(Span {
+                    execution_status, ..
+                }) => match execution_status {
+                    Some(ExecutionStatus::Scheduled)
+                    | Some(ExecutionStatus::ScheduledPreviouslyFailed) => {
+                        *execution_status = self.previous_execution_status.clone()
                     }
-                }
+
+                    Some(ExecutionStatus::Running)
+                    | Some(ExecutionStatus::RunningPreviouslyFailed) => {
+                        *execution_status = Some(ExecutionStatus::Cancelled)
+                    }
+
+                    _ => {}
+                },
                 _ => {}
             },
         )
@@ -567,15 +850,20 @@ fn get_node_info(node_infos: &BTreeMap<Resource, NodeInfo>, node_id: &str) -> Op
     None
 }
 
-fn handle_cancel_request(
+async fn handle_cancel_request(
     request: CancelRequest,
     node_infos: &BTreeMap<Resource, NodeInfo>,
     cancellers: &mut HashMap<String, oneshot::Sender<()>>,
     cancelled: &mut Vec<String>,
-    patch_request_sender: &UnboundedSender<PatchRequest>,
+    patch_request_sender: &DocumentPatchRequestSender,
 ) -> bool {
     let node_id = request.start;
     let scope = request.scope.unwrap_or(PlanScope::Single);
+    tracing::debug!(
+        "Handling cancel request for node `{:?}` and scope `{:?}`",
+        node_id,
+        scope
+    );
 
     match scope {
         PlanScope::Single => {
@@ -600,9 +888,10 @@ fn handle_cancel_request(
                 } else if let Some(mut node_info) = get_node_info(node_infos, &node_id) {
                     send_patch(
                         patch_request_sender,
-                        node_info.set_execute_status_cancelled(),
-                        When::Soon,
-                    );
+                        node_info.set_execution_status_cancelled(),
+                        Then::compile(When::Later),
+                    )
+                    .await;
                 }
             }
 
@@ -628,11 +917,11 @@ fn handle_cancel_request(
                             node_id
                         );
                     } else if let Some(mut node_info) = get_node_info(node_infos, node_id) {
-                        patches.push(node_info.set_execute_status_cancelled());
+                        patches.push(node_info.set_execution_status_cancelled());
                     }
                 }
             }
-            send_patches(patch_request_sender, patches, When::Soon);
+            send_patches(patch_request_sender, patches, Then::compile(When::Later)).await;
 
             // Add all nodes in the plan to list of cancelled nodes
             cancelled.append(&mut node_ids);

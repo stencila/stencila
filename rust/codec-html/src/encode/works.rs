@@ -14,7 +14,7 @@ use super::{
 };
 
 impl ToHtml for CreativeWorkTypes {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         match self {
             CreativeWorkTypes::Article(node) => node.to_html(context),
             CreativeWorkTypes::AudioObject(node) => node.to_html(context),
@@ -31,7 +31,7 @@ impl ToHtml for CreativeWorkTypes {
 }
 
 impl ToHtml for CreativeWorkContent {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         match self {
             CreativeWorkContent::String(node) => node.to_html(context),
             CreativeWorkContent::VecNode(nodes) => nodes.to_html(context),
@@ -40,7 +40,7 @@ impl ToHtml for CreativeWorkContent {
 }
 
 impl ToHtml for CreativeWork {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "article",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -50,16 +50,15 @@ impl ToHtml for CreativeWork {
 }
 
 impl ToHtml for Article {
-    fn to_html(&self, context: &EncodeContext) -> String {
-        let toolbar = elem("stencila-document-toolbar", &[], "");
-
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let title = match &self.title {
             Some(title) => {
-                let title = match &**title {
-                    CreativeWorkTitle::String(title) => title.to_html(context),
-                    CreativeWorkTitle::VecInlineContent(title) => title.to_html(context),
-                };
-                elem("h1", &[attr_itemprop("headline")], &title)
+                let title = title.to_html(context);
+                elem(
+                    "h1",
+                    &[attr_prop("title"), attr_itemprop("headline")],
+                    &title,
+                )
             }
             None => "".to_string(),
         };
@@ -108,25 +107,13 @@ impl ToHtml for Article {
             "".to_string()
         };
 
-        let abstract_ = match &self.description {
+        let description = match &self.description {
             Some(desc) => {
                 let meta = (**desc).to_txt();
-                let content = match &**desc {
-                    ThingDescription::String(string) => Paragraph {
-                        content: vec![InlineContent::String(string.clone())],
-                        ..Default::default()
-                    }
-                    .to_html(context),
-                    ThingDescription::VecInlineContent(inlines) => Paragraph {
-                        content: inlines.clone(),
-                        ..Default::default()
-                    }
-                    .to_html(context),
-                    ThingDescription::VecBlockContent(blocks) => blocks.to_html(context),
-                };
+                let content = desc.to_html(context);
                 elem(
                     "section",
-                    &[attr_prop("description")],
+                    &[attr_prop("description"), attr_slot("description")],
                     &[
                         elem_empty(
                             "meta",
@@ -142,15 +129,30 @@ impl ToHtml for Article {
 
         let content = elem(
             "div",
-            &[attr_prop("content")],
+            &[attr_prop("content"), attr_slot("content")],
             &self.content.to_html(context),
         );
 
-        elem(
-            "article",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[toolbar, title, authors, affiliations, abstract_, content].concat(),
-        )
+        let article = elem(
+            "stencila-article",
+            &[attr("data-root", "true")],
+            &elem(
+                "article",
+                &[attr_itemtype::<Self>(), attr_id(&self.id)],
+                &[title, authors, affiliations, description, content].concat(),
+            ),
+        );
+
+        if !context.options.standalone {
+            return article;
+        }
+
+        let header = elem("stencila-document-header", &[], "");
+        let footer = elem("stencila-document-footer", &[], "");
+        let nav = elem("stencila-document-nav", &[], "");
+        let toc = elem("stencila-document-toc", &[], "");
+        let main = elem("main", &[], &article);
+        [header, nav, toc, main, footer].concat()
     }
 }
 
@@ -301,20 +303,20 @@ fn affiliation_org_to_html(org: &Organization) -> String {
 }
 
 impl ToHtml for File {
-    fn to_html(&self, _context: &EncodeContext) -> String {
-        let toolbar = elem("stencila-document-toolbar", &[], "");
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
+        let header = elem("stencila-document-header", &[], "");
 
         elem(
             "stencila-file",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[toolbar].concat(),
+            &[header].concat(),
         )
     }
 }
 
 impl ToHtml for Directory {
-    fn to_html(&self, _context: &EncodeContext) -> String {
-        let toolbar = elem("stencila-document-toolbar", &[], "");
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
+        let header = elem("stencila-document-header", &[], "");
 
         let parts = concat(&self.parts, |part| {
             let name = match part {
@@ -331,7 +333,7 @@ impl ToHtml for Directory {
         elem(
             "stencila-directory",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[toolbar, parts].concat(),
+            &[header, parts].concat(),
         )
     }
 }
@@ -342,7 +344,7 @@ impl ToHtml for Directory {
 macro_rules! to_content_html {
     ($type: ty, $variant: path, $transform:ident) => {
         impl ToHtml for $type {
-            fn to_html(&self, context: &EncodeContext) -> String {
+            fn to_html(&self, context: &mut EncodeContext) -> String {
                 $variant(self.clone()).$transform().to_html(context)
             }
         }

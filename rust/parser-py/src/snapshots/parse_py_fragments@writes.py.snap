@@ -1,241 +1,197 @@
 ---
 source: rust/parser-py/src/lib.rs
-assertion_line: 222
-expression: resource_info
+assertion_line: 227
+expression: parse_info
 input_file: fixtures/fragments/py/writes.py
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/py/writes.py",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "python"
-  },
-  "relations": [
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          0,
-          0,
-          0,
-          4
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/writes.py",
-        "name": "var1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          0,
-          12,
-          0,
-          19
-        ]
-      },
-      {
+  "syntaxErrors": false,
+  "semanticDigest": 7109245594564787725,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
-        "path": "fragments/py/path1"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          2,
-          0,
-          2,
-          4
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/writes.py",
-        "name": "var2",
-        "kind": "Array"
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          3,
-          10,
-          3,
-          17
-        ]
-      },
-      {
-        "type": "File",
-        "path": "fragments/py/path2"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          12,
-          4,
-          16
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/writes.py",
-        "name": "var2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          6,
-          5,
-          6,
-          12
-        ]
-      },
-      {
-        "type": "File",
-        "path": "fragments/py/path3"
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          8,
-          10,
-          8,
-          17
-        ]
-      },
-      {
-        "type": "File",
-        "path": "fragments/py/path4"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          10,
-          4,
-          10,
-          13
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/writes.py",
-        "name": "open_func",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          11,
-          9,
-          11,
-          16
-        ]
-      },
-      {
-        "type": "File",
-        "path": "fragments/py/path5"
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          16,
-          5,
-          16,
-          11
-        ]
-      },
-      {
-        "type": "File",
+        "name": "",
         "path": "fragments/py/read"
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          17,
-          5,
-          17,
-          11
-        ]
       },
-      {
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        16,
+        5,
+        16,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
+        "name": "",
         "path": "fragments/py/read"
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          18,
-          10,
-          18,
-          16
-        ]
       },
-      {
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        17,
+        5,
+        17,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
+        "name": "",
         "path": "fragments/py/read"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          22,
-          0,
-          22,
-          4
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/writes.py",
-        "name": "var2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          23,
-          5,
-          23,
-          9
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/writes.py",
-        "name": "var2",
-        "kind": ""
-      }
-    ]
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        18,
+        10,
+        18,
+        16
+      ]
+    }
   ],
-  "compile_digest": "8913997277551868271.896089641978347507.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "var1",
+        "namespace": "fragments/py/writes.py"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/py/path1"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        0,
+        12,
+        0,
+        19
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "var2",
+        "kind": "Array",
+        "namespace": "fragments/py/writes.py"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        2,
+        0,
+        2,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/py/path2"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        3,
+        10,
+        3,
+        17
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/py/path3"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        6,
+        5,
+        6,
+        12
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/py/path4"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        8,
+        10,
+        8,
+        17
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "open_func",
+        "kind": "Function",
+        "namespace": "fragments/py/writes.py"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        10,
+        4,
+        10,
+        13
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "File",
+        "name": "",
+        "path": "fragments/py/path5"
+      },
+      "dependentRelation": "Writes",
+      "codeLocation": [
+        11,
+        9,
+        11,
+        16
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "var2",
+        "namespace": "fragments/py/writes.py"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        22,
+        0,
+        22,
+        4
+      ]
+    }
+  ],
+  "executionTags": []
 }

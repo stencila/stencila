@@ -1,4 +1,7 @@
-use std::collections::HashMap;
+use std::{
+    collections::{HashMap, VecDeque},
+    vec,
+};
 
 use nom::{
     branch::alt,
@@ -10,9 +13,9 @@ use nom::{
         is_digit,
     },
     combinator::{all_consuming, map, map_res, not, opt, peek, recognize},
-    multi::{fold_many0, many0, many1, separated_list0, separated_list1},
+    multi::{fold_many0, many0, many1, many_m_n, separated_list0, separated_list1},
     number::complete::double,
-    sequence::{delimited, pair, preceded, terminated, tuple},
+    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     IResult,
 };
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
@@ -20,7 +23,8 @@ use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use codec::{
     common::{
         eyre::{bail, Result},
-        inflector::Inflector,
+        indexmap::IndexMap,
+        json5,
         once_cell::sync::Lazy,
         regex::Regex,
         serde_json, serde_yaml, tracing,
@@ -80,15 +84,15 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
             return Ok((end, None));
         }
 
-        let node = match serde_yaml::from_str(&yaml) {
-            Ok(serde_json::Value::Object(mut node)) => {
-                if node.get("type").is_none() {
-                    node.insert(
+        let mut value = match serde_yaml::from_str(&yaml) {
+            Ok(serde_json::Value::Object(mut value)) => {
+                if value.get("type").is_none() {
+                    value.insert(
                         "type".to_string(),
                         serde_json::Value::String("Article".to_string()),
                     );
                 }
-                serde_json::Value::Object(node)
+                serde_json::Value::Object(value)
             }
             Ok(_) => {
                 tracing::warn!("YAML frontmatter is not an object, will be ignored");
@@ -103,7 +107,27 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
             }
         };
 
-        let node = coerce(node, None)?;
+        let title = value
+            .get_mut("title")
+            .and_then(|title| title.as_str())
+            .map(String::from);
+        let description = value
+            .get_mut("description")
+            .and_then(|description| description.as_str())
+            .map(String::from);
+
+        let mut node = coerce(value, None)?;
+
+        // Treat Article title and description as Markdown
+        if let Node::Article(article) = &mut node {
+            if let Some(title) = title {
+                article.title = Some(decode_fragment(&title, None).to_inlines());
+            }
+            if let Some(description) = description {
+                article.description = Some(decode_fragment(&description, None));
+            }
+        }
+
         Ok((end, Some(node)))
     } else {
         Ok((None, None))
@@ -126,32 +150,18 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
 pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockContent> {
     let mut inlines = Inlines {
         default_lang: default_lang.clone(),
-        active: false,
-        text: String::new(),
-        nodes: Vec::new(),
-        marks: Vec::new(),
+        ..Default::default()
     };
 
-    let mut html = Html {
-        html: String::new(),
-        tags: Vec::new(),
-    };
+    let mut html = Html::default();
 
-    let mut lists = Lists {
-        items: Vec::new(),
-        marks: Vec::new(),
-        is_checked: None,
-    };
+    let mut lists = Lists::default();
 
-    let mut tables = Tables {
-        rows: Vec::new(),
-        cells: Vec::new(),
-    };
+    let mut tables = Tables::default();
 
-    let mut blocks = Blocks {
-        nodes: Vec::new(),
-        marks: Vec::new(),
-    };
+    let mut blocks = Blocks::default();
+
+    let mut divs = VecDeque::new();
 
     let mut options = Options::empty();
     options.insert(Options::ENABLE_TABLES);
@@ -201,7 +211,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
             Event::End(tag) => match tag {
                 // Block nodes with block content
                 Tag::BlockQuote => {
-                    let content = blocks.pop_tail();
+                    let content = blocks.pop_mark();
                     blocks.push_node(BlockContent::QuoteBlock(QuoteBlock {
                         content,
                         ..Default::default()
@@ -214,7 +224,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         Some(ListOrder::Unordered)
                     };
 
-                    let items = lists.pop_tail();
+                    let items = lists.pop_mark();
 
                     blocks.push_node(BlockContent::List(List {
                         items,
@@ -226,7 +236,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 Tag::Item => {
                     let mut content = Vec::new();
 
-                    let inlines = inlines.pop_tail();
+                    let inlines = inlines.pop_mark();
                     if !inlines.is_empty() {
                         content.push(BlockContent::Paragraph(Paragraph {
                             content: inlines,
@@ -234,7 +244,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         }))
                     }
 
-                    let mut blocks = blocks.pop_tail();
+                    let mut blocks = blocks.pop_mark();
                     content.append(&mut blocks);
 
                     let content = Some(ListItemContent::VecBlockContent(content));
@@ -251,7 +261,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 Tag::TableHead => tables.push_header(),
                 Tag::TableRow => tables.push_row(),
                 Tag::TableCell => {
-                    let inlines = inlines.pop_tail();
+                    let inlines = inlines.pop_mark();
                     let content = if inlines.is_empty() {
                         None
                     } else {
@@ -267,7 +277,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 // Block nodes with inline content
                 Tag::Heading(depth, id, _classes) => {
                     blocks.push_node(BlockContent::Heading(Heading {
-                        id: id.map(|id| Box::new(id.to_string())),
+                        id: id.map(|id| id.into()),
                         depth: Some(depth as u8),
                         content: inlines.pop_all(),
                         ..Default::default()
@@ -275,23 +285,129 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 }
                 Tag::Paragraph => {
                     let trimmed = inlines.text.trim();
-                    let node = if trimmed.starts_with("$$") && trimmed.ends_with("$$") {
-                        BlockContent::MathBlock(MathBlock {
-                            text: trimmed[2..trimmed.len() - 2].trim().to_string(),
-                            math_language: Some(Box::new("tex".to_string())),
+                    let block = if trimmed.starts_with("$$")
+                        && trimmed.ends_with("$$")
+                        // Ensure that there are 4 dollars in total
+                        && trimmed.len() >= 4
+                    {
+                        Some(BlockContent::MathBlock(MathBlock {
+                            code: trimmed[2..trimmed.len() - 2].trim().to_string(),
+                            math_language: "tex".to_string(),
                             ..Default::default()
-                        })
+                        }))
                     } else if let Ok((.., include)) = include(trimmed) {
-                        BlockContent::Include(include)
+                        Some(BlockContent::Include(include))
                     } else if let Ok((.., call)) = call(trimmed) {
-                        BlockContent::Call(call)
+                        Some(BlockContent::Call(call))
+                    } else if let Ok((.., for_)) = for_(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(BlockContent::For(for_));
+                        None
+                    } else if let Ok((.., form)) = form(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(BlockContent::Form(form));
+                        None
+                    } else if let Ok((.., (true, if_clause))) = if_elif(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(BlockContent::If(If {
+                            clauses: vec![if_clause],
+                            ..Default::default()
+                        }));
+                        None
+                    } else if let Ok((.., (false, if_clause))) = if_elif(trimmed) {
+                        if let Some(BlockContent::If(if_)) = divs.back_mut() {
+                            let content = blocks.pop_div();
+                            if let Some(last) = if_.clauses.last_mut() {
+                                last.content = content;
+                            } else {
+                                tracing::error!(
+                                    "Expected there to be at least one if clause already"
+                                )
+                            }
+                            if_.clauses.push(if_clause);
+
+                            blocks.push_div();
+                            None
+                        } else {
+                            tracing::warn!("Found an `::: elif` without a preceding `::: if`");
+                            Some(BlockContent::Paragraph(Paragraph {
+                                content: vec![InlineContent::String(trimmed.to_string())],
+                                ..Default::default()
+                            }))
+                        }
+                    } else if let Ok(..) = else_(trimmed) {
+                        if let Some(div) = divs.back_mut() {
+                            match div {
+                                // Create a placeholder to indicate that when the else finishes
+                                // the tail of blocks should be popped to the `otherwise` of the current
+                                // `For`
+                                BlockContent::For(for_) => {
+                                    for_.otherwise = Some(Vec::new());
+                                }
+                                // Add a last clause of `If` with no text or language
+                                BlockContent::If(if_) => {
+                                    let content = blocks.pop_div();
+                                    if let Some(last) = if_.clauses.last_mut() {
+                                        last.content = content;
+                                    } else {
+                                        tracing::error!(
+                                            "Expected there to be at least one if clause already"
+                                        )
+                                    }
+                                    if_.clauses.push(IfClause::default());
+                                }
+                                _ => {
+                                    tracing::warn!("Found an `::: else` without a preceding `::: if` or `::: for`");
+                                }
+                            }
+                        }
+                        blocks.push_div();
+                        None
+                    } else if let Ok((.., div)) = division(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(BlockContent::Division(div));
+                        None
+                    } else if let Ok(..) = div_end(trimmed) {
+                        divs.pop_back().map(|div| match div {
+                            BlockContent::Division(mut div) => {
+                                div.content = blocks.pop_div();
+                                BlockContent::Division(div)
+                            }
+                            BlockContent::For(mut for_) => {
+                                for_.otherwise = for_.otherwise.map(|_| blocks.pop_div());
+                                for_.content = blocks.pop_div();
+                                BlockContent::For(for_)
+                            }
+                            BlockContent::Form(mut form) => {
+                                form.content = blocks.pop_div();
+                                BlockContent::Form(form)
+                            }
+                            BlockContent::If(mut if_) => {
+                                let content = blocks.pop_div();
+                                if let Some(last_clause) = if_.clauses.iter_mut().last() {
+                                    last_clause.content = content;
+                                } else {
+                                    tracing::error!(
+                                        "Expected at least one if clause but there was none"
+                                    );
+                                }
+
+                                BlockContent::If(if_)
+                            }
+                            _ => BlockContent::Paragraph(Paragraph {
+                                content: inlines.pop_all(),
+                                ..Paragraph::default()
+                            }),
+                        })
                     } else {
-                        BlockContent::Paragraph(Paragraph {
+                        Some(BlockContent::Paragraph(Paragraph {
                             content: inlines.pop_all(),
                             ..Default::default()
-                        })
+                        }))
                     };
-                    blocks.push_node(node);
+                    if let Some(block) = block {
+                        blocks.push_node(block);
+                    }
                 }
                 Tag::CodeBlock(kind) => {
                     let (mut lang, exec) = match kind {
@@ -316,24 +432,24 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         lang = default_lang.clone()
                     }
 
-                    let text = inlines.pop_text().trim_end_matches('\n').to_string();
+                    let code = inlines.pop_text().trim_end_matches('\n').to_string();
 
                     let node = match exec {
                         true => BlockContent::CodeChunk(CodeChunk {
-                            text,
+                            code,
                             programming_language: lang.unwrap_or_default(),
                             ..Default::default()
                         }),
                         false => match lang.as_deref() {
-                            Some("asciimath") | Some("latex") | Some("tex") => {
+                            Some("asciimath") | Some("mathml") | Some("latex") | Some("tex") => {
                                 BlockContent::MathBlock(MathBlock {
-                                    text,
-                                    math_language: lang.map(Box::new),
+                                    code,
+                                    math_language: lang.unwrap_or_default(),
                                     ..Default::default()
                                 })
                             }
                             _ => BlockContent::CodeBlock(CodeBlock {
-                                text,
+                                code,
                                 programming_language: lang.map(Box::new),
                                 ..Default::default()
                             }),
@@ -345,28 +461,28 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
 
                 // Inline nodes with inline content
                 Tag::Emphasis => {
-                    let content = inlines.pop_tail();
+                    let content = inlines.pop_mark();
                     inlines.push_node(InlineContent::Emphasis(Emphasis {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Strong => {
-                    let content = inlines.pop_tail();
+                    let content = inlines.pop_mark();
                     inlines.push_node(InlineContent::Strong(Strong {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Strikethrough => {
-                    let content = inlines.pop_tail();
+                    let content = inlines.pop_mark();
                     inlines.push_node(InlineContent::Strikeout(Strikeout {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Link(_link_type, url, title) => {
-                    let content = inlines.pop_tail();
+                    let content = inlines.pop_mark();
                     let title = {
                         let title = title.to_string();
                         if !title.is_empty() {
@@ -383,7 +499,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                     }))
                 }
                 Tag::Image(_link_type, url, title) => {
-                    let caption = inlines.pop_tail();
+                    let caption = inlines.pop_mark();
                     let caption = if caption.is_empty() {
                         None
                     } else {
@@ -396,7 +512,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                     let title = {
                         let title = title.to_string();
                         if !title.is_empty() {
-                            Some(Box::new(CreativeWorkTitle::String(title)))
+                            Some(vec![InlineContent::String(title)])
                         } else {
                             None
                         }
@@ -488,9 +604,11 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
 }
 
 /// Stores block content
+#[derive(Default)]
 struct Blocks {
     nodes: Vec<BlockContent>,
     marks: Vec<usize>,
+    divs: Vec<usize>,
 }
 
 impl Blocks {
@@ -510,9 +628,24 @@ impl Blocks {
     }
 
     /// Pop the nodes since the last mark
-    fn pop_tail(&mut self) -> Vec<BlockContent> {
-        let n = self.marks.pop().expect("Unable to pop marks!");
-        self.nodes.split_off(n)
+    fn pop_mark(&mut self) -> Vec<BlockContent> {
+        match self.marks.pop() {
+            Some(n) => self.nodes.split_off(n),
+            None => Vec::new(),
+        }
+    }
+
+    /// Push a div marker
+    fn push_div(&mut self) {
+        self.divs.push(self.nodes.len())
+    }
+
+    /// Pop the nodes since the last div marker
+    fn pop_div(&mut self) -> Vec<BlockContent> {
+        match self.divs.pop() {
+            Some(n) => self.nodes.split_off(n),
+            None => Vec::new(),
+        }
     }
 
     /// Pop all the nodes
@@ -524,6 +657,7 @@ impl Blocks {
 /// Stores list items
 ///
 /// It is necessary to maintain marks to handle nested lists
+#[derive(Default)]
 struct Lists {
     /// Stack of list items
     items: Vec<ListItem>,
@@ -549,7 +683,7 @@ impl Lists {
     }
 
     /// Pop the items since the last mark
-    fn pop_tail(&mut self) -> Vec<ListItem> {
+    fn pop_mark(&mut self) -> Vec<ListItem> {
         if self.marks.is_empty() {
             vec![]
         } else {
@@ -560,6 +694,7 @@ impl Lists {
 }
 
 /// Stores table rows and cells
+#[derive(Default)]
 struct Tables {
     rows: Vec<TableRow>,
     cells: Vec<TableCell>,
@@ -600,6 +735,7 @@ impl Tables {
 }
 
 /// Stores and parses inline content
+#[derive(Default)]
 struct Inlines {
     default_lang: Option<String>,
     active: bool,
@@ -687,7 +823,7 @@ impl Inlines {
     }
 
     /// Pop the nodes since the last mark
-    fn pop_tail(&mut self) -> Vec<InlineContent> {
+    fn pop_mark(&mut self) -> Vec<InlineContent> {
         self.parse_text();
         if self.marks.is_empty() {
             vec![]
@@ -712,12 +848,14 @@ impl Inlines {
 fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
     fold_many0(
         alt((
+            button,
             code_attrs,
             code_expr,
             cite_group,
             cite,
             math,
             parameter,
+            span,
             subscript,
             superscript,
             string,
@@ -748,7 +886,7 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
             opt(delimited(char('{'), take_until("}"), char('}'))),
         ),
         |res: (&str, Option<&str>)| -> Result<InlineContent> {
-            let text = res.0.to_string();
+            let code = res.0.to_string();
             let (lang, exec) = match res.1 {
                 Some(attrs) => {
                     let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
@@ -766,20 +904,20 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
             };
             let node = match exec {
                 true => InlineContent::CodeExpression(CodeExpression {
-                    text,
+                    code,
                     programming_language: lang.unwrap_or_default(),
                     ..Default::default()
                 }),
                 _ => match lang.as_deref() {
-                    Some("asciimath") | Some("latex") | Some("tex") => {
+                    Some("asciimath") | Some("mathml") | Some("latex") | Some("tex") => {
                         InlineContent::MathFragment(MathFragment {
-                            text,
-                            math_language: lang.map(Box::new),
+                            code,
+                            math_language: lang.unwrap_or_default(),
                             ..Default::default()
                         })
                     }
                     _ => InlineContent::CodeFragment(CodeFragment {
-                        text,
+                        code,
                         programming_language: lang.map(Box::new),
                         ..Default::default()
                     }),
@@ -790,11 +928,41 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
     )(input)
 }
 
+/// Parse a `Span`.
+pub fn span(input: &str) -> IResult<&str, InlineContent> {
+    map_res(
+        tuple((
+            delimited(char('['), is_not("]"), char(']')),
+            alt((
+                pair(
+                    delimited(char('`'), is_not("`"), char('`')),
+                    opt(delimited(char('{'), is_not("}"), char('}'))),
+                ),
+                map(delimited(char('{'), is_not("}"), char('}')), |text| {
+                    (text, Some("tailwind"))
+                }),
+            )),
+        )),
+        |(content, (code, lang)): (&str, (&str, Option<&str>))| -> Result<InlineContent> {
+            Ok(InlineContent::Span(Span {
+                programming_language: lang.map_or_else(|| "tailwind".to_string(), String::from),
+                code: code.to_string(),
+                content: vec![InlineContent::String(content.to_string())],
+                ..Default::default()
+            }))
+        },
+    )(input)
+}
+
 /// Parse a `Parameter`.
 pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
     map_res(
-        pair(delimited(tag("&["), opt(symbol), char(']')), curly_attrs),
+        pair(
+            delimited(tag("&["), opt(symbol), char(']')),
+            opt(curly_attrs),
+        ),
         |(name, attrs)| -> Result<InlineContent> {
+            let attrs = attrs.unwrap_or_default();
             let first = attrs
                 .first()
                 .map(|(name, ..)| Some(Node::String(name.clone())));
@@ -807,46 +975,10 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 .map(|node| node.to_txt());
             let typ = typ.as_deref();
 
-            fn to_option_string(node: Node) -> Option<String> {
-                match node {
-                    Node::String(num) => Some(num),
-                    _ => Some(node.to_txt()),
-                }
-            }
-            fn to_option_number(node: Node) -> Option<Number> {
-                match node {
-                    Node::Number(num) => Some(num),
-                    Node::Integer(num) => Some(Number(num as f64)),
-                    _ => node.to_txt().parse().ok(),
-                }
-            }
-            fn to_option_u32(node: Node) -> Option<u32> {
-                match node {
-                    Node::Integer(int) => Some(int as u32),
-                    _ => node.to_txt().parse().ok(),
-                }
-            }
-            fn to_option_date(node: Node) -> Option<Date> {
-                match node {
-                    Node::Date(date) => Some(date),
-                    Node::String(string) => Some(Date::from(string)),
-                    _ => None,
-                }
-            }
-            fn to_option_time(node: Node) -> Option<Time> {
-                match node {
-                    Node::Time(time) => Some(time),
-                    Node::String(string) => Some(Time::from(string)),
-                    _ => None,
-                }
-            }
-            fn to_option_datetime(node: Node) -> Option<DateTime> {
-                match node {
-                    Node::DateTime(datetime) => Some(datetime),
-                    Node::String(string) => Some(DateTime::from(string)),
-                    _ => None,
-                }
-            }
+            let label = options
+                .remove("label")
+                .and_then(|node| node)
+                .map(|node| Box::new(node.to_txt()));
 
             let validator = if matches!(typ, Some("boolean")) || matches!(typ, Some("bool")) {
                 Some(ValidatorTypes::BooleanValidator(BooleanValidator::default()))
@@ -876,21 +1008,33 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .remove("minimum")
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
+                let exclusive_minimum = options
+                    .remove("exclusive_minimum")
+                    .or_else(|| options.remove("exmin"))
+                    .and_then(|node| node)
+                    .and_then(node_to_option_number);
                 let maximum = options
                     .remove("maximum")
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
+                let exclusive_maximum = options
+                    .remove("exclusive_minimum")
+                    .or_else(|| options.remove("exmax"))
+                    .and_then(|node| node)
+                    .and_then(node_to_option_number);
                 let multiple_of = options
                     .remove("multiple_of")
                     .or_else(|| options.remove("mult"))
                     .or_else(|| options.remove("step"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
                 Some(ValidatorTypes::IntegerValidator(IntegerValidator {
                     minimum,
+                    exclusive_minimum,
                     maximum,
+                    exclusive_maximum,
                     multiple_of,
                     ..Default::default()
                 }))
@@ -899,20 +1043,32 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .remove("minimum")
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
+                let exclusive_minimum = options
+                    .remove("exclusive_minimum")
+                    .or_else(|| options.remove("exmin"))
+                    .and_then(|node| node)
+                    .and_then(node_to_option_number);
                 let maximum = options
                     .remove("maximum")
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
+                let exclusive_maximum = options
+                    .remove("exclusive_minimum")
+                    .or_else(|| options.remove("exmax"))
+                    .and_then(|node| node)
+                    .and_then(node_to_option_number);
                 let multiple_of = options
                     .remove("multiple_of")
                     .or_else(|| options.remove("mult"))
                     .and_then(|node| node)
-                    .and_then(to_option_number);
+                    .and_then(node_to_option_number);
                 Some(ValidatorTypes::NumberValidator(NumberValidator {
                     minimum,
+                    exclusive_minimum,
                     maximum,
+                    exclusive_maximum,
                     multiple_of,
                     ..Default::default()
                 }))
@@ -922,13 +1078,13 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .or_else(|| options.remove("minlength"))
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_u32);
+                    .and_then(node_to_option_u32);
                 let max_length = options
                     .remove("max_length")
                     .or_else(|| options.remove("maxlength"))
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_u32);
+                    .and_then(node_to_option_u32);
                 let pattern = options
                     .remove("pattern")
                     .or_else(|| options.remove("regex"))
@@ -948,12 +1104,12 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .remove("minimum")
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_date);
+                    .and_then(node_to_option_date);
                 let maximum = options
                     .remove("maximum")
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_date);
+                    .and_then(node_to_option_date);
                 Some(ValidatorTypes::DateValidator(DateValidator {
                     minimum,
                     maximum,
@@ -964,12 +1120,12 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .remove("minimum")
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_time);
+                    .and_then(node_to_option_time);
                 let maximum = options
                     .remove("maximum")
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_time);
+                    .and_then(node_to_option_time);
                 Some(ValidatorTypes::TimeValidator(TimeValidator {
                     minimum,
                     maximum,
@@ -980,13 +1136,45 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     .remove("minimum")
                     .or_else(|| options.remove("min"))
                     .and_then(|node| node)
-                    .and_then(to_option_datetime);
+                    .and_then(node_to_option_datetime);
                 let maximum = options
                     .remove("maximum")
                     .or_else(|| options.remove("max"))
                     .and_then(|node| node)
-                    .and_then(to_option_datetime);
+                    .and_then(node_to_option_datetime);
                 Some(ValidatorTypes::DateTimeValidator(DateTimeValidator {
+                    minimum,
+                    maximum,
+                    ..Default::default()
+                }))
+            } else if matches!(typ, Some("timestamp")) {
+                let minimum = options
+                    .remove("minimum")
+                    .or_else(|| options.remove("min"))
+                    .and_then(|node| node)
+                    .and_then(node_to_option_timestamp);
+                let maximum = options
+                    .remove("maximum")
+                    .or_else(|| options.remove("max"))
+                    .and_then(|node| node)
+                    .and_then(node_to_option_timestamp);
+                Some(ValidatorTypes::TimestampValidator(TimestampValidator {
+                    minimum,
+                    maximum,
+                    ..Default::default()
+                }))
+            } else if matches!(typ, Some("duration")) {
+                let minimum = options
+                    .remove("minimum")
+                    .or_else(|| options.remove("min"))
+                    .and_then(|node| node)
+                    .and_then(node_to_option_duration);
+                let maximum = options
+                    .remove("maximum")
+                    .or_else(|| options.remove("max"))
+                    .and_then(|node| node)
+                    .and_then(node_to_option_duration);
+                Some(ValidatorTypes::DurationValidator(DurationValidator {
                     minimum,
                     maximum,
                     ..Default::default()
@@ -1000,7 +1188,7 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 .remove("derived-from")
                 .or_else(|| options.remove("from"))
                 .and_then(|value| value)
-                .and_then(to_option_string)
+                .and_then(node_to_option_string)
                 .map(Box::new);
 
             let name = name
@@ -1025,10 +1213,48 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
 
             Ok(InlineContent::Parameter(Parameter {
                 name,
+                label,
                 validator,
                 default,
                 value,
                 derived_from,
+                ..Default::default()
+            }))
+        },
+    )(input)
+}
+
+/// Parse a `Button`
+pub fn button(input: &str) -> IResult<&str, InlineContent> {
+    map_res(
+        tuple((
+            delimited(tag("#["), is_not("]"), char(']')),
+            opt(delimited(char('`'), is_not("`"), char('`'))),
+            opt(curly_attrs),
+        )),
+        |(name, condition, options)| -> Result<InlineContent> {
+            let mut options: IndexMap<String, Option<Node>> =
+                options.unwrap_or_default().into_iter().collect();
+
+            let programming_language = if let Some((lang, None)) = options.first() {
+                lang.clone()
+            } else {
+                String::new()
+            };
+
+            let code = condition.map_or_else(String::new, String::from);
+
+            let label = options
+                .remove("label")
+                .and_then(|value| value)
+                .and_then(node_to_option_string)
+                .map(Box::new);
+
+            Ok(InlineContent::Button(Button {
+                name: name.to_string(),
+                programming_language,
+                code,
+                label,
                 ..Default::default()
             }))
         },
@@ -1057,7 +1283,7 @@ pub fn code_expr(input: &str) -> IResult<&str, InlineContent> {
             opt(delimited(char('{'), take_until("}"), char('}'))),
         ),
         |res: (&str, Option<&str>)| -> Result<InlineContent> {
-            let text = res.0.to_string();
+            let code = res.0.to_string();
             let lang = match res.1 {
                 Some(attrs) => {
                     let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
@@ -1066,7 +1292,7 @@ pub fn code_expr(input: &str) -> IResult<&str, InlineContent> {
                 None => None,
             };
             Ok(InlineContent::CodeExpression(CodeExpression {
-                text,
+                code,
                 programming_language: lang.unwrap_or_else(|| "".to_string()),
                 ..Default::default()
             }))
@@ -1160,8 +1386,8 @@ pub fn math(input: &str) -> IResult<&str, InlineContent> {
         ),
         |res: &str| -> Result<InlineContent> {
             Ok(InlineContent::MathFragment(MathFragment {
-                text: res.into(),
-                math_language: Some(Box::new("tex".to_string())),
+                code: res.into(),
+                math_language: "tex".to_string(),
                 ..Default::default()
             }))
         },
@@ -1211,9 +1437,9 @@ fn curly_attrs(input: &str) -> IResult<&str, Vec<(String, Option<Node>)>> {
     alt((
         map(tag("{}"), |_| Vec::new()),
         delimited(
-            char('{'),
+            terminated(char('{'), multispace0),
             separated_list0(multispace1, curly_attr),
-            char('}'),
+            preceded(multispace0, char('}')),
         ),
     ))(input)
 }
@@ -1236,7 +1462,9 @@ fn curly_attr(input: &str) -> IResult<&str, (String, Option<Node>)> {
             map(is_not(" =:}"), |name| (name, None)),
         )),
         |(name, value): (&str, Option<Node>)| -> Result<(String, Option<Node>)> {
-            Ok((name.to_snake_case(), value))
+            // Previously this used snake case by that was problematic for attributes such as "json5"
+            // (got converted to "json_5"). Instead, we replace dashes with underscores.
+            Ok((name.replace('-', "_"), value))
         },
     )(input)
 }
@@ -1384,9 +1612,9 @@ fn primitive_node(input: &str) -> IResult<&str, Node> {
 /// Will greedily take as many characters as possible, excluding those that appear at the
 /// start of other inline parsers e.g. '$', '['
 fn string(input: &str) -> IResult<&str, InlineContent> {
-    const CHARS: &str = "@^~$[";
+    const CHARS: &str = "~@#$^&[{`";
     map_res(
-        take_while1(|chr: char| CHARS.contains(chr)),
+        take_while1(|chr: char| !CHARS.contains(chr)),
         |res: &str| -> Result<InlineContent> { Ok(InlineContent::String(String::from(res))) },
     )(input)
 }
@@ -1420,7 +1648,7 @@ fn include(input: &str) -> IResult<&str, Include> {
                     .remove("select")
                     .and_then(|option| option)
                     .map(|node| Box::new(node.to_txt())),
-                execute_auto: options
+                execution_auto: options
                     .remove("autorun")
                     .and_then(|option| option)
                     .and_then(|node| node.to_txt().parse().ok()),
@@ -1437,7 +1665,14 @@ fn call(input: &str) -> IResult<&str, Call> {
             char('/'),
             tuple((
                 is_not("("),
-                delimited(char('('), separated_list0(multispace1, call_arg), char(')')),
+                delimited(
+                    char('('),
+                    separated_list0(
+                        alt((delimited(multispace0, tag(","), multispace0), multispace1)),
+                        call_arg,
+                    ),
+                    char(')'),
+                ),
                 opt(curly_attrs),
             )),
         )),
@@ -1445,7 +1680,7 @@ fn call(input: &str) -> IResult<&str, Call> {
             let mut options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
             Ok(Call {
                 source: source.to_string(),
-                arguments: if args.is_empty() { None } else { Some(args) },
+                arguments: args,
                 media_type: options
                     .remove("format")
                     .and_then(|option| option)
@@ -1454,7 +1689,7 @@ fn call(input: &str) -> IResult<&str, Call> {
                     .remove("select")
                     .and_then(|option| option)
                     .map(|node| Box::new(node.to_txt())),
-                execute_auto: options
+                execution_auto: options
                     .remove("autorun")
                     .and_then(|option| option)
                     .and_then(|node| node.to_txt().parse().ok()),
@@ -1468,29 +1703,16 @@ fn call(input: &str) -> IResult<&str, Call> {
 ///
 /// Arguments must be key-value or key-symbol pairs separated by `=`.
 fn call_arg(input: &str) -> IResult<&str, CallArgument> {
-    #[allow(clippy::large_enum_variant)]
-    enum CallArgumentValue {
-        Node(Node),
-        Symbol(String),
-    }
     map_res(
-        tuple((
-            symbol,
-            delimited(multispace0, tag("="), multispace0),
-            alt((
-                map(primitive_node, CallArgumentValue::Node),
-                map(symbol, CallArgumentValue::Symbol),
-            )),
-        )),
-        |(name, _delim, node)| -> Result<CallArgument> {
-            let (value, symbol) = match node {
-                CallArgumentValue::Node(node) => (Some(Box::new(node)), None),
-                CallArgumentValue::Symbol(symbol) => (None, Some(Box::new(symbol))),
-            };
+        // TODO allow for programming language to be specified
+        pair(
+            terminated(symbol, delimited(multispace0, tag("="), multispace0)),
+            alt((delimited(char('`'), is_not("`"), char('`')), is_not(" )"))),
+        ),
+        |(name, code)| -> Result<CallArgument> {
             Ok(CallArgument {
                 name,
-                value,
-                symbol,
+                code: code.to_string(),
                 ..Default::default()
             })
         },
@@ -1511,10 +1733,233 @@ fn symbol(input: &str) -> IResult<&str, String> {
     )(input)
 }
 
+/// Parse a `Division` node
+///
+/// Note: This and the following 'div like' parsers are all consuming because they are used
+/// to test a match against a whole line.
+fn division(input: &str) -> IResult<&str, Division> {
+    map_res(
+        all_consuming(preceded(
+            tuple((semis3plus, multispace0)),
+            alt((
+                // TODO use similar approach as for if etc of only escaping with backticks if needed
+                // and guessing languages
+                // TODO allow for divs with no style
+                tuple((
+                    delimited(char('`'), is_not("`"), char('`')),
+                    delimited(char('{'), is_not("}"), char('}')),
+                )),
+                map(is_not("\r\n"), |text| (text, "tailwind")),
+            )),
+        )),
+        |(code, programming_language)| -> Result<Division> {
+            Ok(Division {
+                programming_language: programming_language.to_string(),
+                code: code.to_string(),
+                ..Default::default()
+            })
+        },
+    )(input)
+}
+
+/// Parse a `For` node
+fn for_(input: &str) -> IResult<&str, For> {
+    map_res(
+        all_consuming(preceded(
+            tuple((semis3plus, multispace0, tag("for"), multispace1)),
+            tuple((
+                separated_pair(
+                    symbol,
+                    tuple((multispace1, tag("in"), multispace1)),
+                    is_not("{"),
+                ),
+                opt(preceded(
+                    multispace0,
+                    delimited(char('{'), is_not("}"), char('}')),
+                )),
+            )),
+        )),
+        |((symbol, expr), lang)| -> Result<For> {
+            Ok(For {
+                symbol,
+                code: expr.trim().to_string(),
+                programming_language: lang.map_or_else(String::new, |lang| lang.trim().to_string()),
+                ..Default::default()
+            })
+        },
+    )(input)
+}
+
+/// Parse a `Form` node
+fn form(input: &str) -> IResult<&str, Form> {
+    map_res(
+        all_consuming(preceded(
+            tuple((semis3plus, multispace0, tag("form"), multispace0)),
+            opt(curly_attrs),
+        )),
+        |options| -> Result<Form> {
+            let mut options: HashMap<_, _> = options.unwrap_or_default().into_iter().collect();
+
+            let derive_from = options
+                .remove("from")
+                .and_then(|value| value)
+                .and_then(node_to_option_string)
+                .map(Box::new);
+
+            let derive_action = options
+                .remove("action")
+                .and_then(|value| value)
+                .and_then(node_to_option_string)
+                .and_then(|value| match value.to_lowercase().as_str() {
+                    "create" => Some(FormDeriveAction::Create),
+                    "update" => Some(FormDeriveAction::Update),
+                    "delete" => Some(FormDeriveAction::Delete),
+                    _ => None,
+                });
+
+            let derive_item = options
+                .remove("item")
+                .and_then(|value| value)
+                .and_then(|node| match node {
+                    Node::Integer(int) => Some(FormDeriveItem::Integer(int)),
+                    Node::String(string) => Some(FormDeriveItem::String(string)),
+                    _ => None,
+                })
+                .map(Box::new);
+
+            Ok(Form {
+                derive_from,
+                derive_action,
+                derive_item,
+                ..Default::default()
+            })
+        },
+    )(input)
+}
+
+/// Parse an `if` or `elif` section into an `IfClause`
+fn if_elif(input: &str) -> IResult<&str, (bool, IfClause)> {
+    map_res(
+        all_consuming(preceded(
+            tuple((semis3plus, multispace0)),
+            tuple((
+                alt((tag("if"), tag("elif"))),
+                alt((
+                    preceded(
+                        multispace1,
+                        delimited(char('`'), escaped(none_of("`"), '\\', char('`')), char('`')),
+                    ),
+                    preceded(multispace1, is_not("{")),
+                    multispace0,
+                )),
+                opt(curly_attrs),
+            )),
+        )),
+        |(tag, expr, options)| -> Result<(bool, IfClause)> {
+            let code = expr.trim().to_string();
+            let lang = options
+                .iter()
+                .flatten()
+                .next()
+                .map(|tuple| tuple.0.trim().to_string())
+                .unwrap_or_default();
+            Ok((
+                tag == "if",
+                IfClause {
+                    guess_language: lang.is_empty().then_some(true),
+                    programming_language: lang,
+                    code,
+                    ..Default::default()
+                },
+            ))
+        },
+    )(input)
+}
+
+/// Parse an `else` section
+fn else_(input: &str) -> IResult<&str, &str> {
+    all_consuming(recognize(tuple((
+        semis3plus,
+        multispace0,
+        tag("else"),
+        // Allow for, but ignore, trailing content
+        opt(pair(multispace1, is_not(""))),
+    ))))(input)
+}
+
+/// Parse the end of a division
+fn div_end(input: &str) -> IResult<&str, &str> {
+    all_consuming(recognize(tuple((semis3plus, multispace0))))(input)
+}
+
+/// Parse at least three semicolons
+fn semis3plus(input: &str) -> IResult<&str, &str> {
+    recognize(many_m_n(3, 100, char(':')))(input)
+}
+
+fn node_to_option_string(node: Node) -> Option<String> {
+    match node {
+        Node::String(num) => Some(num),
+        _ => Some(node.to_txt()),
+    }
+}
+fn node_to_option_number(node: Node) -> Option<Number> {
+    match node {
+        Node::Number(num) => Some(num),
+        Node::Integer(num) => Some(Number(num as f64)),
+        _ => node.to_txt().parse().ok(),
+    }
+}
+fn node_to_option_u32(node: Node) -> Option<u32> {
+    match node {
+        Node::Integer(int) => Some(int as u32),
+        _ => node.to_txt().parse().ok(),
+    }
+}
+fn node_to_option_date(node: Node) -> Option<Date> {
+    match node {
+        Node::Date(date) => Some(date),
+        Node::String(string) => Some(Date::from(string)),
+        _ => None,
+    }
+}
+fn node_to_option_time(node: Node) -> Option<Time> {
+    match node {
+        Node::Time(time) => Some(time),
+        Node::String(string) => Some(Time::from(string)),
+        _ => None,
+    }
+}
+fn node_to_option_datetime(node: Node) -> Option<DateTime> {
+    match node {
+        Node::DateTime(datetime) => Some(datetime),
+        Node::String(string) => Some(DateTime::from(string)),
+        _ => None,
+    }
+}
+
+fn node_to_option_timestamp(node: Node) -> Option<Box<Timestamp>> {
+    match node {
+        Node::Timestamp(timestamp) => Some(Box::new(timestamp)),
+        // TODO Node::DateTime(datetime) => Some(Timestamp::from(datetime)),
+        // TODO Node::String(string) => Some(Timestamp::from(string)),
+        _ => None,
+    }
+}
+
+fn node_to_option_duration(node: Node) -> Option<Box<Duration>> {
+    match node {
+        Node::Duration(duration) => Some(Box::new(duration)),
+        // TODO Node::String(string) => Some(Duration::from(string)),
+        _ => None,
+    }
+}
+
 /// Stores and parses HTML content
 ///
 /// Simply accumulates HTML until tags balance, at which point the HTML is parsed,
 /// with text content being parsed as Markdown by calling back to `decode_fragment`.
+#[derive(Default)]
 struct Html {
     html: String,
     tags: Vec<String>,
@@ -1684,6 +2129,42 @@ mod tests {
                 ("def", Some(Node::String("2022-09-15".to_string()))),
             ]
         );
+
+        // Multiple spaces are fine
+        assert_json_eq!(
+            curly_attrs(r#"{   a     b=21 c : 1.234 d="   Internal  spaces "  }"#)
+                .unwrap()
+                .1,
+            vec![
+                ("a", None),
+                ("b", Some(Node::Integer(21))),
+                ("c", Some(Node::Number(Number(1.234)))),
+                ("d", Some(Node::String("   Internal  spaces ".to_string())))
+            ]
+        );
+    }
+
+    #[test]
+    fn test_spans() {
+        assert_eq!(
+            span(r#"[some string content]{text-red-300}"#).unwrap().1,
+            InlineContent::Span(Span {
+                programming_language: "tailwind".to_string(),
+                code: "text-red-300".to_string(),
+                content: vec![InlineContent::String("some string content".to_string())],
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(
+            span(r#"[content]`f"text-{color}-300"`{python}"#).unwrap().1,
+            InlineContent::Span(Span {
+                programming_language: "python".to_string(),
+                code: "f\"text-{color}-300\"".to_string(),
+                content: vec![InlineContent::String("content".to_string())],
+                ..Default::default()
+            })
+        );
     }
 
     #[test]
@@ -1763,7 +2244,7 @@ mod tests {
                     },
                     CallArgument {
                         name: "b".to_string(),
-                        symbol: Some(Box::new("symbol".to_string())),
+                        code: Some(Box::new("symbol".to_string())),
                         ..Default::default()
                     },
                     CallArgument {
@@ -1775,6 +2256,149 @@ mod tests {
                 ..Default::default()
             }
         );
+        assert_eq!(
+            call("/file.md(a=1,b = 2  , c=3, d =4)").unwrap().1,
+            Call {
+                source: "file.md".to_string(),
+                arguments: Some(vec![
+                    CallArgument {
+                        name: "a".to_string(),
+                        value: Some(Box::new(Node::Integer(1))),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "b".to_string(),
+                        value: Some(Box::new(Node::Integer(2))),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "c".to_string(),
+                        value: Some(Box::new(Node::Integer(3))),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "d".to_string(),
+                        value: Some(Box::new(Node::Integer(4))),
+                        ..Default::default()
+                    },
+                ]),
+                ..Default::default()
+            },
+        );
+    }
+
+    #[test]
+    fn test_for() {
+        // Simple
+        assert_eq!(
+            for_("::: for item in expr").unwrap().1,
+            For {
+                symbol: "item".to_string(),
+                code: "expr".to_string(),
+                ..Default::default()
+            }
+        );
+
+        // With less/extra spacing
+        assert_eq!(
+            for_(":::for item  in    expr").unwrap().1,
+            For {
+                symbol: "item".to_string(),
+                code: "expr".to_string(),
+                ..Default::default()
+            }
+        );
+
+        // With language specified
+        assert_eq!(
+            for_("::: for item in expr {python}").unwrap().1,
+            For {
+                symbol: "item".to_string(),
+                code: "expr".to_string(),
+                programming_language: "python".to_string(),
+                ..Default::default()
+            }
+        );
+
+        // With more complex expression
+        assert_eq!(
+            for_("::: for i in 1:10").unwrap().1,
+            For {
+                symbol: "i".to_string(),
+                code: "1:10".to_string(),
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            for_("::: for row in select * from table { sql }")
+                .unwrap()
+                .1,
+            For {
+                symbol: "row".to_string(),
+                code: "select * from table".to_string(),
+                programming_language: "sql".to_string(),
+                ..Default::default()
+            }
+        );
+    }
+
+    #[test]
+    fn test_form() {
+        assert_eq!(form("::: form").unwrap().1, Form::default());
+    }
+
+    #[test]
+    fn test_if() {
+        // Simple
+        assert_eq!(
+            if_elif("::: if expr").unwrap().1 .1,
+            IfClause {
+                code: "expr".to_string(),
+                guess_language: Some(true),
+                ..Default::default()
+            }
+        );
+
+        // With less/extra spacing
+        assert_eq!(
+            if_elif(":::if    expr").unwrap().1 .1,
+            IfClause {
+                code: "expr".to_string(),
+                guess_language: Some(true),
+                ..Default::default()
+            }
+        );
+
+        // With language specified
+        assert_eq!(
+            if_elif("::: if expr {python}").unwrap().1 .1,
+            IfClause {
+                code: "expr".to_string(),
+                programming_language: "python".to_string(),
+                ..Default::default()
+            }
+        );
+
+        // With more complex expression
+        assert_eq!(
+            if_elif("::: if a > 1 and b[8] < 1.23").unwrap().1 .1,
+            IfClause {
+                code: "a > 1 and b[8] < 1.23".to_string(),
+                guess_language: Some(true),
+                ..Default::default()
+            }
+        );
+    }
+
+    #[test]
+    fn test_divend() {
+        assert!(div_end(":::").is_ok());
+        assert!(div_end("::::").is_ok());
+        assert!(div_end("::::::").is_ok());
+
+        assert!(div_end(":::some chars").is_err());
+        assert!(div_end("::").is_err());
+        assert!(div_end(":").is_err());
     }
 
     #[test]

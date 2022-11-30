@@ -1,410 +1,362 @@
 ---
 source: rust/parser-py/src/lib.rs
-assertion_line: 222
-expression: resource_info
+assertion_line: 227
+expression: parse_info
 input_file: fixtures/fragments/py/uses.py
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/py/uses.py",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "python"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          0,
-          0,
-          4
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+  "syntaxErrors": false,
+  "semanticDigest": 2614237611287132312,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          0,
-          1,
-          4
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          7,
-          1,
-          11
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var3",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          0,
-          2,
-          4
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        1,
+        7,
+        1,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "fun1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          0,
-          3,
-          4
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        0,
+        2,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "fun2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          5,
-          3,
-          9
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        0,
+        3,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var4",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          11,
-          3,
-          15
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        5,
+        3,
+        9
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var5",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          0,
-          4,
-          4
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        11,
+        3,
+        15
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var6",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          5,
-          4,
-          9
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        4,
+        0,
+        4,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var7",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          6,
-          3,
-          6,
-          7
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        4,
+        5,
+        4,
+        9
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var8",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          6,
-          10,
-          6,
-          14
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        6,
+        3,
+        6,
+        7
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var9",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          7,
-          13,
-          7,
-          18
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        6,
+        10,
+        6,
+        14
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var10",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          11,
-          14,
-          11,
-          19
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        7,
+        13,
+        7,
+        18
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var11",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          12,
-          4,
-          12,
-          9
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        11,
+        14,
+        11,
+        19
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var12",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          16,
-          5,
-          16,
-          10
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        12,
+        4,
+        12,
+        9
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var13",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          21,
-          0,
-          21,
-          5
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        16,
+        5,
+        16,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var14",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          22,
-          0,
-          22,
-          5
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        21,
+        0,
+        21,
+        5
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var14",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          23,
-          0,
-          23,
-          5
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        22,
+        0,
+        22,
+        5
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var14",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          23,
-          13,
-          23,
-          18
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        23,
+        0,
+        23,
+        5
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var15",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          27,
-          0,
-          27,
-          4
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        23,
+        13,
+        23,
+        18
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "fun3",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          27,
-          5,
-          27,
-          10
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        27,
+        0,
+        27,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var16",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          31,
-          4,
-          31,
-          8
-        ]
+        "namespace": "fragments/py/uses.py"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
-        "name": "fun4",
-        "kind": "Function"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          38,
-          0,
-          38,
-          6
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/py/uses.py",
-        "name": "assign",
-        "kind": "Integer"
-      }
-    ]
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        27,
+        5,
+        27,
+        10
+      ]
+    }
   ],
-  "compile_digest": "10358955729016971577.10397852800639433373.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "fun4",
+        "kind": "Function",
+        "namespace": "fragments/py/uses.py"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        31,
+        4,
+        31,
+        8
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "assign",
+        "kind": "Integer",
+        "namespace": "fragments/py/uses.py"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        38,
+        0,
+        38,
+        6
+      ]
+    }
+  ],
+  "executionTags": []
 }

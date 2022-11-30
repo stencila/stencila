@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+fasteval = "0.2.4"
 parser = { path = "../parser" }
 
 [dev-dependencies]

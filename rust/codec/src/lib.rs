@@ -4,6 +4,7 @@ use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
     serde::{Deserialize, Serialize},
+    strum::{AsRefStr, EnumString},
     tokio::{
         fs::File,
         io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
@@ -206,14 +207,40 @@ pub struct DecodeOptions {
     pub format: Option<String>,
 }
 
+/// User mode for encoding
+#[derive(Debug, Clone, Copy, EnumString, AsRefStr, PartialEq, Eq, PartialOrd, Ord)]
+#[strum(
+    serialize_all = "lowercase",
+    ascii_case_insensitive,
+    crate = "common::strum"
+)]
+pub enum EncodeMode {
+    Static = 0,
+    Dynamic = 1,
+    Interact = 2,
+    Inspect = 3,
+    Alter = 4,
+    Design = 5,
+    Edit = 6,
+    Develop = 7,
+    Write = 8,
+    Code = 9,
+    Shell = 10,
+}
+
 /// Encoding options
 ///
 /// Encoding functions (including those in plugins) are encouraged to respect these options
 /// but are not required to. Indeed, some options do not apply for some formats.
 /// For example, a PDF is always `standalone` (so if that option is set to `false`, it will be ignored).
 /// Futhermore, some combinations of options are ineffectual e.g. a `theme` when `standalone: false`
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct EncodeOptions {
+    /// The user mode for the encoded document
+    ///
+    /// Codecs may alter how they encode documents based on the mode.
+    pub mode: EncodeMode,
+
     /// Whether to encode in compact form
     ///
     /// Some formats (e.g HTML and JSON) can be encoded in either compact
@@ -282,6 +309,7 @@ pub struct EncodeOptions {
 impl Default for EncodeOptions {
     fn default() -> Self {
         Self {
+            mode: EncodeMode::Write,
             compact: true,
             standalone: false,
             bundle: false,

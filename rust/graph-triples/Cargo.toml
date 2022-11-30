@@ -7,6 +7,7 @@ edition = "2021"
 common = { path = "../common" }
 formats = { path = "../formats" }
 hash-utils = { path = "../hash-utils" }
+parser = { path = "../parser" }
 path-utils = { path = "../path-utils" }
 schemars = { version = "0.8.8", features = ["preserve_order"] }
 stencila-schema = { path = "../schema" }

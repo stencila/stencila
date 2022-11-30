@@ -1,3 +1,5 @@
+//! Patching macros for `struct`s
+
 /// Generate the `diff` method for a `struct`
 macro_rules! patchable_struct_diff {
     ($($field:ident),* $(,)?) => {
@@ -14,7 +16,7 @@ macro_rules! patchable_struct_diff {
 macro_rules! patchable_struct_apply_add {
     ($($field:ident),* $(,)?) => {
         #[allow(unused_variables)]
-        fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+        fn apply_add(&mut self, address: &mut Address, value: Value) -> Result<()> {
             if let Some(Slot::Name(name)) = address.pop_front() {
                 match name.as_str() {
                     $(
@@ -29,15 +31,53 @@ macro_rules! patchable_struct_apply_add {
     };
 }
 
+/// Generate the `apply_add_many` method for a `struct`
+macro_rules! patchable_struct_apply_add_many {
+    ($($field:ident),* $(,)?) => {
+        #[allow(unused_variables)]
+        fn apply_add_many(&mut self, address: &mut Address, values: Values) -> Result<()> {
+            if let Some(Slot::Name(name)) = address.pop_front() {
+                match name.as_str() {
+                    $(
+                        stringify!($field) => self.$field.apply_add_many(address, values),
+                    )*
+                    _ => bail!(invalid_slot_name::<Self>(&name)),
+                }
+            } else {
+                bail!(invalid_address::<Self>("first slot should be a name"))
+            }
+        }
+    };
+}
+
 /// Generate the `apply_remove` method for a `struct`
 macro_rules! patchable_struct_apply_remove {
     ($($field:ident),* $(,)?) => {
         #[allow(unused_variables)]
-        fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
+        fn apply_remove(&mut self, address: &mut Address) -> Result<()> {
             if let Some(Slot::Name(name)) = address.pop_front() {
                 match name.as_str() {
                     $(
-                        stringify!($field) => self.$field.apply_remove(address, items),
+                        stringify!($field) => self.$field.apply_remove(address),
+                    )*
+                    _ => bail!(invalid_slot_name::<Self>(&name)),
+                }
+            } else {
+                bail!(invalid_address::<Self>("first slot should be a name"))
+            }
+        }
+    };
+}
+
+/// Generate the `apply_remove_many` method for a `struct`
+macro_rules! patchable_struct_apply_remove_many {
+    ($($field:ident),* $(,)?) => {
+        #[allow(unused_variables)]
+        fn apply_remove_many(&mut self, address: &mut Address, items: usize) -> Result<()> {
+            if let Some(Slot::Name(name)) = address.pop_front() {
+                match name.as_str() {
+                    $(
+                        stringify!($field) => self.$field.apply_remove_many(address, items),
                     )*
                     _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
@@ -52,11 +92,30 @@ macro_rules! patchable_struct_apply_remove {
 macro_rules! patchable_struct_apply_replace {
     ($($field:ident),* $(,)?) => {
         #[allow(unused_variables)]
-        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+        fn apply_replace(&mut self, address: &mut Address, value: Value) -> Result<()> {
             if let Some(Slot::Name(name)) = address.pop_front() {
                 match name.as_str() {
                     $(
-                        stringify!($field) => self.$field.apply_replace(address, items, value),
+                        stringify!($field) => self.$field.apply_replace(address, value),
+                    )*
+                    _ => bail!(invalid_slot_name::<Self>(&name)),
+                }
+            } else {
+                bail!(invalid_address::<Self>("first slot should be a name"))
+            }
+        }
+    };
+}
+
+/// Generate the `apply_replace_many` method for a `struct`
+macro_rules! patchable_struct_apply_replace_many {
+    ($($field:ident),* $(,)?) => {
+        #[allow(unused_variables)]
+        fn apply_replace_many(&mut self, address: &mut Address, items: usize, values: Values) -> Result<()> {
+            if let Some(Slot::Name(name)) = address.pop_front() {
+                match name.as_str() {
+                    $(
+                        stringify!($field) => self.$field.apply_replace_many(address, items, values),
                     )*
                     _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
@@ -71,11 +130,11 @@ macro_rules! patchable_struct_apply_replace {
 macro_rules! patchable_struct_apply_move {
     ($($field:ident),* $(,)?) => {
         #[allow(unused_variables)]
-        fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
+        fn apply_move(&mut self, from: &mut Address, to: &mut Address) -> Result<()> {
             if let (Some(Slot::Name(name)), Some(Slot::Name(_name_again))) = (from.pop_front(), to.pop_front()) {
                 match name.as_str() {
                     $(
-                        stringify!($field) => self.$field.apply_move(from, items, to),
+                        stringify!($field) => self.$field.apply_move(from, to),
                     )*
                     _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
@@ -111,10 +170,18 @@ macro_rules! patchable_struct {
     ($type:ty $(,$field:ident)* $(,)?) => {
         impl Patchable for $type {
             patchable_struct_diff!($($field,)*);
+
             patchable_struct_apply_add!($($field,)*);
+            patchable_struct_apply_add_many!($($field,)*);
+
             patchable_struct_apply_remove!($($field,)*);
+            patchable_struct_apply_remove_many!($($field,)*);
+
             patchable_struct_apply_replace!($($field,)*);
+            patchable_struct_apply_replace_many!($($field,)*);
+
             patchable_struct_apply_move!($($field,)*);
+
             patchable_struct_apply_transform!($($field,)*);
         }
     };

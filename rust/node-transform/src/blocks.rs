@@ -8,12 +8,12 @@ impl Transform for BlockContent {
         match self.to_owned() {
             // Variants with inline analogues
             BlockContent::CodeBlock(code_block) => InlineContent::CodeFragment(CodeFragment {
-                text: code_block.text,
+                code: code_block.code,
                 programming_language: code_block.programming_language,
                 ..Default::default()
             }),
             BlockContent::MathBlock(math_block) => InlineContent::MathFragment(MathFragment {
-                text: math_block.text,
+                code: math_block.code,
                 math_language: math_block.math_language,
                 ..Default::default()
             }),
@@ -113,6 +113,7 @@ impl Transform for BlockContent {
             }
             BlockContent::CodeBlock(node) => Node::CodeBlock(node),
             BlockContent::CodeChunk(node) => Node::CodeChunk(node),
+            BlockContent::Division(node) => Node::Division(node),
             BlockContent::Figure(node) => {
                 let FigureSimple {
                     caption,
@@ -129,8 +130,11 @@ impl Transform for BlockContent {
                     ..Default::default()
                 })
             }
+            BlockContent::For(node) => Node::For(node),
+            BlockContent::Form(node) => Node::Form(node),
             BlockContent::Heading(node) => Node::Heading(node),
             BlockContent::Include(node) => Node::Include(node),
+            BlockContent::If(node) => Node::If(node),
             BlockContent::List(node) => Node::List(node),
             BlockContent::MathBlock(node) => Node::MathBlock(node),
             BlockContent::Paragraph(node) => Node::Paragraph(node),

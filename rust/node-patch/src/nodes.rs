@@ -1,5 +1,7 @@
+//! Patching for [`Node`]s
+
 use common::serde_json;
-use stencila_schema::{Node, Number};
+use stencila_schema::Node;
 
 use super::prelude::*;
 
@@ -7,12 +9,6 @@ use super::prelude::*;
 macro_rules! patchable_node_variants {
     ($( $variant:path )*) => {
         impl Patchable for Node {
-            patchable_variants_apply_add!($( $variant )*);
-            patchable_variants_apply_remove!($( $variant )*);
-            patchable_variants_apply_replace!($( $variant )*);
-            patchable_variants_apply_move!($( $variant )*);
-            patchable_variants_apply_transform!($( $variant )*);
-
             fn diff(&self, other: &Self, differ: &mut Differ) {
                 #[allow(unreachable_patterns)]
                 match (self, other) {
@@ -35,27 +31,29 @@ macro_rules! patchable_node_variants {
                 }
             }
 
-            fn from_value(value: &Value) -> Result<Self>
-            where
-                Self: Clone + Sized + 'static,
-            {
-                if let Some(value) = value.downcast_ref::<Self>() {
-                    return Ok(value.clone());
-                } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-                    if let Some(string) = value.as_str() {
-                        return Ok(Node::String(string.to_string()));
-                    }
-                    if let Some(number) = value.as_f64() {
-                        return Ok(Node::Number(Number(number)));
-                    }
-                    if let Some(integer) = value.as_i64() {
-                        return Ok(Node::Integer(integer));
-                    }
-                    if let Some(boolean) = value.as_bool() {
-                        return Ok(Node::Boolean(boolean));
-                    }
+            patchable_variants_apply_add!($( $variant )*);
+            patchable_variants_apply_add_many!($( $variant )*);
+
+            patchable_variants_apply_remove!($( $variant )*);
+            patchable_variants_apply_remove_many!($( $variant )*);
+
+            patchable_variants_apply_replace!($( $variant )*);
+            patchable_variants_apply_replace_many!($( $variant )*);
+
+            patchable_variants_apply_move!($( $variant )*);
+
+            patchable_variants_apply_transform!($( $variant )*);
+
+            fn to_value(&self) -> Value {
+                Value::Node(self.clone())
+            }
+
+            fn from_value(value: Value) -> Result<Self> {
+                match value {
+                    Value::Node(node) => Ok(node),
+                    Value::Json(json) => Ok(serde_json::from_value::<Self>(json)?),
+                    _ => bail!(invalid_patch_value::<Self>(value)),
                 }
-                bail!(invalid_patch_value::<Self>())
             }
         }
     };
@@ -66,6 +64,7 @@ patchable_node_variants!(
     Node::Article
     Node::AudioObject
     Node::Boolean
+    Node::Button
     Node::Call
     Node::Cite
     Node::CiteGroup
@@ -74,6 +73,7 @@ patchable_node_variants!(
     Node::CodeChunk
     Node::CodeExpression
     Node::CodeFragment
+    Node::Division
     Node::Datatable
     Node::DatatableColumn
     Node::Date
@@ -82,8 +82,11 @@ patchable_node_variants!(
     Node::Duration
     Node::Emphasis
     Node::Figure
+    Node::For
+    Node::Form
     Node::Heading
     Node::ImageObject
+    Node::If
     Node::Include
     Node::Integer
     Node::Link
@@ -99,6 +102,7 @@ patchable_node_variants!(
     Node::Parameter
     Node::Quote
     Node::QuoteBlock
+    Node::Span
     Node::Strikeout
     Node::String
     Node::Strong

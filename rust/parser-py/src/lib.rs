@@ -1,13 +1,18 @@
-use std::path::Path;
+use std::{
+    env::current_dir,
+    path::{Path, PathBuf},
+};
 
 use parser_treesitter::{
     captures_as_args_map,
     common::{eyre::Result, once_cell::sync::Lazy},
     formats::Format,
-    graph_triples::{relations, resources, Resource, ResourceInfo},
-    path_utils, resource_info,
-    utils::{is_quoted, remove_quotes},
-    Parser, ParserTrait, TreesitterParser,
+    parse_info, path_utils,
+    utils::{
+        assigns_variable, declares_variable, imports_file, imports_module, is_quoted, reads_file,
+        remove_quotes, uses_variable, writes_file,
+    },
+    ParseInfo, Parser, ParserTrait, TreesitterParser,
 };
 
 /// Tree-sitter based parser for Python
@@ -30,49 +35,56 @@ impl ParserTrait for PyParser {
         }
     }
 
-    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
+    fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
         let code = code.as_bytes();
         let tree = PARSER.parse(code);
         let matches = PARSER.query(code, &tree);
 
-        let relations = matches
-            .iter()
-            .filter_map(|(pattern, captures)| match pattern {
+        let mut dependencies = Vec::new();
+        let mut dependents = Vec::new();
+        'matches: for (pattern, captures) in matches.iter() {
+            match pattern {
                 1 | 2 => {
                     // Imports a module
                     let range = captures[0].range;
                     let module = &captures[0].text;
-                    let path = path_utils::merge(path, [module, ".py"].concat());
-                    let object = match path.exists() {
-                        true => resources::file(&path),
-                        false => resources::module(Format::Python, module),
+                    let file_path = path_utils::merge(
+                        path.map(PathBuf::from)
+                            .unwrap_or_else(|| current_dir().expect("Should be able to get pwd")),
+                        [module, ".py"].concat(),
+                    );
+                    match file_path.exists() {
+                        true => dependencies.push(imports_file(&file_path, Some(range))),
+                        false => dependencies.push(imports_module(module, Some(range))),
                     };
-                    Some((relations::imports(range), object))
                 }
                 3 => {
                     // Opens a file for reading or writing
                     let args = captures_as_args_map(captures);
                     if let Some(file) = args.get("0").or_else(|| args.get("file")) {
                         if !is_quoted(&file.text) {
-                            return None;
+                            continue;
                         }
-                        let path = path_utils::merge(path, remove_quotes(&file.text));
+                        let file_path = path_utils::merge(
+                            path.map(PathBuf::from).unwrap_or_else(|| {
+                                current_dir().expect("Should be able to get pwd")
+                            }),
+                            remove_quotes(&file.text),
+                        );
                         let range = file.range;
                         if let Some(mode) = args.get("1").or_else(|| args.get("mode")) {
                             if !is_quoted(&mode.text) {
-                                return None;
+                                continue;
                             }
                             let mode = remove_quotes(&mode.text);
                             if mode.starts_with('w') || mode.starts_with('a') {
-                                Some((relations::writes(range), resources::file(&path)))
+                                dependents.push(writes_file(&file_path, Some(range)))
                             } else {
-                                Some((relations::reads(range), resources::file(&path)))
+                                dependencies.push(reads_file(&file_path, Some(range)))
                             }
                         } else {
-                            Some((relations::reads(range), resources::file(&path)))
+                            dependencies.push(reads_file(&file_path, Some(range)))
                         }
-                    } else {
-                        None
                     }
                 }
                 4 | 5 => {
@@ -81,26 +93,24 @@ impl ParserTrait for PyParser {
                     let name = captures[0].text.clone();
                     let kind = match pattern {
                         4 => match captures[1].node.kind() {
-                            "true" | "false" => "Boolean",
-                            "integer" => "Integer",
-                            "float" => "Number",
-                            "string" => "String",
-                            "list" => "Array",
-                            "dictionary" => "Object",
-                            "lambda" => "Function",
-                            _ => "",
+                            "true" | "false" => Some("Boolean".to_string()),
+                            "integer" => Some("Integer".to_string()),
+                            "float" => Some("Number".to_string()),
+                            "string" => Some("String".to_string()),
+                            "list" => Some("Array".to_string()),
+                            "dictionary" => Some("Object".to_string()),
+                            "lambda" => Some("Function".to_string()),
+                            _ => None,
                         },
-                        5 => "Function",
+                        5 => Some("Function".to_string()),
                         _ => unreachable!(),
                     };
 
-                    let symbol = resources::symbol(path, &name, kind);
-                    let relation = match pattern {
-                        4 => relations::assigns(range),
-                        5 => relations::declares(range),
+                    match pattern {
+                        4 => dependents.push(assigns_variable(&name, path, kind, Some(range))),
+                        5 => dependents.push(declares_variable(&name, path, kind, Some(range))),
                         _ => unreachable!(),
                     };
-                    Some((relation, symbol))
                 }
                 6 => {
                     // Uses an identifier assigned elsewhere
@@ -109,7 +119,7 @@ impl ParserTrait for PyParser {
                     let symbol = captures[0].text.clone();
 
                     if USE_IGNORE.contains(&symbol.as_str()) {
-                        return None;
+                        continue;
                     }
 
                     let mut parent = node.parent();
@@ -118,23 +128,21 @@ impl ParserTrait for PyParser {
                             // Skip identifiers that are the `left` of an assignment
                             "assignment" => {
                                 if Some(node) == parent_node.child_by_field_name("left") {
-                                    return None;
+                                    continue 'matches;
                                 }
                             }
                             // Skip any identifier used in a function parameter
-                            "parameters" | "lambda_parameters" => {
-                                return None;
-                            }
+                            "parameters" | "lambda_parameters" => continue 'matches,
                             // Skip identifiers that are the `name` of a keyword argument
                             "keyword_argument" => {
                                 if Some(node) == parent_node.child_by_field_name("name") {
-                                    return None;
+                                    continue 'matches;
                                 }
                             }
                             // Skip identifiers that are an `attribute`
                             "object" | "function" | "attribute" => {
                                 if Some(node) == parent_node.child_by_field_name("attribute") {
-                                    return None;
+                                    continue 'matches;
                                 }
                             }
                             // Skip identifiers that are the `left` of a for loop, or that refer to it
@@ -142,7 +150,7 @@ impl ParserTrait for PyParser {
                             "for_statement" => {
                                 if let Some(left) = parent_node.child_by_field_name("left") {
                                     if left == node || left.utf8_text(code).unwrap() == symbol {
-                                        return None;
+                                        continue 'matches;
                                     }
                                 }
                             }
@@ -150,11 +158,9 @@ impl ParserTrait for PyParser {
                             "import_statement"
                             | "import_from_statement"
                             | "function_definition"
-                            | "lambda" => return None,
+                            | "lambda" => continue 'matches,
                             // Skip identifiers that are the identifier in an `as_pattern_target`
-                            "as_pattern_target" => {
-                                return None;
-                            }
+                            "as_pattern_target" => continue 'matches,
                             // Skip any references to the `as_pattern_target` within `with` statements.
                             // This requires use to walk up the ancestors looking for a `with_statement`
                             // and then checking if the alias is the same as the identifier.
@@ -170,7 +176,7 @@ impl ParserTrait for PyParser {
                                             .and_then(|node| node.utf8_text(code).ok())
                                         {
                                             if symbol == alias {
-                                                return None;
+                                                continue 'matches;
                                             }
                                         }
                                     }
@@ -185,14 +191,13 @@ impl ParserTrait for PyParser {
                         parent = parent_node.parent();
                     }
 
-                    Some((relations::uses(range), resources::symbol(path, &symbol, "")))
+                    dependencies.push(uses_variable(&symbol, path, None, Some(range)))
                 }
-                _ => None,
-            })
-            .collect();
+                _ => (),
+            }
+        }
 
-        let resource_info = resource_info(
-            resource,
+        let parse_info = parse_info(
             path,
             Self::spec().language,
             code,
@@ -200,9 +205,10 @@ impl ParserTrait for PyParser {
             &["comment"],
             matches,
             0,
-            relations,
+            dependencies,
+            dependents,
         );
-        Ok(resource_info)
+        Ok(parse_info)
     }
 }
 
@@ -217,9 +223,8 @@ mod tests {
         snapshot_fixtures("fragments/py/*.py", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Format::Python);
-            let resource_info = PyParser::parse(resource, path, &code).expect("Unable to parse");
-            assert_json_snapshot!(resource_info);
+            let parse_info = PyParser::parse(&code, Some(path)).expect("Unable to parse");
+            assert_json_snapshot!(parse_info);
         })
     }
 }

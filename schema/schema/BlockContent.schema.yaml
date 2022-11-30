@@ -7,8 +7,12 @@ anyOf:
   - $ref: Claim
   - $ref: CodeBlock
   - $ref: CodeChunk
+  - $ref: Division
   - $ref: Figure
+  - $ref: For
+  - $ref: Form
   - $ref: Heading
+  - $ref: If
   - $ref: Include
   - $ref: List
   - $ref: MathBlock

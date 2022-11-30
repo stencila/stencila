@@ -1,161 +1,147 @@
 ---
 source: rust/parser-calc/src/lib.rs
-assertion_line: 132
-expression: resource_info
+assertion_line: 151
+expression: parse_info
 input_file: fixtures/fragments/calc/uses.calc
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/calc/uses.calc",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "calc"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          0,
-          0,
-          1
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/uses.calc",
-        "name": "a",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          0,
-          1,
-          1
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/uses.calc",
-        "name": "b",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          8,
-          1,
-          9
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/uses.calc",
-        "name": "c",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          0,
-          2,
-          1
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/uses.calc",
-        "name": "d",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          2,
-          2,
-          3
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/uses.calc",
-        "name": "e",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          10,
-          2,
-          11
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/uses.calc",
-        "name": "f",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          0,
-          3,
-          10
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/uses.calc",
-        "name": "g",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          0,
-          3,
-          10
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/calc/uses.calc",
-        "name": "h",
-        "kind": "Number"
-      }
-    ]
-  ],
-  "compile_digest": "690503005563725699.12590019388989690396.0.0.0",
-  "tags": [
+  "syntaxErrors": false,
+  "semanticDigest": 12590019388989690396,
+  "executionDependencies": [
     {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
+        "name": "a",
+        "kind": "Number",
+        "namespace": "fragments/calc/uses.calc"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
+        "name": "b",
+        "kind": "Number",
+        "namespace": "fragments/calc/uses.calc"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
+        "name": "c",
+        "kind": "Number",
+        "namespace": "fragments/calc/uses.calc"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        1,
+        8,
+        1,
+        9
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
+        "name": "d",
+        "kind": "Number",
+        "namespace": "fragments/calc/uses.calc"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
+        "name": "e",
+        "kind": "Number",
+        "namespace": "fragments/calc/uses.calc"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        2,
+        2,
+        3
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
+        "name": "f",
+        "kind": "Number",
+        "namespace": "fragments/calc/uses.calc"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        10,
+        2,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
+        "name": "g",
+        "namespace": "fragments/calc/uses.calc"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        0,
+        3,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
+        "name": "h",
+        "namespace": "fragments/calc/uses.calc"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        0,
+        3,
+        10
+      ]
+    }
+  ],
+  "executionDependents": [],
+  "executionTags": [
+    {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "uses",
-      "value": "g h",
-      "global": false
+      "value": "g h"
     }
   ]
 }

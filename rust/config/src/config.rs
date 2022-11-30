@@ -209,6 +209,7 @@ pub enum ImageFormat {
 
 impl Config {
     /// Resolve a config for a given path
+    #[allow(dead_code)]
     fn resolve<P: AsRef<Path>>(_path: &Path) {
         todo!()
     }

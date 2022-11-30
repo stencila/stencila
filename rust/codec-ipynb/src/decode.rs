@@ -94,7 +94,7 @@ fn translate_code_cell(cell: &serde_json::Value, notebook_lang: &str) -> Vec<Blo
         let id = metadata
             .get("id")
             .and_then(|value| value.as_str())
-            .map(|value| Box::new(value.to_string()));
+            .map(|value| value.into());
 
         let label = metadata
             .get("label")
@@ -145,7 +145,7 @@ fn translate_code_cell(cell: &serde_json::Value, notebook_lang: &str) -> Vec<Blo
         notebook_lang.to_string()
     };
 
-    let text = if let Some(source) = cell.get("source") {
+    let code = if let Some(source) = cell.get("source") {
         translate_multiline_string(source)
     } else {
         tracing::warn!("Code cell does not have a `source` property");
@@ -170,7 +170,7 @@ fn translate_code_cell(cell: &serde_json::Value, notebook_lang: &str) -> Vec<Blo
         label,
         caption,
         programming_language,
-        text,
+        code,
         outputs: if outputs.is_empty() {
             None
         } else {

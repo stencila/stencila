@@ -20,7 +20,7 @@ use buildpack::{
 };
 
 /// The set of registered buildpacks in the current process
-pub static PACKS: Lazy<Arc<Buildpacks>> = Lazy::new(|| Arc::new(Buildpacks::new()));
+pub static PACKS: Lazy<Buildpacks> = Lazy::new(Buildpacks::new);
 
 /// A set of registered buildpacks
 ///

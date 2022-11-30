@@ -1,18 +1,18 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 475
+assertion_line: 552
 expression: encoded
 input_file: fixtures/fragments/html/underline.html
 ---
-<article data-root itemtype="https://schema.org/Article" itemscope>
-  <stencila-document-toolbar>
-  </stencila-document-toolbar>
-  <div data-prop="content">
-    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
-      <span>Underlined text like</span>
-      <u itemtype="https://schema.stenci.la/Underline" itemscope>
-        <span>this</span>
-      </u>
-    </p>
-  </div>
-</article>
+<stencila-article data-root data-root="true">
+  <article itemtype="https://schema.org/Article" itemscope>
+    <div data-prop="content" slot="content">
+      <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
+        <span>Underlined text like</span>
+        <u itemtype="https://schema.stenci.la/Underline" itemscope>
+          <span>this</span>
+        </u>
+      </p>
+    </div>
+  </article>
+</stencila-article>

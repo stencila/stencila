@@ -1,14 +1,18 @@
+use std::collections::HashMap;
+
 use kernel::{
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{bail, eyre, Result},
+        json5,
         serde::Serialize,
+        serde_json,
     },
     formats::Format,
-    stencila_schema::{CodeError, Node},
+    stencila_schema::{CodeError, Node, Primitive},
     Kernel, KernelStatus, KernelTrait, TagMap, Task, TaskResult,
 };
-use std::collections::HashMap;
+use node_transform::Transform;
 
 /// A kernel that simply stores nodes
 ///
@@ -33,7 +37,7 @@ impl KernelTrait for StoreKernel {
         Kernel::new(
             "store",
             kernel::KernelType::Builtin,
-            &[Format::Json],
+            &[Format::Json, Format::Json5],
             true,
             false,
             false,
@@ -41,7 +45,7 @@ impl KernelTrait for StoreKernel {
     }
 
     async fn status(&self) -> Result<KernelStatus> {
-        Ok(KernelStatus::Idle)
+        Ok(KernelStatus::Ready)
     }
 
     async fn get(&mut self, name: &str) -> Result<Node> {
@@ -63,21 +67,31 @@ impl KernelTrait for StoreKernel {
     async fn exec_sync(
         &mut self,
         code: &str,
-        _lang: Format,
+        lang: Format,
         _tags: Option<&TagMap>,
     ) -> Result<Task> {
         let mut task = Task::begin_sync();
         let mut outputs = Vec::new();
         let mut messages = Vec::new();
-        for line in code.lines() {
-            match self.get(line.trim()).await {
-                Ok(output) => outputs.push(output),
-                Err(error) => messages.push(CodeError {
-                    error_message: error.to_string(),
-                    ..Default::default()
-                }),
-            }
+
+        let result = match lang {
+            Format::Json => serde_json::from_str::<Primitive>(code)
+                .map(|primitive| primitive.to_node())
+                .map_err(|error| eyre!(error)),
+            Format::Json5 => json5::from_str::<Primitive>(code)
+                .map(|primitive| primitive.to_node())
+                .map_err(|error| eyre!(error)),
+            _ => self.get(code.trim()).await,
+        };
+
+        match result {
+            Ok(output) => outputs.push(output),
+            Err(error) => messages.push(CodeError {
+                error_message: error.to_string(),
+                ..Default::default()
+            }),
         }
+
         task.end(TaskResult::new(outputs, messages));
         Ok(task)
     }
@@ -93,7 +107,7 @@ mod tests {
     async fn status() -> Result<()> {
         let kernel = StoreKernel::new();
 
-        assert_eq!(kernel.status().await?, KernelStatus::Idle);
+        assert_eq!(kernel.status().await?, KernelStatus::Ready);
 
         Ok(())
     }
@@ -116,13 +130,17 @@ mod tests {
         let b = kernel.get("b").await?;
         assert!(matches!(b, Node::Number(..)));
 
-        let (outputs, errors) = kernel.exec("a\nb", Format::Unknown, None).await?;
-        assert_eq!(outputs.len(), 2);
+        let (outputs, errors) = kernel.exec("[1,2,3]", Format::Json, None).await?;
+        assert_eq!(outputs.len(), 1);
         assert_eq!(errors.len(), 0);
 
-        let (outputs, errors) = kernel.exec("x\ny\nz", Format::Unknown, None).await?;
-        assert_eq!(outputs.len(), 0);
-        assert_eq!(errors.len(), 3);
+        let (outputs, errors) = kernel.exec("{a:1}", Format::Json5, None).await?;
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(errors.len(), 0);
+
+        let (outputs, errors) = kernel.exec("a", Format::Unknown, None).await?;
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(errors.len(), 0);
 
         Ok(())
     }

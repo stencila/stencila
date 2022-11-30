@@ -1,3 +1,4 @@
+import HtmlFragment from 'html-fragment'
 import { OperationReplace, Slot, ElementId } from '../../types'
 import {
   assert,
@@ -13,8 +14,7 @@ import {
 } from '../checks'
 import { applyReplace as applyReplaceString } from '../string'
 import { applyAddObject, applyAddStruct } from './add'
-import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
-import { hasProxy } from './proxies'
+import { escapeAttr, unescapeAttr } from './escape'
 import {
   createFragment,
   createFragmentWrapEach,
@@ -22,6 +22,7 @@ import {
   isObjectElement,
   resolveObjectKey,
   resolveParent,
+  slotSelector,
 } from './resolve'
 
 /**
@@ -51,8 +52,15 @@ export function applyReplace(op: OperationReplace, target?: ElementId): void {
       else applyReplaceVec(parent, slot, items, length, html)
     }
   } else {
-    assertString(value)
-    applyReplaceText(parent, slot, items, value)
+    let text: string
+    if (typeof value === 'string') {
+      text = value
+    } else if (value === null) {
+      throw panic('Got a null value')
+    } else {
+      text = value.toString()
+    }
+    applyReplaceText(parent, slot, items, text)
   }
 }
 
@@ -94,14 +102,23 @@ export function applyReplaceStruct(
     `Unexpected replace items ${items} for option slot '${name}'`
   )
 
-  // Is there a proxy element for the property? If so, apply the operation to its target.
-  const target = hasProxy(struct, name)
-  if (target) {
-    target.applyReplaceStruct(name, items, value, html)
+  // Is there an element for the property? If so, replace it with the new HTML
+  // but retain any `slot` or `data-prop` attributes.
+  const existing = struct.querySelector(slotSelector(name))
+  if (existing) {
+    const replacement = HtmlFragment(html).firstElementChild
+    if (replacement) {
+      const slot = existing.getAttribute('slot')
+      if (slot) replacement.setAttribute('slot', slot)
+      const prop = existing.getAttribute('data-prop')
+      if (prop) replacement.setAttribute('data-prop', prop)
+
+      existing.replaceWith(replacement)
+    }
     return
   }
 
-  // Simply delegate to `applyAddStruct` which has the same logic as needed here
+  // Otherwise, delegate to `applyAddStruct` which has the same logic as needed here for attributes
   applyAddStruct(struct, name, value, html)
 }
 
@@ -182,9 +199,8 @@ export function applyReplaceText(
   assertIndex(index)
 
   const current = text.textContent ?? ''
-  const unescaped = isAttr(text) ? unescapeAttr(current) : unescapeHtml(current)
+  const unescaped = isAttr(text) ? unescapeAttr(current) : current
   const updated = applyReplaceString(unescaped, index, items, value)
-  // It seems that, because setting textContent (?), it is not necessary to escape innerHTML
   const escaped = isAttr(text) ? escapeAttr(updated) : updated
   text.textContent = escaped
 }

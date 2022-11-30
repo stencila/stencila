@@ -50,7 +50,7 @@ properties:
       This property is analogous to the HTML `title` global attribute which
       represents ["advisory information related to the element"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)
     type: string
-  relation:
+  rel:
     '@id': schema:linkRelationship
     description:
       The relation between the target and the current thing.

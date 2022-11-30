@@ -1,36 +1,30 @@
 ---
 source: rust/parser-prql/src/lib.rs
-assertion_line: 58
-expression: resource_info
+assertion_line: 56
+expression: parse_info
 input_file: fixtures/fragments/prql/1.prql
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/prql/1.prql",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "prql"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          2,
-          3,
-          9
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/prql/1.prql",
+  "syntaxErrors": false,
+  "semanticDigest": 13915502163255635067,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "table_a",
-        "kind": "Datatable"
-      }
-    ]
+        "kind": "Datatable",
+        "namespace": "fragments/prql/1.prql"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        2,
+        3,
+        9
+      ]
+    }
   ],
-  "compile_digest": "18120284392215531687.16585951761014027491.0.0.0",
-  "tags": []
+  "executionDependents": [],
+  "executionTags": []
 }

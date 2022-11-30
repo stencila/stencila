@@ -19,9 +19,7 @@ use stencila_schema::Node;
 use test_snaps::{fixtures, insta::assert_json_snapshot, snapshot_set_suffix};
 
 use crate::{
-    assemble::assemble,
     compile::compile,
-    document::CallDocuments,
     execute::execute,
     messages::{CancelRequest, PatchRequest},
 };
@@ -57,24 +55,16 @@ async fn md_articles() -> Result<()> {
             }
         });
 
-        let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
+        let kernel_space = Arc::new(RwLock::new(KernelSpace::new(None)));
         let tag_map = Arc::new(RwLock::new(TagMap::default()));
-
-        // Assemble the article and snapshot the result
-        let address_map = assemble(path, &root, &call_docs, &patch_request_sender).await?;
-        snapshot_set_suffix(&[name, "-assemble"].concat(), || {
-            assert_json_snapshot!(&address_map)
-        });
-        let address_map = Arc::new(RwLock::new(address_map));
 
         // Compile the article and snapshot the result
         let graph = compile(
             path,
             project,
             &root,
-            &address_map,
             &tag_map,
-            &call_docs,
+            &kernel_space,
             &patch_request_sender,
         )
         .await?;
@@ -146,7 +136,7 @@ async fn md_articles() -> Result<()> {
                 for op in patch.ops.iter_mut() {
                     if let Operation::Add { address, value, .. } = op {
                         if let Some(Slot::Name(name)) = address.back() {
-                            if name == "execute_ended" || name == "execute_duration" {
+                            if name == "execution_ended" || name == "execution_duration" {
                                 *value = Box::new("<redacted>".to_string());
                             }
                         }
@@ -163,10 +153,8 @@ async fn md_articles() -> Result<()> {
         execute(
             &plan,
             &root,
-            &address_map,
             &tag_map,
-            &Arc::new(RwLock::new(KernelSpace::new(None, None))),
-            &call_docs,
+            &Arc::new(RwLock::new(KernelSpace::new(None))),
             &patch_request_sender,
             &mut cancel_request_receiver,
         )
@@ -193,7 +181,7 @@ async fn md_articles() -> Result<()> {
 /// Normally we execute a type of creative work such as an `Article`.
 /// But sometimes, when you have a flat array of `Node`s, it is necessary
 /// to use a `CreativeWork`. The first time we tried to do that it failed.
-/// This just tests that there is a patch with an "execute_ended" op
+/// This just tests that there is a patch with an "execution_ended" op
 #[tokio::test]
 async fn regression_creative_work() -> Result<()> {
     let node = serde_json::from_value(serde_json::json!({
@@ -207,13 +195,13 @@ async fn regression_creative_work() -> Result<()> {
         ]
     }))?;
 
-    let (_plan, patches) = assemble_compile_plan_execute(node).await?;
+    let (_plan, patches) = compile_plan_execute(node).await?;
     let was_executed = patches
         .iter()
         .flat_map(|patch| &patch.ops)
         .any(|op| match op {
             Operation::Add { address, .. } => match &address[0] {
-                Slot::Name(name) => name == "execute_ended",
+                Slot::Name(name) => name == "execution_ended",
                 _ => false,
             },
             _ => false,
@@ -226,10 +214,10 @@ async fn regression_creative_work() -> Result<()> {
 /// Convenience function to compile, plan and execute a node
 ///
 /// Returns the plan and generated patches.
-async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
+async fn compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
     let root = Arc::new(RwLock::new(node));
-    let call_docs = Arc::new(RwLock::new(CallDocuments::default()));
     let tags = Arc::new(RwLock::new(TagMap::default()));
+    let kernels = Arc::new(RwLock::new(KernelSpace::new(None)));
 
     let (patch_request_sender, mut patch_request_receiver) =
         mpsc::unbounded_channel::<PatchRequest>();
@@ -243,16 +231,12 @@ async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)>
 
     let (_cancel_request_sender, mut cancel_request_receiver) = mpsc::channel::<CancelRequest>(1);
 
-    let address_map = assemble(&PathBuf::new(), &root, &call_docs, &patch_request_sender).await?;
-    let address_map = &Arc::new(RwLock::new(address_map));
-
     let graph = compile(
         &PathBuf::new(),
         &PathBuf::new(),
         &root,
-        address_map,
         &tags,
-        &call_docs,
+        &kernels,
         &patch_request_sender,
     )
     .await?;
@@ -262,10 +246,8 @@ async fn assemble_compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)>
     execute(
         &plan,
         &root,
-        address_map,
         &tags,
-        &Arc::new(RwLock::new(KernelSpace::new(None, None))),
-        &call_docs,
+        &kernels,
         &patch_request_sender,
         &mut cancel_request_receiver,
     )

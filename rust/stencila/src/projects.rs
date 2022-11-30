@@ -410,9 +410,7 @@ impl Project {
                 visited.push(path_buf);
             }
 
-            let document_id = DOCUMENTS.open(path, None).await?;
-            let document = DOCUMENTS.get(&document_id).await?;
-            let document = document.lock().await;
+            let document = DOCUMENTS.open(path, None).await?;
             for (subject, pairs) in &document.relations {
                 for (relation, object) in pairs {
                     graph.add_triple((subject.clone(), relation.clone(), object.clone()));

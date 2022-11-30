@@ -1,26 +1,19 @@
-use std::{
-    fmt::Display,
-    fs::read_to_string,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
+use parser::TagMap;
 use schemars::JsonSchema;
 
 use common::{
     derivative::Derivative,
     eyre::Result,
-    itertools::Itertools,
-    once_cell::sync::Lazy,
-    regex::Regex,
     serde::{self, Serialize},
     serde_with::skip_serializing_none,
 };
 use formats::Format;
-use hash_utils::str_seahash;
 use path_utils::path_slash::PathExt;
-use stencila_schema::{Cord, ExecuteAuto};
+use stencila_schema::{ExecutionAuto, ExecutionDigest};
 
-use crate::{Pairs, Relation};
+use crate::{execution_digest_from_path, Pairs, Relation};
 
 /// A resource in a dependency graph (the nodes of the graph)
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
@@ -73,10 +66,10 @@ impl Resource {
     ///
     /// If the resource variant does not support generation of a digest,
     /// a default (empty) digest is returned.
-    pub fn digest(&self) -> ResourceDigest {
+    pub fn execution_digest(&self) -> ExecutionDigest {
         match self {
-            Resource::File(File { path }) => ResourceDigest::from_path(path, None),
-            _ => ResourceDigest::default(),
+            Resource::File(File { path }) => execution_digest_from_path(path, None),
+            _ => ExecutionDigest::default(),
         }
     }
 
@@ -87,7 +80,8 @@ impl Resource {
             None,
             None,
             None,
-            Some(self.digest()),
+            None,
+            Some(self.execution_digest()),
             None,
             None,
         )
@@ -109,239 +103,6 @@ impl Resource {
             Resource::Code(Code { id, .. }) | Resource::Node(Node { id, .. }) => Some(id.as_str()),
             _ => None,
         }
-    }
-}
-/// A digest representing the state of a [`Resource`] and its dependencies.
-///
-/// The digest is separated into several parts. Although initially it may seem that the
-/// parts are redundant ("can't they all be folded into a single digest?"), each
-/// part provides useful information. For example, it is useful to store
-/// the `content_digest`, in addition to `semantic_digest`, to be able
-/// to indicate to the user that a change in the resource has been detected but
-/// that it does not appear to change its semantics.
-#[derive(Debug, Default, Clone)]
-pub struct ResourceDigest {
-    /// A digest that captures the content of the resource (e.g the `text`
-    /// of a `CodeChunk`, or the bytes of a file).
-    pub content_digest: u64,
-
-    /// A digest that captures the "semantic intent" of the resource
-    /// with respect to the dependency graph.
-    ///
-    /// For example, for `Code` resources it is preferably derived from the AST
-    /// of the code and should only change when the semantics of the code change.
-    pub semantic_digest: u64,
-
-    /// A digest of the `dependencies_digest`s of the dependencies of a resource.
-    ///
-    /// If there are no dependencies then `dependencies_digest` is an empty string.
-    pub dependencies_digest: u64,
-
-    /// The count of the number of code dependencies that are stale (i.e. are out of sync with the `KernelSpace`).
-    ///
-    /// If there are no dependencies then `dependencies_stale` is zero. May include
-    /// duplicates for diamond shaped dependency graphs so this represents a maximum number.
-    pub dependencies_stale: u32,
-
-    /// The count of the number of code dependencies that had `execute_status == Failed`
-    ///
-    /// If there are no dependencies then `dependencies_failed` is zero. May include
-    /// duplicates for diamond shaped dependency graphs so this represents a maximum number.
-    pub dependencies_failed: u32,
-}
-
-impl ResourceDigest {
-    /// Create a new `ResourceDigest` from its string representation
-    pub fn from_string(string: &str) -> Self {
-        let parts: Vec<&str> = string.split('.').collect();
-        let content_digest = parts
-            .first()
-            .map_or(0, |str| str.parse().unwrap_or_default());
-        let semantic_digest = parts
-            .get(1)
-            .map_or(0, |str| str.parse().unwrap_or_default());
-        let dependencies_digest = parts
-            .get(2)
-            .map_or(0, |str| str.parse().unwrap_or_default());
-        let dependencies_stale = parts
-            .get(3)
-            .map_or(0, |str| str.parse().unwrap_or_default());
-        let dependencies_failed = parts
-            .get(4)
-            .map_or(0, |str| str.parse().unwrap_or_default());
-        Self {
-            content_digest,
-            semantic_digest,
-            dependencies_digest,
-            dependencies_stale,
-            dependencies_failed,
-        }
-    }
-
-    /// Create a new `ResourceDigest` from a [`Cord`]
-    pub fn from_cord(cord: &Cord) -> Self {
-        Self::from_string(&cord.0)
-    }
-
-    /// Create a new `ResourceDigest` from strings for content and semantics.
-    ///
-    /// Before generating the hash of strings remove carriage returns from strings to avoid
-    /// cross platform differences in generated digests.
-    pub fn from_strings(content_str: &str, semantic_str: Option<&str>) -> Self {
-        let content_digest = str_seahash(&Self::strip_chars(content_str)).unwrap_or_default();
-        let semantic_digest = semantic_str
-            .and_then(|str| str_seahash(&Self::strip_chars(str)).ok())
-            .unwrap_or(content_digest);
-        Self {
-            content_digest,
-            semantic_digest,
-            ..Default::default()
-        }
-    }
-
-    /// Create a new `ResourceDigest` from a file
-    ///
-    /// If there is an error when hashing the file, a default (empty) digest is returned.
-    pub fn from_path(path: &Path, media_type: Option<&str>) -> Self {
-        match read_to_string(path) {
-            Ok(content) => {
-                let semantic_str = media_type.map(|mt| [&content, mt].concat());
-                Self::from_strings(&content, semantic_str.as_deref())
-            }
-            Err(..) => Self::default(),
-        }
-    }
-
-    /// Strip carriage returns from strings
-    ///
-    /// Because the use of carriage returns differs between *nix and Windows, we
-    /// strip them so that content digest does not change between platforms.
-    pub fn strip_chars(bytes: &str) -> String {
-        bytes.replace('\r', "")
-    }
-
-    /// Create a [`Cord`] from a `ResourceDigest`
-    pub fn to_cord(&self) -> Cord {
-        Cord(self.to_string())
-    }
-}
-
-// String representation of `ResourceDigest`
-impl Display for ResourceDigest {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            formatter,
-            "{}.{}.{}.{}.{}",
-            self.content_digest,
-            self.semantic_digest,
-            self.dependencies_digest,
-            self.dependencies_stale,
-            self.dependencies_failed
-        )
-    }
-}
-
-// Use `Display` for serialization
-impl Serialize for ResourceDigest {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.collect_str(&self.to_string())
-    }
-}
-
-/// A tag declared in a `CodeChunk`
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize)]
-#[serde(crate = "common::serde")]
-pub struct Tag {
-    /// The name of the tag e.g. `uses`, `db`
-    pub name: String,
-
-    /// The value of the tag
-    pub value: String,
-
-    /// Whether the tag is global to the containing document
-    pub global: bool,
-}
-
-/// A collection of tags
-///
-/// Implements a `HashMap` like interface but is implemented as a `Vec` as this
-/// is expected to be more performant (in memory and CPU) given that the number
-/// of tags in a `TagMap` will usually be small (<10).
-#[derive(Debug, Default, Clone, Serialize)]
-#[serde(transparent, crate = "common::serde")]
-pub struct TagMap {
-    inner: Vec<Tag>,
-}
-
-impl TagMap {
-    /// Create a new tag map from a list of name/value pairs
-    pub fn from_name_values(pairs: &[(&str, &str)]) -> Self {
-        let mut map = Self::default();
-        for (name, value) in pairs {
-            map.insert(Tag {
-                name: name.to_string(),
-                value: value.to_string(),
-                ..Default::default()
-            });
-        }
-        map
-    }
-
-    /// Get a tag by name
-    pub fn get(&self, name: &str) -> Option<&Tag> {
-        self.inner.iter().find(|tag| tag.name == name)
-    }
-
-    /// Get a tag value by name
-    pub fn get_value(&self, name: &str) -> Option<String> {
-        self.get(name).map(|tag| tag.value.clone())
-    }
-
-    /// Get a tag split into individual space or comma separated items
-    pub fn get_items(&self, name: &str) -> Vec<String> {
-        static REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"\s+|(\s*,\s*)").expect("Unable to create regex"));
-
-        match self.get_value(name) {
-            Some(value) => REGEX.split(&value).map(String::from).collect_vec(),
-            None => Vec::new(),
-        }
-    }
-
-    /// Insert a tag
-    ///
-    /// Overrides any existing tag with the same `name`.
-    pub fn insert(&mut self, new: Tag) {
-        if let Some((position, ..)) = self.inner.iter().find_position(|tag| tag.name == new.name) {
-            self.inner[position] = new;
-        } else {
-            self.inner.push(new)
-        }
-    }
-
-    /// Insert `global` tags from another tag map
-    ///
-    /// Used to merge a resource's global tags into a document's global tags.
-    pub fn insert_globals(&mut self, other: &TagMap) {
-        for tag in other.inner.iter() {
-            if tag.global {
-                self.insert(tag.clone());
-            }
-        }
-    }
-
-    /// Merge tags from one tag map into another, overriding any duplicates
-    ///
-    /// Used to merge document's global tags into a resource's tags.
-    pub fn merge(&self, other: &TagMap) -> TagMap {
-        let mut clone = self.clone();
-        for tag in &other.inner {
-            clone.insert(tag.clone());
-        }
-        clone
     }
 }
 
@@ -425,7 +186,7 @@ pub struct ResourceInfo {
     /// (i.e. is non-deterministic) and everytime one of its downstream dependents is run, they
     /// want it to be updated.
     ///
-    pub execute_auto: Option<ExecuteAuto>,
+    pub execute_auto: Option<ExecutionAuto>,
 
     /// Whether the resource is marked as pure or impure.
     ///
@@ -437,15 +198,18 @@ pub struct ResourceInfo {
     /// will be inferred from its `relations`.
     pub execute_pure: Option<bool>,
 
-    /// The [`ResourceDigest`] of the resource when it was last compiled
-    pub compile_digest: Option<ResourceDigest>,
+    /// For code resources, whether the code had syntax errors when it was last parsed
+    pub syntax_errors: Option<bool>,
 
-    /// The [`ResourceDigest`] of the resource when it was last executed
-    pub execute_digest: Option<ResourceDigest>,
+    /// The [`ExecutionDigest`] of the resource when it was last compiled
+    pub compile_digest: Option<ExecutionDigest>,
+
+    /// The [`ExecutionDigest`] of the resource when it was last executed
+    pub execute_digest: Option<ExecutionDigest>,
 
     /// Whether the last execution of the resource failed or not
     ///
-    /// Used to determine if other resources should have `execute_required` set to `DependenciesFailed`.
+    /// Used to determine if other resources should have `execution_required` set to `DependenciesFailed`.
     /// Should be false if the resource has never executed or succeeded last time it was.
     pub execute_failed: Option<bool>,
 
@@ -464,6 +228,7 @@ impl ResourceInfo {
             depth: None,
             execute_auto: None,
             execute_pure: None,
+            syntax_errors: None,
             compile_digest: None,
             execute_digest: None,
             execute_failed: None,
@@ -472,13 +237,15 @@ impl ResourceInfo {
     }
 
     /// Create a new `ResourceInfo` object
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         resource: Resource,
         relations: Option<Pairs>,
-        execute_auto: Option<ExecuteAuto>,
+        execute_auto: Option<ExecutionAuto>,
         execute_pure: Option<bool>,
-        compile_digest: Option<ResourceDigest>,
-        execute_digest: Option<ResourceDigest>,
+        syntax_errors: Option<bool>,
+        compile_digest: Option<ExecutionDigest>,
+        execute_digest: Option<ExecutionDigest>,
         execute_failed: Option<bool>,
     ) -> Self {
         Self {
@@ -489,6 +256,7 @@ impl ResourceInfo {
             depth: None,
             execute_auto,
             execute_pure,
+            syntax_errors,
             compile_digest,
             execute_digest,
             execute_failed,
@@ -551,7 +319,7 @@ impl ResourceInfo {
     /// Is the resource stale?
     ///
     /// Note that, when comparing the `execute_digest` and `compile_digest` for this determination,
-    /// the `content_digest` part is ignored. This avoids re-execution in situations such as when
+    /// the `state_digest` part is ignored. This avoids re-execution in situations such as when
     /// the user removes a `@autorun always` comment (they probably don't want it to be run again
     /// automatically next time). We currently include `dependencies_stale` in the comparison but
     /// that may also be unnecessary/inappropriate as well?
@@ -582,24 +350,6 @@ impl ResourceInfo {
         self.execute_digest = self.compile_digest.clone();
         self.execute_failed = Some(execute_failed);
     }
-}
-
-/// A change to a resource
-#[derive(Debug, Serialize)]
-#[serde(crate = "common::serde")]
-pub struct ResourceChange {
-    pub resource: Resource,
-    pub action: ResourceChangeAction,
-    pub time: String,
-}
-
-/// The type of change to a resource
-#[derive(Debug, Serialize)]
-#[serde(crate = "common::serde")]
-pub enum ResourceChangeAction {
-    Created,
-    Updated,
-    Deleted,
 }
 
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]

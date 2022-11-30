@@ -10,8 +10,7 @@ import {
 } from '../checks'
 import { applyRemove as applyRemoveString } from '../string'
 import { STRUCT_ATTRIBUTES } from './consts'
-import { unescapeAttr, unescapeHtml } from './escape'
-import { hasProxy } from './proxies'
+import { escapeAttr, unescapeAttr } from './escape'
 import {
   isArrayElement,
   isObjectElement,
@@ -79,13 +78,6 @@ export function applyRemoveStruct(
     items === 1,
     `Unexpected remove items ${items} for option slot '${name}'`
   )
-
-  // Is there a proxy element for the property? If so, apply the operation to its target.
-  const target = hasProxy(struct, name)
-  if (target) {
-    target.applyRemoveStruct(name, items)
-    return
-  }
 
   // If the property is represented as a child element then clear it's content
   // and its attributes, other than `data-prop` etc (so that it remains
@@ -168,7 +160,8 @@ export function applyRemoveText(
   assertIndex(index)
 
   const current = text.textContent ?? ''
-  const unescaped = isAttr(text) ? unescapeAttr(current) : unescapeHtml(current)
+  const unescaped = isAttr(text) ? unescapeAttr(current) : current
   const updated = applyRemoveString(unescaped, index, items)
-  text.textContent = updated
+  const escaped = isAttr(text) ? escapeAttr(updated) : updated
+  text.textContent = escaped
 }

@@ -53,10 +53,7 @@ fn encode_metadata(article: &Article) -> serde_json::Value {
     object.remove("content");
 
     if let Some(title) = article.title.as_deref() {
-        let title = match title {
-            CreativeWorkTitle::String(string) => string.clone(),
-            CreativeWorkTitle::VecInlineContent(inlines) => inlines.to_txt(),
-        };
+        let title = title.to_txt();
         object.insert("title".to_string(), json!(title));
     }
 
@@ -169,7 +166,7 @@ fn encode_chunk(chunk: &CodeChunk) -> serde_json::Value {
         );
     }
 
-    let source = encode_multiline_string(&chunk.text);
+    let source = encode_multiline_string(&chunk.code);
 
     let outputs = if let Some(outputs) = &chunk.outputs {
         encode_outputs(outputs)
@@ -250,7 +247,7 @@ fn encode_execute_result(node: &Node) -> serde_json::Value {
         "output_type": "execute_result",
         "data": data,
         // The `execution_count` is required in Jupyter Notebook v4.5 but can be `null`;
-        // it is not the same as Stencila `execute_count`which increments across sessions.
+        // it is not the same as Stencila `execution_count`which increments across sessions.
         "execution_count": null,
         "metadata": {},
     })

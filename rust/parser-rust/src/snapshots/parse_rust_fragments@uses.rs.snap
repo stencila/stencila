@@ -1,70 +1,59 @@
 ---
 source: rust/parser-rust/src/lib.rs
-assertion_line: 103
-expression: resource_info
+assertion_line: 100
+expression: parse_info
 input_file: fixtures/fragments/rust/uses.rs
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/rust/uses.rs",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "rust"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          0,
-          0,
-          4
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/rust/uses.rs",
+  "syntaxErrors": false,
+  "semanticDigest": 6969109521701982999,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          0,
-          1,
-          4
-        ]
+        "namespace": "fragments/rust/uses.rs"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/rust/uses.rs",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          7,
-          1,
-          11
-        ]
+        "namespace": "fragments/rust/uses.rs"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/rust/uses.rs",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        4
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var3",
-        "kind": ""
-      }
-    ]
+        "namespace": "fragments/rust/uses.rs"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        1,
+        7,
+        1,
+        11
+      ]
+    }
   ],
-  "compile_digest": "8603239650721494443.9773956241927022867.0.0.0",
-  "tags": []
+  "executionDependents": [],
+  "executionTags": []
 }

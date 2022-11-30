@@ -1,6 +1,6 @@
 ---
 source: rust/documents/src/tests.rs
-assertion_line: 122
+assertion_line: 121
 expression: "&plan"
 ---
 {
@@ -8,5 +8,150 @@ expression: "&plan"
     "ordering": "Appearance",
     "max_concurrency": 10
   },
-  "stages": []
+  "stages": [
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code.md",
+              "id": "ce-1",
+              "kind": "CodeExpression",
+              "language": "r"
+            },
+            "relations": [],
+            "dependencies": [],
+            "depth": 0,
+            "compile_digest": "16022657009924536748.5281476481088129800.0.0.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "r"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code.md",
+              "id": "ce-2",
+              "kind": "CodeExpression",
+              "language": "python"
+            },
+            "relations": [],
+            "dependencies": [],
+            "depth": 0,
+            "compile_digest": "12904300673988594286.6811386310936119001.0.0.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "python"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code.md",
+              "id": "ce-3",
+              "kind": "CodeExpression",
+              "language": "calc"
+            },
+            "relations": [],
+            "dependencies": [],
+            "depth": 0,
+            "compile_digest": "6453152692411696678.12037687343765992774.0.0.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "calc"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code.md",
+              "id": "ce-4",
+              "kind": "CodeExpression",
+              "language": "python"
+            },
+            "relations": [],
+            "dependencies": [],
+            "depth": 0,
+            "compile_digest": "1609925644024088361.15766924228632792825.0.0.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "python"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code.md",
+              "id": "ce-5",
+              "kind": "CodeExpression",
+              "language": "calc"
+            },
+            "relations": [],
+            "dependencies": [],
+            "depth": 0,
+            "compile_digest": "17072206937161055418.17805995079931396640.0.0.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "calc"
+          },
+          "is_fork": false
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code.md",
+              "id": "cc-1",
+              "kind": "CodeChunk",
+              "language": "r"
+            },
+            "relations": [],
+            "dependencies": [],
+            "depth": 0,
+            "compile_digest": "15204122772155796248.11300830894147400802.0.0.0",
+            "tags": []
+          },
+          "kernel_selector": {
+            "lang": "r"
+          },
+          "is_fork": false
+        }
+      ]
+    }
+  ]
 }

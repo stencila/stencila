@@ -202,17 +202,9 @@ properties:
     description: The title of the creative work.
     aliases:
       - headline
-    $comment: |
-      Allows for the title to include inline content (e.g `Strong`, `Math`)
-      or a string. The title can not be block content e.g `Paragraph`.
-      The `minItems` restriction avoids a string being coerced into an array
-      with a single string item.
-    anyOf:
-      - type: array
-        items:
-          $ref: InlineContent
-        minItems: 2
-      - type: string
+    type: array
+    items:
+      $ref: InlineContent
   version:
     '@id': schema:version
     description: The version of the creative work.

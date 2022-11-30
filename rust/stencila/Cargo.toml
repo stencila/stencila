@@ -78,22 +78,30 @@ default = [
   "parsers-cli",
   "parsers/parser-bash",
   "parsers/parser-calc",
+  "parsers/parser-http",
   "parsers/parser-js",
+  "parsers/parser-json",
+  "parsers/parser-json5",
+  "parsers/parser-postgrest",
   "parsers/parser-prql",
   "parsers/parser-py",
   "parsers/parser-r",
   "parsers/parser-sql",
+  "parsers/parser-tailwind",
   "parsers/parser-ts",
 
   # Kernels
   "kernels-cli",
   "kernels/kernel-bash",
   "kernels/kernel-calc",
+  "kernels/kernel-http",
   "kernels/kernel-node",
+  "kernels/kernel-postgrest",
   "kernels/kernel-python",
   "kernels/kernel-r",
   "kernels/kernel-store",
   "kernels/kernel-sql",
+  "kernels/kernel-tailwind",
   "kernels/kernel-zsh",
 
   # Binaries
@@ -105,6 +113,7 @@ default = [
   "binaries/binary-pandoc",
   "binaries/binary-podman",
   "binaries/binary-poetry",
+  "binaries/binary-postgrest",
   "binaries/binary-python",
   "binaries/binary-r",
   "binaries/binary-task",
@@ -162,7 +171,7 @@ path-utils = { path = "../path-utils" }
 providers = { path = "../providers" }
 tasks = { path = "../tasks" }
 utils = { path = "../utils" }
-uuids = { path = "../uuids" }
+suids = { path = "../suids" }
 
 # Optional crates related to `cli` feature
 

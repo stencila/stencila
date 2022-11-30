@@ -2,35 +2,31 @@ title: Variable
 '@id': stencila:Variable
 extends: Entity
 role: secondary
-status: experimental
+status: unstable
 category: code
 description: A variable representing a name / value pair.
 properties:
+  namespace:
+    '@id': stencila:namespace
+    description: The namespace, usually a document path, within which the variable resides
+    type: string
   name:
     '@id': schema:name
     description: The name of the variable.
     type: string
-    pattern: '[a-z_][A-z0-9_]*'
+    pattern: '[a-zA-Z][a-zA-Z0-9_]*'
     $comment: |
       This regex allows for snake_case and camelCase names but excludes
       PascalCase for names.
-  isReadonly:
-    '@id': schema:readonlyValue
-    description: Whether or not a property is mutable. Default is false.
-    $comment: |
-      If `isReadonly` is `true` and `value` is defined then changes to `value`
-      should not be allowed.
-    type: boolean
-    default: false
-  validator:
-    '@id': stencila:validator
-    description: The validator that the value is validated against.
-    allOf:
-      - $ref: ValidatorTypes
+  kind:
+    '@id': stencila:kind
+    type: string
+    description: The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`
   value:
     '@id': schema:value
     description: The value of the variable.
     allOf:
       - $ref: Node
 required:
+  - namespace
   - name

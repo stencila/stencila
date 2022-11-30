@@ -1,189 +1,164 @@
 ---
 source: rust/parser-js/src/lib.rs
-assertion_line: 210
-expression: resource_info
+assertion_line: 224
+expression: parse_info
 input_file: fixtures/fragments/js/tags.js
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/js/tags.js",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "javascript"
-  },
-  "relations": [
-    [
-      {
-        "type": "Declares",
-        "range": [
-          8,
-          4,
-          8,
-          10
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/tags.js",
-        "name": "ignore",
-        "kind": "Number"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          0,
-          1,
-          26
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "javascript",
+  "syntaxErrors": false,
+  "semanticDigest": 4687331741973383118,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "mod1"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          0,
-          1,
-          26
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        26
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "mod2"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          1,
-          0,
-          1,
-          26
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        26
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "mod3"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          2,
-          0,
-          2,
-          20
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/tags.js",
-        "name": "var1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          3,
-          0,
-          3,
-          12
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/tags.js",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        26
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var2",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          5,
-          0,
-          5,
-          23
-        ]
+        "namespace": "fragments/js/tags.js"
       },
-      {
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        3,
+        0,
+        3,
+        12
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
-        "path": "file1"
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          5,
-          0,
-          5,
-          23
-        ]
+        "name": "",
+        "path": "fragments/js/tags.js/file1"
       },
-      {
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        5,
+        0,
+        5,
+        23
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
-        "path": "file2"
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          6,
-          0,
-          6,
-          15
-        ]
+        "name": "",
+        "path": "fragments/js/tags.js/file2"
       },
-      {
-        "type": "File",
-        "path": "file3"
-      }
-    ]
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        5,
+        0,
+        5,
+        23
+      ]
+    }
   ],
-  "compile_digest": "12864044659078367940.13563159722958230604.0.0.0",
-  "tags": [
+  "executionDependents": [
     {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "ignore",
+        "kind": "Number",
+        "namespace": "fragments/js/tags.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        8,
+        4,
+        8,
+        10
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "var1",
+        "namespace": "fragments/js/tags.js"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        2,
+        0,
+        2,
+        20
+      ]
+    }
+  ],
+  "executionTags": [
+    {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "imports",
-      "value": "mod1, mod2 mod3",
-      "global": false
+      "value": "mod1, mod2 mod3"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "assigns",
-      "value": "var1 only",
-      "global": false
+      "value": "var1 only"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "uses",
-      "value": "var2",
-      "global": false
+      "value": "var2"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "reads",
-      "value": "file1 file2",
-      "global": false
+      "value": "file1 file2"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "writes",
-      "value": "file3",
-      "global": false
+      "value": "file3"
     }
   ]
 }

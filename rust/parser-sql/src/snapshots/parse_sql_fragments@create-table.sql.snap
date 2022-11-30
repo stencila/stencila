@@ -1,36 +1,142 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 455
-expression: resource_info
+assertion_line: 459
+expression: parse_info
 input_file: fixtures/fragments/sql/create-table.sql
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/sql/create-table.sql",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "sql"
-  },
-  "relations": [
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          3,
-          13,
-          3,
-          20
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/create-table.sql",
+  "syntaxErrors": false,
+  "semanticDigest": 16739005431456814672,
+  "executionDependencies": [],
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
         "name": "table_a",
-        "kind": "Datatable"
-      }
-    ]
+        "kind": "Datatable",
+        "namespace": "fragments/sql/create-table.sql"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        3,
+        13,
+        3,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_a.col_a",
+        "kind": "DatatableColumn",
+        "namespace": "fragments/sql/create-table.sql"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        3,
+        13,
+        3,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_a.col_b",
+        "kind": "DatatableColumn",
+        "namespace": "fragments/sql/create-table.sql"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        3,
+        13,
+        3,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_a.col_c",
+        "kind": "DatatableColumn",
+        "namespace": "fragments/sql/create-table.sql"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        3,
+        13,
+        3,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_a.col_d",
+        "kind": "DatatableColumn",
+        "namespace": "fragments/sql/create-table.sql"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        3,
+        13,
+        3,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_a.col_e",
+        "kind": "DatatableColumn",
+        "namespace": "fragments/sql/create-table.sql"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        3,
+        13,
+        3,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_a.col_f",
+        "kind": "DatatableColumn",
+        "namespace": "fragments/sql/create-table.sql"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        3,
+        13,
+        3,
+        20
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "table_a.col_g",
+        "kind": "DatatableColumn",
+        "namespace": "fragments/sql/create-table.sql"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        3,
+        13,
+        3,
+        20
+      ]
+    }
   ],
-  "compile_digest": "17526273571211583829.10305857154133940898.0.0.0",
-  "tags": []
+  "executionTags": []
 }

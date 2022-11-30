@@ -2,20 +2,21 @@
 
 use std::{fmt::Write, fs, path::PathBuf};
 
-use codec::common::{base64, tracing};
+use codec::common::{base64, inflector::Inflector, tracing};
 use stencila_schema::*;
 
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype,
     attr_itemtype_str, attr_prop, attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder,
-    json, nothing, EncodeContext, ToHtml,
+    elem_property, json, nothing, EncodeContext, ToHtml,
 };
 
 impl ToHtml for InlineContent {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         match self {
             InlineContent::AudioObject(node) => node.to_html(context),
             InlineContent::Boolean(node) => node.to_html(context),
+            InlineContent::Button(node) => node.to_html(context),
             InlineContent::Cite(node) => node.to_html(context),
             InlineContent::CiteGroup(node) => node.to_html(context),
             InlineContent::CodeExpression(node) => node.to_html(context),
@@ -35,6 +36,7 @@ impl ToHtml for InlineContent {
             InlineContent::Number(node) => node.to_html(context),
             InlineContent::Parameter(node) => node.to_html(context),
             InlineContent::Quote(node) => node.to_html(context),
+            InlineContent::Span(node) => node.to_html(context),
             // Unlike everything else, `String` instances are not wrapped in an element.
             // However, `InlineContent::String` (and `Node::String` instances) should be
             // because they are usually part of a vector (e.g. `Paragraph.content`).
@@ -58,7 +60,7 @@ impl ToHtml for InlineContent {
 macro_rules! mark_to_html {
     ($type:ident, $tag:literal) => {
         impl ToHtml for $type {
-            fn to_html(&self, context: &EncodeContext) -> String {
+            fn to_html(&self, context: &mut EncodeContext) -> String {
                 elem(
                     $tag,
                     &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -107,8 +109,8 @@ fn file_uri_to_data_uri(url: &str) -> String {
     }
 }
 
-fn content_url_to_src_attr(content_url: &str, context: &EncodeContext) -> String {
-    let url = match context.bundle {
+fn content_url_to_src_attr(content_url: &str, context: &mut EncodeContext) -> String {
+    let url = match context.options.bundle {
         true => file_uri_to_data_uri(content_url),
         false => content_url.to_string(),
     };
@@ -116,7 +118,7 @@ fn content_url_to_src_attr(content_url: &str, context: &EncodeContext) -> String
 }
 
 impl ToHtml for AudioObjectSimple {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "audio",
             &[
@@ -131,7 +133,7 @@ impl ToHtml for AudioObjectSimple {
 }
 
 impl ToHtml for ImageObjectSimple {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         fn decode_base64(data: &str) -> String {
             match base64::decode(data) {
                 Ok(data) => String::from_utf8_lossy(&data).to_string(),
@@ -196,7 +198,7 @@ impl ToHtml for ImageObjectSimple {
 }
 
 impl ToHtml for VideoObjectSimple {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let src_attr = content_url_to_src_attr(&self.content_url, context);
         let type_attr = match &self.media_type {
             Some(media_type) => attr("type", media_type),
@@ -214,8 +216,58 @@ impl ToHtml for VideoObjectSimple {
     }
 }
 
+impl ToHtml for Button {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
+        let id = attr_id(&self.id);
+
+        let name = attr("name", &self.name);
+
+        let label = attr(
+            "label",
+            &self
+                .label
+                .as_deref()
+                .map_or_else(|| self.name.to_title_case(), |label| label.to_string()),
+        );
+
+        let code = match self.code.trim().is_empty() {
+            false => attr("code", self.code.trim()),
+            true => nothing(),
+        };
+
+        let programming_language = match self.programming_language.trim().is_empty() {
+            false => attr("programming-language", self.programming_language.trim()),
+            true => nothing(),
+        };
+
+        let guess_language = match self.guess_language {
+            Some(value) => attr("guess-language", &value.to_string()),
+            _ => nothing(),
+        };
+
+        let is_disabled = match self.is_disabled {
+            Some(true) => attr("is-disabled", "true"),
+            _ => nothing(),
+        };
+
+        elem(
+            "stencila-button",
+            &[
+                id,
+                name,
+                label,
+                code,
+                programming_language,
+                guess_language,
+                is_disabled,
+            ],
+            "",
+        )
+    }
+}
+
 impl ToHtml for Cite {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let content = match &self.content {
             Some(nodes) => nodes.to_html(context),
             None => {
@@ -337,7 +389,7 @@ impl ToHtml for Cite {
 }
 
 impl ToHtml for CiteGroup {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "span",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -347,86 +399,79 @@ impl ToHtml for CiteGroup {
 }
 
 impl ToHtml for CodeExpression {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let lang = attr_and_meta("programming_language", &self.programming_language);
 
-        let compile_digest = attr_and_meta_opt(
-            "compile_digest",
-            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_digest = attr_and_meta_opt(
-            "execute_digest",
-            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_required = attr_and_meta_opt(
-            "execute_required",
-            self.execute_required
+        let execution_required = attr_and_meta_opt(
+            "execution_required",
+            self.execution_required
                 .as_ref()
                 .map(|required| (*required).as_ref().to_string()),
         );
 
-        let execute_kernel = attr_and_meta_opt(
-            "execute_kernel",
-            self.execute_kernel
+        let execution_kernel = attr_and_meta_opt(
+            "execution_kernel",
+            self.execution_kernel
                 .as_deref()
                 .map(|kernel| kernel.to_string()),
         );
 
-        let execute_status = attr_and_meta_opt(
-            "execute_status",
-            self.execute_status
+        let execution_status = attr_and_meta_opt(
+            "execution_status",
+            self.execution_status
                 .as_ref()
                 .map(|status| (*status).as_ref().to_string()),
         );
 
-        let execute_ended = attr_and_meta_opt(
-            "execute_ended",
-            self.execute_ended
-                .as_ref()
-                .map(|date| (**date).value.to_string()),
+        let execution_count = attr_and_meta_opt(
+            "execution_count",
+            self.execution_count.map(|count| count.to_string()),
         );
 
-        let execute_duration = attr_and_meta_opt(
-            "execute_duration",
-            self.execute_duration
-                .as_ref()
-                .map(|seconds| seconds.to_string()),
-        );
-
-        let execute_count = attr_and_meta_opt(
-            "execute_count",
-            self.execute_count.map(|count| count.to_string()),
-        );
-
-        let text = elem(
+        let code = elem(
             "code",
-            &[attr_prop("text"), attr_slot("text")],
-            &self.text.to_html(context),
+            &[attr_prop("code"), attr_slot("code")],
+            &self.code.to_html(context),
         );
 
-        // For code_dependencies it is necessary to place the items in a <span> under
+        // For execution_dependencies it is necessary to place the items in a <span> under
         // the custom element to avoid elements added by the Web Component interfering
         // with patch indexes.
         let dependencies = elem(
-            "stencila-code-dependencies",
-            &[attr_slot("code-dependencies")],
+            "stencila-execution-dependencies",
+            &[attr_slot("execution-dependencies")],
             &elem_placeholder(
                 "span",
-                &[attr_prop("code-dependencies")],
-                &self.code_dependencies,
+                &[attr_prop("execution-dependencies")],
+                &self.execution_dependencies,
                 context,
             ),
+        );
+
+        let execution_ended = elem_property(
+            "stencila-timestamp",
+            &[attr_prop("execution_ended"), attr_slot("execution-ended")],
+            &self.execution_ended,
+            context,
+        );
+
+        let execution_duration = elem_property(
+            "stencila-duration",
+            &[
+                attr_prop("execution_duration"),
+                attr_slot("execution-duration"),
+            ],
+            &self.execution_duration,
+            context,
         );
 
         let output = elem_placeholder(
             "output",
             &[attr_prop("output"), attr_slot("output")],
             &self.output,
-            &EncodeContext {
+            &mut EncodeContext {
                 inline: true,
-                ..*context
+                ..context.clone()
             },
         );
 
@@ -443,27 +488,21 @@ impl ToHtml for CodeExpression {
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 lang.0,
-                compile_digest.0,
-                execute_digest.0,
-                execute_required.0,
-                execute_kernel.0,
-                execute_status.0,
-                execute_ended.0,
-                execute_duration.0,
-                execute_count.0,
+                execution_required.0,
+                execution_status.0,
+                execution_kernel.0,
+                execution_count.0,
             ],
             &[
                 lang.1,
-                compile_digest.1,
-                execute_digest.1,
-                execute_required.1,
-                execute_kernel.1,
-                execute_status.1,
-                execute_ended.1,
-                execute_duration.1,
-                execute_count.1,
-                text,
+                execution_required.1,
+                execution_status.1,
+                execution_kernel.1,
+                execution_count.1,
+                code,
                 dependencies,
+                execution_ended,
+                execution_duration,
                 output,
                 errors,
             ]
@@ -477,7 +516,7 @@ impl ToHtml for CodeFragment {
     ///
     /// See `CodeBlock::to_html` for why `programming_language` is encoded
     /// as both a `class` attribute and a `<meta>` element.
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let (lang_attr, lang_class, lang_meta) = match &self.programming_language {
             Some(programming_language) => (
                 attr("programming-language", programming_language),
@@ -487,22 +526,22 @@ impl ToHtml for CodeFragment {
             None => (nothing(), nothing(), nothing()),
         };
 
-        let text = elem(
+        let code = elem(
             "code",
-            &[attr_itemprop("text"), attr_slot("text"), lang_class],
-            &self.text.to_html(context),
+            &[attr_itemprop("code"), attr_slot("code"), lang_class],
+            &self.code.to_html(context),
         );
 
         elem(
             "stencila-code-fragment",
             &[attr_itemtype::<Self>(), attr_id(&self.id), lang_attr],
-            &[lang_meta, text].concat(),
+            &[lang_meta, code].concat(),
         )
     }
 }
 
 impl ToHtml for Link {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "a",
             &[
@@ -516,7 +555,7 @@ impl ToHtml for Link {
 }
 
 impl ToHtml for Note {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         elem(
             "code",
             &[
@@ -530,7 +569,7 @@ impl ToHtml for Note {
 }
 
 impl ToHtml for Quote {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "q",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],

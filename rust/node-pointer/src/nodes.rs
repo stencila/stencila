@@ -25,17 +25,19 @@ impl Pointable for Node {
 
     /// Find a node based on its `id` and return a [`Pointer`] to it.
     ///
-    /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Node`
+    /// Dispatch to variant. In rare cases the `Pointer::Some` is returned then cast
+    /// it into a `Pointer::Node`. Usually the id will be pointing to some `BlockContent`
+    /// or `InlineContent` and the corresponding pointer variant will be returned.
     fn find(&self, id: &str) -> Pointer {
-        match dispatch_node!(self, Pointer::None, find, id) {
-            Pointer::Some => Pointer::Node(self),
-            _ => Pointer::None,
+        match dispatch_node!(self, false, is, id) {
+            true => Pointer::Node(self),
+            false => dispatch_node!(self, Pointer::None, find, id),
         }
     }
     fn find_mut(&mut self, id: &str) -> PointerMut {
-        match dispatch_node!(self, PointerMut::None, find_mut, id) {
-            PointerMut::Some => PointerMut::Node(self),
-            _ => PointerMut::None,
+        match dispatch_node!(self, false, is, id) {
+            true => PointerMut::Node(self),
+            false => dispatch_node!(self, PointerMut::None, find_mut, id),
         }
     }
 

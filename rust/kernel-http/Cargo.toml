@@ -1,0 +1,11 @@
+[package]
+name = "kernel-http"
+description = "A kernel that evaluates HTTP/1.1 requests"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+http-utils = { path = "../http-utils" }
+kernel = { path = "../kernel" }
+node-transform = { path = "../node-transform" }
+parser = { path = "../parser" }

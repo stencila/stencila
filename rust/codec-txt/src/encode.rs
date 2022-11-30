@@ -27,7 +27,7 @@ macro_rules! primitive_to_txt {
     ($type:ty) => {
         impl ToTxt for $type {
             fn to_txt(&self) -> String {
-                json5::to_string(self).expect("Should always convert to JSON5")
+                codec::common::json5::to_string(self).expect("Should always convert to JSON5")
             }
         }
     };
@@ -80,31 +80,31 @@ block_content_to_txt!(Paragraph);
 block_content_to_txt!(Heading);
 block_content_to_txt!(QuoteBlock);
 
-macro_rules! inline_text_to_txt {
+macro_rules! inline_code_to_txt {
     ($type:ty) => {
         impl ToTxt for $type {
             fn to_txt(&self) -> String {
-                self.text.to_string()
+                self.code.to_string()
             }
         }
     };
 }
 
-inline_text_to_txt!(CodeFragment);
-inline_text_to_txt!(MathFragment);
+inline_code_to_txt!(CodeFragment);
+inline_code_to_txt!(MathFragment);
 
-macro_rules! block_text_to_txt {
+macro_rules! block_code_to_txt {
     ($type:ty) => {
         impl ToTxt for $type {
             fn to_txt(&self) -> String {
-                [&self.text.to_string(), "\n\n"].concat()
+                [&self.code.to_string(), "\n\n"].concat()
             }
         }
     };
 }
 
-block_text_to_txt!(CodeBlock);
-block_text_to_txt!(MathBlock);
+block_code_to_txt!(CodeBlock);
+block_code_to_txt!(MathBlock);
 
 macro_rules! optional_content_to_txt {
     ($type:ty) => {
@@ -189,16 +189,6 @@ impl ToTxt for BlockContent {
             BlockContent::Paragraph(node) => node.to_txt(),
             BlockContent::QuoteBlock(node) => node.to_txt(),
             _ => "".to_string(),
-        }
-    }
-}
-
-impl ToTxt for ThingDescription {
-    fn to_txt(&self) -> String {
-        match self {
-            ThingDescription::String(string) => string.to_string(),
-            ThingDescription::VecInlineContent(inlines) => inlines.to_txt(),
-            ThingDescription::VecBlockContent(blocks) => blocks.to_txt(),
         }
     }
 }

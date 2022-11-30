@@ -4,6 +4,7 @@ use std::{
     fmt::{Debug, Write},
     fs,
     path::{Path, PathBuf},
+    str::FromStr,
     sync::{
         atomic::{AtomicU64, Ordering},
         Arc,
@@ -11,6 +12,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+use codecs::{EncodeMode, EncodeOptions};
 use jwt::JwtError;
 use warp::{
     http::{
@@ -28,7 +30,7 @@ use common::{
     once_cell::sync::{Lazy, OnceCell},
     regex::{Captures, Regex},
     serde::{Deserialize, Serialize},
-    serde_json,
+    serde_json::{self, json},
     tokio::{
         self,
         sync::{mpsc, RwLock},
@@ -41,7 +43,7 @@ use events::{subscribe, unsubscribe, Subscriber, SubscriptionId};
 use http_utils::{http, urlencoding};
 use server_next::statics::{get_static_parts, STATICS_VERSION};
 use stencila_schema::Node;
-use uuids::generate;
+use suids::generate;
 
 use crate::{
     config::CONFIG,
@@ -399,18 +401,15 @@ impl Server {
 
         let authenticate = || authentication_filter(self.key.clone(), self.home.clone());
 
-        let terminal = warp::get()
-            .and(warp::path("~terminal"))
-            .and(authenticate())
-            .and_then(terminal_handler);
-
-        let attach = warp::path("~attach")
+        let shell_ws = warp::path("~shell")
             .and(warp::ws())
+            .and(warp::path::tail())
             .and(authenticate())
-            .map(attach_handler);
+            .map(shell_ws_handler);
 
         let rpc_ws = warp::path("~rpc")
             .and(warp::ws())
+            .and(warp::path::tail())
             .and(warp::query::<WsParams>())
             .and(authenticate())
             .map(rpc_ws_handler);
@@ -487,8 +486,7 @@ impl Server {
         let routes = statics
             .or(metrics)
             .or(hooks)
-            .or(terminal)
-            .or(attach)
+            .or(shell_ws)
             .or(rpc_ws)
             .or(get)
             .with(server_header)
@@ -738,7 +736,7 @@ struct WebsocketClients {
     subscriptions: Arc<RwLock<HashMap<String, (SubscriptionId, usize)>>>,
 
     /// The sender used to subscribe to events on behalf of clients
-    sender: mpsc::UnboundedSender<events::Message>,
+    sender: mpsc::UnboundedSender<events::Event>,
 }
 
 impl WebsocketClients {
@@ -748,7 +746,7 @@ impl WebsocketClients {
 
         let subscriptions = Arc::new(RwLock::new(HashMap::new()));
 
-        let (sender, receiver) = mpsc::unbounded_channel::<events::Message>();
+        let (sender, receiver) = mpsc::unbounded_channel::<events::Event>();
         tokio::spawn(WebsocketClients::relay(inner.clone(), receiver));
 
         Self::ping(inner.clone());
@@ -938,7 +936,7 @@ impl WebsocketClients {
     /// clients based in their subscriptions.
     async fn relay(
         clients: Arc<RwLock<HashMap<String, WebsocketClient>>>,
-        receiver: mpsc::UnboundedReceiver<events::Message>,
+        receiver: mpsc::UnboundedReceiver<events::Event>,
     ) {
         let mut receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(receiver);
         while let Some((topic, event)) = receiver.next().await {
@@ -1249,55 +1247,24 @@ fn authentication_filter(
         )
 }
 
-/// Handle a request for a HTTP upgrade to the
-#[tracing::instrument(skip(_cookie))]
-async fn terminal_handler(
-    (secure, token, claims, _cookie): (bool, String, jwt::Claims, Option<String>),
-) -> Result<warp::reply::Response, std::convert::Infallible> {
-    record_http_request("GET", "/~terminal");
-    record_activity();
-
-    let html = format!(
-        r#"<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link href="{static_root}/web/terminal.css" rel="stylesheet">
-        <script src="{static_root}/web/terminal.js"></script>
-    </head>
-    <body>
-      <div id="terminal-container">
-        <div id="terminal"></div>
-      </div>
-      <script>
-        stencilaWebTerminal.main("terminal")
-      </script>
-    </body>
-</html>"#,
-        static_root = ["/~static/", STATICS_VERSION].concat()
-    );
-
-    let response = warp::reply::Response::new(html.into());
-    Ok(response)
-}
-
 /// Handle a HTTP request for ~attach
 #[tracing::instrument(skip(_cookie))]
-fn attach_handler(
+fn shell_ws_handler(
     ws: warp::ws::Ws,
+    path: warp::path::Tail,
     (secure, token, claims, _cookie): (bool, String, jwt::Claims, Option<String>),
 ) -> Box<dyn warp::Reply> {
     record_http_request("WS", "/~attach");
     record_activity();
 
-    Box::new(ws.on_upgrade(|socket| attach_connected(socket, claims)))
+    let dir = path.as_str().to_string();
+    Box::new(ws.on_upgrade(|socket| attach_connected(socket, dir, claims)))
 }
 
 /// Handle a WebSocket connection for ~attach
 ///
 /// Pipes data between the websocket connection and the PTY.
-async fn attach_connected(web_socket: warp::ws::WebSocket, claims: jwt::Claims) {
+async fn attach_connected(web_socket: warp::ws::WebSocket, dir: String, claims: jwt::Claims) {
     #[allow(unused_mut, unused_variables)]
     let (mut ws_sender, mut ws_receiver) = web_socket.split();
     let (message_sender, mut message_receiver) = mpsc::channel(1);
@@ -1310,6 +1277,11 @@ async fn attach_connected(web_socket: warp::ws::WebSocket, claims: jwt::Claims) 
 
         const CMD: &str = "/bin/bash";
         let mut command = tokio::process::Command::new(CMD);
+
+        // Set the working dir.
+        // Note that no attempt is to limit which dir the shell session is in since they could
+        // cd ../.. out anyway
+        command.current_dir(dir);
 
         // Options necessary to ensure the custom PS1, and other settings are not overridden
         // by profile and init scripts. See https://unix.stackexchange.com/a/291913
@@ -1432,7 +1404,7 @@ async fn attach_connected(web_socket: warp::ws::WebSocket, claims: jwt::Claims) 
 #[derive(Debug, Deserialize)]
 #[serde(crate = "common::serde")]
 struct GetParams {
-    /// The mode "read", "view", "exec", or "edit"
+    /// The user mode
     mode: Option<String>,
 
     /// The format to view or edit
@@ -1440,9 +1412,6 @@ struct GetParams {
 
     /// The theme (when format is `html`)
     theme: Option<String>,
-
-    /// Should web components be loaded
-    components: Option<String>,
 
     /// An authentication token
     ///
@@ -1495,10 +1464,11 @@ async fn get_handler(
         );
     }
 
+    let static_root = ["/~static/", STATICS_VERSION].concat();
+
     let format = params.format.unwrap_or_else(|| "html".into());
-    let mode = params.mode.unwrap_or_else(|| "view".into());
-    let theme = params.theme.unwrap_or_else(|| "wilmore".into());
-    let components = params.components.unwrap_or_else(|| "static".into());
+    let mode = params.mode.unwrap_or_else(|| "static".into());
+    let theme = params.theme.unwrap_or_else(|| "default".into());
 
     let (content, mime, redirect) = if params.token.is_some() && claims.jti.is_some() {
         // A token is in the URL. For address bar aesthetics, and to avoid re-use on page refresh, if the token is
@@ -1509,6 +1479,33 @@ async fn get_handler(
             "text/html".to_string(),
             true,
         )
+    } else if mode == "shell" {
+        // Request for a shell terminal at the given path
+        let directory = if fs_path.is_dir() {
+            fs_path.to_string_lossy()
+        } else {
+            fs_path.parent().unwrap_or(&fs_path).to_string_lossy()
+        };
+
+        let html = format!(
+            r#"<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <link href="{static_root}/web/modes/shell.css" rel="stylesheet">
+            <script src="{static_root}/web/modes/shell.js"></script>
+            <script>window.stencilaConfig = {{ mode: "shell" }}</script>
+        </head>
+        <body>
+          <stencila-document-header></stencila-document-header>
+          <div id="stencila-shell-terminal"><div></div></div>
+          <script>window.stencilaShellTerminal("{directory}")</script>
+        </body>
+    </html>"#
+        );
+
+        (html.as_bytes().to_vec(), "text/html".to_string(), false)
     } else if fs_path.is_dir() {
         // Request for a path that is a folder. Return a listing
         (
@@ -1516,6 +1513,51 @@ async fn get_handler(
             "text/html".to_string(),
             false,
         )
+    } else if mode == "code" && fs_path.is_file() {
+        // Request for code editor of file
+        // This is temporary. In future, we'll load the content from the in-memory
+        // version of the document
+
+        // Pass the code editor component a filename so it can match to language
+        let filename = fs_path
+            .file_name()
+            .unwrap_or(fs_path.as_os_str())
+            .to_string_lossy();
+
+        let content = match fs::read(&fs_path) {
+            Ok(content) => content,
+            Err(error) => {
+                return error_result(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    &format!("When reading file `{}`", error),
+                )
+            }
+        };
+        let content = String::from_utf8_lossy(&content);
+
+        // TODO: html escape the content
+        let html = format!(
+            r#"<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <link href="{static_root}/web/modes/code.css" rel="stylesheet">
+            <script src="{static_root}/web/modes/code.js"></script>
+            <script>window.stencilaConfig = {{ mode: "code" }}</script>
+        </head>
+        <body>
+          <stencila-document-header></stencila-document-header>
+          <div id="stencila-code-editor-container">
+            <stencila-code-editor filename="{filename}">
+                <pre slot="code">{content}</pre>
+            </stencila-code-editor>
+          </div>
+        </body>
+    </html>"#
+        );
+
+        (html.as_bytes().to_vec(), "text/html".to_string(), false)
     } else if format == "raw" {
         // Request for raw content of the file (e.g. an image within the HTML encoding of a
         // Markdown document)
@@ -1534,11 +1576,22 @@ async fn get_handler(
         (content, mime.to_string(), false)
     } else {
         // Request for a document in some format (usually HTML)
+        let mode = EncodeMode::from_str(&mode).unwrap_or(EncodeMode::Static);
+
         match DOCUMENTS.open(&fs_path, None).await {
-            Ok(document_id) => {
-                let document = DOCUMENTS.get(&document_id).await.unwrap();
-                let document = document.lock().await;
-                let content = match document.dump(Some(format.clone()), None).await {
+            Ok(document) => {
+                let content = match document
+                    .dump(
+                        Some(format.clone()),
+                        None,
+                        Some(EncodeOptions {
+                            standalone: true,
+                            mode,
+                            ..Default::default()
+                        }),
+                    )
+                    .await
+                {
                     Ok(content) => content,
                     Err(error) => {
                         return error_result(
@@ -1549,15 +1602,18 @@ async fn get_handler(
                 };
 
                 let content = match format.as_str() {
-                    "html" => html_rewrite(
-                        &content,
-                        &mode,
-                        &theme,
-                        &components,
-                        &token,
-                        &home,
-                        &fs_path,
-                    ),
+                    "html" => {
+                        html_rewrite(
+                            &content,
+                            mode,
+                            &theme,
+                            &token,
+                            &home,
+                            &document.id,
+                            &fs_path,
+                        )
+                        .await
+                    }
                     _ => content,
                 }
                 .as_bytes()
@@ -1661,59 +1717,25 @@ fn html_directory_listing(home: &Path, dir: &Path) -> String {
 /// Only local files somewhere withing the current working directory are
 /// served.
 #[allow(clippy::too_many_arguments)]
-pub fn html_rewrite(
+pub async fn html_rewrite(
     body: &str,
-    mode: &str,
-    theme: &str,
-    components: &str,
+    mode: EncodeMode,
+    _theme: &str,
     token: &str,
     home: &Path,
-    document: &Path,
+    document_id: &str,
+    _document_path: &Path,
 ) -> String {
-    let static_root = ["/~static/", STATICS_VERSION].concat();
+    let _static_root = ["/~static/", STATICS_VERSION].concat();
+    let kernel_languages = kernels::languages().await.unwrap_or_default();
 
-    // Head element for theme
-    let themes = format!(
-        r#"<link href="{static_root}/themes/themes/{theme}/styles.css" rel="stylesheet">"#,
-        static_root = static_root,
-        theme = theme
-    );
-
-    // Head elements for web client
-    let web = format!(
-        r#"
-    <link href="{static_root}/web/index.{mode}.css" rel="stylesheet">
-    <script src="{static_root}/web/index.{mode}.js"></script>
-    <script>
-        const startup = stencilaWebClient.main("{client}", "{document}", null, "{token}");
-        startup().catch((err) => console.error('Error during startup', err))
-    </script>"#,
-        static_root = static_root,
-        mode = mode,
-        client = uuids::generate("cl"),
-        token = token,
-        document = document.display()
-    );
-
-    // Head elements for web components
-    let components = match components {
-        "none" => "".to_string(),
-        _ => {
-            let base = match components {
-                "remote" => {
-                    "https://unpkg.com/@stencila/components/dist/stencila-components".to_string()
-                }
-                _ => [&static_root, "/components"].concat(),
-            };
-            format!(
-                r#"
-                <script src="{}/stencila-components.esm.js" type="module"> </script>
-                <script src="{}/stencila-components.js" type="text/javascript" nomodule=""> </script>
-                "#,
-                base, base
-            )
-        }
-    };
+    let config = serde_json::to_string(&json!({
+        "token": token,
+        "mode": mode.as_ref(),
+        "documentId": document_id,
+        "executableLanguages": kernel_languages
+    }))
+    .unwrap();
 
     // Rewrite body content so that links to files work
     static REGEX: Lazy<Regex> =
@@ -1742,18 +1764,14 @@ pub fn html_rewrite(
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {themes}
-        {web}
-        {components}
+        <script>
+            window.stencilaConfig = {config};
+        </script>
     </head>
     <body>
         {body}
     </body>
-</html>"#,
-        themes = themes,
-        web = web,
-        components = components,
-        body = body
+</html>"#
     )
 }
 
@@ -1763,6 +1781,9 @@ pub fn html_rewrite(
 struct WsParams {
     /// The id of the client
     client: Option<String>,
+
+    /// The id of the browser
+    browser: Option<String>,
 }
 
 /// Perform a WebSocket handshake / upgrade
@@ -1774,14 +1795,21 @@ struct WsParams {
 #[tracing::instrument(skip(_cookie))]
 fn rpc_ws_handler(
     ws: warp::ws::Ws,
+    path: warp::path::Tail,
     params: WsParams,
     (_secure, _token, _claims, _cookie): (bool, String, jwt::Claims, Option<String>),
 ) -> Box<dyn warp::Reply> {
     record_http_request("WS", "/~rpc");
     record_activity();
 
+    // If the client did not provide ids then generate them here. Note that the client
+    // normally generates longer random parts than the 20 generated here which may be
+    // a useful way of debugging where those ids were generated and therefore whether or not
+    // client supplied them
     let client_id = params.client.unwrap_or_else(|| generate("cl").to_string());
-    Box::new(ws.on_upgrade(|socket| rpc_ws_connected(socket, client_id)))
+    let browser_id = params.browser.unwrap_or_else(|| generate("br").to_string());
+
+    Box::new(ws.on_upgrade(|socket| rpc_ws_connected(socket, client_id, browser_id)))
 }
 
 /// Handle a WebSocket connection
@@ -1789,8 +1817,12 @@ fn rpc_ws_handler(
 /// This function is called after the handshake, when a WebSocket client
 /// has successfully connected.
 #[tracing::instrument(skip(socket))]
-async fn rpc_ws_connected(socket: warp::ws::WebSocket, client_id: String) {
-    tracing::trace!("WebSocket client `{}` connected", client_id);
+async fn rpc_ws_connected(socket: warp::ws::WebSocket, client_id: String, browser_id: String) {
+    tracing::trace!(
+        "WebSocket client `{}` in browser `{}` connected",
+        client_id,
+        browser_id
+    );
 
     let (mut ws_sender, mut ws_receiver) = socket.split();
 

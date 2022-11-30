@@ -1,188 +1,162 @@
 ---
 source: rust/parser-r/src/lib.rs
-assertion_line: 210
-expression: resource_info
+assertion_line: 216
+expression: parse_info
 input_file: fixtures/fragments/r/tags.R
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/r/tags.R",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "r"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          0,
-          0,
-          29
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "r",
+  "syntaxErrors": false,
+  "semanticDigest": 14141924614136143127,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "pkg1"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          0,
-          0,
-          29
-        ]
       },
-      {
-        "type": "Module",
-        "language": "r",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "pkg2"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          0,
-          0,
-          29
-        ]
       },
-      {
-        "type": "Module",
-        "language": "r",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "pk3"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          0,
-          0,
-          29
-        ]
       },
-      {
-        "type": "Module",
-        "language": "r",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "pkg4"
-      }
-    ],
-    [
-      {
-        "type": "Assigns",
-        "range": [
-          1,
-          0,
-          1,
-          19
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/tags.R",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "var1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          0,
-          2,
-          12
-        ]
+        "namespace": "fragments/r/tags.R"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/r/tags.R",
-        "name": "var1",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          3,
-          0,
-          3,
-          21
-        ]
-      },
-      {
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        0,
+        2,
+        12
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
-        "path": "file1"
-      }
-    ],
-    [
-      {
-        "type": "Reads",
-        "range": [
-          3,
-          0,
-          3,
-          21
-        ]
+        "name": "",
+        "path": "fragments/r/tags.R/file1"
       },
-      {
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        3,
+        0,
+        3,
+        21
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
         "type": "File",
-        "path": "file2"
-      }
-    ],
-    [
-      {
-        "type": "Writes",
-        "range": [
-          4,
-          0,
-          4,
-          20
-        ]
+        "name": "",
+        "path": "fragments/r/tags.R/file2"
       },
-      {
-        "type": "File",
-        "path": "file3"
-      }
-    ]
+      "dependencyRelation": "Reads",
+      "codeLocation": [
+        3,
+        0,
+        3,
+        21
+      ]
+    }
   ],
-  "compile_digest": "4557790585025765973.10635638521262003934.0.0.0",
-  "tags": [
+  "executionDependents": [
     {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "var1",
+        "namespace": "fragments/r/tags.R"
+      },
+      "dependentRelation": "Assigns",
+      "codeLocation": [
+        1,
+        0,
+        1,
+        19
+      ]
+    }
+  ],
+  "executionTags": [
+    {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "imports",
-      "value": "pkg1, pkg2 pk3,pkg4",
-      "global": false
+      "value": "pkg1, pkg2 pk3,pkg4"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "assigns",
-      "value": "var1 only",
-      "global": false
+      "value": "var1 only"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "uses",
-      "value": "var1",
-      "global": false
+      "value": "var1"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "reads",
-      "value": "file1, file2",
-      "global": false
+      "value": "file1, file2"
     },
     {
+      "type": "ExecutionTag",
+      "isGlobal": false,
       "name": "writes",
-      "value": "file3 only",
-      "global": false
+      "value": "file3 only"
     }
   ]
 }

@@ -1,381 +1,334 @@
 ---
 source: rust/parser-js/src/lib.rs
-assertion_line: 210
-expression: resource_info
+assertion_line: 224
+expression: parse_info
 input_file: fixtures/fragments/js/imports.js
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/js/imports.js",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "javascript"
-  },
-  "relations": [
-    [
-      {
-        "type": "Imports",
-        "range": [
-          2,
-          26,
-          2,
-          36
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "javascript",
+  "syntaxErrors": false,
+  "semanticDigest": 11565126942859518433,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-1"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          3,
-          22,
-          3,
-          32
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        2,
+        26,
+        2,
+        36
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-2"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          4,
-          24,
-          4,
-          34
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        3,
+        22,
+        3,
+        32
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-3"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          5,
-          33,
-          5,
-          43
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        4,
+        24,
+        4,
+        34
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-4"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          6,
-          34,
-          6,
-          44
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        5,
+        33,
+        5,
+        43
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-5"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          7,
-          43,
-          7,
-          53
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        6,
+        34,
+        6,
+        44
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-6"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          8,
-          39,
-          8,
-          49
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        7,
+        43,
+        7,
+        53
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-7"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          9,
-          37,
-          9,
-          47
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        8,
+        39,
+        8,
+        49
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-8"
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          10,
-          7,
-          10,
-          17
-        ]
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        9,
+        37,
+        9,
+        47
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-9"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          11,
-          4,
-          11,
-          11
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/imports.js",
-        "name": "promise",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          11,
-          21,
-          11,
-          32
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        10,
+        7,
+        10,
+        17
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-10"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          14,
-          4,
-          14,
-          17
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/imports.js",
-        "name": "defaultExport",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          14,
-          20,
-          14,
-          27
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/imports.js",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        11,
+        21,
+        11,
+        32
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "require",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          14,
-          28,
-          14,
-          39
-        ]
+        "namespace": "fragments/js/imports.js"
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        14,
+        20,
+        14,
+        27
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-11"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          15,
-          4,
-          15,
-          9
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/imports.js",
-        "name": "alias",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          15,
-          12,
-          15,
-          19
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/imports.js",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        14,
+        28,
+        14,
+        39
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "require",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Imports",
-        "range": [
-          15,
-          20,
-          15,
-          31
-        ]
+        "namespace": "fragments/js/imports.js"
       },
-      {
-        "type": "Module",
-        "language": "javascript",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        15,
+        12,
+        15,
+        19
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "SoftwareSourceCode",
         "name": "module-12"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          19,
-          6,
-          19,
-          9
-        ]
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/imports.js",
-        "name": "foo",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          21,
-          6,
-          21,
-          13
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/imports.js",
-        "name": "pkg_var",
-        "kind": "String"
-      }
-    ],
-    [
-      {
-        "type": "Declares",
-        "range": [
-          22,
-          6,
-          22,
-          9
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/imports.js",
-        "name": "bar",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          22,
-          12,
-          22,
-          19
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/imports.js",
+      "dependencyRelation": "Imports",
+      "codeLocation": [
+        15,
+        20,
+        15,
+        31
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "require",
-        "kind": ""
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          22,
-          20,
-          22,
-          27
-        ]
+        "namespace": "fragments/js/imports.js"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/js/imports.js",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        22,
+        12,
+        22,
+        19
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "pkg_var",
-        "kind": ""
-      }
-    ]
+        "namespace": "fragments/js/imports.js"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        22,
+        20,
+        22,
+        27
+      ]
+    }
   ],
-  "compile_digest": "6829235760436021224.12736435360731899821.0.0.0",
-  "tags": []
+  "executionDependents": [
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "promise",
+        "namespace": "fragments/js/imports.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        11,
+        4,
+        11,
+        11
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "defaultExport",
+        "namespace": "fragments/js/imports.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        14,
+        4,
+        14,
+        17
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "alias",
+        "namespace": "fragments/js/imports.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        15,
+        4,
+        15,
+        9
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "foo",
+        "namespace": "fragments/js/imports.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        19,
+        6,
+        19,
+        9
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "pkg_var",
+        "kind": "String",
+        "namespace": "fragments/js/imports.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        21,
+        6,
+        21,
+        13
+      ]
+    },
+    {
+      "type": "ExecutionDependent",
+      "dependentNode": {
+        "type": "Variable",
+        "name": "bar",
+        "namespace": "fragments/js/imports.js"
+      },
+      "dependentRelation": "Declares",
+      "codeLocation": [
+        22,
+        6,
+        22,
+        9
+      ]
+    }
+  ],
+  "executionTags": []
 }

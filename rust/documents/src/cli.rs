@@ -12,20 +12,17 @@ use common::{
     eyre::{self},
     itertools::Itertools,
     serde::Serialize,
-    serde_json,
-    tokio::sync::Mutex,
-    tracing,
+    serde_json, tracing,
 };
 use formats::Format;
 use graph::{PlanOptions, PlanOrdering};
 use graph_triples::resources;
-use node_address::Address;
 use node_patch::{diff, diff_display};
 use stencila_schema::{
     EnumValidator, IntegerValidator, Node, NumberValidator, StringValidator, ValidatorTypes,
 };
 
-use crate::{document::Document, messages::When};
+use crate::document::Document;
 
 use super::*;
 
@@ -114,13 +111,8 @@ struct File {
     format: Option<String>,
 }
 impl File {
-    async fn open(&self) -> eyre::Result<String> {
+    async fn open(&self) -> eyre::Result<Arc<Document>> {
         DOCUMENTS.open(&self.path, self.format.clone()).await
-    }
-
-    async fn get(&self) -> eyre::Result<Arc<Mutex<Document>>> {
-        let id = self.open().await?;
-        DOCUMENTS.get(&id).await
     }
 }
 
@@ -347,8 +339,7 @@ pub struct Graph {
 #[async_trait]
 impl Run for Graph {
     async fn run(&self) -> Result {
-        let document = self.file.get().await?;
-        let document = document.lock().await;
+        let document = self.file.open().await?;
         let content = document.graph.read().await.to_format(&self.to)?;
         result::content(&self.to, &content)
     }
@@ -372,9 +363,6 @@ struct Param {
 
     #[table(title = "Id")]
     id: String,
-
-    #[table(skip)]
-    address: Address,
 
     #[table(title = "Validation", display_fn = "option_validator")]
     validator: Option<ValidatorTypes>,
@@ -474,15 +462,13 @@ fn option_node(validator: &Option<Node>) -> String {
 #[async_trait]
 impl Run for Params {
     async fn run(&self) -> Result {
-        let document = self.file.get().await?;
-        let mut document = document.lock().await;
+        let document = self.file.open().await?;
         let params = document.params().await?;
         let params = params
             .into_iter()
-            .map(|(name, (id, address, param))| Param {
+            .map(|(name, (id, param))| Param {
                 name,
                 id,
-                address,
                 validator: param.validator.map(|boxed| *boxed),
                 default: param.default.map(|boxed| *boxed),
             })
@@ -547,12 +533,7 @@ impl Run for Run_ {
             document.call_with_path(&self.input, None).await?;
         } else {
             document
-                .execute(
-                    When::Never,
-                    self.start.clone(),
-                    self.ordering,
-                    self.concurrency,
-                )
+                .execute(None, self.start.clone(), self.ordering, self.concurrency)
                 .await?;
         }
 
@@ -563,7 +544,7 @@ impl Run for Run_ {
             let out = output.display().to_string();
             if out == "-" {
                 let format = self.to.clone().unwrap_or_else(|| "json".to_string());
-                let content = document.dump(Some(format.clone()), None).await?;
+                let content = document.dump(Some(format.clone()), None, None).await?;
                 return result::content(&format, &content);
             } else {
                 document
@@ -662,9 +643,7 @@ impl Run for Query {
             query,
             lang,
         } = self;
-        let document_id = DOCUMENTS.open(file, format.clone()).await?;
-        let document = DOCUMENTS.get(&document_id).await?;
-        let document = document.lock().await;
+        let document = DOCUMENTS.open(file, format.clone()).await?;
         let node = &*document.root.read().await;
         let result = node_query::query(node, query, Some(lang))?;
         result::value(result)

@@ -27,8 +27,8 @@ use provider::{
     },
     resolve_token,
     stencila_schema::{
-        CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date, Node, Organization,
-        SoftwareSourceCode, ThingDescription,
+        BlockContent, CreativeWorkContent, CreativeWorkPublisher, CreativeWorkVersion, Date,
+        InlineContent, Node, Organization, Paragraph, SoftwareSourceCode,
     },
     EnrichOptions, ParseItem, Provider, ProviderTrait, PullOptions, SyncOptions,
 };
@@ -232,7 +232,10 @@ impl ProviderTrait for GitlabProvider {
         let project: Project = client.get(&format!("projects/{}", project_id)).await?;
 
         let description = match !project.description.is_empty() {
-            true => Some(Box::new(ThingDescription::String(project.description))),
+            true => Some(vec![BlockContent::Paragraph(Paragraph {
+                content: vec![InlineContent::String(project.description)],
+                ..Default::default()
+            })]),
             false => None,
         };
 

@@ -1,87 +1,78 @@
 ---
 source: rust/parser-sql/src/lib.rs
-assertion_line: 114
-expression: resource_info
+assertion_line: 459
+expression: parse_info
 input_file: fixtures/fragments/sql/uses.sql
 ---
 {
-  "resource": {
-    "type": "Code",
-    "path": "fragments/sql/uses.sql",
-    "id": "",
-    "kind": "SoftwareSourceCode",
-    "language": "sql"
-  },
-  "relations": [
-    [
-      {
-        "type": "Uses",
-        "range": [
-          0,
-          14,
-          0,
-          21
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/uses.sql",
+  "syntaxErrors": false,
+  "semanticDigest": 7162091459807791282,
+  "executionDependencies": [
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "table_a",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          2,
-          14,
-          2,
-          21
-        ]
+        "kind": "Datatable",
+        "namespace": "fragments/sql/uses.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/uses.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        0,
+        14,
+        0,
+        21
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "table_b",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          14,
-          4,
-          21
-        ]
+        "kind": "Datatable",
+        "namespace": "fragments/sql/uses.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/uses.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        2,
+        14,
+        2,
+        21
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "table_d",
-        "kind": "Datatable"
-      }
-    ],
-    [
-      {
-        "type": "Uses",
-        "range": [
-          4,
-          55,
-          4,
-          62
-        ]
+        "kind": "Datatable",
+        "namespace": "fragments/sql/uses.sql"
       },
-      {
-        "type": "Symbol",
-        "path": "fragments/sql/uses.sql",
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        4,
+        14,
+        4,
+        21
+      ]
+    },
+    {
+      "type": "ExecutionDependency",
+      "dependencyNode": {
+        "type": "Variable",
         "name": "table_e",
-        "kind": "Datatable"
-      }
-    ]
+        "kind": "Datatable",
+        "namespace": "fragments/sql/uses.sql"
+      },
+      "dependencyRelation": "Uses",
+      "codeLocation": [
+        4,
+        55,
+        4,
+        62
+      ]
+    }
   ],
-  "compile_digest": "10808189577681179666.18214354455154075053.0.0.0",
-  "tags": []
+  "executionDependents": [],
+  "executionTags": []
 }

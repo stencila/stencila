@@ -1,149 +1,11 @@
 //! Utility functions for use by parser implementations
 
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
-use common::{once_cell::sync::Lazy, regex::Regex};
-use formats::Format;
-use graph_triples::{relations, resources, stencila_schema::ExecuteAuto, Relation, Resource, Tag};
-
-use crate::ResourceInfo;
-
-/// Apply comment tags to a [`ResourceInfo`] object.
-///
-/// Parses tags from a comment and updates the supplied [`ResourceInfo`]. This pattern is
-/// used because (a) the resource info may already be partially populated based on semantic
-/// analysis of the code (which comments wish to override), and (b) there might be multiple
-/// comments in a code resources each with (potentially overriding) tags
-///
-/// # Arguments
-///
-/// - `path`:    The path of the file.
-///              Used, for example, when constructing `Symbol` resources for `@assigns` etc tags.
-/// - `lang`:    The language of code that the comment is part of.
-///              Used, for example, when constructing `Module` resources for `@imports` tags.
-/// - `row`:     The line number of the start of the comment.
-///              Used for constructing a `Range` for resources.
-/// - `comment`: The comment from which to parse tags, usually a comment
-/// - `kind`:    The default type for `Symbol` resources.
-/// - `resource_info`: The [`ResourceInfo`] object to update
-pub fn apply_tags(
-    path: &Path,
-    lang: Format,
-    row: usize,
-    comment: &str,
-    kind: Option<String>,
-    resource_info: &mut ResourceInfo,
-) {
-    let mut pairs: Vec<(Relation, Resource)> = Vec::new();
-    let mut onlies: Vec<String> = Vec::new();
-    for (index, line) in comment.lines().enumerate() {
-        let range = (row + index, 0, row + index, line.len() - 1);
-        if let Some(tag) = parse_comment_line(line) {
-            // Record tags for potential use later when executed
-            resource_info.tags.insert(tag.clone());
-
-            let name = tag.name.as_str();
-            let relation = match name {
-                "pure" | "impure" => {
-                    resource_info.execute_pure = Some(name == "pure");
-                    continue;
-                }
-
-                "autorun" => {
-                    let variant = match tag.value.as_str() {
-                        "always" => Some(ExecuteAuto::Always),
-                        "never" => Some(ExecuteAuto::Never),
-                        _ => Some(ExecuteAuto::Needed),
-                    };
-                    resource_info.execute_auto = variant;
-                    continue;
-                }
-
-                "imports" => relations::uses(range),
-                "declares" => relations::declares(range),
-                "assigns" => relations::assigns(range),
-                "alters" => relations::alters(range),
-                "uses" => relations::uses(range),
-                "reads" => relations::reads(range),
-                "writes" => relations::writes(range),
-                "requires" => relations::requires(range),
-
-                _ => continue,
-            };
-
-            static REGEX_ITEMS: Lazy<Regex> =
-                Lazy::new(|| Regex::new(r"\s+|(\s*,\s*)").expect("Unable to create regex"));
-
-            let args: Vec<String> = REGEX_ITEMS
-                .split(&tag.value)
-                .map(|item| item.to_string())
-                .collect();
-
-            for arg in args {
-                if arg == "only" {
-                    onlies.push(name.to_string());
-                    continue;
-                }
-
-                let resource = match name {
-                    "imports" => resources::module(lang, &arg),
-                    "declares" | "assigns" | "alters" | "uses" => {
-                        resources::symbol(path, &arg, &kind.clone().unwrap_or_default())
-                    }
-                    "reads" | "writes" => resources::file(&PathBuf::from(arg)),
-                    "requires" => resources::code(path, &arg, "", Format::Unknown),
-                    _ => continue,
-                };
-                pairs.push((relation.clone(), resource))
-            }
-        }
-    }
-
-    // Remove existing pairs for relation types where the `only` keyword is present in tags
-    if let Some(relations) = &mut resource_info.relations {
-        for only in onlies {
-            relations.retain(|(relation, _resource)| {
-                !(matches!(relation, Relation::Imports(..)) && only == "imports"
-                    || matches!(relation, Relation::Declares(..)) && only == "declares"
-                    || matches!(relation, Relation::Assigns(..)) && only == "assigns"
-                    || matches!(relation, Relation::Alters(..)) && only == "alters"
-                    || matches!(relation, Relation::Uses(..)) && only == "uses"
-                    || matches!(relation, Relation::Reads(..)) && only == "reads"
-                    || matches!(relation, Relation::Writes(..)) && only == "writes")
-            })
-        }
-    }
-
-    // Append pairs from tags
-    if !pairs.is_empty() {
-        if let Some(relations) = &mut resource_info.relations {
-            relations.append(&mut pairs);
-        } else {
-            resource_info.relations = Some(pairs)
-        }
-    }
-}
-
-/// Parse a tag from a comment line
-fn parse_comment_line(line: &str) -> Option<Tag> {
-    static REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"(@global\s+)?@([a-zA-Z]+)\s+(.*?)?\s*(:?\*/)?$")
-            .expect("Unable to create regex")
-    });
-
-    REGEX.captures(line).map(|captures| {
-        let global = captures.get(1).is_some();
-        let name = captures[2].to_lowercase();
-        let value = captures
-            .get(3)
-            .map_or_else(String::new, |group| group.as_str().to_string());
-        Tag {
-            name,
-            value,
-            global,
-        }
-    })
-}
+use stencila_schema::{
+    ExecutionDependency, ExecutionDependencyNode, ExecutionDependencyRelation, ExecutionDependent,
+    ExecutionDependentNode, ExecutionDependentRelation, File, SoftwareSourceCode, Variable,
+};
 
 /// Is some text quoted?
 pub fn is_quoted(text: &str) -> bool {
@@ -155,30 +17,199 @@ pub fn is_quoted(text: &str) -> bool {
 ///
 /// Useful for "unquoting" captured string literals.
 pub fn remove_quotes(text: &str) -> String {
-    text.replace(&['\"', '\''][..], "")
+    if is_quoted(text) {
+        let mut text = text.to_string();
+        text.pop();
+        text.remove(0);
+        text
+    } else {
+        text.to_string()
+    }
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_parse_comment_line() {
-        assert_eq!(
-            parse_comment_line("-- @db sqlite://some/file.db3"),
-            Some(Tag {
-                name: "db".to_string(),
-                value: "sqlite://some/file.db3".to_string(),
-                global: false
-            })
-        );
-        assert_eq!(
-            parse_comment_line("-- @global @db postgres://user:pwd@host:5432/db"),
-            Some(Tag {
-                name: "db".to_string(),
-                value: "postgres://user:pwd@host:5432/db".to_string(),
-                global: true
-            })
-        );
+/// Create an [`ExecutionDependent`] reflecting assignment of a variable
+pub fn assigns_variable(
+    name: &str,
+    path: Option<&Path>,
+    kind: Option<String>,
+    code_location: Option<[usize; 4]>,
+) -> ExecutionDependent {
+    ExecutionDependent {
+        dependent_relation: ExecutionDependentRelation::Assigns,
+        dependent_node: dependent_variable(name, path, kind),
+        code_location,
+        ..Default::default()
     }
+}
+
+/// Create an [`ExecutionDependent`] reflecting declaration of a variable
+pub fn declares_variable(
+    name: &str,
+    path: Option<&Path>,
+    kind: Option<String>,
+    code_location: Option<[usize; 4]>,
+) -> ExecutionDependent {
+    ExecutionDependent {
+        dependent_relation: ExecutionDependentRelation::Declares,
+        dependent_node: dependent_variable(name, path, kind),
+        code_location,
+        ..Default::default()
+    }
+}
+
+/// Create an [`ExecutionDependent`] reflecting alteration of a variable
+pub fn alters_variable(
+    name: &str,
+    path: Option<&Path>,
+    kind: Option<String>,
+    code_location: Option<[usize; 4]>,
+) -> ExecutionDependent {
+    ExecutionDependent {
+        dependent_relation: ExecutionDependentRelation::Alters,
+        dependent_node: dependent_variable(name, path, kind),
+        code_location,
+        ..Default::default()
+    }
+}
+
+/// Create a [`ExecutionDependent`] for writing a file
+pub fn writes_file(path: &Path, code_location: Option<[usize; 4]>) -> ExecutionDependent {
+    ExecutionDependent {
+        dependent_relation: ExecutionDependentRelation::Writes,
+        dependent_node: ExecutionDependentNode::File(File {
+            path: path.to_string_lossy().to_string(),
+            ..Default::default()
+        }),
+        code_location,
+        ..Default::default()
+    }
+}
+
+/// Create an [`ExecutionDependency`] reflecting use of a variable
+pub fn uses_variable(
+    name: &str,
+    path: Option<&Path>,
+    kind: Option<String>,
+    code_location: Option<[usize; 4]>,
+) -> ExecutionDependency {
+    ExecutionDependency {
+        dependency_relation: ExecutionDependencyRelation::Uses,
+        dependency_node: ExecutionDependencyNode::Variable(Variable {
+            namespace: path
+                .map(|path| path.to_string_lossy().to_string())
+                .unwrap_or_default(),
+            name: name.to_string(),
+            kind: kind.map(Box::new),
+            ..Default::default()
+        }),
+        code_location,
+        ..Default::default()
+    }
+}
+
+/// Create a [`ExecutionDependency`] for reading a file
+pub fn reads_file(path: &Path, code_location: Option<[usize; 4]>) -> ExecutionDependency {
+    ExecutionDependency {
+        dependency_relation: ExecutionDependencyRelation::Reads,
+        dependency_node: ExecutionDependencyNode::File(File {
+            path: path.to_string_lossy().to_string(),
+            ..Default::default()
+        }),
+        code_location,
+        ..Default::default()
+    }
+}
+
+/// Create a [`ExecutionDependency`] for importing a source file
+pub fn imports_file(path: &Path, code_location: Option<[usize; 4]>) -> ExecutionDependency {
+    ExecutionDependency {
+        dependency_relation: ExecutionDependencyRelation::Imports,
+        dependency_node: ExecutionDependencyNode::File(File {
+            path: path.to_string_lossy().to_string(),
+            ..Default::default()
+        }),
+        code_location,
+        ..Default::default()
+    }
+}
+
+/// Create a [`ExecutionDependency`] for importing a source code module
+pub fn imports_module(name: &str, code_location: Option<[usize; 4]>) -> ExecutionDependency {
+    ExecutionDependency {
+        dependency_relation: ExecutionDependencyRelation::Imports,
+        dependency_node: ExecutionDependencyNode::SoftwareSourceCode(SoftwareSourceCode {
+            name: Some(Box::new(name.to_string())),
+            ..Default::default()
+        }),
+        code_location,
+        ..Default::default()
+    }
+}
+
+/// Create a [`ExecutionDependentNode`] for a variable
+pub fn dependent_variable(
+    name: &str,
+    path: Option<&Path>,
+    kind: Option<String>,
+) -> ExecutionDependentNode {
+    ExecutionDependentNode::Variable(variable(name, path, kind))
+}
+
+/// Create a [`ExecutionDependencyNode`] for a variable
+pub fn dependency_variable(
+    name: &str,
+    path: Option<&Path>,
+    kind: Option<String>,
+) -> ExecutionDependencyNode {
+    ExecutionDependencyNode::Variable(variable(name, path, kind))
+}
+
+/// Create a variable
+pub fn variable(name: &str, path: Option<&Path>, kind: Option<String>) -> Variable {
+    Variable {
+        namespace: path
+            .map(|path| path.to_string_lossy().to_string())
+            .unwrap_or_default(),
+        name: name.to_string(),
+        kind: kind.map(Box::new),
+        ..Default::default()
+    }
+}
+
+/// Remove `Uses` execution dependencies which has an `Assigns` in execution dependents
+pub fn remove_uses_of_assigned(
+    dependencies: &mut Vec<ExecutionDependency>,
+    dependents: &[ExecutionDependent],
+) {
+    dependencies.retain(|dependency| {
+        if let ExecutionDependency {
+            dependency_relation: ExecutionDependencyRelation::Uses,
+            dependency_node:
+                ExecutionDependencyNode::Variable(Variable {
+                    name: dependency_name,
+                    ..
+                }),
+            ..
+        } = dependency
+        {
+            !dependents.iter().any(|dependent| {
+                if let ExecutionDependent {
+                    dependent_relation: ExecutionDependentRelation::Assigns,
+                    dependent_node:
+                        ExecutionDependentNode::Variable(Variable {
+                            name: dependent_name,
+                            ..
+                        }),
+                    ..
+                } = dependent
+                {
+                    dependency_name == dependent_name
+                } else {
+                    false
+                }
+            })
+        } else {
+            true
+        }
+    })
 }

@@ -1,0 +1,71 @@
+---
+source: rust/codec-md/src/decode.rs
+assertion_line: 2206
+expression: "decode_fragment(content, None)"
+input_file: fixtures/fragments/md/div.md
+---
+[
+  {
+    "type": "Division",
+    "classes": [],
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "A division styled using Tailwind."
+        ]
+      }
+    ],
+    "css": "",
+    "programmingLanguage": "tailwind",
+    "text": "rounded border(& solid blue-200) bg-blue-100 p-2 text-center"
+  },
+  {
+    "type": "Division",
+    "classes": [],
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "A division with this parameter ",
+          {
+            "type": "Parameter",
+            "name": "color",
+            "validator": {
+              "type": "EnumValidator",
+              "values": [
+                "red",
+                "blue",
+                "green"
+              ]
+            }
+          },
+          " interpolated into its Tailwind style."
+        ]
+      }
+    ],
+    "css": "",
+    "programmingLanguage": "tailwind",
+    "text": "bg-$color-100 p-2"
+  },
+  {
+    "type": "CodeChunk",
+    "programmingLanguage": "python",
+    "text": "# @autorun always\nimport random\nshade = random.choice(range(100, 1000, 100))"
+  },
+  {
+    "type": "Division",
+    "classes": [],
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "A division using the above color with a shade randomly selected in the above Python code chunk."
+        ]
+      }
+    ],
+    "css": "",
+    "programmingLanguage": "python",
+    "text": "f\"bg-{color}-{shade} p-2\""
+  }
+]

@@ -1,13 +1,18 @@
-use std::path::Path;
+use std::{
+    env::current_dir,
+    path::{Path, PathBuf},
+};
 
 use parser_treesitter::{
     captures_as_args_map, child_text,
     common::{eyre::Result, once_cell::sync::Lazy},
     formats::Format,
-    graph_triples::{relations, resources, Resource, ResourceInfo},
-    path_utils, resource_info,
-    utils::{is_quoted, remove_quotes},
-    Parser, ParserTrait, TreesitterParser,
+    parse_info, path_utils,
+    utils::{
+        assigns_variable, imports_module, is_quoted, reads_file, remove_quotes, uses_variable,
+        writes_file,
+    },
+    ParseInfo, Parser, ParserTrait, TreesitterParser,
 };
 
 /// Tree-sitter based parser for R
@@ -30,52 +35,57 @@ impl ParserTrait for RParser {
         }
     }
 
-    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
+    fn parse(code: &str, path: Option<&Path>) -> Result<ParseInfo> {
         let code = code.as_bytes();
         let tree = PARSER.parse(code);
         let matches = PARSER.query(code, &tree);
 
-        let relations = matches
-            .iter()
-            .filter_map(|(pattern, captures)| match pattern {
+        let mut dependencies = Vec::new();
+        let mut dependents = Vec::new();
+        'matches: for (pattern, captures) in matches.iter() {
+            match pattern {
                 1 => {
                     // Imports a package using `library` or `require`
                     let args = captures_as_args_map(captures);
-                    args.get("0")
-                        .or_else(|| args.get("package"))
-                        .and_then(|package| {
-                            if let Some(is_char) = args.get("character.only") {
-                                if is_char.text.starts_with('T') && !is_quoted(&package.text) {
-                                    return None;
-                                }
-                            } else if is_quoted(&package.text) {
-                                return None;
+                    if let Some(package) = args.get("0").or_else(|| args.get("package")) {
+                        if let Some(is_char) = args.get("character.only") {
+                            if is_char.text.starts_with('T') && !is_quoted(&package.text) {
+                                continue 'matches;
                             }
-                            Some((
-                                relations::imports(package.range),
-                                resources::module(Format::R, &remove_quotes(&package.text)),
-                            ))
-                        })
+                        } else if is_quoted(&package.text) {
+                            continue 'matches;
+                        }
+                        dependencies.push(imports_module(
+                            &remove_quotes(&package.text),
+                            Some(package.range),
+                        ))
+                    }
                 }
                 2 => {
                     // Reads a file
                     let args = captures_as_args_map(captures);
-                    args.get("0").or_else(|| args.get("file")).map(|file| {
-                        (
-                            relations::reads(file.range),
-                            resources::file(&path_utils::merge(path, remove_quotes(&file.text))),
-                        )
-                    })
+                    if let Some(file) = args.get("0").or_else(|| args.get("file")) {
+                        let file_path = path_utils::merge(
+                            path.map(PathBuf::from).unwrap_or_else(|| {
+                                current_dir().expect("Should be able to get pwd")
+                            }),
+                            remove_quotes(&file.text),
+                        );
+                        dependencies.push(reads_file(&file_path, Some(file.range)))
+                    }
                 }
                 3 => {
                     // Writes a file
                     let args = captures_as_args_map(captures);
-                    args.get("1").or_else(|| args.get("file")).map(|file| {
-                        (
-                            relations::writes(file.range),
-                            resources::file(&path_utils::merge(path, remove_quotes(&file.text))),
-                        )
-                    })
+                    if let Some(file) = args.get("1").or_else(|| args.get("file")) {
+                        let file_path = path_utils::merge(
+                            path.map(PathBuf::from).unwrap_or_else(|| {
+                                current_dir().expect("Should be able to get pwd")
+                            }),
+                            remove_quotes(&file.text),
+                        );
+                        dependents.push(writes_file(&file_path, Some(file.range)))
+                    }
                 }
                 4 | 5 => {
                     // Assigns a symbol at the top level of the module
@@ -83,22 +93,19 @@ impl ParserTrait for RParser {
                     let name = captures[0].text.clone();
                     let value = captures[1].node;
                     let kind = match value.kind() {
-                        "true" | "false" => "Boolean",
-                        "integer" => "Integer",
-                        "float" => "Number",
-                        "string" => "String",
-                        "function_definition" => "Function",
+                        "true" | "false" => Some("Boolean".to_string()),
+                        "integer" => Some("Integer".to_string()),
+                        "float" => Some("Number".to_string()),
+                        "string" => Some("String".to_string()),
+                        "function_definition" => Some("Function".to_string()),
                         "call" => match child_text(value, "function", code) {
                             "data.frame" | "read.csv" | "read.csv2" | "read.delim"
-                            | "read.table" => "Datatable",
-                            _ => "",
+                            | "read.table" => Some("Datatable".to_string()),
+                            _ => None,
                         },
-                        _ => "",
+                        _ => None,
                     };
-                    Some((
-                        relations::assigns(range),
-                        resources::symbol(path, &name, kind),
-                    ))
+                    dependents.push(assigns_variable(&name, path, kind, Some(range)))
                 }
                 6 => {
                     // Uses a function or variable
@@ -113,7 +120,7 @@ impl ParserTrait for RParser {
                             "left_assignment" | "equals_assignment" | "super_assignment" => {
                                 if let Some(name) = parent_node.child_by_field_name("name") {
                                     if name == node {
-                                        return None;
+                                        continue 'matches;
                                     }
                                 }
                             }
@@ -123,7 +130,7 @@ impl ParserTrait for RParser {
                                 for name in parent_node.children_by_field_name("name", &mut cursor)
                                 {
                                     if name == node {
-                                        return None;
+                                        continue 'matches;
                                     }
                                 }
                             }
@@ -131,14 +138,14 @@ impl ParserTrait for RParser {
                             "dollar" => {
                                 // The second child of the `dollar` should be ignored
                                 if Some(node) == parent_node.child(2) {
-                                    return None;
+                                    continue 'matches;
                                 }
                             }
                             // Skip identifiers that are the `name` of a for loop, or that refer to it
                             "for" => {
                                 if let Some(name) = parent_node.child_by_field_name("name") {
                                     if name == node || name.utf8_text(code).unwrap() == symbol {
-                                        return None;
+                                        continue 'matches;
                                     }
                                 }
                             }
@@ -146,17 +153,17 @@ impl ParserTrait for RParser {
                             "call" => {
                                 let name = child_text(parent_node, "function", code);
                                 if name == "library" || name == "require" {
-                                    return None;
+                                    continue 'matches;
                                 }
                             }
                             // Skip identifiers within a function definition
-                            "function_definition" => return None,
+                            "function_definition" => continue 'matches,
                             _ => {}
                         }
                         parent = parent_node.parent();
                     }
 
-                    let resource = match node.parent() {
+                    let kind = match node.parent() {
                         Some(parent_node) => match parent_node.kind() {
                             "call" => {
                                 // Because there are so many globals, unlike for other languages
@@ -164,23 +171,22 @@ impl ParserTrait for RParser {
                                 // This avoids false negatives when a variable has been given a
                                 // global name (e.g. "data").
                                 if USE_IGNORE.contains(&symbol.as_str()) {
-                                    return None;
+                                    continue 'matches;
                                 }
-                                resources::symbol(path, &symbol, "Function")
+                                Some("Function".to_string())
                             }
-                            _ => resources::symbol(path, &symbol, ""),
+                            _ => None,
                         },
-                        None => resources::symbol(path, &symbol, ""),
+                        None => None,
                     };
 
-                    Some((relations::uses(range), resource))
+                    dependencies.push(uses_variable(&symbol, path, kind, Some(range)))
                 }
-                _ => None,
-            })
-            .collect();
+                _ => (),
+            }
+        }
 
-        let resource_info = resource_info(
-            resource,
+        let parse_info = parse_info(
             path,
             Self::spec().language,
             code,
@@ -188,9 +194,10 @@ impl ParserTrait for RParser {
             &["comment"],
             matches,
             0,
-            relations,
+            dependencies,
+            dependents,
         );
-        Ok(resource_info)
+        Ok(parse_info)
     }
 }
 
@@ -205,9 +212,8 @@ mod tests {
         snapshot_fixtures("fragments/r/*.R", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Format::R);
-            let resource_info = RParser::parse(resource, path, &code).expect("Unable to parse");
-            assert_json_snapshot!(resource_info);
+            let parse_info = RParser::parse(&code, Some(path)).expect("Unable to parse");
+            assert_json_snapshot!(parse_info);
         })
     }
 }

@@ -1,3 +1,4 @@
+import HtmlFragment from 'html-fragment'
 import { OperationAdd, Slot, ElementId } from '../../types'
 import {
   assertElement,
@@ -12,8 +13,7 @@ import {
 } from '../checks'
 import { applyAdd as applyAddString } from '../string'
 import { STRUCT_ATTRIBUTES } from './consts'
-import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
-import { hasProxy } from './proxies'
+import { escapeAttr, unescapeAttr } from './escape'
 import {
   createFragment,
   createFragmentWrapEach,
@@ -82,18 +82,25 @@ export function applyAddStruct(
 ): void {
   assertName(name)
 
-  // Is there a proxy element for the property? If so, apply the operation to its target.
-  const target = hasProxy(struct, name)
-  if (target) {
-    target.applyAddStruct(name, value, html)
-    return
-  }
-
-  // Is there a placeholder element for the property? If so update it's content.
+  // Is there a placeholder element for the property?
   // Takes precedence over adding as an attribute.
-  const placeholder = struct.querySelector(slotSelector(name))
-  if (placeholder) {
-    placeholder.innerHTML = html
+  const existing = struct.querySelector(slotSelector(name))
+  if (existing) {
+    if (Array.isArray(value)) {
+      // Replace innerHTML with new item
+      existing.innerHTML = html
+    } else {
+      // Replace with the new HTML but retain any `slot` or `data-prop` attributes.
+      const replacement = HtmlFragment(html).firstElementChild
+      if (replacement) {
+        const slot = existing.getAttribute('slot')
+        if (slot) replacement.setAttribute('slot', slot)
+        const prop = existing.getAttribute('data-prop')
+        if (prop) replacement.setAttribute('data-prop', prop)
+
+        existing.replaceWith(replacement)
+      }
+    }
     return
   }
 
@@ -102,10 +109,14 @@ export function applyAddStruct(
   if (alias !== undefined) {
     let attr = ''
     if (value == null) attr = 'null'
-    else if (typeof value === 'object' && !Array.isArray(value)) {
-      if (value.type === 'Date') {
+    else if (typeof value === 'object') {
+      if (Array.isArray(value)) {
+        attr = JSON.stringify(value)
+      } else if (value.type === 'Date') {
         // Use the ISO date string as the attribute
         attr = value.value as string
+      } else {
+        attr = JSON.stringify(value)
       }
     } else attr = value.toString()
 
@@ -189,9 +200,8 @@ export function applyAddText(
   assertIndex(index)
 
   const current = text.textContent ?? ''
-  const unescaped = isAttr(text) ? unescapeAttr(current) : unescapeHtml(current)
+  const unescaped = isAttr(text) ? unescapeAttr(current) : current
   const updated = applyAddString(unescaped, index, value)
-  // It seems that, because setting textContent (?), it is not necessary to escape innerHTML
   const escaped = isAttr(text) ? escapeAttr(updated) : updated
   text.textContent = escaped
 }

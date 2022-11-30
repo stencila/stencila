@@ -1,18 +1,17 @@
 use std::{collections::HashMap, str::FromStr};
 
+use codecs::EncodeOptions;
 use common::{
     defaults::Defaults,
     eyre::{bail, Result},
-    serde::{Deserialize, Serialize},
+    serde::{de::DeserializeOwned, Deserialize, Serialize},
     serde_json::{self, json},
     serde_with::skip_serializing_none,
     tracing,
 };
-use documents::{When, DOCUMENTS};
+use documents::{Then, DOCUMENTS};
 use graph::{PlanOrdering, PlanScope};
 use node_patch::Patch;
-
-use crate::sessions::SESSIONS;
 
 type Params = HashMap<String, serde_json::Value>;
 
@@ -55,24 +54,21 @@ impl Request {
         tracing::trace!("Dispatching request for client `{}`", client);
 
         let result: Result<(serde_json::Value, Subscription)> = match self.method.as_str() {
-            "sessions.start" => sessions_start().await,
-            "sessions.stop" => sessions_stop(&self.params).await,
-            "sessions.subscribe" => sessions_subscribe(&self.params, client).await,
-            "sessions.unsubscribe" => sessions_unsubscribe(&self.params, client).await,
-            "kernels.languages" => kernels_languages(&self.params).await,
             "documents.create" => documents_create(&self.params).await,
             "documents.open" => documents_open(&self.params).await,
             "documents.close" => documents_close(&self.params).await,
+            "documents.write" => documents_write(&self.params).await,
             "documents.load" => documents_load(&self.params).await,
             "documents.dump" => documents_dump(&self.params).await,
             "documents.patch" => documents_patch(&self.params).await,
+            "documents.compile" => documents_compile(&self.params).await,
             "documents.execute" => documents_execute(&self.params).await,
             "documents.cancel" => documents_cancel(&self.params).await,
             "documents.restart" => documents_restart(&self.params).await,
             "documents.kernels" => documents_kernels(&self.params).await,
             "documents.symbols" => documents_symbols(&self.params).await,
-            "documents.subscribe" => documents_subscribe(&self.params, client).await,
-            "documents.unsubscribe" => documents_unsubscribe(&self.params, client).await,
+            "documents.subscribe" => documents_subscribe(&self.params).await,
+            "documents.unsubscribe" => documents_unsubscribe(&self.params).await,
             _ => {
                 let error = Error::method_not_found_error(&self.method);
                 return (
@@ -248,48 +244,6 @@ impl Error {
 // and send them on to the relevant core functions, raising errors is arguments are
 // missing or of the wrong type, and converting returned values to JSON.
 
-async fn sessions_start() -> Result<(serde_json::Value, Subscription)> {
-    let session = SESSIONS.start().await?;
-    Ok((json!(session), Subscription::None))
-}
-
-async fn sessions_stop(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "sessionId")?;
-
-    let session = SESSIONS.stop(&id).await?;
-    Ok((json!(session), Subscription::None))
-}
-
-async fn sessions_subscribe(
-    params: &Params,
-    client: &str,
-) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "sessionId")?;
-    let topic = required_string(params, "topic")?;
-
-    let (session, topic) = SESSIONS.subscribe(&id, &topic, client).await?;
-    Ok((json!(session), Subscription::Subscribe(topic)))
-}
-
-async fn sessions_unsubscribe(
-    params: &Params,
-    client: &str,
-) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "sessionId")?;
-    let topic = required_string(params, "topic")?;
-
-    let (session, topic) = SESSIONS.unsubscribe(&id, &topic, client).await?;
-    Ok((json!(session), Subscription::Unsubscribe(topic)))
-}
-
-async fn kernels_languages(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    // TODO The kernel list will be dependant upon the session
-    let _id = required_string(params, "sessionId")?;
-
-    let kernels = kernels::languages().await?;
-    Ok((json!(kernels), Subscription::None))
-}
-
 async fn documents_create(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let path = optional_string(params, "path")?;
     let content = optional_string(params, "content")?;
@@ -313,18 +267,25 @@ async fn documents_close(params: &Params) -> Result<(serde_json::Value, Subscrip
     Ok((json!({ "id": id }), Subscription::None))
 }
 
+async fn documents_write(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let document_id = required_string(params, "documentId")?;
+
+    // TODO: make immutable
+    //DOCUMENTS.get(&document_id).await?.write(None, None).await?;
+    Ok((json!(true), Subscription::None))
+}
+
 async fn documents_load(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let document_id = required_string(params, "documentId")?;
-    let content = required_string(params, "content")?;
+    let content = required_param(params, "content")?;
     let format = optional_string(params, "format")?;
 
-    DOCUMENTS
-        .get(&document_id)
-        .await?
-        .lock()
-        .await
-        .load(content, format)
-        .await?;
+    // TODO: make immutable
+    //DOCUMENTS
+    //    .get(&document_id)
+    //    .await?
+    //    .load(content, format)
+    //    .await?;
     Ok((json!(true), Subscription::None))
 }
 
@@ -336,67 +297,53 @@ async fn documents_dump(params: &Params) -> Result<(serde_json::Value, Subscript
     let content = DOCUMENTS
         .get(&document_id)
         .await?
-        .lock()
-        .await
-        .dump(format, node_id)
+        .dump(
+            format,
+            node_id,
+            Some(EncodeOptions {
+                compact: false,
+                ..Default::default()
+            }),
+        )
         .await?;
     Ok((json!(content), Subscription::None))
 }
 
-async fn documents_subscribe(
-    params: &Params,
-    client: &str,
-) -> Result<(serde_json::Value, Subscription)> {
+async fn documents_subscribe(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
     let topic = required_string(params, "topic")?;
 
-    let topic = DOCUMENTS.subscribe(&id, &topic, client).await?;
+    let topic = ["documents:", &id, ":", &topic].concat();
     Ok((json!({ "id": id }), Subscription::Subscribe(topic)))
 }
 
-async fn documents_unsubscribe(
-    params: &Params,
-    client: &str,
-) -> Result<(serde_json::Value, Subscription)> {
+async fn documents_unsubscribe(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
     let topic = required_string(params, "topic")?;
 
-    let topic = DOCUMENTS.unsubscribe(&id, &topic, client).await?;
+    let topic = ["documents:", &id, ":", &topic].concat();
     Ok((json!({ "id": id }), Subscription::Unsubscribe(topic)))
 }
 
 async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
-    let patch = required_value(params, "patch")?;
-    let patch: Patch = serde_json::from_value(patch)?;
-    let assemble = optional_string(params, "assemble")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Never);
-    let compile = optional_string(params, "compile")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Soon);
-    let execute = optional_string(params, "execute")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Never);
-    let write = optional_string(params, "write")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Soon);
+    let patch = required_param::<Patch>(params, "patch")?;
 
-    DOCUMENTS
-        .get(&id)
-        .await?
-        .lock()
-        .await
-        .patch_request(patch, assemble, compile, execute, write)
-        .await?;
+    DOCUMENTS.get(&id).await?.patch_request(patch, None).await?;
+    Ok((json!(true), Subscription::None))
+}
+
+async fn documents_compile(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let id = required_string(params, "documentId")?;
+    let then = optional_param::<Then>(params, "then")?;
+
+    DOCUMENTS.get(&id).await?.compile_request(then).await?;
     Ok((json!(true), Subscription::None))
 }
 
 async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
-    let write = optional_string(params, "write")?
-        .and_then(|value| When::from_str(&value).ok())
-        .unwrap_or(When::Soon);
+    let then = optional_param(params, "then")?;
     let node_id = optional_string(params, "nodeId")?;
     let ordering = match optional_string(params, "ordering")? {
         Some(ordering) => Some(PlanOrdering::from_str(&ordering)?),
@@ -406,9 +353,7 @@ async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscr
     DOCUMENTS
         .get(&id)
         .await?
-        .lock()
-        .await
-        .execute_request(write, node_id, ordering, None)
+        .execute_request(then, node_id, ordering, None)
         .await?;
     Ok((json!(true), Subscription::None))
 }
@@ -421,13 +366,7 @@ async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscri
         None => None,
     };
 
-    DOCUMENTS
-        .get(&id)
-        .await?
-        .lock()
-        .await
-        .cancel(node_id, scope)
-        .await?;
+    DOCUMENTS.get(&id).await?.cancel(node_id, scope).await?;
     Ok((json!(true), Subscription::None))
 }
 
@@ -435,36 +374,36 @@ async fn documents_restart(params: &Params) -> Result<(serde_json::Value, Subscr
     let id = required_string(params, "documentId")?;
     let kernel_id = optional_string(params, "kernelId")?;
 
-    DOCUMENTS
-        .get(&id)
-        .await?
-        .lock()
-        .await
-        .restart(kernel_id)
-        .await?;
+    DOCUMENTS.get(&id).await?.restart(kernel_id).await?;
     Ok((json!(true), Subscription::None))
 }
 
 async fn documents_kernels(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
 
-    let kernels = DOCUMENTS.get(&id).await?.lock().await.kernels().await;
+    let kernels = DOCUMENTS.get(&id).await?.kernels().await;
     Ok((json!(kernels), Subscription::None))
 }
 
 async fn documents_symbols(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
 
-    let symbols = DOCUMENTS.get(&id).await?.lock().await.symbols().await;
+    let symbols = DOCUMENTS.get(&id).await?.symbols().await;
     Ok((json!(symbols), Subscription::None))
 }
 
 // Helper functions for getting JSON-RPC parameters and raising appropriate errors
 // if they are not present or of wrong type
 
-fn required_value(params: &Params, name: &str) -> Result<serde_json::Value> {
-    if let Some(param) = params.get(name) {
-        Ok(param.clone())
+fn required_param<T: DeserializeOwned>(params: &Params, name: &str) -> Result<T> {
+    if let Some(value) = params.get(name).cloned() {
+        match serde_json::from_value::<T>(value) {
+            Ok(value) => Ok(value),
+            Err(error) => bail!(Error::parse_error(&format!(
+                "Error parsing required parameter {}: {}",
+                name, error
+            ))),
+        }
     } else {
         bail!(Error::invalid_param_error(&format!(
             "Parameter `{}` is required",
@@ -473,20 +412,21 @@ fn required_value(params: &Params, name: &str) -> Result<serde_json::Value> {
     }
 }
 
-#[allow(dead_code)]
-fn optional_value(params: &Params, name: &str) -> Option<serde_json::Value> {
-    params.get(name).cloned()
+fn optional_param<T: DeserializeOwned>(params: &Params, name: &str) -> Result<Option<T>> {
+    match params.get(name).cloned() {
+        Some(value) => match serde_json::from_value::<T>(value) {
+            Ok(value) => Ok(Some(value)),
+            Err(error) => bail!(Error::parse_error(&format!(
+                "Error parsing optional parameter {}: {}",
+                name, error
+            ))),
+        },
+        None => Ok(None),
+    }
 }
 
 fn required_string(params: &Params, name: &str) -> Result<String> {
-    if let Some(param) = required_value(params, name)?.as_str() {
-        Ok(param.to_string())
-    } else {
-        bail!(Error::invalid_param_error(&format!(
-            "Parameter `{}` is expected to be a string",
-            name
-        )))
-    }
+    required_param::<String>(params, name)
 }
 
 fn optional_string(params: &Params, name: &str) -> Result<Option<String>> {

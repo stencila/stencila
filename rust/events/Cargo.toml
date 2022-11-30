@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-uuids = { path = "../uuids" }
+suids = { path = "../suids" }

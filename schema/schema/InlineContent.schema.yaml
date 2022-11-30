@@ -8,6 +8,7 @@ $comment: |
 anyOf:
   # Entity types in alphabetical order
   - $ref: AudioObject
+  - $ref: Button
   - $ref: Cite
   - $ref: CiteGroup
   - $ref: CodeExpression
@@ -21,6 +22,7 @@ anyOf:
   - $ref: Note
   - $ref: Parameter
   - $ref: Quote
+  - $ref: Span
   - $ref: Strikeout
   - $ref: Strong
   - $ref: Subscript

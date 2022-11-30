@@ -6,18 +6,18 @@ use stencila_schema::*;
 
 use super::{
     attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype, attr_prop,
-    attr_slot, concat, data::label_and_input, elem, elem_empty, elem_meta, elem_placeholder, json,
-    nothing, EncodeContext, ToHtml,
+    attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder, elem_property, elem_slot,
+    json, nothing, validators::validator_tag_name, EncodeContext, ToHtml,
 };
 
 impl ToHtml for BlockContent {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         dispatch_block!(self, to_html, context)
     }
 }
 
 impl ToHtml for ClaimSimple {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         elem(
             "pre",
             &[
@@ -37,7 +37,7 @@ impl ToHtml for CodeBlock {
     /// The `<meta>` element is for Microdata and Stencila WebComponent compatibility.
     /// The `class` follows the recommendation of [HTML5 spec](https://html.spec.whatwg.org/#the-code-element)
     /// to "use the class attribute, e.g. by adding a class prefixed with "language-" to the element."
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let (lang_attr, lang_class, lang_meta) = match &self.programming_language {
             Some(programming_language) => (
                 attr("programming-language", programming_language),
@@ -47,123 +47,116 @@ impl ToHtml for CodeBlock {
             None => (nothing(), nothing(), nothing()),
         };
 
-        let text = elem(
+        let code = elem(
             "pre",
-            // The `slot="text"` attribute needs to be on the direct descendant of the
+            // The `slot="code"` attribute needs to be on the direct descendant of the
             // <stencila-code-block> element for WebComponent compatibility.
             // See https://github.com/stencila/designa/pull/268#discussion_r764363050
-            &[attr_slot("text")],
+            &[attr_slot("code")],
             &elem(
                 "code",
-                &[attr_itemprop("text"), lang_class],
-                &self.text.to_html(context),
+                &[attr_itemprop("code"), lang_class],
+                &self.code.to_html(context),
             ),
         );
 
         elem(
             "stencila-code-block",
             &[attr_itemtype::<Self>(), attr_id(&self.id), lang_attr],
-            &[lang_meta, text].concat(),
+            &[lang_meta, code].concat(),
         )
     }
 }
 
 impl ToHtml for CodeChunk {
-    fn to_html(&self, context: &EncodeContext) -> String {
-        let lang = attr_and_meta("programming_language", &self.programming_language);
+    fn to_html(&self, context: &mut EncodeContext) -> String {
+        let lang = self.programming_language.to_attr("programming-language");
 
-        let compile_digest = attr_and_meta_opt(
-            "compile_digest",
-            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_digest = attr_and_meta_opt(
-            "execute_digest",
-            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_auto = attr_and_meta_opt(
-            "execute_auto",
-            self.execute_auto
+        let _execution_auto = attr_and_meta_opt(
+            "execution_auto",
+            self.execution_auto
                 .as_ref()
                 .map(|auto| (*auto).as_ref().to_string()),
         );
 
-        let execute_pure = attr_and_meta_opt(
-            "execute_pure",
-            self.execute_pure.as_ref().map(|value| value.to_string()),
+        let _execution_pure = attr_and_meta_opt(
+            "execution_pure",
+            self.execution_pure.as_ref().map(|value| value.to_string()),
         );
 
-        let execute_required = attr_and_meta_opt(
-            "execute_required",
-            self.execute_required
+        let _execution_required = attr_and_meta_opt(
+            "execution_required",
+            self.execution_required
                 .as_ref()
                 .map(|required| (*required).as_ref().to_string()),
         );
 
-        let execute_kernel = attr_and_meta_opt(
-            "execute_kernel",
-            self.execute_kernel
+        let _execution_kernel = attr_and_meta_opt(
+            "execution_kernel",
+            self.execution_kernel
                 .as_ref()
                 .map(|kernel| (*kernel).as_ref().to_string()),
         );
 
-        let execute_status = attr_and_meta_opt(
-            "execute_status",
-            self.execute_status
+        let _execution_status = attr_and_meta_opt(
+            "execution_status",
+            self.execution_status
                 .as_ref()
                 .map(|status| (*status).as_ref().to_string()),
         );
 
-        let execute_ended = attr_and_meta_opt(
-            "execute_ended",
-            self.execute_ended
-                .as_ref()
-                .map(|date| (**date).value.to_string()),
+        let _execution_count = attr_and_meta_opt(
+            "execution_count",
+            self.execution_count.map(|count| count.to_string()),
         );
 
-        let execute_duration = attr_and_meta_opt(
-            "execute_duration",
-            self.execute_duration
-                .as_ref()
-                .map(|seconds| seconds.to_string()),
-        );
-
-        let execute_count = attr_and_meta_opt(
-            "execute_count",
-            self.execute_count.map(|count| count.to_string()),
-        );
-
-        let text = elem(
+        let code = elem(
             "pre",
-            &[attr_prop("text"), attr_slot("text")],
-            &self.text.to_html(context),
+            &[attr_prop("code"), attr_slot("code")],
+            &self.code.to_html(context),
         );
 
-        // For code_dependencies and code_dependents it is necessary to
+        // For execution_dependencies and execution_dependents it is necessary to
         // place the items in a <div> under the custom element to avoid
         // elements added by the Web Component interfering with patch indexes.
 
-        let dependencies = elem(
-            "stencila-code-dependencies",
-            &[attr_slot("code-dependencies")],
+        let _dependencies = elem(
+            "stencila-execution-dependencies",
+            &[attr_slot("execution-dependencies")],
             &elem_placeholder(
                 "div",
-                &[attr_prop("code-dependencies")],
-                &self.code_dependencies,
+                &[attr_prop("execution-dependencies")],
+                &self.execution_dependencies,
                 context,
             ),
         );
 
-        let dependents = elem(
-            "stencila-code-dependencies",
-            &[attr_slot("code-dependents")],
+        let _dependents = elem(
+            "stencila-execution-dependencies",
+            &[attr_slot("execution-dependents")],
             &elem_placeholder(
                 "div",
-                &[attr_prop("code-dependents")],
-                &self.code_dependents,
+                &[attr_prop("execution-dependents")],
+                &self.execution_dependents,
                 context,
             ),
+        );
+
+        let _execution_ended = elem_property(
+            "stencila-timestamp",
+            &[attr_prop("execution_ended"), attr_slot("execute-ended")],
+            &self.execution_ended,
+            context,
+        );
+
+        let _execution_duration = elem_property(
+            "stencila-duration",
+            &[
+                attr_prop("execution_duration"),
+                attr_slot("execute-duration"),
+            ],
+            &self.execution_duration,
+            context,
         );
 
         let outputs = elem_placeholder(
@@ -180,14 +173,14 @@ impl ToHtml for CodeChunk {
             context,
         );
 
-        let label = elem_placeholder(
+        let _label = elem_placeholder(
             "span",
             &[attr_prop("label"), attr_slot("label")],
             &self.label,
             context,
         );
 
-        let caption = elem_placeholder(
+        let _caption = elem_placeholder(
             "figcaption",
             &[attr_prop("caption"), attr_slot("caption")],
             &self.caption,
@@ -197,39 +190,33 @@ impl ToHtml for CodeChunk {
         elem(
             "stencila-code-chunk",
             &[
-                attr_itemtype::<Self>(),
                 attr_id(&self.id),
-                lang.0,
-                compile_digest.0,
-                execute_digest.0,
-                execute_auto.0,
-                execute_pure.0,
-                execute_required.0,
-                execute_kernel.0,
-                execute_status.0,
-                execute_ended.0,
-                execute_duration.0,
-                execute_count.0,
+                lang,
+                //execution_auto.0,
+                //execution_pure.0,
+                //execution_required.0,
+                //execution_status.0,
+                //execution_kernel.0,
+                //execution_count.0,
             ],
             &[
-                lang.1,
-                compile_digest.1,
-                execute_digest.1,
-                execute_auto.1,
-                execute_pure.1,
-                execute_required.1,
-                execute_kernel.1,
-                execute_status.1,
-                execute_ended.1,
-                execute_duration.1,
-                execute_count.1,
-                text,
-                dependencies,
-                dependents,
-                outputs,
-                errors,
-                label,
-                caption,
+                //lang.1,
+                //compile_digest,
+                //execute_digest,
+                //execution_auto.1,
+                //execution_pure.1,
+                //execution_required.1,
+                //execution_status.1,
+                //execution_kernel.1,
+                //execution_count.1,
+                code,
+                //dependencies,
+                //dependents,
+                //execution_ended,
+                //execution_duration,
+                outputs, errors,
+                //label,
+                //caption,
             ]
             .concat(),
         )
@@ -237,7 +224,7 @@ impl ToHtml for CodeChunk {
 }
 
 impl ToHtml for CodeChunkCaption {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         match self {
             CodeChunkCaption::String(string) => string.to_html(context),
             CodeChunkCaption::VecBlockContent(blocks) => blocks.to_html(context),
@@ -250,19 +237,15 @@ impl ToHtml for CodeChunkCaption {
 /// In the future the current `CodeError` is likely to be replaced by a `CodeNotification`
 /// (or similar) with a `level` property for info, warnings, errors etc.
 impl ToHtml for CodeError {
-    fn to_html(&self, context: &EncodeContext) -> String {
-        let error_type = elem(
-            "span",
-            &[attr_prop("errorType"), attr_slot("type")],
-            self.error_type
-                .as_deref()
-                .map(|value| value.as_str())
-                .unwrap_or("Error"),
-        );
+    fn to_html(&self, context: &mut EncodeContext) -> String {
+        let error_type = self
+            .error_type
+            .as_ref()
+            .map_or_else(nothing, |error_type| attr("error-type", error_type));
 
         let error_message = elem(
             "span",
-            &[attr_prop("errorMessage"), attr_slot("message")],
+            &[attr_itemprop("errorMessage"), attr_slot("message")],
             &self.error_message.to_html(context),
         );
 
@@ -272,15 +255,15 @@ impl ToHtml for CodeError {
         // generating HTML for patches.
         let stack_trace = elem_placeholder(
             "span",
-            &[attr_prop("stackTrace"), attr_slot("stacktrace")],
+            &[attr_itemprop("stackTrace"), attr_slot("stacktrace")],
             &self.stack_trace,
             context,
         );
 
         elem(
             "stencila-code-error",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[error_type, error_message, stack_trace].concat(),
+            &[attr_itemtype::<Self>(), attr_id(&self.id), error_type],
+            &[error_message, stack_trace].concat(),
         )
     }
 }
@@ -291,7 +274,7 @@ impl ToHtml for CodeError {
 /// (although themes should be able to move them) and are not grouped together in a `<caption>`
 /// element as they are in a table.
 impl ToHtml for FigureSimple {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let content = elem_placeholder("div", &[attr_prop("content")], &self.content, context);
 
         let label = elem_placeholder("span", &[attr_prop("label")], &self.label, context);
@@ -312,7 +295,7 @@ impl ToHtml for FigureSimple {
 }
 
 impl ToHtml for FigureCaption {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         match self {
             FigureCaption::String(string) => string.to_html(context),
             FigureCaption::VecBlockContent(blocks) => blocks.to_html(context),
@@ -333,7 +316,7 @@ impl ToHtml for Heading {
     ///
     /// In rare cases that there is no content in the heading, return an empty
     /// text node to avoid the 'Heading tag found with no content' accessibility error.
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let depth = match &self.depth {
             Some(depth) => std::cmp::min(*depth + 1, 6),
             None => 2,
@@ -348,7 +331,7 @@ impl ToHtml for Heading {
 }
 
 impl ToHtml for Include {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let source = attr_and_meta("source", &self.source);
 
         let media_type = attr_and_meta_opt(
@@ -361,44 +344,34 @@ impl ToHtml for Include {
             self.select.as_ref().map(|boxed| boxed.to_string()),
         );
 
-        let compile_digest = attr_and_meta_opt(
-            "compile_digest",
-            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_digest = attr_and_meta_opt(
-            "execute_digest",
-            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_auto = attr_and_meta_opt(
-            "execute_auto",
-            self.execute_auto
+        let execution_auto = attr_and_meta_opt(
+            "execution_auto",
+            self.execution_auto
                 .as_ref()
                 .map(|auto| (*auto).as_ref().to_string()),
         );
 
-        let execute_required = attr_and_meta_opt(
-            "execute_required",
-            self.execute_required
+        let execution_required = attr_and_meta_opt(
+            "execution_required",
+            self.execution_required
                 .as_ref()
                 .map(|required| (*required).as_ref().to_string()),
         );
 
-        let execute_status = attr_and_meta_opt(
-            "execute_status",
-            self.execute_status
+        let execution_status = attr_and_meta_opt(
+            "execution_status",
+            self.execution_status
                 .as_ref()
                 .map(|status| (*status).as_ref().to_string()),
         );
 
         let dependencies = elem(
-            "stencila-code-dependencies",
-            &[attr_slot("code-dependencies")],
+            "stencila-execution-dependencies",
+            &[attr_slot("execution-dependencies")],
             &elem_placeholder(
                 "div",
-                &[attr_prop("code-dependencies")],
-                &self.code_dependencies,
+                &[attr_prop("execution-dependencies")],
+                &self.execution_dependencies,
                 context,
             ),
         );
@@ -427,21 +400,17 @@ impl ToHtml for Include {
                 source.0,
                 media_type.0,
                 select.0,
-                compile_digest.0,
-                execute_auto.0,
-                execute_digest.0,
-                execute_required.0,
-                execute_status.0,
+                execution_auto.0,
+                execution_required.0,
+                execution_status.0,
             ],
             &[
                 source.1,
                 media_type.1,
                 select.1,
-                compile_digest.1,
-                execute_auto.1,
-                execute_digest.1,
-                execute_required.1,
-                execute_status.1,
+                execution_auto.1,
+                execution_required.1,
+                execution_status.1,
                 dependencies,
                 errors,
                 content,
@@ -452,7 +421,7 @@ impl ToHtml for Include {
 }
 
 impl ToHtml for Call {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let source = attr_and_meta("source", &self.source);
 
         let media_type = attr_and_meta_opt(
@@ -465,47 +434,37 @@ impl ToHtml for Call {
             self.select.as_ref().map(|boxed| boxed.to_string()),
         );
 
-        let compile_digest = attr_and_meta_opt(
-            "compile_digest",
-            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_digest = attr_and_meta_opt(
-            "execute_digest",
-            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
-        );
-
-        let execute_auto = attr_and_meta_opt(
-            "execute_auto",
-            self.execute_auto
+        let execution_auto = attr_and_meta_opt(
+            "execution_auto",
+            self.execution_auto
                 .as_ref()
                 .map(|auto| (*auto).as_ref().to_string()),
         );
 
-        let execute_required = attr_and_meta_opt(
-            "execute_required",
-            self.execute_required
+        let execution_required = attr_and_meta_opt(
+            "execution_required",
+            self.execution_required
                 .as_ref()
                 .map(|required| (*required).as_ref().to_string()),
         );
 
-        let execute_status = attr_and_meta_opt(
-            "execute_status",
-            self.execute_status
+        let execution_status = attr_and_meta_opt(
+            "execution_status",
+            self.execution_status
                 .as_ref()
                 .map(|status| (*status).as_ref().to_string()),
         );
 
-        let execute_ended = attr_and_meta_opt(
-            "execute_ended",
-            self.execute_ended
+        let execution_ended = attr_and_meta_opt(
+            "execution_ended",
+            self.execution_ended
                 .as_ref()
                 .map(|date| (**date).value.to_string()),
         );
 
-        let execute_duration = attr_and_meta_opt(
-            "execute_duration",
-            self.execute_duration
+        let execution_duration = attr_and_meta_opt(
+            "execution_duration",
+            self.execution_duration
                 .as_ref()
                 .map(|seconds| seconds.to_string()),
         );
@@ -513,45 +472,16 @@ impl ToHtml for Call {
         let arguments = elem(
             "div",
             &[attr_prop("arguments"), attr_slot("arguments")],
-            &self
-                .arguments
-                .iter()
-                .flatten()
-                .enumerate()
-                .map(|(index, arg)| {
-                    let symbol_value_attr = match &arg.symbol {
-                        Some(symbol) => attr("value", symbol),
-                        None => "".to_string(),
-                    };
-                    let symbol = elem_empty(
-                        "input",
-                        &[attr_prop("symbol"), attr_slot("symbol"), symbol_value_attr],
-                    );
-
-                    let (name, value) = label_and_input(
-                        &arg.name,
-                        &arg.validator,
-                        &arg.value,
-                        &arg.default,
-                        context,
-                    );
-
-                    elem(
-                        "stencila-call-argument",
-                        &[attr_itemtype::<Self>(), attr("index", &index.to_string())],
-                        &[name, symbol, value].concat(),
-                    )
-                })
-                .join(""),
+            &self.arguments.to_html(context),
         );
 
         let dependencies = elem(
-            "stencila-code-dependencies",
-            &[attr_slot("code-dependencies")],
+            "stencila-execution-dependencies",
+            &[attr_slot("execution-dependencies")],
             &elem_placeholder(
                 "div",
-                &[attr_prop("code-dependencies")],
-                &self.code_dependencies,
+                &[attr_prop("execution-dependencies")],
+                &self.execution_dependencies,
                 context,
             ),
         );
@@ -580,25 +510,21 @@ impl ToHtml for Call {
                 source.0,
                 media_type.0,
                 select.0,
-                compile_digest.0,
-                execute_auto.0,
-                execute_digest.0,
-                execute_required.0,
-                execute_status.0,
-                execute_ended.0,
-                execute_duration.0,
+                execution_auto.0,
+                execution_required.0,
+                execution_status.0,
+                execution_ended.0,
+                execution_duration.0,
             ],
             &[
                 source.1,
                 media_type.1,
                 select.1,
-                compile_digest.1,
-                execute_auto.1,
-                execute_digest.1,
-                execute_required.1,
-                execute_status.1,
-                execute_ended.1,
-                execute_duration.1,
+                execution_auto.1,
+                execution_required.1,
+                execution_status.1,
+                execution_ended.1,
+                execution_duration.1,
                 arguments,
                 dependencies,
                 errors,
@@ -609,8 +535,156 @@ impl ToHtml for Call {
     }
 }
 
+impl ToHtml for CallArgument {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
+        let id = attr_id(&self.id);
+
+        let name = attr("name", &self.name);
+
+        let programming_language = attr("programming-language", &self.programming_language);
+
+        let guess_language = self
+            .guess_language
+            .as_ref()
+            .map_or_else(nothing, |guess| attr("guess-language", &guess.to_string()));
+
+        let code = elem("pre", &[attr_slot("code")], &self.code.to_html(context));
+
+        let validator = elem_slot(
+            &validator_tag_name(self.validator.as_deref()),
+            "validator",
+            &self.validator,
+            context,
+        );
+
+        let errors = elem("pre", &[attr_slot("errors")], &self.errors.to_html(context));
+
+        elem(
+            "stencila-call-argument",
+            &[id, name, programming_language, guess_language],
+            &[code, validator, errors].concat(),
+        )
+    }
+}
+
+impl ToHtml for For {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
+        let symbol = attr("symbol", &self.symbol);
+
+        let programming_language = attr("programming-language", &self.programming_language);
+
+        let code = elem("code", &[attr_slot("code")], &self.code);
+
+        let errors = elem_placeholder(
+            "div",
+            &[attr_prop("errors"), attr_slot("errors")],
+            &self.errors,
+            context,
+        );
+
+        let content = elem(
+            "div",
+            &[attr_prop("content"), attr_slot("content")],
+            &self.content.to_html(context),
+        );
+
+        let iterations = self
+            .iterations
+            .as_ref()
+            .map(|iterations| {
+                iterations
+                    .iter()
+                    .enumerate()
+                    .map(|(index, blocks)| {
+                        elem(
+                            "stencila-for-iteration",
+                            &[attr("index", &index.to_string())],
+                            &blocks.to_html(context),
+                        )
+                    })
+                    .join("")
+            })
+            .unwrap_or_default();
+        let iterations = elem(
+            "div",
+            &[attr_prop("iterations"), attr_slot("iterations")],
+            &iterations,
+        );
+
+        let otherwise = elem_placeholder(
+            "div",
+            &[attr_prop("otherwise"), attr_slot("otherwise")],
+            &self.otherwise,
+            context,
+        );
+
+        elem(
+            "stencila-for",
+            &[
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                symbol,
+                programming_language,
+            ],
+            &[code, errors, content, iterations, otherwise].concat(),
+        )
+    }
+}
+
+impl ToHtml for If {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
+        let clauses = elem(
+            "div",
+            &[attr_slot("clauses")],
+            &self.clauses.to_html(context),
+        );
+
+        elem(
+            "stencila-if",
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &clauses,
+        )
+    }
+}
+
+impl ToHtml for IfClause {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
+        let programming_language = attr("programming-language", &self.programming_language);
+        let guess_language = match self.guess_language {
+            Some(value) => attr("guess-language", &value.to_string()),
+            _ => nothing(),
+        };
+        let is_active = match self.is_active {
+            Some(value) => attr("is-active", &value.to_string()),
+            _ => nothing(),
+        };
+
+        let code = elem("pre", &[attr_slot("code")], &self.code);
+
+        let errors = elem("div", &[attr_slot("errors")], &self.errors.to_html(context));
+
+        let content = elem(
+            "div",
+            &[attr_slot("content")],
+            &self.content.to_html(context),
+        );
+
+        elem(
+            "stencila-if-clause",
+            &[
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                programming_language,
+                guess_language,
+                is_active,
+            ],
+            &[code, errors, content].concat(),
+        )
+    }
+}
+
 impl ToHtml for List {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let tag = match &self.order {
             Some(ListOrder::Ascending) => "ol",
             _ => "ul",
@@ -630,7 +704,7 @@ impl ToHtml for List {
 }
 
 impl ToHtml for ListItem {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let checkbox = self.is_checked.map(|is_checked| match is_checked {
             true => InlineContent::String("☑ ".to_string()),
             false => InlineContent::String("☐ ".to_string()),
@@ -672,7 +746,7 @@ impl ToHtml for ListItem {
 }
 
 impl ToHtml for Paragraph {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "p",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -682,7 +756,7 @@ impl ToHtml for Paragraph {
 }
 
 impl ToHtml for QuoteBlock {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "blockquote",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -699,7 +773,7 @@ impl ToHtml for QuoteBlock {
 ///
 /// Note that both the `label` and `caption` properties are nested within a `<caption>` element.
 impl ToHtml for TableSimple {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let label = elem_placeholder("span", &[attr_prop("label")], &self.label, context);
 
         let caption = elem_placeholder("div", &[attr_prop("caption")], &self.caption, context);
@@ -719,7 +793,7 @@ impl ToHtml for TableSimple {
 }
 
 impl ToHtml for TableCaption {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         match self {
             TableCaption::String(string) => string.to_html(context),
             TableCaption::VecBlockContent(blocks) => blocks.to_html(context),
@@ -735,7 +809,7 @@ impl ToHtml for TableCaption {
 /// not know it's row context). Therefore we deprecate the use of row type alone, and
 /// encourage use of both for header rows.
 impl ToHtml for TableRow {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         elem(
             "tr",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -745,7 +819,7 @@ impl ToHtml for TableRow {
 }
 
 impl ToHtml for TableCell {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         let tag = match &self.cell_type {
             Some(cell_type) => match cell_type {
                 TableCellCellType::Header => "th",
@@ -773,7 +847,7 @@ impl ToHtml for TableCell {
 }
 
 impl ToHtml for TableCellCellType {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         match self {
             TableCellCellType::Header => "Header".to_string(),
             TableCellCellType::Data => "Data".to_string(),
@@ -782,7 +856,7 @@ impl ToHtml for TableCellCellType {
 }
 
 impl ToHtml for TableCellContent {
-    fn to_html(&self, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &mut EncodeContext) -> String {
         match self {
             TableCellContent::VecInlineContent(nodes) => nodes.to_html(context),
             TableCellContent::VecBlockContent(nodes) => nodes.to_html(context),
@@ -791,7 +865,7 @@ impl ToHtml for TableCellContent {
 }
 
 impl ToHtml for ThematicBreak {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
         elem_empty("hr", &[attr_itemtype::<Self>(), attr_id(&self.id)])
     }
 }

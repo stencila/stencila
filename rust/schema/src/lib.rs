@@ -3,7 +3,6 @@
 mod prelude;
 pub use prelude::Array;
 pub use prelude::Boolean;
-pub use prelude::Cord;
 pub use prelude::Integer;
 pub use prelude::Null;
 pub use prelude::Number;

@@ -4,41 +4,49 @@ use super::{attr, elem, EncodeContext, ToHtml};
 
 /// Encode a dependency of an executable code node
 ///
-/// Note that for this type, and for `ExecutableCodeDependents`, the node being
+/// Note that for this type, and for `ExecutionDependents`, the node being
 /// encoded is a _partial_ copy of a node. So any properties encoded here must be copied
 /// across in the `node-execute::compile` module.
-impl ToHtml for ExecutableCodeDependencies {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+impl ToHtml for ExecutionDependency {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
+        String::new()
+        /*
         let (
             node_kind,
             id,
             label,
             programming_language,
-            execute_auto,
-            execute_required,
-            execute_status,
+            execution_auto,
+            execution_required,
+            execution_status,
         ) = match self {
-            ExecutableCodeDependencies::CodeChunk(CodeChunk {
+            ExecutionDependency::CodeChunk(CodeChunk {
                 id,
                 label,
                 programming_language,
-                execute_auto,
-                execute_required,
-                execute_status,
+                execution_auto,
+                execution_required,
+                execution_status,
                 ..
             }) => (
                 "CodeChunk",
                 id.as_deref(),
                 label.as_deref(),
                 Some(programming_language),
-                execute_auto.clone(),
-                execute_required.as_ref().map(|value| value.as_ref()),
-                execute_status.clone(),
+                execution_auto.clone(),
+                execution_required.as_ref().map(|value| value.as_ref()),
+                execution_status.clone(),
             ),
-            ExecutableCodeDependencies::Parameter(Parameter {
+            ExecutionDependency::Parameter(Parameter {
                 id,
                 name,
-                execute_required,
+                execution_required,
+                ..
+            })
+            | ExecutionDependency::Button(Button {
+                id,
+                name,
+                execution_required,
                 ..
             }) => (
                 "Parameter",
@@ -46,10 +54,10 @@ impl ToHtml for ExecutableCodeDependencies {
                 Some(name),
                 None,
                 None,
-                execute_required.as_ref().map(|value| value.as_ref()),
+                execution_required.as_ref().map(|value| value.as_ref()),
                 None,
             ),
-            ExecutableCodeDependencies::File(File { path, .. }) => {
+            ExecutionDependency::File(File { path, .. }) => {
                 ("File", None, Some(path), None, None, None, None)
             }
         };
@@ -62,73 +70,76 @@ impl ToHtml for ExecutableCodeDependencies {
                 programming_language
                     .map(|value| attr("programming-language", value))
                     .unwrap_or_default(),
-                execute_auto
-                    .map(|value| attr("execute-auto", value.as_ref()))
+                execution_auto
+                    .map(|value| attr("execution-auto", value.as_ref()))
                     .unwrap_or_default(),
-                execute_required
-                    .map(|value| attr("execute-required", value))
+                execution_required
+                    .map(|value| attr("execution-required", value))
                     .unwrap_or_default(),
-                execute_status
-                    .map(|value| attr("execute-status", value.as_ref()))
+                execution_status
+                    .map(|value| attr("execution-status", value.as_ref()))
                     .unwrap_or_default(),
             ],
             "",
         )
+        */
     }
 }
 
 /// Encode a dependent of an executable code node
-impl ToHtml for ExecutableCodeDependents {
-    fn to_html(&self, _context: &EncodeContext) -> String {
+impl ToHtml for ExecutionDependent {
+    fn to_html(&self, _context: &mut EncodeContext) -> String {
+        String::new()
+        /*
         let (
             node_kind,
             id,
             label,
             programming_language,
-            execute_auto,
-            execute_required,
-            execute_status,
+            execution_auto,
+            execution_required,
+            execution_status,
         ) = match self {
-            ExecutableCodeDependents::Call(Call {
+            ExecutionDependent::Call(Call {
                 id,
                 source,
-                execute_auto,
-                execute_required,
-                execute_status,
+                execution_auto,
+                execution_required,
+                execution_status,
                 ..
             }) => (
                 "Call",
                 id.as_deref(),
                 Some(source),
                 None,
-                execute_auto.as_ref().map(|value| value.as_ref()),
-                execute_required.as_ref().map(|value| value.as_ref()),
-                execute_status.as_ref().map(|value| value.as_ref()),
+                execution_auto.as_ref().map(|value| value.as_ref()),
+                execution_required.as_ref().map(|value| value.as_ref()),
+                execution_status.as_ref().map(|value| value.as_ref()),
             ),
 
-            ExecutableCodeDependents::CodeChunk(CodeChunk {
+            ExecutionDependent::CodeChunk(CodeChunk {
                 id,
                 label,
                 programming_language,
-                execute_auto,
-                execute_required,
-                execute_status,
+                execution_auto,
+                execution_required,
+                execution_status,
                 ..
             }) => (
                 "CodeChunk",
                 id.as_deref(),
                 label.as_deref(),
                 Some(programming_language),
-                execute_auto.as_ref().map(|value| value.as_ref()),
-                execute_required.as_ref().map(|value| value.as_ref()),
-                execute_status.as_ref().map(|value| value.as_ref()),
+                execution_auto.as_ref().map(|value| value.as_ref()),
+                execution_required.as_ref().map(|value| value.as_ref()),
+                execution_status.as_ref().map(|value| value.as_ref()),
             ),
 
-            ExecutableCodeDependents::CodeExpression(CodeExpression {
+            ExecutionDependent::CodeExpression(CodeExpression {
                 id,
                 programming_language,
-                execute_required,
-                execute_status,
+                execution_required,
+                execution_status,
                 ..
             }) => (
                 "CodeExpression",
@@ -136,13 +147,49 @@ impl ToHtml for ExecutableCodeDependents {
                 None,
                 Some(programming_language),
                 None,
-                execute_required.as_ref().map(|value| value.as_ref()),
-                execute_status.as_ref().map(|value| value.as_ref()),
+                execution_required.as_ref().map(|value| value.as_ref()),
+                execution_status.as_ref().map(|value| value.as_ref()),
             ),
 
-            ExecutableCodeDependents::File(File { path, .. }) => {
+            ExecutionDependent::Division(Division {
+                id,
+                programming_language,
+                execution_auto,
+                execution_required,
+                execution_status,
+                ..
+            }) => (
+                "Division",
+                id.as_deref(),
+                None,
+                Some(programming_language),
+                execution_auto.as_ref().map(|value| value.as_ref()),
+                execution_required.as_ref().map(|value| value.as_ref()),
+                execution_status.as_ref().map(|value| value.as_ref()),
+            ),
+
+            ExecutionDependent::Span(Span {
+                id,
+                programming_language,
+                execution_auto,
+                execution_required,
+                execution_status,
+                ..
+            }) => (
+                "Span",
+                id.as_deref(),
+                None,
+                Some(programming_language),
+                execution_auto.as_ref().map(|value| value.as_ref()),
+                execution_required.as_ref().map(|value| value.as_ref()),
+                execution_status.as_ref().map(|value| value.as_ref()),
+            ),
+
+            ExecutionDependent::File(File { path, .. }) => {
                 ("File", None, Some(path), None, None, None, None)
             }
+
+            ExecutionDependent::If(_) | ExecutionDependent::For(_) => todo!(),
         };
         elem(
             "stencila-code-dependency",
@@ -153,17 +200,18 @@ impl ToHtml for ExecutableCodeDependents {
                 programming_language
                     .map(|value| attr("programming-language", value))
                     .unwrap_or_default(),
-                execute_auto
-                    .map(|value| attr("execute-auto", value))
+                execution_auto
+                    .map(|value| attr("execution-auto", value))
                     .unwrap_or_default(),
-                execute_required
-                    .map(|value| attr("execute-required", value))
+                execution_required
+                    .map(|value| attr("execution-required", value))
                     .unwrap_or_default(),
-                execute_status
-                    .map(|value| attr("execute-status", value))
+                execution_status
+                    .map(|value| attr("execution-status", value))
                     .unwrap_or_default(),
             ],
             "",
         )
+        */
     }
 }
