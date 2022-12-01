@@ -46,7 +46,7 @@
           "devDependencies"
         ],
         "semanticCommitType": "chore",
-        "semanticCommitScope": "Dependencies",
+        "semanticCommitScope": "Development dependencies",
         "automerge": true
       }
     ]
