@@ -1,5 +1,6 @@
 {
   "$comment": "This file is for configuring JavaScript based tooling used for repository-wide commit linting, dependency management, and semantic release numbering. Please see CONTRIBUTING.md for more details.",
+  "version": "1.16.0",
   "scripts": {
     "prepare": "husky install"
   },
@@ -52,7 +53,9 @@
     ]
   },
   "release": {
-    "extends": "@stencila/semantic-release-config",
+    "branches": [
+      "main"
+    ],
     "plugins": [
       [
         "@semantic-release/commit-analyzer",
@@ -71,7 +74,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "./.ci/prepare-release.sh ${nextRelease.version}"
+          "prepareCmd": "./scripts/prepare-release.sh ${nextRelease.version}"
         }
       ],
       [
@@ -81,8 +84,6 @@
             "CHANGELOG.md",
             "package.json",
             "Cargo.lock",
-            "desktop/package.json",
-            "desktop/package-lock.json",
             "node/package.json",
             "node/package-lock.json",
             "node/Cargo.toml",

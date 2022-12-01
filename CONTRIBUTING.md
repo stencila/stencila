@@ -21,7 +21,7 @@ Commit messages should follow the [conventional commits](https://www.conventiona
 
 Most code lives in sub-project sub-directories of the root directory of the repository (e.g. `rust`, `docs`). Most of the sub-projects have their own `CONTRIBUTING.md` which should describe the code organization within that sub-project.
 
-This section describes the organization of code in the root directory and non-sub-project sub-directories (e.g. `.ci`, `.github`). Most of the files in these locations is for management of the repository as a whole including commit linting, dependency management, continuous integration and semantic release numbering.
+This section describes the organization of code in the root directory and non-sub-project sub-directories (e.g. `scripts`, `.github`). Most of the files in these locations is for management of the repository as a whole including commit linting, dependency management, continuous integration and semantic release numbering.
 
 ### `package.json`
 

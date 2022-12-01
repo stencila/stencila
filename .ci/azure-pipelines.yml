@@ -35,7 +35,7 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - script: bash .ci/folder-changes.sh
+      - script: bash scripts/folder-changes.sh
         name: folders
         displayName: Check which folders have changed
 
@@ -227,9 +227,9 @@ jobs:
           set -e
           cargo list | grep --quiet strip || cargo install cargo-strip
           make -C rust build
-          bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
+          bash scripts/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
           make -C rust build-musl
-          bash .ci/upload-release.sh target/x86_64-unknown-linux-musl/release/stencila stencila x86_64-unknown-linux-musl.tar.gz
+          bash scripts/upload-release.sh target/x86_64-unknown-linux-musl/release/stencila stencila x86_64-unknown-linux-musl.tar.gz
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
@@ -327,7 +327,7 @@ jobs:
           make -C rust build
           codesign -s "Stencila Ltd." target/release/stencila
           codesign --display --verbose=4 target/release/stencila
-          bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
+          bash scripts/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
@@ -424,7 +424,7 @@ jobs:
           make -C rust build
           curl -sL --output signtool.exe https://raw.githubusercontent.com/StefanKert/azuredevops-codesigning-task/efbb9cca6911aa4542e13dd876d8c913df6ff25b/task/signtool.exe
           signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f $(certificate.secureFilePath) /p $(WINDOWS_CODESIGN_PASSWORD) target/release/stencila.exe
-          bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
+          bash scripts/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')

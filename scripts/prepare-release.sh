@@ -9,11 +9,13 @@ echo "Preparing release $VERSION"
 # Update the version in the top-level package
 sed -i -e "s!\"version\": .*!\"version\": \"$VERSION\",!" package.json
 
-# Update the version in the Node package and do npm install
-# to propagate change to package-lock.json
-# sed -i -e "s!\"version\": .*!\"version\": \"$VERSION\",!" node/package.json
-# sed -i -e "s!^version = .*!version = \"$VERSION\"!" node/Cargo.toml
-# (cd node && npm install)
+# Update the versions in the Node, Typescript and Web packages and do npm install
+# to propagate change to package-lock.json files
+for FOLDER in node ts web; do
+    # sed -i -e "s!\"version\": .*!\"version\": \"$VERSION\",!" node/package.json
+    # sed -i -e "s!^version = .*!version = \"$VERSION\"!" node/Cargo.toml
+    # (cd node && npm install)
+done
 
 # Update the version in the Python package
 # sed -i -e "s!^version = .*!version = \"$VERSION\"!" python/Cargo.toml
@@ -26,11 +28,6 @@ sed -i -e "s!\"version\": .*!\"version\": \"$VERSION\",!" package.json
 # Update the version in the Rust crates (including lock file)
 sed -i -e "s!^version = .*!version = \"$VERSION\"!" rust/stencila/Cargo.toml
 (cd rust && cargo generate-lockfile)
-
-# Update the version in the Desktop app and do npm install
-# to propagate change to package-lock.json
-# sed -i -e "s!\"version\": .*!\"version\": \"$VERSION\",!" desktop/package.json
-# (cd desktop && npm install)
 
 # Update the workspace Cargo.lock file so that above version changes
 # are propagated to it 
