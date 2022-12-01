@@ -1,7 +1,0 @@
-.documentPane {
-  @apply h-screen w-full flex flex-col;
-}
-
-.documentPaneContents {
-  @apply block h-full overflow-hidden;
-}
