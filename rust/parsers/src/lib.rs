@@ -61,8 +61,8 @@ macro_rules! dispatch_builtins {
             Format::Postgrest => Some(parser_postgrest::PostgrestParser::$method($($arg),*)),
             #[cfg(feature = "parser-prql")]
             Format::PrQL => Some(parser_prql::PrqlParser::$method($($arg),*)),
-            #[cfg(feature = "parser-py")]
-            Format::Python => Some(parser_py::PyParser::$method($($arg),*)),
+            #[cfg(feature = "parser-python")]
+            Format::Python => Some(parser_python::PythonParser::$method($($arg),*)),
             #[cfg(feature = "parser-r")]
             Format::R => Some(parser_r::RParser::$method($($arg),*)),
             #[cfg(feature = "parser-rust")]
@@ -104,8 +104,8 @@ impl Parsers {
             ("postgrest", parser_postgrest::PostgrestParser::spec()),
             #[cfg(feature = "parser-prql")]
             ("prql", parser_prql::PrqlParser::spec()),
-            #[cfg(feature = "parser-py")]
-            ("py", parser_py::PyParser::spec()),
+            #[cfg(feature = "parser-python")]
+            ("py", parser_python::PythonParser::spec()),
             #[cfg(feature = "parser-r")]
             ("r", parser_r::RParser::spec()),
             #[cfg(feature = "parser-rust")]

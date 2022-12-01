@@ -5344,7 +5344,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "parser-py"
+name = "parser-python"
 version = "0.0.0"
 dependencies = [
  "parser-treesitter",
@@ -5407,7 +5407,7 @@ dependencies = [
  "parser-json5",
  "parser-postgrest",
  "parser-prql",
- "parser-py",
+ "parser-python",
  "parser-r",
  "parser-sql",
  "parser-tailwind",

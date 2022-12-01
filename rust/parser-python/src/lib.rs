@@ -26,9 +26,9 @@ mod ignores;
 use ignores::USE_IGNORE;
 
 /// A parser for Python
-pub struct PyParser {}
+pub struct PythonParser {}
 
-impl ParserTrait for PyParser {
+impl ParserTrait for PythonParser {
     fn spec() -> Parser {
         Parser {
             language: Format::Python,
@@ -223,7 +223,7 @@ mod tests {
         snapshot_fixtures("fragments/py/*.py", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let parse_info = PyParser::parse(&code, Some(path)).expect("Unable to parse");
+            let parse_info = PythonParser::parse(&code, Some(path)).expect("Unable to parse");
             assert_json_snapshot!(parse_info);
         })
     }

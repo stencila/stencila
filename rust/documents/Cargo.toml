@@ -46,6 +46,6 @@ test-utils = { path = "../test-utils" }
 parsers = { path = "../parsers", features = [
     "parser-calc",
     "parser-r",
-    "parser-py",
+    "parser-python",
 ] }
 kernels = { path = "../kernels", features = ["kernel-store", "kernel-calc"] }

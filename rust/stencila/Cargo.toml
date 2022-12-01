@@ -84,7 +84,7 @@ default = [
   "parsers/parser-json5",
   "parsers/parser-postgrest",
   "parsers/parser-prql",
-  "parsers/parser-py",
+  "parsers/parser-python",
   "parsers/parser-r",
   "parsers/parser-sql",
   "parsers/parser-tailwind",
