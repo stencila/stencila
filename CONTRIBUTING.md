@@ -29,5 +29,14 @@ This file is for configuring JavaScript based tooling used for repository-wide c
 
 #### `commitlint` property
 
-We use [`commitlint`](https://github.com/conventional-changelog/commitlint) and [`husky`](https://github.com/typicode/husky) to check that commit messages conform to the [conventional commits](https://www.conventionalcommits.org/) specification as described above.
+We use [`commitlint`](https://github.com/conventional-changelog/commitlint) and [`husky`](https://github.com/typicode/husky) to check that commit messages conform to the specification described above. This section configures `commitlint` to use the [conventional commits](https://www.conventionalcommits.org/) spec with sentence case scope and subject (as described above).
 
+#### `renovate` section
+
+We use [`renovate`](https://github.com/renovatebot/renovate) to keep our dependencies up to date. This section configures `renovate` to:
+
+- Create and update the "Dependency Dashboard"](https://github.com/stencila/stencila/issues/784)
+
+- Use the commit message `chore(Development dependencies): ...` and automerge PRs for development dependencies if tests pass
+
+- Use the commit message `fix(Dependencies): ...` for production dependencies but do not automerge PRs even if tests pass.

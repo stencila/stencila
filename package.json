@@ -31,10 +31,7 @@
     ],
     "dependencyDashboard": true,
     "dependencyDashboardTitle": "Update dependencies",
-    "timezone": "UTC",
-    "schedule": [
-      "before 5pm on Sunday"
-    ],
+    "semanticCommits": "enabled",
     "packageRules": [
       {
         "matchDepTypes": [
@@ -42,81 +39,14 @@
         ],
         "semanticCommitType": "fix",
         "semanticCommitScope": "Dependencies",
-        "rangeStrategy": "bump",
         "automerge": false
       },
       {
-        "groupName": "ProseMirror dependencies",
-        "groupSlug": "prosemirror",
-        "semanticCommitType": "fix",
-        "semanticCommitScope": "ProseMirror",
-        "matchFiles": [
-          "web/package.json"
-        ],
-        "matchPackagePatterns": [
-          "^prosemirror",
-          "^@types/prosemirror"
-        ]
-      },
-      {
-        "groupName": "PostCSS",
-        "groupSlug": "postcss",
-        "semanticCommitType": "chore",
-        "semanticCommitScope": "PostCSS",
-        "rangeStrategy": "bump",
-        "packagePatterns": [
-          "postcss",
-          "autoprefixer",
-          "cssnano"
-        ]
-      },
-      {
-        "groupName": "Tree-sitter dependencies",
-        "groupSlug": "tree-sitter",
-        "semanticCommitScope": "Tree-sitter",
-        "matchPackagePatterns": [
-          "^tree-sitter"
-        ]
-      },
-      {
-        "groupName": "Tracing dependencies",
-        "groupSlug": "tracing",
-        "semanticCommitScope": "Tracing",
-        "matchPackagePatterns": [
-          "^tracing"
-        ]
-      },
-      {
-        "groupName": "Dev deps",
-        "groupSlug": "dev",
         "matchDepTypes": [
           "devDependencies"
         ],
-        "excludePackagePatterns": [
-          "^@types/prosemirror"
-        ],
         "semanticCommitType": "chore",
         "semanticCommitScope": "Dependencies",
-        "updateTypes": [
-          "minor",
-          "patch",
-          "pin"
-        ],
-        "automerge": true
-      },
-      {
-        "groupName": "Help dependencies",
-        "groupSlug": "help-deps",
-        "matchPaths": [
-          "+(./help/package.json)"
-        ],
-        "matchDepTypes": [
-          "dependencies"
-        ],
-        "rangeStrategy": "pin",
-        "semanticCommitType": "chore",
-        "semanticCommitScope": "Help",
-        "commitMessageTopic": "update dependencies",
         "automerge": true
       }
     ]
