@@ -140,7 +140,7 @@ jobs:
       # Schema is tested and built (including language bindings which other modules use)
       # if there are changes in the `schema` folder.
       - script: make -C schema setup test build
-        condition: contains(variables.changed, 'schema')
+        condition: false # contains(variables.changed, 'schema')
         displayName: 'Schema: Test & Build'
 
       # Rust crate is linted if there are changes in the `rust` folder.
