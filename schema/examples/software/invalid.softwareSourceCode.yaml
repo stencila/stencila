@@ -1,8 +1,0 @@
-type: SoftwareSourceCode
-maintainers:
-  # invalid, should be People or Organizations not just strings
-  - Joe Smith
-  - Jane Doe
-
-# String is not a URI: URI with a scheme is expected.
-codeRepository: my-repo.git

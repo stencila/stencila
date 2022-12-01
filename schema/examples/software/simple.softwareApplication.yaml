@@ -1,8 +1,0 @@
-type: SoftwareApplication
-softwareRequirements:
-  - type: SoftwareApplication
-    name: SomePackage
-    softwareVersion: 1.2.3
-  - type: SoftwareApplication
-    name: SomeOtherPackage
-    softwareVersion: 3.2.1

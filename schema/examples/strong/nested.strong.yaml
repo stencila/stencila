@@ -1,7 +1,0 @@
-type: Strong
-content:
-  - 'Some '
-  - type: Delete
-    content:
-      - 'important'
-  - 'essential information'
