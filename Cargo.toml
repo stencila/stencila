@@ -3,9 +3,14 @@
 # Do not include Node, Python and R binding until more developed
 members = ["rust/*"]
 
-# Exclude crates that are alpha (needing work before they will compile and/or pass tests)
-# or are in process of being deprecated
-exclude = ["rust/plugins"]
+# Exclude crates that are experimental or are in process of being deprecated
+exclude = [
+    "rust/plugins",
+    "rust/kernel-deno",
+    "rust/kernel-jupyter",
+    "rust/parser-rust",
+    "rust/parser-ts",
+]
 
 [profile.ci]
 # Settings aimed at reducing disk usage and improving build times on CI

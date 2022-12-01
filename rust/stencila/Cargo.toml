@@ -88,7 +88,6 @@ default = [
   "parsers/parser-r",
   "parsers/parser-sql",
   "parsers/parser-tailwind",
-  "parsers/parser-ts",
 
   # Kernels
   "kernels-cli",

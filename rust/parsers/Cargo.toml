@@ -24,10 +24,8 @@ parser-postgrest = { path = "../parser-postgrest" , optional = true}
 parser-prql = { path = "../parser-prql" , optional = true}
 parser-py = { path = "../parser-py" , optional = true}
 parser-r = { path = "../parser-r" , optional = true}
-parser-rust = { path = "../parser-rust" , optional = true}
 parser-sql = { path = "../parser-sql" , optional = true}
 parser-tailwind = { path = "../parser-tailwind" , optional = true}
-parser-ts = { path = "../parser-ts" , optional = true}
 
 [dev-dependencies]
 test-utils = { path = "../test-utils" }
