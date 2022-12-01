@@ -1,5 +1,5 @@
 title: Subscript
-'@id': stencila:Subscript
+"@id": stencila:Subscript
 extends: Mark
 role: secondary
 status: stable

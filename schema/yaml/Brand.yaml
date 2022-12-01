@@ -1,5 +1,5 @@
 title: Brand
-'@id': schema:Brand
+"@id": schema:Brand
 extends: Thing
 role: tertiary
 status: stable
@@ -9,14 +9,14 @@ description: |
   product group, or similar.
 properties:
   logo:
-    '@id': schema:logo
+    "@id": schema:logo
     description: A logo associated with the brand.
     anyOf:
       - $ref: ImageObject
       - type: string
         format: uri
   reviews:
-    '@id': schema:review
+    "@id": schema:review
     description: Reviews of the brand.
     type: array
     items:

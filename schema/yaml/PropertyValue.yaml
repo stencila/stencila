@@ -1,5 +1,5 @@
 title: PropertyValue
-'@id': schema:PropertyValue
+"@id": schema:PropertyValue
 extends: Thing
 status: stable
 role: secondary
@@ -17,11 +17,11 @@ $comment: |
   This type is mainly provided for use in `Thing.identifiers` (see the notes there).
 properties:
   propertyID:
-    '@id': schema:propertyID
+    "@id": schema:propertyID
     description: A commonly used identifier for the characteristic represented by the property.
     type: string
   value:
-    '@id': schema:value
+    "@id": schema:value
     description: The value of the property.
     anyOf:
       - type: boolean

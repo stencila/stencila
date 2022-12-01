@@ -1,5 +1,5 @@
 title: TimeUnit
-'@id': stencila:TimeUnit
+"@id": stencila:TimeUnit
 extends: Enumeration
 category: data
 status: stable
@@ -7,28 +7,28 @@ role: secondary
 description: A unit in which time can be measured
 anyOf:
   - const: Year
-    '@id': stencila:Year
+    "@id": stencila:Year
   - const: Month
-    '@id': stencila:Month
+    "@id": stencila:Month
   - const: Week
-    '@id': stencila:Week
+    "@id": stencila:Week
   - const: Day
-    '@id': stencila:Day
+    "@id": stencila:Day
   - const: Hour
-    '@id': stencila:Hour
+    "@id": stencila:Hour
   - const: Minute
-    '@id': stencila:Minute
+    "@id": stencila:Minute
   - const: Second
-    '@id': stencila:Second
+    "@id": stencila:Second
   - const: Millisecond
-    '@id': stencila:Millisecond
+    "@id": stencila:Millisecond
   - const: Microsecond
-    '@id': stencila:Microsecond
+    "@id": stencila:Microsecond
   - const: Nanosecond
-    '@id': stencila:Nanosecond
+    "@id": stencila:Nanosecond
   - const: Picosecond
-    '@id': stencila:Picosecond
+    "@id": stencila:Picosecond
   - const: Femtosecond
-    '@id': stencila:Femtosecond
+    "@id": stencila:Femtosecond
   - const: Attosecond
-    '@id': stencila:Attosecond
+    "@id": stencila:Attosecond

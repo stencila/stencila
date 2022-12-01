@@ -1,5 +1,5 @@
 title: Division
-'@id': stencila:Division
+"@id": stencila:Division
 category: text
 description: Styled block content
 role: primary
@@ -7,7 +7,7 @@ status: unstable
 extends: Styled
 properties:
   content:
-    '@id': 'stencila:content'
+    "@id": "stencila:content"
     description: The content within the division
     type: array
     items:

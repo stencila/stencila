@@ -1,5 +1,5 @@
 title: Entity
-'@id': stencila:Entity
+"@id": stencila:Entity
 status: stable
 role: base
 category: other
@@ -13,14 +13,14 @@ properties:
     # This is a special property analogous to JSON-LD's `@type` keyword.
     # It is extended with the titles of all descendant types during
     # the generation of schema.json files.
-    '@id': schema:type
+    "@id": schema:type
     description: The name of the type.
     type: string
     enum: [Entity]
     default: Entity
   id:
     # This is a special property analogous to JSON-LD's `@id` keyword.
-    '@id': schema:id
+    "@id": schema:id
     description: The identifier for this item.
     type: string
   meta:
@@ -29,7 +29,7 @@ properties:
     # entities.
     # Ad-hoc properties that become commonly used may become part of
     # the schema proper.
-    '@id': stencila:meta
+    "@id": stencila:meta
     description: Metadata associated with this item.
     type: object
 required:

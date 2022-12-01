@@ -1,5 +1,5 @@
 title: BooleanValidator
-'@id': stencila:BooleanValidator
+"@id": stencila:BooleanValidator
 extends: Validator
 category: data
 role: validation

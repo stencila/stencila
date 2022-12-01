@@ -1,5 +1,5 @@
 title: Table
-'@id': schema:Table
+"@id": schema:Table
 extends: CreativeWork
 category: works
 role: primary
@@ -7,7 +7,7 @@ status: unstable
 description: A table.
 properties:
   caption:
-    '@id': schema:caption
+    "@id": schema:caption
     description: A caption for the table.
     $comment: |
       An array of nodes or, to be compatible with https://schema.org/caption,
@@ -18,11 +18,11 @@ properties:
           $ref: BlockContent
       - type: string
   label:
-    '@id': stencila:label
+    "@id": stencila:label
     description: A short label for the table.
     type: string
   rows:
-    '@id': stencila:rows
+    "@id": stencila:rows
     description: |
       Rows of cells in the table.
     type: array

@@ -1,5 +1,5 @@
 title: DefinedTerm
-'@id': schema:DefinedTerm
+"@id": schema:DefinedTerm
 extends: Thing
 status: stable
 role: secondary
@@ -11,7 +11,7 @@ $comment: |
   description to provide the definition of the term.
 properties:
   termCode:
-    '@id': schema:termCode
+    "@id": schema:termCode
     description: A code that identifies this DefinedTerm within a DefinedTermSet
     type: string
 required:

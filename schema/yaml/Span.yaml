@@ -1,5 +1,5 @@
 title: Span
-'@id': stencila:Span
+"@id": stencila:Span
 category: text
 description: Styled inline content
 role: primary
@@ -7,7 +7,7 @@ status: unstable
 extends: Styled
 properties:
   content:
-    '@id': 'stencila:content'
+    "@id": "stencila:content"
     description: The content within the span
     type: array
     items:

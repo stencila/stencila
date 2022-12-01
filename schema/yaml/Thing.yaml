@@ -1,5 +1,5 @@
 title: Thing
-'@id': schema:Thing
+"@id": schema:Thing
 extends: Entity
 status: stable
 role: base
@@ -7,19 +7,19 @@ category: other
 description: The most generic type of item.
 properties:
   alternateNames:
-    '@id': schema:alternateName
+    "@id": schema:alternateName
     description: Alternate names (aliases) for the item.
     type: array
     items:
       type: string
   description:
-    '@id': schema:description
+    "@id": schema:description
     description: A description of the item.
     type: array
     items:
       $ref: BlockContent
   identifiers:
-    '@id': schema:identifier
+    "@id": schema:identifier
     description: Any kind of identifier for any kind of Thing.
     $comment: |
       Some identifiers have specific properties e.g the `issn` property for
@@ -34,7 +34,7 @@ properties:
         - $ref: PropertyValue
         - type: string
   images:
-    '@id': schema:image
+    "@id": schema:image
     description: Images of the item.
     type: array
     items:
@@ -43,11 +43,11 @@ properties:
         - type: string
           format: uri
   name:
-    '@id': schema:name
+    "@id": schema:name
     description: The name of the item.
     type: string
   url:
-    '@id': schema:url
+    "@id": schema:url
     description: The URL of the item.
     type: string
     format: uri

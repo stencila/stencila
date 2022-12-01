@@ -1,5 +1,5 @@
 title: Product
-'@id': schema:Product
+"@id": schema:Product
 extends: Thing
 role: tertiary
 status: stable
@@ -20,20 +20,20 @@ $comment: |
   instances are required to have `image` and `name` properties.
 properties:
   brands:
-    '@id': schema:brand
+    "@id": schema:brand
     description: Brands that the product is labelled with.
     type: array
     items:
       $ref: Brand
   logo:
-    '@id': schema:logo
+    "@id": schema:logo
     description: The logo of the product.
     anyOf:
       - $ref: ImageObject
       - type: string
         format: uri
   productID:
-    '@id': schema:productID
+    "@id": schema:productID
     description: Product identification code.
     type: string
 examples:

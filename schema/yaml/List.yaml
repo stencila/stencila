@@ -1,5 +1,5 @@
 title: List
-'@id': schema:ItemList
+"@id": schema:ItemList
 extends: Entity
 category: text
 role: secondary
@@ -19,13 +19,13 @@ $comment: |
     - OpenDocument [`<text:list>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415148_253892949)
 properties:
   items:
-    '@id': 'schema:itemListElement'
+    "@id": "schema:itemListElement"
     description: The items in the list
     type: array
     items:
       $ref: ListItem
   order:
-    '@id': 'schema:itemListOrder'
+    "@id": "schema:itemListOrder"
     description: Type of ordering.
     enum:
       - Ascending

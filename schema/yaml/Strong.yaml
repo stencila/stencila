@@ -1,5 +1,5 @@
 title: Strong
-'@id': stencila:Strong
+"@id": stencila:Strong
 extends: Mark
 role: secondary
 status: stable

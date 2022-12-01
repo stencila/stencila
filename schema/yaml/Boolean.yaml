@@ -1,5 +1,5 @@
 title: Boolean
-'@id': schema:Boolean
+"@id": schema:Boolean
 category: data
 status: stable
 description: A value that is either true or false

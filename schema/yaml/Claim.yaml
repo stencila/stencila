@@ -1,5 +1,5 @@
 title: Claim
-'@id': schema:Claim
+"@id": schema:Claim
 extends: CreativeWork
 category: works
 role: secondary
@@ -11,7 +11,7 @@ $comment: |
   See also [Schema.org `Claim`](https://schema.org/Claim) and [JATS `<statement>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/statement.html).
 properties:
   claimType:
-    '@id': stencila:claimType
+    "@id": stencila:claimType
     description: Kind of the claim.
     type: string
     enum:
@@ -24,7 +24,7 @@ properties:
       - Proposition
       - Corollary
   content:
-    '@id': stencila:content
+    "@id": stencila:content
     description: Content of the claim, usually a single paragraph.
     type: array
     items:
@@ -33,7 +33,7 @@ properties:
       Most claims will have a single paragraph but could have multiple
       paragraphs, tables and even figures.
   label:
-    '@id': stencila:label
+    "@id": stencila:label
     description: A short label for the claim.
     type: string
 required:

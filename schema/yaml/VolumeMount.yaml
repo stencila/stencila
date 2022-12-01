@@ -1,5 +1,5 @@
 title: VolumeMount
-'@id': stencila:VolumeMount
+"@id": stencila:VolumeMount
 extends: Thing
 role: tertiary
 status: experimental
@@ -8,21 +8,21 @@ description: |
   Describes a volume mount from a host to container.
 properties:
   mountSource:
-    '@id': stencila:mountSource
+    "@id": stencila:mountSource
     description: The mount source directory on the host.
     type: string
   mountDestination:
-    '@id': stencila:mountDestination
+    "@id": stencila:mountDestination
     description: The mount location inside the container.
     type: string
   mountOptions:
-    '@id': stencila:mountOptions
+    "@id": stencila:mountOptions
     description: A list of options to use when applying the mount.
     type: array
     items:
       type: string
   mountType:
-    '@id': stencila:mountType
+    "@id": stencila:mountType
     type: string
     description: The type of mount.
 required:

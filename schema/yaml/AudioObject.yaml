@@ -1,5 +1,5 @@
 title: AudioObject
-'@id': schema:AudioObject
+"@id": schema:AudioObject
 extends: MediaObject
 role: secondary
 status: stable
@@ -7,11 +7,11 @@ category: works
 description: An audio file
 properties:
   caption:
-    '@id': schema:caption
+    "@id": schema:caption
     description: The caption for this audio recording.
     type: string
   transcript:
-    '@id': schema:transcript
+    "@id": schema:transcript
     description: The transcript of this audio recording.
     type: string
 examples:

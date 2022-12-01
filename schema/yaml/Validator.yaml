@@ -1,5 +1,5 @@
 title: Validator
-'@id': stencila:Validator
+"@id": stencila:Validator
 extends: Entity
 role: validation
 status: unstable

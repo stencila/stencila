@@ -1,5 +1,5 @@
 title: ConstantValidator
-'@id': stencila:ConstantValidator
+"@id": stencila:ConstantValidator
 extends: Validator
 role: validation
 status: unstable
@@ -10,7 +10,7 @@ $comment: |
   `value` property. Analogous to the JSON Schema [`const` keyword](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.3).
 properties:
   value:
-    '@id': schema:value
+    "@id": schema:value
     description: The value that the node must have.
     allOf:
       - $ref: Node

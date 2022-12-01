@@ -1,5 +1,5 @@
 title: Directory
-'@id': stencila:Directory
+"@id": stencila:Directory
 extends: Collection
 category: works
 role: primary
@@ -7,11 +7,11 @@ status: stable
 description: A directory on the filesystem
 properties:
   path:
-    '@id': stencila:path
+    "@id": stencila:path
     description: The path (absolute or relative) of the file on the filesystem
     type: string
   parts:
-    '@id': schema:hasParts
+    "@id": schema:hasParts
     aliases:
       - hasParts
     description: The files and other directories that are within this directory

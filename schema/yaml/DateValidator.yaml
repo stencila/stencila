@@ -1,5 +1,5 @@
 title: DateValidator
-'@id': stencila:DateValidator
+"@id": stencila:DateValidator
 extends: Validator
 role: validation
 status: stable
@@ -7,13 +7,13 @@ category: data
 description: A validator specifying the constraints on a date.
 properties:
   minimum:
-    '@id': stencila:minimum
+    "@id": stencila:minimum
     $ref: Date
     description: The inclusive lower limit for a date.
     $comment: |
       A date is valid if it is greater than, or exactly equal to, `minimum`.
   maximum:
-    '@id': stencila:maximum
+    "@id": stencila:maximum
     $ref: Date
     description: The inclusive upper limit for a date.
     $comment: |

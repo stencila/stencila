@@ -1,5 +1,5 @@
 title: EnumValidator
-'@id': stencila:EnumValidator
+"@id": stencila:EnumValidator
 extends: Validator
 role: validation
 status: unstable
@@ -8,7 +8,7 @@ description: A schema specifying that a node must be one of several values.
 $comment: Analogous to the JSON Schema [`enum` keyword](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.2).
 properties:
   values:
-    '@id': stencila:values
+    "@id": stencila:values
     description: A node is valid if it is equal to any of these values.
     type: array
     items:

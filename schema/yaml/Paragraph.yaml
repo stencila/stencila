@@ -1,5 +1,5 @@
 title: Paragraph
-'@id': stencila:Paragraph
+"@id": stencila:Paragraph
 extends: Entity
 role: secondary
 status: stable
@@ -14,7 +14,7 @@ $comment: |
     - Pandoc [`Para`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L220)
 properties:
   content:
-    '@id': 'stencila:content'
+    "@id": "stencila:content"
     description: The contents of the paragraph.
     type: array
     items:
@@ -31,7 +31,7 @@ examples:
       - type: Emphasis
         content:
           - emphasized words
-      - ' and '
+      - " and "
       - type: Strong
         content:
           - some strongly emphasized words

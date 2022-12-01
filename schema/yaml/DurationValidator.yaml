@@ -1,5 +1,5 @@
 title: DurationValidator
-'@id': stencila:DurationValidator
+"@id": stencila:DurationValidator
 extends: Validator
 role: validation
 status: stable
@@ -7,7 +7,7 @@ category: data
 description: A validator specifying the constraints on a duration.
 properties:
   timeUnits:
-    '@id': stencila:timeUnits
+    "@id": stencila:timeUnits
     type: array
     items:
       $ref: TimeUnit
@@ -15,13 +15,13 @@ properties:
     $comment: |
       A duration is valid if its `timeUnit` is amongst the `timeUnits` of the validator.
   minimum:
-    '@id': stencila:minimum
+    "@id": stencila:minimum
     $ref: Duration
     description: The inclusive lower limit for a duration.
     $comment: |
       A duration is valid if it is greater than, or exactly equal to, `minimum`.
   maximum:
-    '@id': stencila:maximum
+    "@id": stencila:maximum
     $ref: Duration
     description: The inclusive upper limit for a duration.
     $comment: |

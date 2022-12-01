@@ -1,5 +1,5 @@
 title: Cite
-'@id': stencila:Cite
+"@id": stencila:Cite
 extends: Entity
 category: text
 role: secondary
@@ -11,7 +11,7 @@ $comment: |
   Often a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).
 properties:
   citationMode:
-    '@id': stencila:citationMode
+    "@id": stencila:citationMode
     description: Determines how the citation is shown within the surrounding text.
     type: string
     enum:
@@ -42,37 +42,37 @@ properties:
       `\citeauthor{}` (for `textual-author`), `\citeyear{}` (for `textual-year`).
       See https://www.overleaf.com/learn/latex/Natbib_citation_styles.
   citationIntent:
-    '@id': stencila:citationIntent
+    "@id": stencila:citationIntent
     description: The type/s of the citation, both factually and rhetorically.
     type: array
     items:
       $ref: CitationIntent
   content:
-    '@id': stencila:content
+    "@id": stencila:content
     description: Optional structured content/text of this citation.
     type: array
     items:
       $ref: InlineContent
   pageStart:
-    '@id': schema:pageStart
+    "@id": schema:pageStart
     description: The page on which the work starts; for example "135" or "xiii".
     anyOf:
       - type: integer
       - type: string
   pageEnd:
-    '@id': schema:pageEnd
+    "@id": schema:pageEnd
     description: The page on which the work ends; for example "138" or "xvi".
     anyOf:
       - type: integer
       - type: string
   pagination:
-    '@id': schema:pagination
+    "@id": schema:pagination
     description: |
       Any description of pages that is not separated into pageStart and pageEnd;
       for example, "1-6, 9, 55".
     type: string
   citationPrefix:
-    '@id': stencila:citationPrefix
+    "@id": stencila:citationPrefix
     description: Text to show before the citation.
     type: string
     $comment: |
@@ -80,13 +80,13 @@ properties:
       and `honorificPrefix`, to avoid ambiguity with other prefixes was renamed
       to `citationPrefix`.
   citationSuffix:
-    '@id': stencila:citationSuffix
+    "@id": stencila:citationSuffix
     description: Text to show after the citation.
     type: string
     $comment: |
       See comment on `citationPrefix` regarding naming.
   target:
-    '@id': stencila:target
+    "@id": stencila:target
     description: The target of the citation (URL or reference ID).
     type: string
 required:
@@ -103,7 +103,7 @@ examples:
     content:
       - type: Paragraph
         content:
-          - 'A citation of '
+          - "A citation of "
           - type: Cite
             target: some-one-else-1991
           - .
@@ -118,4 +118,4 @@ examples:
               - One
             familyNames:
               - Else
-        datePublished: '1991'
+        datePublished: "1991"

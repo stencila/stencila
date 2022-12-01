@@ -1,5 +1,5 @@
 title: Button
-'@id': stencila:Button
+"@id": stencila:Button
 extends: CodeExecutable
 role: secondary
 status: unstable
@@ -7,21 +7,21 @@ category: code
 description: A button.
 properties:
   name:
-    '@id': schema:name
+    "@id": schema:name
     description: The name of the variable associated with the button.
     type: string
-    pattern: '[a-zA-Z][a-zA-Z0-9_]*'
+    pattern: "[a-zA-Z][a-zA-Z0-9_]*"
     $comment: |
       This regex allows for snake_case and camelCase names but excludes
       PascalCase for names.
   label:
-    '@id': stencila:label
+    "@id": stencila:label
     description: A label for the button
     type: string
     $comment: |
       The button label will default to the title cased `name` if not specified.
   isDisabled:
-    '@id': stencila:isDisabled
+    "@id": stencila:isDisabled
     description: Whether the button is currently disabled
     $comment: A button is disabled when it has a code expression and that expression evaluates to a falsy value
     type: boolean

@@ -1,5 +1,5 @@
 title: Collection
-'@id': schema:Collection
+"@id": schema:Collection
 extends: CreativeWork
 category: works
 role: secondary

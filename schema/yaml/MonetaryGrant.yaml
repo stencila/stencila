@@ -1,5 +1,5 @@
 title: MonetaryGrant
-'@id': schema:MonetaryGrant
+"@id": schema:MonetaryGrant
 extends: Grant
 role: tertiary
 status: stable
@@ -7,14 +7,14 @@ category: other
 description: A monetary grant.
 properties:
   amounts:
-    '@id': schema:amount
+    "@id": schema:amount
     description: The amount of money.
     $comment: |
       This property is an array, to allow for multiple amounts, possibly, but not necessarily,
       from multiple `funders`.
     type: number
   funders:
-    '@id': schema:funder
+    "@id": schema:funder
     description: |
       A person or organization that supports (sponsors) something through some kind of financial contribution.
     $comment: Often a `MonetaryGrant` will have a single funder.

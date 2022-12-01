@@ -1,5 +1,5 @@
 title: Integer
-'@id': schema:Integer
+"@id": schema:Integer
 category: data
 status: stable
 description: A value that is a integer

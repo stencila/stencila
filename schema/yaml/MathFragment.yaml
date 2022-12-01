@@ -1,5 +1,5 @@
 title: MathFragment
-'@id': stencila:MathFragment
+"@id": stencila:MathFragment
 extends: Math
 role: secondary
 status: stable

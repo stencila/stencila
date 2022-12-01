@@ -1,18 +1,18 @@
 title: ExecutionTag
-'@id': stencila:ExecutionTag
+"@id": stencila:ExecutionTag
 description: A tag on code that affects its execution
 status: unstable
 properties:
   name:
-    '@id': schema:name
+    "@id": schema:name
     description: The name of the tag
     type: string
   value:
-    '@id': schema:value
+    "@id": schema:value
     description: The value of the tag
     type: string
   isGlobal:
-    '@id': stencila:isGlobal
+    "@id": stencila:isGlobal
     description: Whether the tag is global to the document
     type: boolean
 required:

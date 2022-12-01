@@ -1,5 +1,5 @@
 title: Strikeout
-'@id': stencila:Strikeout
+"@id": stencila:Strikeout
 extends: Mark
 role: secondary
 status: stable
@@ -16,7 +16,7 @@ properties: {}
 examples:
   - type: Paragraph
     content:
-      - 'The following is '
+      - "The following is "
       - type: Strikeout
         content:
           - marked as struck out

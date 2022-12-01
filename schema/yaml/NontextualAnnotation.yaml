@@ -1,5 +1,5 @@
 title: NontextualAnnotation
-'@id': stencila:NontextualAnnotation
+"@id": stencila:NontextualAnnotation
 extends: Mark
 role: secondary
 status: stable

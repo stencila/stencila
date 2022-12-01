@@ -1,5 +1,5 @@
 title: Delete
-'@id': stencila:Delete
+"@id": stencila:Delete
 extends: Mark
 role: secondary
 status: deprecated

@@ -1,5 +1,5 @@
 title: Array
-'@id': stencila:Array
+"@id": stencila:Array
 category: data
 status: stable
 description: A value comprised of other primitive nodes

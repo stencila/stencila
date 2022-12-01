@@ -1,5 +1,5 @@
 title: VideoObject
-'@id': schema:VideoObject
+"@id": schema:VideoObject
 extends: MediaObject
 category: works
 role: secondary
@@ -11,22 +11,22 @@ $comment: |
   which `VideoObject` extends.
 properties:
   caption:
-    '@id': schema:caption
+    "@id": schema:caption
     description: The caption for this video recording.
     type: string
   thumbnail:
-    '@id': schema:thumbnail
+    "@id": schema:thumbnail
     description: Thumbnail image of this video recording.
     allOf:
       - $ref: ImageObject
   transcript:
-    '@id': schema:transcript
+    "@id": schema:transcript
     description: The transcript of this video recording.
     type: string
 examples:
   - type: VideoObject
     caption: Example Video File
-    contentSize: '45'
+    contentSize: "45"
     contentUrl: http://www.example.com/file.mp4
     encodingFormat: video/mpeg
     transcript: This is the transcript for the video file...

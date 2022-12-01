@@ -1,5 +1,5 @@
 title: Link
-'@id': stencila:Link
+"@id": stencila:Link
 extends: Entity
 role: secondary
 status: unstable
@@ -14,13 +14,13 @@ $comment: |
     - Pandoc [`Link`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L270)
 properties:
   content:
-    '@id': stencila:content
+    "@id": stencila:content
     description: The textual content of the link.
     type: array
     items:
       $ref: InlineContent
   exportFrom:
-    '@id': stencila:exportFrom
+    "@id": stencila:exportFrom
     aliases:
       - export
     description: |
@@ -28,7 +28,7 @@ properties:
       to the link target.
     type: string
   importTo:
-    '@id': stencila:importTo
+    "@id": stencila:importTo
     aliases:
       - import
     description: |
@@ -36,7 +36,7 @@ properties:
       the link target as.
     type: string
   target:
-    '@id': stencila:target
+    "@id": stencila:target
     description: The target of the link.
     type: string
     # See http://json-schema.org/draft-06/json-schema-release-notes.html#formats-uri-vs-uri-reference
@@ -44,14 +44,14 @@ properties:
     # used here because it allows for intra-doc links using a #fragment only.
     format: uri-reference
   title:
-    '@id': schema:headline
+    "@id": schema:headline
     description: A title for the link.
     $comment: |
       This property is analogous to the HTML `title` global attribute which
       represents ["advisory information related to the element"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)
     type: string
   rel:
-    '@id': schema:linkRelationship
+    "@id": schema:linkRelationship
     description:
       The relation between the target and the current thing.
       # See https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types

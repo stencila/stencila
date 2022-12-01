@@ -1,5 +1,5 @@
 title: MediaObject
-'@id': schema:MediaObject
+"@id": schema:MediaObject
 extends: CreativeWork
 category: works
 role: base
@@ -9,19 +9,19 @@ description: |
   downloadable dataset.
 properties:
   bitrate:
-    '@id': schema:bitrate
+    "@id": schema:bitrate
     description: |
       Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
     type: number
   contentSize:
-    '@id': schema:contentSize
+    "@id": schema:contentSize
     description: |
       File size in megabits (Mbit, Mb).
     type: number
   # See https://github.com/schemaorg/schemaorg/issues/462#issuecomment-98243384
   # for why it is useful to have both `contentUrl` and `embedUrl` in addition to `url`
   contentUrl:
-    '@id': schema:contentUrl
+    "@id": schema:contentUrl
     description: |
       URL for the actual bytes of the media object, for example the image file or video file.
     $comment: |
@@ -29,12 +29,12 @@ properties:
       keywords are used here, or on `embedUrl`.
     type: string
   embedUrl:
-    '@id': schema:embedUrl
+    "@id": schema:embedUrl
     description: |
       URL that can be used to embed the media on a web page via a specific media player.
     type: string
   mediaType:
-    '@id': schema:encodingFormat
+    "@id": schema:encodingFormat
     aliases:
       - encodingFormat
     description: IANA media type (MIME type).
@@ -50,8 +50,8 @@ required:
   - contentUrl
 examples:
   - type: MediaObject
-    bitrate: '44'
-    contentSize: '2'
+    bitrate: "44"
+    contentSize: "2"
     contentUrl: http://www.example.com/file.mp3
     encodingFormat: audio/mpeg3
     embedUrl: http://www.example.com/full_size/file.mp3

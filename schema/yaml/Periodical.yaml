@@ -1,5 +1,5 @@
 title: Periodical
-'@id': schema:Periodical
+"@id": schema:Periodical
 extends: CreativeWork
 category: works
 role: secondary
@@ -11,15 +11,15 @@ $comment: |
   in a [`PublicationVolume`](./PublicationVolume).
 properties:
   dateStart:
-    '@id': schema:startDate
+    "@id": schema:startDate
     description: The date this Periodical was first published.
     $ref: Date
   dateEnd:
-    '@id': schema:endDate
+    "@id": schema:endDate
     description: The date this Periodical ceased publication.
     $ref: Date
   issns:
-    '@id': schema:issn
+    "@id": schema:issn
     description: The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
     $comment: |
       A periodical may have multiple ISSN (e.g. for online and print versions).

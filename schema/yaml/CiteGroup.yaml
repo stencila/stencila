@@ -1,5 +1,5 @@
 title: CiteGroup
-'@id': stencila:CiteGroup
+"@id": stencila:CiteGroup
 extends: Entity
 category: text
 role: secondary
@@ -18,7 +18,7 @@ $comment: |
   such as "and").
 properties:
   items:
-    '@id': schema:itemListElement
+    "@id": schema:itemListElement
     type: array
     description: One or more `Cite`s to be referenced in the same surrounding text.
     items:
@@ -37,7 +37,7 @@ examples:
     content:
       - type: Paragraph
         content:
-          - 'Citing two articles '
+          - "Citing two articles "
           - type: CiteGroup
             items:
               - type: Cite
@@ -56,7 +56,7 @@ examples:
               - One
             familyNames:
               - Else
-        datePublished: '1991'
+        datePublished: "1991"
       - type: Article
         id: update-works-2009
         title: A Better Updated Work
@@ -67,4 +67,4 @@ examples:
               - Better
             familyNames:
               - Person
-        datePublished: '2009'
+        datePublished: "2009"

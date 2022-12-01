@@ -1,5 +1,5 @@
 title: Emphasis
-'@id': stencila:Emphasis
+"@id": stencila:Emphasis
 extends: Mark
 role: secondary
 status: stable
@@ -15,7 +15,7 @@ properties: {}
 examples:
   - type: Paragraph
     content:
-      - 'The following content has extra '
+      - "The following content has extra "
       - type: Emphasis
         content:
           - emphasis

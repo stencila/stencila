@@ -1,5 +1,5 @@
 title: ExecutionDependentRelation
-'@id': stencila:ExecutionDependentRelation
+"@id": stencila:ExecutionDependentRelation
 extends: Enumeration
 category: code
 status: stable
@@ -7,14 +7,14 @@ role: secondary
 description: The relation between a node and its execution dependent.
 anyOf:
   - const: Assigns
-    '@id': stencila:executionDependentRelationAssigns
+    "@id": stencila:executionDependentRelationAssigns
     description: The node assigns its dependant (usually a variable)
   - const: Alters
-    '@id': stencila:executionDependentRelationAlters
+    "@id": stencila:executionDependentRelationAlters
     description: The node alters its dependant (usually a variable)
   - const: Declares
-    '@id': stencila:executionDependentRelationDeclares
+    "@id": stencila:executionDependentRelationDeclares
     description: The node declares its dependant (e.g. a database table)
   - const: Writes
-    '@id': stencila:executionDependentRelationWrites
+    "@id": stencila:executionDependentRelationWrites
     description: The node writes its dependant (usually a file)
