@@ -210,15 +210,16 @@ jobs:
           while ! echo exit | nc 127.0.0.1 9000; do sleep 5; done
           SERVER_URL="ws://127.0.0.1:9000" npm test --prefix web
           kill %1
-        condition: |
-          and(
-            not(startsWith(variables['Build.SourceBranch'], 'refs/tags/')),
-            succeeded(),
-            or(
-              contains(variables.changed, 'rust'),
-              contains(variables.changed, 'web')
-            )
-          )
+        condition: false
+        #|
+        #  and(
+        #    not(startsWith(variables['Build.SourceBranch'], 'refs/tags/')),
+        #    succeeded(),
+        #    or(
+        #      contains(variables.changed, 'rust'),
+        #      contains(variables.changed, 'web')
+        #    )
+        #  )
         displayName: 'Web: Test'
 
       # CLI is built and published on tags
@@ -302,10 +303,10 @@ jobs:
 
       - script: |
           set -e
-          python3 -m pip install ipykernel
+          python3 -m pip install numpy ipykernel
           python3 -m ipykernel install --user
         condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-        displayName: 'Install: Jupyter kernels'
+        displayName: 'Install: Python packages'
 
       - script: |
           set -e
@@ -520,7 +521,7 @@ jobs:
   # then only published once changes land on the `master` branch
   - job: Themes
     dependsOn: [Changes]
-    condition: contains(dependencies.Changes.outputs['folders.changed'], 'themes')
+    condition: false # contains(dependencies.Changes.outputs['folders.changed'], 'themes')
     pool:
       vmImage: ubuntu-latest
     variables:
