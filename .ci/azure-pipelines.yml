@@ -129,13 +129,13 @@ jobs:
           versionSpec: $(NODE_VERSION)
         displayName: 'Install: Node.js version'
 
-      # Install Jupyter kernels
+      # Install Python packages need for tests
       - script: |
           set -e
-          python3 -m pip install ipykernel
+          python3 -m pip install numpy ipykernel
           python3 -m ipykernel install --user
         condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-        displayName: 'Install: Jupyter kernels'
+        displayName: 'Install: Python packages'
 
       # Schema is tested and built (including language bindings which other modules use)
       # if there are changes in the `schema` folder.
