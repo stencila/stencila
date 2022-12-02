@@ -18,6 +18,7 @@
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "eslint": "^8.28.0",
+    "fast-clone": "^1.5.13",
     "js-yaml": "^4.1.0",
     "json-schema": "^0.4.0",
     "prettier": "^2.8.0",
