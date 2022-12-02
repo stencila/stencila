@@ -4,7 +4,7 @@
 all: format lint test build docs
 
 setup:
-	npm install --force
+	npm install
 
 format:
 	npm run format
@@ -12,15 +12,5 @@ format:
 lint:
 	npm run lint
 
-test:
-	npm test
-
 build:
 	npm run build
-
-docs:
-	npm run docs
-.PHONY: docs
-
-clean:
-	npm run clean

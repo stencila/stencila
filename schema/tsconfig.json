@@ -1,10 +1,9 @@
 {
-  "extends": "@stencila/dev-config/tsconfig.json",
   "compilerOptions": {
-    "lib": ["DOM", "ESNext"],
+    "module": "ES2022",
+    "target": "ES2022",
     "moduleResolution": "node",
-    "module": "CommonJS",
-    "outDir": "dist"
-  },
-  "include": ["src/**/*.ts"]
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  }
 }
