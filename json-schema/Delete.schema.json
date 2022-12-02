@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Delete.schema.json",
+  "title": "Delete",
+  "@id": "stencila:Delete",
+  "extends": "Mark",
+  "status": "deprecated",
+  "description": "Content that is marked for deletion",
+  "$comment": "Deprecated. Replaced by `Strikeout`.",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "Delete"
+      ],
+      "default": "Delete",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content that is marked.",
+      "type": "array",
+      "items": {
+        "$ref": "InlineContent.schema.json"
+      },
+      "from": "Mark",
+      "isArray": true
+    }
+  },
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Delete.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "content"
+  ],
+  "propertyAliases": {}
+}

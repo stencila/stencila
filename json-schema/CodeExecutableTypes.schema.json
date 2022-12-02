@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/CodeExecutableTypes.schema.json",
+  "title": "CodeExecutableTypes",
+  "description": "All type schemas that are derived from CodeExecutable",
+  "anyOf": [
+    {
+      "$ref": "CodeExecutable.schema.json"
+    },
+    {
+      "$ref": "Button.schema.json"
+    },
+    {
+      "$ref": "CodeChunk.schema.json"
+    },
+    {
+      "$ref": "CodeExpression.schema.json"
+    },
+    {
+      "$ref": "Division.schema.json"
+    },
+    {
+      "$ref": "For.schema.json"
+    },
+    {
+      "$ref": "IfClause.schema.json"
+    },
+    {
+      "$ref": "Span.schema.json"
+    },
+    {
+      "$ref": "Styled.schema.json"
+    }
+  ]
+}

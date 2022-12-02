@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/ValidatorTypes.schema.json",
+  "title": "ValidatorTypes",
+  "description": "All type schemas that are derived from Validator",
+  "anyOf": [
+    {
+      "$ref": "Validator.schema.json"
+    },
+    {
+      "$ref": "ArrayValidator.schema.json"
+    },
+    {
+      "$ref": "BooleanValidator.schema.json"
+    },
+    {
+      "$ref": "ConstantValidator.schema.json"
+    },
+    {
+      "$ref": "DateTimeValidator.schema.json"
+    },
+    {
+      "$ref": "DateValidator.schema.json"
+    },
+    {
+      "$ref": "DurationValidator.schema.json"
+    },
+    {
+      "$ref": "EnumValidator.schema.json"
+    },
+    {
+      "$ref": "IntegerValidator.schema.json"
+    },
+    {
+      "$ref": "NumberValidator.schema.json"
+    },
+    {
+      "$ref": "StringValidator.schema.json"
+    },
+    {
+      "$ref": "TimeValidator.schema.json"
+    },
+    {
+      "$ref": "TimestampValidator.schema.json"
+    },
+    {
+      "$ref": "TupleValidator.schema.json"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/BlockContent.schema.json",
+  "title": "BlockContent",
+  "status": "stable",
+  "description": "Union type for valid block content.",
+  "anyOf": [
+    {
+      "$ref": "Call.schema.json"
+    },
+    {
+      "$ref": "Claim.schema.json"
+    },
+    {
+      "$ref": "CodeBlock.schema.json"
+    },
+    {
+      "$ref": "CodeChunk.schema.json"
+    },
+    {
+      "$ref": "Division.schema.json"
+    },
+    {
+      "$ref": "Figure.schema.json"
+    },
+    {
+      "$ref": "For.schema.json"
+    },
+    {
+      "$ref": "Form.schema.json"
+    },
+    {
+      "$ref": "Heading.schema.json"
+    },
+    {
+      "$ref": "If.schema.json"
+    },
+    {
+      "$ref": "Include.schema.json"
+    },
+    {
+      "$ref": "List.schema.json"
+    },
+    {
+      "$ref": "MathBlock.schema.json"
+    },
+    {
+      "$ref": "Paragraph.schema.json"
+    },
+    {
+      "$ref": "QuoteBlock.schema.json"
+    },
+    {
+      "$ref": "Table.schema.json"
+    },
+    {
+      "$ref": "ThematicBreak.schema.json"
+    }
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/BlockContent.yaml",
+  "children": [],
+  "descendants": []
+}

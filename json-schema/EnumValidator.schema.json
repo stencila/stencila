@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/EnumValidator.schema.json",
+  "title": "EnumValidator",
+  "@id": "stencila:EnumValidator",
+  "extends": "Validator",
+  "status": "unstable",
+  "description": "A schema specifying that a node must be one of several values.",
+  "$comment": "Analogous to the JSON Schema [`enum` keyword](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.2).",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "EnumValidator"
+      ],
+      "default": "EnumValidator",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "values": {
+      "@id": "stencila:values",
+      "description": "A node is valid if it is equal to any of these values.",
+      "type": "array",
+      "items": {
+        "$ref": "Node.schema.json"
+      },
+      "from": "EnumValidator",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "value"
+      ]
+    }
+  },
+  "required": [
+    "type",
+    "values"
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/EnumValidator.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "propertyAliases": {
+    "value": "values"
+  },
+  "additionalProperties": false
+}

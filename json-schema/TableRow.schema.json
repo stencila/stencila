@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/TableRow.schema.json",
+  "title": "TableRow",
+  "@id": "stencila:TableRow",
+  "extends": "Entity",
+  "status": "unstable",
+  "description": "A row within a Table.",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "TableRow"
+      ],
+      "default": "TableRow",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "cells": {
+      "@id": "stencila:cells",
+      "description": "An array of cells in the row.",
+      "type": "array",
+      "items": {
+        "$ref": "TableCell.schema.json"
+      },
+      "from": "TableRow",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "cell"
+      ]
+    },
+    "rowType": {
+      "@id": "stencila:rowType",
+      "description": "If present, indicates that all cells in this row should be treated as header cells.\n",
+      "type": "string",
+      "enum": [
+        "Header",
+        "Footer"
+      ],
+      "from": "TableRow"
+    }
+  },
+  "required": [
+    "type",
+    "cells"
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/TableRow.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "propertyAliases": {
+    "cell": "cells"
+  },
+  "additionalProperties": false
+}

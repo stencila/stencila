@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/ThingTypes.schema.json",
+  "title": "ThingTypes",
+  "description": "All type schemas that are derived from Thing",
+  "anyOf": [
+    {
+      "$ref": "Thing.schema.json"
+    },
+    {
+      "$ref": "Article.schema.json"
+    },
+    {
+      "$ref": "AudioObject.schema.json"
+    },
+    {
+      "$ref": "Brand.schema.json"
+    },
+    {
+      "$ref": "Claim.schema.json"
+    },
+    {
+      "$ref": "Collection.schema.json"
+    },
+    {
+      "$ref": "Comment.schema.json"
+    },
+    {
+      "$ref": "ContactPoint.schema.json"
+    },
+    {
+      "$ref": "CreativeWork.schema.json"
+    },
+    {
+      "$ref": "Datatable.schema.json"
+    },
+    {
+      "$ref": "DatatableColumn.schema.json"
+    },
+    {
+      "$ref": "DefinedTerm.schema.json"
+    },
+    {
+      "$ref": "Directory.schema.json"
+    },
+    {
+      "$ref": "Enumeration.schema.json"
+    },
+    {
+      "$ref": "Figure.schema.json"
+    },
+    {
+      "$ref": "File.schema.json"
+    },
+    {
+      "$ref": "Grant.schema.json"
+    },
+    {
+      "$ref": "ImageObject.schema.json"
+    },
+    {
+      "$ref": "ListItem.schema.json"
+    },
+    {
+      "$ref": "MediaObject.schema.json"
+    },
+    {
+      "$ref": "MonetaryGrant.schema.json"
+    },
+    {
+      "$ref": "Organization.schema.json"
+    },
+    {
+      "$ref": "Periodical.schema.json"
+    },
+    {
+      "$ref": "Person.schema.json"
+    },
+    {
+      "$ref": "PostalAddress.schema.json"
+    },
+    {
+      "$ref": "Product.schema.json"
+    },
+    {
+      "$ref": "PropertyValue.schema.json"
+    },
+    {
+      "$ref": "PublicationIssue.schema.json"
+    },
+    {
+      "$ref": "PublicationVolume.schema.json"
+    },
+    {
+      "$ref": "Review.schema.json"
+    },
+    {
+      "$ref": "SoftwareApplication.schema.json"
+    },
+    {
+      "$ref": "SoftwareEnvironment.schema.json"
+    },
+    {
+      "$ref": "SoftwareSession.schema.json"
+    },
+    {
+      "$ref": "SoftwareSourceCode.schema.json"
+    },
+    {
+      "$ref": "Table.schema.json"
+    },
+    {
+      "$ref": "VideoObject.schema.json"
+    },
+    {
+      "$ref": "VolumeMount.schema.json"
+    }
+  ]
+}

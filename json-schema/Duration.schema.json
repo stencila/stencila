@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Duration.schema.json",
+  "title": "Duration",
+  "@id": "schema:Duration",
+  "status": "stable",
+  "description": "A value that represents the difference between two timestamps",
+  "properties": {
+    "value": {
+      "@id": "schema:value",
+      "description": "The time difference in `timeUnit`s.",
+      "type": "integer",
+      "from": "Duration"
+    },
+    "timeUnit": {
+      "@id": "stencila:timeUnit",
+      "description": "The time unit that the `value` represents.",
+      "$ref": "TimeUnit.schema.json",
+      "from": "Duration"
+    }
+  },
+  "required": [
+    "value",
+    "timeUnit"
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Duration.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false
+}

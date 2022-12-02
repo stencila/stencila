@@ -1,0 +1,178 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Cite.schema.json",
+  "title": "Cite",
+  "@id": "stencila:Cite",
+  "extends": "Entity",
+  "status": "unstable",
+  "description": "A reference to a CreativeWork that is cited in another CreativeWork.",
+  "$comment": "A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an\n[`Article`](./Article), to refer to an other `CreativeWork`.\nOften a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "Cite"
+      ],
+      "default": "Cite",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "citationMode": {
+      "@id": "stencila:citationMode",
+      "description": "Determines how the citation is shown within the surrounding text.",
+      "type": "string",
+      "enum": [
+        "Parenthetical",
+        "Narrative",
+        "NarrativeAuthor",
+        "NarrativeYear",
+        "normal",
+        "suppressAuthor"
+      ],
+      "default": "parenthetical",
+      "$comment": "There are two main citation modes: parenthetical and narrative (a.k.a textual).\nSee https://apastyle.apa.org/style-grammar-guidelines/citations/basic-principles/parenthetical-versus-narrative\nfor an explanation.\n\nThis property is optional and tools are recommended to assume `parenthetical` if missing.\n\nNarrative citations will usually be of form \"As noted by Smith (1992),\" but `narrative-author`\nallows for \"In the early nineties, Smith noted\" and `narrative-year` allows for \"As noted by Smith in 1992 and 1993\".\n\nPandoc's `CitationMode` enumeration has `Normal` (for `parenthetical`), `AuthorInText` (for `textual`),\nand `SuppressAuthor` (for `textual-year`).\nSee https://github.com/jgm/pandoc-types/blob/0158cd0e2a2ca9d6f14389a1a57bc64cab45a7dd/src/Text/Pandoc/Definition.hs#L353.\n\nLaTeX's `natbib` package has `\\citep{}` (for `parenthetical`), `\\citet{}` (for `textual`),\n`\\citeauthor{}` (for `textual-author`), `\\citeyear{}` (for `textual-year`).\nSee https://www.overleaf.com/learn/latex/Natbib_citation_styles.\n",
+      "from": "Cite"
+    },
+    "citationIntent": {
+      "@id": "stencila:citationIntent",
+      "description": "The type/s of the citation, both factually and rhetorically.",
+      "type": "array",
+      "items": {
+        "$ref": "CitationIntent.schema.json"
+      },
+      "from": "Cite",
+      "isArray": true
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "Optional structured content/text of this citation.",
+      "type": "array",
+      "items": {
+        "$ref": "InlineContent.schema.json"
+      },
+      "from": "Cite",
+      "isArray": true
+    },
+    "pageStart": {
+      "@id": "schema:pageStart",
+      "description": "The page on which the work starts; for example \"135\" or \"xiii\".",
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "from": "Cite"
+    },
+    "pageEnd": {
+      "@id": "schema:pageEnd",
+      "description": "The page on which the work ends; for example \"138\" or \"xvi\".",
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "from": "Cite"
+    },
+    "pagination": {
+      "@id": "schema:pagination",
+      "description": "Any description of pages that is not separated into pageStart and pageEnd;\nfor example, \"1-6, 9, 55\".\n",
+      "type": "string",
+      "from": "Cite"
+    },
+    "citationPrefix": {
+      "@id": "stencila:citationPrefix",
+      "description": "Text to show before the citation.",
+      "type": "string",
+      "$comment": "Previously this was name `prefix` but for consistency with `citationMode`\nand `honorificPrefix`, to avoid ambiguity with other prefixes was renamed\nto `citationPrefix`.\n",
+      "from": "Cite"
+    },
+    "citationSuffix": {
+      "@id": "stencila:citationSuffix",
+      "description": "Text to show after the citation.",
+      "type": "string",
+      "$comment": "See comment on `citationPrefix` regarding naming.\n",
+      "from": "Cite"
+    },
+    "target": {
+      "@id": "stencila:target",
+      "description": "The target of the citation (URL or reference ID).",
+      "type": "string",
+      "from": "Cite"
+    }
+  },
+  "required": [
+    "type",
+    "target"
+  ],
+  "examples": [
+    {
+      "type": "Article",
+      "title": "An example of using the Cite node type",
+      "authors": [
+        {
+          "type": "Person",
+          "givenNames": [
+            "Joe"
+          ],
+          "familyNames": [
+            "Bloggs"
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "A citation of ",
+            {
+              "type": "Cite",
+              "target": "some-one-else-1991"
+            },
+            "."
+          ]
+        }
+      ],
+      "references": [
+        {
+          "type": "Article",
+          "id": "some-one-else-1991",
+          "title": "Another article by someone else",
+          "authors": [
+            {
+              "type": "Person",
+              "givenNames": [
+                "Some",
+                "One"
+              ],
+              "familyNames": [
+                "Else"
+              ]
+            }
+          ],
+          "datePublished": "1991"
+        }
+      ]
+    }
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Cite.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false,
+  "propertyAliases": {}
+}

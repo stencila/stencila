@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/MediaObjectTypes.schema.json",
+  "title": "MediaObjectTypes",
+  "description": "All type schemas that are derived from MediaObject",
+  "anyOf": [
+    {
+      "$ref": "MediaObject.schema.json"
+    },
+    {
+      "$ref": "AudioObject.schema.json"
+    },
+    {
+      "$ref": "ImageObject.schema.json"
+    },
+    {
+      "$ref": "VideoObject.schema.json"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Link.schema.json",
+  "title": "Link",
+  "@id": "stencila:Link",
+  "extends": "Entity",
+  "status": "unstable",
+  "description": "A hyperlink to other pages, sections within the same document, resources, or any URL.",
+  "$comment": "Analogues of `Link` in other schema include:\n  - HTML [`<a>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a)\n  - JATS XML [`<ext-link>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/ext-link.html)\n  - MDAST [`Link`](https://github.com/syntax-tree/mdast#link)\n  - OpenDocument [`<text:a>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415212_253892949)\n  - Pandoc [`Link`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L270)\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "Link"
+      ],
+      "default": "Link",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The textual content of the link.",
+      "type": "array",
+      "items": {
+        "$ref": "InlineContent.schema.json"
+      },
+      "from": "Link",
+      "isArray": true
+    },
+    "exportFrom": {
+      "@id": "stencila:exportFrom",
+      "aliases": [
+        "export"
+      ],
+      "description": "A compilation directive giving the name of the variable to export\nto the link target.\n",
+      "type": "string",
+      "from": "Link"
+    },
+    "importTo": {
+      "@id": "stencila:importTo",
+      "aliases": [
+        "import"
+      ],
+      "description": "A compilation directive giving the name of the variable to import\nthe link target as.\n",
+      "type": "string",
+      "from": "Link"
+    },
+    "target": {
+      "@id": "stencila:target",
+      "description": "The target of the link.",
+      "type": "string",
+      "format": "uri-reference",
+      "from": "Link"
+    },
+    "title": {
+      "@id": "schema:headline",
+      "description": "A title for the link.",
+      "$comment": "This property is analogous to the HTML `title` global attribute which\nrepresents [\"advisory information related to the element\"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)\n",
+      "type": "string",
+      "from": "Link"
+    },
+    "rel": {
+      "@id": "schema:linkRelationship",
+      "description": "The relation between the target and the current thing.",
+      "type": "string",
+      "from": "Link"
+    }
+  },
+  "required": [
+    "type",
+    "content",
+    "target"
+  ],
+  "examples": [
+    {
+      "type": "Link",
+      "content": [
+        "Stencila’s website"
+      ],
+      "target": "https://stenci.la"
+    }
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Link.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "propertyAliases": {
+    "export": "exportFrom",
+    "import": "importTo"
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Underline.schema.json",
+  "title": "Underline",
+  "@id": "stencila:Underline",
+  "extends": "Mark",
+  "status": "stable",
+  "description": "Inline text that is underlined.",
+  "$comment": "Analogues of `Underline` in other schema include:\n- JATS XML [`<underline>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/underline.html)\n- Pandoc [`Underline`](https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs)\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "Underline"
+      ],
+      "default": "Underline",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content that is marked.",
+      "type": "array",
+      "items": {
+        "$ref": "InlineContent.schema.json"
+      },
+      "from": "Mark",
+      "isArray": true
+    }
+  },
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Underline.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "content"
+  ],
+  "propertyAliases": {}
+}

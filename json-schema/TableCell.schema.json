@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/TableCell.schema.json",
+  "title": "TableCell",
+  "@id": "stencila:TableCell",
+  "extends": "Entity",
+  "status": "unstable",
+  "description": "A cell within a `Table`.\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "TableCell"
+      ],
+      "default": "TableCell",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the cell.",
+      "$comment": "Cell's have an implicit name derived from their position in the table\ne.g. `C4` for the cell in the third column and fourth row. However this name can be overridden\nwith an explicit name, e.g. `rate`.\n",
+      "type": "string",
+      "from": "TableCell"
+    },
+    "colspan": {
+      "@id": "stencila:colspan",
+      "description": "How many columns the cell extends.\n",
+      "$comment": "Based on the HTML `colspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000,
+      "default": 1,
+      "from": "TableCell"
+    },
+    "cellType": {
+      "@id": "stencila:cellType",
+      "description": "Indicates whether the cell is a header or data.",
+      "$comment": "When `Header`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).\nWhen `Data`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).\n",
+      "type": "string",
+      "enum": [
+        "Data",
+        "Header"
+      ],
+      "default": "Data",
+      "from": "TableCell"
+    },
+    "rowspan": {
+      "@id": "stencila:rowspan",
+      "description": "How many columns the cell extends.",
+      "$comment": "Based on the HTML `rowspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65534,
+      "default": 1,
+      "from": "TableCell"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "Contents of the table cell.",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "BlockContent.schema.json"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "InlineContent.schema.json"
+          }
+        }
+      ],
+      "from": "TableCell"
+    }
+  },
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/TableCell.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type"
+  ],
+  "propertyAliases": {}
+}

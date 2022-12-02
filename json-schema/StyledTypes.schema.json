@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/StyledTypes.schema.json",
+  "title": "StyledTypes",
+  "description": "All type schemas that are derived from Styled",
+  "anyOf": [
+    {
+      "$ref": "Styled.schema.json"
+    },
+    {
+      "$ref": "Division.schema.json"
+    },
+    {
+      "$ref": "Span.schema.json"
+    }
+  ]
+}

@@ -1,0 +1,524 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Periodical.schema.json",
+  "title": "Periodical",
+  "@id": "schema:Periodical",
+  "extends": "CreativeWork",
+  "status": "unstable",
+  "description": "A periodical publication.",
+  "$comment": "A publication in any medium issued in successive parts bearing numerical or chronological designations and intended,\nsuch as a magazine, scholarly journal, or newspaper to continue indefinitely. Often embedded as the `isPartOf` property\nin a [`PublicationVolume`](./PublicationVolume).\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "Periodical"
+      ],
+      "default": "Periodical",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "alternateName"
+      ]
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "type": "array",
+      "items": {
+        "$ref": "BlockContent.schema.json"
+      },
+      "from": "Thing",
+      "isArray": true
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "identifier"
+      ]
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "ImageObject.schema.json"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "image"
+      ]
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "type": "string",
+      "from": "Thing"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "type": "string",
+      "format": "uri",
+      "from": "Thing"
+    },
+    "about": {
+      "@id": "schema:about",
+      "description": "The subject matter of the content.",
+      "$comment": "Consistent with https://schema.org/about, this property allows for\nlinking to one of more `Thing` nodes. This could for example include\na `Person` (e.g for a bibliography) or a `DefinedTerm` (e.g. for\nsubject areas the creative work relates to).\n",
+      "type": "array",
+      "items": {
+        "$ref": "ThingTypes.schema.json"
+      },
+      "from": "CreativeWork",
+      "isArray": true
+    },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of this creative work.",
+      "allOf": [
+        {
+          "parser": "scsi"
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "Person.schema.json"
+              },
+              {
+                "$ref": "Organization.schema.json"
+              }
+            ]
+          }
+        }
+      ],
+      "from": "CreativeWork",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "author"
+      ]
+    },
+    "comments": {
+      "@id": "schema:comment",
+      "description": "Comments about this creative work.",
+      "type": "array",
+      "items": {
+        "$ref": "Comment.schema.json"
+      },
+      "from": "CreativeWork",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "comment"
+      ]
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The structured content of this creative work c.f. property `text`.",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "Node.schema.json"
+          }
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "from": "CreativeWork"
+    },
+    "dateCreated": {
+      "@id": "schema:dateCreated",
+      "description": "Date/time of creation.",
+      "allOf": [
+        {
+          "$ref": "Date.schema.json"
+        }
+      ],
+      "from": "CreativeWork"
+    },
+    "dateReceived": {
+      "@id": "schema:dateReceived",
+      "description": "Date/time that work was received.",
+      "allOf": [
+        {
+          "$ref": "Date.schema.json"
+        }
+      ],
+      "from": "CreativeWork"
+    },
+    "dateAccepted": {
+      "@id": "stencila:dateAccepted",
+      "description": "Date/time of acceptance.",
+      "$comment": "This is not yet a schema.org property but the term is used\n[in Dublin Core](http://purl.org/dc/terms/dateAccepted).\n",
+      "allOf": [
+        {
+          "$ref": "Date.schema.json"
+        }
+      ],
+      "from": "CreativeWork"
+    },
+    "dateModified": {
+      "@id": "schema:dateModified",
+      "description": "Date/time of most recent modification.",
+      "allOf": [
+        {
+          "$ref": "Date.schema.json"
+        }
+      ],
+      "from": "CreativeWork"
+    },
+    "datePublished": {
+      "@id": "schema:datePublished",
+      "aliases": [
+        "date"
+      ],
+      "description": "Date of first publication.",
+      "allOf": [
+        {
+          "$ref": "Date.schema.json"
+        }
+      ],
+      "from": "CreativeWork"
+    },
+    "editors": {
+      "@id": "schema:editor",
+      "description": "People who edited the `CreativeWork`.",
+      "type": "array",
+      "items": {
+        "$ref": "Person.schema.json"
+      },
+      "from": "CreativeWork",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "editor"
+      ]
+    },
+    "funders": {
+      "@id": "schema:funder",
+      "description": "People or organizations that funded the `CreativeWork`.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          }
+        ]
+      },
+      "from": "CreativeWork",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "funder"
+      ]
+    },
+    "fundedBy": {
+      "@id": "stencila:fundedBy",
+      "description": "Grants that funded the `CreativeWork`; reverse of `fundedItems`.",
+      "$comment": "This follows the proposal [here](https://github.com/schemaorg/schemaorg/issues/2258)\nfor a property that is the reverse of `fundedItems`.\nIt is an any because a `CreativeWork` may have been funded through more than\none `Grant`.\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Grant.schema.json"
+          },
+          {
+            "$ref": "MonetaryGrant.schema.json"
+          }
+        ]
+      },
+      "from": "CreativeWork",
+      "isArray": true
+    },
+    "genre": {
+      "@id": "schema:genre",
+      "description": "Genre of the creative work, broadcast channel or group.",
+      "allOf": [
+        {
+          "parser": "csi"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ],
+      "from": "CreativeWork",
+      "isArray": true
+    },
+    "keywords": {
+      "@id": "schema:keywords",
+      "description": "Keywords or tags used to describe this content.\nMultiple entries in a keywords list are typically delimited by commas.\n",
+      "allOf": [
+        {
+          "parser": "csi"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ],
+      "from": "CreativeWork",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "keyword"
+      ]
+    },
+    "isPartOf": {
+      "@id": "schema:isPartOf",
+      "description": "An item or other CreativeWork that this CreativeWork is a part of.\n",
+      "$ref": "CreativeWorkTypes.schema.json",
+      "from": "CreativeWork"
+    },
+    "licenses": {
+      "@id": "schema:license",
+      "description": "License documents that applies to this content, typically indicated by URL.\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "CreativeWorkTypes.schema.json"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      },
+      "from": "CreativeWork",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "license"
+      ]
+    },
+    "maintainers": {
+      "@id": "schema:maintainer",
+      "description": "The people or organizations who maintain this CreativeWork.",
+      "$comment": "A maintainer of a Dataset, SoftwareApplication, or other CreativeWork.\nA maintainer is a Person or Organization that manages contributions to,\nand/or publication of, some (typically complex) artifact. It is common for\ndistributions of software and data to be based on \"upstream\" sources.\nWhen maintainer is applied to a specific version of something e.g. a particular\nversion or packaging of a Dataset, it is always possible that the upstream\nsource has a different maintainer. The isBasedOn property can be used to\nindicate such relationships between datasets to make the different maintenance\nroles clear. Similarly in the case of software, a package may have dedicated\nmaintainers working on integration into software distributions such as Ubuntu,\nas well as upstream maintainers of the underlying work.\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          }
+        ]
+      },
+      "from": "CreativeWork",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "maintainer"
+      ]
+    },
+    "parts": {
+      "@id": "schema:hasParts",
+      "aliases": [
+        "hasParts",
+        "part"
+      ],
+      "description": "Elements of the collection which can be a variety of different elements,\nsuch as Articles, Datatables, Tables and more.\n",
+      "type": "array",
+      "items": {
+        "$ref": "CreativeWorkTypes.schema.json"
+      },
+      "from": "CreativeWork",
+      "isArray": true,
+      "isPlural": true
+    },
+    "publisher": {
+      "@id": "schema:publisher",
+      "description": "A publisher of the CreativeWork.\n",
+      "anyOf": [
+        {
+          "$ref": "Person.schema.json"
+        },
+        {
+          "$ref": "Organization.schema.json"
+        }
+      ],
+      "from": "CreativeWork"
+    },
+    "references": {
+      "@id": "schema:citation",
+      "aliases": [
+        "citations",
+        "reference"
+      ],
+      "description": "References to other creative works, such as another publication,\nweb page, scholarly article, etc.\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "CreativeWorkTypes.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "from": "CreativeWork",
+      "isArray": true,
+      "isPlural": true
+    },
+    "text": {
+      "@id": "schema:text",
+      "description": "The textual content of this creative work.",
+      "type": "string",
+      "from": "CreativeWork"
+    },
+    "title": {
+      "@id": "schema:headline",
+      "description": "The title of the creative work.",
+      "aliases": [
+        "headline"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "InlineContent.schema.json"
+      },
+      "from": "CreativeWork",
+      "isArray": true
+    },
+    "version": {
+      "@id": "schema:version",
+      "description": "The version of the creative work.",
+      "$comment": "In this case `string` is listed as an alternative before `number` to\navoid semantic version numbers e.g. `1.0` being parsed, and subsequently\nencoded, as `1` thereby resulting in loss of information.\n",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "from": "CreativeWork"
+    },
+    "dateStart": {
+      "@id": "schema:startDate",
+      "description": "The date this Periodical was first published.",
+      "$ref": "Date.schema.json",
+      "from": "Periodical"
+    },
+    "dateEnd": {
+      "@id": "schema:endDate",
+      "description": "The date this Periodical ceased publication.",
+      "$ref": "Date.schema.json",
+      "from": "Periodical"
+    },
+    "issns": {
+      "@id": "schema:issn",
+      "description": "The International Standard Serial Number(s) (ISSN) that identifies this serial publication.",
+      "$comment": "A periodical may have multiple ISSN (e.g. for online and print versions).\nSee [issn.org](https://www.issn.org/understanding-the-issn/assignment-rules/the-issn-for-electronic-media/)\nfor more details.\n",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "from": "Periodical",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "issn"
+      ]
+    }
+  },
+  "examples": [
+    {
+      "type": "Periodical",
+      "title": "Nature",
+      "issns": [
+        "0028-0836",
+        "1476-4687"
+      ],
+      "dateStart": "1869-11-04T00:00:00.000Z",
+      "url": "https://www.nature.com/"
+    }
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Periodical.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "propertyAliases": {
+    "alternateName": "alternateNames",
+    "identifier": "identifiers",
+    "image": "images",
+    "author": "authors",
+    "comment": "comments",
+    "date": "datePublished",
+    "editor": "editors",
+    "funder": "funders",
+    "keyword": "keywords",
+    "license": "licenses",
+    "maintainer": "maintainers",
+    "hasParts": "parts",
+    "part": "parts",
+    "citations": "references",
+    "reference": "references",
+    "headline": "title",
+    "issn": "issns"
+  },
+  "additionalProperties": false,
+  "required": [
+    "type"
+  ]
+}

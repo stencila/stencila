@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/TimeUnit.schema.json",
+  "title": "TimeUnit",
+  "@id": "stencila:TimeUnit",
+  "extends": "Enumeration",
+  "status": "stable",
+  "description": "A unit in which time can be measured",
+  "anyOf": [
+    {
+      "const": "Year",
+      "@id": "stencila:Year"
+    },
+    {
+      "const": "Month",
+      "@id": "stencila:Month"
+    },
+    {
+      "const": "Week",
+      "@id": "stencila:Week"
+    },
+    {
+      "const": "Day",
+      "@id": "stencila:Day"
+    },
+    {
+      "const": "Hour",
+      "@id": "stencila:Hour"
+    },
+    {
+      "const": "Minute",
+      "@id": "stencila:Minute"
+    },
+    {
+      "const": "Second",
+      "@id": "stencila:Second"
+    },
+    {
+      "const": "Millisecond",
+      "@id": "stencila:Millisecond"
+    },
+    {
+      "const": "Microsecond",
+      "@id": "stencila:Microsecond"
+    },
+    {
+      "const": "Nanosecond",
+      "@id": "stencila:Nanosecond"
+    },
+    {
+      "const": "Picosecond",
+      "@id": "stencila:Picosecond"
+    },
+    {
+      "const": "Femtosecond",
+      "@id": "stencila:Femtosecond"
+    },
+    {
+      "const": "Attosecond",
+      "@id": "stencila:Attosecond"
+    }
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/TimeUnit.yaml",
+  "children": [],
+  "descendants": []
+}

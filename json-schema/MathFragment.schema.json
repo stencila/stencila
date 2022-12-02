@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/MathFragment.schema.json",
+  "title": "MathFragment",
+  "@id": "stencila:MathFragment",
+  "extends": "Math",
+  "status": "stable",
+  "description": "A fragment of math, e.g a variable name, to be treated as inline content.",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "MathFragment"
+      ],
+      "default": "MathFragment",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "mathLanguage": {
+      "@id": "stencila:mathLanguage",
+      "description": "The language used for the equation e.g tex, mathml, asciimath.",
+      "type": "string",
+      "from": "Math"
+    },
+    "code": {
+      "@id": "stencila:code",
+      "description": "The code of the equation in the `mathLanguage`.",
+      "type": "string",
+      "from": "Math"
+    },
+    "compileDigest": {
+      "@id": "stencila:compileDigest",
+      "description": "A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML",
+      "$ref": "ExecutionDigest.schema.json",
+      "from": "Math"
+    },
+    "errors": {
+      "@id": "stencila:errors",
+      "description": "Errors that occurred when parsing the math equation.",
+      "$comment": "This property is an array of strings. Compare this to `CodeChunk.errors`\nwhich is an array of `CodeError` nodes. Strings are considered to\nbe sufficient for math parsing errors which usually won't have stack traces,\nline numbers etc.\n",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "from": "Math",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "error"
+      ]
+    },
+    "mathml": {
+      "@id": "stencila:mathml",
+      "description": "The MathML transpiled from the `code`",
+      "type": "string",
+      "from": "Math"
+    }
+  },
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/MathFragment.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "mathLanguage",
+    "code"
+  ],
+  "propertyAliases": {
+    "error": "errors"
+  }
+}

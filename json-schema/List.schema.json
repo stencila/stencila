@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/List.schema.json",
+  "title": "List",
+  "@id": "schema:ItemList",
+  "extends": "Entity",
+  "status": "stable",
+  "description": "A list of items.",
+  "$comment": "This is an implementation, and renaming, of schema.org [`ItemList`](https://schema.org/ItemList).\nRenaming was done as `List` was considered a more developer friendly alternative. Similarly,\nschema.org properties `itemListElement` and `itemListOrder` were renamed to `items` and `order`.\nNote that, as with every other such renaming in Stencila Schema, a mapping between names is\ndefined and it is trivial to save Stencila Schema documents using the schema.org vocabulary if so desired.\n\nAnalogues of `List` in other schema include:\n  - JATS XML [`<list>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/list.html)\n  - HTML [`<ul>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul) and [`<ol>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol)\n  - MDAST [`List`](https://github.com/syntax-tree/mdast#list)\n  - OpenDocument [`<text:list>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415148_253892949)\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "List"
+      ],
+      "default": "List",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "items": {
+      "@id": "schema:itemListElement",
+      "description": "The items in the list",
+      "type": "array",
+      "items": {
+        "$ref": "ListItem.schema.json"
+      },
+      "from": "List",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "item"
+      ]
+    },
+    "order": {
+      "@id": "schema:itemListOrder",
+      "description": "Type of ordering.",
+      "enum": [
+        "Ascending",
+        "Descending",
+        "Unordered"
+      ],
+      "default": "unordered",
+      "from": "List"
+    }
+  },
+  "required": [
+    "type",
+    "items"
+  ],
+  "examples": [
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            "Item One"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Item Two"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Item Three"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": "Item One"
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "This is a nested item",
+            {
+              "type": "List",
+              "order": "ordered",
+              "items": [
+                {
+                  "type": "ListItem",
+                  "content": [
+                    "Nested Item One"
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    "Nested Item Two"
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    "Nested Item Three"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "Item Three"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "checked": false,
+          "content": [
+            "Todo item"
+          ]
+        },
+        {
+          "type": "ListItem",
+          "checked": true,
+          "content": [
+            "Completed todo item"
+          ]
+        }
+      ]
+    }
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/List.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "propertyAliases": {
+    "item": "items"
+  },
+  "additionalProperties": false
+}

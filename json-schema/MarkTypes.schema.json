@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/MarkTypes.schema.json",
+  "title": "MarkTypes",
+  "description": "All type schemas that are derived from Mark",
+  "anyOf": [
+    {
+      "$ref": "Mark.schema.json"
+    },
+    {
+      "$ref": "Delete.schema.json"
+    },
+    {
+      "$ref": "Emphasis.schema.json"
+    },
+    {
+      "$ref": "NontextualAnnotation.schema.json"
+    },
+    {
+      "$ref": "Quote.schema.json"
+    },
+    {
+      "$ref": "Strikeout.schema.json"
+    },
+    {
+      "$ref": "Strong.schema.json"
+    },
+    {
+      "$ref": "Subscript.schema.json"
+    },
+    {
+      "$ref": "Superscript.schema.json"
+    },
+    {
+      "$ref": "Underline.schema.json"
+    }
+  ]
+}

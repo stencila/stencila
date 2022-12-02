@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Object.schema.json",
+  "title": "Object",
+  "@id": "stencila:Object",
+  "status": "stable",
+  "description": "A value comprised of keyed primitive nodes.",
+  "$comment": "Note that keys are strings and values are restricted to primitive node\ntypes including `Object` (ie. an `Object` as a value of another `Object`) and `Array`.\n",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "Primitive.schema.json"
+  },
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Object.yaml",
+  "children": [],
+  "descendants": []
+}

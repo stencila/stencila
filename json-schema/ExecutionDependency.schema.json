@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/ExecutionDependency.schema.json",
+  "title": "ExecutionDependency",
+  "@id": "stencila:ExecutionDependency",
+  "description": "An upstream execution dependency of a node",
+  "status": "unstable",
+  "properties": {
+    "dependencyRelation": {
+      "@id": "stencila:dependencyRelation",
+      "description": "The relation to the dependency",
+      "$ref": "ExecutionDependencyRelation.schema.json",
+      "from": "ExecutionDependency"
+    },
+    "dependencyNode": {
+      "@id": "stencila:dependencyNode",
+      "description": "The node that is the dependency",
+      "$ref": "ExecutionDependencyNode.schema.json",
+      "from": "ExecutionDependency"
+    },
+    "codeLocation": {
+      "@id": "stencila:codeLocation",
+      "description": "The location that the dependency is defined within code",
+      "$comment": "An array of four zero indexed integers: [startRow, startColumn, endRow, endColumn]\n",
+      "type": "array",
+      "from": "ExecutionDependency",
+      "isArray": true
+    }
+  },
+  "required": [
+    "dependencyRelation",
+    "dependencyNode"
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/ExecutionDependency.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/NontextualAnnotation.schema.json",
+  "title": "NontextualAnnotation",
+  "@id": "stencila:NontextualAnnotation",
+  "extends": "Mark",
+  "status": "stable",
+  "description": "Inline text that has a non-textual annotation.",
+  "$comment": "Use cases include annotating spelling errors, denoting proper names in Chinese text,\nrepresenting underline text, and other forms of annotation. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/u\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "NontextualAnnotation"
+      ],
+      "default": "NontextualAnnotation",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content that is marked.",
+      "type": "array",
+      "items": {
+        "$ref": "InlineContent.schema.json"
+      },
+      "from": "Mark",
+      "isArray": true
+    }
+  },
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/NontextualAnnotation.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "content"
+  ],
+  "propertyAliases": {}
+}

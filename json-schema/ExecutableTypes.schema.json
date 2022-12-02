@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/ExecutableTypes.schema.json",
+  "title": "ExecutableTypes",
+  "description": "All type schemas that are derived from Executable",
+  "anyOf": [
+    {
+      "$ref": "Executable.schema.json"
+    },
+    {
+      "$ref": "Button.schema.json"
+    },
+    {
+      "$ref": "Call.schema.json"
+    },
+    {
+      "$ref": "CallArgument.schema.json"
+    },
+    {
+      "$ref": "CodeChunk.schema.json"
+    },
+    {
+      "$ref": "CodeExecutable.schema.json"
+    },
+    {
+      "$ref": "CodeExpression.schema.json"
+    },
+    {
+      "$ref": "Division.schema.json"
+    },
+    {
+      "$ref": "For.schema.json"
+    },
+    {
+      "$ref": "Form.schema.json"
+    },
+    {
+      "$ref": "If.schema.json"
+    },
+    {
+      "$ref": "IfClause.schema.json"
+    },
+    {
+      "$ref": "Include.schema.json"
+    },
+    {
+      "$ref": "Parameter.schema.json"
+    },
+    {
+      "$ref": "Span.schema.json"
+    },
+    {
+      "$ref": "Styled.schema.json"
+    }
+  ]
+}

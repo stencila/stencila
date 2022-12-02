@@ -1,0 +1,192 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/MonetaryGrant.schema.json",
+  "title": "MonetaryGrant",
+  "@id": "schema:MonetaryGrant",
+  "extends": "Grant",
+  "status": "stable",
+  "description": "A monetary grant.",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "MonetaryGrant"
+      ],
+      "default": "MonetaryGrant",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "alternateName"
+      ]
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "type": "array",
+      "items": {
+        "$ref": "BlockContent.schema.json"
+      },
+      "from": "Thing",
+      "isArray": true
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "identifier"
+      ]
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "ImageObject.schema.json"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "image"
+      ]
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "type": "string",
+      "from": "Thing"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "type": "string",
+      "format": "uri",
+      "from": "Thing"
+    },
+    "fundedItems": {
+      "@id": "schema:fundedItem",
+      "description": "Indicates an item funded or sponsored through a Grant.",
+      "$comment": "An array because a grant may have more than one funded item.\n",
+      "type": "array",
+      "items": {
+        "$ref": "Thing.schema.json"
+      },
+      "from": "Grant",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "fundedItem"
+      ]
+    },
+    "sponsors": {
+      "@id": "schema:sponsor",
+      "description": "A person or organization that supports a thing through a pledge, promise, or financial contribution.",
+      "$comment": "An array because a grant may have more than one sponsor.\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          }
+        ]
+      },
+      "from": "Grant",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "sponsor"
+      ]
+    },
+    "amounts": {
+      "@id": "schema:amount",
+      "description": "The amount of money.",
+      "$comment": "This property is an array, to allow for multiple amounts, possibly, but not necessarily,\nfrom multiple `funders`.\n",
+      "type": "number",
+      "from": "MonetaryGrant"
+    },
+    "funders": {
+      "@id": "schema:funder",
+      "description": "A person or organization that supports (sponsors) something through some kind of financial contribution.\n",
+      "$comment": "Often a `MonetaryGrant` will have a single funder. This property is an array to be consistent with `funders` on other types e.g. `CreativeWork`.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          }
+        ]
+      },
+      "from": "MonetaryGrant",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "funder"
+      ]
+    }
+  },
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/MonetaryGrant.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "propertyAliases": {
+    "alternateName": "alternateNames",
+    "identifier": "identifiers",
+    "image": "images",
+    "fundedItem": "fundedItems",
+    "sponsor": "sponsors",
+    "funder": "funders"
+  },
+  "additionalProperties": false,
+  "required": [
+    "type"
+  ]
+}

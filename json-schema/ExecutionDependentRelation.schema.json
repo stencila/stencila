@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/ExecutionDependentRelation.schema.json",
+  "title": "ExecutionDependentRelation",
+  "@id": "stencila:ExecutionDependentRelation",
+  "extends": "Enumeration",
+  "status": "stable",
+  "description": "The relation between a node and its execution dependent.",
+  "anyOf": [
+    {
+      "const": "Assigns",
+      "@id": "stencila:executionDependentRelationAssigns",
+      "description": "The node assigns its dependant (usually a variable)"
+    },
+    {
+      "const": "Alters",
+      "@id": "stencila:executionDependentRelationAlters",
+      "description": "The node alters its dependant (usually a variable)"
+    },
+    {
+      "const": "Declares",
+      "@id": "stencila:executionDependentRelationDeclares",
+      "description": "The node declares its dependant (e.g. a database table)"
+    },
+    {
+      "const": "Writes",
+      "@id": "stencila:executionDependentRelationWrites",
+      "description": "The node writes its dependant (usually a file)"
+    }
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/ExecutionDependentRelation.yaml",
+  "children": [],
+  "descendants": []
+}

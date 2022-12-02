@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/StringValidator.schema.json",
+  "title": "StringValidator",
+  "@id": "stencila:StringValidator",
+  "extends": "Validator",
+  "status": "unstable",
+  "description": "A schema specifying constraints on a string node.",
+  "$comment": "A node will be valid against the schema if it is a string that\nmeets the schemas `minLength`, `maxLength` and `pattern` properties.\nAnalogous to the JSON Schema `string` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "StringValidator"
+      ],
+      "default": "StringValidator",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "minLength": {
+      "@id": "stencila:minLength",
+      "type": "integer",
+      "minimum": 0,
+      "description": "The minimum length for a string node.",
+      "$comment": "A string is valid if its length is greater than, or exactly equal to, `minLength`.\n",
+      "from": "StringValidator"
+    },
+    "maxLength": {
+      "@id": "stencila:maxLength",
+      "type": "integer",
+      "minimum": 0,
+      "description": "The maximum length for a string node.",
+      "$comment": "A string is valid if its length is less than, or exactly equal to, `maxLength`.\n",
+      "from": "StringValidator"
+    },
+    "pattern": {
+      "@id": "stencila:pattern",
+      "type": "string",
+      "description": "A regular expression that a string node must match.",
+      "$comment": "A string is valid if it is matched by the regular expression.\n",
+      "from": "StringValidator"
+    }
+  },
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/StringValidator.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type"
+  ],
+  "propertyAliases": {}
+}

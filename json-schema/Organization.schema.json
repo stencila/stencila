@@ -1,0 +1,316 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Organization.schema.json",
+  "title": "Organization",
+  "@id": "schema:Organization",
+  "extends": "Thing",
+  "status": "stable",
+  "description": "An organization such as a school, NGO, corporation, club, etc.",
+  "$comment": "This is an implementation of schema.org [`Organization`](https://schema.org/Organization).\n\nAn `Organization` node is analogous, and structurally similar to:\n- Crossref Organization element [`<crossref:organization>`](https://data.crossref.org/reports/help/schema_doc/4.4.0/relations_xsd.html#http___www.crossref.org_relations.xsd_organization)\n- JATS XML [`<institution-wrap>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/institution-wrap.html)\n- Open Document [`<text:organizations>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1419060_253892949) and [`<text:institutions>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1418948_253892949)\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "Organization"
+      ],
+      "default": "Organization",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "alternateName"
+      ]
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "type": "array",
+      "items": {
+        "$ref": "BlockContent.schema.json"
+      },
+      "from": "Thing",
+      "isArray": true
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "identifier"
+      ]
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "ImageObject.schema.json"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "image"
+      ]
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "type": "string",
+      "from": "Thing"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "type": "string",
+      "format": "uri",
+      "from": "Thing"
+    },
+    "address": {
+      "@id": "schema:address",
+      "description": "Postal address for the organization.\n",
+      "anyOf": [
+        {
+          "$ref": "PostalAddress.schema.json"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "from": "Organization"
+    },
+    "brands": {
+      "@id": "schema:brand",
+      "description": "Brands that the organization is connected with.\n",
+      "type": "array",
+      "items": {
+        "$ref": "Brand.schema.json"
+      },
+      "from": "Organization",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "brand"
+      ]
+    },
+    "contactPoints": {
+      "@id": "schema:contactPoint",
+      "description": "Correspondence/Contact points for the organization.\n",
+      "type": "array",
+      "items": {
+        "$ref": "ContactPoint.schema.json"
+      },
+      "from": "Organization",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "contactPoint"
+      ]
+    },
+    "departments": {
+      "@id": "schema:department",
+      "description": "Departments within the organization. For example, Department of Computer Science, Research & Development etc.\n",
+      "type": "array",
+      "items": {
+        "$ref": "Organization.schema.json"
+      },
+      "from": "Organization",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "department"
+      ]
+    },
+    "funders": {
+      "@id": "schema:funder",
+      "description": "Organization(s) or person(s) funding the organization.\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Organization.schema.json"
+          },
+          {
+            "$ref": "Person.schema.json"
+          }
+        ]
+      },
+      "from": "Organization",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "funder"
+      ]
+    },
+    "legalName": {
+      "@id": "schema:legalName",
+      "description": "The official name of the organization, e.g. the registered company name.",
+      "type": "string",
+      "from": "Organization"
+    },
+    "logo": {
+      "@id": "schema:logo",
+      "description": "The logo of the organization.",
+      "$comment": "This is a singleton property because, at any one time, an organization\nwill usually only have one logo.\n",
+      "anyOf": [
+        {
+          "$ref": "ImageObject.schema.json"
+        },
+        {
+          "type": "string",
+          "format": "uri"
+        }
+      ],
+      "from": "Organization"
+    },
+    "members": {
+      "@id": "schema:member",
+      "description": "Person(s) or organization(s) who are members of this organization.\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Organization.schema.json"
+          },
+          {
+            "$ref": "Person.schema.json"
+          }
+        ]
+      },
+      "from": "Organization",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "member"
+      ]
+    },
+    "parentOrganization": {
+      "@id": "schema:parentOrganization",
+      "description": "Entity that the Organization is a part of. For example, parentOrganization to a department is a university.\n",
+      "allOf": [
+        {
+          "$ref": "Organization.schema.json"
+        }
+      ],
+      "from": "Organization"
+    }
+  },
+  "examples": [
+    {
+      "type": "Organization",
+      "address": "Sciences Building, Dunedin, New Zealand",
+      "legalName": "Department of Natural Sciences",
+      "parentOrganization": {
+        "type": "Organization",
+        "legalName": "The University of Otago"
+      }
+    },
+    {
+      "type": "Organization",
+      "address": "362 Leith Street, Dunedin 9054, New Zealand",
+      "brands": [
+        {
+          "type": "Brand",
+          "logo": "http://www.otago.ac.nz/logo"
+        }
+      ],
+      "contactPoints": [
+        {
+          "type": "ContactPoint",
+          "availableLanguages": [
+            "English",
+            "Māori"
+          ],
+          "emails": [
+            "office@otago.ac.nz"
+          ],
+          "telephone": "00641234567"
+        }
+      ],
+      "departments": [
+        {
+          "type": "Organization",
+          "legalName": "Commerce"
+        },
+        {
+          "type": "Organization",
+          "legalName": "Health_Sciences"
+        },
+        {
+          "type": "Organization",
+          "legalName": "Humanities"
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "legalName": "MBIE"
+        },
+        {
+          "type": "Organization",
+          "legalName": "CancerSociety"
+        }
+      ],
+      "legalName": "The University of Otago"
+    }
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Organization.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "propertyAliases": {
+    "alternateName": "alternateNames",
+    "identifier": "identifiers",
+    "image": "images",
+    "brand": "brands",
+    "contactPoint": "contactPoints",
+    "department": "departments",
+    "funder": "funders",
+    "member": "members"
+  },
+  "additionalProperties": false,
+  "required": [
+    "type"
+  ]
+}

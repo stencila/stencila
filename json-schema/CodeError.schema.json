@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/CodeError.schema.json",
+  "title": "CodeError",
+  "@id": "stencila:CodeError",
+  "extends": "Entity",
+  "status": "unstable",
+  "description": "An error that occurred when parsing, compiling or executing a Code node.",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "CodeError"
+      ],
+      "default": "CodeError",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "errorType": {
+      "@id": "stencila:errorType",
+      "description": "The type of error e.g. \"SyntaxError\", \"ZeroDivisionError\".",
+      "$comment": "Many languages have the concept of alternative types of errors.\nFor example, Python has various [classes of exceptions](https://docs.python.org/3/tutorial/errors.html).\nThis property is intended to be used for storing these type names as additional\ninformation that maybe useful to the user attempting to resolve the error.\n",
+      "type": "string",
+      "from": "CodeError"
+    },
+    "errorMessage": {
+      "@id": "stencila:errorMessage",
+      "aliases": [
+        "message"
+      ],
+      "description": "The error message or brief description of the error.",
+      "type": "string",
+      "from": "CodeError"
+    },
+    "stackTrace": {
+      "@id": "stencila:stackTrace",
+      "aliases": [
+        "trace"
+      ],
+      "description": "Stack trace leading up to the error.",
+      "type": "string",
+      "from": "CodeError"
+    }
+  },
+  "required": [
+    "type",
+    "errorMessage"
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/CodeError.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "propertyAliases": {
+    "message": "errorMessage",
+    "trace": "stackTrace"
+  },
+  "additionalProperties": false
+}

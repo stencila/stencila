@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/TupleValidator.schema.json",
+  "title": "TupleValidator",
+  "@id": "stencila:TupleValidator",
+  "extends": "Validator",
+  "status": "unstable",
+  "description": "A validator specifying constraints on an array of heterogeneous items.",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "TupleValidator"
+      ],
+      "default": "TupleValidator",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "items": {
+      "@id": "schema:itemListElement",
+      "description": "An array of validators specifying the constraints on each successive item in the array.",
+      "type": "array",
+      "items": {
+        "$ref": "ValidatorTypes.schema.json"
+      },
+      "from": "TupleValidator",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "item"
+      ]
+    }
+  },
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/TupleValidator.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "propertyAliases": {
+    "item": "items"
+  },
+  "additionalProperties": false,
+  "required": [
+    "type"
+  ]
+}

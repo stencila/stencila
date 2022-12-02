@@ -1,0 +1,190 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/ContactPoint.schema.json",
+  "title": "ContactPoint",
+  "@id": "schema:ContactPoint",
+  "extends": "Thing",
+  "status": "stable",
+  "description": "A contact point, usually within an organization.",
+  "$comment": "This is an implementation of schema.org [`ContactPoint`](https://schema.org/ContactPoint). It extends schema.org `ContactPoint` by, adding a `content` property which must be an array of [`BlockContent`](./BlockContent), as well as the properties added by [`CreativeWork`](./CreativeWork) which it extends.\n`ContactPoint` is analogous, and structurally similar to, the JATS XML [`<corresp>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/corresp.html) element and the HTML5 [`<address>`](https://dev.w3.org/html5/html-author/#the-address-element) element.",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "ContactPoint",
+        "PostalAddress"
+      ],
+      "default": "ContactPoint",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "alternateName"
+      ]
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "type": "array",
+      "items": {
+        "$ref": "BlockContent.schema.json"
+      },
+      "from": "Thing",
+      "isArray": true
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "identifier"
+      ]
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "ImageObject.schema.json"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      },
+      "from": "Thing",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "image"
+      ]
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "type": "string",
+      "from": "Thing"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "type": "string",
+      "format": "uri",
+      "from": "Thing"
+    },
+    "availableLanguages": {
+      "@id": "schema:availableLanguage",
+      "description": "Languages (human not programming) in which it is possible to communicate\nwith the organization/department etc.\n",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "from": "ContactPoint",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "availableLanguage"
+      ]
+    },
+    "emails": {
+      "@id": "schema:email",
+      "description": "Email address for correspondence.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "email"
+      },
+      "from": "ContactPoint",
+      "isArray": true,
+      "isPlural": true,
+      "aliases": [
+        "email"
+      ]
+    },
+    "telephoneNumbers": {
+      "@id": "schema:telephone",
+      "aliases": [
+        "telephone",
+        "telephoneNumber"
+      ],
+      "description": "Telephone numbers for the contact point.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "from": "ContactPoint",
+      "isArray": true,
+      "isPlural": true
+    }
+  },
+  "examples": [
+    {
+      "type": "ContactPoint",
+      "availableLanguages": [
+        "English",
+        "Māori"
+      ],
+      "emails": [
+        "welcome@example.org"
+      ],
+      "telephone": "00641234567"
+    }
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/ContactPoint.yaml",
+  "children": [
+    "PostalAddress"
+  ],
+  "descendants": [
+    "PostalAddress"
+  ],
+  "type": "object",
+  "propertyAliases": {
+    "alternateName": "alternateNames",
+    "identifier": "identifiers",
+    "image": "images",
+    "availableLanguage": "availableLanguages",
+    "email": "emails",
+    "telephone": "telephoneNumbers",
+    "telephoneNumber": "telephoneNumbers"
+  },
+  "additionalProperties": false,
+  "required": [
+    "type"
+  ]
+}

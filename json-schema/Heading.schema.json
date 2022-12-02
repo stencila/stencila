@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Heading.schema.json",
+  "title": "Heading",
+  "@id": "stencila:Heading",
+  "extends": "Entity",
+  "status": "stable",
+  "description": "A heading.",
+  "$comment": "Analogues of `Delete` in other schema include:\n  - HTML [`<h1>` to `<h6>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1)\n  - JATS XML [`<title>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/title.html)\n  - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "Heading"
+      ],
+      "default": "Heading",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "depth": {
+      "@id": "stencila:depth",
+      "description": "The depth of the heading.",
+      "type": "integer",
+      "default": 1,
+      "minimum": 1,
+      "maximum": 6,
+      "from": "Heading"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "Content of the heading.",
+      "type": "array",
+      "items": {
+        "$ref": "InlineContent.schema.json"
+      },
+      "from": "Heading",
+      "isArray": true
+    }
+  },
+  "required": [
+    "type",
+    "content"
+  ],
+  "examples": [
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Secondary Heading"
+      ]
+    }
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Heading.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false,
+  "propertyAliases": {}
+}

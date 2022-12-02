@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Variable.schema.json",
+  "title": "Variable",
+  "@id": "stencila:Variable",
+  "extends": "Entity",
+  "status": "unstable",
+  "description": "A variable representing a name / value pair.",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "Variable"
+      ],
+      "default": "Variable",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "namespace": {
+      "@id": "stencila:namespace",
+      "description": "The namespace, usually a document path, within which the variable resides",
+      "type": "string",
+      "from": "Variable"
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the variable.",
+      "type": "string",
+      "pattern": "[a-zA-Z][a-zA-Z0-9_]*",
+      "$comment": "This regex allows for snake_case and camelCase names but excludes\nPascalCase for names.\n",
+      "from": "Variable"
+    },
+    "kind": {
+      "@id": "stencila:kind",
+      "type": "string",
+      "description": "The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`",
+      "from": "Variable"
+    },
+    "value": {
+      "@id": "schema:value",
+      "description": "The value of the variable.",
+      "allOf": [
+        {
+          "$ref": "Node.schema.json"
+        }
+      ],
+      "from": "Variable"
+    }
+  },
+  "required": [
+    "type",
+    "namespace",
+    "name"
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Variable.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false,
+  "propertyAliases": {}
+}

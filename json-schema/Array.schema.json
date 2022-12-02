@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Array.schema.json",
+  "title": "Array",
+  "@id": "stencila:Array",
+  "status": "stable",
+  "description": "A value comprised of other primitive nodes",
+  "$comment": "Note that the items in the array are restricted to primitive node\ntypes including `Array` (ie. an `Array` as an item of another `Array`) and `Object`.\n",
+  "type": "array",
+  "items": {
+    "$ref": "Primitive.schema.json"
+  },
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Array.yaml",
+  "children": [],
+  "descendants": []
+}

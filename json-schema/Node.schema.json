@@ -1,0 +1,342 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Node.schema.json",
+  "title": "Node",
+  "status": "stable",
+  "description": "Union type for all types of nodes in this schema, including primitives and entities",
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Node.yaml",
+  "children": [],
+  "descendants": [],
+  "anyOf": [
+    {
+      "$ref": "Entity.schema.json"
+    },
+    {
+      "$ref": "ArrayValidator.schema.json"
+    },
+    {
+      "$ref": "Article.schema.json"
+    },
+    {
+      "$ref": "AudioObject.schema.json"
+    },
+    {
+      "$ref": "BooleanValidator.schema.json"
+    },
+    {
+      "$ref": "Brand.schema.json"
+    },
+    {
+      "$ref": "Button.schema.json"
+    },
+    {
+      "$ref": "Call.schema.json"
+    },
+    {
+      "$ref": "CallArgument.schema.json"
+    },
+    {
+      "$ref": "Cite.schema.json"
+    },
+    {
+      "$ref": "CiteGroup.schema.json"
+    },
+    {
+      "$ref": "Claim.schema.json"
+    },
+    {
+      "$ref": "CodeBlock.schema.json"
+    },
+    {
+      "$ref": "CodeChunk.schema.json"
+    },
+    {
+      "$ref": "CodeError.schema.json"
+    },
+    {
+      "$ref": "CodeExecutable.schema.json"
+    },
+    {
+      "$ref": "CodeExpression.schema.json"
+    },
+    {
+      "$ref": "CodeFragment.schema.json"
+    },
+    {
+      "$ref": "CodeStatic.schema.json"
+    },
+    {
+      "$ref": "Collection.schema.json"
+    },
+    {
+      "$ref": "Comment.schema.json"
+    },
+    {
+      "$ref": "ConstantValidator.schema.json"
+    },
+    {
+      "$ref": "ContactPoint.schema.json"
+    },
+    {
+      "$ref": "CreativeWork.schema.json"
+    },
+    {
+      "$ref": "Datatable.schema.json"
+    },
+    {
+      "$ref": "DatatableColumn.schema.json"
+    },
+    {
+      "$ref": "DateTimeValidator.schema.json"
+    },
+    {
+      "$ref": "DateValidator.schema.json"
+    },
+    {
+      "$ref": "DefinedTerm.schema.json"
+    },
+    {
+      "$ref": "Delete.schema.json"
+    },
+    {
+      "$ref": "Directory.schema.json"
+    },
+    {
+      "$ref": "Division.schema.json"
+    },
+    {
+      "$ref": "DurationValidator.schema.json"
+    },
+    {
+      "$ref": "Emphasis.schema.json"
+    },
+    {
+      "$ref": "EnumValidator.schema.json"
+    },
+    {
+      "$ref": "Enumeration.schema.json"
+    },
+    {
+      "$ref": "Executable.schema.json"
+    },
+    {
+      "$ref": "Figure.schema.json"
+    },
+    {
+      "$ref": "File.schema.json"
+    },
+    {
+      "$ref": "For.schema.json"
+    },
+    {
+      "$ref": "Form.schema.json"
+    },
+    {
+      "$ref": "Function.schema.json"
+    },
+    {
+      "$ref": "Grant.schema.json"
+    },
+    {
+      "$ref": "Heading.schema.json"
+    },
+    {
+      "$ref": "If.schema.json"
+    },
+    {
+      "$ref": "IfClause.schema.json"
+    },
+    {
+      "$ref": "ImageObject.schema.json"
+    },
+    {
+      "$ref": "Include.schema.json"
+    },
+    {
+      "$ref": "IntegerValidator.schema.json"
+    },
+    {
+      "$ref": "Link.schema.json"
+    },
+    {
+      "$ref": "List.schema.json"
+    },
+    {
+      "$ref": "ListItem.schema.json"
+    },
+    {
+      "$ref": "Mark.schema.json"
+    },
+    {
+      "$ref": "Math.schema.json"
+    },
+    {
+      "$ref": "MathBlock.schema.json"
+    },
+    {
+      "$ref": "MathFragment.schema.json"
+    },
+    {
+      "$ref": "MediaObject.schema.json"
+    },
+    {
+      "$ref": "MonetaryGrant.schema.json"
+    },
+    {
+      "$ref": "NontextualAnnotation.schema.json"
+    },
+    {
+      "$ref": "Note.schema.json"
+    },
+    {
+      "$ref": "NumberValidator.schema.json"
+    },
+    {
+      "$ref": "Organization.schema.json"
+    },
+    {
+      "$ref": "Paragraph.schema.json"
+    },
+    {
+      "$ref": "Parameter.schema.json"
+    },
+    {
+      "$ref": "Periodical.schema.json"
+    },
+    {
+      "$ref": "Person.schema.json"
+    },
+    {
+      "$ref": "PostalAddress.schema.json"
+    },
+    {
+      "$ref": "Product.schema.json"
+    },
+    {
+      "$ref": "PropertyValue.schema.json"
+    },
+    {
+      "$ref": "PublicationIssue.schema.json"
+    },
+    {
+      "$ref": "PublicationVolume.schema.json"
+    },
+    {
+      "$ref": "Quote.schema.json"
+    },
+    {
+      "$ref": "QuoteBlock.schema.json"
+    },
+    {
+      "$ref": "Review.schema.json"
+    },
+    {
+      "$ref": "SoftwareApplication.schema.json"
+    },
+    {
+      "$ref": "SoftwareEnvironment.schema.json"
+    },
+    {
+      "$ref": "SoftwareSession.schema.json"
+    },
+    {
+      "$ref": "SoftwareSourceCode.schema.json"
+    },
+    {
+      "$ref": "Span.schema.json"
+    },
+    {
+      "$ref": "Strikeout.schema.json"
+    },
+    {
+      "$ref": "StringValidator.schema.json"
+    },
+    {
+      "$ref": "Strong.schema.json"
+    },
+    {
+      "$ref": "Styled.schema.json"
+    },
+    {
+      "$ref": "Subscript.schema.json"
+    },
+    {
+      "$ref": "Superscript.schema.json"
+    },
+    {
+      "$ref": "Table.schema.json"
+    },
+    {
+      "$ref": "TableCell.schema.json"
+    },
+    {
+      "$ref": "TableRow.schema.json"
+    },
+    {
+      "$ref": "ThematicBreak.schema.json"
+    },
+    {
+      "$ref": "Thing.schema.json"
+    },
+    {
+      "$ref": "TimeValidator.schema.json"
+    },
+    {
+      "$ref": "TimestampValidator.schema.json"
+    },
+    {
+      "$ref": "TupleValidator.schema.json"
+    },
+    {
+      "$ref": "Underline.schema.json"
+    },
+    {
+      "$ref": "Validator.schema.json"
+    },
+    {
+      "$ref": "Variable.schema.json"
+    },
+    {
+      "$ref": "VideoObject.schema.json"
+    },
+    {
+      "$ref": "VolumeMount.schema.json"
+    },
+    {
+      "$ref": "Null.schema.json"
+    },
+    {
+      "$ref": "Boolean.schema.json"
+    },
+    {
+      "$ref": "Integer.schema.json"
+    },
+    {
+      "$ref": "Number.schema.json"
+    },
+    {
+      "$ref": "String.schema.json"
+    },
+    {
+      "$ref": "Date.schema.json"
+    },
+    {
+      "$ref": "Time.schema.json"
+    },
+    {
+      "$ref": "DateTime.schema.json"
+    },
+    {
+      "$ref": "Timestamp.schema.json"
+    },
+    {
+      "$ref": "Duration.schema.json"
+    },
+    {
+      "$ref": "Object.schema.json"
+    },
+    {
+      "$ref": "Array.schema.json"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/NumberValidator.schema.json",
+  "title": "NumberValidator",
+  "@id": "stencila:NumberValidator",
+  "extends": "Validator",
+  "status": "unstable",
+  "description": "A validator specifying the constraints on a numeric node.",
+  "$comment": "A node will be valid if it is a number that meets the `maximum`, `multipleOf` etc properties.\nAnalogous to the JSON Schema `number` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).\nNote that the `IntegerValidator` type extends this validator with the additional\nconstraint that the number have no fractional part.\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "NumberValidator",
+        "IntegerValidator"
+      ],
+      "default": "NumberValidator",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "minimum": {
+      "@id": "stencila:minimum",
+      "type": "number",
+      "description": "The inclusive lower limit for a numeric node.",
+      "$comment": "A number is valid if it is greater than, or exactly equal to, `minimum`.\n",
+      "from": "NumberValidator"
+    },
+    "exclusiveMinimum": {
+      "@id": "stencila:exclusiveMinimum",
+      "type": "number",
+      "description": "The exclusive lower limit for a numeric node.",
+      "$comment": "A number is valid only if it has a value greater than (not equal to) `exclusiveMinimum`.\n",
+      "from": "NumberValidator"
+    },
+    "maximum": {
+      "@id": "stencila:maximum",
+      "type": "number",
+      "description": "The inclusive upper limit for a numeric node.",
+      "$comment": "A number is valid if it is less than, or exactly equal to, `maximum`.\n",
+      "from": "NumberValidator"
+    },
+    "exclusiveMaximum": {
+      "@id": "stencila:exclusiveMaximum",
+      "type": "number",
+      "description": "The exclusive upper limit for a numeric node.",
+      "$comment": "A number is valid only if it has a value less than (not equal to) `exclusiveMaximum`.\n",
+      "from": "NumberValidator"
+    },
+    "multipleOf": {
+      "@id": "stencila:multipleOf",
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "A number that a numeric node must be a multiple of.",
+      "$comment": "A number is valid only if division by this value results in an integer.\n",
+      "from": "NumberValidator"
+    }
+  },
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/NumberValidator.yaml",
+  "children": [
+    "IntegerValidator"
+  ],
+  "descendants": [
+    "IntegerValidator"
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type"
+  ],
+  "propertyAliases": {}
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Note.schema.json",
+  "title": "Note",
+  "@id": "stencila:Note",
+  "extends": "Entity",
+  "status": "unstable",
+  "description": "Additional content which is not part of the main content of a document.",
+  "$comment": "A note is usually associated with a word or paragraph using a number or other symbol. \nIt can be displayed as a footnote, endnote, or side note, or in interactive elements.\nFor analogues, see \n- [JATS `<fn>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/fn.html)\n- [Pandoc footnotes](https://pandoc.org/MANUAL.html#footnotes)\n- [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)\n",
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The name of the type",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\nIt is extended with the titles of all descendant types during\nthe generation of schema.json files.\n",
+      "type": "string",
+      "enum": [
+        "Note"
+      ],
+      "default": "Note",
+      "from": "Entity"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "type": "string",
+      "from": "Entity"
+    },
+    "noteType": {
+      "@id": "stencila:noteType",
+      "description": "Determines where the note content is displayed within the document.",
+      "type": "string",
+      "enum": [
+        "Footnote",
+        "Endnote",
+        "Sidenote"
+      ],
+      "from": "Note"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "Content of the note, usually a paragraph.",
+      "type": "array",
+      "items": {
+        "$ref": "BlockContent.schema.json"
+      },
+      "$comment": "Most notes will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
+      "from": "Note",
+      "isArray": true
+    }
+  },
+  "required": [
+    "type",
+    "content"
+  ],
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Note.yaml",
+  "children": [],
+  "descendants": [],
+  "type": "object",
+  "additionalProperties": false,
+  "propertyAliases": {}
+}

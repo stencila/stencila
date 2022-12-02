@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/stencila/stencila/main/json-schema/Null.schema.json",
+  "title": "Null",
+  "@id": "stencila:Null",
+  "status": "stable",
+  "description": "The null value",
+  "type": "null",
+  "source": "https://github.com/stencila/stencila/blob/main/schema/yaml/Null.yaml",
+  "children": [],
+  "descendants": []
+}
