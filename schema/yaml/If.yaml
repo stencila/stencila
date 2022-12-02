@@ -2,7 +2,7 @@ title: If
 "@id": stencila:If
 category: code
 description: Show and execute alternative content conditional upon an executed expression
-role: primary
+
 status: unstable
 extends: Executable
 properties:

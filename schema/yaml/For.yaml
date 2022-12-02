@@ -2,7 +2,7 @@ title: For
 "@id": stencila:For
 category: text
 description: Repeat a block content for each item in an array
-role: primary
+
 status: unstable
 extends: CodeExecutable
 properties:

@@ -2,7 +2,7 @@ title: PropertyValue
 "@id": schema:PropertyValue
 extends: Thing
 status: stable
-role: secondary
+
 category: other
 description: A property-value pair.
 $comment: |

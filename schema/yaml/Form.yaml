@@ -2,7 +2,7 @@ title: Form
 "@id": stencila:Form
 category: text
 description: A form to batch updates in document parameters
-role: primary
+
 status: unstable
 extends: Executable
 properties:

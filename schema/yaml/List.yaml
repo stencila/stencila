@@ -2,7 +2,7 @@ title: List
 "@id": schema:ItemList
 extends: Entity
 category: text
-role: secondary
+
 status: stable
 description: A list of items.
 $comment: |

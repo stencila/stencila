@@ -3,7 +3,7 @@ title: TimeUnit
 extends: Enumeration
 category: data
 status: stable
-role: secondary
+
 description: A unit in which time can be measured
 anyOf:
   - const: Year

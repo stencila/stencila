@@ -2,7 +2,7 @@ title: VideoObject
 "@id": schema:VideoObject
 extends: MediaObject
 category: works
-role: secondary
+
 status: stable
 description: A video file.
 $comment: |

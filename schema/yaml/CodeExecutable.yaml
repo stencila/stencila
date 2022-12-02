@@ -1,7 +1,7 @@
 title: CodeExecutable
 "@id": stencila:CodeExecutable
 extends: Executable
-role: base
+
 status: stable
 category: code
 description: Base type for executable code nodes (e.g. `CodeChunk`).

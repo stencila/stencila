@@ -2,7 +2,7 @@ title: Division
 "@id": stencila:Division
 category: text
 description: Styled block content
-role: primary
+
 status: unstable
 extends: Styled
 properties:

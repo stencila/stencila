@@ -2,7 +2,7 @@ title: Include
 "@id": stencila:Include
 category: text
 description: Include content from an external source (e.g. file, URL).
-role: secondary
+
 status: unstable
 extends: Executable
 properties:

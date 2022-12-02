@@ -2,7 +2,7 @@ title: Call
 "@id": stencila:Call
 category: code
 description: Call another document, optionally with arguments, and include its executed content
-role: secondary
+
 status: unstable
 extends: Include
 properties:

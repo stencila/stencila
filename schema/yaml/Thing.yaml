@@ -2,7 +2,7 @@ title: Thing
 "@id": schema:Thing
 extends: Entity
 status: stable
-role: base
+
 category: other
 description: The most generic type of item.
 properties:

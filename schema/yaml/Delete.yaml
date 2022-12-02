@@ -1,7 +1,7 @@
 title: Delete
 "@id": stencila:Delete
 extends: Mark
-role: secondary
+
 status: deprecated
 category: text
 description: Content that is marked for deletion

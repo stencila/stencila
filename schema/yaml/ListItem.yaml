@@ -1,7 +1,7 @@
 title: ListItem
 "@id": schema:ListItem
 extends: Thing
-role: tertiary
+
 status: stable
 category: text
 description: A single item in a list.

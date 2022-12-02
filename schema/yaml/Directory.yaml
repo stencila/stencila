@@ -2,7 +2,7 @@ title: Directory
 "@id": stencila:Directory
 extends: Collection
 category: works
-role: primary
+
 status: stable
 description: A directory on the filesystem
 properties:

@@ -2,7 +2,7 @@ title: Span
 "@id": stencila:Span
 category: text
 description: Styled inline content
-role: primary
+
 status: unstable
 extends: Styled
 properties:

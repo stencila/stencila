@@ -2,7 +2,7 @@ title: CodeChunk
 "@id": stencila:CodeChunk
 extends: CodeExecutable
 category: code
-role: secondary
+
 status: unstable
 description: A executable chunk of code.
 properties:

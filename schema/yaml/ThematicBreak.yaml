@@ -1,7 +1,7 @@
 title: ThematicBreak
 "@id": stencila:ThematicBreak
 extends: Entity
-role: secondary
+
 status: stable
 category: text
 description: |

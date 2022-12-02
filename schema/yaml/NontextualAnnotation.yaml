@@ -1,7 +1,7 @@
 title: NontextualAnnotation
 "@id": stencila:NontextualAnnotation
 extends: Mark
-role: secondary
+
 status: stable
 category: text
 description: Inline text that has a non-textual annotation.

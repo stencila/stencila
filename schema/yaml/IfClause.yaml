@@ -2,7 +2,7 @@ title: IfClause
 "@id": stencila:IfClause
 category: code
 description: A clause within a `If` node
-role: primary
+
 status: unstable
 extends: CodeExecutable
 properties:

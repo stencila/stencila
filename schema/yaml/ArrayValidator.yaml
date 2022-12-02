@@ -1,7 +1,7 @@
 title: ArrayValidator
 "@id": stencila:ArrayValidator
 extends: Validator
-role: validation
+
 status: unstable
 category: data
 description: A validator specifying constraints on an array node.

@@ -1,7 +1,7 @@
 title: QuoteBlock
 "@id": stencila:QuoteBlock
 extends: Entity
-role: secondary
+
 status: stable
 category: text
 description: |

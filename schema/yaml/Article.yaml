@@ -2,7 +2,7 @@ title: Article
 "@id": schema:Article
 extends: CreativeWork
 category: works
-role: primary
+
 status: stable
 description: An article, including news and scholarly articles.
 $comment: |

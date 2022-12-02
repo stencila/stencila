@@ -2,7 +2,7 @@ title: ImageObject
 "@id": schema:ImageObject
 extends: MediaObject
 category: works
-role: secondary
+
 status: stable
 description: An image file.
 properties:

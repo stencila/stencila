@@ -2,7 +2,7 @@ title: File
 "@id": stencila:File
 extends: CreativeWork
 category: works
-role: primary
+
 status: stable
 description: A file on the filesystem
 properties:

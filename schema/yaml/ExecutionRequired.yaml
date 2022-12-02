@@ -3,7 +3,7 @@ title: ExecutionRequired
 extends: Enumeration
 category: code
 status: stable
-role: secondary
+
 description: Under which circumstances the document node should be automatically executed.
 anyOf:
   - const: "No"

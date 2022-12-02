@@ -1,7 +1,7 @@
 title: CodeFragment
 "@id": stencila:CodeFragment
 extends: CodeStatic
-role: secondary
+
 status: stable
 category: code
 description: Inline code.

@@ -2,7 +2,7 @@ title: Table
 "@id": schema:Table
 extends: CreativeWork
 category: works
-role: primary
+
 status: unstable
 description: A table.
 properties:

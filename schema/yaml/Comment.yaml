@@ -2,7 +2,7 @@ title: Comment
 "@id": schema:Comment
 extends: CreativeWork
 category: works
-role: secondary
+
 status: stable
 description: A comment on an item, e.g on a Article, or SoftwareSourceCode.
 $comment: |

@@ -1,7 +1,7 @@
 title: Button
 "@id": stencila:Button
 extends: CodeExecutable
-role: secondary
+
 status: unstable
 category: code
 description: A button.

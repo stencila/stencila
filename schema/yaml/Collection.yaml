@@ -2,7 +2,7 @@ title: Collection
 "@id": schema:Collection
 extends: CreativeWork
 category: works
-role: secondary
+
 status: stable
 description: A collection of CreativeWorks or other artifacts.
 $comment: |

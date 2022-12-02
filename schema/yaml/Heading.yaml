@@ -1,7 +1,7 @@
 title: Heading
 "@id": stencila:Heading
 extends: Entity
-role: secondary
+
 status: stable
 category: text
 description: A heading.

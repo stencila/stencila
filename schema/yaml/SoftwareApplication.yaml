@@ -2,7 +2,7 @@ title: SoftwareApplication
 "@id": schema:SoftwareApplication
 extends: CreativeWork
 category: works
-role: primary
+
 status: stable
 description: |
   A software application.

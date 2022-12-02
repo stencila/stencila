@@ -2,7 +2,7 @@ title: Styled
 "@id": stencila:Styled
 category: text
 description: A document node that has styling applied to it and/or its content
-role: primary
+
 status: unstable
 extends: CodeExecutable
 properties:

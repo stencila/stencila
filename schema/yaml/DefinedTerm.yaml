@@ -2,7 +2,7 @@ title: DefinedTerm
 "@id": schema:DefinedTerm
 extends: Thing
 status: stable
-role: secondary
+
 category: other
 description: A word, name, acronym, phrase, etc. with a formal definition.
 $comment: |
