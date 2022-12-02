@@ -1,13 +1,13 @@
 title: Grant
-"@id": schema:Grant
+'@id': schema:Grant
 extends: Thing
 
 status: stable
-category: other
+
 description: A grant, typically financial or otherwise quantifiable, of resources.
 properties:
   fundedItems:
-    "@id": schema:fundedItem
+    '@id': schema:fundedItem
     description: Indicates an item funded or sponsored through a Grant.
     $comment: |
       An array because a grant may have more than one funded item.
@@ -15,7 +15,7 @@ properties:
     items:
       $ref: Thing
   sponsors:
-    "@id": schema:sponsor
+    '@id': schema:sponsor
     description: A person or organization that supports a thing through a pledge, promise, or financial contribution.
     $comment: |
       An array because a grant may have more than one sponsor.

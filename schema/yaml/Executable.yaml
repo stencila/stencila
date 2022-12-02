@@ -1,43 +1,43 @@
 title: Executable
-"@id": stencila:Executable
+'@id': stencila:Executable
 extends: Entity
 
 status: stable
-category: code
+
 description: Base type for executable document nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
 properties:
   executionAuto:
-    "@id": stencila:executionAuto
+    '@id': stencila:executionAuto
     description: Under which circumstances the code should be automatically executed.
     $ref: ExecutionAuto
   compileDigest:
-    "@id": stencila:compileDigest
+    '@id': stencila:compileDigest
     description: A digest of the content, semantics and dependencies of the node.
     $ref: ExecutionDigest
   executeDigest:
-    "@id": stencila:executeDigest
+    '@id': stencila:executeDigest
     description: The `compileDigest` of the node when it was last executed.
     $ref: ExecutionDigest
   executionDependencies:
-    "@id": stencila:executionDependencies
+    '@id': stencila:executionDependencies
     description: The upstream dependencies of this node.
     type: array
     items:
       $ref: ExecutionDependency
   executionDependents:
-    "@id": stencila:executionDependents
+    '@id': stencila:executionDependents
     description: The downstream dependents of this node.
     type: array
     items:
       $ref: ExecutionDependent
   executionTags:
-    "@id": stencila:executionTags
+    '@id': stencila:executionTags
     description: Tags in the code which affect its execution
     type: array
     items:
       $ref: ExecutionTag
   executionCount:
-    "@id": stencila:executionCount
+    '@id': stencila:executionCount
     description: A count of the number of times that the node has been executed.
     type: integer
     minimum: 0
@@ -46,27 +46,27 @@ properties:
       Note that this differs to the `execution_count` in Jupyter Notebook format which is
       the "code cell's prompt number" and which resets at the start of each new session.
   executionRequired:
-    "@id": stencila:executionRequired
+    '@id': stencila:executionRequired
     description: Whether, and why, the code requires execution or re-execution.
     $ref: ExecutionRequired
   executionKernel:
-    "@id": stencila:executionKernel
+    '@id': stencila:executionKernel
     description: The id of the kernel that the node was last executed in.
     type: string
   executionStatus:
-    "@id": stencila:executionStatus
+    '@id': stencila:executionStatus
     description: Status of the most recent, including any current, execution.
     $ref: ExecutionStatus
   executionEnded:
-    "@id": stencila:executionEnded
+    '@id': stencila:executionEnded
     description: The timestamp when the last execution ended.
     $ref: Timestamp
   executionDuration:
-    "@id": stencila:executionDuration
+    '@id': stencila:executionDuration
     description: Duration of the last execution.
     $ref: Duration
   errors:
-    "@id": stencila:errors
+    '@id': stencila:errors
     description: Errors when compiling (e.g. syntax errors) or executing the node.
     type: array
     items:

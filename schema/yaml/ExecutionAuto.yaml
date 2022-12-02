@@ -1,24 +1,24 @@
 title: ExecutionAuto
-"@id": stencila:ExecutionAuto
+'@id': stencila:ExecutionAuto
 extends: Enumeration
-category: code
+
 status: stable
 
 description: Under which circumstances the document node should be automatically executed.
 anyOf:
   - const: Never
-    "@id": stencila:executionAutoNever
+    '@id': stencila:executionAutoNever
     description: |
       Never automatically execute the document node. Only execute the when the user explicitly executes
       the specific node or all nodes in the containing document.
   - const: Needed
-    "@id": stencila:executionAutoNeeded
+    '@id': stencila:executionAutoNeeded
     description: |
       Automatically execute the document node when it needs to be: if it is stale and is 
       upstream dependency of a node that has been executed, or is a downstream dependent of a node that
       has been executed.
   - const: Always
-    "@id": stencila:executionAutoAlways
+    '@id': stencila:executionAutoAlways
     description: |
       Always execute the code when one of its dependents is executed, even if it is not stale (i.e. it, or its own dependencies,
       are unchanged since the last time it was executed).

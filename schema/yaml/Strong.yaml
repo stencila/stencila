@@ -1,8 +1,8 @@
 title: Strong
-"@id": stencila:Strong
+'@id': stencila:Strong
 extends: Mark
 
 status: stable
-category: text
+
 description: Strongly emphasised content.
 properties: {}

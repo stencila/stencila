@@ -1,11 +1,11 @@
 title: Time
-"@id": schema:Time
+'@id': schema:Time
 status: stable
-category: data
+
 description: A point in time recurring on multiple days
 properties:
   value:
-    "@id": "schema:value"
+    '@id': 'schema:value'
     description: The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`.
     type: string
     format: time

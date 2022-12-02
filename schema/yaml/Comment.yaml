@@ -1,7 +1,6 @@
 title: Comment
-"@id": schema:Comment
+'@id': schema:Comment
 extends: CreativeWork
-category: works
 
 status: stable
 description: A comment on an item, e.g on a Article, or SoftwareSourceCode.
@@ -14,11 +13,11 @@ $comment: |
   or have their `parentItem` set to the parent comment.
 properties:
   parentItem:
-    "@id": schema:parentItem
+    '@id': schema:parentItem
     description: The parent comment of this comment.
     $ref: Comment
   commentAspect:
-    "@id": stencila:commentAspect
+    '@id': stencila:commentAspect
     description: The part or facet of the item that is being commented on.
     $comment: |
       This propery is analagous to the `reviewAspect` property of the `reviewAspect`

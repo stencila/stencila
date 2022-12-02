@@ -1,7 +1,6 @@
 title: Note
-"@id": stencila:Note
+'@id': stencila:Note
 extends: Entity
-category: text
 
 status: unstable
 description: Additional content which is not part of the main content of a document.
@@ -14,7 +13,7 @@ $comment: |
   - [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)
 properties:
   noteType:
-    "@id": stencila:noteType
+    '@id': stencila:noteType
     description: Determines where the note content is displayed within the document.
     type: string
     enum:
@@ -22,7 +21,7 @@ properties:
       - Endnote
       - Sidenote
   content:
-    "@id": stencila:content
+    '@id': stencila:content
     description: Content of the note, usually a paragraph.
     type: array
     items:

@@ -1,13 +1,13 @@
 title: TimestampValidator
-"@id": stencila:TimestampValidator
+'@id': stencila:TimestampValidator
 extends: Validator
 
 status: stable
-category: data
+
 description: A validator specifying the constraints on a timestamp.
 properties:
   timeUnits:
-    "@id": stencila:timeUnits
+    '@id': stencila:timeUnits
     type: array
     items:
       $ref: TimeUnit
@@ -15,13 +15,13 @@ properties:
     $comment: |
       A timestamp is valid if its `timeUnit` is amongst the `timeUnits` of the validator.
   minimum:
-    "@id": stencila:minimum
+    '@id': stencila:minimum
     $ref: Timestamp
     description: The inclusive lower limit for a timestamp.
     $comment: |
       A timestamp is valid if it is greater than, or exactly equal to, `minimum`.
   maximum:
-    "@id": stencila:maximum
+    '@id': stencila:maximum
     $ref: Timestamp
     description: The inclusive upper limit for a timestamp.
     $comment: |

@@ -1,28 +1,28 @@
 title: CodeExecutable
-"@id": stencila:CodeExecutable
+'@id': stencila:CodeExecutable
 extends: Executable
 
 status: stable
-category: code
+
 description: Base type for executable code nodes (e.g. `CodeChunk`).
 $comment: |
   Adds properties to the base `Executable` node type that are necessary for executable code.
   The added properties are the same as for static code nodes. Both `code` and `programmingLanguage` are required.
 properties:
   code:
-    "@id": stencila:code
+    '@id': stencila:code
     description: The code.
     type: string
   programmingLanguage:
-    "@id": schema:programmingLanguage
+    '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
   guessLanguage:
-    "@id": stencila:guessLanguage
+    '@id': stencila:guessLanguage
     description: Whether the programming language of the code should be guessed based on syntax and variables used
     type: boolean
   mediaType:
-    "@id": schema:encodingFormat
+    '@id': schema:encodingFormat
     aliases:
       - encodingFormat
     description: Media type, typically expressed using a MIME format, of the code.

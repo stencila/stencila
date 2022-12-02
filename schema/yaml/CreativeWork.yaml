@@ -1,7 +1,6 @@
 title: CreativeWork
-"@id": schema:CreativeWork
+'@id': schema:CreativeWork
 extends: Thing
-category: works
 
 status: stable
 description: |
@@ -12,7 +11,7 @@ $comment: |
   and `fundedBy`.
 properties:
   about:
-    "@id": schema:about
+    '@id': schema:about
     description: The subject matter of the content.
     $comment: |
       Consistent with https://schema.org/about, this property allows for
@@ -23,7 +22,7 @@ properties:
     items:
       $ref: ThingTypes
   authors:
-    "@id": schema:author
+    '@id': schema:author
     description: The authors of this creative work.
     allOf:
       - parser: scsi
@@ -33,7 +32,7 @@ properties:
             - $ref: Person
             - $ref: Organization
   comments:
-    "@id": schema:comment
+    '@id': schema:comment
     description: Comments about this creative work.
     type: array
     items:
@@ -41,7 +40,7 @@ properties:
   content:
     # We have added "content" because the existing schema.org property "text" implies
     # only unstructured text content.
-    "@id": stencila:content
+    '@id': stencila:content
     description: The structured content of this creative work c.f. property `text`.
     anyOf:
       - type: array
@@ -49,17 +48,17 @@ properties:
           $ref: Node
       - type: string
   dateCreated:
-    "@id": schema:dateCreated
+    '@id': schema:dateCreated
     description: Date/time of creation.
     allOf:
       - $ref: Date
   dateReceived:
-    "@id": schema:dateReceived
+    '@id': schema:dateReceived
     description: Date/time that work was received.
     allOf:
       - $ref: Date
   dateAccepted:
-    "@id": stencila:dateAccepted
+    '@id': stencila:dateAccepted
     description: Date/time of acceptance.
     $comment: |
       This is not yet a schema.org property but the term is used
@@ -67,12 +66,12 @@ properties:
     allOf:
       - $ref: Date
   dateModified:
-    "@id": schema:dateModified
+    '@id': schema:dateModified
     description: Date/time of most recent modification.
     allOf:
       - $ref: Date
   datePublished:
-    "@id": schema:datePublished
+    '@id': schema:datePublished
     aliases:
       # This assumes that a user specifying `date` means the date published
       # and not the date modified or created.
@@ -81,13 +80,13 @@ properties:
     allOf:
       - $ref: Date
   editors:
-    "@id": schema:editor
+    '@id': schema:editor
     description: People who edited the `CreativeWork`.
     type: array
     items:
       $ref: Person
   funders:
-    "@id": schema:funder
+    '@id': schema:funder
     description: People or organizations that funded the `CreativeWork`.
     type: array
     items:
@@ -95,7 +94,7 @@ properties:
         - $ref: Person
         - $ref: Organization
   fundedBy:
-    "@id": stencila:fundedBy
+    '@id': stencila:fundedBy
     description: Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     $comment: |
       This follows the proposal [here](https://github.com/schemaorg/schemaorg/issues/2258)
@@ -108,7 +107,7 @@ properties:
         - $ref: Grant
         - $ref: MonetaryGrant
   genre:
-    "@id": schema:genre
+    '@id': schema:genre
     description: Genre of the creative work, broadcast channel or group.
     allOf:
       - parser: csi
@@ -116,7 +115,7 @@ properties:
         items:
           type: string
   keywords:
-    "@id": schema:keywords
+    '@id': schema:keywords
     description: |
       Keywords or tags used to describe this content.
       Multiple entries in a keywords list are typically delimited by commas.
@@ -126,12 +125,12 @@ properties:
         items:
           type: string
   isPartOf:
-    "@id": schema:isPartOf
+    '@id': schema:isPartOf
     description: |
       An item or other CreativeWork that this CreativeWork is a part of.
     $ref: CreativeWorkTypes
   licenses:
-    "@id": schema:license
+    '@id': schema:license
     description: |
       License documents that applies to this content, typically indicated by URL.
     type: array
@@ -141,7 +140,7 @@ properties:
         - type: string
           format: uri
   maintainers:
-    "@id": schema:maintainer
+    '@id': schema:maintainer
     description: The people or organizations who maintain this CreativeWork.
     $comment: |
       A maintainer of a Dataset, SoftwareApplication, or other CreativeWork.
@@ -163,7 +162,7 @@ properties:
   parts:
     # The name "parts" seems more intuitive for users and developers than schema.orgs's "hasParts".
     # We provide the latter as an alias.
-    "@id": schema:hasParts
+    '@id': schema:hasParts
     aliases:
       - hasParts
     description: |
@@ -173,14 +172,14 @@ properties:
     items:
       $ref: CreativeWorkTypes
   publisher:
-    "@id": schema:publisher
+    '@id': schema:publisher
     description: |
       A publisher of the CreativeWork.
     anyOf:
       - $ref: Person
       - $ref: Organization
   references:
-    "@id": schema:citation
+    '@id': schema:citation
     aliases:
       - citations
     description: |
@@ -192,13 +191,13 @@ properties:
         - $ref: CreativeWorkTypes
         - type: string
   text:
-    "@id": schema:text
+    '@id': schema:text
     description: The textual content of this creative work.
     type: string
   title:
     # The name "title" is more appropriate to our context than schema.org's "headline".
     # We provide the latter as an alias.
-    "@id": schema:headline
+    '@id': schema:headline
     description: The title of the creative work.
     aliases:
       - headline
@@ -206,7 +205,7 @@ properties:
     items:
       $ref: InlineContent
   version:
-    "@id": schema:version
+    '@id': schema:version
     description: The version of the creative work.
     $comment: |
       In this case `string` is listed as an alternative before `number` to

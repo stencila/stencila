@@ -1,17 +1,16 @@
 title: CodeChunk
-"@id": stencila:CodeChunk
+'@id': stencila:CodeChunk
 extends: CodeExecutable
-category: code
 
 status: unstable
 description: A executable chunk of code.
 properties:
   label:
-    "@id": stencila:label
+    '@id': stencila:label
     description: A short label for the CodeChunk.
     type: string
   caption:
-    "@id": schema:caption
+    '@id': schema:caption
     description: A caption for the CodeChunk.
     $comment: |
       An array of nodes or, to be compatible with https://schema.org/caption, a string.
@@ -21,11 +20,11 @@ properties:
           $ref: BlockContent
       - type: string
   executionPure:
-    "@id": stencila:executionPure
+    '@id': stencila:executionPure
     description: Whether the code should be treated as side-effect free when executed.
     type: boolean
   outputs:
-    "@id": stencila:outputs
+    '@id': stencila:outputs
     description: Outputs from executing the chunk.
     type: array
     items:

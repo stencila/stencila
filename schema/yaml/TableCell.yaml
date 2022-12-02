@@ -1,14 +1,14 @@
 title: TableCell
-"@id": stencila:TableCell
+'@id': stencila:TableCell
 extends: Entity
 
 status: unstable
-category: text
+
 description: |
   A cell within a `Table`.
 properties:
   name:
-    "@id": schema:name
+    '@id': schema:name
     description: The name of the cell.
     $comment: |
       Cell's have an implicit name derived from their position in the table
@@ -16,7 +16,7 @@ properties:
       with an explicit name, e.g. `rate`.
     type: string
   colspan:
-    "@id": stencila:colspan
+    '@id': stencila:colspan
     description: |
       How many columns the cell extends.
     $comment: Based on the HTML `colspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
@@ -25,7 +25,7 @@ properties:
     maximum: 1000
     default: 1
   cellType:
-    "@id": stencila:cellType
+    '@id': stencila:cellType
     description: Indicates whether the cell is a header or data.
     $comment: |
       When `Header`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).
@@ -36,7 +36,7 @@ properties:
       - Header
     default: Data
   rowspan:
-    "@id": stencila:rowspan
+    '@id': stencila:rowspan
     description: How many columns the cell extends.
     $comment: Based on the HTML `rowspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
     type: integer
@@ -44,7 +44,7 @@ properties:
     maximum: 65534
     default: 1
   content:
-    "@id": stencila:content
+    '@id': stencila:content
     description: Contents of the table cell.
     anyOf:
       - type: array

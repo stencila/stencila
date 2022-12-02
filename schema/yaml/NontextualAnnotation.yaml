@@ -1,9 +1,9 @@
 title: NontextualAnnotation
-"@id": stencila:NontextualAnnotation
+'@id': stencila:NontextualAnnotation
 extends: Mark
 
 status: stable
-category: text
+
 description: Inline text that has a non-textual annotation.
 $comment: |
   Use cases include annotating spelling errors, denoting proper names in Chinese text,

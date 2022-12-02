@@ -1,6 +1,6 @@
 title: Array
-"@id": stencila:Array
-category: data
+'@id': stencila:Array
+
 status: stable
 description: A value comprised of other primitive nodes
 $comment: |

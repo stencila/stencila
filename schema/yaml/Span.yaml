@@ -1,13 +1,13 @@
 title: Span
-"@id": stencila:Span
-category: text
+'@id': stencila:Span
+
 description: Styled inline content
 
 status: unstable
 extends: Styled
 properties:
   content:
-    "@id": "stencila:content"
+    '@id': 'stencila:content'
     description: The content within the span
     type: array
     items:

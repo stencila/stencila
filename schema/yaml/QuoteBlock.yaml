@@ -1,21 +1,21 @@
 title: QuoteBlock
-"@id": stencila:QuoteBlock
+'@id': stencila:QuoteBlock
 extends: Entity
 
 status: stable
-category: text
+
 description: |
   A section quoted from somewhere else.
 properties:
   cite:
-    "@id": stencila:cite
+    '@id': stencila:cite
     description: The source of the quote.
     anyOf:
       - $ref: Cite
       - type: string
         format: uri
   content:
-    "@id": "stencila:content"
+    '@id': 'stencila:content'
     description: The content of the quote.
     type: array
     items:

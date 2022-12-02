@@ -1,9 +1,9 @@
 title: SoftwareSession
-"@id": stencila:SoftwareSession
+'@id': stencila:SoftwareSession
 extends: Thing
 
 status: experimental
-category: code
+
 description: |
   Definition of a compute session, including its software and compute resource
   requirements and status.
@@ -19,22 +19,22 @@ $comment: |
   to use the cpu and memory limits.
 properties:
   environment:
-    "@id": stencila:environment
+    '@id': stencila:environment
     description: The software environment to execute this session in.
     allOf:
       - $ref: SoftwareEnvironment
   dateStart:
-    "@id": schema:startDate
+    '@id': schema:startDate
     description: The date-time that the session began.
     allOf:
       - $ref: Date
   dateEnd:
-    "@id": schema:endDate
+    '@id': schema:endDate
     description: The date-time that the session ended.
     allOf:
       - $ref: Date
   status:
-    "@id": stencila:sessionStatus
+    '@id': stencila:sessionStatus
     description: The status of the session (starting, stopped, etc).
     enum:
       - Unknown
@@ -44,67 +44,67 @@ properties:
       - Stopped
       - Failed
   clientsRequest:
-    "@id": stencila:clientsRequest
+    '@id': stencila:clientsRequest
     description: The maximum number of concurrent clients requested for the session.
     type: number
     minimum: 0
   clientsLimit:
-    "@id": stencila:clientsLimit
+    '@id': stencila:clientsLimit
     description: The maximum number of concurrent clients the session is limited to.
     type: number
     minimum: 0
   durationRequest:
-    "@id": stencila:durationRequest
+    '@id': stencila:durationRequest
     description: The maximum duration (seconds) requested for the session.
     type: number
     minimum: 0
   durationLimit:
-    "@id": stencila:durationLimit
+    '@id': stencila:durationLimit
     description: The maximum duration (seconds) the session is limited to.
     type: number
     minimum: 0
   timeoutRequest:
-    "@id": stencila:timeoutRequest
+    '@id': stencila:timeoutRequest
     description: The inactivity timeout (seconds) requested for the session.
     type: number
     minimum: 0
   timeoutLimit:
-    "@id": stencila:timeoutLimit
+    '@id': stencila:timeoutLimit
     description: The inactivity timeout (seconds) the session is limited to.
     type: number
     minimum: 0
   cpuRequest:
-    "@id": stencila:cpuRequest
+    '@id': stencila:cpuRequest
     description: The amount of CPU requested for the session.
     type: number
     minimum: 0
   cpuLimit:
-    "@id": stencila:cpuLimit
+    '@id': stencila:cpuLimit
     description: The amount of CPU the session is limited to.
     type: number
     minimum: 0
   memoryRequest:
-    "@id": stencila:memoryRequest
+    '@id': stencila:memoryRequest
     description: The amount of memory requested for the session.
     type: number
     minimum: 0
   memoryLimit:
-    "@id": stencila:memoryLimit
+    '@id': stencila:memoryLimit
     description: The amount of memory that the session is limited to.
     type: number
     minimum: 0
   networkTransferRequest:
-    "@id": stencila:networkTransferRequest
+    '@id': stencila:networkTransferRequest
     description: The amount of network data transfer (GiB) requested for the session.
     type: number
     minimum: 0
   networkTransferLimit:
-    "@id": stencila:networkTransferLimit
+    '@id': stencila:networkTransferLimit
     description: The amount of network data transfer (GiB) that the session is limited to.
     type: number
     minimum: 0
   volumeMounts:
-    "@id": stencila:volumeMounts
+    '@id': stencila:volumeMounts
     description: Volumes to mount in the session.
     type: array
     items:

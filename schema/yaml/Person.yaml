@@ -1,33 +1,33 @@
 title: Person
-"@id": schema:Person
+'@id': schema:Person
 extends: Thing
 
 status: stable
-category: other
+
 description: A person (alive, dead, undead, or fictional).
 parser: person
 properties:
   address:
-    "@id": schema:address
+    '@id': schema:address
     description: Postal address for the person.
     anyOf:
       - $ref: PostalAddress
       - type: string
   affiliations:
-    "@id": schema:affiliation
+    '@id': schema:affiliation
     description: Organizations that the person is affiliated with.
     type: array
     items:
       $ref: Organization
   emails:
-    "@id": schema:email
+    '@id': schema:email
     description: Email addresses for the person.
     type: array
     items:
       type: string
       format: email
   familyNames:
-    "@id": schema:familyName
+    '@id': schema:familyName
     aliases:
       - familyName
       - surname
@@ -42,7 +42,7 @@ properties:
         items:
           type: string
   funders:
-    "@id": schema:funder
+    '@id': schema:funder
     description: |
       A person or organization that supports (sponsors) something through
       some kind of financial contribution.
@@ -52,7 +52,7 @@ properties:
         - $ref: Organization
         - $ref: Person
   givenNames:
-    "@id": schema:givenName
+    '@id': schema:givenName
     aliases:
       - firstName
       - firstNames
@@ -66,29 +66,29 @@ properties:
         items:
           type: string
   honorificPrefix:
-    "@id": schema:honorificPrefix
+    '@id': schema:honorificPrefix
     aliases:
       - prefix
     description: An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
     type: string
   honorificSuffix:
-    "@id": schema:honorificSuffix
+    '@id': schema:honorificSuffix
     aliases:
       - suffix
     description: An honorific suffix after a person's name such as MD/PhD/MSCSW.
     type: string
   jobTitle:
-    "@id": schema:jobTitle
+    '@id': schema:jobTitle
     description: The job title of the person (for example, Financial Manager).
     type: string
   memberOf:
-    "@id": schema:memberOf
+    '@id': schema:memberOf
     description: An organization (or program membership) to which this person belongs.
     type: array
     items:
       $ref: Organization
   telephoneNumbers:
-    "@id": schema:telephone
+    '@id': schema:telephone
     aliases:
       - telephone
     description: Telephone numbers for the person.

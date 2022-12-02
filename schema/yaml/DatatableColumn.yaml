@@ -1,18 +1,18 @@
 title: DatatableColumn
-"@id": stencila:DatatableColumn
+'@id': stencila:DatatableColumn
 extends: Thing
 
 status: unstable
-category: data
+
 description: A column of data within a Datatable.
 properties:
   validator:
-    "@id": stencila:validator
+    '@id': stencila:validator
     description: The validator to use to validate data in the column.
     allOf:
       - $ref: ArrayValidator
   values:
-    "@id": stencila:values
+    '@id': stencila:values
     description: The data values of the column.
     $comment: |
       Previously, any `Node` type was allowed in values. However, for some implementations

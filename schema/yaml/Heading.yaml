@@ -1,9 +1,9 @@
 title: Heading
-"@id": stencila:Heading
+'@id': stencila:Heading
 extends: Entity
 
 status: stable
-category: text
+
 description: A heading.
 $comment: |
   Analogues of `Delete` in other schema include:
@@ -12,14 +12,14 @@ $comment: |
     - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)
 properties:
   depth:
-    "@id": stencila:depth
+    '@id': stencila:depth
     description: The depth of the heading.
     type: integer
     default: 1
     minimum: 1
     maximum: 6
   content:
-    "@id": stencila:content
+    '@id': stencila:content
     description: Content of the heading.
     type: array
     items:

@@ -1,6 +1,6 @@
 title: String
-"@id": schema:Text
-category: data
+'@id': schema:Text
+
 status: stable
 description: A value comprised of a string of characters
 type: string

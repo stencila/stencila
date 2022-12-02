@@ -1,9 +1,9 @@
 title: ContactPoint
-"@id": schema:ContactPoint
+'@id': schema:ContactPoint
 extends: Thing
 
 status: stable
-category: other
+
 description: A contact point, usually within an organization.
 $comment:
   This is an implementation of schema.org [`ContactPoint`](https://schema.org/ContactPoint).
@@ -16,7 +16,7 @@ $comment:
   and the HTML5 [`<address>`](https://dev.w3.org/html5/html-author/#the-address-element) element.
 properties:
   availableLanguages:
-    "@id": schema:availableLanguage
+    '@id': schema:availableLanguage
     description: |
       Languages (human not programming) in which it is possible to communicate
       with the organization/department etc.
@@ -24,14 +24,14 @@ properties:
     items:
       type: string
   emails:
-    "@id": schema:email
+    '@id': schema:email
     description: Email address for correspondence.
     type: array
     items:
       type: string
       format: email
   telephoneNumbers:
-    "@id": schema:telephone
+    '@id': schema:telephone
     aliases:
       - telephone
     description: Telephone numbers for the contact point.
@@ -45,4 +45,4 @@ examples:
       - Māori
     emails:
       - welcome@example.org
-    telephone: "00641234567"
+    telephone: '00641234567'

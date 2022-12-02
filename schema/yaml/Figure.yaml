@@ -1,13 +1,12 @@
 title: Figure
-"@id": stencila:Figure
+'@id': stencila:Figure
 extends: CreativeWork
-category: works
 
 status: unstable
 description: Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 properties:
   caption:
-    "@id": schema:caption
+    '@id': schema:caption
     description: A caption for the figure.
     $comment: |
       An array of nodes or, to be compatible with https://schema.org/caption,
@@ -18,6 +17,6 @@ properties:
           $ref: BlockContent
       - type: string
   label:
-    "@id": stencila:label
+    '@id': stencila:label
     description: A short label for the figure.
     type: string

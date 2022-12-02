@@ -1,40 +1,40 @@
 title: Parameter
-"@id": stencila:Parameter
+'@id': stencila:Parameter
 extends: Executable
 
 status: unstable
-category: code
+
 description: A parameter of a document.
 properties:
   name:
-    "@id": schema:name
+    '@id': schema:name
     description: The name of the parameter.
     type: string
-    pattern: "[a-zA-Z][a-zA-Z0-9_]*"
+    pattern: '[a-zA-Z][a-zA-Z0-9_]*'
     $comment: |
       This regex allows for snake_case and camelCase names but excludes
       PascalCase for names.
   label:
-    "@id": stencila:label
+    '@id': stencila:label
     description: A short label for the parameter.
     type: string
   value:
-    "@id": schema:value
+    '@id': schema:value
     description: The current value of the parameter.
     allOf:
       - $ref: Node
   default:
-    "@id": schema:defaultValue
+    '@id': schema:defaultValue
     description: The default value of the parameter.
     allOf:
       - $ref: Node
   validator:
-    "@id": stencila:validator
+    '@id': stencila:validator
     description: The validator that the value is validated against.
     allOf:
       - $ref: ValidatorTypes
   hidden:
-    "@id": stencila:hidden
+    '@id': stencila:hidden
     description: Whether the parameter should be hidden.
     type: boolean
     default: false
@@ -42,7 +42,7 @@ properties:
       For HTML renderings of a document it is often desirable to hide parameters of a
       document that are already represented in the URL of the document.
   derivedFrom:
-    "@id": stencila:derivedFrom
+    '@id': stencila:derivedFrom
     description: The dotted path to the object (e.g. a database table column) that the parameter should be derived from
     type: string
 required:

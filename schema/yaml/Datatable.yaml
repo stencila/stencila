@@ -1,13 +1,12 @@
 title: Datatable
-"@id": stencila:Datatable
+'@id': stencila:Datatable
 extends: CreativeWork
-category: works
 
 status: unstable
 description: A table of data.
 properties:
   columns:
-    "@id": stencila:columns
+    '@id': stencila:columns
     description: The columns of data.
     type: array
     items:

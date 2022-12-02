@@ -1,6 +1,6 @@
 title: Object
-"@id": stencila:Object
-category: data
+'@id': stencila:Object
+
 status: stable
 description: A value comprised of keyed primitive nodes.
 $comment: |

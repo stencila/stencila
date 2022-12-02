@@ -1,21 +1,21 @@
 title: CallArgument
-"@id": stencila:CallArgument
-category: code
+'@id': stencila:CallArgument
+
 description: The value of a `Parameter` to call a document with
 
 status: unstable
 extends: Parameter
 properties:
   code:
-    "@id": stencila:code
+    '@id': stencila:code
     description: The code to be evaluated for the parameter.
     type: string
   programmingLanguage:
-    "@id": schema:programmingLanguage
+    '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
   guessLanguage:
-    "@id": stencila:guessLanguage
+    '@id': stencila:guessLanguage
     description: Whether the programming language of the code should be guessed based on syntax and variables used
     type: boolean
 $comment: |

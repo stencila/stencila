@@ -1,13 +1,13 @@
 title: CodeExpression
-"@id": stencila:CodeExpression
+'@id': stencila:CodeExpression
 extends: CodeExecutable
 
 status: unstable
-category: code
+
 description: An executable programming code expression.
 properties:
   output:
-    "@id": stencila:output
+    '@id': stencila:output
     description: The value of the expression when it was last evaluated.
     allOf:
       - $ref: Node

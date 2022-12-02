@@ -1,9 +1,8 @@
 title: DefinedTerm
-"@id": schema:DefinedTerm
+'@id': schema:DefinedTerm
 extends: Thing
 status: stable
 
-category: other
 description: A word, name, acronym, phrase, etc. with a formal definition.
 $comment: |
   Often used in the context of category or subject classification,  glossaries or dictionaries, product or creative work types, etc.
@@ -11,7 +10,7 @@ $comment: |
   description to provide the definition of the term.
 properties:
   termCode:
-    "@id": schema:termCode
+    '@id': schema:termCode
     description: A code that identifies this DefinedTerm within a DefinedTermSet
     type: string
 required:

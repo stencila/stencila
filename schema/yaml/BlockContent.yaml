@@ -1,5 +1,5 @@
 title: BlockContent
-category: text
+
 status: stable
 description: Union type for valid block content.
 anyOf:

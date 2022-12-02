@@ -1,13 +1,13 @@
 title: CodeError
-"@id": stencila:CodeError
+'@id': stencila:CodeError
 extends: Entity
 
 status: unstable
-category: code
+
 description: An error that occurred when parsing, compiling or executing a Code node.
 properties:
   errorType:
-    "@id": stencila:errorType
+    '@id': stencila:errorType
     description: The type of error e.g. "SyntaxError", "ZeroDivisionError".
     $comment: |
       Many languages have the concept of alternative types of errors.
@@ -16,13 +16,13 @@ properties:
       information that maybe useful to the user attempting to resolve the error.
     type: string
   errorMessage:
-    "@id": stencila:errorMessage
+    '@id': stencila:errorMessage
     aliases:
       - message
     description: The error message or brief description of the error.
     type: string
   stackTrace:
-    "@id": stencila:stackTrace
+    '@id': stencila:stackTrace
     aliases:
       - trace
     description: Stack trace leading up to the error.

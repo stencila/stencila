@@ -1,9 +1,9 @@
 title: Emphasis
-"@id": stencila:Emphasis
+'@id': stencila:Emphasis
 extends: Mark
 
 status: stable
-category: text
+
 description: Emphasised content.
 $comment: |
   Analogues of `Delete` in other schema include:
@@ -15,7 +15,7 @@ properties: {}
 examples:
   - type: Paragraph
     content:
-      - "The following content has extra "
+      - 'The following content has extra '
       - type: Emphasis
         content:
           - emphasis

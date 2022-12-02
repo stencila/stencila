@@ -1,7 +1,6 @@
 title: BooleanValidator
-"@id": stencila:BooleanValidator
+'@id': stencila:BooleanValidator
 extends: Validator
-category: data
 
 status: unstable
 description: A schema specifying that a node must be a boolean value.

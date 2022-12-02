@@ -1,9 +1,9 @@
 title: IntegerValidator
-"@id": stencila:IntegerValidator
+'@id': stencila:IntegerValidator
 extends: NumberValidator
 
 status: unstable
-category: data
+
 description: A validator specifying the constraints on an integer node.
 $comment: |
   A node will be valid if it is a number with no fractional part and meets any additional constraints,

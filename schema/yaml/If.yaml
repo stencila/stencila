@@ -1,13 +1,13 @@
 title: If
-"@id": stencila:If
-category: code
+'@id': stencila:If
+
 description: Show and execute alternative content conditional upon an executed expression
 
 status: unstable
 extends: Executable
 properties:
   clauses:
-    "@id": "stencila:clauses"
+    '@id': 'stencila:clauses'
     description: The clauses making up the `If` node
     type: array
     items:

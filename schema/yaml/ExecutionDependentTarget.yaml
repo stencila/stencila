@@ -1,5 +1,5 @@
 title: ExecutionDependentTarget
-category: code
+
 status: unstable
 description: Node types that can be execution dependents
 anyOf:

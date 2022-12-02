@@ -1,7 +1,6 @@
 title: PublicationIssue
-"@id": schema:PublicationIssue
+'@id': schema:PublicationIssue
 extends: CreativeWork
-category: works
 
 status: stable
 description: |
@@ -9,25 +8,25 @@ description: |
   volume, often numbered.
 properties:
   issueNumber:
-    "@id": schema:issueNumber
+    '@id': schema:issueNumber
     description: Identifies the issue of publication; for example, "iii" or "2".
     anyOf:
       - type: integer
       - type: string
   pageStart:
-    "@id": schema:pageStart
+    '@id': schema:pageStart
     description: The page on which the issue starts; for example "135" or "xiii".
     anyOf:
       - type: integer
       - type: string
   pageEnd:
-    "@id": schema:pageEnd
+    '@id': schema:pageEnd
     description: The page on which the issue ends; for example "138" or "xvi".
     anyOf:
       - type: integer
       - type: string
   pagination:
-    "@id": schema:pagination
+    '@id': schema:pagination
     description: |
       Any description of pages that is not separated into pageStart and pageEnd;
       for example, "1-6, 9, 55".
