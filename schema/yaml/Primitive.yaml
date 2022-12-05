@@ -1,5 +1,4 @@
 title: Primitive
-
 status: stable
 description: Union type for all primitives values
 $comment: |

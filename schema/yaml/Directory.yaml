@@ -1,7 +1,6 @@
 title: Directory
 '@id': stencila:Directory
 extends: Collection
-
 status: stable
 description: A directory on the filesystem
 properties:

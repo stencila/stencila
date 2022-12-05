@@ -1,9 +1,7 @@
 title: TupleValidator
 '@id': stencila:TupleValidator
 extends: Validator
-
 status: unstable
-
 description: A validator specifying constraints on an array of heterogeneous items.
 properties:
   items:

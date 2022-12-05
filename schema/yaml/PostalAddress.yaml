@@ -1,9 +1,7 @@
 title: PostalAddress
 '@id': schema:PostalAddress
 extends: ContactPoint
-
 status: stable
-
 description: A physical mailing address.
 properties:
   streetAddress:

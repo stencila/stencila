@@ -1,9 +1,7 @@
 title: DatatableColumn
 '@id': stencila:DatatableColumn
 extends: Thing
-
 status: unstable
-
 description: A column of data within a Datatable.
 properties:
   validator:

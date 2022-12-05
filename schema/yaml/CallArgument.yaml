@@ -1,8 +1,6 @@
 title: CallArgument
 '@id': stencila:CallArgument
-
 description: The value of a `Parameter` to call a document with
-
 status: unstable
 extends: Parameter
 properties:

@@ -1,8 +1,6 @@
 title: Call
 '@id': stencila:Call
-
 description: Call another document, optionally with arguments, and include its executed content
-
 status: unstable
 extends: Include
 properties:

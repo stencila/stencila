@@ -1,9 +1,7 @@
 title: Function
 '@id': stencila:Function
 extends: Entity
-
 status: experimental
-
 description: A function with a name, which might take Parameters and return a value of a certain type.
 properties:
   name:

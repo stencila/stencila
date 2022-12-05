@@ -2,7 +2,6 @@ title: DefinedTerm
 '@id': schema:DefinedTerm
 extends: Thing
 status: stable
-
 description: A word, name, acronym, phrase, etc. with a formal definition.
 $comment: |
   Often used in the context of category or subject classification,  glossaries or dictionaries, product or creative work types, etc.

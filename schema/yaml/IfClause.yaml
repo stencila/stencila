@@ -1,8 +1,6 @@
 title: IfClause
 '@id': stencila:IfClause
-
 description: A clause within a `If` node
-
 status: unstable
 extends: CodeExecutable
 properties:

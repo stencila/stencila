@@ -1,6 +1,5 @@
 title: 'Null'
 '@id': stencila:Null
-
 status: stable
 description: The null value
 type: 'null'

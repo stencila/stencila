@@ -1,8 +1,6 @@
 title: Styled
 '@id': stencila:Styled
-
 description: A document node that has styling applied to it and/or its content
-
 status: unstable
 extends: CodeExecutable
 properties:

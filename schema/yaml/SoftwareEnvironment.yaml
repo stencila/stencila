@@ -1,9 +1,7 @@
 title: SoftwareEnvironment
 '@id': stencila:SoftwareEnvironment
 extends: Thing
-
 status: experimental
-
 description: A computational environment.
 properties:
   extends:

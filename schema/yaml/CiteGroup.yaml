@@ -1,7 +1,6 @@
 title: CiteGroup
 '@id': stencila:CiteGroup
 extends: Entity
-
 status: unstable
 description: A group of Cite nodes.
 $comment: |

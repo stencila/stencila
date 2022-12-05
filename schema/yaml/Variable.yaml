@@ -1,9 +1,7 @@
 title: Variable
 '@id': stencila:Variable
 extends: Entity
-
 status: unstable
-
 description: A variable representing a name / value pair.
 properties:
   namespace:

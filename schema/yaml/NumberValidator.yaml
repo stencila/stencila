@@ -1,9 +1,7 @@
 title: NumberValidator
 '@id': stencila:NumberValidator
 extends: Validator
-
 status: unstable
-
 description: A validator specifying the constraints on a numeric node.
 $comment: |
   A node will be valid if it is a number that meets the `maximum`, `multipleOf` etc properties.

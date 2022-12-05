@@ -1,7 +1,6 @@
 title: Time
 '@id': schema:Time
 status: stable
-
 description: A point in time recurring on multiple days
 properties:
   value:

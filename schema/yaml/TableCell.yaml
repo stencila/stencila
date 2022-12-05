@@ -1,9 +1,7 @@
 title: TableCell
 '@id': stencila:TableCell
 extends: Entity
-
 status: unstable
-
 description: |
   A cell within a `Table`.
 properties:

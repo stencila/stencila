@@ -1,9 +1,7 @@
 title: Heading
 '@id': stencila:Heading
 extends: Entity
-
 status: stable
-
 description: A heading.
 $comment: |
   Analogues of `Delete` in other schema include:

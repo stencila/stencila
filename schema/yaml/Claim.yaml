@@ -1,7 +1,6 @@
 title: Claim
 '@id': schema:Claim
 extends: CreativeWork
-
 status: unstable
 description: A claim represents specific reviewable facts or statements.
 $comment: |

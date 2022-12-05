@@ -1,9 +1,7 @@
 title: CodeExpression
 '@id': stencila:CodeExpression
 extends: CodeExecutable
-
 status: unstable
-
 description: An executable programming code expression.
 properties:
   output:

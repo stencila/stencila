@@ -1,9 +1,7 @@
 title: DateValidator
 '@id': stencila:DateValidator
 extends: Validator
-
 status: stable
-
 description: A validator specifying the constraints on a date.
 properties:
   minimum:

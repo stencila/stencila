@@ -1,9 +1,7 @@
 title: Delete
 '@id': stencila:Delete
 extends: Mark
-
 status: deprecated
-
 description: Content that is marked for deletion
 $comment: Deprecated. Replaced by `Strikeout`.
 properties: {}

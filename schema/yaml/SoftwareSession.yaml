@@ -1,9 +1,7 @@
 title: SoftwareSession
 '@id': stencila:SoftwareSession
 extends: Thing
-
 status: experimental
-
 description: |
   Definition of a compute session, including its software and compute resource
   requirements and status.

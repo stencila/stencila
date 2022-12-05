@@ -1,9 +1,7 @@
 title: Quote
 '@id': stencila:Quote
 extends: Mark
-
 status: stable
-
 description: Inline, quoted content.
 properties:
   cite:

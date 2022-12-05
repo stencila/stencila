@@ -1,7 +1,6 @@
 title: Datatable
 '@id': stencila:Datatable
 extends: CreativeWork
-
 status: unstable
 description: A table of data.
 properties:

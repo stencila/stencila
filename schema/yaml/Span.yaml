@@ -1,8 +1,6 @@
 title: Span
 '@id': stencila:Span
-
 description: Styled inline content
-
 status: unstable
 extends: Styled
 properties:

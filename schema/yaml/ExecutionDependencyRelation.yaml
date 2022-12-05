@@ -1,9 +1,7 @@
 title: ExecutionDependencyRelation
 '@id': stencila:ExecutionDependencyRelation
 extends: Enumeration
-
 status: stable
-
 description: The relation between a node and its execution dependency.
 anyOf:
   - const: Calls

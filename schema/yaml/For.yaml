@@ -1,8 +1,6 @@
 title: For
 '@id': stencila:For
-
 description: Repeat a block content for each item in an array
-
 status: unstable
 extends: CodeExecutable
 properties:

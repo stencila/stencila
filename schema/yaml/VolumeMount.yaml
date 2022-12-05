@@ -1,9 +1,7 @@
 title: VolumeMount
 '@id': stencila:VolumeMount
 extends: Thing
-
 status: experimental
-
 description: |
   Describes a volume mount from a host to container.
 properties:

@@ -1,9 +1,7 @@
 title: Parameter
 '@id': stencila:Parameter
 extends: Executable
-
 status: unstable
-
 description: A parameter of a document.
 properties:
   name:

@@ -1,7 +1,6 @@
 title: Note
 '@id': stencila:Note
 extends: Entity
-
 status: unstable
 description: Additional content which is not part of the main content of a document.
 $comment: |

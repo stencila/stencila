@@ -1,8 +1,6 @@
 title: Include
 '@id': stencila:Include
-
 description: Include content from an external source (e.g. file, URL).
-
 status: unstable
 extends: Executable
 properties:

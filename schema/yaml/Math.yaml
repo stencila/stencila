@@ -1,9 +1,7 @@
 title: Math
 '@id': stencila:Math
 extends: Entity
-
 status: stable
-
 description: A mathematical variable or equation.
 $comment: |
   This is a base type for `MathFragment` and `MathBlock` and should not

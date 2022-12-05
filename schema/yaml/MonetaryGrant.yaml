@@ -1,9 +1,7 @@
 title: MonetaryGrant
 '@id': schema:MonetaryGrant
 extends: Grant
-
 status: stable
-
 description: A monetary grant.
 properties:
   amounts:

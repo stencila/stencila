@@ -1,9 +1,7 @@
 title: Strikeout
 '@id': stencila:Strikeout
 extends: Mark
-
 status: stable
-
 description: Content that is marked as struck out
 $comment: |
   Analogues of `Strikeout` in other schema include:

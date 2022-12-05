@@ -1,7 +1,6 @@
 title: Table
 '@id': schema:Table
 extends: CreativeWork
-
 status: unstable
 description: A table.
 properties:
