@@ -79,7 +79,7 @@
     "@stencil/router": "2.0.0-2",
     "@stencil/store": "1.5.0",
     "@stencila/brand": "0.7.26",
-    "@stencila/components": "0.50.3",
+    "@stencila/components": "0.55.0",
     "@stencila/schema": "1.12.0",
     "@stencila/style-stencila": "0.27.1",
     "debounce": "1.2.1",
