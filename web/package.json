@@ -75,7 +75,7 @@
     "fast-deep-equal": "^3.1.3",
     "grapheme-splitter": "^1.0.4",
     "html-fragment": "^1.1.2",
-    "json5": "^2.2.1",
+    "json5": "^2.2.2",
     "lit": "^2.3.1",
     "nanoid": "^4.0.0",
     "prosemirror-commands": "^1.3.1",
