@@ -18,7 +18,7 @@
   "devDependencies": {
     "@types/jest": "27.4.0",
     "@types/json-schema": "7.0.9",
-    "@types/tmp": "0.2.1",
+    "@types/tmp": "0.2.3",
     "cargo-cp-artifact": "0.1.4",
     "jest": "27.0.6",
     "json-schema-to-typescript": "10.1.4",
