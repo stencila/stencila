@@ -12,4 +12,4 @@ fs-utils = { path = "../fs-utils" }
 http-utils = { path = "../http-utils" }
 key-utils = { path = "../key-utils" }
 stencila-schema = { path = "../schema" }
-webbrowser = "0.7.1"
+webbrowser = "0.8.3"
