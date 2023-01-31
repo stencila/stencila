@@ -1,9 +1,0 @@
-{
-  "type": "Article",
-  "content": [
-    {
-      "type": "Include",
-      "source": "heading.json"
-    }
-  ]
-}

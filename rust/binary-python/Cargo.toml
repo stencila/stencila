@@ -1,9 +1,0 @@
-[package]
-name = "binary-python"
-description = "A binary specification for Python"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-binary = { path = "../binary", features = ["download-zip"] }
-binary-asdf = { path = "../binary-asdf" }

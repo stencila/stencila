@@ -1,7 +1,0 @@
-CHANGELOG.md
-dist
-docs/reference/cli
-docs/reference/schema
-node_modules
-target
-components.d.ts

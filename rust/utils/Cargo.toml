@@ -1,7 +1,0 @@
-[package]
-name = "utils"
-description = "General utitlity functions and macros"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]

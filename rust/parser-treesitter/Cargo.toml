@@ -1,9 +1,0 @@
-[package]
-name = "parser-treesitter"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-parser = { path = "../parser" }
-path-utils = { path = "../path-utils" }
-tree-sitter = "0.20.8"

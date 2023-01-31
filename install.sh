@@ -3,7 +3,7 @@
 # A script to download and install the latest (or specified) version
 # of the Stencila CLI on MacOS or Linux
 #  
-# First arg:  desired version e.g. v0.42.1
+# First arg:  desired version e.g. v2.1.0
 #             defaults to latest
 # Second arg: desired install location, e.g. /bin
 #             defaults to /usr/local/bin on MacOD, to ~/.local/bin on Linux

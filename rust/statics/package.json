@@ -1,7 +1,0 @@
-{
-  "description": "JavaScript, CSS and other static assets embedded into binaries",
-  "dependencies": {
-    "themes": "file:../../themes",
-    "web": "file:../../web"
-  }
-}

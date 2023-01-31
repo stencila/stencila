@@ -1,9 +1,0 @@
-[package]
-name = "kernel-store"
-description = "A kernel that simply evaluates JSON and JSON5 and stores nodes"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-kernel = { path = "../kernel" }
-node-transform = { path = "../node-transform" }

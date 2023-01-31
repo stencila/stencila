@@ -1,5 +1,0 @@
-.venv
-node_modules
-package-lock.json
-poetry.lock
-renv

@@ -1,7 +1,0 @@
-[FORMAT]
-
-max-line-length=120
-
-[MASTER]
-
-ignore-patterns=types.py

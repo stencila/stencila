@@ -1,9 +1,0 @@
-[package]
-name = "math-utils"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-common = { path = "../common" }
-asciimath-rs = { version = "0.6.2" }
-latex2mathml = { version = "0.2.3" }

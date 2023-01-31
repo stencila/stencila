@@ -1,5 +1,0 @@
-# @assigns var1 only
-# @uses var2
-# @impure
-
-ignored = 1
