@@ -1,0 +1,5 @@
+title: Boolean
+'@id': schema:Boolean
+status: stable
+description: A value that is either true or false
+type: boolean

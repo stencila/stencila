@@ -1,0 +1,42 @@
+title: InlineContent
+status: stable
+description: Union type for valid inline content.
+$comment: |
+  The order of these types is important because it determines the
+  order of attempted coercion (this is particularly important for primitive types).
+anyOf:
+  # Entity types in alphabetical order
+  - $ref: AudioObject
+  - $ref: Button
+  - $ref: Cite
+  - $ref: CiteGroup
+  - $ref: CodeExpression
+  - $ref: CodeFragment
+  - $ref: Delete
+  - $ref: Emphasis
+  - $ref: ImageObject
+  - $ref: Link
+  - $ref: MathFragment
+  - $ref: NontextualAnnotation
+  - $ref: Note
+  - $ref: Parameter
+  - $ref: Quote
+  - $ref: Span
+  - $ref: Strikeout
+  - $ref: Strong
+  - $ref: Subscript
+  - $ref: Superscript
+  - $ref: Underline
+  - $ref: VideoObject
+  # Primitive types in the order that coercion from
+  # string should be attempted (for example by Ajv, or by serde_json).
+  - $ref: 'Null'
+  - $ref: Boolean
+  - $ref: Integer
+  - $ref: Number
+  - $ref: String
+  - $ref: Date
+  - $ref: Time
+  - $ref: DateTime
+  - $ref: Timestamp
+  - $ref: Duration

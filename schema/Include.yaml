@@ -1,0 +1,34 @@
+title: Include
+'@id': stencila:Include
+description: Include content from an external source (e.g. file, URL).
+status: unstable
+extends: Executable
+properties:
+  source:
+    '@id': stencila:source
+    description: The external source of the content, a file path or URL.
+    type: string
+  mediaType:
+    '@id': schema:encodingFormat
+    aliases:
+      - encodingFormat
+    description: Media type of the source content.
+    type: string
+    $comment: |
+      Typically expressed using a file name extensions (e.g. `md`) or a
+      MIME type (e.g. `text/md`).
+  select:
+    '@id': stencila:select
+    description: A query to select a subset of content from the source
+    type: string
+  content:
+    '@id': stencila:content
+    description: The structured content decoded from the source.
+    type: array
+    items:
+      $ref: BlockContent
+    $comment: |
+      Assumes that included content will be block content i.e. that there will be limited
+      instances where a user would want to use an `Include` node to transclude inline content.
+required:
+  - source

@@ -1,0 +1,18 @@
+title: IfClause
+'@id': stencila:IfClause
+description: A clause within a `If` node
+status: unstable
+extends: CodeExecutable
+properties:
+  isActive:
+    '@id': stencila:isActive
+    description: Whether this clause is the active clause in the parent `If` node
+    type: boolean
+  content:
+    '@id': stencila:content
+    description: The content to render if the result is true-thy
+    type: array
+    items:
+      $ref: BlockContent
+required:
+  - content

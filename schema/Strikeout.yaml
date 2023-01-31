@@ -1,0 +1,21 @@
+title: Strikeout
+'@id': stencila:Strikeout
+extends: Mark
+status: stable
+description: Content that is marked as struck out
+$comment: |
+  Analogues of `Strikeout` in other schema include:
+    - HTML [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del)
+    - JATS XML [`<strike>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/strike.html)
+    - MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete)
+    - Pandoc [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258)
+  Supersedes the `Delete` inline content type (the name "Strikeout" is less ambiguous than "Delete").
+properties: {}
+examples:
+  - type: Paragraph
+    content:
+      - 'The following is '
+      - type: Strikeout
+        content:
+          - marked as struck out
+      - .

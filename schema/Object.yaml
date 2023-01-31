@@ -1,0 +1,11 @@
+title: Object
+'@id': stencila:Object
+status: stable
+description: A value comprised of keyed primitive nodes.
+$comment: |
+  Note that keys are strings and values are restricted to primitive node
+  types including `Object` (ie. an `Object` as a value of another `Object`) and `Array`.
+type: object
+# This allows for any keyed values as long as they are `Primitive`
+additionalProperties:
+  $ref: Primitive

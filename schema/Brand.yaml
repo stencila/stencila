@@ -1,0 +1,33 @@
+title: Brand
+'@id': schema:Brand
+extends: Thing
+status: stable
+description: |
+  A brand used by an organization or person for labeling a product,
+  product group, or similar.
+properties:
+  logo:
+    '@id': schema:logo
+    description: A logo associated with the brand.
+    anyOf:
+      - $ref: ImageObject
+      - type: string
+        format: uri
+  reviews:
+    '@id': schema:review
+    description: Reviews of the brand.
+    type: array
+    items:
+      type: string
+required:
+  - name
+examples:
+  - type: Brand
+    name: XYZ
+    logo:
+      type: ImageObject
+      url: https://example.com/xyz.png
+      caption: Logo of Brand YXZ
+    reviews:
+      - Rather average product
+      - Not sure if would use again

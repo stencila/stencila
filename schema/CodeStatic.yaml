@@ -1,0 +1,30 @@
+title: CodeStatic
+'@id': stencila:CodeStatic
+extends: Entity
+status: stable
+description: Base type for non-executable code nodes (e.g. `CodeBlock`).
+$comment: |
+  The most important, and only required, property of a `CodeStatic` node is `code`, a `string` of the source code.
+  There are no restrictions on the length or content of `code` and it is possible for it to be syntactically
+  invalid for the specified `programmingLanguage`.
+properties:
+  code:
+    '@id': stencila:code
+    description: The code.
+    type: string
+  programmingLanguage:
+    '@id': schema:programmingLanguage
+    description: The programming language of the code.
+    type: string
+  mediaType:
+    '@id': schema:encodingFormat
+    aliases:
+      - encodingFormat
+    description: Media type, typically expressed using a MIME format, of the code.
+    $comment: |
+      This property allows the differentiation of formats using the same programming language
+      or variants of a programming language. An example is using `programmingLanguage` "json" and
+      `encodingFormat` "application/ld+json" for JSON-LD code examples.
+    type: string
+required:
+  - code

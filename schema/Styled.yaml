@@ -1,0 +1,19 @@
+title: Styled
+'@id': stencila:Styled
+description: A document node that has styling applied to it and/or its content
+status: unstable
+extends: CodeExecutable
+properties:
+  css:
+    '@id': stencila:css
+    description: A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
+    type: string
+  classes:
+    '@id': stencila:classes
+    description: A list of class names associated with the document node
+    type: array
+    items:
+      type: string
+    $comment: |
+      Analogous to the [`classList` property of an `Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)
+      in the Web API.

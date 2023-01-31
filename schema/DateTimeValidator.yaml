@@ -1,0 +1,18 @@
+title: DateTimeValidator
+'@id': stencila:DateTimeValidator
+extends: Validator
+status: stable
+description: A validator specifying the constraints on a date-time.
+properties:
+  minimum:
+    '@id': stencila:minimum
+    $ref: DateTime
+    description: The inclusive lower limit for a date-time.
+    $comment: |
+      A date-time is valid if it is greater than, or exactly equal to, `minimum`.
+  maximum:
+    '@id': stencila:maximum
+    $ref: DateTime
+    description: The inclusive upper limit for a date-time.
+    $comment: |
+      A date-time is valid if it is less than, or exactly equal to, `maximum`.

@@ -1,0 +1,41 @@
+title: Math
+'@id': stencila:Math
+extends: Entity
+status: stable
+description: A mathematical variable or equation.
+$comment: |
+  This is a base type for `MathFragment` and `MathBlock` and should not
+  normally be instantiated.
+  This type has a similar structure and purpose to `CodeStatic` which is a base type
+  for `CodeFragment`, `CodeBlock` etc.
+properties:
+  mathLanguage:
+    '@id': stencila:mathLanguage
+    description: The language used for the equation e.g tex, mathml, asciimath.
+    type: string
+  code:
+    '@id': stencila:code
+    description: The code of the equation in the `mathLanguage`.
+    type: string
+  compileDigest:
+    '@id': stencila:compileDigest
+    description: A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML
+    $ref: ExecutionDigest
+  errors:
+    '@id': stencila:errors
+    description: Errors that occurred when parsing the math equation.
+    $comment: |
+      This property is an array of strings. Compare this to `CodeChunk.errors`
+      which is an array of `CodeError` nodes. Strings are considered to
+      be sufficient for math parsing errors which usually won't have stack traces,
+      line numbers etc.
+    type: array
+    items:
+      type: string
+  mathml:
+    '@id': stencila:mathml
+    description: The MathML transpiled from the `code`
+    type: string
+required:
+  - mathLanguage
+  - code

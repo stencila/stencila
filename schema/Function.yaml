@@ -1,0 +1,27 @@
+title: Function
+'@id': stencila:Function
+extends: Entity
+status: experimental
+description: A function with a name, which might take Parameters and return a value of a certain type.
+properties:
+  name:
+    '@id': schema:name
+    description: The name of the function.
+    type: string
+    pattern: '[a-z_][A-z0-9_]*'
+    $comment: |
+      The name property is not required; this allows for anonymous functions
+      (although these are not yet implemented in Stencila interpreters).
+      The regex allows for snake_case and camelCase names but excludes
+      PascalCase for parameter names.
+  parameters:
+    '@id': stencila:parameters
+    description: The parameters of the function.
+    type: array
+    items:
+      $ref: Parameter
+  returns:
+    '@id': stencila:returns
+    description: The return type of the function.
+    allOf:
+      - $ref: ValidatorTypes

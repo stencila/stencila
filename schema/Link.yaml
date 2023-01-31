@@ -1,0 +1,64 @@
+title: Link
+'@id': stencila:Link
+extends: Entity
+status: unstable
+description: A hyperlink to other pages, sections within the same document, resources, or any URL.
+$comment: |
+  Analogues of `Link` in other schema include:
+    - HTML [`<a>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a)
+    - JATS XML [`<ext-link>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/ext-link.html)
+    - MDAST [`Link`](https://github.com/syntax-tree/mdast#link)
+    - OpenDocument [`<text:a>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415212_253892949)
+    - Pandoc [`Link`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L270)
+properties:
+  content:
+    '@id': stencila:content
+    description: The textual content of the link.
+    type: array
+    items:
+      $ref: InlineContent
+  exportFrom:
+    '@id': stencila:exportFrom
+    aliases:
+      - export
+    description: |
+      A compilation directive giving the name of the variable to export
+      to the link target.
+    type: string
+  importTo:
+    '@id': stencila:importTo
+    aliases:
+      - import
+    description: |
+      A compilation directive giving the name of the variable to import
+      the link target as.
+    type: string
+  target:
+    '@id': stencila:target
+    description: The target of the link.
+    type: string
+    # See http://json-schema.org/draft-06/json-schema-release-notes.html#formats-uri-vs-uri-reference
+    # for the difference between `uri` and `uri-reference`. The latter is more permissive, and is
+    # used here because it allows for intra-doc links using a #fragment only.
+    format: uri-reference
+  title:
+    '@id': schema:headline
+    description: A title for the link.
+    $comment: |
+      This property is analogous to the HTML `title` global attribute which
+      represents ["advisory information related to the element"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)
+    type: string
+  rel:
+    '@id': schema:linkRelationship
+    description:
+      The relation between the target and the current thing.
+      # See https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types
+    type: string
+required:
+  - content
+  - target
+examples:
+  - type: Link
+    content:
+      - Stencila’s website
+    target: https://stenci.la

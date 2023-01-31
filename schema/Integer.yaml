@@ -1,0 +1,5 @@
+title: Integer
+'@id': schema:Integer
+status: stable
+description: A value that is a integer
+type: integer

@@ -1,0 +1,25 @@
+title: Directory
+'@id': stencila:Directory
+extends: Collection
+status: stable
+description: A directory on the filesystem
+properties:
+  path:
+    '@id': stencila:path
+    description: The path (absolute or relative) of the file on the filesystem
+    type: string
+  parts:
+    '@id': schema:hasParts
+    aliases:
+      - hasParts
+    description: The files and other directories that are within this directory
+    $comment: |
+      A restriction of `CreativeWork.parts` to only allow `File` and `Directory` parts.
+    type: array
+    items:
+      anyOf:
+        - $ref: File
+        - $ref: Directory
+required:
+  - path
+  - name
