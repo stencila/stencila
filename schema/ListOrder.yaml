@@ -10,4 +10,4 @@ anyOf:
   - const: Descending
     '@id': schema:ItemListOrderDescending
   - const: Unordered
-    '@id': schema:ItemListUnordered
+    '@id': schema:ItemListOrderUnordered
