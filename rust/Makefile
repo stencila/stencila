@@ -48,7 +48,12 @@ build-musl:
 install:
 	cargo install --path stencila
 
+# Generate Rust schema types
+schema:
+	cargo run -p schema-gen -- --rust
+.PHONY: schema
+
 # Generate docs
 # Runs internal document generation crates
 docs:
-	
+	cargo run -p schema-gen -- --docs

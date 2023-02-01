@@ -202,7 +202,7 @@ impl Schema {
         let Some(description) = &mut self.description else {
             bail!("schema does not have a description")
         };
-        *description = description.replace("\n", " ");
+        *description = description.replace('\n', " ");
 
         let required = self.required.iter().flatten().collect_vec();
         if let Some(properties) = &mut self.properties {
@@ -217,6 +217,7 @@ impl Schema {
         Ok(())
     }
 
+    /// Extend the schema by inheriting properties of it's parent
     fn extend(&self, name: &str, schemas: &mut HashMap<String, Schema>) -> Result<()> {
         let Some(extends) = &self.extends else {
             return Ok(())
@@ -297,14 +298,14 @@ impl Schemas {
     pub fn extend(&mut self) -> Result<()> {
         let mut schemas = self.schemas.clone();
         for (name, schema) in &self.schemas {
-            schema.extend(&name, &mut schemas)?;
+            schema.extend(name, &mut schemas)?;
         }
         self.schemas = schemas;
 
         Ok(())
     }
 
-    /// Expand the schema with synthetic types based on ancestor type
+    /// Expand the schema with synthetic types based on ancestor types
     ///
     /// Only does this for the union types that are referred to elsewhere in the
     /// schema, not for every base type.
@@ -325,9 +326,10 @@ impl Schemas {
             title.clone(),
             Schema {
                 title: Some(title),
-                description: Some(format!(
+                description: Some(
                     "Union type for all types in this schema, including primitives and entities"
-                )),
+                        .to_string(),
+                ),
                 any_of: Some(any_of),
                 ..Default::default()
             },

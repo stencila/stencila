@@ -95,7 +95,7 @@ impl Schemas {
         };
 
         let rust = if schema.any_of.is_some() {
-            Self::rust_any_of(dest, &schema).await?
+            Self::rust_any_of(dest, schema).await?
         } else if schema.r#type.is_none() {
             Self::rust_struct(dest, title, schema).await?
         } else if let Some(r#type) = &schema.r#type {
@@ -119,7 +119,7 @@ impl Schemas {
             _ => module,
         };
 
-        let path = dest.join(format!("{}.rs", module));
+        let path = dest.join(format!("{module}.rs"));
         if !path.exists() {
             write(path, rust).await?;
         }
@@ -230,7 +230,7 @@ pub struct {title} {{
         } else if let Some(r#ref) = &schema.r#ref {
             (r#ref.to_string(), false, true)
         } else if schema.any_of.is_some() {
-            (Self::rust_any_of(dest, &schema).await?, false, true)
+            (Self::rust_any_of(dest, schema).await?, false, true)
         } else if let Some(title) = &schema.title {
             (title.to_string(), false, true)
         } else if let Some(r#const) = &schema.r#const {
