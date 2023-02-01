@@ -18,17 +18,14 @@ $comment: |
 properties:
   items:
     '@id': 'schema:itemListElement'
-    description: The items in the list
+    description: The items in the list.
     type: array
     items:
       $ref: ListItem
   order:
     '@id': 'schema:itemListOrder'
-    description: Type of ordering.
-    enum:
-      - Ascending
-      - Descending
-      - Unordered
-    default: unordered
+    description: The ordering of the list.
+    $ref: ListOrder
 required:
   - items
+  - order
