@@ -1,6 +1,6 @@
-title: ExecutionDependentTarget
+title: ExecutionDependantTarget
 status: unstable
-description: Node types that can be execution dependents
+description: Node types that can be execution dependants
 anyOf:
   - $ref: Call
   - $ref: CodeChunk

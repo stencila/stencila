@@ -13,11 +13,11 @@ anyOf:
     '@id': stencila:executionAutoNeeded
     description: |
       Automatically execute the document node when it needs to be: if it is stale and is 
-      upstream dependency of a node that has been executed, or is a downstream dependent of a node that
+      upstream dependency of a node that has been executed, or is a downstream dependant of a node that
       has been executed.
   - const: Always
     '@id': stencila:executionAutoAlways
     description: |
-      Always execute the code when one of its dependents is executed, even if it is not stale (i.e. it, or its own dependencies,
+      Always execute the code when one of its dependants is executed, even if it is not stale (i.e. it, or its own dependencies,
       are unchanged since the last time it was executed).
 default: Needed

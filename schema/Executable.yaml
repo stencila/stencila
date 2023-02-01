@@ -22,12 +22,12 @@ properties:
     type: array
     items:
       $ref: ExecutionDependency
-  executionDependents:
-    '@id': stencila:executionDependents
-    description: The downstream dependents of this node.
+  executionDependants:
+    '@id': stencila:executionDependants
+    description: The downstream dependants of this node.
     type: array
     items:
-      $ref: ExecutionDependent
+      $ref: ExecutionDependant
   executionTags:
     '@id': stencila:executionTags
     description: Tags in the code which affect its execution

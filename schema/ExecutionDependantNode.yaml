@@ -1,4 +1,4 @@
-title: ExecutionDependentNode
+title: ExecutionDependantNode
 status: unstable
 description: Node types that can be execution dependencies
 anyOf:
