@@ -17,12 +17,7 @@ properties:
   deriveAction:
     '@id': stencila:deriveAction
     description: The action (create, update or delete) to derive for the form
-    enum:
-      - Create
-      - Update
-      - Delete
-      - UpdateOrDelete
-    default: Create
+    $ref: FormDeriveAction
   deriveItem:
     '@id': stencila:deriveItem
     description: An identifier for the item to be the target of Update or Delete actions

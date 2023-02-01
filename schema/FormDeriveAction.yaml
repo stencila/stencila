@@ -1,0 +1,15 @@
+title: FormDeriveAction
+'@id': stencila:FormDeriveAction
+extends: Enumeration
+status: stable
+description: Indicates the action (create, update or delete) to derive for a `Form`.
+default: Create
+anyOf:
+  - const: Create
+    '@id': stencila::FormDeriveActionCreate
+  - const: Update
+    '@id': stencila:FormDeriveActionUpdate
+  - const: Delete
+    '@id': stencila:FormDeriveActionDelete
+  - const: UpdateOrDelete
+    '@id': stencila:FormDeriveActionUpdateOrDelete
