@@ -16,11 +16,11 @@
     "docs": "typedoc src/index.ts"
   },
   "devDependencies": {
-    "@types/jest": "27.4.0",
+    "@types/jest": "27.5.2",
     "@types/json-schema": "7.0.9",
     "@types/tmp": "0.2.1",
     "cargo-cp-artifact": "0.1.4",
-    "jest": "27.0.6",
+    "jest": "27.5.1",
     "json-schema-to-typescript": "10.1.4",
     "tmp": "0.2.1",
     "ts-jest": "27.0.4",
