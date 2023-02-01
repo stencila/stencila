@@ -27,7 +27,7 @@ properties:
   validator:
     '@id': stencila:validator
     description: The validator that the value is validated against.
-    $ref: ValidatorTypes
+    $ref: Validator
   hidden:
     '@id': stencila:hidden
     description: Whether the parameter should be hidden.

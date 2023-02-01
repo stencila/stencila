@@ -1,8 +1,17 @@
 title: Validator
-'@id': stencila:Validator
-extends: Entity
-status: unstable
-description: A base for all validator types.
-$comment: |
-  The main purpose of this type is to obtain a generated union type
-  for all validators.
+status: stable
+description: Union type for validators.
+anyOf:
+  - $ref: ArrayValidator
+  - $ref: BooleanValidator
+  - $ref: ConstantValidator
+  - $ref: DateTimeValidator
+  - $ref: DateValidator
+  - $ref: DurationValidator
+  - $ref: EnumValidator
+  - $ref: IntegerValidator
+  - $ref: NumberValidator
+  - $ref: StringValidator
+  - $ref: TimeValidator
+  - $ref: TimestampValidator
+  - $ref: TupleValidator

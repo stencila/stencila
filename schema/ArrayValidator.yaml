@@ -1,13 +1,13 @@
 title: ArrayValidator
 '@id': stencila:ArrayValidator
-extends: Validator
+extends: Entity
 status: unstable
 description: A validator specifying constraints on an array node.
 properties:
   itemsValidator:
     '@id': stencila:itemsValidator
     description: Another validator node specifying the constraints on all items in the array.
-    $ref: ValidatorTypes
+    $ref: Validator
   itemsNullable:
     '@id': stencila:itemsNullable
     description: Whether items can have the value `Node::Null`
@@ -15,7 +15,7 @@ properties:
   contains:
     '@id': stencila:contains
     description: An array node is valid if at least one of its items is valid against the `contains` schema.
-    $ref: ValidatorTypes
+    $ref: Validator
   minItems:
     '@id': stencila:minItems
     description: An array node is valid if its size is greater than, or equal to, this value.

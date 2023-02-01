@@ -1,6 +1,6 @@
 title: TupleValidator
 '@id': stencila:TupleValidator
-extends: Validator
+extends: Entity
 status: unstable
 description: A validator specifying constraints on an array of heterogeneous items.
 properties:
@@ -9,4 +9,4 @@ properties:
     description: An array of validators specifying the constraints on each successive item in the array.
     type: array
     items:
-      $ref: ValidatorTypes
+      $ref: Validator

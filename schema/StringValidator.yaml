@@ -1,6 +1,6 @@
 title: StringValidator
 '@id': stencila:StringValidator
-extends: Validator
+extends: Entity
 status: unstable
 description: A schema specifying constraints on a string node.
 $comment: |

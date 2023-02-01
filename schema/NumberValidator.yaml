@@ -1,6 +1,6 @@
 title: NumberValidator
 '@id': stencila:NumberValidator
-extends: Validator
+extends: Entity
 status: unstable
 description: A validator specifying the constraints on a numeric node.
 $comment: |

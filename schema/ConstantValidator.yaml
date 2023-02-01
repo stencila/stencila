@@ -1,6 +1,6 @@
 title: ConstantValidator
 '@id': stencila:ConstantValidator
-extends: Validator
+extends: Entity
 status: unstable
 description: A validator specifying a constant value that a node must have.
 $comment: |

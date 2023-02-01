@@ -1,6 +1,6 @@
 title: TimestampValidator
 '@id': stencila:TimestampValidator
-extends: Validator
+extends: Entity
 status: stable
 description: A validator specifying the constraints on a timestamp.
 properties:
