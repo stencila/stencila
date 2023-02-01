@@ -275,12 +275,14 @@ pub struct {title} {{
             return Ok(name);
         }
 
-        let description = schema.description.clone().unwrap_or_else(|| {
+        let description = if let Some(title) = &schema.title {
+            schema.description.clone().unwrap_or(title.clone())
+        } else {
             alternatives
                 .iter()
                 .map(|variant| format!("[`{variant}`]"))
                 .join(" or ")
-        });
+        };
 
         let alternatives = alternatives
             .into_iter()
@@ -336,7 +338,7 @@ use crate::prelude::*;
 pub enum {name} {{
     {variants}
 }}
-    "#
+"#
         );
         write(path, rust).await?;
 
