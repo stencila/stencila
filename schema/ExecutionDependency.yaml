@@ -17,6 +17,10 @@ properties:
     $comment: |
       An array of four zero indexed integers: [startRow, startColumn, endRow, endColumn]
     type: array
+    items:
+      type: integer
+    minItems: 4
+    maxItems: 4
 required:
   - dependencyRelation
   - dependencyNode
