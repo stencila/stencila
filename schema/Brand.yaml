@@ -21,13 +21,3 @@ properties:
       type: string
 required:
   - name
-examples:
-  - type: Brand
-    name: XYZ
-    logo:
-      type: ImageObject
-      url: https://example.com/xyz.png
-      caption: Logo of Brand YXZ
-    reviews:
-      - Rather average product
-      - Not sure if would use again

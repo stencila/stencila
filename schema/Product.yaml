@@ -34,14 +34,3 @@ properties:
     '@id': schema:productID
     description: Product identification code.
     type: string
-examples:
-  - type: Product
-    brand:
-      type: Brand
-      name: Astro
-    name: Astrolabe
-    logo:
-      type: ImageObject
-      contentUrl: http://www.product-astrolabe.com/logo.png
-      caption: Astrolabe Logo
-    productID: AA55

@@ -11,11 +11,3 @@ $comment: |
     - Pandoc [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258)
   Supersedes the `Delete` inline content type (the name "Strikeout" is less ambiguous than "Delete").
 properties: {}
-examples:
-  - type: Paragraph
-    content:
-      - 'The following is '
-      - type: Strikeout
-        content:
-          - marked as struck out
-      - .

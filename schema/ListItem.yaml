@@ -39,18 +39,3 @@ properties:
     '@id': schema:position
     description: The position of the item in a series or sequence of items.
     type: integer
-examples:
-  - type: ListItem
-    content:
-      - List Item Content
-  - type: ListItem
-    content:
-      - List Item Content
-      - type: List
-        order: ordered
-        items:
-          - Nested Item One
-  - type: ListItem
-    isChecked: true
-    content:
-      - Completed todo item

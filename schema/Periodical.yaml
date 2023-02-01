@@ -26,11 +26,3 @@ properties:
     type: array
     items:
       type: string
-examples:
-  - type: Periodical
-    title: Nature
-    issns:
-      - 0028-0836
-      - 1476-4687
-    dateStart: 1869-11-04
-    url: https://www.nature.com/

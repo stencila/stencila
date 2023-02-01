@@ -40,14 +40,3 @@ properties:
       Any description of pages that is not separated into pageStart and pageEnd;
       for example, "1-6, 9, 55".
     type: string
-examples:
-  - type: Article
-    title: 'Recherches sur les substances radioactives'
-    authors:
-      - type: 'Person'
-        honorificPrefix: Dr
-        givenNames: ['Marie', 'Skłodowska']
-        familyNames: ['Curie']
-        honorificSuffix: PhD
-    content:
-      - Le présent travail a pour but d'exposer les recherches que je poursuis depuis

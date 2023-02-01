@@ -32,9 +32,3 @@ properties:
     anyOf:
       - type: integer
       - type: string
-examples:
-  - type: PublicationVolume
-    volumeNumber: 571
-    isPartOf:
-      type: Periodical
-      title: Nature

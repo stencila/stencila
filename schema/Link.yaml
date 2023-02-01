@@ -57,8 +57,3 @@ properties:
 required:
   - content
   - target
-examples:
-  - type: Link
-    content:
-      - Stencila’s website
-    target: https://stenci.la

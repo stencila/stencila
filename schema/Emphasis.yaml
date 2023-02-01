@@ -10,10 +10,3 @@ $comment: |
     - MDAST [`Emphasis`](https://github.com/syntax-tree/mdast#emphasis)
     - Pandoc [`Emph`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L256)
 properties: {}
-examples:
-  - type: Paragraph
-    content:
-      - 'The following content has extra '
-      - type: Emphasis
-        content:
-          - emphasis

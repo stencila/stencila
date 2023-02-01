@@ -28,7 +28,3 @@ properties:
     type: array
     items:
       $ref: Node
-examples:
-  - type: CodeChunk
-    programmingLanguage: python
-    text: print('Hello world!')

@@ -19,17 +19,3 @@ properties:
       $ref: InlineContent
 required:
   - content
-examples:
-  - type: Paragraph
-    content:
-      - Some text content representing ideas expressed as words.
-  - type: Paragraph
-    content:
-      - Some text with some
-      - type: Emphasis
-        content:
-          - emphasized words
-      - ' and '
-      - type: Strong
-        content:
-          - some strongly emphasized words

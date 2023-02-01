@@ -36,11 +36,3 @@ properties:
     type: array
     items:
       type: string
-examples:
-  - type: ContactPoint
-    availableLanguages:
-      - English
-      - Māori
-    emails:
-      - welcome@example.org
-    telephone: '00641234567'
