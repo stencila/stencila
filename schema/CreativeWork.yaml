@@ -23,13 +23,11 @@ properties:
   authors:
     '@id': schema:author
     description: The authors of this creative work.
-    allOf:
-      - parser: scsi
-      - type: array
-        items:
-          anyOf:
-            - $ref: Person
-            - $ref: Organization
+    type: array
+    items:
+      anyOf:
+        - $ref: Person
+        - $ref: Organization
   comments:
     '@id': schema:comment
     description: Comments about this creative work.
@@ -49,26 +47,22 @@ properties:
   dateCreated:
     '@id': schema:dateCreated
     description: Date/time of creation.
-    allOf:
-      - $ref: Date
+    $ref: Date
   dateReceived:
     '@id': schema:dateReceived
     description: Date/time that work was received.
-    allOf:
-      - $ref: Date
+    $ref: Date
   dateAccepted:
     '@id': stencila:dateAccepted
     description: Date/time of acceptance.
     $comment: |
       This is not yet a schema.org property but the term is used
       [in Dublin Core](http://purl.org/dc/terms/dateAccepted).
-    allOf:
-      - $ref: Date
+    $ref: Date
   dateModified:
     '@id': schema:dateModified
     description: Date/time of most recent modification.
-    allOf:
-      - $ref: Date
+    $ref: Date
   datePublished:
     '@id': schema:datePublished
     aliases:
@@ -76,8 +70,7 @@ properties:
       # and not the date modified or created.
       - date
     description: Date of first publication.
-    allOf:
-      - $ref: Date
+    $ref: Date
   editors:
     '@id': schema:editor
     description: People who edited the `CreativeWork`.
@@ -108,21 +101,17 @@ properties:
   genre:
     '@id': schema:genre
     description: Genre of the creative work, broadcast channel or group.
-    allOf:
-      - parser: csi
-      - type: array
-        items:
-          type: string
+    type: array
+    items:
+      type: string
   keywords:
     '@id': schema:keywords
     description: |
       Keywords or tags used to describe this content.
       Multiple entries in a keywords list are typically delimited by commas.
-    allOf:
-      - parser: csi
-      - type: array
-        items:
-          type: string
+    type: array
+    items:
+      type: string
   isPartOf:
     '@id': schema:isPartOf
     description: |

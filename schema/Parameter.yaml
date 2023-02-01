@@ -19,18 +19,15 @@ properties:
   value:
     '@id': schema:value
     description: The current value of the parameter.
-    allOf:
-      - $ref: Node
+    $ref: Node
   default:
     '@id': schema:defaultValue
     description: The default value of the parameter.
-    allOf:
-      - $ref: Node
+    $ref: Node
   validator:
     '@id': stencila:validator
     description: The validator that the value is validated against.
-    allOf:
-      - $ref: ValidatorTypes
+    $ref: ValidatorTypes
   hidden:
     '@id': stencila:hidden
     description: Whether the parameter should be hidden.

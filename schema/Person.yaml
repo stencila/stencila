@@ -34,11 +34,9 @@ properties:
       - lastNames
     description: Family name. In the U.S., the last name of a person.
     $comment: This can be used along with givenName instead of the name property.
-    allOf:
-      - parser: ssi
-      - type: array
-        items:
-          type: string
+    type: array
+    items:
+      type: string
   funders:
     '@id': schema:funder
     description: |
@@ -54,15 +52,11 @@ properties:
     aliases:
       - firstName
       - firstNames
-      # It is necessary to specify this alias because of use of allOf
-      - givenName
     description: Given name. In the U.S., the first name of a person.
     $comment: This can be used along with familyName instead of the name property.
-    allOf:
-      - parser: ssi
-      - type: array
-        items:
-          type: string
+    type: array
+    items:
+      type: string
   honorificPrefix:
     '@id': schema:honorificPrefix
     aliases:

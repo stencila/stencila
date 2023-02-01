@@ -23,8 +23,7 @@ properties:
   value:
     '@id': schema:value
     description: The value of the variable.
-    allOf:
-      - $ref: Node
+    $ref: Node
 required:
   - namespace
   - name
