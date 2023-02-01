@@ -1,7 +1,8 @@
 title: Entity
 '@id': stencila:Entity
 status: stable
-description: The most simple compound (ie. non-atomic) type.
+abstract: true
+description: Abstract base type for compound (ie. non-atomic) nodes.
 $comment: |
   This type exists mainly to have a more simple base class than schema.org's `Thing`.
   This schema includes special properties that are analogous to JSON-LDs `@type` and `@id`.

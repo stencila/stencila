@@ -2,7 +2,8 @@ title: Executable
 '@id': stencila:Executable
 extends: Entity
 status: stable
-description: Base type for executable document nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
+abstract: true
+description: Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
 properties:
   executionAuto:
     '@id': stencila:executionAuto

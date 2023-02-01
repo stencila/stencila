@@ -153,6 +153,12 @@ pub struct Schema {
     /// The title of the schema that this schema extends
     pub extends: Option<String>,
 
+    /// Whether the schema is only an abstract base for other schemas
+    /// 
+    /// Types are usually not generated for abstract schemas.
+    #[serde(default)]
+    pub r#abstract: bool,
+
     /// Stencila derived properties
     /// Whether this is a property schema and is required (is in the `required` keyword)
     #[serde(skip)]
@@ -314,7 +320,7 @@ impl Schemas {
         let title = "Node".to_string();
         let mut any_of = Vec::new();
         for (name, schema) in &self.schemas {
-            if schema.any_of.is_none() {
+            if !schema.r#abstract && schema.any_of.is_none() {
                 any_of.push(Schema {
                     r#ref: Some(name.to_string()),
                     ..Default::default()

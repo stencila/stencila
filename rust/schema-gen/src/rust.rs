@@ -94,7 +94,9 @@ impl Schemas {
             bail!("Schema has no title");
         };
 
-        let rust = if schema.any_of.is_some() {
+        let rust = if schema.r#abstract {
+            return Ok(());
+        } else if schema.any_of.is_some() {
             Self::rust_any_of(dest, schema).await?
         } else if schema.r#type.is_none() {
             Self::rust_struct(dest, title, schema).await?

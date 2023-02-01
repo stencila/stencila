@@ -2,7 +2,8 @@ title: CodeStatic
 '@id': stencila:CodeStatic
 extends: Entity
 status: stable
-description: Base type for non-executable code nodes (e.g. `CodeBlock`).
+abstract: true
+description: Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
 $comment: |
   The most important, and only required, property of a `CodeStatic` node is `code`, a `string` of the source code.
   There are no restrictions on the length or content of `code` and it is possible for it to be syntactically

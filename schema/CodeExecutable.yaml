@@ -2,7 +2,8 @@ title: CodeExecutable
 '@id': stencila:CodeExecutable
 extends: Executable
 status: stable
-description: Base type for executable code nodes (e.g. `CodeChunk`).
+abstract: true
+description: Abstract base type for executable code nodes (e.g. `CodeChunk`).
 $comment: |
   Adds properties to the base `Executable` node type that are necessary for executable code.
   The added properties are the same as for static code nodes. Both `code` and `programmingLanguage` are required.
