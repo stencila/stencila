@@ -16,6 +16,6 @@ properties:
     description: The contents of the paragraph.
     type: array
     items:
-      $ref: InlineContent
+      $ref: Inline
 required:
   - content

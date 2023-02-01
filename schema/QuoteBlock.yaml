@@ -17,6 +17,6 @@ properties:
     description: The content of the quote.
     type: array
     items:
-      $ref: BlockContent
+      $ref: Block
 required:
   - content

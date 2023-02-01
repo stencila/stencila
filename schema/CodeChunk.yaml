@@ -16,7 +16,7 @@ properties:
     anyOf:
       - type: array
         items:
-          $ref: BlockContent
+          $ref: Block
       - type: string
   executionPure:
     '@id': stencila:executionPure

@@ -6,7 +6,7 @@ description: A contact point, usually within an organization.
 $comment:
   This is an implementation of schema.org [`ContactPoint`](https://schema.org/ContactPoint).
   It extends schema.org `ContactPoint` by, adding a `content` property which must be
-  an array of [`BlockContent`](./BlockContent), as well as the properties added by
+  an array of [`Block`](./Block), as well as the properties added by
   [`CreativeWork`](./CreativeWork) which it extends.
 
   `ContactPoint` is analogous, and structurally similar to, the JATS XML

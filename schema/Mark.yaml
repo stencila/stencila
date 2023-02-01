@@ -11,6 +11,6 @@ properties:
     description: The content that is marked.
     type: array
     items:
-      $ref: InlineContent
+      $ref: Inline
 required:
   - content

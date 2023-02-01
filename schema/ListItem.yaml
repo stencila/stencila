@@ -20,10 +20,10 @@ properties:
     anyOf:
       - type: array
         items:
-          $ref: BlockContent
+          $ref: Block
       - type: array
         items:
-          $ref: InlineContent
+          $ref: Inline
   isChecked:
     '@id': stencila:isChecked
     description: A flag to indicate if this list item is checked.

@@ -9,6 +9,6 @@ properties:
     description: The content within the span
     type: array
     items:
-      $ref: InlineContent
+      $ref: Inline
 required:
   - content

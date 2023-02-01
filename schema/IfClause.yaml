@@ -13,6 +13,6 @@ properties:
     description: The content to render if the result is true-thy
     type: array
     items:
-      $ref: BlockContent
+      $ref: Block
 required:
   - content

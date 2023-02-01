@@ -24,7 +24,7 @@ properties:
     description: Content of the note, usually a paragraph.
     type: array
     items:
-      $ref: BlockContent
+      $ref: Block
     $comment: |
       Most notes will have a single paragraph but could have multiple
       paragraphs, tables and even figures.

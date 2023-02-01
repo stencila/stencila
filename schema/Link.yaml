@@ -16,7 +16,7 @@ properties:
     description: The textual content of the link.
     type: array
     items:
-      $ref: InlineContent
+      $ref: Inline
   exportFrom:
     '@id': stencila:exportFrom
     aliases:

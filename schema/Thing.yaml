@@ -15,7 +15,7 @@ properties:
     description: A description of the item.
     type: array
     items:
-      $ref: BlockContent
+      $ref: Block
   identifiers:
     '@id': schema:identifier
     description: Any kind of identifier for any kind of Thing.

@@ -21,6 +21,6 @@ properties:
     description: Content of the heading.
     type: array
     items:
-      $ref: InlineContent
+      $ref: Inline
 required:
   - content

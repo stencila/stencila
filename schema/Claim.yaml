@@ -26,7 +26,7 @@ properties:
     description: Content of the claim, usually a single paragraph.
     type: array
     items:
-      $ref: BlockContent
+      $ref: Block
     $comment: |
       Most claims will have a single paragraph but could have multiple
       paragraphs, tables and even figures.

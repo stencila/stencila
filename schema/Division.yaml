@@ -9,6 +9,6 @@ properties:
     description: The content within the division
     type: array
     items:
-      $ref: BlockContent
+      $ref: Block
 required:
   - content

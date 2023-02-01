@@ -9,7 +9,7 @@ properties:
     description: The content within the form, usually containing at least one `Parameter`.
     type: array
     items:
-      $ref: BlockContent
+      $ref: Block
   deriveFrom:
     '@id': stencila:deriveFrom
     description: The dotted path to the object (e.g a database table) that the form should be derived from

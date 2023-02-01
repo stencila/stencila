@@ -6,7 +6,7 @@ description: An article, including news and scholarly articles.
 $comment: |
   This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).
   It extends schema.org `Article` by, adding a `content` property which must be
-  an array of [`BlockContent`](./BlockContent), as well as the properties added by
+  an array of [`Block`](./Block), as well as the properties added by
   [`CreativeWork`](./CreativeWork) which it extends.
 
   An `Article` is analogous, and structurally similar to, the JATS XML
@@ -18,10 +18,10 @@ properties:
     description: The structured content of this article.
     $comment: |
       This is an override of `CreativeWork.content` to restrict node to
-      `BlockContent` node types e.g `Paragraph`.
+      `Block` node types e.g `Paragraph`.
     type: array
     items:
-      $ref: BlockContent
+      $ref: Block
   pageStart:
     '@id': schema:pageStart
     description: The page on which the article starts; for example "135" or "xiii".

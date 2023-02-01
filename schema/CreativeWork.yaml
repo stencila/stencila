@@ -19,7 +19,7 @@ properties:
       subject areas the creative work relates to).
     type: array
     items:
-      $ref: ThingTypes
+      $ref: ThingType
   authors:
     '@id': schema:author
     description: The authors of this creative work.
@@ -116,7 +116,7 @@ properties:
     '@id': schema:isPartOf
     description: |
       An item or other CreativeWork that this CreativeWork is a part of.
-    $ref: CreativeWorkTypes
+    $ref: CreativeWorkType
   licenses:
     '@id': schema:license
     description: |
@@ -124,7 +124,7 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: CreativeWorkTypes
+        - $ref: CreativeWorkType
         - type: string
           format: uri
   maintainers:
@@ -158,7 +158,7 @@ properties:
       such as Articles, Datatables, Tables and more.
     type: array
     items:
-      $ref: CreativeWorkTypes
+      $ref: CreativeWorkType
   publisher:
     '@id': schema:publisher
     description: |
@@ -176,7 +176,7 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: CreativeWorkTypes
+        - $ref: CreativeWorkType
         - type: string
   text:
     '@id': schema:text
@@ -191,7 +191,7 @@ properties:
       - headline
     type: array
     items:
-      $ref: InlineContent
+      $ref: Inline
   version:
     '@id': schema:version
     description: The version of the creative work.
