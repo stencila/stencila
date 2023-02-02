@@ -3,7 +3,6 @@
 use crate::prelude::*;
 
 use super::block::Block;
-use super::blocks_or_inlines::BlocksOrInlines;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_string::CreativeWorkTypeOrString;
 use super::date::Date;
@@ -21,11 +20,17 @@ use super::thing_type::ThingType;
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct Comment {
+    /// The type of this item
+    r#type: MustBe!("Comment"),
+
+    /// The identifier for this item
+    id: String,
+
     /// The authors of this creative work.
     authors: Option<Vec<PersonOrOrganization>>,
 
-    /// The content of the comment.
-    content: BlocksOrInlines,
+    /// The structured content of this creative work c.f. property `text`.
+    content: Vec<Block>,
 
     /// Date of first publication.
     date_published: Option<Date>,

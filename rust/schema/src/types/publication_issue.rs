@@ -11,7 +11,6 @@ use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object_or_string::ImageObjectOrString;
 use super::inline::Inline;
 use super::integer_or_string::IntegerOrString;
-use super::nodes_or_string::NodesOrString;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
@@ -23,6 +22,18 @@ use super::thing_type::ThingType;
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct PublicationIssue {
+    /// The type of this item
+    r#type: MustBe!("PublicationIssue"),
+
+    /// The identifier for this item
+    id: String,
+
+    /// An item or other CreativeWork that this CreativeWork is a part of.
+    is_part_of: Option<Box<CreativeWorkType>>,
+
+    /// Identifies the issue of publication; for example, "iii" or "2".
+    issue_number: Option<IntegerOrString>,
+
     /// Non-core optional fields
     #[serde(flatten)]
     options: Box<PublicationIssueOptions>,
@@ -59,7 +70,7 @@ pub struct PublicationIssueOptions {
     comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    content: Option<NodesOrString>,
+    content: Option<Vec<Block>>,
 
     /// Date/time of creation.
     date_created: Option<Date>,
@@ -91,9 +102,6 @@ pub struct PublicationIssueOptions {
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
     keywords: Option<Vec<String>>,
 
-    /// An item or other CreativeWork that this CreativeWork is a part of.
-    is_part_of: Option<Box<CreativeWorkType>>,
-
     /// License documents that applies to this content, typically indicated by URL.
     licenses: Option<Vec<CreativeWorkTypeOrString>>,
 
@@ -117,9 +125,6 @@ pub struct PublicationIssueOptions {
 
     /// The version of the creative work.
     version: Option<StringOrNumber>,
-
-    /// Identifies the issue of publication; for example, "iii" or "2".
-    issue_number: Option<IntegerOrString>,
 
     /// The page on which the issue starts; for example "135" or "xiii".
     page_start: Option<IntegerOrString>,

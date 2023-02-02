@@ -4,12 +4,41 @@ use crate::prelude::*;
 
 use super::block::Block;
 use super::call_argument::CallArgument;
+use super::code_error::CodeError;
+use super::duration::Duration;
+use super::execution_auto::ExecutionAuto;
+use super::execution_dependant::ExecutionDependant;
+use super::execution_dependency::ExecutionDependency;
+use super::execution_digest::ExecutionDigest;
+use super::execution_required::ExecutionRequired;
+use super::execution_status::ExecutionStatus;
+use super::execution_tag::ExecutionTag;
+use super::integer::Integer;
 use super::string::String;
+use super::timestamp::Timestamp;
 
 /// Call another document, optionally with arguments, and include its executed content.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct Call {
+    /// The type of this item
+    r#type: MustBe!("Call"),
+
+    /// The identifier for this item
+    id: String,
+
+    /// Under which circumstances the code should be automatically executed.
+    execution_auto: ExecutionAuto,
+
+    /// A count of the number of times that the node has been executed.
+    execution_count: Integer,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    execution_required: ExecutionRequired,
+
+    /// Status of the most recent, including any current, execution.
+    execution_status: ExecutionStatus,
+
     /// The external source of the content, a file path or URL.
     source: String,
 
@@ -24,4 +53,39 @@ pub struct Call {
 
     /// The value of the source document's parameters to call it with
     arguments: Vec<CallArgument>,
+
+    /// Non-core optional fields
+    #[serde(flatten)]
+    options: Box<CallOptions>,
+}
+
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
+pub struct CallOptions {
+    /// A digest of the content, semantics and dependencies of the node.
+    compile_digest: Option<ExecutionDigest>,
+
+    /// The `compileDigest` of the node when it was last executed.
+    execute_digest: Option<ExecutionDigest>,
+
+    /// The upstream dependencies of this node.
+    execution_dependencies: Option<Vec<ExecutionDependency>>,
+
+    /// The downstream dependants of this node.
+    execution_dependants: Option<Vec<ExecutionDependant>>,
+
+    /// Tags in the code which affect its execution
+    execution_tags: Option<Vec<ExecutionTag>>,
+
+    /// The id of the kernel that the node was last executed in.
+    execution_kernel: Option<String>,
+
+    /// The timestamp when the last execution ended.
+    execution_ended: Option<Timestamp>,
+
+    /// Duration of the last execution.
+    execution_duration: Option<Duration>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the node.
+    errors: Option<Vec<CodeError>>,
 }

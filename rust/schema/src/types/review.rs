@@ -10,7 +10,6 @@ use super::date::Date;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object_or_string::ImageObjectOrString;
 use super::inline::Inline;
-use super::nodes_or_string::NodesOrString;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
@@ -23,6 +22,12 @@ use super::thing_type::ThingType;
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct Review {
+    /// The type of this item
+    r#type: MustBe!("Review"),
+
+    /// The identifier for this item
+    id: String,
+
     /// Non-core optional fields
     #[serde(flatten)]
     options: Box<ReviewOptions>,
@@ -59,7 +64,7 @@ pub struct ReviewOptions {
     comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    content: Option<NodesOrString>,
+    content: Option<Vec<Block>>,
 
     /// Date/time of creation.
     date_created: Option<Date>,

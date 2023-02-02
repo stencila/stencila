@@ -11,7 +11,6 @@ use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object_or_string::ImageObjectOrString;
 use super::inline::Inline;
 use super::integer_or_string::IntegerOrString;
-use super::nodes_or_string::NodesOrString;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
@@ -28,6 +27,12 @@ pub struct PublicationVolume {
 
     /// The identifier for this item
     id: String,
+
+    /// An item or other CreativeWork that this CreativeWork is a part of.
+    is_part_of: Option<Box<CreativeWorkType>>,
+
+    /// Identifies the volume of publication or multi-part work; for example, "iii" or "2".
+    volume_number: Option<IntegerOrString>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -65,7 +70,7 @@ pub struct PublicationVolumeOptions {
     comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    content: Option<NodesOrString>,
+    content: Option<Vec<Block>>,
 
     /// Date/time of creation.
     date_created: Option<Date>,
@@ -96,9 +101,6 @@ pub struct PublicationVolumeOptions {
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
     keywords: Option<Vec<String>>,
-
-    /// An item or other CreativeWork that this CreativeWork is a part of.
-    is_part_of: Option<Box<CreativeWorkType>>,
 
     /// License documents that applies to this content, typically indicated by URL.
     licenses: Option<Vec<CreativeWorkTypeOrString>>,
@@ -132,7 +134,4 @@ pub struct PublicationVolumeOptions {
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pagination: Option<String>,
-
-    /// Identifies the volume of publication or multi-part work; for example, "iii" or "2".
-    volume_number: Option<IntegerOrString>,
 }

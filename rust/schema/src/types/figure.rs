@@ -2,16 +2,18 @@
 
 use crate::prelude::*;
 
+use super::block::Block;
 use super::blocks_or_string::BlocksOrString;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_string::CreativeWorkTypeOrString;
 use super::date::Date;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
+use super::image_object_or_string::ImageObjectOrString;
 use super::inline::Inline;
-use super::nodes_or_string::NodesOrString;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
+use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
@@ -20,6 +22,12 @@ use super::thing_type::ThingType;
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct Figure {
+    /// The type of this item
+    r#type: MustBe!("Figure"),
+
+    /// The identifier for this item
+    id: String,
+
     /// A short label for the figure.
     label: Option<String>,
 
@@ -34,6 +42,24 @@ pub struct Figure {
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct FigureOptions {
+    /// Alternate names (aliases) for the item.
+    alternate_names: Option<Vec<String>>,
+
+    /// A description of the item.
+    description: Option<Vec<Block>>,
+
+    /// Any kind of identifier for any kind of Thing.
+    identifiers: Option<Vec<PropertyValueOrString>>,
+
+    /// Images of the item.
+    images: Option<Vec<ImageObjectOrString>>,
+
+    /// The name of the item.
+    name: Option<String>,
+
+    /// The URL of the item.
+    url: Option<String>,
+
     /// The subject matter of the content.
     about: Option<Vec<ThingType>>,
 
@@ -44,7 +70,7 @@ pub struct FigureOptions {
     comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    content: Option<NodesOrString>,
+    content: Option<Vec<Block>>,
 
     /// Date/time of creation.
     date_created: Option<Date>,

@@ -10,7 +10,6 @@ use super::date::Date;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object_or_string::ImageObjectOrString;
 use super::inline::Inline;
-use super::nodes_or_string::NodesOrString;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
@@ -29,6 +28,15 @@ pub struct SoftwareSourceCode {
 
     /// The identifier for this item
     id: String,
+
+    /// Link to the repository where the un-compiled, human readable code and related code is located.
+    code_repository: Option<String>,
+
+    /// The computer programming language.
+    programming_language: Option<String>,
+
+    /// Target operating system or product to which the code applies.
+    target_products: Option<Vec<SoftwareApplication>>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -66,7 +74,7 @@ pub struct SoftwareSourceCodeOptions {
     comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    content: Option<NodesOrString>,
+    content: Option<Vec<Block>>,
 
     /// Date/time of creation.
     date_created: Option<Date>,
@@ -125,21 +133,12 @@ pub struct SoftwareSourceCodeOptions {
     /// The version of the creative work.
     version: Option<StringOrNumber>,
 
-    /// Link to the repository where the un-compiled, human readable code and related code is located.
-    code_repository: Option<String>,
-
     /// What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
     code_sample_type: Option<String>,
-
-    /// The computer programming language.
-    programming_language: Option<String>,
 
     /// Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
     runtime_platform: Option<Vec<String>>,
 
     /// Dependency requirements for the software.
     software_requirements: Option<Vec<SoftwareSourceCodeOrSoftwareApplicationOrString>>,
-
-    /// Target operating system or product to which the code applies.
-    target_products: Option<Vec<SoftwareApplication>>,
 }

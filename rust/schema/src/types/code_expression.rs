@@ -21,6 +21,12 @@ use super::timestamp::Timestamp;
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct CodeExpression {
+    /// The type of this item
+    r#type: MustBe!("CodeExpression"),
+
+    /// The identifier for this item
+    id: String,
+
     /// Under which circumstances the code should be automatically executed.
     execution_auto: ExecutionAuto,
 

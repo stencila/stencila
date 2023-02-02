@@ -22,6 +22,12 @@ use super::thing_type::ThingType;
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct Claim {
+    /// The type of this item
+    r#type: MustBe!("Claim"),
+
+    /// The identifier for this item
+    id: String,
+
     /// Content of the claim, usually a single paragraph.
     content: Vec<Block>,
 

@@ -34,7 +34,7 @@ pub struct Article {
     /// The authors of this creative work.
     authors: Option<Vec<PersonOrOrganization>>,
 
-    /// The structured content of this article.
+    /// The structured content of this creative work c.f. property `text`.
     content: Vec<Block>,
 
     /// Date/time of creation.

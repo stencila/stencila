@@ -10,7 +10,6 @@ use super::date::Date;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object_or_string::ImageObjectOrString;
 use super::inline::Inline;
-use super::nodes_or_string::NodesOrString;
 use super::number::Number;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
@@ -23,6 +22,12 @@ use super::thing_type::ThingType;
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct MediaObject {
+    /// The type of this item
+    r#type: MustBe!("MediaObject"),
+
+    /// The identifier for this item
+    id: String,
+
     /// URL for the actual bytes of the media object, for example the image file or video file.
     content_url: String,
 
@@ -65,7 +70,7 @@ pub struct MediaObjectOptions {
     comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    content: Option<NodesOrString>,
+    content: Option<Vec<Block>>,
 
     /// Date/time of creation.
     date_created: Option<Date>,
