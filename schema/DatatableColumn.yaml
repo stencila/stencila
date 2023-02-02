@@ -1,13 +1,13 @@
 title: DatatableColumn
 '@id': stencila:DatatableColumn
 extends: Thing
-
 description: A column of data within a Datatable.
+required:
+  - name
+  - values
+core:
+  - validator
 properties:
-  validator:
-    '@id': stencila:validator
-    description: The validator to use to validate data in the column.
-    $ref: ArrayValidator
   values:
     '@id': stencila:values
     description: The data values of the column.
@@ -17,6 +17,7 @@ properties:
     type: array
     items:
       $ref: Primitive
-required:
-  - name
-  - values
+  validator:
+    '@id': stencila:validator
+    description: The validator to use to validate data in the column.
+    $ref: ArrayValidator

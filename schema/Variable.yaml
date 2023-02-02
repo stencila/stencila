@@ -1,8 +1,14 @@
 title: Variable
 '@id': stencila:Variable
 extends: Entity
-status: unstable
+status: experimental
 description: A variable representing a name / value pair.
+required:
+  - namespace
+  - name
+core:
+  - kind
+  - value
 properties:
   namespace:
     '@id': stencila:namespace
@@ -24,6 +30,3 @@ properties:
     '@id': schema:value
     description: The value of the variable.
     $ref: Node
-required:
-  - namespace
-  - name

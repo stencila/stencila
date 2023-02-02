@@ -9,6 +9,8 @@ $comment: |
     - MDAST [`Paragraph`](https://github.com/syntax-tree/mdast#Paragraph)
     - OpenDocument [`<text:p>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415138_253892949)
     - Pandoc [`Para`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L220)
+required:
+  - content
 properties:
   content:
     '@id': 'stencila:content'
@@ -16,5 +18,3 @@ properties:
     type: array
     items:
       $ref: Inline
-required:
-  - content

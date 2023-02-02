@@ -1,6 +1,9 @@
 title: Duration
 '@id': schema:Duration
 description: A value that represents the difference between two timestamps
+required:
+  - value
+  - timeUnit
 properties:
   value:
     '@id': schema:value
@@ -10,6 +13,3 @@ properties:
     '@id': stencila:timeUnit
     description: The time unit that the `value` represents.
     $ref: TimeUnit
-required:
-  - value
-  - timeUnit

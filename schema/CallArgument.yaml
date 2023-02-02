@@ -1,8 +1,16 @@
 title: CallArgument
 '@id': stencila:CallArgument
-description: The value of a `Parameter` to call a document with
-status: unstable
+status: experimental
 extends: Parameter
+description: The value of a `Parameter` to call a document with
+$comment: |
+  A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing
+  an expression to be used to set the value of the parameter.
+required:
+  - code
+  - programmingLanguage
+core:
+  - guessLanguage
 properties:
   code:
     '@id': stencila:code
@@ -16,9 +24,3 @@ properties:
     '@id': stencila:guessLanguage
     description: Whether the programming language of the code should be guessed based on syntax and variables used
     type: boolean
-$comment: |
-  A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing
-  an expression to be used to set the value of the parameter.
-required:
-  - code
-  - programmingLanguage

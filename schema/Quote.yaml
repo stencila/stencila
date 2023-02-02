@@ -2,6 +2,8 @@ title: Quote
 '@id': stencila:Quote
 extends: Mark
 description: Inline, quoted content.
+core:
+  - cite
 properties:
   cite:
     '@id': stencila:cite

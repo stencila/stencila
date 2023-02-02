@@ -1,5 +1,4 @@
 title: ExecutionDependantNode
-
 description: Node types that can be execution dependencies
 default: CodeChunk
 anyOf:

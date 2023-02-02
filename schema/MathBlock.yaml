@@ -2,6 +2,8 @@ title: MathBlock
 '@id': stencila:MathBlock
 extends: Math
 description: A block of math, e.g an equation, to be treated as block content.
+core:
+  - label
 properties:
   label:
     '@id': stencila:label

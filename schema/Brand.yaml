@@ -1,9 +1,9 @@
 title: Brand
 '@id': schema:Brand
 extends: Thing
-description: |
-  A brand used by an organization or person for labeling a product,
-  product group, or similar.
+description: A brand used by an organization or person for labeling a product, product group, or similar.
+required:
+  - name
 properties:
   logo:
     '@id': schema:logo
@@ -18,5 +18,3 @@ properties:
     type: array
     items:
       type: string
-required:
-  - name

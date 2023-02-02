@@ -1,5 +1,5 @@
 title: ListItem
-'@id': schema:ListItem
+"@id": schema:ListItem
 extends: Thing
 description: A single item in a list.
 $comment: |
@@ -11,9 +11,14 @@ $comment: |
     - HTML [`<li>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li)
     - MDAST [`ListItem`](https://github.com/syntax-tree/mdast#listitem)
     - OpenDocument [`<text:list-item>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415154_253892949)
+core:
+  - content
+  - item
+  - isChecked
+  - position
 properties:
   content:
-    '@id': stencila:content
+    "@id": stencila:content
     description: The content of the list item.
     $comment: Use either `content` or `item`, not both.
     anyOf:
@@ -23,16 +28,16 @@ properties:
       - type: array
         items:
           $ref: Inline
-  isChecked:
-    '@id': stencila:isChecked
-    description: A flag to indicate if this list item is checked.
-    type: boolean
   item:
-    '@id': schema:item
+    "@id": schema:item
     description: The item represented by this list item.
     $comment: Use either `item` or `content`, not both.
     $ref: Node
+  isChecked:
+    "@id": stencila:isChecked
+    description: A flag to indicate if this list item is checked.
+    type: boolean
   position:
-    '@id': schema:position
+    "@id": schema:position
     description: The position of the item in a series or sequence of items.
     type: integer

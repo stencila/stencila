@@ -7,6 +7,10 @@ $comment: |
   The most important, and only required, property of a `CodeStatic` node is `code`, a `string` of the source code.
   There are no restrictions on the length or content of `code` and it is possible for it to be syntactically
   invalid for the specified `programmingLanguage`.
+required:
+  - code
+core:
+  - programmingLanguage
 properties:
   code:
     '@id': stencila:code
@@ -26,5 +30,3 @@ properties:
       or variants of a programming language. An example is using `programmingLanguage` "json" and
       `encodingFormat` "application/ld+json" for JSON-LD code examples.
     type: string
-required:
-  - code

@@ -1,8 +1,10 @@
 title: If
 '@id': stencila:If
 description: Show and execute alternative content conditional upon an executed expression
-status: unstable
+status: experimental
 extends: Executable
+required:
+  - clauses
 properties:
   clauses:
     '@id': 'stencila:clauses'
@@ -10,5 +12,3 @@ properties:
     type: array
     items:
       $ref: IfClause
-required:
-  - clauses

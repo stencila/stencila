@@ -1,4 +1,4 @@
 title: Boolean
 '@id': schema:Boolean
-description: A value that is either true or false
+description: A value that is either true or false.
 type: boolean

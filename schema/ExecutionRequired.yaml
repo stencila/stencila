@@ -2,6 +2,7 @@ title: ExecutionRequired
 '@id': stencila:ExecutionRequired
 extends: Enumeration
 description: Under which circumstances the document node should be automatically executed.
+default: Unknown
 anyOf:
   - const: 'No'
     '@id': stencila:executionRequiredNo
@@ -37,3 +38,5 @@ anyOf:
     description: |
       Re-execution is required because the kernel that the node was last executed in
       was restarted.
+  - const: Unknown
+    '@id': stencila:executionRequiredUnknown

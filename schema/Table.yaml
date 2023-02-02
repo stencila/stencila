@@ -2,6 +2,11 @@ title: Table
 '@id': schema:Table
 extends: CreativeWork
 description: A table.
+required:
+  - rows
+core:
+  - label
+  - caption
 properties:
   caption:
     '@id': schema:caption
@@ -25,5 +30,3 @@ properties:
     type: array
     items:
       $ref: TableRow
-required:
-  - rows

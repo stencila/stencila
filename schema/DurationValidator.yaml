@@ -2,6 +2,10 @@ title: DurationValidator
 '@id': stencila:DurationValidator
 extends: Entity
 description: A validator specifying the constraints on a duration.
+core:
+  - timeUnits
+  - minimum
+  - maximum
 properties:
   timeUnits:
     '@id': stencila:timeUnits

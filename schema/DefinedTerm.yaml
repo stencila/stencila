@@ -6,10 +6,10 @@ $comment: |
   Often used in the context of category or subject classification,  glossaries or dictionaries, product or creative work types, etc.
   Use the `name` property for the term being defined, use `termCode`. If the term has an alpha-numeric code allocated, use
   description to provide the definition of the term.
+required:
+  - name
 properties:
   termCode:
     '@id': schema:termCode
     description: A code that identifies this DefinedTerm within a DefinedTermSet
     type: string
-required:
-  - name

@@ -9,7 +9,6 @@ $comment: |
 
   The schema.org `Collection` has a `collectionSize` property but has not been added here
   because it is somewhat redundant e.g. a developer could use `collection.parts.length` instead.
-properties: {}
 required:
   # Note that `parts` is defined in `CreativeWork` but made
   # a requirement here. A creative work need not be required to have

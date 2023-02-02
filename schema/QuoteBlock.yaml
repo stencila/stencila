@@ -3,6 +3,10 @@ title: QuoteBlock
 extends: Entity
 description: |
   A section quoted from somewhere else.
+required:
+  - content
+core:
+  - cite
 properties:
   cite:
     '@id': stencila:cite
@@ -17,5 +21,3 @@ properties:
     type: array
     items:
       $ref: Block
-required:
-  - content

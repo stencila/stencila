@@ -1,6 +1,9 @@
 title: Timestamp
 '@id': schema:Timestamp
 description: A value that represents a point in time
+required:
+  - value
+  - timeUnit
 properties:
   value:
     '@id': schema:value
@@ -10,6 +13,3 @@ properties:
     '@id': stencila:timeUnit
     description: The time unit that the `value` represents.
     $ref: TimeUnit
-required:
-  - value
-  - timeUnit

@@ -11,6 +11,18 @@ $comment: |
   An `Article` is analogous, and structurally similar to, the JATS XML
   [`<article>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/article.html)
   element.
+required:
+  - content
+core:
+  - title
+  - authors
+  - keywords
+  - description
+  - dateCreated
+  - dateModified
+  - dateReceived
+  - dateAccepted
+  - datePublished
 properties:
   content:
     '@id': stencila:content

@@ -1,7 +1,6 @@
 title: Note
 '@id': stencila:Note
 extends: Entity
-
 description: Additional content which is not part of the main content of a document.
 $comment: |
   A note is usually associated with a word or paragraph using a number or other symbol. 
@@ -10,6 +9,9 @@ $comment: |
   - [JATS `<fn>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/fn.html)
   - [Pandoc footnotes](https://pandoc.org/MANUAL.html#footnotes)
   - [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)
+required:
+  - noteType
+  - content
 properties:
   noteType:
     '@id': stencila:noteType
@@ -24,5 +26,3 @@ properties:
     $comment: |
       Most notes will have a single paragraph but could have multiple
       paragraphs, tables and even figures.
-required:
-  - content

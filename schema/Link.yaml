@@ -1,7 +1,6 @@
 title: Link
 '@id': stencila:Link
 extends: Entity
-
 description: A hyperlink to other pages, sections within the same document, resources, or any URL.
 $comment: |
   Analogues of `Link` in other schema include:
@@ -10,6 +9,9 @@ $comment: |
     - MDAST [`Link`](https://github.com/syntax-tree/mdast#link)
     - OpenDocument [`<text:a>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415212_253892949)
     - Pandoc [`Link`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L270)
+required:
+  - content
+  - target
 properties:
   content:
     '@id': stencila:content
@@ -17,22 +19,6 @@ properties:
     type: array
     items:
       $ref: Inline
-  exportFrom:
-    '@id': stencila:exportFrom
-    aliases:
-      - export
-    description: |
-      A compilation directive giving the name of the variable to export
-      to the link target.
-    type: string
-  importTo:
-    '@id': stencila:importTo
-    aliases:
-      - import
-    description: |
-      A compilation directive giving the name of the variable to import
-      the link target as.
-    type: string
   target:
     '@id': stencila:target
     description: The target of the link.
@@ -54,6 +40,3 @@ properties:
       The relation between the target and the current thing.
       # See https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types
     type: string
-required:
-  - content
-  - target

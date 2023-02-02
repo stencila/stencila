@@ -1,5 +1,5 @@
 title: Block
-description: Union type for valid block content.
+description: Union type for block content node types.
 default: Paragraph
 anyOf:
   - $ref: Call

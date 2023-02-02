@@ -8,6 +8,13 @@ $comment: |
   normally be instantiated.
   This type has a similar structure and purpose to `CodeStatic` which is a base type
   for `CodeFragment`, `CodeBlock` etc.
+required:
+  - mathLanguage
+  - code
+core:
+  - compileDigest
+  - errors
+  - mathml
 properties:
   mathLanguage:
     '@id': stencila:mathLanguage
@@ -36,6 +43,3 @@ properties:
     '@id': stencila:mathml
     description: The MathML transpiled from the `code`
     type: string
-required:
-  - mathLanguage
-  - code

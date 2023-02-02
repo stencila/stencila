@@ -3,6 +3,10 @@ title: Person
 extends: Thing
 description: A person (alive, dead, undead, or fictional).
 parser: person
+core:
+  - affiliations
+  - givenNames
+  - familyNames
 properties:
   address:
     '@id': schema:address

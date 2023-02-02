@@ -2,4 +2,3 @@ title: Strong
 '@id': stencila:Strong
 extends: Mark
 description: Strongly emphasised content.
-properties: {}

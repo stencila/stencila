@@ -1,6 +1,7 @@
 use std::{collections::HashMap, fs::read_dir, path::PathBuf};
 
 use common::{
+    defaults::Defaults,
     eyre::{bail, eyre, Context, Result},
     futures::future::try_join_all,
     indexmap::IndexMap,
@@ -9,7 +10,7 @@ use common::{
     serde_with::skip_serializing_none,
     serde_yaml,
     strum::AsRefStr,
-    tokio::fs::read_to_string, defaults::Defaults,
+    tokio::fs::read_to_string,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, AsRefStr)]
@@ -156,15 +157,25 @@ pub struct Schema {
     pub extends: Option<String>,
 
     /// Whether the schema is only an abstract base for other schemas
-    /// 
+    ///
     /// Types are usually not generated for abstract schemas.
     #[serde(default)]
     pub r#abstract: bool,
 
+    /// Core properties, which although optional, should not be placed in
+    /// the `options` field of generated Rust types
+    pub core: Option<Vec<String>>,
+
     /// Stencila derived properties
-    /// Whether this is a property schema and is required (is in the `required` keyword)
+    /// Whether this is a property schema and is required (is in the `required` keyword
+    /// of _parent_ schema).
     #[serde(skip)]
     pub is_required: bool,
+
+    /// Whether this is a property schema and is core (is in the `core` keyword
+    /// of _parent_ schema).
+    #[serde(skip)]
+    pub is_core: bool,
 
     /// Whether the `extend()` method has been run on this schema yet
     #[serde(skip)]
@@ -212,13 +223,9 @@ impl Schema {
         };
         *description = description.replace('\n', " ");
 
-        let required = self.required.iter().flatten().collect_vec();
         if let Some(properties) = &mut self.properties {
             for (name, property) in properties.iter_mut() {
                 property.normalize(name, true)?;
-                if required.contains(&name) {
-                    property.is_required = true;
-                }
             }
         }
 
@@ -226,35 +233,59 @@ impl Schema {
     }
 
     /// Extend the schema by inheriting properties of it's parent
+    ///
+    /// Also inherits `required` and `core` from parent.
     fn extend(&self, name: &str, schemas: &mut HashMap<String, Schema>) -> Result<()> {
-        let Some(extends) = &self.extends else {
-            return Ok(())
+        let parent = if let Some(extends) = &self.extends {
+            let parent = schemas
+                .get(extends)
+                .ok_or_else(|| eyre!("no schema matching `extends` keyword: {}", extends))?
+                .clone();
+            if !parent.is_extended {
+                parent.extend(extends, schemas)?;
+            }
+            parent
+        } else {
+            // This branch is for "primitive structs" (e.g. `Date`) which do not
+            // extend anything but for which we want to do the following setting of `is_required` etc
+            Schema::default()
         };
-
-        let parent = schemas
-            .get(extends)
-            .ok_or_else(|| eyre!("no schema matching `extends` keyword: {}", extends))?
-            .clone();
-
-        if !parent.is_extended {
-            parent.extend(extends, schemas)?;
-        }
 
         let mut extended = self.clone();
 
-        let mut properties = IndexMap::new();
-        for (name, property) in parent.properties.into_iter().flatten() {
-            properties.insert(name, property);
-        }
-        for (name, property) in extended.properties.into_iter().flatten() {
-            properties.insert(name, property);
+        let mut properties: IndexMap<String, Schema> = parent
+            .properties
+            .into_iter()
+            .flatten()
+            .chain(extended.properties.into_iter().flatten())
+            .collect();
+
+        let required = parent
+            .required
+            .into_iter()
+            .flatten()
+            .chain(extended.required.into_iter().flatten())
+            .collect_vec();
+
+        let core = parent
+            .core
+            .into_iter()
+            .flatten()
+            .chain(extended.core.into_iter().flatten())
+            .collect_vec();
+
+        for (name, property) in properties.iter_mut() {
+            if required.contains(&name) {
+                property.is_required = true;
+            }
+            if core.contains(&name) {
+                property.is_core = true;
+            }
         }
 
-        extended.properties = if properties.is_empty() {
-            None
-        } else {
-            Some(properties)
-        };
+        extended.properties = Some(properties);
+        extended.required = Some(required);
+        extended.core = Some(core);
         extended.is_extended = true;
 
         schemas.insert(name.to_string(), extended);

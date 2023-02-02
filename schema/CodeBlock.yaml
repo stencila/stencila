@@ -2,4 +2,3 @@ title: CodeBlock
 '@id': stencila:CodeBlock
 extends: CodeStatic
 description: A code block.
-properties: {}

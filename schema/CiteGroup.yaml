@@ -1,7 +1,6 @@
 title: CiteGroup
 '@id': stencila:CiteGroup
 extends: Entity
-
 description: A group of Cite nodes.
 $comment: |
   This type allows you to group associated citations together.
@@ -14,6 +13,8 @@ $comment: |
   In other words, it usually only makes sense for individual `Cite` nodes to be
   narrative (although they may be connected together within `content` using words
   such as "and").
+required:
+  - items
 properties:
   items:
     '@id': schema:itemListElement
@@ -21,5 +22,3 @@ properties:
     description: One or more `Cite`s to be referenced in the same surrounding text.
     items:
       $ref: Cite
-required:
-  - items

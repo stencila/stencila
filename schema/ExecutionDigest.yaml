@@ -1,6 +1,12 @@
 title: ExecutionDigest
 '@id': stencila:ExecutionDigest
 description: A digest of the execution state of a node.
+required:
+  - stateDigest
+  - semanticDigest
+  - dependenciesDigest
+  - dependenciesStale
+  - dependenciesFailed
 properties:
   stateDigest:
     '@id': stencila:stateDigest
@@ -22,9 +28,3 @@ properties:
     '@id': stencila:dependenciesFailed
     description: A count of the number of execution dependencies that failed
     type: number
-required:
-  - stateDigest
-  - semanticDigest
-  - dependenciesDigest
-  - dependenciesStale
-  - dependenciesFailed

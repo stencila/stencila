@@ -2,11 +2,11 @@ title: DateTime
 '@id': schema:DateTime
 description: A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.
 parser: date
+required:
+  - value
 properties:
   value:
     '@id': 'schema:value'
     description: The date as an ISO 8601 string.
     type: string
     format: date-time
-required:
-  - value

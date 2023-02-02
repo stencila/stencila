@@ -1,8 +1,10 @@
 title: Form
 '@id': stencila:Form
 description: A form to batch updates in document parameters
-status: unstable
+status: experimental
 extends: Executable
+required:
+  - content
 properties:
   content:
     '@id': 'stencila:content'
@@ -24,5 +26,3 @@ properties:
     anyOf:
       - type: integer
       - type: string
-required:
-  - content

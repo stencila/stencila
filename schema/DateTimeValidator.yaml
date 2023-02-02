@@ -2,6 +2,9 @@ title: DateTimeValidator
 '@id': stencila:DateTimeValidator
 extends: Entity
 description: A validator specifying the constraints on a date-time.
+core:
+  - minimum
+  - maximum
 properties:
   minimum:
     '@id': stencila:minimum

@@ -2,6 +2,8 @@ title: ImageObject
 '@id': schema:ImageObject
 extends: MediaObject
 description: An image file.
+core:
+  - caption
 properties:
   caption:
     '@id': schema:caption

@@ -1,8 +1,15 @@
 title: Parameter
 '@id': stencila:Parameter
 extends: Executable
-status: unstable
+status: experimental
 description: A parameter of a document.
+required:
+  - name
+core:
+  - label
+  - value
+  - default
+  - validator
 properties:
   name:
     '@id': schema:name
@@ -39,5 +46,3 @@ properties:
     '@id': stencila:derivedFrom
     description: The dotted path to the object (e.g. a database table column) that the parameter should be derived from
     type: string
-required:
-  - name

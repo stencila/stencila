@@ -1,9 +1,22 @@
 title: CodeChunk
 '@id': stencila:CodeChunk
 extends: CodeExecutable
-
 description: A executable chunk of code.
+required:
+  - executionPure
+core:
+  - outputs
 properties:
+  executionPure:
+    '@id': stencila:executionPure
+    description: Whether the code should be treated as side-effect free when executed.
+    type: boolean
+  outputs:
+    '@id': stencila:outputs
+    description: Outputs from executing the chunk.
+    type: array
+    items:
+      $ref: Node
   label:
     '@id': stencila:label
     description: A short label for the CodeChunk.
@@ -18,13 +31,4 @@ properties:
         items:
           $ref: Block
       - type: string
-  executionPure:
-    '@id': stencila:executionPure
-    description: Whether the code should be treated as side-effect free when executed.
-    type: boolean
-  outputs:
-    '@id': stencila:outputs
-    description: Outputs from executing the chunk.
-    type: array
-    items:
-      $ref: Node
+

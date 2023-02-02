@@ -6,6 +6,10 @@ description: Abstract base type for executable code nodes (e.g. `CodeChunk`).
 $comment: |
   Adds properties to the base `Executable` node type that are necessary for executable code.
   The added properties are the same as for static code nodes. Both `code` and `programmingLanguage` are required.
+required:
+  - code
+  - programmingLanguage
+  - guessLanguage
 properties:
   code:
     '@id': stencila:code
@@ -29,6 +33,3 @@ properties:
       or variants of a programming language. An example is using `programmingLanguage` "json" and
       `encodingFormat` "application/ld+json" for JSON-LD code examples.
     type: string
-required:
-  - code
-  - programmingLanguage

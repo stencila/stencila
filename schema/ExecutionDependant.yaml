@@ -1,7 +1,11 @@
 title: ExecutionDependant
 '@id': stencila:ExecutionDependant
 description: A downstream execution dependant of a node
-
+required:
+  - dependantRelation
+  - dependantNode
+core:
+  - codeLocation
 properties:
   dependantRelation:
     '@id': stencila:dependantRelation
@@ -21,6 +25,3 @@ properties:
       type: integer
     minItems: 4
     maxItems: 4
-required:
-  - dependantRelation
-  - dependantNode

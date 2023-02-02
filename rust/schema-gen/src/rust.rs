@@ -181,9 +181,11 @@ impl Schemas {
                 .map(|default| format!("#[def = \"{default}\"]\n    "))
                 .unwrap_or_default();
 
-            fields.push(format!("/// {description}\n    {default}{name}: {typ},"));
+            let code = format!("/// {description}\n    {default}{name}: {typ},");
+            let is_option = !(property.is_required || property.is_core);
+
+            fields.push((is_option, code));
         }
-        let fields = fields.join("\n\n    ");
 
         let uses = used_types
             .iter()
@@ -196,6 +198,37 @@ impl Schemas {
             })
             .join("\n");
 
+        let optional_fields = fields
+            .iter()
+            .filter_map(|(is_option, field)| is_option.then_some(field))
+            .join("\n\n    ");
+
+        let options = if optional_fields.is_empty() {
+            String::new()
+        } else {
+            format!(
+                r#"
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
+pub struct {title}Options {{
+    {optional_fields}
+}}
+"#
+            )
+        };
+
+        let mut core_fields = fields
+            .iter()
+            .filter_map(|(is_option, field)| (!is_option).then_some(field))
+            .join("\n\n    ");
+        if !options.is_empty() {
+            core_fields += &format!("
+            
+    /// Non-core optional fields
+    #[serde(flatten)]
+    options: Box<{title}Options>");
+        }
+
         let rust = format!(
             r#"//! Generated file, do not edit
 
@@ -207,8 +240,9 @@ use crate::prelude::*;
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct {title} {{
-    {fields}
+    {core_fields}
 }}
+{options}
 "#
         );
         Ok(rust)

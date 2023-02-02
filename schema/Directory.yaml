@@ -2,6 +2,9 @@ title: Directory
 '@id': stencila:Directory
 extends: Collection
 description: A directory on the filesystem
+required:
+  - path
+  - name
 properties:
   path:
     '@id': stencila:path
@@ -19,6 +22,3 @@ properties:
       anyOf:
         - $ref: File
         - $ref: Directory
-required:
-  - path
-  - name

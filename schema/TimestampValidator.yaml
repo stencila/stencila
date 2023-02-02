@@ -2,6 +2,10 @@ title: TimestampValidator
 '@id': stencila:TimestampValidator
 extends: Entity
 description: A validator specifying the constraints on a timestamp.
+core:
+  - timeUnits
+  - minimum
+  - maximum
 properties:
   timeUnits:
     '@id': stencila:timeUnits

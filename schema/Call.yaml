@@ -1,8 +1,10 @@
 title: Call
 '@id': stencila:Call
-description: Call another document, optionally with arguments, and include its executed content
-status: unstable
+description: Call another document, optionally with arguments, and include its executed content.
+status: experimental
 extends: Include
+required:
+  - arguments
 properties:
   arguments:
     '@id': stencila:arguments
@@ -10,5 +12,3 @@ properties:
     type: array
     items:
       $ref: CallArgument
-required:
-  - arguments

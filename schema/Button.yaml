@@ -1,8 +1,12 @@
 title: Button
 '@id': stencila:Button
 extends: CodeExecutable
-status: unstable
+status: experimental
 description: A button.
+required:
+  - name
+core:
+  - label
 properties:
   name:
     '@id': schema:name
@@ -23,5 +27,3 @@ properties:
     description: Whether the button is currently disabled
     $comment: A button is disabled when it has a code expression and that expression evaluates to a falsy value
     type: boolean
-required:
-  - name

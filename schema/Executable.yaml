@@ -3,6 +3,11 @@ title: Executable
 extends: Entity
 abstract: true
 description: Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
+required:
+  - executionAuto
+  - executionCount
+  - executionRequired
+  - executionStatus
 properties:
   executionAuto:
     '@id': stencila:executionAuto

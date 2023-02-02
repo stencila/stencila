@@ -1,8 +1,10 @@
 title: Span
 '@id': stencila:Span
-description: Styled inline content
-
 extends: Styled
+description: Styled inline content
+status: experimental
+required:
+  - content
 properties:
   content:
     '@id': 'stencila:content'
@@ -10,5 +12,3 @@ properties:
     type: array
     items:
       $ref: Inline
-required:
-  - content

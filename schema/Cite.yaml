@@ -1,13 +1,19 @@
 title: Cite
 '@id': stencila:Cite
 extends: Entity
-
 description: A reference to a CreativeWork that is cited in another CreativeWork.
 $comment: |
   A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an
   [`Article`](./Article), to refer to an other `CreativeWork`.
   Often a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).
+required:
+  - target
+  - citationMode
 properties:
+  target:
+    '@id': stencila:target
+    description: The target of the citation (URL or reference ID).
+    type: string
   citationMode:
     '@id': stencila:citationMode
     description: Determines how the citation is shown within the surrounding text.
@@ -56,9 +62,3 @@ properties:
     type: string
     $comment: |
       See comment on `citationPrefix` regarding naming.
-  target:
-    '@id': stencila:target
-    description: The target of the citation (URL or reference ID).
-    type: string
-required:
-  - target

@@ -1,8 +1,12 @@
 title: Styled
 '@id': stencila:Styled
 abstract: true
+status: experimental
 description: An abstract base class for a document node that has styling applied to it and/or its content
 extends: CodeExecutable
+core:
+  - css
+  - classes
 properties:
   css:
     '@id': stencila:css

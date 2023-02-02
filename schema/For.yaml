@@ -1,8 +1,14 @@
 title: For
 '@id': stencila:For
-description: Repeat a block content for each item in an array
-status: unstable
+description: Repeat a block content for each item in an array.
+status: experimental
 extends: CodeExecutable
+required:
+  - symbol
+  - content
+core:
+  - otherwise
+  - iterations
 properties:
   symbol:
     '@id': stencila:symbol
@@ -28,6 +34,3 @@ properties:
       type: array
       items:
         $ref: Block
-required:
-  - symbol
-  - content

@@ -1,8 +1,9 @@
 title: Datatable
 '@id': stencila:Datatable
 extends: CreativeWork
-
 description: A table of data.
+required:
+  - columns
 properties:
   columns:
     '@id': stencila:columns
@@ -10,5 +11,3 @@ properties:
     type: array
     items:
       $ref: DatatableColumn
-required:
-  - columns

@@ -9,7 +9,22 @@ $comment: |
   comment, in preference to the schema.org `text` property (which is expected to
   be plain text). Replies to a comment can be added to its `comments` property
   or have their `parentItem` set to the parent comment.
+required:
+  - content
+core:
+  - authors
+  - datePublished
 properties:
+  content:
+    "@id": stencila:content
+    description: The content of the comment.
+    anyOf:
+      - type: array
+        items:
+          $ref: Block
+      - type: array
+        items:
+          $ref: Inline
   parentItem:
     '@id': schema:parentItem
     description: The parent comment of this comment.
@@ -18,7 +33,7 @@ properties:
     '@id': stencila:commentAspect
     description: The part or facet of the item that is being commented on.
     $comment: |
-      This propery is analagous to the `reviewAspect` property of the `reviewAspect`
+      This property is analogous to the `reviewAspect` property of the `reviewAspect`
       type. It is a string to allow flexibility in how the aspect is expressed
       depending on the item e.g "technique", for a comment on a painting, or
       "some_code.py#L10-L20" for a comment on a software code repository.

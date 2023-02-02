@@ -1,12 +1,16 @@
 title: Claim
 '@id': schema:Claim
 extends: CreativeWork
-
 description: A claim represents specific reviewable facts or statements.
 $comment: |
   Usually displayed as a block element and can have a label and title.
   In the context of a scholarly article this could be a theorem or proof.
   See also [Schema.org `Claim`](https://schema.org/Claim) and [JATS `<statement>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/statement.html).
+required:
+  - claimType
+  - content
+core:
+  - label
 properties:
   claimType:
     '@id': stencila:claimType
@@ -25,5 +29,3 @@ properties:
     '@id': stencila:label
     description: A short label for the claim.
     type: string
-required:
-  - content

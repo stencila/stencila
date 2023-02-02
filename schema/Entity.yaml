@@ -5,6 +5,9 @@ description: Abstract base type for compound (ie. non-atomic) nodes.
 $comment: |
   This type exists mainly to have a more simple base class than schema.org's `Thing`.
   This schema includes special properties that are analogous to JSON-LDs `@type` and `@id`.
+required:
+  - type
+  - id
 properties:
   type:
     '@id': schema:type
@@ -18,5 +21,3 @@ properties:
     $comment: |
       This is a special property analogous to JSON-LD's `@id` keyword.
     type: string
-required:
-  - type

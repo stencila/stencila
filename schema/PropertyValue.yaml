@@ -12,6 +12,10 @@ $comment: |
   so this schema make that property required.
 
   This type is mainly provided for use in `Thing.identifiers` (see the notes there).
+required:
+  - value
+core:
+  - propertyID
 properties:
   propertyID:
     '@id': schema:propertyID
@@ -21,5 +25,3 @@ properties:
     '@id': schema:value
     description: The value of the property.
     $ref: Primitive
-required:
-  - value

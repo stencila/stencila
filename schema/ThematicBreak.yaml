@@ -8,4 +8,3 @@ $comment: |
     - JATS XML [`<hr>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/hr.html)
     - MDAST [`ThematicBreak`](https://github.com/syntax-tree/mdast#ThematicBreak)
     - OpenDocument OpenDocument [`<text:soft-page-break>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#element-text_soft-page-break)
-properties: {}
