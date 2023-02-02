@@ -37,11 +37,9 @@ properties:
     # only unstructured text content.
     '@id': stencila:content
     description: The structured content of this creative work c.f. property `text`.
-    anyOf:
-      - type: array
-        items:
-          $ref: Node
-      - type: string
+    type: array
+    items:
+      $ref: Block
   dateCreated:
     '@id': schema:dateCreated
     description: Date/time of creation.

@@ -24,15 +24,6 @@ core:
   - dateAccepted
   - datePublished
 properties:
-  content:
-    '@id': stencila:content
-    description: The structured content of this article.
-    $comment: |
-      This is an override of `CreativeWork.content` to restrict node to
-      `Block` node types e.g `Paragraph`.
-    type: array
-    items:
-      $ref: Block
   pageStart:
     '@id': schema:pageStart
     description: The page on which the article starts; for example "135" or "xiii".
