@@ -27,7 +27,7 @@ pub struct Directory {
     r#type: MustBe!("Directory"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The name of the item.
     name: String,

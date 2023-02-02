@@ -16,7 +16,7 @@ pub struct PostalAddress {
     r#type: MustBe!("PostalAddress"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Email address for correspondence.
     emails: Option<Vec<String>>,

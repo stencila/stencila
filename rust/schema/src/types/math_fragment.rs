@@ -14,7 +14,7 @@ pub struct MathFragment {
     r#type: MustBe!("MathFragment"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
     math_language: String,

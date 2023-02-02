@@ -14,7 +14,7 @@ pub struct EnumValidator {
     r#type: MustBe!("EnumValidator"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// A node is valid if it is equal to any of these values.
     values: Vec<Node>,

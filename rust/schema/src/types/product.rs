@@ -17,7 +17,7 @@ pub struct Product {
     r#type: MustBe!("Product"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]

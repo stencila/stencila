@@ -7,6 +7,7 @@ $comment: |
   This schema includes special properties that are analogous to JSON-LDs `@type` and `@id`.
 required:
   - type
+core:
   - id
 properties:
   type:

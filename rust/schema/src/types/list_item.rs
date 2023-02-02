@@ -20,7 +20,7 @@ pub struct ListItem {
     r#type: MustBe!("ListItem"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The content of the list item.
     content: Option<BlocksOrInlines>,

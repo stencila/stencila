@@ -26,7 +26,7 @@ pub struct CreativeWork {
     r#type: MustBe!("CreativeWork"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]

@@ -14,7 +14,7 @@ pub struct Strong {
     r#type: MustBe!("Strong"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The content that is marked.
     content: Vec<Inline>,

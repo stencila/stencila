@@ -16,7 +16,7 @@ pub struct ArrayValidator {
     r#type: MustBe!("ArrayValidator"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Whether items can have the value `Node::Null`
     items_nullable: Boolean,

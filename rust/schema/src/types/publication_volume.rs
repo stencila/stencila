@@ -27,7 +27,7 @@ pub struct PublicationVolume {
     r#type: MustBe!("PublicationVolume"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     is_part_of: Option<Box<CreativeWorkType>>,

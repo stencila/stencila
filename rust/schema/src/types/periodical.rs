@@ -26,7 +26,7 @@ pub struct Periodical {
     r#type: MustBe!("Periodical"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]

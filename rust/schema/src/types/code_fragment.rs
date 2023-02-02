@@ -13,7 +13,7 @@ pub struct CodeFragment {
     r#type: MustBe!("CodeFragment"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The code.
     code: String,

@@ -15,7 +15,7 @@ pub struct ConstantValidator {
     r#type: MustBe!("ConstantValidator"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The value that the node must have.
     #[def = "Box::new(Node::Null(Null{}))"]

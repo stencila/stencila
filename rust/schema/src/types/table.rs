@@ -28,7 +28,7 @@ pub struct Table {
     r#type: MustBe!("Table"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// A caption for the table.
     caption: Option<BlocksOrString>,

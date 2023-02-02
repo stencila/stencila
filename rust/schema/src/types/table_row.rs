@@ -15,7 +15,7 @@ pub struct TableRow {
     r#type: MustBe!("TableRow"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// An array of cells in the row.
     cells: Vec<TableCell>,

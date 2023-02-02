@@ -14,7 +14,7 @@ pub struct NumberValidator {
     r#type: MustBe!("NumberValidator"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The inclusive lower limit for a numeric node.
     minimum: Option<Number>,

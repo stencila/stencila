@@ -13,5 +13,5 @@ pub struct BooleanValidator {
     r#type: MustBe!("BooleanValidator"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 }

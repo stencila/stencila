@@ -15,7 +15,7 @@ pub struct TimestampValidator {
     r#type: MustBe!("TimestampValidator"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The time units that the timestamp can have.
     time_units: Option<Vec<TimeUnit>>,

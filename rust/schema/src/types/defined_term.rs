@@ -16,7 +16,7 @@ pub struct DefinedTerm {
     r#type: MustBe!("DefinedTerm"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The name of the item.
     name: String,

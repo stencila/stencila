@@ -13,5 +13,5 @@ pub struct ThematicBreak {
     r#type: MustBe!("ThematicBreak"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 }

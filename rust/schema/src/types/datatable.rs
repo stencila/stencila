@@ -27,7 +27,7 @@ pub struct Datatable {
     r#type: MustBe!("Datatable"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The columns of data.
     columns: Vec<DatatableColumn>,

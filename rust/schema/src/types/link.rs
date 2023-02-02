@@ -14,7 +14,7 @@ pub struct Link {
     r#type: MustBe!("Link"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The textual content of the link.
     content: Vec<Inline>,

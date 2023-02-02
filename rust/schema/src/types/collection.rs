@@ -26,7 +26,7 @@ pub struct Collection {
     r#type: MustBe!("Collection"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     parts: Vec<CreativeWorkType>,

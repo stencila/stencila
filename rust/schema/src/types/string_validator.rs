@@ -14,7 +14,7 @@ pub struct StringValidator {
     r#type: MustBe!("StringValidator"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The minimum length for a string node.
     min_length: Option<Integer>,

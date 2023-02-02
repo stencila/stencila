@@ -14,7 +14,7 @@ pub struct DateValidator {
     r#type: MustBe!("DateValidator"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The inclusive lower limit for a date.
     minimum: Option<Date>,

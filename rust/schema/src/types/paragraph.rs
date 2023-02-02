@@ -14,7 +14,7 @@ pub struct Paragraph {
     r#type: MustBe!("Paragraph"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The contents of the paragraph.
     content: Vec<Inline>,

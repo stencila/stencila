@@ -14,7 +14,7 @@ pub struct Strikeout {
     r#type: MustBe!("Strikeout"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The content that is marked.
     content: Vec<Inline>,

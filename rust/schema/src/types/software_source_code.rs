@@ -28,7 +28,7 @@ pub struct SoftwareSourceCode {
     r#type: MustBe!("SoftwareSourceCode"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Link to the repository where the un-compiled, human readable code and related code is located.
     code_repository: Option<String>,

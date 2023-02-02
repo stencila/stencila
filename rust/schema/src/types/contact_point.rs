@@ -16,7 +16,7 @@ pub struct ContactPoint {
     r#type: MustBe!("ContactPoint"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Email address for correspondence.
     emails: Option<Vec<String>>,

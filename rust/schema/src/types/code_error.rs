@@ -13,7 +13,7 @@ pub struct CodeError {
     r#type: MustBe!("CodeError"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The error message or brief description of the error.
     error_message: String,

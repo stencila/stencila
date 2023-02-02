@@ -19,7 +19,7 @@ pub struct MonetaryGrant {
     r#type: MustBe!("MonetaryGrant"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]

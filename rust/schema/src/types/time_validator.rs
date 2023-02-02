@@ -14,7 +14,7 @@ pub struct TimeValidator {
     r#type: MustBe!("TimeValidator"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The inclusive lower limit for a time.
     minimum: Option<Time>,

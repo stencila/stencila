@@ -15,7 +15,7 @@ pub struct DurationValidator {
     r#type: MustBe!("DurationValidator"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The time units that the duration can have.
     time_units: Option<Vec<TimeUnit>>,

@@ -27,7 +27,7 @@ pub struct Figure {
     r#type: MustBe!("Figure"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// A short label for the figure.
     label: Option<String>,

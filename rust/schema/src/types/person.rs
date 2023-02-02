@@ -19,7 +19,7 @@ pub struct Person {
     r#type: MustBe!("Person"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Organizations that the person is affiliated with.
     affiliations: Option<Vec<Organization>>,

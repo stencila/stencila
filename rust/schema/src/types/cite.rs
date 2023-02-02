@@ -17,7 +17,7 @@ pub struct Cite {
     r#type: MustBe!("Cite"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The target of the citation (URL or reference ID).
     target: String,

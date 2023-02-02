@@ -27,7 +27,7 @@ pub struct Claim {
     r#type: MustBe!("Claim"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Content of the claim, usually a single paragraph.
     content: Vec<Block>,

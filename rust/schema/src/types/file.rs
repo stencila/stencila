@@ -26,7 +26,7 @@ pub struct File {
     r#type: MustBe!("File"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The name of the item.
     name: String,

@@ -25,7 +25,7 @@ pub struct If {
     r#type: MustBe!("If"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
     execution_auto: ExecutionAuto,

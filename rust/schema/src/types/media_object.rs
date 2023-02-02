@@ -27,7 +27,7 @@ pub struct MediaObject {
     r#type: MustBe!("MediaObject"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
     content_url: String,

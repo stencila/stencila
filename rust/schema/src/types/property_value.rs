@@ -17,7 +17,7 @@ pub struct PropertyValue {
     r#type: MustBe!("PropertyValue"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// A commonly used identifier for the characteristic represented by the property.
     property_id: Option<String>,

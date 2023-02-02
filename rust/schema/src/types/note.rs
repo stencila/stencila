@@ -15,7 +15,7 @@ pub struct Note {
     r#type: MustBe!("Note"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Determines where the note content is displayed within the document.
     note_type: NoteType,

@@ -27,7 +27,7 @@ pub struct Review {
     r#type: MustBe!("Review"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]

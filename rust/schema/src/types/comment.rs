@@ -25,7 +25,7 @@ pub struct Comment {
     r#type: MustBe!("Comment"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The authors of this creative work.
     authors: Option<Vec<PersonOrOrganization>>,

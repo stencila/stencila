@@ -15,7 +15,7 @@ pub struct Heading {
     r#type: MustBe!("Heading"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The depth of the heading.
     #[def = "1"]

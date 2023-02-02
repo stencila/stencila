@@ -15,7 +15,7 @@ pub struct Function {
     r#type: MustBe!("Function"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The name of the function.
     name: String,

@@ -27,7 +27,7 @@ pub struct Article {
     r#type: MustBe!("Article"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// A description of the item.
     description: Option<Vec<Block>>,

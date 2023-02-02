@@ -15,7 +15,7 @@ pub struct QuoteBlock {
     r#type: MustBe!("QuoteBlock"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The source of the quote.
     cite: Option<CiteOrString>,

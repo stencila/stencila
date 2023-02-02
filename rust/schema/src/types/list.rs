@@ -15,7 +15,7 @@ pub struct List {
     r#type: MustBe!("List"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The items in the list.
     items: Vec<ListItem>,

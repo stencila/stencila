@@ -14,7 +14,7 @@ pub struct CiteGroup {
     r#type: MustBe!("CiteGroup"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// One or more `Cite`s to be referenced in the same surrounding text.
     items: Vec<Cite>,

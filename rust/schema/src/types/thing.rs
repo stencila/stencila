@@ -16,7 +16,7 @@ pub struct Thing {
     r#type: MustBe!("Thing"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]

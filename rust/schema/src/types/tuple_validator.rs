@@ -14,7 +14,7 @@ pub struct TupleValidator {
     r#type: MustBe!("TupleValidator"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// An array of validators specifying the constraints on each successive item in the array.
     items: Option<Vec<Validator>>,

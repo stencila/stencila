@@ -14,7 +14,7 @@ pub struct Variable {
     r#type: MustBe!("Variable"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The namespace, usually a document path, within which the variable resides
     namespace: String,

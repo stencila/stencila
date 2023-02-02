@@ -13,7 +13,7 @@ pub struct CodeBlock {
     r#type: MustBe!("CodeBlock"),
 
     /// The identifier for this item
-    id: String,
+    id: Option<String>,
 
     /// The code.
     code: String,
