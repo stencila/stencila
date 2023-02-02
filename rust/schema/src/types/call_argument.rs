@@ -19,10 +19,11 @@ use super::timestamp::Timestamp;
 use super::validator::Validator;
 
 /// The value of a `Parameter` to call a document with
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct CallArgument {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("CallArgument"),
 
     /// The identifier for this item
@@ -69,7 +70,7 @@ pub struct CallArgument {
     options: Box<CallArgumentOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct CallArgumentOptions {
     /// A digest of the content, semantics and dependencies of the node.

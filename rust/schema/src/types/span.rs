@@ -18,10 +18,11 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Styled inline content
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Span {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Span"),
 
     /// The identifier for this item
@@ -62,7 +63,7 @@ pub struct Span {
     options: Box<SpanOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct SpanOptions {
     /// A digest of the content, semantics and dependencies of the node.

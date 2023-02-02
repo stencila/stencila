@@ -17,10 +17,11 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Comment {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Comment"),
 
     /// The identifier for this item
@@ -40,7 +41,7 @@ pub struct Comment {
     options: Box<CommentOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct CommentOptions {
     /// Alternate names (aliases) for the item.

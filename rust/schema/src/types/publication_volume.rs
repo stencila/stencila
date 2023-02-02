@@ -19,10 +19,11 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A part of a successively published publication such as a periodical or multi-volume work.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct PublicationVolume {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("PublicationVolume"),
 
     /// The identifier for this item
@@ -39,7 +40,7 @@ pub struct PublicationVolume {
     options: Box<PublicationVolumeOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct PublicationVolumeOptions {
     /// Alternate names (aliases) for the item.

@@ -6,10 +6,11 @@ use super::node::Node;
 use super::string::String;
 
 /// A variable representing a name / value pair.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Variable {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Variable"),
 
     /// The identifier for this item

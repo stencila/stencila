@@ -144,19 +144,23 @@ impl Schemas {
                 _ => name,
             };
 
-            let (mut typ, is_vec) = if name == "r#type" {
-                (format!(r#"MustBe!("{title}")"#), false)
+            let (mut typ, is_vec, attrs) = if name == "r#type" {
+                (
+                    format!(r#"MustBe!("{title}")"#),
+                    false,
+                    "#[autosurgeon(with=\"autosurgeon_must_be\")]\n    ",
+                )
             } else {
                 let (typ, is_vec, ..) = Self::rust_type(dest, property).await?;
                 used_types.insert(typ.clone());
-                (typ, is_vec)
+                (typ, is_vec, "")
             };
 
             let mut default = property.default.as_ref().map(|default| {
                 let mut default = Self::rust_value(default);
                 if default == "Null" {
                     used_types.insert(default);
-                    default = "Node::Null(Null)".to_string();
+                    default = "Node::Null(Null{})".to_string();
                 }
                 default
             });
@@ -181,7 +185,7 @@ impl Schemas {
                 .map(|default| format!("#[def = \"{default}\"]\n    "))
                 .unwrap_or_default();
 
-            let code = format!("/// {description}\n    {default}{name}: {typ},");
+            let code = format!("/// {description}\n    {attrs}{default}{name}: {typ},");
             let is_option = !(property.is_required || property.is_core);
 
             fields.push((is_option, code));
@@ -210,7 +214,7 @@ impl Schemas {
             format!(
                 r#"
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct {title}Options {{
     {optional_fields}
@@ -240,7 +244,7 @@ use crate::prelude::*;
 {uses}
 
 /// {description}
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct {title} {{
     {core_fields}
@@ -387,7 +391,7 @@ pub struct {title} {{
 use crate::prelude::*;
 
 {uses}/// {description}
-#[derive(Debug{defaults}, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug{defaults}, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 {default}
 pub enum {name} {{
@@ -445,8 +449,11 @@ use crate::prelude::*;
 /// This is a struct, rather than a unit variant of `Primitive`, so that
 /// it can be treated the same way as other variants when dispatching to
 /// trait methods.
-#[derive(Debug, Default, Clone, PartialEq)]
-pub struct Null;
+/// 
+/// This is an empty struct, rather than a unit struct, because
+/// Autosurgeon will not work with unit structs.
+#[derive(Debug, Default, Clone, PartialEq, Reconcile, Hydrate)]
+pub struct Null {}
 
 impl fmt::Display for Null {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

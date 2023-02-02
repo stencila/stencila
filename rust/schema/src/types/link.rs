@@ -6,10 +6,11 @@ use super::inline::Inline;
 use super::string::String;
 
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Link {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Link"),
 
     /// The identifier for this item
@@ -26,7 +27,7 @@ pub struct Link {
     options: Box<LinkOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct LinkOptions {
     /// A title for the link.

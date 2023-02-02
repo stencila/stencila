@@ -17,10 +17,11 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Include content from an external source (e.g. file, URL).
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Include {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Include"),
 
     /// The identifier for this item
@@ -55,7 +56,7 @@ pub struct Include {
     options: Box<IncludeOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct IncludeOptions {
     /// A digest of the content, semantics and dependencies of the node.

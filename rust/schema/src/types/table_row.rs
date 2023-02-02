@@ -7,10 +7,11 @@ use super::table_cell::TableCell;
 use super::table_row_type::TableRowType;
 
 /// A row within a Table.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct TableRow {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("TableRow"),
 
     /// The identifier for this item
@@ -24,7 +25,7 @@ pub struct TableRow {
     options: Box<TableRowOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct TableRowOptions {
     /// The type of row.

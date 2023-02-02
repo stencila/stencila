@@ -19,10 +19,11 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A table of data.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Datatable {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Datatable"),
 
     /// The identifier for this item
@@ -36,7 +37,7 @@ pub struct Datatable {
     options: Box<DatatableOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct DatatableOptions {
     /// Alternate names (aliases) for the item.

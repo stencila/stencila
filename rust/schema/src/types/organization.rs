@@ -12,10 +12,11 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// An organization such as a school, NGO, corporation, club, etc.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Organization {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Organization"),
 
     /// The identifier for this item
@@ -26,7 +27,7 @@ pub struct Organization {
     options: Box<OrganizationOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct OrganizationOptions {
     /// Alternate names (aliases) for the item.

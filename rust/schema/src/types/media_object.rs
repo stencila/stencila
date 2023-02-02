@@ -19,10 +19,11 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct MediaObject {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("MediaObject"),
 
     /// The identifier for this item
@@ -39,7 +40,7 @@ pub struct MediaObject {
     options: Box<MediaObjectOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct MediaObjectOptions {
     /// Alternate names (aliases) for the item.

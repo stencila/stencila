@@ -7,10 +7,11 @@ use super::time_unit::TimeUnit;
 use super::timestamp::Timestamp;
 
 /// A validator specifying the constraints on a timestamp.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct TimestampValidator {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("TimestampValidator"),
 
     /// The identifier for this item

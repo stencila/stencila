@@ -6,10 +6,11 @@ use super::string::String;
 use super::time::Time;
 
 /// A validator specifying the constraints on a time.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct TimeValidator {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("TimeValidator"),
 
     /// The identifier for this item

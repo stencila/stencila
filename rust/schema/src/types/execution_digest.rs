@@ -5,7 +5,7 @@ use crate::prelude::*;
 use super::number::Number;
 
 /// A digest of the execution state of a node.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct ExecutionDigest {
     /// A digest of the state of a node.

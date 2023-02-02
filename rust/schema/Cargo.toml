@@ -4,5 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+automerge = "0.3.0"
+autosurgeon = { git = "https://github.com/nokome/autosurgeon" }
 common = { path = "../common" }
 monostate = "0.1"

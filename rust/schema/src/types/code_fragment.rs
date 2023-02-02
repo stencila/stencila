@@ -5,10 +5,11 @@ use crate::prelude::*;
 use super::string::String;
 
 /// Inline code.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct CodeFragment {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("CodeFragment"),
 
     /// The identifier for this item
@@ -25,7 +26,7 @@ pub struct CodeFragment {
     options: Box<CodeFragmentOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct CodeFragmentOptions {
     /// Media type, typically expressed using a MIME format, of the code.

@@ -19,10 +19,11 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Repeat a block content for each item in an array.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct For {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("For"),
 
     /// The identifier for this item
@@ -66,7 +67,7 @@ pub struct For {
     options: Box<ForOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct ForOptions {
     /// A digest of the content, semantics and dependencies of the node.

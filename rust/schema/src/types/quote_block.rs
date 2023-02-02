@@ -7,10 +7,11 @@ use super::cite_or_string::CiteOrString;
 use super::string::String;
 
 /// A section quoted from somewhere else.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct QuoteBlock {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("QuoteBlock"),
 
     /// The identifier for this item

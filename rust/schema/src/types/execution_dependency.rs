@@ -7,7 +7,7 @@ use super::execution_dependency_relation::ExecutionDependencyRelation;
 use super::integer::Integer;
 
 /// An upstream execution dependency of a node
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct ExecutionDependency {
     /// The relation to the dependency

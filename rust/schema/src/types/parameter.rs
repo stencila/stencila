@@ -19,10 +19,11 @@ use super::timestamp::Timestamp;
 use super::validator::Validator;
 
 /// A parameter of a document.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Parameter {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Parameter"),
 
     /// The identifier for this item
@@ -60,7 +61,7 @@ pub struct Parameter {
     options: Box<ParameterOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct ParameterOptions {
     /// A digest of the content, semantics and dependencies of the node.

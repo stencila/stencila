@@ -6,7 +6,7 @@ use super::creative_work_type::CreativeWorkType;
 use super::string::String;
 
 /// [`CreativeWorkType`] or [`String`]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 
 pub enum CreativeWorkTypeOrString {

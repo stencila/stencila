@@ -18,10 +18,11 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// An executable programming code expression.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct CodeExpression {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("CodeExpression"),
 
     /// The identifier for this item
@@ -56,7 +57,7 @@ pub struct CodeExpression {
     options: Box<CodeExpressionOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct CodeExpressionOptions {
     /// A digest of the content, semantics and dependencies of the node.

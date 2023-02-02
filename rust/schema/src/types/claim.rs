@@ -19,10 +19,11 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A claim represents specific reviewable facts or statements.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Claim {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Claim"),
 
     /// The identifier for this item
@@ -42,7 +43,7 @@ pub struct Claim {
     options: Box<ClaimOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct ClaimOptions {
     /// Alternate names (aliases) for the item.

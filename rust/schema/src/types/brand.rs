@@ -8,10 +8,11 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A brand used by an organization or person for labeling a product, product group, or similar.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Brand {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Brand"),
 
     /// The identifier for this item
@@ -25,7 +26,7 @@ pub struct Brand {
     options: Box<BrandOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct BrandOptions {
     /// Alternate names (aliases) for the item.

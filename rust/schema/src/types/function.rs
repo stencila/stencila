@@ -7,10 +7,11 @@ use super::string::String;
 use super::validator::Validator;
 
 /// A function with a name, which might take Parameters and return a value of a certain type.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Function {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Function"),
 
     /// The identifier for this item
@@ -27,7 +28,7 @@ pub struct Function {
     options: Box<FunctionOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct FunctionOptions {
     /// The return type of the function.

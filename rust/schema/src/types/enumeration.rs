@@ -8,10 +8,11 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Enumeration {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Enumeration"),
 
     /// The identifier for this item
@@ -22,7 +23,7 @@ pub struct Enumeration {
     options: Box<EnumerationOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct EnumerationOptions {
     /// Alternate names (aliases) for the item.

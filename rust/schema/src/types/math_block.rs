@@ -6,10 +6,11 @@ use super::execution_digest::ExecutionDigest;
 use super::string::String;
 
 /// A block of math, e.g an equation, to be treated as block content.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct MathBlock {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("MathBlock"),
 
     /// The identifier for this item

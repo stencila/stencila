@@ -16,7 +16,7 @@ use super::time::Time;
 use super::timestamp::Timestamp;
 
 /// Union type for all primitives values
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 #[def = "Null(Null::default())"]
 pub enum Primitive {

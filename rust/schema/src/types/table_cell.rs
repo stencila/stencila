@@ -8,10 +8,11 @@ use super::string::String;
 use super::table_cell_type::TableCellType;
 
 /// A cell within a `Table`.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct TableCell {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("TableCell"),
 
     /// The identifier for this item
@@ -22,7 +23,7 @@ pub struct TableCell {
     options: Box<TableCellOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct TableCellOptions {
     /// The name of the cell.

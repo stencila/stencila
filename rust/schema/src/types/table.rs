@@ -20,10 +20,11 @@ use super::table_row::TableRow;
 use super::thing_type::ThingType;
 
 /// A table.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Table {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Table"),
 
     /// The identifier for this item
@@ -43,7 +44,7 @@ pub struct Table {
     options: Box<TableOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct TableOptions {
     /// Alternate names (aliases) for the item.

@@ -17,10 +17,11 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Show and execute alternative content conditional upon an executed expression
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct If {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("If"),
 
     /// The identifier for this item
@@ -46,7 +47,7 @@ pub struct If {
     options: Box<IfOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct IfOptions {
     /// A digest of the content, semantics and dependencies of the node.

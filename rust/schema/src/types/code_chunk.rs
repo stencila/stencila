@@ -19,10 +19,11 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// A executable chunk of code.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct CodeChunk {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("CodeChunk"),
 
     /// The identifier for this item
@@ -60,7 +61,7 @@ pub struct CodeChunk {
     options: Box<CodeChunkOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct CodeChunkOptions {
     /// A digest of the content, semantics and dependencies of the node.

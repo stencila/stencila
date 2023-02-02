@@ -6,10 +6,11 @@ use super::number::Number;
 use super::string::String;
 
 /// A validator specifying the constraints on a numeric node.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct NumberValidator {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("NumberValidator"),
 
     /// The identifier for this item

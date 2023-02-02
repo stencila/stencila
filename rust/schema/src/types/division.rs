@@ -18,10 +18,11 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Styled block content
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Division {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Division"),
 
     /// The identifier for this item
@@ -62,7 +63,7 @@ pub struct Division {
     options: Box<DivisionOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct DivisionOptions {
     /// A digest of the content, semantics and dependencies of the node.

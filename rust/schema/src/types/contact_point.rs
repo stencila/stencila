@@ -8,10 +8,11 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A contact point, usually within an organization.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct ContactPoint {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("ContactPoint"),
 
     /// The identifier for this item
@@ -28,7 +29,7 @@ pub struct ContactPoint {
     options: Box<ContactPointOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct ContactPointOptions {
     /// Alternate names (aliases) for the item.

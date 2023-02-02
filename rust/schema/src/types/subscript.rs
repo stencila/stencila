@@ -6,10 +6,11 @@ use super::inline::Inline;
 use super::string::String;
 
 /// Subscripted content.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Subscript {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Subscript"),
 
     /// The identifier for this item

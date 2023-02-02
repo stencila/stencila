@@ -6,10 +6,11 @@ use super::date_time::DateTime;
 use super::string::String;
 
 /// A validator specifying the constraints on a date-time.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct DateTimeValidator {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("DateTimeValidator"),
 
     /// The identifier for this item

@@ -8,10 +8,11 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// The most generic type of item.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Thing {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Thing"),
 
     /// The identifier for this item
@@ -22,7 +23,7 @@ pub struct Thing {
     options: Box<ThingOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct ThingOptions {
     /// Alternate names (aliases) for the item.

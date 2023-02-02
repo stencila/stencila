@@ -18,10 +18,11 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// A clause within a `If` node
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct IfClause {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("IfClause"),
 
     /// The identifier for this item
@@ -56,7 +57,7 @@ pub struct IfClause {
     options: Box<IfClauseOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct IfClauseOptions {
     /// A digest of the content, semantics and dependencies of the node.

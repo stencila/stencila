@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// Status of the most recent, including any current, execution of a document node.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 #[def = "Unknown"]
 pub enum ExecutionStatus {

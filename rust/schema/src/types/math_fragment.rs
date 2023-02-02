@@ -6,10 +6,11 @@ use super::execution_digest::ExecutionDigest;
 use super::string::String;
 
 /// A fragment of math, e.g a variable name, to be treated as inline content.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct MathFragment {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("MathFragment"),
 
     /// The identifier for this item

@@ -11,10 +11,11 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A person (alive, dead, undead, or fictional).
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Person {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Person"),
 
     /// The identifier for this item
@@ -34,7 +35,7 @@ pub struct Person {
     options: Box<PersonOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct PersonOptions {
     /// Alternate names (aliases) for the item.

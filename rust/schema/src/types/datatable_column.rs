@@ -10,10 +10,11 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A column of data within a Datatable.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct DatatableColumn {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("DatatableColumn"),
 
     /// The identifier for this item
@@ -33,7 +34,7 @@ pub struct DatatableColumn {
     options: Box<DatatableColumnOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct DatatableColumnOptions {
     /// Alternate names (aliases) for the item.

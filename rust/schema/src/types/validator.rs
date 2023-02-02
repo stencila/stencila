@@ -17,7 +17,7 @@ use super::timestamp_validator::TimestampValidator;
 use super::tuple_validator::TupleValidator;
 
 /// Union type for validators.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 
 pub enum Validator {

@@ -140,7 +140,6 @@ mod validator;
 mod variable;
 mod video_object;
 
-
 pub use array::*;
 pub use array_validator::*;
 pub use article::*;

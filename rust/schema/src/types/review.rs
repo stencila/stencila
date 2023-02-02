@@ -19,10 +19,11 @@ use super::thing::Thing;
 use super::thing_type::ThingType;
 
 /// A review of an item, e.g of an Article, or SoftwareSourceCode.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Review {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Review"),
 
     /// The identifier for this item
@@ -33,7 +34,7 @@ pub struct Review {
     options: Box<ReviewOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct ReviewOptions {
     /// Alternate names (aliases) for the item.

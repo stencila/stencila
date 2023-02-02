@@ -18,10 +18,11 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Call another document, optionally with arguments, and include its executed content.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Call {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Call"),
 
     /// The identifier for this item
@@ -59,7 +60,7 @@ pub struct Call {
     options: Box<CallOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct CallOptions {
     /// A digest of the content, semantics and dependencies of the node.

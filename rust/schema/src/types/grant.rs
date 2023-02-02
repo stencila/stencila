@@ -10,10 +10,11 @@ use super::string::String;
 use super::thing::Thing;
 
 /// A grant, typically financial or otherwise quantifiable, of resources.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct Grant {
     /// The type of this item
+    #[autosurgeon(with = "autosurgeon_must_be")]
     r#type: MustBe!("Grant"),
 
     /// The identifier for this item
@@ -24,7 +25,7 @@ pub struct Grant {
     options: Box<GrantOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
 #[serde(crate = "common::serde")]
 pub struct GrantOptions {
     /// Alternate names (aliases) for the item.
