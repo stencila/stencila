@@ -1,6 +1,5 @@
 title: Timestamp
 '@id': schema:Timestamp
-status: stable
 description: A value that represents a point in time
 properties:
   value:

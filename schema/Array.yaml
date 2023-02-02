@@ -1,6 +1,5 @@
 title: Array
 '@id': stencila:Array
-status: stable
 description: A value comprised of other primitive nodes
 $comment: |
   Note that the items in the array are restricted to primitive node

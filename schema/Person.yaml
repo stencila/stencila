@@ -1,7 +1,6 @@
 title: Person
 '@id': schema:Person
 extends: Thing
-status: stable
 description: A person (alive, dead, undead, or fictional).
 parser: person
 properties:

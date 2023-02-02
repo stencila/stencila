@@ -1,7 +1,6 @@
 title: Math
 '@id': stencila:Math
 extends: Entity
-status: stable
 abstract: true
 description: Abstract base type for a mathematical variable or equation.
 $comment: |

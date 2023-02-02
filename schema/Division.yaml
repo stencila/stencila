@@ -1,7 +1,7 @@
 title: Division
 '@id': stencila:Division
 description: Styled block content
-status: unstable
+
 extends: Styled
 properties:
   content:

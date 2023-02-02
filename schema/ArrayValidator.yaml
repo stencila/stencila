@@ -1,7 +1,7 @@
 title: ArrayValidator
 '@id': stencila:ArrayValidator
 extends: Entity
-status: unstable
+
 description: A validator specifying constraints on an array node.
 properties:
   itemsValidator:

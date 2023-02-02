@@ -1,7 +1,6 @@
 title: File
 '@id': stencila:File
 extends: CreativeWork
-status: stable
 description: A file on the filesystem
 properties:
   path:

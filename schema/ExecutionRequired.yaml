@@ -1,7 +1,6 @@
 title: ExecutionRequired
 '@id': stencila:ExecutionRequired
 extends: Enumeration
-status: stable
 description: Under which circumstances the document node should be automatically executed.
 anyOf:
   - const: 'No'

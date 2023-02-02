@@ -9,7 +9,7 @@ use common::{
     serde_with::skip_serializing_none,
     serde_yaml,
     strum::AsRefStr,
-    tokio::fs::read_to_string,
+    tokio::fs::read_to_string, defaults::Defaults,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, AsRefStr)]
@@ -69,7 +69,7 @@ pub struct ItemsAnyOf {
 }
 
 /// A schema object
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[skip_serializing_none]
 pub struct Schema {
@@ -148,7 +148,9 @@ pub struct Schema {
     pub jid: Option<String>,
 
     /// The status of the schema
-    pub status: Option<String>,
+    #[def = "\"stable\".to_string()"]
+    #[serde(default)]
+    pub status: String,
 
     /// The title of the schema that this schema extends
     pub extends: Option<String>,

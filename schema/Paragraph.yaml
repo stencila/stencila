@@ -1,7 +1,6 @@
 title: Paragraph
 '@id': stencila:Paragraph
 extends: Entity
-status: stable
 description: Paragraph
 $comment: |
   Analogues of `Paragraph` in other schema include:

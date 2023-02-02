@@ -1,5 +1,4 @@
 title: Validator
-status: stable
 description: Union type for validators.
 anyOf:
   - $ref: ArrayValidator

@@ -1,7 +1,6 @@
 title: Emphasis
 '@id': stencila:Emphasis
 extends: Mark
-status: stable
 description: Emphasised content.
 $comment: |
   Analogues of `Delete` in other schema include:

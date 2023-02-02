@@ -1,6 +1,5 @@
 title: ExecutionDigest
 '@id': stencila:ExecutionDigest
-status: stable
 description: A digest of the execution state of a node.
 properties:
   stateDigest:

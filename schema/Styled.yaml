@@ -1,7 +1,7 @@
 title: Styled
 '@id': stencila:Styled
-description: A document node that has styling applied to it and/or its content
-status: unstable
+abstract: true
+description: An abstract base class for a document node that has styling applied to it and/or its content
 extends: CodeExecutable
 properties:
   css:

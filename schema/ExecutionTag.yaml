@@ -1,7 +1,7 @@
 title: ExecutionTag
 '@id': stencila:ExecutionTag
 description: A tag on code that affects its execution
-status: unstable
+
 properties:
   name:
     '@id': schema:name

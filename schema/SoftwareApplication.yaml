@@ -1,7 +1,6 @@
 title: SoftwareApplication
 '@id': schema:SoftwareApplication
 extends: CreativeWork
-status: stable
 description: |
   A software application.
 $comment: |

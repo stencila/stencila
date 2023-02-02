@@ -1,7 +1,6 @@
 title: List
 '@id': schema:ItemList
 extends: Entity
-status: stable
 description: A list of items.
 $comment: |
   This is an implementation, and renaming, of schema.org [`ItemList`](https://schema.org/ItemList).

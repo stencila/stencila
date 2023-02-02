@@ -1,6 +1,5 @@
 title: Subscript
 '@id': stencila:Subscript
 extends: Mark
-status: stable
 description: Subscripted content.
 properties: {}

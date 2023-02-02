@@ -1,7 +1,6 @@
 title: ExecutionAuto
 '@id': stencila:ExecutionAuto
 extends: Enumeration
-status: stable
 description: Under which circumstances the document node should be automatically executed.
 default: Needed
 anyOf:

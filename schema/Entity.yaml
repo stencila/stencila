@@ -1,6 +1,5 @@
 title: Entity
 '@id': stencila:Entity
-status: stable
 abstract: true
 description: Abstract base type for compound (ie. non-atomic) nodes.
 $comment: |

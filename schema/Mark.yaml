@@ -1,7 +1,6 @@
 title: Mark
 '@id': stencila:Mark
 extends: Entity
-status: stable
 abstract: true
 description: |
   Abstract base class for nodes that mark some other inline content

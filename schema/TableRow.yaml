@@ -1,7 +1,6 @@
 title: TableRow
 '@id': stencila:TableRow
 extends: Entity
-status: unstable
 description: A row within a Table.
 properties:
   cells:

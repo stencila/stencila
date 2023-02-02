@@ -1,7 +1,6 @@
 title: Comment
 '@id': schema:Comment
 extends: CreativeWork
-status: stable
 description: A comment on an item, e.g on a Article, or SoftwareSourceCode.
 $comment: |
   Use the `about` property to define the item that a comment is on and

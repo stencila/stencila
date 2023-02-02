@@ -1,7 +1,6 @@
 title: QuoteBlock
 '@id': stencila:QuoteBlock
 extends: Entity
-status: stable
 description: |
   A section quoted from somewhere else.
 properties:

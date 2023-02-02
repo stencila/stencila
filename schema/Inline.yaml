@@ -1,5 +1,4 @@
 title: Inline
-status: stable
 description: Union type for valid inline content.
 default: String
 anyOf:

@@ -1,7 +1,7 @@
 title: Note
 '@id': stencila:Note
 extends: Entity
-status: unstable
+
 description: Additional content which is not part of the main content of a document.
 $comment: |
   A note is usually associated with a word or paragraph using a number or other symbol. 

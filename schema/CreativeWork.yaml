@@ -1,7 +1,6 @@
 title: CreativeWork
 '@id': schema:CreativeWork
 extends: Thing
-status: stable
 description: |
   A creative work, including books, movies, photographs, software programs, etc.
 $comment: |

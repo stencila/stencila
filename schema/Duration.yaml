@@ -1,6 +1,5 @@
 title: Duration
 '@id': schema:Duration
-status: stable
 description: A value that represents the difference between two timestamps
 properties:
   value:

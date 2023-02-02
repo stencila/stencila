@@ -1,7 +1,7 @@
 title: ExecutionDependency
 '@id': stencila:ExecutionDependency
 description: An upstream execution dependency of a node
-status: unstable
+
 properties:
   dependencyRelation:
     '@id': stencila:dependencyRelation

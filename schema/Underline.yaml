@@ -1,7 +1,6 @@
 title: Underline
 '@id': stencila:Underline
 extends: Mark
-status: stable
 description: Inline text that is underlined.
 $comment: |
   Analogues of `Underline` in other schema include:

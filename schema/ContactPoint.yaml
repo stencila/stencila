@@ -1,7 +1,6 @@
 title: ContactPoint
 '@id': schema:ContactPoint
 extends: Thing
-status: stable
 description: A contact point, usually within an organization.
 $comment:
   This is an implementation of schema.org [`ContactPoint`](https://schema.org/ContactPoint).

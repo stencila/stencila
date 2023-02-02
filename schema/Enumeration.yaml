@@ -1,5 +1,4 @@
 title: Enumeration
 '@id': schema:Enumeration
-status: stable
 extends: Thing
 description: Lists or enumerations, for example, a list of cuisines or music genres, etc.

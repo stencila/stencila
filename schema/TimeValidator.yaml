@@ -1,7 +1,6 @@
 title: TimeValidator
 '@id': stencila:TimeValidator
 extends: Entity
-status: stable
 description: A validator specifying the constraints on a time.
 properties:
   minimum:

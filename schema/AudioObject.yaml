@@ -1,7 +1,6 @@
 title: AudioObject
 '@id': schema:AudioObject
 extends: MediaObject
-status: stable
 description: An audio file
 properties:
   caption:
