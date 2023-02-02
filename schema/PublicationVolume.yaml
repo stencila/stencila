@@ -5,6 +5,9 @@ description: |
   A part of a successively published publication such as a periodical or multi-volume work.
 $comment: |
   Often embedded as the `isPartOf` property in a [`PublicationIssue`](./PublicationIssue).
+core:
+  - isPartOf
+  - volumeNumber
 properties:
   pageStart:
     '@id': schema:pageStart

@@ -4,6 +4,9 @@ extends: CreativeWork
 description: |
   A part of a successively published publication such as a periodical or publication
   volume, often numbered.
+core:
+  - isPartOf
+  - issueNumber
 properties:
   issueNumber:
     '@id': schema:issueNumber
