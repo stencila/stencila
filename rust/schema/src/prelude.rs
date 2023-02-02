@@ -7,6 +7,9 @@ pub use common::{
     serde_json,
 };
 
+/// Implementation of `Hydrate` and `Reconcile` for `monostate::MustBeStr`.
+/// 
+/// Since `MustBeStr` is a zero-sided type this does not actually do anything.
 pub mod autosurgeon_must_be {
     use autosurgeon::{HydrateError, Prop, ReadDoc, Reconciler};
     use monostate::MustBeStr;
