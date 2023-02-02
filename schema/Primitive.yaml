@@ -4,6 +4,7 @@ description: Union type for all primitives values
 $comment: |
   Analogous to https://schema.org/DataType "The basic data types such as Integers, Strings, etc."
   but includes additional types such as `Integer`, `Timestamp`, and `Object`.
+default: 'Null'
 anyOf:
   - $ref: 'Null'
   - $ref: Boolean

@@ -144,30 +144,44 @@ impl Schemas {
                 _ => name,
             };
 
-            let r#type = if name == "r#type" {
-                format!(r#"MustBe!("{title}")"#)
+            let (mut typ, is_vec) = if name == "r#type" {
+                (format!(r#"MustBe!("{title}")"#), false)
             } else {
-                let (mut property_type, is_vec, ..) = Self::rust_type(dest, property).await?;
-                used_types.insert(property_type.clone());
-
-                if is_vec {
-                    property_type = format!("Vec<{property_type}>");
-                };
-
-                if BOX_PROPERTIES.contains(&format!("{title}.{name}").as_str())
-                    || BOX_PROPERTIES.contains(&format!("*.{name}").as_str())
-                {
-                    property_type = format!("Box<{property_type}>");
-                }
-
-                if !property.is_required {
-                    property_type = format!("Option<{property_type}>");
-                }
-
-                property_type
+                let (typ, is_vec, ..) = Self::rust_type(dest, property).await?;
+                used_types.insert(typ.clone());
+                (typ, is_vec)
             };
 
-            fields.push(format!("/// {description}\n    {name}: {type},"));
+            let mut default = property.default.as_ref().map(|default| {
+                let mut default = Self::rust_value(default);
+                if default == "Null" {
+                    used_types.insert(default);
+                    default = "Node::Null(Null)".to_string();
+                }
+                default
+            });
+
+            if is_vec {
+                typ = format!("Vec<{typ}>");
+            };
+
+            if BOX_PROPERTIES.contains(&format!("{title}.{name}").as_str())
+                || BOX_PROPERTIES.contains(&format!("*.{name}").as_str())
+            {
+                typ = format!("Box<{typ}>");
+                default = default.map(|default| format!("Box::new({default})"));
+            }
+
+            if !property.is_required {
+                typ = format!("Option<{typ}>");
+                default = default.map(|default| format!("Some({default})"));
+            }
+
+            let default = default
+                .map(|default| format!("#[def = \"{default}\"]\n    "))
+                .unwrap_or_default();
+
+            fields.push(format!("/// {description}\n    {default}{name}: {typ},"));
         }
         let fields = fields.join("\n\n    ");
 
@@ -236,18 +250,14 @@ pub struct {title} {{
         } else if let Some(title) = &schema.title {
             (title.to_string(), false, true)
         } else if let Some(r#const) = &schema.r#const {
-            let typ = match r#const {
-                Value::String(inner) => inner.to_string(),
-                _ => "Unhandled".to_string(),
-            };
-            (typ, false, false)
+            (Self::rust_value(r#const), false, false)
         } else {
             ("Unhandled".to_string(), false, true)
         };
         Ok(result)
     }
 
-    /// Generate a Rust enum for an `anyOf` property
+    /// Generate a Rust enum for an `anyOf` root schema or property schema
     async fn rust_any_of(dest: &Path, schema: &Schema) -> Result<String> {
         let Some(any_of) = &schema.any_of else {
             bail!("Schema has no anyOf");
@@ -315,16 +325,21 @@ pub struct {title} {{
             })
             .join("\n    ");
 
-        let default = alternatives
-            .get(0)
-            .map(|(variant, is_type)| {
-                if *is_type {
-                    format!(r#"#[def = "{variant}({variant}::default())"]"#)
+        let default = match &schema.default {
+            Some(default) => {
+                let default = Self::rust_value(default);
+                if alternatives.iter().any(|(.., is_type)| *is_type) {
+                    format!(r#"#[def = "{default}({default}::default())"]"#)
                 } else {
-                    format!(r#"#[def = "{variant}"]"#)
+                    format!(r#"#[def = "{default}"]"#)
                 }
-            })
-            .unwrap_or_default();
+            }
+            None => String::new(),
+        };
+        let defaults = match default.is_empty() {
+            true => "",
+            false => ", Defaults",
+        };
 
         let rust = format!(
             r#"//! Generated file, do not edit
@@ -334,7 +349,7 @@ use crate::prelude::*;
 {uses}
 
 /// {description}
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug{defaults}, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 {default}
 pub enum {name} {{
@@ -368,6 +383,18 @@ pub type {name} = Vec<{typ}>;
         write(path, rust).await?;
 
         Ok(name)
+    }
+
+    /// Generate a Rust representation of a JSON schema value
+    fn rust_value(value: &Value) -> String {
+        match value {
+            Value::Null => "Null()".to_string(),
+            Value::Boolean(inner) => inner.to_string(),
+            Value::Integer(inner) => inner.to_string(),
+            Value::Number(inner) => inner.to_string(),
+            Value::String(inner) => inner.to_string(),
+            _ => "Unhandled value type".to_string(),
+        }
     }
 }
 

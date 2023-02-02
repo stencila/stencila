@@ -32,7 +32,6 @@ properties:
     '@id': stencila:hidden
     description: Whether the parameter should be hidden.
     type: boolean
-    default: false
     $comment: |
       For HTML renderings of a document it is often desirable to hide parameters of a
       document that are already represented in the URL of the document.

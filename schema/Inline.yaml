@@ -1,11 +1,9 @@
 title: Inline
 status: stable
 description: Union type for valid inline content.
-$comment: |
-  The order of these types is important because it determines the
-  order of attempted coercion (this is particularly important for primitive types).
+default: String
 anyOf:
-  # Entity types in alphabetical order
+  # Entity types
   - $ref: AudioObject
   - $ref: Button
   - $ref: Cite
@@ -26,8 +24,7 @@ anyOf:
   - $ref: Superscript
   - $ref: Underline
   - $ref: VideoObject
-  # Primitive types in the order that coercion from
-  # string should be attempted (for example by Ajv, or by serde_json).
+  # Primitive types
   - $ref: 'Null'
   - $ref: Boolean
   - $ref: Integer

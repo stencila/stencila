@@ -3,6 +3,7 @@ title: ExecutionAuto
 extends: Enumeration
 status: stable
 description: Under which circumstances the document node should be automatically executed.
+default: Needed
 anyOf:
   - const: Never
     '@id': stencila:executionAutoNever
@@ -20,4 +21,4 @@ anyOf:
     description: |
       Always execute the code when one of its dependants is executed, even if it is not stale (i.e. it, or its own dependencies,
       are unchanged since the last time it was executed).
-default: Needed
+

@@ -28,7 +28,6 @@ properties:
     '@id': stencila:isChecked
     description: A flag to indicate if this list item is checked.
     type: boolean
-    default: false
   item:
     '@id': schema:item
     description: The item represented by this list item.

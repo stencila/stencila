@@ -1,6 +1,7 @@
 title: Block
 status: stable
 description: Union type for valid block content.
+default: Paragraph
 anyOf:
   - $ref: Call
   - $ref: Claim

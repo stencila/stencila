@@ -1,6 +1,7 @@
 title: ExecutionDependencyNode
 status: unstable
 description: Node types that can be execution dependencies
+default: CodeChunk
 anyOf:
   - $ref: Button
   - $ref: CodeChunk

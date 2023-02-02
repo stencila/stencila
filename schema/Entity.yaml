@@ -9,14 +9,10 @@ $comment: |
 properties:
   type:
     '@id': schema:type
-    description: The name of the type
+    description: The type of this item
     $comment: |
       This is a special property analogous to JSON-LD's `@type` keyword.
-      It is extended with the titles of all descendant types during
-      the generation of schema.json files.
     type: string
-    enum: [Entity]
-    default: Entity
   id:
     '@id': schema:id
     description: The identifier for this item
