@@ -222,11 +222,13 @@ pub struct {title}Options {{
             .filter_map(|(is_option, field)| (!is_option).then_some(field))
             .join("\n\n    ");
         if !options.is_empty() {
-            core_fields += &format!("
+            core_fields += &format!(
+                "
             
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<{title}Options>");
+    options: Box<{title}Options>"
+            );
         }
 
         let rust = format!(

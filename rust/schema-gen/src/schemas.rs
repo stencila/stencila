@@ -275,10 +275,10 @@ impl Schema {
             .collect_vec();
 
         for (name, property) in properties.iter_mut() {
-            if required.contains(&name) {
+            if required.contains(name) {
                 property.is_required = true;
             }
-            if core.contains(&name) {
+            if core.contains(name) {
                 property.is_core = true;
             }
         }
