@@ -1,11 +1,17 @@
 {
     "cSpell.words": [
+        "asciimath",
+        "automerge",
+        "autosurgeon",
         "canonicalize",
         "colspan",
         "datatable",
         "dependants",
         "inflector",
+        "inlines",
         "itertools",
+        "mathml",
+        "monostate",
         "rowspan",
         "stencila"
     ]

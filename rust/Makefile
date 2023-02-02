@@ -1,4 +1,4 @@
-all: fix lint cover outdated audit build docs
+all: format lint cover outdated audit build docs
 
 ifdef CI
   PROFILE:=ci
