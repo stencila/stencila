@@ -18,13 +18,9 @@ properties:
   content:
     "@id": stencila:content
     description: The content of the comment.
-    anyOf:
-      - type: array
-        items:
-          $ref: Block
-      - type: array
-        items:
-          $ref: Inline
+    type: array
+    items:
+      $ref: Block
   parentItem:
     '@id': schema:parentItem
     description: The parent comment of this comment.
