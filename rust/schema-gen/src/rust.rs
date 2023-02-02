@@ -190,6 +190,7 @@ impl Schemas {
         let uses = used_types
             .iter()
             .filter(|used_type| *used_type != title)
+            .sorted()
             .map(|used_type| {
                 format!(
                     "use super::{module}::{used_type};",
@@ -208,12 +209,12 @@ impl Schemas {
         } else {
             format!(
                 r#"
+
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct {title}Options {{
     {optional_fields}
-}}
-"#
+}}"#
             )
         };
 
@@ -224,10 +225,10 @@ pub struct {title}Options {{
         if !options.is_empty() {
             core_fields += &format!(
                 "
-            
+
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<{title}Options>"
+    options: Box<{title}Options>,"
             );
         }
 
@@ -243,8 +244,7 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 pub struct {title} {{
     {core_fields}
-}}
-{options}
+}}{options}
 "#
         );
         Ok(rust)
@@ -337,7 +337,7 @@ pub struct {title} {{
             .zip(are_types.into_iter())
             .collect_vec();
 
-        let uses = alternatives
+        let mut uses = alternatives
             .iter()
             .filter_map(|(name, is_type)| {
                 let module = name.to_snake_case();
@@ -348,7 +348,11 @@ pub struct {title} {{
                 };
                 is_type.then_some(format!("use super::{module}::{name};",))
             })
+            .sorted()
             .join("\n");
+        if !uses.is_empty() {
+            uses.push_str("\n\n");
+        }
 
         let variants = alternatives
             .iter()
@@ -379,12 +383,10 @@ pub struct {title} {{
 
         let rust = format!(
             r#"//! Generated file, do not edit
-    
+
 use crate::prelude::*;
 
-{uses}
-
-/// {description}
+{uses}/// {description}
 #[derive(Debug{defaults}, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 {default}

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs::read_dir, path::PathBuf};
+use std::{fs::read_dir, path::PathBuf};
 
 use common::{
     defaults::Defaults,
@@ -70,9 +70,9 @@ pub struct ItemsAnyOf {
 }
 
 /// A schema object
+#[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[skip_serializing_none]
 pub struct Schema {
     // JSONSchema7 properties
     // See https://tools.ietf.org/html/draft-handrews-json-schema-validation-01
@@ -149,9 +149,7 @@ pub struct Schema {
     pub jid: Option<String>,
 
     /// The status of the schema
-    #[def = "\"stable\".to_string()"]
-    #[serde(default)]
-    pub status: String,
+    pub status: Option<String>,
 
     /// The title of the schema that this schema extends
     pub extends: Option<String>,
@@ -166,7 +164,7 @@ pub struct Schema {
     /// the `options` field of generated Rust types
     pub core: Option<Vec<String>>,
 
-    /// Stencila derived properties
+    // Stencila derived properties
     /// Whether this is a property schema and is required (is in the `required` keyword
     /// of _parent_ schema).
     #[serde(skip)]
@@ -221,7 +219,7 @@ impl Schema {
         let Some(description) = &mut self.description else {
             bail!("schema does not have a description")
         };
-        *description = description.replace('\n', " ");
+        *description = description.replace('\n', " ").trim().to_string();
 
         if let Some(properties) = &mut self.properties {
             for (name, property) in properties.iter_mut() {
@@ -235,14 +233,14 @@ impl Schema {
     /// Extend the schema by inheriting properties of it's parent
     ///
     /// Also inherits `required` and `core` from parent.
-    fn extend(&self, name: &str, schemas: &mut HashMap<String, Schema>) -> Result<()> {
+    fn extend(&self, name: &str, schemas: &mut IndexMap<String, Schema>) -> Result<Schema> {
         let parent = if let Some(extends) = &self.extends {
-            let parent = schemas
+            let mut parent = schemas
                 .get(extends)
                 .ok_or_else(|| eyre!("no schema matching `extends` keyword: {}", extends))?
                 .clone();
             if !parent.is_extended {
-                parent.extend(extends, schemas)?;
+                parent = parent.extend(extends, schemas)?;
             }
             parent
         } else {
@@ -288,14 +286,14 @@ impl Schema {
         extended.core = Some(core);
         extended.is_extended = true;
 
-        schemas.insert(name.to_string(), extended);
+        schemas.insert(name.to_string(), extended.clone());
 
-        Ok(())
+        Ok(extended)
     }
 }
 
 pub struct Schemas {
-    pub schemas: HashMap<String, Schema>,
+    pub schemas: IndexMap<String, Schema>,
 }
 
 impl Schemas {
