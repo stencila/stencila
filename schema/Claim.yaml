@@ -10,17 +10,8 @@ $comment: |
 properties:
   claimType:
     '@id': stencila:claimType
-    description: Kind of the claim.
-    type: string
-    enum:
-      - Statement
-      - Theorem
-      - Lemma
-      - Proof
-      - Postulate
-      - Hypothesis
-      - Proposition
-      - Corollary
+    description: The type of the claim.
+    $ref: ClaimType
   content:
     '@id': stencila:content
     description: Content of the claim, usually a single paragraph.

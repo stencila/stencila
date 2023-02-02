@@ -1,0 +1,22 @@
+title: ClaimType
+'@id': stencila:ClaimType
+extends: Enumeration
+description: The type of a `Claim`.
+default: Statement
+anyOf:
+  - const: Statement
+    '@id': stencila:ClaimTypeStatement
+  - const: Theorem
+    '@id': stencila:ClaimTypeTheorem
+  - const: Lemma
+    '@id': stencila:ClaimTypeLemma
+  - const: Proof
+    '@id': stencila:ClaimTypeProof
+  - const: Postulate
+    '@id': stencila:ClaimTypePostulate
+  - const: Hypothesis
+    '@id': stencila:ClaimTypeHypothesis
+  - const: Proposition
+    '@id': stencila:ClaimTypeProposition
+  - const: Corollary
+    '@id': stencila:ClaimTypeCorollary

@@ -14,11 +14,7 @@ properties:
   noteType:
     '@id': stencila:noteType
     description: Determines where the note content is displayed within the document.
-    type: string
-    enum:
-      - Footnote
-      - Endnote
-      - Sidenote
+    $ref: NoteType
   content:
     '@id': stencila:content
     description: Content of the note, usually a paragraph.

@@ -12,11 +12,7 @@ properties:
       $ref: TableCell
   rowType:
     '@id': stencila:rowType
-    description: |
-      If present, indicates that all cells in this row should be treated as header cells.
-    type: string
-    enum:
-      - Header
-      - Footer
+    description: The type of row.
+    $ref: TableRowType
 required:
   - cells

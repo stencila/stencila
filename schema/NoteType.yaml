@@ -1,0 +1,12 @@
+title: NoteType
+'@id': stencila:NoteType
+extends: Enumeration
+description: The type of a `Note` which determines where the note content is displayed within the document..
+default: Footnote
+anyOf:
+  - const: Footnote
+    '@id': stencila:NoteTypeFootnote
+  - const: Endnote
+    '@id': stencila:NoteTypeEndnote
+  - const: Sidenote
+    '@id': stencila:NoteTypeSidenote

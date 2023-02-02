@@ -1,9 +1,7 @@
 title: TableCell
 '@id': stencila:TableCell
 extends: Entity
-status: unstable
-description: |
-  A cell within a `Table`.
+description: A cell within a `Table`.
 properties:
   name:
     '@id': schema:name
@@ -23,15 +21,8 @@ properties:
     maximum: 1000
   cellType:
     '@id': stencila:cellType
-    description: Indicates whether the cell is a header or data.
-    $comment: |
-      When `Header`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).
-      When `Data`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
-    type: string
-    enum:
-      - Data
-      - Header
-    default: Data
+    description: The type of cell.
+    $ref: TableCellType
   rowspan:
     '@id': stencila:rowspan
     description: How many columns the cell extends.
