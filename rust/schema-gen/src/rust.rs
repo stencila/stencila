@@ -83,7 +83,7 @@ impl Schemas {
             .iter()
             .map(|module| format!("pub use {module}::*;\n"))
             .join("");
-        write(path, format!("{mods}\n\n{uses}")).await?;
+        write(path, format!("{mods}\n{uses}")).await?;
 
         Ok(())
     }
@@ -148,7 +148,7 @@ impl Schemas {
                 (
                     format!(r#"MustBe!("{title}")"#),
                     false,
-                    "#[autosurgeon(with=\"autosurgeon_must_be\")]\n    ",
+                    "#[autosurgeon(with = \"autosurgeon_must_be\")]\n    ",
                 )
             } else {
                 let (typ, is_vec, ..) = Self::rust_type(dest, property).await?;
