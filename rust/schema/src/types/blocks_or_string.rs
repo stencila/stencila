@@ -7,7 +7,7 @@ use super::string::String;
 
 /// [`Blocks`] or [`String`]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 
 pub enum BlocksOrString {
     Blocks(Blocks),

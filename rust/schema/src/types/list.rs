@@ -8,18 +8,19 @@ use super::string::String;
 
 /// A list of items.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct List {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("List"),
+    pub r#type: MustBe!("List"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The items in the list.
-    items: Vec<ListItem>,
+    pub items: Vec<ListItem>,
 
     /// The ordering of the list.
-    order: ListOrder,
+    pub order: ListOrder,
 }

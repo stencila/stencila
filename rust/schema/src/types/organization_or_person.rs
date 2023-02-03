@@ -7,7 +7,7 @@ use super::person::Person;
 
 /// [`Organization`] or [`Person`]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 
 pub enum OrganizationOrPerson {
     Organization(Organization),

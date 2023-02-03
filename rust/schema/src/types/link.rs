@@ -7,32 +7,33 @@ use super::string::String;
 
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Link {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Link"),
+    pub r#type: MustBe!("Link"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The textual content of the link.
-    content: Vec<Inline>,
+    pub content: Vec<Inline>,
 
     /// The target of the link.
-    target: String,
+    pub target: String,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<LinkOptions>,
+    pub options: Box<LinkOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct LinkOptions {
     /// A title for the link.
-    title: Option<String>,
+    pub title: Option<String>,
 
     /// The relation between the target and the current thing.
-    rel: Option<String>,
+    pub rel: Option<String>,
 }

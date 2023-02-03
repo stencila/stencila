@@ -8,14 +8,14 @@ use super::integer::Integer;
 
 /// A downstream execution dependant of a node
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ExecutionDependant {
     /// The relation to the dependant
-    dependant_relation: ExecutionDependantRelation,
+    pub dependant_relation: ExecutionDependantRelation,
 
     /// The node that is the dependant
-    dependant_node: ExecutionDependantNode,
+    pub dependant_node: ExecutionDependantNode,
 
     /// The location that the dependant is defined within code
-    code_location: Option<Vec<Integer>>,
+    pub code_location: Option<Vec<Integer>>,
 }

@@ -8,21 +8,22 @@ use super::timestamp::Timestamp;
 
 /// A validator specifying the constraints on a timestamp.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct TimestampValidator {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("TimestampValidator"),
+    pub r#type: MustBe!("TimestampValidator"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The time units that the timestamp can have.
-    time_units: Option<Vec<TimeUnit>>,
+    pub time_units: Option<Vec<TimeUnit>>,
 
     /// The inclusive lower limit for a timestamp.
-    minimum: Option<Timestamp>,
+    pub minimum: Option<Timestamp>,
 
     /// The inclusive upper limit for a timestamp.
-    maximum: Option<Timestamp>,
+    pub maximum: Option<Timestamp>,
 }

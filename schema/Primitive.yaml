@@ -1,8 +1,11 @@
 title: Primitive
 description: Union type for all primitives values
 $comment: |
-  Analogous to https://schema.org/DataType "The basic data types such as Integers, Strings, etc."
-  but includes additional types such as `Integer`, `Timestamp`, and `Object`.
+  Analogous to JSON values but adds `Integer`. 
+  
+  Similar to https://schema.org/DataType "The basic data types such as Integers, Strings, etc."
+  but includes `Array` and `Object` and excludes `Date`, `Time` and `DateTime` (which are
+  treated in this schema as `Entity`s having a `type` property to disambiguate them from strings).
 default: 'Null'
 anyOf:
   - $ref: 'Null'
@@ -10,10 +13,5 @@ anyOf:
   - $ref: Integer
   - $ref: Number
   - $ref: String
-  - $ref: Date
-  - $ref: Time
-  - $ref: DateTime
-  - $ref: Timestamp
-  - $ref: Duration
-  - $ref: Object
   - $ref: Array
+  - $ref: Object

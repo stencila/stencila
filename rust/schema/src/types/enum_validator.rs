@@ -7,15 +7,16 @@ use super::string::String;
 
 /// A schema specifying that a node must be one of several values.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct EnumValidator {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("EnumValidator"),
+    pub r#type: MustBe!("EnumValidator"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// A node is valid if it is equal to any of these values.
-    values: Vec<Node>,
+    pub values: Vec<Node>,
 }

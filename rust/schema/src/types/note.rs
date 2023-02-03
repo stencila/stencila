@@ -8,18 +8,19 @@ use super::string::String;
 
 /// Additional content which is not part of the main content of a document.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Note {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Note"),
+    pub r#type: MustBe!("Note"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// Determines where the note content is displayed within the document.
-    note_type: NoteType,
+    pub note_type: NoteType,
 
     /// Content of the note, usually a paragraph.
-    content: Vec<Block>,
+    pub content: Vec<Block>,
 }

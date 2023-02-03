@@ -8,18 +8,19 @@ use super::string::String;
 
 /// A section quoted from somewhere else.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct QuoteBlock {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("QuoteBlock"),
+    pub r#type: MustBe!("QuoteBlock"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The source of the quote.
-    cite: Option<CiteOrString>,
+    pub cite: Option<CiteOrString>,
 
     /// The content of the quote.
-    content: Vec<Block>,
+    pub content: Vec<Block>,
 }

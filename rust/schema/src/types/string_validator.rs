@@ -7,21 +7,22 @@ use super::string::String;
 
 /// A schema specifying constraints on a string node.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct StringValidator {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("StringValidator"),
+    pub r#type: MustBe!("StringValidator"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The minimum length for a string node.
-    min_length: Option<Integer>,
+    pub min_length: Option<Integer>,
 
     /// The maximum length for a string node.
-    max_length: Option<Integer>,
+    pub max_length: Option<Integer>,
 
     /// A regular expression that a string node must match.
-    pattern: Option<String>,
+    pub pattern: Option<String>,
 }

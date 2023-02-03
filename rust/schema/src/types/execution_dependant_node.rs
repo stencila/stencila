@@ -14,7 +14,7 @@ use super::variable::Variable;
 
 /// Node types that can be execution dependencies
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 #[def = "CodeChunk(CodeChunk::default())"]
 pub enum ExecutionDependantNode {
     Button(Button),

@@ -9,38 +9,39 @@ use super::string::String;
 
 /// The most generic type of item.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Thing {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Thing"),
+    pub r#type: MustBe!("Thing"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<ThingOptions>,
+    pub options: Box<ThingOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ThingOptions {
     /// Alternate names (aliases) for the item.
-    alternate_names: Option<Vec<String>>,
+    pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    description: Option<Vec<Block>>,
+    pub description: Option<Vec<Block>>,
 
     /// Any kind of identifier for any kind of Thing.
-    identifiers: Option<Vec<PropertyValueOrString>>,
+    pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
-    images: Option<Vec<ImageObjectOrString>>,
+    pub images: Option<Vec<ImageObjectOrString>>,
 
     /// The name of the item.
-    name: Option<String>,
+    pub name: Option<String>,
 
     /// The URL of the item.
-    url: Option<String>,
+    pub url: Option<String>,
 }

@@ -7,14 +7,14 @@ use super::string::String;
 
 /// A tag on code that affects its execution
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ExecutionTag {
     /// The name of the tag
-    name: String,
+    pub name: String,
 
     /// The value of the tag
-    value: String,
+    pub value: String,
 
     /// Whether the tag is global to the document
-    is_global: Boolean,
+    pub is_global: Boolean,
 }

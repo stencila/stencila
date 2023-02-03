@@ -22,7 +22,7 @@ use super::thematic_break::ThematicBreak;
 
 /// Union type for block content node types.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 #[def = "Paragraph(Paragraph::default())"]
 pub enum Block {
     Call(Call),

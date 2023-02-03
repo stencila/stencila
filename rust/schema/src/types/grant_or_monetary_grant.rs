@@ -7,7 +7,7 @@ use super::monetary_grant::MonetaryGrant;
 
 /// [`Grant`] or [`MonetaryGrant`]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 
 pub enum GrantOrMonetaryGrant {
     Grant(Grant),

@@ -1,5 +1,6 @@
 title: Duration
 '@id': schema:Duration
+extends: Entity
 description: A value that represents the difference between two timestamps
 required:
   - value

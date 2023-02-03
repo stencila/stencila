@@ -35,7 +35,7 @@ use super::video_object::VideoObject;
 
 /// Union type for valid inline content.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 #[def = "String(String::default())"]
 pub enum Inline {
     AudioObject(AudioObject),

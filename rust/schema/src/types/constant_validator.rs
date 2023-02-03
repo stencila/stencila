@@ -8,16 +8,17 @@ use super::string::String;
 
 /// A validator specifying a constant value that a node must have.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ConstantValidator {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("ConstantValidator"),
+    pub r#type: MustBe!("ConstantValidator"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The value that the node must have.
     #[def = "Box::new(Node::Null(Null{}))"]
-    value: Box<Node>,
+    pub value: Box<Node>,
 }

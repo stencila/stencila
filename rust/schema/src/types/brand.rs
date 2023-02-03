@@ -9,44 +9,45 @@ use super::string::String;
 
 /// A brand used by an organization or person for labeling a product, product group, or similar.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Brand {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Brand"),
+    pub r#type: MustBe!("Brand"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The name of the item.
-    name: String,
+    pub name: String,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<BrandOptions>,
+    pub options: Box<BrandOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct BrandOptions {
     /// Alternate names (aliases) for the item.
-    alternate_names: Option<Vec<String>>,
+    pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    description: Option<Vec<Block>>,
+    pub description: Option<Vec<Block>>,
 
     /// Any kind of identifier for any kind of Thing.
-    identifiers: Option<Vec<PropertyValueOrString>>,
+    pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
-    images: Option<Vec<ImageObjectOrString>>,
+    pub images: Option<Vec<ImageObjectOrString>>,
 
     /// The URL of the item.
-    url: Option<String>,
+    pub url: Option<String>,
 
     /// A logo associated with the brand.
-    logo: Option<ImageObjectOrString>,
+    pub logo: Option<ImageObjectOrString>,
 
     /// Reviews of the brand.
-    reviews: Option<Vec<String>>,
+    pub reviews: Option<Vec<String>>,
 }

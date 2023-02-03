@@ -7,18 +7,19 @@ use super::string::String;
 
 /// A validator specifying the constraints on a date-time.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DateTimeValidator {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("DateTimeValidator"),
+    pub r#type: MustBe!("DateTimeValidator"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The inclusive lower limit for a date-time.
-    minimum: Option<DateTime>,
+    pub minimum: Option<DateTime>,
 
     /// The inclusive upper limit for a date-time.
-    maximum: Option<DateTime>,
+    pub maximum: Option<DateTime>,
 }

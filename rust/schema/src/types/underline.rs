@@ -7,15 +7,16 @@ use super::string::String;
 
 /// Inline text that is underlined.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Underline {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Underline"),
+    pub r#type: MustBe!("Underline"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The content that is marked.
-    content: Vec<Inline>,
+    pub content: Vec<Inline>,
 }

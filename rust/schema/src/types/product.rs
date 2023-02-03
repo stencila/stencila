@@ -10,47 +10,48 @@ use super::string::String;
 
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Product {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Product"),
+    pub r#type: MustBe!("Product"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<ProductOptions>,
+    pub options: Box<ProductOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ProductOptions {
     /// Alternate names (aliases) for the item.
-    alternate_names: Option<Vec<String>>,
+    pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    description: Option<Vec<Block>>,
+    pub description: Option<Vec<Block>>,
 
     /// Any kind of identifier for any kind of Thing.
-    identifiers: Option<Vec<PropertyValueOrString>>,
+    pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
-    images: Option<Vec<ImageObjectOrString>>,
+    pub images: Option<Vec<ImageObjectOrString>>,
 
     /// The name of the item.
-    name: Option<String>,
+    pub name: Option<String>,
 
     /// The URL of the item.
-    url: Option<String>,
+    pub url: Option<String>,
 
     /// Brands that the product is labelled with.
-    brands: Option<Vec<Brand>>,
+    pub brands: Option<Vec<Brand>>,
 
     /// The logo of the product.
-    logo: Option<ImageObjectOrString>,
+    pub logo: Option<ImageObjectOrString>,
 
     /// Product identification code.
-    product_id: Option<String>,
+    pub product_id: Option<String>,
 }

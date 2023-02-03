@@ -8,18 +8,19 @@ use super::string::String;
 
 /// Inline, quoted content.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Quote {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Quote"),
+    pub r#type: MustBe!("Quote"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The content that is marked.
-    content: Vec<Inline>,
+    pub content: Vec<Inline>,
 
     /// The source of the quote.
-    cite: Option<CiteOrString>,
+    pub cite: Option<CiteOrString>,
 }

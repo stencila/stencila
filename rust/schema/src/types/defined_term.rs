@@ -9,41 +9,42 @@ use super::string::String;
 
 /// A word, name, acronym, phrase, etc. with a formal definition.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DefinedTerm {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("DefinedTerm"),
+    pub r#type: MustBe!("DefinedTerm"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The name of the item.
-    name: String,
+    pub name: String,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<DefinedTermOptions>,
+    pub options: Box<DefinedTermOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DefinedTermOptions {
     /// Alternate names (aliases) for the item.
-    alternate_names: Option<Vec<String>>,
+    pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    description: Option<Vec<Block>>,
+    pub description: Option<Vec<Block>>,
 
     /// Any kind of identifier for any kind of Thing.
-    identifiers: Option<Vec<PropertyValueOrString>>,
+    pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
-    images: Option<Vec<ImageObjectOrString>>,
+    pub images: Option<Vec<ImageObjectOrString>>,
 
     /// The URL of the item.
-    url: Option<String>,
+    pub url: Option<String>,
 
     /// A code that identifies this DefinedTerm within a DefinedTermSet
-    term_code: Option<String>,
+    pub term_code: Option<String>,
 }

@@ -13,50 +13,51 @@ use super::string::String;
 
 /// A single item in a list.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ListItem {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("ListItem"),
+    pub r#type: MustBe!("ListItem"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The content of the list item.
-    content: Option<BlocksOrInlines>,
+    pub content: Option<BlocksOrInlines>,
 
     /// The item represented by this list item.
-    item: Option<Box<Node>>,
+    pub item: Option<Box<Node>>,
 
     /// A flag to indicate if this list item is checked.
-    is_checked: Option<Boolean>,
+    pub is_checked: Option<Boolean>,
 
     /// The position of the item in a series or sequence of items.
-    position: Option<Integer>,
+    pub position: Option<Integer>,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<ListItemOptions>,
+    pub options: Box<ListItemOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ListItemOptions {
     /// Alternate names (aliases) for the item.
-    alternate_names: Option<Vec<String>>,
+    pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    description: Option<Vec<Block>>,
+    pub description: Option<Vec<Block>>,
 
     /// Any kind of identifier for any kind of Thing.
-    identifiers: Option<Vec<PropertyValueOrString>>,
+    pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
-    images: Option<Vec<ImageObjectOrString>>,
+    pub images: Option<Vec<ImageObjectOrString>>,
 
     /// The name of the item.
-    name: Option<String>,
+    pub name: Option<String>,
 
     /// The URL of the item.
-    url: Option<String>,
+    pub url: Option<String>,
 }

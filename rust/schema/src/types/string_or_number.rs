@@ -7,7 +7,7 @@ use super::string::String;
 
 /// [`String`] or [`Number`]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 
 pub enum StringOrNumber {
     String(String),

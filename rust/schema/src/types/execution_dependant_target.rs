@@ -14,7 +14,7 @@ use super::variable::Variable;
 
 /// Node types that can be execution dependants
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 
 pub enum ExecutionDependantTarget {
     Call(Call),

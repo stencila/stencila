@@ -8,26 +8,27 @@ use super::table_row_type::TableRowType;
 
 /// A row within a Table.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct TableRow {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("TableRow"),
+    pub r#type: MustBe!("TableRow"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// An array of cells in the row.
-    cells: Vec<TableCell>,
+    pub cells: Vec<TableCell>,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<TableRowOptions>,
+    pub options: Box<TableRowOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct TableRowOptions {
     /// The type of row.
-    row_type: Option<TableRowType>,
+    pub row_type: Option<TableRowType>,
 }

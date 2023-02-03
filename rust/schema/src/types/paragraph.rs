@@ -7,15 +7,16 @@ use super::string::String;
 
 /// Paragraph
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Paragraph {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Paragraph"),
+    pub r#type: MustBe!("Paragraph"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The contents of the paragraph.
-    content: Vec<Inline>,
+    pub content: Vec<Inline>,
 }

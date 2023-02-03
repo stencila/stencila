@@ -348,17 +348,38 @@ impl Schemas {
     /// schema, not for every base type.
     pub fn expand(&mut self) -> Result<()> {
         // Node union type
+        // Order is important for deserialization correctness and performance since
+        // serde attempts to deserialize in the order in the emum. We put primitives
+        // first (for fast deserialization for kernel outputs) excecpt for `Object` which is
+        // last so it does not "consume" entity types (which are also objects).
+        let mut any_of = ["Null", "Boolean", "Integer", "Number", "String", "Array"]
+            .iter()
+            .map(|name| Schema {
+                r#ref: Some(name.to_string()),
+                ..Default::default()
+            })
+            .collect_vec();
+
+        let mut entities = self
+            .schemas
+            .iter()
+            .filter_map(|(name, schema)| {
+                (schema.r#type.is_none() && schema.any_of.is_none() && !schema.r#abstract)
+                    .then_some(Schema {
+                        r#ref: Some(name.to_string()),
+                        ..Default::default()
+                    })
+            })
+            .collect_vec();
+        entities.sort_by(|a, b| a.r#ref.cmp(&b.r#ref));
+        any_of.append(&mut entities);
+
+        any_of.push(Schema {
+            r#ref: Some("Object".to_string()),
+            ..Default::default()
+        });
+
         let title = "Node".to_string();
-        let mut any_of = Vec::new();
-        for (name, schema) in &self.schemas {
-            if !schema.r#abstract && schema.any_of.is_none() {
-                any_of.push(Schema {
-                    r#ref: Some(name.to_string()),
-                    ..Default::default()
-                })
-            }
-        }
-        any_of.sort_by(|a, b| a.r#ref.cmp(&b.r#ref));
         self.schemas.insert(
             title.clone(),
             Schema {

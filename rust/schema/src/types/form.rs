@@ -20,71 +20,72 @@ use super::timestamp::Timestamp;
 
 /// A form to batch updates in document parameters
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Form {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Form"),
+    pub r#type: MustBe!("Form"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
-    execution_auto: ExecutionAuto,
+    pub execution_auto: ExecutionAuto,
 
     /// A count of the number of times that the node has been executed.
-    execution_count: Integer,
+    pub execution_count: Integer,
 
     /// Whether, and why, the code requires execution or re-execution.
-    execution_required: ExecutionRequired,
+    pub execution_required: ExecutionRequired,
 
     /// Status of the most recent, including any current, execution.
-    execution_status: ExecutionStatus,
+    pub execution_status: ExecutionStatus,
 
     /// The content within the form, usually containing at least one `Parameter`.
-    content: Vec<Block>,
+    pub content: Vec<Block>,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<FormOptions>,
+    pub options: Box<FormOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct FormOptions {
     /// A digest of the content, semantics and dependencies of the node.
-    compile_digest: Option<ExecutionDigest>,
+    pub compile_digest: Option<ExecutionDigest>,
 
     /// The `compileDigest` of the node when it was last executed.
-    execute_digest: Option<ExecutionDigest>,
+    pub execute_digest: Option<ExecutionDigest>,
 
     /// The upstream dependencies of this node.
-    execution_dependencies: Option<Vec<ExecutionDependency>>,
+    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
-    execution_dependants: Option<Vec<ExecutionDependant>>,
+    pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution
-    execution_tags: Option<Vec<ExecutionTag>>,
+    pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// The id of the kernel that the node was last executed in.
-    execution_kernel: Option<String>,
+    pub execution_kernel: Option<String>,
 
     /// The timestamp when the last execution ended.
-    execution_ended: Option<Timestamp>,
+    pub execution_ended: Option<Timestamp>,
 
     /// Duration of the last execution.
-    execution_duration: Option<Duration>,
+    pub execution_duration: Option<Duration>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
-    errors: Option<Vec<CodeError>>,
+    pub errors: Option<Vec<CodeError>>,
 
     /// The dotted path to the object (e.g a database table) that the form should be derived from
-    derive_from: Option<String>,
+    pub derive_from: Option<String>,
 
     /// The action (create, update or delete) to derive for the form
-    derive_action: Option<FormDeriveAction>,
+    pub derive_action: Option<FormDeriveAction>,
 
     /// An identifier for the item to be the target of Update or Delete actions
-    derive_item: Option<IntegerOrString>,
+    pub derive_item: Option<IntegerOrString>,
 }

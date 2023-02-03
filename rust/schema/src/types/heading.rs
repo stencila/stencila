@@ -8,19 +8,20 @@ use super::string::String;
 
 /// A heading.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Heading {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Heading"),
+    pub r#type: MustBe!("Heading"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The depth of the heading.
     #[def = "1"]
-    depth: Integer,
+    pub depth: Integer,
 
     /// Content of the heading.
-    content: Vec<Inline>,
+    pub content: Vec<Inline>,
 }

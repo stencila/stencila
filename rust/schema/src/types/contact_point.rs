@@ -9,47 +9,48 @@ use super::string::String;
 
 /// A contact point, usually within an organization.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ContactPoint {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("ContactPoint"),
+    pub r#type: MustBe!("ContactPoint"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// Email address for correspondence.
-    emails: Option<Vec<String>>,
+    pub emails: Option<Vec<String>>,
 
     /// Telephone numbers for the contact point.
-    telephone_numbers: Option<Vec<String>>,
+    pub telephone_numbers: Option<Vec<String>>,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<ContactPointOptions>,
+    pub options: Box<ContactPointOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ContactPointOptions {
     /// Alternate names (aliases) for the item.
-    alternate_names: Option<Vec<String>>,
+    pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    description: Option<Vec<Block>>,
+    pub description: Option<Vec<Block>>,
 
     /// Any kind of identifier for any kind of Thing.
-    identifiers: Option<Vec<PropertyValueOrString>>,
+    pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
-    images: Option<Vec<ImageObjectOrString>>,
+    pub images: Option<Vec<ImageObjectOrString>>,
 
     /// The name of the item.
-    name: Option<String>,
+    pub name: Option<String>,
 
     /// The URL of the item.
-    url: Option<String>,
+    pub url: Option<String>,
 
     /// Languages (human not programming) in which it is possible to communicate with the organization/department etc.
-    available_languages: Option<Vec<String>>,
+    pub available_languages: Option<Vec<String>>,
 }

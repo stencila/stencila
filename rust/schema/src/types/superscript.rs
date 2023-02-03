@@ -7,15 +7,16 @@ use super::string::String;
 
 /// Superscripted content.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Superscript {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Superscript"),
+    pub r#type: MustBe!("Superscript"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The content that is marked.
-    content: Vec<Inline>,
+    pub content: Vec<Inline>,
 }

@@ -6,29 +6,30 @@ use super::string::String;
 
 /// A code block.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeBlock {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("CodeBlock"),
+    pub r#type: MustBe!("CodeBlock"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The code.
-    code: String,
+    pub code: String,
 
     /// The programming language of the code.
-    programming_language: Option<String>,
+    pub programming_language: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<CodeBlockOptions>,
+    pub options: Box<CodeBlockOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeBlockOptions {
     /// Media type, typically expressed using a MIME format, of the code.
-    media_type: Option<String>,
+    pub media_type: Option<String>,
 }

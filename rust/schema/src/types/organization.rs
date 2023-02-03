@@ -13,65 +13,66 @@ use super::string::String;
 
 /// An organization such as a school, NGO, corporation, club, etc.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Organization {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("Organization"),
+    pub r#type: MustBe!("Organization"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<OrganizationOptions>,
+    pub options: Box<OrganizationOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct OrganizationOptions {
     /// Alternate names (aliases) for the item.
-    alternate_names: Option<Vec<String>>,
+    pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    description: Option<Vec<Block>>,
+    pub description: Option<Vec<Block>>,
 
     /// Any kind of identifier for any kind of Thing.
-    identifiers: Option<Vec<PropertyValueOrString>>,
+    pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
-    images: Option<Vec<ImageObjectOrString>>,
+    pub images: Option<Vec<ImageObjectOrString>>,
 
     /// The name of the item.
-    name: Option<String>,
+    pub name: Option<String>,
 
     /// The URL of the item.
-    url: Option<String>,
+    pub url: Option<String>,
 
     /// Postal address for the organization.
-    address: Option<PostalAddressOrString>,
+    pub address: Option<PostalAddressOrString>,
 
     /// Brands that the organization is connected with.
-    brands: Option<Vec<Brand>>,
+    pub brands: Option<Vec<Brand>>,
 
     /// Correspondence/Contact points for the organization.
-    contact_points: Option<Vec<ContactPoint>>,
+    pub contact_points: Option<Vec<ContactPoint>>,
 
     /// Departments within the organization. For example, Department of Computer Science, Research & Development etc.
-    departments: Option<Vec<Organization>>,
+    pub departments: Option<Vec<Organization>>,
 
     /// Organization(s) or person(s) funding the organization.
-    funders: Option<Vec<OrganizationOrPerson>>,
+    pub funders: Option<Vec<OrganizationOrPerson>>,
 
     /// The official name of the organization, e.g. the registered company name.
-    legal_name: Option<String>,
+    pub legal_name: Option<String>,
 
     /// The logo of the organization.
-    logo: Option<Box<ImageObjectOrString>>,
+    pub logo: Option<Box<ImageObjectOrString>>,
 
     /// Person(s) or organization(s) who are members of this organization.
-    members: Option<Vec<OrganizationOrPerson>>,
+    pub members: Option<Vec<OrganizationOrPerson>>,
 
     /// Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
-    parent_organization: Option<Box<Organization>>,
+    pub parent_organization: Option<Box<Organization>>,
 }

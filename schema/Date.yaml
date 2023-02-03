@@ -1,7 +1,7 @@
 title: Date
 '@id': schema:Date
+extends: Entity
 description: A calendar date encoded as a ISO 8601 string.
-parser: date
 required:
   - value
 properties:

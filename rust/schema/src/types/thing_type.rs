@@ -52,7 +52,7 @@ use super::video_object::VideoObject;
 
 /// Union type for all types that are descended from `Thing`
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 
 pub enum ThingType {
     Article(Article),

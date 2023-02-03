@@ -106,14 +106,18 @@ use super::video_object::VideoObject;
 
 /// Union type for all types in this schema, including primitives and entities
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 
 pub enum Node {
+    Null(Null),
+    Boolean(Boolean),
+    Integer(Integer),
+    Number(Number),
+    String(String),
     Array(Array),
     ArrayValidator(ArrayValidator),
     Article(Article),
     AudioObject(AudioObject),
-    Boolean(Boolean),
     BooleanValidator(BooleanValidator),
     Brand(Brand),
     Button(Button),
@@ -161,7 +165,6 @@ pub enum Node {
     IfClause(IfClause),
     ImageObject(ImageObject),
     Include(Include),
-    Integer(Integer),
     IntegerValidator(IntegerValidator),
     Link(Link),
     List(List),
@@ -171,10 +174,7 @@ pub enum Node {
     MediaObject(MediaObject),
     MonetaryGrant(MonetaryGrant),
     Note(Note),
-    Null(Null),
-    Number(Number),
     NumberValidator(NumberValidator),
-    Object(Object),
     Organization(Organization),
     Paragraph(Paragraph),
     Parameter(Parameter),
@@ -192,7 +192,6 @@ pub enum Node {
     SoftwareSourceCode(SoftwareSourceCode),
     Span(Span),
     Strikeout(Strikeout),
-    String(String),
     StringValidator(StringValidator),
     Strong(Strong),
     Subscript(Subscript),
@@ -210,4 +209,5 @@ pub enum Node {
     Underline(Underline),
     Variable(Variable),
     VideoObject(VideoObject),
+    Object(Object),
 }

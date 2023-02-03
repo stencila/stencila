@@ -138,24 +138,34 @@ impl Schemas {
         for (name, property) in schema.properties.iter().flatten() {
             let description = property.description.as_ref().unwrap_or(name);
 
+            let mut attrs = Vec::new();
+
+            // Rewrite name as necessary for Rust compatability
             let name = name.to_snake_case();
             let name = match name.as_str() {
                 "type" => "r#type".to_string(),
                 _ => name,
             };
 
-            let (mut typ, is_vec, attrs) = if name == "r#type" {
-                (
-                    format!(r#"MustBe!("{title}")"#),
-                    false,
-                    "#[autosurgeon(with = \"autosurgeon_must_be\")]\n    ",
-                )
+            // Determine type
+            let (mut typ, is_vec) = if name == "r#type" {
+                (format!(r#"MustBe!("{title}")"#), false)
             } else {
                 let (typ, is_vec, ..) = Self::rust_type(dest, property).await?;
                 used_types.insert(typ.clone());
-                (typ, is_vec, "")
+                (typ, is_vec)
             };
 
+            // Add attributes
+            match name.as_str() {
+                "r#type" => {
+                    attrs.push("#[autosurgeon(with = \"autosurgeon_must_be\")]".to_string())
+                }
+                "id" => attrs.push("#[key]".to_string()),
+                _ => (),
+            };
+
+            // Does the field have a default?
             let mut default = property.default.as_ref().map(|default| {
                 let mut default = Self::rust_value(default);
                 if default == "Null" {
@@ -164,6 +174,8 @@ impl Schemas {
                 }
                 default
             });
+
+            // Wrap type and defaults in generic types as necessary
 
             if is_vec {
                 typ = format!("Vec<{typ}>");
@@ -181,11 +193,18 @@ impl Schemas {
                 default = default.map(|default| format!("Some({default})"));
             }
 
-            let default = default
-                .map(|default| format!("#[def = \"{default}\"]\n    "))
-                .unwrap_or_default();
+            if let Some(default) = default {
+                attrs.push(format!("#[def = \"{default}\"]"));
+            }
 
-            let code = format!("/// {description}\n    {attrs}{default}{name}: {typ},");
+            // Generate the code for the field
+            let attrs = match attrs.is_empty() {
+                true => String::new(),
+                false => attrs.join("\n    ") + "\n    ",
+            };
+            let code = format!("/// {description}\n    {attrs}pub {name}: {typ},");
+
+            // Determine if field should go in `options` or not
             let is_option = !(property.is_required || property.is_core);
 
             fields.push((is_option, code));
@@ -215,7 +234,7 @@ impl Schemas {
                 r#"
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct {title}Options {{
     {optional_fields}
 }}"#
@@ -232,7 +251,7 @@ pub struct {title}Options {{
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<{title}Options>,"
+    pub options: Box<{title}Options>,"
             );
         }
 
@@ -245,7 +264,7 @@ use crate::prelude::*;
 
 /// {description}
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct {title} {{
     {core_fields}
 }}{options}
@@ -392,7 +411,7 @@ use crate::prelude::*;
 
 {uses}/// {description}
 #[derive(Debug{defaults}, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 {default}
 pub enum {name} {{
     {variants}

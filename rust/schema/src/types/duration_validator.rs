@@ -8,21 +8,22 @@ use super::time_unit::TimeUnit;
 
 /// A validator specifying the constraints on a duration.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DurationValidator {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("DurationValidator"),
+    pub r#type: MustBe!("DurationValidator"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The time units that the duration can have.
-    time_units: Option<Vec<TimeUnit>>,
+    pub time_units: Option<Vec<TimeUnit>>,
 
     /// The inclusive lower limit for a duration.
-    minimum: Option<Duration>,
+    pub minimum: Option<Duration>,
 
     /// The inclusive upper limit for a duration.
-    maximum: Option<Duration>,
+    pub maximum: Option<Duration>,
 }

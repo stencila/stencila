@@ -19,113 +19,114 @@ use super::thing_type::ThingType;
 
 /// A software application.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SoftwareApplication {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("SoftwareApplication"),
+    pub r#type: MustBe!("SoftwareApplication"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// The name of the item.
-    name: String,
+    pub name: String,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<SoftwareApplicationOptions>,
+    pub options: Box<SoftwareApplicationOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SoftwareApplicationOptions {
     /// Alternate names (aliases) for the item.
-    alternate_names: Option<Vec<String>>,
+    pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    description: Option<Vec<Block>>,
+    pub description: Option<Vec<Block>>,
 
     /// Any kind of identifier for any kind of Thing.
-    identifiers: Option<Vec<PropertyValueOrString>>,
+    pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
-    images: Option<Vec<ImageObjectOrString>>,
+    pub images: Option<Vec<ImageObjectOrString>>,
 
     /// The URL of the item.
-    url: Option<String>,
+    pub url: Option<String>,
 
     /// The subject matter of the content.
-    about: Option<Vec<ThingType>>,
+    pub about: Option<Vec<ThingType>>,
 
     /// The authors of this creative work.
-    authors: Option<Vec<PersonOrOrganization>>,
+    pub authors: Option<Vec<PersonOrOrganization>>,
 
     /// Comments about this creative work.
-    comments: Option<Vec<Comment>>,
+    pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    content: Option<Vec<Block>>,
+    pub content: Option<Vec<Block>>,
 
     /// Date/time of creation.
-    date_created: Option<Date>,
+    pub date_created: Option<Date>,
 
     /// Date/time that work was received.
-    date_received: Option<Date>,
+    pub date_received: Option<Date>,
 
     /// Date/time of acceptance.
-    date_accepted: Option<Date>,
+    pub date_accepted: Option<Date>,
 
     /// Date/time of most recent modification.
-    date_modified: Option<Date>,
+    pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    date_published: Option<Date>,
+    pub date_published: Option<Date>,
 
     /// People who edited the `CreativeWork`.
-    editors: Option<Vec<Person>>,
+    pub editors: Option<Vec<Person>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    funders: Option<Vec<PersonOrOrganization>>,
+    pub funders: Option<Vec<PersonOrOrganization>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    funded_by: Option<Vec<GrantOrMonetaryGrant>>,
+    pub funded_by: Option<Vec<GrantOrMonetaryGrant>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    genre: Option<Vec<String>>,
+    pub genre: Option<Vec<String>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    keywords: Option<Vec<String>>,
+    pub keywords: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    is_part_of: Option<Box<CreativeWorkType>>,
+    pub is_part_of: Option<Box<CreativeWorkType>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    licenses: Option<Vec<CreativeWorkTypeOrString>>,
+    pub licenses: Option<Vec<CreativeWorkTypeOrString>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    maintainers: Option<Vec<PersonOrOrganization>>,
+    pub maintainers: Option<Vec<PersonOrOrganization>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    parts: Option<Vec<CreativeWorkType>>,
+    pub parts: Option<Vec<CreativeWorkType>>,
 
     /// A publisher of the CreativeWork.
-    publisher: Option<PersonOrOrganization>,
+    pub publisher: Option<PersonOrOrganization>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    references: Option<Vec<CreativeWorkTypeOrString>>,
+    pub references: Option<Vec<CreativeWorkTypeOrString>>,
 
     /// The textual content of this creative work.
-    text: Option<String>,
+    pub text: Option<String>,
 
     /// The title of the creative work.
-    title: Option<Vec<Inline>>,
+    pub title: Option<Vec<Inline>>,
 
     /// The version of the creative work.
-    version: Option<StringOrNumber>,
+    pub version: Option<StringOrNumber>,
 
     /// Requirements for application, including shared libraries that are not included in the application distribution.
-    software_requirements: Option<Vec<SoftwareApplication>>,
+    pub software_requirements: Option<Vec<SoftwareApplication>>,
 
     /// Version of the software.
-    software_version: Option<String>,
+    pub software_version: Option<String>,
 }

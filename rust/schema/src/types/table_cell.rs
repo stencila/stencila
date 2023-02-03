@@ -9,35 +9,36 @@ use super::table_cell_type::TableCellType;
 
 /// A cell within a `Table`.
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct TableCell {
     /// The type of this item
     #[autosurgeon(with = "autosurgeon_must_be")]
-    r#type: MustBe!("TableCell"),
+    pub r#type: MustBe!("TableCell"),
 
     /// The identifier for this item
-    id: Option<String>,
+    #[key]
+    pub id: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]
-    options: Box<TableCellOptions>,
+    pub options: Box<TableCellOptions>,
 }
 
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct TableCellOptions {
     /// The name of the cell.
-    name: Option<String>,
+    pub name: Option<String>,
 
     /// How many columns the cell extends.
-    colspan: Option<Integer>,
+    pub colspan: Option<Integer>,
 
     /// The type of cell.
-    cell_type: Option<TableCellType>,
+    pub cell_type: Option<TableCellType>,
 
     /// How many columns the cell extends.
-    rowspan: Option<Integer>,
+    pub rowspan: Option<Integer>,
 
     /// Contents of the table cell.
-    content: Option<BlocksOrInlines>,
+    pub content: Option<BlocksOrInlines>,
 }

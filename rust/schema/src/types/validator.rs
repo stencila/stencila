@@ -18,7 +18,7 @@ use super::tuple_validator::TupleValidator;
 
 /// Union type for validators.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
-#[serde(crate = "common::serde")]
+#[serde(untagged, crate = "common::serde")]
 
 pub enum Validator {
     ArrayValidator(ArrayValidator),
