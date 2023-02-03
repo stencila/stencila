@@ -1,13 +1,13 @@
 use common::{
     eyre::Result,
+    json5,
     serde::{de::DeserializeOwned, Serialize},
-    serde_json,
 };
 
 pub trait FromJson5: DeserializeOwned {
-    /// Deserialize a node from JSON
+    /// Deserialize a node from JSON5
     fn from_json5(json5: &str) -> Result<Self> {
-        Ok(serde_json::from_str(json5)?)
+        Ok(json5::from_str(json5)?)
     }
 }
 
@@ -18,8 +18,11 @@ pub trait ToJson5: Serialize {
     ///
     /// Note: at the time of writing, the `json5` actually produces
     /// JSON output (which is of course valid JSON5, but less concise).
-    fn to_json5(&self) -> Result<String> {
-        Ok(serde_json::to_string(self)?)
+    fn to_json5(&self) -> Result<String>
+    where
+        Self: Sized,
+    {
+        Ok(json5::to_string(self)?)
     }
 }
 
