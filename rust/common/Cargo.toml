@@ -30,6 +30,6 @@ serde_yaml = "0.9.11"
 slug = "0.1.4"
 strum = { version = "0.24.0", features = ["derive"] }
 tempfile = "3.3.0"
-tokio = { version = "1.19.2", features = ["full"] }
+tokio = { version = "1.24.2", features = ["full"] }
 toml = "0.5.9"
 tracing = { version = "0.1.35", features = ["log"] }
