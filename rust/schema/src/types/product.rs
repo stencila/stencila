@@ -9,15 +9,14 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Product {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Product"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Non-core optional fields
@@ -25,7 +24,8 @@ pub struct Product {
     pub options: Box<ProductOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ProductOptions {
     /// Alternate names (aliases) for the item.
@@ -55,3 +55,13 @@ pub struct ProductOptions {
     /// Product identification code.
     pub product_id: Option<String>,
 }
+
+impl Product {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

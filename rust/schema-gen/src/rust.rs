@@ -108,8 +108,11 @@ impl Schemas {
                 Type::Number => "pub type Number = f64;\n",
                 Type::String => "pub type String = std::string::String;\n",
                 Type::Array => "pub type Array = Vec<super::primitive::Primitive>;\n",
-                Type::Object => "pub type Object = std::collections::HashMap<String, super::primitive::Primitive>;\n",
-            }.to_string()
+                Type::Object => {
+                    "pub type Object = indexmap::IndexMap<String, super::primitive::Primitive>;\n"
+                }
+            }
+            .to_string()
         } else {
             return Ok(());
         };
@@ -140,29 +143,20 @@ impl Schemas {
 
             let mut attrs = Vec::new();
 
-            // Rewrite name as necessary for Rust compatability
+            // Rewrite name as necessary for Rust compatibility
             let name = name.to_snake_case();
             let name = match name.as_str() {
                 "type" => "r#type".to_string(),
                 _ => name,
             };
 
-            // Determine type
+            // Determine Rust type for the property
             let (mut typ, is_vec) = if name == "r#type" {
                 (format!(r#"MustBe!("{title}")"#), false)
             } else {
                 let (typ, is_vec, ..) = Self::rust_type(dest, property).await?;
                 used_types.insert(typ.clone());
                 (typ, is_vec)
-            };
-
-            // Add attributes
-            match name.as_str() {
-                "r#type" => {
-                    attrs.push("#[autosurgeon(with = \"autosurgeon_must_be\")]".to_string())
-                }
-                "id" => attrs.push("#[key]".to_string()),
-                _ => (),
             };
 
             // Does the field have a default?
@@ -204,10 +198,7 @@ impl Schemas {
             };
             let code = format!("/// {description}\n    {attrs}pub {name}: {typ},");
 
-            // Determine if field should go in `options` or not
-            let is_option = !(property.is_required || property.is_core);
-
-            fields.push((is_option, code));
+            fields.push((property.is_required, property.is_core, name, typ, code));
         }
 
         let uses = used_types
@@ -224,7 +215,9 @@ impl Schemas {
 
         let optional_fields = fields
             .iter()
-            .filter_map(|(is_option, field)| is_option.then_some(field))
+            .filter_map(|(is_required, is_core, .., field)| {
+                (!is_required && !is_core).then_some(field)
+            })
             .join("\n\n    ");
 
         let options = if optional_fields.is_empty() {
@@ -233,7 +226,8 @@ impl Schemas {
             format!(
                 r#"
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct {title}Options {{
     {optional_fields}
@@ -243,7 +237,9 @@ pub struct {title}Options {{
 
         let mut core_fields = fields
             .iter()
-            .filter_map(|(is_option, field)| (!is_option).then_some(field))
+            .filter_map(|(is_required, is_core, .., field)| {
+                (*is_required || *is_core).then_some(field)
+            })
             .join("\n\n    ");
         if !options.is_empty() {
             core_fields += &format!(
@@ -255,6 +251,34 @@ pub struct {title}Options {{
             );
         }
 
+        let required_fields = fields
+            .iter()
+            .filter_map(|(is_required, _is_core, name, typ, ..)| {
+                (*is_required && name != "r#type").then_some((name, typ))
+            })
+            .collect_vec();
+
+        let implem = format!(
+            r#"
+impl {title} {{
+    pub fn new({params}) -> Self {{
+        Self{{
+            {args}
+            ..Default::default()
+        }}
+    }}
+}}
+"#,
+            params = required_fields
+                .iter()
+                .map(|(name, typ)| format!("{name}: {typ}"))
+                .join(", "),
+            args = required_fields
+                .iter()
+                .map(|(name, ..)| format!("{name},"))
+                .join("\n            ")
+        );
+
         let rust = format!(
             r#"//! Generated file, do not edit
 
@@ -263,11 +287,13 @@ use crate::prelude::*;
 {uses}
 
 /// {description}
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct {title} {{
     {core_fields}
 }}{options}
+{implem}
 "#
         );
         Ok(rust)
@@ -410,7 +436,7 @@ pub struct {title} {{
 use crate::prelude::*;
 
 {uses}/// {description}
-#[derive(Debug{defaults}, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[derive(Debug{defaults}, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 {default}
 pub enum {name} {{
@@ -471,7 +497,7 @@ use crate::prelude::*;
 /// 
 /// This is an empty struct, rather than a unit struct, because
 /// Autosurgeon will not work with unit structs.
-#[derive(Debug, Default, Clone, PartialEq, Reconcile, Hydrate)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Null {}
 
 impl fmt::Display for Null {

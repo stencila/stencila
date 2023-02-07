@@ -8,15 +8,14 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A word, name, acronym, phrase, etc. with a formal definition.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DefinedTerm {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("DefinedTerm"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The name of the item.
@@ -27,7 +26,8 @@ pub struct DefinedTerm {
     pub options: Box<DefinedTermOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DefinedTermOptions {
     /// Alternate names (aliases) for the item.
@@ -48,3 +48,13 @@ pub struct DefinedTermOptions {
     /// A code that identifies this DefinedTerm within a DefinedTermSet
     pub term_code: Option<String>,
 }
+
+impl DefinedTerm {
+    pub fn new(name: String) -> Self {
+        Self{
+            name,
+            ..Default::default()
+        }
+    }
+}
+

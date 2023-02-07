@@ -7,7 +7,7 @@ use super::software_source_code::SoftwareSourceCode;
 use super::string::String;
 
 /// [`SoftwareSourceCode`] or [`SoftwareApplication`] or [`String`]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 
 pub enum SoftwareSourceCodeOrSoftwareApplicationOrString {

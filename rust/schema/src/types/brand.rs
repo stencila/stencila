@@ -8,15 +8,14 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A brand used by an organization or person for labeling a product, product group, or similar.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Brand {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Brand"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The name of the item.
@@ -27,7 +26,8 @@ pub struct Brand {
     pub options: Box<BrandOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct BrandOptions {
     /// Alternate names (aliases) for the item.
@@ -51,3 +51,13 @@ pub struct BrandOptions {
     /// Reviews of the brand.
     pub reviews: Option<Vec<String>>,
 }
+
+impl Brand {
+    pub fn new(name: String) -> Self {
+        Self{
+            name,
+            ..Default::default()
+        }
+    }
+}
+

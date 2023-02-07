@@ -11,7 +11,7 @@ use super::object::Object;
 use super::string::String;
 
 /// Union type for all primitives values
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Null(Null::default())"]
 pub enum Primitive {

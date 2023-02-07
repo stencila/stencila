@@ -19,15 +19,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Figure {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Figure"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// A short label for the figure.
@@ -41,7 +40,8 @@ pub struct Figure {
     pub options: Box<FigureOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct FigureOptions {
     /// Alternate names (aliases) for the item.
@@ -131,3 +131,13 @@ pub struct FigureOptions {
     /// The version of the creative work.
     pub version: Option<StringOrNumber>,
 }
+
+impl Figure {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

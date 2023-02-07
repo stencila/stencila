@@ -12,15 +12,14 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// An organization such as a school, NGO, corporation, club, etc.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Organization {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Organization"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Non-core optional fields
@@ -28,7 +27,8 @@ pub struct Organization {
     pub options: Box<OrganizationOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct OrganizationOptions {
     /// Alternate names (aliases) for the item.
@@ -76,3 +76,13 @@ pub struct OrganizationOptions {
     /// Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
     pub parent_organization: Option<Box<Organization>>,
 }
+
+impl Organization {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

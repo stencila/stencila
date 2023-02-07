@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// The type or nature of a citation, both factually and rhetorically.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 
 pub enum CitationIntent {

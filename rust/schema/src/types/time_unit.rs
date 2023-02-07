@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// A unit in which time can be measured
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Millisecond"]
 pub enum TimeUnit {

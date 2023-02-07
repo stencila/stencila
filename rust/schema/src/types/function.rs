@@ -7,15 +7,14 @@ use super::string::String;
 use super::validator::Validator;
 
 /// A function with a name, which might take Parameters and return a value of a certain type.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Function {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Function"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The name of the function.
@@ -29,9 +28,21 @@ pub struct Function {
     pub options: Box<FunctionOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct FunctionOptions {
     /// The return type of the function.
     pub returns: Option<Validator>,
 }
+
+impl Function {
+    pub fn new(name: String, parameters: Vec<Parameter>) -> Self {
+        Self{
+            name,
+            parameters,
+            ..Default::default()
+        }
+    }
+}
+

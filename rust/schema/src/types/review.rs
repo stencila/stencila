@@ -19,15 +19,14 @@ use super::thing::Thing;
 use super::thing_type::ThingType;
 
 /// A review of an item, e.g of an Article, or SoftwareSourceCode.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Review {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Review"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Non-core optional fields
@@ -35,7 +34,8 @@ pub struct Review {
     pub options: Box<ReviewOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ReviewOptions {
     /// Alternate names (aliases) for the item.
@@ -131,3 +131,13 @@ pub struct ReviewOptions {
     /// The part or facet of the item that is being reviewed.
     pub review_aspect: Option<String>,
 }
+
+impl Review {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

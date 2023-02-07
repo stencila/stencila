@@ -19,15 +19,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A claim represents specific reviewable facts or statements.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Claim {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Claim"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Content of the claim, usually a single paragraph.
@@ -44,7 +43,8 @@ pub struct Claim {
     pub options: Box<ClaimOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ClaimOptions {
     /// Alternate names (aliases) for the item.
@@ -131,3 +131,14 @@ pub struct ClaimOptions {
     /// The version of the creative work.
     pub version: Option<StringOrNumber>,
 }
+
+impl Claim {
+    pub fn new(content: Vec<Block>, claim_type: ClaimType) -> Self {
+        Self{
+            content,
+            claim_type,
+            ..Default::default()
+        }
+    }
+}
+

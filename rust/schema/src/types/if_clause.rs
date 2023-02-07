@@ -18,15 +18,14 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// A clause within a `If` node
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct IfClause {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("IfClause"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -58,7 +57,8 @@ pub struct IfClause {
     pub options: Box<IfClauseOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct IfClauseOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -94,3 +94,20 @@ pub struct IfClauseOptions {
     /// Whether this clause is the active clause in the parent `If` node
     pub is_active: Option<Boolean>,
 }
+
+impl IfClause {
+    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, code: String, programming_language: String, guess_language: Boolean, content: Vec<Block>) -> Self {
+        Self{
+            execution_auto,
+            execution_count,
+            execution_required,
+            execution_status,
+            code,
+            programming_language,
+            guess_language,
+            content,
+            ..Default::default()
+        }
+    }
+}
+

@@ -6,15 +6,14 @@ use super::node::Node;
 use super::string::String;
 
 /// A variable representing a name / value pair.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Variable {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Variable"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The namespace, usually a document path, within which the variable resides
@@ -29,3 +28,14 @@ pub struct Variable {
     /// The value of the variable.
     pub value: Option<Box<Node>>,
 }
+
+impl Variable {
+    pub fn new(namespace: String, name: String) -> Self {
+        Self{
+            namespace,
+            name,
+            ..Default::default()
+        }
+    }
+}
+

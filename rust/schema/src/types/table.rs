@@ -20,15 +20,14 @@ use super::table_row::TableRow;
 use super::thing_type::ThingType;
 
 /// A table.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Table {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Table"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// A caption for the table.
@@ -45,7 +44,8 @@ pub struct Table {
     pub options: Box<TableOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct TableOptions {
     /// Alternate names (aliases) for the item.
@@ -135,3 +135,13 @@ pub struct TableOptions {
     /// The version of the creative work.
     pub version: Option<StringOrNumber>,
 }
+
+impl Table {
+    pub fn new(rows: Vec<TableRow>) -> Self {
+        Self{
+            rows,
+            ..Default::default()
+        }
+    }
+}
+

@@ -12,6 +12,10 @@ struct Args {
     #[arg(short, long, default_value_t = true)]
     docs: bool,
 
+    /// Generate JSON schema
+    #[arg(short, long, default_value_t = true)]
+    json_schema: bool,
+
     /// Generate Rust types
     #[arg(short, long, default_value_t = true)]
     rust: bool,
@@ -28,6 +32,10 @@ async fn main() -> Result<()> {
 
     if args.docs {
         schemas.docs().await?;
+    }
+
+    if args.json_schema {
+        //schemas.json_schemas().await?;
     }
 
     if args.rust {

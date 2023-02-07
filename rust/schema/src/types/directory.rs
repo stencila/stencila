@@ -19,15 +19,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A directory on the filesystem
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Directory {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Directory"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The name of the item.
@@ -44,7 +43,8 @@ pub struct Directory {
     pub options: Box<DirectoryOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DirectoryOptions {
     /// Alternate names (aliases) for the item.
@@ -128,3 +128,15 @@ pub struct DirectoryOptions {
     /// The version of the creative work.
     pub version: Option<StringOrNumber>,
 }
+
+impl Directory {
+    pub fn new(name: String, parts: Vec<FileOrDirectory>, path: String) -> Self {
+        Self{
+            name,
+            parts,
+            path,
+            ..Default::default()
+        }
+    }
+}
+

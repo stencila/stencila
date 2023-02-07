@@ -8,15 +8,14 @@ use super::string::String;
 use super::table_cell_type::TableCellType;
 
 /// A cell within a `Table`.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct TableCell {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("TableCell"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Non-core optional fields
@@ -24,7 +23,8 @@ pub struct TableCell {
     pub options: Box<TableCellOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct TableCellOptions {
     /// The name of the cell.
@@ -42,3 +42,13 @@ pub struct TableCellOptions {
     /// Contents of the table cell.
     pub content: Option<BlocksOrInlines>,
 }
+
+impl TableCell {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

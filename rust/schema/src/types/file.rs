@@ -18,15 +18,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A file on the filesystem
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct File {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("File"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The name of the item.
@@ -40,7 +39,8 @@ pub struct File {
     pub options: Box<FileOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct FileOptions {
     /// Alternate names (aliases) for the item.
@@ -127,3 +127,14 @@ pub struct FileOptions {
     /// The version of the creative work.
     pub version: Option<StringOrNumber>,
 }
+
+impl File {
+    pub fn new(name: String, path: String) -> Self {
+        Self{
+            name,
+            path,
+            ..Default::default()
+        }
+    }
+}
+

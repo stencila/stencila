@@ -18,15 +18,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A periodical publication.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Periodical {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Periodical"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Non-core optional fields
@@ -34,7 +33,8 @@ pub struct Periodical {
     pub options: Box<PeriodicalOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PeriodicalOptions {
     /// Alternate names (aliases) for the item.
@@ -133,3 +133,13 @@ pub struct PeriodicalOptions {
     /// The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
     pub issns: Option<Vec<String>>,
 }
+
+impl Periodical {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

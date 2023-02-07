@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// Indicates how a `List` is ordered.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Unordered"]
 pub enum ListOrder {

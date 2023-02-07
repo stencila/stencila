@@ -19,15 +19,14 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// A form to batch updates in document parameters
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Form {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Form"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -50,7 +49,8 @@ pub struct Form {
     pub options: Box<FormOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct FormOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -89,3 +89,17 @@ pub struct FormOptions {
     /// An identifier for the item to be the target of Update or Delete actions
     pub derive_item: Option<IntegerOrString>,
 }
+
+impl Form {
+    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, content: Vec<Block>) -> Self {
+        Self{
+            execution_auto,
+            execution_count,
+            execution_required,
+            execution_status,
+            content,
+            ..Default::default()
+        }
+    }
+}
+

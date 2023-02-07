@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// Indicates the action (create, update or delete) to derive for a `Form`.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Create"]
 pub enum FormDeriveAction {

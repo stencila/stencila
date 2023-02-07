@@ -19,15 +19,14 @@ use super::timestamp::Timestamp;
 use super::validator::Validator;
 
 /// The value of a `Parameter` to call a document with
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CallArgument {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("CallArgument"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -71,7 +70,8 @@ pub struct CallArgument {
     pub options: Box<CallArgumentOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CallArgumentOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -107,3 +107,19 @@ pub struct CallArgumentOptions {
     /// The dotted path to the object (e.g. a database table column) that the parameter should be derived from
     pub derived_from: Option<String>,
 }
+
+impl CallArgument {
+    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, name: String, code: String, programming_language: String) -> Self {
+        Self{
+            execution_auto,
+            execution_count,
+            execution_required,
+            execution_status,
+            name,
+            code,
+            programming_language,
+            ..Default::default()
+        }
+    }
+}
+

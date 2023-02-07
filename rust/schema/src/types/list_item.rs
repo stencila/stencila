@@ -12,15 +12,14 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A single item in a list.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ListItem {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("ListItem"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The content of the list item.
@@ -40,7 +39,8 @@ pub struct ListItem {
     pub options: Box<ListItemOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ListItemOptions {
     /// Alternate names (aliases) for the item.
@@ -61,3 +61,13 @@ pub struct ListItemOptions {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+impl ListItem {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

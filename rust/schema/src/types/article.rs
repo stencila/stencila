@@ -19,15 +19,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// An article, including news and scholarly articles.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Article {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Article"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// A description of the item.
@@ -65,7 +64,8 @@ pub struct Article {
     pub options: Box<ArticleOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ArticleOptions {
     /// Alternate names (aliases) for the item.
@@ -134,3 +134,13 @@ pub struct ArticleOptions {
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
 }
+
+impl Article {
+    pub fn new(content: Vec<Block>) -> Self {
+        Self{
+            content,
+            ..Default::default()
+        }
+    }
+}
+

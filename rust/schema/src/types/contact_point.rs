@@ -8,15 +8,14 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A contact point, usually within an organization.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ContactPoint {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("ContactPoint"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Email address for correspondence.
@@ -30,7 +29,8 @@ pub struct ContactPoint {
     pub options: Box<ContactPointOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ContactPointOptions {
     /// Alternate names (aliases) for the item.
@@ -54,3 +54,13 @@ pub struct ContactPointOptions {
     /// Languages (human not programming) in which it is possible to communicate with the organization/department etc.
     pub available_languages: Option<Vec<String>>,
 }
+
+impl ContactPoint {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

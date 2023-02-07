@@ -6,15 +6,14 @@ use super::execution_digest::ExecutionDigest;
 use super::string::String;
 
 /// A fragment of math, e.g a variable name, to be treated as inline content.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct MathFragment {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("MathFragment"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
@@ -32,3 +31,14 @@ pub struct MathFragment {
     /// The MathML transpiled from the `code`
     pub mathml: Option<String>,
 }
+
+impl MathFragment {
+    pub fn new(math_language: String, code: String) -> Self {
+        Self{
+            math_language,
+            code,
+            ..Default::default()
+        }
+    }
+}
+

@@ -18,15 +18,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A software application.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SoftwareApplication {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("SoftwareApplication"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The name of the item.
@@ -37,7 +36,8 @@ pub struct SoftwareApplication {
     pub options: Box<SoftwareApplicationOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SoftwareApplicationOptions {
     /// Alternate names (aliases) for the item.
@@ -130,3 +130,13 @@ pub struct SoftwareApplicationOptions {
     /// Version of the software.
     pub software_version: Option<String>,
 }
+
+impl SoftwareApplication {
+    pub fn new(name: String) -> Self {
+        Self{
+            name,
+            ..Default::default()
+        }
+    }
+}
+

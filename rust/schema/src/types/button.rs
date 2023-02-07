@@ -17,15 +17,14 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// A button.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Button {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Button"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -60,7 +59,8 @@ pub struct Button {
     pub options: Box<ButtonOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ButtonOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -96,3 +96,20 @@ pub struct ButtonOptions {
     /// Whether the button is currently disabled
     pub is_disabled: Option<Boolean>,
 }
+
+impl Button {
+    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, code: String, programming_language: String, guess_language: Boolean, name: String) -> Self {
+        Self{
+            execution_auto,
+            execution_count,
+            execution_required,
+            execution_status,
+            code,
+            programming_language,
+            guess_language,
+            name,
+            ..Default::default()
+        }
+    }
+}
+

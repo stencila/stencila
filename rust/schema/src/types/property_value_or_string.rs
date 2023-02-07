@@ -6,7 +6,7 @@ use super::property_value::PropertyValue;
 use super::string::String;
 
 /// [`PropertyValue`] or [`String`]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 
 pub enum PropertyValueOrString {

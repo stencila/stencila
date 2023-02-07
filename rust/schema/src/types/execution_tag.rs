@@ -6,7 +6,8 @@ use super::boolean::Boolean;
 use super::string::String;
 
 /// A tag on code that affects its execution
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ExecutionTag {
     /// The name of the tag
@@ -18,3 +19,15 @@ pub struct ExecutionTag {
     /// Whether the tag is global to the document
     pub is_global: Boolean,
 }
+
+impl ExecutionTag {
+    pub fn new(name: String, value: String, is_global: Boolean) -> Self {
+        Self{
+            name,
+            value,
+            is_global,
+            ..Default::default()
+        }
+    }
+}
+

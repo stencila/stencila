@@ -11,15 +11,14 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A person (alive, dead, undead, or fictional).
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Person {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Person"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Organizations that the person is affiliated with.
@@ -36,7 +35,8 @@ pub struct Person {
     pub options: Box<PersonOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PersonOptions {
     /// Alternate names (aliases) for the item.
@@ -81,3 +81,13 @@ pub struct PersonOptions {
     /// Telephone numbers for the person.
     pub telephone_numbers: Option<Vec<String>>,
 }
+
+impl Person {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

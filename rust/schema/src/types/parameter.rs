@@ -19,15 +19,14 @@ use super::timestamp::Timestamp;
 use super::validator::Validator;
 
 /// A parameter of a document.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Parameter {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Parameter"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -62,7 +61,8 @@ pub struct Parameter {
     pub options: Box<ParameterOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ParameterOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -98,3 +98,17 @@ pub struct ParameterOptions {
     /// The dotted path to the object (e.g. a database table column) that the parameter should be derived from
     pub derived_from: Option<String>,
 }
+
+impl Parameter {
+    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, name: String) -> Self {
+        Self{
+            execution_auto,
+            execution_count,
+            execution_required,
+            execution_status,
+            name,
+            ..Default::default()
+        }
+    }
+}
+

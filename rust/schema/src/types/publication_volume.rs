@@ -19,15 +19,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A part of a successively published publication such as a periodical or multi-volume work.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PublicationVolume {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("PublicationVolume"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -41,7 +40,8 @@ pub struct PublicationVolume {
     pub options: Box<PublicationVolumeOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PublicationVolumeOptions {
     /// Alternate names (aliases) for the item.
@@ -137,3 +137,13 @@ pub struct PublicationVolumeOptions {
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
 }
+
+impl PublicationVolume {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

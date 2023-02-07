@@ -93,6 +93,7 @@ use super::superscript::Superscript;
 use super::table::Table;
 use super::table_cell::TableCell;
 use super::table_row::TableRow;
+use super::text::Text;
 use super::thematic_break::ThematicBreak;
 use super::thing::Thing;
 use super::time::Time;
@@ -105,7 +106,7 @@ use super::variable::Variable;
 use super::video_object::VideoObject;
 
 /// Union type for all types in this schema, including primitives and entities
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 
 pub enum Node {
@@ -199,6 +200,7 @@ pub enum Node {
     Table(Table),
     TableCell(TableCell),
     TableRow(TableRow),
+    Text(Text),
     ThematicBreak(ThematicBreak),
     Thing(Thing),
     Time(Time),

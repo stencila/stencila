@@ -17,15 +17,14 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Show and execute alternative content conditional upon an executed expression
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct If {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("If"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -48,7 +47,8 @@ pub struct If {
     pub options: Box<IfOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct IfOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -78,3 +78,17 @@ pub struct IfOptions {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 }
+
+impl If {
+    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, clauses: Vec<IfClause>) -> Self {
+        Self{
+            execution_auto,
+            execution_count,
+            execution_required,
+            execution_status,
+            clauses,
+            ..Default::default()
+        }
+    }
+}
+

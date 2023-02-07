@@ -9,15 +9,14 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A property-value pair.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PropertyValue {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("PropertyValue"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// A commonly used identifier for the characteristic represented by the property.
@@ -31,7 +30,8 @@ pub struct PropertyValue {
     pub options: Box<PropertyValueOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PropertyValueOptions {
     /// Alternate names (aliases) for the item.
@@ -52,3 +52,13 @@ pub struct PropertyValueOptions {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+impl PropertyValue {
+    pub fn new(value: Primitive) -> Self {
+        Self{
+            value,
+            ..Default::default()
+        }
+    }
+}
+

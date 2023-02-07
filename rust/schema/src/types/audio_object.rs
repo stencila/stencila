@@ -19,15 +19,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// An audio file
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct AudioObject {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("AudioObject"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
@@ -41,7 +40,8 @@ pub struct AudioObject {
     pub options: Box<AudioObjectOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct AudioObjectOptions {
     /// Alternate names (aliases) for the item.
@@ -146,3 +146,13 @@ pub struct AudioObjectOptions {
     /// The transcript of this audio recording.
     pub transcript: Option<String>,
 }
+
+impl AudioObject {
+    pub fn new(content_url: String) -> Self {
+        Self{
+            content_url,
+            ..Default::default()
+        }
+    }
+}
+

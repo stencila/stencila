@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// Indicates whether the row is in the header, body or footer of the table.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Body"]
 pub enum TableRowType {

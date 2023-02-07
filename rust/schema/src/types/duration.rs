@@ -7,15 +7,14 @@ use super::string::String;
 use super::time_unit::TimeUnit;
 
 /// A value that represents the difference between two timestamps
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Duration {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Duration"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The time difference in `timeUnit`s.
@@ -24,3 +23,14 @@ pub struct Duration {
     /// The time unit that the `value` represents.
     pub time_unit: TimeUnit,
 }
+
+impl Duration {
+    pub fn new(value: Integer, time_unit: TimeUnit) -> Self {
+        Self{
+            value,
+            time_unit,
+            ..Default::default()
+        }
+    }
+}
+

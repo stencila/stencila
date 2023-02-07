@@ -11,15 +11,14 @@ use super::string::String;
 use super::thing::Thing;
 
 /// A monetary grant.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct MonetaryGrant {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("MonetaryGrant"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Non-core optional fields
@@ -27,7 +26,8 @@ pub struct MonetaryGrant {
     pub options: Box<MonetaryGrantOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct MonetaryGrantOptions {
     /// Alternate names (aliases) for the item.
@@ -60,3 +60,13 @@ pub struct MonetaryGrantOptions {
     /// A person or organization that supports (sponsors) something through some kind of financial contribution.
     pub funders: Option<Vec<PersonOrOrganization>>,
 }
+
+impl MonetaryGrant {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

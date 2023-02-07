@@ -19,15 +19,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A table of data.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Datatable {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Datatable"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The columns of data.
@@ -38,7 +37,8 @@ pub struct Datatable {
     pub options: Box<DatatableOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatatableOptions {
     /// Alternate names (aliases) for the item.
@@ -128,3 +128,13 @@ pub struct DatatableOptions {
     /// The version of the creative work.
     pub version: Option<StringOrNumber>,
 }
+
+impl Datatable {
+    pub fn new(columns: Vec<DatatableColumn>) -> Self {
+        Self{
+            columns,
+            ..Default::default()
+        }
+    }
+}
+

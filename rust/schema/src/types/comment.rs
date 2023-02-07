@@ -17,15 +17,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Comment {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Comment"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The authors of this creative work.
@@ -42,7 +41,8 @@ pub struct Comment {
     pub options: Box<CommentOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CommentOptions {
     /// Alternate names (aliases) for the item.
@@ -129,3 +129,13 @@ pub struct CommentOptions {
     /// The part or facet of the item that is being commented on.
     pub comment_aspect: Option<String>,
 }
+
+impl Comment {
+    pub fn new(content: Vec<Block>) -> Self {
+        Self{
+            content,
+            ..Default::default()
+        }
+    }
+}
+

@@ -8,15 +8,14 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A physical mailing address.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PostalAddress {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("PostalAddress"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Email address for correspondence.
@@ -45,7 +44,8 @@ pub struct PostalAddress {
     pub options: Box<PostalAddressOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PostalAddressOptions {
     /// Alternate names (aliases) for the item.
@@ -72,3 +72,13 @@ pub struct PostalAddressOptions {
     /// The post office box number.
     pub post_office_box_number: Option<String>,
 }
+
+impl PostalAddress {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

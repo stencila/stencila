@@ -18,15 +18,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A collection of CreativeWorks or other artifacts.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Collection {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Collection"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
@@ -37,7 +36,8 @@ pub struct Collection {
     pub options: Box<CollectionOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CollectionOptions {
     /// Alternate names (aliases) for the item.
@@ -124,3 +124,13 @@ pub struct CollectionOptions {
     /// The version of the creative work.
     pub version: Option<StringOrNumber>,
 }
+
+impl Collection {
+    pub fn new(parts: Vec<CreativeWorkType>) -> Self {
+        Self{
+            parts,
+            ..Default::default()
+        }
+    }
+}
+

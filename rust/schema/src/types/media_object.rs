@@ -19,15 +19,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct MediaObject {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("MediaObject"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
@@ -41,7 +40,8 @@ pub struct MediaObject {
     pub options: Box<MediaObjectOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct MediaObjectOptions {
     /// Alternate names (aliases) for the item.
@@ -140,3 +140,13 @@ pub struct MediaObjectOptions {
     /// URL that can be used to embed the media on a web page via a specific media player.
     pub embed_url: Option<String>,
 }
+
+impl MediaObject {
+    pub fn new(content_url: String) -> Self {
+        Self{
+            content_url,
+            ..Default::default()
+        }
+    }
+}
+

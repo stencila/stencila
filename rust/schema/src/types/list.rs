@@ -7,15 +7,14 @@ use super::list_order::ListOrder;
 use super::string::String;
 
 /// A list of items.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct List {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("List"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The items in the list.
@@ -24,3 +23,14 @@ pub struct List {
     /// The ordering of the list.
     pub order: ListOrder,
 }
+
+impl List {
+    pub fn new(items: Vec<ListItem>, order: ListOrder) -> Self {
+        Self{
+            items,
+            order,
+            ..Default::default()
+        }
+    }
+}
+

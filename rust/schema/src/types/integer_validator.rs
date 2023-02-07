@@ -6,15 +6,14 @@ use super::number::Number;
 use super::string::String;
 
 /// A validator specifying the constraints on an integer node.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct IntegerValidator {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("IntegerValidator"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The inclusive lower limit for a numeric node.
@@ -32,3 +31,13 @@ pub struct IntegerValidator {
     /// A number that a numeric node must be a multiple of.
     pub multiple_of: Option<Number>,
 }
+
+impl IntegerValidator {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

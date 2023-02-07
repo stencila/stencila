@@ -8,15 +8,14 @@ use super::string::String;
 use super::validator::Validator;
 
 /// A validator specifying constraints on an array node.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ArrayValidator {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("ArrayValidator"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Whether items can have the value `Node::Null`
@@ -37,3 +36,13 @@ pub struct ArrayValidator {
     /// A flag to indicate that each value in the array should be unique.
     pub unique_items: Option<Boolean>,
 }
+
+impl ArrayValidator {
+    pub fn new(items_nullable: Boolean) -> Self {
+        Self{
+            items_nullable,
+            ..Default::default()
+        }
+    }
+}
+

@@ -1,1 +1,1 @@
-pub type Object = std::collections::HashMap<String, super::primitive::Primitive>;
+pub type Object = indexmap::IndexMap<String, super::primitive::Primitive>;

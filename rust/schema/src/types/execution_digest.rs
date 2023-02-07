@@ -5,7 +5,8 @@ use crate::prelude::*;
 use super::number::Number;
 
 /// A digest of the execution state of a node.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ExecutionDigest {
     /// A digest of the state of a node.
@@ -23,3 +24,17 @@ pub struct ExecutionDigest {
     /// A count of the number of execution dependencies that failed
     pub dependencies_failed: Number,
 }
+
+impl ExecutionDigest {
+    pub fn new(state_digest: Number, semantic_digest: Number, dependencies_digest: Number, dependencies_stale: Number, dependencies_failed: Number) -> Self {
+        Self{
+            state_digest,
+            semantic_digest,
+            dependencies_digest,
+            dependencies_stale,
+            dependencies_failed,
+            ..Default::default()
+        }
+    }
+}
+

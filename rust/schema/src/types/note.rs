@@ -7,15 +7,14 @@ use super::note_type::NoteType;
 use super::string::String;
 
 /// Additional content which is not part of the main content of a document.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Note {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Note"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Determines where the note content is displayed within the document.
@@ -24,3 +23,14 @@ pub struct Note {
     /// Content of the note, usually a paragraph.
     pub content: Vec<Block>,
 }
+
+impl Note {
+    pub fn new(note_type: NoteType, content: Vec<Block>) -> Self {
+        Self{
+            note_type,
+            content,
+            ..Default::default()
+        }
+    }
+}
+

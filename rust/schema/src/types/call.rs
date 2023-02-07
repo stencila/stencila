@@ -18,15 +18,14 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Call another document, optionally with arguments, and include its executed content.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Call {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Call"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -61,7 +60,8 @@ pub struct Call {
     pub options: Box<CallOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CallOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -91,3 +91,18 @@ pub struct CallOptions {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 }
+
+impl Call {
+    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, source: String, arguments: Vec<CallArgument>) -> Self {
+        Self{
+            execution_auto,
+            execution_count,
+            execution_required,
+            execution_status,
+            source,
+            arguments,
+            ..Default::default()
+        }
+    }
+}
+

@@ -17,15 +17,14 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Include content from an external source (e.g. file, URL).
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Include {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Include"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -57,7 +56,8 @@ pub struct Include {
     pub options: Box<IncludeOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct IncludeOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -87,3 +87,17 @@ pub struct IncludeOptions {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     pub errors: Option<Vec<CodeError>>,
 }
+
+impl Include {
+    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, source: String) -> Self {
+        Self{
+            execution_auto,
+            execution_count,
+            execution_required,
+            execution_status,
+            source,
+            ..Default::default()
+        }
+    }
+}
+

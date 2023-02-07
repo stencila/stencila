@@ -19,15 +19,14 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Repeat a block content for each item in an array.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct For {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("For"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -68,7 +67,8 @@ pub struct For {
     pub options: Box<ForOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ForOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -101,3 +101,21 @@ pub struct ForOptions {
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<String>,
 }
+
+impl For {
+    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, code: String, programming_language: String, guess_language: Boolean, symbol: String, content: Vec<Block>) -> Self {
+        Self{
+            execution_auto,
+            execution_count,
+            execution_required,
+            execution_status,
+            code,
+            programming_language,
+            guess_language,
+            symbol,
+            content,
+            ..Default::default()
+        }
+    }
+}
+

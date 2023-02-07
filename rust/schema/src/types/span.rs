@@ -18,15 +18,14 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Styled inline content
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Span {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("Span"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -64,7 +63,8 @@ pub struct Span {
     pub options: Box<SpanOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SpanOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -97,3 +97,20 @@ pub struct SpanOptions {
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<String>,
 }
+
+impl Span {
+    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, code: String, programming_language: String, guess_language: Boolean, content: Vec<Inline>) -> Self {
+        Self{
+            execution_auto,
+            execution_count,
+            execution_required,
+            execution_status,
+            code,
+            programming_language,
+            guess_language,
+            content,
+            ..Default::default()
+        }
+    }
+}
+

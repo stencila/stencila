@@ -19,15 +19,14 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// A executable chunk of code.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeChunk {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("CodeChunk"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Under which circumstances the code should be automatically executed.
@@ -62,7 +61,8 @@ pub struct CodeChunk {
     pub options: Box<CodeChunkOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeChunkOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -101,3 +101,20 @@ pub struct CodeChunkOptions {
     /// A caption for the CodeChunk.
     pub caption: Option<BlocksOrString>,
 }
+
+impl CodeChunk {
+    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, code: String, programming_language: String, guess_language: Boolean, execution_pure: Boolean) -> Self {
+        Self{
+            execution_auto,
+            execution_count,
+            execution_required,
+            execution_status,
+            code,
+            programming_language,
+            guess_language,
+            execution_pure,
+            ..Default::default()
+        }
+    }
+}
+

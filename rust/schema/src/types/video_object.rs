@@ -20,15 +20,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A video file.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct VideoObject {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("VideoObject"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
@@ -45,7 +44,8 @@ pub struct VideoObject {
     pub options: Box<VideoObjectOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct VideoObjectOptions {
     /// Alternate names (aliases) for the item.
@@ -150,3 +150,13 @@ pub struct VideoObjectOptions {
     /// The transcript of this video recording.
     pub transcript: Option<String>,
 }
+
+impl VideoObject {
+    pub fn new(content_url: String) -> Self {
+        Self{
+            content_url,
+            ..Default::default()
+        }
+    }
+}
+

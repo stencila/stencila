@@ -6,15 +6,14 @@ use super::date_time::DateTime;
 use super::string::String;
 
 /// A validator specifying the constraints on a date-time.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DateTimeValidator {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("DateTimeValidator"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The inclusive lower limit for a date-time.
@@ -23,3 +22,13 @@ pub struct DateTimeValidator {
     /// The inclusive upper limit for a date-time.
     pub maximum: Option<DateTime>,
 }
+
+impl DateTimeValidator {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+

@@ -10,15 +10,14 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A column of data within a Datatable.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatatableColumn {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("DatatableColumn"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// The name of the item.
@@ -35,7 +34,8 @@ pub struct DatatableColumn {
     pub options: Box<DatatableColumnOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatatableColumnOptions {
     /// Alternate names (aliases) for the item.
@@ -53,3 +53,14 @@ pub struct DatatableColumnOptions {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+impl DatatableColumn {
+    pub fn new(name: String, values: Vec<Primitive>) -> Self {
+        Self{
+            name,
+            values,
+            ..Default::default()
+        }
+    }
+}
+

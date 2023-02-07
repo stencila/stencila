@@ -20,15 +20,14 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SoftwareSourceCode {
     /// The type of this item
-    #[autosurgeon(with = "autosurgeon_must_be")]
     pub r#type: MustBe!("SoftwareSourceCode"),
 
     /// The identifier for this item
-    #[key]
     pub id: Option<String>,
 
     /// Link to the repository where the un-compiled, human readable code and related code is located.
@@ -45,7 +44,8 @@ pub struct SoftwareSourceCode {
     pub options: Box<SoftwareSourceCodeOptions>,
 }
 
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SoftwareSourceCodeOptions {
     /// Alternate names (aliases) for the item.
@@ -144,3 +144,13 @@ pub struct SoftwareSourceCodeOptions {
     /// Dependency requirements for the software.
     pub software_requirements: Option<Vec<SoftwareSourceCodeOrSoftwareApplicationOrString>>,
 }
+
+impl SoftwareSourceCode {
+    pub fn new() -> Self {
+        Self{
+            
+            ..Default::default()
+        }
+    }
+}
+
