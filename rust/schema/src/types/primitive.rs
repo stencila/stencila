@@ -9,6 +9,7 @@ use super::null::Null;
 use super::number::Number;
 use super::object::Object;
 use super::string::String;
+use super::unsigned_integer::UnsignedInteger;
 
 /// Union type for all primitives values
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
@@ -18,6 +19,7 @@ pub enum Primitive {
     Null(Null),
     Boolean(Boolean),
     Integer(Integer),
+    UnsignedInteger(UnsignedInteger),
     Number(Number),
     String(String),
     Array(Array),

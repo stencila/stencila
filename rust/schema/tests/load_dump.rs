@@ -20,6 +20,7 @@ fn primitives() -> Result<()> {
         ("null".to_string(), Primitive::Null(Null {})),
         ("bool".to_string(), Primitive::Boolean(true)),
         ("int".to_string(), Primitive::Integer(123)),
+        ("uint".to_string(), Primitive::UnsignedInteger(123)),
         ("num".to_string(), Primitive::Number(1.23)),
         ("str".to_string(), Primitive::String("abc".to_string())),
         (
@@ -46,6 +47,7 @@ fn primitives() -> Result<()> {
     root.insert("null".to_string(), Primitive::Null(Null {}));
     root.insert("bool".to_string(), Primitive::Boolean(false));
     root.insert("int".to_string(), Primitive::Integer(456));
+    root.insert("int".to_string(), Primitive::UnsignedInteger(456));
     root.insert("num".to_string(), Primitive::Number(4.56));
     root.insert("str".to_string(), Primitive::String("def".to_string()));
     root.insert(

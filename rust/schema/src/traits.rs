@@ -9,7 +9,7 @@ use smol_str::SmolStr;
 
 use crate::{
     store::{ReadStore, Store},
-    types::{Array, Boolean, Integer, Null, Number, Object, Primitive, Text},
+    types::{Array, Boolean, Integer, Null, Number, Object, Primitive, Text, UnsignedInteger},
 };
 
 macro_rules! bail_type {
@@ -227,6 +227,31 @@ impl Node for Integer {
     fn dump_similarity<S: ReadStore>(&self, store: &S, obj: &ObjId, prop: Prop) -> Result<usize> {
         if let Some((Value::Scalar(scalar), ..)) = store.get(obj, prop)? {
             if let ScalarValue::Int(value) = *scalar {
+                if value == *self {
+                    return Ok(SIMILARITY_MAX);
+                }
+            }
+        }
+        Ok(0)
+    }
+
+    fn dump_new(&self, store: &mut Store, obj: &ObjId, prop: Prop) -> Result<()> {
+        dump_new_scalar(store, obj, prop, *self)
+    }
+
+    fn dump_prop(&self, store: &mut Store, obj: &ObjId, prop: Prop) -> Result<()> {
+        dump_prop_scalar(store, obj, prop, *self)
+    }
+}
+
+impl Node for UnsignedInteger {
+    fn load_uint(value: &u64) -> Result<Self> {
+        Ok(*value)
+    }
+
+    fn dump_similarity<S: ReadStore>(&self, store: &S, obj: &ObjId, prop: Prop) -> Result<usize> {
+        if let Some((Value::Scalar(scalar), ..)) = store.get(obj, prop)? {
+            if let ScalarValue::Uint(value) = *scalar {
                 if value == *self {
                     return Ok(SIMILARITY_MAX);
                 }
@@ -543,6 +568,10 @@ impl Node for Primitive {
         Ok(Primitive::Integer(*value))
     }
 
+    fn load_uint(value: &u64) -> Result<Self> {
+        Ok(Primitive::UnsignedInteger(*value))
+    }
+
     fn load_f64(value: &f64) -> Result<Self> {
         Ok(Primitive::Number(*value))
     }
@@ -564,6 +593,7 @@ impl Node for Primitive {
             Primitive::Null(value) => value.dump_similarity(store, obj, prop),
             Primitive::Boolean(value) => value.dump_similarity(store, obj, prop),
             Primitive::Integer(value) => value.dump_similarity(store, obj, prop),
+            Primitive::UnsignedInteger(value) => value.dump_similarity(store, obj, prop),
             Primitive::Number(value) => value.dump_similarity(store, obj, prop),
             Primitive::String(value) => value.dump_similarity(store, obj, prop),
             Primitive::Array(value) => value.dump_similarity(store, obj, prop),
@@ -576,6 +606,7 @@ impl Node for Primitive {
             Primitive::Null(value) => value.dump_new(store, obj, prop),
             Primitive::Boolean(value) => value.dump_new(store, obj, prop),
             Primitive::Integer(value) => value.dump_new(store, obj, prop),
+            Primitive::UnsignedInteger(value) => value.dump_new(store, obj, prop),
             Primitive::Number(value) => value.dump_new(store, obj, prop),
             Primitive::String(value) => value.dump_new(store, obj, prop),
             Primitive::Array(value) => value.dump_new(store, obj, prop),
@@ -588,6 +619,7 @@ impl Node for Primitive {
             Primitive::Null(value) => value.dump_prop(store, obj, prop),
             Primitive::Boolean(value) => value.dump_prop(store, obj, prop),
             Primitive::Integer(value) => value.dump_prop(store, obj, prop),
+            Primitive::UnsignedInteger(value) => value.dump_prop(store, obj, prop),
             Primitive::Number(value) => value.dump_prop(store, obj, prop),
             Primitive::String(value) => value.dump_prop(store, obj, prop),
             Primitive::Array(value) => value.dump_prop(store, obj, prop),

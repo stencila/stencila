@@ -1,0 +1,5 @@
+title: UnsignedInteger
+'@id': stencila:UnsignedInteger
+description: An integer value that is greater or equal to zero
+type: integer
+minimum: 0

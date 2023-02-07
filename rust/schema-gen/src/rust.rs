@@ -104,7 +104,10 @@ impl Schemas {
             match r#type {
                 Type::Null => NULL_RUST,
                 Type::Boolean => "pub type Boolean = bool;\n",
-                Type::Integer => "pub type Integer = i64;\n",
+                Type::Integer => match schema.minimum == Some(0.) {
+                    true => "pub type UnsignedInteger = u64;\n",
+                    false => "pub type Integer = i64;\n",
+                },
                 Type::Number => "pub type Number = f64;\n",
                 Type::String => "pub type String = std::string::String;\n",
                 Type::Array => "pub type Array = Vec<super::primitive::Primitive>;\n",
@@ -516,7 +519,7 @@ use crate::prelude::*;
 /// This is a struct, rather than a unit variant of `Primitive`, so that
 /// it can be treated the same way as other variants when dispatching to
 /// trait methods.
-/// 
+///
 /// This is an empty struct, rather than a unit struct, because
 /// Autosurgeon will not work with unit structs.
 #[derive(Debug, Default, Clone, PartialEq)]
