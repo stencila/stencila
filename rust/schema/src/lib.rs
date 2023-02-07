@@ -1,3 +1,6 @@
+mod impls;
 mod prelude;
-mod types;
-pub use types::*;
+
+pub mod store;
+pub mod traits;
+pub mod types;

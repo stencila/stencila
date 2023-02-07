@@ -28,13 +28,14 @@ use super::string::String;
 use super::strong::Strong;
 use super::subscript::Subscript;
 use super::superscript::Superscript;
+use super::text::Text;
 use super::time::Time;
 use super::timestamp::Timestamp;
 use super::underline::Underline;
 use super::video_object::VideoObject;
 
 /// Union type for valid inline content.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Reconcile, Hydrate)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "String(String::default())"]
 pub enum Inline {
@@ -44,6 +45,9 @@ pub enum Inline {
     CiteGroup(CiteGroup),
     CodeExpression(CodeExpression),
     CodeFragment(CodeFragment),
+    Date(Date),
+    DateTime(DateTime),
+    Duration(Duration),
     Emphasis(Emphasis),
     ImageObject(ImageObject),
     Link(Link),
@@ -56,6 +60,9 @@ pub enum Inline {
     Strong(Strong),
     Subscript(Subscript),
     Superscript(Superscript),
+    Text(Text),
+    Time(Time),
+    Timestamp(Timestamp),
     Underline(Underline),
     VideoObject(VideoObject),
     Null(Null),
@@ -63,9 +70,4 @@ pub enum Inline {
     Integer(Integer),
     Number(Number),
     String(String),
-    Date(Date),
-    Time(Time),
-    DateTime(DateTime),
-    Timestamp(Timestamp),
-    Duration(Duration),
 }

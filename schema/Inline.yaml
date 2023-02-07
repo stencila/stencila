@@ -2,13 +2,15 @@ title: Inline
 description: Union type for valid inline content.
 default: String
 anyOf:
-  # Entity types
   - $ref: AudioObject
   - $ref: Button
   - $ref: Cite
   - $ref: CiteGroup
   - $ref: CodeExpression
   - $ref: CodeFragment
+  - $ref: Date
+  - $ref: DateTime
+  - $ref: Duration
   - $ref: Emphasis
   - $ref: ImageObject
   - $ref: Link
@@ -21,6 +23,9 @@ anyOf:
   - $ref: Strong
   - $ref: Subscript
   - $ref: Superscript
+  - $ref: Text
+  - $ref: Time
+  - $ref: Timestamp
   - $ref: Underline
   - $ref: VideoObject
   # Primitive types
@@ -29,8 +34,4 @@ anyOf:
   - $ref: Integer
   - $ref: Number
   - $ref: String
-  - $ref: Date
-  - $ref: Time
-  - $ref: DateTime
-  - $ref: Timestamp
-  - $ref: Duration
+
