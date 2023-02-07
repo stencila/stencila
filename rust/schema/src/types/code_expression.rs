@@ -92,18 +92,4 @@ pub struct CodeExpressionOptions {
     pub media_type: Option<String>,
 }
 
-impl CodeExpression {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, code: String, programming_language: String, guess_language: Boolean) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            code,
-            programming_language,
-            guess_language,
-            ..Default::default()
-        }
-    }
-}
-
+impl CodeExpression {}

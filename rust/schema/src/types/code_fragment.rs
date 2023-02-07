@@ -35,11 +35,11 @@ pub struct CodeFragmentOptions {
 }
 
 impl CodeFragment {
+    #[rustfmt::skip]
     pub fn new(code: String) -> Self {
-        Self{
+        Self {
             code,
             ..Default::default()
         }
     }
 }
-

@@ -55,12 +55,12 @@ pub struct DatatableColumnOptions {
 }
 
 impl DatatableColumn {
+    #[rustfmt::skip]
     pub fn new(name: String, values: Vec<Primitive>) -> Self {
-        Self{
+        Self {
             name,
             values,
             ..Default::default()
         }
     }
 }
-

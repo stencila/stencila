@@ -25,11 +25,11 @@ pub struct Quote {
 }
 
 impl Quote {
+    #[rustfmt::skip]
     pub fn new(content: Vec<Inline>) -> Self {
-        Self{
+        Self {
             content,
             ..Default::default()
         }
     }
 }
-

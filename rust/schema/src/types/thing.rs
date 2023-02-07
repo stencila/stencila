@@ -47,11 +47,10 @@ pub struct ThingOptions {
 }
 
 impl Thing {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

@@ -21,11 +21,11 @@ pub struct EnumValidator {
 }
 
 impl EnumValidator {
+    #[rustfmt::skip]
     pub fn new(values: Vec<Node>) -> Self {
-        Self{
+        Self {
             values,
             ..Default::default()
         }
     }
 }
-

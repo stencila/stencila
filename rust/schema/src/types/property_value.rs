@@ -54,11 +54,11 @@ pub struct PropertyValueOptions {
 }
 
 impl PropertyValue {
+    #[rustfmt::skip]
     pub fn new(value: Primitive) -> Self {
-        Self{
+        Self {
             value,
             ..Default::default()
         }
     }
 }
-

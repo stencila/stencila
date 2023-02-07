@@ -37,12 +37,12 @@ pub struct FunctionOptions {
 }
 
 impl Function {
+    #[rustfmt::skip]
     pub fn new(name: String, parameters: Vec<Parameter>) -> Self {
-        Self{
+        Self {
             name,
             parameters,
             ..Default::default()
         }
     }
 }
-

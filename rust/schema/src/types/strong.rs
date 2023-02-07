@@ -21,11 +21,11 @@ pub struct Strong {
 }
 
 impl Strong {
+    #[rustfmt::skip]
     pub fn new(content: Vec<Inline>) -> Self {
-        Self{
+        Self {
             content,
             ..Default::default()
         }
     }
 }
-

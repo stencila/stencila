@@ -78,11 +78,10 @@ pub struct OrganizationOptions {
 }
 
 impl Organization {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

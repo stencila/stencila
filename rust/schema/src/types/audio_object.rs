@@ -148,11 +148,11 @@ pub struct AudioObjectOptions {
 }
 
 impl AudioObject {
+    #[rustfmt::skip]
     pub fn new(content_url: String) -> Self {
-        Self{
+        Self {
             content_url,
             ..Default::default()
         }
     }
 }
-

@@ -102,19 +102,4 @@ pub struct CodeChunkOptions {
     pub caption: Option<BlocksOrString>,
 }
 
-impl CodeChunk {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, code: String, programming_language: String, guess_language: Boolean, execution_pure: Boolean) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            code,
-            programming_language,
-            guess_language,
-            execution_pure,
-            ..Default::default()
-        }
-    }
-}
-
+impl CodeChunk {}

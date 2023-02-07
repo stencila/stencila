@@ -44,11 +44,10 @@ pub struct TableCellOptions {
 }
 
 impl TableCell {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

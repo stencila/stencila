@@ -126,11 +126,11 @@ pub struct CollectionOptions {
 }
 
 impl Collection {
+    #[rustfmt::skip]
     pub fn new(parts: Vec<CreativeWorkType>) -> Self {
-        Self{
+        Self {
             parts,
             ..Default::default()
         }
     }
 }
-

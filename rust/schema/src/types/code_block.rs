@@ -35,11 +35,11 @@ pub struct CodeBlockOptions {
 }
 
 impl CodeBlock {
+    #[rustfmt::skip]
     pub fn new(code: String) -> Self {
-        Self{
+        Self {
             code,
             ..Default::default()
         }
     }
 }
-

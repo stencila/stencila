@@ -17,11 +17,10 @@ pub struct ThematicBreak {
 }
 
 impl ThematicBreak {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

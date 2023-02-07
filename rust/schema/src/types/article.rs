@@ -136,11 +136,11 @@ pub struct ArticleOptions {
 }
 
 impl Article {
+    #[rustfmt::skip]
     pub fn new(content: Vec<Block>) -> Self {
-        Self{
+        Self {
             content,
             ..Default::default()
         }
     }
 }
-

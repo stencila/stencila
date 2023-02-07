@@ -98,19 +98,4 @@ pub struct SpanOptions {
     pub media_type: Option<String>,
 }
 
-impl Span {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, code: String, programming_language: String, guess_language: Boolean, content: Vec<Inline>) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            code,
-            programming_language,
-            guess_language,
-            content,
-            ..Default::default()
-        }
-    }
-}
-
+impl Span {}

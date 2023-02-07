@@ -88,16 +88,4 @@ pub struct IncludeOptions {
     pub errors: Option<Vec<CodeError>>,
 }
 
-impl Include {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, source: String) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            source,
-            ..Default::default()
-        }
-    }
-}
-
+impl Include {}

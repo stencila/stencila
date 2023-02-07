@@ -22,12 +22,12 @@ pub struct ExecutionDependant {
 }
 
 impl ExecutionDependant {
+    #[rustfmt::skip]
     pub fn new(dependant_relation: ExecutionDependantRelation, dependant_node: ExecutionDependantNode) -> Self {
-        Self{
+        Self {
             dependant_relation,
             dependant_node,
             ..Default::default()
         }
     }
 }
-

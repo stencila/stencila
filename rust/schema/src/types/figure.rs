@@ -133,11 +133,10 @@ pub struct FigureOptions {
 }
 
 impl Figure {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

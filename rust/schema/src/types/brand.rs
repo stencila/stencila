@@ -53,11 +53,11 @@ pub struct BrandOptions {
 }
 
 impl Brand {
+    #[rustfmt::skip]
     pub fn new(name: String) -> Self {
-        Self{
+        Self {
             name,
             ..Default::default()
         }
     }
 }
-

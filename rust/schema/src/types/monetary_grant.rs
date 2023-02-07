@@ -62,11 +62,10 @@ pub struct MonetaryGrantOptions {
 }
 
 impl MonetaryGrant {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

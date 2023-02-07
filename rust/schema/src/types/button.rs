@@ -97,19 +97,4 @@ pub struct ButtonOptions {
     pub is_disabled: Option<Boolean>,
 }
 
-impl Button {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, code: String, programming_language: String, guess_language: Boolean, name: String) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            code,
-            programming_language,
-            guess_language,
-            name,
-            ..Default::default()
-        }
-    }
-}
-
+impl Button {}

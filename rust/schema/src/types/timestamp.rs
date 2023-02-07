@@ -25,12 +25,12 @@ pub struct Timestamp {
 }
 
 impl Timestamp {
+    #[rustfmt::skip]
     pub fn new(value: Integer, time_unit: TimeUnit) -> Self {
-        Self{
+        Self {
             value,
             time_unit,
             ..Default::default()
         }
     }
 }
-

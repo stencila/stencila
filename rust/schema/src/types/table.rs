@@ -137,11 +137,11 @@ pub struct TableOptions {
 }
 
 impl Table {
+    #[rustfmt::skip]
     pub fn new(rows: Vec<TableRow>) -> Self {
-        Self{
+        Self {
             rows,
             ..Default::default()
         }
     }
 }
-

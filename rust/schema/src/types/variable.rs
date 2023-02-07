@@ -30,12 +30,12 @@ pub struct Variable {
 }
 
 impl Variable {
+    #[rustfmt::skip]
     pub fn new(namespace: String, name: String) -> Self {
-        Self{
+        Self {
             namespace,
             name,
             ..Default::default()
         }
     }
 }
-

@@ -90,16 +90,4 @@ pub struct FormOptions {
     pub derive_item: Option<IntegerOrString>,
 }
 
-impl Form {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, content: Vec<Block>) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            content,
-            ..Default::default()
-        }
-    }
-}
-
+impl Form {}

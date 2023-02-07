@@ -130,8 +130,9 @@ pub struct DirectoryOptions {
 }
 
 impl Directory {
+    #[rustfmt::skip]
     pub fn new(name: String, parts: Vec<FileOrDirectory>, path: String) -> Self {
-        Self{
+        Self {
             name,
             parts,
             path,
@@ -139,4 +140,3 @@ impl Directory {
         }
     }
 }
-

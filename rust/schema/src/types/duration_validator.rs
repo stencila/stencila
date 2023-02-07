@@ -28,11 +28,10 @@ pub struct DurationValidator {
 }
 
 impl DurationValidator {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

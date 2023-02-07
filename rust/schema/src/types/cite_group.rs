@@ -21,11 +21,11 @@ pub struct CiteGroup {
 }
 
 impl CiteGroup {
+    #[rustfmt::skip]
     pub fn new(items: Vec<Cite>) -> Self {
-        Self{
+        Self {
             items,
             ..Default::default()
         }
     }
 }
-

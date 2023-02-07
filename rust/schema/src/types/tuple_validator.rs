@@ -21,11 +21,10 @@ pub struct TupleValidator {
 }
 
 impl TupleValidator {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

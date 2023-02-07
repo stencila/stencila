@@ -102,20 +102,4 @@ pub struct ForOptions {
     pub media_type: Option<String>,
 }
 
-impl For {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, code: String, programming_language: String, guess_language: Boolean, symbol: String, content: Vec<Block>) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            code,
-            programming_language,
-            guess_language,
-            symbol,
-            content,
-            ..Default::default()
-        }
-    }
-}
-
+impl For {}

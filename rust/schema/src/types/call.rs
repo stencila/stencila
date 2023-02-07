@@ -92,17 +92,4 @@ pub struct CallOptions {
     pub errors: Option<Vec<CodeError>>,
 }
 
-impl Call {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, source: String, arguments: Vec<CallArgument>) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            source,
-            arguments,
-            ..Default::default()
-        }
-    }
-}
-
+impl Call {}

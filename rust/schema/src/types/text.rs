@@ -2,29 +2,26 @@
 
 use crate::prelude::*;
 
-use super::node::Node;
-use super::null::Null;
 use super::string::String;
 
-/// A validator specifying a constant value that a node must have.
+/// Textual content
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-pub struct ConstantValidator {
+pub struct Text {
     /// The type of this item
-    pub r#type: MustBe!("ConstantValidator"),
+    pub r#type: MustBe!("Text"),
 
     /// The identifier for this item
     pub id: Option<String>,
 
-    /// The value that the node must have.
-    #[def = "Box::new(Node::Null(Null{}))"]
-    pub value: Box<Node>,
+    /// The value of the text content
+    pub value: String,
 }
 
-impl ConstantValidator {
+impl Text {
     #[rustfmt::skip]
-    pub fn new(value: Box<Node>) -> Self {
+    pub fn new(value: String) -> Self {
         Self {
             value,
             ..Default::default()

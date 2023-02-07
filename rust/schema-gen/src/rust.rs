@@ -258,25 +258,47 @@ pub struct {title}Options {{
             })
             .collect_vec();
 
-        let implem = format!(
-            r#"
-impl {title} {{
-    pub fn new({params}) -> Self {{
-        Self{{
-            {args}
-            ..Default::default()
-        }}
-    }}
-}}
-"#,
-            params = required_fields
+        let new = if required_fields.len() < 5 {
+            let params = required_fields
                 .iter()
                 .map(|(name, typ)| format!("{name}: {typ}"))
-                .join(", "),
-            args = required_fields
+                .join(", ");
+
+            let args = required_fields
                 .iter()
-                .map(|(name, ..)| format!("{name},"))
-                .join("\n            ")
+                .map(|(name, ..)| name.to_string())
+                .join(",\n            ");
+
+            let defaults = if required_fields.len() < fields.len() {
+                format!(
+                    "{comma_newline}..Default::default()",
+                    comma_newline = if required_fields.is_empty() {
+                        ""
+                    } else {
+                        ",\n            "
+                    }
+                )
+            } else {
+                String::new()
+            };
+
+            format!(
+                r#"
+    #[rustfmt::skip]
+    pub fn new({params}) -> Self {{
+        Self {{
+            {args}{defaults}
+        }}
+    }}
+"#
+            )
+        } else {
+            String::new()
+        };
+
+        let implem = format!(
+            r#"
+impl {title} {{{new}}}"#,
         );
 
         let rust = format!(

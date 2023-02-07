@@ -133,11 +133,10 @@ pub struct ReviewOptions {
 }
 
 impl Review {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

@@ -33,11 +33,10 @@ pub struct NumberValidator {
 }
 
 impl NumberValidator {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

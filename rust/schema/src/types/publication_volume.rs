@@ -139,11 +139,10 @@ pub struct PublicationVolumeOptions {
 }
 
 impl PublicationVolume {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

@@ -47,11 +47,10 @@ pub struct EnumerationOptions {
 }
 
 impl Enumeration {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

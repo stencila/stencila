@@ -26,11 +26,11 @@ pub struct CodeError {
 }
 
 impl CodeError {
+    #[rustfmt::skip]
     pub fn new(error_message: String) -> Self {
-        Self{
+        Self {
             error_message,
             ..Default::default()
         }
     }
 }
-

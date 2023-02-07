@@ -50,11 +50,11 @@ pub struct DefinedTermOptions {
 }
 
 impl DefinedTerm {
+    #[rustfmt::skip]
     pub fn new(name: String) -> Self {
-        Self{
+        Self {
             name,
             ..Default::default()
         }
     }
 }
-

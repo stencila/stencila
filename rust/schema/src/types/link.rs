@@ -39,12 +39,12 @@ pub struct LinkOptions {
 }
 
 impl Link {
+    #[rustfmt::skip]
     pub fn new(content: Vec<Inline>, target: String) -> Self {
-        Self{
+        Self {
             content,
             target,
             ..Default::default()
         }
     }
 }
-

@@ -17,11 +17,10 @@ pub struct BooleanValidator {
 }
 
 impl BooleanValidator {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

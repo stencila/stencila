@@ -34,11 +34,11 @@ pub struct TableRowOptions {
 }
 
 impl TableRow {
+    #[rustfmt::skip]
     pub fn new(cells: Vec<TableCell>) -> Self {
-        Self{
+        Self {
             cells,
             ..Default::default()
         }
     }
 }
-

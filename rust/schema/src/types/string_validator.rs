@@ -27,11 +27,10 @@ pub struct StringValidator {
 }
 
 impl StringValidator {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

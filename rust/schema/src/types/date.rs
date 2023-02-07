@@ -20,11 +20,11 @@ pub struct Date {
 }
 
 impl Date {
+    #[rustfmt::skip]
     pub fn new(value: String) -> Self {
-        Self{
+        Self {
             value,
             ..Default::default()
         }
     }
 }
-

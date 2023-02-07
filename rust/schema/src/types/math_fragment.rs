@@ -33,12 +33,12 @@ pub struct MathFragment {
 }
 
 impl MathFragment {
+    #[rustfmt::skip]
     pub fn new(math_language: String, code: String) -> Self {
-        Self{
+        Self {
             math_language,
             code,
             ..Default::default()
         }
     }
 }
-

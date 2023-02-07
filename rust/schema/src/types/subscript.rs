@@ -21,11 +21,11 @@ pub struct Subscript {
 }
 
 impl Subscript {
+    #[rustfmt::skip]
     pub fn new(content: Vec<Inline>) -> Self {
-        Self{
+        Self {
             content,
             ..Default::default()
         }
     }
 }
-

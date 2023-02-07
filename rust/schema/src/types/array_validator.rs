@@ -38,11 +38,11 @@ pub struct ArrayValidator {
 }
 
 impl ArrayValidator {
+    #[rustfmt::skip]
     pub fn new(items_nullable: Boolean) -> Self {
-        Self{
+        Self {
             items_nullable,
             ..Default::default()
         }
     }
 }
-

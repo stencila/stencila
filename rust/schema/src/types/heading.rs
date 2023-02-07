@@ -26,12 +26,12 @@ pub struct Heading {
 }
 
 impl Heading {
+    #[rustfmt::skip]
     pub fn new(depth: Integer, content: Vec<Inline>) -> Self {
-        Self{
+        Self {
             depth,
             content,
             ..Default::default()
         }
     }
 }
-

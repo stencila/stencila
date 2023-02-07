@@ -25,16 +25,4 @@ pub struct ExecutionDigest {
     pub dependencies_failed: Number,
 }
 
-impl ExecutionDigest {
-    pub fn new(state_digest: Number, semantic_digest: Number, dependencies_digest: Number, dependencies_stale: Number, dependencies_failed: Number) -> Self {
-        Self{
-            state_digest,
-            semantic_digest,
-            dependencies_digest,
-            dependencies_stale,
-            dependencies_failed,
-            ..Default::default()
-        }
-    }
-}
-
+impl ExecutionDigest {}

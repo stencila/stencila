@@ -132,11 +132,11 @@ pub struct SoftwareApplicationOptions {
 }
 
 impl SoftwareApplication {
+    #[rustfmt::skip]
     pub fn new(name: String) -> Self {
-        Self{
+        Self {
             name,
             ..Default::default()
         }
     }
 }
-

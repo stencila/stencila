@@ -21,11 +21,11 @@ pub struct Superscript {
 }
 
 impl Superscript {
+    #[rustfmt::skip]
     pub fn new(content: Vec<Inline>) -> Self {
-        Self{
+        Self {
             content,
             ..Default::default()
         }
     }
 }
-

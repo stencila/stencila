@@ -83,11 +83,10 @@ pub struct PersonOptions {
 }
 
 impl Person {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

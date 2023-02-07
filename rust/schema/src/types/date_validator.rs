@@ -24,11 +24,10 @@ pub struct DateValidator {
 }
 
 impl DateValidator {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

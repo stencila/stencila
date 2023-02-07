@@ -108,18 +108,4 @@ pub struct CallArgumentOptions {
     pub derived_from: Option<String>,
 }
 
-impl CallArgument {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, name: String, code: String, programming_language: String) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            name,
-            code,
-            programming_language,
-            ..Default::default()
-        }
-    }
-}
-
+impl CallArgument {}

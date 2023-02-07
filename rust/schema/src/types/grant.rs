@@ -55,11 +55,10 @@ pub struct GrantOptions {
 }
 
 impl Grant {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

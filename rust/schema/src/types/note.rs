@@ -25,12 +25,12 @@ pub struct Note {
 }
 
 impl Note {
+    #[rustfmt::skip]
     pub fn new(note_type: NoteType, content: Vec<Block>) -> Self {
-        Self{
+        Self {
             note_type,
             content,
             ..Default::default()
         }
     }
 }
-

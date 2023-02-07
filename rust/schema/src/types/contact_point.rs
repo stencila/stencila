@@ -56,11 +56,10 @@ pub struct ContactPointOptions {
 }
 
 impl ContactPoint {
+    #[rustfmt::skip]
     pub fn new() -> Self {
-        Self{
-            
+        Self {
             ..Default::default()
         }
     }
 }
-

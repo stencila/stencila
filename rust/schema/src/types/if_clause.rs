@@ -95,19 +95,4 @@ pub struct IfClauseOptions {
     pub is_active: Option<Boolean>,
 }
 
-impl IfClause {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, code: String, programming_language: String, guess_language: Boolean, content: Vec<Block>) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            code,
-            programming_language,
-            guess_language,
-            content,
-            ..Default::default()
-        }
-    }
-}
-
+impl IfClause {}

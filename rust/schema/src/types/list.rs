@@ -25,12 +25,12 @@ pub struct List {
 }
 
 impl List {
+    #[rustfmt::skip]
     pub fn new(items: Vec<ListItem>, order: ListOrder) -> Self {
-        Self{
+        Self {
             items,
             order,
             ..Default::default()
         }
     }
 }
-

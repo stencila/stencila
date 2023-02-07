@@ -99,16 +99,4 @@ pub struct ParameterOptions {
     pub derived_from: Option<String>,
 }
 
-impl Parameter {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, name: String) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            name,
-            ..Default::default()
-        }
-    }
-}
-
+impl Parameter {}

@@ -21,11 +21,11 @@ pub struct Emphasis {
 }
 
 impl Emphasis {
+    #[rustfmt::skip]
     pub fn new(content: Vec<Inline>) -> Self {
-        Self{
+        Self {
             content,
             ..Default::default()
         }
     }
 }
-

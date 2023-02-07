@@ -57,12 +57,12 @@ pub struct CiteOptions {
 }
 
 impl Cite {
+    #[rustfmt::skip]
     pub fn new(target: String, citation_mode: CitationMode) -> Self {
-        Self{
+        Self {
             target,
             citation_mode,
             ..Default::default()
         }
     }
 }
-

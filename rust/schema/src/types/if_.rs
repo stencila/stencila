@@ -79,16 +79,4 @@ pub struct IfOptions {
     pub errors: Option<Vec<CodeError>>,
 }
 
-impl If {
-    pub fn new(execution_auto: ExecutionAuto, execution_count: Integer, execution_required: ExecutionRequired, execution_status: ExecutionStatus, clauses: Vec<IfClause>) -> Self {
-        Self{
-            execution_auto,
-            execution_count,
-            execution_required,
-            execution_status,
-            clauses,
-            ..Default::default()
-        }
-    }
-}
-
+impl If {}

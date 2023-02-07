@@ -148,11 +148,11 @@ pub struct ImageObjectOptions {
 }
 
 impl ImageObject {
+    #[rustfmt::skip]
     pub fn new(content_url: String) -> Self {
-        Self{
+        Self {
             content_url,
             ..Default::default()
         }
     }
 }
-

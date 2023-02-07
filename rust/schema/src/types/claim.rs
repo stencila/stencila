@@ -133,12 +133,12 @@ pub struct ClaimOptions {
 }
 
 impl Claim {
+    #[rustfmt::skip]
     pub fn new(content: Vec<Block>, claim_type: ClaimType) -> Self {
-        Self{
+        Self {
             content,
             claim_type,
             ..Default::default()
         }
     }
 }
-

@@ -131,11 +131,11 @@ pub struct CommentOptions {
 }
 
 impl Comment {
+    #[rustfmt::skip]
     pub fn new(content: Vec<Block>) -> Self {
-        Self{
+        Self {
             content,
             ..Default::default()
         }
     }
 }
-

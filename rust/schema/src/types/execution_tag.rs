@@ -21,13 +21,12 @@ pub struct ExecutionTag {
 }
 
 impl ExecutionTag {
+    #[rustfmt::skip]
     pub fn new(name: String, value: String, is_global: Boolean) -> Self {
-        Self{
+        Self {
             name,
             value,
-            is_global,
-            ..Default::default()
+            is_global
         }
     }
 }
-

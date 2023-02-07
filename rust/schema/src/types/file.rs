@@ -129,12 +129,12 @@ pub struct FileOptions {
 }
 
 impl File {
+    #[rustfmt::skip]
     pub fn new(name: String, path: String) -> Self {
-        Self{
+        Self {
             name,
             path,
             ..Default::default()
         }
     }
 }
-
