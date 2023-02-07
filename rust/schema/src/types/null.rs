@@ -7,7 +7,7 @@ use crate::prelude::*;
 /// This is a struct, rather than a unit variant of `Primitive`, so that
 /// it can be treated the same way as other variants when dispatching to
 /// trait methods.
-/// 
+///
 /// This is an empty struct, rather than a unit struct, because
 /// Autosurgeon will not work with unit structs.
 #[derive(Debug, Default, Clone, PartialEq)]

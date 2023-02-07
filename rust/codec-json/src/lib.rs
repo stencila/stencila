@@ -47,12 +47,11 @@ mod tests {
     //! Other `serde`-based codecs (e.g. `yaml`) do not have as comprehensive unit tests
     //! (although they do have round-trip prop tests) because they should work if these tests pass).
 
-    use std::collections::HashMap;
-
+    use common::indexmap::IndexMap;
     use common_dev::pretty_assertions::assert_eq;
-    use schema::{
-        Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer, Node,
-        Null, Number, Object, Paragraph, Primitive, Time,
+    use schema::types::{
+        Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
+        IntegerOrString, Node, Null, Number, Object, Paragraph, Primitive, Time,
     };
 
     use super::*;
@@ -91,12 +90,15 @@ mod tests {
         assert_eq!(Object::from_json("{}")?, Object::default());
         assert_eq!(
             Object::from_json(r#"{"a": 1, "b": [], "c": {"d": true}}"#)?,
-            HashMap::from([
+            IndexMap::from([
                 ("a".to_string(), Primitive::Integer(1)),
                 ("b".to_string(), Primitive::Array(vec![])),
                 (
                     "c".to_string(),
-                    Primitive::Object(HashMap::from([("d".to_string(), Primitive::Boolean(true))]))
+                    Primitive::Object(IndexMap::from([(
+                        "d".to_string(),
+                        Primitive::Boolean(true)
+                    )]))
                 )
             ])
         );
@@ -121,7 +123,7 @@ mod tests {
         );
         assert_eq!(
             Primitive::from_json("{}")?,
-            Primitive::Object(HashMap::default())
+            Primitive::Object(IndexMap::default())
         );
 
         Ok(())
@@ -158,8 +160,8 @@ mod tests {
                     ..Default::default()
                 })],
                 options: Box::new(ArticleOptions {
-                    page_start: Some(schema::IntegerOrString::Integer(1)),
-                    page_end: Some(schema::IntegerOrString::String("MXC".to_string())),
+                    page_start: Some(IntegerOrString::Integer(1)),
+                    page_end: Some(IntegerOrString::String("MXC".to_string())),
                     ..Default::default()
                 }),
                 ..Default::default()
