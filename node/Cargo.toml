@@ -15,4 +15,4 @@ stencila = { path = "../rust/stencila" }
 events = { path = "../rust/events" }
 formats = { path = "../rust/formats" }
 graph = { path = "../rust/graph" }
-neon = { version = "=0.9.1", default-features = false, features = ["napi-6", "event-queue-api"] }
+neon = { version = "=0.10.1", default-features = false, features = ["napi-6", "event-queue-api"] }
