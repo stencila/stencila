@@ -32,9 +32,10 @@ test:
 outdated:
 	cargo outdated --workspace --all-features
 
-# Audit for unused dependencies
+# Audit dependencies
 audit:
 	cargo +nightly udeps --workspace --all-features
+	cargo audit -f ../Cargo.lock
 
 # Build binary
 build:
@@ -57,3 +58,7 @@ schema:
 # Runs internal document generation crates
 docs:
 	cargo run -p schema-gen -- --docs
+
+# Clean the ../target dir
+clean:
+	cargo clean --target-dir ../target

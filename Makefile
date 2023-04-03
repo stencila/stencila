@@ -1,8 +1,21 @@
-all: format lint cover audit build docs
+# Welcome to the Stencila root Makefile!
+#
+# This file has several 'recipes' for development tasks which span
+# the different programming languages and tools.
+#
+# Some of the nice things about `Make` include that it, saves you from having
+# to remember various command line incantations, it is ubiquitous and it allows
+# you to run severval of these recipes, across several languages, at the same time e.g:
+#
+#   make format lint docs
+#
+# This root Makefile delegates to the Makefiles in the language specific directories
+# e.g. `rust`. See those for what each recipe actually runs for each language.
+#
+# Having said all that, if you prefer, you can of course try to remember those incantations or
+# copy and paste and run them yourself 😼.
 
-# Some Cargo commands which only make sense at this top level of the
-# Cargo workspace (e.g. `cargo clean`, `cargo audit fix`) are added below
-# (in addition to the cargo commands in the Makefile for each language package)
+all: format lint test audit build docs
 
 setup:
 	make -C rust setup
@@ -16,11 +29,8 @@ lint:
 test:
 	make -C rust test
 
-cover:
-	make -C rust cover
-
 audit:
-	cargo audit fix
+	make -C rust audit
 
 build:
 	make -C rust build
@@ -30,4 +40,4 @@ docs:
 .PHONY: docs
 
 clean:
-	cargo clean
+	make -C rust clean
