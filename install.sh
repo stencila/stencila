@@ -6,7 +6,7 @@
 # First arg:  desired version e.g. v2.1.0
 #             defaults to latest
 # Second arg: desired install location, e.g. /bin
-#             defaults to /usr/local/bin on MacOD, to ~/.local/bin on Linux
+#             defaults to /usr/local/bin on MacOS, to ~/.local/bin on Linux
 
 set -e
 
@@ -35,8 +35,7 @@ if [[ "${OS}" == "Linux" || "${OS}" == "Darwin" ]]; then
         echo 
         echo "There was an error downloading stencila-$VERSION-$TARGET_TRIPLE.tar.gz"
         echo "It may be that binaries are not yet available yet."
-        echo "Please wait, or try a previous version."
-        echo "See https://github.com/stencila/stencila/releases."
+        echo "Please wait, or try a previous version at https://github.com/stencila/stencila/releases."
         echo
         exit 1
     }
