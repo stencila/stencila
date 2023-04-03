@@ -1,0 +1,23 @@
+title: Styled
+'@id': stencila:Styled
+abstract: true
+status: experimental
+description: An abstract base class for a document node that has styling applied to it and/or its content
+extends: CodeExecutable
+core:
+  - css
+  - classes
+properties:
+  css:
+    '@id': stencila:css
+    description: A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
+    type: string
+  classes:
+    '@id': stencila:classes
+    description: A list of class names associated with the document node
+    type: array
+    items:
+      type: string
+    $comment: |
+      Analogous to the [`classList` property of an `Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)
+      in the Web API.

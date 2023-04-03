@@ -1,8 +1,0 @@
-{
-    "engines": {
-        "node": ">=10.3 <17"
-    },
-    "dependencies": {
-        "smallest": "1.0.1"
-    }
-}

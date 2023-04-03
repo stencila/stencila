@@ -1,0 +1,48 @@
+//! Generated file, do not edit
+
+use crate::prelude::*;
+
+use super::parameter::Parameter;
+use super::string::String;
+use super::validator::Validator;
+
+/// A function with a name, which might take Parameters and return a value of a certain type.
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub struct Function {
+    /// The type of this item
+    pub r#type: MustBe!("Function"),
+
+    /// The identifier for this item
+    pub id: Option<String>,
+
+    /// The name of the function.
+    pub name: String,
+
+    /// The parameters of the function.
+    pub parameters: Vec<Parameter>,
+
+    /// Non-core optional fields
+    #[serde(flatten)]
+    pub options: Box<FunctionOptions>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub struct FunctionOptions {
+    /// The return type of the function.
+    pub returns: Option<Validator>,
+}
+
+impl Function {
+    #[rustfmt::skip]
+    pub fn new(name: String, parameters: Vec<Parameter>) -> Self {
+        Self {
+            name,
+            parameters,
+            ..Default::default()
+        }
+    }
+}

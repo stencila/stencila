@@ -1,12 +1,7 @@
 [package]
 name = "codec-json5"
-description = "A codec for JSON5"
 version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codec = { path = "../codec" }
-node-coerce = { path = "../node-coerce" }
-
-[dev-dependencies]
-test-utils = { path = "../test-utils" }
+common = { path = "../common" }

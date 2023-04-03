@@ -1,6 +1,0 @@
-Package: descriptionfixture
-Title: An R project with dependencies declared in a DESCRIPTION file
-Version: 0.0.0.9000
-Encoding: UTF-8
-Imports:
-    dplyr

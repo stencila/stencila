@@ -1,5 +1,0 @@
-a = 1
-b = 2
-c = a + b
-   with_preceding_spaces_and_underscores = 1
-# @assigns d

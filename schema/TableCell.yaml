@@ -1,0 +1,43 @@
+title: TableCell
+'@id': stencila:TableCell
+extends: Entity
+description: A cell within a `Table`.
+properties:
+  name:
+    '@id': schema:name
+    description: The name of the cell.
+    $comment: |
+      Cell's have an implicit name derived from their position in the table
+      e.g. `C4` for the cell in the third column and fourth row. However this name can be overridden
+      with an explicit name, e.g. `rate`.
+    type: string
+  colspan:
+    '@id': stencila:colspan
+    description: |
+      How many columns the cell extends.
+    $comment: Based on the HTML `colspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
+    type: integer
+    minimum: 0
+    maximum: 1000
+  cellType:
+    '@id': stencila:cellType
+    description: The type of cell.
+    $ref: TableCellType
+  rowspan:
+    '@id': stencila:rowspan
+    description: How many columns the cell extends.
+    $comment: Based on the HTML `rowspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
+    type: integer
+    minimum: 0
+    maximum: 65534
+  content:
+    '@id': stencila:content
+    description: Contents of the table cell.
+    anyOf:
+      - type: array
+        items:
+          $ref: Block
+      - type: array
+        items:
+          $ref: Inline
+

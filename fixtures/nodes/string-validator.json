@@ -1,6 +1,0 @@
-{
-  "type": "StringValidator",
-  "minLength": 0,
-  "maxLength": 20,
-  "pattern": "[a-z]+"
-}

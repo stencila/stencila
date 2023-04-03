@@ -1,9 +1,0 @@
-[package]
-name = "codec-format"
-description = "A fallback codec that decodes a node based on the format name provided"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-codec = { path = "../codec" }
-formats = { path = "../formats" }

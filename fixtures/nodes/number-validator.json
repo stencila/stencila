@@ -1,8 +1,0 @@
-{
-  "type": "NumberValidator",
-  "minimum": 0,
-  "exclusiveMinimum": -1,
-  "maximum": 100,
-  "exclusiveMaximum": 101,
-  "multipleOf": 5
-}

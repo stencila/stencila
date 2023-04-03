@@ -1,0 +1,17 @@
+title: TableRow
+'@id': stencila:TableRow
+extends: Entity
+description: A row within a Table.
+required:
+  - cells
+properties:
+  cells:
+    '@id': stencila:cells
+    description: An array of cells in the row.
+    type: array
+    items:
+      $ref: TableCell
+  rowType:
+    '@id': stencila:rowType
+    description: The type of row.
+    $ref: TableRowType

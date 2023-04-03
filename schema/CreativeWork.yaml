@@ -1,0 +1,200 @@
+title: CreativeWork
+'@id': schema:CreativeWork
+extends: Thing
+description: A creative work, including books, movies, photographs, software programs, etc.
+$comment: |
+  This is an implementation, and extension, of schema.org [`CreativeWork`](https://schema.org/CreativeWork).
+  It extends schema.org `CreativeWork` by, adding several properties including `dateAccepted`
+  and `fundedBy`.
+properties:
+  about:
+    '@id': schema:about
+    description: The subject matter of the content.
+    $comment: |
+      Consistent with https://schema.org/about, this property allows for
+      linking to one of more `Thing` nodes. This could for example include
+      a `Person` (e.g for a bibliography) or a `DefinedTerm` (e.g. for
+      subject areas the creative work relates to).
+    type: array
+    items:
+      $ref: ThingType
+  authors:
+    '@id': schema:author
+    description: The authors of this creative work.
+    type: array
+    items:
+      anyOf:
+        - $ref: Person
+        - $ref: Organization
+  comments:
+    '@id': schema:comment
+    description: Comments about this creative work.
+    type: array
+    items:
+      $ref: Comment
+  content:
+    # We have added "content" because the existing schema.org property "text" implies
+    # only unstructured text content.
+    '@id': stencila:content
+    description: The structured content of this creative work c.f. property `text`.
+    type: array
+    items:
+      $ref: Block
+  dateCreated:
+    '@id': schema:dateCreated
+    description: Date/time of creation.
+    $ref: Date
+  dateReceived:
+    '@id': schema:dateReceived
+    description: Date/time that work was received.
+    $ref: Date
+  dateAccepted:
+    '@id': stencila:dateAccepted
+    description: Date/time of acceptance.
+    $comment: |
+      This is not yet a schema.org property but the term is used
+      [in Dublin Core](http://purl.org/dc/terms/dateAccepted).
+    $ref: Date
+  dateModified:
+    '@id': schema:dateModified
+    description: Date/time of most recent modification.
+    $ref: Date
+  datePublished:
+    '@id': schema:datePublished
+    aliases:
+      # This assumes that a user specifying `date` means the date published
+      # and not the date modified or created.
+      - date
+    description: Date of first publication.
+    $ref: Date
+  editors:
+    '@id': schema:editor
+    description: People who edited the `CreativeWork`.
+    type: array
+    items:
+      $ref: Person
+  funders:
+    '@id': schema:funder
+    description: People or organizations that funded the `CreativeWork`.
+    type: array
+    items:
+      anyOf:
+        - $ref: Person
+        - $ref: Organization
+  fundedBy:
+    '@id': stencila:fundedBy
+    description: Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+    $comment: |
+      This follows the proposal [here](https://github.com/schemaorg/schemaorg/issues/2258)
+      for a property that is the reverse of `fundedItems`.
+      It is an any because a `CreativeWork` may have been funded through more than
+      one `Grant`.
+    type: array
+    items:
+      anyOf:
+        - $ref: Grant
+        - $ref: MonetaryGrant
+  genre:
+    '@id': schema:genre
+    description: Genre of the creative work, broadcast channel or group.
+    type: array
+    items:
+      type: string
+  keywords:
+    '@id': schema:keywords
+    description: |
+      Keywords or tags used to describe this content.
+      Multiple entries in a keywords list are typically delimited by commas.
+    type: array
+    items:
+      type: string
+  isPartOf:
+    '@id': schema:isPartOf
+    description: |
+      An item or other CreativeWork that this CreativeWork is a part of.
+    $ref: CreativeWorkType
+  licenses:
+    '@id': schema:license
+    description: |
+      License documents that applies to this content, typically indicated by URL.
+    type: array
+    items:
+      anyOf:
+        - $ref: CreativeWorkType
+        - type: string
+          format: uri
+  maintainers:
+    '@id': schema:maintainer
+    description: The people or organizations who maintain this CreativeWork.
+    $comment: |
+      A maintainer of a Dataset, SoftwareApplication, or other CreativeWork.
+      A maintainer is a Person or Organization that manages contributions to,
+      and/or publication of, some (typically complex) artifact. It is common for
+      distributions of software and data to be based on "upstream" sources.
+      When maintainer is applied to a specific version of something e.g. a particular
+      version or packaging of a Dataset, it is always possible that the upstream
+      source has a different maintainer. The isBasedOn property can be used to
+      indicate such relationships between datasets to make the different maintenance
+      roles clear. Similarly in the case of software, a package may have dedicated
+      maintainers working on integration into software distributions such as Ubuntu,
+      as well as upstream maintainers of the underlying work.
+    type: array
+    items:
+      anyOf:
+        - $ref: Person
+        - $ref: Organization
+  parts:
+    # The name "parts" seems more intuitive for users and developers than schema.orgs's "hasParts".
+    # We provide the latter as an alias.
+    '@id': schema:hasParts
+    aliases:
+      - hasParts
+    description: |
+      Elements of the collection which can be a variety of different elements,
+      such as Articles, Datatables, Tables and more.
+    type: array
+    items:
+      $ref: CreativeWorkType
+  publisher:
+    '@id': schema:publisher
+    description: |
+      A publisher of the CreativeWork.
+    anyOf:
+      - $ref: Person
+      - $ref: Organization
+  references:
+    '@id': schema:citation
+    aliases:
+      - citations
+    description: |
+      References to other creative works, such as another publication,
+      web page, scholarly article, etc.
+    type: array
+    items:
+      anyOf:
+        - $ref: CreativeWorkType
+        - type: string
+  text:
+    '@id': schema:text
+    description: The textual content of this creative work.
+    type: string
+  title:
+    # The name "title" is more appropriate to our context than schema.org's "headline".
+    # We provide the latter as an alias.
+    '@id': schema:headline
+    description: The title of the creative work.
+    aliases:
+      - headline
+    type: array
+    items:
+      $ref: Inline
+  version:
+    '@id': schema:version
+    description: The version of the creative work.
+    $comment: |
+      In this case `string` is listed as an alternative before `number` to
+      avoid semantic version numbers e.g. `1.0` being parsed, and subsequently
+      encoded, as `1` thereby resulting in loss of information.
+    anyOf:
+      - type: string
+      - type: number

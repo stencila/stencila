@@ -1,123 +1,215 @@
-use codec::{
-    common::{eyre::Result, serde_json},
-    stencila_schema::Node,
-    utils::vec_string,
-    Codec, CodecTrait, DecodeOptions, EncodeOptions,
+use common::{
+    eyre::Result,
+    serde::{de::DeserializeOwned, Serialize},
+    serde_json,
 };
-use node_coerce::coerce;
 
-/// A codec for JSON
-pub struct JsonCodec {}
-
-impl CodecTrait for JsonCodec {
-    fn spec() -> Codec {
-        Codec {
-            status: "stable".to_string(),
-            formats: vec_string!["json"],
-            root_types: vec_string!["*"],
-            ..Default::default()
-        }
+pub trait FromJson: DeserializeOwned {
+    /// Deserialize a node from JSON
+    fn from_json(json: &str) -> Result<Self> {
+        Ok(serde_json::from_str(json)?)
     }
 
-    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        coerce(serde_json::from_str(str)?, None)
-    }
-
-    fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-        let compact = options.map_or_else(|| false, |options| options.compact);
-        let json = match compact {
-            true => serde_json::to_string::<Node>(node)?,
-            false => serde_json::to_string_pretty::<Node>(node)?,
-        };
-        Ok(json)
+    /// Deserialize a node from a [`serde_json::Value`]
+    fn from_json_value(json: serde_json::Value) -> Result<Self> {
+        Ok(serde_json::from_value::<Self>(json)?)
     }
 }
 
+impl<T> FromJson for T where T: DeserializeOwned {}
+
+pub trait ToJson: Serialize {
+    /// Serialize a node to JSON
+    fn to_json(&self) -> Result<String> {
+        Ok(serde_json::to_string(self)?)
+    }
+
+    /// Serialize a node to indented JSON
+    fn to_json_pretty(&self) -> Result<String> {
+        Ok(serde_json::to_string_pretty(self)?)
+    }
+
+    /// Serialize a node to a [`serde_json::Value`]
+    fn to_json_value(&self) -> Result<serde_json::Value> {
+        Ok(serde_json::to_value(self)?)
+    }
+}
+
+impl<T> ToJson for T where T: Serialize {}
+
 #[cfg(test)]
 mod tests {
+    //! Most of these tests are trivial but are important given that we use
+    //! them as the main unit tests for `serde` settings (e.g. untagged, flatten)
+    //! and other things (e.g. ordering of types in the `Node` enum) which
+    //! affect serialization and deserialization in the `schema` crate.
+    //!
+    //! Other `serde`-based codecs (e.g. `yaml`) do not have as comprehensive unit tests
+    //! (although they do have round-trip prop tests) because they should work if these tests pass).
+
+    use common::indexmap::IndexMap;
+    use common_dev::pretty_assertions::assert_eq;
+    use schema::types::{
+        Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
+        IntegerOrString, Node, Null, Number, Object, Paragraph, Primitive, Time,
+    };
+
     use super::*;
-    use codec::stencila_schema::{Number, Paragraph, Primitive};
-    use std::collections::BTreeMap;
-    use test_utils::assert_json_eq;
 
+    /// Test deserialization of primitive types from JSON
     #[test]
-    fn from_str() {
-        assert!(matches!(
-            JsonCodec::from_str("true", None).unwrap(),
-            Node::Boolean(true)
-        ));
+    fn primitive_types_from_json() -> Result<()> {
+        assert_eq!(Null::from_json("null")?, Null {});
 
-        assert!(matches!(
-            JsonCodec::from_str("42", None).unwrap(),
-            Node::Integer(42)
-        ));
+        assert_eq!(Boolean::from_json("true")?, true);
+        assert_eq!(Boolean::from_json("false")?, false);
 
-        #[allow(clippy::float_cmp)]
-        if let Node::Number(num) = JsonCodec::from_str("1.23", None).unwrap() {
-            assert_eq!(num, Number(1.23))
-        }
+        assert_eq!(Integer::from_json("123")?, 123);
+        assert_eq!(Integer::from_json("-123")?, -123);
 
-        assert!(matches!(
-            JsonCodec::from_str("[1, 2, 3]", None).unwrap(),
-            Node::Array(..)
-        ));
+        assert_eq!(Number::from_json("1.23")?, 1.23);
+        assert_eq!(Number::from_json("-1.23")?, -1.23);
 
-        assert!(matches!(
-            JsonCodec::from_str("{}", None).unwrap(),
-            Node::Object(..)
-        ));
+        assert_eq!(String::from_json(r#""""#)?, String::default());
+        assert_eq!(
+            String::from_json("\"Hello world\"")?,
+            "Hello world".to_string()
+        );
 
-        assert!(matches!(
-            JsonCodec::from_str("{\"type\": \"Entity\"}", None).unwrap(),
-            Node::Entity(..)
-        ));
+        assert_eq!(Array::from_json("[]")?, vec![]);
+        assert_eq!(
+            Array::from_json(r#"[false, 1, 1.23, "abc"]"#)?,
+            vec![
+                Primitive::Boolean(false),
+                Primitive::Integer(1),
+                Primitive::Number(1.23),
+                Primitive::String("abc".to_string())
+            ]
+        );
 
-        assert_json_eq!(
-            JsonCodec::from_str("{\"type\": \"Paragraph\"}", None).unwrap(),
-            Node::Paragraph(Paragraph {
+        assert_eq!(Object::from_json("{}")?, Object::default());
+        assert_eq!(
+            Object::from_json(r#"{"a": 1, "b": [], "c": {"d": true}}"#)?,
+            IndexMap::from([
+                ("a".to_string(), Primitive::Integer(1)),
+                ("b".to_string(), Primitive::Array(vec![])),
+                (
+                    "c".to_string(),
+                    Primitive::Object(IndexMap::from([(
+                        "d".to_string(),
+                        Primitive::Boolean(true)
+                    )]))
+                )
+            ])
+        );
+
+        Ok(())
+    }
+
+    /// Test deserialization of `Primitive` enum from JSON
+    #[test]
+    fn primitive_enum_from_json() -> Result<()> {
+        assert_eq!(Primitive::from_json("null")?, Primitive::Null(Null {}));
+        assert_eq!(Primitive::from_json("true")?, Primitive::Boolean(true));
+        assert_eq!(Primitive::from_json("123")?, Primitive::Integer(123));
+        assert_eq!(Primitive::from_json("1.23")?, Primitive::Number(1.23));
+        assert_eq!(
+            Primitive::from_json(r#""abc""#)?,
+            Primitive::String("abc".to_string())
+        );
+        assert_eq!(
+            Primitive::from_json("[]")?,
+            Primitive::Array(Vec::default())
+        );
+        assert_eq!(
+            Primitive::from_json("{}")?,
+            Primitive::Object(IndexMap::default())
+        );
+
+        Ok(())
+    }
+
+    /// Test deserialization of various entity types, including those with `options`
+    #[test]
+    fn entity_types_from_json() -> Result<()> {
+        assert_eq!(
+            Date::from_json(r#"{ "type":"Date", "value": "2022-02-02" }"#)?,
+            Date {
+                value: "2022-02-02".to_string(),
+                ..Default::default()
+            }
+        );
+
+        assert_eq!(
+            Article::from_json(
+                r#"{
+                    "type": "Article",
+                    "content": [
+                        {
+                            "type": "Paragraph",
+                            "content": ["Hello world"]
+                        }
+                    ],
+                    "pageStart": 1,
+                    "pageEnd": "MXC"
+                }"#
+            )?,
+            Article {
+                content: vec![Block::Paragraph(Paragraph {
+                    content: vec![Inline::String("Hello world".to_string())],
+                    ..Default::default()
+                })],
+                options: Box::new(ArticleOptions {
+                    page_start: Some(IntegerOrString::Integer(1)),
+                    page_end: Some(IntegerOrString::String("MXC".to_string())),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }
+        );
+
+        Ok(())
+    }
+
+    /// Test deserialization of various entity enums from JSON
+    #[test]
+    fn entity_enum_from_json() -> Result<()> {
+        assert_eq!(
+            Inline::from_json(r#""abc""#)?,
+            Inline::String("abc".to_string())
+        );
+
+        assert_eq!(
+            Inline::from_json(r#"{ "type":"Emphasis", "content":[] }"#)?,
+            Inline::Emphasis(Emphasis {
                 content: vec![],
                 ..Default::default()
             })
         );
-    }
 
-    #[test]
-    fn to_str() {
         assert_eq!(
-            JsonCodec::to_string(&Node::Boolean(true), None).unwrap(),
-            "true".to_string()
+            Block::from_json(r#"{ "type":"Paragraph", "content":[] }"#)?,
+            Block::Paragraph(Paragraph {
+                content: vec![],
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(Node::from_json("123")?, Node::Integer(123));
+
+        assert_eq!(
+            Node::from_json(r#""abc""#)?,
+            Node::String("abc".to_string())
         );
 
         assert_eq!(
-            JsonCodec::to_string(&Node::Integer(42), None).unwrap(),
-            "42".to_string()
+            Node::from_json(r#"{ "type":"Time", "value":"01:02:03" }"#)?,
+            Node::Time(Time {
+                value: "01:02:03".to_string(),
+                ..Default::default()
+            })
         );
 
-        assert_eq!(
-            JsonCodec::to_string(&Node::Number(Number(1.23)), None).unwrap(),
-            "1.23".to_string()
-        );
-
-        assert_eq!(
-            JsonCodec::to_string(&Node::Array(Vec::new()), None).unwrap(),
-            "[]".to_string()
-        );
-
-        assert_eq!(
-            JsonCodec::to_string(&Node::Object(BTreeMap::new()), None).unwrap(),
-            "{}".to_string()
-        );
-
-        assert_eq!(
-            JsonCodec::to_string(
-                &Node::Array(vec![Primitive::Integer(42)]),
-                Some(EncodeOptions {
-                    compact: false,
-                    ..Default::default()
-                })
-            )
-            .unwrap(),
-            "[\n  42\n]".to_string()
-        );
+        Ok(())
     }
 }

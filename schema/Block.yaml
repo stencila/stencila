@@ -1,0 +1,21 @@
+title: Block
+description: Union type for block content node types.
+default: Paragraph
+anyOf:
+  - $ref: Call
+  - $ref: Claim
+  - $ref: CodeBlock
+  - $ref: CodeChunk
+  - $ref: Division
+  - $ref: Figure
+  - $ref: For
+  - $ref: Form
+  - $ref: Heading
+  - $ref: If
+  - $ref: Include
+  - $ref: List
+  - $ref: MathBlock
+  - $ref: Paragraph
+  - $ref: QuoteBlock
+  - $ref: Table
+  - $ref: ThematicBreak

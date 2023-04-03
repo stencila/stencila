@@ -1,0 +1,24 @@
+title: Entity
+'@id': stencila:Entity
+abstract: true
+description: Abstract base type for compound (ie. non-atomic) nodes.
+$comment: |
+  This type exists mainly to have a more simple base class than schema.org's `Thing`.
+  This schema includes special properties that are analogous to JSON-LDs `@type` and `@id`.
+required:
+  - type
+core:
+  - id
+properties:
+  type:
+    '@id': schema:type
+    description: The type of this item
+    $comment: |
+      This is a special property analogous to JSON-LD's `@type` keyword.
+    type: string
+  id:
+    '@id': schema:id
+    description: The identifier for this item
+    $comment: |
+      This is a special property analogous to JSON-LD's `@id` keyword.
+    type: string

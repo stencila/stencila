@@ -1,9 +1,0 @@
-[package]
-name = "binary-poetry"
-description = "A binary specification for `poetry` (https://python-poetry.org)"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-binary = { path = "../binary", features = ["download"] }
-binary-python = { path = "../binary-python" }

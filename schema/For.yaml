@@ -1,0 +1,36 @@
+title: For
+'@id': stencila:For
+description: Repeat a block content for each item in an array.
+status: experimental
+extends: CodeExecutable
+required:
+  - symbol
+  - content
+core:
+  - otherwise
+  - iterations
+properties:
+  symbol:
+    '@id': stencila:symbol
+    description: The name to give to the variable representing each item in the iterated array
+    type: string
+  content:
+    '@id': stencila:content
+    description: The content to repeat for each item
+    type: array
+    items:
+      $ref: Block
+  otherwise:
+    '@id': stencila:otherwise
+    description: The content to render if there are no items
+    type: array
+    items:
+      $ref: Block
+  iterations:
+    '@id': stencila:iterations
+    description: The content repeated for each iteration
+    type: array
+    items:
+      type: array
+      items:
+        $ref: Block

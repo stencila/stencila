@@ -1,0 +1,13 @@
+title: TableCellType
+"@id": stencila:TableCellType
+extends: Enumeration
+description: Indicates whether the cell is a header or data.
+$comment: |
+  When `Header`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).
+  When `Data`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
+default: Data
+anyOf:
+  - const: Data
+    "@id": stencila:TableCellTypeData
+  - const: Header
+    "@id": stencila:TableCellTypeHeader

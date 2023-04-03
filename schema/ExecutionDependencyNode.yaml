@@ -1,0 +1,10 @@
+title: ExecutionDependencyNode
+description: Node types that can be execution dependencies
+default: CodeChunk
+anyOf:
+  - $ref: Button
+  - $ref: CodeChunk
+  - $ref: File
+  - $ref: Parameter
+  - $ref: SoftwareSourceCode
+  - $ref: Variable

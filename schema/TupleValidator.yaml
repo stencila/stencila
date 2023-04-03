@@ -1,0 +1,13 @@
+title: TupleValidator
+'@id': stencila:TupleValidator
+extends: Entity
+description: A validator specifying constraints on an array of heterogeneous items.
+core:
+  - items
+properties:
+  items:
+    '@id': schema:itemListElement
+    description: An array of validators specifying the constraints on each successive item in the array.
+    type: array
+    items:
+      $ref: Validator

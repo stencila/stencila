@@ -1,8 +1,0 @@
-*.Rcheck
-*.RData
-*.Rhistory
-*.Rproj.user
-*.so
-docs
-man
-stencilaschema_*.tar.gz

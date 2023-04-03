@@ -1,0 +1,20 @@
+title: Paragraph
+'@id': stencila:Paragraph
+extends: Entity
+description: Paragraph
+$comment: |
+  Analogues of `Paragraph` in other schema include:
+    - HTML [`<p>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p)
+    - JATS XML [`<p>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/p.html)
+    - MDAST [`Paragraph`](https://github.com/syntax-tree/mdast#Paragraph)
+    - OpenDocument [`<text:p>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415138_253892949)
+    - Pandoc [`Para`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L220)
+required:
+  - content
+properties:
+  content:
+    '@id': 'stencila:content'
+    description: The contents of the paragraph.
+    type: array
+    items:
+      $ref: Inline

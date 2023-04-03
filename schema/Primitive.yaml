@@ -1,0 +1,18 @@
+title: Primitive
+description: Union type for all primitives values
+$comment: |
+  Analogous to JSON values but adds `Integer` and `UnsignedInteger`.
+  
+  Similar to https://schema.org/DataType "The basic data types such as Integers, Strings, etc."
+  but includes `Array` and `Object` and excludes `Date`, `Time` and `DateTime` (which are
+  treated in this schema as `Entity`s having a `type` property to disambiguate them from strings).
+default: 'Null'
+anyOf:
+  - $ref: 'Null'
+  - $ref: Boolean
+  - $ref: Integer
+  - $ref: UnsignedInteger
+  - $ref: Number
+  - $ref: String
+  - $ref: Array
+  - $ref: Object

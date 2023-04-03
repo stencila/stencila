@@ -1,9 +1,0 @@
-[package]
-name = "kernel-tailwind"
-description = "A kernel that performs variable interpolation for Tailwind expressions"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-kernel = { path = "../kernel" }
-parser = { path = "../parser" }

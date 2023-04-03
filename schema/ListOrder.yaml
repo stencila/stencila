@@ -1,0 +1,12 @@
+title: ListOrder
+'@id': schema:ItemListOrderType
+extends: Enumeration
+description: Indicates how a `List` is ordered.
+default: Unordered
+anyOf:
+  - const: Ascending
+    '@id': schema:ItemListOrderAscending
+  - const: Descending
+    '@id': schema:ItemListOrderDescending
+  - const: Unordered
+    '@id': schema:ItemListOrderUnordered

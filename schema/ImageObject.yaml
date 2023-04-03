@@ -1,0 +1,15 @@
+title: ImageObject
+'@id': schema:ImageObject
+extends: MediaObject
+description: An image file.
+core:
+  - caption
+properties:
+  caption:
+    '@id': schema:caption
+    description: The caption for this image.
+    type: string
+  thumbnail:
+    '@id': schema:thumbnail
+    description: Thumbnail image of this image.
+    $ref: ImageObject

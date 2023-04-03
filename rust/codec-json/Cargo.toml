@@ -1,12 +1,11 @@
 [package]
 name = "codec-json"
-description = "A codec for JSON"
 version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codec = { path = "../codec" }
-node-coerce = { path = "../node-coerce" }
+common = { path = "../common" }
 
 [dev-dependencies]
-test-utils = { path = "../test-utils" }
+common-dev = { path = "../common-dev" }
+schema = { path = "../schema" }

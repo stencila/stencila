@@ -1,0 +1,4 @@
+title: Number
+'@id': schema:Number
+description: A value that is a number
+type: number

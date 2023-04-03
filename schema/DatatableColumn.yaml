@@ -1,0 +1,23 @@
+title: DatatableColumn
+'@id': stencila:DatatableColumn
+extends: Thing
+description: A column of data within a Datatable.
+required:
+  - name
+  - values
+core:
+  - validator
+properties:
+  values:
+    '@id': stencila:values
+    description: The data values of the column.
+    $comment: |
+      Previously, any `Node` type was allowed in values. However, for some implementations
+      this was inefficient (e.g. in Rust a `enum Node` is >500 bytes whereas a `enum Primitive` is 32 bytes).
+    type: array
+    items:
+      $ref: Primitive
+  validator:
+    '@id': stencila:validator
+    description: The validator to use to validate data in the column.
+    $ref: ArrayValidator

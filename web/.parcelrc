@@ -1,9 +1,0 @@
-{
-  "extends": "@parcel/config-default",
-  "compressors": {
-    "*.{html,css,js,svg}": [
-      "...",
-      "@parcel/compressor-brotli"
-    ]
-  }
-}

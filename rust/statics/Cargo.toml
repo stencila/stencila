@@ -1,9 +1,0 @@
-[package]
-name = "statics"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-common = { path = "../common" }
-fs-utils = { path = "../fs-utils" }
-rust-embed = { version = "6.4.0", features = ["compression"] }

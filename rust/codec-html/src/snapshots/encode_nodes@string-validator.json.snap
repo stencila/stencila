@@ -1,8 +1,0 @@
----
-source: rust/codec-html/src/encode.rs
-assertion_line: 534
-expression: html
-input_file: fixtures/nodes/string-validator.json
----
-<stencila-string-validator data-root min-length="0" max-length="20" pattern="[a-z]+">
-</stencila-string-validator>

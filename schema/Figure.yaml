@@ -1,0 +1,23 @@
+title: Figure
+'@id': stencila:Figure
+extends: CreativeWork
+description: Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
+core:
+  - label
+  - caption
+properties:
+  label:
+    '@id': stencila:label
+    description: A short label for the figure.
+    type: string
+  caption:
+    '@id': schema:caption
+    description: A caption for the figure.
+    $comment: |
+      An array of nodes or, to be compatible with https://schema.org/caption,
+      a string.
+    anyOf:
+      - type: array
+        items:
+          $ref: Block
+      - type: string

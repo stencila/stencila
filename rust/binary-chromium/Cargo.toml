@@ -1,9 +1,0 @@
-[package]
-name = "binary-chromium"
-description = "A binary specification for Chromium"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-binary = { path = "../binary", features = ["download-tar-xz"] }
-binary-chrome = { path = "../binary-chrome" }

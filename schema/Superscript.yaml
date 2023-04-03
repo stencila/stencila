@@ -1,0 +1,4 @@
+title: Superscript
+'@id': stencila:Superscript
+extends: Mark
+description: Superscripted content.

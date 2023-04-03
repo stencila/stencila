@@ -1,0 +1,12 @@
+title: File
+'@id': stencila:File
+extends: CreativeWork
+description: A file on the filesystem
+required:
+  - path
+  - name
+properties:
+  path:
+    '@id': stencila:path
+    description: The path (absolute or relative) of the file on the filesystem
+    type: string

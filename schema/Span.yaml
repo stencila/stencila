@@ -1,0 +1,14 @@
+title: Span
+'@id': stencila:Span
+extends: Styled
+description: Styled inline content
+status: experimental
+required:
+  - content
+properties:
+  content:
+    '@id': 'stencila:content'
+    description: The content within the span
+    type: array
+    items:
+      $ref: Inline

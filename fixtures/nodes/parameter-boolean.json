@@ -1,9 +1,0 @@
-{
-  "type": "Parameter",
-  "name": "par",
-  "validator": {
-    "type": "BooleanValidator"
-  },
-  "default": true,
-  "value": true
-}

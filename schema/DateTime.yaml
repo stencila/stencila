@@ -1,0 +1,12 @@
+title: DateTime
+'@id': schema:DateTime
+extends: Entity
+description: A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.
+required:
+  - value
+properties:
+  value:
+    '@id': 'schema:value'
+    description: The date as an ISO 8601 string.
+    type: string
+    format: date-time

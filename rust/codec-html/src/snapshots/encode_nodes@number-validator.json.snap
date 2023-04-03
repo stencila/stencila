@@ -1,8 +1,0 @@
----
-source: rust/codec-html/src/encode.rs
-assertion_line: 534
-expression: html
-input_file: fixtures/nodes/number-validator.json
----
-<stencila-number-validator data-root minimum="0.0" exclusive-minimum="-1.0" maximum="100.0" exclusive-maximum="101.0" multiple-of="5.0">
-</stencila-number-validator>

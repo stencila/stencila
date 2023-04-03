@@ -1,0 +1,12 @@
+title: Time
+'@id': schema:Time
+extends: Entity
+description: A point in time recurring on multiple days
+required:
+  - value
+properties:
+  value:
+    '@id': 'schema:value'
+    description: The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`.
+    type: string
+    format: time

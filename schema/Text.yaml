@@ -1,0 +1,19 @@
+title: Text
+'@id': schema:Text
+extends: Entity
+description: Textual content
+$comment: |
+  Intended mostly for use for inline text e.g. the text in a paragraph.
+  
+  Differs from the primitive `String` type in that it has a `type` and `id` property.
+  The `id` property allows use to identify text nodes with a sequence of inline nodes
+  for better diffing.
+  
+  Also, in Rust, the `value` property is implemented as a CRDT.
+required:
+  - value
+properties:
+  value:
+    '@id': 'schema:value'
+    description: The value of the text content
+    type: string

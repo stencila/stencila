@@ -1,16 +1,6 @@
 [workspace]
 
-# Do not include Node, Python and R binding until more developed
 members = ["rust/*"]
-
-# Exclude crates that are experimental or are in process of being deprecated
-exclude = [
-    "rust/plugins",
-    "rust/kernel-deno",
-    "rust/kernel-jupyter",
-    "rust/parser-rust",
-    "rust/parser-ts",
-]
 
 [profile.ci]
 # Settings aimed at reducing disk usage and improving build times on CI
@@ -23,9 +13,7 @@ opt-level = "z"
 
 [profile.release]
 # Settings that help reduce the binary size based on https://github.com/johnthagen/min-sized-rust
+strip = true
 lto = true
 codegen-units = 1
-# Currently, disable `panic = 'abort'` given that it causes the linking error described here
-# https://stackoverflow.com/questions/39844260/how-to-use-panic-abort-with-external-dependencies
-# because the crate `human_name` specifies `dylib` as one of its library types.
-# panic = 'abort'
+panic = "abort"

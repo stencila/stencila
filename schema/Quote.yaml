@@ -1,0 +1,14 @@
+title: Quote
+'@id': stencila:Quote
+extends: Mark
+description: Inline, quoted content.
+core:
+  - cite
+properties:
+  cite:
+    '@id': stencila:cite
+    description: The source of the quote.
+    anyOf:
+      - $ref: Cite
+      - type: string
+        format: uri

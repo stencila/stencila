@@ -1,7 +1,0 @@
-[package]
-name = "node-dispatch"
-description = "Dispatch method calls to variants of Stencila document node types"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]

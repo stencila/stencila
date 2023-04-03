@@ -1,1 +1,0 @@
-A **strongly** emphasized word.

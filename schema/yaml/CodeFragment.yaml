@@ -1,6 +1,0 @@
-title: CodeFragment
-'@id': stencila:CodeFragment
-extends: CodeStatic
-status: stable
-description: Inline code.
-properties: {}

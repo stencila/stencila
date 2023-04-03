@@ -1,0 +1,34 @@
+title: PublicationIssue
+'@id': schema:PublicationIssue
+extends: CreativeWork
+description: |
+  A part of a successively published publication such as a periodical or publication
+  volume, often numbered.
+core:
+  - isPartOf
+  - issueNumber
+properties:
+  issueNumber:
+    '@id': schema:issueNumber
+    description: Identifies the issue of publication; for example, "iii" or "2".
+    anyOf:
+      - type: integer
+      - type: string
+  pageStart:
+    '@id': schema:pageStart
+    description: The page on which the issue starts; for example "135" or "xiii".
+    anyOf:
+      - type: integer
+      - type: string
+  pageEnd:
+    '@id': schema:pageEnd
+    description: The page on which the issue ends; for example "138" or "xvi".
+    anyOf:
+      - type: integer
+      - type: string
+  pagination:
+    '@id': schema:pagination
+    description: |
+      Any description of pages that is not separated into pageStart and pageEnd;
+      for example, "1-6, 9, 55".
+    type: string

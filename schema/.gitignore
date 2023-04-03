@@ -1,7 +1,0 @@
-.DS_Store
-.idea
-*.out.*
-/coverage
-/dist
-/node_modules
-/public

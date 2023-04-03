@@ -1,0 +1,10 @@
+title: ThematicBreak
+'@id': stencila:ThematicBreak
+extends: Entity
+description: |
+  A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
+$comment: |
+  Analogues of `ThematicBreak` in other schema include:
+    - JATS XML [`<hr>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/hr.html)
+    - MDAST [`ThematicBreak`](https://github.com/syntax-tree/mdast#ThematicBreak)
+    - OpenDocument OpenDocument [`<text:soft-page-break>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#element-text_soft-page-break)
