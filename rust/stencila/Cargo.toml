@@ -5,7 +5,16 @@ authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2021"
 
 [features]
+tokio-console = ["console-subscriber", "tokio/tracing"]
 
 [dependencies]
+color-eyre = { version = "0.6.2", features = ["issue-url"] }
+common = { path = "../common" }
+console-subscriber = { version = "0.1.8", optional = true }
+is-terminal = "0.4.6"
+tokio = { version = "1.19.2", features = ["full"] }
+tracing-error = "0.2.0"
+tracing-subscriber = { version = "0.3.16", features = ["env-filter", "json"] }
 
 [dev-dependencies]
+common-dev = { path = "../common-dev" }

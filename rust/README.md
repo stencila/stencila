@@ -69,6 +69,21 @@ The current crates include:
 - [`common-dev`](common-dev): Common development dependencies used across crates.
 
 
+### Tokio console
+
+Turn on the `console-subscriber` feature to turn on the awesome [`tokio-console`](https://github.com/tokio-rs/console) for debugging async tasks and locks e.g.
+
+```console
+cargo run --bin stencila --features=console-subscriber -- serve
+```
+
+and in another terminal run `tokio-console`
+
+```console
+tokio-console
+```
+
+
 ### Releases
 
 To create a release do,
@@ -78,4 +93,3 @@ cargo release -p stencila --tag-prefix '' --no-publish alpha --execute
 ```
 
 This will increment the version of the `stencila` package, create a Git tag, and trigger the `release.yaml` Github Actions workflow. You'll also have to mark the release as 'Latest' on Github for it to be used by default by the `install.sh` script in the root of this repo.
-
