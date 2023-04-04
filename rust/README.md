@@ -58,7 +58,7 @@ The current crates include:
 
 - [`codec-yaml`](codec-yaml): A `Codec` for [YAML](https://yaml.org/).
 
-- [`codec-jats`](codec-jats) `🏗️ In progress`: A `Codec` for [JATS XML](https://yaml.org/).
+- [`codec-jats`](codec-jats) `🏗️ In progress`: A `Codec` for [JATS XML](https://jats.nlm.nih.gov/).
 
 - [`codec-html`](codec-html) `🏗️ In progress`: A `Codec` for [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML).
 
@@ -74,7 +74,7 @@ The current crates include:
 To create a release do,
 
 ```console
-cargo release -p stencila --no-publish alpha
+cargo release -p stencila --no-publish alpha --execute
 ```
 
 This will increment the version of the `stencila` package, create a Git tag, and trigger the `release.yaml` Github Actions workflow.
