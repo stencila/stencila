@@ -1,6 +1,6 @@
 [package]
 name = "stencila"
-version = "2.0.0-alpha.1"
+version = "2.0.0-alpha.2"
 authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2021"
 
