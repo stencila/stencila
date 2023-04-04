@@ -74,7 +74,7 @@ The current crates include:
 To create a release do,
 
 ```console
-cargo release -p stencila --no-publish alpha --execute
+cargo release -p stencila --tag-prefix '' --no-publish alpha --execute
 ```
 
 This will increment the version of the `stencila` package, create a Git tag, and trigger the `release.yaml` Github Actions workflow.
