@@ -95,7 +95,6 @@ This repository is organized into the following modules. Please see their respec
 
 - `r` `🧭 Planned`: An R package built on top of the Rust crates which provides interfaces to use Stencila from within R.
 
-
 ## 💖 Supporters
 
 We wouldn’t be doing this without the support of these generous, forward looking organizations.
@@ -106,3 +105,16 @@ We wouldn’t be doing this without the support of these generous, forward looki
 <p align="center"><a href="https://coko.foundation/"><img src="docs/images/coko.png" height="70"></img></a><p>
 <p align="center"><a href="https://www.codeforsociety.org/"><img src="docs/images/css.png" height="70"></img></a><p>
 <p align="center"><a href="https://www.callaghaninnovation.govt.nz/"><img src="docs/images/callaghan.png" height="70"></img></a><p>
+
+## 🙏 Acknowledgements
+
+Stencila is built on the shoulders of many open source projects. Our sincere thanks to all the maintainers and contributors of those projects for their vision, enthusiasm and dedication, but most of all for all their hard work! The following open source projects in particular have an important role in the current version of Stencila.
+
+| <span style="width:70"></span>                               | Link                                  | Summary                                                                                                                                 |
+| ------------------------------------------------------------ | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="docs/images/rust.png" height="50" width="50">      | [Rust](https://www.rust-lang.org/)    | A multi-paradigm, high-level, general-purpose programming language which emphasizes performance, type safety, and concurrency           |
+| <img src="docs/images/automerge.png" height="50" width="50"> | [Automerge](https://automerge.org/)   | A Rust library of data structures for building collaborative applications.                                                              |
+| <img src="docs/images/similar.png" height="50" width="50">   | [Similar](https://insta.rs/similar/)  | A Rust library of diffing algorithms including Patience and Hunt–McIlroy / Hunt–Szymanski LCS.                                          |
+| <img src="docs/images/ferris.png" height="50" width="50">     | [Serde](https://serde.rs/)            | A framework for **ser**ializing and **de**serializing Rust data structures efficiently and generically                                          |
+| <img src="docs/images/tokio.png" height="50" width="50">     | [Tokio](https://tokio.rs/)            | An asynchronous runtime for Rust which provides the building blocks needed for writing network applications without compromising speed. |
+| <img src="docs/images/clap.png" height="50" width="50">      | [Clap](https://crates.io/crates/clap) | A Command Line Argument Parser for Rust                                                                                                 |
