@@ -31,5 +31,5 @@ slug = "0.1.4"
 strum = { version = "0.24.1", features = ["derive"] }
 tempfile = "3.3.0"
 tokio = { version = "1.19.2", features = ["full"] }
-toml = "0.7.1"
+toml = "0.7.3"
 tracing = { version = "0.1.35", features = ["log"] }
