@@ -64,7 +64,7 @@ mv -f stencila ~/.local/bin/ # or wherever you prefer
 
 ## 🛠️ Develop
 
-This repository is organized as follows:
+This repository is organized into the following modules. Please see their respective READMEs for guides to contributing.
 
 - `schema`: YAML files which define the Stencila Schema for dynamic documents.
 
@@ -81,5 +81,3 @@ This repository is organized as follows:
 - `python` `🧭 Planned`: A Python package built on top of the Rust crates which provides interfaces to use Stencila from within Python.
 
 - `r` `🧭 Planned`: An R package built on top of the Rust crates which provides interfaces to use Stencila from within R.
-
-Please see the [`rust/README.md`](rust/README.md) for instructions for contributing. As we add bindings for other languages, we'll add similar instructions for other languages.

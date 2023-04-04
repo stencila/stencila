@@ -67,3 +67,14 @@ The current crates include:
 - [`common`](common): Common dependencies used across crates.
 
 - [`common-dev`](common-dev): Common development dependencies used across crates.
+
+
+### Releases
+
+To create a release do,
+
+```console
+cargo release -p stencila --no-publish alpha
+```
+
+This will increment the version of the `stencila` package, create a Git tag, and trigger the `release.yaml` Github Actions workflow.
