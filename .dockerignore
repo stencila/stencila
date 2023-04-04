@@ -1,0 +1,5 @@
+# Ignore everything except what is needed
+# This is beneficial for build times and security https://codefresh.io/blog/not-ignore-dockerignore-2/
+*
+!Cargo.*
+!rust

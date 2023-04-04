@@ -35,6 +35,9 @@ audit:
 cli:
 	make -C rust cli
 
+docker:
+	docker build --tag ghcr.io/stencila/stencila .
+
 generated:
 	make -C rust generated
 

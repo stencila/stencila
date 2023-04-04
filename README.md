@@ -61,6 +61,19 @@ tar xvf stencila-*.tar.gz
 mv -f stencila ~/.local/bin/ # or wherever you prefer
 ```
 
+#### Docker
+
+The CLI is also available in a Docker image you can pull from the Github Container Registry,
+
+```console
+docker pull ghcr.io/stencila/stencila
+```
+
+and use locally like this for example,
+
+```console
+docker run -it --rm -v "$PWD":/work -w /work --network host ghcr.io/stencila/stencila --help
+```
 
 ## 🛠️ Develop
 
