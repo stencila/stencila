@@ -77,4 +77,5 @@ To create a release do,
 cargo release -p stencila --tag-prefix '' --no-publish alpha --execute
 ```
 
-This will increment the version of the `stencila` package, create a Git tag, and trigger the `release.yaml` Github Actions workflow.
+This will increment the version of the `stencila` package, create a Git tag, and trigger the `release.yaml` Github Actions workflow. You'll also have to mark the release as 'Latest' on Github for it to be used by default by the `install.sh` script in the root of this repo.
+

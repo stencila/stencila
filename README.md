@@ -35,14 +35,14 @@ To install the latest release download `stencila-<version>-x86_64-pc-windows-msv
 
 To install the latest release in `/usr/local/bin`,
 
-```bash
+```console
 curl -L https://raw.githubusercontent.com/stencila/stencila/main/install.sh | bash
 ```
 
-To install a specific version, append `-s vX.X.X`. Or, if you'd prefer to do it manually, download `stencila-<version>-x86_64-apple-darwin.tar.gz` from the one of the [releases](https://github.com/stencila/stencila/releases) and then,
+To install a specific version, append `-s vX.X.X`. Or, if you'd prefer to do it manually, download `stencila-<version>-x86_64-apple-darwin.tar.xz` from the one of the [releases](https://github.com/stencila/stencila/releases) and then,
 
-```bash
-tar xvf stencila-*.tar.gz
+```console
+tar xvf stencila-*.tar.xz
 sudo mv -f stencila /usr/local/bin # or wherever you prefer
 ```
 
@@ -50,14 +50,14 @@ sudo mv -f stencila /usr/local/bin # or wherever you prefer
 
 To install the latest release in `~/.local/bin/`,
 
-```bash
+```console
 curl -L https://raw.githubusercontent.com/stencila/stencila/main/install.sh | bash
 ```
 
-To install a specific version, append `-s vX.X.X`. Or, if you'd prefer to do it manually, download `stencila-<version>-x86_64-unknown-linux-gnu.tar.gz` from the one of the [releases](https://github.com/stencila/stencila/releases) and then,
+To install a specific version, append `-s vX.X.X`. Or, if you'd prefer to do it manually, download `stencila-<version>-x86_64-unknown-linux-gnu.tar.xz` from the one of the [releases](https://github.com/stencila/stencila/releases) and then,
 
-```bash
-tar xvf stencila-*.tar.gz
+```console
+tar xvf stencila-*.tar.xz
 mv -f stencila ~/.local/bin/ # or wherever you prefer
 ```
 

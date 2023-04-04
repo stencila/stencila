@@ -31,9 +31,9 @@ if [[ "${OS}" == "Linux" || "${OS}" == "Darwin" ]]; then
     esac
     
     echo "Downloading stencila $VERSION for platform $TARGET_TRIPLE"
-    curl -sL https://github.com/stencila/stencila/releases/download/$VERSION/stencila-$VERSION-$TARGET_TRIPLE.tar.gz | tar xz || {
+    curl -sL https://github.com/stencila/stencila/releases/download/$VERSION/stencila-$VERSION-$TARGET_TRIPLE.tar.xz | tar xJ -O stencila-$VERSION-$TARGET_TRIPLE/stencila > stencila || {
         echo 
-        echo "There was an error downloading stencila-$VERSION-$TARGET_TRIPLE.tar.gz"
+        echo "There was an error downloading stencila-$VERSION-$TARGET_TRIPLE.tar.xz"
         echo "It may be that binaries are not yet available yet."
         echo "Please wait, or try a previous version at https://github.com/stencila/stencila/releases."
         echo
@@ -43,6 +43,7 @@ if [[ "${OS}" == "Linux" || "${OS}" == "Darwin" ]]; then
     echo "Installing stencila in $INSTALL_PATH"
     mkdir -p $INSTALL_PATH
     mv stencila* $INSTALL_PATH
+    chmod +x $INSTALL_PATH/stencila
     
     echo "Successfully installed stencila CLI"
 else
