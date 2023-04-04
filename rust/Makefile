@@ -15,7 +15,7 @@ setup:
 	cargo install cargo-udeps --locked
 
 # Run formatting and linting fixes
-format:
+fix:
 	cargo fmt --all
 	cargo clippy --workspace --all-features --tests --fix --allow-dirty
 
