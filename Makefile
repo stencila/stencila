@@ -15,7 +15,7 @@
 # Having said all that, if you prefer, you can of course try to remember those incantations or
 # copy and paste and run them yourself 😼.
 
-all: format lint test audit build docs
+all: format lint test audit cli docs
 
 setup:
 	make -C rust setup
@@ -32,12 +32,11 @@ test:
 audit:
 	make -C rust audit
 
-build:
-	make -C rust build
+cli:
+	make -C rust cli
 
-docs:
-	make -C rust docs
-.PHONY: docs
+generated:
+	make -C rust generated
 
 clean:
 	make -C rust clean
