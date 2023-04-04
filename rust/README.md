@@ -8,9 +8,7 @@ This is the `stencila` core Rust library. Its main purpose is to implement core 
 
 ## 📦 Install
 
-You'll need to have [Rust installed](https://rustup.rs) first.
-
-This library is not yet published as a Rust crate, but you can still add it to your `Cargo.toml` using,
+This library is not yet published to https://crates.io/, but you can still add it to your `Cargo.toml` using,
 
 ```toml
 stencila = { git = "https://github.com/stencila/stencila" }
@@ -20,7 +18,7 @@ stencila = { git = "https://github.com/stencila/stencila" }
 
 ### Getting started
 
-Get started by cloning this repository and [installing Rust](https://rustup.rs) and necessary Cargo plugins (for formatting, linting, etc):
+Get started by cloning this repository, [installing Rust](https://rustup.rs) and using the using `make setup` to install necessary Cargo plugins (for formatting, linting, etc):
 
 ```sh
 git clone git@github.com:stencila/stencila
@@ -36,4 +34,36 @@ make format lint test
 
 ### Code organization
 
-This library is made up of several Rust crates. Most of these crates are internal and are not published (indicated with `version = "0.0.0"`). Splitting code into many small creates has advantages for compilation speed, modularization and reuse.
+This library is made up of several Rust crates. Splitting Rust code into many small creates has advantages for compilation speed, modularization and reuse. Most of these crates are internal and are not published (those crates have `version = "0.0.0"` in their `Cargo.toml`).
+
+The current crates include:
+
+#### CLI
+
+- [`stencila`](stencila): The `stencila` CLI tool
+
+#### Schema
+
+- [`schema-gen`](schema-gen): Generates language bindings, JSON Schema definitions and documentation from the Stencila Schema.
+
+- [`schema`](schema): Rust types generated from the Stencila Schema by `schema-gen`
+
+#### Codecs
+
+- [`codec`](codec) `🏗️ In progress`: The `Codec` trait for encoding/decoding between the types in the `schema` crate and other external formats (i.e. a 'converter').
+
+- [`codec-json`](codec-json): A `Codec` for [JSON](https://json.org/).
+
+- [`codec-json5`](codec-json5): A `Codec` for [JSON5](https://json5.org/).
+
+- [`codec-yaml`](codec-yaml): A `Codec` for [YAML](https://yaml.org/).
+
+- [`codec-jats`](codec-jats) `🏗️ In progress`: A `Codec` for [JATS XML](https://yaml.org/).
+
+- [`codec-html`](codec-html) `🏗️ In progress`: A `Codec` for [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML).
+
+#### Utilities
+
+- [`common`](common): Common dependencies used across crates.
+
+- [`common-dev`](common-dev): Common development dependencies used across crates.
