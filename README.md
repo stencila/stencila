@@ -5,7 +5,7 @@
 
 ## 👋 Introduction
 
-Stencila is a platform for authoring, sharing and publishing dynamic, data-driven documents. Our aim is to lower the barriers for creating and collaborating on data-driven documents and make it easier to create beautiful, interactive, and semantically rich, articles, web pages and applications from them.
+Stencila is a platform for authoring, collaborating on, and publishing dynamic, data-driven documents. Our aim is to lower the barriers for creating data-driven documents and make it easier to create beautiful, interactive, and semantically rich, articles, web pages and applications from them.
 
 ## 📈 Status
 
@@ -94,3 +94,15 @@ This repository is organized into the following modules. Please see their respec
 - `python` `🧭 Planned`: A Python package built on top of the Rust crates which provides interfaces to use Stencila from within Python.
 
 - `r` `🧭 Planned`: An R package built on top of the Rust crates which provides interfaces to use Stencila from within R.
+
+
+## 💖 Supporters
+
+We wouldn’t be doing this without the support of these generous, forward looking organizations.
+
+<p align="center"><a href="https://sloan.org/"><img src="docs/images/sloan.png" height="70"></img></a><p>
+<p align="center"><a href="https://elifesciences.org/"><img src="docs/images/elife.svg" height="70"></img></a><p>
+<p align="center"><a href="https://www.mbie.govt.nz"><img src="docs/images/mbie.jpeg" height="70"></img></a><p>
+<p align="center"><a href="https://coko.foundation/"><img src="docs/images/coko.png" height="70"></img></a><p>
+<p align="center"><a href="https://www.codeforsociety.org/"><img src="docs/images/css.png" height="70"></img></a><p>
+<p align="center"><a href="https://www.callaghaninnovation.govt.nz/"><img src="docs/images/callaghan.png" height="70"></img></a><p>
