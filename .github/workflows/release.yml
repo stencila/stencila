@@ -42,8 +42,13 @@ on:
       - '*-?v[0-9]+*'
 
 jobs:
+  # Run the test workflow
+  test:
+    uses: ./.github/workflows/test.yml
+
   # Create the Github Release™ so the packages have something to be uploaded to
   create-release:
+    needs: test
     runs-on: ubuntu-latest
     outputs:
       has-releases: ${{ steps.create-release.outputs.has-releases }}
@@ -139,6 +144,7 @@ jobs:
   # Build and push Docker image
   # Based on https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
   build-and-push-image:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
