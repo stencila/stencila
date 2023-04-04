@@ -1,0 +1,41 @@
+# Workflow to check that the build succeeds and build and commit generated files
+#
+# Note that actual release builds are done on tags by the `release.yml` workflow.
+# This just provides a check to increase the likelihood that the release
+# workflow will be successful.
+
+name: Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      CARGO_TERM_COLOR: always
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        run: rustup update 1.68.2 --no-self-update && rustup default 1.68.2
+
+      - name: Enable Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build CLI
+        run: make cli
+
+      - name: Build generated files
+        run: make generated
+
+      - name: Commit any changes to generated files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore(*): Update generated files"

@@ -1,0 +1,32 @@
+# Workflow for linting and testing
+
+name: Test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      CARGO_TERM_COLOR: always
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        run: rustup update 1.68.2 --no-self-update && rustup default 1.68.2
+
+      - name: Enable Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Lint
+        run: make lint
+
+      - name: Test
+        run: make test
