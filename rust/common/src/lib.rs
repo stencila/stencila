@@ -5,7 +5,7 @@
 //! This crate acts as our internal version of a standard library, like [`stdx`](https://github.com/brson/stdx)
 //! and others.
 //!
-//! The primary benefit of this crate us that there is only one place that version numbers for
+//! The primary benefit of this crate is that there is only one place that version numbers for
 //! commonly used dependencies need to be updated. Some of these crates are in line to become
 //! part of the `std` library (e.g. `once_cell`).
 
