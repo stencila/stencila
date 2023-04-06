@@ -1,3 +1,5 @@
+//! Generation of Rust types from Stencila Schema
+
 use std::{
     collections::HashSet,
     fs::read_dir,
@@ -37,6 +39,8 @@ const BOX_PROPERTIES: &[&str] = &[
 impl Schemas {
     /// Generate Rust modules for each schema
     pub async fn rust(&self) -> Result<()> {
+        eprintln!("Generating Rust types");
+
         let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../schema/src");
         let dest = dest
             .canonicalize()

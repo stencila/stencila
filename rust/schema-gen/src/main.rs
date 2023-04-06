@@ -9,15 +9,19 @@ use schema_gen::schemas::Schemas;
 #[derive(Parser)]
 struct Args {
     /// Generate reference docs
-    #[arg(short, long, default_value_t = true)]
+    #[arg(long, default_value_t = true)]
     docs: bool,
 
-    /// Generate JSON schema
-    #[arg(short, long, default_value_t = true)]
+    /// Generate JSON-LD context
+    #[arg(long, default_value_t = true)]
+    json_ld: bool,
+
+    /// Generate JSON Schema
+    #[arg(long, default_value_t = true)]
     json_schema: bool,
 
     /// Generate Rust types
-    #[arg(short, long, default_value_t = true)]
+    #[arg(long, default_value_t = true)]
     rust: bool,
 }
 
@@ -34,8 +38,12 @@ async fn main() -> Result<()> {
         schemas.docs().await?;
     }
 
+    if args.json_ld {
+        schemas.json_ld().await?;
+    }
+
     if args.json_schema {
-        //schemas.json_schemas().await?;
+        schemas.json_schema().await?;
     }
 
     if args.rust {
