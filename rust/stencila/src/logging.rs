@@ -5,7 +5,7 @@ use tracing_subscriber::{fmt, registry, EnvFilter};
 
 use common::{
     clap::{self, ValueEnum},
-    eyre::{bail, Result, Context},
+    eyre::{bail, Context, Result},
     strum::AsRefStr,
     tracing::metadata::LevelFilter,
 };
