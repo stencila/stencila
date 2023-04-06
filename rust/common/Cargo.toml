@@ -26,7 +26,7 @@ regex = "1.7.3"
 serde = { version = "1.0.159", features = ["derive", "rc"] }
 serde_json = { version = "1.0.95", features = ["preserve_order"] }
 serde_with = "2.3.2"
-serde_yaml = "0.9.19"
+serde_yaml = "0.9.20"
 slug = "0.1.4"
 strum = { version = "0.24.1", features = ["derive"] }
 tempfile = "3.5.0"
