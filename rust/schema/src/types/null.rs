@@ -1,3 +1,5 @@
+// Generated file. Do not edit; see `schema-gen` crate.
+
 use std::fmt;
 
 use crate::prelude::*;

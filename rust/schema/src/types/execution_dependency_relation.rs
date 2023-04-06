@@ -1,5 +1,3 @@
-//! Generated file, do not edit
-
 use crate::prelude::*;
 
 /// The relation between a node and its execution dependency.

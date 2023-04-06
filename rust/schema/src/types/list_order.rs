@@ -1,5 +1,3 @@
-//! Generated file, do not edit
-
 use crate::prelude::*;
 
 /// Indicates how a `List` is ordered.

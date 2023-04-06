@@ -1,5 +1,3 @@
-//! Generated file, do not edit
-
 use crate::prelude::*;
 
 /// Under which circumstances the document node should be automatically executed.

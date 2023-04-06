@@ -1,5 +1,3 @@
-//! Generated file, do not edit
-
 use crate::prelude::*;
 
 /// A unit in which time can be measured

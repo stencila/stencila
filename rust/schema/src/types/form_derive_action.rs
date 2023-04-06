@@ -1,5 +1,3 @@
-//! Generated file, do not edit
-
 use crate::prelude::*;
 
 /// Indicates the action (create, update or delete) to derive for a `Form`.

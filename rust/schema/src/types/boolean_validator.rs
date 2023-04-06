@@ -1,4 +1,4 @@
-//! Generated file, do not edit
+// Generated file. Do not edit; see `schema-gen` crate.
 
 use crate::prelude::*;
 

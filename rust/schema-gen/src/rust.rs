@@ -87,7 +87,11 @@ impl Schemas {
             .iter()
             .map(|module| format!("pub use {module}::*;\n"))
             .join("");
-        write(path, format!("{mods}\n{uses}")).await?;
+        write(
+            path,
+            format!("// Generated file. Do not edit; see `schema-gen` crate.\n\n{mods}\n{uses}"),
+        )
+        .await?;
 
         Ok(())
     }
@@ -133,7 +137,11 @@ impl Schemas {
 
         let path = dest.join(format!("{module}.rs"));
         if !path.exists() {
-            write(path, rust).await?;
+            write(
+                path,
+                &format!("// Generated file. Do not edit; see `schema-gen` crate.\n\n{rust}"),
+            )
+            .await?;
         }
 
         Ok(())
@@ -309,9 +317,7 @@ impl {title} {{{new}}}"#,
         );
 
         let rust = format!(
-            r#"//! Generated file, do not edit
-
-use crate::prelude::*;
+            r#"use crate::prelude::*;
 
 {uses}
 
@@ -460,9 +466,7 @@ pub struct {title} {{
         };
 
         let rust = format!(
-            r#"//! Generated file, do not edit
-
-use crate::prelude::*;
+            r#"use crate::prelude::*;
 
 {uses}/// {description}
 #[derive(Debug{defaults}, Clone, PartialEq, Serialize, Deserialize)]
@@ -489,9 +493,7 @@ pub enum {name} {{
 
         let module = typ.to_snake_case();
         let rust = format!(
-            r#"//! Generated file, do not edit
-
-use super::{module}::{typ};
+            r#"use super::{module}::{typ};
 
 pub type {name} = Vec<{typ}>;
 "#

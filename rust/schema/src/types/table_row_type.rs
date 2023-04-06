@@ -1,5 +1,3 @@
-//! Generated file, do not edit
-
 use crate::prelude::*;
 
 /// Indicates whether the row is in the header, body or footer of the table.
