@@ -49,7 +49,7 @@ mod tests {
 
     use common::indexmap::IndexMap;
     use common_dev::pretty_assertions::assert_eq;
-    use schema::types::{
+    use schema::{
         Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
         IntegerOrString, Node, Null, Number, Object, Paragraph, Primitive, Time,
     };

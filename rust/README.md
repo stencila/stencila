@@ -50,11 +50,15 @@ The current crates include:
 
 #### Node traits
 
-- [`node-strip`]: Implements the `Strip` trait which provides the `strip` method for removing one or properties of a document node.
+- [`node-store`](node-store): Implements the `Read` and `Write` traits for reading and writing document nodes from/to Automerge stores.
+
+- [`node-strip`](node-strip): Implements the `Strip` trait which provides the `strip` method for removing one or properties of a document node.
 
 #### Codecs
 
 - [`codec`](codec) `🏗️ In progress`: The `Codec` trait for encoding/decoding between the types in the `schema` crate and other external formats (i.e. a 'converter').
+
+- [`codec-utf8`](codec-utf8): A `Codec` for UTF8 strings.
 
 - [`codec-json`](codec-json): A `Codec` for [JSON](https://json.org/).
 

@@ -1,8 +1,8 @@
 [package]
-name = "schema"
+name = "codec-utf8"
 version = "0.0.0"
 edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-monostate = "0.1"
+schema = { path = "../schema" }

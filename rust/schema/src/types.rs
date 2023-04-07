@@ -1,3 +1,5 @@
+// Generated file. Do not edit; see `schema-gen` crate.
+
 mod array;
 mod array_validator;
 mod article;

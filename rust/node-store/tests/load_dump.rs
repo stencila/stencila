@@ -1,13 +1,11 @@
-use indexmap::IndexMap;
-
-use common::eyre::Result;
+use codec_utf8::FromUtf8;
+use common::{eyre::Result, indexmap::IndexMap};
 use common_dev::pretty_assertions::assert_eq;
 
-use schema::{
-    store::Store,
-    traits::Node,
-    types::{Null, Object, Primitive, Text},
-};
+use schema::{Null, Object, Primitive, Text};
+
+use node_store::{Read, Store, Write};
+use node_strip::{Strip, Targets};
 
 /// Test loading & dumping of `Primitive` nodes
 #[test]
@@ -81,13 +79,13 @@ fn text() -> Result<()> {
     // Create base store with a few text nodes
     let mut base = Store::new();
     let root = Root::from([
-        ("insert".to_string(), Text::from("abcd")),
-        ("delete".to_string(), Text::from("abcd")),
-        ("replace".to_string(), Text::from("abcd")),
-        ("varied".to_string(), Text::from("abcd")),
+        ("insert".to_string(), Text::from_utf8("abcd")?),
+        ("delete".to_string(), Text::from_utf8("abcd")?),
+        ("replace".to_string(), Text::from_utf8("abcd")?),
+        ("varied".to_string(), Text::from_utf8("abcd")?),
     ]);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip_ids(), &root);
+    assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
 
     // Fork it
     let mut fork = base.fork();
@@ -136,23 +134,23 @@ fn vec() -> Result<()> {
     let mut base = Store::new();
     let mut root = Root::from([(
         "vec".to_string(),
-        vec![Text::from("one"), Text::from("two")],
+        vec![Text::from_utf8("one")?, Text::from_utf8("two")?],
     )]);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip_ids(), &root);
+    assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
 
     // Make modifications, merge changes back into
     // store and check store for consistency
 
     // Add an item
-    root.get_mut("vec").unwrap().push(Text::from("three"));
+    root.get_mut("vec").unwrap().push(Text::from_utf8("three")?);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip_ids(), &root);
+    assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
 
     // Remove an item
     root.get_mut("vec").unwrap().remove(1);
     root.dump(&mut base)?;
-    //assert_eq!(Root::load(&base)?.strip_ids(), &root);
+    //assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
 
     Ok(())
 }

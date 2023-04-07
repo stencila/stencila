@@ -364,6 +364,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-utf8"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "schema",
+]
+
+[[package]]
 name = "codec-yaml"
 version = "0.0.0"
 dependencies = [
@@ -727,6 +735,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "document"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "format",
+ "node-store",
+ "schema",
+]
+
+[[package]]
 name = "either"
 version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -795,6 +813,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a9c384f161156f5260c24a097c56119f9be8c798586aecc13afbcbe7b7e26bf8"
 dependencies = [
  "percent-encoding",
+]
+
+[[package]]
+name = "format"
+version = "0.0.0"
+dependencies = [
+ "common",
 ]
 
 [[package]]
@@ -1327,6 +1352,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-store"
+version = "0.0.0"
+dependencies = [
+ "automerge",
+ "base64 0.21.0",
+ "codec-utf8",
+ "common",
+ "common-dev",
+ "node-strip",
+ "schema",
+ "similar",
+ "smol_str",
+]
+
+[[package]]
+name = "node-strip"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "schema",
+]
+
+[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1714,14 +1762,8 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 name = "schema"
 version = "0.0.0"
 dependencies = [
- "automerge",
- "base64 0.21.0",
  "common",
- "common-dev",
- "indexmap",
  "monostate",
- "similar",
- "smol_str",
 ]
 
 [[package]]
@@ -1921,6 +1963,8 @@ dependencies = [
  "common",
  "common-dev",
  "console-subscriber",
+ "document",
+ "format",
  "is-terminal",
  "tokio",
  "tracing-error",
