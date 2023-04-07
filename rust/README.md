@@ -48,6 +48,10 @@ The current crates include:
 
 - [`schema`](schema): Rust types generated from the Stencila Schema by `schema-gen`
 
+#### Node traits
+
+- [`node-strip`]: Implements the `Strip` trait which provides the `strip` method for removing one or properties of a document node.
+
 #### Codecs
 
 - [`codec`](codec) `🏗️ In progress`: The `Codec` trait for encoding/decoding between the types in the `schema` crate and other external formats (i.e. a 'converter').
