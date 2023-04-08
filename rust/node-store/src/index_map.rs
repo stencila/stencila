@@ -65,16 +65,16 @@ where
     }
 }
 
-// Dump a `IndexMap` into an existing store `Map`
+/// Dump a `IndexMap` into an existing store `Map`
 fn map_dump_existing<T: Write>(
     store: &mut WriteStore,
     map: &IndexMap<String, T>,
     obj: &ObjId,
 ) -> Result<()> {
-    // Get all the keys for the root map of the store
+    // Get all the keys for the object in the store
     let mut keys: HashSet<String> = store.keys(obj).collect();
 
-    // Insert or dump key that are in both map and store
+    // Dump keys that are in both map and store
     for (key, node) in map {
         node.dump_prop(store, obj, key.into())?;
         keys.remove(key);
