@@ -120,7 +120,7 @@ impl Schemas {
                 Type::String => "pub type String = std::string::String;\n",
                 Type::Array => "pub type Array = Vec<super::primitive::Primitive>;\n",
                 Type::Object => {
-                    "pub type Object = indexmap::IndexMap<String, super::primitive::Primitive>;\n"
+                    "pub type Object = common::indexmap::IndexMap<String, super::primitive::Primitive>;\n"
                 }
             }
             .to_string()
