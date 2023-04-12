@@ -738,6 +738,8 @@ dependencies = [
 name = "document"
 version = "0.0.0"
 dependencies = [
+ "codec-json",
+ "codec-utf8",
  "common",
  "format",
  "node-store",
@@ -1356,14 +1358,18 @@ name = "node-store"
 version = "0.0.0"
 dependencies = [
  "automerge",
- "base64 0.21.0",
- "codec-utf8",
  "common",
- "common-dev",
- "node-strip",
- "schema",
  "similar",
  "smol_str",
+]
+
+[[package]]
+name = "node-store-derive"
+version = "0.0.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.13",
 ]
 
 [[package]]
@@ -1762,8 +1768,15 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 name = "schema"
 version = "0.0.0"
 dependencies = [
+ "codec-utf8",
  "common",
+ "common-dev",
  "monostate",
+ "node-store",
+ "node-store-derive",
+ "node-strip",
+ "similar",
+ "smol_str",
 ]
 
 [[package]]
