@@ -11,6 +11,8 @@ tokio-console = ["console-subscriber", "tokio/tracing"]
 color-eyre = { version = "0.6.2", features = ["issue-url"] }
 common = { path = "../common" }
 console-subscriber = { version = "0.1.8", optional = true }
+document = { path = "../document" }
+format = { path = "../format" }
 is-terminal = "0.4.7"
 tokio = { version = "1.27.0", features = ["full"] }
 tracing-error = "0.2.0"

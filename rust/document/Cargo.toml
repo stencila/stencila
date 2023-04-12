@@ -1,0 +1,12 @@
+[package]
+name = "document"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec-utf8 = { path = "../codec-utf8" }
+codec-json = { path = "../codec-json" }
+common = { path = "../common" }
+format = { path = "../format" }
+node-store = { path = "../node-store" }
+schema = { path = "../schema" }

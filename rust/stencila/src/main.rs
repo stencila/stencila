@@ -1,8 +1,12 @@
+use std::path::PathBuf;
+
 use common::{
     clap::{self, Parser, Subcommand},
-    eyre::{bail, Result},
+    eyre::Result,
     tokio, tracing,
 };
+use document::{Document, Type};
+use format::Format;
 
 mod errors;
 mod logging;
@@ -56,7 +60,69 @@ struct Cli {
 }
 
 #[derive(Debug, Subcommand)]
-enum Command {}
+enum Command {
+    /// Create a new document
+    New {
+        /// The type of document to create
+        #[arg(default_value_t = Type::Article)]
+        r#type: Type,
+
+        /// The path of the document to create
+        path: Option<PathBuf>,
+
+        /// Overwrite the document if it already exists
+        #[arg(long, short)]
+        overwrite: bool,
+    },
+
+    /// Import a file in another format into a new or existing document
+    Import {
+        /// The path of the document to create or import to
+        path: PathBuf,
+
+        /// The source file to import from
+        source: PathBuf,
+
+        /// The format of the source file
+        #[arg(long, short)]
+        format: Option<Format>,
+
+        /// The type of document to import
+        ///
+        /// Defaults to determining the type based on the `format`, or for
+        /// formats such as JSON and YAML, the value of the root `type` property .
+        #[arg(long, short)]
+        r#type: Option<Type>,
+    },
+
+    /// Export a document to a file in another format
+    Export {
+        /// The path of the document to export from
+        path: PathBuf,
+
+        /// The destination file to export to
+        dest: Option<PathBuf>,
+
+        /// The format of the destination file
+        #[arg(long, short)]
+        format: Option<Format>,
+    },
+
+    /// Display the history of commits to the document
+    History {
+        /// The path of the document to display the history for
+        path: PathBuf,
+    },
+
+    /// Inspect a document as JSON
+    ///
+    /// This command is mostly intended for debugging issues with loading a
+    /// document from file storage.
+    Inspect {
+        /// The path of the document to inspect
+        path: PathBuf,
+    },
+}
 
 /// Run the CLI command
 ///
@@ -65,5 +131,40 @@ enum Command {}
 /// useful because then CLI arguments are captured in span traces.
 #[tracing::instrument(skip(cli))]
 async fn run(cli: Cli) -> Result<()> {
-    bail!("No subcommands yet implemented");
+    match cli.command {
+        Command::New {
+            r#type,
+            path,
+            overwrite,
+        } => {
+            Document::init(r#type, path.as_deref(), overwrite).await?;
+        }
+
+        Command::Import {
+            path,
+            source,
+            format,
+            r#type,
+        } => {
+            let doc = Document::open(&path).await?;
+            doc.import(&source, format, r#type).await?;
+        }
+
+        Command::Export { path, dest, format } => {
+            let doc = Document::open(&path).await?;
+            doc.export(dest.as_deref(), format).await?;
+        }
+
+        Command::History { path } => {
+            let doc = Document::open(&path).await?;
+            doc.history().await?;
+        }
+
+        Command::Inspect { path } => {
+            let json = Document::inspect(&path).await?;
+            println!("{}", json);
+        }
+    }
+
+    Ok(())
 }
