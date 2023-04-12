@@ -13,9 +13,9 @@ pub enum Targets {
 
 pub trait Strip: Sized {
     /// Strip one or more properties from a node
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// - `targets`: The target properties to be stripped
     #[allow(unused_variables)]
     fn strip(&mut self, targets: Targets) -> &mut Self {
