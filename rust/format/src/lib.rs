@@ -1,3 +1,5 @@
+//! Provides the `Format` enum and utility functions for working with document formats
+
 use std::path::Path;
 
 use common::{
@@ -9,23 +11,38 @@ use common::{
 #[derive(Debug, Display, Clone, ValueEnum, EnumString)]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum Format {
+    Jats,
     Json,
     Json5,
+    Markdown,
     Yaml,
 }
 
 impl Format {
-    pub fn from_ext(ext: &str) -> Result<Self> {
-        Ok(match ext.to_lowercase().as_str() {
-            "json" => Format::Json,
+    /// Resolve a [`Format`] from a name for the format
+    pub fn from_name(ext: &str) -> Result<Self> {
+        use Format::*;
+
+        Ok(match ext.to_lowercase().trim() {
+            "jats" => Jats,
+            "json" => Json,
+            "json5" => Json5,
+            "md" | "markdown" => Markdown,
+            "yaml" => Yaml,
             _ => bail!("Unknown extension for format: {ext}"),
         })
     }
 
+    /// Resolve a [`Format`] from a file path
     pub fn from_path(path: &Path) -> Result<Self> {
-        let ext = path
-            .extension()
-            .map_or_else(|| path.to_string_lossy(), |ext| ext.to_string_lossy());
-        Self::from_ext(&ext)
+        let name = match path.extension() {
+            Some(ext) => ext,
+            None => match path.file_name() {
+                Some(name) => name,
+                None => path.as_os_str(),
+            },
+        };
+
+        Self::from_name(&name.to_string_lossy())
     }
 }
