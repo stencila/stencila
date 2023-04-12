@@ -42,6 +42,12 @@ The current crates include:
 
 - [`stencila`](stencila): The `stencila` CLI tool
 
+#### Documents and formats
+
+- [`document`](document): A document representing one of the `CreativeWork` types in the Stencila Schema.
+
+- [`format`](format): Provides the `Format` enum and utility functions for working with document formats.
+
 #### Schema
 
 - [`schema-gen`](schema-gen): Generates language bindings, JSON Schema definitions and documentation from the Stencila Schema.
@@ -50,7 +56,9 @@ The current crates include:
 
 #### Node traits
 
-- [`node-store`](node-store): Implements the `Read` and `Write` traits for reading and writing document nodes from/to Automerge stores.
+- [`node-store`](node-store): Provides the `Read` and `Write` traits for reading and writing document nodes from/to Automerge stores.
+
+- [`node-store-derive`](node-store): Implements the `Read` and `Write` derive macros for `struct`s and `enum`s in the Stencila Schema.
 
 - [`node-strip`](node-strip): Implements the `Strip` trait which provides the `strip` method for removing one or properties of a document node.
 
