@@ -1,5 +1,5 @@
 //! Implements `FromUtf8` and `ToUtf8` traits for encoding and decoding nodes from/to UTF8 strings
- 
+
 use common::eyre::Result;
 
 mod text;
