@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-automerge = "0.3.0"
+automerge = "0.4.0"
 base64 = "0.21.0"
 common = { path = "../common" }
 indexmap = "1.9.3"
