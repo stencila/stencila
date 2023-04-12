@@ -1,10 +1,10 @@
 use codec_utf8::FromUtf8;
-use common::{eyre::Result, indexmap::IndexMap};
+use common::{eyre::Result, indexmap::IndexMap, serde_json::json};
 use common_dev::pretty_assertions::assert_eq;
 
-use schema::{Null, Object, Primitive, Text};
+use schema::{Article, Block, Inline, Node, Null, Object, Paragraph, Primitive, Text};
 
-use node_store::{Read, Store, Write};
+use node_store::{Read, Write, WriteStore};
 use node_strip::{Strip, Targets};
 
 /// Test loading & dumping of `Primitive` nodes
@@ -13,7 +13,7 @@ fn primitives() -> Result<()> {
     type Root = Object;
 
     // Create base store with various primitives
-    let mut base = Store::new();
+    let mut base = WriteStore::new();
     let root = Root::from([
         ("null".to_string(), Primitive::Null(Null {})),
         ("bool".to_string(), Primitive::Boolean(true)),
@@ -71,13 +71,44 @@ fn primitives() -> Result<()> {
     Ok(())
 }
 
+/// Test loading & dumping of `Option`s
+#[test]
+fn option() -> Result<()> {
+    type Root = IndexMap<String, Option<i64>>;
+
+    // Create base store
+    let mut base = WriteStore::new();
+    let mut root = Root::from([("some".to_string(), Some(42)), ("none".to_string(), None)]);
+    root.dump(&mut base)?;
+    assert_eq!(
+        Root::load(&base)?,
+        // Note: key with None is not stored
+        Root::from([("some".to_string(), Some(42)),])
+    );
+
+    // Change the some value
+    root.insert("some".to_string(), Some(21));
+    root.dump(&mut base)?;
+    assert_eq!(
+        Root::load(&base)?,
+        Root::from([("some".to_string(), Some(21)),])
+    );
+
+    // Change some to None
+    root.insert("some".to_string(), None);
+    root.dump(&mut base)?;
+    assert_eq!(Root::load(&base)?, Root::default());
+
+    Ok(())
+}
+
 /// Test loading & dumping of `Text` nodes
 #[test]
 fn text() -> Result<()> {
     type Root = IndexMap<String, Text>;
 
     // Create base store with a few text nodes
-    let mut base = Store::new();
+    let mut base = WriteStore::new();
     let root = Root::from([
         ("insert".to_string(), Text::from_utf8("abcd")?),
         ("delete".to_string(), Text::from_utf8("abcd")?),
@@ -85,7 +116,7 @@ fn text() -> Result<()> {
         ("varied".to_string(), Text::from_utf8("abcd")?),
     ]);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
+    assert_eq!(Root::load(&base)?, root);
 
     // Fork it
     let mut fork = base.fork();
@@ -95,10 +126,10 @@ fn text() -> Result<()> {
     // Make modifications, merge changes back into
     // store and check both stores for consistency
 
-    root.get_mut("insert").unwrap().value = "a_bcd".to_string();
-    root.get_mut("delete").unwrap().value = "acd".to_string();
-    root.get_mut("replace").unwrap().value = "a_cd".to_string();
-    root.get_mut("varied").unwrap().value = "_ace".to_string();
+    root.get_mut("insert").unwrap().value.0 = "a_bcd".to_string();
+    root.get_mut("delete").unwrap().value.0 = "acd".to_string();
+    root.get_mut("replace").unwrap().value.0 = "a_cd".to_string();
+    root.get_mut("varied").unwrap().value.0 = "_ace".to_string();
 
     root.dump(&mut fork)?;
     assert_eq!(Root::load(&fork)?, root);
@@ -108,11 +139,11 @@ fn text() -> Result<()> {
 
     // Make concurrent changes to and checked merged values are as expected
 
-    root.get_mut("varied").unwrap().value = "Space".to_string();
+    root.get_mut("varied").unwrap().value.0 = "Space".to_string();
     let mut fork1 = base.fork();
     root.dump(&mut fork1)?;
 
-    root.get_mut("varied").unwrap().value = "ace invaders".to_string();
+    root.get_mut("varied").unwrap().value.0 = "ace invaders".to_string();
     let mut fork2 = base.fork();
     root.dump(&mut fork2)?;
 
@@ -120,7 +151,7 @@ fn text() -> Result<()> {
     base.merge(&mut fork2)?;
 
     let actual = &Root::load(&base)?["varied"].value;
-    assert_eq!(actual, "Space invaders");
+    assert_eq!(actual.0, "Space invaders");
 
     Ok(())
 }
@@ -131,7 +162,7 @@ fn vec() -> Result<()> {
     type Root = IndexMap<String, Vec<Text>>;
 
     // Create base store
-    let mut base = Store::new();
+    let mut base = WriteStore::new();
     let mut root = Root::from([(
         "vec".to_string(),
         vec![Text::from_utf8("one")?, Text::from_utf8("two")?],
@@ -161,7 +192,7 @@ fn indexmap() -> Result<()> {
     type Root = IndexMap<String, String>;
 
     // Create base store with map of strings
-    let mut base = Store::new();
+    let mut base = WriteStore::new();
     let root = Root::from([
         ("a".to_string(), "one".to_string()),
         ("b".to_string(), "two".to_string()),
@@ -198,6 +229,50 @@ fn indexmap() -> Result<()> {
     assert_eq!(Root::load(&fork)?, root);
     base.merge(&mut fork)?;
     assert_eq!(Root::load(&base)?, root);
+
+    Ok(())
+}
+
+/// Test loading & dumping of `Article`s
+#[test]
+fn article() -> Result<()> {
+    let mut base = WriteStore::new();
+
+    // Default, empty article
+    let mut article1 = Article::default();
+    article1.dump(&mut base)?;
+    assert_eq!(Article::load(&base)?, article1);
+
+    // Add an optional property
+    article1.id = Some("some-id".to_string());
+    article1.dump(&mut base)?;
+    assert_eq!(Article::load(&base)?, article1);
+
+    // Add some content
+    article1.content.push(Block::Paragraph(Paragraph {
+        content: vec![Inline::Text(Text::from_utf8("Hello world")?)],
+        ..Default::default()
+    }));
+    article1.dump(&mut base)?;
+    assert_eq!(Article::load(&base)?, article1);
+
+    Ok(())
+}
+
+/// Test loading & dumping of `Node`s
+#[test]
+fn node() -> Result<()> {
+    use common::serde_json::{self, json};
+
+    let mut base = WriteStore::new();
+
+    // Default, empty article
+    let node1: Node = serde_json::from_value(json!({
+        "type": "Article",
+        "content": []
+    }))?;
+    node1.dump(&mut base)?;
+    assert_eq!(Node::load(&base)?, node1);
 
     Ok(())
 }

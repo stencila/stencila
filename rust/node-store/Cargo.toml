@@ -5,13 +5,6 @@ edition = "2021"
 
 [dependencies]
 automerge = "0.3.0"
-base64 = "0.21.0"
 common = { path = "../common" }
-schema = { path = "../schema" }
 similar = { version = "2.2.1", features = ["unicode"] }
 smol_str = "0.1.24"
-
-[dev-dependencies]
-common-dev = { path = "../common-dev" }
-node-strip = { path = "../node-strip" }
-codec-utf8 = { path = "../codec-utf8" }

@@ -1,7 +1,5 @@
 use smol_str::SmolStr;
 
-use common::eyre::Result;
-
 use crate::prelude::*;
 
 impl Read for String {
@@ -11,6 +9,18 @@ impl Read for String {
 }
 
 impl Write for String {
+    fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
+        match prop {
+            Prop::Map(key) => store.put(obj_id, key, self)?,
+            Prop::Seq(index) => store.insert(obj_id, index, self)?,
+        };
+        Ok(())
+    }
+
+    fn put_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
+        Ok(store.put(obj_id, prop, self)?)
+    }
+
     fn similarity<S: ReadStore>(&self, store: &S, obj: &ObjId, prop: Prop) -> Result<usize> {
         if let Some((Value::Scalar(scalar), ..)) = store.get(obj, prop)? {
             if let ScalarValue::Str(value) = scalar.as_ref() {
@@ -20,13 +30,5 @@ impl Write for String {
             }
         }
         Ok(0)
-    }
-
-    fn dump_new(&self, store: &mut WriteStore, obj: &ObjId, prop: Prop) -> Result<()> {
-        dump_new_scalar(store, obj, prop, self)
-    }
-
-    fn dump_prop(&self, store: &mut WriteStore, obj: &ObjId, prop: Prop) -> Result<()> {
-        dump_prop_scalar(store, obj, prop, self)
     }
 }
