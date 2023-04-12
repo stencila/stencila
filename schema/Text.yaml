@@ -16,4 +16,4 @@ properties:
   value:
     '@id': 'schema:value'
     description: The value of the text content
-    type: string
+    $ref: TextValue
