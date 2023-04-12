@@ -9,7 +9,7 @@ use super::string::String;
 
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Enumeration {
     /// The type of this item
@@ -24,7 +24,7 @@ pub struct Enumeration {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct EnumerationOptions {
     /// Alternate names (aliases) for the item.

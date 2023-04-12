@@ -19,7 +19,7 @@ use super::timestamp::Timestamp;
 
 /// Styled block content
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Division {
     /// The type of this item
@@ -64,7 +64,7 @@ pub struct Division {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DivisionOptions {
     /// A digest of the content, semantics and dependencies of the node.

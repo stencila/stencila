@@ -7,7 +7,7 @@ use super::string::String;
 
 /// A fragment of math, e.g a variable name, to be treated as inline content.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct MathFragment {
     /// The type of this item

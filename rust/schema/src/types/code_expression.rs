@@ -19,7 +19,7 @@ use super::timestamp::Timestamp;
 
 /// An executable programming code expression.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeExpression {
     /// The type of this item
@@ -58,7 +58,7 @@ pub struct CodeExpression {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeExpressionOptions {
     /// A digest of the content, semantics and dependencies of the node.

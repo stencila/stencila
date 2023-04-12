@@ -3,10 +3,11 @@
 use crate::prelude::*;
 
 use super::string::String;
+use super::text_value::TextValue;
 
 /// Textual content
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Text {
     /// The type of this item
@@ -16,12 +17,12 @@ pub struct Text {
     pub id: Option<String>,
 
     /// The value of the text content
-    pub value: String,
+    pub value: TextValue,
 }
 
 impl Text {
     #[rustfmt::skip]
-    pub fn new(value: String) -> Self {
+    pub fn new(value: TextValue) -> Self {
         Self {
             value,
             ..Default::default()

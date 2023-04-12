@@ -8,7 +8,7 @@ use super::string::String;
 
 /// A section quoted from somewhere else.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct QuoteBlock {
     /// The type of this item

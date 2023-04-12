@@ -10,7 +10,7 @@ use super::string::String;
 
 /// A reference to a CreativeWork that is cited in another CreativeWork.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Cite {
     /// The type of this item
@@ -31,7 +31,7 @@ pub struct Cite {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CiteOptions {
     /// The type/s of the citation, both factually and rhetorically.

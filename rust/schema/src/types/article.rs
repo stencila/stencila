@@ -20,7 +20,7 @@ use super::thing_type::ThingType;
 
 /// An article, including news and scholarly articles.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Article {
     /// The type of this item
@@ -65,7 +65,7 @@ pub struct Article {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ArticleOptions {
     /// Alternate names (aliases) for the item.

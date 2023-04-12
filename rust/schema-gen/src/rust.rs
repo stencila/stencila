@@ -17,6 +17,9 @@ use common::{
 
 use crate::schemas::{Items, Schema, Schemas, Type, Value};
 
+/// Types that should not derive `Read` and `Write` traits because there are manual implementations
+const NO_DERIVE_STORE: &[&str] = &["Null", "Primitive", "TextValue"];
+
 /// Properties that need to be boxed to avoid recursive types
 const BOX_PROPERTIES: &[&str] = &[
     "*.is_part_of",
@@ -35,6 +38,8 @@ const BOX_PROPERTIES: &[&str] = &[
     "Parameter.value",
     "Variable.value",
 ];
+
+const NULL_RS: &str = include_str!("rust/null.rs");
 
 impl Schemas {
     /// Generate Rust modules for each schema
@@ -106,11 +111,19 @@ impl Schemas {
             return Ok(());
         } else if schema.any_of.is_some() {
             Self::rust_any_of(dest, schema).await?
+        } else if schema.title.as_ref().unwrap() == "TextValue" {
+            "use crate::prelude::*;
+
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(crate = \"common::serde\")]
+pub struct TextValue(pub String);
+"
+            .to_string()
         } else if schema.r#type.is_none() {
             Self::rust_struct(dest, title, schema).await?
         } else if let Some(r#type) = &schema.r#type {
             match r#type {
-                Type::Null => NULL_RUST,
+                Type::Null => NULL_RS,
                 Type::Boolean => "pub type Boolean = bool;\n",
                 Type::Integer => match schema.minimum == Some(0.) {
                     true => "pub type UnsignedInteger = u64;\n",
@@ -150,6 +163,12 @@ impl Schemas {
     /// Generate a Rust struct for a schema
     async fn rust_struct(dest: &Path, title: &String, schema: &Schema) -> Result<String> {
         let description = schema.description.as_ref().unwrap_or(title);
+
+        let mut derive_traits =
+            "Debug, Defaults, Clone, PartialEq, Serialize, Deserialize".to_string();
+        if !NO_DERIVE_STORE.contains(&title.as_str()) {
+            derive_traits += ", Read, Write";
+        }
 
         let mut fields = Vec::new();
         let mut used_types = HashSet::new();
@@ -242,7 +261,7 @@ impl Schemas {
                 r#"
 
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive({derive_traits})]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct {title}Options {{
     {optional_fields}
@@ -323,7 +342,7 @@ impl {title} {{{new}}}"#,
 
 /// {description}
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive({derive_traits})]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct {title} {{
     {core_fields}
@@ -460,16 +479,21 @@ pub struct {title} {{
             }
             None => String::new(),
         };
-        let defaults = match default.is_empty() {
-            true => "",
-            false => ", Defaults",
+
+        let mut derive_traits =
+            "Debug, Clone, PartialEq, Display, Serialize, Deserialize".to_string();
+        if !default.is_empty() {
+            derive_traits += ", Defaults";
         };
+        if !NO_DERIVE_STORE.contains(&name.as_str()) {
+            derive_traits += ", Read, Write";
+        }
 
         let rust = format!(
             r#"use crate::prelude::*;
 
 {uses}/// {description}
-#[derive(Debug{defaults}, Clone, PartialEq, Serialize, Deserialize)]
+#[derive({derive_traits})]
 #[serde(untagged, crate = "common::serde")]
 {default}
 pub enum {name} {{
@@ -515,47 +539,3 @@ pub type {name} = Vec<{typ}>;
         }
     }
 }
-
-const NULL_RUST: &str = r#"use std::fmt;
-
-use crate::prelude::*;
-
-/// A null value
-///
-/// This is a struct, rather than a unit variant of `Primitive`, so that
-/// it can be treated the same way as other variants when dispatching to
-/// trait methods.
-///
-/// This is an empty struct, rather than a unit struct, because
-/// Autosurgeon will not work with unit structs.
-#[derive(Debug, Default, Clone, PartialEq)]
-pub struct Null {}
-
-impl fmt::Display for Null {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "null")
-    }
-}
-
-impl Serialize for Null {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_none()
-    }
-}
-
-impl<'de> Deserialize<'de> for Null {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = serde_json::Value::deserialize(deserializer)?;
-        match value.is_null() {
-            true => Ok(Null {}),
-            false => Err(serde::de::Error::custom("Expected a null value")),
-        }
-    }
-}
-"#;

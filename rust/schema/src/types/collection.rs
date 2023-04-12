@@ -19,7 +19,7 @@ use super::thing_type::ThingType;
 
 /// A collection of CreativeWorks or other artifacts.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Collection {
     /// The type of this item
@@ -37,7 +37,7 @@ pub struct Collection {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CollectionOptions {
     /// Alternate names (aliases) for the item.

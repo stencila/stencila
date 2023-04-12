@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 /// The relation between a node and its execution dependant.
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Read, Write)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Assigns"]
 pub enum ExecutionDependantRelation {

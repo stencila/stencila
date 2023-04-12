@@ -8,7 +8,7 @@ use super::time_unit::TimeUnit;
 
 /// A value that represents a point in time
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Timestamp {
     /// The type of this item

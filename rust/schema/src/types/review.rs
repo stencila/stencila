@@ -20,7 +20,7 @@ use super::thing_type::ThingType;
 
 /// A review of an item, e.g of an Article, or SoftwareSourceCode.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Review {
     /// The type of this item
@@ -35,7 +35,7 @@ pub struct Review {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ReviewOptions {
     /// Alternate names (aliases) for the item.

@@ -19,7 +19,7 @@ use super::timestamp::Timestamp;
 
 /// Call another document, optionally with arguments, and include its executed content.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Call {
     /// The type of this item
@@ -61,7 +61,7 @@ pub struct Call {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CallOptions {
     /// A digest of the content, semantics and dependencies of the node.

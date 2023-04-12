@@ -7,7 +7,7 @@ use super::string::String;
 
 /// A tag on code that affects its execution
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ExecutionTag {
     /// The name of the tag
