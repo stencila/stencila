@@ -1,11 +1,8 @@
-use is_terminal::IsTerminal;
-use tracing_error::ErrorLayer;
 use tracing_subscriber::prelude::*;
-use tracing_subscriber::{fmt, registry, EnvFilter};
-
+    
 use common::{
     clap::{self, ValueEnum},
-    eyre::{bail, Context, Result},
+    eyre::Result,
     strum::AsRefStr,
     tracing::metadata::LevelFilter,
 };
@@ -19,6 +16,11 @@ use common::{
 /// - `format`: The format to output log entries
 #[cfg(not(feature = "console-subscriber"))]
 pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result<()> {
+    use is_terminal::IsTerminal;
+    use tracing_error::ErrorLayer;
+    use tracing_subscriber::{fmt, registry, EnvFilter};
+    use common::eyre::{bail, Context};
+
     let format = match format {
         LoggingFormat::Auto => {
             if std::io::stderr().is_terminal() {
