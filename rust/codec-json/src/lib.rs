@@ -1,16 +1,19 @@
+use codec::{Codec, DecodeOptions, EncodeOptions};
 use common::{
+    async_trait::async_trait,
     eyre::Result,
     serde::{de::DeserializeOwned, Serialize},
     serde_json,
 };
+use schema::Node;
 
 pub trait FromJson: DeserializeOwned {
-    /// Deserialize a node from JSON
+    /// Decode a Stencila Schema node from JSON
     fn from_json(json: &str) -> Result<Self> {
         Ok(serde_json::from_str(json)?)
     }
 
-    /// Deserialize a node from a [`serde_json::Value`]
+    /// Decode a Stencila Schema node from a [`serde_json::Value`]
     fn from_json_value(json: serde_json::Value) -> Result<Self> {
         Ok(serde_json::from_value::<Self>(json)?)
     }
@@ -19,23 +22,41 @@ pub trait FromJson: DeserializeOwned {
 impl<T> FromJson for T where T: DeserializeOwned {}
 
 pub trait ToJson: Serialize {
-    /// Serialize a node to JSON
+    /// Encode a Stencila Schema node to JSON
     fn to_json(&self) -> Result<String> {
         Ok(serde_json::to_string(self)?)
     }
 
-    /// Serialize a node to indented JSON
+    /// Encode a Stencila Schema node to indented JSON
     fn to_json_pretty(&self) -> Result<String> {
         Ok(serde_json::to_string_pretty(self)?)
     }
 
-    /// Serialize a node to a [`serde_json::Value`]
+    /// Encode a Stencila Schema node to a [`serde_json::Value`]
     fn to_json_value(&self) -> Result<serde_json::Value> {
         Ok(serde_json::to_value(self)?)
     }
 }
 
 impl<T> ToJson for T where T: Serialize {}
+
+pub struct JsonCodec;
+
+#[async_trait]
+impl Codec for JsonCodec {
+    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
+        Node::from_json(str)
+    }
+
+    async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+        let EncodeOptions { compact, .. } = options.unwrap_or_default();
+
+        match compact {
+            true => node.to_json(),
+            false => node.to_json_pretty(),
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

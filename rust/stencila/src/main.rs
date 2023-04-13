@@ -152,7 +152,10 @@ async fn run(cli: Cli) -> Result<()> {
 
         Command::Export { path, dest, format } => {
             let doc = Document::open(&path).await?;
-            doc.export(dest.as_deref(), format).await?;
+            let content = doc.export(dest.as_deref(), format).await?;
+            if !content.is_empty() {
+                println!("{}", content)
+            }
         }
 
         Command::History { path } => {

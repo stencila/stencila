@@ -1,4 +1,4 @@
-use codec_utf8::FromUtf8;
+use codec_text::FromText;
 use common::{eyre::Result, indexmap::IndexMap, serde_json::json};
 use common_dev::pretty_assertions::assert_eq;
 
@@ -110,10 +110,10 @@ fn text() -> Result<()> {
     // Create base store with a few text nodes
     let mut base = WriteStore::new();
     let root = Root::from([
-        ("insert".to_string(), Text::from_utf8("abcd")?),
-        ("delete".to_string(), Text::from_utf8("abcd")?),
-        ("replace".to_string(), Text::from_utf8("abcd")?),
-        ("varied".to_string(), Text::from_utf8("abcd")?),
+        ("insert".to_string(), Text::from_text("abcd")?),
+        ("delete".to_string(), Text::from_text("abcd")?),
+        ("replace".to_string(), Text::from_text("abcd")?),
+        ("varied".to_string(), Text::from_text("abcd")?),
     ]);
     root.dump(&mut base)?;
     assert_eq!(Root::load(&base)?, root);
@@ -165,7 +165,7 @@ fn vec() -> Result<()> {
     let mut base = WriteStore::new();
     let mut root = Root::from([(
         "vec".to_string(),
-        vec![Text::from_utf8("one")?, Text::from_utf8("two")?],
+        vec![Text::from_text("one")?, Text::from_text("two")?],
     )]);
     root.dump(&mut base)?;
     assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
@@ -174,7 +174,7 @@ fn vec() -> Result<()> {
     // store and check store for consistency
 
     // Add an item
-    root.get_mut("vec").unwrap().push(Text::from_utf8("three")?);
+    root.get_mut("vec").unwrap().push(Text::from_text("three")?);
     root.dump(&mut base)?;
     assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
 
@@ -250,7 +250,7 @@ fn article() -> Result<()> {
 
     // Add some content
     article1.content.push(Block::Paragraph(Paragraph {
-        content: vec![Inline::Text(Text::from_utf8("Hello world")?)],
+        content: vec![Inline::Text(Text::from_text("Hello world")?)],
         ..Default::default()
     }));
     article1.dump(&mut base)?;

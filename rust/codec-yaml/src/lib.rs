@@ -1,11 +1,14 @@
+use codec::{Codec, DecodeOptions, EncodeOptions};
 use common::{
+    async_trait::async_trait,
     eyre::Result,
     serde::{de::DeserializeOwned, Serialize},
     serde_yaml,
 };
+use schema::Node;
 
 pub trait FromYaml: DeserializeOwned {
-    /// Deserialize a node from YAML
+    /// Decode a Stencila Schema node from YAML
     fn from_yaml(yaml: &str) -> Result<Self> {
         Ok(serde_yaml::from_str(yaml)?)
     }
@@ -14,7 +17,7 @@ pub trait FromYaml: DeserializeOwned {
 impl<T> FromYaml for T where T: DeserializeOwned {}
 
 pub trait ToYaml: Serialize {
-    /// Serialize a node to YAML
+    /// Encode a Stencila Schema node to YAML
     fn to_yaml(&self) -> Result<String>
     where
         Self: Sized,
@@ -24,3 +27,16 @@ pub trait ToYaml: Serialize {
 }
 
 impl<T> ToYaml for T where T: Serialize {}
+
+pub struct YamlCodec;
+
+#[async_trait]
+impl Codec for YamlCodec {
+    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
+        Node::from_yaml(str)
+    }
+
+    async fn to_string(&self, node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
+        node.to_yaml()
+    }
+}

@@ -1,12 +1,14 @@
 [package]
-name = "document"
+name = "codecs"
 version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+codec = { path = "../codec" }
+codec-json = { path = "../codec-json" }
+codec-json5 = { path = "../codec-json5" }
 codec-text = { path = "../codec-text" }
-codecs = { path = "../codecs" }
+codec-yaml = { path = "../codec-yaml" }
 common = { path = "../common" }
 format = { path = "../format" }
-node-store = { path = "../node-store" }
 schema = { path = "../schema" }

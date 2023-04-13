@@ -1,12 +1,10 @@
 use std::path::{Path, PathBuf};
 
-use codec_json::{FromJson, ToJson};
-
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, Result},
     strum::{Display, EnumString},
-    tokio::{fs::read_to_string, sync::Mutex},
+    tokio::sync::RwLock,
     tracing,
 };
 use format::Format;
@@ -24,11 +22,25 @@ pub enum Type {
 }
 
 impl Type {
-    /// Derive the document type from the type of a `Node`
-    fn derive(node: &Node) -> Result<Self> {
+    /// Determine the document type from the type of a [`Node`]
+    fn from_node(node: &Node) -> Result<Self> {
         match node {
             Node::Article(..) => Ok(Self::Article),
-            _ => bail!("Node of type `{}` can not be a document type", node),
+            _ => bail!(
+                "Node of type `{}` is not associated with a document type",
+                node
+            ),
+        }
+    }
+
+    /// Determine the document type from the [`Format`]
+    ///
+    /// Returns `None` is the format can be associated with more than one document
+    /// type (e.g. [`Format::Json`]).
+    fn from_format(format: &Format) -> Option<Self> {
+        match format {
+            Format::Jats | Format::Markdown => Some(Self::Article),
+            _ => None,
         }
     }
 
@@ -44,7 +56,7 @@ impl Type {
         PathBuf::from(format!("main.{}", self.extension()))
     }
 
-    /// Get an empty root node for the document type
+    /// Get an empty root [`Node`] for the document type
     fn empty(&self) -> Node {
         match self {
             Type::Article => Node::Article(Article::default()),
@@ -58,18 +70,19 @@ pub struct Document {
     path: PathBuf,
 
     /// The document Automerge store
-    store: Mutex<WriteStore>,
+    store: RwLock<WriteStore>,
 
     /// The root node of the document
-    root: Node,
+    root: RwLock<Node>,
 }
 
 impl Document {
     /// Initialize a new document
+    ///
+    /// Creates a new Automerge store of `type` at the `path`, optionally overwriting any
+    /// existing file at the path.
     #[tracing::instrument]
     pub async fn init(r#type: Type, path: Option<&Path>, overwrite: bool) -> Result<Self> {
-        let root = r#type.empty();
-
         let path = path.map_or_else(
             || PathBuf::from(format!("main.{}", r#type.extension())),
             PathBuf::from,
@@ -80,6 +93,7 @@ impl Document {
         }
 
         let mut store = WriteStore::new();
+        let root = r#type.empty();
         root.write(
             &mut store,
             &path,
@@ -87,12 +101,16 @@ impl Document {
         )
         .await?;
 
-        let store = Mutex::new(store);
+        let store = RwLock::new(store);
+        let root = RwLock::new(root);
 
         Ok(Self { path, store, root })
     }
 
-    /// Open a document
+    /// Open an existing document
+    ///
+    /// Opens the document from the Automerge store at `path` erroring if the path does not exist
+    /// or is a directory.
     #[tracing::instrument]
     pub async fn open(path: &Path) -> Result<Self> {
         if !path.exists() {
@@ -104,14 +122,16 @@ impl Document {
         let path = path.canonicalize()?;
 
         let (store, root) = Node::read(&path).await?;
-        let store = Mutex::new(store);
+
+        let store = RwLock::new(store);
+        let root = RwLock::new(root);
 
         Ok(Self { path, store, root })
     }
 
     /// Inspect a document
     ///
-    /// Loads the store at the `path` (without attempting to load as a `Node`)
+    /// Loads the Automerge store at the `path` (without attempting to load as a `Node`)
     /// and returns a JSON representation of the contents of the store.
     #[tracing::instrument]
     pub async fn inspect(path: &Path) -> Result<String> {
@@ -126,7 +146,10 @@ impl Document {
         inspect_store(&store)
     }
 
-    /// Import a file in another format into a new, or existing, document
+    /// Import a file into a new, or existing, document
+    ///
+    /// By default the format of the source file is inferred from its extension but
+    /// this can be overridden by providing the `format` option.
     #[tracing::instrument(skip(self))]
     pub async fn import(
         &self,
@@ -134,22 +157,11 @@ impl Document {
         format: Option<Format>,
         r#type: Option<Type>,
     ) -> Result<()> {
-        if !source.exists() {
-            bail!("Path `{}` does not exist", source.display());
-        }
+        let root = codecs::from_path(source, format, None).await?;
 
-        // TODO: Use format to select codec
-        let json = read_to_string(source).await?;
+        // TODO assert type
 
-        let root = match r#type {
-            Some(r#type) => match r#type {
-                Type::Article => Node::Article(Article::from_json(&json)?),
-            },
-            // TODO: Infer type from format / peek type in source
-            None => Node::Article(Article::from_json(&json)?),
-        };
-
-        let mut store = self.store.lock().await;
+        let mut store = self.store.write().await;
 
         let filename = source
             .file_name()
@@ -167,29 +179,22 @@ impl Document {
 
     /// Export a document to a file in another format
     #[tracing::instrument(skip(self))]
-    pub async fn export(&self, dest: Option<&Path>, format: Option<Format>) -> Result<()> {
-        let format = match format {
-            Some(format) => format,
-            None => match dest {
-                Some(path) => Format::from_path(path)?,
-                None => Format::Json,
-            },
-        };
+    pub async fn export(&self, dest: Option<&Path>, format: Option<Format>) -> Result<String> {
+        let root = self.root.read().await;
 
-        let content = match format {
-            Format::Json => self.root.to_json()?,
-            _ => todo!(),
-        };
-
-        println!("{}", content);
-
-        Ok(())
+        if let Some(dest) = dest {
+            codecs::to_path(&root, dest, format, None).await?;
+            Ok(String::new())
+        } else {
+            let format = format.unwrap_or(Format::Json);
+            codecs::to_string(&root, format, None).await
+        }
     }
 
     /// Get the history of commits to the document
     #[tracing::instrument(skip(self))]
     pub async fn history(&self) -> Result<()> {
-        let mut store = self.store.lock().await;
+        let mut store = self.store.write().await;
 
         let changes = store.get_changes(&[])?;
 

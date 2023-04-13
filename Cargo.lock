@@ -348,9 +348,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a2dd5a6fe8c6e3502f568a6353e5273bbb15193ad9a89e457b9970798efbea1"
 
 [[package]]
+name = "codec"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "format",
+ "schema",
+]
+
+[[package]]
 name = "codec-json"
 version = "0.0.0"
 dependencies = [
+ "codec",
  "common",
  "common-dev",
  "schema",
@@ -360,13 +370,16 @@ dependencies = [
 name = "codec-json5"
 version = "0.0.0"
 dependencies = [
+ "codec",
  "common",
+ "schema",
 ]
 
 [[package]]
-name = "codec-utf8"
+name = "codec-text"
 version = "0.0.0"
 dependencies = [
+ "codec",
  "common",
  "schema",
 ]
@@ -375,7 +388,23 @@ dependencies = [
 name = "codec-yaml"
 version = "0.0.0"
 dependencies = [
+ "codec",
  "common",
+ "schema",
+]
+
+[[package]]
+name = "codecs"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-json",
+ "codec-json5",
+ "codec-text",
+ "codec-yaml",
+ "common",
+ "format",
+ "schema",
 ]
 
 [[package]]
@@ -738,8 +767,8 @@ dependencies = [
 name = "document"
 version = "0.0.0"
 dependencies = [
- "codec-json",
- "codec-utf8",
+ "codec-text",
+ "codecs",
  "common",
  "format",
  "node-store",
@@ -1768,7 +1797,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 name = "schema"
 version = "0.0.0"
 dependencies = [
- "codec-utf8",
+ "codec-text",
  "common",
  "common-dev",
  "monostate",
