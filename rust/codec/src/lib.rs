@@ -101,6 +101,6 @@ pub struct EncodeOptions {
     ///
     /// Some formats (e.g HTML and JSON) can be encoded in either compact
     /// or "pretty-printed" (e.g. indented) forms.
-    #[def = "true"]
+    #[def = "false"]
     pub compact: bool,
 }
