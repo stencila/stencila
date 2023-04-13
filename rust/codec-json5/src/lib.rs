@@ -4,6 +4,7 @@ use common::{
     eyre::Result,
     json5,
     serde::{de::DeserializeOwned, Serialize},
+    serde_json,
 };
 use schema::Node;
 
@@ -27,6 +28,15 @@ pub trait ToJson5: Serialize {
     {
         Ok(json5::to_string(self)?)
     }
+
+    /// Encode a Stencila Schema node to indented JSON5
+    fn to_json5_pretty(&self) -> Result<String>
+    where
+        Self: Sized,
+    {
+        // Use `serde_json` here for indentation (which `json5` crate lacks)
+        Ok(serde_json::to_string_pretty(self)?)
+    }
 }
 
 impl<T> ToJson5 for T where T: Serialize {}
@@ -39,7 +49,12 @@ impl Codec for Json5Codec {
         Node::from_json5(str)
     }
 
-    async fn to_string(&self, node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
-        node.to_json5()
+    async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+        let EncodeOptions { compact, .. } = options.unwrap_or_default();
+
+        match compact {
+            true => node.to_json5(),
+            false => node.to_json5_pretty(),
+        }
     }
 }
