@@ -82,8 +82,17 @@ impl Document {
     ///
     /// Creates a new Automerge store of `type` at the `path`, optionally overwriting any
     /// existing file at the path.
+    ///
+    /// The document can be initialized from a `source` file, in which case `format` may
+    /// be used to specify the format of that file
     #[tracing::instrument]
-    pub async fn init(r#type: Type, path: Option<&Path>, overwrite: bool) -> Result<Self> {
+    pub async fn init(
+        r#type: Type,
+        path: Option<&Path>,
+        overwrite: bool,
+        source: Option<&Path>,
+        format: Option<Format>,
+    ) -> Result<Self> {
         let path = path.map_or_else(
             || PathBuf::from(format!("main.{}", r#type.extension())),
             PathBuf::from,
@@ -93,14 +102,21 @@ impl Document {
             bail!("Path already exists; remove the file or use the `--overwrite` option")
         }
 
+        let (root, message) = if let Some(source) = source {
+            let decode_options = Some(DecodeOptions { format });
+            let filename = source
+                .file_name()
+                .map_or_else(|| "unnamed", |name| name.to_str().unwrap_or_default());
+            (
+                codecs::from_path(source, decode_options).await?,
+                format!("Initial commit of imported {type} from `{filename}`"),
+            )
+        } else {
+            (r#type.empty(), format!("Initial commit of empty {type}"))
+        };
+
         let mut store = WriteStore::new();
-        let root = r#type.empty();
-        root.write(
-            &mut store,
-            &path,
-            &format!("Initial commit of empty {}", r#type),
-        )
-        .await?;
+        root.write(&mut store, &path, &message).await?;
 
         let store = RwLock::new(store);
         let root = RwLock::new(root);
@@ -180,7 +196,7 @@ impl Document {
         root.write(
             &mut store,
             &self.path,
-            &format!("Import from `{}`", filename),
+            &format!("Import from `{filename}`"),
         )
         .await?;
 

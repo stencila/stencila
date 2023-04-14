@@ -71,6 +71,14 @@ enum Command {
         /// The path of the document to create
         path: Option<PathBuf>,
 
+        /// The source file to import from
+        #[arg(long, short)]
+        source: Option<PathBuf>,
+
+        /// The format of the source file
+        #[arg(long, short)]
+        format: Option<Format>,
+
         /// Overwrite the document if it already exists
         #[arg(long, short)]
         overwrite: bool,
@@ -171,8 +179,17 @@ async fn run(cli: Cli) -> Result<()> {
             r#type,
             path,
             overwrite,
+            source,
+            format,
         } => {
-            Document::init(r#type, path.as_deref(), overwrite).await?;
+            Document::init(
+                r#type,
+                path.as_deref(),
+                overwrite,
+                source.as_deref(),
+                format,
+            )
+            .await?;
         }
 
         Command::Import {
