@@ -20,7 +20,7 @@ use super::thing_type::ThingType;
 
 /// A claim represents specific reviewable facts or statements.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Claim {
     /// The type of this item
@@ -44,7 +44,7 @@ pub struct Claim {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ClaimOptions {
     /// Alternate names (aliases) for the item.

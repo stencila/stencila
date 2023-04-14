@@ -1,3 +1,18 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+use common::{
+    derive_more::{Deref, DerefMut},
+    indexmap::IndexMap,
+};
 
-pub type Object = common::indexmap::IndexMap<String, super::primitive::Primitive>;
+use crate::prelude::*;
+
+use super::primitive::Primitive;
+
+#[derive(Debug, Default, Clone, PartialEq, Deref, DerefMut, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
+pub struct Object(pub IndexMap<String, Primitive>);
+
+impl Object {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}

@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use codec::{Codec, DecodeOptions, EncodeOptions};
+pub use codec::{Codec, DecodeOptions, EncodeOptions};
 use common::eyre::{bail, Result};
 use format::Format;
 use schema::Node;
@@ -10,23 +10,25 @@ fn get_codec(format: Format) -> Result<Box<dyn Codec>> {
     match format {
         Format::Json => Ok(Box::new(codec_json::JsonCodec)),
         Format::Json5 => Ok(Box::new(codec_json5::Json5Codec)),
+        Format::Html => Ok(Box::new(codec_html::HtmlCodec)),
         Format::Yaml => Ok(Box::new(codec_yaml::YamlCodec)),
         _ => bail!("No codec available for format `{format}`"),
     }
 }
 
 /// Decode a Stencila Schema node from a string
-pub async fn from_str(str: &str, format: Format, options: Option<DecodeOptions>) -> Result<Node> {
+pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
+    let format = match options.as_ref().and_then(|options| options.format.clone()) {
+        Some(format) => format,
+        None => Format::Json,
+    };
+
     get_codec(format)?.from_str(str, options).await
 }
 
 /// Decode a Stencila Schema node from a file system path
-pub async fn from_path(
-    path: &Path,
-    format: Option<Format>,
-    options: Option<DecodeOptions>,
-) -> Result<Node> {
-    let format = match format {
+pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
+    let format = match options.as_ref().and_then(|options| options.format.clone()) {
         Some(format) => format,
         None => Format::from_path(path)?,
     };
@@ -34,26 +36,56 @@ pub async fn from_path(
     get_codec(format)?.from_path(path, options).await
 }
 
+/// Decode a Stencila Schema node from `stdin`
+pub async fn from_stdin(options: Option<DecodeOptions>) -> Result<Node> {
+    use std::io::{self, BufRead};
+
+    let stdin = io::stdin();
+    let mut content = String::new();
+    for line in stdin.lock().lines() {
+        content += &line?;
+    }
+
+    from_str(&content, options).await
+}
+
 /// Encode a Stencila Schema node to a string
-pub async fn to_string(
-    node: &Node,
-    format: Format,
-    options: Option<EncodeOptions>,
-) -> Result<String> {
+pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+    let format = match options.as_ref().and_then(|options| options.format.clone()) {
+        Some(format) => format,
+        None => Format::Json,
+    };
+
     get_codec(format)?.to_string(node, options).await
 }
 
 /// Encode a Stencila Schema node to a file system path
-pub async fn to_path(
-    node: &Node,
-    path: &Path,
-    format: Option<Format>,
-    options: Option<EncodeOptions>,
-) -> Result<()> {
-    let format = match format {
+pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
+    let format = match options.as_ref().and_then(|options| options.format.clone()) {
         Some(format) => format,
         None => Format::from_path(path)?,
     };
 
     get_codec(format)?.to_path(node, path, options).await
+}
+
+/// Convert a document from one format to another
+pub async fn convert(
+    input: Option<&Path>,
+    output: Option<&Path>,
+    decode_options: Option<DecodeOptions>,
+    encode_options: Option<EncodeOptions>,
+) -> Result<String> {
+    let node = match input {
+        Some(input) => from_path(input, decode_options).await?,
+        None => from_stdin(decode_options).await?,
+    };
+
+    match output {
+        Some(output) => {
+            to_path(&node, output, encode_options).await?;
+            Ok(String::new())
+        }
+        None => to_string(&node, encode_options).await,
+    }
 }

@@ -14,6 +14,7 @@ pub enum Format {
     Jats,
     Json,
     Json5,
+    Html,
     Markdown,
     Yaml,
 }
@@ -27,6 +28,7 @@ impl Format {
             "jats" => Jats,
             "json" => Json,
             "json5" => Json5,
+            "html" => Html,
             "md" | "markdown" => Markdown,
             "yaml" => Yaml,
             _ => bail!("Unknown extension for format: {ext}"),

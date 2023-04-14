@@ -9,4 +9,5 @@ pub use common::{
     strum::Display,
 };
 
+pub use node_html_derive::ToHtml;
 pub use node_store_derive::{Read, Write};

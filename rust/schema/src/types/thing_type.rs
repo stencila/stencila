@@ -49,7 +49,7 @@ use super::time_unit::TimeUnit;
 use super::video_object::VideoObject;
 
 /// Union type for all types that are descended from `Thing`
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Read, Write)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 
 pub enum ThingType {

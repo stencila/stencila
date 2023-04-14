@@ -8,7 +8,7 @@ use super::software_source_code::SoftwareSourceCode;
 use super::variable::Variable;
 
 /// Node types that can be execution dependencies
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Read, Write)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "CodeChunk(CodeChunk::default())"]
 pub enum ExecutionDependencyNode {

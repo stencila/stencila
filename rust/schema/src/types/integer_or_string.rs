@@ -4,7 +4,7 @@ use super::integer::Integer;
 use super::string::String;
 
 /// [`Integer`] or [`String`]
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Read, Write)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 
 pub enum IntegerOrString {

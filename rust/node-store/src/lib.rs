@@ -20,7 +20,6 @@ mod prelude;
 
 mod boolean;
 mod r#box;
-mod index_map;
 mod integer;
 mod number;
 mod option;

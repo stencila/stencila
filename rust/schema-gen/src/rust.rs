@@ -12,13 +12,29 @@ use common::{
     futures::future::try_join_all,
     inflector::Inflector,
     itertools::Itertools,
-    tokio::fs::{create_dir_all, remove_dir_all, write},
+    tokio::fs::{create_dir_all, remove_file, write},
 };
 
 use crate::schemas::{Items, Schema, Schemas, Type, Value};
 
+/// Modules that should not be generated
+const NO_GENERATE_MODULE: &[&str] = &[
+    "Array",
+    "Boolean",
+    "Integer",
+    "Null",
+    "Number",
+    "Object",
+    "String",
+    "TextValue",
+    "UnsignedInteger",
+];
+
 /// Types that should not derive `Read` and `Write` traits because there are manual implementations
 const NO_DERIVE_STORE: &[&str] = &["Null", "Primitive", "TextValue"];
+
+/// Types that should not derive the `ToHtml` trait because there are manual implementations
+const NO_DERIVE_TO_HTML: &[&str] = &["Paragraph"];
 
 /// Properties that need to be boxed to avoid recursive types
 const BOX_PROPERTIES: &[&str] = &[
@@ -39,8 +55,6 @@ const BOX_PROPERTIES: &[&str] = &[
     "Variable.value",
 ];
 
-const NULL_RS: &str = include_str!("rust/null.rs");
-
 impl Schemas {
     /// Generate Rust modules for each schema
     pub async fn rust(&self) -> Result<()> {
@@ -53,9 +67,27 @@ impl Schemas {
 
         let types = dest.join("types");
         if types.exists() {
-            remove_dir_all(&types).await?;
+            for file in read_dir(&types)?.flatten() {
+                let path = file.path();
+
+                if NO_GENERATE_MODULE.contains(
+                    &path
+                        .file_name()
+                        .unwrap()
+                        .to_string_lossy()
+                        .strip_suffix(".rs")
+                        .unwrap()
+                        .to_pascal_case()
+                        .as_str(),
+                ) {
+                    continue;
+                }
+
+                remove_file(&path).await?
+            }
+        } else {
+            create_dir_all(&types).await?;
         }
-        create_dir_all(&types).await?;
 
         let futures = self
             .schemas
@@ -107,36 +139,12 @@ impl Schemas {
             bail!("Schema has no title");
         };
 
-        let rust = if schema.r#abstract {
+        let rust = if NO_GENERATE_MODULE.contains(&title.as_str()) || schema.r#abstract {
             return Ok(());
         } else if schema.any_of.is_some() {
             Self::rust_any_of(dest, schema).await?
-        } else if schema.title.as_ref().unwrap() == "TextValue" {
-            "use crate::prelude::*;
-
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(crate = \"common::serde\")]
-pub struct TextValue(pub String);
-"
-            .to_string()
         } else if schema.r#type.is_none() {
             Self::rust_struct(dest, title, schema).await?
-        } else if let Some(r#type) = &schema.r#type {
-            match r#type {
-                Type::Null => NULL_RS,
-                Type::Boolean => "pub type Boolean = bool;\n",
-                Type::Integer => match schema.minimum == Some(0.) {
-                    true => "pub type UnsignedInteger = u64;\n",
-                    false => "pub type Integer = i64;\n",
-                },
-                Type::Number => "pub type Number = f64;\n",
-                Type::String => "pub type String = std::string::String;\n",
-                Type::Array => "pub type Array = Vec<super::primitive::Primitive>;\n",
-                Type::Object => {
-                    "pub type Object = common::indexmap::IndexMap<String, super::primitive::Primitive>;\n"
-                }
-            }
-            .to_string()
         } else {
             return Ok(());
         };
@@ -168,6 +176,9 @@ pub struct TextValue(pub String);
             "Debug, Defaults, Clone, PartialEq, Serialize, Deserialize".to_string();
         if !NO_DERIVE_STORE.contains(&title.as_str()) {
             derive_traits += ", Read, Write";
+        }
+        if !NO_DERIVE_TO_HTML.contains(&title.as_str()) {
+            derive_traits += ", ToHtml";
         }
 
         let mut fields = Vec::new();
@@ -487,6 +498,9 @@ pub struct {title} {{
         };
         if !NO_DERIVE_STORE.contains(&name.as_str()) {
             derive_traits += ", Read, Write";
+        }
+        if !NO_DERIVE_TO_HTML.contains(&name.as_str()) {
+            derive_traits += ", ToHtml";
         }
 
         let rust = format!(

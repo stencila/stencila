@@ -1,3 +1,15 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+use common::derive_more::{Deref, DerefMut};
 
-pub type Array = Vec<super::primitive::Primitive>;
+use crate::prelude::*;
+
+use super::primitive::Primitive;
+
+#[derive(Debug, Default, Clone, PartialEq, Deref, DerefMut, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
+pub struct Array(pub Vec<Primitive>);
+
+impl Array {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}

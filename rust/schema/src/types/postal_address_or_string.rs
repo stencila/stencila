@@ -4,7 +4,7 @@ use super::postal_address::PostalAddress;
 use super::string::String;
 
 /// [`PostalAddress`] or [`String`]
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Read, Write)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 
 pub enum PostalAddressOrString {

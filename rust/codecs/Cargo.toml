@@ -7,6 +7,7 @@ edition = "2021"
 codec = { path = "../codec" }
 codec-json = { path = "../codec-json" }
 codec-json5 = { path = "../codec-json5" }
+codec-html = { path = "../codec-html" }
 codec-text = { path = "../codec-text" }
 codec-yaml = { path = "../codec-yaml" }
 common = { path = "../common" }

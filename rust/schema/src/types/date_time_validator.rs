@@ -7,7 +7,7 @@ use super::string::String;
 
 /// A validator specifying the constraints on a date-time.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DateTimeValidator {
     /// The type of this item

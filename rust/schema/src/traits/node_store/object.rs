@@ -1,17 +1,18 @@
 use std::collections::HashSet;
 
-use common::indexmap::IndexMap;
+use common::eyre::Result;
+use node_store::{
+    automerge::{transaction::Transactable, ObjId, ObjType, Prop, Value},
+    Read, ReadStore, Write, WriteStore,
+};
 
-use crate::prelude::*;
+use crate::{Object, Primitive};
 
-impl<T> Read for IndexMap<String, T>
-where
-    T: Read,
-{
+impl Read for Object {
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         let mut map = Self::new();
         for (key, ..) in store.map_range(obj_id, ..) {
-            let node = T::load_prop(store, obj_id, key.into())?;
+            let node = Primitive::load_prop(store, obj_id, key.into())?;
             map.insert(key.to_string(), node);
         }
 
@@ -19,16 +20,13 @@ where
     }
 }
 
-impl<T> Write for IndexMap<String, T>
-where
-    T: Write,
-{
+impl Write for Object {
     fn sync_map(&self, store: &mut WriteStore, obj_id: &ObjId) -> Result<()> {
         // Get all the keys for the map in the store
         let mut keys: HashSet<String> = store.keys(obj_id).collect();
 
         // Update values for keys that are in both map and store
-        for (key, node) in self {
+        for (key, node) in self.iter() {
             node.put_prop(store, obj_id, key.into())?;
             keys.remove(key);
         }
@@ -49,7 +47,7 @@ where
         };
 
         // Insert each key into that new map
-        for (key, node) in self {
+        for (key, node) in self.iter() {
             node.insert_prop(store, &prop_obj_id, key.into())?;
         }
 

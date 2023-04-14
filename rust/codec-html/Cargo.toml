@@ -1,0 +1,11 @@
+[package]
+name = "codec-html"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec" }
+common = { path = "../common" }
+node-html = { path = "../node-html" }
+quick-xml = "0.28.2"
+schema = { path = "../schema" }

@@ -8,7 +8,7 @@ use super::integer::Integer;
 
 /// A downstream execution dependant of a node
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ExecutionDependant {
     /// The relation to the dependant
