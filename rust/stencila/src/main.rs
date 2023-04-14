@@ -210,15 +210,11 @@ async fn run(cli: Cli) -> Result<()> {
             to,
             compact,
         } => {
-            let decode_options = DecodeOptions {
-                format: from,
-                ..Default::default()
-            };
+            let decode_options = DecodeOptions { format: from };
 
             let encode_options = EncodeOptions {
                 format: to,
                 compact,
-                ..Default::default()
             };
 
             let content = codecs::convert(

@@ -158,10 +158,7 @@ impl Document {
         format: Option<Format>,
         r#type: Option<Type>,
     ) -> Result<()> {
-        let decode_options = Some(DecodeOptions {
-            format,
-            ..Default::default()
-        });
+        let decode_options = Some(DecodeOptions { format });
 
         let root = codecs::from_path(source, decode_options).await?;
 
