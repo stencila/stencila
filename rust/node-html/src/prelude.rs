@@ -1,1 +1,1 @@
-pub(crate) use crate::{attr, elem, name, text, ToHtml};
+pub(crate) use crate::{elem, name, text, ToHtml};

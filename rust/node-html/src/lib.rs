@@ -60,13 +60,13 @@ pub fn elem(name: &str, attrs: &[String], children: &[String]) -> String {
 
     [
         "<",
-        &name,
+        name,
         if attrs.is_empty() { "" } else { " " },
         &attrs,
         ">",
         &children,
         "</",
-        &name,
+        name,
         ">",
     ]
     .concat()

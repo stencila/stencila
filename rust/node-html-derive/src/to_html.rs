@@ -30,7 +30,7 @@ pub fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream
             .map(|ident| ident.to_string())
             .unwrap_or_default();
         if field_name_string == "r#type" {
-            continue
+            continue;
         }
 
         // TODO represent some fields as attributes, not all as children
