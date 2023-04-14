@@ -16,7 +16,7 @@ use schema::{Article, Node};
 ///
 /// Defines which `CreativeWork` variants can be the root node of a document
 /// and the default file extension etc for each variant.
-#[derive(Debug, Display, Clone, ValueEnum, EnumString)]
+#[derive(Debug, Display, Clone, PartialEq, ValueEnum, EnumString)]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum Type {
     Article,
@@ -162,7 +162,14 @@ impl Document {
 
         let root = codecs::from_path(source, decode_options).await?;
 
-        // TODO assert type
+        if let Some(expected_type) = r#type {
+            let actual_type = Type::from_node(&root)?;
+            if expected_type == actual_type {
+                bail!(
+                    "The imported document is of type `{actual_type}` but expected type `{expected_type}`"
+                )
+            }
+        }
 
         let mut store = self.store.write().await;
 

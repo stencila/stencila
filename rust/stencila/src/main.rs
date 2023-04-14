@@ -91,7 +91,7 @@ enum Command {
         /// The type of document to import
         ///
         /// Defaults to determining the type based on the `format`, or for
-        /// formats such as JSON and YAML, the value of the root `type` property .
+        /// formats such as JSON and YAML, the value of the root `type` property.
         #[arg(long, short)]
         r#type: Option<Type>,
     },
