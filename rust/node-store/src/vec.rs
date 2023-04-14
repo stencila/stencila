@@ -27,11 +27,11 @@ impl<T> Write for Vec<T>
 where
     T: Write + std::fmt::Debug,
 {
-    fn insert_prop(&self, store: &mut WriteStore, obj: &ObjId, prop: Prop) -> Result<()> {
+    fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         // Create the new list in the store
         let prop_obj_id = match prop {
-            Prop::Map(key) => store.put_object(obj, key, ObjType::List)?,
-            Prop::Seq(index) => store.insert_object(obj, index, ObjType::List)?,
+            Prop::Map(key) => store.put_object(obj_id, key, ObjType::List)?,
+            Prop::Seq(index) => store.insert_object(obj_id, index, ObjType::List)?,
         };
 
         // Insert each item into that new list
@@ -42,22 +42,27 @@ where
         Ok(())
     }
 
-    fn put_prop(&self, store: &mut WriteStore, obj: &ObjId, prop: Prop) -> Result<()> {
+    fn put_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         // Get the existing object at the property
-        let existing = store.get(obj, prop.clone())?;
+        let existing = store.get(obj_id, prop.clone())?;
 
-        if let Some((Value::Object(ObjType::List), prop_obj)) = existing {
+        if let Some((Value::Object(ObjType::List), prop_obj_id)) = existing {
             // Existing object is a map so dump to it
             // TODO: correlate nodes with existing ones: create two arrays with unique id
             // (but shared on both sides) then do a patience diff to compare
             for (index, node) in self.iter().enumerate() {
-                node.put_prop(store, &prop_obj, index.into())?;
+                node.put_prop(store, &prop_obj_id, index.into())?;
+            }
+
+            // Delete any extra items in the store
+            for index in self.len()..store.length(prop_obj_id.clone()) {
+                store.delete(prop_obj_id.clone(), Prop::Seq(index))?;
             }
         } else {
             if existing.is_some() {
-                store.delete(obj, prop.clone())?;
+                store.delete(obj_id, prop.clone())?;
             }
-            self.insert_prop(store, obj, prop)?;
+            self.insert_prop(store, obj_id, prop)?;
         }
 
         Ok(())
