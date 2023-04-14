@@ -266,3 +266,20 @@ pub fn get_type<T, S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<String> {
 
     Ok(value.to_string())
 }
+
+/// Serialize an Automerge object id as a Base64 string
+pub fn id_to_base64(obj_id: &ObjId) -> String {
+    use common::base64::prelude::{Engine, BASE64_URL_SAFE_NO_PAD};
+
+    let bytes = obj_id.to_bytes();
+    BASE64_URL_SAFE_NO_PAD.encode(bytes)
+}
+
+/// Deserialize a Base64 string to an Automerge object id
+pub fn base64_to_id(base64: &str) -> Result<ObjId> {
+    use common::base64::prelude::{Engine, BASE64_URL_SAFE_NO_PAD};
+
+    let bytes = BASE64_URL_SAFE_NO_PAD.decode(base64)?;
+    let id = ObjId::try_from(bytes.as_slice())?;
+    Ok(id)
+}

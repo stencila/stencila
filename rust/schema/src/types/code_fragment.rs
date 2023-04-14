@@ -7,7 +7,7 @@ use super::string::String;
 /// Inline code.
 #[rustfmt::skip]
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeFragment {
     /// The type of this item
@@ -29,7 +29,7 @@ pub struct CodeFragment {
 
 #[rustfmt::skip]
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeFragmentOptions {
     /// Media type, typically expressed using a MIME format, of the code.

@@ -32,15 +32,19 @@ pub fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream
             .unwrap_or_default();
         let field = if field_name_string == "r#type" {
             quote! {}
+        } else if field_name_string == "id" {
+            quote! {
+                node.id = Some(node_store::id_to_base64(obj_id));
+            }
         } else {
             quote! {
-                node.#field_name.load_from(store, obj, stringify!(#field_name).into())?;
+                node.#field_name.load_from(store, obj_id, stringify!(#field_name).into())?;
             }
         };
         fields.extend(field);
     }
     methods.extend(quote! {
-        fn load_map<S: node_store::ReadStore>(store: &S, obj: &node_store::ObjId) -> common::eyre::Result<Self> {
+        fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> common::eyre::Result<Self> {
             // Create a new node
             let mut node = Self::default();
 
@@ -70,7 +74,7 @@ pub fn derive_enum(input: &DeriveInput, data: &syn::DataEnum) -> TokenStream {
         let variant_name = &variant.ident;
         let case = match &variant.fields {
             Fields::Named(..) | Fields::Unnamed(..) => quote! {
-                stringify!(#variant_name) => Ok(Self::#variant_name(#variant_name::load_map(store, obj)?)),
+                stringify!(#variant_name) => Ok(Self::#variant_name(#variant_name::load_map(store, obj_id)?)),
             },
             Fields::Unit => quote! {
                 stringify!(#variant_name) => common::eyre::bail!(
@@ -83,8 +87,8 @@ pub fn derive_enum(input: &DeriveInput, data: &syn::DataEnum) -> TokenStream {
         cases.extend(case)
     }
     methods.extend(quote! {
-        fn load_map<S: node_store::ReadStore>(store: &S, obj: &node_store::ObjId) -> common::eyre::Result<Self> {
-            let r#type = node_store::get_type::<Self,_>(store, obj)?;
+        fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> common::eyre::Result<Self> {
+            let r#type = node_store::get_type::<Self,_>(store, obj_id)?;
             match r#type.as_str() {
                 #cases
                 _ => common::eyre::bail!("Unexpected type `{}` in Automerge store for enum `{}`", r#type, stringify!(#enum_name))

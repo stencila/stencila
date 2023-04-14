@@ -20,7 +20,7 @@ use super::thematic_break::ThematicBreak;
 
 /// Union type for block content node types.
 #[rustfmt::skip]
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Defaults, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Paragraph(Paragraph::default())"]
 pub enum Block {

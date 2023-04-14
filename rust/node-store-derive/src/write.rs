@@ -26,23 +26,26 @@ pub fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream
     // Derive `sync_map` method
     let mut fields = TokenStream::new();
     for field in &data.fields {
-        let field_name = &field.ident;
-        let field_name_string = &field
-            .ident
+        let field_ident = &field.ident;
+        let field_name = &field_ident
             .as_ref()
             .map(|ident| ident.to_string())
             .unwrap_or_default();
-        let field = if field_name_string == "r#type" {
+
+        let field = if field_name == "r#type" {
             // Always put the `type` to the store
             quote! {
                 store.put::<_,_,&str>(obj_id, "type", stringify!(#struct_name))?;
                 keys.remove("type");
             }
+        } else if field_name == "id" {
+            // Never put id in the store (because we use the object id on load)
+            continue;
         } else {
             // Put fields that are in both map and store
             quote! {
-                let field_name = stringify!(#field_name);
-                self.#field_name.put_prop(store, obj_id, field_name.into())?;
+                let field_name = stringify!(#field_ident);
+                self.#field_ident.put_prop(store, obj_id, field_name.into())?;
                 keys.remove(field_name);
             }
         };

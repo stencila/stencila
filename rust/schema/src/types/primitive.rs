@@ -11,7 +11,7 @@ use super::unsigned_integer::UnsignedInteger;
 
 /// Union type for all primitives values
 #[rustfmt::skip]
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Defaults, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Null(Null::default())"]
 pub enum Primitive {

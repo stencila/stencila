@@ -11,3 +11,4 @@ pub use common::{
 
 pub use node_html_derive::ToHtml;
 pub use node_store_derive::{Read, Write};
+pub use node_strip_derive::Strip;

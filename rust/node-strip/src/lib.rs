@@ -1,8 +1,9 @@
 //! Implements a `Strip` trait for removing properties from nodes
 
+mod r#box;
 mod hash_map;
 mod index_map;
-mod text;
+mod option;
 mod vec;
 
 /// The target properties for the strip e.g. identifiers, code execution related etc
@@ -23,3 +24,9 @@ pub trait Strip: Sized {
         self
     }
 }
+
+impl Strip for bool {}
+impl Strip for i64 {}
+impl Strip for u64 {}
+impl Strip for f64 {}
+impl Strip for String {}

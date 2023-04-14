@@ -1442,7 +1442,15 @@ name = "node-strip"
 version = "0.0.0"
 dependencies = [
  "common",
- "schema",
+]
+
+[[package]]
+name = "node-strip-derive"
+version = "0.0.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.15",
 ]
 
 [[package]]
@@ -1851,6 +1859,7 @@ dependencies = [
  "node-store",
  "node-store-derive",
  "node-strip",
+ "node-strip-derive",
  "similar",
  "smol_str",
 ]

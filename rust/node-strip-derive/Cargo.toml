@@ -1,0 +1,12 @@
+[package]
+name = "node-strip-derive"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+proc_macro = true
+
+[dependencies]
+proc-macro2 = "1.0"
+quote = "1.0.26"
+syn = "2.0.15"

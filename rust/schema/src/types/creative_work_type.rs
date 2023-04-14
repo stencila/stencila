@@ -22,7 +22,7 @@ use super::video_object::VideoObject;
 
 /// Union type for all types that are descended from `CreativeWork`
 #[rustfmt::skip]
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 
 pub enum CreativeWorkType {

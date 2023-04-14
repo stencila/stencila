@@ -121,7 +121,7 @@ fn text() -> Result<()> {
         ("varied".to_string(), Text::from_text("abcd")?),
     ]);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?, root);
+    assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
 
     // Fork it
     let mut fork = base.fork();
@@ -246,12 +246,12 @@ fn article() -> Result<()> {
     // Default, empty article
     let mut article1 = Article::default();
     article1.dump(&mut base)?;
-    assert_eq!(Article::load(&base)?, article1);
+    assert_eq!(Article::load(&base)?.strip(Targets::Id), &article1);
 
     // Add an optional property
-    article1.id = Some("some-id".to_string());
+    article1.options.alternate_names = Some(vec!["some name".to_string()]);
     article1.dump(&mut base)?;
-    assert_eq!(Article::load(&base)?, article1);
+    assert_eq!(Article::load(&base)?.strip(Targets::Id), &article1);
 
     // Add some content
     article1.content.push(Block::Paragraph(Paragraph {
@@ -259,7 +259,7 @@ fn article() -> Result<()> {
         ..Default::default()
     }));
     article1.dump(&mut base)?;
-    assert_eq!(Article::load(&base)?, article1);
+    assert_eq!(Article::load(&base)?.strip(Targets::Id), &article1);
 
     Ok(())
 }
@@ -277,7 +277,7 @@ fn node() -> Result<()> {
         "content": []
     }))?;
     node1.dump(&mut base)?;
-    assert_eq!(Node::load(&base)?, node1);
+    assert_eq!(Node::load(&base)?.strip(Targets::Id), &node1);
 
     Ok(())
 }

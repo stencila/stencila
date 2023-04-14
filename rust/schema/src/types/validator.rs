@@ -16,7 +16,7 @@ use super::tuple_validator::TupleValidator;
 
 /// Union type for validators.
 #[rustfmt::skip]
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 
 pub enum Validator {

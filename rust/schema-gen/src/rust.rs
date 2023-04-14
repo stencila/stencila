@@ -173,7 +173,7 @@ impl Schemas {
         let description = schema.description.as_ref().unwrap_or(title);
 
         let mut derive_traits =
-            "Debug, Defaults, Clone, PartialEq, Serialize, Deserialize".to_string();
+            "Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip".to_string();
         if !NO_DERIVE_STORE.contains(&title.as_str()) {
             derive_traits += ", Read, Write";
         }
@@ -494,7 +494,7 @@ pub struct {title} {{
         };
 
         let mut derive_traits =
-            "Debug, Clone, PartialEq, Display, Serialize, Deserialize".to_string();
+            "Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip".to_string();
         if !default.is_empty() {
             derive_traits += ", Defaults";
         };

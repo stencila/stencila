@@ -6,14 +6,15 @@ edition = "2021"
 [dependencies]
 common = { path = "../common" }
 monostate = "0.1"
-node-store = { path = "../node-store" }
-node-store-derive = { path = "../node-store-derive" }
 node-html = { path = "../node-html" }
 node-html-derive = { path = "../node-html-derive" }
+node-strip = { path = "../node-strip" }
+node-strip-derive = { path = "../node-strip-derive" }
+node-store = { path = "../node-store" }
+node-store-derive = { path = "../node-store-derive" }
 similar = { version = "2.2.1", features = ["unicode"] }
 smol_str = "0.1.24"
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
 codec-text = { path = "../codec-text" }
-node-strip = { path = "../node-strip" }
