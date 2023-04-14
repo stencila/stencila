@@ -15,6 +15,7 @@
         "mathml",
         "monostate",
         "rowspan",
+        "rustfmt",
         "stencila"
     ]
 }
