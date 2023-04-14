@@ -6,5 +6,4 @@ edition = "2021"
 [dependencies]
 automerge = "0.4.0"
 common = { path = "../common" }
-similar = { version = "2.2.1", features = ["unicode"] }
 smol_str = "0.1.24"

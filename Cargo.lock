@@ -779,7 +779,6 @@ dependencies = [
 name = "document"
 version = "0.0.0"
 dependencies = [
- "codec-text",
  "codecs",
  "common",
  "format",
@@ -1426,7 +1425,6 @@ version = "0.0.0"
 dependencies = [
  "automerge",
  "common",
- "similar",
  "smol_str",
 ]
 

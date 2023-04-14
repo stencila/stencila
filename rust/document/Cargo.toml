@@ -4,7 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codec-text = { path = "../codec-text" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 format = { path = "../format" }
