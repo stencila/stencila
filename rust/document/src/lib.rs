@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 
+use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, Result},
@@ -157,7 +158,12 @@ impl Document {
         format: Option<Format>,
         r#type: Option<Type>,
     ) -> Result<()> {
-        let root = codecs::from_path(source, format, None).await?;
+        let decode_options = Some(DecodeOptions {
+            format,
+            ..Default::default()
+        });
+
+        let root = codecs::from_path(source, decode_options).await?;
 
         // TODO assert type
 
@@ -182,12 +188,16 @@ impl Document {
     pub async fn export(&self, dest: Option<&Path>, format: Option<Format>) -> Result<String> {
         let root = self.root.read().await;
 
+        let encode_options = Some(EncodeOptions {
+            format,
+            ..Default::default()
+        });
+
         if let Some(dest) = dest {
-            codecs::to_path(&root, dest, format, None).await?;
+            codecs::to_path(&root, dest, encode_options).await?;
             Ok(String::new())
         } else {
-            let format = format.unwrap_or(Format::Json);
-            codecs::to_string(&root, format, None).await
+            codecs::to_string(&root, encode_options).await
         }
     }
 

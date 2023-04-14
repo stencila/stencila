@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     clap::{self, Parser, Subcommand},
     eyre::Result,
@@ -122,6 +123,40 @@ enum Command {
         /// The path of the document to inspect
         path: PathBuf,
     },
+
+    /// Convert a document between formats
+    Convert {
+        /// The path of the input file
+        ///
+        /// If not supplied the input content is read from `stdin`.
+        input: Option<PathBuf>,
+
+        /// The path of the output file
+        ///
+        /// If not supplied the output content is written to `stdout`.
+        output: Option<PathBuf>,
+
+        /// The format to encode from
+        ///
+        /// Defaults to inferring the format from the file name extension
+        /// of the `input`.
+        #[arg(long, short)]
+        from: Option<Format>,
+
+        /// The format to encode to
+        ///
+        /// Defaults to inferring the format from the file name extension
+        /// of the `output`. If no `output` is supplied, defaults to JSON.
+        #[arg(long, short)]
+        to: Option<Format>,
+
+        /// Use compact form of encoding if possible
+        ///
+        /// Use this flag to enable compact forms of encoding (i.e. no indentation)
+        /// which are supported by some formats (e.g. JSON, HTML).
+        #[arg(long, short)]
+        compact: bool,
+    },
 }
 
 /// Run the CLI command
@@ -166,6 +201,36 @@ async fn run(cli: Cli) -> Result<()> {
         Command::Inspect { path } => {
             let json = Document::inspect(&path).await?;
             println!("{}", json);
+        }
+
+        Command::Convert {
+            input,
+            output,
+            from,
+            to,
+            compact,
+        } => {
+            let decode_options = DecodeOptions {
+                format: from,
+                ..Default::default()
+            };
+
+            let encode_options = EncodeOptions {
+                format: to,
+                compact,
+                ..Default::default()
+            };
+
+            let content = codecs::convert(
+                input.as_deref(),
+                output.as_deref(),
+                Some(decode_options),
+                Some(encode_options),
+            )
+            .await?;
+            if !content.is_empty() {
+                println!("{}", content)
+            }
         }
     }
 

@@ -357,6 +357,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-html"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "common",
+ "node-html",
+ "quick-xml",
+ "schema",
+]
+
+[[package]]
 name = "codec-json"
 version = "0.0.0"
 dependencies = [
@@ -398,6 +409,7 @@ name = "codecs"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-html",
  "codec-json",
  "codec-json5",
  "codec-text",
@@ -1050,6 +1062,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
+name = "html-escape"
+version = "0.2.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d1ad449764d627e22bfd7cd5e8868264fc9236e07c752972b4080cd351cb476"
+dependencies = [
+ "utf8-width",
+]
+
+[[package]]
 name = "http"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1383,6 +1404,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-html"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "html-escape",
+]
+
+[[package]]
+name = "node-html-derive"
+version = "0.0.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.14",
+]
+
+[[package]]
 name = "node-store"
 version = "0.0.0"
 dependencies = [
@@ -1659,6 +1697,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "quick-xml"
+version = "0.28.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ce5e73202a820a31f8a0ee32ada5e21029c81fd9e3ebf668a40832e4219d9d1"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1801,6 +1848,8 @@ dependencies = [
  "common",
  "common-dev",
  "monostate",
+ "node-html",
+ "node-html-derive",
  "node-store",
  "node-store-derive",
  "node-strip",
@@ -2001,6 +2050,7 @@ dependencies = [
 name = "stencila"
 version = "2.0.0-alpha.3"
 dependencies = [
+ "codecs",
  "color-eyre",
  "common",
  "common-dev",
@@ -2501,6 +2551,12 @@ dependencies = [
  "idna",
  "percent-encoding",
 ]
+
+[[package]]
+name = "utf8-width"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5190c9442dcdaf0ddd50f37420417d219ae5261bbf5db120d0f9bab996c9cba1"
 
 [[package]]
 name = "utf8parse"

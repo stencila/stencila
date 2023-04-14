@@ -8,6 +8,7 @@ edition = "2021"
 tokio-console = ["console-subscriber", "tokio/tracing"]
 
 [dependencies]
+codecs = { path = "../codecs" }
 color-eyre = { version = "0.6.2", features = ["issue-url"] }
 common = { path = "../common" }
 console-subscriber = { version = "0.1.8", optional = true }
