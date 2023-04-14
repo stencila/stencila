@@ -72,9 +72,6 @@ pub struct Document {
 
     /// The document Automerge store
     store: RwLock<WriteStore>,
-
-    /// The root node of the document
-    root: RwLock<Node>,
 }
 
 impl Document {
@@ -119,9 +116,8 @@ impl Document {
         root.write(&mut store, &path, &message).await?;
 
         let store = RwLock::new(store);
-        let root = RwLock::new(root);
 
-        Ok(Self { path, store, root })
+        Ok(Self { path, store })
     }
 
     /// Open an existing document
@@ -138,12 +134,11 @@ impl Document {
         }
         let path = path.canonicalize()?;
 
-        let (store, root) = Node::read(&path).await?;
+        let store = load_store(&path).await?;
 
         let store = RwLock::new(store);
-        let root = RwLock::new(root);
 
-        Ok(Self { path, store, root })
+        Ok(Self { path, store })
     }
 
     /// Inspect a document
@@ -193,12 +188,8 @@ impl Document {
             .file_name()
             .map_or_else(|| "unnamed", |name| name.to_str().unwrap_or_default());
 
-        root.write(
-            &mut store,
-            &self.path,
-            &format!("Import from `{filename}`"),
-        )
-        .await?;
+        root.write(&mut store, &self.path, &format!("Import from `{filename}`"))
+            .await?;
 
         Ok(())
     }
@@ -206,7 +197,9 @@ impl Document {
     /// Export a document to a file in another format
     #[tracing::instrument(skip(self))]
     pub async fn export(&self, dest: Option<&Path>, format: Option<Format>) -> Result<String> {
-        let root = self.root.read().await;
+        let store = self.store.read().await;
+
+        let root = Node::load(&*store)?;
 
         let encode_options = Some(EncodeOptions {
             format,
