@@ -19,6 +19,7 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// An article, including news and scholarly articles.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -64,6 +65,7 @@ pub struct Article {
     pub options: Box<ArticleOptions>,
 }
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

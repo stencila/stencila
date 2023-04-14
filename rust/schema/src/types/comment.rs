@@ -17,6 +17,7 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -41,6 +42,7 @@ pub struct Comment {
     pub options: Box<CommentOptions>,
 }
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

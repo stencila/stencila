@@ -19,6 +19,7 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// An audio file
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -40,6 +41,7 @@ pub struct AudioObject {
     pub options: Box<AudioObjectOptions>,
 }
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

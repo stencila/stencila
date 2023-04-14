@@ -5,6 +5,7 @@ use super::software_source_code::SoftwareSourceCode;
 use super::string::String;
 
 /// [`SoftwareSourceCode`] or [`SoftwareApplication`] or [`String`]
+#[rustfmt::skip]
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 

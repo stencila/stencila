@@ -104,6 +104,7 @@ use super::variable::Variable;
 use super::video_object::VideoObject;
 
 /// Union type for all types in this schema, including primitives and entities
+#[rustfmt::skip]
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 

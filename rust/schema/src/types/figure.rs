@@ -19,6 +19,7 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -40,6 +41,7 @@ pub struct Figure {
     pub options: Box<FigureOptions>,
 }
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

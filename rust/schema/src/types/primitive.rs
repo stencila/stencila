@@ -10,6 +10,7 @@ use super::string::String;
 use super::unsigned_integer::UnsignedInteger;
 
 /// Union type for all primitives values
+#[rustfmt::skip]
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Null(Null::default())"]

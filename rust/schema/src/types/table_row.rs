@@ -7,6 +7,7 @@ use super::table_cell::TableCell;
 use super::table_row_type::TableRowType;
 
 /// A row within a Table.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -25,6 +26,7 @@ pub struct TableRow {
     pub options: Box<TableRowOptions>,
 }
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

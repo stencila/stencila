@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 /// Indicates how a `List` is ordered.
+#[rustfmt::skip]
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Unordered"]

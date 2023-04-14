@@ -6,6 +6,7 @@ use super::node::Node;
 use super::string::String;
 
 /// A variable representing a name / value pair.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

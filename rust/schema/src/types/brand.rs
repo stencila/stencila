@@ -8,6 +8,7 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A brand used by an organization or person for labeling a product, product group, or similar.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -26,6 +27,7 @@ pub struct Brand {
     pub options: Box<BrandOptions>,
 }
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

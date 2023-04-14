@@ -7,6 +7,7 @@ use super::list_order::ListOrder;
 use super::string::String;
 
 /// A list of items.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

@@ -10,6 +10,7 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A column of data within a Datatable.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -34,6 +35,7 @@ pub struct DatatableColumn {
     pub options: Box<DatatableColumnOptions>,
 }
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

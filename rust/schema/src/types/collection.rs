@@ -18,6 +18,7 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A collection of CreativeWorks or other artifacts.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -36,6 +37,7 @@ pub struct Collection {
     pub options: Box<CollectionOptions>,
 }
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

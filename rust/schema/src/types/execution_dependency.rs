@@ -7,6 +7,7 @@ use super::execution_dependency_relation::ExecutionDependencyRelation;
 use super::integer::Integer;
 
 /// An upstream execution dependency of a node
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

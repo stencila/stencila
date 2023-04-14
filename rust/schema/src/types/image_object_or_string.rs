@@ -4,6 +4,7 @@ use super::image_object::ImageObject;
 use super::string::String;
 
 /// [`ImageObject`] or [`String`]
+#[rustfmt::skip]
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 

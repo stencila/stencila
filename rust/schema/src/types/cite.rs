@@ -9,6 +9,7 @@ use super::integer_or_string::IntegerOrString;
 use super::string::String;
 
 /// A reference to a CreativeWork that is cited in another CreativeWork.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -30,6 +31,7 @@ pub struct Cite {
     pub options: Box<CiteOptions>,
 }
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

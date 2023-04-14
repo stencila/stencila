@@ -16,3 +16,9 @@ impl Object {
         Self::default()
     }
 }
+
+impl<const N: usize> From<[(String, Primitive); N]> for Object {
+    fn from(value: [(String, Primitive); N]) -> Self {
+        Object(IndexMap::from(value))
+    }
+}

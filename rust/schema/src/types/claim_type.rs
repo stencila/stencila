@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 /// The type of a `Claim`.
+#[rustfmt::skip]
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Statement"]

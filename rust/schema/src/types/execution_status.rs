@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 /// Status of the most recent, including any current, execution of a document node.
+#[rustfmt::skip]
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "Unknown"]

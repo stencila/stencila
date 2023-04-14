@@ -271,6 +271,7 @@ impl Schemas {
             format!(
                 r#"
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive({derive_traits})]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -352,6 +353,7 @@ impl {title} {{{new}}}"#,
 {uses}
 
 /// {description}
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive({derive_traits})]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -507,6 +509,7 @@ pub struct {title} {{
             r#"use crate::prelude::*;
 
 {uses}/// {description}
+#[rustfmt::skip]
 #[derive({derive_traits})]
 #[serde(untagged, crate = "common::serde")]
 {default}

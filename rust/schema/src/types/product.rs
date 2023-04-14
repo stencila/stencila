@@ -9,6 +9,7 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -24,6 +25,7 @@ pub struct Product {
     pub options: Box<ProductOptions>,
 }
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

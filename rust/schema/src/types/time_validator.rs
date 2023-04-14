@@ -6,6 +6,7 @@ use super::string::String;
 use super::time::Time;
 
 /// A validator specifying the constraints on a time.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

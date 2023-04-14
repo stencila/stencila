@@ -6,6 +6,7 @@ use super::inline::Inline;
 use super::string::String;
 
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -27,6 +28,7 @@ pub struct Link {
     pub options: Box<LinkOptions>,
 }
 
+#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
